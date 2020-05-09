@@ -1,0 +1,113 @@
+{
+ "creation": "2020-05-08 16:20:10.460247",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "isshortfallrecovery",
+  "shortfallamount",
+  "securityname",
+  "depository",
+  "depositorysecurityid",
+  "eligibility_percentage",
+  "is_pledged",
+  "availableqty",
+  "qty",
+  "rate",
+  "amount",
+  "eligible_amount",
+  "ratelastupdated"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User"
+  },
+  {
+   "default": "0",
+   "fieldname": "isshortfallrecovery",
+   "fieldtype": "Check",
+   "label": "IsShortFallRecovery"
+  },
+  {
+   "fieldname": "shortfallamount",
+   "fieldtype": "Data",
+   "label": "ShortFallAmount"
+  },
+  {
+   "fieldname": "securityname",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "SecurityName"
+  },
+  {
+   "fieldname": "depository",
+   "fieldtype": "Data",
+   "label": "Depository"
+  },
+  {
+   "fieldname": "depositorysecurityid",
+   "fieldtype": "Data",
+   "label": "DepositorySecurityID"
+  },
+  {
+   "fieldname": "eligibility_percentage",
+   "fieldtype": "Int",
+   "label": "Eligibility Percentage"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_pledged",
+   "fieldtype": "Check",
+   "label": "Is Pledged"
+  },
+  {
+   "fieldname": "availableqty",
+   "fieldtype": "Float",
+   "label": "AvailableQTY"
+  },
+  {
+   "description": "Pledged Qty",
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "QTY"
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Rate"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Amount"
+  },
+  {
+   "fieldname": "eligible_amount",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Eligible Amount"
+  },
+  {
+   "fieldname": "ratelastupdated",
+   "fieldtype": "Float",
+   "label": "RateLastUpdated"
+  }
+ ],
+ "istable": 1,
+ "modified": "2020-05-08 16:20:26.082259",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Cart Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

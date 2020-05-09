@@ -1,0 +1,138 @@
+{
+ "autoname": "LOAN.######",
+ "creation": "2020-05-08 17:37:41.555423",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "cardid",
+  "user",
+  "platform",
+  "bankname",
+  "bankloadid",
+  "interest_rate",
+  "status",
+  "column_break_8",
+  "utilised_amount",
+  "interest_due_amount",
+  "total",
+  "total_interest",
+  "shortfall_amount",
+  "is_shortfall_recovery",
+  "last_fetched_from_bank",
+  "section_break_16",
+  "loan_item"
+ ],
+ "fields": [
+  {
+   "fieldname": "cardid",
+   "fieldtype": "Link",
+   "label": "CardID",
+   "options": "Cart"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User"
+  },
+  {
+   "fieldname": "platform",
+   "fieldtype": "Data",
+   "label": "Platform"
+  },
+  {
+   "fieldname": "bankname",
+   "fieldtype": "Data",
+   "label": "BankName"
+  },
+  {
+   "fieldname": "bankloadid",
+   "fieldtype": "Data",
+   "label": "BankLoadID"
+  },
+  {
+   "fieldname": "interest_rate",
+   "fieldtype": "Float",
+   "label": "Interest Rate"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "\nCreated, Document Verification Pending\nDocument Verified\nApproved, Rejected\nDefault\nCancelled\nShortFall\nOn Hold\nLoan Agreement"
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "utilised_amount",
+   "fieldtype": "Float",
+   "label": "Utilised Amount"
+  },
+  {
+   "fieldname": "interest_due_amount",
+   "fieldtype": "Float",
+   "label": "Interest Due Amount"
+  },
+  {
+   "fieldname": "total",
+   "fieldtype": "Float",
+   "label": "Total"
+  },
+  {
+   "fieldname": "total_interest",
+   "fieldtype": "Float",
+   "label": "Total Interest"
+  },
+  {
+   "fieldname": "shortfall_amount",
+   "fieldtype": "Float",
+   "label": "ShortFall Amount"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_shortfall_recovery",
+   "fieldtype": "Check",
+   "label": "Is ShortFall Recovery"
+  },
+  {
+   "fieldname": "last_fetched_from_bank",
+   "fieldtype": "Data",
+   "label": "Last Fetched From Bank"
+  },
+  {
+   "fieldname": "section_break_16",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "loan_item",
+   "fieldtype": "Table",
+   "label": "Loan Item",
+   "options": "Loan Item"
+  }
+ ],
+ "modified": "2020-05-08 17:42:02.917452",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Loan",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

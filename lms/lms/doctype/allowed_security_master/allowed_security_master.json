@@ -1,0 +1,66 @@
+{
+ "autoname": "field:security_name",
+ "creation": "2020-05-08 17:48:43.472417",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "security_name",
+  "depository",
+  "type",
+  "eligible_percentage",
+  "is_allowed"
+ ],
+ "fields": [
+  {
+   "fieldname": "security_name",
+   "fieldtype": "Data",
+   "label": "Security Name",
+   "unique": 1
+  },
+  {
+   "fieldname": "depository",
+   "fieldtype": "Data",
+   "label": "Depository"
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "\nShare\nMutualFund"
+  },
+  {
+   "fieldname": "eligible_percentage",
+   "fieldtype": "Int",
+   "label": "Eligible Percentage"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_allowed",
+   "fieldtype": "Check",
+   "label": "Is Allowed"
+  }
+ ],
+ "modified": "2020-05-08 17:48:43.472417",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Allowed Security Master",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

@@ -1,0 +1,48 @@
+{
+ "autoname": "field:user",
+ "creation": "2020-05-08 16:03:11.382269",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "user_kyc_documents"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User",
+   "unique": 1
+  },
+  {
+   "fieldname": "user_kyc_documents",
+   "fieldtype": "Table",
+   "label": "User KYC Documents",
+   "options": "User KYC Documents"
+  }
+ ],
+ "modified": "2020-05-08 16:05:34.690585",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "User KYC",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

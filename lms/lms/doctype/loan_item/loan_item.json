@@ -1,0 +1,100 @@
+{
+ "creation": "2020-05-08 17:41:42.780664",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "security_name",
+  "depository",
+  "eligibility_percentage",
+  "qty",
+  "rate",
+  "amount",
+  "eligible_amount",
+  "last_rate",
+  "rate_last_updated",
+  "shortfall",
+  "shortfall_amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User"
+  },
+  {
+   "fieldname": "security_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Security Name"
+  },
+  {
+   "fieldname": "depository",
+   "fieldtype": "Data",
+   "label": "Depository"
+  },
+  {
+   "fieldname": "eligibility_percentage",
+   "fieldtype": "Int",
+   "label": "Eligibility Percentage"
+  },
+  {
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty"
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Rate"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Amount"
+  },
+  {
+   "fieldname": "eligible_amount",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Eligible Amount"
+  },
+  {
+   "fieldname": "last_rate",
+   "fieldtype": "Float",
+   "label": "Last Rate"
+  },
+  {
+   "fieldname": "rate_last_updated",
+   "fieldtype": "Float",
+   "label": "Rate Last Updated"
+  },
+  {
+   "default": "0",
+   "fieldname": "shortfall",
+   "fieldtype": "Check",
+   "label": "ShortFall"
+  },
+  {
+   "fieldname": "shortfall_amount",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "ShortFall Amount"
+  }
+ ],
+ "istable": 1,
+ "modified": "2020-05-08 17:41:42.780664",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Loan Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
