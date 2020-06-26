@@ -154,16 +154,17 @@ def send_otp(phone):
 		otpobj = frappe.db.get("Mobile OTP", {"mobile_no": phone})
 		if otpobj:
 			frappe.db.sql("""delete from `tabMobile OTP` where mobile_no='""" + phone + """'""")
-		OPTCODE = id_generator_otp()
+		# OTP_CODE = id_generator_otp()
+		OTP_CODE = '123456'
 		#sms_key = frappe.db.get_value("App Version", "App Version", "sms_key")
-		mess = "Your OTP for LMS is " + str(OPTCODE) + ". Do not share your OTP with anyone."
+		mess = "Your OTP for LMS is " + str(OTP_CODE) + ". Do not share your OTP with anyone."
 		# response = sendSMS(phone, mess)
 		# res = json.loads(response)
 		# if res["status"] == "success":
 		otp_doc = frappe.get_doc(dict(
 			doctype="Mobile OTP",
 			mobile_no=phone,
-			otp=OPTCODE
+			otp=OTP_CODE
 		)).insert(ignore_permissions=True)
 		if otp_doc:
 			return True
@@ -189,22 +190,116 @@ def send_user_otp(phone):
 
 
 @frappe.whitelist(allow_guest=True)
-def verify_otp_code(phone, otp):
+def verify_otp_code(phone, otp=None, pin=None):
 	try:
 		user = get_user(phone)
 		otpobj = frappe.db.get("Mobile OTP", {"mobile_no": phone})
-		if otpobj.otp == otp:
+		if (otpobj and otpobj.otp == otp) or check_password(user, 'Lms@'+pin):
 			secret_key = generate_keys(user)
 			api_key = frappe.db.get_value("User", user, "api_key")
 			token = dict(
 				token="token {}:{}".format(api_key, secret_key),
 				phone=frappe.db.get_value("User", user, "phone") or ''
 			)
-			return generateResponse("S", message="OTP Verified", data=token)
+			return generateResponse("S", message="Login Success", data=token)
 		else:
 			return generateResponse("S", status="417", message="Wrong OTP", data={})
+	except frappe.AuthenticationError as e:
+		return generateResponse("S", status="417", message="Wrong PIN", data={})
 	except Exception as e:
 		return generateResponse("F", message="Something Wrong Please Try Again", error=e)
+
+@frappe.whitelist()
+def set_pin(pin):
+	print('user', frappe.session.user)
+	try:
+		update_password(frappe.session.user, 'Lms@' + pin)
+		return generateResponse("S", message="User PIN has been set", data={})
+	except Exception as e:
+		return generateResponse("F", message="Something Wrong Please Try Again", error=e)
+
+
+# {
+#     "investorName": "UPPARI SAI KUMAR",
+#     "fatherName": "MANAIAH UPPAR",
+#     "motherName": "Uppari swaroopa",
+#     "address": "H NO 4-1-300/4/A BTS COLONY,VIKARABAD",
+#     "mobileNum": "9666366077",
+#     "defaultBank": "Y",
+#     "accountType": "S",
+#     "cancelChequeFileName": "ACSPU1322P_CancelledCheque.jpg",
+#     "clientId": "HAD025",
+#     "panNum": "ACSPU1322P",
+#     "ifsc": "UTIB0001382",
+#     "micr": "500211035",
+#     "branch": "SANGAREDDY",
+#     "bank": "AXIS BANK",
+#     "bankAddress": "SR NO.13/P, 14&108, SITE NO.2,POTHIREDDYPALLY VILLAGE , SANGAREDDY,DIST. MEDAK, ANDHRA PRADESH, PIN 502001.",
+#     "contact": "0",
+#     "city": "SANGAREDDY",
+#     "district": "MEDAK",
+#     "state": "ANDHRA PRADESH",
+#     "bankMode": "DIRECT",
+#     "bankcode": "UTI",
+#     "bankZipCode": null,
+#     "accountNumber": "916010008054697"
+# }
+@frappe.whitelist()
+def save_user_kyc(*args, **kwargs):
+	print('user', frappe.session.user)
+	print('kwargs', kwargs)
+	# print('locals', locals())
+	print(kwargs.get('investorName', 'not found'))
+	print(kwargs.get('accountNumber', 'not found'))
+	if frappe.db.exists('User KYC', frappe.session.user):
+		return generateResponse("S", message="User KYC Already Added", data={})
+
+	data = kwargs
+
+	if data.get('accountNumber', None):
+		user_bank_details_doc = frappe.get_doc(dict(
+			doctype="User Bank Details",
+			user=frappe.session.user,
+			default=True if data.get('defaultBank', None)=="Y" else False,
+			bank_name=data.get('bank', None),
+			account_number=data.get('accountNumber', None),
+			account_type=data.get('accountType', None),
+			ifsc=data.get('ifsc', None),
+			micr=data.get('micr', None),
+			branch=data.get('branch', None),
+			bank_address=data.get('bankAddress', None),
+			city=data.get('city', None),
+			district=data.get('district', None),
+			state=data.get('state', None),
+			zip_code=data.get('bankZipCode', None),
+			bank_mode=data.get('bankMode', None),
+			bank_code=data.get('bankcode', None)
+		)).insert(ignore_permissions=True)
+
+		if not user_bank_details_doc:
+			return generateResponse("F", message="Bank Details Add Failed", data={})
+	print(user_bank_details_doc)
+	user_kyc_doc = frappe.get_doc(dict(
+		doctype="User KYC",
+		user=frappe.session.user,
+		investor_name=data.get('accountNumber', None),
+		father_name=data.get('fatherName', None),
+		mother_name=data.get('motherName', None),
+		address=data.get('address', None),
+		city=data.get('city', None),
+		state=data.get('state', None),
+		pincode=data.get('pincode', None),
+		mobile_number=data.get('mobileNum', None),
+		choice_client_id=data.get('clientId', None),
+		pan_no=data.get('panNum', None),
+		aadhar_no=data.get('aadharNum', None),
+		bank=user_bank_details_doc.name
+	)).insert(ignore_permissions=True)
+	if user_kyc_doc:
+		return generateResponse("S", message="User KYC Added", data={})
+	else:
+		return generateResponse("F", message="User KYC Add Failed", data={})
+
 
 
 @frappe.whitelist()
@@ -214,7 +309,107 @@ def id_generator_otp():
 
 def get_user(user):
 	user_data = frappe.db.sql("""select name from `tabUser` where email=%s or phone=%s""",(user,user), as_dict=1)
+	print('get_user', frappe.as_json(user_data))
 	if len(user_data) >= 1:
 		return user_data[0].name
 	else:
 		return False
+
+@frappe.whitelist()
+def get_pan(pan_no,birth_date):
+	try:
+		import xmljson
+		from xmljson import parker, Parker
+		from xml.etree.ElementTree import fromstring
+		from json import dumps
+
+		response = requests.get(
+			'https://www.cvlkra.com/paninquiry.asmx/SolicitPANDetailsFetchALLKRA?inputXML=<APP_REQ_ROOT><APP_PAN_INQ> <APP_PAN_NO>{0}</APP_PAN_NO> <APP_DOB_INCORP>{1}</APP_DOB_INCORP> <APP_POS_CODE>1100066900</APP_POS_CODE> <APP_RTA_CODE>1100066900</APP_RTA_CODE> <APP_KRA_CODE></APP_KRA_CODE> <FETCH_TYPE>I</FETCH_TYPE> </APP_PAN_INQ></APP_REQ_ROOT>&userName=EKYC&PosCode=1100066900&Password=n3Xy62aLxQbXypuF0OyDiQ%3d%3d&PassKey=choice@123'.format(pan_no,birth_date)
+		)
+		if response:
+			return generateResponse("S", message="Pan Details Found", data=parker.data(fromstring(response.text)))
+		else:
+			return generateResponse("S", message="Pan Details Not Found", data={})
+	except Exception as e:
+		return generateResponse("F", message="Something Wrong Please Check Error Log", error=e)
+
+
+def get_cdsl_headers():
+
+	 return {
+	 		"Referer": "https://www.cdslindia.com/index.html",
+			"DPID": "27500",
+			"UserID": "Someone",
+			"Password": "Someone@1234"
+			}
+
+@frappe.whitelist()
+def cdsl_pedge():
+	try:
+		from json import dumps
+
+		API_URL = "http://amccdasapp.cdslindia.com/PledgeAPIService/api/pledgesetup"
+		payload = {
+					  "PledgorBOID": "1302750000008105",
+					  "PledgeeBOID": "1302750000000028",
+					  "PRFNumber": "CDSL67",
+					  "ExpiryDate": "03052018",
+					  "ISINDTLS": [
+					    {
+					      "ISIN": "INE000000001",
+					      "Quantity": "1100000000000.000",
+					      "Value": "110000000000.00"
+					    }
+					  ]
+					}
+		response = requests.post(
+			API_URL,
+			headers=get_cdsl_headers(),
+			data=payload
+		)
+
+		print(response)
+		print(response.text)
+		if response:
+			return generateResponse("S", message="Pan Details Found", data=parker.data(fromstring(response.text)))
+		else:
+			return generateResponse("S", message="Pan Details Not Found", data={})
+	except Exception as e:
+		print(e)
+		return generateResponse("F", message="Something Wrong Please Check Error Log", error=e)
+
+
+@frappe.whitelist()
+def cdsl_unpedge():
+	try:
+		from json import dumps
+
+		API_URL = "http://amccdasapp.cdslindia.com/PledgeAPIService/api/pledgesetup"
+		payload = {
+					  "PledgorBOID": "1302750000008105",
+					  "PledgeeBOID": "1302750000000028",
+					  "PRFNumber": "CDSL67",
+					  "ExpiryDate": "03052018",
+					  "ISINDTLS": [
+					    {
+					      "ISIN": "INE000000001",
+					      "Quantity": "1100000000000.000",
+					      "Value": "110000000000.00"
+					    }
+					  ]
+					}
+		response = requests.post(
+			API_URL,
+			headers=get_cdsl_headers(),
+			data=payload
+		)
+
+		print(response)
+		print(response.text)
+		if response:
+			return generateResponse("S", message="Pan Details Found", data=parker.data(fromstring(response.text)))
+		else:
+			return generateResponse("S", message="Pan Details Not Found", data={})
+	except Exception as e:
+		print(e)
+		return generateResponse("F", message="Something Wrong Please Check Error Log", error=e)

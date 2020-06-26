@@ -17,7 +17,16 @@
   "column_break_10",
   "account_type",
   "column_break_12",
-  "ifsc"
+  "ifsc",
+  "micr",
+  "branch",
+  "bank_address",
+  "city",
+  "district",
+  "state",
+  "zip_code",
+  "bank_mode",
+  "bank_code"
  ],
  "fields": [
   {
@@ -81,9 +90,54 @@
    "fieldname": "ifsc",
    "fieldtype": "Data",
    "label": "IFSC"
+  },
+  {
+   "fieldname": "micr",
+   "fieldtype": "Data",
+   "label": "MICR"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Data",
+   "label": "Branch"
+  },
+  {
+   "fieldname": "bank_address",
+   "fieldtype": "Data",
+   "label": "Bank Address"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City"
+  },
+  {
+   "fieldname": "district",
+   "fieldtype": "Data",
+   "label": "District"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Data",
+   "label": "State"
+  },
+  {
+   "fieldname": "zip_code",
+   "fieldtype": "Data",
+   "label": "Zip Code"
+  },
+  {
+   "fieldname": "bank_mode",
+   "fieldtype": "Data",
+   "label": "Bank Mode"
+  },
+  {
+   "fieldname": "bank_code",
+   "fieldtype": "Data",
+   "label": "Bank Code"
   }
  ],
- "modified": "2020-05-08 16:13:05.399336",
+ "modified": "2020-06-24 21:34:24.092414",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User Bank Details",
