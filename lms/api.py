@@ -59,7 +59,7 @@ def generateResponse(_type, status=None, message=None, data=None, error=None):
 		else:
 			response["message"] = "Something Went Wrong"
 		response["message"] = message
-		response["data"] = []
+		response["data"] = data
 	return response
 
 @frappe.whitelist(allow_guest=True)
@@ -338,78 +338,146 @@ def get_cdsl_headers():
 
 	 return {
 	 		"Referer": "https://www.cdslindia.com/index.html",
-			"DPID": "27500",
-			"UserID": "Someone",
-			"Password": "Someone@1234"
+			"DPID": "66900",
+			"UserID": "ADMIN",
+			"Password": "CDsl12##"
 			}
 
-@frappe.whitelist()
-def cdsl_pedge():
-	try:
-		from json import dumps
+# curl -X POST \
+#   -H "Referer: https://www.cdslindia.com/index.html" \
+#   -H "DPID: 66900" \
+#   -H "UserID: ADMIN" \
+#   -H "Password: CDsl12##" \
+#   -d '{
+#           "PledgorBOID": "1206690000014549",
+#           "PledgeeBOID": "1206690000014141",
+#           "PRFNumber": "CDSL67",
+#           "ExpiryDate": "03052018",
+#           "ISINDTLS": [
+#             {
+#               "ISIN": "INE000000001",
+#               "Quantity": "1100000000000.000",
+#               "Value": "110000000000.00"
+#             }
+#           ]
+#         }' \
+#   http://mockapp.cdslindia.com/PledgeAPIService/api/pledgesetup
 
-		API_URL = "http://amccdasapp.cdslindia.com/PledgeAPIService/api/pledgesetup"
+def get_cdsl_prf_no():
+	import datetime
+	return datetime.datetime.now().strftime('%s')
+
+@frappe.whitelist()
+def cdsl_pedge(pledgor_boid=None, securities_array=None):
+	try:
+		if not pledgor_boid:
+			pledgor_boid = "1206690000014534"
+		if not securities_array:
+			securities_array = [
+			  {
+				"ISIN": "INE138A01028",
+				"Quantity": "100.000",
+				"Value": "200"
+			  },
+			  {
+				"ISIN": "INE221H01019",
+				"Quantity": "100.000",
+				"Value": "200.00"
+			  }
+			]
+		API_URL = "http://mockapp.cdslindia.com/PledgeAPIService/api/pledgesetup"
 		payload = {
-					  "PledgorBOID": "1302750000008105",
-					  "PledgeeBOID": "1302750000000028",
-					  "PRFNumber": "CDSL67",
-					  "ExpiryDate": "03052018",
-					  "ISINDTLS": [
-					    {
-					      "ISIN": "INE000000001",
-					      "Quantity": "1100000000000.000",
-					      "Value": "110000000000.00"
-					    }
-					  ]
+					  "PledgorBOID": pledgor_boid, #customer
+					  "PledgeeBOID": "1206690000014023", #our client
+					  "PRFNumber": "PL" + get_cdsl_prf_no(),
+					  "ExpiryDate": "12122020",
+					  "ISINDTLS": json.loads(securities_array)
 					}
+
+		print("cdsl_pedge", payload)
 		response = requests.post(
 			API_URL,
 			headers=get_cdsl_headers(),
-			data=payload
+			json=payload
 		)
 
-		print(response)
 		print(response.text)
-		if response:
-			return generateResponse("S", message="Pan Details Found", data=parker.data(fromstring(response.text)))
+		response_json = json.loads(response.text)
+		print("response_json", response_json)
+		if response_json and response_json.get("Success") == True:
+			return generateResponse("S", message="CDSL", data=response_json)
 		else:
-			return generateResponse("S", message="Pan Details Not Found", data={})
+			return generateResponse("F", message="CDSL Pledge Error", data=response_json)
 	except Exception as e:
 		print(e)
 		return generateResponse("F", message="Something Wrong Please Check Error Log", error=e)
 
 
 @frappe.whitelist()
-def cdsl_unpedge():
+def cdsl_unpedge(securities_array=None):
 	try:
-		from json import dumps
+		if not securities_array:
+			securities_array = [
+			  {
+				"PSNumber": "1930499",
+				"PartQuantity": "100.000"
+			  }
+			]
 
-		API_URL = "http://amccdasapp.cdslindia.com/PledgeAPIService/api/pledgesetup"
+		API_URL = "http://mockapp.cdslindia.com/PledgeAPIService/api/UnPledgeSetup"
 		payload = {
-					  "PledgorBOID": "1302750000008105",
-					  "PledgeeBOID": "1302750000000028",
-					  "PRFNumber": "CDSL67",
-					  "ExpiryDate": "03052018",
-					  "ISINDTLS": [
-					    {
-					      "ISIN": "INE000000001",
-					      "Quantity": "1100000000000.000",
-					      "Value": "110000000000.00"
-					    }
-					  ]
+					  "URN": "UN" + get_cdsl_prf_no(),
+					  "Type": "Pledgee",
+					  "UNPLDGDTLS": json.loads(securities_array)
 					}
 		response = requests.post(
 			API_URL,
 			headers=get_cdsl_headers(),
-			data=payload
+			json=payload
 		)
 
 		print(response)
 		print(response.text)
-		if response:
-			return generateResponse("S", message="Pan Details Found", data=parker.data(fromstring(response.text)))
+		response_json = json.loads(response.text)
+		print("response_json", response_json)
+		if response_json and response_json.get("Success") == True:
+			return generateResponse("S", message="CDSL", data=response_json)
 		else:
-			return generateResponse("S", message="Pan Details Not Found", data={})
+			return generateResponse("F", message="CDSL UnPledge Error", data=response_json)
+	except Exception as e:
+		print(e)
+		return generateResponse("F", message="Something Wrong Please Check Error Log", error=e)
+
+@frappe.whitelist()
+def cdsl_confiscate(securities_array=None):
+	try:
+		if not securities_array:
+			securities_array = [
+			  {
+				"PSNumber": "1930499",
+				"PartQuantity": "100.000"
+			  }
+			]
+
+		API_URL = "http://mockapp.cdslindia.com/PledgeAPIService/api/Confiscatesetup"
+		payload = {
+					  "URN": "CN" + get_cdsl_prf_no(),
+					  "CONFISCATEDTLS": json.loads(securities_array)
+					}
+		response = requests.post(
+			API_URL,
+			headers=get_cdsl_headers(),
+			json=payload
+		)
+
+		print(response)
+		print(response.text)
+		response_json = json.loads(response.text)
+		print("response_json", response_json)
+		if response_json and response_json.get("Success") == True:
+			return generateResponse("S", message="CDSL", data=response_json)
+		else:
+			return generateResponse("F", message="CDSL Confiscate Error", data=response_json)
 	except Exception as e:
 		print(e)
 		return generateResponse("F", message="Something Wrong Please Check Error Log", error=e)
