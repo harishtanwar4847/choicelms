@@ -27,7 +27,6 @@ import urllib.parse
 import requests
 
 
-@frappe.whitelist()
 def appErrorLog(title, error):
 	d = frappe.get_doc({
 		"doctype": "App Error Log",
@@ -38,7 +37,6 @@ def appErrorLog(title, error):
 	return d
 
 
-@frappe.whitelist()
 def generateResponse(_type, status=None, message=None, data=None, error=None):
 	response = {}
 	if _type == "S":
