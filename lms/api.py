@@ -320,7 +320,7 @@ def save_user_kyc(*args, **kwargs):
 
 @frappe.whitelist()
 def id_generator_otp():
-	return ''.join(random.choice('0123456789') for _ in range(6))
+	return ''.join(random.choice('0123456789') for _ in range(4))
 
 
 def get_user(input):
