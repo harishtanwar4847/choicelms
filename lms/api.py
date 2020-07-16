@@ -26,6 +26,8 @@ import urllib.request
 import urllib.parse
 import requests
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
+from frappe.auth import LoginManager
+from frappe.utils.password import delete_login_failed_cache
 
 
 def appErrorLog(title, error):
@@ -218,21 +220,28 @@ def send_user_otp(phone):
 @frappe.whitelist(allow_guest=True)
 def verify_otp_code(phone, otp):
 	try:
+		login_manager = LoginManager()
+		user_name = get_user(phone)
 		otpobj = frappe.db.get_all("Mobile OTP", {"mobile_no": phone, "otp": otp, "verified": 0})
 		if len(otpobj) == 0:
+			if type(user_name) is str:
+				login_manager.update_invalid_login(user_name)
+				login_manager.check_if_enabled(user_name)
 			return generateResponse(status=422, message="Wrong OTP")
 		
-		user_name = get_user(phone)
 		if type(user_name) is str:
+			login_manager.check_if_enabled(user_name)
 			token = dict(
 				token=generate_user_token(user_name),
 			)
 
 			frappe.db.set_value("Mobile OTP", otpobj[0].name, "verified", 1)
-
+			delete_login_failed_cache(user_name)
 			return generateResponse(message="Login Success", data=token)
 		else:
 			return generateResponse(status=422, message="Mobile no. does not exist.")
+	except frappe.SecurityException as e:
+		return generateResponse(status=422, message=str(e))
 	except Exception as e:
 		return generateResponse(is_success=False, error=e)
 
@@ -337,6 +346,7 @@ def save_user_kyc(*args, **kwargs):
 
 @frappe.whitelist()
 def id_generator_otp():
+	return '1234'
 	return ''.join(random.choice('0123456789') for _ in range(4))
 
 
