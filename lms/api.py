@@ -25,6 +25,7 @@ import traceback
 import urllib.request
 import urllib.parse
 import requests
+from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
 
 def appErrorLog(title, error):
@@ -54,14 +55,20 @@ def generateResponse(is_success=True, status=200, message=None, data=[], error=N
 def custom_login(mobile):
 	# take user input from STDIN
 	try:
+		# validation
+		if not mobile:
+			return generateResponse(status=422, message="Mobile is required.")
+		if len(mobile) != 10 or not mobile.isdigit():
+			return generateResponse(status=422, message="Enter valid Mobile.")
+		
 		res = send_otp(mobile)
 		if res == True:
 			return generateResponse(message="OTP Send Successfully")
 		else:
-			return generateResponse(status="401", message="Phone Incorrect")
+			return generateResponse(status=500, message="There was some problem while sending OTP. Please try again.")
 
 	except Exception as e:
-		return generateResponse(is_success=False, message="Something Wrong", error=e)
+		return generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
 def ping():
@@ -151,30 +158,32 @@ def add_user(first_name,last_name,phone,email):
 		return False
 
 
-@frappe.whitelist()
 def send_otp(phone):
 	try:
-		otpobj = frappe.db.get("Mobile OTP", {"mobile_no": phone})
-		if otpobj:
-			frappe.db.sql("""delete from `tabMobile OTP` where mobile_no='""" + phone + """'""")
-		# OTP_CODE = id_generator_otp()
-		OTP_CODE = '123456'
-		#sms_key = frappe.db.get_value("App Version", "App Version", "sms_key")
+		# delete unused otp
+		frappe.db.delete("Mobile OTP", {
+			"mobile_no": phone,
+			"verified": 0
+		})
+
+		OTP_CODE = id_generator_otp()
+
 		mess = "Your OTP for LMS is " + str(OTP_CODE) + ". Do not share your OTP with anyone."
-		# response = sendSMS(phone, mess)
-		# res = json.loads(response)
-		# if res["status"] == "success":
+		send_sms([phone], mess)
+
 		otp_doc = frappe.get_doc(dict(
 			doctype="Mobile OTP",
 			mobile_no=phone,
 			otp=OTP_CODE
 		)).insert(ignore_permissions=True)
+		
 		if otp_doc:
 			return True
 		else:
 			return False
 	except Exception as e:
-		return generateResponse(is_success=False, error=e)
+		generateResponse(is_success=False, error=e)
+		return False
 
 
 @frappe.whitelist(allow_guest=True)
