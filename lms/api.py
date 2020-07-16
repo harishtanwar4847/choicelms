@@ -108,12 +108,13 @@ def register_customer(first_name, last_name, phone, email):
 			return generateResponse(status=422, message="Email already Registered.")
 
 		# creating user
-		user_add_response = add_user(first_name, last_name, phone, email)
-		if type(user_add_response) is str:
-			# otp_res = send_otp(phone)
-			# if otp_res == False:
-			# 	return generateResponse(status="422", message="Something Wrong During OTP Send")
-			return generateResponse(message="Register Successfully")
+		user_name = add_user(first_name, last_name, phone, email)
+		if type(user_name) is str:
+			token = dict(
+				token=generate_user_token(user_name),
+			)
+
+			return generateResponse(message="Register Successfully", data=token)
 		else:
 			return generateResponse(status=500, message="Something Wrong During User Creation. Try Again.")
 
@@ -136,6 +137,11 @@ def generate_user_secret(user_name):
 	user_details.save(ignore_permissions=True)
 	return api_secret
 
+def generate_user_token(user_name):
+	secret_key = generate_user_secret(user_name)
+	api_key = frappe.db.get_value("User", user_name, "api_key")
+	
+	return "token {}:{}".format(api_key, secret_key)
 
 def add_user(first_name,last_name,phone,email):
 	try:
@@ -207,10 +213,8 @@ def verify_otp_code(phone, otp):
 		
 		user_name = get_user(phone)
 		if type(user_name) is str:
-			secret_key = generate_user_secret(user_name)
-			api_key = frappe.db.get_value("User", user_name, "api_key")
 			token = dict(
-				token="token {}:{}".format(api_key, secret_key),
+				token=generate_user_token(user_name),
 			)
 
 			frappe.db.set_value("Mobile OTP", otpobj[0].name, "verified", 1)
