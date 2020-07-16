@@ -25,9 +25,9 @@ import traceback
 import urllib.request
 import urllib.parse
 import requests
+from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
 
-@frappe.whitelist()
 def appErrorLog(title, error):
 	d = frappe.get_doc({
 		"doctype": "App Error Log",
@@ -38,27 +38,16 @@ def appErrorLog(title, error):
 	return d
 
 
-@frappe.whitelist()
-def generateResponse(_type, status=None, message=None, data=None, error=None):
+def generateResponse(is_success=True, status=200, message=None, data=[], error=None):
 	response = {}
-	if _type == "S":
-		if status:
-			response["status"] = int(status)
-		else:
-			response["status"] = 200
+	if is_success:
+		response["status"] = int(status)
 		response["message"] = message
 		response["data"] = data
 	else:
-		error_log = appErrorLog(frappe.session.user, str(error))
-		if status:
-			response["status"] = status
-		else:
-			response["status"] = 500
-		if message:
-			response["message"] = message
-		else:
-			response["message"] = "Something Went Wrong"
-		response["message"] = message
+		appErrorLog(frappe.session.user, str(error))
+		response["status"] = 500
+		response["message"] = message or "Something Went Wrong"
 		response["data"] = data
 	return response
 
@@ -66,14 +55,20 @@ def generateResponse(_type, status=None, message=None, data=None, error=None):
 def custom_login(mobile):
 	# take user input from STDIN
 	try:
+		# validation
+		if not mobile:
+			return generateResponse(status=422, message="Mobile is required.")
+		if len(mobile) != 10 or not mobile.isdigit():
+			return generateResponse(status=422, message="Enter valid Mobile.")
+		
 		res = send_otp(mobile)
 		if res == True:
-			return generateResponse("S", "200", message="OTP Send Successfully ", data=[])
+			return generateResponse(message="OTP Send Successfully")
 		else:
-			return generateResponse("S", "401", message="Phone Incorrect", data=[])
+			return generateResponse(status=500, message="There was some problem while sending OTP. Please try again.")
 
 	except Exception as e:
-		return generateResponse("F", message="Something Wrong", error=e)
+		return generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
 def ping():
@@ -83,40 +78,56 @@ def ping():
 def validate_mobile(mobile):
 	user = get_user(mobile)
 	if user:
-		return generateResponse("S", "422", message="Mobile Already Registered", data=[])
+		return generateResponse(status="422", message="Mobile Already Registered")
 	else:
-		return generateResponse("S", "200", message="Ok", data=[])
+		return generateResponse(message="Ok")
 
 
 @frappe.whitelist(allow_guest=True)
-def register_customer(first_name,last_name,phone,email=None):
+def register_customer(first_name, last_name, phone, email):
 	try:
-		user_id = get_user(phone)
-		if user_id:
-			return generateResponse("S", "422", message="Mobile Already Registered", data=[])
-		user_id = get_user(email)
-		if user_id:
-			return generateResponse("S", "422", message="Email Already Registered", data=[])
-		user = add_user(first_name,last_name,phone,email)
-		if user:
-			otp_res = send_otp(phone)
-			if otp_res == False:
-				return generateResponse("S", "500", message="Something Wrong During OTP Send", data=[])
-			return generateResponse("S", message="Register Successfully", data=user)
+		# validation
+		if not first_name:
+			return generateResponse(status=422, message="First Name is required.")
+		if not phone:
+			return generateResponse(status=422, message="Phone is required.")
+		if not email:
+			return generateResponse(status=422, message="Email is required.")
+
+		# if email id is correct, it returns the email id
+		# if it is wrong, it returns empty string
+		# empty string is a falsey value
+		if not frappe.utils.validate_email_address(email):
+			return generateResponse(status=422, message="Enter valid Email.")
+		if len(phone) != 10 or not phone.isdigit():
+			return generateResponse(status=422, message="Enter valid Phone.")
+
+		if type(get_user(phone)) is str:
+			return generateResponse(status=422, message="Mobile already Registered.")
+		if type(get_user(email)) is str:
+			return generateResponse(status=422, message="Email already Registered.")
+
+		# creating user
+		user_name = add_user(first_name, last_name, phone, email)
+		if type(user_name) is str:
+			token = dict(
+				token=generate_user_token(user_name),
+			)
+
+			return generateResponse(message="Register Successfully", data=token)
 		else:
-			return generateResponse("S", "500", message="Something Wrong During User Creation. Try Again", data=[])
+			return generateResponse(status=500, message="Something Wrong During User Creation. Try Again.")
 
 	except Exception as e:
-		return generateResponse("F", error=e)
+		return generateResponse(is_success=False, error=e)
 
-@frappe.whitelist()
-def generate_keys(user):
+def generate_user_secret(user_name):
 	"""
 	generate api key and api secret
 
 	:param user: str
 	"""
-	user_details = frappe.get_doc("User", user)
+	user_details = frappe.get_doc("User", user_name)
 	api_secret = frappe.generate_hash(length=15)
 	# if api key is not set generate api key
 	if not user_details.api_key:
@@ -126,52 +137,57 @@ def generate_keys(user):
 	user_details.save(ignore_permissions=True)
 	return api_secret
 
+def generate_user_token(user_name):
+	secret_key = generate_user_secret(user_name)
+	api_key = frappe.db.get_value("User", user_name, "api_key")
+	
+	return "token {}:{}".format(api_key, secret_key)
 
-@frappe.whitelist(allow_guest = True)
-def add_user(first_name,last_name,phone,email=None):
+def add_user(first_name,last_name,phone,email):
 	try:
 		user = frappe.get_doc(dict(
 			doctype="User",
 			email=email,
 			first_name=first_name,
 			last_name = last_name,
-			username = str(first_name)+str(phone),
+			username = str(phone),
 			phone=phone,
 			mobile_no=phone,
 			send_welcome_email=0,
-			new_password = '123456789',
+			# new_password = '123456789',
 			roles=[{"doctype": "Has Role", "role": "Loan Customer"}]
 		)).insert(ignore_permissions=True)
-		update_password(user.name, '123456789')
-		return user
-	except Exception as e:
-		return generateResponse("F", error=e)
+		# update_password(user.name, '123456789')
+		return user.name
+	except Exception:
+		return False
 
 
-@frappe.whitelist()
 def send_otp(phone):
 	try:
-		otpobj = frappe.db.get("Mobile OTP", {"mobile_no": phone})
-		if otpobj:
-			frappe.db.sql("""delete from `tabMobile OTP` where mobile_no='""" + phone + """'""")
-		# OTP_CODE = id_generator_otp()
-		OTP_CODE = '123456'
-		#sms_key = frappe.db.get_value("App Version", "App Version", "sms_key")
+		# delete unused otp
+		frappe.db.delete("Mobile OTP", {
+			"mobile_no": phone,
+			"verified": 0
+		})
+
+		OTP_CODE = id_generator_otp()
+
 		mess = "Your OTP for LMS is " + str(OTP_CODE) + ". Do not share your OTP with anyone."
-		# response = sendSMS(phone, mess)
-		# res = json.loads(response)
-		# if res["status"] == "success":
+		send_sms([phone], mess)
+
 		otp_doc = frappe.get_doc(dict(
 			doctype="Mobile OTP",
 			mobile_no=phone,
 			otp=OTP_CODE
 		)).insert(ignore_permissions=True)
+		
 		if otp_doc:
 			return True
 		else:
 			return False
 	except Exception as e:
-		generateResponse("F", error=e)
+		generateResponse(is_success=False, error=e)
 		return False
 
 
@@ -180,43 +196,49 @@ def send_user_otp(phone):
 	try:
 		res = send_otp(phone)
 		if res:
-			return generateResponse("S", message="User OTP Send Successfully", data=[])
+			return generateResponse(message="User OTP Send Successfully")
 		else:
-			return generateResponse("S", "204", message="Something Wrong", data=[])
+			return generateResponse(status="204", message="Something Wrong")
 
 	except Exception as e:
-		generateResponse("F", error=e)
-		return False
+		return generateResponse(is_success=False, error=e)
 
 
 @frappe.whitelist(allow_guest=True)
-def verify_otp_code(phone, otp=None, pin=None):
+def verify_otp_code(phone, otp):
 	try:
-		user = get_user(phone)
-		otpobj = frappe.db.get("Mobile OTP", {"mobile_no": phone})
-		if (otpobj and otpobj.otp == otp) or check_password(user, 'Lms@'+pin):
-			secret_key = generate_keys(user)
-			api_key = frappe.db.get_value("User", user, "api_key")
+		otpobj = frappe.db.get_all("Mobile OTP", {"mobile_no": phone, "otp": otp, "verified": 0})
+		if len(otpobj) == 0:
+			return generateResponse(status=422, message="Wrong OTP")
+		
+		user_name = get_user(phone)
+		if type(user_name) is str:
 			token = dict(
-				token="token {}:{}".format(api_key, secret_key),
-				phone=frappe.db.get_value("User", user, "phone") or ''
+				token=generate_user_token(user_name),
 			)
-			return generateResponse("S", message="Login Success", data=token)
+
+			frappe.db.set_value("Mobile OTP", otpobj[0].name, "verified", 1)
+
+			return generateResponse(message="Login Success", data=token)
 		else:
-			return generateResponse("S", status="417", message="Wrong OTP", data={})
-	except frappe.AuthenticationError as e:
-		return generateResponse("S", status="417", message="Wrong PIN", data={})
+			return generateResponse(status=422, message="Mobile no. does not exist.")
 	except Exception as e:
-		return generateResponse("F", message="Something Wrong Please Try Again", error=e)
+		return generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
 def set_pin(pin):
 	print('user', frappe.session.user)
 	try:
-		update_password(frappe.session.user, 'Lms@' + pin)
-		return generateResponse("S", message="User PIN has been set", data={})
+		# validation
+		if not pin:
+			return generateResponse(status=422, message="PIN Required")
+		if len(pin) != 4 or not pin.isdigit():
+			return generateResponse(status=422, message="Please enter 4 digit PIN")
+
+		update_password(frappe.session.user, pin)
+		return generateResponse(message="User PIN has been set")
 	except Exception as e:
-		return generateResponse("F", message="Something Wrong Please Try Again", error=e)
+		return generateResponse(is_success=False, error=e)
 
 
 # {
@@ -252,7 +274,7 @@ def save_user_kyc(*args, **kwargs):
 	print(kwargs.get('investorName', 'not found'))
 	print(kwargs.get('accountNumber', 'not found'))
 	if frappe.db.exists('User KYC', frappe.session.user):
-		return generateResponse("S", message="User KYC Already Added", data={})
+		return generateResponse(message="User KYC Already Added")
 
 	data = kwargs
 
@@ -277,7 +299,7 @@ def save_user_kyc(*args, **kwargs):
 		)).insert(ignore_permissions=True)
 
 		if not user_bank_details_doc:
-			return generateResponse("F", message="Bank Details Add Failed", data={})
+			return generateResponse(is_success=False, message="Bank Details Add Failed")
 	print(user_bank_details_doc)
 	user_kyc_doc = frappe.get_doc(dict(
 		doctype="User KYC",
@@ -296,19 +318,19 @@ def save_user_kyc(*args, **kwargs):
 		bank=user_bank_details_doc.name
 	)).insert(ignore_permissions=True)
 	if user_kyc_doc:
-		return generateResponse("S", message="User KYC Added", data={})
+		return generateResponse(message="User KYC Added")
 	else:
-		return generateResponse("F", message="User KYC Add Failed", data={})
+		return generateResponse(is_success=False, message="User KYC Add Failed")
 
 
 
 @frappe.whitelist()
 def id_generator_otp():
-	return ''.join(random.choice('0123456789') for _ in range(6))
+	return ''.join(random.choice('0123456789') for _ in range(4))
 
 
-def get_user(user):
-	user_data = frappe.db.sql("""select name from `tabUser` where email=%s or phone=%s""",(user,user), as_dict=1)
+def get_user(input):
+	user_data = frappe.db.sql("""select name from `tabUser` where email=%s or phone=%s""",(input,input), as_dict=1)
 	print('get_user', frappe.as_json(user_data))
 	if len(user_data) >= 1:
 		return user_data[0].name
@@ -327,11 +349,11 @@ def get_pan(pan_no,birth_date):
 			'https://www.cvlkra.com/paninquiry.asmx/SolicitPANDetailsFetchALLKRA?inputXML=<APP_REQ_ROOT><APP_PAN_INQ> <APP_PAN_NO>{0}</APP_PAN_NO> <APP_DOB_INCORP>{1}</APP_DOB_INCORP> <APP_POS_CODE>1100066900</APP_POS_CODE> <APP_RTA_CODE>1100066900</APP_RTA_CODE> <APP_KRA_CODE></APP_KRA_CODE> <FETCH_TYPE>I</FETCH_TYPE> </APP_PAN_INQ></APP_REQ_ROOT>&userName=EKYC&PosCode=1100066900&Password=n3Xy62aLxQbXypuF0OyDiQ%3d%3d&PassKey=choice@123'.format(pan_no,birth_date)
 		)
 		if response:
-			return generateResponse("S", message="Pan Details Found", data=parker.data(fromstring(response.text)))
+			return generateResponse(message="Pan Details Found", data=parker.data(fromstring(response.text)))
 		else:
-			return generateResponse("S", message="Pan Details Not Found", data={})
+			return generateResponse(message="Pan Details Not Found")
 	except Exception as e:
-		return generateResponse("F", message="Something Wrong Please Check Error Log", error=e)
+		return generateResponse(is_success=False, message="Something Wrong Please Check Error Log", error=e)
 
 
 def get_cdsl_headers():
@@ -405,12 +427,12 @@ def cdsl_pedge(pledgor_boid=None, securities_array=None):
 		response_json = json.loads(response.text)
 		print("response_json", response_json)
 		if response_json and response_json.get("Success") == True:
-			return generateResponse("S", message="CDSL", data=response_json)
+			return generateResponse(message="CDSL", data=response_json)
 		else:
-			return generateResponse("F", message="CDSL Pledge Error", data=response_json)
+			return generateResponse(is_success=False, message="CDSL Pledge Error", data=response_json)
 	except Exception as e:
 		print(e)
-		return generateResponse("F", message="Something Wrong Please Check Error Log", error=e)
+		return generateResponse(is_success=False, message="Something Wrong Please Check Error Log", error=e)
 
 
 @frappe.whitelist()
@@ -441,12 +463,12 @@ def cdsl_unpedge(securities_array=None):
 		response_json = json.loads(response.text)
 		print("response_json", response_json)
 		if response_json and response_json.get("Success") == True:
-			return generateResponse("S", message="CDSL", data=response_json)
+			return generateResponse(message="CDSL", data=response_json)
 		else:
-			return generateResponse("F", message="CDSL UnPledge Error", data=response_json)
+			return generateResponse(is_success=False, message="CDSL UnPledge Error", data=response_json)
 	except Exception as e:
 		print(e)
-		return generateResponse("F", message="Something Wrong Please Check Error Log", error=e)
+		return generateResponse(is_success=False, message="Something Wrong Please Check Error Log", error=e)
 
 @frappe.whitelist()
 def cdsl_confiscate(securities_array=None):
@@ -475,9 +497,9 @@ def cdsl_confiscate(securities_array=None):
 		response_json = json.loads(response.text)
 		print("response_json", response_json)
 		if response_json and response_json.get("Success") == True:
-			return generateResponse("S", message="CDSL", data=response_json)
+			return generateResponse(message="CDSL", data=response_json)
 		else:
-			return generateResponse("F", message="CDSL Confiscate Error", data=response_json)
+			return generateResponse(is_success=False, message="CDSL Confiscate Error", data=response_json)
 	except Exception as e:
 		print(e)
-		return generateResponse("F", message="Something Wrong Please Check Error Log", error=e)
+		return generateResponse(is_success=False, message="Something Wrong Please Check Error Log", error=e)

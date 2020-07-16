@@ -127,3 +127,9 @@ app_license = "MIT"
 # 	"Task": "lms.task.get_dashboard_data"
 # }
 
+fixtures = [
+    {
+        "doctype": "Role",
+        "filters": [["name", "in", ["Loan Customer"]]]
+    }
+]
