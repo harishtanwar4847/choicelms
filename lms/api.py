@@ -37,26 +37,16 @@ def appErrorLog(title, error):
 	return d
 
 
-def generateResponse(_type, status=None, message=None, data=None, error=None):
+def generateResponse(is_success=True, status=200, message=None, data=[], error=None):
 	response = {}
-	if _type == "S":
-		if status:
-			response["status"] = int(status)
-		else:
-			response["status"] = 200
+	if is_success:
+		response["status"] = int(status)
 		response["message"] = message
 		response["data"] = data
 	else:
-		error_log = appErrorLog(frappe.session.user, str(error))
-		if status:
-			response["status"] = status
-		else:
-			response["status"] = 500
-		if message:
-			response["message"] = message
-		else:
-			response["message"] = "Something Went Wrong"
-		response["message"] = message
+		appErrorLog(frappe.session.user, str(error))
+		response["status"] = 500
+		response["message"] = message or "Something Went Wrong"
 		response["data"] = data
 	return response
 
@@ -66,12 +56,12 @@ def custom_login(mobile):
 	try:
 		res = send_otp(mobile)
 		if res == True:
-			return generateResponse("S", "200", message="OTP Send Successfully ", data=[])
+			return generateResponse(message="OTP Send Successfully")
 		else:
-			return generateResponse("S", "401", message="Phone Incorrect", data=[])
+			return generateResponse(status="401", message="Phone Incorrect")
 
 	except Exception as e:
-		return generateResponse("F", message="Something Wrong", error=e)
+		return generateResponse(is_success=False, message="Something Wrong", error=e)
 
 @frappe.whitelist()
 def ping():
@@ -81,9 +71,9 @@ def ping():
 def validate_mobile(mobile):
 	user = get_user(mobile)
 	if user:
-		return generateResponse("S", "422", message="Mobile Already Registered", data=[])
+		return generateResponse(status="422", message="Mobile Already Registered")
 	else:
-		return generateResponse("S", "200", message="Ok", data=[])
+		return generateResponse(message="Ok")
 
 
 @frappe.whitelist(allow_guest=True)
@@ -91,21 +81,21 @@ def register_customer(first_name,last_name,phone,email=None):
 	try:
 		user_id = get_user(phone)
 		if user_id:
-			return generateResponse("S", "422", message="Mobile Already Registered", data=[])
+			return generateResponse(status="422", message="Mobile Already Registered")
 		user_id = get_user(email)
 		if user_id:
-			return generateResponse("S", "422", message="Email Already Registered", data=[])
+			return generateResponse(status="422", message="Email Already Registered")
 		user = add_user(first_name,last_name,phone,email)
 		if user:
 			otp_res = send_otp(phone)
 			if otp_res == False:
-				return generateResponse("S", "500", message="Something Wrong During OTP Send", data=[])
-			return generateResponse("S", message="Register Successfully", data=user)
+				return generateResponse(status="422", message="Something Wrong During OTP Send")
+			return generateResponse(message="Register Successfully", data=user)
 		else:
-			return generateResponse("S", "500", message="Something Wrong During User Creation. Try Again", data=[])
+			return generateResponse(status="500", message="Something Wrong During User Creation. Try Again")
 
 	except Exception as e:
-		return generateResponse("F", error=e)
+		return generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
 def generate_keys(user):
@@ -143,7 +133,7 @@ def add_user(first_name,last_name,phone,email=None):
 		update_password(user.name, '123456789')
 		return user
 	except Exception as e:
-		return generateResponse("F", error=e)
+		return generateResponse(is_success=False, error=e)
 
 
 @frappe.whitelist()
@@ -169,8 +159,7 @@ def send_otp(phone):
 		else:
 			return False
 	except Exception as e:
-		generateResponse("F", error=e)
-		return False
+		return generateResponse(is_success=False, error=e)
 
 
 @frappe.whitelist(allow_guest=True)
@@ -178,13 +167,12 @@ def send_user_otp(phone):
 	try:
 		res = send_otp(phone)
 		if res:
-			return generateResponse("S", message="User OTP Send Successfully", data=[])
+			return generateResponse(message="User OTP Send Successfully")
 		else:
-			return generateResponse("S", "204", message="Something Wrong", data=[])
+			return generateResponse(status="204", message="Something Wrong")
 
 	except Exception as e:
-		generateResponse("F", error=e)
-		return False
+		return generateResponse(is_success=False, error=e)
 
 
 @frappe.whitelist(allow_guest=True)
@@ -199,22 +187,22 @@ def verify_otp_code(phone, otp=None, pin=None):
 				token="token {}:{}".format(api_key, secret_key),
 				phone=frappe.db.get_value("User", user, "phone") or ''
 			)
-			return generateResponse("S", message="Login Success", data=token)
+			return generateResponse(message="Login Success", data=token)
 		else:
-			return generateResponse("S", status="417", message="Wrong OTP", data={})
+			return generateResponse(status="417", message="Wrong OTP")
 	except frappe.AuthenticationError as e:
-		return generateResponse("S", status="417", message="Wrong PIN", data={})
+		return generateResponse(status="417", message="Wrong PIN")
 	except Exception as e:
-		return generateResponse("F", message="Something Wrong Please Try Again", error=e)
+		return generateResponse(is_success=False, message="Something Wrong Please Try Again", error=e)
 
 @frappe.whitelist()
 def set_pin(pin):
 	print('user', frappe.session.user)
 	try:
 		update_password(frappe.session.user, 'Lms@' + pin)
-		return generateResponse("S", message="User PIN has been set", data={})
+		return generateResponse(message="User PIN has been set")
 	except Exception as e:
-		return generateResponse("F", message="Something Wrong Please Try Again", error=e)
+		return generateResponse(is_success=False, message="Something Wrong Please Try Again", error=e)
 
 
 # {
@@ -250,7 +238,7 @@ def save_user_kyc(*args, **kwargs):
 	print(kwargs.get('investorName', 'not found'))
 	print(kwargs.get('accountNumber', 'not found'))
 	if frappe.db.exists('User KYC', frappe.session.user):
-		return generateResponse("S", message="User KYC Already Added", data={})
+		return generateResponse(message="User KYC Already Added")
 
 	data = kwargs
 
@@ -275,7 +263,7 @@ def save_user_kyc(*args, **kwargs):
 		)).insert(ignore_permissions=True)
 
 		if not user_bank_details_doc:
-			return generateResponse("F", message="Bank Details Add Failed", data={})
+			return generateResponse(is_success=False, message="Bank Details Add Failed")
 	print(user_bank_details_doc)
 	user_kyc_doc = frappe.get_doc(dict(
 		doctype="User KYC",
@@ -294,9 +282,9 @@ def save_user_kyc(*args, **kwargs):
 		bank=user_bank_details_doc.name
 	)).insert(ignore_permissions=True)
 	if user_kyc_doc:
-		return generateResponse("S", message="User KYC Added", data={})
+		return generateResponse(message="User KYC Added")
 	else:
-		return generateResponse("F", message="User KYC Add Failed", data={})
+		return generateResponse(is_success=False, message="User KYC Add Failed")
 
 
 
@@ -325,11 +313,11 @@ def get_pan(pan_no,birth_date):
 			'https://www.cvlkra.com/paninquiry.asmx/SolicitPANDetailsFetchALLKRA?inputXML=<APP_REQ_ROOT><APP_PAN_INQ> <APP_PAN_NO>{0}</APP_PAN_NO> <APP_DOB_INCORP>{1}</APP_DOB_INCORP> <APP_POS_CODE>1100066900</APP_POS_CODE> <APP_RTA_CODE>1100066900</APP_RTA_CODE> <APP_KRA_CODE></APP_KRA_CODE> <FETCH_TYPE>I</FETCH_TYPE> </APP_PAN_INQ></APP_REQ_ROOT>&userName=EKYC&PosCode=1100066900&Password=n3Xy62aLxQbXypuF0OyDiQ%3d%3d&PassKey=choice@123'.format(pan_no,birth_date)
 		)
 		if response:
-			return generateResponse("S", message="Pan Details Found", data=parker.data(fromstring(response.text)))
+			return generateResponse(message="Pan Details Found", data=parker.data(fromstring(response.text)))
 		else:
-			return generateResponse("S", message="Pan Details Not Found", data={})
+			return generateResponse(message="Pan Details Not Found")
 	except Exception as e:
-		return generateResponse("F", message="Something Wrong Please Check Error Log", error=e)
+		return generateResponse(is_success=False, message="Something Wrong Please Check Error Log", error=e)
 
 
 def get_cdsl_headers():
@@ -403,12 +391,12 @@ def cdsl_pedge(pledgor_boid=None, securities_array=None):
 		response_json = json.loads(response.text)
 		print("response_json", response_json)
 		if response_json and response_json.get("Success") == True:
-			return generateResponse("S", message="CDSL", data=response_json)
+			return generateResponse(message="CDSL", data=response_json)
 		else:
-			return generateResponse("F", message="CDSL Pledge Error", data=response_json)
+			return generateResponse(is_success=False, message="CDSL Pledge Error", data=response_json)
 	except Exception as e:
 		print(e)
-		return generateResponse("F", message="Something Wrong Please Check Error Log", error=e)
+		return generateResponse(is_success=False, message="Something Wrong Please Check Error Log", error=e)
 
 
 @frappe.whitelist()
@@ -439,12 +427,12 @@ def cdsl_unpedge(securities_array=None):
 		response_json = json.loads(response.text)
 		print("response_json", response_json)
 		if response_json and response_json.get("Success") == True:
-			return generateResponse("S", message="CDSL", data=response_json)
+			return generateResponse(message="CDSL", data=response_json)
 		else:
-			return generateResponse("F", message="CDSL UnPledge Error", data=response_json)
+			return generateResponse(is_success=False, message="CDSL UnPledge Error", data=response_json)
 	except Exception as e:
 		print(e)
-		return generateResponse("F", message="Something Wrong Please Check Error Log", error=e)
+		return generateResponse(is_success=False, message="Something Wrong Please Check Error Log", error=e)
 
 @frappe.whitelist()
 def cdsl_confiscate(securities_array=None):
@@ -473,9 +461,9 @@ def cdsl_confiscate(securities_array=None):
 		response_json = json.loads(response.text)
 		print("response_json", response_json)
 		if response_json and response_json.get("Success") == True:
-			return generateResponse("S", message="CDSL", data=response_json)
+			return generateResponse(message="CDSL", data=response_json)
 		else:
-			return generateResponse("F", message="CDSL Confiscate Error", data=response_json)
+			return generateResponse(is_success=False, message="CDSL Confiscate Error", data=response_json)
 	except Exception as e:
 		print(e)
-		return generateResponse("F", message="Something Wrong Please Check Error Log", error=e)
+		return generateResponse(is_success=False, message="Something Wrong Please Check Error Log", error=e)
