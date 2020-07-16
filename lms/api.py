@@ -229,10 +229,16 @@ def verify_otp_code(phone, otp):
 def set_pin(pin):
 	print('user', frappe.session.user)
 	try:
-		update_password(frappe.session.user, 'Lms@' + pin)
+		# validation
+		if not pin:
+			return generateResponse(status=422, message="PIN Required")
+		if len(pin) != 4 or not pin.isdigit():
+			return generateResponse(status=422, message="Please enter 4 digit PIN")
+
+		update_password(frappe.session.user, pin)
 		return generateResponse(message="User PIN has been set")
 	except Exception as e:
-		return generateResponse(is_success=False, message="Something Wrong Please Try Again", error=e)
+		return generateResponse(is_success=False, error=e)
 
 
 # {
