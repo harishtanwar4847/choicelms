@@ -77,22 +77,38 @@ def validate_mobile(mobile):
 
 
 @frappe.whitelist(allow_guest=True)
-def register_customer(first_name,last_name,phone,email=None):
+def register_customer(first_name, last_name, phone, email):
 	try:
-		user_id = get_user(phone)
-		if user_id:
-			return generateResponse(status="422", message="Mobile Already Registered")
-		user_id = get_user(email)
-		if user_id:
-			return generateResponse(status="422", message="Email Already Registered")
-		user = add_user(first_name,last_name,phone,email)
-		if user:
-			otp_res = send_otp(phone)
-			if otp_res == False:
-				return generateResponse(status="422", message="Something Wrong During OTP Send")
-			return generateResponse(message="Register Successfully", data=user)
+		# validation
+		if not first_name:
+			return generateResponse(status=422, message="First Name is required.")
+		if not phone:
+			return generateResponse(status=422, message="Phone is required.")
+		if not email:
+			return generateResponse(status=422, message="Email is required.")
+
+		# if email id is correct, it returns the email id
+		# if it is wrong, it returns empty string
+		# empty string is a falsey value
+		if not frappe.utils.validate_email_address(email):
+			return generateResponse(status=422, message="Enter valid Email.")
+		if len(phone) != 10 or not phone.isdigit():
+			return generateResponse(status=422, message="Enter valid Phone.")
+
+		if type(get_user(phone)) is str:
+			return generateResponse(status=422, message="Mobile already Registered.")
+		if type(get_user(email)) is str:
+			return generateResponse(status=422, message="Email already Registered.")
+
+		# creating user
+		user_add_response = add_user(first_name, last_name, phone, email)
+		if type(user_add_response) is str:
+			# otp_res = send_otp(phone)
+			# if otp_res == False:
+			# 	return generateResponse(status="422", message="Something Wrong During OTP Send")
+			return generateResponse(message="Register Successfully")
 		else:
-			return generateResponse(status="500", message="Something Wrong During User Creation. Try Again")
+			return generateResponse(status=500, message="Something Wrong During User Creation. Try Again.")
 
 	except Exception as e:
 		return generateResponse(is_success=False, error=e)
@@ -115,25 +131,24 @@ def generate_keys(user):
 	return api_secret
 
 
-@frappe.whitelist(allow_guest = True)
-def add_user(first_name,last_name,phone,email=None):
+def add_user(first_name,last_name,phone,email):
 	try:
 		user = frappe.get_doc(dict(
 			doctype="User",
 			email=email,
 			first_name=first_name,
 			last_name = last_name,
-			username = str(first_name)+str(phone),
+			username = str(phone),
 			phone=phone,
 			mobile_no=phone,
 			send_welcome_email=0,
-			new_password = '123456789',
+			# new_password = '123456789',
 			roles=[{"doctype": "Has Role", "role": "Loan Customer"}]
 		)).insert(ignore_permissions=True)
-		update_password(user.name, '123456789')
-		return user
-	except Exception as e:
-		return generateResponse(is_success=False, error=e)
+		# update_password(user.name, '123456789')
+		return user.name
+	except Exception:
+		return False
 
 
 @frappe.whitelist()
@@ -293,8 +308,8 @@ def id_generator_otp():
 	return ''.join(random.choice('0123456789') for _ in range(6))
 
 
-def get_user(user):
-	user_data = frappe.db.sql("""select name from `tabUser` where email=%s or phone=%s""",(user,user), as_dict=1)
+def get_user(input):
+	user_data = frappe.db.sql("""select name from `tabUser` where email=%s or phone=%s""",(input,input), as_dict=1)
 	print('get_user', frappe.as_json(user_data))
 	if len(user_data) >= 1:
 		return user_data[0].name
