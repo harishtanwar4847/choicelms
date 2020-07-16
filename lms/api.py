@@ -84,7 +84,7 @@ def validate_mobile(mobile):
 
 
 @frappe.whitelist(allow_guest=True)
-def register_customer(first_name, last_name, phone, email):
+def register_customer(first_name, last_name, phone, email, otp):
 	try:
 		# validation
 		if not first_name:
@@ -93,6 +93,8 @@ def register_customer(first_name, last_name, phone, email):
 			return generateResponse(status=422, message="Phone is required.")
 		if not email:
 			return generateResponse(status=422, message="Email is required.")
+		if not otp:
+			return generateResponse(status=422, message="OTP is required.")
 
 		# if email id is correct, it returns the email id
 		# if it is wrong, it returns empty string
@@ -101,11 +103,18 @@ def register_customer(first_name, last_name, phone, email):
 			return generateResponse(status=422, message="Enter valid Email.")
 		if len(phone) != 10 or not phone.isdigit():
 			return generateResponse(status=422, message="Enter valid Phone.")
+		if len(otp) != 4 or not otp.isdigit():
+			return generateResponse(status=422, message="Enter 4 digit OTP.")
 
 		if type(get_user(phone)) is str:
 			return generateResponse(status=422, message="Mobile already Registered.")
 		if type(get_user(email)) is str:
 			return generateResponse(status=422, message="Email already Registered.")
+
+		# validating otp to protect sign up api
+		otpobj = frappe.db.get_all("Mobile OTP", {"mobile_no": phone, "otp": otp, "verified": 0})
+		if len(otpobj) == 0:
+			return generateResponse(status=422, message="Wrong OTP")
 
 		# creating user
 		user_name = add_user(first_name, last_name, phone, email)
@@ -113,6 +122,8 @@ def register_customer(first_name, last_name, phone, email):
 			token = dict(
 				token=generate_user_token(user_name),
 			)
+
+			frappe.db.set_value("Mobile OTP", otpobj[0].name, "verified", 1)
 
 			return generateResponse(message="Register Successfully", data=token)
 		else:
