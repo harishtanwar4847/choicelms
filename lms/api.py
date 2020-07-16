@@ -120,14 +120,13 @@ def register_customer(first_name, last_name, phone, email):
 	except Exception as e:
 		return generateResponse(is_success=False, error=e)
 
-@frappe.whitelist()
-def generate_keys(user):
+def generate_user_secret(user_name):
 	"""
 	generate api key and api secret
 
 	:param user: str
 	"""
-	user_details = frappe.get_doc("User", user)
+	user_details = frappe.get_doc("User", user_name)
 	api_secret = frappe.generate_hash(length=15)
 	# if api key is not set generate api key
 	if not user_details.api_key:
@@ -200,24 +199,27 @@ def send_user_otp(phone):
 
 
 @frappe.whitelist(allow_guest=True)
-def verify_otp_code(phone, otp=None, pin=None):
+def verify_otp_code(phone, otp):
 	try:
-		user = get_user(phone)
-		otpobj = frappe.db.get("Mobile OTP", {"mobile_no": phone})
-		if (otpobj and otpobj.otp == otp) or check_password(user, 'Lms@'+pin):
-			secret_key = generate_keys(user)
-			api_key = frappe.db.get_value("User", user, "api_key")
+		otpobj = frappe.db.get_all("Mobile OTP", {"mobile_no": phone, "otp": otp, "verified": 0})
+		if len(otpobj) == 0:
+			return generateResponse(status=422, message="Wrong OTP")
+		
+		user_name = get_user(phone)
+		if type(user_name) is str:
+			secret_key = generate_user_secret(user_name)
+			api_key = frappe.db.get_value("User", user_name, "api_key")
 			token = dict(
 				token="token {}:{}".format(api_key, secret_key),
-				phone=frappe.db.get_value("User", user, "phone") or ''
 			)
+
+			frappe.db.set_value("Mobile OTP", otpobj[0].name, "verified", 1)
+
 			return generateResponse(message="Login Success", data=token)
 		else:
-			return generateResponse(status="417", message="Wrong OTP")
-	except frappe.AuthenticationError as e:
-		return generateResponse(status="417", message="Wrong PIN")
+			return generateResponse(status=422, message="Mobile no. does not exist.")
 	except Exception as e:
-		return generateResponse(is_success=False, message="Something Wrong Please Try Again", error=e)
+		return generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
 def set_pin(pin):
