@@ -7,39 +7,29 @@
  "field_order": [
   "mobile_no",
   "otp",
-  "otp_secret",
-  "validity",
   "verified"
  ],
  "fields": [
   {
    "fieldname": "mobile_no",
    "fieldtype": "Data",
-   "label": "Mobile No"
+   "label": "Mobile No",
+   "set_only_once": 1
   },
   {
    "fieldname": "otp",
    "fieldtype": "Data",
-   "label": "OTP"
-  },
-  {
-   "fieldname": "validity",
-   "fieldtype": "Data",
-   "label": "Validity"
+   "label": "OTP",
+   "set_only_once": 1
   },
   {
    "default": "0",
    "fieldname": "verified",
    "fieldtype": "Check",
    "label": "Verified"
-  },
-  {
-   "fieldname": "otp_secret",
-   "fieldtype": "Data",
-   "label": "OTP Secret"
   }
  ],
- "modified": "2020-05-15 18:14:31.807784",
+ "modified": "2020-07-17 00:24:40.915101",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Mobile OTP",
