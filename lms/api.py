@@ -374,8 +374,7 @@ def get_user_kyc(pan_no, birth_date):
 		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user": frappe.session.user }, order_by="user_type", fields=["*"])
 
 		if len(user_kyc_list) > 0:
-			pass
-			# return generateResponse(message="User KYC", data=user_kyc_list[0])
+			return generateResponse(message="User KYC", data=user_kyc_list[0])
 
 		# check in choice
 		url = "https://uat-pwa.choicetechlab.com/api/spark/getByPanNumDetails"
