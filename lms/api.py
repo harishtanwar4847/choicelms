@@ -442,7 +442,7 @@ def get_user_kyc(pan_no, birth_date):
 				"investor_name": "investor name",
 				"father_name": data["APP_PAN_INQ"]["APP_F_NAME"],
 				"mother_name": "mother name",
-				"address": ", ".join(filter([data["APP_PAN_INQ"]["APP_PER_ADD1"], data["APP_PAN_INQ"]["APP_PER_ADD2"], data["APP_PER_ADD3"]["APP_F_NAME"]], None)),
+				"address": ", ".join(filter([data["APP_PAN_INQ"]["APP_PER_ADD1"], data["APP_PAN_INQ"]["APP_PER_ADD2"], data["APP_PAN_INQ"]["APP_PER_ADD3"]], None)),
 				"city": data["APP_PAN_INQ"]["APP_PER_CITY"],
 				"state": data["APP_PAN_INQ"]["APP_PER_STATE"],
 				"pincode": data["APP_PAN_INQ"]["APP_PER_PINCD"],
