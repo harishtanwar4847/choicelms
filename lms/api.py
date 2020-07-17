@@ -421,6 +421,7 @@ def get_user_kyc(pan_no, birth_date):
 			})
 			user_kyc.insert(ignore_permissions=True)
 			frappe.db.commit()
+			user_kyc = user_kyc.as_dict()
 			user_kyc["response"] = data
 			return generateResponse(message="CHOICE USER KYC", data=user_kyc)
 
@@ -454,6 +455,7 @@ def get_user_kyc(pan_no, birth_date):
 				})
 			user_kyc.insert(ignore_permissions=True)
 			frappe.db.commit()
+			user_kyc = user_kyc.as_dict()
 			user_kyc["response"] = data
 			return generateResponse(message="KRA USER KYC", data=user_kyc)
 		return generateResponse(message="KYC not found")
