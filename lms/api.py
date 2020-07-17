@@ -378,50 +378,50 @@ def get_user_kyc(pan_no, birth_date):
 			# return generateResponse(message="User KYC", data=user_kyc_list[0])
 
 		# check in choice
-		# url = "https://uat-pwa.choicetechlab.com/api/spark/getByPanNumDetails"
-		# params = {"panNum": pan_no}
-		# headers = {
-		# 	"businessUnit": "JF",
-		# 	"userId": "Spark",
-		# 	"investorId": "1",
-		# 	"ticket": "c3Bhcms="
-		# }
-		# r = requests.get(url, params=params, headers=headers)
-		# data = json.loads(r.text)
-		# if 'status' not in data:
-		# 	user_kyc = frappe.get_doc({
-		# 		"doctype": "User KYC",
-		# 		"user": frappe.session.user,
-		# 		"user_type": "CHOICE",
-		# 		"investor_name": data["investorName"],
-		# 		"father_name": data["fatherName"],
-		# 		"mother_name": data["motherName"],
-		# 		"address": data["address"],
-		# 		"city": data["addressCity"],
-		# 		"state": data["addressState"],
-		# 		"pincode": data["addressPinCode"],
-		# 		"mobile_number": data["mobileNum"],
-		# 		"choice_client_id": data["clientId"],
-		# 		"pan_no": data["panNum"],
-		# 		"aadhar_no": data["panNum"],
-		# 		"bank_account_type": data["accountType"],
-		# 		"bank_name": data["bank"],
-		# 		"bank_code": data["bankcode"],
-		# 		"bank_mode": data["bankMode"],
-		# 		"bank_branch": data["branch"],
-		# 		"bank_ifsc": data["ifsc"],
-		# 		"bank_micr": data["micr"],
-		# 		"bank_account_number": data["accountNumber"],
-		# 		"bank_address": data["bankAddress"],
-		# 		"bank_address_district": data["district"],
-		# 		"bank_address_city": data["city"],
-		# 		"bank_address_state": data["state"],
-		# 		"bank_address_pincode": data["bankZipCode"],
-		# 		"bank_contact": data["contact"]
-		# 	})
-		# 	user_kyc.insert(ignore_permissions=True)
-		# 	frappe.db.commit()
-		# 	return generateResponse(message="CHOICE USER KYC", data={"user_kyc": user_kyc, "response": data})
+		url = "https://uat-pwa.choicetechlab.com/api/spark/getByPanNumDetails"
+		params = {"panNum": pan_no}
+		headers = {
+			"businessUnit": "JF",
+			"userId": "Spark",
+			"investorId": "1",
+			"ticket": "c3Bhcms="
+		}
+		r = requests.get(url, params=params, headers=headers)
+		data = json.loads(r.text)
+		if 'status' not in data:
+			user_kyc = frappe.get_doc({
+				"doctype": "User KYC",
+				"user": frappe.session.user,
+				"user_type": "CHOICE",
+				"investor_name": data["investorName"],
+				"father_name": data["fatherName"],
+				"mother_name": data["motherName"],
+				"address": data["address"],
+				"city": data["addressCity"],
+				"state": data["addressState"],
+				"pincode": data["addressPinCode"],
+				"mobile_number": data["mobileNum"],
+				"choice_client_id": data["clientId"],
+				"pan_no": data["panNum"],
+				"aadhar_no": data["panNum"],
+				"bank_account_type": data["accountType"],
+				"bank_name": data["bank"],
+				"bank_code": data["bankcode"],
+				"bank_mode": data["bankMode"],
+				"bank_branch": data["branch"],
+				"bank_ifsc": data["ifsc"],
+				"bank_micr": data["micr"],
+				"bank_account_number": data["accountNumber"],
+				"bank_address": data["bankAddress"],
+				"bank_address_district": data["district"],
+				"bank_address_city": data["city"],
+				"bank_address_state": data["state"],
+				"bank_address_pincode": data["bankZipCode"],
+				"bank_contact": data["contact"]
+			})
+			user_kyc.insert(ignore_permissions=True)
+			frappe.db.commit()
+			return generateResponse(message="CHOICE USER KYC", data={"user_kyc": user_kyc, "response": data})
 
 		# check in kra
 		url = "https://www.cvlkra.com/paninquiry.asmx/SolicitPANDetailsFetchALLKRA"
