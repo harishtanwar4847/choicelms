@@ -177,10 +177,10 @@ def add_user(first_name,last_name,phone,email):
 			phone=phone,
 			mobile_no=phone,
 			send_welcome_email=0,
-			# new_password = '123456789',
+			new_password = '{0}-{0}'.format(datetime.now().strftime('%s')),
 			roles=[{"doctype": "Has Role", "role": "Loan Customer"}]
 		)).insert(ignore_permissions=True)
-		# update_password(user.name, '123456789')
+		update_password(user.name, '{0}-{0}'.format(datetime.now().strftime('%s')))
 		return user.name
 	except Exception:
 		return False
