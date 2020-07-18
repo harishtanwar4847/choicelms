@@ -38,5 +38,15 @@
   "parent": null,
   "parentfield": null,
   "parenttype": null
+ },
+ {
+  "category": "Cat D",
+  "docstatus": 0,
+  "doctype": "Security Category",
+  "modified": "2020-07-18 21:14:15.509977",
+  "name": "Cat D",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null
  }
 ]
