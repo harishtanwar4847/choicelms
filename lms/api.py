@@ -601,7 +601,7 @@ def cdsl_pedge(securities, expiry=None, pledgor_boid=None, pledgee_boid=None):
 			"ExpiryDate": expiry.strftime('%d%m%Y'),
 			"ISINDTLS": securities_array
 		}
-		payload = json.dumps(payload)
+		# payload = json.dumps(payload)
 		frappe.logger().info(["cdsl_pedge", payload])
 		response = requests.post(
 			API_URL,
