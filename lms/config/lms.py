@@ -92,6 +92,20 @@ def get_data():
 					"label": _("Mobile OTP"),
 					"description": _("Mobile OTP"),
 					"onboard": 1
+				},
+				{
+					"type": "doctype",
+					"name": "Security Category",
+					"label": _("Security Category"),
+					"description": _("Security Category"),
+					"onboard": 1
+				},
+				{
+					"type": "doctype",
+					"name": "Concentration Rule",
+					"label": _("Concentration Rule"),
+					"description": _("Concentration Rule"),
+					"onboard": 1
 				}
 			]
 		}
