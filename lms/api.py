@@ -736,7 +736,7 @@ def cdsl_confiscate(securities_array=None):
 		return generateResponse(is_success=False, message="Something Wrong Please Check Error Log", error=e)
 
 @frappe.whitelist()
-def my_cart(securities, expiry=None):
+def my_cart(securities, cart_name=None, expiry=None):
 	try:
 		if not securities or "list" not in securities.keys():
 			return generateResponse(status=422, message="Securities required")
@@ -796,14 +796,23 @@ def my_cart(securities, expiry=None):
 
 			cart_items.append(item)
 
-		cart = frappe.get_doc({
-			"doctype": "Cart",
-			"user": frappe.session.user,
-			"expiry": expiry,
-			"cart_items": cart_items
-		})
+		if not cart_name:
+			cart = frappe.get_doc({
+				"doctype": "Cart",
+				"user": frappe.session.user,
+				"expiry": expiry,
+				"cart_items": cart_items
+			})
+			cart.insert(ignore_permissions=True)
+		else:
+			cart = frappe.get_doc("Cart", cart_name)
+			if not cart:
+				return generateResponse(status=404, message="Cart not found.")
+			if cart.owner != frappe.session.user:
+				return generateResponse(status=403, message="Please use your own cart.")
 
-		cart.insert(ignore_permissions=True)
+			cart.cart_items = cart_items
+			cart.save(ignore_permissions=True)
 
 		return generateResponse(message="Cart Saved", data=cart)
 	except Exception as e:
