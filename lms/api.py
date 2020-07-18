@@ -482,6 +482,38 @@ def get_pan(pan_no,birth_date):
 	except Exception as e:
 		return generateResponse(is_success=False, message="Something Wrong Please Check Error Log", error=e)
 
+@frappe.whitelist()
+def get_share_list():
+	try:
+		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user": frappe.session.user }, order_by="user_type", fields=["*"])
+
+		if len(user_kyc_list) == 0:
+			return generateResponse(status=422, message="User KYC not done.")
+
+		if user_kyc_list[0].user_type != "CHOICE":
+			return generateResponse(status=422, message="CHOICE KYC not done.")
+
+		# get securities list from choice
+		url = "https://api.choicebroking.in/api/middleware/GetClientHoldingDetails"
+		data = {
+			"UserID": "Spark",
+			"ClientID": user_kyc_list[0].choice_client_id
+		}
+
+		res = requests.post(url, json=data)
+
+		res_json = res.json()
+		if res_json["Status"] != "Success":
+			return generateResponse(status=422, message="Problem in getting securities list")
+			
+		# setting eligibility
+		securities_list = res_json["Response"]
+		for i in securities_list:
+			i["Is_Eligible"] = True if frappe.db.count("Allowed Security Master", { "isin_no": i["ISIN"], "is_allowed": 1 }) > 0 else False
+		
+		return generateResponse(message="securities list", data=securities_list)
+	except Exception as e:
+		return generateResponse(is_success=False, data=e, error=e)
 
 def get_cdsl_headers():
 
