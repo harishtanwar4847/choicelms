@@ -516,7 +516,7 @@ def get_share_list():
 		# setting eligibility
 		securities_list = res_json["Response"]
 		for i in securities_list:
-			allowed_securities_list = frappe.db.get_list("Allowed Security Master", filters={ "isin_no": i["ISIN"] }, fields=["*"])
+			allowed_securities_list = frappe.db.get_all("Allowed Security Master", filters={ "isin_no": i["ISIN"] }, fields=["*"])
 			i["Is_Eligible"] = False
 			i["Category"] = None
 			if len(allowed_securities_list) > 0:
