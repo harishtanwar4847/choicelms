@@ -47,75 +47,63 @@
   {
    "fieldname": "investor_name",
    "fieldtype": "Data",
-   "label": "Investor Name",
-   "read_only": 1
+   "label": "Investor Name"
   },
   {
    "fieldname": "father_name",
    "fieldtype": "Data",
-   "label": "Father Name",
-   "read_only": 1
+   "label": "Father Name"
   },
   {
    "fieldname": "mother_name",
    "fieldtype": "Data",
-   "label": "Mother Name",
-   "read_only": 1
+   "label": "Mother Name"
   },
   {
    "fieldname": "address",
    "fieldtype": "Data",
-   "label": "Address",
-   "read_only": 1
+   "label": "Address"
   },
   {
    "fieldname": "city",
    "fieldtype": "Data",
-   "label": "City",
-   "read_only": 1
+   "label": "City"
   },
   {
    "fieldname": "state",
    "fieldtype": "Data",
-   "label": "State",
-   "read_only": 1
+   "label": "State"
   },
   {
    "fieldname": "pincode",
    "fieldtype": "Data",
-   "label": "Pincode",
-   "read_only": 1
+   "label": "Pincode"
   },
   {
    "fieldname": "mobile_number",
    "fieldtype": "Data",
-   "label": "Mobile Number",
-   "read_only": 1
+   "label": "Mobile Number"
   },
   {
    "fieldname": "choice_client_id",
    "fieldtype": "Data",
-   "label": "Choice Client Id",
-   "read_only": 1
+   "label": "Choice Client Id"
   },
   {
    "fieldname": "pan_no",
    "fieldtype": "Data",
-   "label": "PAN No",
-   "read_only": 1
+   "label": "PAN No"
   },
   {
    "fieldname": "aadhar_no",
    "fieldtype": "Data",
-   "label": "Aadhar No",
-   "read_only": 1
+   "label": "Aadhar No"
   },
   {
    "fieldname": "bank",
    "fieldtype": "Link",
    "label": "Bank",
-   "options": "User Bank Details",
-   "read_only": 1
+   "options": "User Bank Details"
   },
   {
    "fieldname": "user_type",
@@ -129,8 +117,7 @@
   {
    "fieldname": "bank_account_type",
    "fieldtype": "Data",
-   "label": "Bank Account Type",
-   "read_only": 1
+   "label": "Bank Account Type"
   },
   {
    "fieldname": "bank_name",
@@ -198,7 +185,7 @@
    "label": "Bank Contact"
   }
  ],
- "modified": "2020-07-17 13:40:26.602681",
+ "modified": "2020-07-18 16:07:38.103656",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
