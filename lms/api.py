@@ -734,3 +734,77 @@ def cdsl_confiscate(securities_array=None):
 	except Exception as e:
 		print(e)
 		return generateResponse(is_success=False, message="Something Wrong Please Check Error Log", error=e)
+
+@frappe.whitelist()
+def my_cart(securities, expiry=None):
+	try:
+		if not securities or "list" not in securities.keys():
+			return generateResponse(status=422, message="Securities required")
+		
+		securities = securities["list"]
+		# check if securities is a list of dict
+		securities_valid = True
+		
+		if type(securities) is not list:
+			securities_valid = False
+			message = "securities should be list of dictionaries"
+
+		if securities_valid:
+			for i in securities:
+				if type(i) is not dict:
+					securities_valid = False
+					message = "items in securities need to be dictionaries"
+					break
+				
+				keys = i.keys()
+				if "isin" not in keys or "quantity" not in keys or "price" not in keys:
+					securities_valid = False
+					message = "any/all of isin, quantity, price not present"
+					break
+
+				if type(i["isin"]) is not str or len(i["isin"]) > 12:
+					securities_valid = False
+					message = "isin not correct"
+					break
+
+				if not is_float_num_valid(i["quantity"], 16, 3):
+					securities_valid = False
+					message = "quantity not correct"
+					break
+
+				if not is_float_num_valid(i["price"], 14, 2):
+					securities_valid = False
+					message = "price not correct"
+					break
+
+
+		if not securities_valid:
+			return generateResponse(status=422, message=message)
+
+		if not expiry:
+			expiry = datetime.now() + timedelta(days = 365)
+
+
+		cart_items = []
+		for i in securities:
+			item = frappe.get_doc({
+				"doctype": "Cart Item",
+				"isin": i["isin"],
+				"pledged_quantity": i["quantity"],
+				"price": i["price"] 
+			})
+
+			cart_items.append(item)
+
+		cart = frappe.get_doc({
+			"doctype": "Cart",
+			"user": frappe.session.user,
+			"expiry": expiry,
+			"cart_items": cart_items
+		})
+
+		cart.insert(ignore_permissions=True)
+
+		return generateResponse(message="Cart Saved", data=cart)
+	except Exception as e:
+		return generateResponse(is_success=False, error=e)
