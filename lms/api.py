@@ -516,7 +516,12 @@ def get_share_list():
 		# setting eligibility
 		securities_list = res_json["Response"]
 		for i in securities_list:
-			i["Is_Eligible"] = True if frappe.db.count("Allowed Security Master", { "isin_no": i["ISIN"], "is_allowed": 1 }) > 0 else False
+			allowed_securities_list = frappe.db.get_list("Allowed Security Master", filters={ "isin_no": i["ISIN"], "is_allowed": 1 }, fields=["*"])
+			i["Is_Eligible"] = False
+			i["Category"] = None
+			if len(allowed_securities_list) > 0:
+				i["Is_Eligible"] = True
+				i["Category"] = allowed_securities_list[0].category
 		
 		return generateResponse(message="securities list", data=securities_list)
 	except Exception as e:
