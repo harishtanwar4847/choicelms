@@ -16,7 +16,7 @@ import frappe.share
 from frappe.model.mapper import get_mapped_doc
 from erpnext.selling.doctype.sales_order.sales_order import update_status
 from html2text import html2text
-import re, datetime
+import re
 import string
 import random
 import json
@@ -28,7 +28,7 @@ import requests
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.auth import LoginManager
 from frappe.utils.password import delete_login_failed_cache
-from datetime import datetime
+from datetime import datetime, timedelta
 from xmljson import parker
 from xml.etree.ElementTree import fromstring
 
@@ -494,6 +494,7 @@ def get_cdsl_headers():
 
 	 return {
 	 		"Referer": "https://www.cdslindia.com/index.html",
+	 		# "Referer": "https://dev.sparklms.atritechnocrat.in",
 			"DPID": "66900",
 			"UserID": "ADMIN",
 			"Password": "CDsl12##"
@@ -520,37 +521,95 @@ def get_cdsl_headers():
 #   http://mockapp.cdslindia.com/PledgeAPIService/api/pledgesetup
 
 def get_cdsl_prf_no():
-	import datetime
-	return datetime.datetime.now().strftime('%s')
+	return datetime.now().strftime('%s')
+
+def is_float_num_valid(num, length, precision):
+	valid = True
+	
+	valid = True if type(num) is float else False
+	
+	num_str = str(num)
+	if valid:
+		valid = True if len(num_str.replace('.', '')) <= length else False
+
+	if valid:
+		valid = True if len(num_str.split('.')[1]) <= precision else False
+
+	return valid
 
 @frappe.whitelist()
-def cdsl_pedge(pledgor_boid=None, securities_array=None):
+def cdsl_pedge(securities, expiry=None, pledgor_boid=None, pledgee_boid=None):
 	try:
+		if not securities or "list" not in securities.keys():
+			return generateResponse(status=422, message="Securities required")
+		
+		securities = securities["list"]
+		# check if securities is a list of dict
+		securities_valid = True
+		
+		if type(securities) is not list:
+			securities_valid = False
+			message = "securities should be list of dictionaries"
+
+		if securities_valid:
+			for i in securities:
+				if type(i) is not dict:
+					securities_valid = False
+					message = "items in securities need to be dictionaries"
+					break
+				
+				keys = i.keys()
+				if "isin" not in keys or "quantity" not in keys or "value" not in keys:
+					securities_valid = False
+					message = "any/all of isin, quantity, value not present"
+					break
+
+				if type(i["isin"]) is not str or len(i["isin"]) > 12:
+					securities_valid = False
+					message = "isin not correct"
+					break
+
+				if not is_float_num_valid(i["quantity"], 16, 3):
+					securities_valid = False
+					message = "quantity not correct"
+					break
+
+				if not is_float_num_valid(i["value"], 14, 2):
+					securities_valid = False
+					message = "value not correct"
+					break
+
+
+		if not securities_valid:
+			return generateResponse(status=422, message=message)
+
+		if not expiry:
+			expiry = datetime.now() + timedelta(days = 365)
+		
 		if not pledgor_boid:
 			pledgor_boid = "1206690000014534"
-		if not securities_array:
-			securities_array = [
-			  {
-				"ISIN": "INE138A01028",
-				"Quantity": "100.000",
-				"Value": "200"
-			  },
-			  {
-				"ISIN": "INE221H01019",
-				"Quantity": "100.000",
-				"Value": "200.00"
-			  }
-			]
+		if not pledgee_boid:
+			pledgee_boid = "1206690000014023"
+
+		securities_array = []
+		for i in securities:
+			j = {
+				"ISIN": i["isin"],
+				"Quantity": i["quantity"],
+				"Value": i["value"]
+			}
+			securities_array.append(j)
+
 		API_URL = "http://mockapp.cdslindia.com/PledgeAPIService/api/pledgesetup"
 		payload = {
-					  "PledgorBOID": pledgor_boid, #customer
-					  "PledgeeBOID": "1206690000014023", #our client
-					  "PRFNumber": "PL" + get_cdsl_prf_no(),
-					  "ExpiryDate": "12122020",
-					  "ISINDTLS": json.loads(securities_array)
-					}
-
-		print("cdsl_pedge", payload)
+			"PledgorBOID": pledgor_boid, #customer
+			"PledgeeBOID": pledgee_boid, #our client
+			"PRFNumber": "PL" + get_cdsl_prf_no(),
+			"ExpiryDate": expiry.strftime('%d%m%Y'),
+			"ISINDTLS": securities_array
+		}
+		# payload = json.dumps(payload)
+		frappe.logger().info(["cdsl_pedge", payload])
 		response = requests.post(
 			API_URL,
 			headers=get_cdsl_headers(),
@@ -558,7 +617,8 @@ def cdsl_pedge(pledgor_boid=None, securities_array=None):
 		)
 
 		print(response.text)
-		response_json = json.loads(response.text)
+		response_json = response.json()
+		frappe.logger().info(['res', response_json])
 		print("response_json", response_json)
 		if response_json and response_json.get("Success") == True:
 			return generateResponse(message="CDSL", data=response_json)
@@ -566,7 +626,7 @@ def cdsl_pedge(pledgor_boid=None, securities_array=None):
 			return generateResponse(is_success=False, message="CDSL Pledge Error", data=response_json)
 	except Exception as e:
 		print(e)
-		return generateResponse(is_success=False, message="Something Wrong Please Check Error Log", error=e)
+		return generateResponse(is_success=False, error=e)
 
 
 @frappe.whitelist()
