@@ -52,12 +52,12 @@
   },
   {
    "fieldname": "category",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Category",
-   "options": "Super Cat A\nCat A\nCat B\nCat C"
+   "options": "Security Category"
   }
  ],
- "modified": "2020-07-18 19:27:39.025673",
+ "modified": "2020-07-18 19:35:16.344153",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security Master",
