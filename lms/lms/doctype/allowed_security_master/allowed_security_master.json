@@ -12,8 +12,7 @@
   "category",
   "depository",
   "type",
-  "eligible_percentage",
-  "is_allowed"
+  "eligible_percentage"
  ],
  "fields": [
   {
@@ -39,12 +38,6 @@
    "label": "Eligible Percentage"
   },
   {
-   "default": "1",
-   "fieldname": "is_allowed",
-   "fieldtype": "Check",
-   "label": "Is Allowed"
-  },
-  {
    "fieldname": "isin_no",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -59,12 +52,12 @@
   },
   {
    "fieldname": "category",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Category",
-   "options": "Super Cat A\nCat A\nCat B\nCat C"
+   "options": "Security Category"
   }
  ],
- "modified": "2020-06-25 12:29:22.278541",
+ "modified": "2020-07-18 19:35:16.344153",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security Master",

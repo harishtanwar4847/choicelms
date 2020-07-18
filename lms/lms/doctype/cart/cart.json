@@ -6,81 +6,62 @@
  "engine": "InnoDB",
  "field_order": [
   "user",
-  "column_break_2",
-  "platform",
-  "column_break_4",
-  "expiredon",
-  "column_break_6",
-  "converted",
-  "column_break_8",
-  "status",
-  "section_break_10",
-  "cart_item",
-  "cart_total"
+  "total",
+  "cart_column_break",
+  "expiry",
+  "bre_passing",
+  "cart_item_section",
+  "cart_items"
  ],
  "fields": [
   {
    "fieldname": "user",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "User",
-   "options": "User"
+   "options": "User",
+   "read_only": 1,
+   "reqd": 1
   },
   {
-   "fieldname": "column_break_2",
+   "fieldname": "total",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cart_column_break",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "platform",
-   "fieldtype": "Select",
-   "label": "Platform",
-   "options": "\nWeb\nMobileapp"
-  },
-  {
-   "fieldname": "column_break_4",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "expiredon",
+   "fieldname": "expiry",
    "fieldtype": "Date",
-   "label": "ExpiredOn"
+   "in_list_view": 1,
+   "label": "Expiry",
+   "read_only": 1,
+   "reqd": 1
   },
   {
-   "fieldname": "column_break_6",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "converted",
-   "fieldtype": "Check",
-   "label": "Converted"
-  },
-  {
-   "fieldname": "column_break_8",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "label": "Status",
-   "options": "\nBeforePledge\nDraft\nConverted"
-  },
-  {
-   "fieldname": "section_break_10",
+   "fieldname": "cart_item_section",
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "cart_item",
-   "fieldtype": "Table",
-   "label": "Cart Item",
-   "options": "Cart Item"
+   "default": "0",
+   "fieldname": "bre_passing",
+   "fieldtype": "Check",
+   "label": "Are BRE Passing?",
+   "read_only": 1
   },
   {
-   "fieldname": "cart_total",
-   "fieldtype": "Float",
-   "label": "Cart Total"
+   "fieldname": "cart_items",
+   "fieldtype": "Table",
+   "label": "Cart Item",
+   "options": "Cart Item",
+   "reqd": 1
   }
  ],
- "modified": "2020-05-08 16:23:47.788497",
+ "modified": "2020-07-18 23:54:46.960787",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart",
