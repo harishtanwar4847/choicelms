@@ -132,5 +132,5 @@ fixtures = [
         "doctype": "Role",
         "filters": [["name", "in", ["Loan Customer"]]]
     },
-    "Allowed Security Master", "Security Category"
+    "Allowed Security Master", "Security Category", "Concentration Rule"
 ]
