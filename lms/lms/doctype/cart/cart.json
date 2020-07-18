@@ -6,89 +6,60 @@
  "engine": "InnoDB",
  "field_order": [
   "user",
-  "column_break_2",
-  "platform",
-  "column_break_4",
-  "expiredon",
-  "column_break_6",
-  "converted",
-  "column_break_8",
-  "status",
-  "section_break_10",
-  "cart_item",
-  "cart_total",
-  "is_passing"
+  "total",
+  "cart_column_break",
+  "expiry",
+  "bre_passing",
+  "cart_item_section",
+  "cart_item"
  ],
  "fields": [
   {
    "fieldname": "user",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "User",
-   "options": "User"
-  },
-  {
-   "fieldname": "column_break_2",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "platform",
-   "fieldtype": "Select",
-   "label": "Platform",
-   "options": "\nWeb\nMobileapp"
-  },
-  {
-   "fieldname": "column_break_4",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "expiredon",
-   "fieldtype": "Date",
-   "label": "ExpiredOn"
-  },
-  {
-   "fieldname": "column_break_6",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "converted",
-   "fieldtype": "Check",
-   "label": "Converted"
-  },
-  {
-   "fieldname": "column_break_8",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "label": "Status",
-   "options": "\nBeforePledge\nDraft\nConverted"
-  },
-  {
-   "fieldname": "section_break_10",
-   "fieldtype": "Section Break"
+   "options": "User",
+   "reqd": 1
   },
   {
    "fieldname": "cart_item",
    "fieldtype": "Table",
    "label": "Cart Item",
-   "options": "Cart Item"
+   "options": "Cart Item",
+   "reqd": 1
   },
   {
-   "fieldname": "cart_total",
+   "fieldname": "total",
    "fieldtype": "Float",
-   "label": "Cart Total"
+   "in_list_view": 1,
+   "label": "Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cart_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "expiry",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Expiry",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cart_item_section",
+   "fieldtype": "Section Break"
   },
   {
    "default": "0",
-   "fieldname": "is_passing",
+   "fieldname": "bre_passing",
    "fieldtype": "Check",
-   "label": "Is Cart Passing",
+   "label": "Are BRE Passing?",
    "read_only": 1
   }
  ],
- "modified": "2020-07-18 19:22:10.019600",
+ "modified": "2020-07-18 22:41:42.215097",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart",
