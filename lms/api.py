@@ -57,7 +57,7 @@ def generateResponse(is_success=True, status=200, message=None, data=[], error=N
 	return response
 
 @frappe.whitelist(allow_guest=True)
-def custom_login(mobile):
+def custom_login(mobile, pin=None):
 	# take user input from STDIN
 	try:
 		# validation
@@ -66,12 +66,19 @@ def custom_login(mobile):
 		if len(mobile) != 10 or not mobile.isdigit():
 			return generateResponse(status=422, message="Enter valid Mobile.")
 		
+		if pin:
+			login_manager = LoginManager()
+			login_manager.authenticate(user=mobile, pwd=pin)
+
 		res = send_otp(mobile)
 		if res == True:
 			return generateResponse(message="OTP Send Successfully")
 		else:
 			return generateResponse(status=500, message="There was some problem while sending OTP. Please try again.")
-
+	except frappe.AuthenticationError as e:
+		return generateResponse(status=401, message="Incorrect PIN")
+	except frappe.SecurityException as e:
+		return generateResponse(status=401, message=str(e))
 	except Exception as e:
 		return generateResponse(is_success=False, error=e)
 
