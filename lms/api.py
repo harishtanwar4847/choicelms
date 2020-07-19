@@ -166,7 +166,7 @@ def generate_user_token(user_name):
 	
 	return "token {}:{}".format(api_key, secret_key)
 
-def add_user(first_name,last_name,phone,email):
+def add_user(first_name, last_name, phone, email):
 	try:
 		user = frappe.get_doc(dict(
 			doctype="User",
@@ -177,7 +177,7 @@ def add_user(first_name,last_name,phone,email):
 			phone=phone,
 			mobile_no=phone,
 			send_welcome_email=0,
-			new_password = '{0}-{0}'.format(datetime.now().strftime('%s')),
+			new_password='{0}-{0}'.format(datetime.now().strftime('%s')),
 			roles=[{"doctype": "Has Role", "role": "Loan Customer"}]
 		)).insert(ignore_permissions=True)
 		update_password(user.name, '{0}-{0}'.format(datetime.now().strftime('%s')))
