@@ -5,115 +5,50 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "cardid",
   "user",
-  "platform",
-  "bankname",
-  "bankloadid",
-  "interest_rate",
-  "status",
-  "column_break_8",
-  "utilised_amount",
-  "interest_due_amount",
+  "cart",
   "total",
-  "total_interest",
-  "shortfall_amount",
-  "is_shortfall_recovery",
-  "last_fetched_from_bank",
-  "section_break_16",
-  "loan_item"
+  "section_break_4",
+  "items"
  ],
  "fields": [
   {
-   "fieldname": "cardid",
-   "fieldtype": "Link",
-   "label": "CardID",
-   "options": "Cart"
-  },
-  {
    "fieldname": "user",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "User",
-   "options": "User"
+   "options": "User",
+   "read_only": 1,
+   "reqd": 1
   },
   {
-   "fieldname": "platform",
-   "fieldtype": "Data",
-   "label": "Platform"
-  },
-  {
-   "fieldname": "bankname",
-   "fieldtype": "Data",
-   "label": "BankName"
-  },
-  {
-   "fieldname": "bankloadid",
-   "fieldtype": "Data",
-   "label": "BankLoadID"
-  },
-  {
-   "fieldname": "interest_rate",
-   "fieldtype": "Float",
-   "label": "Interest Rate"
-  },
-  {
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "label": "Status",
-   "options": "\nCreated, Document Verification Pending\nDocument Verified\nApproved, Rejected\nDefault\nCancelled\nShortFall\nOn Hold\nLoan Agreement"
-  },
-  {
-   "fieldname": "column_break_8",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "utilised_amount",
-   "fieldtype": "Float",
-   "label": "Utilised Amount"
-  },
-  {
-   "fieldname": "interest_due_amount",
-   "fieldtype": "Float",
-   "label": "Interest Due Amount"
+   "fieldname": "cart",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Cart",
+   "options": "Cart",
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "total",
-   "fieldtype": "Float",
-   "label": "Total"
+   "fieldtype": "Currency",
+   "label": "Total",
+   "read_only": 1
   },
   {
-   "fieldname": "total_interest",
-   "fieldtype": "Float",
-   "label": "Total Interest"
-  },
-  {
-   "fieldname": "shortfall_amount",
-   "fieldtype": "Float",
-   "label": "ShortFall Amount"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_shortfall_recovery",
-   "fieldtype": "Check",
-   "label": "Is ShortFall Recovery"
-  },
-  {
-   "fieldname": "last_fetched_from_bank",
-   "fieldtype": "Data",
-   "label": "Last Fetched From Bank"
-  },
-  {
-   "fieldname": "section_break_16",
+   "fieldname": "section_break_4",
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "loan_item",
+   "fieldname": "items",
    "fieldtype": "Table",
-   "label": "Loan Item",
-   "options": "Loan Item"
+   "label": "Loan Items",
+   "options": "Loan Item",
+   "reqd": 1
   }
  ],
- "modified": "2020-05-08 17:42:02.917452",
+ "modified": "2020-07-22 20:31:52.359947",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
@@ -128,6 +63,18 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Loan Customer",
    "share": 1,
    "write": 1
   }
