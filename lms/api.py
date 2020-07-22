@@ -507,8 +507,9 @@ def get_share_list():
 			"ClientID": user_kyc_list[0].choice_client_id
 		}
 
-		res = requests.post(url, json=data)
-
+		res = requests.post(url, json=data, headers={"Accept": "application/json"})
+		if not res.ok:
+			return generateResponse(status=res.status_code, message="There was a problem while getting share list from choice.")
 		res_json = res.json()
 		if res_json["Status"] != "Success":
 			return generateResponse(status=422, message="Problem in getting securities list")
