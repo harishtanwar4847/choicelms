@@ -822,3 +822,41 @@ def my_cart(securities, cart_name=None, expiry=None):
 		return generateResponse(message="Cart Saved", data=cart)
 	except Exception as e:
 		return generateResponse(is_success=False, error=e)
+
+@frappe.whitelist()
+def loan(cart_name):
+	try:
+		if not cart_name:
+			return generateResponse(status=422, message="Cart Name required.")
+
+		cart = frappe.get_doc("Cart", cart_name)
+
+		if cart.user != frappe.session.user:
+			return generateResponse(status=403, message="Cart does not belong to you.")
+
+		items = []
+		for item in cart.cart_items:
+			items.append({
+				"isin": item.isin,
+				"security_category": item.security_category,
+				"pledged_quantity": item.pledged_quantity,
+				"price": item.price,
+				"amount": item.eligible_amount,
+			})
+
+		loan = frappe.get_doc({
+			"doctype": "Loan",
+			"user": frappe.session.user,
+			"cart": cart_name,
+			"total": cart.total,
+			"items": items
+		})
+
+		loan.insert()
+
+		return generateResponse(message="Loan created", data=loan)
+		
+	except frappe.DoesNotExistError as e:
+		return generateResponse(status=404, message=str(e))
+	except Exception as e:
+		return generateResponse(is_success=False, error=e)

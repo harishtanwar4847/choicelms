@@ -8,7 +8,7 @@
   "user",
   "cart",
   "total",
-  "section_break_4",
+  "loan_items_section",
   "items"
  ],
  "fields": [
@@ -37,18 +37,18 @@
    "read_only": 1
   },
   {
-   "fieldname": "section_break_4",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Loan Items",
    "options": "Loan Item",
    "reqd": 1
+  },
+  {
+   "fieldname": "loan_items_section",
+   "fieldtype": "Section Break"
   }
  ],
- "modified": "2020-07-22 20:31:52.359947",
+ "modified": "2020-07-22 20:49:25.090940",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
