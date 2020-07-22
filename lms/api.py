@@ -743,6 +743,10 @@ def my_cart(securities, cart_name=None, expiry=None):
 			return generateResponse(status=422, message="Securities required")
 		
 		securities = securities["list"]
+
+		if len(securities) == 0:
+			return generateResponse(status=422, message="Securities required")
+
 		# check if securities is a list of dict
 		securities_valid = True
 		
