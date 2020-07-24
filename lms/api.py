@@ -166,7 +166,7 @@ def generate_user_token(user_name):
 	
 	return "token {}:{}".format(api_key, secret_key)
 
-def add_user(first_name,last_name,phone,email):
+def add_user(first_name, last_name, phone, email):
 	try:
 		user = frappe.get_doc(dict(
 			doctype="User",
@@ -177,7 +177,7 @@ def add_user(first_name,last_name,phone,email):
 			phone=phone,
 			mobile_no=phone,
 			send_welcome_email=0,
-			new_password = '{0}-{0}'.format(datetime.now().strftime('%s')),
+			new_password='{0}-{0}'.format(datetime.now().strftime('%s')),
 			roles=[{"doctype": "Has Role", "role": "Loan Customer"}]
 		)).insert(ignore_permissions=True)
 		update_password(user.name, '{0}-{0}'.format(datetime.now().strftime('%s')))
@@ -507,8 +507,9 @@ def get_share_list():
 			"ClientID": user_kyc_list[0].choice_client_id
 		}
 
-		res = requests.post(url, json=data)
-
+		res = requests.post(url, json=data, headers={"Accept": "application/json"})
+		if not res.ok:
+			return generateResponse(status=res.status_code, message="There was a problem while getting share list from choice.")
 		res_json = res.json()
 		if res_json["Status"] != "Success":
 			return generateResponse(status=422, message="Problem in getting securities list")
@@ -742,6 +743,10 @@ def my_cart(securities, cart_name=None, expiry=None):
 			return generateResponse(status=422, message="Securities required")
 		
 		securities = securities["list"]
+
+		if len(securities) == 0:
+			return generateResponse(status=422, message="Securities required")
+
 		# check if securities is a list of dict
 		securities_valid = True
 		
@@ -803,7 +808,7 @@ def my_cart(securities, cart_name=None, expiry=None):
 				"expiry": expiry,
 				"cart_items": cart_items
 			})
-			cart.insert(ignore_permissions=True)
+			cart.insert()
 		else:
 			cart = frappe.get_doc("Cart", cart_name)
 			if not cart:
@@ -812,8 +817,46 @@ def my_cart(securities, cart_name=None, expiry=None):
 				return generateResponse(status=403, message="Please use your own cart.")
 
 			cart.cart_items = cart_items
-			cart.save(ignore_permissions=True)
+			cart.save()
 
 		return generateResponse(message="Cart Saved", data=cart)
+	except Exception as e:
+		return generateResponse(is_success=False, error=e)
+
+@frappe.whitelist()
+def loan(cart_name):
+	try:
+		if not cart_name:
+			return generateResponse(status=422, message="Cart Name required.")
+
+		cart = frappe.get_doc("Cart", cart_name)
+
+		if cart.user != frappe.session.user:
+			return generateResponse(status=403, message="Cart does not belong to you.")
+
+		items = []
+		for item in cart.cart_items:
+			items.append({
+				"isin": item.isin,
+				"security_category": item.security_category,
+				"pledged_quantity": item.pledged_quantity,
+				"price": item.price,
+				"amount": item.eligible_amount,
+			})
+
+		loan = frappe.get_doc({
+			"doctype": "Loan",
+			"user": frappe.session.user,
+			"cart": cart_name,
+			"total": cart.total,
+			"items": items
+		})
+
+		loan.insert()
+
+		return generateResponse(message="Loan created", data=loan)
+		
+	except frappe.DoesNotExistError as e:
+		return generateResponse(status=404, message=str(e))
 	except Exception as e:
 		return generateResponse(is_success=False, error=e)

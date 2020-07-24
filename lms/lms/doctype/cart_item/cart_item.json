@@ -9,8 +9,7 @@
   "pledged_quantity",
   "price",
   "amount",
-  "bre_passing",
-  "bre_validation_message"
+  "eligible_amount"
  ],
  "fields": [
   {
@@ -43,28 +42,21 @@
    "reqd": 1
   },
   {
-   "default": "0",
-   "fieldname": "bre_passing",
-   "fieldtype": "Check",
-   "label": "Are BRE Passing?",
-   "read_only": 1
-  },
-  {
-   "fieldname": "bre_validation_message",
-   "fieldtype": "Data",
-   "label": "BRE Validation Message",
-   "read_only": 1
-  },
-  {
    "fieldname": "security_category",
    "fieldtype": "Link",
    "label": "Security Category",
    "options": "Security Category",
    "read_only": 1
+  },
+  {
+   "fieldname": "eligible_amount",
+   "fieldtype": "Float",
+   "label": "Eligible Amount",
+   "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2020-07-18 23:57:50.732091",
+ "modified": "2020-07-22 10:54:27.343921",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart Item",

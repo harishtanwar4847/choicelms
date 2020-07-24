@@ -9,7 +9,7 @@ from frappe.model.document import Document
 class Cart(Document):
 	def before_save(self):
 		self.calculate_total()
-		self.validate_bre()
+		self.process_bre()
 
 	def calculate_total(self):
 		total = 0
@@ -21,6 +21,14 @@ class Cart(Document):
 			item.set_security_category()
 
 		self.total = total
+
+	def process_bre(self):
+		eligible_amounts = []
+		for item in self.cart_items:
+			item.eligible_amount = item.amount * 0.5
+			eligible_amounts.append(item.eligible_amount)
+
+		self.eligible_amount = sum(eligible_amounts)
 
 	def validate_bre(self):
 		is_single_script = True if len(self.cart_items) == 1 else False
