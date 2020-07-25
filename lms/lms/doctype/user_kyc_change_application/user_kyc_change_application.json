@@ -1,4 +1,5 @@
 {
+ "autoname": "format:USR-KYC-CHNG-{MM}-{YYYY}-{#####}",
  "creation": "2020-07-25 12:06:03.241298",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -25,7 +26,7 @@
    "reqd": 1
   }
  ],
- "modified": "2020-07-25 12:06:03.241298",
+ "modified": "2020-07-25 12:11:56.908328",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC Change Application",
