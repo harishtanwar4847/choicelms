@@ -15,7 +15,7 @@ class UserKYC(Document):
 			changes = []
 
 			for key in new_dict.keys():
-				if key not in ['creation', 'modified']:
+				if key in ['investor_name', 'address']:
 					if new_dict[key] != old_dict[key]:
 						changes.append({
 							'parameter': key, 
