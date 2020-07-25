@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2020, SMB SOlutions and Contributors
+# Copyright (c) 2020, Atrina Technologies Pvt. Ltd. and Contributors
 # See license.txt
 from __future__ import unicode_literals
 

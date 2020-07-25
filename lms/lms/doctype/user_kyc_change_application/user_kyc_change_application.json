@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "user_kyc",
+  "status",
   "changes"
  ],
  "fields": [
@@ -24,9 +25,17 @@
    "label": "Changes",
    "options": "User KYC Change",
    "reqd": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nApproved\nRejected\nReverted",
+   "read_only": 1,
+   "reqd": 1
   }
  ],
- "modified": "2020-07-25 12:11:56.908328",
+ "modified": "2020-07-25 15:40:29.465193",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC Change Application",
