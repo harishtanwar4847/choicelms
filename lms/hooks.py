@@ -130,7 +130,11 @@ app_license = "MIT"
 fixtures = [
     {
         "doctype": "Role",
-        "filters": [["name", "in", ["Loan Customer"]]]
+        "filters": [["name", "in", ["Loan Customer", "Support Team"]]]
+    },
+    {
+        "doctype": "Workflow",
+        "filters": [["document_type", "in", ["User KYC Change Application"]]]
     },
     "Allowed Security Master", "Security Category", "Concentration Rule"
 ]
