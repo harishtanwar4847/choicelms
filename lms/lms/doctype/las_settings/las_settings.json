@@ -1,0 +1,85 @@
+{
+ "creation": "2020-07-25 03:31:32.303055",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "choice_settings_section_break",
+  "choice_host",
+  "choice_business_unit",
+  "choice_investor_id",
+  "choice_settings_column_break",
+  "choice_pan_details_uri",
+  "choice_user_id",
+  "choice_ticket"
+ ],
+ "fields": [
+  {
+   "fieldname": "choice_settings_section_break",
+   "fieldtype": "Section Break",
+   "label": "Choice Settings"
+  },
+  {
+   "fieldname": "choice_settings_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "https://uat-pwa.choicetechlab.com",
+   "fieldname": "choice_host",
+   "fieldtype": "Data",
+   "label": "Host"
+  },
+  {
+   "default": "/api/spark/getByPanNumDetails",
+   "fieldname": "choice_pan_details_uri",
+   "fieldtype": "Data",
+   "label": "PAN Details URI"
+  },
+  {
+   "default": "JF",
+   "fieldname": "choice_business_unit",
+   "fieldtype": "Data",
+   "label": "Business Unit"
+  },
+  {
+   "default": "1",
+   "fieldname": "choice_investor_id",
+   "fieldtype": "Data",
+   "label": "Investor ID"
+  },
+  {
+   "default": "Spark",
+   "fieldname": "choice_user_id",
+   "fieldtype": "Data",
+   "label": "User ID"
+  },
+  {
+   "default": "c3Bhcms=",
+   "fieldname": "choice_ticket",
+   "fieldtype": "Data",
+   "label": "Ticket"
+  }
+ ],
+ "issingle": 1,
+ "modified": "2020-07-25 03:34:50.224216",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "LAS Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
