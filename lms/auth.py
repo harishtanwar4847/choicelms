@@ -70,6 +70,8 @@ def verify_otp(mobile, otp):
 		return lms.generateResponse(status=e.http_status_code, message=str(e))
 	except frappe.SecurityException as e:
 		return lms.generateResponse(status=401, message=str(e))
+	except frappe.AuthenticationError as e:
+		return lms.generateResponse(status=401, message=_('Mobile no. does not exist.'))
 	except Exception as e:
 		return lms.generateResponse(is_success=False, error=e)
 
