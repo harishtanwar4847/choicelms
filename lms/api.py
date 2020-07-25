@@ -378,7 +378,8 @@ def get_user_kyc(pan_no, birth_date):
 
 		datetime.strptime(birth_date, "%d/%m/%Y")
 
-		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user": frappe.session.user }, order_by="user_type", fields=["*"])
+		user = frappe.get_doc('User', frappe.session.user)
+		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user": user.username }, order_by="user_type", fields=["*"])
 
 		if len(user_kyc_list) > 0:
 			return generateResponse(message="User KYC", data=user_kyc_list[0])
@@ -397,8 +398,8 @@ def get_user_kyc(pan_no, birth_date):
 		if 'status' not in data:
 			user_kyc = frappe.get_doc({
 				"doctype": "User KYC",
-				"user": frappe.session.user,
-				"user_type": "CHOICE",
+				"user_mobile_number": user.username,
+				"kyc_type": "CHOICE",
 				"investor_name": data["investorName"],
 				"father_name": data["fatherName"],
 				"mother_name": data["motherName"],

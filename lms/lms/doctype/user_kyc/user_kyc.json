@@ -5,20 +5,24 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "user",
-  "user_type",
+  "user_mobile_number",
+  "kyc_type",
+  "choice_client_id",
+  "basic_details_section_break",
   "investor_name",
   "father_name",
+  "pan_no",
+  "basic_details_column_break",
+  "mobile_number",
   "mother_name",
+  "aadhar_no",
+  "address_section_break",
   "address",
   "city",
+  "address_column_break_column",
   "state",
   "pincode",
-  "mobile_number",
-  "choice_client_id",
-  "pan_no",
-  "aadhar_no",
-  "bank",
+  "bank_details_section_break",
   "bank_account_type",
   "bank_name",
   "bank_code",
@@ -26,6 +30,7 @@
   "bank_branch",
   "bank_ifsc",
   "bank_micr",
+  "bank_details_column_break",
   "bank_account_number",
   "bank_address",
   "bank_address_district",
@@ -35,15 +40,6 @@
   "bank_contact"
  ],
  "fields": [
-  {
-   "fieldname": "user",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "User",
-   "options": "User",
-   "reqd": 1,
-   "set_only_once": 1
-  },
   {
    "fieldname": "investor_name",
    "fieldtype": "Data",
@@ -98,21 +94,6 @@
    "fieldname": "aadhar_no",
    "fieldtype": "Data",
    "label": "Aadhar No"
-  },
-  {
-   "fieldname": "bank",
-   "fieldtype": "Link",
-   "label": "Bank",
-   "options": "User Bank Details"
-  },
-  {
-   "fieldname": "user_type",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "User Type",
-   "options": "CHOICE\nKRA",
-   "reqd": 1,
-   "set_only_once": 1
   },
   {
    "fieldname": "bank_account_type",
@@ -183,9 +164,55 @@
    "fieldname": "bank_contact",
    "fieldtype": "Data",
    "label": "Bank Contact"
+  },
+  {
+   "fieldname": "kyc_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "KYC Type",
+   "options": "CHOICE\nKRA",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "basic_details_section_break",
+   "fieldtype": "Section Break",
+   "label": "Basic Details"
+  },
+  {
+   "fieldname": "basic_details_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "address_section_break",
+   "fieldtype": "Section Break",
+   "label": "Address"
+  },
+  {
+   "fieldname": "user_mobile_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "User Mobile Number",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "address_column_break_column",
+   "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "bank_details_section_break",
+   "fieldtype": "Section Break",
+   "label": "Bank Details"
+  },
+  {
+   "fieldname": "bank_details_column_break",
+   "fieldtype": "Column Break"
   }
  ],
- "modified": "2020-07-18 16:07:38.103656",
+ "modified": "2020-07-25 03:20:47.197699",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
