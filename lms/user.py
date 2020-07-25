@@ -137,3 +137,23 @@ def kyc(pan_no, birth_date):
 		return lms.generateResponse(status=e.http_status_code, message=str(e))
 	except Exception as e:
 		return lms.generateResponse(is_success=False, error=e)
+
+@frappe.whitelist()
+def tnc():
+	try:
+		user = frappe.get_doc('User', frappe.session.user)
+		
+		for tnc in frappe.get_list('Terms and Conditions', filters={'is_active': 1}):
+			approved_tnc = frappe.get_doc({
+				'doctype': 'Approved Terms and Conditions',
+				'mobile': user.username,
+				'tnc': tnc.name,
+				'time': datetime.now()
+			})
+			approved_tnc.insert(ignore_permissions=True)
+
+		return lms.generateResponse(message=_('Approved TnC saved.'))
+	except (lms.ValidationError, lms.ServerError) as e:
+		return lms.generateResponse(status=e.http_status_code, message=str(e))
+	except Exception as e:
+		return lms.generateResponse(is_success=False, error=e)
