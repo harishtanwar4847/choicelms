@@ -7,11 +7,7 @@ import frappe
 from frappe.model.document import Document
 
 class UserKYCChangeApplication(Document):
-	def after_save(self):
+	def on_update(self):
 		if self.status == 'Approved':
-			user_kyc = frappe.get_doc('User KYC', self.user_kyc)
-
 			for change in self.changes:
-				user_kyc[change.paremeter] = change.new_value
-
-			user_kyc.save(ignore_permissions=True)
+				frappe.db.set_value('User KYC', self.user_kyc, change.parameter, change.new_value)
