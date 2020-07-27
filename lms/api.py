@@ -371,18 +371,18 @@ def get_user(input):
 @frappe.whitelist()
 def get_user_kyc(pan_no, birth_date):
 	try:
+		user = frappe.get_doc('User', frappe.session.user)
+		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user": user.username }, order_by="user_type", fields=["*"])
+
+		if len(user_kyc_list) > 0:
+			return generateResponse(message="User KYC", data=user_kyc_list[0])
+
 		if not pan_no:
 			return generateResponse(status=422, message="Pan is required.")
 		if not birth_date:
 			return generateResponse(status=422, message="Birth date is required.")
 
 		datetime.strptime(birth_date, "%d/%m/%Y")
-
-		user = frappe.get_doc('User', frappe.session.user)
-		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user": user.username }, order_by="user_type", fields=["*"])
-
-		if len(user_kyc_list) > 0:
-			return generateResponse(message="User KYC", data=user_kyc_list[0])
 
 		# check in choice
 		url = "https://uat-pwa.choicetechlab.com/api/spark/getByPanNumDetails"
