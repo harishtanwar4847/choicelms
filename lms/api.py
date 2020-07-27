@@ -493,12 +493,14 @@ def get_pan(pan_no,birth_date):
 @frappe.whitelist()
 def get_share_list():
 	try:
-		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user": frappe.session.user }, order_by="user_type", fields=["*"])
+		user = frappe.get_doc('User', frappe.session.user)
+		
+		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user_mobile_number": user.username }, order_by="kyc_type", fields=["*"])
 
 		if len(user_kyc_list) == 0:
 			return generateResponse(status=422, message="User KYC not done.")
 
-		if user_kyc_list[0].user_type != "CHOICE":
+		if user_kyc_list[0].kyc_type != "CHOICE":
 			return generateResponse(status=422, message="CHOICE KYC not done.")
 
 		# get securities list from choice
