@@ -6,8 +6,9 @@
  "engine": "InnoDB",
  "field_order": [
   "user_mobile_number",
-  "kyc_type",
   "choice_client_id",
+  "column_break_3",
+  "kyc_type",
   "basic_details_section_break",
   "investor_name",
   "father_name",
@@ -210,9 +211,13 @@
   {
    "fieldname": "bank_details_column_break",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
   }
  ],
- "modified": "2020-07-25 03:20:47.197699",
+ "modified": "2020-07-27 16:07:57.290677",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
