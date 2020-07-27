@@ -32,6 +32,5 @@ class UserKYC(Document):
 				'changes': changes
 			})
 			user_kyc_change_application.insert(ignore_permissions=True)
-			frappe.db.set_value('User KYC', self.name, 'applied_for_change', 1)
 			frappe.db.commit()
 			frappe.throw(_('User KYC Change Application {} created').format(user_kyc_change_application.name))
