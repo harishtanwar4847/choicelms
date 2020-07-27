@@ -77,15 +77,15 @@ def verify_otp(mobile, otp):
 
 
 @frappe.whitelist(allow_guest=True)
-def register(first_name, phone, email, otp, last_name=None):
+def register(first_name, mobile, email, otp, last_name=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
 
 		if not first_name:
 			raise lms.ValidationError(_('First Name is required.'))
-		if not phone:
-			raise lms.ValidationError(_('Phone is required.'))
+		if not mobile:
+			raise lms.ValidationError(_('Mobile is required.'))
 		if not email:
 			raise lms.ValidationError(_('Email is required.'))
 		if not otp:
@@ -96,23 +96,23 @@ def register(first_name, phone, email, otp, last_name=None):
 		# empty string is a falsey value
 		if not frappe.utils.validate_email_address(email):
 			raise lms.ValidationError(_('Enter valid Email.'))
-		if len(phone) != 10 or not phone.isdigit():
-			raise lms.ValidationError(_('Enter valid Phone.'))
+		if len(mobile) != 10 or not mobile.isdigit():
+			raise lms.ValidationError(_('Enter valid Mobile.'))
 		if len(otp) != 4 or not otp.isdigit():
 			raise lms.ValidationError(_('Enter 4 digit OTP.'))
 
-		if type(lms.get_user(phone)) is str:
+		if type(lms.get_user(mobile)) is str:
 			raise lms.ValidationError(_('Mobile already Registered.'))
 		if type(lms.get_user(email)) is str:
 			raise lms.ValidationError(_('Email already Registered.'))
 
 		# validating otp to protect sign up api
-		otpobj = frappe.db.get_all("User Token", {"entity": phone, "token_type": "OTP", "token": otp, "verified": 0})
+		otpobj = frappe.db.get_all("User Token", {"entity": mobile, "token_type": "OTP", "token": otp, "verified": 0})
 		if len(otpobj) == 0:
 			raise lms.ValidationError(_('Wrong OTP'))
 
 		# creating user
-		user_name = lms.add_user(first_name, last_name, phone, email)
+		user_name = lms.add_user(first_name, last_name, mobile, email)
 		if type(user_name) is str:
 			token = dict(
 				token=lms.generate_user_token(user_name),
@@ -122,7 +122,7 @@ def register(first_name, phone, email, otp, last_name=None):
 
 			return lms.generateResponse(message=_('Registered Successfully.'), data=token)
 		else:
-			return lms.generateResponse(status=500, message="Something Wrong During User Creation. Try Again.")
+			return lms.generateResponse(status=500, message=_('Something Wrong During User Creation. Try Again.'))
 	except (lms.ValidationError, lms.ServerError) as e:
 		return lms.generateResponse(status=e.http_status_code, message=str(e))
 	except Exception as e:
