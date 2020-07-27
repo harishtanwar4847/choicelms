@@ -176,7 +176,7 @@ def securities():
 
 		# get securities list from choice
 		data = {
-			"UserID": "Spark",
+			"UserID": las_settings.choice_user_id,
 			"ClientID": user_kyc_list[0].choice_client_id
 		}
 
