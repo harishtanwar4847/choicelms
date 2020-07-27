@@ -29,15 +29,15 @@ def set_pin(pin):
 @frappe.whitelist()
 def kyc(pan_no=None, birth_date=None):
 	try:
+		# validation
+		lms.validate_http_method('GET')
+
 		user = frappe.get_doc('User', frappe.session.user)
-		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user": user.username }, order_by="user_type", fields=["*"])
+		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user_mobile_number": user.username }, order_by="user_type", fields=["*"])
 
 		if len(user_kyc_list) > 0:
 			return lms.generateResponse(message="User KYC", data=user_kyc_list[0])
 		
-		# validation
-		lms.validate_http_method('GET')
-
 		if not pan_no:
 			raise lms.ValidationError(_('Pan is required.'))
 		if not birth_date:
