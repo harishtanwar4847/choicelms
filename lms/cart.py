@@ -26,6 +26,7 @@ def upsert(securities, cart_name=None, expiry=None):
 			message = _('securities should be list of dictionaries')
 
 		if securities_valid:
+			isin_list = []
 			for i in securities:
 				if type(i) is not dict:
 					securities_valid = False
@@ -42,6 +43,7 @@ def upsert(securities, cart_name=None, expiry=None):
 					securities_valid = False
 					message = _('isin not correct')
 					break
+				isin_list.append(i['isin'])
 
 				if not frappe.db.exists('Allowed Security Master', i['isin']):
 					securities_valid = False
@@ -57,6 +59,11 @@ def upsert(securities, cart_name=None, expiry=None):
 					securities_valid = False
 					message = _('price not correct')
 					break
+			
+			if len(set(isin_list)) != len(securities):
+				securities_valid = False
+				message = _('duplicate isin')
+
 
 
 		if not securities_valid:
