@@ -7,4 +7,10 @@ from __future__ import unicode_literals
 from frappe.model.document import Document
 
 class LASSettings(Document):
-	pass
+	def cdsl_headers(self):
+		return {
+	 		"Referer": self.cdsl_referrer,
+			"DPID": self.cdsl_dpid,
+			"UserID": self.cdsl_user_id,
+			"Password": self.cdsl_password
+		}

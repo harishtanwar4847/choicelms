@@ -156,3 +156,6 @@ def is_float_num_valid(num, length, precision):
 		valid = True if len(num_str.split('.')[1]) <= precision else False
 
 	return valid
+
+def get_cdsl_prf_no():
+	return 'PF{}'.format(datetime.now().strftime('%s'))

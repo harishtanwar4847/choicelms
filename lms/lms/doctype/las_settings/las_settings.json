@@ -15,7 +15,17 @@
   "choice_settings_column_break",
   "choice_securities_list_api",
   "choice_user_id",
-  "choice_ticket"
+  "choice_ticket",
+  "cdsl_section_break",
+  "cdsl_host",
+  "pledge_setup_uri",
+  "cdsl_referrer",
+  "cdsl_user_id",
+  "cdsl_column_break",
+  "unpledge_setup_uri",
+  "confiscate_setup_uri",
+  "cdsl_dpid",
+  "cdsl_password"
  ],
  "fields": [
   {
@@ -83,10 +93,68 @@
    "fieldname": "loan_interest",
    "fieldtype": "Data",
    "label": "Loan Interest"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "cdsl_section_break",
+   "fieldtype": "Section Break",
+   "label": "CDSL"
+  },
+  {
+   "default": "http://mockapp.cdslindia.com",
+   "fieldname": "cdsl_host",
+   "fieldtype": "Data",
+   "label": "CDSL Host"
+  },
+  {
+   "default": "/PledgeAPIService/api/pledgesetup",
+   "fieldname": "pledge_setup_uri",
+   "fieldtype": "Data",
+   "label": "Pledge Setup URI"
+  },
+  {
+   "fieldname": "cdsl_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "/PledgeAPIService/api/UnPledgeSetup",
+   "fieldname": "unpledge_setup_uri",
+   "fieldtype": "Data",
+   "label": "Unpledge Setup URI"
+  },
+  {
+   "default": "/PledgeAPIService/api/Confiscatesetup",
+   "fieldname": "confiscate_setup_uri",
+   "fieldtype": "Data",
+   "label": "Confiscate Setup URI"
+  },
+  {
+   "default": "https://www.cdslindia.com/index.html",
+   "fieldname": "cdsl_referrer",
+   "fieldtype": "Data",
+   "label": "CDSL Referrer"
+  },
+  {
+   "default": "ADMIN",
+   "fieldname": "cdsl_user_id",
+   "fieldtype": "Data",
+   "label": "CDSL User Id"
+  },
+  {
+   "default": "66900",
+   "fieldname": "cdsl_dpid",
+   "fieldtype": "Data",
+   "label": "CDSL DPID"
+  },
+  {
+   "default": "CDsl12##",
+   "fieldname": "cdsl_password",
+   "fieldtype": "Data",
+   "label": "CDSL Password"
   }
  ],
  "issingle": 1,
- "modified": "2020-07-27 15:18:52.621000",
+ "modified": "2020-07-27 19:16:05.871037",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

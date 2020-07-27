@@ -2,6 +2,7 @@ import frappe
 from frappe import _
 import lms
 from datetime import datetime, timedelta
+import requests
 
 @frappe.whitelist()
 def upsert(securities, cart_name=None, expiry=None):
@@ -95,6 +96,66 @@ def upsert(securities, cart_name=None, expiry=None):
 			cart.save()
 
 		return lms.generateResponse(message=_('Cart Saved'), data=cart)
+	except (lms.ValidationError, lms.ServerError) as e:
+		return lms.generateResponse(status=e.http_status_code, message=str(e))
+	except Exception as e:
+		return lms.generateResponse(is_success=False, error=e)
+
+@frappe.whitelist()
+def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
+	try:
+		# validation
+		lms.validate_http_method('POST')
+
+		if not cart_name:
+			raise lms.ValidationError(_('Cart name required.'))
+
+		cart = frappe.get_doc("Cart", cart_name)
+		if not cart:
+			return lms.generateResponse(status=404, message=_('Cart not found.'))
+		if cart.owner != frappe.session.user:
+			return lms.generateResponse(status=403, message=_('Please use your own cart.'))
+
+		if not pledgor_boid:
+			pledgor_boid = '1206690000014534'
+		if not pledgee_boid:
+			pledgee_boid = '1206690000014023'
+		if not expiry:
+			expiry = datetime.now() + timedelta(days = 365)
+
+		securities_array = []
+		for i in cart.items:
+			j = {
+				"ISIN": i["isin"],
+				"Quantity": i["pledged_quantity"],
+				"Value": i["price"]
+			}
+			securities_array.append(j)
+
+		las_settings = frappe.get_single('LAS Settings')
+		
+		API_URL = '{}{}'.format(las_settings.cdsl_host, las_settings.pledge_setup_uri)
+		payload = {
+			"PledgorBOID": pledgor_boid, #customer
+			"PledgeeBOID": pledgee_boid, #our client
+			"PRFNumber": lms.get_cdsl_prf_no(),
+			"ExpiryDate": expiry.strftime('%d%m%Y'),
+			"ISINDTLS": securities_array
+		}
+
+		response = requests.post(
+			API_URL,
+			headers=las_settings.cdsl_headers(),
+			json=payload
+		)
+
+		response_json = response.json()
+		frappe.logger().info({'CDSL PLEDGE PAYLOAD': payload, 'CDSL PLEDGE RESPONSE': response_json})
+
+		if response.ok and response_json.get("Success") == True:
+			return lms.generateResponse(message="CDSL", data=response_json)
+		else:
+			return lms.generateResponse(is_success=False, message="CDSL Pledge Error", data=response_json)
 	except (lms.ValidationError, lms.ServerError) as e:
 		return lms.generateResponse(status=e.http_status_code, message=str(e))
 	except Exception as e:
