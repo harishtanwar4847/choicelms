@@ -27,7 +27,7 @@ def set_pin(pin):
 		return lms.generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def kyc(pan_no, birth_date):
+def kyc(pan_no=None, birth_date=None):
 	try:
 		user = frappe.get_doc('User', frappe.session.user)
 		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user": user.username }, order_by="user_type", fields=["*"])
