@@ -150,7 +150,7 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 		)
 
 		response_json = response.json()
-		frappe.logger().info({'CDSL PLEDGE PAYLOAD': payload, 'CDSL PLEDGE RESPONSE': response_json})
+		frappe.logger().info({'CDSL PLEDGE HEADERS': las_settings.cdsl_headers(), 'CDSL PLEDGE PAYLOAD': payload, 'CDSL PLEDGE RESPONSE': response_json})
 
 		if response.ok and response_json.get("Success") == True:
 			return lms.generateResponse(message="CDSL", data=response_json)
