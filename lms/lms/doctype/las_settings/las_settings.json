@@ -5,11 +5,11 @@
  "engine": "InnoDB",
  "field_order": [
   "choice_settings_section_break",
-  "choice_host",
+  "choice_pan_api",
   "choice_business_unit",
   "choice_investor_id",
   "choice_settings_column_break",
-  "choice_pan_details_uri",
+  "choice_securities_list_api",
   "choice_user_id",
   "choice_ticket"
  ],
@@ -22,18 +22,6 @@
   {
    "fieldname": "choice_settings_column_break",
    "fieldtype": "Column Break"
-  },
-  {
-   "default": "https://uat-pwa.choicetechlab.com",
-   "fieldname": "choice_host",
-   "fieldtype": "Data",
-   "label": "Host"
-  },
-  {
-   "default": "/api/spark/getByPanNumDetails",
-   "fieldname": "choice_pan_details_uri",
-   "fieldtype": "Data",
-   "label": "PAN Details URI"
   },
   {
    "default": "JF",
@@ -58,10 +46,22 @@
    "fieldname": "choice_ticket",
    "fieldtype": "Data",
    "label": "Ticket"
+  },
+  {
+   "default": "https://uat-pwa.choicetechlab.com/api/spark/getByPanNumDetails",
+   "fieldname": "choice_pan_api",
+   "fieldtype": "Data",
+   "label": "PAN API"
+  },
+  {
+   "default": "https://api.choicebroking.in/api/middleware/GetClientHoldingDetails",
+   "fieldname": "choice_securities_list_api",
+   "fieldtype": "Data",
+   "label": "Securities List"
   }
  ],
  "issingle": 1,
- "modified": "2020-07-25 03:34:50.224216",
+ "modified": "2020-07-27 10:30:02.473925",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

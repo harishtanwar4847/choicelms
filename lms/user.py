@@ -51,7 +51,6 @@ def kyc(pan_no, birth_date):
 		las_settings = frappe.get_single('LAS Settings')
 
 		# check in choice
-		url = "{}{}".format(las_settings.choice_host, las_settings.choice_pan_details_uri)
 		params = {"panNum": pan_no}
 		headers = {
 			"businessUnit": las_settings.choice_business_unit,
@@ -59,7 +58,7 @@ def kyc(pan_no, birth_date):
 			"investorId": las_settings.choice_investor_id,
 			"ticket": las_settings.choice_ticket
 		}
-		r = requests.get(url, params=params, headers=headers)
+		r = requests.get(las_settings.choice_pan_api, params=params, headers=headers)
 		if not r.ok:
 			return lms.generateResponse(status=r.status_code, message=_('A problem occured while fetching KYC details from CHOICE.'))
 		data = json.loads(r.text)
@@ -157,3 +156,49 @@ def tnc():
 		return lms.generateResponse(status=e.http_status_code, message=str(e))
 	except Exception as e:
 		return lms.generateResponse(is_success=False, error=e)
+
+@frappe.whitelist()
+def securities():
+	try:
+		lms.validate_http_method('GET')
+
+		user = frappe.get_doc('User', frappe.session.user)
+		
+		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user_mobile_number": user.username }, order_by="kyc_type", fields=["*"])
+
+		if len(user_kyc_list) == 0:
+			raise lms.ValidationError(_('User KYC not done.'))
+
+		if user_kyc_list[0].kyc_type != "CHOICE":
+			raise lms.ValidationError(_('CHOICE KYC not done.'))
+
+		las_settings = frappe.get_single('LAS Settings')
+
+		# get securities list from choice
+		data = {
+			"UserID": "Spark",
+			"ClientID": user_kyc_list[0].choice_client_id
+		}
+
+		res = requests.post(las_settings.choice_securities_list_api, json=data, headers={"Accept": "application/json"})
+		if not res.ok:
+			return lms.generateResponse(status=res.status_code, message=_('There was a problem while getting share list from choice.'))
+		res_json = res.json()
+		if res_json["Status"] != "Success":
+			return lms.generateResponse(status=422, message=_('Problem in getting securities list.'))
+			
+		# setting eligibility
+		securities_list = res_json["Response"]
+		for i in securities_list:
+			allowed_securities_list = frappe.db.get_all("Allowed Security Master", filters={ "isin_no": i["ISIN"] }, fields=["*"])
+			i["Is_Eligible"] = False
+			i["Category"] = None
+			if len(allowed_securities_list) > 0:
+				i["Is_Eligible"] = True
+				i["Category"] = allowed_securities_list[0].category
+		
+		return lms.generateResponse(message="securities list", data=securities_list)
+	except (lms.ValidationError, lms.ServerError) as e:
+		return lms.generateResponse(status=e.http_status_code, message=str(e))
+	except Exception as e:
+		return lms.generateResponse(is_success=False, data=e, error=e)
