@@ -29,6 +29,12 @@ def set_pin(pin):
 @frappe.whitelist()
 def kyc(pan_no, birth_date):
 	try:
+		user = frappe.get_doc('User', frappe.session.user)
+		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user": user.username }, order_by="user_type", fields=["*"])
+
+		if len(user_kyc_list) > 0:
+			return lms.generateResponse(message="User KYC", data=user_kyc_list[0])
+		
 		# validation
 		lms.validate_http_method('GET')
 
@@ -41,12 +47,6 @@ def kyc(pan_no, birth_date):
 			datetime.strptime(birth_date, "%d/%m/%Y")
 		except ValueError:
 			raise lms.ValidationError(_('Please enter valid date.'))
-
-		user = frappe.get_doc('User', frappe.session.user)
-		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user": user.username }, order_by="user_type", fields=["*"])
-
-		if len(user_kyc_list) > 0:
-			return lms.generateResponse(message="User KYC", data=user_kyc_list[0])
 
 		las_settings = frappe.get_single('LAS Settings')
 
