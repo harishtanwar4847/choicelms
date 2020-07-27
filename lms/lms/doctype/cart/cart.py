@@ -23,9 +23,11 @@ class Cart(Document):
 		self.total = total
 
 	def process_bre(self):
+		las_settings = frappe.get_single('LAS Settings')
+
 		eligible_amounts = []
 		for item in self.cart_items:
-			item.eligible_amount = item.amount * 0.5
+			item.eligible_amount = item.amount * (las_settings.loan_margin / 100)
 			eligible_amounts.append(item.eligible_amount)
 
 		self.eligible_amount = sum(eligible_amounts)
