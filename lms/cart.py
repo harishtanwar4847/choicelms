@@ -126,9 +126,9 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 		securities_array = []
 		for i in cart.cart_items:
 			j = {
-				"ISIN": i["isin"],
-				"Quantity": i["pledged_quantity"],
-				"Value": i["price"]
+				"ISIN": i.isin,
+				"Quantity": i.pledged_quantity,
+				"Value": i.price
 			}
 			securities_array.append(j)
 
