@@ -124,7 +124,7 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 			expiry = datetime.now() + timedelta(days = 365)
 
 		securities_array = []
-		for i in cart.items:
+		for i in cart.cart_items:
 			j = {
 				"ISIN": i["isin"],
 				"Quantity": i["pledged_quantity"],
