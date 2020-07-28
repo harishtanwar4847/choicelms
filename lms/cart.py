@@ -73,7 +73,7 @@ def upsert(securities, cart_name=None, expiry=None):
 			expiry = datetime.now() + timedelta(days = 365)
 
 
-		cart_items = []
+		items = []
 		for i in securities:
 			item = frappe.get_doc({
 				"doctype": "Cart Item",
@@ -82,12 +82,12 @@ def upsert(securities, cart_name=None, expiry=None):
 				"price": i["price"] 
 			})
 
-			cart_items.append(item)
+			items.append(item)
 
 		if not cart_name:
 			cart = frappe.get_doc({
 				"doctype": "Cart",
-				"cart_items": cart_items
+				"items": items
 			})
 			cart.insert()
 		else:
@@ -97,7 +97,7 @@ def upsert(securities, cart_name=None, expiry=None):
 			if cart.owner != frappe.session.user:
 				return lms.generateResponse(status=403, message=_('Please use your own cart.'))
 
-			cart.cart_items = cart_items
+			cart.items = items
 			cart.save()
 
 		return lms.generateResponse(message=_('Cart Saved'), data=cart)

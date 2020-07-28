@@ -8,8 +8,8 @@
   "total",
   "cart_column_break",
   "eligible_amount",
-  "cart_item_section",
-  "cart_items"
+  "items_section",
+  "items"
  ],
  "fields": [
   {
@@ -24,25 +24,25 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "cart_item_section",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "cart_items",
-   "fieldtype": "Table",
-   "label": "Cart Item",
-   "options": "Cart Item",
-   "reqd": 1
-  },
-  {
    "default": "0",
    "fieldname": "eligible_amount",
    "fieldtype": "Float",
    "label": "Eligible Amount",
    "read_only": 1
+  },
+  {
+   "fieldname": "items_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Cart Item",
+   "options": "Cart Item",
+   "reqd": 1
   }
  ],
- "modified": "2020-07-28 09:53:14.105691",
+ "modified": "2020-07-28 09:56:34.933191",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart",

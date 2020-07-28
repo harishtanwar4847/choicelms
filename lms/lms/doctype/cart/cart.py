@@ -13,7 +13,7 @@ class Cart(Document):
 
 	def calculate_total(self):
 		total = 0
-		for item in self.cart_items:
+		for item in self.items:
 			item.amount = item.pledged_quantity * item.price
 			total += item.amount
 
@@ -26,15 +26,15 @@ class Cart(Document):
 		las_settings = frappe.get_single('LAS Settings')
 
 		eligible_amounts = []
-		for item in self.cart_items:
+		for item in self.items:
 			item.eligible_amount = item.amount * (las_settings.loan_margin / 100)
 			eligible_amounts.append(item.eligible_amount)
 
 		self.eligible_amount = sum(eligible_amounts)
 
 	def validate_bre(self):
-		is_single_script = True if len(self.cart_items) == 1 else False
-		for item in self.cart_items:
+		is_single_script = True if len(self.items) == 1 else False
+		for item in self.items:
 			concentration_rule = item.get_concentration_rule()
 			item.bre_passing = 1
 			item.bre_validation_message = None
@@ -60,7 +60,7 @@ class Cart(Document):
 			# group script rule
 			if not is_single_script:
 				category_amount_sum = 0
-				for i in self.cart_items:
+				for i in self.items:
 					if i.security_category == item.security_category:
 						category_amount_sum += item.amount
 
@@ -104,7 +104,7 @@ class Cart(Document):
 							total=self.total
 						)
 		
-		self.bre_passing = all([item.bre_passing for item in self.cart_items])
+		self.bre_passing = all([item.bre_passing for item in self.items])
 
 def process_concentration_rule(item, amount, rule, rule_type, total):
 	threshold = rule.get(rule_type)
