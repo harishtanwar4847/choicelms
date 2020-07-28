@@ -134,7 +134,7 @@ fixtures = [
     },
     {
         "doctype": "Workflow",
-        "filters": [["document_type", "in", ["User KYC Change Application"]]]
+        "filters": [["document_type", "in", ["User KYC Change Application", "Loan Application"]]]
     },
     "Allowed Security Master", "Security Category", "Concentration Rule", "Terms and Conditions"
 ]
