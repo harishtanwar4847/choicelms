@@ -16,6 +16,7 @@
   {
    "fieldname": "isin",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "ISIN",
    "options": "Allowed Security Master",
    "read_only": 1,
@@ -24,6 +25,7 @@
   {
    "fieldname": "security_category",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Security Category",
    "options": "Security Category",
    "read_only": 1,
@@ -57,6 +59,7 @@
   {
    "fieldname": "psn",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "PSN",
    "read_only": 1
   },
@@ -68,7 +71,7 @@
   }
  ],
  "istable": 1,
- "modified": "2020-07-28 15:27:39.594133",
+ "modified": "2020-07-28 15:50:32.858408",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Item",
