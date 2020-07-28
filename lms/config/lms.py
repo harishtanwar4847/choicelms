@@ -23,6 +23,7 @@ def get_data():
 			'items': [
 				{ 'type': 'doctype', 'name': 'User Token', 'onboard': 1 },
 				{ 'type': 'doctype', 'name': 'App Error Log', 'onboard': 1 },
+				{ 'type': 'doctype', 'name': 'SMS Log', 'onboard': 1 },
 			]
 		},
 		{
