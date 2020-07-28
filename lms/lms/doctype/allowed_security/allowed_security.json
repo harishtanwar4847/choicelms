@@ -60,7 +60,7 @@
  "modified": "2020-07-18 19:35:16.344153",
  "modified_by": "Administrator",
  "module": "Lms",
- "name": "Allowed Security Master",
+ "name": "Allowed Security",
  "owner": "Administrator",
  "permissions": [
   {
