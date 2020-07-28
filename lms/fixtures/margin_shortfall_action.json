@@ -1,0 +1,38 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Margin Shortfall Action",
+  "email": 0,
+  "modified": "2020-07-28 17:25:20.858950",
+  "name": "daddbc9fc3",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "sms": 1,
+  "threshold": 5.0
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Margin Shortfall Action",
+  "email": 0,
+  "modified": "2020-07-28 17:25:31.022395",
+  "name": "1d912c1d22",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "sms": 1,
+  "threshold": 10.0
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Margin Shortfall Action",
+  "email": 1,
+  "modified": "2020-07-28 17:25:44.153383",
+  "name": "5ac8a7f659",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "sms": 1,
+  "threshold": 15.0
+ }
+]
