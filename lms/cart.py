@@ -3,6 +3,7 @@ from frappe import _
 import lms
 from datetime import datetime, timedelta
 import requests
+from itertools import groupby
 
 @frappe.whitelist()
 def upsert(securities, cart_name=None, expiry=None):
@@ -129,7 +130,7 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 			expiry = datetime.now() + timedelta(days = 365)
 
 		securities_array = []
-		for i in cart.cart_items:
+		for i in cart.items:
 			j = {
 				"ISIN": i.isin,
 				"Quantity": i.pledged_quantity,
@@ -158,7 +159,38 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 		frappe.logger().info({'CDSL PLEDGE HEADERS': las_settings.cdsl_headers(), 'CDSL PLEDGE PAYLOAD': payload, 'CDSL PLEDGE RESPONSE': response_json})
 
 		if response.ok and response_json.get("Success") == True:
-			return lms.generateResponse(message="CDSL", data=response_json)
+			response_json_item_groups = {}
+			for key, group in groupby(response_json['PledgeSetupResponse']['ISINstatusDtls'], key=lambda x: x['ISIN']):
+				response_json_item_groups[key] = list(group)[0]
+
+			items = []
+			
+			for item in cart.items:
+				frappe.logger().info({'print error code': response_json_item_groups[item.isin]['ErrorCode']})
+				item = frappe.get_doc({
+					'doctype': 'Loan Application Item',
+					'isin': item.isin,
+					'security_category': item.security_category,
+					'pledged_quantity': item.pledged_quantity,
+					'price': item.price,
+					'amount': item.eligible_amount,
+					'psn': response_json_item_groups[item.isin]['PSN'],
+					'error_code': response_json_item_groups[item.isin]['ErrorCode'],
+				})
+				items.append(item)
+
+			loan_application = frappe.get_doc({
+				'doctype': 'Loan Application',
+				'total': cart.eligible_amount,
+				'pledgor_boid': pledgor_boid,
+				'pledgee_boid': pledgee_boid,
+				'prf_number': response_json['PledgeSetupResponse']['PRFNumber'],
+				'expiry_date': expiry,
+				'items': items
+			})
+			loan_application.insert(ignore_permissions=True)
+
+			return lms.generateResponse(message="CDSL", data=loan_application)
 		else:
 			return lms.generateResponse(is_success=False, message="CDSL Pledge Error", data=response_json)
 	except (lms.ValidationError, lms.ServerError) as e:
