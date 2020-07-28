@@ -73,24 +73,17 @@ def upsert(securities, cart_name=None, expiry=None):
 		if not expiry:
 			expiry = datetime.now() + timedelta(days = 365)
 
-
-		items = []
-		for i in securities:
-			item = frappe.get_doc({
-				"doctype": "Cart Item",
-				"isin": i["isin"],
-				"pledged_quantity": i["quantity"],
-				"price": i["price"] 
-			})
-
-			items.append(item)
-
 		if not cart_name:
 			cart = frappe.get_doc({
 				"doctype": "Cart",
-				"items": items
 			})
-			cart.insert()
+			for i in securities:
+				cart.append('items', {
+					"isin": i["isin"],
+					"pledged_quantity": i["quantity"],
+					"price": i["price"] 
+				})
+			cart.insert(ignore_permissions=True)
 		else:
 			cart = frappe.get_doc("Cart", cart_name)
 			if not cart:
@@ -98,8 +91,14 @@ def upsert(securities, cart_name=None, expiry=None):
 			if cart.owner != frappe.session.user:
 				return lms.generateResponse(status=403, message=_('Please use your own cart.'))
 
-			cart.items = items
-			cart.save()
+			cart.items = []
+			for i in securities:
+				cart.append('items', {
+					"isin": i["isin"],
+					"pledged_quantity": i["quantity"],
+					"price": i["price"] 
+				})
+			cart.save(ignore_permissions=True)
 
 		return lms.generateResponse(message=_('Cart Saved'), data=cart)
 	except (lms.ValidationError, lms.ServerError) as e:
