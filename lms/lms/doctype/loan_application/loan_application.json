@@ -11,6 +11,7 @@
   "loan_application_column_break",
   "pledgee_boid",
   "expiry_date",
+  "status",
   "items_section",
   "items"
  ],
@@ -61,9 +62,17 @@
    "label": "Item",
    "options": "Loan Application Item",
    "reqd": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nApproved\nRejected",
+   "read_only": 1
   }
  ],
- "modified": "2020-07-28 10:26:29.613712",
+ "modified": "2020-07-28 15:46:36.618594",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

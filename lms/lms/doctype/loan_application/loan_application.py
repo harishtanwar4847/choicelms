@@ -3,8 +3,35 @@
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
-# import frappe
+import frappe
 from frappe.model.document import Document
 
 class LoanApplication(Document):
-	pass
+	def on_update(self):
+		if self.status == 'Approved':
+			items = []
+
+			for item in self.items:
+				temp = frappe.get_doc({
+					'doctype': 'Loan Item',
+					'isin': item.isin,
+					'security_category': item.security_category,
+					'pledged_quantity': item.pledged_quantity,
+					'price': item.price,
+					'amount': item.amount,
+					'psn': item.psn,
+					'error_code': item.error_code,
+				})
+
+				items.append(temp)
+
+			loan = frappe.get_doc({
+				'doctype': 'Loan',
+				'total': self.total,
+				'pledgor_boid': self.pledgor_boid,
+				'prf_number': self.prf_number,
+				'pledgee_boid': self.pledgee_boid,
+				'expiry_date': self.expiry_date,
+				'items': items,
+			})
+			loan.insert(ignore_permissions=True)

@@ -1,54 +1,69 @@
 {
  "autoname": "LOAN.######",
- "creation": "2020-05-08 17:37:41.555423",
+ "creation": "2020-07-28 15:26:52.963305",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "user",
-  "cart",
   "total",
-  "loan_items_section",
+  "pledgor_boid",
+  "prf_number",
+  "loan_application_column_break",
+  "pledgee_boid",
+  "expiry_date",
+  "items_section",
   "items"
  ],
  "fields": [
   {
-   "fieldname": "user",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "User",
-   "options": "User",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
-   "fieldname": "cart",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Cart",
-   "options": "Cart",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
    "fieldname": "total",
-   "fieldtype": "Currency",
+   "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Total",
    "read_only": 1
   },
   {
-   "fieldname": "items",
-   "fieldtype": "Table",
-   "label": "Loan Items",
-   "options": "Loan Item",
-   "reqd": 1
+   "fieldname": "pledgor_boid",
+   "fieldtype": "Data",
+   "label": "Pledgor BOID",
+   "read_only": 1
   },
   {
-   "fieldname": "loan_items_section",
+   "fieldname": "prf_number",
+   "fieldtype": "Data",
+   "label": "PRF Number",
+   "read_only": 1
+  },
+  {
+   "fieldname": "loan_application_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "pledgee_boid",
+   "fieldtype": "Data",
+   "label": "Pledgee BOID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Expiry Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "items_section",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Item",
+   "options": "Loan Item",
+   "reqd": 1
   }
  ],
- "modified": "2020-07-22 20:49:25.090940",
+ "modified": "2020-07-28 15:28:20.445270",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
