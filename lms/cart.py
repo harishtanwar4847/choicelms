@@ -46,7 +46,7 @@ def upsert(securities, cart_name=None, expiry=None):
 					break
 				isin_list.append(i['isin'])
 
-				if not frappe.db.exists('Allowed Security Master', i['isin']):
+				if not frappe.db.exists('Allowed Security', i['isin']):
 					securities_valid = False
 					message = _('{} isin not found').format(i['isin'])
 					break

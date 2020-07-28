@@ -6,7 +6,7 @@ def get_data():
 		{
 			'label': _('Masters'),
 			'items': [
-				{ 'type': 'doctype', 'name': 'Allowed Security Master', 'onboard': 1 },
+				{ 'type': 'doctype', 'name': 'Allowed Security', 'onboard': 1 },
 				{ 'type': 'doctype', 'name': 'Security Category', 'onboard': 1 },
 				{ 'type': 'doctype', 'name': 'Terms and Conditions', 'onboard': 1 },
 			]
@@ -67,9 +67,9 @@ def get_data1():
                 },
                 {
                     "type": "doctype",
-                            "name": "Allowed Security Master",
-                                    "label": _("Allowed Security Master"),
-                                    "description": _("Allowed Security Master"),
+                            "name": "Allowed Security",
+                                    "label": _("Allowed Security"),
+                                    "description": _("Allowed Security"),
                                     "onboard": 1
                 },
                 {

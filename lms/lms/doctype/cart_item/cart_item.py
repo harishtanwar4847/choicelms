@@ -8,7 +8,7 @@ from frappe.model.document import Document
 
 class CartItem(Document):
 	def set_security_category(self):
-		security = frappe.get_doc("Allowed Security Master", self.isin)
+		security = frappe.get_doc("Allowed Security", self.isin)
 		self.security_category = security.category
 
 	def get_concentration_rule(self):
