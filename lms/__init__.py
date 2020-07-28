@@ -142,3 +142,20 @@ def add_user(first_name, last_name, phone, email):
 		return user.name
 	except Exception:
 		return False
+
+def is_float_num_valid(num, length, precision):
+	valid = True
+	
+	valid = True if type(num) is float else False
+	
+	num_str = str(num)
+	if valid:
+		valid = True if len(num_str.replace('.', '')) <= length else False
+
+	if valid:
+		valid = True if len(num_str.split('.')[1]) <= precision else False
+
+	return valid
+
+def get_cdsl_prf_no():
+	return 'PF{}'.format(datetime.now().strftime('%s'))

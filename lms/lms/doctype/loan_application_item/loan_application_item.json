@@ -1,0 +1,80 @@
+{
+ "creation": "2020-07-28 10:01:21.020159",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "isin",
+  "security_category",
+  "pledged_quantity",
+  "price",
+  "amount",
+  "psn",
+  "error_code"
+ ],
+ "fields": [
+  {
+   "fieldname": "isin",
+   "fieldtype": "Link",
+   "label": "ISIN",
+   "options": "Allowed Security Master",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "security_category",
+   "fieldtype": "Link",
+   "label": "Security Category",
+   "options": "Security Category",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "description": "Pledged Qty",
+   "fieldname": "pledged_quantity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Quantity Pledged",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Price",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Amount",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "psn",
+   "fieldtype": "Data",
+   "label": "PSN",
+   "read_only": 1
+  },
+  {
+   "fieldname": "error_code",
+   "fieldtype": "Data",
+   "label": "Error Code",
+   "read_only": 1
+  }
+ ],
+ "istable": 1,
+ "modified": "2020-07-28 10:27:13.604930",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Loan Application Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
