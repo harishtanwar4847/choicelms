@@ -87,8 +87,6 @@ def upsert(securities, cart_name=None, expiry=None):
 		if not cart_name:
 			cart = frappe.get_doc({
 				"doctype": "Cart",
-				"user": frappe.session.user,
-				"expiry": expiry,
 				"cart_items": cart_items
 			})
 			cart.insert()
