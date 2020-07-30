@@ -54,7 +54,7 @@ def send_otp(phone):
 		OTP_CODE = random_token()
 
 		mess = _('Your OTP for LMS is {0}. Do not share your OTP with anyone.').format(OTP_CODE)
-		send_sms([phone], mess)
+		frappe.enqueue(method=send_sms, receiver_list=[phone], msg=mess)
 
 		otp_doc = frappe.get_doc(dict(
 			doctype="User Token",
