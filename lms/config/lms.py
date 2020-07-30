@@ -18,6 +18,7 @@ def get_data():
 				{ 'type': 'doctype', 'name': 'LAS Settings', 'onboard': 1 },
 				{ 'type': 'doctype', 'name': 'Concentration Rule', 'onboard': 1 },
 				{ 'type': 'doctype', 'name': 'Margin Shortfall Action', 'onboard': 1 },
+				{ 'type': 'doctype', 'name': 'SMS Settings', 'onboard': 1 },
 			]
 		},
 		{
