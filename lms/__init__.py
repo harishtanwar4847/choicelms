@@ -70,7 +70,6 @@ def send_otp(phone):
 		raise
 
 def random_token(length=4):
-	return '1234'
 	return ''.join(choice('0123456789') for _ in range(length))
 
 def get_user(input, throw=False):
