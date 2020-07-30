@@ -1,0 +1,33 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "SMS Settings",
+  "message_parameter": "sms",
+  "modified": "2020-07-30 15:18:32.596376",
+  "name": "SMS Settings",
+  "parameters": [
+   {
+    "header": 0,
+    "parameter": "apikey",
+    "parent": "SMS Settings",
+    "parentfield": "parameters",
+    "parenttype": "SMS Settings",
+    "value": "d6af6ba676f5c35e"
+   },
+   {
+    "header": 0,
+    "parameter": "unicode",
+    "parent": "SMS Settings",
+    "parentfield": "parameters",
+    "parenttype": "SMS Settings",
+    "value": "yes"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "receiver_parameter": "mobiles",
+  "sms_gateway_url": " https://apps.vibgyortel.in/client/api/sendmessage",
+  "use_post": 0
+ }
+]
