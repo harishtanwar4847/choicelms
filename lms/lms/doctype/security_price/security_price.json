@@ -15,25 +15,27 @@
    "in_list_view": 1,
    "label": "Security",
    "options": "Allowed Security",
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "price",
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Price",
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "time",
    "fieldtype": "Datetime",
    "in_list_view": 1,
    "label": "Time",
-   "read_only": 1,
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   }
  ],
- "modified": "2020-07-28 20:04:58.098163",
+ "modified": "2020-07-31 12:52:08.386014",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Price",
