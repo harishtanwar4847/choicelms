@@ -6,6 +6,7 @@ from traceback import format_exc
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from random import choice
 from datetime import datetime
+from itertools import groupby
 
 __version__ = '0.0.1'
 
@@ -158,3 +159,15 @@ def is_float_num_valid(num, length, precision):
 
 def get_cdsl_prf_no():
 	return 'PF{}'.format(datetime.now().strftime('%s'))
+
+def get_security_prices(securities=None):
+	if securities:
+		prices = frappe.get_all('Security Price', fields=['security', 'price', 'time'], order_by="time desc", filters=[['security', 'in', securities.split(',')]])
+	else:
+		prices = frappe.get_all('Security Price', fields=['security', 'price', 'time'], order_by="time desc")
+
+	price_map = {}
+	for key, value in groupby(prices, lambda x: x.security):
+		price_map[key] = list(value)[0].price
+
+	return price_map
