@@ -161,13 +161,21 @@ def get_cdsl_prf_no():
 	return 'PF{}'.format(datetime.now().strftime('%s'))
 
 def get_security_prices(securities=None):
+	# sauce: https://stackoverflow.com/a/10030851/9403680
 	if securities:
-		prices = frappe.get_all('Security Price', fields=['security', 'price', 'time'], order_by="time desc", filters=[['security', 'in', securities.split(',')]])
+		inner_query = """select security, price, time from `tabSecurity Price` inner join (
+			select security as security_, max(time) as latest from `tabSecurity Price` where security in (%s) group by security_
+			) res on time = res.latest and security = res.security_;"""
+		results = frappe.db.sql(inner_query, securities, as_dict=1)
 	else:
-		prices = frappe.get_all('Security Price', fields=['security', 'price', 'time'], order_by="time desc")
+		inner_query = """select security, price, time from `tabSecurity Price` inner join (
+			select security as security_, max(time) as latest from `tabSecurity Price` group by security_
+			) res on time = res.latest and security = res.security_;"""
+		results = frappe.db.sql(inner_query, as_dict=1)
 
 	price_map = {}
-	for key, value in groupby(prices, lambda x: x.security):
-		price_map[key] = list(value)[0].price
+
+	for r in results:
+		price_map[r.security] = r.price
 
 	return price_map
