@@ -138,3 +138,9 @@ fixtures = [
     },
     "Allowed Security", "Security Category", "Concentration Rule", "Terms and Conditions", "Margin Shortfall Action", "SMS Settings"
 ]
+
+scheduler_events = {
+	"hourly": [
+		"lms.lms.doctype.security_price.security_price.update_all_security_prices"
+	]
+}
