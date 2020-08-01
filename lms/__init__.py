@@ -6,6 +6,7 @@ from traceback import format_exc
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from random import choice
 from datetime import datetime
+from itertools import groupby
 
 __version__ = '0.0.1'
 
@@ -158,3 +159,23 @@ def is_float_num_valid(num, length, precision):
 
 def get_cdsl_prf_no():
 	return 'PF{}'.format(datetime.now().strftime('%s'))
+
+def get_security_prices(securities=None):
+	# sauce: https://stackoverflow.com/a/10030851/9403680
+	if securities:
+		inner_query = """select security, price, time from `tabSecurity Price` inner join (
+			select security as security_, max(time) as latest from `tabSecurity Price` where security in (%s) group by security_
+			) res on time = res.latest and security = res.security_;"""
+		results = frappe.db.sql(inner_query, securities, as_dict=1)
+	else:
+		inner_query = """select security, price, time from `tabSecurity Price` inner join (
+			select security as security_, max(time) as latest from `tabSecurity Price` group by security_
+			) res on time = res.latest and security = res.security_;"""
+		results = frappe.db.sql(inner_query, as_dict=1)
+
+	price_map = {}
+
+	for r in results:
+		price_map[r.security] = r.price
+
+	return price_map
