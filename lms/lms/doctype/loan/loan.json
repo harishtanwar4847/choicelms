@@ -76,7 +76,7 @@
   {
    "fieldname": "new_total",
    "fieldtype": "Float",
-   "label": "Total"
+   "label": "Total Collateral Value"
   },
   {
    "fieldname": "time",
@@ -90,7 +90,7 @@
   {
    "fieldname": "shortfall_percentage",
    "fieldtype": "Float",
-   "label": "Shortfall"
+   "label": "Shortfall Percentage"
   },
   {
    "default": "0",
@@ -99,7 +99,7 @@
    "label": "Is marked as Shortfall"
   }
  ],
- "modified": "2020-08-04 10:58:50.200682",
+ "modified": "2020-08-04 12:33:02.033633",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
