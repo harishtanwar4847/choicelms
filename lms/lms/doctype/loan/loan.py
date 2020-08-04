@@ -25,6 +25,7 @@ class Loan(Document):
 		
 		if percentage_of_original_total < 100:
 			self.shortfall_percentage = 100 - percentage_of_original_total
+			self.is_shortfall = 1
 		
 		self.save(ignore_permissions=True)
 		frappe.db.commit()
