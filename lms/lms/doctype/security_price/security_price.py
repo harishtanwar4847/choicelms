@@ -21,7 +21,7 @@ def update_security_prices(securities, start, total, show_progress=False):
 		values.append((
 			security,
 			cur_time,
-			uniform(50, 500),
+			uniform(5, 30),
 			'{}-{}'.format(security, cur_time),
 			cur_time,
 			cur_time, 
