@@ -163,15 +163,18 @@ def get_cdsl_prf_no():
 def get_security_prices(securities=None):
 	# sauce: https://stackoverflow.com/a/10030851/9403680
 	if securities:
-		inner_query = """select security, price, time from `tabSecurity Price` inner join (
+		securities_ = ''
+		for s in securities:
+			securities_ += "'{}',".format(s)
+		query = """select security, price, time from `tabSecurity Price` inner join (
 			select security as security_, max(time) as latest from `tabSecurity Price` where security in (%s) group by security_
-			) res on time = res.latest and security = res.security_;"""
-		results = frappe.db.sql(inner_query, securities, as_dict=1)
+			) res on time = res.latest and security = res.security_;""" % (securities_[:-1])
+		results = frappe.db.sql(query, as_dict=1)
 	else:
-		inner_query = """select security, price, time from `tabSecurity Price` inner join (
+		query = """select security, price, time from `tabSecurity Price` inner join (
 			select security as security_, max(time) as latest from `tabSecurity Price` group by security_
 			) res on time = res.latest and security = res.security_;"""
-		results = frappe.db.sql(inner_query, as_dict=1)
+		results = frappe.db.sql(query, as_dict=1)
 
 	price_map = {}
 
@@ -179,3 +182,14 @@ def get_security_prices(securities=None):
 		price_map[r.security] = r.price
 
 	return price_map
+
+def chunk_doctype(doctype, limit):
+	total = frappe.db.count(doctype)
+	limit = 50
+	chunks = range(0, total, limit)
+
+	return {
+		'total': total,
+		'limit': limit,
+		'chunks': chunks
+	}
