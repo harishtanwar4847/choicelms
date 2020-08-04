@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 import frappe
+import lms
 from frappe.model.document import Document
 from datetime import datetime
 from random import uniform
@@ -37,11 +38,21 @@ def update_security_prices(securities, start, total, show_progress=False):
 
 @frappe.whitelist()
 def update_all_security_prices(show_progress=False):
-	number_of_securities = frappe.db.count('Allowed Security')
-	limit = 50
-	chunks = range(0, number_of_securities, limit)
+	chunks = lms.chunk_doctype(doctype='Allowed Security', limit=50)
 
-	for start in chunks:
-		security_list = frappe.db.get_all('Allowed Security', limit_page_length=limit, limit_start=start)
+	for start in chunks.get('chunks'):
+		security_list = frappe.db.get_all('Allowed Security', limit_page_length=chunks.get('limit'), limit_start=start)
 
-		frappe.enqueue(method='lms.lms.doctype.security_price.security_price.update_security_prices', securities=[i.name for i in security_list], start=start, total=number_of_securities, show_progress=show_progress)
+		frappe.enqueue(
+			method='lms.lms.doctype.security_price.security_price.update_security_prices', 
+			securities=[i.name for i in security_list], 
+			start=start, 
+			total=chunks.get('total'), 
+			show_progress=show_progress,
+			queue='background'
+		)
+
+	frappe.enqueue(
+		method='lms.lms.doctype.loan.loan.check_all_loans_for_shortfall',
+		queue='background'
+	)
