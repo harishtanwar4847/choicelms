@@ -182,3 +182,14 @@ def get_security_prices(securities=None):
 		price_map[r.security] = r.price
 
 	return price_map
+
+def chunk_doctype(doctype, limit):
+	total = frappe.db.count(doctype)
+	limit = 50
+	chunks = range(0, total, limit)
+
+	return {
+		'total': total,
+		'limit': limit,
+		'chunks': chunks
+	}
