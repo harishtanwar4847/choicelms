@@ -8,11 +8,17 @@
   "total",
   "pledgor_boid",
   "prf_number",
-  "loan_application_column_break",
+  "loan_column_break",
   "pledgee_boid",
   "expiry_date",
   "items_section",
-  "items"
+  "items",
+  "loan_section_break",
+  "new_total",
+  "time",
+  "loan_column_break_1",
+  "shortfall_percentage",
+  "is_shortfall"
  ],
  "fields": [
   {
@@ -33,10 +39,6 @@
    "fieldtype": "Data",
    "label": "PRF Number",
    "read_only": 1
-  },
-  {
-   "fieldname": "loan_application_column_break",
-   "fieldtype": "Column Break"
   },
   {
    "default": "0",
@@ -61,9 +63,43 @@
    "label": "Item",
    "options": "Loan Item",
    "reqd": 1
+  },
+  {
+   "fieldname": "loan_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "loan_section_break",
+   "fieldtype": "Section Break",
+   "label": "Margin Shortfall Check"
+  },
+  {
+   "fieldname": "new_total",
+   "fieldtype": "Float",
+   "label": "Total"
+  },
+  {
+   "fieldname": "time",
+   "fieldtype": "Datetime",
+   "label": "Time"
+  },
+  {
+   "fieldname": "loan_column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "shortfall_percentage",
+   "fieldtype": "Float",
+   "label": "Shortfall"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_shortfall",
+   "fieldtype": "Check",
+   "label": "Is marked as Shortfall"
   }
  ],
- "modified": "2020-07-28 15:28:20.445270",
+ "modified": "2020-08-04 10:58:50.200682",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

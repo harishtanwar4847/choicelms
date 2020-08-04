@@ -49,10 +49,10 @@ def update_all_security_prices(show_progress=False):
 			start=start, 
 			total=chunks.get('total'), 
 			show_progress=show_progress,
-			queue='background'
+			queue='long'
 		)
 
 	frappe.enqueue(
 		method='lms.lms.doctype.loan.loan.check_all_loans_for_shortfall',
-		queue='background'
+		queue='long'
 	)
