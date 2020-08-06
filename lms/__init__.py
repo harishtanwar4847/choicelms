@@ -10,6 +10,9 @@ from itertools import groupby
 
 __version__ = '0.0.1'
 
+def after_install():
+	frappe.db.set_value('System Settings', 'System Settings', 'allow_consecutive_login_attempts', 3)
+
 class ValidationError(Exception):
 	http_status_code = 422
 
