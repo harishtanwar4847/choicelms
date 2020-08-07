@@ -14,6 +14,8 @@ __version__ = '0.0.1'
 def after_install():
 	frappe.db.set_value('System Settings', 'System Settings', 'allow_consecutive_login_attempts', 3)
 
+	frappe.db.set_value('Contact Us Settings', None, 'forward_to_email', 'erp@atritechnocrat.in')
+
 class ValidationError(Exception):
 	http_status_code = 422
 
