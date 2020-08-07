@@ -128,6 +128,40 @@ def register(first_name, mobile, email, otp, last_name=None):
 	except Exception as e:
 		return lms.generateResponse(is_success=False, error=e)
 
+@frappe.whitelist()
+def request_verification_email():
+	try:
+		# validation
+		lms.validate_http_method('POST')
+
+		send_verification_email_(frappe.session.user)
+
+		return lms.generateResponse(message=_('Verification email sent'))
+	except (lms.ValidationError, lms.ServerError) as e:
+		return lms.generateResponse(status=e.http_status_code, message=str(e))
+	except Exception as e:
+		return lms.generateResponse(is_success=False, error=e)
+
+def send_verification_email_(email):
+	user_token = frappe.get_doc({
+			"doctype": "User Token",
+			"token_type": "Verification Token",
+			"entity": email,
+			"token": lms.random_token(10),
+		})
+	user_token.insert(ignore_permissions=True)
+
+	template = "/templates/emails/user_email_verification.html"
+	url = frappe.utils.get_url("/api/method/lms.auth.verify_user?token={}&user={}".format(user_token.token, email))
+
+	frappe.enqueue(
+		method=frappe.sendmail, 
+		recipients=email, 
+		sender=None, 
+		subject="User Verification",
+		message=frappe.get_template(template).render(url=url)
+	)
+
 @frappe.whitelist(allow_guest=True)
 def verify_user(token, user):
 	tokenlist = frappe.db.get_all("User Token", {"entity": user, "token_type": "Verification Token", "token": token, "verified": 0})

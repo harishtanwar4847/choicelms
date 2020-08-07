@@ -55,7 +55,7 @@ app_license = "MIT"
 # ------------
 
 # before_install = "lms.install.before_install"
-# after_install = "lms.install.after_install"
+after_install = "lms.after_install"
 
 # Desk Notifications
 # ------------------
