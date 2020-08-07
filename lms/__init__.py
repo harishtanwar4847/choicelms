@@ -7,6 +7,7 @@ from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from random import choice
 from datetime import datetime
 from itertools import groupby
+from lms.auth import send_verification_email_
 
 __version__ = '0.0.1'
 
@@ -123,24 +124,7 @@ def add_user(first_name, last_name, phone, email):
 			roles=[{"doctype": "Has Role", "role": "Loan Customer"}]
 		)).insert(ignore_permissions=True)
 
-		user_token = frappe.get_doc({
-			"doctype": "User Token",
-			"token_type": "Verification Token",
-			"entity": email,
-			"token": random_token(10),
-		})
-		user_token.insert(ignore_permissions=True)
-
-		template = "/templates/emails/user_email_verification.html"
-		url = frappe.utils.get_url("/api/method/lms.auth.verify_user?token={}&user={}".format(user_token.token, email))
-
-		frappe.enqueue(
-			method=frappe.sendmail, 
-			recipients=email, 
-			sender=None, 
-			subject="User Verification",
-			message=frappe.get_template(template).render(url=url)
-		)
+		send_verification_email_(email)
 
 		return user.name
 	except Exception:
