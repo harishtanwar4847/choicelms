@@ -1,23 +1,27 @@
 {
  "allow_import": 1,
- "autoname": "field:isin_no",
+ "autoname": "field:isin",
  "creation": "2020-05-08 17:48:43.472417",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "isin_no",
+  "isin",
   "security_name",
-  "nse_symbol",
   "category",
-  "depository",
+  "segment",
+  "eligible_percentage",
+  "column_break_5",
+  "nse_symbol",
   "type",
-  "eligible_percentage"
+  "token_id",
+  "depository"
  ],
  "fields": [
   {
    "fieldname": "security_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Security Name",
    "unique": 1
   },
@@ -30,7 +34,7 @@
    "fieldname": "type",
    "fieldtype": "Select",
    "label": "Type",
-   "options": "\nShare\nMutualFund"
+   "options": "Share\nMutual Fund"
   },
   {
    "fieldname": "eligible_percentage",
@@ -38,26 +42,41 @@
    "label": "Eligible Percentage"
   },
   {
-   "fieldname": "isin_no",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "ISIN No",
-   "reqd": 1,
-   "unique": 1
-  },
-  {
    "fieldname": "nse_symbol",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "NSE Symbol"
   },
   {
    "fieldname": "category",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Category",
    "options": "Security Category"
+  },
+  {
+   "fieldname": "isin",
+   "fieldtype": "Data",
+   "label": "ISIN",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "segment",
+   "fieldtype": "Data",
+   "label": "Segment"
+  },
+  {
+   "fieldname": "token_id",
+   "fieldtype": "Data",
+   "label": "Token ID"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
   }
  ],
- "modified": "2020-07-18 19:35:16.344153",
+ "modified": "2020-08-08 17:09:19.256497",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",
