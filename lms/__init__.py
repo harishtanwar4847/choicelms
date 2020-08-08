@@ -177,6 +177,18 @@ def get_security_prices(securities=None):
 
 	return price_map
 
+def get_security_categories(securities):
+	query = """select isin, category from `tabAllowed Security` where isin in {}""".format(convert_list_to_tuple_string(securities))
+
+	results = frappe.db.sql(query, as_dict=1)
+
+	security_map = {}
+	
+	for r in results:
+		security_map[r.isin] = r.category
+
+	return security_map
+
 def chunk_doctype(doctype, limit):
 	total = frappe.db.count(doctype)
 	limit = 50

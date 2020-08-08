@@ -189,13 +189,16 @@ def securities():
 			
 		# setting eligibility
 		securities_list = res_json["Response"]
+		securities_list_ = [i['ISIN'] for i in securities_list]
+		securities_category_map = lms.get_security_categories(securities_list_)
+
 		for i in securities_list:
-			allowed_securities_list = frappe.db.get_all("Allowed Security", filters={ "isin_no": i["ISIN"] }, fields=["*"])
-			i["Is_Eligible"] = False
-			i["Category"] = None
-			if len(allowed_securities_list) > 0:
+			try:
+				i["Category"] = securities_category_map[i['ISIN']]
 				i["Is_Eligible"] = True
-				i["Category"] = allowed_securities_list[0].category
+			except KeyError:
+				i["Is_Eligible"] = False
+				i["Category"] = None
 		
 		return lms.generateResponse(message="securities list", data=securities_list)
 	except (lms.ValidationError, lms.ServerError) as e:
