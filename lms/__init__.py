@@ -149,15 +149,20 @@ def is_float_num_valid(num, length, precision):
 def get_cdsl_prf_no():
 	return 'PF{}'.format(datetime.now().strftime('%s'))
 
+def convert_list_to_tuple_string(list_):
+	tuple_string = ''
+
+	for i in list_:
+		tuple_string += "'{}',".format(i)
+
+	return '({})'.format(tuple_string[:-1])
+
 def get_security_prices(securities=None):
 	# sauce: https://stackoverflow.com/a/10030851/9403680
 	if securities:
-		securities_ = ''
-		for s in securities:
-			securities_ += "'{}',".format(s)
 		query = """select security, price, time from `tabSecurity Price` inner join (
-			select security as security_, max(time) as latest from `tabSecurity Price` where security in (%s) group by security_
-			) res on time = res.latest and security = res.security_;""" % (securities_[:-1])
+			select security as security_, max(time) as latest from `tabSecurity Price` where security in {} group by security_
+			) res on time = res.latest and security = res.security_;""".format(convert_list_to_tuple_string(securities))
 		results = frappe.db.sql(query, as_dict=1)
 	else:
 		query = """select security, price, time from `tabSecurity Price` inner join (
@@ -171,6 +176,18 @@ def get_security_prices(securities=None):
 		price_map[r.security] = r.price
 
 	return price_map
+
+def get_security_categories(securities):
+	query = """select isin, category from `tabAllowed Security` where isin in {}""".format(convert_list_to_tuple_string(securities))
+
+	results = frappe.db.sql(query, as_dict=1)
+
+	security_map = {}
+	
+	for r in results:
+		security_map[r.isin] = r.category
+
+	return security_map
 
 def chunk_doctype(doctype, limit):
 	total = frappe.db.count(doctype)

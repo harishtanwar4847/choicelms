@@ -33,7 +33,7 @@ def kyc(pan_no=None, birth_date=None):
 		lms.validate_http_method('GET')
 
 		user = frappe.get_doc('User', frappe.session.user)
-		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user_mobile_number": user.username }, order_by="user_type", fields=["*"])
+		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user_mobile_number": user.username }, order_by="kyc_type", fields=["*"])
 
 		if len(user_kyc_list) > 0:
 			return lms.generateResponse(message="User KYC", data=user_kyc_list[0])
@@ -189,13 +189,16 @@ def securities():
 			
 		# setting eligibility
 		securities_list = res_json["Response"]
+		securities_list_ = [i['ISIN'] for i in securities_list]
+		securities_category_map = lms.get_security_categories(securities_list_)
+
 		for i in securities_list:
-			allowed_securities_list = frappe.db.get_all("Allowed Security", filters={ "isin_no": i["ISIN"] }, fields=["*"])
-			i["Is_Eligible"] = False
-			i["Category"] = None
-			if len(allowed_securities_list) > 0:
+			try:
+				i["Category"] = securities_category_map[i['ISIN']]
 				i["Is_Eligible"] = True
-				i["Category"] = allowed_securities_list[0].category
+			except KeyError:
+				i["Is_Eligible"] = False
+				i["Category"] = None
 		
 		return lms.generateResponse(message="securities list", data=securities_list)
 	except (lms.ValidationError, lms.ServerError) as e:

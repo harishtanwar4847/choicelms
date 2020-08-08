@@ -18,6 +18,7 @@
   "time",
   "loan_column_break_1",
   "shortfall_percentage",
+  "outstanding",
   "is_shortfall"
  ],
  "fields": [
@@ -97,9 +98,14 @@
    "fieldname": "is_shortfall",
    "fieldtype": "Check",
    "label": "Is marked as Shortfall"
+  },
+  {
+   "fieldname": "outstanding",
+   "fieldtype": "Float",
+   "label": "Outstanding"
   }
  ],
- "modified": "2020-08-04 12:33:02.033633",
+ "modified": "2020-08-08 19:13:44.762895",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
