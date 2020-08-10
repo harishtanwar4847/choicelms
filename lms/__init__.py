@@ -126,6 +126,16 @@ def add_user(first_name, last_name, phone, email):
 			roles=[{"doctype": "Has Role", "role": "Loan Customer"}]
 		)).insert(ignore_permissions=True)
 
+		customer = frappe.get_doc(dict(
+			doctype="Customer",
+			email=user.email,
+			first_name=user.first_name,
+			last_name = user.last_name,
+			username = user.name,
+			full_name = user.full_name,
+			phone=user.phone,
+		)).insert(ignore_permissions=True)
+
 		send_verification_email_(email)
 
 		return user.name
