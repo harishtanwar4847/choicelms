@@ -1,5 +1,5 @@
 {
- "autoname": "format:Cust-{MM}-{YYYY}-{####}",
+ "autoname": "format:CUST-{MM}-{YYYY}-{####}",
  "creation": "2020-08-10 15:31:11.771512",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -9,10 +9,10 @@
   "last_name",
   "column_break_4",
   "middle_name",
-  "section_break_5",
   "full_name",
-  "column_break_7",
+  "section_break_5",
   "username",
+  "column_break_7",
   "section_break_9",
   "email",
   "column_break_11",
@@ -76,7 +76,7 @@
    "fieldtype": "Column Break"
   }
  ],
- "modified": "2020-08-10 16:53:45.175935",
+ "modified": "2020-08-10 18:07:30.699286",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Customer",
