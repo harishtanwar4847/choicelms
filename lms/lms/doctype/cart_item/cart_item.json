@@ -5,6 +5,7 @@
  "engine": "InnoDB",
  "field_order": [
   "isin",
+  "security_name",
   "security_category",
   "pledged_quantity",
   "price",
@@ -56,10 +57,16 @@
    "in_list_view": 1,
    "label": "Eligible Amount",
    "read_only": 1
+  },
+  {
+   "fieldname": "security_name",
+   "fieldtype": "Data",
+   "label": "Security Name",
+   "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2020-07-28 20:18:09.969014",
+ "modified": "2020-08-10 11:42:09.203732",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart Item",
