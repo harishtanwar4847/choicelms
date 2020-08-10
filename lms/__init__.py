@@ -128,12 +128,7 @@ def add_user(first_name, last_name, phone, email):
 
 		customer = frappe.get_doc(dict(
 			doctype="Customer",
-			email=user.email,
-			first_name=user.first_name,
-			last_name = user.last_name,
-			username = user.name,
-			full_name = user.full_name,
-			phone=user.phone,
+			username = user.name
 		)).insert(ignore_permissions=True)
 
 		send_verification_email_(email)
@@ -209,3 +204,11 @@ def chunk_doctype(doctype, limit):
 		'limit': limit,
 		'chunks': chunks
 	}
+
+def get_customer(user):
+	return frappe.db.get_value('Customer', {'username': user}, 'name')
+
+def delete_user(doc, method):
+	customer = get_customer(doc.email)
+	frappe.delete_doc('Customer', customer)	
+	
