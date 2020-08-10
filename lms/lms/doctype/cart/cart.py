@@ -17,8 +17,8 @@ class Cart(Document):
 			item.amount = item.pledged_quantity * item.price
 			total += item.amount
 
-			# updating security_category
-			item.set_security_category()
+			# set security details for item
+			item.set_security_details()
 
 		self.total = total
 
