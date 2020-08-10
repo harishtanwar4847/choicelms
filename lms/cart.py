@@ -26,8 +26,23 @@ def upsert(securities, cart_name=None, expiry=None):
 			securities_valid = False
 			message = _('securities should be list of dictionaries')
 
+		securities_list = [i['isin'] for i in securities]
+
 		if securities_valid:
-			isin_list = []
+			if len(set(securities_list)) != len(securities_list):
+				securities_valid = False
+				message = _('duplicate isin')
+		
+		if securities_valid:
+			securities_list_from_db_ = frappe.db.sql("select isin from `tabAllowed Security` where isin in {}".format(lms.convert_list_to_tuple_string(securities_list)))
+			securities_list_from_db = [i[0] for i in securities_list_from_db_]
+
+			diff = list(set(securities_list) - set(securities_list_from_db))
+			if diff:
+				securities_valid = False
+				message = _('{} isin not found'.format(','.join(diff)))
+
+		if securities_valid:
 			for i in securities:
 				if type(i) is not dict:
 					securities_valid = False
@@ -44,7 +59,6 @@ def upsert(securities, cart_name=None, expiry=None):
 					securities_valid = False
 					message = _('isin not correct')
 					break
-				isin_list.append(i['isin'])
 
 				if not frappe.db.exists('Allowed Security', i['isin']):
 					securities_valid = False
@@ -60,12 +74,6 @@ def upsert(securities, cart_name=None, expiry=None):
 					securities_valid = False
 					message = _('price not correct')
 					break
-			
-			if len(set(isin_list)) != len(securities):
-				securities_valid = False
-				message = _('duplicate isin')
-
-
 
 		if not securities_valid:
 			raise lms.ValidationError(message)
