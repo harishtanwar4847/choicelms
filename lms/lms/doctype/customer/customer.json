@@ -5,18 +5,63 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "first_name",
-  "last_name",
-  "column_break_4",
-  "middle_name",
-  "full_name",
-  "section_break_5",
-  "username",
-  "column_break_7",
-  "section_break_9",
-  "email",
+  "crn_no",
   "column_break_11",
-  "phone"
+  "user_status",
+  "kyc_status_section",
+  "choice_kyc",
+  "column_break_21",
+  "ckcy",
+  "column_break_4",
+  "kra",
+  "user_profile_section",
+  "first_name",
+  "father_first_name",
+  "age",
+  "phone",
+  "column_break_7",
+  "middle_name",
+  "father_middle_name",
+  "gender",
+  "address",
+  "column_break_20",
+  "last_name",
+  "father_last_name",
+  "martial_status",
+  "section_break_5",
+  "pan_number",
+  "column_break_26",
+  "aadhaar_number",
+  "section_break_28",
+  "full_name",
+  "column_break_30",
+  "username",
+  "section_break_9",
+  "bank_details_section",
+  "bank_account",
+  "column_break_36",
+  "penny_drop",
+  "section_break_32",
+  "source",
+  "section_break_39",
+  "registered_date",
+  "agent_id",
+  "email",
+  "column_break_41",
+  "spark_mobile",
+  "emergency_contact",
+  "alternate_email",
+  "section_break_45",
+  "nominee_details",
+  "column_break_47",
+  "choice_mobile",
+  "section_break_49",
+  "pending_payment",
+  "loan_account_no",
+  "pending_interest",
+  "column_break_53",
+  "cbil_score",
+  "referral_code"
  ],
  "fields": [
   {
@@ -74,9 +119,229 @@
   {
    "fieldname": "column_break_11",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "crn_no",
+   "fieldtype": "Data",
+   "label": "CRN No",
+   "unique": 1
+  },
+  {
+   "fieldname": "user_status",
+   "fieldtype": "Select",
+   "label": "User Status",
+   "options": "\nActive\nIn Active\nLocked"
+  },
+  {
+   "fieldname": "kyc_status_section",
+   "fieldtype": "Section Break",
+   "label": "KYC status"
+  },
+  {
+   "fieldname": "choice_kyc",
+   "fieldtype": "Select",
+   "label": "Choice KYC",
+   "options": "\nYes\nNo\nNot Available"
+  },
+  {
+   "fieldname": "ckcy",
+   "fieldtype": "Select",
+   "label": "CKCY",
+   "options": "\nYes\nNo\nNot Available"
+  },
+  {
+   "fieldname": "kra",
+   "fieldtype": "Select",
+   "label": "KRA",
+   "options": "\nYes\nNo\nNot Available"
+  },
+  {
+   "fieldname": "user_profile_section",
+   "fieldtype": "Section Break",
+   "label": "User Profile"
+  },
+  {
+   "fieldname": "father_first_name",
+   "fieldtype": "Data",
+   "label": "Father First Name"
+  },
+  {
+   "fieldname": "father_last_name",
+   "fieldtype": "Data",
+   "label": "Father Last Name"
+  },
+  {
+   "fieldname": "father_middle_name",
+   "fieldtype": "Data",
+   "label": "Father Middle Name"
+  },
+  {
+   "fieldname": "age",
+   "fieldtype": "Data",
+   "label": "Age"
+  },
+  {
+   "fieldname": "gender",
+   "fieldtype": "Select",
+   "label": "Gender",
+   "options": "\nMale\nFemale"
+  },
+  {
+   "fieldname": "martial_status",
+   "fieldtype": "Select",
+   "label": "Martial status",
+   "options": "\nMarried\nUnmarried"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Data",
+   "label": "Address"
+  },
+  {
+   "fieldname": "pan_number",
+   "fieldtype": "Data",
+   "label": "PAN Number"
+  },
+  {
+   "fieldname": "aadhaar_number",
+   "fieldtype": "Data",
+   "label": "AADHAAR Number"
+  },
+  {
+   "fieldname": "bank_details_section",
+   "fieldtype": "Section Break",
+   "label": "Bank Details"
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Data",
+   "label": "Bank Account"
+  },
+  {
+   "fieldname": "penny_drop",
+   "fieldtype": "Data",
+   "label": "Penny Drop"
+  },
+  {
+   "fieldname": "section_break_32",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "registered_date",
+   "fieldtype": "Data",
+   "label": "Registered Date"
+  },
+  {
+   "fieldname": "agent_id",
+   "fieldtype": "Data",
+   "label": "Agent ID"
+  },
+  {
+   "fieldname": "alternate_email",
+   "fieldtype": "Data",
+   "label": "Alternate Email"
+  },
+  {
+   "fieldname": "spark_mobile",
+   "fieldtype": "Data",
+   "label": "SPARK Mobile"
+  },
+  {
+   "fieldname": "emergency_contact",
+   "fieldtype": "Data",
+   "label": "Emergency Contact"
+  },
+  {
+   "fieldname": "nominee_details",
+   "fieldtype": "Data",
+   "label": "Nominee Details"
+  },
+  {
+   "fieldname": "choice_mobile",
+   "fieldtype": "Data",
+   "label": "Choice Mobile"
+  },
+  {
+   "fieldname": "loan_account_no",
+   "fieldtype": "Data",
+   "label": "Loan Account No"
+  },
+  {
+   "fieldname": "pending_payment",
+   "fieldtype": "Data",
+   "label": "Pending Payment"
+  },
+  {
+   "fieldname": "pending_interest",
+   "fieldtype": "Data",
+   "label": "Pending Interest"
+  },
+  {
+   "fieldname": "cbil_score",
+   "fieldtype": "Data",
+   "label": "CBIL Score"
+  },
+  {
+   "fieldname": "referral_code",
+   "fieldtype": "Data",
+   "label": "Referral Code"
+  },
+  {
+   "fieldname": "column_break_21",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_20",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_26",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_28",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_30",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_36",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_41",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_45",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_47",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_49",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_53",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Table",
+   "label": "Source",
+   "options": "Source"
+  },
+  {
+   "fieldname": "section_break_39",
+   "fieldtype": "Section Break"
   }
  ],
- "modified": "2020-08-10 18:07:30.699286",
+ "modified": "2020-08-11 14:06:22.257286",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Customer",
