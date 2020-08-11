@@ -126,6 +126,11 @@ def add_user(first_name, last_name, phone, email):
 			roles=[{"doctype": "Has Role", "role": "Loan Customer"}]
 		)).insert(ignore_permissions=True)
 
+		customer = frappe.get_doc(dict(
+			doctype="Customer",
+			username = user.name
+		)).insert(ignore_permissions=True)
+
 		send_verification_email_(email)
 
 		return user.name
@@ -199,3 +204,11 @@ def chunk_doctype(doctype, limit):
 		'limit': limit,
 		'chunks': chunks
 	}
+
+def get_customer(user):
+	return frappe.db.get_value('Customer', {'username': user}, 'name')
+
+def delete_user(doc, method):
+	customer = get_customer(doc.email)
+	frappe.delete_doc('Customer', customer)	
+	
