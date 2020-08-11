@@ -28,22 +28,26 @@
   "last_name",
   "father_last_name",
   "martial_status",
+  "username",
   "section_break_5",
   "pan_number",
-  "column_break_26",
   "aadhaar_number",
-  "section_break_28",
-  "full_name",
-  "column_break_30",
-  "username",
-  "section_break_9",
+  "column_break_26",
+  "pan_document",
+  "aadhaar_document",
   "bank_details_section",
-  "bank_account",
-  "column_break_36",
-  "penny_drop",
+  "bank_account_no",
+  "ifsc_code",
+  "account_type",
   "section_break_32",
-  "source",
+  "bank_name",
+  "penny_drop",
+  "documents",
   "section_break_39",
+  "source",
+  "section_break_41",
+  "dmat_account",
+  "section_break_43",
   "registered_date",
   "agent_id",
   "email",
@@ -101,20 +105,12 @@
   },
   {
    "fieldname": "section_break_5",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "full_name",
-   "fieldtype": "Data",
-   "label": "Full Name"
+   "fieldtype": "Section Break",
+   "label": "ID Proofs"
   },
   {
    "fieldname": "column_break_7",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_9",
-   "fieldtype": "Section Break"
   },
   {
    "fieldname": "column_break_11",
@@ -177,7 +173,7 @@
   },
   {
    "fieldname": "age",
-   "fieldtype": "Data",
+   "fieldtype": "Int",
    "label": "Age"
   },
   {
@@ -204,7 +200,7 @@
   },
   {
    "fieldname": "aadhaar_number",
-   "fieldtype": "Data",
+   "fieldtype": "Int",
    "label": "AADHAAR Number"
   },
   {
@@ -213,22 +209,17 @@
    "label": "Bank Details"
   },
   {
-   "fieldname": "bank_account",
-   "fieldtype": "Data",
-   "label": "Bank Account"
-  },
-  {
    "fieldname": "penny_drop",
    "fieldtype": "Data",
    "label": "Penny Drop"
   },
   {
    "fieldname": "section_break_32",
-   "fieldtype": "Section Break"
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "registered_date",
-   "fieldtype": "Data",
+   "fieldtype": "Date",
    "label": "Registered Date"
   },
   {
@@ -299,18 +290,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "section_break_28",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_30",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_36",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "column_break_41",
    "fieldtype": "Column Break"
   },
@@ -339,9 +318,59 @@
   {
    "fieldname": "section_break_39",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "pan_document",
+   "fieldtype": "Attach",
+   "label": "PAN Document"
+  },
+  {
+   "fieldname": "aadhaar_document",
+   "fieldtype": "Attach",
+   "label": "AADHAAR Document"
+  },
+  {
+   "fieldname": "bank_account_no",
+   "fieldtype": "Data",
+   "label": "Bank Account No"
+  },
+  {
+   "fieldname": "ifsc_code",
+   "fieldtype": "Data",
+   "label": "IFSC Code"
+  },
+  {
+   "fieldname": "account_type",
+   "fieldtype": "Select",
+   "label": "Account Type",
+   "options": "\nSaving Account\nRegular Savings\nCurrent Account\nRecurring Deposit Account\nFixed Deposit Account\nDEMAT Account\nNRI Accounts"
+  },
+  {
+   "fieldname": "bank_name",
+   "fieldtype": "Data",
+   "label": "Bank Name"
+  },
+  {
+   "fieldname": "documents",
+   "fieldtype": "Attach",
+   "label": "Documents"
+  },
+  {
+   "fieldname": "section_break_41",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "dmat_account",
+   "fieldtype": "Table",
+   "label": "DMAT Account",
+   "options": "DMAT Account"
+  },
+  {
+   "fieldname": "section_break_43",
+   "fieldtype": "Section Break"
   }
  ],
- "modified": "2020-08-11 14:06:22.257286",
+ "modified": "2020-08-11 16:20:14.591205",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Customer",
