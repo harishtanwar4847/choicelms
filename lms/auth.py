@@ -175,8 +175,7 @@ def verify_user(token, user):
 		return
 	
 	frappe.db.set_value("User Token", tokenlist[0].name, "verified", 1)
-	frappe.db.commit()
-	frappe.db.set_value("Customer", {"email": user}, "verified", 1)
+	frappe.db.set_value("Customer", {"email": user}, "is_email_verified", 1)
 	frappe.db.commit()
 	frappe.respond_as_web_page(
 			_("Success"), 
