@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "crn_no",
+  "verified",
   "column_break_11",
   "user_status",
   "kyc_status_section",
@@ -368,9 +369,15 @@
   {
    "fieldname": "section_break_43",
    "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "verified",
+   "fieldtype": "Check",
+   "label": "Verified"
   }
  ],
- "modified": "2020-08-11 16:20:14.591205",
+ "modified": "2020-08-13 13:00:49.843458",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Customer",
