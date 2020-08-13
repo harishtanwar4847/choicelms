@@ -6,7 +6,6 @@
  "engine": "InnoDB",
  "field_order": [
   "crn_no",
-  "verified",
   "column_break_11",
   "user_status",
   "kyc_status_section",
@@ -66,7 +65,9 @@
   "pending_interest",
   "column_break_53",
   "cbil_score",
-  "referral_code"
+  "referral_code",
+  "section_break_62",
+  "is_email_verified"
  ],
  "fields": [
   {
@@ -371,13 +372,17 @@
    "fieldtype": "Section Break"
   },
   {
+   "fieldname": "section_break_62",
+   "fieldtype": "Section Break"
+  },
+  {
    "default": "0",
-   "fieldname": "verified",
+   "fieldname": "is_email_verified",
    "fieldtype": "Check",
-   "label": "Verified"
+   "label": "Email Verified?"
   }
  ],
- "modified": "2020-08-13 13:00:49.843458",
+ "modified": "2020-08-13 19:06:36.752527",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Customer",
