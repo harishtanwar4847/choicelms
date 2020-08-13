@@ -21,10 +21,10 @@ class Loan(Document):
 		self.time = datetime.now()
 		self.shortfall_percentage = 0
 		self.is_shortfall = 0
-		percentage_of_original_total = (self.new_total / self.total) * 100
+		percentage_of_outstanding = (self.new_total / self.outstanding) * 100
 		
-		if percentage_of_original_total < 100:
-			self.shortfall_percentage = 100 - percentage_of_original_total
+		if percentage_of_outstanding < 100:
+			self.shortfall_percentage = 100 - percentage_of_outstanding
 			
 		if self.outstanding > self.new_total:
 			self.is_shortfall = 1
