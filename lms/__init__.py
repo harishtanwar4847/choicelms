@@ -128,7 +128,8 @@ def add_user(first_name, last_name, phone, email):
 
 		customer = frappe.get_doc(dict(
 			doctype="Customer",
-			username = user.name
+			username = user.username,
+			owner = user.email
 		)).insert(ignore_permissions=True)
 
 		send_verification_email_(email)
