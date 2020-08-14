@@ -5,7 +5,7 @@ from frappe import _
 from traceback import format_exc
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from random import choice
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import groupby
 from lms.auth import send_verification_email_
 
@@ -79,7 +79,8 @@ def send_otp(phone):
 			doctype="User Token",
 			entity=phone,
 			token_type="OTP",
-			token=OTP_CODE
+			token=OTP_CODE,
+			expiry= datetime.now() + timedelta(minutes=10)
 		)).insert(ignore_permissions=True)
 		
 		if not otp_doc:
