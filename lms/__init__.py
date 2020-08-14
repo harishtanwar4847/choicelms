@@ -97,6 +97,11 @@ def check_user_token(entity, token, token_type):
 
 	return True, otp_list[0].name
 
+def get_firebase_tokens(email):
+	token_list = frappe.db.get_all('User Token', filters={'entity': email, 'token_type': 'Firebase Token'}, fields=['token'])
+
+	return [i.token for i in token_list]
+
 def random_token(length=10, is_numeric=False):
 	set_ = '0123456789'
 	if not is_numeric:

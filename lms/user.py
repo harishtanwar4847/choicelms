@@ -205,3 +205,29 @@ def securities():
 		return lms.generateResponse(status=e.http_status_code, message=str(e))
 	except Exception as e:
 		return lms.generateResponse(is_success=False, data=e, error=e)
+
+@frappe.whitelist()
+def save_firebase_token(firebase_token):
+	try:
+		# validation
+		lms.validate_http_method('POST')
+
+		if not firebase_token:
+			raise lms.ValidationError(_('Firebase Token Required.'))
+
+		tokens = lms.get_firebase_tokens(frappe.session.user)
+
+		if firebase_token not in tokens:
+			token = frappe.get_doc({
+				'doctype': 'User Token',
+				'entity': frappe.session.user,
+				'token_type': 'Firebase Token',
+				'token': firebase_token
+			})
+			token.insert(ignore_permissions=True)
+
+		return lms.generateResponse(message=_('Firebase token added successfully'))
+	except (lms.ValidationError, lms.ServerError) as e:
+		return lms.generateResponse(status=e.http_status_code, message=str(e))
+	except Exception as e:
+		return lms.generateResponse(is_success=False, data=e, error=e)
