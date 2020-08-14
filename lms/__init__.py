@@ -89,6 +89,14 @@ def send_otp(phone):
 		generateResponse(is_success=False, error=e)
 		raise
 
+def check_user_token(entity, token, token_type):
+	otp_list = frappe.db.get_all("User Token", {"entity": entity, "token_type": token_type, "token": token, "verified": 0, "expiry": ('>', datetime.now())})
+
+	if len(otp_list) == 0:
+		return False, None
+
+	return True, otp_list[0].name
+
 def random_token(length=10, is_numeric=False):
 	set_ = '0123456789'
 	if not is_numeric:
