@@ -25,7 +25,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Token Type",
-   "options": "OTP\nVerification Token",
+   "options": "OTP\nEmail Verification Token\nFirebase Token",
    "read_only": 1,
    "reqd": 1
   },
@@ -48,15 +48,14 @@
    "fieldname": "expiry",
    "fieldtype": "Datetime",
    "label": "Expiry",
-   "read_only": 1,
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "column_break_4",
    "fieldtype": "Column Break"
   }
  ],
- "modified": "2020-08-14 16:40:58.431349",
+ "modified": "2020-08-14 18:55:28.652422",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User Token",

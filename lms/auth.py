@@ -146,7 +146,7 @@ def request_verification_email():
 def send_verification_email_(email):
 	user_token = frappe.get_doc({
 			"doctype": "User Token",
-			"token_type": "Verification Token",
+			"token_type": "Email Verification Token",
 			"entity": email,
 			"token": lms.random_token(),
 			"expiry": datetime.now() + timedelta(hours=1)
@@ -166,9 +166,9 @@ def send_verification_email_(email):
 
 @frappe.whitelist(allow_guest=True)
 def verify_user(token, user):
-	tokenlist = frappe.db.get_all("User Token", {"entity": user, "token_type": "Verification Token", "token": token, "verified": 0})
+	token_res = lms.check_user_token(entity=user, token=token, token_type="Email Verification Token")
 
-	if len(tokenlist) == 0:
+	if not token_res[0]:
 		frappe.respond_as_web_page(
 			_("Something went wrong"), 
 			_("Your token is expired or invalid."),
@@ -176,7 +176,7 @@ def verify_user(token, user):
 		)
 		return
 	
-	frappe.db.set_value("User Token", tokenlist[0].name, "verified", 1)
+	frappe.db.set_value("User Token", token_res[1], "verified", 1)
 	frappe.db.commit()
 	frappe.respond_as_web_page(
 			_("Success"), 
