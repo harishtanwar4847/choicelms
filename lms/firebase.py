@@ -1,7 +1,7 @@
 import frappe
 import lms
 import firebase_admin
-from firebase_admin import credentials
+from firebase_admin import credentials, messaging, exceptions
 from os.path import isfile
 
 class FirebaseAdmin():
@@ -11,7 +11,7 @@ class FirebaseAdmin():
 		firebase_credentials_file_path = frappe.get_site_path('firebase.json')
 
 		if not isfile(firebase_credentials_file_path):
-			raise lms.FirebaseCredentialsFileNotFoundError
+			raise lms.FirebaseCredentialsFileNotFoundError('Firebase Credentials not found.')
 		
 		try:
 			cred = credentials.Certificate(firebase_credentials_file_path)
@@ -19,6 +19,15 @@ class FirebaseAdmin():
 		except ValueError as e:
 			raise lms.InvalidFirebaseCredentialsError(str(e))
 		
+	def send_fcm(self, title, body, image=None, tokens=[], data=None):
+		if not tokens:
+			raise lms.FirebaseTokensNotProvidedError('Firebase tokens not provided.')
+		notification = messaging.Notification(title, body, image)
+		multicast_message = messaging.MulticastMessage(tokens, data, notification)
+		try:
+			messaging.send_multicast(multicast_message)
+		except firebase_admin.exceptions.FirebaseError as e:
+			raise lms.FirebaseError(str(e))
 
 	def __del__(self):
 		if self.app:
