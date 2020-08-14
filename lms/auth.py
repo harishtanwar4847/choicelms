@@ -4,6 +4,7 @@ from frappe.auth import LoginManager
 import lms
 from frappe.utils.password import delete_login_failed_cache
 from datetime import datetime, timedelta
+from lms.firebase import FirebaseAdmin
 
 
 @frappe.whitelist(allow_guest=True)
@@ -176,6 +177,13 @@ def verify_user(token, user):
 		)
 		return
 	
+	fa = FirebaseAdmin()
+	fa.send_fcm(
+		title='User Verification', 
+		body='Your email was verified', 
+		tokens=lms.get_firebase_tokens(user)
+	)
+
 	frappe.db.set_value("User Token", token_res[1], "verified", 1)
 	frappe.db.commit()
 	frappe.respond_as_web_page(
