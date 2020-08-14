@@ -147,7 +147,7 @@ def send_verification_email_(email):
 			"doctype": "User Token",
 			"token_type": "Verification Token",
 			"entity": email,
-			"token": lms.random_token(10),
+			"token": lms.random_token(),
 		})
 	user_token.insert(ignore_permissions=True)
 
@@ -158,7 +158,7 @@ def send_verification_email_(email):
 		method=frappe.sendmail, 
 		recipients=email, 
 		sender=None, 
-		subject="User Verification",
+		subject="User Email Verification",
 		message=frappe.get_template(template).render(url=url)
 	)
 

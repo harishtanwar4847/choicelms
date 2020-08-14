@@ -70,7 +70,7 @@ def send_otp(phone):
 			"verified": 0
 		})
 
-		OTP_CODE = random_token()
+		OTP_CODE = random_token(length=4, is_numeric=True)
 
 		mess = _('Your OTP for LMS is {0}. Do not share your OTP with anyone.').format(OTP_CODE)
 		frappe.enqueue(method=send_sms, receiver_list=[phone], msg=mess)
@@ -88,8 +88,11 @@ def send_otp(phone):
 		generateResponse(is_success=False, error=e)
 		raise
 
-def random_token(length=4):
-	return ''.join(choice('0123456789') for _ in range(length))
+def random_token(length=10, is_numeric=False):
+	set_ = '0123456789'
+	if not is_numeric:
+		set_ = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+	return ''.join(choice(set_) for _ in range(length))
 
 def get_user(input, throw=False):
 	user_data = frappe.db.sql("""select name from `tabUser` where email=%s or phone=%s""",(input,input), as_dict=1)
