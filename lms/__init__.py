@@ -5,7 +5,7 @@ from frappe import _
 from traceback import format_exc
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from random import choice
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import groupby
 from lms.auth import send_verification_email_
 
@@ -21,6 +21,18 @@ class ValidationError(Exception):
 
 class ServerError(Exception):
 	http_status_code = 500
+
+class FirebaseError(Exception):
+	pass
+
+class FirebaseCredentialsFileNotFoundError(FirebaseError):
+	pass
+
+class InvalidFirebaseCredentialsError(FirebaseError):
+	pass
+
+class FirebaseTokensNotProvidedError(FirebaseError):
+	pass
 
 def validate_http_method(allowed_method_csv):
 	if str(frappe.request.method).upper() not in allowed_method_csv.split(','):
@@ -58,7 +70,7 @@ def send_otp(phone):
 			"verified": 0
 		})
 
-		OTP_CODE = random_token()
+		OTP_CODE = random_token(length=4, is_numeric=True)
 
 		mess = _('Your OTP for LMS is {0}. Do not share your OTP with anyone.').format(OTP_CODE)
 		frappe.enqueue(method=send_sms, receiver_list=[phone], msg=mess)
@@ -67,7 +79,8 @@ def send_otp(phone):
 			doctype="User Token",
 			entity=phone,
 			token_type="OTP",
-			token=OTP_CODE
+			token=OTP_CODE,
+			expiry= datetime.now() + timedelta(minutes=10)
 		)).insert(ignore_permissions=True)
 		
 		if not otp_doc:
@@ -76,8 +89,24 @@ def send_otp(phone):
 		generateResponse(is_success=False, error=e)
 		raise
 
-def random_token(length=4):
-	return ''.join(choice('0123456789') for _ in range(length))
+def check_user_token(entity, token, token_type):
+	otp_list = frappe.db.get_all("User Token", {"entity": entity, "token_type": token_type, "token": token, "verified": 0, "expiry": ('>', datetime.now())})
+
+	if len(otp_list) == 0:
+		return False, None
+
+	return True, otp_list[0].name
+
+def get_firebase_tokens(email):
+	token_list = frappe.db.get_all('User Token', filters={'entity': email, 'token_type': 'Firebase Token'}, fields=['token'])
+
+	return [i.token for i in token_list]
+
+def random_token(length=10, is_numeric=False):
+	set_ = '0123456789'
+	if not is_numeric:
+		set_ = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+	return ''.join(choice(set_) for _ in range(length))
 
 def get_user(input, throw=False):
 	user_data = frappe.db.sql("""select name from `tabUser` where email=%s or phone=%s""",(input,input), as_dict=1)

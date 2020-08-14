@@ -6,8 +6,10 @@
  "field_order": [
   "entity",
   "token_type",
+  "verified",
+  "column_break_4",
   "token",
-  "verified"
+  "expiry"
  ],
  "fields": [
   {
@@ -23,13 +25,13 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Token Type",
-   "options": "OTP\nVerification Token",
+   "options": "OTP\nEmail Verification Token\nFirebase Token",
    "read_only": 1,
    "reqd": 1
   },
   {
    "fieldname": "token",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
    "label": "Token",
    "read_only": 1,
@@ -41,9 +43,19 @@
    "fieldtype": "Check",
    "label": "Verified",
    "read_only": 1
+  },
+  {
+   "fieldname": "expiry",
+   "fieldtype": "Datetime",
+   "label": "Expiry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
   }
  ],
- "modified": "2020-07-25 00:47:27.932707",
+ "modified": "2020-08-14 18:55:28.652422",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User Token",

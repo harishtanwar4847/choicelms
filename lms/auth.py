@@ -3,6 +3,8 @@ from frappe import _
 from frappe.auth import LoginManager
 import lms
 from frappe.utils.password import delete_login_failed_cache
+from datetime import datetime, timedelta
+from lms.firebase import FirebaseAdmin
 
 
 @frappe.whitelist(allow_guest=True)
@@ -50,8 +52,8 @@ def verify_otp(mobile, otp):
 
 		login_manager = LoginManager()
 		user_name = lms.get_user(mobile)
-		otpobj = frappe.db.get_all("User Token", {"entity": mobile, "token_type": "OTP", "token": otp, "verified": 0})
-		if len(otpobj) == 0:
+		otp_res = lms.check_user_token(entity=mobile, token=otp, token_type="OTP")
+		if not otp_res[0]:
 			if user_name:
 				login_manager.update_invalid_login(user_name)
 				login_manager.check_if_enabled(user_name)
@@ -63,7 +65,7 @@ def verify_otp(mobile, otp):
 			token=lms.generate_user_token(user_name),
 		)
 
-		frappe.db.set_value("User Token", otpobj[0].name, "verified", 1)
+		frappe.db.set_value("User Token", otp_res[1], "verified", 1)
 		delete_login_failed_cache(user_name)
 		return lms.generateResponse(message=_('Login Success.'), data=token)
 	except (lms.ValidationError, lms.ServerError) as e:
@@ -101,15 +103,15 @@ def register(first_name, mobile, email, otp, last_name=None):
 		if len(otp) != 4 or not otp.isdigit():
 			raise lms.ValidationError(_('Enter 4 digit OTP.'))
 
+		# validating otp to protect sign up api
+		otp_res = lms.check_user_token(entity=mobile, token=otp, token_type="OTP")
+		if not otp_res[0]:
+			raise lms.ValidationError(_('Wrong OTP'))
+
 		if type(lms.get_user(mobile)) is str:
 			raise lms.ValidationError(_('Mobile already Registered.'))
 		if type(lms.get_user(email)) is str:
 			raise lms.ValidationError(_('Email already Registered.'))
-
-		# validating otp to protect sign up api
-		otpobj = frappe.db.get_all("User Token", {"entity": mobile, "token_type": "OTP", "token": otp, "verified": 0})
-		if len(otpobj) == 0:
-			raise lms.ValidationError(_('Wrong OTP'))
 
 		# creating user
 		user_name = lms.add_user(first_name, last_name, mobile, email)
@@ -118,7 +120,7 @@ def register(first_name, mobile, email, otp, last_name=None):
 				token=lms.generate_user_token(user_name),
 			)
 
-			frappe.db.set_value("User Token", otpobj[0].name, "verified", 1)
+			frappe.db.set_value("User Token", otp_res[1], "verified", 1)
 
 			return lms.generateResponse(message=_('Registered Successfully.'), data=token)
 		else:
@@ -145,9 +147,10 @@ def request_verification_email():
 def send_verification_email_(email):
 	user_token = frappe.get_doc({
 			"doctype": "User Token",
-			"token_type": "Verification Token",
+			"token_type": "Email Verification Token",
 			"entity": email,
-			"token": lms.random_token(10),
+			"token": lms.random_token(),
+			"expiry": datetime.now() + timedelta(hours=1)
 		})
 	user_token.insert(ignore_permissions=True)
 
@@ -158,15 +161,15 @@ def send_verification_email_(email):
 		method=frappe.sendmail, 
 		recipients=email, 
 		sender=None, 
-		subject="User Verification",
+		subject="User Email Verification",
 		message=frappe.get_template(template).render(url=url)
 	)
 
 @frappe.whitelist(allow_guest=True)
 def verify_user(token, user):
-	tokenlist = frappe.db.get_all("User Token", {"entity": user, "token_type": "Verification Token", "token": token, "verified": 0})
+	token_res = lms.check_user_token(entity=user, token=token, token_type="Email Verification Token")
 
-	if len(tokenlist) == 0:
+	if not token_res[0]:
 		frappe.respond_as_web_page(
 			_("Something went wrong"), 
 			_("Your token is expired or invalid."),
@@ -174,6 +177,13 @@ def verify_user(token, user):
 		)
 		return
 	
+	fa = FirebaseAdmin()
+	fa.send_fcm(
+		title='User Verification', 
+		body='Your email was verified', 
+		tokens=lms.get_firebase_tokens(user)
+	)
+
 	frappe.db.set_value("User Token", tokenlist[0].name, "verified", 1)
 	frappe.db.set_value("Customer", {"email": user}, "is_email_verified", 1)
 	frappe.db.commit()
