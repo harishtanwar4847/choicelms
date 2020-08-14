@@ -65,7 +65,18 @@
   "pending_interest",
   "column_break_53",
   "cbil_score",
-  "referral_code"
+  "referral_code",
+  "section_break_62",
+  "registeration",
+  "is_email_verified",
+  "column_break_65",
+  "kyc_update",
+  "column_break_67",
+  "credit_check",
+  "column_break_69",
+  "pledge_securities",
+  "column_break_71",
+  "loan_open"
  ],
  "fields": [
   {
@@ -368,9 +379,65 @@
   {
    "fieldname": "section_break_43",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_62",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_email_verified",
+   "fieldtype": "Check",
+   "label": "Email Verified?"
+  },
+  {
+   "default": "0",
+   "fieldname": "registeration",
+   "fieldtype": "Check",
+   "label": "Registeration"
+  },
+  {
+   "fieldname": "column_break_65",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "kyc_update",
+   "fieldtype": "Check",
+   "label": "KYC Update"
+  },
+  {
+   "fieldname": "column_break_67",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "credit_check",
+   "fieldtype": "Check",
+   "label": "Credit Check"
+  },
+  {
+   "fieldname": "column_break_69",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "pledge_securities",
+   "fieldtype": "Check",
+   "label": "Pledge Securities"
+  },
+  {
+   "fieldname": "column_break_71",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "loan_open",
+   "fieldtype": "Check",
+   "label": "Loan Open"
   }
  ],
- "modified": "2020-08-11 16:20:14.591205",
+ "modified": "2020-08-13 21:46:15.859978",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Customer",
@@ -385,6 +452,19 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "if_owner": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Loan Customer",
    "share": 1,
    "write": 1
   }
