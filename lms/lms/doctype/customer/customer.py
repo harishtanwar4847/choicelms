@@ -16,3 +16,5 @@ class Customer(Document):
 		self.full_name = user.full_name
 		self.email = user.email
 		self.phone = user.phone
+		self.owner = user.email
+		self.registeration = 1
