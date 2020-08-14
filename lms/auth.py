@@ -184,7 +184,7 @@ def verify_user(token, user):
 		tokens=lms.get_firebase_tokens(user)
 	)
 
-	frappe.db.set_value("User Token", tokenlist[0].name, "verified", 1)
+	frappe.db.set_value("User Token", token_res[1], "verified", 1)
 	frappe.db.set_value("Customer", {"email": user}, "is_email_verified", 1)
 	frappe.db.commit()
 	frappe.respond_as_web_page(
