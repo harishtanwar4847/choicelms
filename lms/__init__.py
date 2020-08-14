@@ -22,6 +22,21 @@ class ValidationError(Exception):
 class ServerError(Exception):
 	http_status_code = 500
 
+class FirebaseCredentialsFileNotFoundError(FileNotFoundError):
+	def __init__(self, *args, **kwargs):
+		default_message = 'Firebase Credentials not found.'
+
+		# if any arguments are passed...
+		if args or kwargs:
+			# ... pass them to the super constructor
+			super().__init__(*args, **kwargs)
+		else: # else, the exception was raised without arguments ...
+			# ... pass the default message to the super constructor
+			super().__init__(default_message)
+
+class InvalidFirebaseCredentialsError(Exception):
+	pass
+
 def validate_http_method(allowed_method_csv):
 	if str(frappe.request.method).upper() not in allowed_method_csv.split(','):
 		raise ValidationError(_('{} not allowed.').format(frappe.request.method))
