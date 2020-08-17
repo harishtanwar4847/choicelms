@@ -12,25 +12,21 @@ class Cart(Document):
 		self.process_bre()
 
 	def calculate_total(self):
-		total = 0
+		self.total_collateral_value = 0
 		for item in self.items:
 			item.amount = item.pledged_quantity * item.price
-			total += item.amount
+			self.total_collateral_value += item.amount
 
 			# set security details for item
 			item.set_security_details()
 
-		self.total = total
-
 	def process_bre(self):
 		las_settings = frappe.get_single('LAS Settings')
+		self.eligible_amount = 0
 
-		eligible_amounts = []
 		for item in self.items:
 			item.eligible_amount = item.amount * (las_settings.loan_margin / 100)
-			eligible_amounts.append(item.eligible_amount)
-
-		self.eligible_amount = sum(eligible_amounts)
+			self.eligible_amount += item.eligible_amount
 
 	def validate_bre(self):
 		is_single_script = True if len(self.items) == 1 else False
