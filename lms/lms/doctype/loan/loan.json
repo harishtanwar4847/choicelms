@@ -5,7 +5,8 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "total",
+  "total_collateral_value",
+  "overdraft_limit",
   "pledgor_boid",
   "prf_number",
   "loan_column_break",
@@ -22,13 +23,6 @@
   "is_shortfall"
  ],
  "fields": [
-  {
-   "fieldname": "total",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Total",
-   "read_only": 1
-  },
   {
    "fieldname": "pledgor_boid",
    "fieldtype": "Data",
@@ -76,8 +70,8 @@
   },
   {
    "fieldname": "new_total",
-   "fieldtype": "Float",
-   "label": "Total Collateral Value"
+   "fieldtype": "Currency",
+   "label": "New Total Collateral Value"
   },
   {
    "fieldname": "time",
@@ -101,11 +95,23 @@
   },
   {
    "fieldname": "outstanding",
-   "fieldtype": "Float",
+   "fieldtype": "Currency",
    "label": "Outstanding"
+  },
+  {
+   "fieldname": "total_collateral_value",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total Collateral Value",
+   "read_only": 1
+  },
+  {
+   "fieldname": "overdraft_limit",
+   "fieldtype": "Currency",
+   "label": "Overdraft Limit"
   }
  ],
- "modified": "2020-08-08 19:13:44.762895",
+ "modified": "2020-08-17 16:23:16.465947",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

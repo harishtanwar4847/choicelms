@@ -5,7 +5,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "total",
+  "total_collateral_value",
   "cart_column_break",
   "eligible_amount",
   "items_section",
@@ -13,20 +13,13 @@
  ],
  "fields": [
   {
-   "fieldname": "total",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Total",
-   "read_only": 1
-  },
-  {
    "fieldname": "cart_column_break",
    "fieldtype": "Column Break"
   },
   {
    "default": "0",
    "fieldname": "eligible_amount",
-   "fieldtype": "Float",
+   "fieldtype": "Currency",
    "label": "Eligible Amount",
    "read_only": 1
   },
@@ -40,9 +33,16 @@
    "label": "Cart Item",
    "options": "Cart Item",
    "reqd": 1
+  },
+  {
+   "fieldname": "total_collateral_value",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total Collateral Value",
+   "read_only": 1
   }
  ],
- "modified": "2020-07-28 09:56:34.933191",
+ "modified": "2020-08-17 16:19:43.712371",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart",

@@ -44,7 +44,7 @@
   },
   {
    "fieldname": "price",
-   "fieldtype": "Float",
+   "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Price",
    "read_only": 1,
@@ -52,7 +52,7 @@
   },
   {
    "fieldname": "amount",
-   "fieldtype": "Float",
+   "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Amount",
    "read_only": 1,
@@ -73,17 +73,17 @@
   },
   {
    "fieldname": "new_price",
-   "fieldtype": "Float",
+   "fieldtype": "Currency",
    "label": "New Price"
   },
   {
    "fieldname": "new_amount",
-   "fieldtype": "Float",
+   "fieldtype": "Currency",
    "label": "New Amount"
   }
  ],
  "istable": 1,
- "modified": "2020-08-04 11:17:09.032280",
+ "modified": "2020-08-17 16:23:40.562471",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Item",
