@@ -134,7 +134,7 @@ def add_user(first_name, last_name, phone, email):
 
 		send_verification_email_(email)
 
-		return user.name, customer
+		return user.name
 	except Exception:
 		return False
 
@@ -206,10 +206,12 @@ def chunk_doctype(doctype, limit):
 		'chunks': chunks
 	}
 
-def get_customer(user):
-	return frappe.db.get_value('Customer', {'username': user}, 'name')
+def get_customer(mobile):
+	return frappe.get_all('Customer', filters={'phone': mobile}, fields=['*'])
 
 def delete_user(doc, method):
-	customer = get_customer(doc.email)
-	frappe.delete_doc('Customer', customer)	
+	print('=======================')
+	customer = get_customer(doc.phone)
+	print(customer)
+	frappe.delete_doc('Customer', customer[0].name)	
 	

@@ -61,6 +61,7 @@ def verify_otp(mobile, otp):
 		login_manager.check_if_enabled(user_name)
 		token = dict(
 			token=lms.generate_user_token(user_name),
+			customer = lms.get_customer(mobile)
 		)
 
 		frappe.db.set_value("User Token", otpobj[0].name, "verified", 1)
@@ -113,11 +114,11 @@ def register(first_name, mobile, email, otp, last_name=None):
 
 		# creating user
 		user_name = lms.add_user(first_name, last_name, mobile, email)
-		print(user_name[1])
-		if type(user_name[0]) is str:
+		print(user_name)
+		if type(user_name) is str:
 			token = dict(
-				token=lms.generate_user_token(user_name[0]),
-				customer = user_name[1]
+				token=lms.generate_user_token(user_name),
+				customer = lms.get_customer(mobile)
 			)
 
 			frappe.db.set_value("User Token", otpobj[0].name, "verified", 1)
