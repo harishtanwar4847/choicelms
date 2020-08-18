@@ -12,8 +12,7 @@ from random import uniform
 class SecurityPrice(Document):
 	pass
 
-def update_security_prices(securities, start, total, show_progress=False):
-	cur_doc = start
+def update_security_prices(securities):
 	fields = ['security', 'time', 'price', 'name', 'creation', 'modified', 'owner', 'modified_by']
 	values = []
 	for security in securities:
@@ -28,16 +27,11 @@ def update_security_prices(securities, start, total, show_progress=False):
 			'Administrator',
 			'Administrator'
 		))
-		cur_doc += 1
-		if show_progress:
-			frappe.publish_progress((cur_doc / total) * 100, 'Updating Security Prices...')
 
 	frappe.db.bulk_insert('Security Price', fields=fields, values=values)
-	if cur_doc == total and show_progress:
-		frappe.publish_realtime(event='eval_js', message='cur_list.refresh()', user=frappe.session.user)
 
 @frappe.whitelist()
-def update_all_security_prices(show_progress=False):
+def update_all_security_prices():
 	chunks = lms.chunk_doctype(doctype='Allowed Security', limit=50)
 
 	for start in chunks.get('chunks'):
@@ -46,9 +40,6 @@ def update_all_security_prices(show_progress=False):
 		frappe.enqueue(
 			method='lms.lms.doctype.security_price.security_price.update_security_prices', 
 			securities=[i.name for i in security_list], 
-			start=start, 
-			total=chunks.get('total'), 
-			show_progress=show_progress,
 			queue='long'
 		)
 
