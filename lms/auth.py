@@ -113,9 +113,11 @@ def register(first_name, mobile, email, otp, last_name=None):
 
 		# creating user
 		user_name = lms.add_user(first_name, last_name, mobile, email)
-		if type(user_name) is str:
+		print(user_name[1])
+		if type(user_name[0]) is str:
 			token = dict(
-				token=lms.generate_user_token(user_name),
+				token=lms.generate_user_token(user_name[0]),
+				customer = user_name[1]
 			)
 
 			frappe.db.set_value("User Token", otpobj[0].name, "verified", 1)
