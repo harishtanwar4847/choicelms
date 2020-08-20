@@ -28,7 +28,9 @@
   "last_name",
   "father_last_name",
   "martial_status",
+  "section_break_24",
   "username",
+  "user",
   "section_break_5",
   "pan_number",
   "aadhaar_number",
@@ -435,9 +437,18 @@
    "fieldname": "loan_open",
    "fieldtype": "Check",
    "label": "Loan Open"
+  },
+  {
+   "fieldname": "section_break_24",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Data",
+   "label": "User"
   }
  ],
- "modified": "2020-08-13 21:46:15.859978",
+ "modified": "2020-08-18 16:43:00.539944",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Customer",
