@@ -206,12 +206,12 @@ def chunk_doctype(doctype, limit):
 		'chunks': chunks
 	}
 
-def get_customer_document(mobile):
-	customer = frappe.get_all('Customer', filters={'phone': mobile}, fields=['*'])
-	return frappe.get_doc('Customer', customer[0].name)
+def get_customer(mobile):
+	customer_list = frappe.get_all('Customer', filters={'phone': mobile}, fields=['*'])
+	return customer_list[0]
 
 def delete_user(doc, method):
 	print('=======================')
-	customer = get_customer_document(doc.phone)
+	customer = get_customer(doc.phone)
 	frappe.delete_doc('Customer', customer.name)	
 	
