@@ -25,7 +25,11 @@
   "unpledge_setup_uri",
   "confiscate_setup_uri",
   "cdsl_dpid",
-  "cdsl_password"
+  "cdsl_password",
+  "jiffy_section",
+  "jiffy_host",
+  "jiffy_session_generator_uri",
+  "jiffy_security_get_latest_price_uri"
  ],
  "fields": [
   {
@@ -151,10 +155,34 @@
    "fieldname": "cdsl_password",
    "fieldtype": "Data",
    "label": "CDSL Password"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "jiffy_section",
+   "fieldtype": "Section Break",
+   "label": "Jiffy"
+  },
+  {
+   "default": "https://uat.jiffy.in",
+   "fieldname": "jiffy_host",
+   "fieldtype": "Data",
+   "label": "Jiffy Host"
+  },
+  {
+   "default": "/api/settings/GenKey",
+   "fieldname": "jiffy_session_generator_uri",
+   "fieldtype": "Data",
+   "label": "Jiffy Session Generator URI"
+  },
+  {
+   "default": "/api/cm/ProfileMkt/MultipleTouchline",
+   "fieldname": "jiffy_security_get_latest_price_uri",
+   "fieldtype": "Data",
+   "label": "Jiffy Security Get Latest Price URI"
   }
  ],
  "issingle": 1,
- "modified": "2020-07-27 19:16:05.871037",
+ "modified": "2020-08-19 14:22:13.362543",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
