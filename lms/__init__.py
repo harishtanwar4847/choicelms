@@ -34,6 +34,9 @@ class InvalidFirebaseCredentialsError(FirebaseError):
 class FirebaseTokensNotProvidedError(FirebaseError):
 	pass
 
+class FirebaseDataNotProvidedError(FirebaseError):
+	pass
+
 def validate_http_method(allowed_method_csv):
 	if str(frappe.request.method).upper() not in allowed_method_csv.split(','):
 		raise ValidationError(_('{} not allowed.').format(frappe.request.method))

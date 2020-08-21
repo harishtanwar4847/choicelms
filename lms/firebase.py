@@ -19,11 +19,20 @@ class FirebaseAdmin():
 		except ValueError as e:
 			raise lms.InvalidFirebaseCredentialsError(str(e))
 		
-	def send_fcm(self, title, body, image=None, tokens=[], data=None):
+	def send_message(self, title, body, image=None, tokens=[], data=None):
 		if not tokens:
 			raise lms.FirebaseTokensNotProvidedError('Firebase tokens not provided.')
 		notification = messaging.Notification(title, body, image)
 		multicast_message = messaging.MulticastMessage(tokens, data, notification)
+		try:
+			messaging.send_multicast(multicast_message)
+		except firebase_admin.exceptions.FirebaseError as e:
+			raise lms.FirebaseError(str(e))
+
+	def send_data(self, data, tokens=[]):
+		if not data:
+			raise lms.FirebaseDataNotProvidedError('Firebase data not provided.')
+		multicast_message = messaging.MulticastMessage(tokens, data)
 		try:
 			messaging.send_multicast(multicast_message)
 		except firebase_admin.exceptions.FirebaseError as e:
