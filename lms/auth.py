@@ -21,6 +21,11 @@ def login(mobile, pin=None):
 		if pin:
 			login_manager = LoginManager()
 			login_manager.authenticate(user=mobile, pwd=pin)
+			token = dict(
+					token=lms.generate_user_token(frappe.session.user),
+					customer = lms.get_customer(mobile)
+			)
+			return lms.generateResponse(message=_('Logged in Successfully'), data=token)
 
 		lms.send_otp(mobile)
 
