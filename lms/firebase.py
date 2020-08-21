@@ -19,7 +19,7 @@ class FirebaseAdmin():
 		except ValueError as e:
 			raise lms.InvalidFirebaseCredentialsError(str(e))
 		
-	def send_fcm(self, title, body, image=None, tokens=[], data=None):
+	def send_message(self, title, body, image=None, tokens=[], data=None):
 		if not tokens:
 			raise lms.FirebaseTokensNotProvidedError('Firebase tokens not provided.')
 		notification = messaging.Notification(title, body, image)
