@@ -29,6 +29,15 @@ class FirebaseAdmin():
 		except firebase_admin.exceptions.FirebaseError as e:
 			raise lms.FirebaseError(str(e))
 
+	def send_data(self, data, tokens=[]):
+		if not data:
+			raise lms.FirebaseDataNotProvidedError('Firebase data not provided.')
+		multicast_message = messaging.MulticastMessage(tokens, data)
+		try:
+			messaging.send_multicast(multicast_message)
+		except firebase_admin.exceptions.FirebaseError as e:
+			raise lms.FirebaseError(str(e))
+
 	def __del__(self):
 		if self.app:
 			firebase_admin.delete_app(self.app)
