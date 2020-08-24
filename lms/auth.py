@@ -158,7 +158,7 @@ def register(first_name, mobile, email, otp, firebase_token, last_name=None):
 			"expiry": ""
 			})
 			user_token.insert(ignore_permissions=True)
-			
+
 			frappe.db.set_value("User Token", otp_res[1], "used", 1)
 
 			return lms.generateResponse(message=_('Registered Successfully.'), data=token)
@@ -217,7 +217,7 @@ def verify_user(token, user):
 		return
 	
 	fa = FirebaseAdmin()
-	fa.send_fcm(
+	fa.send_data(
 		title='User Verification', 
 		body='Your email was verified', 
 		tokens=lms.get_firebase_tokens(user)
