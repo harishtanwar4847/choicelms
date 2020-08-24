@@ -34,6 +34,9 @@ class InvalidFirebaseCredentialsError(FirebaseError):
 class FirebaseTokensNotProvidedError(FirebaseError):
 	pass
 
+class FirebaseDataNotProvidedError(FirebaseError):
+	pass
+
 def validate_http_method(allowed_method_csv):
 	if str(frappe.request.method).upper() not in allowed_method_csv.split(','):
 		raise ValidationError(_('{} not allowed.').format(frappe.request.method))
@@ -157,7 +160,8 @@ def add_user(first_name, last_name, phone, email):
 
 		customer = frappe.get_doc(dict(
 			doctype="Customer",
-			username = user.name
+			username = user.email,
+			owner = user.email
 		)).insert(ignore_permissions=True)
 
 		send_verification_email_(email)
@@ -234,10 +238,12 @@ def chunk_doctype(doctype, limit):
 		'chunks': chunks
 	}
 
-def get_customer(user):
-	return frappe.db.get_value('Customer', {'username': user}, 'name')
+def get_customer(mobile):
+	customer_list = frappe.get_all('Customer', filters={'phone': mobile}, fields=['*'])
+	return customer_list[0]
 
 def delete_user(doc, method):
-	customer = get_customer(doc.email)
-	frappe.delete_doc('Customer', customer)	
+	print('=======================')
+	customer = get_customer(doc.phone)
+	frappe.delete_doc('Customer', customer.name)	
 	

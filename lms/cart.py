@@ -136,6 +136,18 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 		if not expiry:
 			expiry = datetime.now() + timedelta(days = 365)
 
+		# approve TnC
+		user = frappe.get_doc('User', frappe.session.user)
+		
+		for tnc in frappe.get_list('Terms and Conditions', filters={'is_active': 1}):
+			approved_tnc = frappe.get_doc({
+				'doctype': 'Approved Terms and Conditions',
+				'mobile': user.username,
+				'tnc': tnc.name,
+				'time': datetime.now()
+			})
+			approved_tnc.insert(ignore_permissions=True)
+
 		securities_array = []
 		for i in cart.items:
 			j = {
