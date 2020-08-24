@@ -27,6 +27,14 @@ def login(mobile, firebase_token, pin=None):
 					token=lms.generate_user_token(frappe.session.user),
 					customer = lms.get_customer(mobile)
 			)
+			user_token = frappe.get_doc({
+			"doctype": "User Token",
+			"token_type": "Firebase Token",
+			"entity": frappe.session.user,
+			"token": firebase_token,
+			"expiry": ""
+			})
+			user_token.insert(ignore_permissions=True)
 			return lms.generateResponse(message=_('Logged in Successfully'), data=token)
 
 		lms.send_otp(mobile)
@@ -73,6 +81,15 @@ def verify_otp(mobile, firebase_token, otp):
 			token=lms.generate_user_token(user_name),
 			customer = lms.get_customer(mobile)
 		)
+
+		user_token = frappe.get_doc({
+			"doctype": "User Token",
+			"token_type": "Firebase Token",
+			"entity": frappe.session.user,
+			"token": firebase_token,
+			"expiry": ""
+			})
+		user_token.insert(ignore_permissions=True)
 
 		frappe.db.set_value("User Token", otp_res[1], "used", 1)
 		delete_login_failed_cache(user_name)
@@ -133,6 +150,15 @@ def register(first_name, mobile, email, otp, firebase_token, last_name=None):
 				customer = lms.get_customer(mobile)
 			)
 
+			user_token = frappe.get_doc({
+			"doctype": "User Token",
+			"token_type": "Firebase Token",
+			"entity": frappe.session.user,
+			"token": firebase_token,
+			"expiry": ""
+			})
+			user_token.insert(ignore_permissions=True)
+			
 			frappe.db.set_value("User Token", otp_res[1], "used", 1)
 
 			return lms.generateResponse(message=_('Registered Successfully.'), data=token)
