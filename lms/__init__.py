@@ -70,7 +70,7 @@ def send_otp(phone):
 		frappe.db.delete("User Token", {
 			"entity": phone,
 			"token_type": "OTP",
-			"verified": 0
+			"used": 0
 		})
 
 		OTP_CODE = random_token(length=4, is_numeric=True)
@@ -93,7 +93,10 @@ def send_otp(phone):
 		raise
 
 def check_user_token(entity, token, token_type):
-	otp_list = frappe.db.get_all("User Token", {"entity": entity, "token_type": token_type, "token": token, "verified": 0, "expiry": ('>', datetime.now())})
+	if token_type == "Firebase Token":
+		otp_list = frappe.db.get_all("User Token", {"entity": entity, "token_type": token_type, "token": token, "used": 0})
+	else:	
+		otp_list = frappe.db.get_all("User Token", {"entity": entity, "token_type": token_type, "token": token, "used": 0, "expiry": ('>', datetime.now())})
 
 	if len(otp_list) == 0:
 		return False, None
