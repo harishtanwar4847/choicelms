@@ -250,7 +250,7 @@ def delete_user(doc, method):
 	customer = get_customer(doc.phone)
 	frappe.delete_doc('Customer', customer.name)
 
-def create_user_token(firebase_token, user=None):
+def add_firebase_token(firebase_token, user=None):
 	get_user_token = frappe.db.get_value("User Token", {"token_type": "Firebase Token", "token": firebase_token})
 	if get_user_token:
 		return 
