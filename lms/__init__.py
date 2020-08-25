@@ -51,7 +51,7 @@ def appErrorLog(title, error):
 	return d
 
 
-def generateResponse(is_success=True, status=200, message=None, data=[], error=None):
+def generateResponse(is_success=True, status=200, message=None, data={}, error=None):
 	response = {}
 	if is_success:
 		response["status"] = int(status)
