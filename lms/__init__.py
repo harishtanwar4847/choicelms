@@ -103,8 +103,8 @@ def check_user_token(entity, token, token_type):
 
 	return True, otp_list[0].name
 
-def get_firebase_tokens(email):
-	token_list = frappe.db.get_all('User Token', filters={'entity': email, 'token_type': 'Firebase Token'}, fields=['token'])
+def get_firebase_tokens(entity):
+	token_list = frappe.db.get_all('User Token', filters={'entity': entity, 'token_type': 'Firebase Token'}, fields=['token'])
 
 	return [i.token for i in token_list]
 
@@ -248,5 +248,17 @@ def get_customer(mobile):
 def delete_user(doc, method):
 	print('=======================')
 	customer = get_customer(doc.phone)
-	frappe.delete_doc('Customer', customer.name)	
-	
+	frappe.delete_doc('Customer', customer.name)
+
+def create_user_token(firebase_token, user=None):
+	get_user_token = frappe.db.get_value("User Token", {"token_type": "Firebase Token", "token": firebase_token})
+	if get_user_token:
+		return 
+	user_token = frappe.get_doc({
+				"doctype": "User Token",
+				"token_type": "Firebase Token",
+				"entity": user or frappe.session.user,
+				"token": firebase_token,
+				"expiry": ""
+				})
+	user_token.insert(ignore_permissions=True)	
