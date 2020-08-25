@@ -258,7 +258,6 @@ def create_user_token(firebase_token, user=None):
 				"doctype": "User Token",
 				"token_type": "Firebase Token",
 				"entity": user or frappe.session.user,
-				"token": firebase_token,
-				"expiry": ""
+				"token": firebase_token
 				})
 	user_token.insert(ignore_permissions=True)	
