@@ -27,14 +27,7 @@ def login(mobile, firebase_token, pin=None):
 					token=lms.generate_user_token(frappe.session.user),
 					customer = lms.get_customer(mobile)
 			)
-			user_token = frappe.get_doc({
-			"doctype": "User Token",
-			"token_type": "Firebase Token",
-			"entity": frappe.session.user,
-			"token": firebase_token,
-			"expiry": ""
-			})
-			user_token.insert(ignore_permissions=True)
+			lms.create_user_token(firebase_token, mobile)
 			return lms.generateResponse(message=_('Logged in Successfully'), data=token)
 
 		lms.send_otp(mobile)
@@ -48,6 +41,16 @@ def login(mobile, firebase_token, pin=None):
 		return lms.generateResponse(status=401, message=str(e))
 	except Exception as e:
 		return lms.generateResponse(is_success=False, error=e)
+
+@frappe.whitelist()
+def Logout(firebase_token):
+	get_user_token = frappe.db.get_value("User Token", {"token_type": "Firebase Token", "token": firebase_token})
+	if not get_user_token:
+		raise lms.ValidationError(_('Firebase Token does not exist.'))	
+	else:
+		frappe.db.set_value("User Token", otp_res[1], "used", 1)
+		frappe.local.login_manager.logout()
+		frappe.db.commit()
 
 @frappe.whitelist(allow_guest=True)
 def verify_otp(mobile, firebase_token, otp):
@@ -81,15 +84,7 @@ def verify_otp(mobile, firebase_token, otp):
 			token=lms.generate_user_token(user_name),
 			customer = lms.get_customer(mobile)
 		)
-
-		user_token = frappe.get_doc({
-			"doctype": "User Token",
-			"token_type": "Firebase Token",
-			"entity": frappe.session.user,
-			"token": firebase_token,
-			"expiry": ""
-			})
-		user_token.insert(ignore_permissions=True)
+		lms.create_user_token(firebase_token, mobile)
 
 		frappe.db.set_value("User Token", otp_res[1], "used", 1)
 		delete_login_failed_cache(user_name)
@@ -149,15 +144,7 @@ def register(first_name, mobile, email, otp, firebase_token, last_name=None):
 				token=lms.generate_user_token(user_name),
 				customer = lms.get_customer(mobile)
 			)
-
-			user_token = frappe.get_doc({
-			"doctype": "User Token",
-			"token_type": "Firebase Token",
-			"entity": frappe.session.user,
-			"token": firebase_token,
-			"expiry": ""
-			})
-			user_token.insert(ignore_permissions=True)
+			lms.create_user_token(firebase_token, mobile)
 
 			frappe.db.set_value("User Token", otp_res[1], "used", 1)
 
@@ -207,6 +194,7 @@ def send_verification_email_(email):
 @frappe.whitelist(allow_guest=True)
 def verify_user(token, user):
 	token_res = lms.check_user_token(entity=user, token=token, token_type="Email Verification Token")
+	user_mobile = frappe.db.get_value('User', user, 'phone')
 
 	if not token_res[0]:
 		frappe.respond_as_web_page(
@@ -220,7 +208,7 @@ def verify_user(token, user):
 	fa.send_data(
 		title='User Verification', 
 		body='Your email was verified', 
-		tokens=lms.get_firebase_tokens(user)
+		tokens=lms.get_firebase_tokens(user_mobile)
 	)
 
 	frappe.db.set_value("User Token", token_res[1], "used", 1)
