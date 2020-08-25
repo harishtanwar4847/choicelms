@@ -43,7 +43,7 @@ def login(mobile, firebase_token, pin=None):
 		return lms.generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def Logout(firebase_token):
+def logout(firebase_token):
 	get_user_token = frappe.db.get_value("User Token", {"token_type": "Firebase Token", "token": firebase_token})
 	if not get_user_token:
 		raise lms.ValidationError(_('Firebase Token does not exist.'))	
