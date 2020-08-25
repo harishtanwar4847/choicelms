@@ -8,17 +8,22 @@ from frappe.model.document import Document
 
 class Cart(Document):
 	def before_save(self):
-		self.calculate_total()
-		self.process_bre()
+		self.process_cart_items()
+		self.process_cart()
 
-	def calculate_total(self):
-		self.total_collateral_value = 0
+	def process_cart_items(self):
 		for item in self.items:
-			item.amount = item.pledged_quantity * item.price
-			self.total_collateral_value += item.amount
+			item.fill_item_details()
 
-			# set security details for item
-			item.set_security_details()
+	def process_cart(self):
+		self.total_collateral_value = 0
+		self.allowable_ltv = 0
+		for item in self.items:
+			self.total_collateral_value += item.amount
+			self.allowable_ltv += item.eligible_percentage
+		
+		self.allowable_ltv = float(self.allowable_ltv) / len(self.items)
+		self.eligible_loan = (self.allowable_ltv / 100) * self.total_collateral_value
 
 	def process_bre(self):
 		las_settings = frappe.get_single('LAS Settings')
