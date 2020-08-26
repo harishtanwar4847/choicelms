@@ -8,7 +8,7 @@ from lms.firebase import FirebaseAdmin
 
 
 @frappe.whitelist(allow_guest=True)
-def login(mobile, pin=None):
+def login(mobile, firebase_token, pin=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
@@ -19,12 +19,15 @@ def login(mobile, pin=None):
 			raise lms.ValidationError(_('Enter valid Mobile.'))
 
 		if pin:
+			if not firebase_token:
+				raise lms.ValidationError(_('Firebase Token is required.'))
 			login_manager = LoginManager()
 			login_manager.authenticate(user=mobile, pwd=pin)
 			token = dict(
 					token=lms.generate_user_token(frappe.session.user),
 					customer = lms.get_customer(mobile)
 			)
+			lms.add_firebase_token(firebase_token, mobile)
 			return lms.generateResponse(message=_('Logged in Successfully'), data=token)
 
 		lms.send_otp(mobile)
@@ -39,9 +42,18 @@ def login(mobile, pin=None):
 	except Exception as e:
 		return lms.generateResponse(is_success=False, error=e)
 
+@frappe.whitelist()
+def logout(firebase_token):
+	get_user_token = frappe.db.get_value("User Token", {"token_type": "Firebase Token", "token": firebase_token})
+	if not get_user_token:
+		raise lms.ValidationError(_('Firebase Token does not exist.'))	
+	else:
+		frappe.db.set_value("User Token", otp_res[1], "used", 1)
+		frappe.local.login_manager.logout()
+		frappe.db.commit()
 
 @frappe.whitelist(allow_guest=True)
-def verify_otp(mobile, otp):
+def verify_otp(mobile, firebase_token, otp):
 	try:
 		# validation
 		lms.validate_http_method('POST')
@@ -52,6 +64,8 @@ def verify_otp(mobile, otp):
 			raise lms.ValidationError(_('OTP is required.'))
 		if len(mobile) != 10 or not mobile.isdigit():
 			raise lms.ValidationError(_('Enter valid Mobile.'))
+		if not firebase_token:
+			raise lms.ValidationError(_('Firebase Token is required.'))
 		if len(otp) != 4 or not otp.isdigit():
 			raise lms.ValidationError(_('Enter 4 digit OTP.'))
 
@@ -70,8 +84,9 @@ def verify_otp(mobile, otp):
 			token=lms.generate_user_token(user_name),
 			customer = lms.get_customer(mobile)
 		)
+		lms.add_firebase_token(firebase_token, mobile)
 
-		frappe.db.set_value("User Token", otp_res[1], "verified", 1)
+		frappe.db.set_value("User Token", otp_res[1], "used", 1)
 		delete_login_failed_cache(user_name)
 		return lms.generateResponse(message=_('Login Success.'), data=token)
 	except (lms.ValidationError, lms.ServerError) as e:
@@ -85,7 +100,7 @@ def verify_otp(mobile, otp):
 
 
 @frappe.whitelist(allow_guest=True)
-def register(first_name, mobile, email, otp, last_name=None):
+def register(first_name, mobile, email, otp, firebase_token, last_name=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
@@ -98,6 +113,8 @@ def register(first_name, mobile, email, otp, last_name=None):
 			raise lms.ValidationError(_('Email is required.'))
 		if not otp:
 			raise lms.ValidationError(_('OTP is required.'))
+		if not firebase_token:
+			raise lms.ValidationError(_('Firebase Token is required.'))
 
 		# if email id is correct, it returns the email id
 		# if it is wrong, it returns empty string
@@ -127,8 +144,9 @@ def register(first_name, mobile, email, otp, last_name=None):
 				token=lms.generate_user_token(user_name),
 				customer = lms.get_customer(mobile)
 			)
+			lms.add_firebase_token(firebase_token, mobile)
 
-			frappe.db.set_value("User Token", otp_res[1], "verified", 1)
+			frappe.db.set_value("User Token", otp_res[1], "used", 1)
 
 			return lms.generateResponse(message=_('Registered Successfully.'), data=token)
 		else:
@@ -176,6 +194,7 @@ def send_verification_email_(email):
 @frappe.whitelist(allow_guest=True)
 def verify_user(token, user):
 	token_res = lms.check_user_token(entity=user, token=token, token_type="Email Verification Token")
+	user_mobile = frappe.db.get_value('User', user, 'phone')
 
 	if not token_res[0]:
 		frappe.respond_as_web_page(
@@ -186,13 +205,13 @@ def verify_user(token, user):
 		return
 	
 	fa = FirebaseAdmin()
-	fa.send_fcm(
+	fa.send_data(
 		title='User Verification', 
 		body='Your email was verified', 
-		tokens=lms.get_firebase_tokens(user)
+		tokens=lms.get_firebase_tokens(user_mobile)
 	)
 
-	frappe.db.set_value("User Token", token_res[1], "verified", 1)
+	frappe.db.set_value("User Token", token_res[1], "used", 1)
 	frappe.db.set_value("Customer", {"email": user}, "is_email_verified", 1)
 	frappe.db.commit()
 	frappe.respond_as_web_page(
