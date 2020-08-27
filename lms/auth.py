@@ -206,8 +206,7 @@ def verify_user(token, user):
 	
 	fa = FirebaseAdmin()
 	fa.send_data(
-		title='User Verification', 
-		body='Your email was verified', 
+		data=lms.get_customer(user),
 		tokens=lms.get_firebase_tokens(user_mobile)
 	)
 
