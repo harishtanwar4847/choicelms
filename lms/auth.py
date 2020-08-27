@@ -206,7 +206,7 @@ def verify_user(token, user):
 	
 	fa = FirebaseAdmin()
 	fa.send_data(
-		data=lms.get_customer(user),
+		data=lms.get_customer(user_mobile),
 		tokens=lms.get_firebase_tokens(user_mobile)
 	)
 
