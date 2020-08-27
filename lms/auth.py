@@ -5,6 +5,7 @@ import lms
 from frappe.utils.password import delete_login_failed_cache
 from datetime import datetime, timedelta
 from lms.firebase import FirebaseAdmin
+from json import dumps
 
 
 @frappe.whitelist(allow_guest=True)
@@ -206,7 +207,7 @@ def verify_user(token, user):
 	
 	fa = FirebaseAdmin()
 	fa.send_data(
-		data=lms.get_customer(user_mobile),
+		data={'customer': lms.get_customer(user_mobile).as_json()},
 		tokens=lms.get_firebase_tokens(user_mobile)
 	)
 
