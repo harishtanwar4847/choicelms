@@ -21,13 +21,15 @@
    "fieldname": "pledgor_boid",
    "fieldtype": "Data",
    "label": "Pledgor BOID",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "prf_number",
    "fieldtype": "Data",
    "label": "PRF Number",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "loan_application_column_break",
@@ -38,13 +40,15 @@
    "fieldname": "pledgee_boid",
    "fieldtype": "Data",
    "label": "Pledgee BOID",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "expiry_date",
    "fieldtype": "Date",
    "label": "Expiry Date",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "items_section",
@@ -70,16 +74,18 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Total Collateral Value",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "overdraft_limit",
    "fieldtype": "Currency",
    "label": "Overdraft Limit",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   }
  ],
- "modified": "2020-08-17 16:21:35.066384",
+ "modified": "2020-08-27 14:33:50.616333",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

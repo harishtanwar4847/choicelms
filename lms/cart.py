@@ -189,10 +189,11 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 				item = frappe.get_doc({
 					'doctype': 'Loan Application Item',
 					'isin': item.isin,
+					'security_name': item.security_name,
 					'security_category': item.security_category,
 					'pledged_quantity': item.pledged_quantity,
 					'price': item.price,
-					'amount': item.eligible_amount,
+					'amount': item.amount,
 					'psn': response_json_item_groups[item.isin]['PSN'],
 					'error_code': response_json_item_groups[item.isin]['ErrorCode'],
 				})
@@ -210,6 +211,9 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 			})
 			loan_application.insert(ignore_permissions=True)
 
+			cart.is_processed = 1
+			cart.save(ignore_permissions=True)
+
 			return lms.generateResponse(message="CDSL", data=loan_application)
 		else:
 			return lms.generateResponse(is_success=False, message="CDSL Pledge Error", data=response_json)
@@ -217,3 +221,38 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 		return lms.generateResponse(status=e.http_status_code, message=str(e))
 	except Exception as e:
 		return lms.generateResponse(is_success=False, error=e)
+
+@frappe.whitelist()
+def process_dummy(cart_name):
+	cart = frappe.get_doc('Cart', cart_name)
+	items = []
+	for item in cart.items:
+			item = frappe.get_doc({
+				'doctype': 'Loan Application Item',
+				'isin': item.isin,
+				'security_name': item.security_name,
+				'security_category': item.security_category,
+				'pledged_quantity': item.pledged_quantity,
+				'price': item.price,
+				'amount': item.amount,
+				'psn': 'psn',
+				'error_code': 'error_code',
+			})
+			items.append(item)
+
+	loan_application = frappe.get_doc({
+		'doctype': 'Loan Application',
+		'total_collateral_value': cart.total_collateral_value,
+		'overdraft_limit': cart.eligible_loan,
+		'pledgor_boid': 'pledgor',
+		'pledgee_boid': 'pledgee',
+		'prf_number': 'prf',
+		'expiry_date': '2021-01-31',
+		'items': items
+	})
+	loan_application.insert(ignore_permissions=True)
+
+	cart.is_processed = 1
+	cart.save(ignore_permissions=True)
+
+	return loan_application.name
