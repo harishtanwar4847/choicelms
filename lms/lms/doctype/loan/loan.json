@@ -10,43 +10,41 @@
   "pledgor_boid",
   "prf_number",
   "loan_column_break",
+  "allowable_ltv",
   "pledgee_boid",
   "expiry_date",
   "items_section",
-  "items",
-  "loan_section_break",
-  "new_total",
-  "time",
-  "loan_column_break_1",
-  "shortfall_percentage",
-  "outstanding",
-  "is_shortfall"
+  "items"
  ],
  "fields": [
   {
    "fieldname": "pledgor_boid",
    "fieldtype": "Data",
    "label": "Pledgor BOID",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "prf_number",
    "fieldtype": "Data",
    "label": "PRF Number",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "default": "0",
    "fieldname": "pledgee_boid",
    "fieldtype": "Data",
    "label": "Pledgee BOID",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "expiry_date",
    "fieldtype": "Date",
    "label": "Expiry Date",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "items_section",
@@ -64,54 +62,29 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "loan_section_break",
-   "fieldtype": "Section Break",
-   "label": "Margin Shortfall Check"
-  },
-  {
-   "fieldname": "new_total",
-   "fieldtype": "Currency",
-   "label": "New Total Collateral Value"
-  },
-  {
-   "fieldname": "time",
-   "fieldtype": "Datetime",
-   "label": "Time"
-  },
-  {
-   "fieldname": "loan_column_break_1",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "shortfall_percentage",
-   "fieldtype": "Float",
-   "label": "Shortfall Percentage"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_shortfall",
-   "fieldtype": "Check",
-   "label": "Is marked as Shortfall"
-  },
-  {
-   "fieldname": "outstanding",
-   "fieldtype": "Currency",
-   "label": "Outstanding"
-  },
-  {
    "fieldname": "total_collateral_value",
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Total Collateral Value",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "overdraft_limit",
    "fieldtype": "Currency",
-   "label": "Overdraft Limit"
+   "label": "Overdraft Limit",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "allowable_ltv",
+   "fieldtype": "Float",
+   "label": "Allowable LTV",
+   "read_only": 1,
+   "reqd": 1
   }
  ],
- "modified": "2020-08-17 16:23:16.465947",
+ "modified": "2020-08-29 14:56:13.393595",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

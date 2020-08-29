@@ -10,8 +10,8 @@
   "pledgor_boid",
   "prf_number",
   "loan_application_column_break",
-  "pledgee_boid",
   "allowable_ltv",
+  "pledgee_boid",
   "expiry_date",
   "status",
   "items_section",
@@ -89,10 +89,11 @@
    "fieldname": "allowable_ltv",
    "fieldtype": "Float",
    "label": "Allowable LTV",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   }
  ],
- "modified": "2020-08-29 12:38:28.663267",
+ "modified": "2020-08-29 13:02:52.041197",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

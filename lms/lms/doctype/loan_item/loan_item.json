@@ -5,14 +5,13 @@
  "engine": "InnoDB",
  "field_order": [
   "isin",
+  "security_name",
   "security_category",
   "pledged_quantity",
   "price",
   "amount",
   "psn",
-  "error_code",
-  "new_price",
-  "new_amount"
+  "error_code"
  ],
  "fields": [
   {
@@ -72,18 +71,14 @@
    "read_only": 1
   },
   {
-   "fieldname": "new_price",
-   "fieldtype": "Currency",
-   "label": "New Price"
-  },
-  {
-   "fieldname": "new_amount",
-   "fieldtype": "Currency",
-   "label": "New Amount"
+   "fieldname": "security_name",
+   "fieldtype": "Data",
+   "label": "Security Name",
+   "reqd": 1
   }
  ],
  "istable": 1,
- "modified": "2020-08-17 16:23:40.562471",
+ "modified": "2020-08-29 14:59:00.451907",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Item",
