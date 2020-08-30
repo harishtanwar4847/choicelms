@@ -6,7 +6,7 @@ def get_data():
         'fieldname': 'loan',
         'transactions': [
             {
-                'items': ['Loan Transaction']
+                'items': ['Loan Transaction', 'Loan Margin Shortfall']
             },
         ],
     }

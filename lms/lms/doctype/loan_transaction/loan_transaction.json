@@ -5,8 +5,9 @@
  "engine": "InnoDB",
  "field_order": [
   "loan",
-  "record_type",
   "transaction_amount",
+  "column_break_3",
+  "record_type",
   "transaction_time"
  ],
  "fields": [
@@ -39,9 +40,13 @@
    "in_list_view": 1,
    "label": "Transaction Time",
    "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
   }
  ],
- "modified": "2020-08-30 14:54:50.838458",
+ "modified": "2020-08-30 17:58:02.760437",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
