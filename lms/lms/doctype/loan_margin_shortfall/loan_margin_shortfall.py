@@ -26,7 +26,16 @@ class LoanMarginShortfall(Document):
 		# self.shortfall = (self.total_collateral_value - self.minimum_collateral_value) if self.outstanding > self.overdraft_limit else 0
 		# self.shortfall_c = ((self.overdraft_limit - self.outstanding)*2) if self.outstanding > self.overdraft_limit else 0
 		# self.shortfall_percentage = (self.overdraft_limit - self.outstanding) / 100
-
+		# these give positive values
 		self.shortfall = (self.minimum_collateral_value - self.total_collateral_value) if self.outstanding > self.overdraft_limit else 0
 		self.shortfall_c = ((self.outstanding - self.overdraft_limit)*2) if self.outstanding > self.overdraft_limit else 0
-		self.shortfall_percentage = (self.outstanding - self.overdraft_limit) / 100
+		self.shortfall_percentage = ((self.outstanding - self.overdraft_limit) / 100) if self.outstanding > self.overdraft_limit else 0
+
+		self.set_shortfall_action()
+
+	def set_shortfall_action(self):
+		self.margin_shortfall_action = None
+		
+		action_list = frappe.get_all('Margin Shortfall Action', filters={'threshold': ('<=', self.shortfall_percentage)}, order_by='threshold desc', page_length=1)
+		if len(action_list):
+			self.margin_shortfall_action = action_list[0].name
