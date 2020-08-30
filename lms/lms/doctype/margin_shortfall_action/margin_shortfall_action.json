@@ -5,13 +5,19 @@
  "engine": "InnoDB",
  "field_order": [
   "threshold",
+  "notifications_section",
   "sms",
-  "email"
+  "column_break_4",
+  "email",
+  "sell_off_section",
+  "should_selloff",
+  "column_break_8",
+  "sell_off_after_days"
  ],
  "fields": [
   {
    "fieldname": "threshold",
-   "fieldtype": "Float",
+   "fieldtype": "Int",
    "in_list_view": 1,
    "label": "Threshold",
    "reqd": 1
@@ -29,9 +35,38 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Email"
+  },
+  {
+   "fieldname": "notifications_section",
+   "fieldtype": "Section Break",
+   "label": "Notifications"
+  },
+  {
+   "fieldname": "sell_off_section",
+   "fieldtype": "Section Break",
+   "label": "Sell off"
+  },
+  {
+   "default": "0",
+   "fieldname": "should_selloff",
+   "fieldtype": "Check",
+   "label": "Sell Off?"
+  },
+  {
+   "fieldname": "sell_off_after_days",
+   "fieldtype": "Int",
+   "label": "Sell Off Deadline (in days)"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
   }
  ],
- "modified": "2020-07-28 17:25:06.625648",
+ "modified": "2020-08-31 01:33:33.466118",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Margin Shortfall Action",
