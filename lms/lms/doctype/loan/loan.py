@@ -9,6 +9,24 @@ from frappe.model.document import Document
 from datetime import datetime
 
 class Loan(Document):
+	def get_transaction_summary(self):
+		# sauce: https://stackoverflow.com/a/23827026/9403680
+		sql = """
+			SELECT loan
+				, SUM(COALESCE(CASE WHEN record_type = 'DR' THEN transaction_amount END,0)) total_debits
+				, SUM(COALESCE(CASE WHEN record_type = 'CR' THEN transaction_amount END,0)) total_credits
+				, SUM(COALESCE(CASE WHEN record_type = 'DR' THEN transaction_amount END,0)) 
+				- SUM(COALESCE(CASE WHEN record_type = 'CR' THEN transaction_amount END,0)) outstanding 
+			FROM `tabLoan Transaction`
+			WHERE loan = '{}' 
+			GROUP BY loan
+			HAVING outstanding <> 0;
+		""".format(self.name)
+
+		res = frappe.db.sql(sql, as_dict=1)
+
+		return res[0] if len(res) else {'loan': self.name, 'total_debits': 0, 'total_credits': 0, 'outstanding': 0}
+
 	def check_for_shortfall(self):
 		new_prices = lms.get_security_prices([item.get('isin') for item in self.items])
 		new_total = 0
