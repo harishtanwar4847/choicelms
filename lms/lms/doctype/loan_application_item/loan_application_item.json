@@ -5,6 +5,7 @@
  "engine": "InnoDB",
  "field_order": [
   "isin",
+  "security_name",
   "security_category",
   "pledged_quantity",
   "price",
@@ -34,15 +35,15 @@
   {
    "description": "Pledged Qty",
    "fieldname": "pledged_quantity",
-   "fieldtype": "Float",
+   "fieldtype": "Int",
    "in_list_view": 1,
-   "label": "Quantity Pledged",
+   "label": "Pledged Quantity",
    "read_only": 1,
    "reqd": 1
   },
   {
    "fieldname": "price",
-   "fieldtype": "Float",
+   "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Price",
    "read_only": 1,
@@ -50,7 +51,7 @@
   },
   {
    "fieldname": "amount",
-   "fieldtype": "Float",
+   "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Amount",
    "read_only": 1,
@@ -68,10 +69,16 @@
    "fieldtype": "Data",
    "label": "Error Code",
    "read_only": 1
+  },
+  {
+   "fieldname": "security_name",
+   "fieldtype": "Data",
+   "label": "Security Name",
+   "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2020-07-28 23:04:41.867053",
+ "modified": "2020-08-28 12:52:47.694407",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application Item",

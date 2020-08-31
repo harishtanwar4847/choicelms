@@ -5,10 +5,12 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "total",
+  "total_collateral_value",
+  "overdraft_limit",
   "pledgor_boid",
   "prf_number",
   "loan_application_column_break",
+  "allowable_ltv",
   "pledgee_boid",
   "expiry_date",
   "status",
@@ -17,23 +19,18 @@
  ],
  "fields": [
   {
-   "fieldname": "total",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Total",
-   "read_only": 1
-  },
-  {
    "fieldname": "pledgor_boid",
    "fieldtype": "Data",
    "label": "Pledgor BOID",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "prf_number",
    "fieldtype": "Data",
    "label": "PRF Number",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "loan_application_column_break",
@@ -44,13 +41,15 @@
    "fieldname": "pledgee_boid",
    "fieldtype": "Data",
    "label": "Pledgee BOID",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "expiry_date",
    "fieldtype": "Date",
    "label": "Expiry Date",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "items_section",
@@ -70,9 +69,31 @@
    "label": "Status",
    "options": "Pending\nApproved\nRejected",
    "read_only": 1
+  },
+  {
+   "fieldname": "total_collateral_value",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total Collateral Value",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "overdraft_limit",
+   "fieldtype": "Currency",
+   "label": "Overdraft Limit",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "allowable_ltv",
+   "fieldtype": "Float",
+   "label": "Allowable LTV",
+   "read_only": 1,
+   "reqd": 1
   }
  ],
- "modified": "2020-07-28 15:46:36.618594",
+ "modified": "2020-08-29 13:02:52.041197",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

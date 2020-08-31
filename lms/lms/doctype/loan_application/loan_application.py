@@ -15,6 +15,7 @@ class LoanApplication(Document):
 				temp = frappe.get_doc({
 					'doctype': 'Loan Item',
 					'isin': item.isin,
+					'security_name': item.security_name,
 					'security_category': item.security_category,
 					'pledged_quantity': item.pledged_quantity,
 					'price': item.price,
@@ -27,11 +28,13 @@ class LoanApplication(Document):
 
 			loan = frappe.get_doc({
 				'doctype': 'Loan',
-				'total': self.total,
+				'total_collateral_value': self.total_collateral_value,
+				'overdraft_limit': self.overdraft_limit,
 				'pledgor_boid': self.pledgor_boid,
 				'prf_number': self.prf_number,
 				'pledgee_boid': self.pledgee_boid,
 				'expiry_date': self.expiry_date,
+				'allowable_ltv': self.allowable_ltv,
 				'items': items,
 			})
 			loan.insert(ignore_permissions=True)
