@@ -17,19 +17,19 @@ class LoanMarginShortfall(Document):
 		self.allowable_ltv = loan.allowable_ltv
 		self.overdraft_limit = loan.overdraft_limit
 
-		self.outstanding = loan.get_transaction_summary().outstanding
-		self.ltv = (self.outstanding/self.total_collateral_value) * 100
+		self.withdrawal = loan.get_transaction_summary().withdrawal
+		self.ltv = (self.withdrawal/self.total_collateral_value) * 100
 		self.surplus_margin = 100 - self.ltv
-		self.minimum_collateral_value = (100/self.allowable_ltv) * self.outstanding 
+		self.minimum_collateral_value = (100/self.allowable_ltv) * self.withdrawal 
 
 		# these give negative values
-		# self.shortfall = (self.total_collateral_value - self.minimum_collateral_value) if self.outstanding > self.overdraft_limit else 0
-		# self.shortfall_c = ((self.overdraft_limit - self.outstanding)*2) if self.outstanding > self.overdraft_limit else 0
-		# self.shortfall_percentage = (self.overdraft_limit - self.outstanding) / 100
+		# self.shortfall = (self.total_collateral_value - self.minimum_collateral_value) if self.withdrawal > self.overdraft_limit else 0
+		# self.shortfall_c = ((self.overdraft_limit - self.withdrawal)*2) if self.withdrawal > self.overdraft_limit else 0
+		# self.shortfall_percentage = (self.overdraft_limit - self.withdrawal) / 100
 		# these give positive values
-		self.shortfall = (self.minimum_collateral_value - self.total_collateral_value) if self.outstanding > self.overdraft_limit else 0
-		self.shortfall_c = ((self.outstanding - self.overdraft_limit)*2) if self.outstanding > self.overdraft_limit else 0
-		self.shortfall_percentage = ((self.outstanding - self.overdraft_limit) / 100) if self.outstanding > self.overdraft_limit else 0
+		self.shortfall = (self.minimum_collateral_value - self.total_collateral_value) if self.withdrawal > self.overdraft_limit else 0
+		self.shortfall_c = ((self.withdrawal - self.overdraft_limit)*2) if self.withdrawal > self.overdraft_limit else 0
+		self.shortfall_percentage = ((self.withdrawal - self.overdraft_limit) / 100) if self.withdrawal > self.overdraft_limit else 0
 
 		self.set_shortfall_action()
 
