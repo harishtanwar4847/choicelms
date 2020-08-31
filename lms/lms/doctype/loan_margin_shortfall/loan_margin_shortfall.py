@@ -17,7 +17,7 @@ class LoanMarginShortfall(Document):
 		self.allowable_ltv = loan.allowable_ltv
 		self.overdraft_limit = loan.overdraft_limit
 
-		self.withdrawal = loan.get_transaction_summary().withdrawal
+		self.withdrawal = loan.get_transaction_summary().outstanding
 		self.ltv = (self.withdrawal/self.total_collateral_value) * 100
 		self.surplus_margin = 100 - self.ltv
 		self.minimum_collateral_value = (100/self.allowable_ltv) * self.withdrawal 
