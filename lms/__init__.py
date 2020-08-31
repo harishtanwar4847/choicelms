@@ -51,7 +51,7 @@ def appErrorLog(title, error):
 	return d
 
 
-def generateResponse(is_success=True, status=200, message=None, data=[], error=None):
+def generateResponse(is_success=True, status=200, message=None, data={}, error=None):
 	response = {}
 	if is_success:
 		response["status"] = int(status)
@@ -70,7 +70,7 @@ def send_otp(phone):
 		frappe.db.delete("User Token", {
 			"entity": phone,
 			"token_type": "OTP",
-			"verified": 0
+			"used": 0
 		})
 
 		OTP_CODE = random_token(length=4, is_numeric=True)
@@ -93,15 +93,18 @@ def send_otp(phone):
 		raise
 
 def check_user_token(entity, token, token_type):
-	otp_list = frappe.db.get_all("User Token", {"entity": entity, "token_type": token_type, "token": token, "verified": 0, "expiry": ('>', datetime.now())})
+	if token_type == "Firebase Token":
+		otp_list = frappe.db.get_all("User Token", {"entity": entity, "token_type": token_type, "token": token, "used": 0})
+	else:	
+		otp_list = frappe.db.get_all("User Token", {"entity": entity, "token_type": token_type, "token": token, "used": 0, "expiry": ('>', datetime.now())})
 
 	if len(otp_list) == 0:
 		return False, None
 
 	return True, otp_list[0].name
 
-def get_firebase_tokens(email):
-	token_list = frappe.db.get_all('User Token', filters={'entity': email, 'token_type': 'Firebase Token'}, fields=['token'])
+def get_firebase_tokens(entity):
+	token_list = frappe.db.get_all('User Token', filters={'entity': entity, 'token_type': 'Firebase Token'}, fields=['token'])
 
 	return [i.token for i in token_list]
 
@@ -239,11 +242,22 @@ def chunk_doctype(doctype, limit):
 	}
 
 def get_customer(mobile):
-	customer_list = frappe.get_all('Customer', filters={'phone': mobile}, fields=['*'])
-	return customer_list[0]
+	customer_list = frappe.get_all('Customer', filters={'phone': mobile})
+	return frappe.get_doc('Customer', customer_list[0].name)
 
 def delete_user(doc, method):
 	print('=======================')
 	customer = get_customer(doc.phone)
-	frappe.delete_doc('Customer', customer.name)	
-	
+	frappe.delete_doc('Customer', customer.name)
+
+def add_firebase_token(firebase_token, user=None):
+	get_user_token = frappe.db.get_value("User Token", {"token_type": "Firebase Token", "token": firebase_token})
+	if get_user_token:
+		return 
+	user_token = frappe.get_doc({
+				"doctype": "User Token",
+				"token_type": "Firebase Token",
+				"entity": user or frappe.session.user,
+				"token": firebase_token
+				})
+	user_token.insert(ignore_permissions=True)	
