@@ -204,6 +204,10 @@ def verify_user(token, user):
 			indicator_color='red'
 		)
 		return
+
+	frappe.db.set_value("User Token", token_res[1], "used", 1)
+	frappe.db.set_value("Customer", {"email": user}, "is_email_verified", 1)
+	frappe.db.commit()
 	
 	fa = FirebaseAdmin()
 	fa.send_data(
@@ -211,9 +215,6 @@ def verify_user(token, user):
 		tokens=lms.get_firebase_tokens(user_mobile)
 	)
 
-	frappe.db.set_value("User Token", token_res[1], "used", 1)
-	frappe.db.set_value("Customer", {"email": user}, "is_email_verified", 1)
-	frappe.db.commit()
 	frappe.respond_as_web_page(
 			_("Success"), 
 			_("User verified."),
