@@ -22,7 +22,11 @@
   "shortfall_c",
   "column_break_17",
   "shortfall_percentage",
-  "margin_shortfall_action"
+  "margin_shortfall_action",
+  "section_break_20",
+  "status",
+  "column_break_22",
+  "action_time"
  ],
  "fields": [
   {
@@ -116,9 +120,29 @@
    "fieldname": "withdrawal",
    "fieldtype": "Currency",
    "label": "Withdrawal"
+  },
+  {
+   "fieldname": "section_break_20",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_22",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "action_time",
+   "fieldtype": "Datetime",
+   "label": "Action Time"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nPaid Cash\nPledged Securities\nSell Off"
   }
  ],
- "modified": "2020-08-31 14:29:22.155409",
+ "modified": "2020-09-04 11:45:40.676952",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Margin Shortfall",
