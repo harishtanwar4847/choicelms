@@ -24,8 +24,9 @@ def login(mobile, firebase_token, pin=None):
 				raise lms.ValidationError(_('Firebase Token is required.'))
 			login_manager = LoginManager()
 			login_manager.authenticate(user=mobile, pwd=pin)
+			user_name = lms.get_user(mobile)
 			token = dict(
-					token=lms.generate_user_token(frappe.session.user),
+					token=lms.generate_user_token(user_name),
 					customer = lms.get_customer(mobile)
 			)
 			lms.add_firebase_token(firebase_token, mobile)
