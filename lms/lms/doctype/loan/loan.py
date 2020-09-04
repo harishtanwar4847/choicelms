@@ -28,27 +28,18 @@ class Loan(Document):
 		return res[0] if len(res) else {'loan': self.name, 'total_debits': 0, 'total_credits': 0, 'outstanding': 0}
 
 	def check_for_shortfall(self):
-		new_prices = lms.get_security_prices([item.get('isin') for item in self.items])
-		new_total = 0
-		for item in self.items:
-			item.new_price = new_prices.get(item.get('isin'))
-			item.new_amount = item.get('pledged_quantity') * item.get('new_price')
-			new_total += item.get('new_amount')
+		loan_margin_shortfall = frappe.get_doc({
+			'doctype': 'Loan Margin Shortfall',
+			'loan': self.name
+		})
 
-		self.new_total = new_total
-		self.time = datetime.now()
-		self.shortfall_percentage = 0
-		self.is_shortfall = 0
-		percentage_of_outstanding = (self.new_total / self.outstanding) * 100
-		
-		if percentage_of_outstanding < 100:
-			self.shortfall_percentage = 100 - percentage_of_outstanding
-			
-		if self.outstanding > self.new_total:
-			self.is_shortfall = 1
-		
-		self.save(ignore_permissions=True)
-		frappe.db.commit()
+		loan_margin_shortfall.fill_items()
+
+		if loan_margin_shortfall.margin_shortfall_action:
+			loan_margin_shortfall.insert(ignore_permissions=True)
+
+	def on_update(self):
+		self.check_for_shortfall()
 			
 
 def check_loans_for_shortfall(loans):
