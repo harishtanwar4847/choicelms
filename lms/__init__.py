@@ -83,7 +83,7 @@ def send_otp(phone):
 			entity=phone,
 			token_type="OTP",
 			token=OTP_CODE,
-			expiry= datetime.now() + timedelta(minutes=10)
+			expiry= datetime.now() + timedelta(minutes=2)
 		)).insert(ignore_permissions=True)
 		
 		if not otp_doc:
