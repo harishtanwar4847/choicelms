@@ -1,7 +1,9 @@
 import frappe
 from frappe import _
 from frappe.auth import LoginManager
+from frappe.auth import get_login_failed_count
 import lms
+from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.utils.password import delete_login_failed_cache
 from datetime import datetime, timedelta
 from lms.firebase import FirebaseAdmin
@@ -23,22 +25,26 @@ def login(mobile, firebase_token, pin=None):
 			if not firebase_token:
 				raise lms.ValidationError(_('Firebase Token is required.'))
 			login_manager = LoginManager()
+			user_name = lms.get_user(mobile)
 			login_manager.authenticate(user=mobile, pwd=pin)
 			token = dict(
-					token=lms.generate_user_token(frappe.session.user),
-					customer = lms.get_customer(mobile)
+				token=lms.generate_user_token(user_name),
+				customer = lms.get_customer(mobile)
 			)
 			lms.add_firebase_token(firebase_token, mobile)
+			
 			return lms.generateResponse(message=_('Logged in Successfully'), data=token)
 
 		lms.send_otp(mobile)
 
 		return lms.generateResponse(message=_('OTP Send Successfully'))
 	except (lms.ValidationError, lms.ServerError) as e:
-		return lms.generateResponse(status=e.http_status_code, message=str(e))
+		return lms.generateResponse(status=e.http_status_code, message=str(e))	
 	except frappe.AuthenticationError as e:
-		return lms.generateResponse(status=401, message=_('Incorrect PIN'))
+		return lms.generateResponse(status=401, message=_('Incorrect PIN'), data={'invalid_attempts': get_login_failed_count(user_name)})
 	except frappe.SecurityException as e:
+		mess = _('There are 3 time wrong attempt.')
+		frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
 		return lms.generateResponse(status=401, message=str(e))
 	except Exception as e:
 		return lms.generateResponse(is_success=False, error=e)
@@ -78,7 +84,7 @@ def verify_otp(mobile, firebase_token, otp):
 				login_manager.update_invalid_login(user_name)
 				login_manager.check_if_enabled(user_name)
 
-			return lms.generateResponse(status=422, message=_('Wrong OTP.'))
+			return lms.generateResponse(status=422, message=_('Wrong OTP.'), data={'invalid_attempts': get_login_failed_count(user_name)})
 
 		login_manager.check_if_enabled(user_name)
 		token = dict(
@@ -93,6 +99,8 @@ def verify_otp(mobile, firebase_token, otp):
 	except (lms.ValidationError, lms.ServerError) as e:
 		return lms.generateResponse(status=e.http_status_code, message=str(e))
 	except frappe.SecurityException as e:
+		mess = _('There are 3 time wrong attempt.')
+		frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
 		return lms.generateResponse(status=401, message=str(e))
 	except frappe.AuthenticationError as e:
 		return lms.generateResponse(status=401, message=_('Mobile no. does not exist.'))
