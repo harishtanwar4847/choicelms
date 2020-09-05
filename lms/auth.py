@@ -28,8 +28,8 @@ def login(mobile, firebase_token, pin=None):
 			user_name = lms.get_user(mobile)
 			login_manager.authenticate(user=mobile, pwd=pin)
 			token = dict(
-					token=lms.generate_user_token(user_name),
-					customer = lms.get_customer(mobile)
+				token=lms.generate_user_token(user_name),
+				customer = lms.get_customer(mobile)
 			)
 			lms.add_firebase_token(firebase_token, mobile)
 			
