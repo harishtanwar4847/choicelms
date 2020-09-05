@@ -58,7 +58,7 @@ def logout(firebase_token):
 	else:
 		frappe.db.set_value("User Token", get_user_token, "used", 1)
 		# filters = {'name': frappe.session.user}
-		frappe.db.sql(""" delete from `__Auth` where name= '{}' """.format(frappe.session.user) )
+		frappe.db.sql(""" delete from `__Auth` where doctype='User' and name='{}' and fieldname='api_secret' """.format(frappe.session.user) )
 		frappe.local.login_manager.logout()
 		frappe.db.commit()
 		return lms.generateResponse(message=_('Logged out Successfully'))
