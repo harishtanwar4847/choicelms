@@ -3,8 +3,10 @@
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
-# import frappe
+import frappe
 from frappe.model.document import Document
 
 class LoanTransaction(Document):
-	pass
+	def after_insert(self):
+		loan = frappe.get_doc('Loan', self.loan)
+		loan.check_for_shortfall()
