@@ -88,7 +88,7 @@ def verify_otp(mobile, firebase_token, otp):
 				login_manager.update_invalid_login(user_name)
 				login_manager.check_if_enabled(user_name)
 
-			return lms.generateResponse(status=422, message=_('Either OTP is invalid or expire.'), data={'invalid_attempts': get_login_failed_count(user_name)})
+			return lms.generateResponse(status=422, message=_('Either OTP is invalid or expire'), data={'invalid_attempts': get_login_failed_count(user_name)})
 
 		login_manager.check_if_enabled(user_name)
 		token = dict(
