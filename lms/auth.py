@@ -52,12 +52,16 @@ def login(mobile, firebase_token, pin=None):
 @frappe.whitelist()
 def logout(firebase_token):
 	get_user_token = frappe.db.get_value("User Token", {"token_type": "Firebase Token", "token": firebase_token})
+	print(get_user_token)
 	if not get_user_token:
 		raise lms.ValidationError(_('Firebase Token does not exist.'))	
 	else:
-		frappe.db.set_value("User Token", otp_res[1], "used", 1)
+		frappe.db.set_value("User Token", get_user_token, "used", 1)
+		# filters = {'name': frappe.session.user}
+		frappe.db.sql(""" delete from `__Auth` where name= '{}' """.format(frappe.session.user) )
 		frappe.local.login_manager.logout()
 		frappe.db.commit()
+		return lms.generateResponse(message=_('Logged out Successfully'))
 
 @frappe.whitelist(allow_guest=True)
 def verify_otp(mobile, firebase_token, otp):
@@ -84,7 +88,7 @@ def verify_otp(mobile, firebase_token, otp):
 				login_manager.update_invalid_login(user_name)
 				login_manager.check_if_enabled(user_name)
 
-			return lms.generateResponse(status=422, message=_('Wrong OTP.'), data={'invalid_attempts': get_login_failed_count(user_name)})
+			return lms.generateResponse(status=422, message=_('Either OTP is invalid or expire.'), data={'invalid_attempts': get_login_failed_count(user_name)})
 
 		login_manager.check_if_enabled(user_name)
 		token = dict(
