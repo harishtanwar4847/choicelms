@@ -109,7 +109,7 @@ def verify_otp(mobile, firebase_token, otp):
 
 
 @frappe.whitelist(allow_guest=True)
-def register(first_name, mobile, email, otp, firebase_token, last_name=None):
+def register(first_name, mobile, email, firebase_token, last_name=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
@@ -120,8 +120,6 @@ def register(first_name, mobile, email, otp, firebase_token, last_name=None):
 			raise lms.ValidationError(_('Mobile is required.'))
 		if not email:
 			raise lms.ValidationError(_('Email is required.'))
-		if not otp:
-			raise lms.ValidationError(_('OTP is required.'))
 		if not firebase_token:
 			raise lms.ValidationError(_('Firebase Token is required.'))
 
@@ -132,13 +130,11 @@ def register(first_name, mobile, email, otp, firebase_token, last_name=None):
 			raise lms.ValidationError(_('Enter valid Email.'))
 		if len(mobile) != 10 or not mobile.isdigit():
 			raise lms.ValidationError(_('Enter valid Mobile.'))
-		if len(otp) != 4 or not otp.isdigit():
-			raise lms.ValidationError(_('Enter 4 digit OTP.'))
-
+	
 		# validating otp to protect sign up api
-		otp_res = lms.check_user_token(entity=mobile, token=otp, token_type="OTP")
-		if not otp_res[0]:
-			raise lms.ValidationError(_('Wrong OTP'))
+		# otp_res = lms.check_user_token(entity=mobile, token=otp, token_type="OTP")
+		# if not otp_res[0]:
+		# 	raise lms.ValidationError(_('Wrong OTP'))
 
 		if type(lms.get_user(mobile)) is str:
 			raise lms.ValidationError(_('Mobile already Registered.'))
@@ -147,7 +143,6 @@ def register(first_name, mobile, email, otp, firebase_token, last_name=None):
 
 		# creating user
 		user_name = lms.add_user(first_name, last_name, mobile, email)
-		print(user_name)
 		if type(user_name) is str:
 			token = dict(
 				token=lms.generate_user_token(user_name),
@@ -155,7 +150,7 @@ def register(first_name, mobile, email, otp, firebase_token, last_name=None):
 			)
 			lms.add_firebase_token(firebase_token, mobile)
 
-			frappe.db.set_value("User Token", otp_res[1], "used", 1)
+			# frappe.db.set_value("User Token", otp_res[1], "used", 1)
 
 			return lms.generateResponse(message=_('Registered Successfully.'), data=token)
 		else:
