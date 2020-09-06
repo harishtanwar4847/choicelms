@@ -35,6 +35,7 @@ class LoanApplication(Document):
 				'pledgee_boid': self.pledgee_boid,
 				'expiry_date': self.expiry_date,
 				'allowable_ltv': self.allowable_ltv,
+				'customer': self.customer,
 				'items': items,
 			})
 			loan.insert(ignore_permissions=True)

@@ -10,6 +10,7 @@
   "pledgor_boid",
   "prf_number",
   "loan_column_break",
+  "customer",
   "allowable_ltv",
   "pledgee_boid",
   "expiry_date",
@@ -82,9 +83,15 @@
    "label": "Allowable LTV",
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
   }
  ],
- "modified": "2020-08-29 14:56:13.393595",
+ "modified": "2020-09-05 18:23:14.628540",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

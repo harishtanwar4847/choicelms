@@ -4,7 +4,9 @@
 
 from __future__ import unicode_literals
 import frappe
+from frappe import _
 from frappe.model.document import Document
+from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
 class LoanMarginShortfall(Document):
 	def before_save(self):
@@ -39,3 +41,29 @@ class LoanMarginShortfall(Document):
 		action_list = frappe.get_all('Margin Shortfall Action', filters={'threshold': ('<=', self.shortfall_percentage)}, order_by='threshold desc', page_length=1)
 		if len(action_list):
 			self.margin_shortfall_action = action_list[0].name
+
+	def after_insert(self):
+		self.notify_customer()
+	
+	def get_loan(self):
+		return frappe.get_doc('Loan', self.loan)
+
+	def get_shortfall_action(self):
+		return frappe.get_doc('Margin Shortfall Action', self.margin_shortfall_action)
+
+	def notify_customer(self):
+		margin_shortfall_action = self.get_shortfall_action()
+		customer = self.get_loan().get_customer()
+		mess = _('Your Loan {0} has been marked as margin shortfall.').format(self.loan)
+
+		if margin_shortfall_action.sms:
+			frappe.enqueue(method=send_sms, receiver_list=[customer.phone], msg=mess)
+
+		if margin_shortfall_action.email:
+			frappe.enqueue(
+				method=frappe.sendmail, 
+				recipients=[customer.email], 
+				sender=None, 
+				subject="Margin Shortfall Notification",
+				message=mess
+			)

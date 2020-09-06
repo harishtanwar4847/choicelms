@@ -9,6 +9,9 @@ from frappe.model.document import Document
 from datetime import datetime
 
 class Loan(Document):
+	def get_customer(self):
+		return frappe.get_doc('Customer', self.customer)
+
 	def get_transaction_summary(self):
 		# sauce: https://stackoverflow.com/a/23827026/9403680
 		sql = """
@@ -25,7 +28,7 @@ class Loan(Document):
 
 		res = frappe.db.sql(sql, as_dict=1)
 
-		return res[0] if len(res) else {'loan': self.name, 'total_debits': 0, 'total_credits': 0, 'outstanding': 0}
+		return res[0] if len(res) else frappe._dict({'loan': self.name, 'total_debits': 0, 'total_credits': 0, 'outstanding': 0})
 
 	def check_for_shortfall(self):
 		loan_margin_shortfall = frappe.get_doc({

@@ -208,6 +208,7 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 				'prf_number': response_json['PledgeSetupResponse']['PRFNumber'],
 				'expiry_date': expiry,
 				'allowable_ltv': cart.allowable_ltv,
+				'customer': cart.customer,
 				'items': items
 			})
 			loan_application.insert(ignore_permissions=True)
@@ -250,6 +251,7 @@ def process_dummy(cart_name):
 		'prf_number': 'prf',
 		'expiry_date': '2021-01-31',
 		'allowable_ltv': cart.allowable_ltv,
+		'customer': cart.customer,
 		'items': items
 	})
 	loan_application.insert(ignore_permissions=True)
