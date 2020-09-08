@@ -11,6 +11,7 @@
   "column_break_2",
   "eligible_loan",
   "customer",
+  "loan",
   "section_break_4",
   "items"
  ],
@@ -66,9 +67,15 @@
    "label": "Customer",
    "options": "Customer",
    "reqd": 1
+  },
+  {
+   "fieldname": "loan",
+   "fieldtype": "Link",
+   "label": "Loan",
+   "options": "Loan"
   }
  ],
- "modified": "2020-09-05 15:05:42.985370",
+ "modified": "2020-09-08 13:54:35.765367",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart",

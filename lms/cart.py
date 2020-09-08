@@ -209,6 +209,7 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 				'expiry_date': expiry,
 				'allowable_ltv': cart.allowable_ltv,
 				'customer': cart.customer,
+				'loan': cart.loan,
 				'items': items
 			})
 			loan_application.insert(ignore_permissions=True)
@@ -252,6 +253,7 @@ def process_dummy(cart_name):
 		'expiry_date': '2021-01-31',
 		'allowable_ltv': cart.allowable_ltv,
 		'customer': cart.customer,
+		'loan': cart.loan,
 		'items': items
 	})
 	loan_application.insert(ignore_permissions=True)

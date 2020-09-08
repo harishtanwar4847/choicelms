@@ -15,6 +15,7 @@
   "allowable_ltv",
   "pledgee_boid",
   "expiry_date",
+  "loan",
   "items_section",
   "items"
  ],
@@ -98,9 +99,15 @@
    "fieldtype": "Link",
    "label": "Customer",
    "options": "Customer"
+  },
+  {
+   "fieldname": "loan",
+   "fieldtype": "Link",
+   "label": "Loan",
+   "options": "Loan"
   }
  ],
- "modified": "2020-09-05 17:55:55.208525",
+ "modified": "2020-09-08 15:26:32.442711",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",
