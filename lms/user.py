@@ -7,6 +7,7 @@ import requests
 import json
 from xmljson import parker
 from xml.etree.ElementTree import fromstring
+from lms.firebase import FirebaseAdmin
 
 @frappe.whitelist()
 def set_pin(pin):
@@ -99,7 +100,11 @@ def kyc(pan_no=None, birth_date=None):
 			frappe.db.set_value("Customer", {"user": user.username}, "kyc_update", 1)
 			frappe.db.set_value("Customer", {"user": user.username}, "choice_kyc", user_kyc.name)
 			frappe.db.commit()
-
+			fa = FirebaseAdmin()
+			fa.send_data(
+				data={'customer': lms.get_customer(user.username).as_json()},
+				tokens=lms.get_firebase_tokens(user.username)
+			)
 			return lms.generateResponse(message="CHOICE USER KYC", data=user_kyc)
 
 		# check in kra
