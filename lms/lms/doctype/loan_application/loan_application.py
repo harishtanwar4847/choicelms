@@ -5,8 +5,6 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
-from lms.firebase import FirebaseAdmin
-import lms
 
 class LoanApplication(Document):
 	def on_update(self):
@@ -43,8 +41,3 @@ class LoanApplication(Document):
 
 			username = frappe.db.get_value('User', {'owner': loan.owner}, 'username')
 			frappe.db.set_value("Customer", {"user": username}, "loan_open", 1)
-			fa = FirebaseAdmin()
-			fa.send_data(
-				data={'customer': lms.get_customer(username).as_json()},
-				tokens=lms.get_firebase_tokens(username)
-			)

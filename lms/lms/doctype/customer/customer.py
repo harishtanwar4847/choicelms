@@ -5,6 +5,8 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
+from lms.firebase import FirebaseAdmin
+import lms
 
 class Customer(Document):
 	def before_save(self):
@@ -18,3 +20,10 @@ class Customer(Document):
 		self.phone = user.phone
 		self.user = user.phone
 		self.registeration = 1
+
+	def on_update(self):
+		fa = FirebaseAdmin()
+		fa.send_data(
+			data={'customer': lms.get_customer(self.user).as_json()},
+			tokens=lms.get_firebase_tokens(self.user)
+		)	

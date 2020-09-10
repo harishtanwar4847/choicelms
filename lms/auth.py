@@ -216,12 +216,6 @@ def verify_user(token, user):
 	frappe.db.set_value("Customer", {"email": user}, "is_email_verified", 1)
 	frappe.db.commit()
 	
-	fa = FirebaseAdmin()
-	fa.send_data(
-		data={'customer': lms.get_customer(user_mobile).as_json()},
-		tokens=lms.get_firebase_tokens(user_mobile)
-	)
-
 	frappe.respond_as_web_page(
 			_("Success"), 
 			_("User verified."),
