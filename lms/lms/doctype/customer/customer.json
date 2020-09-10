@@ -148,9 +148,9 @@
   },
   {
    "fieldname": "choice_kyc",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Choice KYC",
-   "options": "\nYes\nNo\nNot Available"
+   "options": "User KYC"
   },
   {
    "fieldname": "ckcy",
@@ -448,7 +448,7 @@
    "label": "User"
   }
  ],
- "modified": "2020-08-18 16:43:00.539944",
+ "modified": "2020-09-10 12:38:06.529162",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Customer",
