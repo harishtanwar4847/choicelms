@@ -261,3 +261,4 @@ def add_firebase_token(firebase_token, user=None):
 				"token": firebase_token
 				})
 	user_token.insert(ignore_permissions=True)	
+	frappe.db.commit()
