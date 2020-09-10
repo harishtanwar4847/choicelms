@@ -38,6 +38,3 @@ class LoanApplication(Document):
 				'items': items,
 			})
 			loan.insert(ignore_permissions=True)
-
-			username = frappe.db.get_value('User', {'owner': loan.owner}, 'username')
-			frappe.db.set_value("Customer", {"user": username}, "loan_open", 1)
