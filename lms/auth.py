@@ -31,7 +31,7 @@ def login(mobile, firebase_token, pin=None):
 				token=lms.generate_user_token(user_name),
 				customer = lms.get_customer(mobile)
 			)
-			lms.add_firebase_token(firebase_token, mobile)
+			lms.add_firebase_token(firebase_token, lms.get_user(mobile))
 			
 			return lms.generateResponse(message=_('Logged in Successfully'), data=token)
 
@@ -95,7 +95,7 @@ def verify_otp(mobile, firebase_token, otp):
 			token=lms.generate_user_token(user_name),
 			customer = lms.get_customer(mobile)
 		)
-		lms.add_firebase_token(firebase_token, mobile)
+		lms.add_firebase_token(firebase_token, lms.get_user(mobile))
 
 		frappe.db.set_value("User Token", otp_res[1], "used", 1)
 		delete_login_failed_cache(user_name)
@@ -152,7 +152,7 @@ def register(first_name, mobile, email, firebase_token, last_name=None):
 				token=lms.generate_user_token(user_name),
 				customer = lms.get_customer(mobile)
 			)
-			lms.add_firebase_token(firebase_token, mobile)
+			lms.add_firebase_token(firebase_token, lms.get_user(mobile))
 
 			# frappe.db.set_value("User Token", otp_res[1], "used", 1)
 
