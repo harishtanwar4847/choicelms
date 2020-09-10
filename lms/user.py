@@ -97,8 +97,10 @@ def kyc(pan_no=None, birth_date=None):
 			})
 			user_kyc.insert(ignore_permissions=True)
 
-			frappe.db.set_value("Customer", {"user": user.username}, "kyc_update", 1)
-			frappe.db.set_value("Customer", {"user": user.username}, "choice_kyc", user_kyc.name)
+			customer = lms.get_customer(user.username)
+			customer.kyc_update = 1
+			customer.choice_kyc = user_kyc.name
+			customer.save(ignore_permissions=True)
 			frappe.db.commit()
 		
 			return lms.generateResponse(message="CHOICE USER KYC", data=user_kyc)
