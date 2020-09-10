@@ -96,6 +96,8 @@ def kyc(pan_no=None, birth_date=None):
 			user_kyc.insert(ignore_permissions=True)
 			frappe.db.commit()
 
+			frappe.db.set_value("Customer", {"user": user.username}, "kyc_update", 1)
+
 			return lms.generateResponse(message="CHOICE USER KYC", data=user_kyc)
 
 		# check in kra
