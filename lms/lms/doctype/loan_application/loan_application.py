@@ -46,6 +46,11 @@ class LoanApplication(Document):
 		})
 		loan.insert(ignore_permissions=True)
 
+		customer = frappe.get_doc('Customer', self.customer)
+		if not customer.loan_open:
+			customer.loan_open = 1
+			customer.save(ignore_permissions=True)
+
 	def update_existing_loan(self):
 		loan = frappe.get_doc('Loan', self.loan)
 
