@@ -66,25 +66,12 @@ def generateResponse(is_success=True, status=200, message=None, data={}, error=N
 
 def send_otp(phone):
 	try:
-		# delete unused otp
-		frappe.db.delete("User Token", {
-			"entity": phone,
-			"token_type": "OTP",
-			"used": 0
-		})
-
 		OTP_CODE = random_token(length=4, is_numeric=True)
 
 		mess = _('Your OTP for LMS is {0}. Do not share your OTP with anyone.').format(OTP_CODE)
 		frappe.enqueue(method=send_sms, receiver_list=[phone], msg=mess)
 
-		otp_doc = frappe.get_doc(dict(
-			doctype="User Token",
-			entity=phone,
-			token_type="OTP",
-			token=OTP_CODE,
-			expiry= datetime.now() + timedelta(seconds=30)
-		)).insert(ignore_permissions=True)
+		otp_doc = create_user_token(entity=phone, token=OTP_CODE)
 		
 		if not otp_doc:
 			raise ServerError(_('There was some problem while sending OTP. Please try again.'))
@@ -256,11 +243,29 @@ def add_firebase_token(firebase_token, user=None):
 	get_user_token = frappe.db.get_value("User Token", {"token_type": "Firebase Token", "token": firebase_token, "entity": user})
 	if get_user_token:
 		return 
-	user_token = frappe.get_doc({
-				"doctype": "User Token",
-				"token_type": "Firebase Token",
-				"entity": user,
-				"token": firebase_token
-				})
-	user_token.insert(ignore_permissions=True)	
+	
+	create_user_token(entity=user, token=firebase_token, token_type='Firebase Token')
+
+def create_user_token(entity, token, token_type="OTP"):
+	expiry_map = {
+		'OTP': 0.5,
+		'Email Verification Token': 60,
+		'Pledge OTP': 0.5
+	}
+
+	doc_data = {
+		'doctype': 'User Token',
+		'entity': entity,
+		'token': token,
+		'token_type': token_type
+	}
+	
+	expiry_in_minutes = expiry_map.get(token_type, None)
+	if expiry_in_minutes:
+		doc_data['expiry'] = datetime.now() + timedelta(minutes=expiry_in_minutes)
+	
+	user_token = frappe.get_doc(doc_data)
+	user_token.save(ignore_permissions=True)
 	frappe.db.commit()
+
+	return user_token

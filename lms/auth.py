@@ -179,14 +179,7 @@ def request_verification_email():
 		return lms.generateResponse(is_success=False, error=e)
 
 def send_verification_email_(email):
-	user_token = frappe.get_doc({
-			"doctype": "User Token",
-			"token_type": "Email Verification Token",
-			"entity": email,
-			"token": lms.random_token(),
-			"expiry": datetime.now() + timedelta(hours=1)
-		})
-	user_token.insert(ignore_permissions=True)
+	user_token = lms.create_user_token(entity=email, token=lms.random_token(), token_type="Email Verification Token")
 
 	template = "/templates/emails/user_email_verification.html"
 	url = frappe.utils.get_url("/api/method/lms.auth.verify_user?token={}&user={}".format(user_token.token, email))
