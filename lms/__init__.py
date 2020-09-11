@@ -83,7 +83,7 @@ def send_otp(phone):
 			entity=phone,
 			token_type="OTP",
 			token=OTP_CODE,
-			expiry= datetime.now() + timedelta(minutes=10)
+			expiry= datetime.now() + timedelta(seconds=30)
 		)).insert(ignore_permissions=True)
 		
 		if not otp_doc:
@@ -251,13 +251,16 @@ def delete_user(doc, method):
 	frappe.delete_doc('Customer', customer.name)
 
 def add_firebase_token(firebase_token, user=None):
-	get_user_token = frappe.db.get_value("User Token", {"token_type": "Firebase Token", "token": firebase_token})
+	if not user:
+		user = frappe.session.user
+	get_user_token = frappe.db.get_value("User Token", {"token_type": "Firebase Token", "token": firebase_token, "entity": user})
 	if get_user_token:
 		return 
 	user_token = frappe.get_doc({
 				"doctype": "User Token",
 				"token_type": "Firebase Token",
-				"entity": user or frappe.session.user,
+				"entity": user,
 				"token": firebase_token
 				})
 	user_token.insert(ignore_permissions=True)	
+	frappe.db.commit()

@@ -7,6 +7,7 @@ import requests
 import json
 from xmljson import parker
 from xml.etree.ElementTree import fromstring
+from lms.firebase import FirebaseAdmin
 
 @frappe.whitelist()
 def set_pin(pin):
@@ -33,11 +34,12 @@ def kyc(pan_no=None, birth_date=None):
 		lms.validate_http_method('GET')
 
 		user = frappe.get_doc('User', frappe.session.user)
-		user_kyc_list = frappe.db.get_all("User KYC", filters={ "user_mobile_number": user.username }, order_by="kyc_type", fields=["*"])
+		user_kyc_list = frappe.db.get_all("User KYC", filters={ "pan_no": pan_no }, order_by="kyc_type", fields=["*"])
 
 		if len(user_kyc_list) > 0:
 			return lms.generateResponse(message="User KYC", data=user_kyc_list[0])
 		
+
 		if not pan_no:
 			raise lms.ValidationError(_('Pan is required.'))
 		if not birth_date:
@@ -94,8 +96,11 @@ def kyc(pan_no=None, birth_date=None):
 				"bank_contact": data["contact"]
 			})
 			user_kyc.insert(ignore_permissions=True)
-			frappe.db.commit()
 
+			frappe.db.set_value("Customer", {"user": user.username}, "kyc_update", 1)
+			frappe.db.set_value("Customer", {"user": user.username}, "choice_kyc", user_kyc.name)
+			frappe.db.commit()
+		
 			return lms.generateResponse(message="CHOICE USER KYC", data=user_kyc)
 
 		# check in kra
