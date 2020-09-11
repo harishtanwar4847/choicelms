@@ -127,9 +127,10 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 			raise lms.ValidationError(_('Cart name required.'))
 
 		cart = frappe.get_doc("Cart", cart_name)
+		customer = lms.get_customer(frappe.session.user)
 		if not cart:
 			return lms.generateResponse(status=404, message=_('Cart not found.'))
-		if cart.owner != frappe.session.user:
+		if cart.customer != customer.name:
 			return lms.generateResponse(status=403, message=_('Please use your own cart.'))
 
 		if not pledgor_boid:
@@ -219,6 +220,10 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 
 			cart.is_processed = 1
 			cart.save(ignore_permissions=True)
+
+			if not customer.pledge_securities:
+				customer.pledge_securities = 1
+				customer.save(ignore_permissions=True)
 
 			return lms.generateResponse(message="CDSL", data=loan_application)
 		else:
