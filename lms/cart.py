@@ -118,13 +118,19 @@ def upsert(securities, cart_name=None, expiry=None):
 		return lms.generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
+def process(cart_name, otp, pledgor_boid=None, expiry=None, pledgee_boid=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
 
 		if not cart_name:
 			raise lms.ValidationError(_('Cart name required.'))
+		if len(otp) != 4 or not otp.isdigit():
+			raise lms.ValidationError(_('Enter 4 digit OTP.'))
+
+		otp_res = lms.check_user_token(entity=frappe.session.user, token=otp, token_type="Pledge OTP")
+		if not otp_res[0]:
+			raise lms.ValidationError(_('Wrong OTP.'))
 
 		cart = frappe.get_doc("Cart", cart_name)
 		customer = lms.get_customer(frappe.session.user)
@@ -224,7 +230,8 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 			if not customer.pledge_securities:
 				customer.pledge_securities = 1
 				customer.save(ignore_permissions=True)
-
+			
+			frappe.db.set_value("User Token", otp_res[1], "used", 1)
 			return lms.generateResponse(message="CDSL", data=loan_application)
 		else:
 			return lms.generateResponse(is_success=False, message="CDSL Pledge Error", data=response_json)
