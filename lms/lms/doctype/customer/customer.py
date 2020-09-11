@@ -24,6 +24,6 @@ class Customer(Document):
 	def on_update(self):
 		fa = FirebaseAdmin()
 		fa.send_data(
-			data={'customer': lms.get_customer(self.user).as_json()},
-			tokens=lms.get_firebase_tokens(self.user)
+			data={'customer': self.as_json()},
+			tokens=lms.get_firebase_tokens(self.username)
 		)	
