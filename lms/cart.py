@@ -270,3 +270,16 @@ def process_dummy(cart_name):
 	cart.save(ignore_permissions=True)
 
 	return loan_application.name
+
+@frappe.whitelist()
+def request_pledge_otp():
+	try:
+		# validation
+		lms.validate_http_method('POST')
+
+		lms.create_user_token(entity=frappe.session.user, token_type="Pledge OTP", token=lms.random_token(length=4, is_numeric=True))
+		return lms.generateResponse(message=_('Pledge OTP sent'))
+	except (lms.ValidationError, lms.ServerError) as e:
+		return lms.generateResponse(status=e.http_status_code, message=str(e))
+	except Exception as e:
+		return lms.generateResponse(is_success=False, error=e)

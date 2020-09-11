@@ -7,7 +7,6 @@ from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from random import choice
 from datetime import datetime, timedelta
 from itertools import groupby
-from lms.auth import send_verification_email_
 
 __version__ = '0.0.1'
 
@@ -64,14 +63,10 @@ def generateResponse(is_success=True, status=200, message=None, data={}, error=N
 		response["data"] = data
 	return response
 
-def send_otp(phone):
+def send_otp(entity):
 	try:
 		OTP_CODE = random_token(length=4, is_numeric=True)
-
-		mess = _('Your OTP for LMS is {0}. Do not share your OTP with anyone.').format(OTP_CODE)
-		frappe.enqueue(method=send_sms, receiver_list=[phone], msg=mess)
-
-		otp_doc = create_user_token(entity=phone, token=OTP_CODE)
+		otp_doc = create_user_token(entity=entity, token=OTP_CODE)
 		
 		if not otp_doc:
 			raise ServerError(_('There was some problem while sending OTP. Please try again.'))
@@ -154,7 +149,7 @@ def add_user(first_name, last_name, phone, email):
 			owner = user.email
 		)).insert(ignore_permissions=True)
 
-		send_verification_email_(email)
+		create_user_token(entity=email, token=random_token(), token_type="Email Verification Token")
 
 		return user.name
 	except Exception:
