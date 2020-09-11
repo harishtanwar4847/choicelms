@@ -202,7 +202,6 @@ def send_verification_email_(email):
 @frappe.whitelist(allow_guest=True)
 def verify_user(token, user):
 	token_res = lms.check_user_token(entity=user, token=token, token_type="Email Verification Token")
-	user_mobile = frappe.db.get_value('User', user, 'phone')
 
 	if not token_res[0]:
 		frappe.respond_as_web_page(
@@ -213,7 +212,9 @@ def verify_user(token, user):
 		return
 
 	frappe.db.set_value("User Token", token_res[1], "used", 1)
-	frappe.db.set_value("Customer", {"email": user}, "is_email_verified", 1)
+	customer = lms.get_customer(user)
+	customer.is_email_verified = 1
+	customer.save(ignore_permissions=True)
 	frappe.db.commit()
 	
 	frappe.respond_as_web_page(
