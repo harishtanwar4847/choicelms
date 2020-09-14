@@ -17,21 +17,21 @@ class LoanMarginShortfall(Document):
 
 		self.total_collateral_value = loan.get_updated_total_collateral_value()
 		self.allowable_ltv = loan.allowable_ltv
-		self.overdraft_limit = (loan.allowable_ltv / 100) * self.total_collateral_value
+		self.drawing_power = (loan.allowable_ltv / 100) * self.total_collateral_value
 
-		self.withdrawal = loan.get_transaction_summary().outstanding
-		self.ltv = (self.withdrawal/self.total_collateral_value) * 100
+		self.loan_balance = loan.get_transaction_summary().outstanding
+		self.ltv = (self.loan_balance/self.total_collateral_value) * 100
 		self.surplus_margin = 100 - self.ltv
-		self.minimum_collateral_value = (100/self.allowable_ltv) * self.withdrawal 
+		self.minimum_collateral_value = (100/self.allowable_ltv) * self.loan_balance 
 
 		# these give negative values
-		# self.shortfall = (self.total_collateral_value - self.minimum_collateral_value) if self.withdrawal > self.overdraft_limit else 0
-		# self.shortfall_c = ((self.overdraft_limit - self.withdrawal)*2) if self.withdrawal > self.overdraft_limit else 0
-		# self.shortfall_percentage = (self.overdraft_limit - self.withdrawal) / 100
+		# self.shortfall = (self.total_collateral_value - self.minimum_collateral_value) if self.loan_balance > self.drawing_power else 0
+		# self.shortfall_c = ((self.drawing_power - self.loan_balance)*2) if self.loan_balance > self.drawing_power else 0
+		# self.shortfall_percentage = (self.drawing_power - self.loan_balance) / 100
 		# these give positive values
-		self.shortfall = (self.minimum_collateral_value - self.total_collateral_value) if self.withdrawal > self.overdraft_limit else 0
-		self.shortfall_c = ((self.withdrawal - self.overdraft_limit)*2) if self.withdrawal > self.overdraft_limit else 0
-		self.shortfall_percentage = ((self.withdrawal - self.overdraft_limit) / 100) if self.withdrawal > self.overdraft_limit else 0
+		self.shortfall = (self.minimum_collateral_value - self.total_collateral_value) if self.loan_balance > self.drawing_power else 0
+		self.shortfall_c = ((self.loan_balance - self.drawing_power)*2) if self.loan_balance > self.drawing_power else 0
+		self.shortfall_percentage = ((self.loan_balance - self.drawing_power) / 100) if self.loan_balance > self.drawing_power else 0
 
 		self.set_shortfall_action()
 
