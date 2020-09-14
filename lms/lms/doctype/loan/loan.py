@@ -43,6 +43,18 @@ class Loan(Document):
 
 	def on_update(self):
 		self.check_for_shortfall()
+
+	def get_updated_total_collateral_value(self):
+		securities = [i.isin for i in self.items]
+
+		securities_price_map = lms.get_security_prices(securities)
+
+		updated_total_collateral_value = 0
+
+		for i in self.items:
+			updated_total_collateral_value += i.pledged_quantity * securities_price_map.get(i.isin)
+
+		return updated_total_collateral_value
 			
 
 def check_loans_for_shortfall(loans):
