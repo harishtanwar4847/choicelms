@@ -28,8 +28,14 @@
   "cdsl_password",
   "jiffy_section",
   "jiffy_host",
+  "jiffy_security_get_latest_price_uri",
+  "column_break_26",
   "jiffy_session_generator_uri",
-  "jiffy_security_get_latest_price_uri"
+  "section_break_28",
+  "esign_upload_file_url",
+  "esign_download_signed_file_url",
+  "column_break_31",
+  "esign_request_url"
  ],
  "fields": [
   {
@@ -179,10 +185,40 @@
    "fieldname": "jiffy_security_get_latest_price_uri",
    "fieldtype": "Data",
    "label": "Jiffy Security Get Latest Price URI"
+  },
+  {
+   "fieldname": "column_break_26",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_28",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "https://uat-pwa.choicetechlab.com/sparkesign/uploadFile",
+   "fieldname": "esign_upload_file_url",
+   "fieldtype": "Data",
+   "label": "Esign Upload File URL"
+  },
+  {
+   "default": "https://uat-pwa.choicetechlab.com/sparkesign/esignForms/{file_id}/loan-aggrement.pdf",
+   "fieldname": "esign_download_signed_file_url",
+   "fieldtype": "Data",
+   "label": "Esign Download signed file URL"
+  },
+  {
+   "fieldname": "column_break_31",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "https://uat-pwa.choicetechlab.com/sparkesign/sparkEsignRequest?id={id}&xCoordinate={x}&yCoordinate={y}&pageNumber={page_number}",
+   "fieldname": "esign_request_url",
+   "fieldtype": "Data",
+   "label": "Esign Request URL"
   }
  ],
  "issingle": 1,
- "modified": "2020-08-19 14:22:13.362543",
+ "modified": "2020-09-15 16:47:08.665359",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

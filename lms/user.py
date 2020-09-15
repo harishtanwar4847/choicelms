@@ -145,9 +145,21 @@ def kyc(pan_no=None, birth_date=None):
 		return lms.generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def tnc():
+def esign(cart_name=None):
 	try:
+		# validation
+		lms.validate_http_method('POST')
+
+		if not cart_name:
+			raise lms.ValidationError(_('Cart Required.'))
+
 		user = frappe.get_doc('User', frappe.session.user)
+		customer = lms.get_customer(user.username)
+		cart = frappe.get_doc('Cart', cart_name)
+		if not cart:
+				return lms.generateResponse(status=404, message=_('Cart not found.'))
+		if cart.customer != customer.name:
+			return lms.generateResponse(status=403, message=_('Please use your own cart.'))
 		
 		for tnc in frappe.get_list('Terms and Conditions', filters={'is_active': 1}):
 			approved_tnc = frappe.get_doc({
@@ -158,7 +170,28 @@ def tnc():
 			})
 			approved_tnc.insert(ignore_permissions=True)
 
-		return lms.generateResponse(message=_('Approved TnC saved.'))
+		from frappe.utils.pdf import get_pdf
+		html = frappe.get_print('Cart', cart_name, 'Loan Aggrement', no_letterhead=True)
+
+		las_settings = frappe.get_single('LAS Settings')
+
+		headers = {'userId': las_settings.choice_user_id}
+		files = {'file': ('loan-aggrement.pdf', get_pdf(html))}
+		r = requests.post(las_settings.esign_upload_file_url, files=files, headers=headers)
+
+		if not r.ok:
+			return lms.generateResponse(status=500, message=_('There was some problem in uploading loan aggrement file'))
+
+		data = r.json()
+
+		url = las_settings.esign_request_url.format(
+			id=data.get('id'),
+			x=200,
+			y=200,
+			page_number=2
+		)
+
+		return lms.generateResponse(message=_('Esign URL.'), data={'esign_url': url, 'file_id': data.get('id')})
 	except (lms.ValidationError, lms.ServerError) as e:
 		return lms.generateResponse(status=e.http_status_code, message=str(e))
 	except Exception as e:

@@ -134,6 +134,10 @@ fixtures = [
         "doctype": "Workflow",
         "filters": [["document_type", "in", ["User KYC Change Application", "Loan Application"]]]
     },
+    {
+        "doctype": "Print Format",
+        "filters": [["doc_type", "in", ["Cart"]]]
+    },
     "Allowed Security", "Security Category", "Concentration Rule", "Terms and Conditions", "Margin Shortfall Action", "SMS Settings"
 ]
 
