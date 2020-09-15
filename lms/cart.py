@@ -118,7 +118,7 @@ def upsert(securities, cart_name=None, expiry=None):
 		return lms.generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def process(cart_name, otp, pledgor_boid=None, expiry=None, pledgee_boid=None):
+def process(cart_name, otp, file_id, pledgor_boid=None, expiry=None, pledgee_boid=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
@@ -127,6 +127,8 @@ def process(cart_name, otp, pledgor_boid=None, expiry=None, pledgee_boid=None):
 			raise lms.ValidationError(_('Cart name required.'))
 		if len(otp) != 4 or not otp.isdigit():
 			raise lms.ValidationError(_('Enter 4 digit OTP.'))
+		if not file_id:
+			raise lms.ValidationError(_('File ID Required.'))
 
 		otp_res = lms.check_user_token(entity=frappe.session.user, token=otp, token_type="Pledge OTP")
 		if not otp_res[0]:
@@ -145,18 +147,6 @@ def process(cart_name, otp, pledgor_boid=None, expiry=None, pledgee_boid=None):
 			pledgee_boid = '1206690000014023'
 		if not expiry:
 			expiry = datetime.now() + timedelta(days = 365)
-
-		# approve TnC
-		user = frappe.get_doc('User', frappe.session.user)
-		
-		for tnc in frappe.get_list('Terms and Conditions', filters={'is_active': 1}):
-			approved_tnc = frappe.get_doc({
-				'doctype': 'Approved Terms and Conditions',
-				'mobile': user.username,
-				'tnc': tnc.name,
-				'time': datetime.now()
-			})
-			approved_tnc.insert(ignore_permissions=True)
 
 		securities_array = []
 		for i in cart.items:
@@ -230,6 +220,17 @@ def process(cart_name, otp, pledgor_boid=None, expiry=None, pledgee_boid=None):
 			if not customer.pledge_securities:
 				customer.pledge_securities = 1
 				customer.save(ignore_permissions=True)
+
+			las_settings = frappe.get_single('LAS Settings')
+			loan_aggrement_file = las_settings.esign_download_signed_file_url.format(file_id=file_id)
+			file_ = frappe.get_doc({
+				'doctype': 'File',
+				'attached_to_doctype': 'Loan Application',
+				'attached_to_name': loan_application.name,
+				'file_url': loan_aggrement_file,
+				'file_name': 'loan-aggrement.pdf'
+			})
+			file_.insert(ignore_permissions=True)
 			
 			frappe.db.set_value("User Token", otp_res[1], "used", 1)
 			return lms.generateResponse(message="CDSL", data=loan_application)
