@@ -191,8 +191,10 @@
    "fieldtype": "Column Break"
   },
   {
+   "collapsible": 1,
    "fieldname": "section_break_28",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "ESign"
   },
   {
    "default": "https://uat-pwa.choicetechlab.com/sparkesign/uploadFile",
@@ -218,7 +220,7 @@
   }
  ],
  "issingle": 1,
- "modified": "2020-09-15 16:47:08.665359",
+ "modified": "2020-09-17 11:09:04.458442",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
