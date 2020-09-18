@@ -228,7 +228,6 @@ def get_customer(entity):
 	return frappe.get_doc('Customer', customer_list[0].name)
 
 def delete_user(doc, method):
-	print('=======================')
 	customer = get_customer(doc.phone)
 	frappe.delete_doc('Customer', customer.name)
 
@@ -264,3 +263,23 @@ def create_user_token(entity, token, token_type="OTP"):
 	frappe.db.commit()
 
 	return user_token
+	
+def loan_timeline(loan_name):
+	if not loan_name:
+		frappe.throw(_('Loan Name is required.'))
+
+	loan = frappe.get_doc('Loan', loan_name)
+
+	loan_timeline = frappe.get_doc(dict(
+		doctype = "Loan Timeline",
+		total_collateral_value = loan.total_collateral_value,
+		overdraft_limit = loan.overdraft_limit,
+		pledgor_boid = loan.pledgor_boid,
+		prf_number = loan.prf_number,
+		allowable_ltv = loan.allowable_ltv,
+		pledgee_boid = loan.pledgee_boid,
+		expiry_date = loan.expiry_date,
+		items = loan.items
+	)).insert(ignore_permissions=True)
+
+	return loan_timeline
