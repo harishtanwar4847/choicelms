@@ -7,7 +7,7 @@ def my_loan(frappe.session.user):
     try:
         customer = lms.get_customer(frappe.session.user)
 
-        loan = frappe.db.get_list('Loan', filters = {'customer': customer})
+        loan = frappe.db.get_all('Loan', filters = {'customer': customer})
 
         return lms.generateResponse(message=_('Loan'), data={'loan': loan})
 
