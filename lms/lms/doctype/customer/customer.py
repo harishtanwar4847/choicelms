@@ -9,7 +9,7 @@ from lms.firebase import FirebaseAdmin
 import lms
 
 class Customer(Document):
-	def before_save(self):
+	def before_insert(self):
 		user = frappe.get_doc('User', self.username)
 
 		self.first_name = user.first_name

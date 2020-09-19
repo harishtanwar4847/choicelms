@@ -7,6 +7,9 @@ import frappe
 from frappe.model.document import Document
 
 class Cart(Document):
+	def get_customer(self):
+		return frappe.get_doc('Customer', self.customer)
+
 	def before_save(self):
 		self.process_cart_items()
 		self.process_cart()

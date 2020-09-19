@@ -81,9 +81,12 @@ def upsert(securities, cart_name=None, expiry=None):
 		if not expiry:
 			expiry = datetime.now() + timedelta(days = 365)
 
+		customer = lms.get_customer(frappe.session.user)
+
 		if not cart_name:
 			cart = frappe.get_doc({
 				"doctype": "Cart",
+				"customer": customer.name
 			})
 			for i in securities:
 				cart.append('items', {
@@ -96,7 +99,7 @@ def upsert(securities, cart_name=None, expiry=None):
 			cart = frappe.get_doc("Cart", cart_name)
 			if not cart:
 				return lms.generateResponse(status=404, message=_('Cart not found.'))
-			if cart.owner != frappe.session.user:
+			if cart.customer != customer.name:
 				return lms.generateResponse(status=403, message=_('Please use your own cart.'))
 
 			cart.items = []
@@ -115,18 +118,27 @@ def upsert(securities, cart_name=None, expiry=None):
 		return lms.generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
+def process(cart_name, otp, file_id, pledgor_boid=None, expiry=None, pledgee_boid=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
 
 		if not cart_name:
 			raise lms.ValidationError(_('Cart name required.'))
+		if len(otp) != 4 or not otp.isdigit():
+			raise lms.ValidationError(_('Enter 4 digit OTP.'))
+		if not file_id:
+			raise lms.ValidationError(_('File ID Required.'))
+
+		otp_res = lms.check_user_token(entity=frappe.session.user, token=otp, token_type="Pledge OTP")
+		if not otp_res[0]:
+			raise lms.ValidationError(_('Wrong OTP.'))
 
 		cart = frappe.get_doc("Cart", cart_name)
+		customer = lms.get_customer(frappe.session.user)
 		if not cart:
 			return lms.generateResponse(status=404, message=_('Cart not found.'))
-		if cart.owner != frappe.session.user:
+		if cart.customer != customer.name:
 			return lms.generateResponse(status=403, message=_('Please use your own cart.'))
 
 		if not pledgor_boid:
@@ -135,18 +147,6 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 			pledgee_boid = '1206690000014023'
 		if not expiry:
 			expiry = datetime.now() + timedelta(days = 365)
-
-		# approve TnC
-		user = frappe.get_doc('User', frappe.session.user)
-		
-		for tnc in frappe.get_list('Terms and Conditions', filters={'is_active': 1}):
-			approved_tnc = frappe.get_doc({
-				'doctype': 'Approved Terms and Conditions',
-				'mobile': user.username,
-				'tnc': tnc.name,
-				'time': datetime.now()
-			})
-			approved_tnc.insert(ignore_permissions=True)
 
 		securities_array = []
 		for i in cart.items:
@@ -202,12 +202,14 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 			loan_application = frappe.get_doc({
 				'doctype': 'Loan Application',
 				'total_collateral_value': cart.total_collateral_value,
-				'overdraft_limit': cart.eligible_amount,
+				'overdraft_limit': cart.eligible_loan,
 				'pledgor_boid': pledgor_boid,
 				'pledgee_boid': pledgee_boid,
 				'prf_number': response_json['PledgeSetupResponse']['PRFNumber'],
 				'expiry_date': expiry,
 				'allowable_ltv': cart.allowable_ltv,
+				'customer': cart.customer,
+				'loan': cart.loan,
 				'items': items
 			})
 			loan_application.insert(ignore_permissions=True)
@@ -215,6 +217,22 @@ def process(cart_name, pledgor_boid=None, expiry=None, pledgee_boid=None):
 			cart.is_processed = 1
 			cart.save(ignore_permissions=True)
 
+			if not customer.pledge_securities:
+				customer.pledge_securities = 1
+				customer.save(ignore_permissions=True)
+
+			las_settings = frappe.get_single('LAS Settings')
+			loan_aggrement_file = las_settings.esign_download_signed_file_url.format(file_id=file_id)
+			file_ = frappe.get_doc({
+				'doctype': 'File',
+				'attached_to_doctype': 'Loan Application',
+				'attached_to_name': loan_application.name,
+				'file_url': loan_aggrement_file,
+				'file_name': 'loan-aggrement.pdf'
+			})
+			file_.insert(ignore_permissions=True)
+			
+			frappe.db.set_value("User Token", otp_res[1], "used", 1)
 			return lms.generateResponse(message="CDSL", data=loan_application)
 		else:
 			return lms.generateResponse(is_success=False, message="CDSL Pledge Error", data=response_json)
@@ -250,6 +268,8 @@ def process_dummy(cart_name):
 		'prf_number': 'prf',
 		'expiry_date': '2021-01-31',
 		'allowable_ltv': cart.allowable_ltv,
+		'customer': cart.customer,
+		'loan': cart.loan,
 		'items': items
 	})
 	loan_application.insert(ignore_permissions=True)
@@ -258,3 +278,16 @@ def process_dummy(cart_name):
 	cart.save(ignore_permissions=True)
 
 	return loan_application.name
+
+@frappe.whitelist()
+def request_pledge_otp():
+	try:
+		# validation
+		lms.validate_http_method('POST')
+
+		lms.create_user_token(entity=frappe.session.user, token_type="Pledge OTP", token=lms.random_token(length=4, is_numeric=True))
+		return lms.generateResponse(message=_('Pledge OTP sent'))
+	except (lms.ValidationError, lms.ServerError) as e:
+		return lms.generateResponse(status=e.http_status_code, message=str(e))
+	except Exception as e:
+		return lms.generateResponse(is_success=False, error=e)

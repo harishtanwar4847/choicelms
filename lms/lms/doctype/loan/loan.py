@@ -9,6 +9,9 @@ from frappe.model.document import Document
 from datetime import datetime
 
 class Loan(Document):
+	def get_customer(self):
+		return frappe.get_doc('Customer', self.customer)
+
 	def get_transaction_summary(self):
 		# sauce: https://stackoverflow.com/a/23827026/9403680
 		sql = """
@@ -25,30 +28,52 @@ class Loan(Document):
 
 		res = frappe.db.sql(sql, as_dict=1)
 
-		return res[0] if len(res) else {'loan': self.name, 'total_debits': 0, 'total_credits': 0, 'outstanding': 0}
+		return res[0] if len(res) else frappe._dict({'loan': self.name, 'total_debits': 0, 'total_credits': 0, 'outstanding': 0})
+
+	def fill_items(self):
+		self.total_collateral_value = 0
+		for i in self.items:
+			i.amount = i.price * i.pledged_quantity
+			self.total_collateral_value += i.amount
+
+		self.overdraft_limit = (self.allowable_ltv/100) * self.total_collateral_value
 
 	def check_for_shortfall(self):
-		new_prices = lms.get_security_prices([item.get('isin') for item in self.items])
-		new_total = 0
-		for item in self.items:
-			item.new_price = new_prices.get(item.get('isin'))
-			item.new_amount = item.get('pledged_quantity') * item.get('new_price')
-			new_total += item.get('new_amount')
+		check = False
 
-		self.new_total = new_total
-		self.time = datetime.now()
-		self.shortfall_percentage = 0
-		self.is_shortfall = 0
-		percentage_of_outstanding = (self.new_total / self.outstanding) * 100
-		
-		if percentage_of_outstanding < 100:
-			self.shortfall_percentage = 100 - percentage_of_outstanding
-			
-		if self.outstanding > self.new_total:
-			self.is_shortfall = 1
-		
-		self.save(ignore_permissions=True)
-		frappe.db.commit()
+		securities_price_map = lms.get_security_prices([i.isin for i in self.items])
+
+		for i in self.items:
+			if i.price != securities_price_map.get(i.isin):
+				check = True
+				i.price = securities_price_map.get(i.isin)
+
+		if check:
+			lms.loan_timeline(self.name)
+			self.fill_items()
+			self.save(ignore_permissions=True)
+
+			loan_margin_shortfall = frappe.get_doc({
+				'doctype': 'Loan Margin Shortfall',
+				'loan': self.name
+			})
+
+			loan_margin_shortfall.fill_items()
+
+			if loan_margin_shortfall.margin_shortfall_action:
+				loan_margin_shortfall.insert(ignore_permissions=True)
+
+	def get_updated_total_collateral_value(self):
+		securities = [i.isin for i in self.items]
+
+		securities_price_map = lms.get_security_prices(securities)
+
+		updated_total_collateral_value = 0
+
+		for i in self.items:
+			updated_total_collateral_value += i.pledged_quantity * securities_price_map.get(i.isin)
+
+		return updated_total_collateral_value
 			
 
 def check_loans_for_shortfall(loans):

@@ -170,7 +170,7 @@ def request_verification_email():
 		# validation
 		lms.validate_http_method('POST')
 
-		send_verification_email_(frappe.session.user)
+		lms.create_user_token(entity=frappe.session.user, token=lms.random_token(), token_type="Email Verification Token")
 
 		return lms.generateResponse(message=_('Verification email sent'))
 	except (lms.ValidationError, lms.ServerError) as e:
@@ -178,31 +178,9 @@ def request_verification_email():
 	except Exception as e:
 		return lms.generateResponse(is_success=False, error=e)
 
-def send_verification_email_(email):
-	user_token = frappe.get_doc({
-			"doctype": "User Token",
-			"token_type": "Email Verification Token",
-			"entity": email,
-			"token": lms.random_token(),
-			"expiry": datetime.now() + timedelta(hours=1)
-		})
-	user_token.insert(ignore_permissions=True)
-
-	template = "/templates/emails/user_email_verification.html"
-	url = frappe.utils.get_url("/api/method/lms.auth.verify_user?token={}&user={}".format(user_token.token, email))
-
-	frappe.enqueue(
-		method=frappe.sendmail, 
-		recipients=email, 
-		sender=None, 
-		subject="User Email Verification",
-		message=frappe.get_template(template).render(url=url)
-	)
-
 @frappe.whitelist(allow_guest=True)
 def verify_user(token, user):
 	token_res = lms.check_user_token(entity=user, token=token, token_type="Email Verification Token")
-	user_mobile = frappe.db.get_value('User', user, 'phone')
 
 	if not token_res[0]:
 		frappe.respond_as_web_page(
@@ -213,7 +191,9 @@ def verify_user(token, user):
 		return
 
 	frappe.db.set_value("User Token", token_res[1], "used", 1)
-	frappe.db.set_value("Customer", {"email": user}, "is_email_verified", 1)
+	customer = lms.get_customer(user)
+	customer.is_email_verified = 1
+	customer.save(ignore_permissions=True)
 	frappe.db.commit()
 	
 	frappe.respond_as_web_page(

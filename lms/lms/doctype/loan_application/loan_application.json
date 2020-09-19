@@ -9,11 +9,13 @@
   "overdraft_limit",
   "pledgor_boid",
   "prf_number",
+  "status",
   "loan_application_column_break",
+  "customer",
   "allowable_ltv",
   "pledgee_boid",
   "expiry_date",
-  "status",
+  "loan",
   "items_section",
   "items"
  ],
@@ -91,9 +93,21 @@
    "label": "Allowable LTV",
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "loan",
+   "fieldtype": "Link",
+   "label": "Loan",
+   "options": "Loan"
   }
  ],
- "modified": "2020-08-29 13:02:52.041197",
+ "modified": "2020-09-08 15:26:32.442711",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

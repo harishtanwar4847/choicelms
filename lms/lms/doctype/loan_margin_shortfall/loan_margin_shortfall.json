@@ -10,9 +10,9 @@
   "section_break_4",
   "allowable_ltv",
   "column_break_6",
-  "overdraft_limit",
+  "drawing_power",
   "section_break_8",
-  "withdrawal",
+  "loan_balance",
   "minimum_collateral_value",
   "column_break_10",
   "ltv",
@@ -22,7 +22,11 @@
   "shortfall_c",
   "column_break_17",
   "shortfall_percentage",
-  "margin_shortfall_action"
+  "margin_shortfall_action",
+  "section_break_20",
+  "status",
+  "column_break_22",
+  "action_time"
  ],
  "fields": [
   {
@@ -42,11 +46,6 @@
    "fieldname": "allowable_ltv",
    "fieldtype": "Float",
    "label": "Allowable LTV"
-  },
-  {
-   "fieldname": "overdraft_limit",
-   "fieldtype": "Currency",
-   "label": "Overdraft Limit"
   },
   {
    "fieldname": "column_break_2",
@@ -113,12 +112,37 @@
    "options": "Margin Shortfall Action"
   },
   {
-   "fieldname": "withdrawal",
+   "fieldname": "section_break_20",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_22",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "action_time",
+   "fieldtype": "Datetime",
+   "label": "Action Time"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nPaid Cash\nPledged Securities\nSell Off"
+  },
+  {
+   "fieldname": "drawing_power",
    "fieldtype": "Currency",
-   "label": "Withdrawal"
+   "label": "Drawing Power"
+  },
+  {
+   "fieldname": "loan_balance",
+   "fieldtype": "Currency",
+   "label": "Loan Balance"
   }
  ],
- "modified": "2020-08-31 14:29:22.155409",
+ "modified": "2020-09-14 17:49:46.431643",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Margin Shortfall",

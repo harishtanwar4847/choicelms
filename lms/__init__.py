@@ -7,7 +7,6 @@ from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from random import choice
 from datetime import datetime, timedelta
 from itertools import groupby
-from lms.auth import send_verification_email_
 
 __version__ = '0.0.1'
 
@@ -64,27 +63,10 @@ def generateResponse(is_success=True, status=200, message=None, data={}, error=N
 		response["data"] = data
 	return response
 
-def send_otp(phone):
+def send_otp(entity):
 	try:
-		# delete unused otp
-		frappe.db.delete("User Token", {
-			"entity": phone,
-			"token_type": "OTP",
-			"used": 0
-		})
-
 		OTP_CODE = random_token(length=4, is_numeric=True)
-
-		mess = _('Your OTP for LMS is {0}. Do not share your OTP with anyone.').format(OTP_CODE)
-		frappe.enqueue(method=send_sms, receiver_list=[phone], msg=mess)
-
-		otp_doc = frappe.get_doc(dict(
-			doctype="User Token",
-			entity=phone,
-			token_type="OTP",
-			token=OTP_CODE,
-			expiry= datetime.now() + timedelta(seconds=30)
-		)).insert(ignore_permissions=True)
+		otp_doc = create_user_token(entity=entity, token=OTP_CODE)
 		
 		if not otp_doc:
 			raise ServerError(_('There was some problem while sending OTP. Please try again.'))
@@ -167,7 +149,7 @@ def add_user(first_name, last_name, phone, email):
 			owner = user.email
 		)).insert(ignore_permissions=True)
 
-		send_verification_email_(email)
+		create_user_token(entity=email, token=random_token(), token_type="Email Verification Token")
 
 		return user.name
 	except Exception:
@@ -241,12 +223,11 @@ def chunk_doctype(doctype, limit):
 		'chunks': chunks
 	}
 
-def get_customer(mobile):
-	customer_list = frappe.get_all('Customer', filters={'phone': mobile})
+def get_customer(entity):
+	customer_list = frappe.get_all('Customer', filters={'username': get_user(entity)})
 	return frappe.get_doc('Customer', customer_list[0].name)
 
 def delete_user(doc, method):
-	print('=======================')
 	customer = get_customer(doc.phone)
 	frappe.delete_doc('Customer', customer.name)
 
@@ -256,11 +237,49 @@ def add_firebase_token(firebase_token, user=None):
 	get_user_token = frappe.db.get_value("User Token", {"token_type": "Firebase Token", "token": firebase_token, "entity": user})
 	if get_user_token:
 		return 
-	user_token = frappe.get_doc({
-				"doctype": "User Token",
-				"token_type": "Firebase Token",
-				"entity": user,
-				"token": firebase_token
-				})
-	user_token.insert(ignore_permissions=True)	
+	
+	create_user_token(entity=user, token=firebase_token, token_type='Firebase Token')
+
+def create_user_token(entity, token, token_type="OTP"):
+	expiry_map = {
+		'OTP': 0.5,
+		'Email Verification Token': 60,
+		'Pledge OTP': 0.5
+	}
+
+	doc_data = {
+		'doctype': 'User Token',
+		'entity': entity,
+		'token': token,
+		'token_type': token_type
+	}
+	
+	expiry_in_minutes = expiry_map.get(token_type, None)
+	if expiry_in_minutes:
+		doc_data['expiry'] = datetime.now() + timedelta(minutes=expiry_in_minutes)
+	
+	user_token = frappe.get_doc(doc_data)
+	user_token.save(ignore_permissions=True)
 	frappe.db.commit()
+
+	return user_token
+	
+def loan_timeline(loan_name):
+	if not loan_name:
+		frappe.throw(_('Loan Name is required.'))
+
+	loan = frappe.get_doc('Loan', loan_name)
+
+	loan_timeline = frappe.get_doc(dict(
+		doctype = "Loan Timeline",
+		total_collateral_value = loan.total_collateral_value,
+		overdraft_limit = loan.overdraft_limit,
+		pledgor_boid = loan.pledgor_boid,
+		prf_number = loan.prf_number,
+		allowable_ltv = loan.allowable_ltv,
+		pledgee_boid = loan.pledgee_boid,
+		expiry_date = loan.expiry_date,
+		items = loan.items
+	)).insert(ignore_permissions=True)
+
+	return loan_timeline

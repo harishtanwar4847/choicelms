@@ -1,6 +1,6 @@
 {
- "autoname": "LOAN.######",
- "creation": "2020-07-28 15:26:52.963305",
+ "autoname": "LOAN-Timeline.######",
+ "creation": "2020-09-18 11:38:56.304637",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -10,7 +10,6 @@
   "pledgor_boid",
   "prf_number",
   "loan_column_break",
-  "customer",
   "allowable_ltv",
   "pledgee_boid",
   "expiry_date",
@@ -18,6 +17,21 @@
   "items"
  ],
  "fields": [
+  {
+   "fieldname": "total_collateral_value",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total Collateral Value",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "overdraft_limit",
+   "fieldtype": "Currency",
+   "label": "Overdraft Limit",
+   "read_only": 1,
+   "reqd": 1
+  },
   {
    "fieldname": "pledgor_boid",
    "fieldtype": "Data",
@@ -29,6 +43,17 @@
    "fieldname": "prf_number",
    "fieldtype": "Data",
    "label": "PRF Number",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "loan_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "allowable_ltv",
+   "fieldtype": "Float",
+   "label": "Allowable LTV",
    "read_only": 1,
    "reqd": 1
   },
@@ -57,44 +82,12 @@
    "label": "Item",
    "options": "Loan Item",
    "reqd": 1
-  },
-  {
-   "fieldname": "loan_column_break",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "total_collateral_value",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "Total Collateral Value",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
-   "fieldname": "overdraft_limit",
-   "fieldtype": "Currency",
-   "label": "Overdraft Limit",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
-   "fieldname": "allowable_ltv",
-   "fieldtype": "Float",
-   "label": "Allowable LTV",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
-   "fieldname": "customer",
-   "fieldtype": "Link",
-   "label": "Customer",
-   "options": "Customer"
   }
  ],
- "modified": "2020-09-05 18:23:14.628540",
+ "modified": "2020-09-18 11:38:56.304637",
  "modified_by": "Administrator",
  "module": "Lms",
- "name": "Loan",
+ "name": "Loan Timeline",
  "owner": "Administrator",
  "permissions": [
   {
