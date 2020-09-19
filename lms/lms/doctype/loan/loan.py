@@ -30,19 +30,38 @@ class Loan(Document):
 
 		return res[0] if len(res) else frappe._dict({'loan': self.name, 'total_debits': 0, 'total_credits': 0, 'outstanding': 0})
 
+	def fill_items(self):
+		self.total_collateral_value = 0
+		for i in self.items:
+			i.amount = i.price * i.pledged_quantity
+			self.total_collateral_value += i.amount
+
+		self.overdraft_limit = (self.allowable_ltv/100) * self.total_collateral_value
+
 	def check_for_shortfall(self):
-		loan_margin_shortfall = frappe.get_doc({
-			'doctype': 'Loan Margin Shortfall',
-			'loan': self.name
-		})
+		check = False
 
-		loan_margin_shortfall.fill_items()
+		securities_price_map = lms.get_security_prices([i.isin for i in self.items])
 
-		if loan_margin_shortfall.margin_shortfall_action:
-			loan_margin_shortfall.insert(ignore_permissions=True)
+		for i in self.items:
+			if i.price != securities_price_map.get(i.isin):
+				check = True
+				i.price = securities_price_map.get(i.isin)
 
-	def on_update(self):
-		self.check_for_shortfall()
+		if check:
+			lms.loan_timeline(self.name)
+			self.fill_items()
+			self.save(ignore_permissions=True)
+
+			loan_margin_shortfall = frappe.get_doc({
+				'doctype': 'Loan Margin Shortfall',
+				'loan': self.name
+			})
+
+			loan_margin_shortfall.fill_items()
+
+			if loan_margin_shortfall.margin_shortfall_action:
+				loan_margin_shortfall.insert(ignore_permissions=True)
 
 	def get_updated_total_collateral_value(self):
 		securities = [i.isin for i in self.items]

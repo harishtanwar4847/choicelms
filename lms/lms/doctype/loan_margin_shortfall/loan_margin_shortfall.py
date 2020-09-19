@@ -15,9 +15,9 @@ class LoanMarginShortfall(Document):
 	def fill_items(self):
 		loan = frappe.get_doc('Loan', self.loan)
 
-		self.total_collateral_value = loan.get_updated_total_collateral_value()
+		self.total_collateral_value = loan.total_collateral_value
 		self.allowable_ltv = loan.allowable_ltv
-		self.drawing_power = (loan.allowable_ltv / 100) * self.total_collateral_value
+		self.drawing_power = loan.overdraft_limit
 
 		self.loan_balance = loan.get_transaction_summary().outstanding
 		self.ltv = (self.loan_balance/self.total_collateral_value) * 100

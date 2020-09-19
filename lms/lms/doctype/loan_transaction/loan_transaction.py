@@ -8,5 +8,4 @@ from frappe.model.document import Document
 
 class LoanTransaction(Document):
 	def after_insert(self):
-		loan = frappe.get_doc('Loan', self.loan)
-		loan.check_for_shortfall()
+		frappe.enqueue_doc('Loan', self.loan, method='check_for_shortfall')
