@@ -5,13 +5,9 @@ import lms
 @frappe.whitelist()
 def my_loan(frappe.session.user):
     try:
-        user = lms.get_user(frappe.session.user)
-        customer = lms.get_customer(user)
+        customer = lms.get_customer(frappe.session.user)
 
-        if not customer:
-            return lms.generateResponse(message=_('User not registered.'))
-
-        loan = frappe.db.get_value('Loan', {'customer': customer}, 'name')
+        loan = frappe.db.get_list('Loan', filters = {'customer': customer})
 
         return lms.generateResponse(message=_('Loan'), data={'loan': loan})
 
