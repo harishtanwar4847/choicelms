@@ -1,36 +1,33 @@
 {
- "autoname": "TDS.#####",
- "creation": "2020-09-20 11:45:42.696474",
+ "creation": "2020-09-21 19:28:19.769725",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "tds_amount",
-  "tds_file_upload",
-  "year"
+  "year",
+  "is_active"
  ],
  "fields": [
   {
-   "fieldname": "tds_amount",
-   "fieldtype": "Currency",
-   "label": "TDS Amount"
-  },
-  {
-   "fieldname": "tds_file_upload",
-   "fieldtype": "Attach",
-   "label": "TDS File Upload"
-  },
-  {
    "fieldname": "year",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Year",
-   "options": "TDS Year"
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Active",
+   "reqd": 1
   }
  ],
- "modified": "2020-09-21 19:47:23.071896",
+ "modified": "2020-09-21 19:47:55.567886",
  "modified_by": "Administrator",
  "module": "Lms",
- "name": "TDS",
+ "name": "TDS Year",
  "owner": "Administrator",
  "permissions": [
   {
