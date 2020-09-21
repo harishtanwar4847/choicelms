@@ -275,12 +275,6 @@ def save_firebase_token(firebase_token):
 @frappe.whitelist(allow_guest=True)
 def tds(tds_amount):
 
-	createTds = frappe.get_doc(dict(
-		doctype = "TDS",
-		tds_amount = tds_amount
-	))
-	createTds.insert(ignore_permissions=True)
-	
 	files = frappe.request.files
 	is_private = frappe.form_dict.is_private
 	doctype = frappe.form_dict.doctype
@@ -313,8 +307,11 @@ def tds(tds_amount):
 		"content": content
 	})
 	f.save(ignore_permissions=True)
+	tds = frappe.get_doc(dict(
+		doctype = "TDS",
+		tds_amount = tds_amount,
+		tds_file_upload = f.file_url
+	))
+	tds.insert(ignore_permissions=True)
 
-	createTds.tds_file_upload = f.file_url
-	createTds.save(ignore_permissions=True)
-
-	return lms.generateResponse(message=_('TDS Create Successfully.'), data={'file': createTds})
+	return lms.generateResponse(message=_('TDS Create Successfully.'), data={'file': tds})
