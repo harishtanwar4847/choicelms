@@ -8,9 +8,10 @@
   "full_name",
   "pan_id",
   "gst_id",
-  "is_active",
+  "column_break_1",
+  "interest_percentage_sharing",
   "registered_date",
-  "interest_percentage_sharing"
+  "is_active"
  ],
  "fields": [
   {
@@ -43,9 +44,13 @@
    "fieldname": "interest_percentage_sharing",
    "fieldtype": "Float",
    "label": "Interest Percentage Sharing"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
   }
  ],
- "modified": "2020-09-21 13:09:14.624985",
+ "modified": "2020-09-21 13:18:38.132449",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
