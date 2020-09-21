@@ -273,7 +273,7 @@ def save_firebase_token(firebase_token):
 		return lms.generateResponse(is_success=False, data=e, error=e)
 
 @frappe.whitelist(allow_guest=True)
-def tds(tds_amount):
+def tds(tds_amount, year):
 
 	files = frappe.request.files
 	is_private = frappe.form_dict.is_private
@@ -310,7 +310,8 @@ def tds(tds_amount):
 	tds = frappe.get_doc(dict(
 		doctype = "TDS",
 		tds_amount = tds_amount,
-		tds_file_upload = f.file_url
+		tds_file_upload = f.file_url,
+		year = year
 	))
 	tds.insert(ignore_permissions=True)
 
