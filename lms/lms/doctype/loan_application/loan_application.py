@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
+from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
 class LoanApplication(Document):
 	def on_update(self):
@@ -70,3 +71,11 @@ class LoanApplication(Document):
 		loan.overdraft_limit += self.overdraft_limit
 
 		loan.save(ignore_permissions=True)
+
+		template = "/templates/emails/loan_sanction.html"
+		frappe.enqueue(method=frappe.sendmail, recipients=self.owner, sender=None, 
+		subject="Loan sanction ", message=frappe.get_template(template).render())
+
+		mobile = frappe.db.get_value('User', self.owner, 'phone')
+		mess = _('Dear AJ,Congratulations! Your loan account is active now! Current available limit - INR 50000.')
+		frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)

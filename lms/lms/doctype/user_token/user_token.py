@@ -25,6 +25,6 @@ class UserToken(Document):
 				method=frappe.sendmail, 
 				recipients=self.entity, 
 				sender=None, 
-				subject="User Email Verification",
+				subject="Email Verification",
 				message=frappe.get_template(template).render(url=url)
 			)

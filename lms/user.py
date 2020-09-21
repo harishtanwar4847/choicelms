@@ -3,6 +3,7 @@ from frappe import _
 from frappe.utils.password import update_password
 import lms
 from datetime import datetime
+from frappe.core.doctype.sms_settings.sms_settings import send_sms
 import requests
 import json
 from xmljson import parker
@@ -21,6 +22,8 @@ def set_pin(pin):
 			raise lms.ValidationError(_('Please enter 4 digit PIN'))
 
 		update_password(frappe.session.user, pin)
+		mess = _('Dear AJ, You have successfully updated your Finger Print / PIN registration at Spark.Loans!.')
+		frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
 		return lms.generateResponse(message=_('User PIN has been set'))
 	except (lms.ValidationError, lms.ServerError) as e:
 		return lms.generateResponse(status=e.http_status_code, message=str(e))
@@ -102,7 +105,16 @@ def kyc(pan_no=None, birth_date=None):
 			customer.choice_kyc = user_kyc.name
 			customer.save(ignore_permissions=True)
 			frappe.db.commit()
-		
+
+			email = frappe.db.get_value('User', {'phone': user.username}, 'phone')
+			template = "/templates/emails/user_kyc.html"
+			frappe.enqueue(method=frappe.sendmail, recipients=email, sender=None, 
+			subject="KYC Success mail", message=frappe.get_template(template).render())
+
+			
+			mess = _('Dear AJ, Congratulations! Your KYC verification is completed. Your credit check has to be cleared by our banking partner before you can avail the loan.')
+			frappe.enqueue(method=send_sms, receiver_list=[user.username], msg=mess)
+
 			return lms.generateResponse(message="CHOICE USER KYC", data=user_kyc)
 
 		# check in kra
@@ -137,6 +149,14 @@ def kyc(pan_no=None, birth_date=None):
 			frappe.db.commit()
 			user_kyc = user_kyc.as_dict()
 			user_kyc["response"] = data
+
+			template = "/templates/emails/user_kyc.html"
+			frappe.enqueue(method=frappe.sendmail, recipients=email, sender=None, 
+			subject="KYC Success mail", message=frappe.get_template(template).render())
+
+			mess = _('Dear AJ, Congratulations! Your KYC verification is completed. Your credit check has to be cleared by our banking partner before you can avail the loan.')
+			frappe.enqueue(method=send_sms, receiver_list=[user.username], msg=mess)	
+
 			return lms.generateResponse(message="KRA USER KYC", data=user_kyc)
 		return lms.generateResponse(message="KYC not found")
 	except (lms.ValidationError, lms.ServerError) as e:

@@ -155,7 +155,13 @@ def register(first_name, mobile, email, firebase_token, last_name=None):
 			lms.add_firebase_token(firebase_token, user_name)
 
 			# frappe.db.set_value("User Token", otp_res[1], "used", 1)
+			
+			template = "/templates/emails/user_welcome_email.html"
+			frappe.enqueue(method=frappe.sendmail, recipients=email, sender=None, 
+			subject="Welcome Email", message=frappe.get_template(template).render())
 
+			mess = _('Dear AJ, Your registration at Spark.Loans was successfull! Welcome aboard.')
+			frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
 			return lms.generateResponse(message=_('Registered Successfully.'), data=token)
 		else:
 			return lms.generateResponse(status=500, message=_('Something Wrong During User Creation. Try Again.'))
@@ -194,8 +200,8 @@ def verify_user(token, user):
 	customer = lms.get_customer(user)
 	customer.is_email_verified = 1
 	customer.save(ignore_permissions=True)
-	frappe.db.commit()
-	
+	frappe.db.commit()	
+
 	frappe.respond_as_web_page(
 			_("Success"), 
 			_("User verified."),

@@ -2,6 +2,7 @@ import frappe
 from frappe import _
 import lms
 from datetime import datetime, timedelta
+from frappe.core.doctype.sms_settings.sms_settings import send_sms
 import requests
 from itertools import groupby
 
@@ -214,6 +215,14 @@ def process(cart_name, otp, file_id, pledgor_boid=None, expiry=None, pledgee_boi
 			})
 			loan_application.insert(ignore_permissions=True)
 
+			template = "/templates/emails/loan_application_creation.html"
+			frappe.enqueue(method=frappe.sendmail, recipients=self.owner, sender=None, 
+			subject="Application Successful", message=frappe.get_template(template).render())
+
+			mobile = frappe.db.get_value('User', self.owner, 'phone')
+			mess = _('Dear AJ,Congratulations! Your loan account is active now! Current available limit - INR 50000.')
+			frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)	
+
 			cart.is_processed = 1
 			cart.save(ignore_permissions=True)
 
@@ -274,6 +283,13 @@ def process_dummy(cart_name):
 	})
 	loan_application.insert(ignore_permissions=True)
 
+	template = "/templates/emails/loan_application_creation.html"
+	frappe.enqueue(method=frappe.sendmail, recipients=self.owner, sender=None, 
+	subject="Application Successful", message=frappe.get_template(template).render())
+
+	mobile = frappe.db.get_value('User', self.owner, 'phone')
+	mess = _('Dear AJ,Congratulations! Your loan account is active now! Current available limit - INR 50000.')
+	frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)	
 	cart.is_processed = 1
 	cart.save(ignore_permissions=True)
 
