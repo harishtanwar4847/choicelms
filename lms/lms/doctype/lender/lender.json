@@ -8,10 +8,18 @@
   "full_name",
   "pan_id",
   "gst_id",
-  "column_break_1",
   "interest_percentage_sharing",
   "registered_date",
-  "is_active"
+  "is_active",
+  "column_break_1",
+  "lender_processing_feed_type",
+  "lender_processing_feed",
+  "stamp_duty_type",
+  "stamp_duty",
+  "documentation_charge_type",
+  "documentation_charges",
+  "mortgage_charge_type",
+  "mortgage_charges"
  ],
  "fields": [
   {
@@ -48,9 +56,53 @@
   {
    "fieldname": "column_break_1",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lender_processing_feed_type",
+   "fieldtype": "Select",
+   "label": "Lender Processing Feed Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "lender_processing_feed",
+   "fieldtype": "Float",
+   "label": "Lender Processing Feed"
+  },
+  {
+   "fieldname": "stamp_duty_type",
+   "fieldtype": "Select",
+   "label": "Stamp Duty Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "stamp_duty",
+   "fieldtype": "Float",
+   "label": "Stamp Duty"
+  },
+  {
+   "fieldname": "documentation_charge_type",
+   "fieldtype": "Select",
+   "label": "Documentation Charge Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "documentation_charges",
+   "fieldtype": "Float",
+   "label": "Documentation Charges"
+  },
+  {
+   "fieldname": "mortgage_charge_type",
+   "fieldtype": "Select",
+   "label": "Mortgage Charge Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "mortgage_charges",
+   "fieldtype": "Float",
+   "label": "Mortgage Charges"
   }
  ],
- "modified": "2020-09-21 15:46:32.315931",
+ "modified": "2020-09-21 18:57:26.313296",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
