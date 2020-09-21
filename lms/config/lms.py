@@ -6,6 +6,7 @@ def get_data():
 		{
 			'label': _('Masters'),
 			'items': [
+				{ 'type': 'doctype', 'name': 'Lender', 'onboard': 1 },
 				{ 'type': 'doctype', 'name': 'Allowed Security', 'onboard': 1 },
 				{ 'type': 'doctype', 'name': 'Security Category', 'onboard': 1 },
 				{ 'type': 'doctype', 'name': 'Terms and Conditions', 'onboard': 1 },
