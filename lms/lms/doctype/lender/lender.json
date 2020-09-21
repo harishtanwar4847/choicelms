@@ -50,7 +50,7 @@
    "fieldtype": "Column Break"
   }
  ],
- "modified": "2020-09-21 13:18:38.132449",
+ "modified": "2020-09-21 15:46:32.315931",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
@@ -72,5 +72,6 @@
  "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "title_field": "full_name",
  "track_changes": 1
 }
