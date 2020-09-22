@@ -1,0 +1,64 @@
+{
+ "autoname": "TDS.#####",
+ "creation": "2020-09-20 11:45:42.696474",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "tds_amount",
+  "tds_file_upload",
+  "year"
+ ],
+ "fields": [
+  {
+   "fieldname": "tds_amount",
+   "fieldtype": "Currency",
+   "label": "TDS Amount"
+  },
+  {
+   "fieldname": "tds_file_upload",
+   "fieldtype": "Attach",
+   "label": "TDS File Upload"
+  },
+  {
+   "fieldname": "year",
+   "fieldtype": "Link",
+   "label": "Year",
+   "options": "TDS Year"
+  }
+ ],
+ "modified": "2020-09-21 19:47:23.071896",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "TDS",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Loan Customer",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
