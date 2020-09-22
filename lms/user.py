@@ -295,3 +295,48 @@ def save_firebase_token(firebase_token):
 		return lms.generateResponse(status=e.http_status_code, message=str(e))
 	except Exception as e:
 		return lms.generateResponse(is_success=False, data=e, error=e)
+
+@frappe.whitelist(allow_guest=True)
+def tds(tds_amount, year):
+
+	files = frappe.request.files
+	is_private = frappe.form_dict.is_private
+	doctype = frappe.form_dict.doctype
+	docname = frappe.form_dict.docname
+	fieldname = frappe.form_dict.fieldname
+	file_url = frappe.form_dict.file_url
+	folder = frappe.form_dict.folder or 'Home'
+	method = frappe.form_dict.method
+	content = None
+	filename = None
+
+	if 'tds_file_upload' in files:
+		file = files['tds_file_upload']
+		content = file.stream.read()
+		filename = file.filename
+
+	frappe.local.uploaded_file = content
+	frappe.local.uploaded_filename = filename
+
+	from frappe.utils import cint
+	f = frappe.get_doc({
+		"doctype": "File",
+		"attached_to_doctype": doctype,
+		"attached_to_name": docname,
+		"attached_to_field": fieldname,
+		"folder": folder,
+		"file_name": filename,
+		"file_url": file_url,
+		"is_private": cint(is_private),
+		"content": content
+	})
+	f.save(ignore_permissions=True)
+	tds = frappe.get_doc(dict(
+		doctype = "TDS",
+		tds_amount = tds_amount,
+		tds_file_upload = f.file_url,
+		year = year
+	))
+	tds.insert(ignore_permissions=True)
+
+	return lms.generateResponse(message=_('TDS Create Successfully.'), data={'file': tds})

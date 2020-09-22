@@ -19,7 +19,13 @@ def my_loans():
             on loan.name = loantx.loan
             where loan.customer = '{}' group by loantx.loan """.format(customer.name), as_dict = 1)
 
-        return lms.generateResponse(message=_('Loan'), data={'loans': loans})
+        data = {'loans': loans}
+        data['total_outstanding'] = sum([i.outstanding for i in loans])
+        data['total_overdraft_limit'] = sum([i.overdraft_limit for i in loans])
+        data['total_total_collateral_value'] = sum([i.total_collateral_value for i in loans])
+        data['total_margin_shortfall'] = sum([i.shortfall_c for i in loans])
+
+        return lms.generateResponse(message=_('Loan'), data=data)
 
     except (lms.ValidationError, lms.ServerError) as e:
         return lms.generateResponse(status=e.http_status_code, message=str(e))
