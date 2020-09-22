@@ -22,7 +22,9 @@ def set_pin(pin):
 			raise lms.ValidationError(_('Please enter 4 digit PIN'))
 
 		update_password(frappe.session.user, pin)
-		mess = _('Dear AJ, You have successfully updated your Finger Print / PIN registration at Spark.Loans!.')
+
+		username = frappe.db.get_value('User', frappe.session.user, 'full_name')
+		mess = _("Dear " + username + ", You have successfully updated your Finger Print / PIN registration at Spark.Loans!.")
 		frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
 		return lms.generateResponse(message=_('User PIN has been set'))
 	except (lms.ValidationError, lms.ServerError) as e:
@@ -107,12 +109,13 @@ def kyc(pan_no=None, birth_date=None):
 			frappe.db.commit()
 
 			email = frappe.db.get_value('User', {'phone': user.username}, 'phone')
+			user_name = frappe.db.get_value('User', {'phone': user.username}, 'full_name')
+			args = {'user_name': user_name}
 			template = "/templates/emails/user_kyc.html"
 			frappe.enqueue(method=frappe.sendmail, recipients=email, sender=None, 
-			subject="KYC Success mail", message=frappe.get_template(template).render())
-
+			subject="KYC Success mail", message=frappe.get_template(template).render(args))
 			
-			mess = _('Dear AJ, Congratulations! Your KYC verification is completed. Your credit check has to be cleared by our banking partner before you can avail the loan.')
+			mess = _("Dear" + user_name + ", Congratulations! Your KYC verification is completed. Your credit check has to be cleared by our banking partner before you can avail the loan.")
 			frappe.enqueue(method=send_sms, receiver_list=[user.username], msg=mess)
 
 			return lms.generateResponse(message="CHOICE USER KYC", data=user_kyc)
@@ -150,11 +153,10 @@ def kyc(pan_no=None, birth_date=None):
 			user_kyc = user_kyc.as_dict()
 			user_kyc["response"] = data
 
-			template = "/templates/emails/user_kyc.html"
 			frappe.enqueue(method=frappe.sendmail, recipients=email, sender=None, 
-			subject="KYC Success mail", message=frappe.get_template(template).render())
+			subject="KYC Success mail", message=frappe.get_template(template).render(args))
 
-			mess = _('Dear AJ, Congratulations! Your KYC verification is completed. Your credit check has to be cleared by our banking partner before you can avail the loan.')
+			mess = _("Dear" + user_name + ", Congratulations! Your KYC verification is completed. Your credit check has to be cleared by our banking partner before you can avail the loan.")
 			frappe.enqueue(method=send_sms, receiver_list=[user.username], msg=mess)	
 
 			return lms.generateResponse(message="KRA USER KYC", data=user_kyc)

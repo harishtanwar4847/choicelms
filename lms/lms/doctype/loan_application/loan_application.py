@@ -72,10 +72,12 @@ class LoanApplication(Document):
 
 		loan.save(ignore_permissions=True)
 
+		username = frappe.db.get_value('User', self.owner, 'full_name')
+		args = {'username': username}
 		template = "/templates/emails/loan_sanction.html"
 		frappe.enqueue(method=frappe.sendmail, recipients=self.owner, sender=None, 
-		subject="Loan sanction ", message=frappe.get_template(template).render())
+		subject="Loan sanction ", message=frappe.get_template(template).render(args))
 
 		mobile = frappe.db.get_value('User', self.owner, 'phone')
-		mess = _('Dear AJ,Congratulations! Your loan account is active now! Current available limit - INR 50000.')
+		mess = _("Dear " + username + " ,Congratulations! Your loan account is active now! Current available limit - INR 50000.")
 		frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
