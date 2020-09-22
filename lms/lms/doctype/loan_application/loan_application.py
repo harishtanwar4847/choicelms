@@ -79,5 +79,5 @@ class LoanApplication(Document):
 		subject="Loan sanction ", message=frappe.get_template(template).render(args))
 
 		mobile = frappe.db.get_value('User', self.owner, 'phone')
-		mess = _("Dear " + username + " ,Congratulations! Your loan account is active now! Current available limit - INR 50000.")
+		mess = _("Dear " + username + " ,Congratulations! Your loan account is active now! Current available limit - " + loan.overdraft_limit + ".")
 		frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
