@@ -138,6 +138,10 @@ fixtures = [
         "doctype": "Print Format",
         "filters": [["doc_type", "in", ["Cart"]]]
     },
+    {
+        "doctype": "Lender",
+        "filters": [["name", "in", ["LENDER000001"]]]
+    },
     "Allowed Security", "Security Category", "Concentration Rule", "Terms and Conditions", "Margin Shortfall Action", "SMS Settings"
 ]
 
