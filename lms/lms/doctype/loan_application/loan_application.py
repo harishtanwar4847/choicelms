@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 import frappe
+from frappe import _
 from frappe.model.document import Document
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
@@ -47,6 +48,16 @@ class LoanApplication(Document):
 		})
 		loan.insert(ignore_permissions=True)
 
+		username = frappe.db.get_value('User', self.owner, 'full_name')
+		args = {'username': username}
+		template = "/templates/emails/loan_sanction.html"
+		frappe.enqueue(method=frappe.sendmail, recipients=self.owner, sender=None, 
+		subject="Loan sanction ", message=frappe.get_template(template).render(args))
+
+		mobile = frappe.db.get_value('User', self.owner, 'phone')
+		mess = _("Dear " + username + " ,Congratulations! Your loan account is active now! Current available limit - " + str(loan.overdraft_limit) + ".")
+		frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
+
 		customer = frappe.get_doc('Customer', self.customer)
 		if not customer.loan_open:
 			customer.loan_open = 1
@@ -71,13 +82,3 @@ class LoanApplication(Document):
 		loan.overdraft_limit += self.overdraft_limit
 
 		loan.save(ignore_permissions=True)
-
-		username = frappe.db.get_value('User', self.owner, 'full_name')
-		args = {'username': username}
-		template = "/templates/emails/loan_sanction.html"
-		frappe.enqueue(method=frappe.sendmail, recipients=self.owner, sender=None, 
-		subject="Loan sanction ", message=frappe.get_template(template).render(args))
-
-		mobile = frappe.db.get_value('User', self.owner, 'phone')
-		mess = _("Dear " + username + " ,Congratulations! Your loan account is active now! Current available limit - " + loan.overdraft_limit + ".")
-		frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)

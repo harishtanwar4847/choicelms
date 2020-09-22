@@ -162,7 +162,7 @@ def register(first_name, mobile, email, firebase_token, last_name=None):
 			frappe.enqueue(method=frappe.sendmail, recipients=email, sender=None, 
 			subject="Welcome Email", message=frappe.get_template(template).render(args))
 
-			mess = _("Dear" + username + " , Your registration at Spark.Loans was successfull! Welcome aboard.")
+			mess = _("Dear" + " " + username + " , Your registration at Spark.Loans was successfull! Welcome aboard.")
 			frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
 
 			return lms.generateResponse(message=_('Registered Successfully.'), data=token)

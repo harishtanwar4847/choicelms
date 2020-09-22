@@ -24,8 +24,10 @@ def set_pin(pin):
 		update_password(frappe.session.user, pin)
 
 		username = frappe.db.get_value('User', frappe.session.user, 'full_name')
+		mobile = frappe.db.get_value('User', frappe.session.user, 'phone')
 		mess = _("Dear " + username + ", You have successfully updated your Finger Print / PIN registration at Spark.Loans!.")
 		frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
+
 		return lms.generateResponse(message=_('User PIN has been set'))
 	except (lms.ValidationError, lms.ServerError) as e:
 		return lms.generateResponse(status=e.http_status_code, message=str(e))
