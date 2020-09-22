@@ -7,35 +7,38 @@
  "field_order": [
   "full_name",
   "pan_id",
-  "gst_id",
   "interest_percentage_sharing",
-  "registered_date",
   "is_active",
   "column_break_1",
-  "lender_processing_feed_type",
-  "lender_processing_feed",
+  "registered_date",
+  "gst_id",
+  "charges_details_section",
+  "lender_processing_fees_type",
   "stamp_duty_type",
-  "stamp_duty",
   "documentation_charge_type",
-  "documentation_charges",
   "mortgage_charge_type",
+  "column_break_2",
+  "lender_processing_fees",
+  "stamp_duty",
+  "documentation_charges",
   "mortgage_charges"
  ],
  "fields": [
   {
    "fieldname": "full_name",
    "fieldtype": "Data",
-   "label": "Full Name"
+   "label": "Full Name",
+   "reqd": 1
   },
   {
    "fieldname": "pan_id",
    "fieldtype": "Data",
-   "label": "Pan ID"
+   "label": "PAN ID"
   },
   {
    "fieldname": "gst_id",
    "fieldtype": "Data",
-   "label": "Gst ID"
+   "label": "GST ID"
   },
   {
    "default": "0",
@@ -51,24 +54,14 @@
   {
    "fieldname": "interest_percentage_sharing",
    "fieldtype": "Float",
-   "label": "Interest Percentage Sharing",
-   "precision": "2"
+   "in_list_view": 1,
+   "label": "Interest Percentage Sharing(%)",
+   "precision": "2",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_1",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "lender_processing_feed_type",
-   "fieldtype": "Select",
-   "label": "Lender Processing Feed Type",
-   "options": "Fix\nPercentage"
-  },
-  {
-   "fieldname": "lender_processing_feed",
-   "fieldtype": "Float",
-   "label": "Lender Processing Feed",
-   "precision": "2"
   },
   {
    "fieldname": "stamp_duty_type",
@@ -79,8 +72,10 @@
   {
    "fieldname": "stamp_duty",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Stamp Duty",
-   "precision": "2"
+   "precision": "2",
+   "reqd": 1
   },
   {
    "fieldname": "documentation_charge_type",
@@ -91,8 +86,10 @@
   {
    "fieldname": "documentation_charges",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Documentation Charges",
-   "precision": "2"
+   "precision": "2",
+   "reqd": 1
   },
   {
    "fieldname": "mortgage_charge_type",
@@ -104,10 +101,33 @@
    "fieldname": "mortgage_charges",
    "fieldtype": "Float",
    "label": "Mortgage Charges",
-   "precision": "2"
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "fieldname": "lender_processing_fees_type",
+   "fieldtype": "Select",
+   "label": "Lender Processing Fees Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "lender_processing_fees",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Lender Processing Fees",
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "fieldname": "charges_details_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
   }
  ],
- "modified": "2020-09-22 11:20:00.115311",
+ "modified": "2020-09-22 17:33:25.713441",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
