@@ -21,7 +21,8 @@
   "lender_processing_fees",
   "stamp_duty",
   "documentation_charges",
-  "mortgage_charges"
+  "mortgage_charges",
+  "charges_sharing_details_section"
  ],
  "fields": [
   {
@@ -120,14 +121,20 @@
   },
   {
    "fieldname": "charges_details_section",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Charges Details"
   },
   {
    "fieldname": "column_break_2",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "charges_sharing_details_section",
+   "fieldtype": "Section Break",
+   "label": "Charges Sharing Details"
   }
  ],
- "modified": "2020-09-22 17:33:25.713441",
+ "modified": "2020-09-23 11:48:20.692050",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
