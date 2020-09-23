@@ -53,15 +53,22 @@ class Loan(Document):
 			self.fill_items()
 			self.save(ignore_permissions=True)
 
-			loan_margin_shortfall = frappe.get_doc({
-				'doctype': 'Loan Margin Shortfall',
-				'loan': self.name
-			})
+			loan_margin_shortfall = self.get_margin_shortfall()
 
 			loan_margin_shortfall.fill_items()
 
 			if loan_margin_shortfall.margin_shortfall_action:
 				loan_margin_shortfall.insert(ignore_permissions=True)
+
+	def get_margin_shortfall(self):
+		margin_shortfall_name = frappe.db.get_value('Loan Margin Shortfall', {'loan': self.name, 'status': 'Pending'}, 'name')
+		if not margin_shortfall_name:
+			return frappe.get_doc({
+				'doctype': 'Loan Margin Shortfall',
+				'loan': self.name
+			})
+
+		return frappe.get_doc('Loan Margin Shortfall', margin_shortfall_name)
 
 	def get_updated_total_collateral_value(self):
 		securities = [i.isin for i in self.items]
