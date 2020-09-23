@@ -22,7 +22,16 @@
   "stamp_duty",
   "documentation_charges",
   "mortgage_charges",
-  "charges_sharing_details_section"
+  "charges_sharing_details_section",
+  "lender_processing_fees_sharing_type",
+  "stamp_duty_sharing_type",
+  "documentation_charge_sharing_type",
+  "mortgage_charge_sharing_type",
+  "column_break_3",
+  "lender_processing_fees_sharing",
+  "stamp_duty_sharing",
+  "documentation_charges_sharing",
+  "mortgage_charges_sharing"
  ],
  "fields": [
   {
@@ -132,9 +141,65 @@
    "fieldname": "charges_sharing_details_section",
    "fieldtype": "Section Break",
    "label": "Charges Sharing Details"
+  },
+  {
+   "fieldname": "lender_processing_fees_sharing_type",
+   "fieldtype": "Select",
+   "label": "Lender Processing Fees Sharing Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "stamp_duty_sharing_type",
+   "fieldtype": "Select",
+   "label": "Stamp Duty Sharing Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "documentation_charge_sharing_type",
+   "fieldtype": "Select",
+   "label": "Documentation Charge Sharing Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "mortgage_charge_sharing_type",
+   "fieldtype": "Select",
+   "label": "Mortgage Charge Sharing Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lender_processing_fees_sharing",
+   "fieldtype": "Float",
+   "label": "Lender Processing Fees Sharing",
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "fieldname": "stamp_duty_sharing",
+   "fieldtype": "Float",
+   "label": "Stamp Duty Sharing",
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "fieldname": "documentation_charges_sharing",
+   "fieldtype": "Float",
+   "label": "Documentation Charges Sharing",
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "fieldname": "mortgage_charges_sharing",
+   "fieldtype": "Float",
+   "label": "Mortgage Charges Sharing",
+   "precision": "2",
+   "reqd": 1
   }
  ],
- "modified": "2020-09-23 11:48:20.692050",
+ "modified": "2020-09-23 20:43:18.698383",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",

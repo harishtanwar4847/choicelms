@@ -25,3 +25,16 @@ class Lender(Document):
 		if self.mortgage_charge_type == "Percentage" and cint(self.mortgage_charges) > 100:
 			frappe.throw(_('Mortgage Charges value should not greater than 100.'))
 		
+		if self.lender_processing_fees_sharing_type == "Percentage" and cint(self.lender_processing_fees_sharing) > 100:
+			frappe.throw(_('Lender Processing Fees Sharing value should not greater than 100.'))
+
+		if self.stamp_duty_sharing_type == "Percentage" and cint(self.stamp_duty_sharing) > 100:
+			frappe.throw(_('Stamp Duty Sharing value should not greater than 100.'))
+			
+		if self.documentation_charge_sharing_type == "Percentage" and cint(self.documentation_charges_sharing) > 100:
+			frappe.throw(_('Documentation Charges Sharing value should not greater than 100.'))
+		
+		if self.mortgage_charge_sharing_type == "Percentage" and cint(self.mortgage_charges_sharing) > 100:
+			frappe.throw(_('Mortgage Charges Sharing value should not greater than 100.'))
+		
+		
