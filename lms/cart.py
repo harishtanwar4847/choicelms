@@ -220,7 +220,7 @@ def process(cart_name, otp, file_id, pledgor_boid=None, expiry=None, pledgee_boi
 			frappe.enqueue_doc('Notification', 'Loan Application Creation', method='send', doc= doc)
 
 			mobile = frappe.db.get_value('User', customer, 'phone')
-			mess = _("Dear " + doc.full_name + " Your pledge request and Loan Application was successfully accepted. Please download your e-agreement - <Link>. Application number: " + loan_application.name + ". You will be notified once your OD limit is approved by our bank partner.")
+			mess = _("Dear " + doc.full_name + ",\nYour pledge request and Loan Application was successfully accepted. \nPlease download your e-agreement - <Link>. \nApplication number: " + loan_application.name + ". \nYou will be notified once your OD limit is approved by our bank partner.")
 			frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)	
 
 			cart.is_processed = 1
@@ -291,7 +291,7 @@ def process_dummy(cart_name):
 	frappe.enqueue_doc('Notification', 'Loan Application Creation', method='send', doc= doc)
 
 	mobile = frappe.db.get_value('User', customer, 'phone')
-	mess = _("Dear " + doc.full_name + " Your pledge request and Loan Application was successfully accepted. Please download your e-agreement - <Link>. Application number: " + loan_application.name + ". You will be notified once your OD limit is approved by our bank partner.")
+	mess = _("Dear " + doc.full_name + ",\nYour pledge request and Loan Application was successfully accepted. \nPlease download your e-agreement - <Link>. \nApplication number: " + loan_application.name + ". \nYou will be notified once your OD limit is approved by our bank partner.")
 	frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)	
 
 	return loan_application.name

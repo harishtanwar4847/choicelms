@@ -203,7 +203,7 @@ def verify_user(token, user):
 
 	username = frappe.db.get_value('User', user, 'full_name')
 	mobile = frappe.db.get_value('User', user, 'phone')
-	mess = _("Dear" + " " + username + " , Your registration at Spark.Loans was successfull! Welcome aboard.")
+	mess = _("Dear" + " " + username + ",\nYour registration at Spark.Loans was successfull!\nWelcome aboard.")
 	frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
 
 	frappe.respond_as_web_page(
