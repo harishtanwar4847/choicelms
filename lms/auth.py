@@ -147,7 +147,6 @@ def register(first_name, mobile, email, firebase_token, last_name=None):
 
 		# creating user
 		user_name = lms.add_user(first_name, last_name, mobile, email)
-		print(user_name)
 		if type(user_name) is str:
 			token = dict(
 				token=lms.generate_user_token(user_name),
@@ -201,10 +200,8 @@ def verify_user(token, user):
 
 	frappe.enqueue_doc('Notification', 'User Welcome Email', method='send', doc=doc)
 
-	username = frappe.db.get_value('User', user, 'full_name')
-	mobile = frappe.db.get_value('User', user, 'phone')
 	mess = _("Dear" + " " + username + ",\nYour registration at Spark.Loans was successfull!\nWelcome aboard.")
-	frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
+	frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
 
 	frappe.respond_as_web_page(
 			_("Success"), 
