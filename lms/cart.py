@@ -7,7 +7,7 @@ import requests
 from itertools import groupby
 
 @frappe.whitelist()
-def upsert(securities, cart_name=None, expiry=None):
+def upsert(securities, cart_name=None, loan_name=None, expiry=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
@@ -84,6 +84,13 @@ def upsert(securities, cart_name=None, expiry=None):
 
 		customer = lms.get_customer(frappe.session.user)
 
+		if loan_name:
+			loan = frappe.get_doc('Loan', loan_name)
+			if not loan:
+				return lms.generateResponse(status=404, message=_('Loan not found.'))
+			if loan.customer != customer.name:
+				return lms.generateResponse(status=403, message=_('Please use your own loan.'))
+
 		if not cart_name:
 			cart = frappe.get_doc({
 				"doctype": "Cart",
@@ -112,7 +119,20 @@ def upsert(securities, cart_name=None, expiry=None):
 				})
 			cart.save(ignore_permissions=True)
 
-		return lms.generateResponse(message=_('Cart Saved'), data=cart)
+		data = cart
+
+		if loan_name:
+			loan_margin_shortfall = loan.get_margin_shortfall()
+			cart.loan = loan_name
+			cart.save(ignore_permissions=True)
+
+			if not loan_margin_shortfall.get('__islocal', 0):
+				data = {'cart': data, 'minimum_pledge_amount_present': True, 'minimum_pledge_amount': loan_margin_shortfall.shortfall_c * 2}
+				if loan_margin_shortfall.shortfall_c * 2 > cart.total_collateral_value:
+					data['minimum_pledge_amount_present'] = False
+				
+
+		return lms.generateResponse(message=_('Cart Saved'), data=data)
 	except (lms.ValidationError, lms.ServerError) as e:
 		return lms.generateResponse(status=e.http_status_code, message=str(e))
 	except Exception as e:
