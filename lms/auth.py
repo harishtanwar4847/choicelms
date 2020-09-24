@@ -147,6 +147,7 @@ def register(first_name, mobile, email, firebase_token, last_name=None):
 
 		# creating user
 		user_name = lms.add_user(first_name, last_name, mobile, email)
+		print(user_name)
 		if type(user_name) is str:
 			token = dict(
 				token=lms.generate_user_token(user_name),
@@ -155,15 +156,6 @@ def register(first_name, mobile, email, firebase_token, last_name=None):
 			lms.add_firebase_token(firebase_token, user_name)
 
 			# frappe.db.set_value("User Token", otp_res[1], "used", 1)
-			username = frappe.db.get_value('User', email, 'full_name')
-
-			args = {'first_name': first_name, 'last_name': last_name, 'username': username}
-			template = "/templates/emails/user_welcome_email.html"
-			frappe.enqueue(method=frappe.sendmail, recipients=email, sender=None, 
-			subject="Welcome Email", message=frappe.get_template(template).render(args))
-
-			mess = _("Dear" + " " + username + " , Your registration at Spark.Loans was successfull! Welcome aboard.")
-			frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
 
 			return lms.generateResponse(message=_('Registered Successfully.'), data=token)
 		else:
@@ -204,6 +196,15 @@ def verify_user(token, user):
 	customer.is_email_verified = 1
 	customer.save(ignore_permissions=True)
 	frappe.db.commit()	
+
+	doc = frappe.get_doc('User', user)
+
+	frappe.enqueue_doc('Notification', 'User Welcome Email', method='send', doc=doc)
+
+	username = frappe.db.get_value('User', user, 'full_name')
+	mobile = frappe.db.get_value('User', user, 'phone')
+	mess = _("Dear" + " " + username + " , Your registration at Spark.Loans was successfull! Welcome aboard.")
+	frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
 
 	frappe.respond_as_web_page(
 			_("Success"), 

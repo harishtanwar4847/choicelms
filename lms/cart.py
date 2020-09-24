@@ -215,14 +215,12 @@ def process(cart_name, otp, file_id, pledgor_boid=None, expiry=None, pledgee_boi
 			})
 			loan_application.insert(ignore_permissions=True)
 
-			username = frappe.db.get_value('User', loan_application.owner, 'full_name')
-			args = {'username': username}
-			template = "/templates/emails/loan_application_creation.html"
-			frappe.enqueue(method=frappe.sendmail, recipients=loan_application.owner, sender=None, 
-			subject="Application Successful", message=frappe.get_template(template).render(args))
+			customer = frappe.db.get_value('Customer', {'name': cart.customer}, 'username')
+			doc = frappe.get_doc('User', customer)
+			frappe.enqueue_doc('Notification', 'Loan Application Creation', method='send', doc= doc)
 
-			mobile = frappe.db.get_value('User', loan_application.owner, 'phone')
-			mess = _("Dear " + username + " Your pledge request and Loan Application was successfully accepted. Please download your e-agreement - <Link>. Application number: " + loan_application.name + ". You will be notified once your OD limit is approved by our bank partner.")
+			mobile = frappe.db.get_value('User', customer, 'phone')
+			mess = _("Dear " + doc.full_name + " Your pledge request and Loan Application was successfully accepted. Please download your e-agreement - <Link>. Application number: " + loan_application.name + ". You will be notified once your OD limit is approved by our bank partner.")
 			frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)	
 
 			cart.is_processed = 1
@@ -288,14 +286,12 @@ def process_dummy(cart_name):
 	cart.is_processed = 1
 	cart.save(ignore_permissions=True)
 
-	username = frappe.db.get_value('User', loan_application.owner, 'full_name')
-	args = {'username': username}
-	template = "/templates/emails/loan_application_creation.html"
-	frappe.enqueue(method=frappe.sendmail, recipients=loan_application.owner, sender=None, 
-	subject="Application Successful", message=frappe.get_template(template).render(args))
+	customer = frappe.db.get_value('Customer', {'name': cart.customer}, 'username')
+	doc = frappe.get_doc('User', customer)
+	frappe.enqueue_doc('Notification', 'Loan Application Creation', method='send', doc= doc)
 
-	mobile = frappe.db.get_value('User', loan_application.owner, 'phone')
-	mess = _("Dear " + username + " Your pledge request and Loan Application was successfully accepted. Please download your e-agreement - <Link>. Application number: " + loan_application.name + ". You will be notified once your OD limit is approved by our bank partner.")
+	mobile = frappe.db.get_value('User', customer, 'phone')
+	mess = _("Dear " + doc.full_name + " Your pledge request and Loan Application was successfully accepted. Please download your e-agreement - <Link>. Application number: " + loan_application.name + ". You will be notified once your OD limit is approved by our bank partner.")
 	frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)	
 
 	return loan_application.name

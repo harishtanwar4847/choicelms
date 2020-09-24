@@ -48,14 +48,12 @@ class LoanApplication(Document):
 		})
 		loan.insert(ignore_permissions=True)
 
-		username = frappe.db.get_value('User', self.owner, 'full_name')
-		args = {'username': username}
-		template = "/templates/emails/loan_sanction.html"
-		frappe.enqueue(method=frappe.sendmail, recipients=self.owner, sender=None, 
-		subject="Loan sanction ", message=frappe.get_template(template).render(args))
+		customer = frappe.db.get_value('Customer', {'name': self.customer}, 'username')
+		doc = frappe.get_doc('User', customer)
+		frappe.enqueue_doc('Notification', 'Loan Sanction', method='send', doc=doc)
 
-		mobile = frappe.db.get_value('User', self.owner, 'phone')
-		mess = _("Dear " + username + " ,Congratulations! Your loan account is active now! Current available limit - " + str(loan.overdraft_limit) + ".")
+		mobile = frappe.db.get_value('Customer', {'name': self.customer}, 'user')
+		mess = _("Dear " + doc.full_name + " ,Congratulations! Your loan account is active now! Current available limit - " + str(loan.overdraft_limit) + ".")
 		frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
 
 		customer = frappe.get_doc('Customer', self.customer)

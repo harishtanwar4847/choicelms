@@ -18,13 +18,18 @@ class UserToken(Document):
 				mess = frappe._('Your Pledge OTP for LMS is {0}. Do not share your Pledge OTP with anyone.').format(self.token)
 			frappe.enqueue(method=send_sms, receiver_list=[self.entity if self.token_type == 'OTP' else user.username], msg=mess)
 		elif self.token_type == "Email Verification Token":
-			template = "/templates/emails/user_email_verification.html"
-			url = frappe.utils.get_url("/api/method/lms.auth.verify_user?token={}&user={}".format(self.token, self.entity))
+		# 	template = "/templates/emails/user_email_verification.html"
+		# 	url = frappe.utils.get_url("/api/method/lms.auth.verify_user?token={}&user={}".format(self.token, self.entity))
 
-			frappe.enqueue(
-				method=frappe.sendmail, 
-				recipients=self.entity, 
-				sender=None, 
-				subject="Email Verification",
-				message=frappe.get_template(template).render(url=url)
-			)
+		# 	frappe.enqueue(
+		# 		method=frappe.sendmail, 
+		# 		recipients=self.entity, 
+		# 		sender=None, 
+		# 		subject="Email Verification",
+		# 		message=frappe.get_template(template).render(url=url)
+		# 	)
+			doc=frappe.get_doc('User', self.entity).as_dict()
+			doc["url"] = frappe.utils.get_url("/api/method/lms.auth.verify_user?token={}&user={}".format(self.token, self.entity))
+			frappe.enqueue_doc('Notification', 'User Email Verification', method='send', doc=doc)
+
+
