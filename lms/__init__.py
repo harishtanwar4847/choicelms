@@ -150,7 +150,7 @@ def add_user(first_name, last_name, phone, email):
 		)).insert(ignore_permissions=True)
 
 		create_user_token(entity=email, token=random_token(), token_type="Email Verification Token")
-
+		
 		return user.name
 	except Exception:
 		return False

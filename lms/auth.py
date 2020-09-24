@@ -194,8 +194,15 @@ def verify_user(token, user):
 	customer = lms.get_customer(user)
 	customer.is_email_verified = 1
 	customer.save(ignore_permissions=True)
-	frappe.db.commit()
-	
+	frappe.db.commit()	
+
+	doc = frappe.get_doc('User', user)
+
+	frappe.enqueue_doc('Notification', 'User Welcome Email', method='send', doc=doc)
+
+	mess = _("Dear" + " " + username + ",\nYour registration at Spark.Loans was successfull!\nWelcome aboard.")
+	frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
+
 	frappe.respond_as_web_page(
 			_("Success"), 
 			_("User verified."),
