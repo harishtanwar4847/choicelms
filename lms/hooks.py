@@ -142,6 +142,10 @@ fixtures = [
         "doctype": "Lender",
         "filters": [["name", "in", ["LENDER000001"]]]
     },
+    {
+        "doctype": "Notification",
+        "filters": [["document_type", "in", ["User"]]]
+    },
     "Allowed Security", "Security Category", "Concentration Rule", "Terms and Conditions", "Margin Shortfall Action", "SMS Settings"
 ]
 
