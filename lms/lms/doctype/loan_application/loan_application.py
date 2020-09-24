@@ -4,7 +4,9 @@
 
 from __future__ import unicode_literals
 import frappe
+from frappe import _
 from frappe.model.document import Document
+from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
 class LoanApplication(Document):
 	def on_update(self):
@@ -45,6 +47,14 @@ class LoanApplication(Document):
 			'items': items,
 		})
 		loan.insert(ignore_permissions=True)
+
+		customer = frappe.db.get_value('Customer', {'name': self.customer}, 'username')
+		doc = frappe.get_doc('User', customer)
+		frappe.enqueue_doc('Notification', 'Loan Sanction', method='send', doc=doc)
+
+		mobile = frappe.db.get_value('Customer', {'name': self.customer}, 'user')
+		mess = _("Dear " + doc.full_name + ", \nCongratulations! Your loan account is active now! \nCurrent available limit - " + str(loan.overdraft_limit) + ".")
+		frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
 
 		customer = frappe.get_doc('Customer', self.customer)
 		if not customer.loan_open:

@@ -138,7 +138,11 @@ fixtures = [
         "doctype": "Print Format",
         "filters": [["doc_type", "in", ["Cart"]]]
     },
-    "Allowed Security", "Security Category", "Concentration Rule", "Terms and Conditions", "Margin Shortfall Action", "SMS Settings", "Lender"
+    {
+        "doctype": "Notification",
+        "filters": [["document_type", "in", ["User"]]]
+    },
+    "Allowed Security", "Security Category", "Concentration Rule", "Terms and Conditions", "Margin Shortfall Action", "Lender", "SMS Settings"
 ]
 
 scheduler_events = {
