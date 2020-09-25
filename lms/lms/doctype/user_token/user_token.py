@@ -15,7 +15,7 @@ class UserToken(Document):
 				mess = frappe._('Your OTP for LMS is {0}. Do not share your OTP with anyone.').format(self.token)
 			elif self.token_type == 'Pledge OTP':
 				user = frappe.get_doc('User', lms.get_user(self.entity))
-				mess = frappe._('Your Pledge OTP for LMS is {0}. Do not share your Pledge OTP with anyone.').format(self.token)
+				mess = frappe._('Your Pledge OTP for LMS is {0}. \nDo not share your Pledge OTP with anyone.').format(self.token)
 			frappe.enqueue(method=send_sms, receiver_list=[self.entity if self.token_type == 'OTP' else user.username], msg=mess)
 		elif self.token_type == "Email Verification Token":
 			doc=frappe.get_doc('User', self.entity).as_dict()

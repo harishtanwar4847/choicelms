@@ -111,8 +111,8 @@ def kyc(pan_no=None, birth_date=None):
 
 			frappe.enqueue_doc('Notification', 'User KYC', method='send', doc=user)
 			
-			mess = _("Dear" + user.full_name + ", Congratulations! Your KYC verification is completed. Your credit check has to be cleared by our banking partner before you can avail the loan.")
-			frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
+			mess = _("Dear" + user.full_name + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our banking partner before you can avail the loan.")
+			frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
 
 			return lms.generateResponse(message="CHOICE USER KYC", data=user_kyc)
 
@@ -151,7 +151,7 @@ def kyc(pan_no=None, birth_date=None):
 
 			frappe.enqueue_doc('Notification', 'User KYC', method='send', doc=user)
 
-			mess = _("Dear" + user.full_name + ", Congratulations! Your KYC verification is completed. Your credit check has to be cleared by our banking partner before you can avail the loan.")
+			mess = _("Dear" + doc.full_name + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our banking partner before you can avail the loan.")
 			frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)	
 
 			return lms.generateResponse(message="KRA USER KYC", data=user_kyc)

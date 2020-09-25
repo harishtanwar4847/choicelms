@@ -53,7 +53,7 @@ class LoanApplication(Document):
 		frappe.enqueue_doc('Notification', 'Loan Sanction', method='send', doc=doc)
 
 		mobile = frappe.db.get_value('Customer', {'name': self.customer}, 'user')
-		mess = _("Dear " + doc.full_name + " ,Congratulations! Your loan account is active now! Current available limit - " + str(loan.overdraft_limit) + ".")
+		mess = _("Dear " + doc.full_name + ", \nCongratulations! Your loan account is active now! \nCurrent available limit - " + str(loan.overdraft_limit) + ".")
 		frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
 
 		customer = frappe.get_doc('Customer', self.customer)

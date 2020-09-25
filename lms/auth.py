@@ -200,7 +200,7 @@ def verify_user(token, user):
 
 	frappe.enqueue_doc('Notification', 'User Welcome Email', method='send', doc=doc)
 
-	mess = _("Dear" + " " + doc.full_name + " , Your registration at Spark.Loans was successfull! Welcome aboard.")
+	mess = _("Dear" + " " + username + ",\nYour registration at Spark.Loans was successfull!\nWelcome aboard.")
 	frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
 
 	frappe.respond_as_web_page(
