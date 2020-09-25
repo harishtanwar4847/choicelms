@@ -149,7 +149,7 @@ def kyc(pan_no=None, birth_date=None):
 			user_kyc = user_kyc.as_dict()
 			user_kyc["response"] = data
 
-			frappe.enqueue('Notification', 'User KYC', method='send', doc=user)
+			frappe.enqueue_doc('Notification', 'User KYC', method='send', doc=user)
 
 			mess = _("Dear" + user.full_name + ", Congratulations! Your KYC verification is completed. Your credit check has to be cleared by our banking partner before you can avail the loan.")
 			frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)	
