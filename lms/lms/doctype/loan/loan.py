@@ -9,6 +9,51 @@ from frappe.model.document import Document
 from datetime import datetime
 
 class Loan(Document):
+	def after_insert(self):
+		# fetch lender details
+		lender_doc = frappe.get_doc("Lender", "LENDER000001").as_dict()
+		
+		# variable defined for fixed loan transactions
+		purposes = [
+			{
+				"type_field":"lender_processing_fees_type",
+				"value_field":"lender_processing_fees",
+				"label":'Lender Processing Fees'
+			},
+			{
+				"type_field":"stamp_duty_type",
+				"value_field":"stamp_duty",
+				"label":'Stamp Duty'
+			},
+			{
+				"type_field":"documentation_charge_type",
+				"value_field":"documentation_charges",
+				"label":'Documentation Charges'
+			},
+			{
+				"type_field":"mortgage_charge_type",
+				"value_field":"mortgage_charges",
+				"label":'Mortgage Charges'
+			},
+		]
+
+		for purpose in purposes:
+			# create loan transaction
+			transaction_amt = lender_doc[purpose['value_field']]
+			if lender_doc[purpose["type_field"]] == "Percentage":
+				transaction_amt = (self.total_collateral_value*lender_doc[purpose['value_field']])/100
+			
+			loan_transaction = frappe.get_doc({
+				'doctype': 'Loan Transaction',
+				"loan":self.name,
+				"transaction_amount":transaction_amt,
+				"purpose":purpose['label'],
+				"record_type":"DR",
+				"transaction_time":datetime.now()
+			})
+
+			loan_transaction.insert(ignore_permissions=True)
+
 	def get_customer(self):
 		return frappe.get_doc('Customer', self.customer)
 
