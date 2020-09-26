@@ -7,7 +7,6 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
-from datetime import datetime
 
 class LoanApplication(Document):
 	def on_update(self):
