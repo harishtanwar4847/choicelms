@@ -7,7 +7,7 @@ import requests
 from itertools import groupby
 
 @frappe.whitelist()
-def upsert(securities, cart_name=None, expiry=None):
+def upsert(securities, cart_name=None, loan_name=None, expiry=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
@@ -84,6 +84,13 @@ def upsert(securities, cart_name=None, expiry=None):
 
 		customer = lms.get_customer(frappe.session.user)
 
+		if loan_name:
+			loan = frappe.get_doc('Loan', loan_name)
+			if not loan:
+				return lms.generateResponse(status=404, message=_('Loan not found.'))
+			if loan.customer != customer.name:
+				return lms.generateResponse(status=403, message=_('Please use your own loan.'))
+
 		if not cart_name:
 			cart = frappe.get_doc({
 				"doctype": "Cart",
@@ -112,14 +119,27 @@ def upsert(securities, cart_name=None, expiry=None):
 				})
 			cart.save(ignore_permissions=True)
 
-		return lms.generateResponse(message=_('Cart Saved'), data=cart)
+		data = cart
+
+		if loan_name:
+			loan_margin_shortfall = loan.get_margin_shortfall()
+			cart.loan = loan_name
+			cart.save(ignore_permissions=True)
+
+			if not loan_margin_shortfall.get('__islocal', 0):
+				data = {'cart': data, 'minimum_pledge_amount_present': True, 'minimum_pledge_amount': loan_margin_shortfall.shortfall_c * 2}
+				if loan_margin_shortfall.shortfall_c * 2 > cart.total_collateral_value:
+					data['minimum_pledge_amount_present'] = False
+				
+
+		return lms.generateResponse(message=_('Cart Saved'), data=data)
 	except (lms.ValidationError, lms.ServerError) as e:
 		return lms.generateResponse(status=e.http_status_code, message=str(e))
 	except Exception as e:
 		return lms.generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def process(cart_name, otp, file_id, pledgor_boid=None, expiry=None, pledgee_boid=None):
+def process(cart_name, otp, file_id=None, pledgor_boid=None, expiry=None, pledgee_boid=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
@@ -128,8 +148,6 @@ def process(cart_name, otp, file_id, pledgor_boid=None, expiry=None, pledgee_boi
 			raise lms.ValidationError(_('Cart name required.'))
 		if len(otp) != 4 or not otp.isdigit():
 			raise lms.ValidationError(_('Enter 4 digit OTP.'))
-		if not file_id:
-			raise lms.ValidationError(_('File ID Required.'))
 
 		otp_res = lms.check_user_token(entity=frappe.session.user, token=otp, token_type="Pledge OTP")
 		if not otp_res[0]:
@@ -215,9 +233,8 @@ def process(cart_name, otp, file_id, pledgor_boid=None, expiry=None, pledgee_boi
 			})
 			loan_application.insert(ignore_permissions=True)
 
-			customer = frappe.db.get_value('Customer', {'name': cart.customer}, 'username')
-			doc = frappe.get_doc('User', customer)
-			frappe.enqueue_doc('Notification', 'Loan Application Creation', method='send', doc= doc)
+			doc = frappe.get_doc('User', frappe.session.user)
+			frappe.enqueue_doc('Notification', 'Loan Application Creation', method='send', doc=doc)
 
 			mess = _("Dear " + doc.full_name + ",\nYour pledge request and Loan Application was successfully accepted. \nPlease download your e-agreement - <Link>. \nApplication number: " + loan_application.name + ". \nYou will be notified once your OD limit is approved by our bank partner.")
 			frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)	
@@ -229,16 +246,17 @@ def process(cart_name, otp, file_id, pledgor_boid=None, expiry=None, pledgee_boi
 				customer.pledge_securities = 1
 				customer.save(ignore_permissions=True)
 
-			las_settings = frappe.get_single('LAS Settings')
-			loan_aggrement_file = las_settings.esign_download_signed_file_url.format(file_id=file_id)
-			file_ = frappe.get_doc({
-				'doctype': 'File',
-				'attached_to_doctype': 'Loan Application',
-				'attached_to_name': loan_application.name,
-				'file_url': loan_aggrement_file,
-				'file_name': 'loan-aggrement.pdf'
-			})
-			file_.insert(ignore_permissions=True)
+			if file_id:
+				las_settings = frappe.get_single('LAS Settings')
+				loan_aggrement_file = las_settings.esign_download_signed_file_url.format(file_id=file_id)
+				file_ = frappe.get_doc({
+					'doctype': 'File',
+					'attached_to_doctype': 'Loan Application',
+					'attached_to_name': loan_application.name,
+					'file_url': loan_aggrement_file,
+					'file_name': 'loan-aggrement.pdf'
+				})
+				file_.insert(ignore_permissions=True)
 			
 			frappe.db.set_value("User Token", otp_res[1], "used", 1)
 			return lms.generateResponse(message="CDSL", data=loan_application)
