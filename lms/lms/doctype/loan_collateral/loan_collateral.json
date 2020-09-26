@@ -1,0 +1,106 @@
+{
+ "creation": "2020-09-26 16:53:30.243609",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "loan",
+  "isin",
+  "pledgor_boid",
+  "psn",
+  "prf_number",
+  "column_break_1",
+  "loan_application",
+  "pledged_quantity",
+  "pledgee_boid",
+  "error_code"
+ ],
+ "fields": [
+  {
+   "fieldname": "loan",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Loan",
+   "options": "Loan",
+   "reqd": 1
+  },
+  {
+   "fieldname": "pledgor_boid",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Pledgor BOID",
+   "reqd": 1
+  },
+  {
+   "fieldname": "isin",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "ISIN",
+   "options": "Allowed Security",
+   "reqd": 1
+  },
+  {
+   "fieldname": "psn",
+   "fieldtype": "Data",
+   "label": "PSN"
+  },
+  {
+   "fieldname": "pledged_quantity",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Pledged Quantity",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "loan_application",
+   "fieldtype": "Link",
+   "label": "Loan Application",
+   "options": "Loan Application",
+   "reqd": 1
+  },
+  {
+   "fieldname": "pledgee_boid",
+   "fieldtype": "Data",
+   "label": "Pledgee BOID",
+   "reqd": 1
+  },
+  {
+   "fieldname": "prf_number",
+   "fieldtype": "Data",
+   "label": "PRF Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "error_code",
+   "fieldtype": "Data",
+   "label": "Error Code"
+  }
+ ],
+ "modified": "2020-09-26 16:56:19.799613",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Loan Collateral",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
