@@ -233,9 +233,8 @@ def process(cart_name, otp, file_id=None, pledgor_boid=None, expiry=None, pledge
 			})
 			loan_application.insert(ignore_permissions=True)
 
-			customer = frappe.db.get_value('Customer', {'name': cart.customer}, 'username')
-			doc = frappe.get_doc('User', customer)
-			frappe.enqueue_doc('Notification', 'Loan Application Creation', method='send', doc= doc)
+			doc = frappe.get_doc('User', frappe.session.user)
+			frappe.enqueue_doc('Notification', 'Loan Application Creation', method='send', doc=doc)
 
 			mess = _("Dear " + doc.full_name + ",\nYour pledge request and Loan Application was successfully accepted. \nPlease download your e-agreement - <Link>. \nApplication number: " + loan_application.name + ". \nYou will be notified once your OD limit is approved by our bank partner.")
 			frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)	
