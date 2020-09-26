@@ -221,7 +221,7 @@ def process(cart_name, otp, file_id=None, pledgor_boid=None, expiry=None, pledge
 			loan_application = frappe.get_doc({
 				'doctype': 'Loan Application',
 				'total_collateral_value': cart.total_collateral_value,
-				'overdraft_limit': cart.eligible_loan,
+				'drawing_power': cart.eligible_loan,
 				'pledgor_boid': pledgor_boid,
 				'pledgee_boid': pledgee_boid,
 				'prf_number': response_json['PledgeSetupResponse']['PRFNumber'],
@@ -288,7 +288,7 @@ def process_dummy(cart_name):
 	loan_application = frappe.get_doc({
 		'doctype': 'Loan Application',
 		'total_collateral_value': cart.total_collateral_value,
-		'overdraft_limit': cart.eligible_loan,
+		'drawing_power': cart.eligible_loan,
 		'pledgor_boid': 'pledgor',
 		'pledgee_boid': 'pledgee',
 		'prf_number': 'prf',

@@ -6,7 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "total_collateral_value",
-  "overdraft_limit",
+  "drawing_power",
   "pledgor_boid",
   "prf_number",
   "loan_column_break",
@@ -22,13 +22,6 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Total Collateral Value",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
-   "fieldname": "overdraft_limit",
-   "fieldtype": "Currency",
-   "label": "Overdraft Limit",
    "read_only": 1,
    "reqd": 1
   },
@@ -82,9 +75,16 @@
    "label": "Item",
    "options": "Loan Item",
    "reqd": 1
+  },
+  {
+   "fieldname": "drawing_power",
+   "fieldtype": "Currency",
+   "label": "Drawing Power",
+   "read_only": 1,
+   "reqd": 1
   }
  ],
- "modified": "2020-09-18 11:38:56.304637",
+ "modified": "2020-09-26 21:46:21.252935",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Timeline",

@@ -41,7 +41,7 @@ class LoanApplication(Document):
 		loan = frappe.get_doc({
 			'doctype': 'Loan',
 			'total_collateral_value': self.total_collateral_value,
-			'overdraft_limit': self.overdraft_limit,
+			'drawing_power': self.drawing_power,
 			'pledgor_boid': self.pledgor_boid,
 			'prf_number': self.prf_number,
 			'pledgee_boid': self.pledgee_boid,
@@ -57,7 +57,7 @@ class LoanApplication(Document):
 		frappe.enqueue_doc('Notification', 'Loan Sanction', method='send', doc=doc)
 
 		mobile = frappe.db.get_value('Customer', {'name': self.customer}, 'user')
-		mess = _("Dear " + doc.full_name + ", \nCongratulations! Your loan account is active now! \nCurrent available limit - " + str(loan.overdraft_limit) + ".")
+		mess = _("Dear " + doc.full_name + ", \nCongratulations! Your loan account is active now! \nCurrent available limit - " + str(loan.drawing_power) + ".")
 		frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
 
 		customer = frappe.get_doc('Customer', self.customer)
@@ -83,7 +83,7 @@ class LoanApplication(Document):
 			})
 
 		loan.total_collateral_value += self.total_collateral_value
-		loan.overdraft_limit += self.overdraft_limit
+		loan.drawing_power += self.drawing_power
 
 		loan.save(ignore_permissions=True)
 		return loan
