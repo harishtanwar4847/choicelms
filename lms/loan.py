@@ -31,3 +31,18 @@ def my_loans():
         return lms.generateResponse(status=e.http_status_code, message=str(e))
     except Exception as e:
         return lms.generateResponse(is_success=False, error=e)
+
+def create_loan_collateral(loan_name, pledgor_boid, pledgee_boid, prf_number, items):
+    for item in items:
+        loan_collateral = frappe.get_doc({
+            "doctype":"Loan Collateral",
+            "loan":loan_name,
+            "pledgor_boid":pledgor_boid,
+            "pledgee_boid":pledgee_boid,
+            "prf_number":prf_number,
+            "isin":item.isin,
+            'quantity': item.pledged_quantity,
+            'psn': item.psn,
+            'error_code': item.error_code
+        })
+        loan_collateral.insert(ignore_permissions=True)

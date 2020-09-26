@@ -7,14 +7,18 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
+from lms.loan import create_loan_collateral
 
 class LoanApplication(Document):
 	def on_update(self):
 		if self.status == 'Approved':
 			if not self.loan:
-				self.create_loan()
+				loan=self.create_loan()
 			else:
-				self.update_existing_loan()
+				loan=self.update_existing_loan()
+
+			# Create loan collateral
+			create_loan_collateral(loan.name, self.pledgor_boid, self.pledgee_boid, self.prf_number, self.items)
 
 	def create_loan(self):
 		items = []
@@ -60,6 +64,8 @@ class LoanApplication(Document):
 		if not customer.loan_open:
 			customer.loan_open = 1
 			customer.save(ignore_permissions=True)
+		
+		return loan
 
 	def update_existing_loan(self):
 		loan = frappe.get_doc('Loan', self.loan)
@@ -80,3 +86,4 @@ class LoanApplication(Document):
 		loan.overdraft_limit += self.overdraft_limit
 
 		loan.save(ignore_permissions=True)
+		return loan

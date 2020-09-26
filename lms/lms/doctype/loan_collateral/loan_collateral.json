@@ -10,8 +10,7 @@
   "psn",
   "prf_number",
   "column_break_1",
-  "loan_application",
-  "pledged_quantity",
+  "quantity",
   "pledgee_boid",
   "error_code"
  ],
@@ -45,22 +44,8 @@
    "label": "PSN"
   },
   {
-   "fieldname": "pledged_quantity",
-   "fieldtype": "Int",
-   "in_list_view": 1,
-   "label": "Pledged Quantity",
-   "reqd": 1
-  },
-  {
    "fieldname": "column_break_1",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "loan_application",
-   "fieldtype": "Link",
-   "label": "Loan Application",
-   "options": "Loan Application",
-   "reqd": 1
   },
   {
    "fieldname": "pledgee_boid",
@@ -78,9 +63,16 @@
    "fieldname": "error_code",
    "fieldtype": "Data",
    "label": "Error Code"
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Quantity",
+   "reqd": 1
   }
  ],
- "modified": "2020-09-26 16:56:19.799613",
+ "modified": "2020-09-26 20:10:56.854548",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Collateral",
