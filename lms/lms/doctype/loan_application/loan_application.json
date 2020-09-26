@@ -6,7 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "total_collateral_value",
-  "overdraft_limit",
+  "drawing_power",
   "pledgor_boid",
   "prf_number",
   "status",
@@ -81,13 +81,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "overdraft_limit",
-   "fieldtype": "Currency",
-   "label": "Overdraft Limit",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
    "fieldname": "allowable_ltv",
    "fieldtype": "Float",
    "label": "Allowable LTV",
@@ -105,9 +98,16 @@
    "fieldtype": "Link",
    "label": "Loan",
    "options": "Loan"
+  },
+  {
+   "fieldname": "drawing_power",
+   "fieldtype": "Currency",
+   "label": "Drawing Power",
+   "read_only": 1,
+   "reqd": 1
   }
  ],
- "modified": "2020-09-08 15:26:32.442711",
+ "modified": "2020-09-26 21:44:09.392118",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",
