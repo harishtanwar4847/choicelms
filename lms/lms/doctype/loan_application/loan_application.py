@@ -7,6 +7,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
+from datetime import datetime
 
 class LoanApplication(Document):
 	def on_update(self):
@@ -47,6 +48,53 @@ class LoanApplication(Document):
 			'items': items,
 		})
 		loan.insert(ignore_permissions=True)
+
+		# loan Doctype ORM object converted into dict to access keys 
+		loan = loan.as_dict()
+
+		# fetch lender details
+		lender_doc = frappe.get_doc("Lender", "LENDER000001").as_dict()
+		
+		# variable defined for fixed loan transactions
+		purposes = [
+			{
+				"type_field":"lender_processing_fees_type",
+				"value_field":"lender_processing_fees",
+				"label":'Lender Processing Fees'
+			},
+			{
+				"type_field":"stamp_duty_type",
+				"value_field":"stamp_duty",
+				"label":'Stamp Duty'
+			},
+			{
+				"type_field":"documentation_charge_type",
+				"value_field":"documentation_charges",
+				"label":'Documentation Charges'
+			},
+			{
+				"type_field":"mortgage_charge_type",
+				"value_field":"mortgage_charges",
+				"label":'Mortgage Charges'
+			},
+		]
+
+		for purpose in purposes:
+			# create loan transaction
+			transaction_amt = lender_doc[purpose['value_field']]
+			if lender_doc[purpose["type_field"]] == "Percentage":
+				transaction_amt = (loan.total_collateral_value*lender_doc[purpose['value_field']])/100
+			
+			loan_transaction = frappe.get_doc({
+				'doctype': 'Loan Transaction',
+				"loan":loan['name'],
+				"transaction_amount":transaction_amt,
+				"purpose":purpose['label'],
+				"record_type":"DR",
+				"transaction_time":datetime.now()
+			})
+
+			loan_transaction.insert(ignore_permissions=True)
 
 		customer = frappe.db.get_value('Customer', {'name': self.customer}, 'username')
 		doc = frappe.get_doc('User', customer)

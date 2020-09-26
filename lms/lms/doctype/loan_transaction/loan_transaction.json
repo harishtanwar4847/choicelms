@@ -6,6 +6,7 @@
  "field_order": [
   "loan",
   "transaction_amount",
+  "purpose",
   "column_break_3",
   "record_type",
   "transaction_time"
@@ -44,9 +45,14 @@
   {
    "fieldname": "column_break_3",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Data",
+   "label": "Purpose"
   }
  ],
- "modified": "2020-08-30 17:58:02.760437",
+ "modified": "2020-09-25 16:16:35.385380",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
