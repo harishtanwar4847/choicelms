@@ -81,8 +81,6 @@ class Loan(Document):
 			i.amount = i.price * i.pledged_quantity
 			self.total_collateral_value += i.amount
 
-		self.drawing_power = (self.allowable_ltv/100) * self.total_collateral_value
-
 	def check_for_shortfall(self):
 		check = False
 

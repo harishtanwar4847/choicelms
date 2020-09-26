@@ -42,6 +42,7 @@ class LoanApplication(Document):
 			'doctype': 'Loan',
 			'total_collateral_value': self.total_collateral_value,
 			'drawing_power': self.drawing_power,
+			'sanctioned_limit': self.drawing_power,
 			'pledgor_boid': self.pledgor_boid,
 			'prf_number': self.prf_number,
 			'pledgee_boid': self.pledgee_boid,
@@ -83,7 +84,7 @@ class LoanApplication(Document):
 			})
 
 		loan.total_collateral_value += self.total_collateral_value
-		loan.drawing_power += self.drawing_power
+		loan.drawing_power += (loan.allowable_ltv/100) * loan.total_collateral_value
 
 		loan.save(ignore_permissions=True)
 		return loan
