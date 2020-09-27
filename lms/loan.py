@@ -8,7 +8,7 @@ def my_loans():
         customer = lms.get_customer(frappe.session.user)
 
         loans = frappe.db.sql("""select 
-            loan.total_collateral_value, loan.name, mrgloan.shortfall, loan.overdraft_limit,
+            loan.total_collateral_value, loan.name, mrgloan.shortfall, loan.drawing_power,
             mrgloan.shortfall_percentage, mrgloan.shortfall_c,
             SUM(COALESCE(CASE WHEN loantx.record_type = 'DR' THEN loantx.transaction_amount END,0)) 
 			- SUM(COALESCE(CASE WHEN loantx.record_type = 'CR' THEN loantx.transaction_amount END,0)) outstanding 
@@ -21,7 +21,7 @@ def my_loans():
 
         data = {'loans': loans}
         data['total_outstanding'] = sum([i.outstanding for i in loans])
-        data['total_overdraft_limit'] = sum([i.overdraft_limit for i in loans])
+        data['total_drawing_power'] = sum([i.drawing_power for i in loans])
         data['total_total_collateral_value'] = sum([i.total_collateral_value for i in loans])
         data['total_margin_shortfall'] = sum([i.shortfall_c for i in loans])
 

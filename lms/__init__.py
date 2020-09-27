@@ -273,7 +273,7 @@ def loan_timeline(loan_name):
 	loan_timeline = frappe.get_doc(dict(
 		doctype = "Loan Timeline",
 		total_collateral_value = loan.total_collateral_value,
-		overdraft_limit = loan.overdraft_limit,
+		drawing_power = loan.drawing_power,
 		pledgor_boid = loan.pledgor_boid,
 		prf_number = loan.prf_number,
 		allowable_ltv = loan.allowable_ltv,
