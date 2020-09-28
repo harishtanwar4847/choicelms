@@ -23,7 +23,7 @@ def my_loans():
         data['total_outstanding'] = sum([i.outstanding for i in loans])
         data['total_drawing_power'] = sum([i.drawing_power for i in loans])
         data['total_total_collateral_value'] = sum([i.total_collateral_value for i in loans])
-        data['total_margin_shortfall'] = sum([i.shortfall_c for i in loans])
+        data['total_margin_shortfall'] = sum([i.shortfall_c if i.shortfall_c else 0 for i in loans])
 
         return lms.generateResponse(message=_('Loan'), data=data)
 
