@@ -39,10 +39,10 @@ def create_loan_collateral(loan_name, pledgor_boid, pledgee_boid, prf_number, it
             "loan":loan_name,
             "pledgor_boid":pledgor_boid,
             "pledgee_boid":pledgee_boid,
-            "prf_number":prf_number,
+            "request_identifier":prf_number,
             "isin":item.isin,
-            'quantity': item.pledged_quantity,
-            'psn': item.psn,
-            'error_code': item.error_code
+            "quantity": item.pledged_quantity,
+            "psn": item.psn,
+            "error_code": item.error_code
         })
         loan_collateral.insert(ignore_permissions=True)
