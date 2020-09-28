@@ -37,12 +37,14 @@ def create_loan_collateral(loan_name, pledgor_boid, pledgee_boid, prf_number, it
         loan_collateral = frappe.get_doc({
             "doctype":"Loan Collateral",
             "loan":loan_name,
+            "request_type":"Pledge",
             "pledgor_boid":pledgor_boid,
             "pledgee_boid":pledgee_boid,
             "request_identifier":prf_number,
             "isin":item.isin,
             "quantity": item.pledged_quantity,
             "psn": item.psn,
-            "error_code": item.error_code
+            "error_code": item.error_code,
+            "is_success": item.psn and not item.error_code
         })
         loan_collateral.insert(ignore_permissions=True)
