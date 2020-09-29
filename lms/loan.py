@@ -8,10 +8,20 @@ def my_loans():
         customer = lms.get_customer(frappe.session.user)
 
         loans = frappe.db.sql("""select 
-            loan.total_collateral_value, loan.name, mrgloan.shortfall, loan.drawing_power,
-            mrgloan.shortfall_percentage, mrgloan.shortfall_c,
+            loan.total_collateral_value, loan.name, loan.sanctioned_limit, loan.drawing_power,
+
+            if (loan.total_collateral_value * loan.allowable_ltv / 100 > loan.sanctioned_limit, 1, 0) as top_up_available,
+
+            if (loan.total_collateral_value * loan.allowable_ltv / 100 > loan.sanctioned_limit, 
+            loan.total_collateral_value * loan.allowable_ltv / 100 - loan.sanctioned_limit, 0.0) as top_up_amount,
+
+            IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, 
+            IFNULL(mrgloan.shortfall_c, 0.0) as shortfall_c,
+            IFNULL(mrgloan.shortfall, 0.0) as shortfall,
+
             SUM(COALESCE(CASE WHEN loantx.record_type = 'DR' THEN loantx.transaction_amount END,0)) 
 			- SUM(COALESCE(CASE WHEN loantx.record_type = 'CR' THEN loantx.transaction_amount END,0)) outstanding 
+
             from `tabLoan` as loan
             left join `tabLoan Margin Shortfall` as mrgloan
             on loan.name = mrgloan.loan 
@@ -21,9 +31,10 @@ def my_loans():
 
         data = {'loans': loans}
         data['total_outstanding'] = sum([i.outstanding for i in loans])
+        data['total_sanctioned_limit'] = sum([i.sanctioned_limit for i in loans])
         data['total_drawing_power'] = sum([i.drawing_power for i in loans])
         data['total_total_collateral_value'] = sum([i.total_collateral_value for i in loans])
-        data['total_margin_shortfall'] = sum([i.shortfall_c for i in loans])
+        data['total_margin_shortfall'] = sum([i.shortfall_c if i.shortfall_c else 0.0 for i in loans])
 
         return lms.generateResponse(message=_('Loan'), data=data)
 
