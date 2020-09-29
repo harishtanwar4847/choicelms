@@ -33,6 +33,11 @@ def upsert(securities, cart_name=None, loan_name=None, expiry=None):
 			if len(set(securities_list)) != len(securities_list):
 				securities_valid = False
 				message = _('duplicate isin')
+
+		if securities_valid:
+			if len(set(securities_list)) > 10:
+				securities_valid = False
+				message = _('max 10 isin allowed')
 		
 		if securities_valid:
 			securities_list_from_db_ = frappe.db.sql("select isin from `tabAllowed Security` where isin in {}".format(lms.convert_list_to_tuple_string(securities_list)))
@@ -197,9 +202,16 @@ def process(cart_name, otp, file_id=None, pledgor_boid=None, expiry=None, pledge
 		frappe.logger().info({'CDSL PLEDGE HEADERS': las_settings.cdsl_headers(), 'CDSL PLEDGE PAYLOAD': payload, 'CDSL PLEDGE RESPONSE': response_json})
 
 		if response.ok and response_json.get("Success") == True:
+			pledge_failure = False
+
 			response_json_item_groups = {}
 			for key, group in groupby(response_json['PledgeSetupResponse']['ISINstatusDtls'], key=lambda x: x['ISIN']):
 				response_json_item_groups[key] = list(group)[0]
+				if len(response_json_item_groups[key]['ErrorCode']) > 0:
+					pledge_failure = True
+
+			if pledge_failure:
+				return lms.generateResponse(is_success=False, message="CDSL Pledge Total Failure")
 
 			items = []
 			
