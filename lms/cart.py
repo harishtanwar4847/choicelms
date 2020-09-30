@@ -259,16 +259,7 @@ def process(cart_name, otp, pledgor_boid, file_id=None, expiry=None, pledgee_boi
 				customer.save(ignore_permissions=True)
 
 			if file_id:
-				las_settings = frappe.get_single('LAS Settings')
-				loan_aggrement_file = las_settings.esign_download_signed_file_url.format(file_id=file_id)
-				file_ = frappe.get_doc({
-					'doctype': 'File',
-					'attached_to_doctype': 'Loan Application',
-					'attached_to_name': loan_application.name,
-					'file_url': loan_aggrement_file,
-					'file_name': 'loan-aggrement.pdf'
-				})
-				file_.insert(ignore_permissions=True)
+				lms.save_signed_document(file_id, doctype='Loan Application', docname=loan_application.name)
 			
 			frappe.db.set_value("User Token", otp_res[1], "used", 1)
 			return lms.generateResponse(message="CDSL", data=loan_application)

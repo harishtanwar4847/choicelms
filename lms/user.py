@@ -174,9 +174,14 @@ def esign(cart_name=None, loan_name=None):
 		customer = lms.get_customer(user.username)
 
 		if cart_name:
-			entity = frappe.get_doc('Cart', cart_name)
+			doctype = 'Cart'
+			docname = cart_name
+			print_format = 'Loan Aggrement'
 		if loan_name:
-			entity = frappe.get_doc('Loan', loan_name)
+			doctype = 'Loan'
+			docname = loan_name
+			entity = frappe.get_doc(doctype, docname)
+			print_format = 'Loan Aggrement 1'
 		
 		if not entity:
 			return lms.generateResponse(status=404, message=_('Cart/Loan not found.'))
@@ -193,7 +198,7 @@ def esign(cart_name=None, loan_name=None):
 			approved_tnc.insert(ignore_permissions=True)
 
 		from frappe.utils.pdf import get_pdf
-		html = frappe.get_print('Cart', cart_name, 'Loan Aggrement', no_letterhead=True)
+		html = frappe.get_print(doctype, docname, print_format, no_letterhead=True)
 
 		las_settings = frappe.get_single('LAS Settings')
 

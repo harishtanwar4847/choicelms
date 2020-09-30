@@ -173,34 +173,37 @@ def create_unpledge(loan_name, securities_array):
 		return generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def create_topup(loan_name):
-    try :
-        lms.validate_http_method("POST")
+def create_topup(loan_name, file_id):
+	try :
+		lms.validate_http_method("POST")
 
-        if not loan_name:
-            raise lms.ValidationError(_('Loan name required.'))
+		if not loan_name:
+			raise lms.ValidationError(_('Loan name required.'))
 
-        loan = frappe.get_doc("Loan", loan_name)
-        if not loan:
-            return lms.generateResponse(status=404, message=_("Loan {} does not exist".format(loan_name)))
+		loan = frappe.get_doc("Loan", loan_name)
+		if not loan:
+			return lms.generateResponse(status=404, message=_("Loan {} does not exist".format(loan_name)))
 
-        customer = lms.get_customer(frappe.session.user)
-        if loan.customer != customer.name:
-            return lms.generateResponse(status=403, message=_("Please use your own loan"))
+		customer = lms.get_customer(frappe.session.user)
+		if loan.customer != customer.name:
+			return lms.generateResponse(status=403, message=_("Please use your own loan"))
 
-        # check if topup available
-        top_up_available = (loan.total_collateral_value * (loan.allowable_ltv / 100)) > loan.sanctioned_limit
-        if not top_up_available :
-            raise lms.ValidationError(_('Topup not available.'))
+		# check if topup available
+		top_up_available = (loan.total_collateral_value * (loan.allowable_ltv / 100)) > loan.sanctioned_limit
+		if not top_up_available :
+			raise lms.ValidationError(_('Topup not available.'))
 
-        topup_amt = (loan.total_collateral_value * (loan.allowable_ltv / 100)) - loan.sanctioned_limit
-        loan.drawing_power += topup_amt
-        loan.sanctioned_limit += topup_amt
-        loan.save(ignore_permissions=True)
-        return lms.generateResponse(message="Topup added successfully.", data=loan)
-                    
-    except (lms.ValidationError, lms.ServerError) as e:
-        return lms.generateResponse(status=e.http_status_code, message=str(e))
-    except Exception as e:
-        return generateResponse(is_success=False, error=e)
-    
+		topup_amt = (loan.total_collateral_value * (loan.allowable_ltv / 100)) - loan.sanctioned_limit
+		loan.drawing_power += topup_amt
+		loan.sanctioned_limit += topup_amt
+		loan.save(ignore_permissions=True)
+
+		lms.save_signed_document(file_id, doctype='Loan', docname=loan.name)
+
+		return lms.generateResponse(message="Topup added successfully.", data=loan)
+					
+	except (lms.ValidationError, lms.ServerError) as e:
+		return lms.generateResponse(status=e.http_status_code, message=str(e))
+	except Exception as e:
+		return generateResponse(is_success=False, error=e)
+	

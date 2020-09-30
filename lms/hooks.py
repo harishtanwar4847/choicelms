@@ -136,7 +136,7 @@ fixtures = [
     },
     {
         "doctype": "Print Format",
-        "filters": [["doc_type", "in", ["Cart"]]]
+        "filters": [["doc_type", "in", ["Cart", "Loan"]]]
     },
     {
         "doctype": "Notification",
