@@ -210,8 +210,8 @@ def process(cart_name, otp, pledgor_boid, file_id=None, expiry=None, pledgee_boi
 				if len(response_json_item_groups[key]['ErrorCode']) > 0:
 					pledge_failure = True
 
-			if pledge_failure:
-				return lms.generateResponse(is_success=False, message="CDSL Pledge Total Failure")
+			# if pledge_failure:
+			# 	return lms.generateResponse(is_success=False, message="CDSL Pledge Total Failure")
 
 			items = []
 			
