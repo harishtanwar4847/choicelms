@@ -162,21 +162,26 @@ def kyc(pan_no=None, birth_date=None):
 		return lms.generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def esign(cart_name=None):
+def esign(cart_name=None, loan_name=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
 
-		if not cart_name:
-			raise lms.ValidationError(_('Cart Required.'))
+		if not cart_name and not loan_name:
+			raise lms.ValidationError(_('Cart/Loan Required.'))
 
 		user = frappe.get_doc('User', frappe.session.user)
 		customer = lms.get_customer(user.username)
-		cart = frappe.get_doc('Cart', cart_name)
-		if not cart:
-				return lms.generateResponse(status=404, message=_('Cart not found.'))
-		if cart.customer != customer.name:
-			return lms.generateResponse(status=403, message=_('Please use your own cart.'))
+
+		if cart_name:
+			entity = frappe.get_doc('Cart', cart_name)
+		if loan_name:
+			entity = frappe.get_doc('Loan', loan_name)
+		
+		if not entity:
+			return lms.generateResponse(status=404, message=_('Cart/Loan not found.'))
+		if entity.customer != customer.name:
+			return lms.generateResponse(status=403, message=_('Please use your own cart/loan.'))
 		
 		for tnc in frappe.get_list('Terms and Conditions', filters={'is_active': 1}):
 			approved_tnc = frappe.get_doc({
