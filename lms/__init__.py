@@ -283,3 +283,15 @@ def loan_timeline(loan_name):
 	)).insert(ignore_permissions=True)
 
 	return loan_timeline
+
+def save_signed_document(file_id, doctype, docname):
+	las_settings = frappe.get_single('LAS Settings')
+	loan_aggrement_file = las_settings.esign_download_signed_file_url.format(file_id=file_id)
+	file_ = frappe.get_doc({
+		'doctype': 'File',
+		'attached_to_doctype': doctype,
+		'attached_to_name': docname,
+		'file_url': loan_aggrement_file,
+		'file_name': 'loan-aggrement.pdf'
+	})
+	file_.insert(ignore_permissions=True)
