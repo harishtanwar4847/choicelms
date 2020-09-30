@@ -144,7 +144,7 @@ def upsert(securities, cart_name=None, loan_name=None, expiry=None):
 		return lms.generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def process(cart_name, otp, file_id=None, pledgor_boid=None, expiry=None, pledgee_boid=None):
+def process(cart_name, otp, pledgor_boid, file_id=None, expiry=None, pledgee_boid=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
@@ -153,6 +153,8 @@ def process(cart_name, otp, file_id=None, pledgor_boid=None, expiry=None, pledge
 			raise lms.ValidationError(_('Cart name required.'))
 		if len(otp) != 4 or not otp.isdigit():
 			raise lms.ValidationError(_('Enter 4 digit OTP.'))
+		if not pledgor_boid:
+			raise lms.ValidationError(_('Pledgod BOID required.'))
 
 		otp_res = lms.check_user_token(entity=frappe.session.user, token=otp, token_type="Pledge OTP")
 		if not otp_res[0]:
@@ -165,8 +167,6 @@ def process(cart_name, otp, file_id=None, pledgor_boid=None, expiry=None, pledge
 		if cart.customer != customer.name:
 			return lms.generateResponse(status=403, message=_('Please use your own cart.'))
 
-		if not pledgor_boid:
-			pledgor_boid = '1206690000014534'
 		if not pledgee_boid:
 			pledgee_boid = '1206690000014023'
 		if not expiry:
@@ -176,8 +176,8 @@ def process(cart_name, otp, file_id=None, pledgor_boid=None, expiry=None, pledge
 		for i in cart.items:
 			j = {
 				"ISIN": i.isin,
-				"Quantity": i.pledged_quantity,
-				"Value": i.price
+				"Quantity": str(float(i.pledged_quantity)),
+				"Value": str(float(i.price))
 			}
 			securities_array.append(j)
 
