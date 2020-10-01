@@ -180,8 +180,9 @@ def esign(cart_name=None, loan_name=None):
 		if loan_name:
 			doctype = 'Loan'
 			docname = loan_name
-			entity = frappe.get_doc(doctype, docname)
 			print_format = 'Loan Aggrement 1'
+		
+		entity = frappe.get_doc(doctype, docname)
 		
 		if not entity:
 			return lms.generateResponse(status=404, message=_('Cart/Loan not found.'))
