@@ -30,11 +30,11 @@ def my_loans():
 			where loan.customer = '{}' group by loantx.loan """.format(customer.name), as_dict = 1)
 
 		data = {'loans': loans}
-		data['total_outstanding'] = sum([i.outstanding for i in loans])
-		data['total_sanctioned_limit'] = sum([i.sanctioned_limit for i in loans])
-		data['total_drawing_power'] = sum([i.drawing_power for i in loans])
-		data['total_total_collateral_value'] = sum([i.total_collateral_value for i in loans])
-		data['total_margin_shortfall'] = sum([i.shortfall_c if i.shortfall_c else 0.0 for i in loans])
+		data['total_outstanding'] = float(sum([i.outstanding for i in loans]))
+		data['total_sanctioned_limit'] = float(sum([i.sanctioned_limit for i in loans]))
+		data['total_drawing_power'] = float(sum([i.drawing_power for i in loans]))
+		data['total_total_collateral_value'] = float(sum([i.total_collateral_value for i in loans]))
+		data['total_margin_shortfall'] = float(sum([i.shortfall_c for i in loans]))
 
 		return lms.generateResponse(message=_('Loan'), data=data)
 
