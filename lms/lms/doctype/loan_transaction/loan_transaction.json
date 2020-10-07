@@ -6,10 +6,13 @@
  "field_order": [
   "loan",
   "amount",
-  "purpose",
+  "transaction_id",
+  "description",
   "column_break_3",
   "record_type",
-  "time"
+  "time",
+  "transaction_type",
+  "bank_account"
  ],
  "fields": [
   {
@@ -33,11 +36,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "purpose",
-   "fieldtype": "Data",
-   "label": "Purpose"
-  },
-  {
    "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -50,9 +48,32 @@
    "in_list_view": 1,
    "label": "Time",
    "reqd": 1
+  },
+  {
+   "fieldname": "transaction_id",
+   "fieldtype": "Data",
+   "label": "Transaction Id"
+  },
+  {
+   "fieldname": "transaction_type",
+   "fieldtype": "Select",
+   "label": "Transaction Type",
+   "options": "Withdrawal\nPayment\nDebit Note\nCredit Note\nProcessing Fees\nStamp Duty\nDocumentation Charges\nMortgage Charges\nSell Collateral\nInvoke Pledge\nInterests\nAdditional Interests\nOther Charges",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Data",
+   "label": "Bank Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description"
   }
  ],
- "modified": "2020-10-07 15:05:17.994115",
+ "modified": "2020-10-07 15:55:57.914929",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",

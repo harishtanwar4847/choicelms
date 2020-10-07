@@ -47,7 +47,7 @@ class Loan(Document):
 				'doctype': 'Loan Transaction',
 				"loan":self.name,
 				"amount":amount,
-				"purpose":purpose['label'],
+				"transaction_type":purpose['label'],
 				"record_type":"DR",
 				"time":datetime.now()
 			})

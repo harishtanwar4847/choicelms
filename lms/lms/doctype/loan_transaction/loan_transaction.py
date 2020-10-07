@@ -37,8 +37,8 @@ class LoanTransaction(Document):
 
 		spark_amount = lender_amount = 0
 
-		# transaction_charges_sharing_obj = next(item for item in charges_sharing_details if item['label'] == self.purpose)
-		transaction_charges_sharing_obj = charges_sharing_details.get(self.purpose, None)
+		# transaction_charges_sharing_obj = next(item for item in charges_sharing_details if item['label'] == self.transaction_type)
+		transaction_charges_sharing_obj = charges_sharing_details.get(self.transaction_type, None)
 		if transaction_charges_sharing_obj:
 			if lender_doc[transaction_charges_sharing_obj["type_field"]] == "Percentage":
 				lender_amount = (self.amount*lender_doc[transaction_charges_sharing_obj['value_field']])/100
