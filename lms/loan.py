@@ -19,8 +19,8 @@ def my_loans():
 			IFNULL(mrgloan.shortfall_c, 0.0) as shortfall_c,
 			IFNULL(mrgloan.shortfall, 0.0) as shortfall,
 
-			SUM(COALESCE(CASE WHEN loantx.record_type = 'DR' THEN loantx.transaction_amount END,0)) 
-			- SUM(COALESCE(CASE WHEN loantx.record_type = 'CR' THEN loantx.transaction_amount END,0)) outstanding 
+			SUM(COALESCE(CASE WHEN loantx.record_type = 'DR' THEN loantx.amount END,0)) 
+			- SUM(COALESCE(CASE WHEN loantx.record_type = 'CR' THEN loantx.amount END,0)) outstanding 
 
 			from `tabLoan` as loan
 			left join `tabLoan Margin Shortfall` as mrgloan

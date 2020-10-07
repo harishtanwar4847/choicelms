@@ -5,7 +5,7 @@
  "engine": "InnoDB",
  "field_order": [
   "loan",
-  "transaction_amount",
+  "amount",
   "purpose",
   "column_break_3",
   "record_type",
@@ -29,13 +29,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "transaction_amount",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "Transaction Amount",
-   "reqd": 1
-  },
-  {
    "fieldname": "transaction_time",
    "fieldtype": "Datetime",
    "in_list_view": 1,
@@ -50,9 +43,16 @@
    "fieldname": "purpose",
    "fieldtype": "Data",
    "label": "Purpose"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "reqd": 1
   }
  ],
- "modified": "2020-09-25 16:16:35.385380",
+ "modified": "2020-10-07 13:41:29.418725",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",

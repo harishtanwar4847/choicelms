@@ -41,11 +41,11 @@ class LoanTransaction(Document):
 		transaction_charges_sharing_obj = charges_sharing_details.get(self.purpose, None)
 		if transaction_charges_sharing_obj:
 			if lender_doc[transaction_charges_sharing_obj["type_field"]] == "Percentage":
-				lender_amount = (self.transaction_amount*lender_doc[transaction_charges_sharing_obj['value_field']])/100
+				lender_amount = (self.amount*lender_doc[transaction_charges_sharing_obj['value_field']])/100
 			else:
-				lender_amount = self.transaction_amount - lender_doc[transaction_charges_sharing_obj['value_field']]
+				lender_amount = self.amount - lender_doc[transaction_charges_sharing_obj['value_field']]
 				
-			spark_amount = self.transaction_amount - lender_amount
+			spark_amount = self.amount - lender_amount
 
 			# add loan spark/lender ledger document entry
 			spark_ledger_doc = frappe.get_doc({
