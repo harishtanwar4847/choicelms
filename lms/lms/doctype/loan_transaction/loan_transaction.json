@@ -9,7 +9,7 @@
   "purpose",
   "column_break_3",
   "record_type",
-  "transaction_time"
+  "time"
  ],
  "fields": [
   {
@@ -29,13 +29,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "transaction_time",
-   "fieldtype": "Datetime",
-   "in_list_view": 1,
-   "label": "Transaction Time",
-   "reqd": 1
-  },
-  {
    "fieldname": "column_break_3",
    "fieldtype": "Column Break"
   },
@@ -50,9 +43,16 @@
    "in_list_view": 1,
    "label": "Amount",
    "reqd": 1
+  },
+  {
+   "fieldname": "time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Time",
+   "reqd": 1
   }
  ],
- "modified": "2020-10-07 13:41:29.418725",
+ "modified": "2020-10-07 15:05:17.994115",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",

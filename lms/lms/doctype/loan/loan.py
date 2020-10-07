@@ -49,7 +49,7 @@ class Loan(Document):
 				"amount":amount,
 				"purpose":purpose['label'],
 				"record_type":"DR",
-				"transaction_time":datetime.now()
+				"time":datetime.now()
 			})
 
 			loan_transaction.insert(ignore_permissions=True)
