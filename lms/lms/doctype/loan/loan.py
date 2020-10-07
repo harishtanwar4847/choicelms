@@ -18,7 +18,7 @@ class Loan(Document):
 			{
 				"type_field":"lender_processing_fees_type",
 				"value_field":"lender_processing_fees",
-				"label":'Lender Processing Fees'
+				"label":'Processing Fees'
 			},
 			{
 				"type_field":"stamp_duty_type",

@@ -65,8 +65,7 @@
   {
    "fieldname": "bank_account",
    "fieldtype": "Data",
-   "label": "Bank Account",
-   "reqd": 1
+   "label": "Bank Account"
   },
   {
    "fieldname": "description",
@@ -84,7 +83,7 @@
   }
  ],
  "is_submittable": 1,
- "modified": "2020-10-07 16:41:35.863236",
+ "modified": "2020-10-07 18:42:44.603788",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",

@@ -5,18 +5,35 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
+from frappe import _
 
 class LoanTransaction(Document):
+	def before_insert(self):
+		# check for user roles and permissions before adding transactions
+		user_roles = frappe.db.get_values("Has Role", {"parent":frappe.session.user, "parenttype": "User"},["role"])
+		if not user_roles:
+			frappe.throw(_('Invalid User'))
+		user_roles = [role[0] for role in user_roles]
+		
+		loan_cust_transaction_list = ["Withdrawal", "Payment", "Sell Collateral"]
+		lender_team_transaction_list = ["Debit Note", "Credit Note", "Processing Fees", "Stamp Duty", "Documentation Charges", "Mortgage Charges", "Invoke Pledge", "Interests", "Additional Interests", "Other Charges"]
+		
+		if "System Manager" not in user_roles:
+			if self.transaction_type in loan_cust_transaction_list and ("Loan Customer" not in user_roles):
+				frappe.throw(_('You are not permitted to perform this action'))
+			elif self.transaction_type in lender_team_transaction_list and ("Lender Team" not in user_roles):
+				frappe.throw(_('You are not permitted to perform this action'))
+
 	def after_insert(self):
 		frappe.enqueue_doc('Loan', self.loan, method='check_for_shortfall')
 
 		lender_doc = frappe.get_doc("Lender", "LENDER000001").as_dict()
 		# variable defined for fixed loan transactions
 		charges_sharing_details = {
-			'Lender Processing Fees': {
+			'Processing Fees': {
 				"type_field":"lender_processing_fees_sharing_type",
 				"value_field":"lender_processing_fees_sharing",
-				"label":'Lender Processing Fees'
+				"label":'Processing Fees'
 			},
 			'Stamp Duty': {
 				"type_field":"stamp_duty_sharing_type",
