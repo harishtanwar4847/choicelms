@@ -6,14 +6,16 @@
  "field_order": [
   "bank",
   "branch",
-  "ifsc",
   "account_number",
+  "ifsc",
   "bank_code",
   "city",
   "state",
+  "is_default",
   "column_break_1",
   "bank_address",
   "contact",
+  "account_type",
   "micr",
   "bank_mode",
   "bank_zip_code",
@@ -94,9 +96,20 @@
    "fieldname": "district",
    "fieldtype": "Data",
    "label": "District"
+  },
+  {
+   "fieldname": "account_type",
+   "fieldtype": "Data",
+   "label": "Account Type"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "label": "Is Default"
   }
  ],
- "modified": "2020-10-07 23:10:19.276568",
+ "modified": "2020-10-08 15:14:30.103847",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Bank Account",

@@ -103,6 +103,27 @@ def kyc(pan_no=None, birth_date=None):
 			})
 			user_kyc.insert(ignore_permissions=True)
 
+			# save customer bank account 
+			bank_acc = frappe.get_doc({
+				"doctype" : "Bank Account",
+				"bank": data["bank"],
+				"bank_address": data["bankAddress"],
+				"branch": data["branch"],
+				"contact": data["contact"],
+				"account_type": data["accountType"],
+				"account_number": data["accountNumber"],
+				"ifsc": data["ifsc"],
+				"micr": data["micr"],
+				"bank_mode": data["bankMode"],
+				"bank_code": data["bankcode"],
+				"bank_zip_code": data["bankZipCode"],
+				"city": data["city"],
+				"district": data["district"],
+				"state": data["state"],
+				"is_default": 1 if data["defaultBank"] == "Y" else 0
+			})
+			bank_acc.insert(ignore_permissions=True)
+
 			customer = lms.get_customer(user.username)
 			customer.kyc_update = 1
 			customer.choice_kyc = user_kyc.name
