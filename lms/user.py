@@ -106,6 +106,7 @@ def kyc(pan_no=None, birth_date=None):
 			# save customer bank account 
 			bank_acc = frappe.get_doc({
 				"doctype" : "Bank Account",
+				"user_kyc":user_kyc.name,
 				"bank": data["bank"],
 				"bank_address": data["bankAddress"],
 				"branch": data["branch"],

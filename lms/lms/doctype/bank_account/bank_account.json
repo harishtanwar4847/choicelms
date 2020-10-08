@@ -19,7 +19,8 @@
   "micr",
   "bank_mode",
   "bank_zip_code",
-  "district"
+  "district",
+  "user_kyc"
  ],
  "fields": [
   {
@@ -107,9 +108,16 @@
    "fieldname": "is_default",
    "fieldtype": "Check",
    "label": "Is Default"
+  },
+  {
+   "fieldname": "user_kyc",
+   "fieldtype": "Link",
+   "label": "User KYC",
+   "options": "User KYC",
+   "reqd": 1
   }
  ],
- "modified": "2020-10-08 15:14:30.103847",
+ "modified": "2020-10-08 16:49:27.798152",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Bank Account",
