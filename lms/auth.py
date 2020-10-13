@@ -1,17 +1,35 @@
 import frappe
+import utils
 from frappe import _
-from frappe.auth import LoginManager
-from frappe.auth import get_login_failed_count
+from frappe.auth import LoginManager, get_login_failed_count
+from frappe.utils.password import delete_login_failed_cache
 import lms
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
-from frappe.utils.password import delete_login_failed_cache
 from datetime import datetime, timedelta
 from lms.firebase import FirebaseAdmin
 from json import dumps
 
 
 @frappe.whitelist(allow_guest=True)
-def login(mobile, firebase_token, pin=None):
+def login(**kwargs):
+	try:
+		utils.validator.validate_http_method('POST')
+
+		data = utils.validator.validate(kwargs, {
+			'mobile': ['required', 'decimal', utils.validator.rules.LengthRule(10)],
+			'pin': '',
+			'firebase_token': [utils.validator.rules.RequiredIfPresent('pin')]
+		})
+
+		lms.create_user_token(entity=data.get('mobile'), token=lms.random_token(length=4, is_numeric=True))
+
+		return utils.responder.respondWithSuccess(message=frappe._('OTP Sent'))
+	except utils.exceptions.APIException as e:
+		return e.respond()
+
+
+@frappe.whitelist(allow_guest=True)
+def login_old(mobile, firebase_token, pin=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
@@ -64,7 +82,69 @@ def logout(firebase_token):
 		return lms.generateResponse(message=_('Logged out Successfully'))
 
 @frappe.whitelist(allow_guest=True)
-def verify_otp(mobile, firebase_token, otp):
+def verify_otp(**kwargs):
+	try:
+		utils.validator.validate_http_method('POST')
+
+		data = utils.validator.validate(kwargs, {
+			'mobile': ['required', 'decimal', utils.validator.rules.LengthRule(10)],
+			'firebase_token': 'required',
+			'otp': ['required', 'decimal', utils.validator.rules.LengthRule(4)]
+		})
+
+		try:
+			token = lms.verify_user_token(entity=data.get('mobile'), token=data.get('otp'), token_type='OTP')
+		except lms.InvalidUserTokenException:
+			token = None
+
+		try:
+			user = lms.__user(data.get('mobile'))
+		except lms.UserNotFoundException:
+			user = None
+
+		if not token:
+			message = frappe._('Invalid OTP.')
+			if user:
+				frappe.local.login_manager.update_invalid_login(user.name)
+				try:
+					frappe.local.login_manager.check_if_enabled(user.name)
+				except frappe.SecurityException as e:
+					return utils.responder.respondUnauthorized(message=str(e))
+
+				invalid_login_attempts = get_login_failed_count(user.name)
+				if invalid_login_attempts > 0:
+					message += ' {} invalid {}.'.format(
+						invalid_login_attempts,
+						'attempt' if invalid_login_attempts == 1 else 'attempts' 
+					)				
+				
+			return utils.responder.respondUnauthorized(message=message)
+
+		if token:
+			if token.expiry <= datetime.now():
+				return utils.responder.respondUnauthorized(message=frappe._('OTP Expired.'))
+
+			if not user:
+				return utils.responder.respondNotFound(message=frappe._('User not found.'))
+
+			try:
+				frappe.local.login_manager.check_if_enabled(user.name)
+			except frappe.SecurityException as e:
+				return utils.responder.respondUnauthorized(message=str(e))
+
+			data = {
+				'token': lms.create_user_access_token(user.name),
+				'customer': lms.__customer(data.get('mobile'))
+			}
+			token.used = 1
+			token.save(ignore_permissions=True)
+			return utils.responder.respondWithSuccess(data=data)
+
+	except utils.exceptions.APIException as e:
+		return e.respond()
+
+@frappe.whitelist(allow_guest=True)
+def verify_otp_old(mobile, firebase_token, otp):
 	try:
 		# validation
 		lms.validate_http_method('POST')
