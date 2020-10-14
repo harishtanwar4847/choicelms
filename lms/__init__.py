@@ -181,11 +181,11 @@ def create_user(first_name, last_name, mobile, email):
 			'new_password': frappe.mock('password'),
 			'roles': [{"doctype": "Has Role", "role": "Loan Customer"}]
 		}).insert(ignore_permissions=True)
-		
+
 		return user
 	except Exception as e:
 		frappe.delete_doc('User', user.name)
-		raise utils.APIException(message=str(e))
+		raise utils.exceptions.APIException(message=str(e))
 
 def create_customer(user):
 	try:
@@ -198,7 +198,7 @@ def create_customer(user):
 	except Exception as e:
 		frappe.delete_doc('User', user.name)
 		frappe.delete_doc('Customer', customer.name)
-		raise utils.APIException(message=str(e))
+		raise utils.exceptions.APIException(message=str(e))
 
 def add_user(first_name, last_name, phone, email):
 	try:

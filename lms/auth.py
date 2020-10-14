@@ -202,7 +202,7 @@ def register(**kwargs):
 			'mobile': [
 				'required', 'decimal', 
 				utils.validator.rules.LengthRule(10),
-				utils.validator.rules.ExistsRule(doctype='User', fields='username,mobile,phone_no', message='Mobile already taken')
+				utils.validator.rules.ExistsRule(doctype='User', fields='username,mobile_no,phone', message='Mobile already taken')
 			],
 			'email': [
 				'required', 'mail', 
@@ -210,11 +210,11 @@ def register(**kwargs):
 			],
 			'firebase_token': 'required',
 		})
-
-		user = lms.create_user(**data)
+		
+		user = lms.create_user(first_name = data.get('first_name'), last_name = data.get('last_name'), mobile = data.get('mobile'), email = data.get('email'))
 		customer = lms.create_customer(user)
 		lms.create_user_token(entity=data.get('email'), token=lms.random_token(), token_type="Email Verification Token")
-		lms.add_firebase_token(firebase_token, user.name)
+		lms.add_firebase_token(data.get('firebase_token'), user.name)
 
 		data = {
 			'token': lms.create_user_access_token(user.name),
@@ -222,7 +222,7 @@ def register(**kwargs):
 		}
 		return utils.responder.respondWithSuccess(data=data)
 	except utils.APIException as e:
-		e.respond()
+		return e.respond()
 
 @frappe.whitelist(allow_guest=True)
 def register_old(first_name, mobile, email, firebase_token, last_name=None):
