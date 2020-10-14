@@ -8,6 +8,7 @@ from random import choice
 from datetime import datetime, timedelta
 from itertools import groupby
 from .exceptions import *
+import utils
 
 __version__ = '1.0.0'
 
@@ -166,29 +167,38 @@ def create_user_access_token(entity):
 	return 'token {}:{}'.format(user.api_key, user.api_secret)
 
 
-def create_user(first_name, last_name, phone, email):
-	user = frappe.get_doc({
-		'doctype': 'User',
-		'email': email,
-		'first_name': first_name,
-		'last_name': last_name,
-		'username': phone,
-		'phone': phone,
-		'mobile_no': phone,
-		'send_welcome_email': 0,
-		'new_password': frappe.mock('password'),
-		'roles': [{"doctype": "Has Role", "role": "Loan Customer"}]
-	}).insert(ignore_permissions=True)
-
-	return user
+def create_user(first_name, last_name, mobile, email):
+	try:
+		user = frappe.get_doc({
+			'doctype': 'User',
+			'email': email,
+			'first_name': first_name,
+			'last_name': last_name,
+			'username': mobile,
+			'phone': mobile,
+			'mobile_no': mobile,
+			'send_welcome_email': 0,
+			'new_password': frappe.mock('password'),
+			'roles': [{"doctype": "Has Role", "role": "Loan Customer"}]
+		}).insert(ignore_permissions=True)
+		
+		return user
+	except Exception as e:
+		frappe.delete_doc('User', user.name)
+		raise utils.APIException(message=str(e))
 
 def create_customer(user):
-	customer = frappe.get_doc({
-		'doctype': "Customer",
-		'username': user.email
-	}).insert(ignore_permissions=True)
+	try:
+		customer = frappe.get_doc({
+			'doctype': "Customer",
+			'username': user.email
+		}).insert(ignore_permissions=True)
 
-	return customer
+		return customer
+	except Exception as e:
+		frappe.delete_doc('User', user.name)
+		frappe.delete_doc('Customer', customer.name)
+		raise utils.APIException(message=str(e))
 
 def add_user(first_name, last_name, phone, email):
 	try:

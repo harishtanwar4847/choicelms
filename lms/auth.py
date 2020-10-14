@@ -191,9 +191,41 @@ def verify_otp_old(mobile, firebase_token, otp):
 	except Exception as e:
 		return lms.generateResponse(is_success=False, error=e)
 
+@frappe.whitelist(allow_guest=True)
+def register(**kwargs):
+	try:
+		utils.validator.validate_http_method('POST')
+
+		data = utils.validator.validate(kwargs, {
+			'first_name': 'required',
+			'last_name': '',
+			'mobile': [
+				'required', 'decimal', 
+				utils.validator.rules.LengthRule(10),
+				utils.validator.rules.ExistsRule(doctype='User', fields='username,mobile,phone_no', message='Mobile already taken')
+			],
+			'email': [
+				'required', 'mail', 
+				utils.validator.rules.ExistsRule(doctype='User', fields='email', message='Email already taken')
+			],
+			'firebase_token': 'required',
+		})
+
+		user = lms.create_user(**data)
+		customer = lms.create_customer(user)
+		lms.create_user_token(entity=data.get('email'), token=lms.random_token(), token_type="Email Verification Token")
+		lms.add_firebase_token(firebase_token, user.name)
+
+		data = {
+			'token': lms.create_user_access_token(user.name),
+			'customer': customer
+		}
+		return utils.responder.respondWithSuccess(data=data)
+	except utils.APIException as e:
+		e.respond()
 
 @frappe.whitelist(allow_guest=True)
-def register(first_name, mobile, email, firebase_token, last_name=None):
+def register_old(first_name, mobile, email, firebase_token, last_name=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
