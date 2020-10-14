@@ -213,7 +213,7 @@ def register(**kwargs):
 
 		user = lms.create_user(**data)
 		customer = lms.create_customer(user)
-		lms.create_user_token(entity=data.get('email'), token=lms.random_token(), token_type="Email Verification Token")
+		firebase_token = lms.create_user_token(entity=data.get('email'), token=lms.random_token(), token_type="Email Verification Token")
 		lms.add_firebase_token(firebase_token, user.name)
 
 		data = {

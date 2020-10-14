@@ -6,7 +6,7 @@ class Login(utils.APITestCase):
 	@classmethod
 	def setUpClass(cls):
 		cls.mobile = '9876543210'
-		cls.client = utils.FrappeClient('http://localhost:8003')
+		cls.client = utils.FrappeClient('http://localhost:8000')
 
 	def test_validation_error(self):
 		res = self.client.post_api('lms.auth.login')
@@ -26,7 +26,7 @@ class VerifyOTP(utils.APITestCase):
 	@classmethod
 	def setUpClass(cls):
 		cls.mobile = '9876543210'
-		cls.client = utils.FrappeClient('http://localhost:8003')
+		cls.client = utils.FrappeClient('http://localhost:8000')
 
 	def test_validation_error(self):
 		res = self.client.post_api('lms.auth.verify_otp')
@@ -58,6 +58,43 @@ class VerifyOTP(utils.APITestCase):
 	def tearDownClass(cls):
 		frappe.db.delete('User', {
 			'username': cls.mobile
+		})
+		frappe.db.delete('User Token', {
+			'entity': cls.mobile
+		})
+
+class Register(utils.APITestCase):
+	@classmethod
+	def setUpClass(cls):
+		cls.first_name="Neel"
+		cls.last_name="Bhanushali"
+		cls.mobile = '9876543210'
+		# cls.mobile = '7506253632'
+		# cls.mobile = ''
+		cls.email="neal.bhanushali@atritechnocrat.in"
+		# cls.email="iccha.konalkar@atritechnocrat.in"
+		# cls.email = ''
+		cls.client = utils.FrappeClient('http://localhost:8000')
+
+	def test_validation_error(self):
+		res = self.client.post_api("lms.auth.register")
+		self.assertValidationError(res)
+	
+	def test_mobile_exist(self):
+		res = self.client.post_api("lms.auth.register",{'firebase_token': 'asdf', 'first_name': self.first_name,'last_name': self.last_name, 'mobile': self.mobile, 'email':self.email})
+		print(res.text)
+		self.assertValidationError(res)
+		self.assertRegex(res.text, 'Mobile already taken.')
+
+	# def test_email_exist(self):
+	# 	res = self.client.get_api("lms.auth.register")
+	# 	self.assertValidationError(res)
+	# 	self.assertRegex(res.text, 'User not found.')
+
+	@classmethod
+	def tearDownClass(cls):
+		frappe.db.delete('User', {
+			'name': cls.email
 		})
 		frappe.db.delete('User Token', {
 			'entity': cls.mobile
