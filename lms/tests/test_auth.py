@@ -91,6 +91,7 @@ class Register(utils.APITestCase):
 	
 	def test_register_success(self):
 		res = self.client.post_api("lms.auth.register",{'firebase_token': 'cSQk2fGpS76sEaCiuSnoss:APA91bFK2wlTBuH6Xi5Di5w4QJpd0hithe8z2y43eVs7kAliac8eRhaAjY-cSQk2fGpS76sEaCiuSnoss:APA91bFK2wlTBuH6Xi5Di5w4QJpd0hithe8z2y43eVs7kAliac8eRhaAjY-AFmhJmWQ454rl9W6Zr85c4ziX76_ymAj8617Zu2PGJWBM347pfMmW_zOMoAQ1d0ylyWmY2e03W5AHDLCO', 'first_name': self.first_name,'last_name': self.last_name, 'mobile': self.mobile, 'email':self.email})
+		print("test_register_success",res.text)
 		self.assertSuccess(res)
 
 	@classmethod

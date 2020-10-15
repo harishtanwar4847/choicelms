@@ -211,14 +211,28 @@ def register(**kwargs):
 			'firebase_token': 'required',
 		})
 
-		user = lms.create_user(first_name = data.get('first_name'), last_name = data.get('last_name'), mobile = data.get('mobile'), email = data.get('email'))
+		user_data = {
+			'first_name': data.get('first_name'),
+			'last_name': data.get('last_name'),
+			'mobile': data.get('mobile'),
+			'email': data.get('email')
+		}
+		print("create user start")
+		user = lms.create_user(**user_data)
+		print("create user end")
+		print("create customer start")
 		customer = lms.create_customer(user)
+		print("create customer end")
+		print("create user token start")
 		lms.create_user_token(entity=data.get('email'), token=lms.random_token(), token_type="Email Verification Token")
+		print("create user token end")
+		print("create firebase token start")
 		lms.add_firebase_token(data.get('firebase_token'), user.name)
+		print("create firebase token end")
 
 		data = {
-			'token': lms.create_user_access_token(user.name),
-			'customer': customer
+			'token': utils.create_user_access_token(user.name),
+			'customer': customer.as_json()
 		}
 		return utils.responder.respondWithSuccess(data=data)
 	except utils.APIException as e:

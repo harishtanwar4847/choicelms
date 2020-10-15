@@ -157,16 +157,6 @@ def generate_user_token(user_name):
 	
 	return "token {}:{}".format(api_key, secret_key)
 
-def create_user_access_token(entity):
-	user = __user(entity)
-	if not user.api_key:
-		user.api_key = frappe.generate_hash(length=20)
-	user.api_secret = frappe.generate_hash(length=20)
-	user.save(ignore_permissions=True)
-
-	return 'token {}:{}'.format(user.api_key, user.api_secret)
-
-
 def create_user(first_name, last_name, mobile, email):
 	try:
 		user = frappe.get_doc({
@@ -181,10 +171,11 @@ def create_user(first_name, last_name, mobile, email):
 			'new_password': frappe.mock('password'),
 			'roles': [{"doctype": "Has Role", "role": "Loan Customer"}]
 		}).insert(ignore_permissions=True)
+		print(user.as_dict())
 
 		return user
 	except Exception as e:
-		frappe.delete_doc('User', user.name)
+		print("create user exception raised")
 		raise utils.exceptions.APIException(message=str(e))
 
 def create_customer(user):
@@ -197,7 +188,6 @@ def create_customer(user):
 		return customer
 	except Exception as e:
 		frappe.delete_doc('User', user.name)
-		frappe.delete_doc('Customer', customer.name)
 		raise utils.exceptions.APIException(message=str(e))
 
 def add_user(first_name, last_name, phone, email):
