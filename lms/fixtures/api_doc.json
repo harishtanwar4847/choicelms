@@ -1,5 +1,262 @@
 [
  {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "Auth",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2020-10-13 18:29:02.235905",
+  "name": "3755fd67c8",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "mobile",
+    "group": null,
+    "optional": 0,
+    "parent": "3755fd67c8",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": "10",
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "pin",
+    "group": null,
+    "optional": 1,
+    "parent": "3755fd67c8",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": "4",
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Required if PIN is sent",
+    "field": "firebase_token",
+    "group": null,
+    "optional": 1,
+    "parent": "3755fd67c8",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\"mobile\":\"9876543210\"}",
+    "parent": "3755fd67c8",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.auth.login",
+  "success": [],
+  "success_example": [
+   {
+    "example": "{\"message\": \"OTP Sent\"}",
+    "parent": "3755fd67c8",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "OTP Sent"
+   }
+  ],
+  "title": "Login",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "3755fd67c8",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "3755fd67c8",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "3755fd67c8",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [
+   {
+    "example": "{\"message\":\"Invalid OTP.\"}",
+    "parent": "1692eb7604",
+    "parentfield": "error_example",
+    "parenttype": "API Doc",
+    "title": "Invalid OTP (Error 401)"
+   },
+   {
+    "example": "{\"message\":\"User not found.\"}",
+    "parent": "1692eb7604",
+    "parentfield": "error_example",
+    "parenttype": "API Doc",
+    "title": "User not found (Error 404)"
+   },
+   {
+    "example": "{\"message\":\"OTP Expired.\"}",
+    "parent": "1692eb7604",
+    "parentfield": "error_example",
+    "parenttype": "API Doc",
+    "title": "OTP Expired (Error 401)"
+   }
+  ],
+  "group": "Auth",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2020-10-13 18:39:13.287547",
+  "name": "1692eb7604",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "mobile",
+    "group": null,
+    "optional": 0,
+    "parent": "1692eb7604",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": "10",
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "firebase_token",
+    "group": null,
+    "optional": 0,
+    "parent": "1692eb7604",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "otp",
+    "group": null,
+    "optional": 0,
+    "parent": "1692eb7604",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": "4",
+    "type": "Integer"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\"mobile\":\"9876543210\",\"firebase_token\":\"asdf\",\"otp\":\"1234\"}",
+    "parent": "1692eb7604",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.auth.verify_otp",
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": "Success 200",
+    "parent": "1692eb7604",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.token",
+    "group": "Success 200",
+    "parent": "1692eb7604",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Customer object",
+    "field": "data.customer",
+    "group": "Success 200",
+    "parent": "1692eb7604",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\"message\": \"Success\",\"data\":{\"token\":\"token asdf:asdf\",\"customer\":\"customer object\"}}",
+    "parent": "1692eb7604",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success"
+   }
+  ],
+  "title": "Verify OTP",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "1692eb7604",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "1692eb7604",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "1692eb7604",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
   "api_define": 1,
   "docstatus": 0,
   "doctype": "API Doc",
@@ -273,159 +530,44 @@
   "docstatus": 0,
   "doctype": "API Doc",
   "error": [],
-  "error_example": [],
-  "group": "Auth",
-  "headers": [],
-  "headers_example": [],
-  "method": "POST",
-  "modified": "2020-10-13 18:29:02.235905",
-  "name": "3755fd67c8",
-  "parameters": [
-   {
-    "allowed_values": null,
-    "default_value": null,
-    "description": null,
-    "field": "mobile",
-    "group": null,
-    "optional": 0,
-    "parent": "3755fd67c8",
-    "parentfield": "parameters",
-    "parenttype": "API Doc",
-    "size": "10",
-    "type": "Integer"
-   },
-   {
-    "allowed_values": null,
-    "default_value": null,
-    "description": null,
-    "field": "pin",
-    "group": null,
-    "optional": 1,
-    "parent": "3755fd67c8",
-    "parentfield": "parameters",
-    "parenttype": "API Doc",
-    "size": "4",
-    "type": "Integer"
-   },
-   {
-    "allowed_values": null,
-    "default_value": null,
-    "description": "Required if PIN is sent",
-    "field": "firebase_token",
-    "group": null,
-    "optional": 1,
-    "parent": "3755fd67c8",
-    "parentfield": "parameters",
-    "parenttype": "API Doc",
-    "size": null,
-    "type": "String"
-   }
-  ],
-  "parameters_example": [
-   {
-    "example": "{\"mobile\":\"9876543210\"}",
-    "parent": "3755fd67c8",
-    "parentfield": "parameters_example",
-    "parenttype": "API Doc",
-    "title": "Request Example"
-   }
-  ],
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "path": "/api/method/lms.auth.login",
-  "success": [],
-  "success_example": [
-   {
-    "example": "{\"message\": \"OTP Sent\"}",
-    "parent": "3755fd67c8",
-    "parentfield": "success_example",
-    "parenttype": "API Doc",
-    "title": "OTP Sent"
-   }
-  ],
-  "title": "Login",
-  "use_api_define": [
-   {
-    "api_doc": "70b8cb66dd",
-    "api_doc_title": "AcceptJsonHeader",
-    "parent": "3755fd67c8",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "2c99d6bf6d",
-    "api_doc_title": "DataValidationErrorResponse",
-    "parent": "3755fd67c8",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "5a72ab8655",
-    "api_doc_title": "APIResponse",
-    "parent": "3755fd67c8",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   }
-  ],
-  "version": "1.0.0"
- },
- {
-  "api_define": 0,
-  "docstatus": 0,
-  "doctype": "API Doc",
-  "error": [],
   "error_example": [
    {
-    "example": "{\"message\":\"Invalid OTP.\"}",
-    "parent": "1692eb7604",
+    "example": "{\"message\": \"Validation Error\", \"errors\": {\"mobile\": \"Mobile already taken\"}}",
+    "parent": "80b7e05080",
     "parentfield": "error_example",
     "parenttype": "API Doc",
-    "title": "Invalid OTP (Error 401)"
+    "title": "Mobile already taken (Error 422)"
    },
    {
-    "example": "{\"message\":\"User not found.\"}",
-    "parent": "1692eb7604",
+    "example": "{\"message\": \"Validation Error\", \"errors\": {\"email\": \"Email already taken\"}}",
+    "parent": "80b7e05080",
     "parentfield": "error_example",
     "parenttype": "API Doc",
-    "title": "User not found (Error 404)"
+    "title": "Email already taken (Error 422)"
    },
    {
-    "example": "{\"message\":\"OTP Expired.\"}",
-    "parent": "1692eb7604",
+    "example": "{\"message\": \"Validation Error\", \"errors\": {\"first_name\": \"Field was empty\", \"mobile\": \"Field was empty\", \"email\": \"Field was empty\", \"firebase_token\": \"Field was empty\"}}",
+    "parent": "80b7e05080",
     "parentfield": "error_example",
     "parenttype": "API Doc",
-    "title": "OTP Expired (Error 401)"
+    "title": "Field was empty (Error 422)"
    }
   ],
   "group": "Auth",
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2020-10-13 18:39:13.287547",
-  "name": "1692eb7604",
+  "modified": "2020-10-15 12:43:36.266177",
+  "name": "80b7e05080",
   "parameters": [
    {
     "allowed_values": null,
     "default_value": null,
     "description": null,
-    "field": "mobile",
+    "field": "first_name",
     "group": null,
     "optional": 0,
-    "parent": "1692eb7604",
-    "parentfield": "parameters",
-    "parenttype": "API Doc",
-    "size": "10",
-    "type": "Integer"
-   },
-   {
-    "allowed_values": null,
-    "default_value": null,
-    "description": null,
-    "field": "firebase_token",
-    "group": null,
-    "optional": 0,
-    "parent": "1692eb7604",
+    "parent": "80b7e05080",
     "parentfield": "parameters",
     "parenttype": "API Doc",
     "size": null,
@@ -435,20 +577,59 @@
     "allowed_values": null,
     "default_value": null,
     "description": null,
-    "field": "otp",
+    "field": "last_name",
     "group": null,
-    "optional": 0,
-    "parent": "1692eb7604",
+    "optional": 1,
+    "parent": "80b7e05080",
     "parentfield": "parameters",
     "parenttype": "API Doc",
-    "size": "4",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "mobile",
+    "group": null,
+    "optional": 0,
+    "parent": "80b7e05080",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": "10",
     "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "email",
+    "group": null,
+    "optional": 0,
+    "parent": "80b7e05080",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "firebase_token",
+    "group": null,
+    "optional": 0,
+    "parent": "80b7e05080",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
    }
   ],
   "parameters_example": [
    {
-    "example": "{\"mobile\":\"9876543210\",\"firebase_token\":\"asdf\",\"otp\":\"1234\"}",
-    "parent": "1692eb7604",
+    "example": "{\"first_name\":\"Neal\", \"last_name\":\"Bhanushali\", \"mobile\":\"9876543210\", \"email\":\"neal.bhanushali@atritechnocrat.in\", \"firebase_token\":\"asdf\",\"otp\":\"1234\"}",
+    "parent": "80b7e05080",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
     "title": "Request Example"
@@ -457,14 +638,14 @@
   "parent": null,
   "parentfield": null,
   "parenttype": null,
-  "path": "/api/method/lms.auth.verify_otp",
+  "path": "/api/method/lms.auth.register",
   "success": [
    {
     "default_value": null,
     "description": null,
     "field": "data",
     "group": "Success 200",
-    "parent": "1692eb7604",
+    "parent": "80b7e05080",
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Object"
@@ -474,17 +655,17 @@
     "description": null,
     "field": "data.token",
     "group": "Success 200",
-    "parent": "1692eb7604",
+    "parent": "80b7e05080",
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "String"
    },
    {
     "default_value": null,
-    "description": "Customer object",
+    "description": "Customer Object",
     "field": "data.customer",
     "group": "Success 200",
-    "parent": "1692eb7604",
+    "parent": "80b7e05080",
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Object"
@@ -493,32 +674,32 @@
   "success_example": [
    {
     "example": "{\"message\": \"Success\",\"data\":{\"token\":\"token asdf:asdf\",\"customer\":\"customer object\"}}",
-    "parent": "1692eb7604",
+    "parent": "80b7e05080",
     "parentfield": "success_example",
     "parenttype": "API Doc",
     "title": "Success"
    }
   ],
-  "title": "Verify OTP",
+  "title": "Register",
   "use_api_define": [
    {
     "api_doc": "70b8cb66dd",
     "api_doc_title": "AcceptJsonHeader",
-    "parent": "1692eb7604",
+    "parent": "80b7e05080",
     "parentfield": "use_api_define",
     "parenttype": "API Doc"
    },
    {
     "api_doc": "2c99d6bf6d",
     "api_doc_title": "DataValidationErrorResponse",
-    "parent": "1692eb7604",
+    "parent": "80b7e05080",
     "parentfield": "use_api_define",
     "parenttype": "API Doc"
    },
    {
     "api_doc": "5a72ab8655",
     "api_doc_title": "APIResponse",
-    "parent": "1692eb7604",
+    "parent": "80b7e05080",
     "parentfield": "use_api_define",
     "parenttype": "API Doc"
    }
