@@ -333,7 +333,7 @@ def create_user_token(entity, token, token_type="OTP"):
 		'token': token,
 		'token_type': token_type
 	}
-	
+
 	expiry_in_minutes = expiry_map.get(token_type, None)
 	if expiry_in_minutes:
 		doc_data['expiry'] = datetime.now() + timedelta(minutes=expiry_in_minutes)

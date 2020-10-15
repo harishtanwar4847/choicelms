@@ -210,7 +210,7 @@ def register(**kwargs):
 			],
 			'firebase_token': 'required',
 		})
-		
+
 		user = lms.create_user(first_name = data.get('first_name'), last_name = data.get('last_name'), mobile = data.get('mobile'), email = data.get('email'))
 		customer = lms.create_customer(user)
 		lms.create_user_token(entity=data.get('email'), token=lms.random_token(), token_type="Email Verification Token")
