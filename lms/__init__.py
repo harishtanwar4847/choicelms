@@ -171,11 +171,9 @@ def create_user(first_name, last_name, mobile, email):
 			'new_password': frappe.mock('password'),
 			'roles': [{"doctype": "Has Role", "role": "Loan Customer"}]
 		}).insert(ignore_permissions=True)
-		print(user.as_dict())
 
 		return user
 	except Exception as e:
-		print("create user exception raised")
 		raise utils.exceptions.APIException(message=str(e))
 
 def create_customer(user):
@@ -312,9 +310,9 @@ def add_firebase_token(firebase_token, user=None):
 
 def create_user_token(entity, token, token_type="OTP"):
 	expiry_map = {
-		'OTP': 0.5,
+		'OTP': 2,
 		'Email Verification Token': 60,
-		'Pledge OTP': 0.5
+		'Pledge OTP': 2
 	}
 
 	doc_data = {
