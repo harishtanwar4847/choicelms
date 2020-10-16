@@ -133,7 +133,7 @@ def verify_otp(**kwargs):
 				return utils.responder.respondUnauthorized(message=str(e))
 
 			data = {
-				'token': lms.create_user_access_token(user.name),
+				'token': utils.create_user_access_token(user.name),
 				'customer': lms.__customer(data.get('mobile'))
 			}
 			token.used = 1
