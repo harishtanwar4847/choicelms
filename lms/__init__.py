@@ -7,8 +7,10 @@ from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from random import choice
 from datetime import datetime, timedelta
 from itertools import groupby
+from .exceptions import *
+import utils
 
-__version__ = '0.0.1'
+__version__ = '1.0.0'
 
 def after_install():
 	frappe.db.set_value('System Settings', 'System Settings', 'allow_consecutive_login_attempts', 3)
@@ -74,6 +76,22 @@ def send_otp(entity):
 		generateResponse(is_success=False, error=e)
 		raise
 
+def verify_user_token(entity, token, token_type):
+	filters = {
+		'entity': entity,
+		'token': token,
+		'token_type': token_type,
+		'used': 0
+	}
+
+	token_name = frappe.db.get_value('User Token', filters, 'name')
+
+	if not token_name:
+		raise InvalidUserTokenException('Invalid {}'.format(token_type))
+
+	return frappe.get_doc('User Token', token_name)
+	
+
 def check_user_token(entity, token, token_type):
 	if token_type == "Firebase Token":
 		otp_list = frappe.db.get_all("User Token", {"entity": entity, "token_type": token_type, "token": token, "used": 0})
@@ -106,6 +124,17 @@ def get_user(input, throw=False):
 			raise ValidationError(_('Mobile no. does not exist.'))
 		return False
 
+def __user(input=None):
+	# get session user if input is not provided
+	if not input:
+		input=frappe.session.user
+	res = frappe.get_all('User', or_filters={'email': input, 'username': input})
+	
+	if len((res)) == 0:
+		raise UserNotFoundException
+
+	return frappe.get_doc('User', res[0].name)
+
 def generate_user_secret(user_name):
 	"""
 	generate api key and api secret
@@ -127,6 +156,37 @@ def generate_user_token(user_name):
 	api_key = frappe.db.get_value("User", user_name, "api_key")
 	
 	return "token {}:{}".format(api_key, secret_key)
+
+def create_user(first_name, last_name, mobile, email):
+	try:
+		user = frappe.get_doc({
+			'doctype': 'User',
+			'email': email,
+			'first_name': first_name,
+			'last_name': last_name,
+			'username': mobile,
+			'phone': mobile,
+			'mobile_no': mobile,
+			'send_welcome_email': 0,
+			'new_password': frappe.mock('password'),
+			'roles': [{"doctype": "Has Role", "role": "Loan Customer"}]
+		}).insert(ignore_permissions=True)
+
+		return user
+	except Exception as e:
+		raise utils.exceptions.APIException(message=str(e))
+
+def create_customer(user):
+	try:
+		customer = frappe.get_doc({
+			'doctype': "Customer",
+			'username': user.email
+		}).insert(ignore_permissions=True)
+
+		return customer
+	except Exception as e:
+		frappe.delete_doc('User', user.name)
+		raise utils.exceptions.APIException(message=str(e))
 
 def add_user(first_name, last_name, phone, email):
 	try:
@@ -223,6 +283,14 @@ def chunk_doctype(doctype, limit):
 		'chunks': chunks
 	}
 
+def __customer(entity=None):
+	res = frappe.get_all('Customer', filters={'username': __user(entity)})
+
+	if len(res) == 0:
+		raise CustomerNotFoundException
+
+	return frappe.get_doc('Customer', res[0].name)
+
 def get_customer(entity):
 	customer_list = frappe.get_all('Customer', filters={'username': get_user(entity)})
 	return frappe.get_doc('Customer', customer_list[0].name)
@@ -242,9 +310,9 @@ def add_firebase_token(firebase_token, user=None):
 
 def create_user_token(entity, token, token_type="OTP"):
 	expiry_map = {
-		'OTP': 0.5,
+		'OTP': 2,
 		'Email Verification Token': 60,
-		'Pledge OTP': 0.5
+		'Pledge OTP': 2
 	}
 
 	doc_data = {
@@ -253,7 +321,7 @@ def create_user_token(entity, token, token_type="OTP"):
 		'token': token,
 		'token_type': token_type
 	}
-	
+
 	expiry_in_minutes = expiry_map.get(token_type, None)
 	if expiry_in_minutes:
 		doc_data['expiry'] = datetime.now() + timedelta(minutes=expiry_in_minutes)
