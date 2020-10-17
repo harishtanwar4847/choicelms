@@ -7,7 +7,7 @@ import lms
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from datetime import datetime, timedelta
 from lms.firebase import FirebaseAdmin
-from json import dumps
+import json
 
 
 @frappe.whitelist(allow_guest=True)
@@ -133,8 +133,8 @@ def verify_otp(**kwargs):
 				return utils.responder.respondUnauthorized(message=str(e))
 
 			data = {
-				'token': lms.create_user_access_token(user.name),
-				'customer': lms.__customer(data.get('mobile'))
+				'token': utils.create_user_access_token(user.name),
+				'customer': utils.frappe_doc_proper_dict(lms.__customer(data.get('mobile')))
 			}
 			token.used = 1
 			token.save(ignore_permissions=True)
@@ -224,7 +224,7 @@ def register(**kwargs):
 
 		data = {
 			'token': utils.create_user_access_token(user.name),
-			'customer': customer
+			'customer': customer.as_dict()
 		}
 		return utils.responder.respondWithSuccess(data=data)
 	except utils.APIException as e:
