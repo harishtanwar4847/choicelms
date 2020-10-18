@@ -27,10 +27,10 @@ def login(**kwargs):
 			user = None
 
 		if data.get("pin") : 
-			frappe.local.login_manager.authenticate(user=data.get('mobile'), pwd=data.get('pin'))
+			frappe.local.login_manager.authenticate(user=user.name, pwd=data.get('pin'))
 			token = dict(
 				token = utils.create_user_access_token(user.name),
-				customer = utils.frappe_doc_proper_dict(lms.__customer(data.get('mobile')))
+				customer = utils.frappe_doc_proper_dict(lms.__customer(user))
 			)
 			lms.add_firebase_token(data.get("firebase_token"), user.name)
 			return utils.responder.respondWithSuccess(message=frappe._('Logged in Successfully'), data=token)
@@ -148,7 +148,7 @@ def verify_otp(**kwargs):
 
 			res = {
 				'token': utils.create_user_access_token(user.name),
-				'customer': utils.frappe_doc_proper_dict(lms.__customer(data.get('mobile')))
+				'customer': utils.frappe_doc_proper_dict(lms.__customer(user))
 			}
 			token.used = 1
 			token.save(ignore_permissions=True)
