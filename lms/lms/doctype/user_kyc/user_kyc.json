@@ -5,8 +5,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "user_mobile_number",
-  "choice_client_id",
+  "user",
   "column_break_3",
   "kyc_type",
   "basic_details_section_break",
@@ -80,11 +79,6 @@
    "fieldname": "mobile_number",
    "fieldtype": "Data",
    "label": "Mobile Number"
-  },
-  {
-   "fieldname": "choice_client_id",
-   "fieldtype": "Data",
-   "label": "Choice Client Id"
   },
   {
    "fieldname": "pan_no",
@@ -191,14 +185,6 @@
    "label": "Address"
   },
   {
-   "fieldname": "user_mobile_number",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "User Mobile Number",
-   "reqd": 1,
-   "set_only_once": 1
-  },
-  {
    "fieldname": "address_column_break_column",
    "fieldtype": "Column Break"
   },
@@ -215,9 +201,18 @@
   {
    "fieldname": "column_break_3",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User",
+   "reqd": 1,
+   "set_only_once": 1
   }
  ],
- "modified": "2020-07-27 16:07:57.290677",
+ "modified": "2020-10-19 23:46:38.650462",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
