@@ -260,8 +260,11 @@ def get_security_prices(securities=None):
 
 	return price_map
 
-def get_security_categories(securities):
-	query = """select isin, category from `tabAllowed Security` where isin in {}""".format(convert_list_to_tuple_string(securities))
+def get_security_categories(securities, lender):
+	query = """select isin, category from `tabAllowed Security`
+				where 
+				lender = '{}' and
+				isin in {}""".format(lender, convert_list_to_tuple_string(securities))
 
 	results = frappe.db.sql(query, as_dict=1)
 
