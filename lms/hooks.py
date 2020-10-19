@@ -128,7 +128,7 @@ doc_events = {
 fixtures = [
     {
         "doctype": "Role",
-        "filters": [["name", "in", ["Loan Customer", "Support Team"]]]
+        "filters": [["name", "in", ["Loan Customer", "Support Team", "Lender", "Choice Finserv"]]]
     },
     {
         "doctype": "Workflow",
