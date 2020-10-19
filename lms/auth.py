@@ -212,8 +212,8 @@ def register(**kwargs):
 		utils.validator.validate_http_method('POST')
 
 		data = utils.validator.validate(kwargs, {
-			'first_name': 'required',
-			'last_name': '',
+			'first_name': 'required|alpha|max:25',
+			'last_name': 'max:25',
 			'mobile': [
 				'required', 'decimal', 
 				utils.validator.rules.LengthRule(10),
