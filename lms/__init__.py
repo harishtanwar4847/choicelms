@@ -291,6 +291,14 @@ def __customer(entity=None):
 
 	return frappe.get_doc('Customer', res[0].name)
 
+def __user_kyc(entity=None):
+	res = frappe.get_all('User KYC', filters={'user': __user(entity).name})
+
+	if len(res) == 0:
+		raise UserKYCNotFoundException
+
+	return frappe.get_doc('User KYC', res[0].name)
+
 def get_customer(entity):
 	customer_list = frappe.get_all('Customer', filters={'username': get_user(entity)})
 	return frappe.get_doc('Customer', customer_list[0].name)
