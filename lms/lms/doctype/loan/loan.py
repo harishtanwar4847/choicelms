@@ -18,7 +18,7 @@ class Loan(Document):
 			{
 				"type_field":"lender_processing_fees_type",
 				"value_field":"lender_processing_fees",
-				"label":'Lender Processing Fees'
+				"label":'Processing Fees'
 			},
 			{
 				"type_field":"stamp_duty_type",
@@ -39,17 +39,17 @@ class Loan(Document):
 
 		for purpose in purposes:
 			# create loan transaction
-			transaction_amt = lender_doc[purpose['value_field']]
+			amount = lender_doc[purpose['value_field']]
 			if lender_doc[purpose["type_field"]] == "Percentage":
-				transaction_amt = (self.total_collateral_value*lender_doc[purpose['value_field']])/100
+				amount = (self.total_collateral_value*lender_doc[purpose['value_field']])/100
 			
 			loan_transaction = frappe.get_doc({
 				'doctype': 'Loan Transaction',
 				"loan":self.name,
-				"transaction_amount":transaction_amt,
-				"purpose":purpose['label'],
+				"amount":amount,
+				"transaction_type":purpose['label'],
 				"record_type":"DR",
-				"transaction_time":datetime.now()
+				"time":datetime.now()
 			})
 
 			loan_transaction.insert(ignore_permissions=True)
@@ -61,10 +61,10 @@ class Loan(Document):
 		# sauce: https://stackoverflow.com/a/23827026/9403680
 		sql = """
 			SELECT loan
-				, SUM(COALESCE(CASE WHEN record_type = 'DR' THEN transaction_amount END,0)) total_debits
-				, SUM(COALESCE(CASE WHEN record_type = 'CR' THEN transaction_amount END,0)) total_credits
-				, SUM(COALESCE(CASE WHEN record_type = 'DR' THEN transaction_amount END,0)) 
-				- SUM(COALESCE(CASE WHEN record_type = 'CR' THEN transaction_amount END,0)) outstanding 
+				, SUM(COALESCE(CASE WHEN record_type = 'DR' THEN amount END,0)) total_debits
+				, SUM(COALESCE(CASE WHEN record_type = 'CR' THEN amount END,0)) total_credits
+				, SUM(COALESCE(CASE WHEN record_type = 'DR' THEN amount END,0)) 
+				- SUM(COALESCE(CASE WHEN record_type = 'CR' THEN amount END,0)) outstanding 
 			FROM `tabLoan Transaction`
 			WHERE loan = '{}' 
 			GROUP BY loan

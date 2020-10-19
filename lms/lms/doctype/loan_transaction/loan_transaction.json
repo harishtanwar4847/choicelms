@@ -5,11 +5,15 @@
  "engine": "InnoDB",
  "field_order": [
   "loan",
-  "transaction_amount",
-  "purpose",
+  "amount",
+  "transaction_id",
+  "description",
   "column_break_3",
   "record_type",
-  "transaction_time"
+  "time",
+  "transaction_type",
+  "bank_account",
+  "amended_from"
  ],
  "fields": [
   {
@@ -29,30 +33,57 @@
    "reqd": 1
   },
   {
-   "fieldname": "transaction_amount",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "Transaction Amount",
-   "reqd": 1
-  },
-  {
-   "fieldname": "transaction_time",
-   "fieldtype": "Datetime",
-   "in_list_view": 1,
-   "label": "Transaction Time",
-   "reqd": 1
-  },
-  {
    "fieldname": "column_break_3",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "purpose",
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "reqd": 1
+  },
+  {
+   "fieldname": "time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "transaction_id",
    "fieldtype": "Data",
-   "label": "Purpose"
+   "label": "Transaction Id"
+  },
+  {
+   "fieldname": "transaction_type",
+   "fieldtype": "Select",
+   "label": "Transaction Type",
+   "options": "Withdrawal\nPayment\nDebit Note\nCredit Note\nProcessing Fees\nStamp Duty\nDocumentation Charges\nMortgage Charges\nSell Collateral\nInvoke Pledge\nInterests\nAdditional Interests\nOther Charges",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Data",
+   "label": "Bank Account"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Loan Transaction",
+   "print_hide": 1,
+   "read_only": 1
   }
  ],
- "modified": "2020-09-25 16:16:35.385380",
+ "is_submittable": 1,
+ "modified": "2020-10-07 18:42:44.603788",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
@@ -68,6 +99,26 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "report": 1,
+   "role": "Loan Customer",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lender Team",
+   "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],
