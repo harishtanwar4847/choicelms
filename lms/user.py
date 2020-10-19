@@ -9,9 +9,30 @@ import json
 from xmljson import parker
 from xml.etree.ElementTree import fromstring
 from lms.firebase import FirebaseAdmin
+import utils
 
 @frappe.whitelist()
-def set_pin(pin):
+def set_pin(**kwargs):
+	try:
+		# validation
+		utils.validator.validate_http_method('POST')
+
+		data = utils.validator.validate(kwargs, {
+			'pin': ['required', 'decimal', utils.validator.rules.LengthRule(4)],
+		})
+
+		update_password(frappe.session.user, data.get("pin"))
+
+		doc = frappe.get_doc('User', frappe.session.user)
+		mess = _("Dear " + doc.full_name + ", You have successfully updated your Finger Print / PIN registration at Spark.Loans!.")
+		frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
+
+		return utils.responder.respondWithSuccess(message=frappe._('User PIN has been set'))
+	except utils.exceptions.APIException as e :
+		return e.respond()
+
+@frappe.whitelist()
+def set_pin_old(pin):
 	try:
 		# validation
 		lms.validate_http_method('POST')

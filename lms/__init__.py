@@ -284,7 +284,7 @@ def chunk_doctype(doctype, limit):
 	}
 
 def __customer(entity=None):
-	res = frappe.get_all('Customer', filters={'username': __user(entity)})
+	res = frappe.get_all('Customer', filters={'username': __user(entity.name).name})
 
 	if len(res) == 0:
 		raise CustomerNotFoundException

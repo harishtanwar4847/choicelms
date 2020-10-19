@@ -7,7 +7,7 @@ import lms
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from datetime import datetime, timedelta
 from lms.firebase import FirebaseAdmin
-from json import dumps
+import json
 
 
 @frappe.whitelist(allow_guest=True)
@@ -21,8 +21,22 @@ def login(**kwargs):
 			'firebase_token': [utils.validator.rules.RequiredIfPresent('pin')]
 		})
 
-		lms.create_user_token(entity=data.get('mobile'), token=lms.random_token(length=4, is_numeric=True))
+		try:
+			user = lms.__user(data.get('mobile'))
+		except lms.UserNotFoundException:
+			user = None
 
+		if data.get("pin") : 
+			frappe.local.login_manager.authenticate(user=user.name, pwd=data.get('pin'))
+			token = dict(
+				token = utils.create_user_access_token(user.name),
+				customer = utils.frappe_doc_proper_dict(lms.__customer(user))
+			)
+			lms.add_firebase_token(data.get("firebase_token"), user.name)
+			return utils.responder.respondWithSuccess(message=frappe._('Logged in Successfully'), data=token)
+
+		lms.create_user_token(entity=data.get('mobile'), token=lms.random_token(length=4, is_numeric=True))
+		
 		return utils.responder.respondWithSuccess(message=frappe._('OTP Sent'))
 	except utils.exceptions.APIException as e:
 		return e.respond()
@@ -132,13 +146,14 @@ def verify_otp(**kwargs):
 			except frappe.SecurityException as e:
 				return utils.responder.respondUnauthorized(message=str(e))
 
-			data = {
+			res = {
 				'token': utils.create_user_access_token(user.name),
-				'customer': lms.__customer(data.get('mobile'))
+				'customer': utils.frappe_doc_proper_dict(lms.__customer(user))
 			}
 			token.used = 1
 			token.save(ignore_permissions=True)
-			return utils.responder.respondWithSuccess(data=data)
+			lms.add_firebase_token(data.get("firebase_token"), user.name)
+			return utils.responder.respondWithSuccess(data=res)
 
 	except utils.exceptions.APIException as e:
 		return e.respond()
@@ -197,8 +212,8 @@ def register(**kwargs):
 		utils.validator.validate_http_method('POST')
 
 		data = utils.validator.validate(kwargs, {
-			'first_name': 'required',
-			'last_name': '',
+			'first_name': 'required|alpha|max:25',
+			'last_name': 'max:25',
 			'mobile': [
 				'required', 'decimal', 
 				utils.validator.rules.LengthRule(10),
@@ -224,7 +239,7 @@ def register(**kwargs):
 
 		data = {
 			'token': utils.create_user_access_token(user.name),
-			'customer': customer
+			'customer': customer.as_dict()
 		}
 		return utils.responder.respondWithSuccess(data=data)
 	except utils.APIException as e:
