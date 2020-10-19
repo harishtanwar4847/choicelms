@@ -150,3 +150,7 @@ scheduler_events = {
 		"lms.lms.doctype.security_price.security_price.update_all_security_prices"
 	]
 }
+
+permission_query_conditions = {
+	"Allowed Security": "lms.lms.doctype.allowed_security.allowed_security.get_permission_query_conditions",
+}
