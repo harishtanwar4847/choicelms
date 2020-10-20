@@ -17,7 +17,7 @@ def login(**kwargs):
 
 		data = utils.validator.validate(kwargs, {
 			'mobile': ['required', 'decimal', utils.validator.rules.LengthRule(10)],
-			'pin': ["decimal", utils.validator.rules.LengthRule(4)],
+			'pin': [utils.validator.rules.LengthRule(4)],
 			'firebase_token': [utils.validator.rules.RequiredIfPresent('pin')]
 		})
 
