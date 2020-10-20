@@ -17,7 +17,7 @@ def login(**kwargs):
 
 		data = utils.validator.validate(kwargs, {
 			'mobile': ['required', 'decimal', utils.validator.rules.LengthRule(10)],
-			'pin': [utils.validator.rules.LengthRule(4)],
+			'pin': ["decimal", utils.validator.rules.LengthRule(4)],
 			'firebase_token': [utils.validator.rules.RequiredIfPresent('pin')]
 		})
 
@@ -32,7 +32,7 @@ def login(**kwargs):
 			except frappe.SecurityException as e:
 				return utils.responder.respondUnauthorized(message=str(e))	
 			except frappe.AuthenticationError as e:
-				message=frappe._('Incorrect password')
+				message=frappe._('Incorrect password.')
 				invalid_login_attempts = get_login_failed_count(user.name)
 				if invalid_login_attempts > 0:
 					message += ' {} invalid {}.'.format(
