@@ -17,7 +17,7 @@ def login(**kwargs):
 
 		data = utils.validator.validate(kwargs, {
 			'mobile': ['required', 'decimal', utils.validator.rules.LengthRule(10)],
-			'pin': '',
+			'pin': ["decimal", utils.validator.rules.LengthRule(4)],
 			'firebase_token': [utils.validator.rules.RequiredIfPresent('pin')]
 		})
 
@@ -27,7 +27,20 @@ def login(**kwargs):
 			user = None
 
 		if data.get("pin") : 
-			frappe.local.login_manager.authenticate(user=user.name, pwd=data.get('pin'))
+			try:
+				frappe.local.login_manager.authenticate(user=user.name, pwd=data.get('pin'))
+			except frappe.SecurityException as e:
+				return utils.responder.respondUnauthorized(message=str(e))	
+			except frappe.AuthenticationError as e:
+				message=frappe._('Incorrect password.')
+				invalid_login_attempts = get_login_failed_count(user.name)
+				if invalid_login_attempts > 0:
+					message += ' {} invalid {}.'.format(
+						invalid_login_attempts,
+						'attempt' if invalid_login_attempts == 1 else 'attempts' 
+					)	
+				return utils.responder.respondUnauthorized(message=message)	
+
 			token = dict(
 				token = utils.create_user_access_token(user.name),
 				customer = utils.frappe_doc_proper_dict(lms.__customer(user))
@@ -40,7 +53,6 @@ def login(**kwargs):
 		return utils.responder.respondWithSuccess(message=frappe._('OTP Sent'))
 	except utils.exceptions.APIException as e:
 		return e.respond()
-
 
 @frappe.whitelist(allow_guest=True)
 def login_old(mobile, firebase_token, pin=None):
