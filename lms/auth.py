@@ -17,7 +17,7 @@ def login(**kwargs):
 
 		data = utils.validator.validate(kwargs, {
 			'mobile': ['required', 'decimal', utils.validator.rules.LengthRule(10)],
-			'pin': '',
+			'pin': [utils.validator.rules.LengthRule(4)],
 			'firebase_token': [utils.validator.rules.RequiredIfPresent('pin')]
 		})
 
@@ -27,7 +27,11 @@ def login(**kwargs):
 			user = None
 
 		if data.get("pin") : 
-			frappe.local.login_manager.authenticate(user=user.name, pwd=data.get('pin'))
+			try:
+				frappe.local.login_manager.authenticate(user=user.name, pwd=data.get('pin'))
+			except (frappe.SecurityException, frappe.AuthenticationError) as e:
+				return utils.responder.respondUnauthorized(message=frappe._('Incorrect password'))	
+
 			token = dict(
 				token = utils.create_user_access_token(user.name),
 				customer = utils.frappe_doc_proper_dict(lms.__customer(user))
