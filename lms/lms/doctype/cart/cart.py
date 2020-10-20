@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
+import lms
 
 class Cart(Document):
 	def get_customer(self):
@@ -15,8 +16,26 @@ class Cart(Document):
 		self.process_cart()
 
 	def process_cart_items(self):
-		for item in self.items:
-			item.fill_item_details()
+		isin = [i.isin for i in self.items]
+		price_map = lms.get_security_prices(isin)
+		securities = frappe.db.get_values(
+			'Allowed Security',
+			{'isin': ('in', isin), 'lender': self.lender},
+			['category', 'security_name', 'eligible_percentage', 'isin'],
+			as_dict=1
+		)
+		securities_map = {}
+		for i in securities:
+			securities_map[i.isin] = i
+
+		for i in self.items:
+			security = securities_map.get(i.isin)
+			i.security_category = security.category
+			i.security_name = security.security_name
+			i.eligible_percentage = security.eligible_percentage
+
+			i.price = price_map.get(i.isin, 0)
+			i.amount = i.pledged_quantity * i.price
 
 	def process_cart(self):
 		self.total_collateral_value = 0
@@ -118,3 +137,14 @@ def process_concentration_rule(item, amount, rule, rule_type, total):
 	if amount > threshold_amt:
 		item.bre_passing = 0
 		item.bre_validation_message = "Script Amount should not exceed {}.".format(threshold_amt)
+
+def get_permission_query_conditions(user):
+	if not user: user = frappe.session.user
+
+	if "System Manager" in frappe.get_roles(user):
+		return None
+	elif "Lender" in frappe.get_roles(user):
+		roles = frappe.get_roles(user)
+
+		return """(`tabCart`.lender in {role_tuple})"""\
+			.format(role_tuple=lms.convert_list_to_tuple_string(roles))
