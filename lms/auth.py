@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 from lms.firebase import FirebaseAdmin
 import json
 
-
 @frappe.whitelist(allow_guest=True)
 def login(**kwargs):
 	try:
@@ -32,7 +31,7 @@ def login(**kwargs):
 			except frappe.SecurityException as e:
 				return utils.responder.respondUnauthorized(message=str(e))	
 			except frappe.AuthenticationError as e:
-				message=frappe._('Incorrect password.')
+				message=frappe._('Incorrect PIN.')
 				invalid_login_attempts = get_login_failed_count(user.name)
 				if invalid_login_attempts > 0:
 					message += ' {} invalid {}.'.format(
@@ -253,7 +252,7 @@ def register(**kwargs):
 			'token': utils.create_user_access_token(user.name),
 			'customer': customer.as_dict()
 		}
-		return utils.responder.respondWithSuccess(data=data)
+		return utils.responder.respondWithSuccess(message=_('Registered Successfully.'), data=data)
 	except utils.APIException as e:
 		return e.respond()
 
