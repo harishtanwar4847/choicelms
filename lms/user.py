@@ -113,17 +113,17 @@ def get_choice_kyc(pan_no, birth_date):
 		data = res.json()
 
 		user_kyc = lms.__user_kyc(pan_no=pan_no, throw=False)
-		user_kyc.kyc_type = 'CHOICE',
-		user_kyc.investor_name = data['investorName'],
-		user_kyc.father_name = data['fatherName'],
-		user_kyc.mother_name = data['motherName'],
-		user_kyc.address = data['address'],
-		user_kyc.city = data['addressCity'],
-		user_kyc.state = data['addressState'],
-		user_kyc.pincode = data['addressPinCode'],
-		user_kyc.mobile_number = data['mobileNum'],
-		user_kyc.choice_client_id = data['clientId'],
-		user_kyc.pan_no = data['panNum'],
+		user_kyc.kyc_type = 'CHOICE'
+		user_kyc.investor_name = data['investorName']
+		user_kyc.father_name = data['fatherName']
+		user_kyc.mother_name = data['motherName']
+		user_kyc.address = data['address']
+		user_kyc.city = data['addressCity']
+		user_kyc.state = data['addressState']
+		user_kyc.pincode = data['addressPinCode']
+		user_kyc.mobile_number = data['mobileNum']
+		user_kyc.choice_client_id = data['clientId']
+		user_kyc.pan_no = data['panNum']
 		user_kyc.aadhar_no = data['panNum']
 		user_kyc.save(ignore_permissions=True)
 
