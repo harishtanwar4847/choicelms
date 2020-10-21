@@ -297,7 +297,7 @@ def process(**kwargs):
 			res = requests.post(pledge_request.get('url'), headers=pledge_request.get('headers'), json=pledge_request.get('payload'))
 			log = {
 				'url': pledge_request.get('url'),
-				'headers': pledge_request.get('headers')
+				'headers': pledge_request.get('headers'),
 				'request': pledge_request.get('payload'),
 				'response': res.text,
 			}

@@ -158,7 +158,8 @@ def get_choice_kyc(pan_no, birth_date):
 
 	except requests.RequestException as e:
 		raise utils.APIException(str(e))
-
+	except Exception as e:
+		raise utils.APIException(str(e))
 
 @frappe.whitelist()
 def kyc_old(pan_no=None, birth_date=None):
@@ -316,11 +317,11 @@ def esign(**kwargs):
 		utils.validator.validate_http_method('POST')
 
 		data = utils.validator.validate(kwargs, {
-			'cart': 'required',
+			'cart_name': 'required',
 		})
 
 		customer = lms.__customer()
-		cart = frappe.get_doc('Cart', data.get('cart'))
+		cart = frappe.get_doc('Cart', data.get('cart_name'))
 		if not cart:
 			return utils.responder.respondNotFound(message=_('Cart not found.'))
 		if cart.customer != customer.name:
@@ -352,7 +353,7 @@ def esign(**kwargs):
 			url = las_settings.esign_request_url.format(
 				id=data.get('id'),
 				x=200,
-				y=200,
+				y=80,
 				page_number=17
 			)
 

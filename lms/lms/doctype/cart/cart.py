@@ -15,7 +15,14 @@ class Cart(Document):
 	def loan_agreement(self):
 		doc = {
 			'full_name': 'John Doe', 
-			'address': 'Canada, North America'
+			'address': 'Canada, North America',
+			'sanctioned_credit_limit':'25000',
+			'rate_of_interest1':'15',
+			'rate_of_interest2':'18',
+			'processing_fee':'257',
+			'account_renewal_charges':'350',
+			'documentation_charges':'160',
+			'processing_charges_per_req':'130',
 		}
 		agreement_form = frappe.render_template('templates/loan_agreement_form.html', {'doc': doc})
 		from frappe.utils.pdf import get_pdf
@@ -33,8 +40,8 @@ class Cart(Document):
 		loan_agreement_pdf = frappe.utils.get_files_path('{}.pdf'.format(self.name))
 		merger.write(loan_agreement_pdf)
 
-		# with open(loan_agreement_pdf, 'rb') as f:
-		# 	return f.read()
+		with open(loan_agreement_pdf, 'rb') as f:
+			return f.read()
 
 	def pledge_request(self):
 		las_settings = frappe.get_single('LAS Settings')

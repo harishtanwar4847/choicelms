@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 from lms.firebase import FirebaseAdmin
 import json
 
-
 @frappe.whitelist(allow_guest=True)
 def login(**kwargs):
 	try:
@@ -17,7 +16,7 @@ def login(**kwargs):
 
 		data = utils.validator.validate(kwargs, {
 			'mobile': ['required', 'decimal', utils.validator.rules.LengthRule(10)],
-			'pin': '',
+			'pin': [utils.validator.rules.LengthRule(4)],
 			'firebase_token': [utils.validator.rules.RequiredIfPresent('pin')]
 		})
 
@@ -27,7 +26,20 @@ def login(**kwargs):
 			user = None
 
 		if data.get("pin") : 
-			frappe.local.login_manager.authenticate(user=user.name, pwd=data.get('pin'))
+			try:
+				frappe.local.login_manager.authenticate(user=user.name, pwd=data.get('pin'))
+			except frappe.SecurityException as e:
+				return utils.responder.respondUnauthorized(message=str(e))	
+			except frappe.AuthenticationError as e:
+				message=frappe._('Incorrect PIN.')
+				invalid_login_attempts = get_login_failed_count(user.name)
+				if invalid_login_attempts > 0:
+					message += ' {} invalid {}.'.format(
+						invalid_login_attempts,
+						'attempt' if invalid_login_attempts == 1 else 'attempts' 
+					)	
+				return utils.responder.respondUnauthorized(message=message)	
+
 			token = dict(
 				token = utils.create_user_access_token(user.name),
 				customer = utils.frappe_doc_proper_dict(lms.__customer(user.name))
@@ -40,7 +52,6 @@ def login(**kwargs):
 		return utils.responder.respondWithSuccess(message=frappe._('OTP Sent'))
 	except utils.exceptions.APIException as e:
 		return e.respond()
-
 
 @frappe.whitelist(allow_guest=True)
 def login_old(mobile, firebase_token, pin=None):
@@ -241,7 +252,7 @@ def register(**kwargs):
 			'token': utils.create_user_access_token(user.name),
 			'customer': customer.as_dict()
 		}
-		return utils.responder.respondWithSuccess(data=data)
+		return utils.responder.respondWithSuccess(message=_('Registered Successfully.'), data=data)
 	except utils.APIException as e:
 		return e.respond()
 
