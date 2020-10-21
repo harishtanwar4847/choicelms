@@ -299,7 +299,7 @@ def process(**kwargs):
 				'url': pledge_request.get('url'),
 				'headers': pledge_request.get('headers'),
 				'request': pledge_request.get('payload'),
-				'response': res.text,
+				'response': res.json(),
 			}
 
 			import json

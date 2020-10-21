@@ -48,7 +48,7 @@ class Cart(Document):
 		API_URL = '{}{}'.format(las_settings.cdsl_host, las_settings.pledge_setup_uri)
 
 		securities_array = []
-		for i in cart.items:
+		for i in self.items:
 			j = {
 				"ISIN": i.isin,
 				"Quantity": str(float(i.pledged_quantity)),
