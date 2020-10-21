@@ -11,6 +11,30 @@ class Cart(Document):
 	def get_customer(self):
 		return frappe.get_doc('Customer', self.customer)
 
+	def loan_agreement(self):
+		doc = {
+			'full_name': 'John Doe', 
+			'address': 'Canada, North America'
+		}
+		agreement_form = frappe.render_template('templates/loan_agreement_form.html', {'doc': doc})
+		from frappe.utils.pdf import get_pdf
+		agreement_form_pdf = get_pdf(agreement_form)
+
+		from PyPDF2 import PdfFileMerger
+		merger = PdfFileMerger()
+
+		from io import BytesIO
+		pdfs = [frappe.get_app_path('lms', 'loan_tnc.pdf'), BytesIO(agreement_form_pdf)]
+
+		for i in pdfs:
+			merger.append(i)
+
+		loan_agreement_pdf = frappe.utils.get_files_path('{}.pdf'.format(self.name))
+		merger.write(loan_agreement_pdf)
+
+		# with open(loan_agreement_pdf, 'rb') as f:
+		# 	return f.read()
+
 	def before_save(self):
 		self.process_cart_items()
 		self.process_cart()

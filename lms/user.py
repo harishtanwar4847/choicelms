@@ -311,7 +311,59 @@ def kyc_old(pan_no=None, birth_date=None):
 		return lms.generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def esign(cart_name=None, loan_name=None):
+def esign(**kwargs):
+	try:
+		utils.validator.validate_http_method('POST')
+
+		data = utils.validator.validate(kwargs, {
+			'cart': 'required',
+		})
+
+		customer = lms.__customer()
+		cart = frappe.get_doc('Cart', data.get('cart'))
+		if not cart:
+			return utils.responder.respondNotFound(message=_('Cart not found.'))
+		if cart.customer != customer.name:
+			return utils.responder.respondForbidden(message=_('Please use your own cart.'))
+
+		user = lms.__user()
+
+		for tnc in frappe.get_list('Terms and Conditions', filters={'is_active': 1}):
+			approved_tnc = frappe.get_doc({
+				'doctype': 'Approved Terms and Conditions',
+				'mobile': user.username,
+				'tnc': tnc.name,
+				'time': datetime.now()
+			})
+			approved_tnc.insert(ignore_permissions=True)
+
+		las_settings = frappe.get_single('LAS Settings')
+
+		headers = {'userId': las_settings.choice_user_id}
+		files = {'file': ('loan-aggrement.pdf', cart.loan_agreement())}
+		try:
+			res = requests.post(las_settings.esign_upload_file_url, files=files, headers=headers)
+
+			if not res.ok:
+				raise utils.APIException(res.text)
+
+			data = res.json()
+
+			url = las_settings.esign_request_url.format(
+				id=data.get('id'),
+				x=200,
+				y=200,
+				page_number=17
+			)
+
+			return utils.responder.respondWithSuccess(message=_('Esign URL.'), data={'esign_url': url, 'file_id': data.get('id')})
+		except requests.RequestException as e:
+			raise utils.APIException(str(e))
+	except utils.APIException as e:
+		return e.respond()
+
+@frappe.whitelist()
+def esign_old(cart_name=None, loan_name=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
