@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 import lms
+from datetime import datetime, timedelta
 
 class Cart(Document):
 	def get_customer(self):
@@ -34,6 +35,37 @@ class Cart(Document):
 
 		# with open(loan_agreement_pdf, 'rb') as f:
 		# 	return f.read()
+
+	def pledge_request(self):
+		las_settings = frappe.get_single('LAS Settings')
+		API_URL = '{}{}'.format(las_settings.cdsl_host, las_settings.pledge_setup_uri)
+
+		securities_array = []
+		for i in cart.items:
+			j = {
+				"ISIN": i.isin,
+				"Quantity": str(float(i.pledged_quantity)),
+				"Value": str(float(i.price))
+			}
+			securities_array.append(j)
+
+		expiry = datetime.now() + timedelta(days = 365)
+
+		payload = {
+			"PledgorBOID": self.pledgor_boid,
+			"PledgeeBOID": las_settings.pledgee_boid,
+			"PRFNumber": lms.get_cdsl_prf_no(),
+			"ExpiryDate": expiry.strftime('%d%m%Y'),
+			"ISINDTLS": securities_array
+		}
+
+		headers = las_settings.cdsl_headers()
+
+		return {
+			'url': API_URL,
+			'headers': headers,
+			'payload': payload
+		}
 
 	def before_save(self):
 		self.process_cart_items()

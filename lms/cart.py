@@ -72,7 +72,6 @@ def upsert(**kwargs):
 			'securities': '',
 			'cart_name': '',
 			'loan_name': '',
-			'expiry': '',
 			'lender': '',
 			'pledgor_boid': 'required'
 		})
@@ -81,9 +80,6 @@ def upsert(**kwargs):
 			data['lender'] = frappe.get_last_doc('Lender').name
 
 		securities = validate_securities_for_cart(data.get('securities', {}), data.get('lender'))
-
-		if not data.get('expiry', None):
-			expiry = datetime.now() + timedelta(days = 365)
 
 		customer = lms.__customer()
 
@@ -274,7 +270,49 @@ def upsert_old(securities, cart_name=None, loan_name=None, expiry=None):
 		return lms.generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def process(cart_name, otp, pledgor_boid, file_id=None, expiry=None, pledgee_boid=None):
+def process(**kwargs):
+	try:
+		utils.validator.validate_http_method('POST')
+
+		data = utils.validator.validate(kwargs, {
+			'cart_name': '',
+			'expiry': '',
+			'file_id': 'required'
+		})
+
+		customer = lms.__customer()
+
+		cart = frappe.get_doc("Cart", data.get('cart_name'))
+		if not cart:
+			return utils.responder.respondNotFound(message=_('Cart not found.'))
+		if cart.customer != customer.name:
+			return utils.responder.respondForbidden(message=_('Please use your own cart.'))
+
+		if not data.get('expiry', None):
+			data['expiry'] = datetime.now() + timedelta(days = 365)
+
+		pledge_request = cart.pledge_request()
+		
+		try:
+			res = requests.post(pledge_request.get('url'), headers=pledge_request.get('headers'), json=pledge_request.get('payload'))
+			log = {
+				'url': pledge_request.get('url'),
+				'headers': pledge_request.get('headers')
+				'request': pledge_request.get('payload'),
+				'response': res.text,
+			}
+
+			import json
+			frappe.logger().info(json.dumps(log))
+
+			return utils.responder.respondWithSuccess(data=res.json())
+		except requests.RequestException as e:
+			raise utils.APIException(str(e))
+	except utils.APIException as e:
+		return e.respond()
+
+@frappe.whitelist()
+def process_old(cart_name, otp, pledgor_boid, file_id=None, expiry=None, pledgee_boid=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
