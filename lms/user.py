@@ -55,7 +55,113 @@ def set_pin_old(pin):
 		return lms.generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def kyc(pan_no=None, birth_date=None):
+def kyc(**kwargs):
+	try:
+		utils.validator.validate_http_method('GET')
+
+		data = utils.validator.validate(kwargs, {
+			'pan_no': 'required',
+			'birth_date': 'required|date'
+		})
+
+		try:
+			user_kyc = lms.__user_kyc(frappe.session.user, data.get('pan_no'))
+		except lms.UserKYCNotFoundException:
+			user_kyc = None
+
+		if not user_kyc:
+			res = get_choice_kyc(**data)
+			user_kyc = res['user_kyc']
+			banks = res['banks']
+			customer = lms.__customer()
+			customer.kyc_update = 1
+			customer.choice_kyc = user_kyc.name
+			customer.save(ignore_permissions=True)
+
+			user = lms.__user()
+			frappe.enqueue_doc('Notification', 'User KYC', method='send', doc=user)
+			
+			mess = _("Dear" + user.full_name + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our banking partner before you can avail the loan.")
+			frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
+
+		data = {
+			'user_kyc': utils.frappe_doc_proper_dict(user_kyc),
+			'banks': lms.__banks(user_kyc.name)
+		}
+
+		return utils.responder.respondWithSuccess(data=data)
+	except utils.APIException as e:
+		return e.respond()
+
+def get_choice_kyc(pan_no, birth_date):
+	try:
+		las_settings = frappe.get_single('LAS Settings')
+
+		params = {"panNum": pan_no}
+		headers = {
+			"businessUnit": las_settings.choice_business_unit,
+			"userId": las_settings.choice_user_id,
+			"investorId": las_settings.choice_investor_id,
+			"ticket": las_settings.choice_ticket
+		}
+
+		res = requests.get(las_settings.choice_pan_api, params=params, headers=headers)
+		if not res.ok:
+			raise lms.UserKYCNotFoundException
+			raise utils.APIException(res.text)
+
+		data = res.json()
+
+		user_kyc = lms.__user_kyc(pan_no=pan_no, throw=False)
+		user_kyc.kyc_type = 'CHOICE'
+		user_kyc.investor_name = data['investorName']
+		user_kyc.father_name = data['fatherName']
+		user_kyc.mother_name = data['motherName']
+		user_kyc.address = data['address']
+		user_kyc.city = data['addressCity']
+		user_kyc.state = data['addressState']
+		user_kyc.pincode = data['addressPinCode']
+		user_kyc.mobile_number = data['mobileNum']
+		user_kyc.choice_client_id = data['clientId']
+		user_kyc.pan_no = data['panNum']
+		user_kyc.aadhar_no = data['panNum']
+		user_kyc.save(ignore_permissions=True)
+
+		frappe.db.delete('Bank Account', {'user_kyc': user_kyc.name})
+
+		for bank in data['banks']:
+			bank_acc = frappe.get_doc({
+				'doctype' : 'Bank Account',
+				'user_kyc':user_kyc.name,
+				'bank': bank['bank'],
+				'bank_address': bank['bankAddress'],
+				'branch': bank['branch'],
+				'contact': bank['contact'],
+				'account_type': bank['accountType'],
+				'account_number': bank['accountNumber'],
+				'ifsc': bank['ifsc'],
+				'micr': bank['micr'],
+				'bank_mode': bank['bankMode'],
+				'bank_code': bank['bankcode'],
+				'bank_zip_code': bank['bankZipCode'],
+				'city': bank['city'],
+				'district': bank['district'],
+				'state': bank['state'],
+				'is_default': bank['defaultBank'] == 'Y'
+			})
+			bank_acc.insert(ignore_permissions=True)
+
+		return {
+			'user_kyc': user_kyc,
+			'banks': frappe.get_all('Bank Account', filters={'user_kyc': user_kyc.name})
+		}
+
+	except requests.RequestException as e:
+		raise utils.APIException(str(e))
+
+
+@frappe.whitelist()
+def kyc_old(pan_no=None, birth_date=None):
 	try:
 		# validation
 		lms.validate_http_method('GET')
