@@ -284,12 +284,40 @@ def chunk_doctype(doctype, limit):
 	}
 
 def __customer(entity=None):
-	res = frappe.get_all('Customer', filters={'username': __user(entity.name).name})
+	res = frappe.get_all('Customer', filters={'username': __user(entity).name})
 
 	if len(res) == 0:
 		raise CustomerNotFoundException
 
 	return frappe.get_doc('Customer', res[0].name)
+
+def __user_kyc(entity=None, pan_no=None, throw=True):
+	filters = {'user': __user(entity).name}
+	if pan_no:
+		filters['pan_no'] = pan_no
+	res = frappe.get_all('User KYC', filters=filters)
+
+	if len(res) == 0:
+		if throw:
+			raise UserKYCNotFoundException
+		return frappe.get_doc({
+			'doctype': 'User KYC',
+			'user': filters['user']
+		})
+
+	return frappe.get_doc('User KYC', res[0].name)
+
+def __banks(user_kyc=None):
+	if not user_kyc:
+		user_kyc = __user_kyc().name
+
+	res = frappe.get_all('Bank Account', filters={'user_kyc': user_kyc}, fields=['*'])
+
+	for i in res:
+		i.creation = str(i.creation)
+		i.modified = str(i.modified)
+
+	return res
 
 def get_customer(entity):
 	customer_list = frappe.get_all('Customer', filters={'username': get_user(entity)})
