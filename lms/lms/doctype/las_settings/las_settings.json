@@ -6,7 +6,6 @@
  "field_order": [
   "loan_settings_section_break",
   "loan_margin",
-  "pledgee_boid",
   "loan_settings_column_break",
   "loan_interest",
   "choice_settings_section_break",
@@ -218,16 +217,10 @@
    "fieldname": "esign_request_url",
    "fieldtype": "Data",
    "label": "Esign Request URL"
-  },
-  {
-   "default": "1206690000014023",
-   "fieldname": "pledgee_boid",
-   "fieldtype": "Data",
-   "label": "Pledgee BOID"
   }
  ],
  "issingle": 1,
- "modified": "2020-10-20 21:29:23.926707",
+ "modified": "2020-10-22 11:20:35.028454",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

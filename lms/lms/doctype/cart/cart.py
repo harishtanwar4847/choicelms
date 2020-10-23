@@ -60,7 +60,7 @@ class Cart(Document):
 
 		payload = {
 			"PledgorBOID": self.pledgor_boid,
-			"PledgeeBOID": las_settings.pledgee_boid,
+			"PledgeeBOID": '1206690000284106',
 			"PRFNumber": lms.get_cdsl_prf_no(),
 			"ExpiryDate": expiry.strftime('%d%m%Y'),
 			"ISINDTLS": securities_array
@@ -74,41 +74,82 @@ class Cart(Document):
 			'payload': payload
 		}
 
+	def process(self, pledge_response):
+		if self.status != 'Not Processed':
+			return
+
+		isin_details_ = pledge_response.get('PledgeSetupResponse').get('ISINstatusDtls')
+		isin_details = {}
+		for i in isin_details_:
+			isin_details[i.get('ISIN')] = i
+		
+		for i in self.items:
+			cur = isin_details.get(i.get('isin'))
+			i.psn = cur.get('PSN')
+			i.error_code = cur.get('ErrorCode')
+
+			success = len(i.error_code) != 0
+
+			if success:
+				if self.status == 'Not Processed':
+					self.status = 'Success'
+				elif self.status == 'Failure':
+					self.status = 'Partial Success'
+			else:
+				if self.status == 'Not Processed':
+					self.status = 'Failure'
+				elif self.status == 'Success':
+					self.status = 'Partial Success'
+
+		if self.status not in ['Not Processed', 'Failure']:
+			self.total_collateral_value = sum([item.amount for i in self.items])
+			self.eligible_loan = (self.allowable_ltv / 100) * self.total_collateral_value
+
+	def save_collateral_ledger(self):
+		# TODO: save entries with links of Cart, Loan Application and Loan for backtrack
+		pass
+
+	def create_loan_application(self):
+		# TODO: 
+		return frappe.new_doc('Loan Application')
+
 	def before_save(self):
 		self.process_cart_items()
 		self.process_cart()
 
 	def process_cart_items(self):
-		isin = [i.isin for i in self.items]
-		price_map = lms.get_security_prices(isin)
-		securities = frappe.db.get_values(
-			'Allowed Security',
-			{'isin': ('in', isin), 'lender': self.lender},
-			['category', 'security_name', 'eligible_percentage', 'isin'],
-			as_dict=1
-		)
-		securities_map = {}
-		for i in securities:
-			securities_map[i.isin] = i
+		if self.status == 'Not Processed':
+			isin = [i.isin for i in self.items]
+			price_map = lms.get_security_prices(isin)
+			securities = frappe.db.get_values(
+				'Allowed Security',
+				{'isin': ('in', isin), 'lender': self.lender},
+				['category', 'security_name', 'eligible_percentage', 'isin'],
+				as_dict=1
+			)
+			securities_map = {}
+			for i in securities:
+				securities_map[i.isin] = i
 
-		for i in self.items:
-			security = securities_map.get(i.isin)
-			i.security_category = security.category
-			i.security_name = security.security_name
-			i.eligible_percentage = security.eligible_percentage
+			for i in self.items:
+				security = securities_map.get(i.isin)
+				i.security_category = security.category
+				i.security_name = security.security_name
+				i.eligible_percentage = security.eligible_percentage
 
-			i.price = price_map.get(i.isin, 0)
-			i.amount = i.pledged_quantity * i.price
+				i.price = price_map.get(i.isin, 0)
+				i.amount = i.pledged_quantity * i.price
 
 	def process_cart(self):
-		self.total_collateral_value = 0
-		self.allowable_ltv = 0
-		for item in self.items:
-			self.total_collateral_value += item.amount
-			self.allowable_ltv += item.eligible_percentage
-		
-		self.allowable_ltv = float(self.allowable_ltv) / len(self.items)
-		self.eligible_loan = (self.allowable_ltv / 100) * self.total_collateral_value
+		if self.status == 'Not Processed':
+			self.total_collateral_value = 0
+			self.allowable_ltv = 0
+			for item in self.items:
+				self.total_collateral_value += item.amount
+				self.allowable_ltv += item.eligible_percentage
+			
+			self.allowable_ltv = float(self.allowable_ltv) / len(self.items)
+			self.eligible_loan = (self.allowable_ltv / 100) * self.total_collateral_value
 
 	def process_bre(self):
 		las_settings = frappe.get_single('LAS Settings')

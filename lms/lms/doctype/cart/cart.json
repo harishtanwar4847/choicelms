@@ -13,7 +13,10 @@
   "lender",
   "pledgor_boid",
   "eligible_loan",
+  "section_break_9",
   "is_processed",
+  "column_break_11",
+  "status",
   "section_break_4",
   "items"
  ],
@@ -90,9 +93,24 @@
    "fieldtype": "Data",
    "label": "Pledgor BOID",
    "set_only_once": 1
+  },
+  {
+   "depends_on": "eval:doc.is_processed",
+   "fieldname": "section_break_9",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Not Processed\nSuccess\nPartial Success\nFailure"
   }
  ],
- "modified": "2020-10-20 23:09:08.788337",
+ "modified": "2020-10-23 16:47:53.722558",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart",

@@ -10,7 +10,9 @@
   "pledged_quantity",
   "price",
   "amount",
-  "eligible_percentage"
+  "eligible_percentage",
+  "psn",
+  "error_code"
  ],
  "fields": [
   {
@@ -61,10 +63,22 @@
    "fieldtype": "Float",
    "label": "Eligible Percentage",
    "read_only": 1
+  },
+  {
+   "fieldname": "psn",
+   "fieldtype": "Data",
+   "label": "PSN",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "error_code",
+   "fieldtype": "Data",
+   "label": "Error Code",
+   "set_only_once": 1
   }
  ],
  "istable": 1,
- "modified": "2020-10-20 22:07:34.360443",
+ "modified": "2020-10-22 11:22:17.271561",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart Item",
