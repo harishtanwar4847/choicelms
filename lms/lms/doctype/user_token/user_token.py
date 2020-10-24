@@ -12,8 +12,9 @@ class UserToken(Document):
 	def after_insert(self):
 		if not frappe.flags.in_test:
 			if self.token_type in ['OTP', 'Pledge OTP']:
+				las_settings = frappe.get_single('LAS Settings')	
 				if self.token_type == 'OTP':
-					mess = frappe._('Your OTP for LMS is {0}. Do not share your OTP with anyone.').format(self.token)
+					mess = frappe._('Your OTP for LMS is {}. Do not share your OTP with anyone.{}').format(self.token, las_settings.app_identification_hash_string)
 				elif self.token_type == 'Pledge OTP':
 					user = frappe.get_doc('User', lms.get_user(self.entity))
 					mess = frappe._('Your Pledge OTP for LMS is {0}. \nDo not share your Pledge OTP with anyone.').format(self.token)
