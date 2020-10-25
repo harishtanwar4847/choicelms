@@ -29,7 +29,7 @@ def login(**kwargs):
 			try:
 				frappe.local.login_manager.authenticate(user=user.name, pwd=data.get('pin'))
 			except frappe.SecurityException as e:
-				return utils.responder.respondUnauthorized(message=str(e))	
+				return utils.respondUnauthorized(message=str(e))	
 			except frappe.AuthenticationError as e:
 				message=frappe._('Incorrect PIN.')
 				invalid_login_attempts = get_login_failed_count(user.name)
@@ -38,18 +38,18 @@ def login(**kwargs):
 						invalid_login_attempts,
 						'attempt' if invalid_login_attempts == 1 else 'attempts' 
 					)	
-				return utils.responder.respondUnauthorized(message=message)	
+				return utils.respondUnauthorized(message=message)	
 
 			token = dict(
 				token = utils.create_user_access_token(user.name),
 				customer = utils.frappe_doc_proper_dict(lms.__customer(user.name))
 			)
 			lms.add_firebase_token(data.get("firebase_token"), user.name)
-			return utils.responder.respondWithSuccess(message=frappe._('Logged in Successfully'), data=token)
+			return utils.respondWithSuccess(message=frappe._('Logged in Successfully'), data=token)
 
 		lms.create_user_token(entity=data.get('mobile'), token=lms.random_token(length=4, is_numeric=True))
 		
-		return utils.responder.respondWithSuccess(message=frappe._('OTP Sent'))
+		return utils.respondWithSuccess(message=frappe._('OTP Sent'))
 	except utils.exceptions.APIException as e:
 		return e.respond()
 
@@ -134,7 +134,7 @@ def verify_otp(**kwargs):
 				try:
 					frappe.local.login_manager.check_if_enabled(user.name)
 				except frappe.SecurityException as e:
-					return utils.responder.respondUnauthorized(message=str(e))
+					return utils.respondUnauthorized(message=str(e))
 
 				invalid_login_attempts = get_login_failed_count(user.name)
 				if invalid_login_attempts > 0:
@@ -143,19 +143,19 @@ def verify_otp(**kwargs):
 						'attempt' if invalid_login_attempts == 1 else 'attempts' 
 					)				
 				
-			return utils.responder.respondUnauthorized(message=message)
+			return utils.respondUnauthorized(message=message)
 
 		if token:
 			if token.expiry <= datetime.now():
-				return utils.responder.respondUnauthorized(message=frappe._('OTP Expired.'))
+				return utils.respondUnauthorized(message=frappe._('OTP Expired.'))
 
 			if not user:
-				return utils.responder.respondNotFound(message=frappe._('User not found.'))
+				return utils.respondNotFound(message=frappe._('User not found.'))
 
 			try:
 				frappe.local.login_manager.check_if_enabled(user.name)
 			except frappe.SecurityException as e:
-				return utils.responder.respondUnauthorized(message=str(e))
+				return utils.respondUnauthorized(message=str(e))
 
 			res = {
 				'token': utils.create_user_access_token(user.name),
@@ -164,7 +164,7 @@ def verify_otp(**kwargs):
 			token.used = 1
 			token.save(ignore_permissions=True)
 			lms.add_firebase_token(data.get("firebase_token"), user.name)
-			return utils.responder.respondWithSuccess(data=res)
+			return utils.respondWithSuccess(data=res)
 
 	except utils.exceptions.APIException as e:
 		return e.respond()
@@ -252,7 +252,7 @@ def register(**kwargs):
 			'token': utils.create_user_access_token(user.name),
 			'customer': customer.as_dict()
 		}
-		return utils.responder.respondWithSuccess(message=_('Registered Successfully.'), data=data)
+		return utils.respondWithSuccess(message=_('Registered Successfully.'), data=data)
 	except utils.APIException as e:
 		return e.respond()
 

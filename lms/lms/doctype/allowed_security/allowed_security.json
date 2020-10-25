@@ -6,16 +6,10 @@
  "engine": "InnoDB",
  "field_order": [
   "isin",
-  "security_name",
-  "category",
-  "segment",
   "eligible_percentage",
   "column_break_5",
-  "nse_symbol",
-  "type",
-  "token_id",
-  "depository",
-  "lender"
+  "lender",
+  "security_name"
  ],
  "fields": [
   {
@@ -26,50 +20,18 @@
    "unique": 1
   },
   {
-   "fieldname": "depository",
-   "fieldtype": "Data",
-   "label": "Depository"
-  },
-  {
-   "fieldname": "type",
-   "fieldtype": "Select",
-   "label": "Type",
-   "options": "Share\nMutual Fund"
-  },
-  {
    "fieldname": "eligible_percentage",
-   "fieldtype": "Int",
-   "label": "Eligible Percentage"
-  },
-  {
-   "fieldname": "nse_symbol",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "NSE Symbol"
-  },
-  {
-   "fieldname": "category",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Category",
-   "options": "Security Category"
+   "fieldtype": "Float",
+   "label": "Eligible Percentage",
+   "reqd": 1
   },
   {
    "fieldname": "isin",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "ISIN",
+   "options": "Security",
    "reqd": 1,
    "unique": 1
-  },
-  {
-   "fieldname": "segment",
-   "fieldtype": "Data",
-   "label": "Segment"
-  },
-  {
-   "fieldname": "token_id",
-   "fieldtype": "Data",
-   "label": "Token ID"
   },
   {
    "fieldname": "column_break_5",
@@ -83,7 +45,7 @@
    "reqd": 1
   }
  ],
- "modified": "2020-10-19 20:24:09.920837",
+ "modified": "2020-10-24 12:00:44.063264",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",

@@ -86,9 +86,9 @@ def upsert(**kwargs):
 		if data.get('loan_name', None):
 			loan = frappe.get_doc('Loan', loan_name)
 			if not loan:
-				return utils.responder.respondNotFound(message=_('Loan not found.'))
+				return utils.respondNotFound(message=_('Loan not found.'))
 			if loan.customer != customer.name:
-				return utils.responder.respondForbidden(message=_('Please use your own loan.'))
+				return utils.respondForbidden(message=_('Please use your own loan.'))
 
 		if not data.get('cart_name', None):
 			cart = frappe.get_doc({
@@ -100,9 +100,9 @@ def upsert(**kwargs):
 		else:
 			cart = frappe.get_doc("Cart", data.get('cart_name'))
 			if not cart:
-				return utils.responder.respondNotFound(message=_('Cart not found.'))
+				return utils.respondNotFound(message=_('Cart not found.'))
 			if cart.customer != customer.name:
-				return utils.responder.respondForbidden(message=_('Please use your own cart.'))
+				return utils.respondForbidden(message=_('Please use your own cart.'))
 
 			cart.items = []
 
@@ -128,7 +128,7 @@ def upsert(**kwargs):
 				if loan_margin_shortfall.shortfall_c * 2 > cart.total_collateral_value:
 					data['minimum_pledge_amount_present'] = False
 
-		return utils.responder.respondWithSuccess(data=data)
+		return utils.respondWithSuccess(data=data)
 	except utils.APIException as e:
 		return e.respond()
 
@@ -284,9 +284,9 @@ def process(**kwargs):
 
 		cart = frappe.get_doc("Cart", data.get('cart_name'))
 		if not cart:
-			return utils.responder.respondNotFound(message=_('Cart not found.'))
+			return utils.respondNotFound(message=_('Cart not found.'))
 		if cart.customer != customer.name:
-			return utils.responder.respondForbidden(message=_('Please use your own cart.'))
+			return utils.respondForbidden(message=_('Please use your own cart.'))
 
 		if not data.get('expiry', None):
 			data['expiry'] = datetime.now() + timedelta(days = 365)
@@ -328,7 +328,7 @@ def process(**kwargs):
 			cart.save_collateral_ledger()
 			loan_application = cart.create_loan_application()
 
-			return utils.responder.respondWithSuccess(data=utils.frappe_doc_proper_dict(loan_application))
+			return utils.respondWithSuccess(data=utils.frappe_doc_proper_dict(loan_application))
 		except requests.RequestException as e:
 			raise utils.APIException(str(e))
 	except utils.APIException as e:

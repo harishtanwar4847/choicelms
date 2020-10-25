@@ -27,7 +27,7 @@ def set_pin(**kwargs):
 		mess = _("Dear " + doc.full_name + ", You have successfully updated your Finger Print / PIN registration at Spark.Loans!.")
 		frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
 
-		return utils.responder.respondWithSuccess(message=frappe._('User PIN has been set'))
+		return utils.respondWithSuccess(message=frappe._('User PIN has been set'))
 	except utils.exceptions.APIException as e :
 		return e.respond()
 
@@ -89,7 +89,7 @@ def kyc(**kwargs):
 			'banks': lms.__banks(user_kyc.name)
 		}
 
-		return utils.responder.respondWithSuccess(data=data)
+		return utils.respondWithSuccess(data=data)
 	except utils.APIException as e:
 		return e.respond()
 
@@ -323,9 +323,9 @@ def esign(**kwargs):
 		customer = lms.__customer()
 		cart = frappe.get_doc('Cart', data.get('cart_name'))
 		if not cart:
-			return utils.responder.respondNotFound(message=_('Cart not found.'))
+			return utils.respondNotFound(message=_('Cart not found.'))
 		if cart.customer != customer.name:
-			return utils.responder.respondForbidden(message=_('Please use your own cart.'))
+			return utils.respondForbidden(message=_('Please use your own cart.'))
 
 		user = lms.__user()
 
@@ -357,7 +357,7 @@ def esign(**kwargs):
 				page_number=17
 			)
 
-			return utils.responder.respondWithSuccess(message=_('Esign URL.'), data={'esign_url': url, 'file_id': data.get('id')})
+			return utils.respondWithSuccess(message=_('Esign URL.'), data={'esign_url': url, 'file_id': data.get('id')})
 		except requests.RequestException as e:
 			raise utils.APIException(str(e))
 	except utils.APIException as e:
@@ -444,34 +444,34 @@ def securities(**kwargs):
 		las_settings = frappe.get_single('LAS Settings')
 
 		# get securities list from choice
-		data = {
+		payload = {
 			"UserID": las_settings.choice_user_id,
 			"ClientID": user_kyc.pan_no
 		}
 		
 		try:
-			res = requests.post(las_settings.choice_securities_list_api, json=data, headers={"Accept": "application/json"})
+			res = requests.post(las_settings.choice_securities_list_api, json=payload, headers={"Accept": "application/json"})
 			if not res.ok:
 				raise utils.APIException(res.text)
 
-			data = res.json()
-			if data["Status"] != "Success":
+			res_json = res.json()
+			if res_json["Status"] != "Success":
 				raise utils.APIException(res.text)
 
 			# setting eligibility
-			securities_list = data["Response"]
+			securities_list = res_json["Response"]
 			securities_list_ = [i['ISIN'] for i in securities_list]
-			securities_category_map = lms.get_security_categories(securities_list_, data.get('lender'))
+			securities_category_map = lms.get_allowed_securities(securities_list_, data.get('lender'))
 
 			for i in securities_list:
 				try:
-					i["Category"] = securities_category_map[i['ISIN']]
+					i["Category"] = securities_category_map[i['ISIN']].get('category')
 					i["Is_Eligible"] = True
 				except KeyError:
 					i["Is_Eligible"] = False
 					i["Category"] = None
 			
-			return utils.responder.respondWithSuccess(data=securities_list)
+			return utils.respondWithSuccess(data=securities_list)
 		except requests.RequestException as e:
 			raise utils.APIException(str(e))
 	except utils.APIException as e:

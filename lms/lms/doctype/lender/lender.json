@@ -200,7 +200,7 @@
    "reqd": 1
   }
  ],
- "modified": "2020-10-20 03:18:25.060471",
+ "modified": "2020-10-24 12:36:14.850715",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
@@ -225,6 +225,15 @@
    "read": 1,
    "report": 1,
    "role": "Loan Customer",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lender",
    "share": 1
   }
  ],

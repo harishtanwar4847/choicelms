@@ -8,7 +8,8 @@ from frappe.model.document import Document
 import lms
 
 class AllowedSecurity(Document):
-	pass
+	def before_save(self):
+		self.security_name = frappe.db.get_value('Security', self.isin, 'security_name')
 
 def get_permission_query_conditions(user):
 	if not user: user = frappe.session.user

@@ -275,6 +275,26 @@ def get_security_categories(securities, lender):
 
 	return security_map
 
+def get_allowed_securities(securities, lender):
+	query = """select 
+				allowed.isin, allowed.security_name, allowed.eligible_percentage,
+				master.category
+				from `tabAllowed Security` allowed
+				left join `tabSecurity` master
+				on allowed.isin = master.isin 
+				where 
+				allowed.lender = '{}' and
+				allowed.isin in {}""".format(lender, convert_list_to_tuple_string(securities))
+
+	results = frappe.db.sql(query, as_dict=1)
+
+	security_map = {}
+	
+	for r in results:
+		security_map[r.isin] = r
+
+	return security_map
+
 def chunk_doctype(doctype, limit):
 	total = frappe.db.count(doctype)
 	limit = 50

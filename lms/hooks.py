@@ -154,4 +154,5 @@ scheduler_events = {
 permission_query_conditions = {
 	"Allowed Security": "lms.lms.doctype.allowed_security.allowed_security.get_permission_query_conditions",
 	"Cart": "lms.lms.doctype.cart.cart.get_permission_query_conditions",
+	"Lender": "lms.lms.doctype.lender.lender.get_permission_query_conditions",
 }

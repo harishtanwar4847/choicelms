@@ -121,18 +121,10 @@ class Cart(Document):
 		if self.status == 'Not Processed':
 			isin = [i.isin for i in self.items]
 			price_map = lms.get_security_prices(isin)
-			securities = frappe.db.get_values(
-				'Allowed Security',
-				{'isin': ('in', isin), 'lender': self.lender},
-				['category', 'security_name', 'eligible_percentage', 'isin'],
-				as_dict=1
-			)
-			securities_map = {}
-			for i in securities:
-				securities_map[i.isin] = i
+			allowed_securities = lms.get_allowed_securities(isin, self.lender)
 
 			for i in self.items:
-				security = securities_map.get(i.isin)
+				security = allowed_securities.get(i.isin)
 				i.security_category = security.category
 				i.security_name = security.security_name
 				i.eligible_percentage = security.eligible_percentage
