@@ -281,8 +281,13 @@ def process(**kwargs):
 
 		data = utils.validator.validate(kwargs, {
 			'cart_name': 'required',
-			'expiry': ''
+			'expiry': '',
+			'otp': ['required', 'decimal', utils.validator.rules.LengthRule(4)]
 		})
+
+		user_kyc = lms.__user_kyc()
+
+		token = lms.verify_user_token(entity=user_kyc.mobile_number, token=data.get('otp'), token_type='Pledge OTP')
 
 		customer = lms.__customer()
 
@@ -509,6 +514,18 @@ def process_dummy(cart_name):
 
 @frappe.whitelist()
 def request_pledge_otp():
+	try:
+		utils.validator.validate_http_method('POST')
+
+		user_kyc = lms.__user_kyc()
+
+		lms.create_user_token(entity=user_kyc.mobile_number, token_type="Pledge OTP", token=lms.random_token(length=4, is_numeric=True))
+		return utils.respondWithSuccess(message='Pledge OTP sent')
+	except utils.APIException as e:
+		return e.respond()
+
+@frappe.whitelist()
+def request_pledge_otp_old():
 	try:
 		# validation
 		lms.validate_http_method('POST')

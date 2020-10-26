@@ -114,6 +114,7 @@ class Cart(Document):
 		
 		self.allowable_ltv = self.allowable_ltv / total_successful_pledge
 		self.eligible_loan = (self.allowable_ltv / 100) * self.total_collateral_value
+		self.is_processed = 1
 
 	def save_collateral_ledger(self):
 		for i in self.items:

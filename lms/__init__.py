@@ -318,7 +318,7 @@ def __user_kyc(entity=None, pan_no=None, throw=True):
 	filters = {'user': __user(entity).name}
 	if pan_no:
 		filters['pan_no'] = pan_no
-	res = frappe.get_all('User KYC', filters=filters)
+	res = frappe.get_all('User KYC', filters=filters, order_by='creation desc')
 
 	if len(res) == 0:
 		if throw:
