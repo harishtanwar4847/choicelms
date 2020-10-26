@@ -1,5 +1,6 @@
 [
  {
+  "demat_account_number": "1206690000284106",
   "docstatus": 0,
   "doctype": "Lender",
   "documentation_charge_sharing_type": "Percentage",
@@ -14,7 +15,7 @@
   "lender_processing_fees_sharing": 10.0,
   "lender_processing_fees_sharing_type": "Percentage",
   "lender_processing_fees_type": "Percentage",
-  "modified": "2020-10-19 19:38:59.380165",
+  "modified": "2020-10-26 02:57:00.773268",
   "mortgage_charge_sharing_type": "Percentage",
   "mortgage_charge_type": "Percentage",
   "mortgage_charges": 0.1,
