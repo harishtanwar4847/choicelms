@@ -142,7 +142,7 @@ fixtures = [
         "doctype": "Notification",
         "filters": [["document_type", "in", ["User"]]]
     },
-    "Allowed Security", "Security Category", "Concentration Rule", "Terms and Conditions", "Margin Shortfall Action", "Lender", "SMS Settings", "API Doc"
+    "Allowed Security", "Security Category", "Concentration Rule", "Terms and Conditions", "Margin Shortfall Action", "Lender", "SMS Settings", "API Doc", "LAS Settings"
 ]
 
 scheduler_events = {

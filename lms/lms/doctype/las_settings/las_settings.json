@@ -35,7 +35,9 @@
   "esign_upload_file_url",
   "esign_download_signed_file_url",
   "column_break_31",
-  "esign_request_url"
+  "esign_request_url",
+  "sms_settings_section_break",
+  "app_identification_hash_string"
  ],
  "fields": [
   {
@@ -217,6 +219,17 @@
    "fieldname": "esign_request_url",
    "fieldtype": "Data",
    "label": "Esign Request URL"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sms_settings_section_break",
+   "fieldtype": "Section Break",
+   "label": "SMS Settings"
+  },
+  {
+   "fieldname": "app_identification_hash_string",
+   "fieldtype": "Data",
+   "label": "App Identification Hash String"
   }
  ],
  "issingle": 1,
