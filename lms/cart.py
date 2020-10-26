@@ -280,9 +280,8 @@ def process(**kwargs):
 		utils.validator.validate_http_method('POST')
 
 		data = utils.validator.validate(kwargs, {
-			'cart_name': '',
-			'expiry': '',
-			'file_id': 'required'
+			'cart_name': 'required',
+			'expiry': ''
 		})
 
 		customer = lms.__customer()
