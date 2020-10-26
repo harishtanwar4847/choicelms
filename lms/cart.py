@@ -73,11 +73,15 @@ def upsert(**kwargs):
 			'cart_name': '',
 			'loan_name': '',
 			'lender': '',
+			'expiry': '',
 			'pledgor_boid': 'required'
 		})
 
 		if not data.get('lender', None):
 			data['lender'] = frappe.get_last_doc('Lender').name
+
+		if not data.get('expiry', None):
+			expiry = datetime.now() + timedelta(days = 365)
 
 		securities = validate_securities_for_cart(data.get('securities', {}), data.get('lender'))
 
@@ -95,7 +99,8 @@ def upsert(**kwargs):
 				"doctype": "Cart",
 				"customer": customer.name,
 				"lender": data.get('lender'),
-				"pledgor_boid": data.get('pledgor_boid')
+				"pledgor_boid": data.get('pledgor_boid'),
+				"expiry": expiry
 			})
 		else:
 			cart = frappe.get_doc("Cart", data.get('cart_name'))
@@ -288,10 +293,8 @@ def process(**kwargs):
 		if cart.customer != customer.name:
 			return utils.respondForbidden(message=_('Please use your own cart.'))
 
-		if not data.get('expiry', None):
-			data['expiry'] = datetime.now() + timedelta(days = 365)
-
 		pledge_request = cart.pledge_request()
+		frappe.db.set_value('Cart', cart.name, 'prf_number', pledge_request.get('payload').get('PRFNumber'))
 		
 		try:
 			res = requests.post(pledge_request.get('url'), headers=pledge_request.get('headers'), json=pledge_request.get('payload'))
@@ -322,10 +325,10 @@ def process(**kwargs):
 
 			if not res.ok or not data.get('Success'):
 				raise lms.PledgeSetupFailureException
-
+			
+			cart.reload()
 			cart.process(data)
 			cart.save(ignore_permissions=True)
-			cart.save_collateral_ledger()
 			loan_application = cart.create_loan_application()
 
 			return utils.respondWithSuccess(data=utils.frappe_doc_proper_dict(loan_application))

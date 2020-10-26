@@ -12,6 +12,9 @@ class Cart(Document):
 	def get_customer(self):
 		return frappe.get_doc('Customer', self.customer)
 
+	def get_lender(self):
+		return frappe.get_doc('Lender', self.lender)
+
 	def loan_agreement(self):
 		doc = {
 			'full_name': 'John Doe', 
@@ -56,13 +59,11 @@ class Cart(Document):
 			}
 			securities_array.append(j)
 
-		expiry = datetime.now() + timedelta(days = 365)
-
 		payload = {
 			"PledgorBOID": self.pledgor_boid,
-			"PledgeeBOID": '1206690000284106',
-			"PRFNumber": lms.get_cdsl_prf_no(),
-			"ExpiryDate": expiry.strftime('%d%m%Y'),
+			"PledgeeBOID": self.pledgee_boid,
+			"PRFNumber": '{}R{}'.format(self.name, datetime.now().strftime('%s')),
+			"ExpiryDate": self.expiry.strftime('%d%m%Y'),
 			"ISINDTLS": securities_array
 		}
 
@@ -82,36 +83,101 @@ class Cart(Document):
 		isin_details = {}
 		for i in isin_details_:
 			isin_details[i.get('ISIN')] = i
+
+		self.total_collateral_value = 0
+		self.allowable_ltv = 0
+		total_successful_pledge = 0
 		
 		for i in self.items:
 			cur = isin_details.get(i.get('isin'))
 			i.psn = cur.get('PSN')
 			i.error_code = cur.get('ErrorCode')
 
-			success = len(i.error_code) != 0
+			success = len(i.psn) > 0
 
 			if success:
 				if self.status == 'Not Processed':
 					self.status = 'Success'
 				elif self.status == 'Failure':
 					self.status = 'Partial Success'
+				self.total_collateral_value += i.amount
+				self.allowable_ltv += i.eligible_percentage
+				total_successful_pledge += 1
 			else:
 				if self.status == 'Not Processed':
 					self.status = 'Failure'
 				elif self.status == 'Success':
 					self.status = 'Partial Success'
 
-		if self.status not in ['Not Processed', 'Failure']:
-			self.total_collateral_value = sum([item.amount for i in self.items])
-			self.eligible_loan = (self.allowable_ltv / 100) * self.total_collateral_value
+		if total_successful_pledge == 0:
+			raise lms.PledgeSetupFailureException('Pledge Setup failed.')
+		
+		self.allowable_ltv = self.allowable_ltv / total_successful_pledge
+		self.eligible_loan = (self.allowable_ltv / 100) * self.total_collateral_value
 
 	def save_collateral_ledger(self):
-		# TODO: save entries with links of Cart, Loan Application and Loan for backtrack
-		pass
+		for i in self.items:
+			collateral_ledger = frappe.get_doc({
+				'doctype': 'Collateral Ledger',
+				
+				'cart': self.name,
+				'customer': self.customer,
+				'lender': self.lender,
+
+				'request_type': 'Pledge',
+				'request_identifier': self.prf_number,
+				'expiry': self.expiry,
+
+				'pledgor_boid': self.pledgor_boid,
+				'pledgee_boid': self.pledgee_boid,
+
+				'isin': i.isin,
+				'quantity': i.quantity,
+				'psn': i.psn,
+				'error_code': i.error_code,
+				'is_success': len(i.psn) > 0
+			})
+			collateral_ledger.save(ignore_permissions=True)
+
 
 	def create_loan_application(self):
-		# TODO: 
-		return frappe.new_doc('Loan Application')
+		if self.status == 'Not Processed':
+			return
+		
+		self.save_collateral_ledger()
+		
+		items = []
+		for item in self.items:
+			if len(item.psn) > 0:
+				item = frappe.get_doc({
+					'doctype': 'Loan Application Item',
+					'isin': item.isin,
+					'security_name': item.security_name,
+					'security_category': item.security_category,
+					'pledged_quantity': item.pledged_quantity,
+					'price': item.price,
+					'amount': item.amount,
+					'psn': item.psn,
+					'error_code': item.error_code,
+				})
+				items.append(item)
+
+		loan_application = frappe.get_doc({
+			'doctype': 'Loan Application',
+			'total_collateral_value': self.total_collateral_value,
+			'drawing_power': self.eligible_loan,
+			'pledgor_boid': self.pledgor_boid,
+			'pledgee_boid': self.pledgee_boid,
+			'prf_number': self.prf_number,
+			'expiry_date': self.expiry,
+			'allowable_ltv': self.allowable_ltv,
+			'customer': self.customer,
+			'loan': self.loan,
+			'items': items
+		})
+		loan_application.insert(ignore_permissions=True)
+		
+		return loan_application
 
 	def before_save(self):
 		self.process_cart_items()
@@ -119,6 +185,7 @@ class Cart(Document):
 
 	def process_cart_items(self):
 		if self.status == 'Not Processed':
+			self.pledgee_boid = self.get_lender().demat_account_number
 			isin = [i.isin for i in self.items]
 			price_map = lms.get_security_prices(isin)
 			allowed_securities = lms.get_allowed_securities(isin, self.lender)
