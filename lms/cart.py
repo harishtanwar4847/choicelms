@@ -323,7 +323,7 @@ def process(**kwargs):
 			# Pledge LOG end
 
 			if not res.ok or not data.get('Success'):
-				raise lms.PledgeSetupFailureException
+				raise lms.PledgeSetupFailureException(errors=res.text)
 			
 			cart.reload()
 			cart.process(data)

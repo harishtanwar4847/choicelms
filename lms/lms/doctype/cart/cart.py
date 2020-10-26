@@ -62,7 +62,7 @@ class Cart(Document):
 		payload = {
 			"PledgorBOID": self.pledgor_boid,
 			"PledgeeBOID": self.pledgee_boid,
-			"PRFNumber": '{}R{}'.format(self.name, datetime.now().strftime('%s')),
+			"PRFNumber": 'SL{}'.format(self.name),
 			"ExpiryDate": self.expiry.strftime('%d%m%Y'),
 			"ISINDTLS": securities_array
 		}
@@ -110,7 +110,7 @@ class Cart(Document):
 					self.status = 'Partial Success'
 
 		if total_successful_pledge == 0:
-			raise lms.PledgeSetupFailureException('Pledge Setup failed.')
+			raise lms.PledgeSetupFailureException('Pledge Setup failed.', errors=pledge_response)
 		
 		self.allowable_ltv = self.allowable_ltv / total_successful_pledge
 		self.eligible_loan = (self.allowable_ltv / 100) * self.total_collateral_value
@@ -132,7 +132,7 @@ class Cart(Document):
 				'pledgee_boid': self.pledgee_boid,
 
 				'isin': i.isin,
-				'quantity': i.quantity,
+				'quantity': i.pledged_quantity,
 				'psn': i.psn,
 				'error_code': i.error_code,
 				'is_success': len(i.psn) > 0
