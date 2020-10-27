@@ -7,6 +7,7 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils import cint
 from frappe import _
+import lms
 
 class Lender(Document):
 	def validate(self):
