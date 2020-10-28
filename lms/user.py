@@ -317,45 +317,30 @@ def esign(**kwargs):
 		utils.validator.validate_http_method('POST')
 
 		data = utils.validator.validate(kwargs, {
-			'cart_name': 'required',
+			'loan_application_name': 'required',
 		})
 
 		customer = lms.__customer()
-		cart = frappe.get_doc('Cart', data.get('cart_name'))
-		if not cart:
-			return utils.respondNotFound(message=_('Cart not found.'))
-		if cart.customer != customer.name:
-			return utils.respondForbidden(message=_('Please use your own cart.'))
+		loan_application = frappe.get_doc('Loan Application', data.get('loan_application_name'))
+		if not loan_application:
+			return utils.respondNotFound(message=_('Loan Application not found.'))
+		if loan_application.customer != customer.name:
+			return utils.respondForbidden(message=_('Please use your own Loan Application.'))
 
 		user = lms.__user()
 
-		for tnc in frappe.get_list('Terms and Conditions', filters={'is_active': 1}):
-			approved_tnc = frappe.get_doc({
-				'doctype': 'Approved Terms and Conditions',
-				'mobile': user.username,
-				'tnc': tnc.name,
-				'time': datetime.now()
-			})
-			approved_tnc.insert(ignore_permissions=True)
-
-		las_settings = frappe.get_single('LAS Settings')
-
-		headers = {'userId': las_settings.choice_user_id}
-		files = {'file': ('loan-aggrement.pdf', cart.loan_agreement())}
+		esign_request = loan_application.esign_request()
 		try:
-			res = requests.post(las_settings.esign_upload_file_url, files=files, headers=headers)
+			res = requests.post(esign_request.get('file_upload_url'), files=esign_request.get('files'), headers=esign_request.get('headers'))
 
 			if not res.ok:
 				raise utils.APIException(res.text)
 
 			data = res.json()
 
-			url = las_settings.esign_request_url.format(
-				id=data.get('id'),
-				x=200,
-				y=80,
-				page_number=17
-			)
+			esign_url_dict = esign_request.get('esign_url_dict') 
+			esign_url_dict['id'] = data.get('id')
+			url = esign_request.get('esign_url').format(**esign_url_dict)
 
 			return utils.respondWithSuccess(message=_('Esign URL.'), data={'esign_url': url, 'file_id': data.get('id')})
 		except requests.RequestException as e:

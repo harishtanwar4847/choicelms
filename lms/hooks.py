@@ -82,7 +82,10 @@ after_install = "lms.after_install"
 doc_events = {
 	"User": {
 		"on_trash": "lms.__init__.delete_user"
-	}
+	},
+    "File": {
+        "before_insert": "lms.lms.doctype.loan_application.loan_application.only_pdf_upload"
+    }
 }
 
 # Scheduled Tasks
@@ -155,4 +158,5 @@ permission_query_conditions = {
 	"Allowed Security": "lms.lms.doctype.allowed_security.allowed_security.get_permission_query_conditions",
 	"Cart": "lms.lms.doctype.cart.cart.get_permission_query_conditions",
 	"Lender": "lms.lms.doctype.lender.lender.get_permission_query_conditions",
+	"Loan Application": "lms.lms.doctype.loan_application.loan_application.get_permission_query_conditions",
 }

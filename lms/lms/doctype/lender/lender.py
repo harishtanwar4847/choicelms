@@ -10,6 +10,10 @@ from frappe import _
 import lms
 
 class Lender(Document):
+	def get_loan_agreement_file(self):
+		file_name = frappe.db.get_value('File', {'file_url': self.agreement_template})
+		return frappe.get_doc('File', file_name)
+
 	def validate(self):
 		if cint(self.interest_percentage_sharing) > 100:
 			frappe.throw(_('Interest Percentage Sharing value should not greater than 100.'))

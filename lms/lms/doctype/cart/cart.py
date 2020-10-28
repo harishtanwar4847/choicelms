@@ -84,8 +84,7 @@ class Cart(Document):
 		for i in isin_details_:
 			isin_details[i.get('ISIN')] = i
 
-		self.total_collateral_value = 0
-		self.allowable_ltv = 0
+		self.approved_total_collateral_value = 0
 		total_successful_pledge = 0
 		
 		for i in self.items:
@@ -100,8 +99,7 @@ class Cart(Document):
 					self.status = 'Success'
 				elif self.status == 'Failure':
 					self.status = 'Partial Success'
-				self.total_collateral_value += i.amount
-				self.allowable_ltv += i.eligible_percentage
+				self.approved_total_collateral_value += i.amount
 				total_successful_pledge += 1
 			else:
 				if self.status == 'Not Processed':
@@ -110,13 +108,14 @@ class Cart(Document):
 					self.status = 'Partial Success'
 
 		if total_successful_pledge == 0:
+			self.is_processed = 1
+			self.save(ignore_permissions=True)
 			raise lms.PledgeSetupFailureException('Pledge Setup failed.', errors=pledge_response)
 		
-		self.allowable_ltv = self.allowable_ltv / total_successful_pledge
-		self.eligible_loan = (self.allowable_ltv / 100) * self.total_collateral_value
+		self.approved_eligible_loan = (self.allowable_ltv / 100) * self.approved_total_collateral_value
 		self.is_processed = 1
 
-	def save_collateral_ledger(self):
+	def save_collateral_ledger(self, loan_application_name=None):
 		for i in self.items:
 			collateral_ledger = frappe.get_doc({
 				'doctype': 'Collateral Ledger',
@@ -124,6 +123,7 @@ class Cart(Document):
 				'cart': self.name,
 				'customer': self.customer,
 				'lender': self.lender,
+				'loan_application': loan_application_name,
 
 				'request_type': 'Pledge',
 				'request_identifier': self.prf_number,
@@ -145,8 +145,6 @@ class Cart(Document):
 		if self.status == 'Not Processed':
 			return
 		
-		self.save_collateral_ledger()
-		
 		items = []
 		for item in self.items:
 			if len(item.psn) > 0:
@@ -165,11 +163,9 @@ class Cart(Document):
 
 		loan_application = frappe.get_doc({
 			'doctype': 'Loan Application',
-			'total_collateral_value': self.total_collateral_value,
-			'drawing_power': self.eligible_loan,
-			'pledgor_boid': self.pledgor_boid,
-			'pledgee_boid': self.pledgee_boid,
-			'prf_number': self.prf_number,
+			'total_collateral_value': self.approved_total_collateral_value,
+			'drawing_power': lms.round_down_amount_to_nearest_thousand(self.approved_eligible_loan),
+			'lender': self.lender,
 			'expiry_date': self.expiry,
 			'allowable_ltv': self.allowable_ltv,
 			'customer': self.customer,
@@ -177,8 +173,33 @@ class Cart(Document):
 			'items': items
 		})
 		loan_application.insert(ignore_permissions=True)
-		
+		self.save_collateral_ledger(loan_application.name)
 		return loan_application
+
+	def notify_customer(self):
+		customer = self.get_customer()
+		user_kyc = frappe.get_doc('User KYC', customer.choice_kyc)
+		doc = frappe.get_doc('User', customer.username).as_dict()
+		doc['loan_application'] = {
+			'status': self.status,
+			'current_total_collateral_value': self.approved_total_collateral_value,
+			'requested_total_collateral_value': self.total_collateral_value,
+			'sanctioned_amount': self.approved_eligible_loan
+		}
+		frappe.enqueue_doc('Notification', 'Loan Application', method='send', doc=doc)
+		if doc.get('loan_application').get('status') == 'Failure':
+			mess = 'Sorry! Your loan application was turned down since the pledge was not successful. We regret the inconvenience caused.'
+		elif doc.get('loan_application').get('status') == 'Success':
+			mess = 'Congratulations! Your loan application has been approved. Please e-sign the loan agreement to avail the loan now.'
+		elif doc.get('loan_application').get('status') == 'Partial Success':
+			mess = 'Congratulations! Your application is being considered favourably by our lending partner\nHowever, the pledge request was partially succesful and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}.\nAccordingly the final loan amount sanctioned is Rs. {sanctioned_amount}. Please e-sign the loan agreement to avail the loan now.'
+		receiver_list = [customer.user, user_kyc.mobile_number]
+		from frappe.core.doctype.sms_settings.sms_settings import send_sms
+		frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
+
+	def on_update(self):
+		if self.is_processed:
+			self.notify_customer()
 
 	def before_save(self):
 		self.process_cart_items()

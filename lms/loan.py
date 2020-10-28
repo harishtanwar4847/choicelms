@@ -1,6 +1,66 @@
 import frappe
 from frappe import _
+import utils
 import lms
+import requests
+
+@frappe.whitelist()
+def esign(**kwargs):
+	try:
+		utils.validator.validate_http_method('POST')
+
+		data = utils.validator.validate(kwargs, {
+			'loan_application_name': 'required',
+		})
+
+		customer = lms.__customer()
+		loan_application = frappe.get_doc('Loan Application', data.get('loan_application_name'))
+		if not loan_application:
+			return utils.respondNotFound(message=_('Loan Application not found.'))
+		if loan_application.customer != customer.name:
+			return utils.respondForbidden(message=_('Please use your own Loan Application.'))
+
+		user = lms.__user()
+
+		esign_request = loan_application.esign_request()
+		try:
+			res = requests.post(esign_request.get('file_upload_url'), files=esign_request.get('files'), headers=esign_request.get('headers'))
+
+			if not res.ok:
+				raise utils.APIException(res.text)
+
+			data = res.json()
+
+			esign_url_dict = esign_request.get('esign_url_dict') 
+			esign_url_dict['id'] = data.get('id')
+			url = esign_request.get('esign_url').format(**esign_url_dict)
+
+			return utils.respondWithSuccess(message=_('Esign URL.'), data={'esign_url': url, 'file_id': data.get('id')})
+		except requests.RequestException as e:
+			raise utils.APIException(str(e))
+	except utils.APIException as e:
+		return e.respond()
+
+@frappe.whitelist()
+def esign_done(**kwargs):
+	try:
+		utils.validator.validate_http_method('POST')
+
+		data = utils.validator.validate(kwargs, {
+			'loan_application_name': 'required',
+			'file_id': 'required'
+		})
+
+		customer = lms.__customer()
+		loan_application = frappe.get_doc('Loan Application', data.get('loan_application_name'))
+		if not loan_application:
+			return utils.respondNotFound(message=_('Loan Application not found.'))
+		if loan_application.customer != customer.name:
+			return utils.respondForbidden(message=_('Please use your own Loan Application.'))
+
+		
+	except utils.APIException as e:
+		return e.respond()
 
 @frappe.whitelist()
 def my_loans():

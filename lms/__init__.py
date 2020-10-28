@@ -342,6 +342,9 @@ def __banks(user_kyc=None):
 
 	return res
 
+def round_down_amount_to_nearest_thousand(amount):
+	return float(int(amount/1000) * 1000)
+
 def get_customer(entity):
 	customer_list = frappe.get_all('Customer', filters={'username': get_user(entity)})
 	return frappe.get_doc('Customer', customer_list[0].name)

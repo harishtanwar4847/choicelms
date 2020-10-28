@@ -7,44 +7,22 @@
  "field_order": [
   "total_collateral_value",
   "drawing_power",
-  "pledgor_boid",
-  "prf_number",
+  "lender",
   "status",
+  "customer_esigned_document",
   "loan_application_column_break",
   "customer",
   "allowable_ltv",
-  "pledgee_boid",
   "expiry_date",
   "loan",
+  "lender_esigned_document",
   "items_section",
   "items"
  ],
  "fields": [
   {
-   "fieldname": "pledgor_boid",
-   "fieldtype": "Data",
-   "label": "Pledgor BOID",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
-   "fieldname": "prf_number",
-   "fieldtype": "Data",
-   "label": "PRF Number",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
    "fieldname": "loan_application_column_break",
    "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "pledgee_boid",
-   "fieldtype": "Data",
-   "label": "Pledgee BOID",
-   "read_only": 1,
-   "reqd": 1
   },
   {
    "fieldname": "expiry_date",
@@ -69,7 +47,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Pending\nApproved\nRejected",
+   "options": "Pending\nEsign Done\nApproved\nRejected",
    "read_only": 1
   },
   {
@@ -105,9 +83,28 @@
    "label": "Drawing Power",
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "depends_on": "eval:['Esign Done', 'Approved'].includes(doc.status)",
+   "fieldname": "customer_esigned_document",
+   "fieldtype": "Attach",
+   "label": "Customer Esigned Document"
+  },
+  {
+   "depends_on": "eval:['Esign Done', 'Approved'].includes(doc.status)",
+   "fieldname": "lender_esigned_document",
+   "fieldtype": "Attach",
+   "label": "Lender Esigned Document"
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender",
+   "reqd": 1
   }
  ],
- "modified": "2020-09-26 21:44:09.392118",
+ "modified": "2020-10-28 23:35:52.436610",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

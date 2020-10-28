@@ -8,8 +8,59 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from lms.loan import create_loan_collateral
-
+from num2words import num2words
 class LoanApplication(Document):
+	def get_lender(self):
+		return frappe.get_doc('Lender', self.lender)
+
+	def get_customer(self):
+		return frappe.get_doc('Customer', self.customer)
+	
+	def esign_request(self):
+		customer = self.get_customer()
+		user = frappe.get_doc('User', customer.username)
+		user_kyc = frappe.get_doc('User KYC', customer.choice_kyc)
+		lender = self.get_lender()
+		doc = {
+			'borrower_name': user.full_name, 
+			'borrower_address': user_kyc.address,
+			'sanctioned_amount': self.drawing_power,
+			'sanctioned_amount_in_words': num2words(self.drawing_power, lang='en_IN'),
+			'rate_of_interest': lender.rate_of_interest,
+			'default_interest': lender.default_interest,
+			'account_renewal_charges': lender.account_renewal_charges,
+			'documentation_charges': lender.documentation_charges,
+			'processing_fee': lender.lender_processing_fees,
+			'transaction_charges_per_request': lender.transaction_charges_per_request,
+			'security_selling_share': lender.security_selling_share,
+			'cic_charges': lender.cic_charges,
+			'total_pages': lender.total_pages,
+		}
+
+		agreement_file = lender.get_loan_agreement_file()
+		agreement = frappe.render_template(agreement_file.get_content(), {'doc': doc})
+		
+		from frappe.utils.pdf import get_pdf
+		agreement_pdf = get_pdf(agreement)
+
+		coordinates = lender.coordinates.split(',')
+
+		las_settings = frappe.get_single('LAS Settings')
+		headers = {'userId': las_settings.choice_user_id}
+		files = {'file': ('loan-aggrement.pdf', agreement_pdf)}
+
+		return {
+			'file_upload_url': las_settings.esign_upload_file_url,
+			'headers': headers,
+			'files': files,
+			'esign_url_dict': {
+				'x': coordinates[0],
+				'y': coordinates[1],
+				'page_number': lender.esign_page
+			},
+			'esign_url': las_settings.esign_request_url
+		}
+
 	def on_update(self):
 		if self.status == 'Approved':
 			if not self.loan:
@@ -88,3 +139,20 @@ class LoanApplication(Document):
 
 		loan.save(ignore_permissions=True)
 		return loan
+
+def only_pdf_upload(doc, method):
+	print('hi', doc.as_dict())
+	if doc.attached_to_doctype == 'Loan Application':
+		if doc.file_name.split('.')[-1].lower() != 'pdf':
+			frappe.throw('Kindly upload PDF files only.')
+
+def get_permission_query_conditions(user):
+	if not user: user = frappe.session.user
+
+	if "System Manager" in frappe.get_roles(user):
+		return None
+	elif "Lender" in frappe.get_roles(user):
+		roles = frappe.get_roles(user)
+
+		return """(`tabLoan Application`.lender in {role_tuple})"""\
+			.format(role_tuple=lms.convert_list_to_tuple_string(roles))

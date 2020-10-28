@@ -328,12 +328,19 @@ def process(**kwargs):
 			# Pledge LOG end
 
 			if not res.ok or not data.get('Success'):
+				cart.status = 'Failure'
+				cart.is_processed = 1
+				cart.save(ignore_permissions=True)
 				raise lms.PledgeSetupFailureException(errors=res.text)
 			
 			cart.reload()
 			cart.process(data)
 			cart.save(ignore_permissions=True)
 			loan_application = cart.create_loan_application()
+
+			if not customer.pledge_securities:
+				customer.pledge_securities = 1
+				customer.save(ignore_permissions=True)
 
 			return utils.respondWithSuccess(data=utils.frappe_doc_proper_dict(loan_application))
 		except requests.RequestException as e:
@@ -517,7 +524,19 @@ def request_pledge_otp():
 	try:
 		utils.validator.validate_http_method('POST')
 
+		user = lms.__user()
 		user_kyc = lms.__user_kyc()
+
+		for tnc in frappe.get_list('Terms and Conditions', filters={'is_active': 1}):
+			approved_tnc = frappe.get_doc({
+				'doctype': 'Approved Terms and Conditions',
+				'mobile': user.username,
+				'tnc': tnc.name,
+				'time': datetime.now()
+			})
+			approved_tnc.insert(ignore_permissions=True)
+
+		las_settings = frappe.get_single('LAS Settings')
 
 		lms.create_user_token(entity=user_kyc.mobile_number, token_type="Pledge OTP", token=lms.random_token(length=4, is_numeric=True))
 		return utils.respondWithSuccess(message='Pledge OTP sent')
