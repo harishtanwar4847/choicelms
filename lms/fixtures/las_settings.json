@@ -23,7 +23,7 @@
   "jiffy_session_generator_uri": "/api/settings/GenKey",
   "loan_interest": "15",
   "loan_margin": 50.0,
-  "modified": null,
+  "modified": "2020-10-29 01:09:48.543942",
   "name": "LAS Settings",
   "parent": null,
   "parentfield": null,

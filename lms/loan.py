@@ -58,7 +58,29 @@ def esign_done(**kwargs):
 		if loan_application.customer != customer.name:
 			return utils.respondForbidden(message=_('Please use your own Loan Application.'))
 
-		
+		las_settings = frappe.get_single('LAS Settings')
+		esigned_pdf_url = las_settings.esign_download_signed_file_url.format(file_id=data.get('file_id'))
+
+		try:
+			res = requests.get(esigned_pdf_url, allow_redirects=True)
+			esigned_file = frappe.get_doc({
+				'doctype': 'File',
+				'file_name': '{}-aggrement.pdf'.format(data.get('loan_application_name')),
+				'content': res.content,
+				'attached_to_doctype': 'Loan Application',
+				'attached_to_name': data.get('loan_application_name'),
+				'attached_to_field': 'customer_esigned_document',
+				'folder': 'Home'
+			})
+			esigned_file.save(ignore_permissions=True)
+
+			loan_application.status = 'Esign Done'
+			loan_application.workflow_state = 'Esign Done'
+			loan_application.save(ignore_permissions=True)
+
+			return utils.respondWithSuccess()
+		except requests.RequestException as e:
+			raise utils.APIException(str(e))
 	except utils.APIException as e:
 		return e.respond()
 

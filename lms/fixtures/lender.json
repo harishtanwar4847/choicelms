@@ -1,7 +1,6 @@
 [
  {
   "account_renewal_charges": 0.5,
-  "agreement_template": "/private/files/TC_NBFCver2.3.1nopagenumbersjinjatemplate.doc 3.html",
   "cic_charges": 100.0,
   "coordinates": "350,140",
   "default_interest": 4.0,
@@ -12,7 +11,7 @@
   "documentation_charge_type": "Fix",
   "documentation_charges": 1000.0,
   "documentation_charges_sharing": 100.0,
-  "esign_page": 19,
+  "esign_page": 18,
   "full_name": "Choice Finserv",
   "gst_id": null,
   "interest_percentage_sharing": 0.84,
@@ -38,7 +37,7 @@
   "stamp_duty_sharing": 100.0,
   "stamp_duty_sharing_type": "Percentage",
   "stamp_duty_type": "Percentage",
-  "total_pages": 19,
+  "total_pages": 18,
   "transaction_charges_per_request": 100.0
  }
 ]

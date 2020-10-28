@@ -145,7 +145,7 @@
   "doctype": "Workflow",
   "document_type": "Loan Application",
   "is_active": 1,
-  "modified": "2020-10-29 00:04:31.862713",
+  "modified": "2020-10-29 01:22:41.187509",
   "name": "Loan Application Approval",
   "override_status": 0,
   "parent": null,
@@ -245,7 +245,7 @@
     "update_value": "Esign Done"
    },
    {
-    "allow_edit": "Lender",
+    "allow_edit": "Loan Customer",
     "doc_status": "0",
     "is_optional_state": 0,
     "message": null,
@@ -273,7 +273,7 @@
    {
     "action": "Esign",
     "allow_self_approval": 0,
-    "allowed": "Lender",
+    "allowed": "Loan Customer",
     "condition": null,
     "next_state": "Esign Done",
     "parent": "Loan Application Approval",
