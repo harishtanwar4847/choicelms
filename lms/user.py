@@ -27,7 +27,7 @@ def set_pin(**kwargs):
 		mess = _("Dear " + doc.full_name + ", You have successfully updated your Finger Print / PIN registration at Spark.Loans!.")
 		frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
 
-		return utils.responder.respondWithSuccess(message=frappe._('User PIN has been set'))
+		return utils.respondWithSuccess(message=frappe._('User PIN has been set'))
 	except utils.exceptions.APIException as e :
 		return e.respond()
 
@@ -89,7 +89,7 @@ def kyc(**kwargs):
 			'banks': lms.__banks(user_kyc.name)
 		}
 
-		return utils.responder.respondWithSuccess(data=data)
+		return utils.respondWithSuccess(data=data)
 	except utils.APIException as e:
 		return e.respond()
 
@@ -158,7 +158,8 @@ def get_choice_kyc(pan_no, birth_date):
 
 	except requests.RequestException as e:
 		raise utils.APIException(str(e))
-
+	except Exception as e:
+		raise utils.APIException(str(e))
 
 @frappe.whitelist()
 def kyc_old(pan_no=None, birth_date=None):
@@ -230,6 +231,28 @@ def kyc_old(pan_no=None, birth_date=None):
 			})
 			user_kyc.insert(ignore_permissions=True)
 
+			# save customer bank account 
+			bank_acc = frappe.get_doc({
+				"doctype" : "Bank Account",
+				"user_kyc":user_kyc.name,
+				"bank": data["bank"],
+				"bank_address": data["bankAddress"],
+				"branch": data["branch"],
+				"contact": data["contact"],
+				"account_type": data["accountType"],
+				"account_number": data["accountNumber"],
+				"ifsc": data["ifsc"],
+				"micr": data["micr"],
+				"bank_mode": data["bankMode"],
+				"bank_code": data["bankcode"],
+				"bank_zip_code": data["bankZipCode"],
+				"city": data["city"],
+				"district": data["district"],
+				"state": data["state"],
+				"is_default": 1 if data["defaultBank"] == "Y" else 0
+			})
+			bank_acc.insert(ignore_permissions=True)
+
 			customer = lms.get_customer(user.username)
 			customer.kyc_update = 1
 			customer.choice_kyc = user_kyc.name
@@ -289,7 +312,44 @@ def kyc_old(pan_no=None, birth_date=None):
 		return lms.generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def esign(cart_name=None, loan_name=None):
+def esign(**kwargs):
+	try:
+		utils.validator.validate_http_method('POST')
+
+		data = utils.validator.validate(kwargs, {
+			'loan_application_name': 'required',
+		})
+
+		customer = lms.__customer()
+		loan_application = frappe.get_doc('Loan Application', data.get('loan_application_name'))
+		if not loan_application:
+			return utils.respondNotFound(message=_('Loan Application not found.'))
+		if loan_application.customer != customer.name:
+			return utils.respondForbidden(message=_('Please use your own Loan Application.'))
+
+		user = lms.__user()
+
+		esign_request = loan_application.esign_request()
+		try:
+			res = requests.post(esign_request.get('file_upload_url'), files=esign_request.get('files'), headers=esign_request.get('headers'))
+
+			if not res.ok:
+				raise utils.APIException(res.text)
+
+			data = res.json()
+
+			esign_url_dict = esign_request.get('esign_url_dict') 
+			esign_url_dict['id'] = data.get('id')
+			url = esign_request.get('esign_url').format(**esign_url_dict)
+
+			return utils.respondWithSuccess(message=_('Esign URL.'), data={'esign_url': url, 'file_id': data.get('id')})
+		except requests.RequestException as e:
+			raise utils.APIException(str(e))
+	except utils.APIException as e:
+		return e.respond()
+
+@frappe.whitelist()
+def esign_old(cart_name=None, loan_name=None):
 	try:
 		# validation
 		lms.validate_http_method('POST')
@@ -353,7 +413,57 @@ def esign(cart_name=None, loan_name=None):
 		return lms.generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def securities():
+def securities(**kwargs):
+	try:
+		utils.validator.validate_http_method('GET')
+
+		data = utils.validator.validate(kwargs, {
+			'lender': '',
+		})
+
+		if not data.get('lender', None):
+			data['lender'] = frappe.get_last_doc('Lender').name
+
+		user_kyc = lms.__user_kyc()
+
+		las_settings = frappe.get_single('LAS Settings')
+
+		# get securities list from choice
+		payload = {
+			"UserID": las_settings.choice_user_id,
+			"ClientID": user_kyc.pan_no
+		}
+		
+		try:
+			res = requests.post(las_settings.choice_securities_list_api, json=payload, headers={"Accept": "application/json"})
+			if not res.ok:
+				raise utils.APIException(res.text)
+
+			res_json = res.json()
+			if res_json["Status"] != "Success":
+				raise utils.APIException(res.text)
+
+			# setting eligibility
+			securities_list = res_json["Response"]
+			securities_list_ = [i['ISIN'] for i in securities_list]
+			securities_category_map = lms.get_allowed_securities(securities_list_, data.get('lender'))
+
+			for i in securities_list:
+				try:
+					i["Category"] = securities_category_map[i['ISIN']].get('category')
+					i["Is_Eligible"] = True
+				except KeyError:
+					i["Is_Eligible"] = False
+					i["Category"] = None
+			
+			return utils.respondWithSuccess(data=securities_list)
+		except requests.RequestException as e:
+			raise utils.APIException(str(e))
+	except utils.APIException as e:
+		return e.respond()
+
+@frappe.whitelist()
+def securities_old():
 	try:
 		lms.validate_http_method('GET')
 

@@ -1,17 +1,27 @@
 {
- "autoname": "CART.######",
+ "autoname": "C.######",
  "creation": "2020-05-08 16:23:34.952109",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "total_collateral_value",
-  "allowable_ltv",
-  "is_processed",
-  "column_break_2",
-  "eligible_loan",
   "customer",
+  "total_collateral_value",
+  "approved_total_collateral_value",
+  "pledgor_boid",
+  "prf_number",
+  "allowable_ltv",
+  "column_break_2",
+  "lender",
+  "eligible_loan",
+  "approved_eligible_loan",
+  "pledgee_boid",
+  "expiry",
   "loan",
+  "section_break_9",
+  "is_processed",
+  "column_break_11",
+  "status",
   "section_break_4",
   "items"
  ],
@@ -66,16 +76,72 @@
    "in_list_view": 1,
    "label": "Customer",
    "options": "Customer",
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "loan",
    "fieldtype": "Link",
    "label": "Loan",
-   "options": "Loan"
+   "options": "Loan",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "pledgor_boid",
+   "fieldtype": "Data",
+   "label": "Pledgor BOID"
+  },
+  {
+   "depends_on": "eval:doc.is_processed",
+   "fieldname": "section_break_9",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Not Processed\nSuccess\nPartial Success\nFailure"
+  },
+  {
+   "fieldname": "pledgee_boid",
+   "fieldtype": "Data",
+   "label": "Pledgee BOID"
+  },
+  {
+   "fieldname": "prf_number",
+   "fieldtype": "Data",
+   "label": "PRF Number"
+  },
+  {
+   "fieldname": "expiry",
+   "fieldtype": "Date",
+   "label": "Expiry"
+  },
+  {
+   "depends_on": "eval:doc.is_processed",
+   "fieldname": "approved_total_collateral_value",
+   "fieldtype": "Currency",
+   "label": "Approved Total Collateral Value"
+  },
+  {
+   "depends_on": "eval:doc.is_processed",
+   "fieldname": "approved_eligible_loan",
+   "fieldtype": "Currency",
+   "label": "Approved Eligible Loan"
   }
  ],
- "modified": "2020-09-08 13:54:35.765367",
+ "modified": "2020-10-28 14:47:30.027248",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart",
@@ -102,6 +168,18 @@
    "read": 1,
    "report": 1,
    "role": "Loan Customer",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lender",
    "share": 1,
    "write": 1
   }

@@ -9,50 +9,81 @@ from frappe.model.document import Document
 from datetime import datetime
 
 class Loan(Document):
+	def get_lender(self):
+		return frappe.get_doc('Lender', self.lender)
+	
 	def after_insert(self):
-		# fetch lender details
-		lender_doc = frappe.get_doc("Lender", "LENDER000001").as_dict()
+		lender = self.get_lender()
+
+		# Processing fees
+		amount = lender.lender_processing_fees
+		if lender.lender_processing_fees_type == 'Percentage':
+			amount = (amount/100) * self.sanctioned_limit
+		loan_transaction = self.create_loan_transaction('Processing Fees', 'DR', amount)
 		
-		# variable defined for fixed loan transactions
-		purposes = [
-			{
-				"type_field":"lender_processing_fees_type",
-				"value_field":"lender_processing_fees",
-				"label":'Lender Processing Fees'
-			},
-			{
-				"type_field":"stamp_duty_type",
-				"value_field":"stamp_duty",
-				"label":'Stamp Duty'
-			},
-			{
-				"type_field":"documentation_charge_type",
-				"value_field":"documentation_charges",
-				"label":'Documentation Charges'
-			},
-			{
-				"type_field":"mortgage_charge_type",
-				"value_field":"mortgage_charges",
-				"label":'Mortgage Charges'
-			},
-		]
+		lender_sharing_amount = lender.lender_processing_fees_sharing
+		if lender.lender_processing_fees_sharing_type == 'Percentage':
+			lender_sharing_amount = (lender_sharing_amount/100) * amount
+		spark_sharing_amount = amount - lender_sharing_amount
+		self.create_lender_ledger(loan_transaction.name, amount, lender_sharing_amount, spark_sharing_amount)
 
-		for purpose in purposes:
-			# create loan transaction
-			transaction_amt = lender_doc[purpose['value_field']]
-			if lender_doc[purpose["type_field"]] == "Percentage":
-				transaction_amt = (self.total_collateral_value*lender_doc[purpose['value_field']])/100
-			
-			loan_transaction = frappe.get_doc({
-				'doctype': 'Loan Transaction',
-				"loan":self.name,
-				"transaction_amount":transaction_amt,
-				"purpose":purpose['label'],
-				"record_type":"DR",
-				"transaction_time":datetime.now()
-			})
+		# Stamp Duty
+		amount = lender.stamp_duty
+		if lender.stamp_duty_type == 'Percentage':
+			amount = (amount/100) * self.sanctioned_limit
+		loan_transaction = self.create_loan_transaction('Stamp Duty', 'DR', amount)
 
-			loan_transaction.insert(ignore_permissions=True)
+		lender_sharing_amount = lender.stamp_duty_sharing
+		if lender.stamp_duty_sharing_type == 'Percentage':
+			lender_sharing_amount = (lender_sharing_amount/100) * amount
+		spark_sharing_amount = amount - lender_sharing_amount
+		self.create_lender_ledger(loan_transaction.name, amount, lender_sharing_amount, spark_sharing_amount)
+
+		# Documentation Charges
+		amount = lender.documentation_charges
+		if lender.documentation_charge_type == 'Percentage':
+			amount = (amount/100) * self.sanctioned_limit
+		self.create_loan_transaction('Documentation Charges', 'DR', amount)
+
+		lender_sharing_amount = lender.documentation_charges_sharing
+		if lender.documentation_charge_sharing_type == 'Percentage':
+			lender_sharing_amount = (lender_sharing_amount/100) * amount
+		spark_sharing_amount = amount - lender_sharing_amount
+		self.create_lender_ledger(loan_transaction.name, amount, lender_sharing_amount, spark_sharing_amount)
+
+		# Mortgage Charges
+		amount = lender.mortgage_charges
+		if lender.mortgage_charge_type == 'Percentage':
+			amount = (amount/100) * self.sanctioned_limit
+		self.create_loan_transaction('Mortgage Charges', 'DR', amount)
+
+		lender_sharing_amount = lender.mortgage_charges_sharing
+		if lender.mortgage_charge_sharing_type == 'Percentage':
+			lender_sharing_amount = (lender_sharing_amount/100) * amount
+		spark_sharing_amount = amount - lender_sharing_amount
+		self.create_lender_ledger(loan_transaction.name, amount, lender_sharing_amount, spark_sharing_amount)
+
+	def create_loan_transaction(self, transaction_type, record_type, amount):
+		return frappe.get_doc({
+			'doctype': 'Loan Transaction',
+			'loan': self.name,
+			'lender': self.lender,
+			'amount': amount,
+			'transaction_type': transaction_type,
+			'record_type': record_type,
+			'time': datetime.now()
+		}).insert(ignore_permissions=True)
+
+	def create_lender_ledger(self, loan_transaction_name, amount, lender_share, spark_share):
+		frappe.get_doc({
+			'doctype': 'Lender Ledger',
+			'loan': self.name,
+			'loan_transaction': loan_transaction_name,
+			'lender': self.lender,
+			'amount': amount,
+			'lender_share': lender_share,
+			'spark_share': spark_share,
+		}).insert(ignore_permissions=True)
 
 	def get_customer(self):
 		return frappe.get_doc('Customer', self.customer)
@@ -61,10 +92,10 @@ class Loan(Document):
 		# sauce: https://stackoverflow.com/a/23827026/9403680
 		sql = """
 			SELECT loan
-				, SUM(COALESCE(CASE WHEN record_type = 'DR' THEN transaction_amount END,0)) total_debits
-				, SUM(COALESCE(CASE WHEN record_type = 'CR' THEN transaction_amount END,0)) total_credits
-				, SUM(COALESCE(CASE WHEN record_type = 'DR' THEN transaction_amount END,0)) 
-				- SUM(COALESCE(CASE WHEN record_type = 'CR' THEN transaction_amount END,0)) outstanding 
+				, SUM(COALESCE(CASE WHEN record_type = 'DR' THEN amount END,0)) total_debits
+				, SUM(COALESCE(CASE WHEN record_type = 'CR' THEN amount END,0)) total_credits
+				, SUM(COALESCE(CASE WHEN record_type = 'DR' THEN amount END,0)) 
+				- SUM(COALESCE(CASE WHEN record_type = 'CR' THEN amount END,0)) outstanding 
 			FROM `tabLoan Transaction`
 			WHERE loan = '{}' 
 			GROUP BY loan
@@ -141,3 +172,14 @@ def check_all_loans_for_shortfall():
 			loans=[i.name for i in loan_list],
 			queue='long'
 		)
+
+def get_permission_query_conditions(user):
+	if not user: user = frappe.session.user
+
+	if "System Manager" in frappe.get_roles(user):
+		return None
+	elif "Lender" in frappe.get_roles(user):
+		roles = frappe.get_roles(user)
+
+		return """(`tabLoan`.lender in {role_tuple})"""\
+			.format(role_tuple=lms.convert_list_to_tuple_string(roles))

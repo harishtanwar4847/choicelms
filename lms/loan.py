@@ -1,6 +1,89 @@
 import frappe
 from frappe import _
+import utils
 import lms
+import requests
+
+@frappe.whitelist()
+def esign(**kwargs):
+	try:
+		utils.validator.validate_http_method('POST')
+
+		data = utils.validator.validate(kwargs, {
+			'loan_application_name': 'required',
+		})
+
+		customer = lms.__customer()
+		loan_application = frappe.get_doc('Loan Application', data.get('loan_application_name'))
+		if not loan_application:
+			return utils.respondNotFound(message=_('Loan Application not found.'))
+		if loan_application.customer != customer.name:
+			return utils.respondForbidden(message=_('Please use your own Loan Application.'))
+
+		user = lms.__user()
+
+		esign_request = loan_application.esign_request()
+		try:
+			res = requests.post(esign_request.get('file_upload_url'), files=esign_request.get('files'), headers=esign_request.get('headers'))
+
+			if not res.ok:
+				raise utils.APIException(res.text)
+
+			data = res.json()
+
+			esign_url_dict = esign_request.get('esign_url_dict') 
+			esign_url_dict['id'] = data.get('id')
+			url = esign_request.get('esign_url').format(**esign_url_dict)
+
+			return utils.respondWithSuccess(message=_('Esign URL.'), data={'esign_url': url, 'file_id': data.get('id')})
+		except requests.RequestException as e:
+			raise utils.APIException(str(e))
+	except utils.APIException as e:
+		return e.respond()
+
+@frappe.whitelist()
+def esign_done(**kwargs):
+	try:
+		utils.validator.validate_http_method('POST')
+
+		data = utils.validator.validate(kwargs, {
+			'loan_application_name': 'required',
+			'file_id': 'required'
+		})
+
+		customer = lms.__customer()
+		loan_application = frappe.get_doc('Loan Application', data.get('loan_application_name'))
+		if not loan_application:
+			return utils.respondNotFound(message=_('Loan Application not found.'))
+		if loan_application.customer != customer.name:
+			return utils.respondForbidden(message=_('Please use your own Loan Application.'))
+
+		las_settings = frappe.get_single('LAS Settings')
+		esigned_pdf_url = las_settings.esign_download_signed_file_url.format(file_id=data.get('file_id'))
+
+		try:
+			res = requests.get(esigned_pdf_url, allow_redirects=True)
+			esigned_file = frappe.get_doc({
+				'doctype': 'File',
+				'file_name': '{}-aggrement.pdf'.format(data.get('loan_application_name')),
+				'content': res.content,
+				'attached_to_doctype': 'Loan Application',
+				'attached_to_name': data.get('loan_application_name'),
+				'attached_to_field': 'customer_esigned_document',
+				'folder': 'Home'
+			})
+			esigned_file.save(ignore_permissions=True)
+
+			loan_application.status = 'Esign Done'
+			loan_application.workflow_state = 'Esign Done'
+			loan_application.customer_esigned_document = esigned_file.file_url
+			loan_application.save(ignore_permissions=True)
+
+			return utils.respondWithSuccess()
+		except requests.RequestException as e:
+			raise utils.APIException(str(e))
+	except utils.APIException as e:
+		return e.respond()
 
 @frappe.whitelist()
 def my_loans():
@@ -19,8 +102,8 @@ def my_loans():
 			IFNULL(mrgloan.shortfall_c, 0.0) as shortfall_c,
 			IFNULL(mrgloan.shortfall, 0.0) as shortfall,
 
-			SUM(COALESCE(CASE WHEN loantx.record_type = 'DR' THEN loantx.transaction_amount END,0)) 
-			- SUM(COALESCE(CASE WHEN loantx.record_type = 'CR' THEN loantx.transaction_amount END,0)) outstanding 
+			SUM(COALESCE(CASE WHEN loantx.record_type = 'DR' THEN loantx.amount END,0)) 
+			- SUM(COALESCE(CASE WHEN loantx.record_type = 'CR' THEN loantx.amount END,0)) outstanding 
 
 			from `tabLoan` as loan
 			left join `tabLoan Margin Shortfall` as mrgloan

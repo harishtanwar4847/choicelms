@@ -1,76 +1,35 @@
 {
  "allow_import": 1,
- "autoname": "field:isin",
  "creation": "2020-05-08 17:48:43.472417",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "isin",
-  "security_name",
-  "category",
-  "segment",
   "eligible_percentage",
   "column_break_5",
-  "nse_symbol",
-  "type",
-  "token_id",
-  "depository",
-  "lender"
+  "lender",
+  "security_name"
  ],
  "fields": [
   {
    "fieldname": "security_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Security Name",
-   "unique": 1
-  },
-  {
-   "fieldname": "depository",
-   "fieldtype": "Data",
-   "label": "Depository"
-  },
-  {
-   "fieldname": "type",
-   "fieldtype": "Select",
-   "label": "Type",
-   "options": "Share\nMutual Fund"
+   "label": "Security Name"
   },
   {
    "fieldname": "eligible_percentage",
-   "fieldtype": "Int",
-   "label": "Eligible Percentage"
-  },
-  {
-   "fieldname": "nse_symbol",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "NSE Symbol"
-  },
-  {
-   "fieldname": "category",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Category",
-   "options": "Security Category"
+   "fieldtype": "Float",
+   "label": "Eligible Percentage",
+   "reqd": 1
   },
   {
    "fieldname": "isin",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "ISIN",
-   "reqd": 1,
-   "unique": 1
-  },
-  {
-   "fieldname": "segment",
-   "fieldtype": "Data",
-   "label": "Segment"
-  },
-  {
-   "fieldname": "token_id",
-   "fieldtype": "Data",
-   "label": "Token ID"
+   "options": "Security",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_5",
@@ -84,7 +43,7 @@
    "reqd": 1
   }
  ],
- "modified": "2020-09-21 16:05:34.450262",
+ "modified": "2020-10-27 16:16:52.975680",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",
@@ -105,6 +64,18 @@
   {
    "read": 1,
    "role": "Loan Customer"
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lender",
+   "share": 1,
+   "write": 1
   }
  ],
  "sort_field": "modified",

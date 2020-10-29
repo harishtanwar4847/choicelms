@@ -36,7 +36,7 @@
   "esign_download_signed_file_url",
   "column_break_31",
   "esign_request_url",
-  "sms_settings_section_break",
+  "section_break_33",
   "app_identification_hash_string"
  ],
  "fields": [
@@ -221,19 +221,18 @@
    "label": "Esign Request URL"
   },
   {
-   "collapsible": 1,
-   "fieldname": "sms_settings_section_break",
-   "fieldtype": "Section Break",
-   "label": "SMS Settings"
-  },
-  {
+   "default": "Oy/3VpSHXSG",
    "fieldname": "app_identification_hash_string",
    "fieldtype": "Data",
    "label": "App Identification Hash String"
+  },
+  {
+   "fieldname": "section_break_33",
+   "fieldtype": "Section Break"
   }
  ],
  "issingle": 1,
- "modified": "2020-10-24 15:47:09.412837",
+ "modified": "2020-10-26 18:11:54.168952",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

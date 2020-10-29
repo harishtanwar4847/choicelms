@@ -175,11 +175,11 @@
   "enabled": 1,
   "event": "Custom",
   "is_standard": 0,
-  "message": "<h3>Dear {{ doc.full_name or \"\" }},</h3>\n\n<h2>Congratulations</h2>\n\n<p>Your loan application has been successfully received.</p>\n<p>Track your loan application \u2013 <a href=\"{{ frappe.utils.get_url() }}\">Here</a></p>\n<p>If you need any assistance please drop an e-mail to <a>reception@spark.loans.</a></p>\n\n<p>We look forward to serve you soon.</p>\n\n<p>Thanks,</p>\n<p>The Spark Team\t</p>\n",
+  "message": "<h3>Dear {{ doc.full_name or \"\" }},</h3>\n\n{% if doc.loan_application.status == 'Failure' %}\nSorry! Your loan application was turned down since the Pledge request was not successful.<br>\nWe regret the inconvenience caused.\n{% endif %}\n{% if doc.loan_application.status == 'Success' %}\nCongratulations! Your loan application has been approved. Please e-sign the loan agreement to avail the loan now.\n{% endif %}\n{% if doc.loan_application.status == 'Partial Success' %}\nCongratulations! Your loan application is being considered favourable by our lending partner.<br>\nHowever, the pledge request was partially successful and finally accepted at Rs. {{ doc.loan_application.current_total_collateral_value }}. against the request value of Rs. {{doc.requested_total_collateral_value}}.<br>\nAccordingly the final loan amount sanctioned is Rs. {{doc.loan_application.sanctioned_amount}}.<br>\nPlease e-sign the loan agreement to avail the loan now.\n{% endif %}\n\n<p>Thanks,</p>\n<p>The Spark Team\t</p>\n",
   "method": null,
-  "modified": "2020-10-28 11:20:39.444748",
+  "modified": "2020-10-28 14:06:13.272813",
   "module": null,
-  "name": "Loan Application Creation",
+  "name": "Loan Application",
   "parent": null,
   "parentfield": null,
   "parenttype": null,
@@ -192,7 +192,7 @@
     "condition": null,
     "email_by_document_field": "email",
     "email_by_role": null,
-    "parent": "Loan Application Creation",
+    "parent": "Loan Application",
     "parentfield": "recipients",
     "parenttype": "Notification"
    }
@@ -201,7 +201,7 @@
   "sender_email": null,
   "set_property_after_alert": null,
   "slack_webhook_url": null,
-  "subject": "Loan Application Created",
+  "subject": "Loan Application",
   "value_changed": null
  }
 ]

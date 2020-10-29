@@ -82,7 +82,10 @@ after_install = "lms.after_install"
 doc_events = {
 	"User": {
 		"on_trash": "lms.__init__.delete_user"
-	}
+	},
+    "File": {
+        "before_insert": "lms.lms.doctype.loan_application.loan_application.only_pdf_upload"
+    }
 }
 
 # Scheduled Tasks
@@ -128,7 +131,7 @@ doc_events = {
 fixtures = [
     {
         "doctype": "Role",
-        "filters": [["name", "in", ["Loan Customer", "Support Team"]]]
+        "filters": [["name", "in", ["Loan Customer", "Support Team", "Lender", "Choice Finserv"]]]
     },
     {
         "doctype": "Workflow",
@@ -142,11 +145,21 @@ fixtures = [
         "doctype": "Notification",
         "filters": [["document_type", "in", ["User"]]]
     },
-    "Allowed Security", "Security Category", "Concentration Rule", "Terms and Conditions", "Margin Shortfall Action", "Lender", "SMS Settings", "API Doc", "LAS Settings"
+    "Security", "Allowed Security", "Security Category", "Concentration Rule", "Terms and Conditions", "Margin Shortfall Action", "Lender", "SMS Settings", "API Doc", "LAS Settings", "Workflow State"
 ]
 
 scheduler_events = {
 	"hourly": [
 		"lms.lms.doctype.security_price.security_price.update_all_security_prices"
 	]
+}
+
+permission_query_conditions = {
+	"Allowed Security": "lms.lms.doctype.allowed_security.allowed_security.get_permission_query_conditions",
+	"Cart": "lms.lms.doctype.cart.cart.get_permission_query_conditions",
+	"Lender": "lms.lms.doctype.lender.lender.get_permission_query_conditions",
+	"Loan Application": "lms.lms.doctype.loan_application.loan_application.get_permission_query_conditions",
+	"Loan": "lms.lms.doctype.loan.loan.get_permission_query_conditions",
+	"Loan Transaction": "lms.lms.doctype.loan_transaction.loan_transaction.get_permission_query_conditions",
+	"Lender Ledger": "lms.lms.doctype.lender_ledger.lender_ledger.get_permission_query_conditions",
 }

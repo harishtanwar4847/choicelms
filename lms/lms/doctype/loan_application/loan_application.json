@@ -7,44 +7,22 @@
  "field_order": [
   "total_collateral_value",
   "drawing_power",
-  "pledgor_boid",
-  "prf_number",
+  "lender",
   "status",
+  "customer_esigned_document",
   "loan_application_column_break",
   "customer",
   "allowable_ltv",
-  "pledgee_boid",
   "expiry_date",
   "loan",
+  "lender_esigned_document",
   "items_section",
   "items"
  ],
  "fields": [
   {
-   "fieldname": "pledgor_boid",
-   "fieldtype": "Data",
-   "label": "Pledgor BOID",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
-   "fieldname": "prf_number",
-   "fieldtype": "Data",
-   "label": "PRF Number",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
    "fieldname": "loan_application_column_break",
    "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "pledgee_boid",
-   "fieldtype": "Data",
-   "label": "Pledgee BOID",
-   "read_only": 1,
-   "reqd": 1
   },
   {
    "fieldname": "expiry_date",
@@ -69,7 +47,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Pending\nApproved\nRejected",
+   "options": "Pending\nEsign Done\nApproved\nRejected",
    "read_only": 1
   },
   {
@@ -91,7 +69,8 @@
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
-   "options": "Customer"
+   "options": "Customer",
+   "reqd": 1
   },
   {
    "fieldname": "loan",
@@ -105,9 +84,26 @@
    "label": "Drawing Power",
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "customer_esigned_document",
+   "fieldtype": "Attach",
+   "label": "Customer Esigned Document"
+  },
+  {
+   "fieldname": "lender_esigned_document",
+   "fieldtype": "Attach",
+   "label": "Lender Esigned Document"
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender",
+   "reqd": 1
   }
  ],
- "modified": "2020-09-26 21:44:09.392118",
+ "modified": "2020-10-29 16:20:22.684565",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",
@@ -134,6 +130,16 @@
    "read": 1,
    "report": 1,
    "role": "Loan Customer",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lender",
    "share": 1,
    "write": 1
   }

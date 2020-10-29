@@ -6,11 +6,12 @@
  "engine": "InnoDB",
  "field_order": [
   "loan",
-  "share_owner",
-  "amount",
-  "column_break_1",
   "loan_transaction",
-  "lender"
+  "lender_share",
+  "column_break_1",
+  "lender",
+  "amount",
+  "spark_share"
  ],
  "fields": [
   {
@@ -22,16 +23,8 @@
    "reqd": 1
   },
   {
-   "fieldname": "share_owner",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Share Owner",
-   "options": "Spark\nLender",
-   "reqd": 1
-  },
-  {
    "fieldname": "amount",
-   "fieldtype": "Float",
+   "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Amount",
    "reqd": 1
@@ -53,9 +46,22 @@
    "fieldtype": "Link",
    "label": "Lender",
    "options": "Lender"
+  },
+  {
+   "fieldname": "lender_share",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Lender Share",
+   "reqd": 1
+  },
+  {
+   "fieldname": "spark_share",
+   "fieldtype": "Currency",
+   "label": "Spark Share",
+   "reqd": 1
   }
  ],
- "modified": "2020-10-02 17:19:36.721539",
+ "modified": "2020-10-29 15:51:28.425008",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender Ledger",
@@ -72,6 +78,15 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lender",
+   "share": 1
   }
  ],
  "quick_entry": 1,

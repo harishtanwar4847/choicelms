@@ -1,5 +1,5 @@
 {
- "autoname": "LENDER.######",
+ "autoname": "field:full_name",
  "creation": "2020-09-21 12:06:19.760563",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -7,11 +7,24 @@
  "field_order": [
   "full_name",
   "pan_id",
+  "demat_account_number",
   "interest_percentage_sharing",
-  "is_active",
+  "default_interest",
+  "account_renewal_charges",
+  "security_selling_share",
   "column_break_1",
-  "registered_date",
   "gst_id",
+  "registered_date",
+  "rate_of_interest",
+  "transaction_charges_per_request",
+  "cic_charges",
+  "is_active",
+  "agreement_section",
+  "agreement_template",
+  "total_pages",
+  "column_break_18",
+  "coordinates",
+  "esign_page",
   "charges_details_section",
   "lender_processing_fees_type",
   "stamp_duty_type",
@@ -38,7 +51,8 @@
    "fieldname": "full_name",
    "fieldtype": "Data",
    "label": "Full Name",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1
   },
   {
    "fieldname": "pan_id",
@@ -197,9 +211,75 @@
    "label": "Mortgage Charges Sharing",
    "precision": "2",
    "reqd": 1
+  },
+  {
+   "fieldname": "demat_account_number",
+   "fieldtype": "Data",
+   "label": "Demat Account Number"
+  },
+  {
+   "default": "1.25",
+   "fieldname": "rate_of_interest",
+   "fieldtype": "Float",
+   "label": "Rate of Interest"
+  },
+  {
+   "default": "4",
+   "fieldname": "default_interest",
+   "fieldtype": "Float",
+   "label": "Default Interest"
+  },
+  {
+   "fieldname": "account_renewal_charges",
+   "fieldtype": "Float",
+   "label": "Account Renewal Charges"
+  },
+  {
+   "fieldname": "security_selling_share",
+   "fieldtype": "Float",
+   "label": "Security Selling Share"
+  },
+  {
+   "fieldname": "agreement_template",
+   "fieldtype": "Attach",
+   "label": "Agreement Template"
+  },
+  {
+   "fieldname": "transaction_charges_per_request",
+   "fieldtype": "Float",
+   "label": "Transaction Charges per request"
+  },
+  {
+   "fieldname": "cic_charges",
+   "fieldtype": "Float",
+   "label": "CIC Charges"
+  },
+  {
+   "fieldname": "agreement_section",
+   "fieldtype": "Section Break",
+   "label": "Agreement"
+  },
+  {
+   "fieldname": "total_pages",
+   "fieldtype": "Int",
+   "label": "Total Pages"
+  },
+  {
+   "fieldname": "column_break_18",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "esign_page",
+   "fieldtype": "Int",
+   "label": "Esign Page"
+  },
+  {
+   "fieldname": "coordinates",
+   "fieldtype": "Data",
+   "label": "Coordinates (x,y)"
   }
  ],
- "modified": "2020-09-23 20:43:18.698383",
+ "modified": "2020-10-28 19:42:47.483009",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
@@ -216,6 +296,24 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Loan Customer",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lender",
+   "share": 1
   }
  ],
  "quick_entry": 1,

@@ -7,8 +7,13 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils import cint
 from frappe import _
+import lms
 
 class Lender(Document):
+	def get_loan_agreement_template(self):
+		file_name = frappe.db.get_value('File', {'file_url': self.agreement_template})
+		return frappe.get_doc('File', file_name)
+
 	def validate(self):
 		if cint(self.interest_percentage_sharing) > 100:
 			frappe.throw(_('Interest Percentage Sharing value should not greater than 100.'))
@@ -37,4 +42,13 @@ class Lender(Document):
 		if self.mortgage_charge_sharing_type == "Percentage" and cint(self.mortgage_charges_sharing) > 100:
 			frappe.throw(_('Mortgage Charges Sharing value should not greater than 100.'))
 		
-		
+def get_permission_query_conditions(user):
+	if not user: user = frappe.session.user
+
+	if "System Manager" in frappe.get_roles(user):
+		return None
+	elif "Lender" in frappe.get_roles(user):
+		roles = frappe.get_roles(user)
+
+		return """(`tabLender`.full_name in {role_tuple})"""\
+			.format(role_tuple=lms.convert_list_to_tuple_string(roles))

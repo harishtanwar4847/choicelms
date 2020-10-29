@@ -260,8 +260,11 @@ def get_security_prices(securities=None):
 
 	return price_map
 
-def get_security_categories(securities):
-	query = """select isin, category from `tabAllowed Security` where isin in {}""".format(convert_list_to_tuple_string(securities))
+def get_security_categories(securities, lender):
+	query = """select isin, category from `tabAllowed Security`
+				where 
+				lender = '{}' and
+				isin in {}""".format(lender, convert_list_to_tuple_string(securities))
 
 	results = frappe.db.sql(query, as_dict=1)
 
@@ -269,6 +272,26 @@ def get_security_categories(securities):
 	
 	for r in results:
 		security_map[r.isin] = r.category
+
+	return security_map
+
+def get_allowed_securities(securities, lender):
+	query = """select 
+				allowed.isin, allowed.security_name, allowed.eligible_percentage,
+				master.category
+				from `tabAllowed Security` allowed
+				left join `tabSecurity` master
+				on allowed.isin = master.isin 
+				where 
+				allowed.lender = '{}' and
+				allowed.isin in {}""".format(lender, convert_list_to_tuple_string(securities))
+
+	results = frappe.db.sql(query, as_dict=1)
+
+	security_map = {}
+	
+	for r in results:
+		security_map[r.isin] = r
 
 	return security_map
 
@@ -295,7 +318,7 @@ def __user_kyc(entity=None, pan_no=None, throw=True):
 	filters = {'user': __user(entity).name}
 	if pan_no:
 		filters['pan_no'] = pan_no
-	res = frappe.get_all('User KYC', filters=filters)
+	res = frappe.get_all('User KYC', filters=filters, order_by='creation desc')
 
 	if len(res) == 0:
 		if throw:
@@ -318,6 +341,9 @@ def __banks(user_kyc=None):
 		i.modified = str(i.modified)
 
 	return res
+
+def round_down_amount_to_nearest_thousand(amount):
+	return float(int(amount/1000) * 1000)
 
 def get_customer(entity):
 	customer_list = frappe.get_all('Customer', filters={'username': get_user(entity)})

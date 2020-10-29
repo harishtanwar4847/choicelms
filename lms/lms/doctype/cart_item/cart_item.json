@@ -10,7 +10,9 @@
   "pledged_quantity",
   "price",
   "amount",
-  "eligible_percentage"
+  "eligible_percentage",
+  "psn",
+  "error_code"
  ],
  "fields": [
   {
@@ -25,7 +27,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "ISIN",
-   "options": "Allowed Security",
+   "options": "Security",
    "reqd": 1
   },
   {
@@ -62,10 +64,22 @@
    "fieldtype": "Float",
    "label": "Eligible Percentage",
    "read_only": 1
+  },
+  {
+   "fieldname": "psn",
+   "fieldtype": "Data",
+   "label": "PSN",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "error_code",
+   "fieldtype": "Data",
+   "label": "Error Code",
+   "set_only_once": 1
   }
  ],
  "istable": 1,
- "modified": "2020-08-25 16:48:03.624933",
+ "modified": "2020-10-25 20:37:51.600687",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart Item",
