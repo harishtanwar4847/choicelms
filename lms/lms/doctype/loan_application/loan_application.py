@@ -117,6 +117,9 @@ class LoanApplication(Document):
 		})
 		loan_agreement_file.save(ignore_permissions=True)
 
+		loan.loan_agreement = loan_agreement.file_url
+		loan.save(ignore_permissions=True)
+
 		customer = frappe.db.get_value('Customer', {'name': self.customer}, 'username')
 		doc = frappe.get_doc('User', customer)
 		frappe.enqueue_doc('Notification', 'Loan Sanction', method='send', doc=doc)
