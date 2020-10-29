@@ -8,6 +8,7 @@
   "amount",
   "transaction_id",
   "description",
+  "lender",
   "column_break_3",
   "record_type",
   "time",
@@ -64,8 +65,9 @@
   },
   {
    "fieldname": "bank_account",
-   "fieldtype": "Data",
-   "label": "Bank Account"
+   "fieldtype": "Link",
+   "label": "Bank Account",
+   "options": "Bank Account"
   },
   {
    "fieldname": "description",
@@ -80,10 +82,16 @@
    "options": "Loan Transaction",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender"
   }
  ],
  "is_submittable": 1,
- "modified": "2020-10-07 18:42:44.603788",
+ "modified": "2020-10-29 15:51:00.958485",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
@@ -116,7 +124,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Lender Team",
+   "role": "Lender",
    "share": 1,
    "submit": 1,
    "write": 1

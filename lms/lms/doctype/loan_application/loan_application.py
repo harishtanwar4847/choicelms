@@ -9,6 +9,7 @@ from frappe.model.document import Document
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from lms.loan import create_loan_collateral
 from num2words import num2words
+import lms
 class LoanApplication(Document):
 	def get_lender(self):
 		return frappe.get_doc('Lender', self.lender)
@@ -37,8 +38,8 @@ class LoanApplication(Document):
 			'total_pages': lender.total_pages,
 		}
 
-		agreement_file = lender.get_loan_agreement_file()
-		agreement = frappe.render_template(agreement_file.get_content(), {'doc': doc})
+		agreement_template = lender.get_loan_agreement_template()
+		agreement = frappe.render_template(agreement_template.get_content(), {'doc': doc})
 		
 		from frappe.utils.pdf import get_pdf
 		agreement_pdf = get_pdf(agreement)
@@ -68,8 +69,9 @@ class LoanApplication(Document):
 			else:
 				loan=self.update_existing_loan()
 
-			# Create loan collateral
-			create_loan_collateral(loan.name, self.pledgor_boid, self.pledgee_boid, self.prf_number, self.items)
+	def before_save(self):
+		if self.status == 'Approved' and not self.lender_esigned_document:
+			frappe.throw('Please upload Lender Esigned Document')
 
 	def create_loan(self):
 		items = []
@@ -94,15 +96,26 @@ class LoanApplication(Document):
 			'total_collateral_value': self.total_collateral_value,
 			'drawing_power': self.drawing_power,
 			'sanctioned_limit': self.drawing_power,
-			'pledgor_boid': self.pledgor_boid,
-			'prf_number': self.prf_number,
-			'pledgee_boid': self.pledgee_boid,
 			'expiry_date': self.expiry_date,
 			'allowable_ltv': self.allowable_ltv,
 			'customer': self.customer,
+			'lender': self.lender,
 			'items': items,
 		})
 		loan.insert(ignore_permissions=True)
+
+		file_name = frappe.db.get_value('File', {'file_url': self.lender_esigned_document})
+		loan_agreement = frappe.get_doc('File', file_name)
+		loan_agreement_file = frappe.get_doc({
+			'doctype': 'File',
+			'file_name': '{}-loan-aggrement.pdf'.format(loan.name),
+			'content': loan_agreement.get_content(),
+			'attached_to_doctype': 'Loan',
+			'attached_to_name': loan.name,
+			'attached_to_field': 'loan_agreement',
+			'folder': 'Home'
+		})
+		loan_agreement_file.save(ignore_permissions=True)
 
 		customer = frappe.db.get_value('Customer', {'name': self.customer}, 'username')
 		doc = frappe.get_doc('User', customer)
@@ -116,7 +129,7 @@ class LoanApplication(Document):
 		if not customer.loan_open:
 			customer.loan_open = 1
 			customer.save(ignore_permissions=True)
-		
+		self.update_collateral_ledger(loan.name)
 		return loan
 
 	def update_existing_loan(self):
@@ -138,10 +151,17 @@ class LoanApplication(Document):
 		loan.drawing_power += (loan.allowable_ltv/100) * loan.total_collateral_value
 
 		loan.save(ignore_permissions=True)
+		self.update_collateral_ledger(loan.name)
 		return loan
 
+	def update_collateral_ledger(self, loan_name):
+		frappe.db.sql("""
+			update `tabCollateral Ledger`
+			set loan = '{}'
+			where loan_application = '{}';
+		""".format(loan_name, self.name))
+
 def only_pdf_upload(doc, method):
-	print('hi', doc.as_dict())
 	if doc.attached_to_doctype == 'Loan Application':
 		if doc.file_name.split('.')[-1].lower() != 'pdf':
 			frappe.throw('Kindly upload PDF files only.')

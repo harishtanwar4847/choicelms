@@ -76,6 +76,7 @@ def esign_done(**kwargs):
 
 			loan_application.status = 'Esign Done'
 			loan_application.workflow_state = 'Esign Done'
+			loan_application.customer_esigned_document = esigned_file.file_url
 			loan_application.save(ignore_permissions=True)
 
 			return utils.respondWithSuccess()

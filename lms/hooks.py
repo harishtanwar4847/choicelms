@@ -159,4 +159,7 @@ permission_query_conditions = {
 	"Cart": "lms.lms.doctype.cart.cart.get_permission_query_conditions",
 	"Lender": "lms.lms.doctype.lender.lender.get_permission_query_conditions",
 	"Loan Application": "lms.lms.doctype.loan_application.loan_application.get_permission_query_conditions",
+	"Loan": "lms.lms.doctype.loan.loan.get_permission_query_conditions",
+	"Loan Transaction": "lms.lms.doctype.loan_transaction.loan_transaction.get_permission_query_conditions",
+	"Lender Ledger": "lms.lms.doctype.lender_ledger.lender_ledger.get_permission_query_conditions",
 }

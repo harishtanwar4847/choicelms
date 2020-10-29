@@ -69,7 +69,8 @@
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
-   "options": "Customer"
+   "options": "Customer",
+   "reqd": 1
   },
   {
    "fieldname": "loan",
@@ -85,13 +86,11 @@
    "reqd": 1
   },
   {
-   "depends_on": "eval:['Esign Done', 'Approved'].includes(doc.status)",
    "fieldname": "customer_esigned_document",
    "fieldtype": "Attach",
    "label": "Customer Esigned Document"
   },
   {
-   "depends_on": "eval:['Esign Done', 'Approved'].includes(doc.status)",
    "fieldname": "lender_esigned_document",
    "fieldtype": "Attach",
    "label": "Lender Esigned Document"
@@ -104,7 +103,7 @@
    "reqd": 1
   }
  ],
- "modified": "2020-10-28 23:35:52.436610",
+ "modified": "2020-10-29 16:20:22.684565",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",
@@ -131,6 +130,16 @@
    "read": 1,
    "report": 1,
    "role": "Loan Customer",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lender",
    "share": 1,
    "write": 1
   }

@@ -10,7 +10,7 @@ from frappe import _
 import lms
 
 class Lender(Document):
-	def get_loan_agreement_file(self):
+	def get_loan_agreement_template(self):
 		file_name = frappe.db.get_value('File', {'file_url': self.agreement_template})
 		return frappe.get_doc('File', file_name)
 
