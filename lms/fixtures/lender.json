@@ -1,6 +1,7 @@
 [
  {
   "account_renewal_charges": 0.5,
+  "agreement_template": null,
   "cic_charges": 100.0,
   "coordinates": "350,140",
   "default_interest": 4.0,
