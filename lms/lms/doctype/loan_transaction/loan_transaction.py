@@ -29,6 +29,7 @@ class LoanTransaction(Document):
 				frappe.throw(_('You are not permitted to perform this action'))
 
 	def after_insert(self):
+		frappe.enqueue_doc('Loan', self.loan, method='update_loan_balance')
 		frappe.enqueue_doc('Loan', self.loan, method='check_for_shortfall')
 
 def get_permission_query_conditions(user):

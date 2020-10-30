@@ -289,4 +289,32 @@ def create_topup(loan_name, file_id):
 		return lms.generateResponse(status=e.http_status_code, message=str(e))
 	except Exception as e:
 		return generateResponse(is_success=False, error=e)
-	
+
+@frappe.whitelist()
+def loan_transactions(**kwargs):
+	try:
+		utils.validator.validate_http_method('GET')
+
+		data = utils.validator.validate(kwargs, {
+			'loan_name':'required'
+		})
+		
+		customer = lms.__customer()
+		loan = frappe.get_doc('Loan', data.get('loan_name'))
+		if not loan:
+			return utils.respondNotFound(message=frappe._('Loan not found.')) 
+		if loan.customer != customer.name:
+			return utils.respondForbidden(message=_('Please use your own Loan Application.'))
+		
+		loan_transactions_list = frappe.db.get_all("Loan Transaction", filters={ "loan": data.get('loan_name') }, order_by="time desc", fields=["transaction_type", "record_type", "amount"])
+		
+		res = {
+			'loan': utils.frappe_doc_proper_dict(loan),
+			'transactions': loan_transactions_list
+		}
+		return utils.respondWithSuccess(data=res)
+	except utils.exceptions.APIException as e:
+		return e.respond()
+		
+
+
