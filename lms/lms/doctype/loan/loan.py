@@ -88,6 +88,11 @@ class Loan(Document):
 	def get_customer(self):
 		return frappe.get_doc('Customer', self.customer)
 
+	def update_loan_balance(self):
+		summary = self.get_transaction_summary()
+		self.balance = summary.get('outstanding')
+		self.save(ignore_permissions=True)
+
 	def get_transaction_summary(self):
 		# sauce: https://stackoverflow.com/a/23827026/9403680
 		sql = """

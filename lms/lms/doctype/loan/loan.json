@@ -9,6 +9,7 @@
   "drawing_power",
   "lender",
   "sanctioned_limit",
+  "balance",
   "loan_column_break",
   "customer",
   "allowable_ltv",
@@ -86,9 +87,14 @@
    "fieldname": "loan_agreement",
    "fieldtype": "Attach",
    "label": "Loan Agreement"
+  },
+  {
+   "fieldname": "balance",
+   "fieldtype": "Currency",
+   "label": "Balance"
   }
  ],
- "modified": "2020-10-29 15:50:47.065496",
+ "modified": "2020-10-30 13:23:31.070738",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
