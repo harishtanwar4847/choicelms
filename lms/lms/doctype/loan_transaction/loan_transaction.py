@@ -32,6 +32,10 @@ class LoanTransaction(Document):
 		frappe.enqueue_doc('Loan', self.loan, method='update_loan_balance')
 		frappe.enqueue_doc('Loan', self.loan, method='check_for_shortfall')
 
+	def before_submit(self):
+		if not self.transaction_id:
+			frappe.throw('Kindly add transaction id before approving')
+
 def get_permission_query_conditions(user):
 	if not user: user = frappe.session.user
 

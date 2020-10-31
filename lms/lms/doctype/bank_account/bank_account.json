@@ -12,6 +12,7 @@
   "city",
   "state",
   "is_default",
+  "is_spark_default",
   "column_break_1",
   "bank_address",
   "contact",
@@ -115,9 +116,15 @@
    "label": "User KYC",
    "options": "User KYC",
    "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_spark_default",
+   "fieldtype": "Check",
+   "label": "Is Spark Default"
   }
  ],
- "modified": "2020-10-08 16:49:27.798152",
+ "modified": "2020-10-31 14:43:58.000389",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Bank Account",
