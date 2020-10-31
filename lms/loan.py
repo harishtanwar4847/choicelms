@@ -353,3 +353,17 @@ def loan_withdraw_details(**kwargs):
 		return utils.respondWithSuccess(data=data)
 	except utils.APIException as e:
 		return e.respond()
+
+@frappe.whitelist()
+def request_loan_withdraw_otp():
+	try:
+		utils.validator.validate_http_method('POST')
+
+		user = lms.__user()
+
+		las_settings = frappe.get_single('LAS Settings')
+
+		lms.create_user_token(entity=user.username, token_type="Withdraw OTP", token=lms.random_token(length=4, is_numeric=True))
+		return utils.respondWithSuccess(message='Withdraw OTP sent')
+	except utils.APIException as e:
+		return e.respond()
