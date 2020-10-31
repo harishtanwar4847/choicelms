@@ -317,4 +317,39 @@ def loan_transactions(**kwargs):
 		return e.respond()
 		
 
+@frappe.whitelist()
+def loan_withdraw_details(**kwargs):
+	try:
+		utils.validator.validate_http_method('GET')
 
+		data = utils.validator.validate(kwargs, {
+			'loan_name':'required'
+		})
+
+		customer = lms.__customer()
+		loan = frappe.get_doc('Loan', data.get('loan_name'))
+		if not loan:
+			return utils.respondNotFound(message=frappe._('Loan not found.')) 
+		if loan.customer != customer.name:
+			return utils.respondForbidden(message=_('Please use your own Loan Application.'))
+
+		# set amount_available_for_withdrawal
+		loan = loan.as_dict()
+		loan.amount_available_for_withdrawal = loan.drawing_power - loan.balance
+
+		data = {
+			'loan': loan,
+		}
+
+		# append bank list if first withdrawal transaction
+		filters = {
+			'loan': loan.name,
+			'transaction_type': 'Withdrawal',
+			'docstatus': 1
+		}
+		if frappe.db.count('Loan Transaction', filters) == 0:
+			data['banks'] = lms.__banks()
+
+		return utils.respondWithSuccess(data=data)
+	except utils.APIException as e:
+		return e.respond()
