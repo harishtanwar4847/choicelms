@@ -306,7 +306,7 @@ def loan_transactions(**kwargs):
 		if loan.customer != customer.name:
 			return utils.respondForbidden(message=_('Please use your own Loan Application.'))
 		
-		loan_transactions_list = frappe.db.get_all("Loan Transaction", filters={ "loan": data.get('loan_name') }, order_by="time desc", fields=["transaction_type", "record_type", "amount"])
+		loan_transactions_list = frappe.db.get_all("Loan Transaction", filters={ "loan": data.get('loan_name'), 'docstatus': 1 }, order_by="time desc", fields=["transaction_type", "record_type", "amount"])
 		
 		res = {
 			'loan': utils.frappe_doc_proper_dict(loan),
