@@ -289,6 +289,9 @@ def process(**kwargs):
 
 		token = lms.verify_user_token(entity=user_kyc.mobile_number, token=data.get('otp'), token_type='Pledge OTP')
 
+		if token.expiry <= datetime.now():
+			return utils.respondUnauthorized(message=frappe._('Pledge OTP Expired.'))
+
 		customer = lms.__customer()
 
 		cart = frappe.get_doc("Cart", data.get('cart_name'))
@@ -536,8 +539,6 @@ def request_pledge_otp():
 				'time': datetime.now()
 			})
 			approved_tnc.insert(ignore_permissions=True)
-
-		las_settings = frappe.get_single('LAS Settings')
 
 		lms.create_user_token(entity=user_kyc.mobile_number, token_type="Pledge OTP", token=lms.random_token(length=4, is_numeric=True))
 		return utils.respondWithSuccess(message='Pledge OTP sent')

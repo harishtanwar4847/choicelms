@@ -292,12 +292,14 @@ def create_topup(loan_name, file_id):
 		return generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def loan_transactions(**kwargs):
+def loan_details(**kwargs):
 	try:
 		utils.validator.validate_http_method('GET')
 
 		data = utils.validator.validate(kwargs, {
-			'loan_name':'required'
+			'loan_name':'required',
+			'transactions_per_page': '',
+			'transactions_start': ''
 		})
 		
 		customer = lms.__customer()
@@ -305,9 +307,21 @@ def loan_transactions(**kwargs):
 		if not loan:
 			return utils.respondNotFound(message=frappe._('Loan not found.')) 
 		if loan.customer != customer.name:
-			return utils.respondForbidden(message=_('Please use your own Loan Application.'))
+			return utils.respondForbidden(message=_('Please use your own Loan.'))
+
+		if not data.get('transactions_per_page', None):
+			data['transactions_per_page'] = 15
+		if not data.get('transactions_start', None):
+			data['transactions_start'] = 0
 		
-		loan_transactions_list = frappe.db.get_all("Loan Transaction", filters={ "loan": data.get('loan_name'), 'docstatus': 1 }, order_by="time desc", fields=["transaction_type", "record_type", "amount"])
+		loan_transactions_list = frappe.db.get_all(
+			"Loan Transaction", 
+			filters={ "loan": data.get('loan_name'), 'docstatus': 1 }, 
+			order_by="time desc", 
+			fields=["transaction_type", "record_type", "amount"],
+			start=data.get('transactions_start'),
+			page_length=data.get('transactions_per_page')
+		)
 		
 		res = {
 			'loan': utils.frappe_doc_proper_dict(loan),
@@ -361,8 +375,6 @@ def request_loan_withdraw_otp():
 
 		user = lms.__user()
 
-		las_settings = frappe.get_single('LAS Settings')
-
 		lms.create_user_token(entity=user.username, token_type="Withdraw OTP", token=lms.random_token(length=4, is_numeric=True))
 		return utils.respondWithSuccess(message='Withdraw OTP sent')
 	except utils.APIException as e:
@@ -376,11 +388,18 @@ def loan_withdraw_request(**kwargs):
 		data = utils.validator.validate(kwargs, {
 			'loan_name':'required',
 			'amount': 'required|decimal',
-			'bank_account_name': ''
+			'bank_account_name': '',
+			'otp': ['required', 'decimal', utils.validator.rules.LengthRule(4)]
 		})
 
 		customer = lms.__customer()
 		user_kyc = lms.__user_kyc()
+
+		token = lms.verify_user_token(entity=user_kyc.mobile_number, token=data.get('otp'), token_type='Withdraw OTP')
+
+		if token.expiry <= datetime.now():
+			return utils.respondUnauthorized(message=frappe._('Withdraw OTP Expired.'))
+
 		loan = frappe.get_doc('Loan', data.get('loan_name'))
 		if not loan:
 			return utils.respondNotFound(message=frappe._('Loan not found.')) 
@@ -454,18 +473,6 @@ def loan_payment(**kwargs):
 			return utils.respondNotFound(message=frappe._('Loan not found.')) 
 		if loan.customer != customer.name:
 			return utils.respondForbidden(message=_('Please use your own Loan.'))
-
-		payment_loan_transaction = frappe.get_doc({
-			'doctype': 'Loan Transaction',
-			'loan': data.get("loan_name"),
-			'record_type': "CR",
-			'transaction_type': "Payment",
-			'amount': data.get("amount"),
-			'lender': loan.lender,
-			'transaction_id': data.get("transaction_id"),
-			'time': datetime.now()
-		})
-		payment_loan_transaction.insert(ignore_permissions=True)
 
 		loan.create_loan_transaction(
 			transaction_type = 'Payment',
