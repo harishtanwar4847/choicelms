@@ -292,12 +292,14 @@ def create_topup(loan_name, file_id):
 		return generateResponse(is_success=False, error=e)
 
 @frappe.whitelist()
-def loan_transactions(**kwargs):
+def loan_details(**kwargs):
 	try:
 		utils.validator.validate_http_method('GET')
 
 		data = utils.validator.validate(kwargs, {
-			'loan_name':'required'
+			'loan_name':'required',
+			'transactions_per_page': '',
+			'transactions_start': ''
 		})
 		
 		customer = lms.__customer()
@@ -305,9 +307,21 @@ def loan_transactions(**kwargs):
 		if not loan:
 			return utils.respondNotFound(message=frappe._('Loan not found.')) 
 		if loan.customer != customer.name:
-			return utils.respondForbidden(message=_('Please use your own Loan Application.'))
+			return utils.respondForbidden(message=_('Please use your own Loan.'))
+
+		if not data.get('transactions_per_page', None):
+			data['transactions_per_page'] = 15
+		if not data.get('transactions_start', None):
+			data['transactions_start'] = 0
 		
-		loan_transactions_list = frappe.db.get_all("Loan Transaction", filters={ "loan": data.get('loan_name'), 'docstatus': 1 }, order_by="time desc", fields=["transaction_type", "record_type", "amount"])
+		loan_transactions_list = frappe.db.get_all(
+			"Loan Transaction", 
+			filters={ "loan": data.get('loan_name'), 'docstatus': 1 }, 
+			order_by="time desc", 
+			fields=["transaction_type", "record_type", "amount"],
+			start=data.get('transactions_start'),
+			page_length=data.get('transactions_per_page')
+		)
 		
 		res = {
 			'loan': utils.frappe_doc_proper_dict(loan),
