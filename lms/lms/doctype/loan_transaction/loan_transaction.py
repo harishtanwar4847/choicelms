@@ -9,8 +9,27 @@ from frappe import _
 import lms
 
 class LoanTransaction(Document):
+	loan_transaction_map = {
+		'Withdrawal': 'DR',
+		'Payment': 'CR',
+		'Debit Note': 'DR',
+		'Credit Note': 'CR',
+		'Processing Fees': 'DR',
+		'Stamp Duty': 'DR',
+		'Documentation Charges': 'DR',
+		'Mortgage Charges': 'DR',
+		'Sell Collateral': 'DR', # confirm
+		'Invoke Pledge': 'DR', # confirm
+		'Interests': 'DR',
+		'Additional Interests': 'DR',
+		'Other Charges': 'DR'
+	}
+
 	def get_loan(self):
 		return frappe.get_doc('Loan', self.loan)
+
+	def get_lender(self):
+		return frappe.get_doc('Lender', self.lender)
 	
 	def before_insert(self):
 		# check for user roles and permissions before adding transactions
@@ -28,9 +47,41 @@ class LoanTransaction(Document):
 			elif self.transaction_type in lender_team_transaction_list and ("Lender Team" not in user_roles):
 				frappe.throw(_('You are not permitted to perform this action'))
 
-	def after_insert(self):
+	def on_submit(self):
+		if self.transaction_type in ['Processing Fees', 'Stamp Duty', 'Documentation Charges', 'Mortgage Charges']:
+			lender = self.get_lender()
+			
+			if self.transaction_type == 'Processing Fees':
+				sharing_amount = lender.lender_processing_fees_sharing
+				sharting_type = lender.lender_processing_fees_sharing_type
+			elif self.transaction_type == 'Stamp Duty':
+				sharing_amount = lender.stamp_duty_sharing
+				sharting_type = lender.stamp_duty_sharing_type
+			elif self.transaction_type == 'Documentation Charges':
+				sharing_amount = lender.documentation_charges_sharing
+				sharting_type = lender.documentation_charge_sharing_type
+			elif self.transaction_type == 'Mortgage Charges':
+				sharing_amount = lender.mortgage_charges_sharing
+				sharting_type = lender.mortgage_charge_sharing_type
+
+			lender_sharing_amount = sharing_amount
+			if sharing_type == 'Percentage':
+				lender_sharing_amount = (lender_sharing_amount/100) * self.amount
+			spark_sharing_amount = self.amount - lender_sharing_amount
+			self.create_lender_ledger(self.name, lender_sharing_amount, spark_sharing_amount)
+
 		frappe.enqueue_doc('Loan', self.loan, method='update_loan_balance')
-		frappe.enqueue_doc('Loan', self.loan, method='check_for_shortfall')
+
+	def create_lender_ledger(self, loan_transaction_name, lender_share, spark_share):
+		frappe.get_doc({
+			'doctype': 'Lender Ledger',
+			'loan': self.name,
+			'loan_transaction': loan_transaction_name,
+			'lender': self.lender,
+			'amount': self.amount,
+			'lender_share': lender_share,
+			'spark_share': spark_share,
+		}).insert(ignore_permissions=True)
 
 	def before_submit(self):
 		if not self.transaction_id:
