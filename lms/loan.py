@@ -467,6 +467,12 @@ def loan_payment(**kwargs):
 		})
 		payment_loan_transaction.insert(ignore_permissions=True)
 
+		loan.create_loan_transaction(
+			transaction_type = 'Payment',
+			amount=data.get('amount'),
+			transaction_id=data.get('transaction_id')
+		)
+
 		return utils.respondWithSuccess()
 	except utils.APIException as e:
 		return e.respond()

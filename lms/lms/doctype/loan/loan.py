@@ -49,10 +49,14 @@ class Loan(Document):
 			'transaction_type': transaction_type,
 			'record_type': LoanTransaction.loan_transaction_map.get(transaction_type, 'DR'),
 			'time': datetime.now()
-		}).insert(ignore_permissions=True)
+		})
+
+		if transaction_id:
+			loan_transaction.transaction_id = transaction_id
+		
+		loan_transaction.insert(ignore_permissions=True)
 
 		if approve:
-			loan_transaction.transaction_id = transaction_id
 			loan_transaction.status = 'Approved'
 			loan_transaction.workflow_state = 'Approved'
 			loan_transaction.save(ignore_permissions=True)
