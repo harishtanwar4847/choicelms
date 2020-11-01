@@ -328,6 +328,7 @@ def process(**kwargs):
 			# Pledge LOG end
 
 			if not res.ok or not data.get('Success'):
+				cart.reload()
 				cart.status = 'Failure'
 				cart.is_processed = 1
 				cart.save(ignore_permissions=True)

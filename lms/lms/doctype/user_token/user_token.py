@@ -11,12 +11,9 @@ import lms
 class UserToken(Document):
 	def after_insert(self):
 		if not frappe.flags.in_test:
-			if self.token_type in ['OTP', 'Pledge OTP']:
-				las_settings = frappe.get_single('LAS Settings')	
-				if self.token_type == 'OTP':
-					mess = frappe._('Your OTP for LMS is {}. Do not share your OTP with anyone.{}').format(self.token, las_settings.app_identification_hash_string)
-				elif self.token_type == 'Pledge OTP':
-					mess = frappe._('Your Pledge OTP for LMS is {}. \nDo not share your Pledge OTP with anyone.{}').format(self.token, las_settings.app_identification_hash_string)
+			if self.token_type in ['OTP', 'Pledge OTP', 'Withdraw OTP']:
+				las_settings = frappe.get_single('LAS Settings')
+				mess = frappe._('Your {token_type} for LMS is {token}. Do not share your {token_type} with anyone.{app_hash_string}').format(token_type=self.token_type, token=self.token, app_hash_string=las_settings.app_identification_hash_string)
 				frappe.enqueue(method=send_sms, receiver_list=[self.entity], msg=mess)
 			elif self.token_type == "Email Verification Token":
 				doc=frappe.get_doc('User', self.entity).as_dict()

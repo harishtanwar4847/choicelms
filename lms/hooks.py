@@ -134,10 +134,6 @@ fixtures = [
         "filters": [["name", "in", ["Loan Customer", "Support Team", "Lender", "Choice Finserv"]]]
     },
     {
-        "doctype": "Workflow",
-        "filters": [["document_type", "in", ["User KYC Change Application", "Loan Application"]]]
-    },
-    {
         "doctype": "Print Format",
         "filters": [["doc_type", "in", ["Cart", "Loan"]]]
     },
@@ -145,7 +141,7 @@ fixtures = [
         "doctype": "Notification",
         "filters": [["document_type", "in", ["User"]]]
     },
-    "Security", "Allowed Security", "Security Category", "Concentration Rule", "Terms and Conditions", "Margin Shortfall Action", "Lender", "SMS Settings", "API Doc", "LAS Settings", "Workflow State"
+    "Security", "Allowed Security", "Security Category", "Concentration Rule", "Terms and Conditions", "Margin Shortfall Action", "Lender", "SMS Settings", "API Doc", "LAS Settings", "Workflow State", "Workflow"
 ]
 
 scheduler_events = {

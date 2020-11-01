@@ -3,6 +3,7 @@ from frappe import _
 import utils
 import lms
 import requests
+from datetime import datetime
 
 @frappe.whitelist()
 def esign(**kwargs):
@@ -306,7 +307,7 @@ def loan_transactions(**kwargs):
 		if loan.customer != customer.name:
 			return utils.respondForbidden(message=_('Please use your own Loan Application.'))
 		
-		loan_transactions_list = frappe.db.get_all("Loan Transaction", filters={ "loan": data.get('loan_name') }, order_by="time desc", fields=["transaction_type", "record_type", "amount"])
+		loan_transactions_list = frappe.db.get_all("Loan Transaction", filters={ "loan": data.get('loan_name'), 'docstatus': 1 }, order_by="time desc", fields=["transaction_type", "record_type", "amount"])
 		
 		res = {
 			'loan': utils.frappe_doc_proper_dict(loan),
@@ -317,4 +318,122 @@ def loan_transactions(**kwargs):
 		return e.respond()
 		
 
+@frappe.whitelist()
+def loan_withdraw_details(**kwargs):
+	try:
+		utils.validator.validate_http_method('GET')
 
+		data = utils.validator.validate(kwargs, {
+			'loan_name':'required'
+		})
+
+		customer = lms.__customer()
+		loan = frappe.get_doc('Loan', data.get('loan_name'))
+		if not loan:
+			return utils.respondNotFound(message=frappe._('Loan not found.')) 
+		if loan.customer != customer.name:
+			return utils.respondForbidden(message=_('Please use your own Loan Application.'))
+
+		# set amount_available_for_withdrawal
+		loan = loan.as_dict()
+		loan.amount_available_for_withdrawal = loan.drawing_power - loan.balance
+
+		data = {
+			'loan': loan,
+		}
+
+		# append bank list if first withdrawal transaction
+		filters = {
+			'loan': loan.name,
+			'transaction_type': 'Withdrawal',
+			'docstatus': 1
+		}
+		if frappe.db.count('Loan Transaction', filters) == 0:
+			data['banks'] = lms.__banks()
+
+		return utils.respondWithSuccess(data=data)
+	except utils.APIException as e:
+		return e.respond()
+
+@frappe.whitelist()
+def request_loan_withdraw_otp():
+	try:
+		utils.validator.validate_http_method('POST')
+
+		user = lms.__user()
+
+		las_settings = frappe.get_single('LAS Settings')
+
+		lms.create_user_token(entity=user.username, token_type="Withdraw OTP", token=lms.random_token(length=4, is_numeric=True))
+		return utils.respondWithSuccess(message='Withdraw OTP sent')
+	except utils.APIException as e:
+		return e.respond()
+
+@frappe.whitelist()
+def loan_withdraw_request(**kwargs):
+	try:
+		utils.validator.validate_http_method('POST')
+
+		data = utils.validator.validate(kwargs, {
+			'loan_name':'required',
+			'amount': 'required|decimal',
+			'bank_account_name': ''
+		})
+
+		customer = lms.__customer()
+		user_kyc = lms.__user_kyc()
+		loan = frappe.get_doc('Loan', data.get('loan_name'))
+		if not loan:
+			return utils.respondNotFound(message=frappe._('Loan not found.')) 
+		if loan.customer != customer.name:
+			return utils.respondForbidden(message=_('Please use your own Loan Application.'))
+
+		# need bank if first withdrawal transaction
+		filters = {
+			'loan': loan.name,
+			'transaction_type': 'Withdrawal',
+			'docstatus': 1
+		}
+		if frappe.db.count('Loan Transaction', filters) == 0 and not data.get('bank_account_name', None):
+			return utils.respondWithFailure(status=417, message='Need bank account for first withdrawal')
+
+		if not data.get('bank_account_name', None):
+			default_bank = None
+			for i in lms.__banks():
+				if i.is_spark_default:
+					default_bank = i.name
+					break
+			data['bank_account_name'] = default_bank
+
+		bank_account = frappe.get_doc('Bank Account', data.get('bank_account_name'))
+		if not bank_account:
+			return utils.respondNotFound(message=frappe._('Bank Account not found.')) 
+		if bank_account.user_kyc != user_kyc.name:
+			return utils.respondForbidden(message=_('Please use your own Bank Account.'))
+
+		# amount validation
+		amount = data.get('amount', 0)
+		if not amount:
+			return utils.respondWithFailure(status=417, message='Amount can not be 0')
+		max_withdraw_amount = loan.drawing_power - loan.balance
+		if amount > max_withdraw_amount:
+			return utils.respondWithFailure(status=417, message='Amount can not be more than {}'.format(max_withdraw_amount))
+
+		withdrawal_transaction = frappe.get_doc({
+			'doctype': 'Loan Transaction',
+			'loan': loan.name,
+			'transaction_type': 'Withdrawal',
+			'record_type': 'DR',
+			'time': datetime.now(),
+			'amount': amount,
+			'bank_account': data.get('bank_account_name'),
+			'lender': loan.lender
+		})
+		withdrawal_transaction.save(ignore_permissions=True)
+
+		bank_account.is_spark_default = 1
+		bank_account.save(ignore_permissions=True)
+
+		return utils.respondWithSuccess()
+	except utils.APIException as e:
+		return e.respond()
