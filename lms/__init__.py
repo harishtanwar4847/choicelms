@@ -366,7 +366,8 @@ def create_user_token(entity, token, token_type="OTP"):
 	expiry_map = {
 		'OTP': 2,
 		'Email Verification Token': 60,
-		'Pledge OTP': 2
+		'Pledge OTP': 2,
+		'Withdraw OTP': 2,
 	}
 
 	doc_data = {
@@ -378,6 +379,11 @@ def create_user_token(entity, token, token_type="OTP"):
 
 	expiry_in_minutes = expiry_map.get(token_type, None)
 	if expiry_in_minutes:
+		# expire previous OTPs
+		frappe.db.sql("""
+			update `tabUser Token` set expiry = CURRENT_TIMESTAMP
+			where entity = '{entity}' and token_type = '{token_type}' and expiry > CURRENT_TIMESTAMP; 
+		""".format(entity=entity, token_type=token_type))
 		doc_data['expiry'] = datetime.now() + timedelta(minutes=expiry_in_minutes)
 	
 	user_token = frappe.get_doc(doc_data)
