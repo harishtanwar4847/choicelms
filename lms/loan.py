@@ -317,7 +317,6 @@ def loan_transactions(**kwargs):
 	except utils.exceptions.APIException as e:
 		return e.respond()
 		
-
 @frappe.whitelist()
 def loan_withdraw_details(**kwargs):
 	try:
@@ -433,6 +432,40 @@ def loan_withdraw_request(**kwargs):
 
 		bank_account.is_spark_default = 1
 		bank_account.save(ignore_permissions=True)
+
+		return utils.respondWithSuccess()
+	except utils.APIException as e:
+		return e.respond()
+
+@frappe.whitelist()
+def loan_payment(**kwargs):
+	try:
+		utils.validator.validate_http_method("POST")
+
+		data = utils.validator.validate(kwargs, {
+			"loan_name":"required",
+			"amount":"required|decimal",
+			"transaction_id":"required",
+		})
+
+		customer = lms.__customer()
+		loan = frappe.get_doc('Loan', data.get('loan_name'))
+		if not loan:
+			return utils.respondNotFound(message=frappe._('Loan not found.')) 
+		if loan.customer != customer.name:
+			return utils.respondForbidden(message=_('Please use your own Loan.'))
+
+		payment_loan_transaction = frappe.get_doc({
+			'doctype': 'Loan Transaction',
+			'loan': data.get("loan_name"),
+			'record_type': "CR",
+			'transaction_type': "Payment",
+			'amount': data.get("amount"),
+			'lender': loan.lender,
+			'transaction_id': data.get("transaction_id"),
+			'time': datetime.now()
+		})
+		payment_loan_transaction.insert(ignore_permissions=True)
 
 		return utils.respondWithSuccess()
 	except utils.APIException as e:
