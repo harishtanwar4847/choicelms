@@ -1,4 +1,5 @@
 {
+ "autoname": "{loan}-.#####",
  "creation": "2020-08-30 14:54:50.838458",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -98,7 +99,7 @@
   }
  ],
  "is_submittable": 1,
- "modified": "2020-10-31 14:52:21.908873",
+ "modified": "2020-11-01 12:41:52.381213",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
