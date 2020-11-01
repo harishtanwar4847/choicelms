@@ -448,9 +448,12 @@ def loan_payment(**kwargs):
 			"transaction_id":"required",
 		})
 
+		customer = lms.__customer()
 		loan = frappe.get_doc('Loan', data.get('loan_name'))
 		if not loan:
 			return utils.respondNotFound(message=frappe._('Loan not found.')) 
+		if loan.customer != customer.name:
+			return utils.respondForbidden(message=_('Please use your own Loan.'))
 
 		payment_loan_transaction = frappe.get_doc({
 			'doctype': 'Loan Transaction',
