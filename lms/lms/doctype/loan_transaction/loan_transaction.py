@@ -53,16 +53,16 @@ class LoanTransaction(Document):
 			
 			if self.transaction_type == 'Processing Fees':
 				sharing_amount = lender.lender_processing_fees_sharing
-				sharting_type = lender.lender_processing_fees_sharing_type
+				sharing_type = lender.lender_processing_fees_sharing_type
 			elif self.transaction_type == 'Stamp Duty':
 				sharing_amount = lender.stamp_duty_sharing
-				sharting_type = lender.stamp_duty_sharing_type
+				sharing_type = lender.stamp_duty_sharing_type
 			elif self.transaction_type == 'Documentation Charges':
 				sharing_amount = lender.documentation_charges_sharing
-				sharting_type = lender.documentation_charge_sharing_type
+				sharing_type = lender.documentation_charge_sharing_type
 			elif self.transaction_type == 'Mortgage Charges':
 				sharing_amount = lender.mortgage_charges_sharing
-				sharting_type = lender.mortgage_charge_sharing_type
+				sharing_type = lender.mortgage_charge_sharing_type
 
 			lender_sharing_amount = sharing_amount
 			if sharing_type == 'Percentage':
@@ -75,8 +75,8 @@ class LoanTransaction(Document):
 	def create_lender_ledger(self, loan_transaction_name, lender_share, spark_share):
 		frappe.get_doc({
 			'doctype': 'Lender Ledger',
-			'loan': self.name,
-			'loan_transaction': loan_transaction_name,
+			'loan': self.loan,
+			'loan_transaction': self.name,
 			'lender': self.lender,
 			'amount': self.amount,
 			'lender_share': lender_share,
@@ -96,4 +96,4 @@ def get_permission_query_conditions(user):
 		roles = frappe.get_roles(user)
 
 		return """(`tabLoan Transaction`.lender in {role_tuple})"""\
-			.format(role_tuple=lms.convert_list_to_tuple_string(roles))
+			.format(role_tuple=lms.convert_list_to_tuple_string(roles))	

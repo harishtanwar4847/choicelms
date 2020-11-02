@@ -20,25 +20,38 @@ class Loan(Document):
 		amount = lender.lender_processing_fees
 		if lender.lender_processing_fees_type == 'Percentage':
 			amount = (amount/100) * self.sanctioned_limit
-		loan_transaction = self.create_loan_transaction('Processing Fees', amount, approved=True, transaction_id='Processing Fees')
+		processing_fees_transaction_id = self.get_new_transaction_id()
+		self.create_loan_transaction('Processing Fees', amount, approve=True, transaction_id=processing_fees_transaction_id)
 
 		# Stamp Duty
 		amount = lender.stamp_duty
 		if lender.stamp_duty_type == 'Percentage':
 			amount = (amount/100) * self.sanctioned_limit
-		loan_transaction = self.create_loan_transaction('Stamp Duty', amount, approved=True, transaction_id='Stamp Duty')
+		stamp_duty_transaction_id = self.get_new_transaction_id()
+		self.create_loan_transaction('Stamp Duty', amount, approve=True, transaction_id=stamp_duty_transaction_id)
 
 		# Documentation Charges
 		amount = lender.documentation_charges
 		if lender.documentation_charge_type == 'Percentage':
 			amount = (amount/100) * self.sanctioned_limit
-		self.create_loan_transaction('Documentation Charges', amount, approved=True, transaction_id='Documentation Charges')
+		documentation_charges_transaction_id = self.get_new_transaction_id()
+		self.create_loan_transaction('Documentation Charges', amount, approve=True, transaction_id=documentation_charges_transaction_id)
 
 		# Mortgage Charges
 		amount = lender.mortgage_charges
 		if lender.mortgage_charge_type == 'Percentage':
 			amount = (amount/100) * self.sanctioned_limit
-		self.create_loan_transaction('Mortgage Charges', amount, approved=True, transaction_id='Mortgage Charges')
+		mortgage_charges_transaction_id = self.get_new_transaction_id()
+		self.create_loan_transaction('Mortgage Charges', amount, approve=True, transaction_id=mortgage_charges_transaction_id)
+
+	def get_new_transaction_id(self):
+		latest_transaction = frappe.db.sql("select transaction_id from `tabLoan Transaction` where loan='{}' and transaction_id like 'loan-%' order by creation desc limit 1".format(self.name), as_dict=True)
+		if len(latest_transaction) == 0:
+			return "{}-0001".format(self.name)
+
+		latest_transaction_id = latest_transaction[0].transaction_id.split("-")[1]
+		new_transaction_id =  "{}-".format(self.name) + ("%04d" % (int(latest_transaction_id) + 1))
+		return new_transaction_id
 
 	def create_loan_transaction(self, transaction_type, amount, approve=False, transaction_id=None):
 		loan_transaction = frappe.get_doc({

@@ -318,7 +318,7 @@ def loan_details(**kwargs):
 			"Loan Transaction", 
 			filters={ "loan": data.get('loan_name'), 'docstatus': 1 }, 
 			order_by="time desc", 
-			fields=["transaction_type", "record_type", "amount"],
+			fields=["transaction_type", "record_type", "amount", "time"],
 			start=data.get('transactions_start'),
 			page_length=data.get('transactions_per_page')
 		)
@@ -393,9 +393,10 @@ def loan_withdraw_request(**kwargs):
 		})
 
 		customer = lms.__customer()
+		user = lms.__user()
 		user_kyc = lms.__user_kyc()
 
-		token = lms.verify_user_token(entity=user_kyc.mobile_number, token=data.get('otp'), token_type='Withdraw OTP')
+		token = lms.verify_user_token(entity=user.username, token=data.get('otp'), token_type='Withdraw OTP')
 
 		if token.expiry <= datetime.now():
 			return utils.respondUnauthorized(message=frappe._('Withdraw OTP Expired.'))
