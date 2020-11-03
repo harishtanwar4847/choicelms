@@ -559,3 +559,62 @@ def request_pledge_otp_old():
 		return lms.generateResponse(status=e.http_status_code, message=str(e))
 	except Exception as e:
 		return lms.generateResponse(is_success=False, error=e)
+
+@frappe.whitelist()
+def get_tnc(**kwargs):
+	try:
+		utils.validator.validate_http_method('GET')
+
+		data = utils.validator.validate(kwargs, {
+			'cart_name': 'required',
+		})
+
+		customer = lms.__customer()
+		cart = frappe.get_doc('Cart', data.get('cart_name'))
+		if not cart:
+			return utils.respondNotFound(message=_('Cart not found.'))
+		if cart.customer != customer.name:
+			return utils.respondForbidden(message=_('Please use your own cart.'))
+		user = lms.__user()
+		lender = frappe.get_doc('Lender', cart.lender)
+
+		tnc_list = [
+			"Name Of Borrower : {}".format(user.full_name),
+			"Address Of Borrower : {}".format(customer.address or ""),
+			"Nature of facility sanctioned : Revolving credit facility",
+			"Purpose : General Purpose",
+			"Sanctioned Credit Limit as on date of acceptance of this terms and conditions : Rs. {} /-".format(cart.eligible_loan),	
+			"Interest type : Floating, linked to Reference Rate",
+			"Rate of Interest : {}% p.m [Interest rate is subject to change based on management discretion from time to time]".format(lender.rate_of_interest),
+			"Reset Frequency : 12 Months",
+			"Date of reset of Interest Rate : Effective date of change of Reference Rate.",
+			"Default Interest/Additional interest in case of default : Upto {}% per month over and above applicable Interest Rate.".format(lender.default_interest),
+			"Details of security / Collateral obtained : Shares and other securities as will be pledged from time to time to maintain the required security cover",
+			"Security Coverage : Shares & Equity oriented Mutual Funds : Minimum 200%",
+			"Other Securities : As per rules applicable from time to time",
+			"Facility Tenure : 12 Months (Renewable at Lender’s discretion, as detailed in the T&C).",
+			"Repayment Through : Cash Flows /Sale of Securities/Other Investments Maturing",
+			"Mode of communication of changes in interest rates and others : Website and Mobile App notification, SMS, Email, Letters, Notices at branches, communication through statement of accounts of the borrower, or any other mode of communication.",
+			"EMI Payable : Not Applicable",
+			"Processing Fee : {}% of the sanctioned amount".format(lender.lender_processing_fees),
+			"Account Renewal charges : {}% of the renewal amount (Facility valid for a period of 12 months from the date of sanction; account renewal charges shall be debited at the end of 12 months)".format(lender.account_renewal_charges),
+			"Documentation charges : Rs. {}/-".format(lender.documentation_charges),
+			"Stamp duty & other statutory charges : At actuals",
+			"Pre-payment charges : NIL",
+			"Transaction Charges per Request (per variation in the composition of the Demat securities pledged) : Upto Rs. {}/".format(lender.transaction_charges_per_request),
+			"Collection/ Charges regarding Sale of Security in the event of default : All costs and expenses, brokerages, transaction charges, and other levies as per actuals.",
+			"Sale of security in the event of default or otherwise : {}% of the sale amount plus all brokerage, incidental transaction charges and other levies as per actuals".format(lender.security_selling_share),
+			"Credit Information Companies'(CICs) Charges : Upto Rs {}/- per instance".format(lender.cic_charges),
+			"Solvency Certificate : Not Applicable",
+			"No Due Certificate / No Objection Certificate (NOC) : NIL",
+			"Duplicate No Due certificate / NOC : NIL",
+			"Legal & incidental charges : As per actuals",
+			"Annual Maintenance Charge : INR 1,000 (upon each renewal)",
+			"Processing Charges per Request (including Enhancement / Withdrawal Requests) : Upto INR 50 per transaction.",
+			"Date on which annual outstanding balance statement will be issued : By end of April of succeeding financial year"
+		]
+
+		return utils.respondWithSuccess(data=tnc_list)
+
+	except utils.APIException as e:
+		return e.respond()
