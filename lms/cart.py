@@ -501,6 +501,8 @@ def process_dummy(cart_name):
 		'doctype': 'Loan Application',
 		'total_collateral_value': cart.total_collateral_value,
 		'drawing_power': cart.eligible_loan,
+		'lender': cart.lender,
+		'status':'Esign Done',
 		'pledgor_boid': 'pledgor',
 		'pledgee_boid': 'pledgee',
 		'prf_number': 'prf',
@@ -512,8 +514,8 @@ def process_dummy(cart_name):
 	})
 	loan_application.insert(ignore_permissions=True)
 
-	cart.is_processed = 1
-	cart.save(ignore_permissions=True)
+	frappe.db.set_value('Cart', cart.name, 'is_processed', 1)
+	frappe.db.commit()
 
 	doc = frappe.get_doc('User', frappe.session.user)
 	frappe.enqueue_doc('Notification', 'Loan Application Creation', method='send', doc= doc)
