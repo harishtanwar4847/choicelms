@@ -185,7 +185,7 @@ def create_customer(user):
 
 		return customer
 	except Exception as e:
-		frappe.delete_doc('User', user.name)
+		# frappe.delete_doc('User', user.name, ignore_permissions=True)
 		raise utils.exceptions.APIException(message=str(e))
 
 def add_user(first_name, last_name, phone, email):
