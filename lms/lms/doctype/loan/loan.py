@@ -72,6 +72,7 @@ class Loan(Document):
 		if approve:
 			loan_transaction.status = 'Approved'
 			loan_transaction.workflow_state = 'Approved'
+			loan_transaction.docstatus = 1
 			loan_transaction.save(ignore_permissions=True)
 
 		return loan_transaction
