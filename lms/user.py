@@ -20,8 +20,10 @@ def set_pin(**kwargs):
 		data = utils.validator.validate(kwargs, {
 			'pin': ['required', 'decimal', utils.validator.rules.LengthRule(4)],
 		})
-
+		
+		frappe.db.begin()
 		update_password(frappe.session.user, data.get("pin"))
+		frappe.db.commit()
 
 		doc = frappe.get_doc('User', frappe.session.user)
 		mess = _("Dear " + doc.full_name + ", You have successfully updated your Finger Print / PIN registration at Spark.Loans!.")
@@ -29,6 +31,7 @@ def set_pin(**kwargs):
 
 		return utils.respondWithSuccess(message=frappe._('User PIN has been set'))
 	except utils.exceptions.APIException as e :
+		frappe.db.rollback()
 		return e.respond()
 
 @frappe.whitelist()
@@ -69,6 +72,7 @@ def kyc(**kwargs):
 		except lms.UserKYCNotFoundException:
 			user_kyc = None
 
+		frappe.db.begin()
 		if not user_kyc:
 			res = get_choice_kyc(**data)
 			user_kyc = res['user_kyc']
@@ -81,16 +85,18 @@ def kyc(**kwargs):
 			user = lms.__user()
 			frappe.enqueue_doc('Notification', 'User KYC', method='send', doc=user)
 			
-			mess = _("Dear" + user.full_name + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our banking partner before you can avail the loan.")
+			mess = _("Dear " + user.full_name + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our banking partner before you can avail the loan.")
 			frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
 
 		data = {
-			'user_kyc': utils.frappe_doc_proper_dict(user_kyc),
+			'user_kyc': user_kyc,
 			'banks': lms.__banks(user_kyc.name)
 		}
+		frappe.db.commit()
 
 		return utils.respondWithSuccess(data=data)
 	except utils.APIException as e:
+		frappe.db.rollback()
 		return e.respond()
 
 def get_choice_kyc(pan_no, birth_date):
@@ -522,6 +528,7 @@ def save_firebase_token(firebase_token):
 
 		tokens = lms.get_firebase_tokens(frappe.session.user)
 
+		frappe.db.begin()
 		if firebase_token not in tokens:
 			token = frappe.get_doc({
 				'doctype': 'User Token',
@@ -530,7 +537,8 @@ def save_firebase_token(firebase_token):
 				'token': firebase_token
 			})
 			token.insert(ignore_permissions=True)
-
+		frappe.db.commit()
+		
 		return lms.generateResponse(message=_('Firebase token added successfully'))
 	except (lms.ValidationError, lms.ServerError) as e:
 		return lms.generateResponse(status=e.http_status_code, message=str(e))

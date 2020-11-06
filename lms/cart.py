@@ -88,7 +88,7 @@ def upsert(**kwargs):
 		customer = lms.__customer()
 
 		if data.get('loan_name', None):
-			loan = frappe.get_doc('Loan', loan_name)
+			loan = frappe.get_doc('Loan', data.get('loan_name'))
 			if not loan:
 				return utils.respondNotFound(message=_('Loan not found.'))
 			if loan.customer != customer.name:
@@ -111,6 +111,7 @@ def upsert(**kwargs):
 
 			cart.items = []
 
+		frappe.db.begin()
 		for i in securities:
 			cart.append('items', {
 				"isin": i["isin"],
@@ -119,7 +120,7 @@ def upsert(**kwargs):
 		cart.save(ignore_permissions=True)
 
 		data = {
-			'cart': utils.frappe_doc_proper_dict(cart)
+			'cart': cart
 		}
 
 		if data.get('loan_name', None):
@@ -132,9 +133,11 @@ def upsert(**kwargs):
 				data['minimum_pledge_amount'] = loan_margin_shortfall.shortfall_c * 2
 				if loan_margin_shortfall.shortfall_c * 2 > cart.total_collateral_value:
 					data['minimum_pledge_amount_present'] = False
+		frappe.db.commit()
 
 		return utils.respondWithSuccess(data=data)
 	except utils.APIException as e:
+		frappe.db.rollback()
 		return e.respond()
 
 @frappe.whitelist()
@@ -301,6 +304,7 @@ def process(**kwargs):
 			return utils.respondForbidden(message=_('Please use your own cart.'))
 
 		pledge_request = cart.pledge_request()
+		frappe.db.begin()
 		frappe.db.set_value('Cart', cart.name, 'prf_number', pledge_request.get('payload').get('PRFNumber'))
 		
 		try:
@@ -345,11 +349,13 @@ def process(**kwargs):
 			if not customer.pledge_securities:
 				customer.pledge_securities = 1
 				customer.save(ignore_permissions=True)
+			frappe.db.commit()
 
-			return utils.respondWithSuccess(data=utils.frappe_doc_proper_dict(loan_application))
+			return utils.respondWithSuccess(data=loan_application)
 		except requests.RequestException as e:
 			raise utils.APIException(str(e))
 	except utils.APIException as e:
+		frappe.db.rollback()
 		return e.respond()
 
 @frappe.whitelist()
@@ -482,8 +488,25 @@ def process_old(cart_name, otp, pledgor_boid, file_id=None, expiry=None, pledgee
 @frappe.whitelist()
 def process_dummy(cart_name):
 	cart = frappe.get_doc('Cart', cart_name)
+	
+	# generate and save prf number 
+	frappe.db.set_value('Cart', cart.name, 'prf_number', cart_name)
+
+	import random
+
 	items = []
+	ISINstatusDtls = []
+
 	for item in cart.items:
+			flag = bool(random.getrandbits(1))
+			error_code = ['CIF3065-F', 'PLD0152-E', 'PLD0125-F']
+			ISINstatusDtls_item = {
+				"ISIN": item.isin,
+				"PSN": lms.random_token(7,is_numeric=True) if flag else "",
+				"ErrorCode": "" if flag else random.choice(error_code)
+			}
+			ISINstatusDtls.append(ISINstatusDtls_item)
+
 			item = frappe.get_doc({
 				'doctype': 'Loan Application Item',
 				'isin': item.isin,
@@ -497,6 +520,19 @@ def process_dummy(cart_name):
 			})
 			items.append(item)
 
+	# dummy pledge request response
+	data = {
+		"Success": True,
+		'PledgeSetupResponse' : {
+			'ISINstatusDtls' : ISINstatusDtls
+		}
+	}
+
+	cart.reload()
+	cart.process(data)
+	cart.save(ignore_permissions=True)
+	
+	# create loan application
 	loan_application = frappe.get_doc({
 		'doctype': 'Loan Application',
 		'total_collateral_value': cart.total_collateral_value,
@@ -514,7 +550,8 @@ def process_dummy(cart_name):
 	})
 	loan_application.insert(ignore_permissions=True)
 
-	frappe.db.set_value('Cart', cart.name, 'is_processed', 1)
+	# save Collateral Ledger
+	cart.save_collateral_ledger(loan_application.name)
 	frappe.db.commit()
 
 	doc = frappe.get_doc('User', frappe.session.user)
@@ -533,6 +570,7 @@ def request_pledge_otp():
 		user = lms.__user()
 		user_kyc = lms.__user_kyc()
 
+		frappe.db.begin()
 		for tnc in frappe.get_list('Terms and Conditions', filters={'is_active': 1}):
 			approved_tnc = frappe.get_doc({
 				'doctype': 'Approved Terms and Conditions',
@@ -543,8 +581,10 @@ def request_pledge_otp():
 			approved_tnc.insert(ignore_permissions=True)
 
 		lms.create_user_token(entity=user_kyc.mobile_number, token_type="Pledge OTP", token=lms.random_token(length=4, is_numeric=True))
+		frappe.db.commit()
 		return utils.respondWithSuccess(message='Pledge OTP sent')
 	except utils.APIException as e:
+		frappe.db.rollback()
 		return e.respond()
 
 @frappe.whitelist()

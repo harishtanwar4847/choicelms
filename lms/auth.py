@@ -25,6 +25,7 @@ def login(**kwargs):
 		except lms.UserNotFoundException:
 			user = None
 
+		frappe.db.begin()
 		if data.get("pin") : 
 			try:
 				frappe.local.login_manager.authenticate(user=user.name, pwd=data.get('pin'))
@@ -42,15 +43,16 @@ def login(**kwargs):
 
 			token = dict(
 				token = utils.create_user_access_token(user.name),
-				customer = utils.frappe_doc_proper_dict(lms.__customer(user.name))
+				customer = lms.__customer(user.name)
 			)
 			lms.add_firebase_token(data.get("firebase_token"), user.name)
 			return utils.respondWithSuccess(message=frappe._('Logged in Successfully'), data=token)
 
 		lms.create_user_token(entity=data.get('mobile'), token=lms.random_token(length=4, is_numeric=True))
-		
+		frappe.db.commit()
 		return utils.respondWithSuccess(message=frappe._('OTP Sent'))
 	except utils.exceptions.APIException as e:
+		frappe.db.rollback()
 		return e.respond()
 
 @frappe.whitelist(allow_guest=True)
@@ -144,8 +146,9 @@ def verify_otp(**kwargs):
 					)				
 				
 			return utils.respondUnauthorized(message=message)
-
+		
 		if token:
+			frappe.db.begin()
 			if token.expiry <= datetime.now():
 				return utils.respondUnauthorized(message=frappe._('OTP Expired.'))
 
@@ -159,14 +162,16 @@ def verify_otp(**kwargs):
 
 			res = {
 				'token': utils.create_user_access_token(user.name),
-				'customer': utils.frappe_doc_proper_dict(lms.__customer(user.name))
+				'customer': lms.__customer(user.name)
 			}
 			token.used = 1
 			token.save(ignore_permissions=True)
 			lms.add_firebase_token(data.get("firebase_token"), user.name)
+			frappe.db.commit()
 			return utils.respondWithSuccess(data=res)
 
 	except utils.exceptions.APIException as e:
+		frappe.db.rollback()
 		return e.respond()
 
 @frappe.whitelist(allow_guest=True)
@@ -243,17 +248,19 @@ def register(**kwargs):
 			'mobile': data.get('mobile'),
 			'email': data.get('email')
 		}
+		frappe.db.begin()
 		user = lms.create_user(**user_data)
 		customer = lms.create_customer(user)
 		lms.create_user_token(entity=data.get('email'), token=lms.random_token(), token_type="Email Verification Token")
 		lms.add_firebase_token(data.get('firebase_token'), user.name)
-
 		data = {
 			'token': utils.create_user_access_token(user.name),
-			'customer': customer.as_dict()
+			'customer': customer
 		}
+		frappe.db.commit()
 		return utils.respondWithSuccess(message=_('Registered Successfully.'), data=data)
 	except utils.APIException as e:
+		frappe.db.rollback()
 		return e.respond()
 
 @frappe.whitelist(allow_guest=True)
