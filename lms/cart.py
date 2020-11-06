@@ -111,6 +111,7 @@ def upsert(**kwargs):
 
 			cart.items = []
 
+		frappe.db.begin()
 		for i in securities:
 			cart.append('items', {
 				"isin": i["isin"],
@@ -119,7 +120,7 @@ def upsert(**kwargs):
 		cart.save(ignore_permissions=True)
 
 		data = {
-			'cart': utils.frappe_doc_proper_dict(cart)
+			'cart': cart
 		}
 
 		if data.get('loan_name', None):
@@ -132,6 +133,7 @@ def upsert(**kwargs):
 				data['minimum_pledge_amount'] = loan_margin_shortfall.shortfall_c * 2
 				if loan_margin_shortfall.shortfall_c * 2 > cart.total_collateral_value:
 					data['minimum_pledge_amount_present'] = False
+		frappe.db.commit()
 
 		return utils.respondWithSuccess(data=data)
 	except utils.APIException as e:
@@ -301,6 +303,7 @@ def process(**kwargs):
 			return utils.respondForbidden(message=_('Please use your own cart.'))
 
 		pledge_request = cart.pledge_request()
+		frappe.db.begin()
 		frappe.db.set_value('Cart', cart.name, 'prf_number', pledge_request.get('payload').get('PRFNumber'))
 		
 		try:
@@ -345,8 +348,9 @@ def process(**kwargs):
 			if not customer.pledge_securities:
 				customer.pledge_securities = 1
 				customer.save(ignore_permissions=True)
+			frappe.db.commit()
 
-			return utils.respondWithSuccess(data=utils.frappe_doc_proper_dict(loan_application))
+			return utils.respondWithSuccess(data=loan_application)
 		except requests.RequestException as e:
 			raise utils.APIException(str(e))
 	except utils.APIException as e:
@@ -533,6 +537,7 @@ def request_pledge_otp():
 		user = lms.__user()
 		user_kyc = lms.__user_kyc()
 
+		frappe.db.begin()
 		for tnc in frappe.get_list('Terms and Conditions', filters={'is_active': 1}):
 			approved_tnc = frappe.get_doc({
 				'doctype': 'Approved Terms and Conditions',
@@ -543,6 +548,7 @@ def request_pledge_otp():
 			approved_tnc.insert(ignore_permissions=True)
 
 		lms.create_user_token(entity=user_kyc.mobile_number, token_type="Pledge OTP", token=lms.random_token(length=4, is_numeric=True))
+		frappe.db.commit()
 		return utils.respondWithSuccess(message='Pledge OTP sent')
 	except utils.APIException as e:
 		return e.respond()
