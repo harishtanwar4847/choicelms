@@ -31,6 +31,7 @@ def set_pin(**kwargs):
 
 		return utils.respondWithSuccess(message=frappe._('User PIN has been set'))
 	except utils.exceptions.APIException as e :
+		frappe.db.rollback()
 		return e.respond()
 
 @frappe.whitelist()
@@ -95,6 +96,7 @@ def kyc(**kwargs):
 
 		return utils.respondWithSuccess(data=data)
 	except utils.APIException as e:
+		frappe.db.rollback()
 		return e.respond()
 
 def get_choice_kyc(pan_no, birth_date):

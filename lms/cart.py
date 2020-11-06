@@ -88,7 +88,7 @@ def upsert(**kwargs):
 		customer = lms.__customer()
 
 		if data.get('loan_name', None):
-			loan = frappe.get_doc('Loan', loan_name)
+			loan = frappe.get_doc('Loan', data.get('loan_name'))
 			if not loan:
 				return utils.respondNotFound(message=_('Loan not found.'))
 			if loan.customer != customer.name:
@@ -137,6 +137,7 @@ def upsert(**kwargs):
 
 		return utils.respondWithSuccess(data=data)
 	except utils.APIException as e:
+		frappe.db.rollback()
 		return e.respond()
 
 @frappe.whitelist()
@@ -354,6 +355,7 @@ def process(**kwargs):
 		except requests.RequestException as e:
 			raise utils.APIException(str(e))
 	except utils.APIException as e:
+		frappe.db.rollback()
 		return e.respond()
 
 @frappe.whitelist()
@@ -486,6 +488,12 @@ def process_old(cart_name, otp, pledgor_boid, file_id=None, expiry=None, pledgee
 @frappe.whitelist()
 def process_dummy(cart_name):
 	cart = frappe.get_doc('Cart', cart_name)
+	
+	pledge_request = cart.pledge_request()
+	frappe.db.begin()
+	# generate and save prf number 
+	frappe.db.set_value('Cart', cart.name, 'prf_number', cart_name)
+
 	items = []
 	for item in cart.items:
 			item = frappe.get_doc({
@@ -517,7 +525,8 @@ def process_dummy(cart_name):
 		'items': items
 	})
 	loan_application.insert(ignore_permissions=True)
-
+	# save Collateral Ledger
+	cart.save_collateral_ledger(cart, loan_application.name)
 	frappe.db.set_value('Cart', cart.name, 'is_processed', 1)
 	frappe.db.commit()
 
@@ -551,6 +560,7 @@ def request_pledge_otp():
 		frappe.db.commit()
 		return utils.respondWithSuccess(message='Pledge OTP sent')
 	except utils.APIException as e:
+		frappe.db.rollback()
 		return e.respond()
 
 @frappe.whitelist()

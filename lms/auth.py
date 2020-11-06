@@ -52,6 +52,7 @@ def login(**kwargs):
 		frappe.db.commit()
 		return utils.respondWithSuccess(message=frappe._('OTP Sent'))
 	except utils.exceptions.APIException as e:
+		frappe.db.rollback()
 		return e.respond()
 
 @frappe.whitelist(allow_guest=True)
@@ -170,6 +171,7 @@ def verify_otp(**kwargs):
 			return utils.respondWithSuccess(data=res)
 
 	except utils.exceptions.APIException as e:
+		frappe.db.rollback()
 		return e.respond()
 
 @frappe.whitelist(allow_guest=True)
