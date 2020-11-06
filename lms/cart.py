@@ -489,13 +489,24 @@ def process_old(cart_name, otp, pledgor_boid, file_id=None, expiry=None, pledgee
 def process_dummy(cart_name):
 	cart = frappe.get_doc('Cart', cart_name)
 	
-	pledge_request = cart.pledge_request()
-	frappe.db.begin()
 	# generate and save prf number 
 	frappe.db.set_value('Cart', cart.name, 'prf_number', cart_name)
 
+	import random
+
 	items = []
+	ISINstatusDtls = []
+
 	for item in cart.items:
+			flag = bool(random.getrandbits(1))
+			error_code = ['CIF3065-F', 'PLD0152-E', 'PLD0125-F']
+			ISINstatusDtls_item = {
+				"ISIN": item.isin,
+				"PSN": lms.random_token(7,is_numeric=True) if flag else "",
+				"ErrorCode": "" if flag else random.choice(error_code)
+			}
+			ISINstatusDtls.append(ISINstatusDtls_item)
+
 			item = frappe.get_doc({
 				'doctype': 'Loan Application Item',
 				'isin': item.isin,
@@ -509,6 +520,19 @@ def process_dummy(cart_name):
 			})
 			items.append(item)
 
+	# dummy pledge request response
+	data = {
+		"Success": True,
+		'PledgeSetupResponse' : {
+			'ISINstatusDtls' : ISINstatusDtls
+		}
+	}
+
+	cart.reload()
+	cart.process(data)
+	cart.save(ignore_permissions=True)
+	
+	# create loan application
 	loan_application = frappe.get_doc({
 		'doctype': 'Loan Application',
 		'total_collateral_value': cart.total_collateral_value,
@@ -525,9 +549,9 @@ def process_dummy(cart_name):
 		'items': items
 	})
 	loan_application.insert(ignore_permissions=True)
+
 	# save Collateral Ledger
-	cart.save_collateral_ledger(cart, loan_application.name)
-	frappe.db.set_value('Cart', cart.name, 'is_processed', 1)
+	cart.save_collateral_ledger(loan_application.name)
 	frappe.db.commit()
 
 	doc = frappe.get_doc('User', frappe.session.user)
