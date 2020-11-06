@@ -243,17 +243,19 @@ def register(**kwargs):
 			'mobile': data.get('mobile'),
 			'email': data.get('email')
 		}
+		frappe.db.begin()
 		user = lms.create_user(**user_data)
 		customer = lms.create_customer(user)
 		lms.create_user_token(entity=data.get('email'), token=lms.random_token(), token_type="Email Verification Token")
 		lms.add_firebase_token(data.get('firebase_token'), user.name)
-
+		frappe.db.commit()
 		data = {
 			'token': utils.create_user_access_token(user.name),
-			'customer': customer.as_dict()
+			'customer': customer
 		}
 		return utils.respondWithSuccess(message=_('Registered Successfully.'), data=data)
 	except utils.APIException as e:
+		frappe.db.rollback()
 		return e.respond()
 
 @frappe.whitelist(allow_guest=True)

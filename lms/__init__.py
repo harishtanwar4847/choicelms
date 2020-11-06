@@ -185,7 +185,6 @@ def create_customer(user):
 
 		return customer
 	except Exception as e:
-		# frappe.delete_doc('User', user.name, ignore_permissions=True)
 		raise utils.exceptions.APIException(message=str(e))
 
 def add_user(first_name, last_name, phone, email):
@@ -388,7 +387,6 @@ def create_user_token(entity, token, token_type="OTP"):
 	
 	user_token = frappe.get_doc(doc_data)
 	user_token.save(ignore_permissions=True)
-	frappe.db.commit()
 
 	return user_token
 	
