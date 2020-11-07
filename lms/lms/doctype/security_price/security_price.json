@@ -15,7 +15,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Security",
-   "options": "Allowed Security",
+   "options": "Security",
    "reqd": 1,
    "set_only_once": 1
   },
@@ -36,7 +36,7 @@
    "set_only_once": 1
   }
  ],
- "modified": "2020-08-01 20:16:53.087332",
+ "modified": "2020-11-07 18:23:17.286061",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Price",
