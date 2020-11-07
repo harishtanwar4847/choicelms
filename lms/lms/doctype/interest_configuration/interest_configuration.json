@@ -26,6 +26,7 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "From Amount",
+   "precision": "2",
    "reqd": 1
   },
   {
@@ -33,6 +34,7 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Rebait Interest",
+   "precision": "2",
    "reqd": 1
   },
   {
@@ -44,12 +46,14 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Base Interest",
+   "precision": "2",
    "reqd": 1
   },
   {
    "fieldname": "to_amount",
    "fieldtype": "Float",
    "label": "To Amount",
+   "precision": "2",
    "reqd": 1
   },
   {
@@ -59,7 +63,7 @@
    "reqd": 1
   }
  ],
- "modified": "2020-11-07 15:48:58.394884",
+ "modified": "2020-11-07 16:31:53.005541",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Interest Configuration",

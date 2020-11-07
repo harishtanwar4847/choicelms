@@ -154,7 +154,34 @@ class Loan(Document):
 			updated_total_collateral_value += i.pledged_quantity * securities_price_map.get(i.isin)
 
 		return updated_total_collateral_value
-			
+	
+	def get_base_interest_percentage(self):
+		loan = frappe.get_doc("Loan", self.name) 
+		base_interest = frappe.db.get_value("Interest Configuration", {'lender':loan.lender, 'from_amount':['<=',loan.balance], 'to_amount':['>=',loan.balance]}, ['base_interest'])
+		return base_interest
+	
+	def book_virtual_interest(self, input_date=None):
+		base_interest_percent = self.get_base_interest_percentage()
+		if input_date:
+			input_date = datetime.strptime(input_date, '%Y-%m-%d %H:%M:%S')
+		else:
+			input_date = datetime.now()
+
+		from calendar import monthrange
+		# get no of days of month
+		num_of_days_in_month = monthrange(int(input_date.strftime("%Y")), int(input_date.strftime("%m")))[1]
+		virtual_interest = base_interest_percent / num_of_days_in_month
+		amount = self.balance * virtual_interest / 100
+		virtual_interest_doc = frappe.get_doc({
+			'doctype': 'Virtual Interest',
+			'lender': self.lender,
+			'loan': self.name,
+			'time': input_date.replace(hour=23, minute=59, second=59, microsecond=999999),
+			'amount': amount,
+		})
+		virtual_interest_doc.save(ignore_permissions=True)
+		frappe.db.commit()
+		return virtual_interest_doc
 
 def check_loans_for_shortfall(loans):
 	for loan_name in loans:

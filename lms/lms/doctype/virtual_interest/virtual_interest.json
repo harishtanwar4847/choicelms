@@ -50,10 +50,11 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Amount",
+   "precision": "2",
    "reqd": 1
   }
  ],
- "modified": "2020-11-07 15:59:55.420908",
+ "modified": "2020-11-07 16:31:05.192655",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Virtual Interest",
