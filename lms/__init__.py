@@ -276,7 +276,7 @@ def get_security_categories(securities, lender):
 
 def get_allowed_securities(securities, lender):
 	query = """select 
-				allowed.isin, allowed.security_name, allowed.eligible_percentage,
+				allowed.isin, master.security_name, allowed.eligible_percentage,
 				master.category
 				from `tabAllowed Security` allowed
 				left join `tabSecurity` master
