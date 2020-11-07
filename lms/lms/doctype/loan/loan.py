@@ -112,6 +112,9 @@ class Loan(Document):
 			i.amount = i.price * i.pledged_quantity
 			self.total_collateral_value += i.amount
 
+		drawing_power = self.total_collateral_value * (self.allowable_ltv/100)
+		self.drawing_power = drawing_power if drawing_power <= self.sanctioned_limit else self.sanctioned_limit
+
 	def check_for_shortfall(self):
 		check = False
 
@@ -123,7 +126,6 @@ class Loan(Document):
 				i.price = securities_price_map.get(i.isin)
 
 		if check:
-			lms.loan_timeline(self.name)
 			self.fill_items()
 			self.save(ignore_permissions=True)
 
