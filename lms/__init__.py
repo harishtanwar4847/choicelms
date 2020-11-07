@@ -276,7 +276,7 @@ def get_security_categories(securities, lender):
 
 def get_allowed_securities(securities, lender):
 	query = """select 
-				allowed.isin, allowed.security_name, allowed.eligible_percentage,
+				allowed.isin, master.security_name, allowed.eligible_percentage,
 				master.category
 				from `tabAllowed Security` allowed
 				left join `tabSecurity` master
@@ -389,26 +389,6 @@ def create_user_token(entity, token, token_type="OTP"):
 	user_token.save(ignore_permissions=True)
 
 	return user_token
-	
-def loan_timeline(loan_name):
-	if not loan_name:
-		frappe.throw(_('Loan Name is required.'))
-
-	loan = frappe.get_doc('Loan', loan_name)
-
-	loan_timeline = frappe.get_doc(dict(
-		doctype = "Loan Timeline",
-		total_collateral_value = loan.total_collateral_value,
-		drawing_power = loan.drawing_power,
-		pledgor_boid = loan.pledgor_boid,
-		prf_number = loan.prf_number,
-		allowable_ltv = loan.allowable_ltv,
-		pledgee_boid = loan.pledgee_boid,
-		expiry_date = loan.expiry_date,
-		items = loan.items
-	)).insert(ignore_permissions=True)
-
-	return loan_timeline
 
 def save_signed_document(file_id, doctype, docname):
 	las_settings = frappe.get_single('LAS Settings')
