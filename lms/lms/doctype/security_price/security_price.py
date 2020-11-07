@@ -16,7 +16,8 @@ class SecurityPrice(Document):
 
 def update_security_prices(securities, session_id):
 	try:
-		securities_ = frappe.get_all('Allowed Security', filters=[['name', 'in', securities]], fields=['name', 'segment', 'token_id'])
+		print(securities, session_id)
+		securities_ = frappe.get_all('Security', filters=[['name', 'in', securities]], fields=['name', 'segment', 'token_id'])
 		securities_dict = {}
 		for i in securities_:
 			securities_dict['{}@{}'.format(i.segment, i.token_id)] = i.name 
@@ -57,12 +58,12 @@ def update_security_prices(securities, session_id):
 
 			frappe.db.bulk_insert('Security Price', fields=fields, values=values.values())
 	except (RequestException, Exception) as e:
-		return lms.generateResponse(is_success=False, error=e)
+		frappe.log_error()
 
 @frappe.whitelist()
 def update_all_security_prices():
 	try:
-		chunks = lms.chunk_doctype(doctype='Allowed Security', limit=50)
+		chunks = lms.chunk_doctype(doctype='Security', limit=50)
 		las_settings = frappe.get_single('LAS Settings')
 		session_id_generator_url = '{}{}'.format(las_settings.jiffy_host, las_settings.jiffy_session_generator_uri)
 		
@@ -71,7 +72,7 @@ def update_all_security_prices():
 
 		if response.ok and response_json.get("Status") == "Success":
 			for start in chunks.get('chunks'):
-				security_list = frappe.db.get_all('Allowed Security', limit_page_length=chunks.get('limit'), limit_start=start)
+				security_list = frappe.db.get_all('Security', limit_page_length=chunks.get('limit'), limit_start=start)
 
 				frappe.enqueue(
 					method='lms.lms.doctype.security_price.security_price.update_security_prices', 
@@ -85,4 +86,4 @@ def update_all_security_prices():
 				queue='long'
 			)
 	except (RequestException, Exception) as e:
-		return lms.generateResponse(is_success=False, error=e)
+		frappe.log_error()
