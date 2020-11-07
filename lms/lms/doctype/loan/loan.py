@@ -165,7 +165,7 @@ class Loan(Document):
 	def book_virtual_interest(self, input_date=None):
 		base_interest_percent = self.get_base_interest_percentage()
 		if input_date:
-			input_date = datetime.strptime(input_date, '%Y-%m-%d %H:%M:%S')
+			input_date = datetime.strptime(input_date, '%Y-%m-%d')
 		else:
 			input_date = datetime.now()
 
@@ -212,3 +212,7 @@ def get_permission_query_conditions(user):
 
 		return """(`tabLoan`.lender in {role_tuple})"""\
 			.format(role_tuple=lms.convert_list_to_tuple_string(roles))
+
+@frappe.whitelist()
+def book_virtual_interest(loan_name, input_date=None):
+	frappe.enqueue_doc("Loan", loan_name, method="book_virtual_interest", input_date=input_date)
