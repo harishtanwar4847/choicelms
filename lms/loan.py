@@ -322,10 +322,15 @@ def loan_details(**kwargs):
 			start=data.get('transactions_start'),
 			page_length=data.get('transactions_per_page')
 		)
+
+		loan_margin_shortfall = loan.get_margin_shortfall()
+		if loan_margin_shortfall.get('__islocal', None):
+			loan_margin_shortfall = None
 		
 		res = {
-			'loan': utils.frappe_doc_proper_dict(loan),
-			'transactions': loan_transactions_list
+			'loan': loan,
+			'transactions': loan_transactions_list,
+			'margin_shortfall': loan_margin_shortfall
 		}
 		return utils.respondWithSuccess(data=res)
 	except utils.exceptions.APIException as e:
