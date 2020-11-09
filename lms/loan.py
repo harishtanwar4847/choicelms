@@ -64,6 +64,7 @@ def esign_done(**kwargs):
 
 		try:
 			res = requests.get(esigned_pdf_url, allow_redirects=True)
+			frappe.db.begin()
 			esigned_file = frappe.get_doc({
 				'doctype': 'File',
 				'file_name': '{}-aggrement.pdf'.format(data.get('loan_application_name')),
@@ -79,7 +80,8 @@ def esign_done(**kwargs):
 			loan_application.workflow_state = 'Esign Done'
 			loan_application.customer_esigned_document = esigned_file.file_url
 			loan_application.save(ignore_permissions=True)
-
+			frappe.db.commit()
+			
 			return utils.respondWithSuccess()
 		except requests.RequestException as e:
 			raise utils.APIException(str(e))
@@ -349,7 +351,8 @@ def loan_withdraw_details(**kwargs):
 
 		# set amount_available_for_withdrawal
 		loan = loan.as_dict()
-		loan.amount_available_for_withdrawal = loan.drawing_power - loan.balance
+		virtual_interest_sum = frappe.db.get_value('Virtual Interest', {'loan':loan.name, 'lender':loan.lender, 'is_booked':0}, ['sum(amount)'])
+		loan.amount_available_for_withdrawal = loan.drawing_power - (loan.balance + virtual_interest_sum)
 
 		data = {
 			'loan': loan,
@@ -375,7 +378,9 @@ def request_loan_withdraw_otp():
 
 		user = lms.__user()
 
+		frappe.db.begin()
 		lms.create_user_token(entity=user.username, token_type="Withdraw OTP", token=lms.random_token(length=4, is_numeric=True))
+		frappe.db.commit()
 		return utils.respondWithSuccess(message='Withdraw OTP sent')
 	except utils.APIException as e:
 		return e.respond()
@@ -438,6 +443,7 @@ def loan_withdraw_request(**kwargs):
 		if amount > max_withdraw_amount:
 			return utils.respondWithFailure(status=417, message='Amount can not be more than {}'.format(max_withdraw_amount))
 
+		frappe.db.begin()
 		withdrawal_transaction = frappe.get_doc({
 			'doctype': 'Loan Transaction',
 			'loan': loan.name,
@@ -452,6 +458,7 @@ def loan_withdraw_request(**kwargs):
 
 		bank_account.is_spark_default = 1
 		bank_account.save(ignore_permissions=True)
+		frappe.db.commit()
 
 		return utils.respondWithSuccess()
 	except utils.APIException as e:
@@ -475,11 +482,13 @@ def loan_payment(**kwargs):
 		if loan.customer != customer.name:
 			return utils.respondForbidden(message=_('Please use your own Loan.'))
 
+		frappe.db.begin()
 		loan.create_loan_transaction(
 			transaction_type = 'Payment',
 			amount=data.get('amount'),
 			transaction_id=data.get('transaction_id')
 		)
+		frappe.db.commit()
 
 		return utils.respondWithSuccess()
 	except utils.APIException as e:
