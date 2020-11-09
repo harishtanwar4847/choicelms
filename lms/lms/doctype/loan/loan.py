@@ -158,8 +158,7 @@ class Loan(Document):
 		return updated_total_collateral_value
 	
 	def get_base_interest_percentage(self):
-		loan = frappe.get_doc("Loan", self.name) 
-		base_interest = frappe.db.get_value("Interest Configuration", {'lender':loan.lender, 'from_amount':['<=',loan.balance], 'to_amount':['>=',loan.balance]}, ['base_interest'])
+		base_interest = frappe.db.get_value("Interest Configuration", {'lender':self.lender, 'from_amount':['<=',self.balance], 'to_amount':['>=',self.balance]}, ['base_interest'])
 		return base_interest
 	
 	def book_virtual_interest(self, input_date=None):
@@ -216,3 +215,20 @@ def get_permission_query_conditions(user):
 @frappe.whitelist()
 def book_virtual_interest(loan_name, input_date=None):
 	frappe.enqueue_doc("Loan", loan_name, method="book_virtual_interest", input_date=input_date)
+
+def book_virtual_interest_for_chunk(chunk_loans):
+	for loan in chunk_loans:
+		frappe.enqueue_doc("Loan", loan.name, method="book_virtual_interest")
+
+@frappe.whitelist()
+def book_all_virtual_interests():
+	chunks = lms.chunk_doctype(doctype='Loan', limit=10)
+
+	for start in chunks.get('chunks'):
+		all_loans = frappe.db.get_all('Loan', limit_page_length=chunks.get('limit'), limit_start=start)
+		
+		frappe.enqueue(
+			method='lms.lms.doctype.loan.loan.book_virtual_interest_for_chunk', 
+			chunk_loans=[loan for loan in all_loans], 
+			queue='long'
+		)

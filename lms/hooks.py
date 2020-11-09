@@ -147,7 +147,10 @@ fixtures = [
 scheduler_events = {
 	"hourly": [
 		"lms.lms.doctype.security_price.security_price.update_all_security_prices"
-	]
+	],
+    "daily": [
+		"lms.lms.doctype.loan.loan.book_all_virtual_interests"
+	],
 }
 
 permission_query_conditions = {
