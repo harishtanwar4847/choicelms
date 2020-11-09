@@ -294,9 +294,8 @@ def get_allowed_securities(securities, lender):
 
 	return security_map
 
-def chunk_doctype(doctype, limit):
+def chunk_doctype(doctype, limit=50):
 	total = frappe.db.count(doctype)
-	limit = 50
 	chunks = range(0, total, limit)
 
 	return {
