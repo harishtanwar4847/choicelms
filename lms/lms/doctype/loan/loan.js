@@ -14,7 +14,29 @@ frappe.ui.form.on('Loan', {
 				console.log(values.date);
 
 				frappe.call({
-					method: 'lms.lms.doctype.loan.loan.book_virtual_interest',
+					method: 'lms.lms.doctype.loan.loan.add_virtual_interest',
+					freeze: true,
+					args: {
+						loan_name: frm.doc.name,
+						input_date: values.date
+					}
+				})
+			})
+			
+		});
+
+		frm.add_custom_button(__('Book Virtual Interest'), function(){
+			// frappe.msgprint("hii,  whatsup");
+			frappe.prompt({
+				label: 'Date',
+				fieldname: 'date',
+				fieldtype: 'Date',
+				reqd: true
+			}, (values) => {
+				console.log(values.date);
+
+				frappe.call({
+					method: 'lms.lms.doctype.loan.loan.book_all_virtual_interest_for_month',
 					freeze: true,
 					args: {
 						loan_name: frm.doc.name,

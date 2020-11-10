@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 import lms
+from datetime import datetime
 
 class VirtualInterest(Document):
 	pass
@@ -20,3 +21,4 @@ def get_permission_query_conditions(user):
 
 		return """(`tabLoan`.lender in {role_tuple})"""\
 			.format(role_tuple=lms.convert_list_to_tuple_string(roles))
+
