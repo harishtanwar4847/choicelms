@@ -123,6 +123,14 @@ def upsert(**kwargs):
 			'cart': cart
 		}
 
+		if data.get('loan_name', None):
+			loan_margin_shortfall = loan.get_margin_shortfall()
+			cart.loan = data.get('loan_name')
+			cart.save(ignore_permissions=True)
+
+			if not loan_margin_shortfall.get('__islocal', 1):
+				res['margin_shortfall'] = loan_margin_shortfall
+
 		frappe.db.commit()
 		return utils.respondWithSuccess(data=res)
 	except utils.APIException as e:
