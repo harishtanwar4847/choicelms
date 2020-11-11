@@ -38,7 +38,6 @@ def validate_securities_for_cart(securities, lender):
 	if securities_valid:
 		securities_list_from_db_ = frappe.db.sql("select isin from `tabAllowed Security` where lender = '{}' and isin in {}".format(lender, lms.convert_list_to_tuple_string(securities_list)))
 		securities_list_from_db = [i[0] for i in securities_list_from_db_]
-		print(securities_list_from_db)
 
 		diff = list(set(securities_list) - set(securities_list_from_db))
 		if diff:
@@ -88,8 +87,9 @@ def upsert(**kwargs):
 		customer = lms.__customer()
 
 		if data.get('loan_name', None):
-			loan = frappe.get_doc('Loan', data.get('loan_name'))
-			if not loan:
+			try:
+				loan = frappe.get_doc('Loan', data.get('loan_name'))
+			except frappe.DoesNotExistError:
 				return utils.respondNotFound(message=_('Loan not found.'))
 			if loan.customer != customer.name:
 				return utils.respondForbidden(message=_('Please use your own loan.'))
@@ -119,23 +119,12 @@ def upsert(**kwargs):
 			})
 		cart.save(ignore_permissions=True)
 
-		data = {
+		res = {
 			'cart': cart
 		}
 
-		if data.get('loan_name', None):
-			loan_margin_shortfall = loan.get_margin_shortfall()
-			cart.loan = loan.name
-			cart.save(ignore_permissions=True)
-
-			if not loan_margin_shortfall.get('__islocal', 0):
-				data['minimum_pledge_amount_present'] = True
-				data['minimum_pledge_amount'] = loan_margin_shortfall.shortfall_c * 2
-				if loan_margin_shortfall.shortfall_c * 2 > cart.total_collateral_value:
-					data['minimum_pledge_amount_present'] = False
 		frappe.db.commit()
-
-		return utils.respondWithSuccess(data=data)
+		return utils.respondWithSuccess(data=res)
 	except utils.APIException as e:
 		frappe.db.rollback()
 		return e.respond()

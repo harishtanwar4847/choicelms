@@ -83,8 +83,7 @@
    "fieldname": "loan",
    "fieldtype": "Link",
    "label": "Loan",
-   "options": "Loan",
-   "set_only_once": 1
+   "options": "Loan"
   },
   {
    "fieldname": "lender",
@@ -141,7 +140,7 @@
    "label": "Approved Eligible Loan"
   }
  ],
- "modified": "2020-10-28 14:47:30.027248",
+ "modified": "2020-11-08 13:43:31.088508",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart",
