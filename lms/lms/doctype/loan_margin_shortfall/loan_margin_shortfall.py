@@ -7,6 +7,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
+import math
 
 class LoanMarginShortfall(Document):
 	def before_save(self):
@@ -19,19 +20,19 @@ class LoanMarginShortfall(Document):
 		self.allowable_ltv = loan.allowable_ltv
 		self.drawing_power = loan.drawing_power
 
-		self.loan_balance = loan.get_transaction_summary().outstanding
+		self.loan_balance = loan.balance
 		self.ltv = (self.loan_balance/self.total_collateral_value) * 100
 		self.surplus_margin = 100 - self.ltv
 		self.minimum_collateral_value = (100/self.allowable_ltv) * self.loan_balance 
 
-		# these give negative values
-		# self.shortfall = (self.total_collateral_value - self.minimum_collateral_value) if self.loan_balance > self.drawing_power else 0
-		# self.shortfall_c = ((self.drawing_power - self.loan_balance)*2) if self.loan_balance > self.drawing_power else 0
-		# self.shortfall_percentage = (self.drawing_power - self.loan_balance) / 100
-		# these give positive values
-		self.shortfall = (self.minimum_collateral_value - self.total_collateral_value) if self.loan_balance > self.drawing_power else 0
-		self.shortfall_c = ((self.loan_balance - self.drawing_power)*2) if self.loan_balance > self.drawing_power else 0
+		self.shortfall = math.ceil((self.minimum_collateral_value - self.total_collateral_value) if self.loan_balance > self.drawing_power else 0)
+		self.shortfall_c = math.ceil(((self.loan_balance - self.drawing_power)*2) if self.loan_balance > self.drawing_power else 0)
 		self.shortfall_percentage = ((self.loan_balance - self.drawing_power) / 100) if self.loan_balance > self.drawing_power else 0
+
+		self.minimum_pledge_amount = self.shortfall_c
+		self.advisable_pledge_amount = math.ceil(self.minimum_pledge_amount * 1.1)
+		self.minimum_cash_amount = (self.allowable_ltv / 100) * self.shortfall_c
+		self.advisable_cash_amount = math.ceil(self.minimum_cash_amount * 1.1)
 
 		self.set_shortfall_action()
 

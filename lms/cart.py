@@ -38,7 +38,6 @@ def validate_securities_for_cart(securities, lender):
 	if securities_valid:
 		securities_list_from_db_ = frappe.db.sql("select isin from `tabAllowed Security` where lender = '{}' and isin in {}".format(lender, lms.convert_list_to_tuple_string(securities_list)))
 		securities_list_from_db = [i[0] for i in securities_list_from_db_]
-		print(securities_list_from_db)
 
 		diff = list(set(securities_list) - set(securities_list_from_db))
 		if diff:
@@ -88,8 +87,9 @@ def upsert(**kwargs):
 		customer = lms.__customer()
 
 		if data.get('loan_name', None):
-			loan = frappe.get_doc('Loan', data.get('loan_name'))
-			if not loan:
+			try:
+				loan = frappe.get_doc('Loan', data.get('loan_name'))
+			except frappe.DoesNotExistError:
 				return utils.respondNotFound(message=_('Loan not found.'))
 			if loan.customer != customer.name:
 				return utils.respondForbidden(message=_('Please use your own loan.'))
@@ -119,23 +119,20 @@ def upsert(**kwargs):
 			})
 		cart.save(ignore_permissions=True)
 
-		data = {
+		res = {
 			'cart': cart
 		}
 
 		if data.get('loan_name', None):
 			loan_margin_shortfall = loan.get_margin_shortfall()
-			cart.loan = loan.name
+			cart.loan = data.get('loan_name')
 			cart.save(ignore_permissions=True)
 
-			if not loan_margin_shortfall.get('__islocal', 0):
-				data['minimum_pledge_amount_present'] = True
-				data['minimum_pledge_amount'] = loan_margin_shortfall.shortfall_c * 2
-				if loan_margin_shortfall.shortfall_c * 2 > cart.total_collateral_value:
-					data['minimum_pledge_amount_present'] = False
-		frappe.db.commit()
+			if not loan_margin_shortfall.get('__islocal', 1):
+				res['margin_shortfall'] = loan_margin_shortfall
 
-		return utils.respondWithSuccess(data=data)
+		frappe.db.commit()
+		return utils.respondWithSuccess(data=res)
 	except utils.APIException as e:
 		frappe.db.rollback()
 		return e.respond()
@@ -620,41 +617,97 @@ def get_tnc(**kwargs):
 
 		tnc_list = [
 			"Name Of Borrower : {}".format(user.full_name),
+
 			"Address Of Borrower : {}".format(customer.address or ""),
-			"Nature of facility sanctioned : Revolving credit facility",
-			"Purpose : General Purpose",
-			"Sanctioned Credit Limit as on date of acceptance of this terms and conditions : Rs. {} /-".format(cart.eligible_loan),	
-			"Interest type : Floating, linked to Reference Rate",
-			"Rate of Interest : {}% p.m [Interest rate is subject to change based on management discretion from time to time]".format(lender.rate_of_interest),
-			"Reset Frequency : 12 Months",
-			"Date of reset of Interest Rate : Effective date of change of Reference Rate.",
-			"Default Interest/Additional interest in case of default : Upto {}% per month over and above applicable Interest Rate.".format(lender.default_interest),
-			"Details of security / Collateral obtained : Shares and other securities as will be pledged from time to time to maintain the required security cover",
-			"Security Coverage : Shares & Equity oriented Mutual Funds : Minimum 200%",
-			"Other Securities : As per rules applicable from time to time",
-			"Facility Tenure : 12 Months (Renewable at Lender’s discretion, as detailed in the T&C).",
-			"Repayment Through : Cash Flows /Sale of Securities/Other Investments Maturing",
-			"Mode of communication of changes in interest rates and others : Website and Mobile App notification, SMS, Email, Letters, Notices at branches, communication through statement of accounts of the borrower, or any other mode of communication.",
-			"EMI Payable : Not Applicable",
-			"Processing Fee : {}% of the sanctioned amount".format(lender.lender_processing_fees),
-			"Account Renewal charges : {}% of the renewal amount (Facility valid for a period of 12 months from the date of sanction; account renewal charges shall be debited at the end of 12 months)".format(lender.account_renewal_charges),
-			"Documentation charges : Rs. {}/-".format(lender.documentation_charges),
-			"Stamp duty & other statutory charges : At actuals",
-			"Pre-payment charges : NIL",
-			"Transaction Charges per Request (per variation in the composition of the Demat securities pledged) : Upto Rs. {}/".format(lender.transaction_charges_per_request),
-			"Collection/ Charges regarding Sale of Security in the event of default : All costs and expenses, brokerages, transaction charges, and other levies as per actuals.",
-			"Sale of security in the event of default or otherwise : {}% of the sale amount plus all brokerage, incidental transaction charges and other levies as per actuals".format(lender.security_selling_share),
-			"Credit Information Companies'(CICs) Charges : Upto Rs {}/- per instance".format(lender.cic_charges),
-			"Solvency Certificate : Not Applicable",
-			"No Due Certificate / No Objection Certificate (NOC) : NIL",
-			"Duplicate No Due certificate / NOC : NIL",
-			"Legal & incidental charges : As per actuals",
-			"Annual Maintenance Charge : INR 1,000 (upon each renewal)",
-			"Processing Charges per Request (including Enhancement / Withdrawal Requests) : Upto INR 50 per transaction.",
-			"Date on which annual outstanding balance statement will be issued : By end of April of succeeding financial year"
+
+			"Nature of facility sanctioned : Loan Against Securities - Overdraft facility;",
+
+			"Purpose : General Purpose. The facility shall not be used for anti-social or illegal purposes;",
+
+			"Sanctioned Credit Limit / Drawing Power : Rs. {} (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(cart.eligible_loan),	
+			
+			"Interest type : Floating",
+			
+			"Rate of Interest : {}%  per month after rebate, if paid within 7 days of due date. Otherwise Rebate of 0.20% will not be applicable and higher interest rate will be applicable [Interest rate is subject to change based on management discretion from time to time];".format(lender.rate_of_interest),
+			
+			"Details of security / Collateral obtained : Shares and other securities as will be pledged from time to time to maintain the required security coverage;",
+			
+			"Security Coverage : Shares & Equity oriented Mutual Funds - Minimum 200%, Other Securities - As per rules applicable from time to time;",
+			
+			"Facility Tenure : 12 Months (Renewable at Lender’s discretion, as detailed in the T&C);",
+			
+			"Repayment Through : Cash Flows /Sale of Securities/Other Investments Maturing;",
+
+			"Mode of communication of changes in interest rates and others : Website and Mobile App notification, SMS, Email, Letters, Notices at branches, communication through statement of accounts of the borrower, or any other mode of communication;",
+
+			"EMI Payable : Not Applicable;",
+
+			"Penal Interest rate / Penal Charges : In case of occurrence of Event of Default (EOD), Penal Interest shall be charged upto 4.00% per month over and above applicable Interest Rate;"
+			
+			"Processing Fee : {}% of the sanctioned amount, subject to minimum amount of Rs. 1500/-;".format(lender.lender_processing_fees),
+
+			"Account Renewal charges : {}% 0.5% of the renewal amount (Facility valid for a period of 12 months from the date of sanction; account renewal charges shall be debited at the end of 12 months), subject to minimum amount of Rs. 750/-;".format(lender.account_renewal_charges),
+
+			"Documentation charges : Rs. {}/-;".format(lender.documentation_charges),
+			
+			"Stamp duty & other statutory charges : At actuals;",
+
+			"Pre-payment charges : NIL;",
+			
+			"Transaction Charges per Request (per variation in the composition of the Demat securities pledged) : Upto Rs. {}/- per request;".format(lender.transaction_charges_per_request),
+
+			"Collection Charges on Sale of security in the event of default or otherwise : : {}% of the sale amount plus all brokerage, incidental transaction charges, costs and expenses and other levies as per actuals;".format(lender.security_selling_share),
+
+			"Credit Information Companies'(CICs) Charges : Upto Rs {}/- per instance (For individuals);".format(lender.cic_charges),
+
+			"Solvency Certificate : Not Applicable;",
+
+			"No Due Certificate / No Objection Certificate (NOC) : NIL;",
+
+			"Legal & incidental charges : As per actuals;"
 		]
 
-		return utils.respondWithSuccess(data=tnc_list)
+		tnc_ul = ("<ul>"+
+		"<li><strong> Name Of Borrower : {} </strong>".format(user.full_name)+"</li>"+
+		"<li><strong> Address Of Borrower </strong> : {}".format(customer.address or '')+"</li>"+
+		"<li><strong> Nature of facility sanctioned : Loan Against Securities - Overdraft facility;</strong></li>"+
+		"<li><strong> Purpose </strong>: General Purpose. The facility shall not be used for anti-social or illegal purposes;</li>"+
+		"<li><strong> Sanctioned Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(cart.eligible_loan)+"</li>"+
+		"<li><strong> Interest type </strong>: Floating</li>"+
+		"<li><strong> Rate of Interest </strong>: <strong>{}%  per month</strong> after rebate, if paid within <strong>7 days</strong> of due date. Otherwise Rebate of <strong>0.20%</strong> will not be applicable and higher interest rate will be applicable [Interest rate is subject to change based on management discretion from time to time];".format(lender.rate_of_interest)+"</li>"+
+		"<li><strong> Details of security / Collateral obtained </strong>: Shares and other securities as will be pledged from time to time to maintain the required security coverage;</li>"+
+		"<li><strong> Security Coverage </strong>: Shares & Equity oriented Mutual Funds - <strong>Minimum 200%</strong>, Other Securities - As per rules applicable from time to time;</li>"+
+		"<li><strong> Facility Tenure </strong>: <strong>12 Months</strong> (Renewable at Lender’s discretion, as detailed in the T&C);</li>"+
+		"<li><strong> Repayment Through </strong>: Cash Flows /Sale of Securities/Other Investments Maturing;</li>"+
+		"<li><strong> Mode of communication</strong> of changes in interest rates and others : Website and Mobile App notification, SMS, Email, Letters, Notices at branches, communication through statement of accounts of the borrower, or any other mode of communication;</li>"+
+		"<li><strong> EMI Payable </strong>: <strong>Not Applicable;</strong></li>"+
+		"<li><strong> Penal Interest rate / Penal Charges </strong>: In case of occurrence of Event of Default (EOD), Penal Interest shall be charged <strong>upto 4.00% per month</strong> over and above applicable Interest Rate;</li>"+
+		"<li><strong> Processing Fee </strong>: <strong>{}%</strong> of the sanctioned amount, subject to minimum amount of <strong>Rs. 1500/-;</strong>".format(lender.lender_processing_fees)+"</li>"+
+		"<li><strong> Account Renewal charges </strong>: <strong>{}%</strong> of the renewal amount (Facility valid for a period of 12 months from the date of sanction; account renewal charges shall be debited at the end of 12 months), subject to minimum amount of <strong>Rs. 750/-;</strong>".format(lender.account_renewal_charges)+"</li>"+
+		"<li><strong> Documentation charges </strong>: <strong>Rs. {}/-;</strong>".format(lender.documentation_charges)+"</li>"+
+		"<li><strong> Stamp duty & other statutory charges </strong>: At actuals;</li>"+
+		"<li><strong> Pre-payment charges </strong>: <strong>NIL;</strong></li>"+
+		"<li><strong> Transaction Charges per Request (per variation in the composition of the Demat securities pledged) </strong>: <strong>Upto Rs. {}/-</strong> per request;".format(lender.transaction_charges_per_request)+"</li>"+
+		"<li><strong> Collection Charges on Sale of security in the event of default or otherwise </strong>: <strong>{}%</strong> of the sale amount plus all brokerage, incidental transaction charges, costs and expenses and other levies as per actuals;".format(lender.security_selling_share)+"</li>"+
+		"<li><strong> Credit Information Companies'(CICs) Charges </strong>: <strong>Upto Rs {}/-</strong> per instance (For individuals);".format(lender.cic_charges)+"</li>"+
+		"<li><strong> Solvency Certificate </strong>: Not Applicable;</li>"+
+		"<li><strong> No Due Certificate / No Objection Certificate (NOC) </strong>: <strong>NIL;</strong></li>"+
+		"<li><strong> Legal & incidental charges </strong>: As per actuals;</li></ul>"
+		)
+
+		url = ""
+		tnc_header = "Please refer to the <a href='{}'>Terms & Conditions</a> for LAS facility, for detailed terms.".format(url)
+		tnc_footer = "You shall be required to authenticate (in token of you having fully read and irrevocably and unconditionally accepted and authenticated) the above application for loan including the pledge request and the Terms and Conditions (which can be opened by clicking on the links) and entire contents thereof, by entering the OTP that will be sent to you next on your registered mobile number with CDSL."
+		tnc_checkboxes = [i.tnc for i in frappe.get_all('Terms and Conditions', filters={'is_active': 1}, fields=['tnc'], order_by='creation asc')]
+
+		res = {
+			'tnc_list':tnc_list,
+			'tnc_html':tnc_ul,
+			'tnc_header': tnc_header,
+			'tnc_footer': tnc_footer,
+			'tnc_checkboxes': tnc_checkboxes,
+		}
+		return utils.respondWithSuccess(data=res)
 
 	except utils.APIException as e:
 		return e.respond()

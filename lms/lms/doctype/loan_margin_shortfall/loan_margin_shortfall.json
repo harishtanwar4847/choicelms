@@ -20,9 +20,13 @@
   "section_break_14",
   "shortfall",
   "shortfall_c",
+  "minimum_pledge_amount",
+  "minimum_cash_amount",
   "column_break_17",
   "shortfall_percentage",
   "margin_shortfall_action",
+  "advisable_pledge_amount",
+  "advisable_cash_amount",
   "section_break_20",
   "status",
   "column_break_22",
@@ -140,9 +144,29 @@
    "fieldname": "loan_balance",
    "fieldtype": "Currency",
    "label": "Loan Balance"
+  },
+  {
+   "fieldname": "minimum_pledge_amount",
+   "fieldtype": "Currency",
+   "label": "Minimum Pledge Amount"
+  },
+  {
+   "fieldname": "minimum_cash_amount",
+   "fieldtype": "Currency",
+   "label": "Minimum Cash Amount"
+  },
+  {
+   "fieldname": "advisable_pledge_amount",
+   "fieldtype": "Currency",
+   "label": "Advisable Pledge Amount"
+  },
+  {
+   "fieldname": "advisable_cash_amount",
+   "fieldtype": "Currency",
+   "label": "Advisable Cash Amount"
   }
  ],
- "modified": "2020-09-14 17:49:46.431643",
+ "modified": "2020-11-08 18:57:28.437700",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Margin Shortfall",
