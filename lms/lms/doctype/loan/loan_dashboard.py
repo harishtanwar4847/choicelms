@@ -3,7 +3,7 @@ def get_data():
         'fieldname': 'loan',
         'transactions': [
             {
-                'items': ['Loan Transaction', 'Loan Margin Shortfall', 'Loan Collateral', 'Lender Ledger', 'Collateral Ledger']
+                'items': ['Loan Transaction', 'Loan Margin Shortfall', 'Loan Collateral', 'Lender Ledger', 'Collateral Ledger', 'Virtual Interest']
             },
         ],
     }

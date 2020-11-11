@@ -314,6 +314,10 @@ class Cart(Document):
 		
 		self.bre_passing = all([item.bre_passing for item in self.items])
 
+	def get_interest_configuration(self):
+		base_interest, collateral_value = frappe.db.get_value("Interest Configuration", {'lender':self.lender, 'from_amount':['<=',self.total_collateral_value], 'to_amount':['>=',self.total_collateral_value]}, ['base_interest', 'total_collateral_value'], as_dict=1)
+		return {'base_interest':base_interest, 'collateral_value':collateral_value}
+
 def process_concentration_rule(item, amount, rule, rule_type, total):
 	threshold = rule.get(rule_type)
 	threshold_type = rule.get("{}_type".format(rule_type))

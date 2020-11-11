@@ -147,7 +147,13 @@ fixtures = [
 scheduler_events = {
 	"hourly": [
 		"lms.lms.doctype.security_price.security_price.update_all_security_prices"
-	]
+	],
+    "daily": [
+		"lms.lms.doctype.loan.loan.add_all_virtual_interests"
+	],
+    "monthly": [
+        "lms.lms.doctype.loan.loan.create_virtual_interest_transaction_monthly"
+    ]
 }
 
 permission_query_conditions = {
@@ -158,4 +164,5 @@ permission_query_conditions = {
 	"Loan": "lms.lms.doctype.loan.loan.get_permission_query_conditions",
 	"Loan Transaction": "lms.lms.doctype.loan_transaction.loan_transaction.get_permission_query_conditions",
 	"Lender Ledger": "lms.lms.doctype.lender_ledger.lender_ledger.get_permission_query_conditions",
+    "Virtual Interest":"lms.lms.doctype.virtual_interest.virtual_interest.get_permission_query_conditions",
 }
