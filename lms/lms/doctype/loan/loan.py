@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import frappe
 import lms
 from frappe.model.document import Document
-from datetime import datetime
+from datetime import datetime, timedelta
 from lms.lms.doctype.loan_transaction.loan_transaction import LoanTransaction
 
 class Loan(Document):
@@ -168,9 +168,8 @@ class Loan(Document):
 		else:
 			input_date = datetime.now()
 
-		from calendar import monthrange
 		# get no of days of month
-		num_of_days_in_month = monthrange(int(input_date.strftime("%Y")), int(input_date.strftime("%m")))[1]
+		num_of_days_in_month = ((input_date.replace(day=1) + timedelta(days=32)).replace(day=1) - timedelta(days=1)).day
 		virtual_interest = base_interest_percent / num_of_days_in_month
 		amount = self.balance * virtual_interest / 100
 		virtual_interest_doc = frappe.get_doc({
@@ -190,7 +189,6 @@ class Loan(Document):
 		else:
 			input_date = datetime.now()
 		
-		from calendar import monthrange
 		month = input_date.strftime("%m")
 		year = input_date.strftime("%Y")
 
