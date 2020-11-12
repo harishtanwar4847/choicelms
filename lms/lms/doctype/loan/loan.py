@@ -158,7 +158,7 @@ class Loan(Document):
 		return updated_total_collateral_value
 	
 	def get_base_interest_percentage(self):
-		base_interest = frappe.db.get_value("Interest Configuration", {'lender':self.lender, 'from_amount':['<=',self.balance], 'to_amount':['>=',self.balance]}, ['base_interest'])
+		base_interest = frappe.db.get_value("Interest Configuration", {'lender':self.lender, 'from_amount':['<=',self.balance], 'to_amount':['>=',self.balance]}, ['base_interest']) or 0
 		return base_interest
 	
 	def add_virtual_interest(self, input_date=None):
