@@ -670,7 +670,7 @@ def get_tnc(**kwargs):
 
 		tnc_ul = ("<ul>"+
 		"<li><strong> Name Of Borrower : {} </strong>".format(user.full_name)+"</li>"+
-		"<li><strong> Address Of Borrower </strong> : {}".format(customer.address or '')+"</li>"+
+		"<li><strong> Address Of Borrower </strong> : {}".format(user_kyc.address or '')+"</li>"+
 		"<li><strong> Nature of facility sanctioned : Loan Against Securities - Overdraft facility;</strong></li>"+
 		"<li><strong> Purpose </strong>: General Purpose. The facility shall not be used for anti-social or illegal purposes;</li>"+
 		"<li><strong> Sanctioned Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(cart.eligible_loan)+"</li>"+
