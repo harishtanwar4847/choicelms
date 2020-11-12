@@ -54,7 +54,12 @@ def validate_securities_for_cart(securities, lender):
 			keys = i.keys()
 			if "isin" not in keys or "quantity" not in keys:
 				securities_valid = False
-				message = _('any/all of isin, quantity, price not present')
+				message = _('isin or quantity not present')
+				break
+
+			if i.get('quantity') <= 0:
+				securities_valid = False
+				message = _('quantity should be more than 0')
 				break
 
 	if not securities_valid:
