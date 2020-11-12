@@ -356,7 +356,7 @@ def loan_withdraw_details(**kwargs):
 
 		# set amount_available_for_withdrawal
 		loan = loan.as_dict()
-		virtual_interest_sum = frappe.db.get_value('Virtual Interest', {'loan':loan.name, 'lender':loan.lender, 'is_booked':0}, ['sum(amount)'])
+		virtual_interest_sum = frappe.db.get_value('Virtual Interest', {'loan':loan.name, 'lender':loan.lender, 'is_booked':0}, ['sum(amount)']) or 0
 		loan.amount_available_for_withdrawal = loan.drawing_power - (loan.balance + virtual_interest_sum)
 
 		data = {
