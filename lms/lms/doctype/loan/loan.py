@@ -74,7 +74,8 @@ class Loan(Document):
 			loan_transaction.workflow_state = 'Approved'
 			loan_transaction.docstatus = 1
 			loan_transaction.save(ignore_permissions=True)
-
+		
+		frappe.db.commit()
 		return loan_transaction
 
 	def get_customer(self):
@@ -84,6 +85,7 @@ class Loan(Document):
 		summary = self.get_transaction_summary()
 		self.balance = summary.get('outstanding')
 		self.save(ignore_permissions=True)
+		frappe.db.commit()
 
 	def on_update(self):
 		frappe.enqueue_doc('Loan', self.name, method='check_for_shortfall')

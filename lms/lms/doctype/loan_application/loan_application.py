@@ -68,6 +68,7 @@ class LoanApplication(Document):
 				loan=self.create_loan()
 			else:
 				loan=self.update_existing_loan()
+			frappe.db.commit()
 
 	def before_save(self):
 		if self.status == 'Approved' and not self.lender_esigned_document:

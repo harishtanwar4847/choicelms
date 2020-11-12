@@ -607,6 +607,7 @@ def get_tnc(**kwargs):
 		})
 
 		customer = lms.__customer()
+		user_kyc = lms.__user_kyc()
 		cart = frappe.get_doc('Cart', data.get('cart_name'))
 		if not cart:
 			return utils.respondNotFound(message=_('Cart not found.'))
@@ -618,7 +619,7 @@ def get_tnc(**kwargs):
 		tnc_list = [
 			"Name Of Borrower : {}".format(user.full_name),
 
-			"Address Of Borrower : {}".format(customer.address or ""),
+			"Address Of Borrower : {}".format(user_kyc.address or ""),
 
 			"Nature of facility sanctioned : Loan Against Securities - Overdraft facility;",
 
