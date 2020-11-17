@@ -1,5 +1,5 @@
 {
- "autoname": "{loan}-.#####",
+ "autoname": "format:{loan}-{#####}",
  "creation": "2020-08-30 14:54:50.838458",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -10,6 +10,7 @@
   "transaction_id",
   "description",
   "lender",
+  "is_paid",
   "column_break_3",
   "record_type",
   "time",
@@ -96,10 +97,16 @@
    "fieldtype": "Select",
    "label": "Status",
    "options": "Pending\nApproved\nRejected"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_paid",
+   "fieldtype": "Check",
+   "label": "Is Paid"
   }
  ],
  "is_submittable": 1,
- "modified": "2020-11-01 12:41:52.381213",
+ "modified": "2020-11-17 18:14:54.237591",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",

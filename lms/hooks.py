@@ -149,10 +149,11 @@ scheduler_events = {
 		"lms.lms.doctype.security_price.security_price.update_all_security_prices"
 	],
     "daily": [
-		"lms.lms.doctype.loan.loan.add_all_virtual_interests"
+		"lms.lms.doctype.loan.loan.add_all_virtual_interests",
+		"lms.lms.doctype.loan.loan.check_all_loans_for_additional_interest"
 	],
     "monthly": [
-        "lms.lms.doctype.loan.loan.create_virtual_interest_transaction_monthly"
+        "lms.lms.doctype.loan.loan.create_all_loans_interest_transaction"
     ]
 }
 
