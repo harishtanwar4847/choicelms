@@ -59,7 +59,7 @@
   {
    "fieldname": "aadhar_no",
    "fieldtype": "Data",
-   "label": "Aadhar No"
+   "label": "Aadhaar Number"
   },
   {
    "fieldname": "kyc_type",
@@ -99,7 +99,7 @@
    "set_only_once": 1
   }
  ],
- "modified": "2020-10-20 01:43:54.317552",
+ "modified": "2020-11-20 15:56:32.498934",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
