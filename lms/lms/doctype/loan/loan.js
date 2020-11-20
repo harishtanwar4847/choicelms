@@ -11,10 +11,9 @@ frappe.ui.form.on('Loan', {
 				fieldtype: 'Date',
 				reqd: true
 			}, (values) => {
-				console.log(values.date);
 
 				frappe.call({
-					method: 'lms.lms.doctype.loan.loan.add_virtual_interest',
+					method: 'lms.lms.doctype.loan.loan.calculate_virtual_and_additional_interest',
 					freeze: true,
 					args: {
 						loan_name: frm.doc.name,
@@ -32,7 +31,6 @@ frappe.ui.form.on('Loan', {
 				fieldtype: 'Date',
 				reqd: true
 			}, (values) => {
-				console.log(values.date);
 
 				frappe.call({
 					method: 'lms.lms.doctype.loan.loan.book_virtual_interest_for_month',
@@ -45,25 +43,24 @@ frappe.ui.form.on('Loan', {
 			})
 		});
 
-		frm.add_custom_button(__('Check Additional Interest'), function(){
-			// frappe.msgprint("hii,  whatsup");
-			frappe.prompt({
-				label: 'Date',
-				fieldname: 'date',
-				fieldtype: 'Date',
-				reqd: true
-			}, (values) => {
-				console.log(values.date);
+		// frm.add_custom_button(__('Check Additional Interest'), function(){
+		// 	// frappe.msgprint("hii,  whatsup");
+		// 	frappe.prompt({
+		// 		label: 'Date',
+		// 		fieldname: 'date',
+		// 		fieldtype: 'Date',
+		// 		reqd: true
+		// 	}, (values) => {
 
-				frappe.call({
-					method: 'lms.lms.doctype.loan.loan.check_for_additional_interest',
-					freeze: true,
-					args: {
-						loan_name: frm.doc.name,
-						input_date: values.date
-					}
-				})
-			})
-		});
+		// 		frappe.call({
+		// 			method: 'lms.lms.doctype.loan.loan.check_for_additional_interest',
+		// 			freeze: true,
+		// 			args: {
+		// 				loan_name: frm.doc.name,
+		// 				input_date: values.date
+		// 			}
+		// 		})
+		// 	})
+		// });
 	}
 });

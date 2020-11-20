@@ -10,14 +10,15 @@
   "transaction_id",
   "description",
   "lender",
-  "is_paid",
+  "is_additional_interest_applied",
   "column_break_3",
   "record_type",
   "time",
   "transaction_type",
   "bank_account",
   "status",
-  "amended_from"
+  "amended_from",
+  "payment_transaction"
  ],
  "fields": [
   {
@@ -100,13 +101,19 @@
   },
   {
    "default": "0",
-   "fieldname": "is_paid",
+   "fieldname": "is_additional_interest_applied",
    "fieldtype": "Check",
-   "label": "Is Paid"
+   "label": "Is Additional Interest Applied"
+  },
+  {
+   "fieldname": "payment_transaction",
+   "fieldtype": "Link",
+   "label": "Payment Transaction",
+   "options": "Loan Transaction"
   }
  ],
  "is_submittable": 1,
- "modified": "2020-11-17 18:14:54.237591",
+ "modified": "2020-11-20 13:45:05.145439",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
