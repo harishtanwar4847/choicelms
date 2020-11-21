@@ -76,7 +76,8 @@
    "fieldname": "loan",
    "fieldtype": "Link",
    "label": "Loan",
-   "options": "Loan"
+   "options": "Loan",
+   "read_only": 1
   },
   {
    "fieldname": "drawing_power",
@@ -103,7 +104,7 @@
    "reqd": 1
   }
  ],
- "modified": "2020-10-29 16:20:22.684565",
+ "modified": "2020-11-21 15:08:16.775468",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",
