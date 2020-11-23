@@ -356,6 +356,6 @@ def verify_user(token, user):
 
 	frappe.respond_as_web_page(
 			_("Success"), 
-			_("User verified."),
+			_("Your email has been successfully verified."),
 			indicator_color='green'
 		)
