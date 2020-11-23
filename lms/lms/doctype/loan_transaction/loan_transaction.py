@@ -25,6 +25,9 @@ class LoanTransaction(Document):
 		'Other Charges': 'DR'
 	}
 
+	def set_record_type(self):
+		self.record_type = self.loan_transaction_map.get(self.transaction_type, 'DR')
+
 	def get_loan(self):
 		return frappe.get_doc('Loan', self.loan)
 
@@ -32,6 +35,7 @@ class LoanTransaction(Document):
 		return frappe.get_doc('Lender', self.lender)
 	
 	def before_insert(self):
+		self.set_record_type()
 		# check for user roles and permissions before adding transactions
 		user_roles = frappe.db.get_values("Has Role", {"parent":frappe.session.user, "parenttype": "User"},["role"])
 		if not user_roles:
