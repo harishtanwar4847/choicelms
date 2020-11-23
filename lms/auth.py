@@ -331,17 +331,24 @@ def request_verification_email():
 
 @frappe.whitelist(allow_guest=True)
 def verify_user(token, user):
-	token_res = lms.check_user_token(entity=user, token=token, token_type="Email Verification Token")
+	token_document = frappe.db.get_all("User Token", filters={"entity": user, "token_type": 'Email Verification Token', "token": token, "used": 0}, fields=["*"])
 
-	if not token_res[0]:
-		frappe.respond_as_web_page(
+	if len(token_document) == 0:
+		return frappe.respond_as_web_page(
 			_("Something went wrong"), 
-			_("Your token is expired or invalid."),
+			_("Your token is invalid."),
 			indicator_color='red'
 		)
-		return
 
-	frappe.db.set_value("User Token", token_res[1], "used", 1)
+	if len(token_document) > 0 and token_document[0].expiry < datetime.now():
+		return frappe.respond_as_web_page(
+			_("Something went wrong"), 
+			_("Your token has expired."),
+			indicator_color='red'
+		)
+		
+
+	frappe.db.set_value("User Token", token_document[0].name, "used", 1)
 	customer = lms.get_customer(user)
 	customer.is_email_verified = 1
 	customer.save(ignore_permissions=True)
