@@ -25,6 +25,13 @@ class LoanTransaction(Document):
 		'Other Charges': 'DR'
 	}
 
+	def validate_withdrawal_amount(self):
+		if self.transaction_type == 'Withdrawal':
+			loan = self.get_loan()
+			maximum_withdrawable_amount = loan.maximum_withdrawable_amount()
+			if self.amount > maximum_withdrawable_amount:
+				frappe.throw('Can not withdraw more than {}'.format(maximum_withdrawable_amount))
+
 	def set_record_type(self):
 		self.record_type = self.loan_transaction_map.get(self.transaction_type, 'DR')
 
@@ -36,6 +43,7 @@ class LoanTransaction(Document):
 	
 	def before_insert(self):
 		self.set_record_type()
+		self.validate_withdrawal_amount()
 		# check for user roles and permissions before adding transactions
 		user_roles = frappe.db.get_values("Has Role", {"parent":frappe.session.user, "parenttype": "User"},["role"])
 		if not user_roles:
