@@ -3,7 +3,7 @@
 
 frappe.ui.form.on('Cart', {
 	refresh: function(frm) {
-		cur_frm.set_df_property("items", "read_only", 1);
+		frm.set_df_property("items", "read_only", 1);
 		if (!frm.doc.is_processed && false) {
 			frm.add_custom_button(__('Process dummy cart'), function() {
 				frappe.call({
