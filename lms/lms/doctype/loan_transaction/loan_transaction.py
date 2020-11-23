@@ -20,8 +20,9 @@ class LoanTransaction(Document):
 		'Mortgage Charges': 'DR',
 		'Sell Collateral': 'DR', # confirm
 		'Invoke Pledge': 'DR', # confirm
-		'Interests': 'DR',
-		'Additional Interests': 'DR',
+		'Interest': 'DR',
+		'Additional Interest': 'DR',
+		'Penal Interest': 'DR',
 		'Other Charges': 'DR'
 	}
 
