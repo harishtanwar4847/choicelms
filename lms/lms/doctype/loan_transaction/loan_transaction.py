@@ -26,6 +26,8 @@ class LoanTransaction(Document):
 	}
 
 	def validate_withdrawal_amount(self):
+		if self.amount <= 0:
+			frappe.throw('Please fix the amount.')
 		if self.transaction_type == 'Withdrawal':
 			loan = self.get_loan()
 			maximum_withdrawable_amount = loan.maximum_withdrawable_amount()
