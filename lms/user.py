@@ -130,7 +130,6 @@ def get_choice_kyc(pan_no, birth_date):
 		user_kyc.mobile_number = data['mobileNum']
 		user_kyc.choice_client_id = data['clientId']
 		user_kyc.pan_no = data['panNum']
-		user_kyc.aadhar_no = data['panNum']
 		user_kyc.save(ignore_permissions=True)
 
 		frappe.db.delete('Bank Account', {'user_kyc': user_kyc.name})
@@ -219,7 +218,6 @@ def kyc_old(pan_no=None, birth_date=None):
 				"mobile_number": data["mobileNum"],
 				"choice_client_id": data["clientId"],
 				"pan_no": data["panNum"],
-				"aadhar_no": data["panNum"],
 				"bank_account_type": data["accountType"],
 				"bank_name": data["bank"],
 				"bank_code": data["bankcode"],
@@ -298,7 +296,6 @@ def kyc_old(pan_no=None, birth_date=None):
 				"mobile_number": data["APP_PAN_INQ"]["APP_MOB_NO"],
 				"choice_client_id": None,
 				"pan_no": data["APP_PAN_INQ"]["APP_PAN_NO"],
-				"aadhar_no": data["APP_PAN_INQ"]["APP_PAN_NO"]
 				})
 			user_kyc.insert(ignore_permissions=True)
 			frappe.db.commit()
