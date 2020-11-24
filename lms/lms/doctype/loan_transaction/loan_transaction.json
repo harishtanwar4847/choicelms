@@ -27,7 +27,8 @@
    "in_list_view": 1,
    "label": "Loan",
    "options": "Loan",
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "record_type",
@@ -47,6 +48,7 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Amount",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -54,6 +56,7 @@
    "fieldtype": "Datetime",
    "in_list_view": 1,
    "label": "Time",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -66,13 +69,15 @@
    "fieldtype": "Select",
    "label": "Transaction Type",
    "options": "Withdrawal\nPayment\nDebit Note\nCredit Note\nProcessing Fees\nStamp Duty\nDocumentation Charges\nMortgage Charges\nSell Collateral\nInvoke Pledge\nInterests\nAdditional Interests\nOther Charges",
+   "read_only": 1,
    "reqd": 1
   },
   {
    "fieldname": "bank_account",
    "fieldtype": "Link",
    "label": "Bank Account",
-   "options": "Bank Account"
+   "options": "Bank Account",
+   "read_only": 1
   },
   {
    "fieldname": "description",
@@ -92,29 +97,33 @@
    "fieldname": "lender",
    "fieldtype": "Link",
    "label": "Lender",
-   "options": "Lender"
+   "options": "Lender",
+   "set_only_once": 1
   },
   {
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Pending\nApproved\nRejected"
+   "options": "Pending\nApproved\nRejected",
+   "read_only": 1
   },
   {
    "fieldname": "payment_transaction",
    "fieldtype": "Link",
    "label": "Payment Transaction",
-   "options": "Loan Transaction"
+   "options": "Loan Transaction",
+   "read_only": 1
   },
   {
    "fieldname": "additional_interest",
    "fieldtype": "Link",
    "label": "Additional Interest",
-   "options": "Loan Transaction"
+   "options": "Loan Transaction",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
- "modified": "2020-11-23 14:19:43.765218",
+ "modified": "2020-11-25 01:53:36.339495",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
