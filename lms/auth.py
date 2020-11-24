@@ -40,10 +40,14 @@ def login(**kwargs):
 						'attempt' if invalid_login_attempts == 1 else 'attempts' 
 					)	
 				return utils.respondUnauthorized(message=message)	
-
+			try:
+				user_kyc = lms.__user_kyc(user.name)
+			except lms.UserKYCNotFoundException:
+				user_kyc = {}
 			token = dict(
 				token = utils.create_user_access_token(user.name),
-				customer = lms.__customer(user.name)
+				customer = lms.__customer(user.name),
+				user_kyc = user_kyc
 			)
 			lms.add_firebase_token(data.get("firebase_token"), user.name)
 			return utils.respondWithSuccess(message=frappe._('Logged in Successfully'), data=token)
@@ -159,10 +163,14 @@ def verify_otp(**kwargs):
 				frappe.local.login_manager.check_if_enabled(user.name)
 			except frappe.SecurityException as e:
 				return utils.respondUnauthorized(message=str(e))
-
+			try:
+				user_kyc = lms.__user_kyc(user.name)
+			except lms.UserKYCNotFoundException:
+				user_kyc = {}
 			res = {
 				'token': utils.create_user_access_token(user.name),
-				'customer': lms.__customer(user.name)
+				'customer': lms.__customer(user.name),
+				'user_kyc': user_kyc
 			}
 			token.used = 1
 			token.save(ignore_permissions=True)
@@ -343,7 +351,7 @@ def verify_user(token, user):
 	if len(token_document) > 0 and token_document[0].expiry < datetime.now():
 		return frappe.respond_as_web_page(
 			_("Something went wrong"), 
-			_("Your token has expired."),
+			_("Verification link has been Expired!"),
 			indicator_color='red'
 		)
 		
