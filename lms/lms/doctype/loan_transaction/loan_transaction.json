@@ -12,12 +12,12 @@
   "lender",
   "additional_interest",
   "column_break_3",
-  "record_type",
   "time",
   "transaction_type",
   "bank_account",
   "status",
   "amended_from",
+  "record_type",
   "payment_transaction"
  ],
  "fields": [
@@ -35,6 +35,7 @@
    "in_list_view": 1,
    "label": "Record Type",
    "options": "DR\nCR",
+   "read_only": 1,
    "reqd": 1
   },
   {
