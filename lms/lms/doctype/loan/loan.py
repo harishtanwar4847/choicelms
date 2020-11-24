@@ -167,14 +167,6 @@ class Loan(Document):
 
 		return updated_total_collateral_value
 	
-	def get_base_interest_percentage(self):
-		base_interest = frappe.db.get_value("Interest Configuration", {'lender':self.lender, 'from_amount':['<=',self.balance], 'to_amount':['>=',self.balance]}, ['base_interest'])
-		return base_interest
-	
-	def get_rebate_interest_percent(self):
-		rebate_interest = frappe.db.get_value("Interest Configuration", {'lender':self.lender, 'from_amount':['<=',self.balance], 'to_amount':['>=',self.balance]}, ['rebait_interest'])
-		return rebate_interest
-	
 	def get_rebate_threshold(self):
 		rebate_threshold = frappe.db.get_value("Lender", self.lender, 'rebait_threshold')
 		return rebate_threshold
@@ -185,7 +177,7 @@ class Loan(Document):
 
 		# Now, check if additional interest applicable
 		add_intrst = self.check_for_additional_interest(input_date)
-		
+
 	def add_virtual_interest(self, input_date=None):
 		interest_cofiguration = frappe.db.get_value("Interest Configuration", {'lender':self.lender, 'from_amount':['<=',self.balance], 'to_amount':['>=',self.balance]}, ['name', 'base_interest', 'rebait_interest'], as_dict=1)
 
@@ -236,17 +228,16 @@ class Loan(Document):
 		
 		# check if any not paid booked interest transaction entry plus check if Is Additional Interest not applied
 		booked_interest = frappe.db.sql("select * from `tabLoan Transaction` where loan='{}' and lender='{}' and transaction_type='Interests' and payment_transaction is null and additional_interest is null and DATE_FORMAT(time, '%m')={} and DATE_FORMAT(time, '%Y')={} order by time desc limit 1".format(self.name, self.lender, prev_month, prev_month_year), as_dict=1)
-
+		
 		if booked_interest:
 			# check if days spent greater than rebate threshold
 			rebate_threshold = int(self.get_rebate_threshold())
 			transaction_time = booked_interest[0]['time'] + timedelta(days=rebate_threshold) 
 
 			if job_date > transaction_time:
-				rebate_interest_percent = self.get_rebate_interest_percent()
-				base_interest_percent = self.get_base_interest_percentage()
-				additional_interest_amt = (booked_interest[0]['amount'] * rebate_interest_percent) / base_interest_percent
-				
+				# Sum of rebate amounts
+				rebate_interest_sum = frappe.db.sql("select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and lender = '{}' and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(self.name, self.lender, prev_month_year, prev_month), as_dict=1) 
+
 				frappe.db.begin()
 				# Additional Interest Entry
 				additional_interest_transaction = frappe.get_doc({
@@ -255,7 +246,7 @@ class Loan(Document):
 					'lender': self.lender,
 					'transaction_type': 'Additional Interests',
 					'record_type': 'DR',
-					'amount': additional_interest_amt,
+					'amount': rebate_interest_sum[0]['amount'],
 					'time': transaction_time.replace(hour=23, minute=59, second=59, microsecond=999999),
 				})
 				additional_interest_transaction.insert(ignore_permissions=True)
@@ -268,6 +259,9 @@ class Loan(Document):
 				# Update booked interest entry
 				booked_interest_transaction_doc = frappe.get_doc("Loan Transaction", booked_interest[0]["name"])
 				booked_interest_transaction_doc.db_set('additional_interest', additional_interest_transaction.name)
+
+				# Mark as booked for rebate
+				frappe.db.sql("update `tabVirtual Interest` set is_booked_for_rebate = 1 where loan = '{}' and is_booked_for_rebate = 0 and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(self.name, prev_month_year, prev_month))
 				frappe.db.commit()
 
 				return additional_interest_transaction.as_dict()
