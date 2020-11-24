@@ -343,7 +343,7 @@ def verify_user(token, user):
 	if len(token_document) > 0 and token_document[0].expiry < datetime.now():
 		return frappe.respond_as_web_page(
 			_("Something went wrong"), 
-			_("Your token has expired."),
+			_("Verification link has been Expired!"),
 			indicator_color='red'
 		)
 		
