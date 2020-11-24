@@ -172,7 +172,7 @@ class Loan(Document):
 		return base_interest
 	
 	def get_rebate_threshold(self):
-		rebate_threshold = frappe.db.get_value("Interest Configuration", {'lender':self.lender, 'from_amount':['<=',self.balance], 'to_amount':['>=',self.balance]}, ['rebait_threshold'])
+		rebate_threshold = frappe.db.get_value("Lender", self.lender, 'rebait_threshold')
 		return rebate_threshold
 	
 	def get_rebate_interest_percent(self):
