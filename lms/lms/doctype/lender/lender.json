@@ -12,14 +12,15 @@
   "default_interest",
   "account_renewal_charges",
   "security_selling_share",
-  "is_active",
+  "cic_charges",
   "column_break_1",
   "gst_id",
   "registered_date",
   "rate_of_interest",
   "transaction_charges_per_request",
-  "cic_charges",
   "rebait_threshold",
+  "default_interest_threshold",
+  "is_active",
   "agreement_section",
   "agreement_template",
   "total_pages",
@@ -282,11 +283,15 @@
   {
    "fieldname": "rebait_threshold",
    "fieldtype": "Data",
-   "label": "Rebate threshold (In Days)",
-   "reqd": 1
+   "label": "Rebate threshold (In Days)"
+  },
+  {
+   "fieldname": "default_interest_threshold",
+   "fieldtype": "Data",
+   "label": "Default Interest Threshold"
   }
  ],
- "modified": "2020-11-24 12:12:50.136669",
+ "modified": "2020-11-24 19:25:22.772924",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
