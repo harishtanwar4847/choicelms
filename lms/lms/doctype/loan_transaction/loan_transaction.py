@@ -20,10 +20,23 @@ class LoanTransaction(Document):
 		'Mortgage Charges': 'DR',
 		'Sell Collateral': 'DR', # confirm
 		'Invoke Pledge': 'DR', # confirm
-		'Interests': 'DR',
-		'Additional Interests': 'DR',
+		'Interest': 'DR',
+		'Additional Interest': 'DR',
+		'Penal Interest': 'DR',
 		'Other Charges': 'DR'
 	}
+
+	def validate_withdrawal_amount(self):
+		if self.amount <= 0:
+			frappe.throw('Please fix the amount.')
+		if self.transaction_type == 'Withdrawal':
+			loan = self.get_loan()
+			maximum_withdrawable_amount = loan.maximum_withdrawable_amount()
+			if self.amount > maximum_withdrawable_amount:
+				frappe.throw('Can not withdraw more than {}'.format(maximum_withdrawable_amount))
+
+	def set_record_type(self):
+		self.record_type = self.loan_transaction_map.get(self.transaction_type, 'DR')
 
 	def get_loan(self):
 		return frappe.get_doc('Loan', self.loan)
@@ -32,6 +45,8 @@ class LoanTransaction(Document):
 		return frappe.get_doc('Lender', self.lender)
 	
 	def before_insert(self):
+		self.set_record_type()
+		self.validate_withdrawal_amount()
 		# check for user roles and permissions before adding transactions
 		user_roles = frappe.db.get_values("Has Role", {"parent":frappe.session.user, "parenttype": "User"},["role"])
 		if not user_roles:

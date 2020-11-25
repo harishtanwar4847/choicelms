@@ -5,11 +5,17 @@
  "engine": "InnoDB",
  "field_order": [
   "lender",
+  "base_amount",
+  "interest_configuration",
+  "base_interest",
+  "is_booked_for_base",
   "time",
-  "is_booked",
   "column_break_1",
   "loan",
-  "amount"
+  "rebate_amount",
+  "loan_balance",
+  "rebate_interest",
+  "is_booked_for_rebate"
  ],
  "fields": [
   {
@@ -28,12 +34,6 @@
    "reqd": 1
   },
   {
-   "default": "0",
-   "fieldname": "is_booked",
-   "fieldtype": "Check",
-   "label": "Is Booked"
-  },
-  {
    "fieldname": "column_break_1",
    "fieldtype": "Column Break"
   },
@@ -46,15 +46,54 @@
    "reqd": 1
   },
   {
-   "fieldname": "amount",
+   "fieldname": "base_amount",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Amount",
-   "precision": "2",
+   "label": "Base Amount",
+   "precision": "2"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_booked_for_base",
+   "fieldtype": "Check",
+   "label": "Is Booked For Base Interest"
+  },
+  {
+   "fieldname": "rebate_amount",
+   "fieldtype": "Data",
+   "label": "Rebate Amount"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_booked_for_rebate",
+   "fieldtype": "Check",
+   "label": "Is Booked For Rebate Interest"
+  },
+  {
+   "fieldname": "interest_configuration",
+   "fieldtype": "Link",
+   "label": "Interest Configuration",
+   "options": "Interest Configuration",
    "reqd": 1
+  },
+  {
+   "fieldname": "base_interest",
+   "fieldtype": "Float",
+   "label": "Base Interest"
+  },
+  {
+   "fieldname": "loan_balance",
+   "fieldtype": "Currency",
+   "label": "Loan Balance",
+   "reqd": 1
+  },
+  {
+   "fieldname": "rebate_interest",
+   "fieldtype": "Float",
+   "label": "Rebate Interest"
   }
  ],
- "modified": "2020-11-07 16:31:05.192655",
+ "modified": "2020-11-24 13:11:14.410418",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Virtual Interest",

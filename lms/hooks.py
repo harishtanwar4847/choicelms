@@ -151,6 +151,7 @@ scheduler_events = {
     "daily": [
 		"lms.lms.doctype.loan.loan.add_all_loans_virtual_interest",
 		"lms.lms.doctype.loan.loan.check_for_all_loans_additional_interest",
+		"lms.lms.doctype.loan.loan.add_all_loans_penal_interest",
 	],
     "monthly": [
         "lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"
