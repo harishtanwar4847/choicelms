@@ -3,8 +3,10 @@
 
 frappe.ui.form.on('Loan', {
 	refresh: function(frm) {
+		frm.set_df_property("items", "read_only", 1);
+		frm.attachments.parent.hide()
+		frm.get_field('loan_agreement').$input_wrapper.find('[data-action=clear_attachment]').hide()
 		frm.add_custom_button(__('Daily Cron Job'), function(){
-			// frappe.msgprint("hii,  whatsup");
 			frappe.prompt({
 				label: 'Date',
 				fieldname: 'date',

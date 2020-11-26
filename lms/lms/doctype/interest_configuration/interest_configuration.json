@@ -9,8 +9,7 @@
   "rebait_interest",
   "column_break_1",
   "base_interest",
-  "to_amount",
-  "rebait_threshold"
+  "to_amount"
  ],
  "fields": [
   {
@@ -55,15 +54,9 @@
    "label": "To Amount",
    "precision": "2",
    "reqd": 1
-  },
-  {
-   "fieldname": "rebait_threshold",
-   "fieldtype": "Data",
-   "label": "Rebate threshold (In Days)",
-   "reqd": 1
   }
  ],
- "modified": "2020-11-12 13:02:02.514271",
+ "modified": "2020-11-24 12:13:02.767757",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Interest Configuration",
