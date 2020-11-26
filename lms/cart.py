@@ -143,7 +143,7 @@ def upsert(**kwargs):
 				cart.loan_margin_shortfall = data.get('loan_margin_shortfall_name')
 			cart.save(ignore_permissions=True)
 
-			if not loan_margin_shortfall.get('__islocal', 1):
+			if not loan_margin_shortfall.get('__islocal', 0):
 				res['loan_margin_shortfall_obj'] = loan_margin_shortfall
 
 		frappe.db.commit()
