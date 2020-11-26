@@ -442,8 +442,8 @@ def loan_withdraw_request(**kwargs):
 
 		# amount validation
 		amount = data.get('amount', 0)
-		if not amount:
-			return utils.respondWithFailure(status=417, message='Amount can not be 0')
+		if amount <= 0:
+			return utils.respondWithFailure(status=417, message='Amount should be more than 0')
 		max_withdraw_amount = loan.drawing_power - loan.balance
 		if amount > max_withdraw_amount:
 			return utils.respondWithFailure(status=417, message='Amount can not be more than {}'.format(max_withdraw_amount))
@@ -465,7 +465,10 @@ def loan_withdraw_request(**kwargs):
 		bank_account.save(ignore_permissions=True)
 		frappe.db.commit()
 
-		return utils.respondWithSuccess()
+		masked_bank_account_number = len(bank_account.account_number[:-4])*"x" + bank_account.account_number[-4:]
+		message = "Great! Your request for withdrawal has been successfully received. The amount shall be credited to your bank account {} within next 24 hours.".format(masked_bank_account_number)
+
+		return utils.respondWithSuccess(message=message)
 	except utils.APIException as e:
 		return e.respond()
 
