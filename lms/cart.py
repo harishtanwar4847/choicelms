@@ -632,7 +632,7 @@ def get_tnc(**kwargs):
 		lender = frappe.get_doc('Lender', cart.lender)
 
 		tnc_ul = ["<ul>"]
-		tnc_ul.append("<li><strong> Name Of Borrower : {} </strong>".format(user.full_name)+"</li>")
+		tnc_ul.append("<li><strong> Name Of Borrower : {} </strong>".format(user_kyc.investor_name)+"</li>")
 		tnc_ul.append("<li><strong> Address Of Borrower </strong> : {}".format(user_kyc.address or '')+"</li>")
 		tnc_ul.append("<li><strong> Nature of facility sanctioned : Loan Against Securities - Overdraft facility;</strong></li>")
 		tnc_ul.append("<li><strong> Purpose </strong>: General Purpose. The facility shall not be used for anti-social or illegal purposes;</li>")
@@ -664,6 +664,7 @@ def get_tnc(**kwargs):
 		tnc_checkboxes = [i.tnc for i in frappe.get_all('Terms and Conditions', filters={'is_active': 1}, fields=['tnc'], order_by='creation asc')]
 
 		res = {
+			'tnc_list': [], # will be removed 
 			'tnc_html': ''.join(tnc_ul),
 			'tnc_header': tnc_header,
 			'tnc_footer': tnc_footer,
