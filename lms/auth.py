@@ -39,15 +39,18 @@ def login(**kwargs):
 						invalid_login_attempts,
 						'attempt' if invalid_login_attempts == 1 else 'attempts' 
 					)	
-				return utils.respondUnauthorized(message=message)	
+				return utils.respondUnauthorized(message=message)
+			customer = lms.__customer(user.name)	
 			try:
 				user_kyc = lms.__user_kyc(user.name)
 			except lms.UserKYCNotFoundException:
 				user_kyc = {}
+			pending_esigns = frappe.get_all('Loan Application', filters={'customer': customer.name, 'status': 'Pending'}, fields=['*'])
 			token = dict(
 				token = utils.create_user_access_token(user.name),
-				customer = lms.__customer(user.name),
-				user_kyc = user_kyc
+				customer = customer,
+				user_kyc = user_kyc,
+				pending_esigns = pending_esigns
 			)
 			lms.add_firebase_token(data.get("firebase_token"), user.name)
 			return utils.respondWithSuccess(message=frappe._('Logged in Successfully'), data=token)
@@ -163,14 +166,17 @@ def verify_otp(**kwargs):
 				frappe.local.login_manager.check_if_enabled(user.name)
 			except frappe.SecurityException as e:
 				return utils.respondUnauthorized(message=str(e))
+			customer = lms.__customer(user.name)
 			try:
 				user_kyc = lms.__user_kyc(user.name)
 			except lms.UserKYCNotFoundException:
 				user_kyc = {}
+			pending_esigns = frappe.get_all('Loan Application', filters={'customer': customer.name, 'status': 'Pending'}, fields=['*'])
 			res = {
 				'token': utils.create_user_access_token(user.name),
-				'customer': lms.__customer(user.name),
-				'user_kyc': user_kyc
+				'customer': customer,
+				'user_kyc': user_kyc,
+				'pending_esigns': pending_esigns
 			}
 			token.used = 1
 			token.save(ignore_permissions=True)
