@@ -165,6 +165,7 @@ class Cart(Document):
 			'doctype': 'Loan Application',
 			'total_collateral_value': self.approved_total_collateral_value,
 			'pledged_total_collateral_value': self.total_collateral_value,
+			'loan_margin_shortfall': self.loan_margin_shortfall,
 			'pledge_status': self.status,
 			'drawing_power': lms.round_down_amount_to_nearest_thousand(self.approved_eligible_loan),
 			'lender': self.lender,
