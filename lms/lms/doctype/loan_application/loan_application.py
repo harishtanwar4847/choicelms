@@ -23,7 +23,7 @@ class LoanApplication(Document):
 		user_kyc = frappe.get_doc('User KYC', customer.choice_kyc)
 		lender = self.get_lender()
 		doc = {
-			'borrower_name': user.full_name, 
+			'borrower_name': user_kyc.investor_name, 
 			'borrower_address': user_kyc.address,
 			'sanctioned_amount': self.drawing_power,
 			'sanctioned_amount_in_words': num2words(self.drawing_power, lang='en_IN'),
