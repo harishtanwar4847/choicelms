@@ -487,20 +487,31 @@ def loan_payment(**kwargs):
 			"loan_name":"required",
 			"amount":"required|decimal",
 			"transaction_id":"required",
+			"loan_margin_shortfall_name": ""
 		})
 
 		customer = lms.__customer()
-		loan = frappe.get_doc('Loan', data.get('loan_name'))
-		if not loan:
+		try:
+			loan = frappe.get_doc('Loan', data.get('loan_name'))
+		except frappe.DoesNotExistError:
 			return utils.respondNotFound(message=frappe._('Loan not found.')) 
 		if loan.customer != customer.name:
 			return utils.respondForbidden(message=_('Please use your own Loan.'))
+
+		if data.get('loan_margin_shortfall_name', None):
+			try:
+				loan_margin_shortfall = frappe.get_doc('Loan Margin Shortfall', data.get('loan_margin_shortfall_name'))
+			except frappe.DoesNotExistError:
+				return utils.respondNotFound(message=_('Loan Margin Shortfall not found.'))
+			if loan.name != loan_margin_shortfall.loan:
+				return utils.respondForbidden(message=_('Loan Margin Shortfall should be for the provided loan.'))
 
 		frappe.db.begin()
 		loan.create_loan_transaction(
 			transaction_type = 'Payment',
 			amount=data.get('amount'),
-			transaction_id=data.get('transaction_id')
+			transaction_id=data.get('transaction_id'),
+			loan_margin_shortfall_name=data.get('loan_margin_shortfall_name', None)
 		)
 		frappe.db.commit()
 
