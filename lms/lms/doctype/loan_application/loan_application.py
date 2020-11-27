@@ -102,6 +102,7 @@ class LoanApplication(Document):
 			'customer': self.customer,
 			'lender': self.lender,
 			'items': items,
+			'is_eligible_for_interest':1
 		})
 		loan.insert(ignore_permissions=True)
 

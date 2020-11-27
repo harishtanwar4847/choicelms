@@ -444,7 +444,6 @@ def loan_withdraw_request(**kwargs):
 		amount = data.get('amount', 0)
 		if not amount:
 			return utils.respondWithFailure(status=417, message='Amount can not be 0')
-		max_withdraw_amount = loan.drawing_power - loan.balance
 
 		# check amount available for withdrawal
 		loan = loan.as_dict()

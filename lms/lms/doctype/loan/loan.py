@@ -274,8 +274,13 @@ class Loan(Document):
 
 					# Mark as booked for rebate
 					frappe.db.sql("update `tabVirtual Interest` set is_booked_for_rebate = 1 where loan = '{}' and is_booked_for_rebate = 0 and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(self.name, prev_month_year, prev_month))
-					frappe.db.commit()
 
+					# Mark loan as 'is_irregular'
+					self.is_irregular = 1
+					self.save(ignore_permissions=True)
+					
+					frappe.db.commit()
+					# TODO: send notification to user
 					return additional_interest_transaction.as_dict()
 
 	def book_virtual_interest_for_month(self, input_date=None):
@@ -315,6 +320,7 @@ class Loan(Document):
 			# Book Virtual Interest for previous month
 			frappe.db.sql("update `tabVirtual Interest` set is_booked_for_base = 1 where loan = '{}' and is_booked_for_base = 0 and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(self.name, prev_month_year, prev_month))
 			frappe.db.commit()
+			# TODO: send notification to user
 
 	def add_penal_interest(self, input_date=None):
 		# daily scheduler - executes at start of day i.e 00:00
@@ -365,8 +371,13 @@ class Loan(Document):
 						penal_interest_transaction.workflow_state = 'Approved'
 						penal_interest_transaction.docstatus = 1
 						penal_interest_transaction.save(ignore_permissions=True)
+						
+						# Mark loan as 'is_penalize'
+						self.is_penalize = 1
+						self.save(ignore_permissions=True)
 
 						frappe.db.commit()
+						# TODO: send notification to user
 						return penal_interest_transaction.as_dict()
 
 def check_loans_for_shortfall(loans):
