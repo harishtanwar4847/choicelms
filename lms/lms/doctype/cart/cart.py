@@ -165,6 +165,7 @@ class Cart(Document):
 			'doctype': 'Loan Application',
 			'total_collateral_value': self.approved_total_collateral_value,
 			'pledged_total_collateral_value': self.total_collateral_value,
+			'loan_margin_shortfall': self.loan_margin_shortfall,
 			'pledge_status': self.status,
 			'drawing_power': lms.round_down_amount_to_nearest_thousand(self.approved_eligible_loan),
 			'lender': self.lender,
@@ -174,6 +175,9 @@ class Cart(Document):
 			'loan': self.loan,
 			'items': items
 		})
+		if self.loan_margin_shortfall:
+			loan_application.status = 'Ready for Approval'
+			loan_application.workflow_state = 'Ready for Approval'
 		loan_application.insert(ignore_permissions=True)
 		self.save_collateral_ledger(loan_application.name)
 		return loan_application

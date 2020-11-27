@@ -76,6 +76,7 @@ def upsert(**kwargs):
 			'securities': '',
 			'cart_name': '',
 			'loan_name': '',
+			'loan_margin_shortfall_name': '',
 			'lender': '',
 			'expiry': '',
 			'pledgor_boid': 'required'
@@ -98,6 +99,13 @@ def upsert(**kwargs):
 				return utils.respondNotFound(message=_('Loan not found.'))
 			if loan.customer != customer.name:
 				return utils.respondForbidden(message=_('Please use your own loan.'))
+			if data.get('loan_margin_shortfall_name', None):
+				try:
+					loan_margin_shortfall = frappe.get_doc('Loan Margin Shortfall', data.get('loan_margin_shortfall_name'))
+				except frappe.DoesNotExistError:
+					return utils.respondNotFound(message=_('Loan Margin Shortfall not found.'))
+				if loan.name != loan_margin_shortfall.loan:
+					return utils.respondForbidden(message=_('Loan Margin Shortfall should be for the provided loan.'))
 
 		if not data.get('cart_name', None):
 			cart = frappe.get_doc({
@@ -131,10 +139,12 @@ def upsert(**kwargs):
 		if data.get('loan_name', None):
 			loan_margin_shortfall = loan.get_margin_shortfall()
 			cart.loan = data.get('loan_name')
+			if data.get('loan_margin_shortfall_name', None):
+				cart.loan_margin_shortfall = data.get('loan_margin_shortfall_name')
 			cart.save(ignore_permissions=True)
 
-			if not loan_margin_shortfall.get('__islocal', 1):
-				res['margin_shortfall'] = loan_margin_shortfall
+			if not loan_margin_shortfall.get('__islocal', 0):
+				res['loan_margin_shortfall_obj'] = loan_margin_shortfall
 
 		frappe.db.commit()
 		return utils.respondWithSuccess(data=res)

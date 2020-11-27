@@ -145,7 +145,7 @@
   "doctype": "Workflow",
   "document_type": "Loan Application",
   "is_active": 1,
-  "modified": "2020-10-29 01:22:41.187509",
+  "modified": "2020-11-27 11:57:48.770346",
   "name": "Loan Application Approval",
   "override_status": 0,
   "parent": null,
@@ -167,19 +167,6 @@
     "update_value": "Pending"
    },
    {
-    "allow_edit": "Lender",
-    "doc_status": "0",
-    "is_optional_state": 0,
-    "message": null,
-    "next_action_email_template": null,
-    "parent": "Loan Application Approval",
-    "parentfield": "states",
-    "parenttype": "Workflow",
-    "state": "Pending",
-    "update_field": "status",
-    "update_value": "Pending"
-   },
-   {
     "allow_edit": "System Manager",
     "doc_status": "0",
     "is_optional_state": 0,
@@ -245,7 +232,7 @@
     "update_value": "Esign Done"
    },
    {
-    "allow_edit": "Loan Customer",
+    "allow_edit": "System Manager",
     "doc_status": "0",
     "is_optional_state": 0,
     "message": null,
@@ -253,9 +240,9 @@
     "parent": "Loan Application Approval",
     "parentfield": "states",
     "parenttype": "Workflow",
-    "state": "Esign Done",
+    "state": "Ready for Approval",
     "update_field": "status",
-    "update_value": "Esign Done"
+    "update_value": "Ready for Approval"
    }
   ],
   "transitions": [
@@ -271,39 +258,6 @@
     "state": "Pending"
    },
    {
-    "action": "Esign",
-    "allow_self_approval": 0,
-    "allowed": "Loan Customer",
-    "condition": null,
-    "next_state": "Esign Done",
-    "parent": "Loan Application Approval",
-    "parentfield": "transitions",
-    "parenttype": "Workflow",
-    "state": "Pending"
-   },
-   {
-    "action": "Reject",
-    "allow_self_approval": 0,
-    "allowed": "System Manager",
-    "condition": null,
-    "next_state": "Rejected",
-    "parent": "Loan Application Approval",
-    "parentfield": "transitions",
-    "parenttype": "Workflow",
-    "state": "Pending"
-   },
-   {
-    "action": "Reject",
-    "allow_self_approval": 0,
-    "allowed": "Lender",
-    "condition": null,
-    "next_state": "Rejected",
-    "parent": "Loan Application Approval",
-    "parentfield": "transitions",
-    "parenttype": "Workflow",
-    "state": "Pending"
-   },
-   {
     "action": "Approve",
     "allow_self_approval": 0,
     "allowed": "System Manager",
@@ -324,6 +278,83 @@
     "parentfield": "transitions",
     "parenttype": "Workflow",
     "state": "Esign Done"
+   },
+   {
+    "action": "Send for Approval",
+    "allow_self_approval": 1,
+    "allowed": "System Manager",
+    "condition": null,
+    "next_state": "Ready for Approval",
+    "parent": "Loan Application Approval",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Pending"
+   },
+   {
+    "action": "Approve",
+    "allow_self_approval": 0,
+    "allowed": "System Manager",
+    "condition": null,
+    "next_state": "Approved",
+    "parent": "Loan Application Approval",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Ready for Approval"
+   },
+   {
+    "action": "Approve",
+    "allow_self_approval": 0,
+    "allowed": "Lender",
+    "condition": null,
+    "next_state": "Approved",
+    "parent": "Loan Application Approval",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Ready for Approval"
+   },
+   {
+    "action": "Reject",
+    "allow_self_approval": 1,
+    "allowed": "System Manager",
+    "condition": null,
+    "next_state": "Rejected",
+    "parent": "Loan Application Approval",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Esign Done"
+   },
+   {
+    "action": "Reject",
+    "allow_self_approval": 1,
+    "allowed": "Lender",
+    "condition": null,
+    "next_state": "Rejected",
+    "parent": "Loan Application Approval",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Esign Done"
+   },
+   {
+    "action": "Reject",
+    "allow_self_approval": 1,
+    "allowed": "System Manager",
+    "condition": null,
+    "next_state": "Rejected",
+    "parent": "Loan Application Approval",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Ready for Approval"
+   },
+   {
+    "action": "Reject",
+    "allow_self_approval": 1,
+    "allowed": "Lender",
+    "condition": null,
+    "next_state": "Rejected",
+    "parent": "Loan Application Approval",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Ready for Approval"
    }
   ],
   "workflow_name": "Loan Application Approval",
