@@ -175,6 +175,9 @@ class Cart(Document):
 			'loan': self.loan,
 			'items': items
 		})
+		if self.loan_margin_shortfall:
+			loan_application.status = 'Ready for Approval'
+			loan_application.workflow_state = 'Ready for Approval'
 		loan_application.insert(ignore_permissions=True)
 		self.save_collateral_ledger(loan_application.name)
 		return loan_application

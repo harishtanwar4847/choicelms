@@ -9,6 +9,7 @@ from frappe.model.document import Document
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from lms.loan import create_loan_collateral
 from num2words import num2words
+from datetime import datetime
 import lms
 class LoanApplication(Document):
 	def get_lender(self):
@@ -71,7 +72,7 @@ class LoanApplication(Document):
 			frappe.db.commit()
 
 	def before_save(self):
-		if self.status == 'Approved' and not self.lender_esigned_document:
+		if self.status == 'Approved' and not self.lender_esigned_document and not self.loan_margin_shortfall:
 			frappe.throw('Please upload Lender Esigned Document')
 
 	def create_loan(self):
@@ -156,6 +157,12 @@ class LoanApplication(Document):
 
 		loan.save(ignore_permissions=True)
 		self.update_collateral_ledger(loan.name)
+		if self.loan_margin_shortfall:
+			loan_margin_shortfall = frappe.get_doc('Loan Margin Shortfall', self.loan_margin_shortfall)
+			loan_margin_shortfall.status = 'Pledged Securities'
+			loan_margin_shortfall.action_time = datetime.now()
+			loan_margin_shortfall.save(ignore_permissions=True)
+			
 		return loan
 
 	def update_collateral_ledger(self, loan_name):
