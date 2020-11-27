@@ -7,6 +7,7 @@ import frappe
 from frappe.model.document import Document
 from frappe import _
 import lms
+from datetime import datetime
 
 class LoanTransaction(Document):
 	loan_transaction_map = {
@@ -84,6 +85,12 @@ class LoanTransaction(Document):
 				lender_sharing_amount = (lender_sharing_amount/100) * self.amount
 			spark_sharing_amount = self.amount - lender_sharing_amount
 			self.create_lender_ledger(self.name, lender_sharing_amount, spark_sharing_amount)
+
+		if self.loan_margin_shortfall:
+			loan_margin_shortfall = frappe.get_doc('Loan Margin Shortfall', self.loan_margin_shortfall)
+			loan_margin_shortfall.status = 'Paid Cash'
+			loan_margin_shortfall.action_time = datetime.now()
+			loan_margin_shortfall.save(ignore_permissions=True)
 
 		frappe.enqueue_doc('Loan', self.loan, method='update_loan_balance')
 

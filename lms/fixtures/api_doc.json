@@ -9,7 +9,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2020-11-01 14:25:11.977224",
+  "modified": "2020-11-27 22:49:45.492014",
   "name": "a0d287dd95",
   "parameters": [
    {
@@ -50,11 +50,24 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "loan_margin_shortfall_name",
+    "group": null,
+    "optional": 1,
+    "parent": "a0d287dd95",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
    }
   ],
   "parameters_example": [
    {
-    "example": "{\"loan_name\":\"L00001\",\"amount\":67890,\"transaction_id\":\"asdf\"}",
+    "example": "{\"loan_name\":\"L00001\",\"amount\":67890,\"transaction_id\":\"asdf\",\"loan_margin_shortfall_name\":\"\"}",
     "parent": "a0d287dd95",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -185,7 +198,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2020-10-20 23:04:50.313234",
+  "modified": "2020-11-27 22:48:59.878220",
   "name": "20b2c24baa",
   "parameters": [
    {
@@ -252,11 +265,24 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "loan_margin_shortfall_name",
+    "group": null,
+    "optional": 1,
+    "parent": "20b2c24baa",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
    }
   ],
   "parameters_example": [
    {
-    "example": "{\"securities\":{\"list\":[{\"isin\":\"INE259A01022\",\"quantity\":12},{\"isin\":\"INE045B01015\",\"quantity\":20}]},\"pledgor_boid\":\"1206690000000027\"}",
+    "example": "{\"securities\":{\"list\":[{\"isin\":\"INE259A01022\",\"quantity\":12},{\"isin\":\"INE045B01015\",\"quantity\":20}]},\"pledgor_boid\":\"1206690000000027\",\"loan_margin_shortfall_name\":\"\"}",
     "parent": "20b2c24baa",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
