@@ -15,7 +15,6 @@
   "basic_details_column_break",
   "mobile_number",
   "mother_name",
-  "aadhar_no",
   "address_section_break",
   "address",
   "city"
@@ -57,11 +56,6 @@
    "label": "PAN No"
   },
   {
-   "fieldname": "aadhar_no",
-   "fieldtype": "Data",
-   "label": "Aadhaar Number"
-  },
-  {
    "fieldname": "kyc_type",
    "fieldtype": "Select",
    "in_list_view": 1,
@@ -99,7 +93,7 @@
    "set_only_once": 1
   }
  ],
- "modified": "2020-11-20 15:56:32.498934",
+ "modified": "2020-11-25 01:45:52.154323",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
