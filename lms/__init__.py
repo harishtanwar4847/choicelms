@@ -10,7 +10,7 @@ from itertools import groupby
 from .exceptions import *
 import utils
 
-__version__ = '1.0.4'
+__version__ = '1.1.0'
 
 def after_install():
 	frappe.db.set_value('System Settings', 'System Settings', 'allow_consecutive_login_attempts', 3)
