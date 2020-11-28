@@ -145,7 +145,7 @@
   "doctype": "Workflow",
   "document_type": "Loan Application",
   "is_active": 1,
-  "modified": "2020-11-27 11:57:48.770346",
+  "modified": "2020-11-28 15:25:04.350926",
   "name": "Loan Application Approval",
   "override_status": 0,
   "parent": null,
@@ -155,6 +155,19 @@
   "states": [
    {
     "allow_edit": "System Manager",
+    "doc_status": "0",
+    "is_optional_state": 0,
+    "message": null,
+    "next_action_email_template": null,
+    "parent": "Loan Application Approval",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "state": "Pending",
+    "update_field": "status",
+    "update_value": "Pending"
+   },
+   {
+    "allow_edit": "Loan Customer",
     "doc_status": "0",
     "is_optional_state": 0,
     "message": null,
@@ -258,6 +271,17 @@
     "state": "Pending"
    },
    {
+    "action": "Esign",
+    "allow_self_approval": 0,
+    "allowed": "Loan Customer",
+    "condition": null,
+    "next_state": "Esign Done",
+    "parent": "Loan Application Approval",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Pending"
+   },
+   {
     "action": "Approve",
     "allow_self_approval": 0,
     "allowed": "System Manager",
@@ -283,6 +307,17 @@
     "action": "Send for Approval",
     "allow_self_approval": 1,
     "allowed": "System Manager",
+    "condition": null,
+    "next_state": "Ready for Approval",
+    "parent": "Loan Application Approval",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Pending"
+   },
+   {
+    "action": "Send for Approval",
+    "allow_self_approval": 1,
+    "allowed": "Loan Customer",
     "condition": null,
     "next_state": "Ready for Approval",
     "parent": "Loan Application Approval",
