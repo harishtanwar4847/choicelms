@@ -61,7 +61,7 @@ class Loan(Document):
 		new_transaction_id =  "{}-".format(self.name) + ("%04d" % (int(latest_transaction_id) + 1))
 		return new_transaction_id
 
-	def create_loan_transaction(self, transaction_type, amount, approve=False, transaction_id=None, loan_margin_shortfall_name=None):
+	def create_loan_transaction(self, transaction_type, amount, approve=False, transaction_id=None, loan_margin_shortfall_name=None, is_for_interest=None):
 		loan_transaction = frappe.get_doc({
 			'doctype': 'Loan Transaction',
 			'loan': self.name,
@@ -76,7 +76,9 @@ class Loan(Document):
 			loan_transaction.transaction_id = transaction_id
 		if loan_margin_shortfall_name:
 			loan_transaction.loan_margin_shortfall = loan_margin_shortfall_name
-		
+		if is_for_interest:
+			loan_transaction.is_for_interest = is_for_interest
+
 		loan_transaction.insert(ignore_permissions=True)
 
 		if approve:

@@ -514,7 +514,8 @@ def loan_payment(**kwargs):
 			"loan_name":"required",
 			"amount":"required|decimal",
 			"transaction_id":"required",
-			"loan_margin_shortfall_name": ""
+			"loan_margin_shortfall_name": "",
+			"is_for_interest": ""
 		})
 
 		customer = lms.__customer()
@@ -531,14 +532,15 @@ def loan_payment(**kwargs):
 			except frappe.DoesNotExistError:
 				return utils.respondNotFound(message=_('Loan Margin Shortfall not found.'))
 			if loan.name != loan_margin_shortfall.loan:
-				return utils.respondForbidden(message=_('Loan Margin Shortfall should be for the provided loan.'))
+				return utils.respondForbidden(message=_('Loan Margin Shortfall should be for the provided loan.'))			
 
 		frappe.db.begin()
 		loan.create_loan_transaction(
 			transaction_type = 'Payment',
 			amount=data.get('amount'),
 			transaction_id=data.get('transaction_id'),
-			loan_margin_shortfall_name=data.get('loan_margin_shortfall_name', None)
+			loan_margin_shortfall_name=data.get('loan_margin_shortfall_name', None),
+			is_for_interest=data.get('is_for_interest', None)
 		)
 		frappe.db.commit()
 

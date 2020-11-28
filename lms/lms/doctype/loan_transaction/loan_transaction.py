@@ -92,6 +92,18 @@ class LoanTransaction(Document):
 			loan_margin_shortfall.action_time = datetime.now()
 			loan_margin_shortfall.save(ignore_permissions=True)
 
+		if self.is_for_interest:
+			# fetch all interest transaction which are not paid 
+			# sauce: https://stackoverflow.com/a/25433139/9403680
+			not_paid_interests = frappe.db.sql('''select name, amount from `tabLoan Transaction` where loan=%s and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and payment_transaction IS NULL order by field(transaction_type, "Penal Interest", "Additional Interest", "Interest")''', self.loan, as_dict=1)
+
+			if not_paid_interests:
+				total_interest_amt_paid = self.amount
+				for interest in not_paid_interests:
+					if interest['amount'] <= total_interest_amt_paid > 0:
+						total_interest_amt_paid -= interest['amount']
+						frappe.db.set_value('Loan Transaction', interest['name'], 'payment_transaction', self.name)
+						
 		frappe.enqueue_doc('Loan', self.loan, method='update_loan_balance')
 
 	def create_lender_ledger(self, loan_transaction_name, lender_share, spark_share):
