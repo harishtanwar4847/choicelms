@@ -9,7 +9,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2020-11-27 22:49:45.492014",
+  "modified": "2020-11-28 23:45:28.217034",
   "name": "a0d287dd95",
   "parameters": [
    {
@@ -63,11 +63,24 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "is_for_interest",
+    "group": null,
+    "optional": 1,
+    "parent": "a0d287dd95",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Number"
    }
   ],
   "parameters_example": [
    {
-    "example": "{\"loan_name\":\"L00001\",\"amount\":67890,\"transaction_id\":\"asdf\",\"loan_margin_shortfall_name\":\"\"}",
+    "example": "{\"loan_name\":\"L00001\",\"amount\":67890,\"transaction_id\":\"asdf\",\"loan_margin_shortfall_name\":\"\",\"is_for_interest\":\"\"}",
     "parent": "a0d287dd95",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
