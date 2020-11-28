@@ -330,29 +330,30 @@ def loan_details(**kwargs):
 			loan_margin_shortfall = None
 		
 		# Interest Details 
-		interest_total = frappe.db.sql('''select sum(amount) as total_amt from `tabLoan Transaction` where loan=%s and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and payment_transaction IS NULL''', loan.name, as_dict=1)
+		interest = {}
 		
-		current_date = datetime.now()
-		due_date = ""
-		due_date_txt = "Pay By"
-		info_msg = ""
+		interest_total = frappe.db.sql('''select sum(amount) as total_amt from `tabLoan Transaction` where loan=%s and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and payment_transaction IS NULL''', loan.name, as_dict=1)
+		if interest_total[0]['total_amt']:
+			current_date = datetime.now()
+			due_date = ""
+			due_date_txt = "Pay By"
+			info_msg = ""
 
-		rebate_threshold = int(loan.get_rebate_threshold())
-		default_threshold = int(loan.get_default_threshold())
-		if rebate_threshold:
-			due_date =  current_date.replace(day=1) + timedelta(days=rebate_threshold) 
-			info_msg = """Interest becomes due and payable on the last date of every month. Please pay within {0} days to enjoy rebate which has already been applied while calculating the Interest Due.  After {0} days, the interest is recalculated without appliying applicable rebate and the difference appears as "Additional Interest" in your loan account. If interest remains unpaid after {1} days from the end of the month, "Penal Interest Charges" are debited to the account. Please check your terms and conditions of sanction for details.""".format(rebate_threshold, default_threshold)
+			rebate_threshold = int(loan.get_rebate_threshold())
+			default_threshold = int(loan.get_default_threshold())
+			if rebate_threshold:
+				due_date =  ((current_date.replace(day=1) - timedelta(days=1)) + timedelta(days=rebate_threshold)).replace(hour=23, minute=59, second=59, microsecond=999999)
+				info_msg = """Interest becomes due and payable on the last date of every month. Please pay within {0} days to enjoy rebate which has already been applied while calculating the Interest Due.  After {0} days, the interest is recalculated without appliying applicable rebate and the difference appears as "Additional Interest" in your loan account. If interest remains unpaid after {1} days from the end of the month, "Penal Interest Charges" are debited to the account. Please check your terms and conditions of sanction for details.""".format(rebate_threshold, default_threshold)
 
-			if current_date > due_date:
-				due_date_txt = "Immediate"
-				
-
-		interest = {
-			'total_interest_amt' : interest_total[0]['total_amt'],
-			'due_date':due_date,
-			'due_date_txt':due_date_txt,
-			'info_msg':info_msg
-		}
+				if current_date > due_date:
+					due_date_txt = "Immediate"
+					
+			interest = {
+				'total_interest_amt' : interest_total[0]['total_amt'],
+				'due_date':due_date,
+				'due_date_txt':due_date_txt,
+				'info_msg':info_msg
+			}
 
 		res = {
 			'loan': loan,
