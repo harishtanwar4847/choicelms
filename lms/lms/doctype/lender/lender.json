@@ -283,15 +283,17 @@
   {
    "fieldname": "rebait_threshold",
    "fieldtype": "Data",
-   "label": "Rebate threshold (In Days)"
+   "label": "Rebate threshold (In Days)",
+   "reqd": 1
   },
   {
    "fieldname": "default_interest_threshold",
    "fieldtype": "Data",
-   "label": "Default Interest Threshold"
+   "label": "Default Interest Threshold",
+   "reqd": 1
   }
  ],
- "modified": "2020-11-24 19:25:22.772924",
+ "modified": "2020-11-28 14:23:27.323807",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",

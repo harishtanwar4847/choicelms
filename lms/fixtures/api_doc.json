@@ -588,7 +588,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2020-11-02 02:34:59.506619",
+  "modified": "2020-11-28 14:22:29.095472",
   "name": "424822d68b",
   "parameters": [
    {
@@ -674,11 +674,21 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "List"
+   },
+   {
+    "default_value": null,
+    "description": "Interest Details Object",
+    "field": "data.interest",
+    "group": null,
+    "parent": "424822d68b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
    }
   ],
   "success_example": [
    {
-    "example": "{\"message\": \"Success\",\"data\":{\"loan\":\"loan object\", \"transactions\":\"transactions list\"}}",
+    "example": "{\"message\": \"Success\",\"data\":{\"loan\":\"loan object\", \"transactions\":\"transactions list\", \"interest\":\"interest details object\"}}",
     "parent": "424822d68b",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -1482,6 +1492,244 @@
   "version": "1.0.0"
  },
  {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2020-10-20 01:11:11.649901",
+  "name": "6ea2575637",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "pan_no",
+    "group": null,
+    "optional": 0,
+    "parent": "6ea2575637",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "birth_date",
+    "group": null,
+    "optional": 0,
+    "parent": "6ea2575637",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Date"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\"pan_no\":\"ABCDE1234F\",\"birth_date\":\"01-01-2001\"}",
+    "parent": "6ea2575637",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.kyc",
+  "success": [],
+  "success_example": [],
+  "title": "KYC",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "6ea2575637",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "6ea2575637",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "6ea2575637",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "6ea2575637",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2020-10-20 03:23:49.176629",
+  "name": "cbf6ce11f2",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "lender",
+    "group": null,
+    "optional": 1,
+    "parent": "cbf6ce11f2",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\"lender\":\"Choice Finserv\"}",
+    "parent": "cbf6ce11f2",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.securities",
+  "success": [],
+  "success_example": [],
+  "title": "Securities",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "cbf6ce11f2",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "cbf6ce11f2",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "cbf6ce11f2",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "cbf6ce11f2",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "Cart",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2020-11-03 21:09:58.375648",
+  "name": "2a23f121e5",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "cart_name",
+    "group": null,
+    "optional": 0,
+    "parent": "2a23f121e5",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\"cart_name\" : \"C000007\"}",
+    "parent": "2a23f121e5",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.cart.get_tnc",
+  "success": [],
+  "success_example": [],
+  "title": "TNC",
+  "use_api_define": [
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "2a23f121e5",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "2a23f121e5",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "2a23f121e5",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "2a23f121e5",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
   "api_define": 1,
   "docstatus": 0,
   "doctype": "API Doc",
@@ -1749,243 +1997,5 @@
   "title": "DataValidationErrorResponse",
   "use_api_define": [],
   "version": null
- },
- {
-  "api_define": 0,
-  "docstatus": 0,
-  "doctype": "API Doc",
-  "error": [],
-  "error_example": [],
-  "group": "User",
-  "headers": [],
-  "headers_example": [],
-  "method": "GET",
-  "modified": "2020-10-20 01:11:11.649901",
-  "name": "6ea2575637",
-  "parameters": [
-   {
-    "allowed_values": null,
-    "default_value": null,
-    "description": null,
-    "field": "pan_no",
-    "group": null,
-    "optional": 0,
-    "parent": "6ea2575637",
-    "parentfield": "parameters",
-    "parenttype": "API Doc",
-    "size": null,
-    "type": "String"
-   },
-   {
-    "allowed_values": null,
-    "default_value": null,
-    "description": null,
-    "field": "birth_date",
-    "group": null,
-    "optional": 0,
-    "parent": "6ea2575637",
-    "parentfield": "parameters",
-    "parenttype": "API Doc",
-    "size": null,
-    "type": "Date"
-   }
-  ],
-  "parameters_example": [
-   {
-    "example": "{\"pan_no\":\"ABCDE1234F\",\"birth_date\":\"01-01-2001\"}",
-    "parent": "6ea2575637",
-    "parentfield": "parameters_example",
-    "parenttype": "API Doc",
-    "title": "Request Example"
-   }
-  ],
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "path": "/api/method/lms.user.kyc",
-  "success": [],
-  "success_example": [],
-  "title": "KYC",
-  "use_api_define": [
-   {
-    "api_doc": "70b8cb66dd",
-    "api_doc_title": "AcceptJsonHeader",
-    "parent": "6ea2575637",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "2c99d6bf6d",
-    "api_doc_title": "DataValidationErrorResponse",
-    "parent": "6ea2575637",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "81c55fbdcc",
-    "api_doc_title": "UserAuthorizationRequestandResponse",
-    "parent": "6ea2575637",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "5a72ab8655",
-    "api_doc_title": "APIResponse",
-    "parent": "6ea2575637",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   }
-  ],
-  "version": "1.0.0"
- },
- {
-  "api_define": 0,
-  "docstatus": 0,
-  "doctype": "API Doc",
-  "error": [],
-  "error_example": [],
-  "group": "User",
-  "headers": [],
-  "headers_example": [],
-  "method": "GET",
-  "modified": "2020-10-20 03:23:49.176629",
-  "name": "cbf6ce11f2",
-  "parameters": [
-   {
-    "allowed_values": null,
-    "default_value": null,
-    "description": null,
-    "field": "lender",
-    "group": null,
-    "optional": 1,
-    "parent": "cbf6ce11f2",
-    "parentfield": "parameters",
-    "parenttype": "API Doc",
-    "size": null,
-    "type": "String"
-   }
-  ],
-  "parameters_example": [
-   {
-    "example": "{\"lender\":\"Choice Finserv\"}",
-    "parent": "cbf6ce11f2",
-    "parentfield": "parameters_example",
-    "parenttype": "API Doc",
-    "title": "Request Example"
-   }
-  ],
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "path": "/api/method/lms.user.securities",
-  "success": [],
-  "success_example": [],
-  "title": "Securities",
-  "use_api_define": [
-   {
-    "api_doc": "70b8cb66dd",
-    "api_doc_title": "AcceptJsonHeader",
-    "parent": "cbf6ce11f2",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "2c99d6bf6d",
-    "api_doc_title": "DataValidationErrorResponse",
-    "parent": "cbf6ce11f2",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "81c55fbdcc",
-    "api_doc_title": "UserAuthorizationRequestandResponse",
-    "parent": "cbf6ce11f2",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "5a72ab8655",
-    "api_doc_title": "APIResponse",
-    "parent": "cbf6ce11f2",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   }
-  ],
-  "version": "1.0.0"
- },
- {
-  "api_define": 0,
-  "docstatus": 0,
-  "doctype": "API Doc",
-  "error": [],
-  "error_example": [],
-  "group": "Cart",
-  "headers": [],
-  "headers_example": [],
-  "method": "GET",
-  "modified": "2020-11-03 21:09:58.375648",
-  "name": "2a23f121e5",
-  "parameters": [
-   {
-    "allowed_values": null,
-    "default_value": null,
-    "description": null,
-    "field": "cart_name",
-    "group": null,
-    "optional": 0,
-    "parent": "2a23f121e5",
-    "parentfield": "parameters",
-    "parenttype": "API Doc",
-    "size": null,
-    "type": "String"
-   }
-  ],
-  "parameters_example": [
-   {
-    "example": "{\"cart_name\" : \"C000007\"}",
-    "parent": "2a23f121e5",
-    "parentfield": "parameters_example",
-    "parenttype": "API Doc",
-    "title": "Request Example"
-   }
-  ],
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "path": "/api/method/lms.cart.get_tnc",
-  "success": [],
-  "success_example": [],
-  "title": "TNC",
-  "use_api_define": [
-   {
-    "api_doc": "81c55fbdcc",
-    "api_doc_title": "UserAuthorizationRequestandResponse",
-    "parent": "2a23f121e5",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "70b8cb66dd",
-    "api_doc_title": "AcceptJsonHeader",
-    "parent": "2a23f121e5",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "2c99d6bf6d",
-    "api_doc_title": "DataValidationErrorResponse",
-    "parent": "2a23f121e5",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "5a72ab8655",
-    "api_doc_title": "APIResponse",
-    "parent": "2a23f121e5",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   }
-  ],
-  "version": "1.0.0"
  }
 ]
