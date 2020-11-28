@@ -16,7 +16,11 @@
   "expiry_date",
   "loan_agreement",
   "items_section",
-  "items"
+  "items",
+  "loan_status_section",
+  "is_eligible_for_interest",
+  "is_irregular",
+  "is_penalize"
  ],
  "fields": [
   {
@@ -95,9 +99,31 @@
    "fieldtype": "Currency",
    "label": "Balance",
    "read_only": 1
+  },
+  {
+   "fieldname": "loan_status_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_eligible_for_interest",
+   "fieldtype": "Check",
+   "label": "Is Eligible For Interest"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_irregular",
+   "fieldtype": "Check",
+   "label": "Is Irregular"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_penalize",
+   "fieldtype": "Check",
+   "label": "Is Penalize"
   }
  ],
- "modified": "2020-11-23 21:01:05.543675",
+ "modified": "2020-11-27 10:15:01.775293",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

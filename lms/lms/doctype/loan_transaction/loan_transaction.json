@@ -11,6 +11,8 @@
   "description",
   "lender",
   "additional_interest",
+  "payment_transaction",
+  "is_for_interest",
   "column_break_3",
   "time",
   "transaction_type",
@@ -18,7 +20,7 @@
   "status",
   "amended_from",
   "record_type",
-  "payment_transaction"
+  "loan_margin_shortfall"
  ],
  "fields": [
   {
@@ -119,10 +121,23 @@
    "label": "Additional Interest",
    "options": "Loan Transaction",
    "read_only": 1
+  },
+  {
+   "fieldname": "loan_margin_shortfall",
+   "fieldtype": "Link",
+   "label": "Loan Margin Shortfall",
+   "options": "Loan Margin Shortfall",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_for_interest",
+   "fieldtype": "Check",
+   "label": "Is For Interest"
   }
  ],
  "is_submittable": 1,
- "modified": "2020-11-23 15:26:45.510122",
+ "modified": "2020-11-28 22:20:36.550197",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",

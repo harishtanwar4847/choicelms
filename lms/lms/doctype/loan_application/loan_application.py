@@ -103,6 +103,7 @@ class LoanApplication(Document):
 			'customer': self.customer,
 			'lender': self.lender,
 			'items': items,
+			'is_eligible_for_interest':1
 		})
 		loan.insert(ignore_permissions=True)
 
@@ -153,7 +154,9 @@ class LoanApplication(Document):
 			})
 
 		loan.total_collateral_value += self.total_collateral_value
-		loan.drawing_power += (loan.allowable_ltv/100) * loan.total_collateral_value
+		loan.drawing_power = (loan.allowable_ltv/100) * loan.total_collateral_value
+		if loan.drawing_power > loan.sanctioned_limit:
+			loan.drawing_power = loan.sanctioned_limit
 
 		loan.save(ignore_permissions=True)
 		self.update_collateral_ledger(loan.name)
