@@ -330,9 +330,8 @@ def loan_details(**kwargs):
 			loan_margin_shortfall = None
 		
 		# Interest Details 
-		interest = {}
-		
 		interest_total = frappe.db.sql('''select sum(amount) as total_amt from `tabLoan Transaction` where loan=%s and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and payment_transaction IS NULL''', loan.name, as_dict=1)
+
 		if interest_total[0]['total_amt']:
 			current_date = datetime.now()
 			due_date = ""
@@ -354,6 +353,8 @@ def loan_details(**kwargs):
 				'due_date_txt':due_date_txt,
 				'info_msg':info_msg
 			}
+		else:
+			interest = None
 
 		res = {
 			'loan': loan,
@@ -361,6 +362,7 @@ def loan_details(**kwargs):
 			'margin_shortfall': loan_margin_shortfall,
 			'interest':interest
 		}
+
 		return utils.respondWithSuccess(data=res)
 	except utils.exceptions.APIException as e:
 		return e.respond()
