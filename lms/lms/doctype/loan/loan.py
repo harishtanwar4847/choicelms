@@ -242,7 +242,7 @@ class Loan(Document):
 		prev_month_year = last_day_of_prev_month.year
 		
 		# check if any not paid booked interest transaction entry plus check if Is Additional Interest not applied
-		booked_interest = frappe.db.sql("select * from `tabLoan Transaction` where loan='{}' and lender='{}' and transaction_type='Interest' and payment_transaction is null and additional_interest is null and DATE_FORMAT(time, '%m')={} and DATE_FORMAT(time, '%Y')={} order by time desc limit 1".format(self.name, self.lender, prev_month, prev_month_year), as_dict=1)
+		booked_interest = frappe.db.sql("select * from `tabLoan Transaction` where loan='{}' and lender='{}' and transaction_type='Interest' and unpaid_interest > 0 and additional_interest is null and DATE_FORMAT(time, '%m')={} and DATE_FORMAT(time, '%Y')={} order by time desc limit 1".format(self.name, self.lender, prev_month, prev_month_year), as_dict=1)
 		
 		if booked_interest:
 			# check if days spent greater than rebate threshold
@@ -263,6 +263,7 @@ class Loan(Document):
 						'transaction_type': 'Additional Interest',
 						'record_type': 'DR',
 						'amount': rebate_interest_sum[0]['amount'],
+						'unpaid_interest': rebate_interest_sum[0]['amount'],
 						'time': transaction_time.replace(hour=23, minute=59, second=59, microsecond=999999),
 					})
 					additional_interest_transaction.insert(ignore_permissions=True)
@@ -310,6 +311,7 @@ class Loan(Document):
 				'loan': self.name,
 				'lender': self.lender,
 				'amount': virtual_interest_sum[0]["amount"],
+				'unpaid_interest': virtual_interest_sum[0]["amount"],
 				'transaction_type': 'Interest',
 				'record_type': 'DR',
 				'time': job_date
@@ -341,7 +343,7 @@ class Loan(Document):
 		prev_month_year = last_day_of_prev_month.year
 		
 		# check if any not paid booked interest exist
-		booked_interest = frappe.db.sql("select * from `tabLoan Transaction` where loan='{}' and lender='{}' and transaction_type='Interest' and payment_transaction is null and DATE_FORMAT(time, '%m')={} and DATE_FORMAT(time, '%Y')={} order by time desc limit 1".format(self.name, self.lender, prev_month, prev_month_year), as_dict=1)
+		booked_interest = frappe.db.sql("select * from `tabLoan Transaction` where loan='{}' and lender='{}' and transaction_type='Interest' and unpaid_interest > 0 and DATE_FORMAT(time, '%m')={} and DATE_FORMAT(time, '%Y')={} order by time desc limit 1".format(self.name, self.lender, prev_month, prev_month_year), as_dict=1)
 
 		if booked_interest:
 			# get default threshold
@@ -367,6 +369,7 @@ class Loan(Document):
 							'transaction_type': 'Penal Interest',
 							'record_type': 'DR',
 							'amount': amount,
+							'unpaid_interest': amount,
 							'time': job_date
 						})
 						penal_interest_transaction.insert(ignore_permissions=True)
