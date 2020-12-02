@@ -13,8 +13,9 @@ class Loan(Document):
 	def maximum_withdrawable_amount(self):
 		balance = self.balance
 
-		virtual_interest_sum = frappe.db.sql("select sum(base_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_base = 0".format(self.name), as_dict=1) 
-		balance += virtual_interest_sum[0]['amount']
+		virtual_interest_sum = frappe.db.sql("select sum(base_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_base = 0".format(self.name), as_dict=1)
+		if virtual_interest_sum[0]['amount']: 
+			balance += virtual_interest_sum[0]['amount']
 
 		return self.drawing_power - balance
 
