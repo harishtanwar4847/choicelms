@@ -20,7 +20,9 @@
   "amended_from",
   "record_type",
   "loan_margin_shortfall",
-  "unpaid_interest"
+  "unpaid_interest",
+  "section_break_1",
+  "items"
  ],
  "fields": [
   {
@@ -132,10 +134,21 @@
    "fieldname": "unpaid_interest",
    "fieldtype": "Currency",
    "label": "Unpaid Interest"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Interest Pay Log",
+   "options": "Interest Pay Log"
+  },
+  {
+   "fieldname": "section_break_1",
+   "fieldtype": "Section Break"
   }
  ],
  "is_submittable": 1,
- "modified": "2020-12-01 16:21:11.466139",
+ "modified": "2020-12-02 18:21:54.264979",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",

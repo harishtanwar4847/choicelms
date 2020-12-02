@@ -95,15 +95,35 @@ class LoanTransaction(Document):
 		if self.is_for_interest:
 			# fetch all interest transaction which are not paid 
 			# sauce: https://stackoverflow.com/a/25433139/9403680
-			not_paid_interests = frappe.db.sql('''select name, amount from `tabLoan Transaction` where loan=%s and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and payment_transaction IS NULL order by field(transaction_type, "Penal Interest", "Additional Interest", "Interest")''', self.loan, as_dict=1)
+			not_paid_interests = frappe.db.sql('''select name, amount, time, unpaid_interest, transaction_type from `tabLoan Transaction` where loan=%s and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and unpaid_interest > 0 order by field(transaction_type, "Penal Interest", "Additional Interest", "Interest")''', self.loan, as_dict=1)
 
 			if not_paid_interests:
 				total_interest_amt_paid = self.amount
 				for interest in not_paid_interests:
-					if interest['amount'] <= total_interest_amt_paid > 0:
-						total_interest_amt_paid -= interest['amount']
-						frappe.db.set_value('Loan Transaction', interest['name'], 'payment_transaction', self.name)
-						
+					interest_pay_log_amt = unpaid_interest = 0
+
+					if interest['unpaid_interest'] > total_interest_amt_paid:
+						interest_pay_log_amt = total_interest_amt_paid
+						unpaid_interest = interest['unpaid_interest'] - total_interest_amt_paid
+						total_interest_amt_paid = 0
+
+					if interest['unpaid_interest'] <= total_interest_amt_paid:
+						interest_pay_log_amt = interest['unpaid_interest']
+						unpaid_interest = 0
+						total_interest_amt_paid = total_interest_amt_paid - interest['unpaid_interest']
+
+					# Add 'Interest pay log' entry and also Update 'unpaid_interest' 
+					interest_doc = frappe.get_doc("Loan Transaction", interest['name'])
+					interest_doc.append('items', {
+						'amount': interest_pay_log_amt,
+						'payment_transaction':self.name
+					})
+					interest_doc.save(ignore_permissions=True)
+					interest_doc.db_set('unpaid_interest', unpaid_interest)
+					
+					if total_interest_amt_paid <= 0:
+						break
+
 		frappe.enqueue_doc('Loan', self.loan, method='update_loan_balance')
 
 	def create_lender_ledger(self, loan_transaction_name, lender_share, spark_share):
