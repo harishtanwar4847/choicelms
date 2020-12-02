@@ -11,7 +11,6 @@
   "description",
   "lender",
   "additional_interest",
-  "payment_transaction",
   "is_for_interest",
   "column_break_3",
   "time",
@@ -20,7 +19,10 @@
   "status",
   "amended_from",
   "record_type",
-  "loan_margin_shortfall"
+  "loan_margin_shortfall",
+  "unpaid_interest",
+  "section_break_1",
+  "items"
  ],
  "fields": [
   {
@@ -109,13 +111,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "payment_transaction",
-   "fieldtype": "Link",
-   "label": "Payment Transaction",
-   "options": "Loan Transaction",
-   "read_only": 1
-  },
-  {
    "fieldname": "additional_interest",
    "fieldtype": "Link",
    "label": "Additional Interest",
@@ -134,10 +129,26 @@
    "fieldname": "is_for_interest",
    "fieldtype": "Check",
    "label": "Is For Interest"
+  },
+  {
+   "fieldname": "unpaid_interest",
+   "fieldtype": "Currency",
+   "label": "Unpaid Interest"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Interest Pay Log",
+   "options": "Interest Pay Log"
+  },
+  {
+   "fieldname": "section_break_1",
+   "fieldtype": "Section Break"
   }
  ],
  "is_submittable": 1,
- "modified": "2020-11-28 22:20:36.550197",
+ "modified": "2020-12-02 18:21:54.264979",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",

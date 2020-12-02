@@ -330,7 +330,7 @@ def loan_details(**kwargs):
 			loan_margin_shortfall = None
 		
 		# Interest Details 
-		interest_total = frappe.db.sql('''select sum(amount) as total_amt from `tabLoan Transaction` where loan=%s and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and payment_transaction IS NULL''', loan.name, as_dict=1)
+		interest_total = frappe.db.sql('''select sum(unpaid_interest) as total_amt from `tabLoan Transaction` where loan=%s and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and unpaid_interest > 0''', loan.name, as_dict=1)
 
 		if interest_total[0]['total_amt']:
 			current_date = datetime.now()
