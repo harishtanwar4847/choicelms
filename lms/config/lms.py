@@ -26,7 +26,6 @@ def get_data():
 			'label': _('Tokens & Logs'),
 			'items': [
 				{ 'type': 'doctype', 'name': 'User Token', 'onboard': 1 },
-				{ 'type': 'doctype', 'name': 'App Error Log', 'onboard': 1 },
 				{ 'type': 'doctype', 'name': 'SMS Log', 'onboard': 1 },
 			]
 		},
@@ -36,7 +35,6 @@ def get_data():
 				{ 'type': 'doctype', 'name': 'User', 'onboard': 1 },
 				{ 'type': 'doctype', 'name': 'Approved Terms and Conditions', 'onboard': 1 },
 				{ 'type': 'doctype', 'name': 'User KYC', 'onboard': 1 },
-				{ 'type': 'doctype', 'name': 'User KYC Change Application', 'onboard': 1 },
 			]
 		},
 		{
