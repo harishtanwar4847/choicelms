@@ -108,13 +108,11 @@ def send_request(gateway_url, params, headers=None, use_post=False):
 	import json
 	frappe.logger().info(params)
 	params['sms'] = params['sms'].decode('ascii')
-	frappe.logger().info(params)
 	log = {
 		'url': gateway_url,
 		'params': params,
 		'response': response.json(),
 	}
-	frappe.logger().info(log)
 	import os
 	sms_log_file = frappe.utils.get_files_path('sms_log.json')
 	sms_log = None
