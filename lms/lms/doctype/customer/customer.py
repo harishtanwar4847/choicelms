@@ -22,8 +22,18 @@ class Customer(Document):
 		self.registeration = 1
 
 	def on_update(self):
+		user_kyc = {}
+		if self.choice_kyc:
+			user_kyc = frappe.get_doc("User KYC",self.choice_kyc).as_json()
+			
+		pending_esigns = frappe.get_all('Loan Application', filters={'customer': self.name, 'status': 'Pending'}, fields=['*'])
+
 		fa = FirebaseAdmin()
 		fa.send_data(
-			data={'customer': self.as_json()},
+			data={
+				'customer': self.as_json(),
+				'user_kyc': user_kyc,
+				'pending_esigns' : pending_esigns
+			},
 			tokens=lms.get_firebase_tokens(self.username)
-		)	
+		)
