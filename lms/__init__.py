@@ -362,10 +362,10 @@ def add_firebase_token(firebase_token, user=None):
 
 def create_user_token(entity, token, token_type="OTP"):
 	expiry_map = {
-		'OTP': 2,
+		'OTP': 10,
 		'Email Verification Token': 60,
-		'Pledge OTP': 2,
-		'Withdraw OTP': 2,
+		'Pledge OTP': 10,
+		'Withdraw OTP': 10,
 	}
 
 	doc_data = {
@@ -380,7 +380,7 @@ def create_user_token(entity, token, token_type="OTP"):
 		# expire previous OTPs
 		frappe.db.sql("""
 			update `tabUser Token` set expiry = CURRENT_TIMESTAMP
-			where entity = '{entity}' and token_type = '{token_type}' and expiry > CURRENT_TIMESTAMP; 
+			where entity = '{entity}' and token_type = '{token_type}' and used = 0 and expiry > CURRENT_TIMESTAMP; 
 		""".format(entity=entity, token_type=token_type))
 		doc_data['expiry'] = datetime.now() + timedelta(minutes=expiry_in_minutes)
 	
