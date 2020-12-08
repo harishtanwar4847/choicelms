@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 import frappe
+from frappe import _
 import lms
 from frappe.model.document import Document
 from datetime import datetime
@@ -12,7 +13,9 @@ import requests
 from requests.exceptions import RequestException
 
 class SecurityPrice(Document):
-	pass
+	def before_save(self):
+		if self.price <= 0:
+			frappe.throw(_('Security price can not be negative or 0.'))
 
 def update_security_prices(securities, session_id):
 	try:

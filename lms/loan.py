@@ -328,7 +328,7 @@ def loan_details(**kwargs):
 		loan_margin_shortfall = loan.get_margin_shortfall()
 		if loan_margin_shortfall.get('__islocal', None):
 			loan_margin_shortfall = None
-		
+
 		# Interest Details 
 		interest_total = frappe.db.sql('''select sum(unpaid_interest) as total_amt from `tabLoan Transaction` where loan=%s and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and unpaid_interest > 0''', loan.name, as_dict=1)
 
