@@ -5,15 +5,15 @@
   "docstatus": 0,
   "doctype": "Security",
   "isin": "IN9155A01020",
-  "modified": "2020-10-24 11:23:12.008010",
+  "modified": "2020-12-03 13:46:12.649692",
   "name": "IN9155A01020",
   "nse_symbol": "TATAMTRDVR",
   "parent": null,
   "parentfield": null,
   "parenttype": null,
   "security_name": "Tata Motors-DVR",
-  "segment": null,
-  "token_id": null,
+  "segment": "1",
+  "token_id": "16965",
   "type": "Share"
  },
  {

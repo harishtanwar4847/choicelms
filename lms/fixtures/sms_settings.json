@@ -3,7 +3,7 @@
   "docstatus": 0,
   "doctype": "SMS Settings",
   "message_parameter": "sms",
-  "modified": "2020-11-12 20:31:03.073556",
+  "modified": "2020-12-04 13:04:29.725431",
   "name": "SMS Settings",
   "parameters": [
    {
@@ -12,7 +12,7 @@
     "parent": "SMS Settings",
     "parentfield": "parameters",
     "parenttype": "SMS Settings",
-    "value": "e54a8bc56354c0f4"
+    "value": "3a48e2d603d37b69"
    },
    {
     "header": 0,
