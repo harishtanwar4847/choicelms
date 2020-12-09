@@ -66,7 +66,7 @@ def kyc(**kwargs):
 			'pan_no': 'required',
 			'birth_date': 'required|date'
 		})
-
+		
 		try:
 			user_kyc = lms.__user_kyc(frappe.session.user, data.get('pan_no'))
 		except lms.UserKYCNotFoundException:
@@ -103,7 +103,9 @@ def get_choice_kyc(pan_no, birth_date):
 	try:
 		las_settings = frappe.get_single('LAS Settings')
 
-		params = {"panNum": pan_no}
+		# params = {"panNum": pan_no}
+		params = {"PANNum": pan_no, "dob": (datetime.strptime(birth_date,'%d-%m-%Y')).strftime('%Y-%m-%d')}
+		
 		headers = {
 			"businessUnit": las_settings.choice_business_unit,
 			"userId": las_settings.choice_user_id,
@@ -112,11 +114,11 @@ def get_choice_kyc(pan_no, birth_date):
 		}
 
 		res = requests.get(las_settings.choice_pan_api, params=params, headers=headers)
-		if not res.ok:
-			raise lms.UserKYCNotFoundException
-			raise utils.APIException(res.text)
 
 		data = res.json()
+		if not res.ok or 'errorCode' in data:
+			raise lms.UserKYCNotFoundException
+			raise utils.APIException(res.text)
 
 		user_kyc = lms.__user_kyc(pan_no=pan_no, throw=False)
 		user_kyc.kyc_type = 'CHOICE'
@@ -163,6 +165,8 @@ def get_choice_kyc(pan_no, birth_date):
 
 	except requests.RequestException as e:
 		raise utils.APIException(str(e))
+	except lms.UserKYCNotFoundException:
+		raise
 	except Exception as e:
 		raise utils.APIException(str(e))
 
