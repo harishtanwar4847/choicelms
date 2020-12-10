@@ -148,8 +148,14 @@ class Loan(Document):
 
 			loan_margin_shortfall.fill_items()
 
-			if loan_margin_shortfall.margin_shortfall_action:
-				loan_margin_shortfall.insert(ignore_permissions=True)
+			if loan_margin_shortfall.is_new():
+				if loan_margin_shortfall.margin_shortfall_action:
+					loan_margin_shortfall.insert(ignore_permissions=True)
+			else:
+				if not loan_margin_shortfall.margin_shortfall_action:
+					loan_margin_shortfall.status = "Resolved"
+					loan_margin_shortfall.action_time = datetime.now()
+				loan_margin_shortfall.save(ignore_permissions=True)
 
 	def get_margin_shortfall(self):
 		margin_shortfall_name = frappe.db.get_value('Loan Margin Shortfall', {'loan': self.name, 'status': 'Pending'}, 'name')
@@ -387,6 +393,12 @@ class Loan(Document):
 						frappe.db.commit()
 						# TODO: send notification to user
 						return penal_interest_transaction.as_dict()
+
+	def before_save(self):
+		self.total_collateral_value_str = lms.amount_formatter(self.total_collateral_value)
+		self.drawing_power_str = lms.amount_formatter(self.drawing_power)
+		self.sanctioned_limit_str = lms.amount_formatter(self.sanctioned_limit)
+		self.balance_str = lms.amount_formatter(self.balance)
 
 def check_loans_for_shortfall(loans):
 	for loan_name in loans:

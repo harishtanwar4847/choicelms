@@ -6,10 +6,14 @@
  "engine": "InnoDB",
  "field_order": [
   "total_collateral_value",
+  "total_collateral_value_str",
   "drawing_power",
+  "drawing_power_str",
   "lender",
   "sanctioned_limit",
+  "sanctioned_limit_str",
   "balance",
+  "balance_str",
   "loan_column_break",
   "customer",
   "allowable_ltv",
@@ -121,9 +125,33 @@
    "fieldname": "is_penalize",
    "fieldtype": "Check",
    "label": "Is Penalize"
+  },
+  {
+   "fieldname": "total_collateral_value_str",
+   "fieldtype": "Data",
+   "label": "Total Collateral Value Str",
+   "read_only": 1
+  },
+  {
+   "fieldname": "drawing_power_str",
+   "fieldtype": "Data",
+   "label": "Drawing Power Str",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sanctioned_limit_str",
+   "fieldtype": "Data",
+   "label": "Sanctioned Limit Str",
+   "read_only": 1
+  },
+  {
+   "fieldname": "balance_str",
+   "fieldtype": "Data",
+   "label": "Balance Str",
+   "read_only": 1
   }
  ],
- "modified": "2020-11-27 10:15:01.775293",
+ "modified": "2020-12-11 01:40:54.869539",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

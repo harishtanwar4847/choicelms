@@ -6,11 +6,14 @@
  "engine": "InnoDB",
  "field_order": [
   "total_collateral_value",
+  "total_collateral_value_str",
   "drawing_power",
+  "drawing_power_str",
   "lender",
   "status",
   "customer_esigned_document",
   "pledged_total_collateral_value",
+  "pledged_total_collateral_value_str",
   "loan_margin_shortfall",
   "loan_application_column_break",
   "customer",
@@ -127,9 +130,27 @@
    "label": "Loan Margin Shortfall",
    "options": "Loan Margin Shortfall",
    "read_only": 1
+  },
+  {
+   "fieldname": "total_collateral_value_str",
+   "fieldtype": "Data",
+   "label": "Total Collateral Value Str",
+   "read_only": 1
+  },
+  {
+   "fieldname": "drawing_power_str",
+   "fieldtype": "Data",
+   "label": "Drawing Power Str",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pledged_total_collateral_value_str",
+   "fieldtype": "Data",
+   "label": "Pledged Total Collateral Value Str",
+   "read_only": 1
   }
  ],
- "modified": "2020-11-27 00:32:27.772371",
+ "modified": "2020-12-11 00:56:47.065253",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",
