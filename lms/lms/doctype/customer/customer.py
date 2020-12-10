@@ -23,7 +23,7 @@ class Customer(Document):
 		self.registeration = 1
 
 	def on_update(self):
-		user_kyc = {}
+		user_kyc = ""
 		if self.choice_kyc:
 			user_kyc = frappe.get_doc("User KYC",self.choice_kyc).as_json()
 			
@@ -34,19 +34,20 @@ class Customer(Document):
 			for loan_application in pending_loan_applications:
 				loan_application_doc = frappe.get_doc("Loan Application", loan_application.name)
 				pending_esigns.append(loan_application_doc.as_json())
+		if len(pending_esigns) == 0:
+			pending_esigns = ""
 
-		data={
-			'customer': self.as_json(),
-			'user_kyc': user_kyc,
-			'pending_esigns' : json.dumps(pending_esigns)
-		}
-		tokens=lms.get_firebase_tokens(self.username)
-
-		frappe.enqueue(method=send_firebase_notification, data=data, tokens=tokens)
-		
-def send_firebase_notification(data, tokens):
-	fa = FirebaseAdmin()
-	fa.send_data(
-		data=data,
-		tokens=tokens
-	)
+		try:
+			fa = FirebaseAdmin()
+			fa.send_data(
+				data={
+					'customer': self.as_json(),
+					'user_kyc': user_kyc,
+					'pending_esigns' : pending_esigns
+				},
+				tokens=lms.get_firebase_tokens(self.username)
+			)
+		except Exception:
+			pass
+		finally:
+			fa.delete_app()

@@ -38,9 +38,12 @@ class FirebaseAdmin():
 		except firebase_admin.exceptions.FirebaseError as e:
 			raise lms.FirebaseError(str(e))
 
-	def __del__(self):
+	def delete_app(self):
 		if self.app:
 			firebase_admin.delete_app(self.app)
 			self.app = None
+	
+	def __del__(self):
+		self.delete_app()
 
 		
