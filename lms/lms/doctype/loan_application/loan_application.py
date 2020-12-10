@@ -74,6 +74,9 @@ class LoanApplication(Document):
 	def before_save(self):
 		if self.status == 'Approved' and not self.lender_esigned_document and not self.loan_margin_shortfall:
 			frappe.throw('Please upload Lender Esigned Document')
+		self.total_collateral_value_str = lms.amount_formatter(self.total_collateral_value)
+		self.drawing_power_str = lms.amount_formatter(self.drawing_power)
+		self.pledged_total_collateral_value_str = lms.amount_formatter(self.pledged_total_collateral_value)
 
 	def create_loan(self):
 		items = []

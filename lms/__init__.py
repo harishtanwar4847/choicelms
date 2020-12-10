@@ -400,3 +400,26 @@ def save_signed_document(file_id, doctype, docname):
 		'file_name': 'loan-aggrement.pdf'
 	})
 	file_.insert(ignore_permissions=True)
+
+def amount_formatter(amount):
+	denominations = {100000: 'L', 10000000: 'Cr', 1000000000: 'Ar', 100000000000: 'Kr'}
+
+	amounts = sorted(denominations.keys())
+	# amounts.sort()
+
+	if amount < amounts[0]:
+		return '{:,.2f}'.format(amount)
+
+	formatted_amount = None
+	denomination = None
+	for i in amounts:
+		res = float(amount) / i
+		if res > 1:
+			formatted_amount = str(res)
+			denomination = i
+		else:
+			break
+
+	formatted_amount = formatted_amount[: formatted_amount.index('.') + 3]
+
+	return '{} {}'.format(formatted_amount, denominations.get(denomination))

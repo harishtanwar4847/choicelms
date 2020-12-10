@@ -394,6 +394,12 @@ class Loan(Document):
 						# TODO: send notification to user
 						return penal_interest_transaction.as_dict()
 
+	def before_save(self):
+		self.total_collateral_value_str = lms.amount_formatter(self.total_collateral_value)
+		self.drawing_power_str = lms.amount_formatter(self.drawing_power)
+		self.sanctioned_limit_str = lms.amount_formatter(self.sanctioned_limit)
+		self.balance_str = lms.amount_formatter(self.balance)
+
 def check_loans_for_shortfall(loans):
 	for loan_name in loans:
 		frappe.enqueue_doc('Loan', loan_name, method='check_for_shortfall')
