@@ -34,16 +34,14 @@ class Customer(Document):
 			for loan_application in pending_loan_applications:
 				loan_application_doc = frappe.get_doc("Loan Application", loan_application.name)
 				pending_esigns.append(loan_application_doc.as_json())
-		if len(pending_esigns) == 0:
-			pending_esigns = ""
-
+		
 		try:
 			fa = FirebaseAdmin()
 			fa.send_data(
 				data={
 					'customer': self.as_json(),
 					'user_kyc': user_kyc,
-					'pending_esigns' : pending_esigns
+					'pending_esigns' : json.dumps(pending_esigns)
 				},
 				tokens=lms.get_firebase_tokens(self.username)
 			)
