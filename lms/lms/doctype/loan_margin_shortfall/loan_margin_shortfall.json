@@ -133,7 +133,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Pending\nPaid Cash\nPledged Securities\nSell Off"
+   "options": "Pending\nPaid Cash\nPledged Securities\nSell Off\nResolved"
   },
   {
    "fieldname": "drawing_power",
@@ -166,7 +166,7 @@
    "label": "Advisable Cash Amount"
   }
  ],
- "modified": "2020-11-08 18:57:28.437700",
+ "modified": "2020-12-10 23:52:53.981362",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Margin Shortfall",
