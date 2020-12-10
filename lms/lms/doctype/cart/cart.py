@@ -112,7 +112,8 @@ class Cart(Document):
 			self.save(ignore_permissions=True)
 			raise lms.PledgeSetupFailureException('Pledge Setup failed.', errors=pledge_response)
 		
-		self.approved_eligible_loan = (self.allowable_ltv / 100) * self.approved_total_collateral_value
+		self.approved_total_collateral_value = round(self.approved_total_collateral_value)
+		self.approved_eligible_loan = lms.round_down_amount_to_nearest_thousand((self.allowable_ltv / 100) * self.approved_total_collateral_value)
 		self.is_processed = 1
 
 	def save_collateral_ledger(self, loan_application_name=None):
@@ -167,7 +168,7 @@ class Cart(Document):
 			'pledged_total_collateral_value': self.total_collateral_value,
 			'loan_margin_shortfall': self.loan_margin_shortfall,
 			'pledge_status': self.status,
-			'drawing_power': lms.round_down_amount_to_nearest_thousand(self.approved_eligible_loan),
+			'drawing_power': self.approved_eligible_loan,
 			'lender': self.lender,
 			'expiry_date': self.expiry,
 			'allowable_ltv': self.allowable_ltv,
@@ -236,8 +237,9 @@ class Cart(Document):
 				self.total_collateral_value += item.amount
 				self.allowable_ltv += item.eligible_percentage
 			
+			self.total_collateral_value = round(self.total_collateral_value)
 			self.allowable_ltv = float(self.allowable_ltv) / len(self.items)
-			self.eligible_loan = (self.allowable_ltv / 100) * self.total_collateral_value
+			self.eligible_loan = lms.round_down_amount_to_nearest_thousand((self.allowable_ltv / 100) * self.total_collateral_value)
 
 	def process_bre(self):
 		las_settings = frappe.get_single('LAS Settings')
