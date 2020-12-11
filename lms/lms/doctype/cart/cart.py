@@ -209,12 +209,12 @@ class Cart(Document):
 			self.notify_customer()
 
 	def before_save(self):
+		self.process_cart_items()
+		self.process_cart()
 		self.total_collateral_value_str = lms.amount_formatter(self.total_collateral_value)
 		self.approved_total_collateral_value_str = lms.amount_formatter(self.approved_total_collateral_value)
 		self.eligible_loan_str = lms.amount_formatter(self.eligible_loan)
 		self.approved_eligible_loan_str = lms.amount_formatter(self.approved_eligible_loan)
-		self.process_cart_items()
-		self.process_cart()
 
 	def process_cart_items(self):
 		if self.status == 'Not Processed':
