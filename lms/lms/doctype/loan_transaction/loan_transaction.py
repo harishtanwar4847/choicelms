@@ -86,6 +86,9 @@ class LoanTransaction(Document):
 			spark_sharing_amount = self.amount - lender_sharing_amount
 			self.create_lender_ledger(self.name, lender_sharing_amount, spark_sharing_amount)
 
+		loan = self.get_loan()
+		loan.update_loan_balance()
+		
 		if self.loan_margin_shortfall:
 			loan_margin_shortfall = frappe.get_doc('Loan Margin Shortfall', self.loan_margin_shortfall)
 			loan_margin_shortfall.fill_items()
@@ -125,8 +128,6 @@ class LoanTransaction(Document):
 					
 					if total_interest_amt_paid <= 0:
 						break
-
-		frappe.enqueue_doc('Loan', self.loan, method='update_loan_balance')
 
 	def create_lender_ledger(self, loan_transaction_name, lender_share, spark_share):
 		frappe.get_doc({
