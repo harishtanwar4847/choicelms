@@ -402,6 +402,7 @@ def save_signed_document(file_id, doctype, docname):
 	file_.insert(ignore_permissions=True)
 
 def amount_formatter(amount):
+	amount = amount or 0
 	denominations = {100000: 'L', 10000000: 'Cr', 1000000000: 'Ar', 100000000000: 'Kr'}
 
 	amounts = sorted(denominations.keys())
