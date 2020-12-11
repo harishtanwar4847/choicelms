@@ -348,7 +348,7 @@ def loan_details(**kwargs):
 					due_date_txt = "Immediate"
 					
 			interest = {
-				'total_interest_amt' : interest_total[0]['total_amt'],
+				'total_interest_amt' : round(interest_total[0]['total_amt']),
 				'due_date':due_date,
 				'due_date_txt':due_date_txt,
 				'info_msg':info_msg
