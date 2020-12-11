@@ -129,8 +129,6 @@ class LoanTransaction(Document):
 					if total_interest_amt_paid <= 0:
 						break
 
-		# frappe.enqueue_doc('Loan', self.loan, method='update_loan_balance')
-
 	def create_lender_ledger(self, loan_transaction_name, lender_share, spark_share):
 		frappe.get_doc({
 			'doctype': 'Lender Ledger',

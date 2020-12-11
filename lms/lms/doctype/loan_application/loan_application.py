@@ -122,9 +122,14 @@ class LoanApplication(Document):
 			'folder': 'Home'
 		})
 		loan_agreement_file.save(ignore_permissions=True)
+		loan.db_set("loan_agreement", loan_agreement.file_url)
+		
+		customer = frappe.get_doc('Customer', self.customer)
+		if not customer.loan_open:
+			customer.loan_open = 1
+			customer.save(ignore_permissions=True)
 
-		loan.loan_agreement = loan_agreement.file_url
-		loan.save(ignore_permissions=True)
+		self.update_collateral_ledger(loan.name)
 
 		customer = frappe.db.get_value('Customer', {'name': self.customer}, 'username')
 		doc = frappe.get_doc('User', customer)
@@ -134,11 +139,6 @@ class LoanApplication(Document):
 		mess = _("Dear " + doc.full_name + ", \nCongratulations! Your loan account is active now! \nCurrent available limit - " + str(loan.drawing_power) + ".")
 		frappe.enqueue(method=send_sms, receiver_list=[mobile], msg=mess)
 
-		customer = frappe.get_doc('Customer', self.customer)
-		if not customer.loan_open:
-			customer.loan_open = 1
-			customer.save(ignore_permissions=True)
-		self.update_collateral_ledger(loan.name)
 		return loan
 
 	def update_existing_loan(self):
