@@ -189,9 +189,9 @@ class Cart(Document):
 		doc = frappe.get_doc('User', customer.username).as_dict()
 		doc['loan_application'] = {
 			'status': self.status,
-			'current_total_collateral_value': self.approved_total_collateral_value,
-			'requested_total_collateral_value': self.total_collateral_value,
-			'sanctioned_amount': self.approved_eligible_loan
+			'current_total_collateral_value': self.approved_total_collateral_value_str,
+			'requested_total_collateral_value': self.total_collateral_value_str,
+			'sanctioned_amount': self.approved_eligible_loan_str
 		}
 		frappe.enqueue_doc('Notification', 'Loan Application', method='send', doc=doc)
 		if doc.get('loan_application').get('status') == 'Failure':
