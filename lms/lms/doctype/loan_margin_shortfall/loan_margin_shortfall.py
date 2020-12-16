@@ -29,10 +29,10 @@ class LoanMarginShortfall(Document):
 		self.shortfall_c = math.ceil(((self.loan_balance - self.drawing_power)*2) if self.loan_balance > self.drawing_power else 0)
 		self.shortfall_percentage = ((self.loan_balance - self.drawing_power) / 100) if self.loan_balance > self.drawing_power else 0
 
-		self.minimum_pledge_amount = round(self.shortfall_c)
-		self.advisable_pledge_amount = round((self.minimum_pledge_amount * 1.1))
-		self.minimum_cash_amount = round((self.allowable_ltv / 100) * self.shortfall_c)
-		self.advisable_cash_amount = round((self.minimum_cash_amount * 1.1))
+		self.minimum_pledge_amount = self.shortfall_c
+		self.advisable_pledge_amount = self.minimum_pledge_amount * 1.1
+		self.minimum_cash_amount = (self.allowable_ltv / 100) * self.shortfall_c
+		self.advisable_cash_amount = (self.minimum_cash_amount * 1.1)
 
 		self.set_shortfall_action()
 

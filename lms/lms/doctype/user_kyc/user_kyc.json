@@ -15,6 +15,7 @@
   "basic_details_column_break",
   "mobile_number",
   "mother_name",
+  "date_of_birth",
   "address_section_break",
   "address",
   "city"
@@ -91,9 +92,14 @@
    "options": "User",
    "reqd": 1,
    "set_only_once": 1
+  },
+  {
+   "fieldname": "date_of_birth",
+   "fieldtype": "Date",
+   "label": "Date Of Birth"
   }
  ],
- "modified": "2020-11-25 01:45:52.154323",
+ "modified": "2020-12-14 16:26:37.388027",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",

@@ -86,7 +86,8 @@ def upsert(**kwargs):
 			data['lender'] = frappe.get_last_doc('Lender').name
 
 		if not data.get('expiry', None):
-			expiry = datetime.now() + timedelta(days = 365)
+			current = datetime.now()
+			expiry = current.replace(year=current.year + 99, day=1)
 
 		securities = validate_securities_for_cart(data.get('securities', {}), data.get('lender'))
 
