@@ -133,7 +133,7 @@ def get_choice_kyc(pan_no, birth_date):
 		user_kyc.mobile_number = data['mobileNum']
 		user_kyc.choice_client_id = data['clientId']
 		user_kyc.pan_no = data['panNum']
-		user_kyc.date_of_birth = (datetime.strptime(data['dateOfBirth'], '%Y-%m-%dT%H:%M:%S.%f%z')).strftime('%Y-%m-%d')
+		user_kyc.date_of_birth = datetime.strptime(data['dateOfBirth'], '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%Y-%m-%d')
 		user_kyc.save(ignore_permissions=True)
 
 		frappe.db.delete('Bank Account', {'user_kyc': user_kyc.name})
