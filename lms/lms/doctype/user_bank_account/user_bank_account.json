@@ -1,5 +1,5 @@
 {
- "creation": "2020-10-07 23:03:32.577818",
+ "creation": "2020-12-18 12:53:16.686155",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -20,8 +20,7 @@
   "micr",
   "bank_mode",
   "bank_zip_code",
-  "district",
-  "user_kyc"
+  "district"
  ],
  "fields": [
   {
@@ -37,17 +36,17 @@
    "label": "Branch"
   },
   {
-   "fieldname": "ifsc",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "IFSC",
-   "reqd": 1
-  },
-  {
    "fieldname": "account_number",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Account Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "ifsc",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "IFSC",
    "reqd": 1
   },
   {
@@ -66,6 +65,16 @@
    "label": "State"
   },
   {
+   "fieldname": "is_default",
+   "fieldtype": "Data",
+   "label": "Is Default"
+  },
+  {
+   "fieldname": "is_spark_default",
+   "fieldtype": "Data",
+   "label": "Is Spark Default"
+  },
+  {
    "fieldname": "column_break_1",
    "fieldtype": "Column Break"
   },
@@ -78,6 +87,11 @@
    "fieldname": "contact",
    "fieldtype": "Data",
    "label": "Contact"
+  },
+  {
+   "fieldname": "account_type",
+   "fieldtype": "Data",
+   "label": "Account Type"
   },
   {
    "fieldname": "micr",
@@ -98,36 +112,13 @@
    "fieldname": "district",
    "fieldtype": "Data",
    "label": "District"
-  },
-  {
-   "fieldname": "account_type",
-   "fieldtype": "Data",
-   "label": "Account Type"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_default",
-   "fieldtype": "Check",
-   "label": "Is Default"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_spark_default",
-   "fieldtype": "Check",
-   "label": "Is Spark Default"
-  },
-  {
-   "fieldname": "user_kyc",
-   "fieldtype": "Link",
-   "label": "User KYC",
-   "options": "User KYC",
-   "reqd": 1
   }
  ],
- "modified": "2020-12-18 12:17:17.637311",
+ "istable": 1,
+ "modified": "2020-12-18 12:54:08.231357",
  "modified_by": "Administrator",
  "module": "Lms",
- "name": "Bank Account",
+ "name": "User Bank Account",
  "owner": "Administrator",
  "permissions": [],
  "quick_entry": 1,

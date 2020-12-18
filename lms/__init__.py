@@ -332,8 +332,8 @@ def __banks(user_kyc=None):
 	if not user_kyc:
 		user_kyc = __user_kyc().name
 
-	res = frappe.get_all('Bank Account', filters={'user_kyc': user_kyc}, fields=['*'])
-
+	res = frappe.get_all('User Bank Account', filters={'parent': user_kyc}, fields=['*'])
+	
 	for i in res:
 		i.creation = str(i.creation)
 		i.modified = str(i.modified)

@@ -438,7 +438,8 @@ def loan_withdraw_request(**kwargs):
 
 		customer = lms.__customer()
 		user = lms.__user()
-		user_kyc = lms.__user_kyc()
+		# user_kyc = lms.__user_kyc()
+		banks = lms.__banks()
 
 		token = lms.verify_user_token(entity=user.username, token=data.get('otp'), token_type='Withdraw OTP')
 
@@ -462,18 +463,18 @@ def loan_withdraw_request(**kwargs):
 
 		if not data.get('bank_account_name', None):
 			default_bank = None
-			for i in lms.__banks():
+			for i in banks:
 				if i.is_spark_default:
 					default_bank = i.name
 					break
 			data['bank_account_name'] = default_bank
 
-		bank_account = frappe.get_doc('Bank Account', data.get('bank_account_name'))
+		bank_account = frappe.get_doc('User Bank Account', data.get('bank_account_name'))
 		if not bank_account:
-			return utils.respondNotFound(message=frappe._('Bank Account not found.')) 
-		if bank_account.user_kyc != user_kyc.name:
+			return utils.respondNotFound(message=frappe._('Bank Account not found.'))
+		if data.get('bank_account_name') not in [i.name for i in banks]:
 			return utils.respondForbidden(message=_('Please use your own Bank Account.'))
-
+		
 		# amount validation
 		amount = data.get('amount', 0)
 		if amount <= 0:
