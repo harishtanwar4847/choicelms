@@ -479,13 +479,8 @@ def loan_withdraw_request(**kwargs):
 		amount = data.get('amount', 0)
 		if amount <= 0:
 			return utils.respondWithFailure(status=417, message='Amount should be more than 0')
-		max_withdraw_amount = loan.drawing_power - loan.balance
-
-		# check amount available for withdrawal
-		loan = loan.as_dict()
-		virtual_interest_sum = frappe.db.get_value('Virtual Interest', {'loan':loan.name, 'lender':loan.lender, 'is_booked_for_base':0}, ['sum(base_amount)']) or 0
-		max_withdraw_amount = loan.drawing_power - (loan.balance + virtual_interest_sum)
-
+		
+		max_withdraw_amount = loan.maximum_withdrawable_amount()
 		if amount > max_withdraw_amount:
 			return utils.respondWithFailure(status=417, message='Amount can not be more than {}'.format(max_withdraw_amount))
 

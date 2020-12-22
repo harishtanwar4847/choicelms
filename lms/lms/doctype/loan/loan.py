@@ -18,7 +18,6 @@ class Loan(Document):
 			balance += virtual_interest_sum[0]['amount']
 		
 		if req_time and withdraw_req_name:
-			print('************in if - maximum_withdrawable_amount {} -- {}'.format(withdraw_req_name, req_time))
 			pending_withdraw_requests_amt = frappe.db.sql("select sum(amount) as amount from `tabLoan Transaction` where loan = '{}' and lender = '{}' and status = 'Pending' and transaction_type = 'Withdrawal' and creation < '{}' and name != '{}'".format(self.name, self.lender, req_time, withdraw_req_name), as_dict=1)
 			if pending_withdraw_requests_amt[0]['amount']:
 				balance += pending_withdraw_requests_amt[0]['amount']
@@ -31,7 +30,7 @@ class Loan(Document):
 		if max_withdraw_amount < 0:
 			max_withdraw_amount = 0
 
-		return self.drawing_power - balance
+		return max_withdraw_amount
 
 	def get_lender(self):
 		return frappe.get_doc('Lender', self.lender)
