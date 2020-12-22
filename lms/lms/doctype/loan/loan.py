@@ -10,12 +10,26 @@ from datetime import datetime, timedelta
 from lms.lms.doctype.loan_transaction.loan_transaction import LoanTransaction
 
 class Loan(Document):
-	def maximum_withdrawable_amount(self):
+	def maximum_withdrawable_amount(self, withdraw_req_name=None, req_time=None):
 		balance = self.balance
 
 		virtual_interest_sum = frappe.db.sql("select sum(base_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_base = 0".format(self.name), as_dict=1)
 		if virtual_interest_sum[0]['amount']: 
 			balance += virtual_interest_sum[0]['amount']
+		
+		if req_time and withdraw_req_name:
+			print('************in if - maximum_withdrawable_amount {} -- {}'.format(withdraw_req_name, req_time))
+			pending_withdraw_requests_amt = frappe.db.sql("select sum(amount) as amount from `tabLoan Transaction` where loan = '{}' and lender = '{}' and status = 'Pending' and transaction_type = 'Withdrawal' and creation < '{}' and name != '{}'".format(self.name, self.lender, req_time, withdraw_req_name), as_dict=1)
+			if pending_withdraw_requests_amt[0]['amount']:
+				balance += pending_withdraw_requests_amt[0]['amount']
+		else:
+			pending_withdraw_requests_amt = frappe.db.sql("select sum(amount) as amount from `tabLoan Transaction` where loan = '{}' and lender = '{}' and status = 'Pending' and transaction_type = 'Withdrawal'".format(self.name, self.lender), as_dict=1)
+			if pending_withdraw_requests_amt[0]['amount']:
+				balance += pending_withdraw_requests_amt[0]['amount']
+
+		max_withdraw_amount = self.drawing_power - balance
+		if max_withdraw_amount < 0:
+			max_withdraw_amount = 0
 
 		return self.drawing_power - balance
 
@@ -156,6 +170,17 @@ class Loan(Document):
 					loan_margin_shortfall.status = "Resolved"
 					loan_margin_shortfall.action_time = datetime.now()
 				loan_margin_shortfall.save(ignore_permissions=True)
+				
+			# update pending withdraw allowable for this loan
+			self.update_pending_withdraw_requests()
+			
+	def update_pending_withdraw_requests(self):
+		all_pending_withdraw_requests = frappe.get_all('Loan Transaction', filters={'loan':self.name, 'transaction_type':'Withdrawal', 'status':'Pending', 'creation': ('<=', datetime.now())}, fields=['*'], order_by='creation asc')
+		for withdraw_req in all_pending_withdraw_requests:
+			max_withdraw_amount = self.maximum_withdrawable_amount(withdraw_req['name'], withdraw_req['creation'])
+			loan_transaction_doc = frappe.get_doc('Loan Transaction', withdraw_req['name'])
+			loan_transaction_doc.db_set('allowable', max_withdraw_amount)
+		frappe.db.commit()
 
 	def get_margin_shortfall(self):
 		margin_shortfall_name = frappe.db.get_value('Loan Margin Shortfall', {'loan': self.name, 'status': 'Pending'}, 'name')

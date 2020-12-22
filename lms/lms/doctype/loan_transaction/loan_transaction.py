@@ -143,6 +143,11 @@ class LoanTransaction(Document):
 	def before_submit(self):
 		if not self.transaction_id:
 			frappe.throw('Kindly add transaction id before approving')
+		
+		if self.transaction_type == 'Withdrawal':
+			# TODO: check if allowable is greater than amount
+			# TODO: amount should be less than equal requsted
+			self.disbursed = self.amount
 
 def get_permission_query_conditions(user):
 	if not user: user = frappe.session.user

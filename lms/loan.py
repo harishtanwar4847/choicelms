@@ -497,6 +497,8 @@ def loan_withdraw_request(**kwargs):
 			'record_type': 'DR',
 			'time': datetime.now(),
 			'amount': amount,
+			'requested': amount,
+			'allowable': max_withdraw_amount,
 			'bank_account': data.get('bank_account_name'),
 			'lender': loan.lender
 		})
