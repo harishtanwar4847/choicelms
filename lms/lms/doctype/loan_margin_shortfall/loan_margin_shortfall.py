@@ -27,7 +27,7 @@ class LoanMarginShortfall(Document):
 
 		self.shortfall = math.ceil((self.minimum_collateral_value - self.total_collateral_value) if self.loan_balance > self.drawing_power else 0)
 		self.shortfall_c = math.ceil(((self.loan_balance - self.drawing_power)*2) if self.loan_balance > self.drawing_power else 0)
-		self.shortfall_percentage = ((self.loan_balance - self.drawing_power) / 100) if self.loan_balance > self.drawing_power else 0
+		self.shortfall_percentage = ((self.loan_balance - self.drawing_power) / self.loan_balance) if self.loan_balance > self.drawing_power else 0
 
 		self.minimum_pledge_amount = self.shortfall_c
 		self.advisable_pledge_amount = self.minimum_pledge_amount * 1.1
@@ -45,26 +45,29 @@ class LoanMarginShortfall(Document):
 
 	def after_insert(self):
 		self.notify_customer()
+		# TODO: notify customer even if not set margin shortfall action
 	
 	def get_loan(self):
 		return frappe.get_doc('Loan', self.loan)
 
 	def get_shortfall_action(self):
-		return frappe.get_doc('Margin Shortfall Action', self.margin_shortfall_action)
+		if self.margin_shortfall_action: 
+			return frappe.get_doc('Margin Shortfall Action', self.margin_shortfall_action)
 
 	def notify_customer(self):
 		margin_shortfall_action = self.get_shortfall_action()
-		customer = self.get_loan().get_customer()
-		mess = _('Your Loan {0} has been marked as margin shortfall.').format(self.loan)
+		if margin_shortfall_action:
+			customer = self.get_loan().get_customer()
+			mess = _('Your Loan {0} has been marked as margin shortfall.').format(self.loan)
 
-		if margin_shortfall_action.sms:
-			frappe.enqueue(method=send_sms, receiver_list=[customer.phone], msg=mess)
+			if margin_shortfall_action.sms:
+				frappe.enqueue(method=send_sms, receiver_list=[customer.phone], msg=mess)
 
-		if margin_shortfall_action.email:
-			frappe.enqueue(
-				method=frappe.sendmail, 
-				recipients=[customer.email], 
-				sender=None, 
-				subject="Margin Shortfall Notification",
-				message=mess
-			)
+			if margin_shortfall_action.email:
+				frappe.enqueue(
+					method=frappe.sendmail,  
+					recipients=[customer.email], 
+					sender=None, 
+					subject="Margin Shortfall Notification",
+					message=mess
+				)

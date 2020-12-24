@@ -162,10 +162,12 @@ class Loan(Document):
 			loan_margin_shortfall.fill_items()
 
 			if loan_margin_shortfall.is_new():
-				if loan_margin_shortfall.margin_shortfall_action:
+				# if loan_margin_shortfall.margin_shortfall_action:
+				if loan_margin_shortfall.shortfall_percentage > 0:
 					loan_margin_shortfall.insert(ignore_permissions=True)
 			else:
-				if not loan_margin_shortfall.margin_shortfall_action:
+				# if not loan_margin_shortfall.margin_shortfall_action:
+				if loan_margin_shortfall.shortfall_percentage == 0:
 					loan_margin_shortfall.status = "Resolved"
 					loan_margin_shortfall.action_time = datetime.now()
 				loan_margin_shortfall.save(ignore_permissions=True)
