@@ -124,7 +124,7 @@ def upsert(**kwargs):
 				return utils.respondForbidden(message=_('Please use your own cart.'))
 
 			cart.items = []
-
+		
 		frappe.db.begin()
 		for i in securities:
 			cart.append('items', {
@@ -146,7 +146,7 @@ def upsert(**kwargs):
 
 			if not loan_margin_shortfall.get('__islocal', 0):
 				res['loan_margin_shortfall_obj'] = loan_margin_shortfall
-
+		
 		frappe.db.commit()
 		return utils.respondWithSuccess(data=res)
 	except utils.APIException as e:
@@ -308,6 +308,8 @@ def process(**kwargs):
 		if token.expiry <= datetime.now():
 			return utils.respondUnauthorized(message=frappe._('Pledge OTP Expired.'))
 
+		lms.token_mark_as_used(token)
+			
 		customer = lms.__customer()
 
 		cart = frappe.get_doc("Cart", data.get('cart_name'))

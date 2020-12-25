@@ -90,7 +90,12 @@ def verify_user_token(entity, token, token_type):
 		raise InvalidUserTokenException('Invalid {}'.format(token_type))
 
 	return frappe.get_doc('User Token', token_name)
-	
+
+def token_mark_as_used(token):
+	if token.used == 0:
+		token.used = 1
+		token.save(ignore_permissions=True)
+		frappe.db.commit()
 
 def check_user_token(entity, token, token_type):
 	if token_type == "Firebase Token":
