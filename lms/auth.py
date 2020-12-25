@@ -124,6 +124,21 @@ def logout(firebase_token):
 		return lms.generateResponse(message=_('Logged out Successfully'))
 
 @frappe.whitelist(allow_guest=True)
+def terms_of_use():
+	try:
+		# validation
+		lms.validate_http_method('GET')
+
+		las_settings = frappe.get_single('LAS Settings')
+		data = {
+			'terms_of_use_url' : las_settings.terms_of_use_document or ''
+		}
+		return utils.respondWithSuccess(message=frappe._('success'), data=data)
+
+	except utils.exceptions.APIException as e:
+		return e.respond()	
+
+@frappe.whitelist(allow_guest=True)
 def verify_otp(**kwargs):
 	try:
 		utils.validator.validate_http_method('POST')
@@ -131,9 +146,13 @@ def verify_otp(**kwargs):
 		data = utils.validator.validate(kwargs, {
 			'mobile': ['required', 'decimal', utils.validator.rules.LengthRule(10)],
 			'firebase_token': 'required',
-			'otp': ['required', 'decimal', utils.validator.rules.LengthRule(4)]
+			'otp': ['required', 'decimal', utils.validator.rules.LengthRule(4)],
+			'accept_terms':'required'
 		})
 
+		if data.get('accept_terms') == 0:
+			return utils.respondUnauthorized(message=frappe._('Please accept Terms of Use and Privacy Policy.'))
+			
 		try:
 			token = lms.verify_user_token(entity=data.get('mobile'), token=data.get('otp'), token_type='OTP')
 		except lms.InvalidUserTokenException:

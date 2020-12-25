@@ -37,7 +37,9 @@
   "column_break_31",
   "esign_request_url",
   "section_break_33",
-  "app_identification_hash_string"
+  "app_identification_hash_string",
+  "terms_of_use_privacy_policy_section_break",
+  "terms_of_use_document"
  ],
  "fields": [
   {
@@ -229,10 +231,20 @@
   {
    "fieldname": "section_break_33",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "terms_of_use_privacy_policy_section_break",
+   "fieldtype": "Section Break",
+   "label": "Terms Of Use and Privacy Policy Documents"
+  },
+  {
+   "fieldname": "terms_of_use_document",
+   "fieldtype": "Attach",
+   "label": "Terms of Use and Privacy Policy Document"
   }
  ],
  "issingle": 1,
- "modified": "2020-10-26 18:11:54.168952",
+ "modified": "2020-12-25 17:34:17.232499",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
