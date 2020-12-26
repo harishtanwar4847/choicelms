@@ -308,8 +308,7 @@ def process(**kwargs):
 		if token.expiry <= datetime.now():
 			return utils.respondUnauthorized(message=frappe._('Pledge OTP Expired.'))
 
-		lms.token_mark_as_used(token)
-			
+		lms.token_mark_as_used(token)	
 		customer = lms.__customer()
 
 		cart = frappe.get_doc("Cart", data.get('cart_name'))
