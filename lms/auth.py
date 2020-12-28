@@ -17,7 +17,8 @@ def login(**kwargs):
 		data = utils.validator.validate(kwargs, {
 			'mobile': ['required', 'decimal', utils.validator.rules.LengthRule(10)],
 			'pin': [utils.validator.rules.LengthRule(4)],
-			'firebase_token': [utils.validator.rules.RequiredIfPresent('pin')]
+			'firebase_token': [utils.validator.rules.RequiredIfPresent('pin')],
+			'accept_terms':''
 		})
 
 		try:
@@ -62,6 +63,19 @@ def login(**kwargs):
 			)
 			lms.add_firebase_token(data.get("firebase_token"), user.name)
 			return utils.respondWithSuccess(message=frappe._('Logged in Successfully'), data=token)
+		else:				
+			if not data.get('accept_terms'):
+				return utils.respondUnauthorized(message=frappe._('Please accept Terms of Use and Privacy Policy.'))
+			
+			# save user login consent
+			login_consent_name = frappe.get_value("Consent", {'name':['like','login%']}, 'name')
+			if login_consent_name:
+				login_consent_doc = frappe.get_doc({
+					"doctype":"User Consent",
+					"mobile":data.get('mobile'),
+					"consent":login_consent_name
+				})
+				login_consent_doc.insert(ignore_permissions=True)
 
 		lms.create_user_token(entity=data.get('mobile'), token=lms.random_token(length=4, is_numeric=True))
 		frappe.db.commit()
@@ -147,12 +161,8 @@ def verify_otp(**kwargs):
 			'mobile': ['required', 'decimal', utils.validator.rules.LengthRule(10)],
 			'firebase_token': 'required',
 			'otp': ['required', 'decimal', utils.validator.rules.LengthRule(4)],
-			'accept_terms':'required'
 		})
 
-		if data.get('accept_terms') == 0:
-			return utils.respondUnauthorized(message=frappe._('Please accept Terms of Use and Privacy Policy.'))
-			
 		try:
 			token = lms.verify_user_token(entity=data.get('mobile'), token=data.get('otp'), token_type='OTP')
 		except lms.InvalidUserTokenException:
