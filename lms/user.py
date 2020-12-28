@@ -64,7 +64,8 @@ def kyc(**kwargs):
 
 		data = utils.validator.validate(kwargs, {
 			'pan_no': 'required',
-			'birth_date': 'required|date'
+			'birth_date': 'required|date',
+			'accept_terms': 'required'
 		})
 		
 		try:
@@ -73,8 +74,24 @@ def kyc(**kwargs):
 			user_kyc = None
 
 		if not user_kyc:
+
+			if not data.get('accept_terms'):
+				return utils.respondUnauthorized(message=frappe._('Please accept Terms and Conditions.'))
+			
+			user = lms.__user()
+
 			frappe.db.begin()
-			res = get_choice_kyc(**data)
+			# save user kyc consent
+			kyc_consent_name = frappe.get_value("Consent", {'name':['like','kyc%']}, 'name')
+			if kyc_consent_name:
+				kyc_consent_doc = frappe.get_doc({
+					"doctype": "User Consent",
+					"mobile": user.phone,
+					"consent": kyc_consent_name
+				})
+				kyc_consent_doc.insert(ignore_permissions=True)
+
+			res = get_choice_kyc(data.get('pan_no'), data.get('birth_date'))
 			user_kyc = res['user_kyc']
 			customer = lms.__customer()
 			customer.kyc_update = 1
@@ -82,7 +99,6 @@ def kyc(**kwargs):
 			customer.save(ignore_permissions=True)
 			frappe.db.commit()
 
-			user = lms.__user()
 			frappe.enqueue_doc('Notification', 'User KYC', method='send', doc=user)
 			
 			mess = _("Dear " + user.full_name + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our banking partner before you can avail the loan.")
