@@ -8,6 +8,7 @@ from frappe.model.document import Document
 from frappe import _
 import lms
 from datetime import datetime
+from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
 class LoanTransaction(Document):
 	loan_transaction_map = {
@@ -66,7 +67,6 @@ class LoanTransaction(Document):
 	def on_submit(self):
 		if self.transaction_type in ['Processing Fees', 'Stamp Duty', 'Documentation Charges', 'Mortgage Charges']:
 			lender = self.get_lender()
-			
 			if self.transaction_type == 'Processing Fees':
 				sharing_amount = lender.lender_processing_fees_sharing
 				sharing_type = lender.lender_processing_fees_sharing_type
@@ -158,7 +158,14 @@ class LoanTransaction(Document):
 				frappe.throw('Amount should be less than allowable amount')
 
 			self.disbursed = self.amount
-			
+
+	def on_update(self):
+		if self.transaction_type == 'Withdrawal':
+			if self.status == 'Rejected':
+				customer = self.get_loan().get_customer()
+				mess = 'Sorry! Your withdrawal request has been rejected by our lending partner for technical reasons. We shall get back to you shortly.'
+				frappe.enqueue(method=send_sms, receiver_list=[customer.phone], msg=mess)
+
 def get_permission_query_conditions(user):
 	if not user: user = frappe.session.user
 

@@ -442,9 +442,11 @@ def loan_withdraw_request(**kwargs):
 		banks = lms.__banks()
 
 		token = lms.verify_user_token(entity=user.username, token=data.get('otp'), token_type='Withdraw OTP')
-
+		
 		if token.expiry <= datetime.now():
 			return utils.respondUnauthorized(message=frappe._('Withdraw OTP Expired.'))
+
+		lms.token_mark_as_used(token)
 
 		loan = frappe.get_doc('Loan', data.get('loan_name'))
 		if not loan:
