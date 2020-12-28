@@ -1001,7 +1001,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2020-10-13 18:29:02.235905",
+  "modified": "2020-12-28 13:03:13.909326",
   "name": "3755fd67c8",
   "parameters": [
    {
@@ -1042,6 +1042,19 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Required if PIN is not sent",
+    "field": "accept_terms",
+    "group": null,
+    "optional": 1,
+    "parent": "3755fd67c8",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
    }
   ],
   "parameters_example": [
@@ -1514,7 +1527,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2020-10-20 01:11:11.649901",
+  "modified": "2020-12-28 13:04:42.413829",
   "name": "6ea2575637",
   "parameters": [
    {
@@ -1542,11 +1555,24 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "Date"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "accept_terms",
+    "group": null,
+    "optional": 0,
+    "parent": "6ea2575637",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
    }
   ],
   "parameters_example": [
    {
-    "example": "{\"pan_no\":\"ABCDE1234F\",\"birth_date\":\"01-01-2001\"}",
+    "example": "{\"pan_no\":\"ABCDE1234F\",\"birth_date\":\"01-01-2001\",\"accept_terms\": 1}",
     "parent": "6ea2575637",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
