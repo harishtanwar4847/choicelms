@@ -420,7 +420,7 @@ def amount_formatter(amount):
 	denomination = None
 	for i in amounts:
 		res = float(amount) / i
-		if res > 1:
+		if res >= 1:
 			formatted_amount = str(res)
 			denomination = i
 		else:
