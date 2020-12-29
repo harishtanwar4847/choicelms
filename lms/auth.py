@@ -145,7 +145,8 @@ def terms_of_use():
 
 		las_settings = frappe.get_single('LAS Settings')
 		data = {
-			'terms_of_use_url' : las_settings.terms_of_use_document or ''
+			'terms_of_use_url' : las_settings.terms_of_use_document or '',
+			'privacy_policy_url' : las_settings.privacy_policy_document or ''
 		}
 		return utils.respondWithSuccess(message=frappe._('success'), data=data)
 
