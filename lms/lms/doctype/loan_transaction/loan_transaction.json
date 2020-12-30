@@ -11,7 +11,8 @@
   "description",
   "lender",
   "additional_interest",
-  "is_for_interest",
+  "requested",
+  "allowable",
   "column_break_3",
   "time",
   "transaction_type",
@@ -21,6 +22,8 @@
   "record_type",
   "loan_margin_shortfall",
   "unpaid_interest",
+  "disbursed",
+  "is_for_interest",
   "section_break_1",
   "items"
  ],
@@ -52,7 +55,6 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Amount",
-   "read_only": 1,
    "reqd": 1
   },
   {
@@ -79,7 +81,7 @@
    "fieldname": "bank_account",
    "fieldtype": "Link",
    "label": "Bank Account",
-   "options": "Bank Account",
+   "options": "User Bank Account",
    "read_only": 1
   },
   {
@@ -133,7 +135,8 @@
   {
    "fieldname": "unpaid_interest",
    "fieldtype": "Currency",
-   "label": "Unpaid Interest"
+   "label": "Unpaid Interest",
+   "read_only": 1
   },
   {
    "allow_on_submit": 1,
@@ -145,10 +148,28 @@
   {
    "fieldname": "section_break_1",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "allowable",
+   "fieldtype": "Currency",
+   "label": "Allowable Withdraw Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "requested",
+   "fieldtype": "Currency",
+   "label": "Requested Withdraw Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "disbursed",
+   "fieldtype": "Currency",
+   "label": "Disbursed Withdraw Amount",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
- "modified": "2020-12-02 18:21:54.264979",
+ "modified": "2020-12-28 17:18:37.613694",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
@@ -164,6 +185,7 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
+   "submit": 1,
    "write": 1
   },
   {

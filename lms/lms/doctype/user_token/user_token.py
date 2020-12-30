@@ -18,8 +18,7 @@ class UserToken(Document):
 			elif self.token_type == "Email Verification Token":
 				doc=frappe.get_doc('User', self.entity).as_dict()
 				doc["url"] = frappe.utils.get_url("/api/method/lms.auth.verify_user?token={}&user={}".format(self.token, self.entity))
-				frappe.enqueue_doc('Notification', 'User Email Verification', method='send', doc=doc)
-
+				frappe.enqueue_doc('Notification', 'User Email Verification', method='send', now=True, doc=doc)
 
 # putting these here for the logs
 # will be removed afterwards

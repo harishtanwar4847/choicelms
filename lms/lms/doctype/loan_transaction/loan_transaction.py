@@ -8,6 +8,7 @@ from frappe.model.document import Document
 from frappe import _
 import lms
 from datetime import datetime
+from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
 class LoanTransaction(Document):
 	loan_transaction_map = {
@@ -66,7 +67,6 @@ class LoanTransaction(Document):
 	def on_submit(self):
 		if self.transaction_type in ['Processing Fees', 'Stamp Duty', 'Documentation Charges', 'Mortgage Charges']:
 			lender = self.get_lender()
-			
 			if self.transaction_type == 'Processing Fees':
 				sharing_amount = lender.lender_processing_fees_sharing
 				sharing_type = lender.lender_processing_fees_sharing_type
@@ -92,7 +92,8 @@ class LoanTransaction(Document):
 		if self.loan_margin_shortfall:
 			loan_margin_shortfall = frappe.get_doc('Loan Margin Shortfall', self.loan_margin_shortfall)
 			loan_margin_shortfall.fill_items()
-			if not loan_margin_shortfall.margin_shortfall_action:
+			# if not loan_margin_shortfall.margin_shortfall_action:
+			if loan_margin_shortfall.shortfall_percentage == 0:
 				loan_margin_shortfall.status = 'Paid Cash'
 				loan_margin_shortfall.action_time = datetime.now()
 			loan_margin_shortfall.save(ignore_permissions=True)
@@ -143,6 +144,27 @@ class LoanTransaction(Document):
 	def before_submit(self):
 		if not self.transaction_id:
 			frappe.throw('Kindly add transaction id before approving')
+		
+		if self.transaction_type == 'Withdrawal':
+			if self.amount <= 0:
+				frappe.throw('Amount should be more than 0.')
+
+			# amount should be less than equal requsted
+			if self.amount > self.requested:
+				frappe.throw('Amount should be less than requested amount')
+			
+			# check if allowable is greater than amount
+			if self.amount > self.allowable:
+				frappe.throw('Amount should be less than allowable amount')
+
+			self.disbursed = self.amount
+
+	def on_update(self):
+		if self.transaction_type == 'Withdrawal':
+			if self.status == 'Rejected':
+				customer = self.get_loan().get_customer()
+				mess = 'Sorry! Your withdrawal request has been rejected by our lending partner for technical reasons. We shall get back to you shortly.'
+				frappe.enqueue(method=send_sms, receiver_list=[customer.phone], msg=mess)
 
 def get_permission_query_conditions(user):
 	if not user: user = frappe.session.user

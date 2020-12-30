@@ -400,13 +400,13 @@
   "doctype": "Workflow",
   "document_type": "Loan Transaction",
   "is_active": 1,
-  "modified": "2020-10-31 15:05:10.279872",
+  "modified": "2020-12-29 13:04:58.913842",
   "name": "Loan Transaction Approval",
   "override_status": 0,
   "parent": null,
   "parentfield": null,
   "parenttype": null,
-  "send_email_alert": 1,
+  "send_email_alert": 0,
   "states": [
    {
     "allow_edit": "System Manager",

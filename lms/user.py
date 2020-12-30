@@ -64,7 +64,8 @@ def kyc(**kwargs):
 
 		data = utils.validator.validate(kwargs, {
 			'pan_no': 'required',
-			'birth_date': 'required|date'
+			'birth_date': 'required|date',
+			'accept_terms': 'required'
 		})
 		
 		try:
@@ -72,27 +73,40 @@ def kyc(**kwargs):
 		except lms.UserKYCNotFoundException:
 			user_kyc = None
 
-		frappe.db.begin()
 		if not user_kyc:
-			res = get_choice_kyc(**data)
+
+			if not data.get('accept_terms'):
+				return utils.respondUnauthorized(message=frappe._('Please accept Terms and Conditions.'))
+			
+			user = lms.__user()
+
+			frappe.db.begin()
+			# save user kyc consent
+			kyc_consent_name = frappe.get_value("Consent", {'name':['like','kyc%']}, 'name')
+			if kyc_consent_name:
+				kyc_consent_doc = frappe.get_doc({
+					"doctype": "User Consent",
+					"mobile": user.phone,
+					"consent": kyc_consent_name
+				})
+				kyc_consent_doc.insert(ignore_permissions=True)
+
+			res = get_choice_kyc(data.get('pan_no'), data.get('birth_date'))
 			user_kyc = res['user_kyc']
-			banks = res['banks']
 			customer = lms.__customer()
 			customer.kyc_update = 1
 			customer.choice_kyc = user_kyc.name
 			customer.save(ignore_permissions=True)
+			frappe.db.commit()
 
-			user = lms.__user()
 			frappe.enqueue_doc('Notification', 'User KYC', method='send', doc=user)
 			
 			mess = _("Dear " + user.full_name + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our banking partner before you can avail the loan.")
 			frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
 
 		data = {
-			'user_kyc': user_kyc,
-			'banks': lms.__banks(user_kyc.name)
+			'user_kyc': user_kyc
 		}
-		frappe.db.commit()
 
 		return utils.respondWithSuccess(data=data)
 	except utils.APIException as e:
@@ -116,6 +130,7 @@ def get_choice_kyc(pan_no, birth_date):
 		res = requests.get(las_settings.choice_pan_api, params=params, headers=headers)
 
 		data = res.json()
+
 		if not res.ok or 'errorCode' in data:
 			raise lms.UserKYCNotFoundException
 			raise utils.APIException(res.text)
@@ -132,35 +147,33 @@ def get_choice_kyc(pan_no, birth_date):
 		user_kyc.mobile_number = data['mobileNum']
 		user_kyc.choice_client_id = data['clientId']
 		user_kyc.pan_no = data['panNum']
+		user_kyc.date_of_birth = datetime.strptime(data['dateOfBirth'], '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%Y-%m-%d')
+
+		if data['banks']:
+			user_kyc.bank_account = []
+
+			for bank in data['banks']:
+				user_kyc.append('bank_account', {
+					'bank': bank['bank'],
+					'bank_address': bank['bankAddress'],
+					'branch': bank['branch'],
+					'contact': bank['contact'],
+					'account_type': bank['accountType'],
+					'account_number': bank['accountNumber'],
+					'ifsc': bank['ifsc'],
+					'micr': bank['micr'],
+					'bank_mode': bank['bankMode'],
+					'bank_code': bank['bankcode'],
+					'bank_zip_code': bank['bankZipCode'],
+					'city': bank['city'],
+					'district': bank['district'],
+					'state': bank['state'],
+					'is_default': bank['defaultBank'] == 'Y'
+				})
 		user_kyc.save(ignore_permissions=True)
-
-		frappe.db.delete('Bank Account', {'user_kyc': user_kyc.name})
-
-		for bank in data['banks']:
-			bank_acc = frappe.get_doc({
-				'doctype' : 'Bank Account',
-				'user_kyc':user_kyc.name,
-				'bank': bank['bank'],
-				'bank_address': bank['bankAddress'],
-				'branch': bank['branch'],
-				'contact': bank['contact'],
-				'account_type': bank['accountType'],
-				'account_number': bank['accountNumber'],
-				'ifsc': bank['ifsc'],
-				'micr': bank['micr'],
-				'bank_mode': bank['bankMode'],
-				'bank_code': bank['bankcode'],
-				'bank_zip_code': bank['bankZipCode'],
-				'city': bank['city'],
-				'district': bank['district'],
-				'state': bank['state'],
-				'is_default': bank['defaultBank'] == 'Y'
-			})
-			bank_acc.insert(ignore_permissions=True)
-
+		
 		return {
 			'user_kyc': user_kyc,
-			'banks': frappe.get_all('Bank Account', filters={'user_kyc': user_kyc.name})
 		}
 
 	except requests.RequestException as e:

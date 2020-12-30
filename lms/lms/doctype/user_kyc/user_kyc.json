@@ -15,9 +15,12 @@
   "basic_details_column_break",
   "mobile_number",
   "mother_name",
+  "date_of_birth",
   "address_section_break",
   "address",
-  "city"
+  "city",
+  "bank_account_section_break",
+  "bank_account"
  ],
  "fields": [
   {
@@ -91,9 +94,25 @@
    "options": "User",
    "reqd": 1,
    "set_only_once": 1
+  },
+  {
+   "fieldname": "date_of_birth",
+   "fieldtype": "Date",
+   "label": "Date Of Birth"
+  },
+  {
+   "fieldname": "bank_account_section_break",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Table",
+   "label": "Bank Account",
+   "options": "User Bank Account",
+   "reqd": 1
   }
  ],
- "modified": "2020-11-25 01:45:52.154323",
+ "modified": "2020-12-18 12:56:20.574673",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",

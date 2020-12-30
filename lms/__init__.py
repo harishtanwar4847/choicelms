@@ -10,7 +10,7 @@ from itertools import groupby
 from .exceptions import *
 import utils
 
-__version__ = '1.0.0-beta.1'
+__version__ = '1.0.0-beta.1.1'
 
 def after_install():
 	frappe.db.set_value('System Settings', 'System Settings', 'allow_consecutive_login_attempts', 3)
@@ -90,7 +90,12 @@ def verify_user_token(entity, token, token_type):
 		raise InvalidUserTokenException('Invalid {}'.format(token_type))
 
 	return frappe.get_doc('User Token', token_name)
-	
+
+def token_mark_as_used(token):
+	if token.used == 0:
+		token.used = 1
+		token.save(ignore_permissions=True)
+		frappe.db.commit()
 
 def check_user_token(entity, token, token_type):
 	if token_type == "Firebase Token":
@@ -332,8 +337,8 @@ def __banks(user_kyc=None):
 	if not user_kyc:
 		user_kyc = __user_kyc().name
 
-	res = frappe.get_all('Bank Account', filters={'user_kyc': user_kyc}, fields=['*'])
-
+	res = frappe.get_all('User Bank Account', filters={'parent': user_kyc}, fields=['*'])
+	
 	for i in res:
 		i.creation = str(i.creation)
 		i.modified = str(i.modified)
@@ -415,7 +420,7 @@ def amount_formatter(amount):
 	denomination = None
 	for i in amounts:
 		res = float(amount) / i
-		if res > 1:
+		if res >= 1:
 			formatted_amount = str(res)
 			denomination = i
 		else:

@@ -348,7 +348,7 @@ def loan_details(**kwargs):
 					due_date_txt = "Immediate"
 					
 			interest = {
-				'total_interest_amt' : round(interest_total[0]['total_amt']),
+				'total_interest_amt' : interest_total[0]['total_amt'],
 				'due_date':due_date,
 				'due_date_txt':due_date_txt,
 				'info_msg':info_msg
@@ -438,12 +438,15 @@ def loan_withdraw_request(**kwargs):
 
 		customer = lms.__customer()
 		user = lms.__user()
-		user_kyc = lms.__user_kyc()
+		# user_kyc = lms.__user_kyc()
+		banks = lms.__banks()
 
 		token = lms.verify_user_token(entity=user.username, token=data.get('otp'), token_type='Withdraw OTP')
-
+		
 		if token.expiry <= datetime.now():
 			return utils.respondUnauthorized(message=frappe._('Withdraw OTP Expired.'))
+
+		lms.token_mark_as_used(token)
 
 		loan = frappe.get_doc('Loan', data.get('loan_name'))
 		if not loan:
@@ -462,29 +465,24 @@ def loan_withdraw_request(**kwargs):
 
 		if not data.get('bank_account_name', None):
 			default_bank = None
-			for i in lms.__banks():
+			for i in banks:
 				if i.is_spark_default:
 					default_bank = i.name
 					break
 			data['bank_account_name'] = default_bank
 
-		bank_account = frappe.get_doc('Bank Account', data.get('bank_account_name'))
+		bank_account = frappe.get_doc('User Bank Account', data.get('bank_account_name'))
 		if not bank_account:
-			return utils.respondNotFound(message=frappe._('Bank Account not found.')) 
-		if bank_account.user_kyc != user_kyc.name:
+			return utils.respondNotFound(message=frappe._('Bank Account not found.'))
+		if data.get('bank_account_name') not in [i.name for i in banks]:
 			return utils.respondForbidden(message=_('Please use your own Bank Account.'))
-
+		
 		# amount validation
 		amount = data.get('amount', 0)
 		if amount <= 0:
 			return utils.respondWithFailure(status=417, message='Amount should be more than 0')
-		max_withdraw_amount = loan.drawing_power - loan.balance
-
-		# check amount available for withdrawal
-		loan = loan.as_dict()
-		virtual_interest_sum = frappe.db.get_value('Virtual Interest', {'loan':loan.name, 'lender':loan.lender, 'is_booked_for_base':0}, ['sum(base_amount)']) or 0
-		max_withdraw_amount = loan.drawing_power - (loan.balance + virtual_interest_sum)
-
+		
+		max_withdraw_amount = loan.maximum_withdrawable_amount()
 		if amount > max_withdraw_amount:
 			return utils.respondWithFailure(status=417, message='Amount can not be more than {}'.format(max_withdraw_amount))
 
@@ -496,6 +494,8 @@ def loan_withdraw_request(**kwargs):
 			'record_type': 'DR',
 			'time': datetime.now(),
 			'amount': amount,
+			'requested': amount,
+			'allowable': max_withdraw_amount,
 			'bank_account': data.get('bank_account_name'),
 			'lender': loan.lender
 		})
