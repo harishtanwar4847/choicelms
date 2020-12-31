@@ -174,14 +174,14 @@ class Loan(Document):
 				
 			# update pending withdraw allowable for this loan
 			self.update_pending_withdraw_requests()
-			
+			frappe.db.commit()
+
 	def update_pending_withdraw_requests(self):
 		all_pending_withdraw_requests = frappe.get_all('Loan Transaction', filters={'loan':self.name, 'transaction_type':'Withdrawal', 'status':'Pending', 'creation': ('<=', datetime.now())}, fields=['*'], order_by='creation asc')
 		for withdraw_req in all_pending_withdraw_requests:
 			max_withdraw_amount = self.maximum_withdrawable_amount(withdraw_req['name'], withdraw_req['creation'])
 			loan_transaction_doc = frappe.get_doc('Loan Transaction', withdraw_req['name'])
 			loan_transaction_doc.db_set('allowable', max_withdraw_amount)
-		frappe.db.commit()
 
 	def get_margin_shortfall(self):
 		margin_shortfall_name = frappe.db.get_value('Loan Margin Shortfall', {'loan': self.name, 'status': 'Pending'}, 'name')
