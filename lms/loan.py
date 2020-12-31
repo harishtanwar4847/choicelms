@@ -384,15 +384,10 @@ def loan_withdraw_details(**kwargs):
 			return utils.respondForbidden(message=_('Please use your own Loan Application.'))
 
 		# set amount_available_for_withdrawal
+		max_withdraw_amount = loan.maximum_withdrawable_amount()
 		loan = loan.as_dict()
-		# get if any pending withdraw requests
-		pending_withdraw_requests_amt = frappe.db.get_value('Loan Transaction', {'loan':loan.name, 'lender':loan.lender, 'status':'Pending', 'transaction_type':'Withdrawal'}, ['sum(amount)']) or 0
-
-		# get if any virtual interest applied
-		virtual_interest_sum = frappe.db.get_value('Virtual Interest', {'loan':loan.name, 'lender':loan.lender, 'is_booked_for_base':0}, ['sum(base_amount)']) or 0
-
-		loan.amount_available_for_withdrawal = loan.drawing_power - (loan.balance + pending_withdraw_requests_amt +virtual_interest_sum)
-			
+		loan.amount_available_for_withdrawal = max_withdraw_amount
+		
 		data = {
 			'loan': loan,
 		}
