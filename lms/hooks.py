@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 from . import __version__ as app_version
 
 app_name = "lms"
@@ -39,7 +40,7 @@ app_license = "MIT"
 
 # website user home page (by Role)
 # role_home_page = {
-#	"Role": "home_page"
+# 	"Role": "home_page"
 # }
 
 # Website user home page (by function)
@@ -80,12 +81,10 @@ after_install = "lms.after_install"
 # Hook on document methods and events
 
 doc_events = {
-	"User": {
-		"on_trash": "lms.__init__.delete_user"
-	},
+    "User": {"on_trash": "lms.__init__.delete_user"},
     "File": {
         "before_insert": "lms.lms.doctype.loan_application.loan_application.only_pdf_upload"
-    }
+    },
 }
 
 # Scheduled Tasks
@@ -131,40 +130,51 @@ doc_events = {
 fixtures = [
     {
         "doctype": "Role",
-        "filters": [["name", "in", ["Loan Customer", "Support Team", "Lender", "Choice Finserv"]]]
+        "filters": [
+            [
+                "name",
+                "in",
+                ["Loan Customer", "Support Team", "Lender", "Choice Finserv"],
+            ]
+        ],
     },
-    {
-        "doctype": "Print Format",
-        "filters": [["doc_type", "in", ["Cart", "Loan"]]]
-    },
-    {
-        "doctype": "Notification",
-        "filters": [["document_type", "in", ["User"]]]
-    },
-    "Security", "Allowed Security", "Security Category", "Concentration Rule", "Terms and Conditions", "Margin Shortfall Action", "Lender", "SMS Settings", "API Doc", "LAS Settings", "Workflow State", "Workflow Action Master", "Workflow", "Interest Configuration",
+    {"doctype": "Print Format", "filters": [["doc_type", "in", ["Cart", "Loan"]]]},
+    {"doctype": "Notification", "filters": [["document_type", "in", ["User"]]]},
+    "Security",
+    "Allowed Security",
+    "Security Category",
+    "Concentration Rule",
+    "Terms and Conditions",
+    "Margin Shortfall Action",
+    "Lender",
+    "SMS Settings",
+    "API Doc",
+    "LAS Settings",
+    "Workflow State",
+    "Workflow Action Master",
+    "Workflow",
+    "Interest Configuration",
 ]
 
 scheduler_events = {
-	"hourly": [
-		"lms.lms.doctype.security_price.security_price.update_all_security_prices"
-	],
+    "hourly": [
+        "lms.lms.doctype.security_price.security_price.update_all_security_prices"
+    ],
     "daily": [
-		"lms.lms.doctype.loan.loan.add_all_loans_virtual_interest",
-		"lms.lms.doctype.loan.loan.check_for_all_loans_additional_interest",
-		"lms.lms.doctype.loan.loan.add_all_loans_penal_interest",
-	],
-    "monthly": [
-        "lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"
-    ]
+        "lms.lms.doctype.loan.loan.add_all_loans_virtual_interest",
+        "lms.lms.doctype.loan.loan.check_for_all_loans_additional_interest",
+        "lms.lms.doctype.loan.loan.add_all_loans_penal_interest",
+    ],
+    "monthly": ["lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"],
 }
 
 permission_query_conditions = {
-	"Allowed Security": "lms.lms.doctype.allowed_security.allowed_security.get_permission_query_conditions",
-	"Cart": "lms.lms.doctype.cart.cart.get_permission_query_conditions",
-	"Lender": "lms.lms.doctype.lender.lender.get_permission_query_conditions",
-	"Loan Application": "lms.lms.doctype.loan_application.loan_application.get_permission_query_conditions",
-	"Loan": "lms.lms.doctype.loan.loan.get_permission_query_conditions",
-	"Loan Transaction": "lms.lms.doctype.loan_transaction.loan_transaction.get_permission_query_conditions",
-	"Lender Ledger": "lms.lms.doctype.lender_ledger.lender_ledger.get_permission_query_conditions",
-    "Virtual Interest":"lms.lms.doctype.virtual_interest.virtual_interest.get_permission_query_conditions",
+    "Allowed Security": "lms.lms.doctype.allowed_security.allowed_security.get_permission_query_conditions",
+    "Cart": "lms.lms.doctype.cart.cart.get_permission_query_conditions",
+    "Lender": "lms.lms.doctype.lender.lender.get_permission_query_conditions",
+    "Loan Application": "lms.lms.doctype.loan_application.loan_application.get_permission_query_conditions",
+    "Loan": "lms.lms.doctype.loan.loan.get_permission_query_conditions",
+    "Loan Transaction": "lms.lms.doctype.loan_transaction.loan_transaction.get_permission_query_conditions",
+    "Lender Ledger": "lms.lms.doctype.lender_ledger.lender_ledger.get_permission_query_conditions",
+    "Virtual Interest": "lms.lms.doctype.virtual_interest.virtual_interest.get_permission_query_conditions",
 }

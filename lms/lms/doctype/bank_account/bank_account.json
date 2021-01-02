@@ -1,137 +1,137 @@
 {
- "creation": "2020-10-07 23:03:32.577818",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
- "field_order": [
-  "bank",
-  "branch",
-  "account_number",
-  "ifsc",
-  "bank_code",
-  "city",
-  "state",
-  "is_default",
-  "is_spark_default",
-  "column_break_1",
-  "bank_address",
-  "contact",
-  "account_type",
-  "micr",
-  "bank_mode",
-  "bank_zip_code",
-  "district",
-  "user_kyc"
- ],
- "fields": [
-  {
-   "fieldname": "bank",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Bank",
-   "reqd": 1
-  },
-  {
-   "fieldname": "branch",
-   "fieldtype": "Data",
-   "label": "Branch"
-  },
-  {
-   "fieldname": "ifsc",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "IFSC",
-   "reqd": 1
-  },
-  {
-   "fieldname": "account_number",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Account Number",
-   "reqd": 1
-  },
-  {
-   "fieldname": "bank_code",
-   "fieldtype": "Data",
-   "label": "Bank Code"
-  },
-  {
-   "fieldname": "city",
-   "fieldtype": "Data",
-   "label": "City"
-  },
-  {
-   "fieldname": "state",
-   "fieldtype": "Data",
-   "label": "State"
-  },
-  {
-   "fieldname": "column_break_1",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "bank_address",
-   "fieldtype": "Data",
-   "label": "Bank Address"
-  },
-  {
-   "fieldname": "contact",
-   "fieldtype": "Data",
-   "label": "Contact"
-  },
-  {
-   "fieldname": "micr",
-   "fieldtype": "Data",
-   "label": "MICR"
-  },
-  {
-   "fieldname": "bank_mode",
-   "fieldtype": "Data",
-   "label": "Bank Mode"
-  },
-  {
-   "fieldname": "bank_zip_code",
-   "fieldtype": "Data",
-   "label": "Bank Zip Code"
-  },
-  {
-   "fieldname": "district",
-   "fieldtype": "Data",
-   "label": "District"
-  },
-  {
-   "fieldname": "account_type",
-   "fieldtype": "Data",
-   "label": "Account Type"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_default",
-   "fieldtype": "Check",
-   "label": "Is Default"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_spark_default",
-   "fieldtype": "Check",
-   "label": "Is Spark Default"
-  },
-  {
-   "fieldname": "user_kyc",
-   "fieldtype": "Link",
-   "label": "User KYC",
-   "options": "User KYC",
-   "reqd": 1
-  }
- ],
- "modified": "2020-12-18 12:17:17.637311",
- "modified_by": "Administrator",
- "module": "Lms",
- "name": "Bank Account",
- "owner": "Administrator",
- "permissions": [],
- "quick_entry": 1,
- "sort_field": "modified",
- "sort_order": "DESC",
- "track_changes": 1
+  "creation": "2020-10-07 23:03:32.577818",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "bank",
+    "branch",
+    "account_number",
+    "ifsc",
+    "bank_code",
+    "city",
+    "state",
+    "is_default",
+    "is_spark_default",
+    "column_break_1",
+    "bank_address",
+    "contact",
+    "account_type",
+    "micr",
+    "bank_mode",
+    "bank_zip_code",
+    "district",
+    "user_kyc"
+  ],
+  "fields": [
+    {
+      "fieldname": "bank",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Bank",
+      "reqd": 1
+    },
+    {
+      "fieldname": "branch",
+      "fieldtype": "Data",
+      "label": "Branch"
+    },
+    {
+      "fieldname": "ifsc",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "IFSC",
+      "reqd": 1
+    },
+    {
+      "fieldname": "account_number",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Account Number",
+      "reqd": 1
+    },
+    {
+      "fieldname": "bank_code",
+      "fieldtype": "Data",
+      "label": "Bank Code"
+    },
+    {
+      "fieldname": "city",
+      "fieldtype": "Data",
+      "label": "City"
+    },
+    {
+      "fieldname": "state",
+      "fieldtype": "Data",
+      "label": "State"
+    },
+    {
+      "fieldname": "column_break_1",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "bank_address",
+      "fieldtype": "Data",
+      "label": "Bank Address"
+    },
+    {
+      "fieldname": "contact",
+      "fieldtype": "Data",
+      "label": "Contact"
+    },
+    {
+      "fieldname": "micr",
+      "fieldtype": "Data",
+      "label": "MICR"
+    },
+    {
+      "fieldname": "bank_mode",
+      "fieldtype": "Data",
+      "label": "Bank Mode"
+    },
+    {
+      "fieldname": "bank_zip_code",
+      "fieldtype": "Data",
+      "label": "Bank Zip Code"
+    },
+    {
+      "fieldname": "district",
+      "fieldtype": "Data",
+      "label": "District"
+    },
+    {
+      "fieldname": "account_type",
+      "fieldtype": "Data",
+      "label": "Account Type"
+    },
+    {
+      "default": "0",
+      "fieldname": "is_default",
+      "fieldtype": "Check",
+      "label": "Is Default"
+    },
+    {
+      "default": "0",
+      "fieldname": "is_spark_default",
+      "fieldtype": "Check",
+      "label": "Is Spark Default"
+    },
+    {
+      "fieldname": "user_kyc",
+      "fieldtype": "Link",
+      "label": "User KYC",
+      "options": "User KYC",
+      "reqd": 1
+    }
+  ],
+  "modified": "2020-12-18 12:17:17.637311",
+  "modified_by": "Administrator",
+  "module": "Lms",
+  "name": "Bank Account",
+  "owner": "Administrator",
+  "permissions": [],
+  "quick_entry": 1,
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "track_changes": 1
 }
