@@ -1,9 +1,12 @@
 {
   "devDependencies": {
+    "cypress": "^6.2.0",
+    "cypress-file-upload": "^4.1.1",
     "husky": "^5.0.6",
     "prettier": "^2.2.1"
   },
   "scripts": {
-    "postinstall": "./node_modules/.bin/husky install"
+    "postinstall": "./node_modules/.bin/husky install",
+    "cypress:run": "./node_modules/.bin/cypress run"
   }
 }
