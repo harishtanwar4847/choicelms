@@ -22,3 +22,7 @@ import "./commands";
 Cypress.Cookies.defaults({
   preserve: "sid",
 });
+
+Cypress.Screenshot.defaults({
+  capture: "runner",
+});

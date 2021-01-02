@@ -434,21 +434,26 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add("apicall", (method, args, http_method = "POST") => {
-  /*
-   * calls an api method
-   * @param method {string} path to the method that is to be called
-   * @param args {dictionary} required arguments for the called method
-   * @param http_method {string} http_method for the call (default:POST)
-   */
-  return cy.request({
-    url: `/api/method/${method}`,
-    method: http_method,
-    body: args,
-    failOnStatusCode: false,
-    headers: {
+Cypress.Commands.add(
+  "apicall",
+  (method, args = {}, http_method = "POST", headers = {}) => {
+    /*
+     * calls an api method
+     * @param method {string} path to the method that is to be called
+     * @param args {dictionary} required arguments for the called method
+     * @param http_method {string} http_method for the call (default:POST)
+     */
+    var headers_ = {
       Accept: "application/json",
       "Content-Type": "application/json",
-    },
-  });
-});
+    };
+    var _headers = { ...headers_, ...headers };
+    return cy.request({
+      url: `/api/method/${method}`,
+      method: http_method,
+      body: args,
+      failOnStatusCode: false,
+      headers: _headers,
+    });
+  }
+);
