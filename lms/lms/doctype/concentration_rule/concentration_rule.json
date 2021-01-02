@@ -1,160 +1,160 @@
 {
- "autoname": "field:category",
- "creation": "2020-07-18 19:47:20.737203",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
- "field_order": [
-  "category",
-  "single_script_rules_section",
-  "single_script_threshold",
-  "is_single_script_allowed",
-  "single_script_rules_column_break",
-  "single_script_threshold_type",
-  "group_script_rules_section",
-  "per_script_threshold",
-  "group_script_threshold",
-  "is_group_script_limited",
-  "group_script_rules_column_break",
-  "per_script_threshold_type",
-  "group_script_threshold_type",
-  "group_script_rules_horizontal_break",
-  "group_script_max_limit",
-  "is_group_script_max_limited",
-  "group_script_rules_column_break_1",
-  "group_script_max_limit_type"
- ],
- "fields": [
-  {
-   "fieldname": "category",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Category",
-   "options": "Security Category",
-   "reqd": 1,
-   "unique": 1
-  },
-  {
-   "columns": 2,
-   "fieldname": "single_script_rules_section",
-   "fieldtype": "Section Break",
-   "label": "Single Script Rules"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_single_script_allowed",
-   "fieldtype": "Check",
-   "in_list_view": 1,
-   "label": "Single Script Allowed?"
-  },
-  {
-   "depends_on": "eval:doc.is_single_script_allowed",
-   "fieldname": "single_script_threshold",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Single Script Threshold"
-  },
-  {
-   "depends_on": "eval:doc.is_single_script_allowed",
-   "fieldname": "single_script_threshold_type",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Single Script Threshold Type",
-   "options": "Amount\nPercentage"
-  },
-  {
-   "fieldname": "group_script_rules_section",
-   "fieldtype": "Section Break",
-   "label": "Group Script Rules"
-  },
-  {
-   "depends_on": "eval:doc.is_group_script_limited",
-   "fieldname": "per_script_threshold",
-   "fieldtype": "Float",
-   "label": "Per Script Threshold"
-  },
-  {
-   "depends_on": "eval:doc.is_group_script_limited",
-   "fieldname": "per_script_threshold_type",
-   "fieldtype": "Select",
-   "label": "Per Script Threshold Type",
-   "options": "Amount\nPercentage"
-  },
-  {
-   "depends_on": "eval:doc.is_group_script_limited",
-   "fieldname": "group_script_threshold",
-   "fieldtype": "Float",
-   "label": "Group Script Threshold"
-  },
-  {
-   "depends_on": "eval:doc.is_group_script_limited",
-   "fieldname": "group_script_threshold_type",
-   "fieldtype": "Select",
-   "label": "Group Script Threshold Type",
-   "options": "Amount\nPercentage"
-  },
-  {
-   "fieldname": "single_script_rules_column_break",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "group_script_rules_column_break",
-   "fieldtype": "Column Break"
-  },
-  {
-   "depends_on": "eval:doc.is_group_script_max_limited",
-   "fieldname": "group_script_max_limit",
-   "fieldtype": "Float",
-   "label": "Group Script Max Limit"
-  },
-  {
-   "depends_on": "eval:doc.is_group_script_max_limited",
-   "fieldname": "group_script_max_limit_type",
-   "fieldtype": "Select",
-   "label": "Group Script Max Limit Type",
-   "options": "Amount\nPercentage"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_group_script_max_limited",
-   "fieldtype": "Check",
-   "label": "Is there a Group Script Max Limit"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_group_script_limited",
-   "fieldtype": "Check",
-   "label": "Is there a Group Script Limit"
-  },
-  {
-   "fieldname": "group_script_rules_horizontal_break",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "group_script_rules_column_break_1",
-   "fieldtype": "Column Break"
-  }
- ],
- "modified": "2020-07-18 21:05:32.665397",
- "modified_by": "Administrator",
- "module": "Lms",
- "name": "Concentration Rule",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
- "sort_field": "modified",
- "sort_order": "DESC",
- "track_changes": 1
+  "autoname": "field:category",
+  "creation": "2020-07-18 19:47:20.737203",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "category",
+    "single_script_rules_section",
+    "single_script_threshold",
+    "is_single_script_allowed",
+    "single_script_rules_column_break",
+    "single_script_threshold_type",
+    "group_script_rules_section",
+    "per_script_threshold",
+    "group_script_threshold",
+    "is_group_script_limited",
+    "group_script_rules_column_break",
+    "per_script_threshold_type",
+    "group_script_threshold_type",
+    "group_script_rules_horizontal_break",
+    "group_script_max_limit",
+    "is_group_script_max_limited",
+    "group_script_rules_column_break_1",
+    "group_script_max_limit_type"
+  ],
+  "fields": [
+    {
+      "fieldname": "category",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Category",
+      "options": "Security Category",
+      "reqd": 1,
+      "unique": 1
+    },
+    {
+      "columns": 2,
+      "fieldname": "single_script_rules_section",
+      "fieldtype": "Section Break",
+      "label": "Single Script Rules"
+    },
+    {
+      "default": "0",
+      "fieldname": "is_single_script_allowed",
+      "fieldtype": "Check",
+      "in_list_view": 1,
+      "label": "Single Script Allowed?"
+    },
+    {
+      "depends_on": "eval:doc.is_single_script_allowed",
+      "fieldname": "single_script_threshold",
+      "fieldtype": "Float",
+      "in_list_view": 1,
+      "label": "Single Script Threshold"
+    },
+    {
+      "depends_on": "eval:doc.is_single_script_allowed",
+      "fieldname": "single_script_threshold_type",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "label": "Single Script Threshold Type",
+      "options": "Amount\nPercentage"
+    },
+    {
+      "fieldname": "group_script_rules_section",
+      "fieldtype": "Section Break",
+      "label": "Group Script Rules"
+    },
+    {
+      "depends_on": "eval:doc.is_group_script_limited",
+      "fieldname": "per_script_threshold",
+      "fieldtype": "Float",
+      "label": "Per Script Threshold"
+    },
+    {
+      "depends_on": "eval:doc.is_group_script_limited",
+      "fieldname": "per_script_threshold_type",
+      "fieldtype": "Select",
+      "label": "Per Script Threshold Type",
+      "options": "Amount\nPercentage"
+    },
+    {
+      "depends_on": "eval:doc.is_group_script_limited",
+      "fieldname": "group_script_threshold",
+      "fieldtype": "Float",
+      "label": "Group Script Threshold"
+    },
+    {
+      "depends_on": "eval:doc.is_group_script_limited",
+      "fieldname": "group_script_threshold_type",
+      "fieldtype": "Select",
+      "label": "Group Script Threshold Type",
+      "options": "Amount\nPercentage"
+    },
+    {
+      "fieldname": "single_script_rules_column_break",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "group_script_rules_column_break",
+      "fieldtype": "Column Break"
+    },
+    {
+      "depends_on": "eval:doc.is_group_script_max_limited",
+      "fieldname": "group_script_max_limit",
+      "fieldtype": "Float",
+      "label": "Group Script Max Limit"
+    },
+    {
+      "depends_on": "eval:doc.is_group_script_max_limited",
+      "fieldname": "group_script_max_limit_type",
+      "fieldtype": "Select",
+      "label": "Group Script Max Limit Type",
+      "options": "Amount\nPercentage"
+    },
+    {
+      "default": "0",
+      "fieldname": "is_group_script_max_limited",
+      "fieldtype": "Check",
+      "label": "Is there a Group Script Max Limit"
+    },
+    {
+      "default": "0",
+      "fieldname": "is_group_script_limited",
+      "fieldtype": "Check",
+      "label": "Is there a Group Script Limit"
+    },
+    {
+      "fieldname": "group_script_rules_horizontal_break",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "group_script_rules_column_break_1",
+      "fieldtype": "Column Break"
+    }
+  ],
+  "modified": "2020-07-18 21:05:32.665397",
+  "modified_by": "Administrator",
+  "module": "Lms",
+  "name": "Concentration Rule",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "track_changes": 1
 }

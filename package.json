@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "husky": "^5.0.6",
+    "prettier": "^2.2.1"
+  },
+  "scripts": {
+    "postinstall": "./node_modules/.bin/husky install"
+  }
+}

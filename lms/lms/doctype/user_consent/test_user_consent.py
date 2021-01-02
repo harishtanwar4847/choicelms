@@ -6,5 +6,6 @@ from __future__ import unicode_literals
 # import frappe
 import unittest
 
+
 class TestUserConsent(unittest.TestCase):
-	pass
+    pass

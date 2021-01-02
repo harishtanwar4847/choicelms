@@ -1,85 +1,85 @@
 {
- "creation": "2020-07-28 16:49:19.566523",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
- "field_order": [
-  "sender_name",
-  "sent_on",
-  "column_break0",
-  "message",
-  "sec_break1",
-  "no_of_requested_sms",
-  "requested_numbers",
-  "column_break1",
-  "no_of_sent_sms",
-  "sent_to"
- ],
- "fields": [
-  {
-   "fieldname": "sender_name",
-   "fieldtype": "Data",
-   "label": "Sender Name"
-  },
-  {
-   "fieldname": "sent_on",
-   "fieldtype": "Date",
-   "label": "Sent On"
-  },
-  {
-   "fieldname": "column_break0",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "message",
-   "fieldtype": "Small Text",
-   "label": "Message"
-  },
-  {
-   "fieldname": "sec_break1",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "no_of_requested_sms",
-   "fieldtype": "Int",
-   "label": "No of Requested SMS"
-  },
-  {
-   "fieldname": "requested_numbers",
-   "fieldtype": "Code",
-   "label": "Requested Numbers"
-  },
-  {
-   "fieldname": "column_break1",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "no_of_sent_sms",
-   "fieldtype": "Int",
-   "label": "No of Sent SMS"
-  },
-  {
-   "fieldname": "sent_to",
-   "fieldtype": "Code",
-   "label": "Sent To"
-  }
- ],
- "modified": "2020-09-22 21:49:59.538792",
- "modified_by": "Administrator",
- "module": "Lms",
- "name": "SMS Log",
- "owner": "Administrator",
- "permissions": [
-  {
-   "email": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager"
-  }
- ],
- "quick_entry": 1,
- "sort_field": "modified",
- "sort_order": "DESC",
- "track_changes": 1
+  "creation": "2020-07-28 16:49:19.566523",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "sender_name",
+    "sent_on",
+    "column_break0",
+    "message",
+    "sec_break1",
+    "no_of_requested_sms",
+    "requested_numbers",
+    "column_break1",
+    "no_of_sent_sms",
+    "sent_to"
+  ],
+  "fields": [
+    {
+      "fieldname": "sender_name",
+      "fieldtype": "Data",
+      "label": "Sender Name"
+    },
+    {
+      "fieldname": "sent_on",
+      "fieldtype": "Date",
+      "label": "Sent On"
+    },
+    {
+      "fieldname": "column_break0",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "message",
+      "fieldtype": "Small Text",
+      "label": "Message"
+    },
+    {
+      "fieldname": "sec_break1",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "no_of_requested_sms",
+      "fieldtype": "Int",
+      "label": "No of Requested SMS"
+    },
+    {
+      "fieldname": "requested_numbers",
+      "fieldtype": "Code",
+      "label": "Requested Numbers"
+    },
+    {
+      "fieldname": "column_break1",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "no_of_sent_sms",
+      "fieldtype": "Int",
+      "label": "No of Sent SMS"
+    },
+    {
+      "fieldname": "sent_to",
+      "fieldtype": "Code",
+      "label": "Sent To"
+    }
+  ],
+  "modified": "2020-09-22 21:49:59.538792",
+  "modified_by": "Administrator",
+  "module": "Lms",
+  "name": "SMS Log",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "email": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager"
+    }
+  ],
+  "quick_entry": 1,
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "track_changes": 1
 }
