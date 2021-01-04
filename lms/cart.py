@@ -660,6 +660,7 @@ def process_dummy(cart_name):
             "allowable_ltv": cart.allowable_ltv,
             "customer": cart.customer,
             "loan": cart.loan,
+            "loan_margin_shortfall": cart.loan_margin_shortfall,
             "items": items,
         }
     )

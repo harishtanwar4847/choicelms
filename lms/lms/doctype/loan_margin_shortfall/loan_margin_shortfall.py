@@ -39,7 +39,7 @@ class LoanMarginShortfall(Document):
             else 0
         )
         self.shortfall_percentage = (
-            ((self.loan_balance - self.drawing_power) / self.loan_balance)
+            ((self.loan_balance - self.drawing_power) / self.loan_balance) * 100
             if self.loan_balance > self.drawing_power
             else 0
         )
