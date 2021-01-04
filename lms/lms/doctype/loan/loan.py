@@ -627,20 +627,6 @@ def check_all_loans_for_shortfall():
         )
 
 
-def get_permission_query_conditions(user):
-    if not user:
-        user = frappe.session.user
-
-    if "System Manager" in frappe.get_roles(user):
-        return None
-    elif "Lender" in frappe.get_roles(user):
-        roles = frappe.get_roles(user)
-
-        return """(`tabLoan`.lender in {role_tuple})""".format(
-            role_tuple=lms.convert_list_to_tuple_string(roles)
-        )
-
-
 @frappe.whitelist()
 def daily_cron_job(loan_name, input_date=None):
     frappe.enqueue_doc(

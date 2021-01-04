@@ -212,17 +212,3 @@ class LoanTransaction(Document):
                 frappe.enqueue(
                     method=send_sms, receiver_list=[customer.phone], msg=mess
                 )
-
-
-def get_permission_query_conditions(user):
-    if not user:
-        user = frappe.session.user
-
-    if "System Manager" in frappe.get_roles(user):
-        return None
-    elif "Lender" in frappe.get_roles(user):
-        roles = frappe.get_roles(user)
-
-        return """(`tabLoan Transaction`.lender in {role_tuple})""".format(
-            role_tuple=lms.convert_list_to_tuple_string(roles)
-        )
