@@ -1,40 +1,38 @@
 {
- "autoname": "field:volation_type",
- "creation": "2020-05-08 16:07:34.280048",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
- "field_order": [
-  "volation_type"
- ],
- "fields": [
-  {
-   "fieldname": "volation_type",
-   "fieldtype": "Data",
-   "label": "Volation Type",
-   "unique": 1
-  }
- ],
- "modified": "2020-05-08 16:07:34.280048",
- "modified_by": "Administrator",
- "module": "Lms",
- "name": "Volation Type",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
- "sort_field": "modified",
- "sort_order": "DESC",
- "track_changes": 1
+  "autoname": "field:volation_type",
+  "creation": "2020-05-08 16:07:34.280048",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": ["volation_type"],
+  "fields": [
+    {
+      "fieldname": "volation_type",
+      "fieldtype": "Data",
+      "label": "Volation Type",
+      "unique": 1
+    }
+  ],
+  "modified": "2020-05-08 16:07:34.280048",
+  "modified_by": "Administrator",
+  "module": "Lms",
+  "name": "Volation Type",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "track_changes": 1
 }

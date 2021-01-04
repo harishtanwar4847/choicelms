@@ -1,56 +1,53 @@
 {
- "creation": "2020-05-24 12:37:24.580199",
- "doctype": "DocType",
- "document_type": "System",
- "engine": "MyISAM",
- "field_order": [
-  "method",
-  "error"
- ],
- "fields": [
-  {
-   "fieldname": "method",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Title",
-   "read_only": 1
-  },
-  {
-   "fieldname": "error",
-   "fieldtype": "Code",
-   "label": "Error",
-   "read_only": 1
-  }
- ],
- "icon": "fa fa-warning-sign",
- "modified": "2020-05-24 12:37:24.580199",
- "modified_by": "Administrator",
- "module": "Lms",
- "name": "App Error Log",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "create": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "report": 1,
-   "role": "Customer",
-   "share": 1
-  }
- ],
- "sort_field": "modified",
- "sort_order": "ASC",
- "track_changes": 1
+  "creation": "2020-05-24 12:37:24.580199",
+  "doctype": "DocType",
+  "document_type": "System",
+  "engine": "MyISAM",
+  "field_order": ["method", "error"],
+  "fields": [
+    {
+      "fieldname": "method",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Title",
+      "read_only": 1
+    },
+    {
+      "fieldname": "error",
+      "fieldtype": "Code",
+      "label": "Error",
+      "read_only": 1
+    }
+  ],
+  "icon": "fa fa-warning-sign",
+  "modified": "2020-05-24 12:37:24.580199",
+  "modified_by": "Administrator",
+  "module": "Lms",
+  "name": "App Error Log",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "report": 1,
+      "role": "Customer",
+      "share": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "ASC",
+  "track_changes": 1
 }
