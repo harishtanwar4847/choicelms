@@ -129,7 +129,7 @@ def kyc(**kwargs):
             mess = _(
                 "Dear "
                 + user.full_name
-                + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our banking partner before you can avail the loan."
+                + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
             )
             frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
 

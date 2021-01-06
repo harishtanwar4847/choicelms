@@ -80,7 +80,7 @@ class LoanMarginShortfall(Document):
         margin_shortfall_action = self.get_shortfall_action()
         if margin_shortfall_action:
             customer = self.get_loan().get_customer()
-            mess = _("Your Loan {0} has been marked as margin shortfall.").format(
+            mess = _("Your Loan {0} has been marked for margin shortfall.").format(
                 self.loan
             )
 

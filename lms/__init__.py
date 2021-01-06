@@ -15,6 +15,13 @@ from .exceptions import *
 
 __version__ = "1.0.0-beta.1.1"
 
+user_token_expiry_map = {
+    "OTP": 10,
+    "Email Verification Token": 60,
+    "Pledge OTP": 10,
+    "Withdraw OTP": 10,
+}
+
 
 def after_install():
     frappe.db.set_value(
@@ -437,13 +444,6 @@ def add_firebase_token(firebase_token, user=None):
 
 
 def create_user_token(entity, token, token_type="OTP"):
-    expiry_map = {
-        "OTP": 10,
-        "Email Verification Token": 60,
-        "Pledge OTP": 10,
-        "Withdraw OTP": 10,
-    }
-
     doc_data = {
         "doctype": "User Token",
         "entity": entity,
@@ -451,7 +451,7 @@ def create_user_token(entity, token, token_type="OTP"):
         "token_type": token_type,
     }
 
-    expiry_in_minutes = expiry_map.get(token_type, None)
+    expiry_in_minutes = user_token_expiry_map.get(token_type, None)
     if expiry_in_minutes:
         # expire previous OTPs
         frappe.db.sql(
