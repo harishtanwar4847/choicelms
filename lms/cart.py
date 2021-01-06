@@ -680,7 +680,7 @@ def process_dummy(cart_name):
         + doc.full_name
         + ",\nYour pledge request and Loan Application was successfully accepted. \nPlease download your e-agreement - <Link>. \nApplication number: "
         + loan_application.name
-        + ". \nYou will be notified once your OD limit is approved by our bank partner."
+        + ". \nYou will be notified once your OD limit is approved by our lending partner."
     )
     frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
 
