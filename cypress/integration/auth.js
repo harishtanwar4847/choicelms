@@ -70,7 +70,7 @@ context("Verify OTP Api", () => {
         "POST"
       ).then((res) => {
         expect(res.status).to.eq(404);
-        expect(res.body).to.have.property("message", "User not found.");
+        expect(res.body).to.have.property("message", "Customer not found");
         expect(res.body.message).to.be.a("string");
         cy.screenshot();
       });
@@ -88,21 +88,8 @@ context("Register API", () => {
     });
   });
 
-  it("mobile number required", () => {
-    cy.apicall("lms.auth.register", {}, "POST").then((res) => {
-      expect(res.status).to.eq(422);
-      expect(res.body).to.have.property("message", "Validation Error");
-      expect(res.body.message).to.be.a("string");
-      expect(res.body).to.have.property("errors");
-      expect(res.body.errors).to.be.a("object");
-      expect(res.body.errors).to.have.property("mobile");
-      expect(res.body.errors.mobile).to.be.a("string");
-      cy.screenshot();
-    });
-  });
-
   it("first name required", () => {
-    cy.apicall("lms.auth.register", {}, "POST").then((res) => {
+    cy.apicall("lms.auth.register", { email: "" }, "POST").then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
       expect(res.body.message).to.be.a("string");
@@ -114,8 +101,21 @@ context("Register API", () => {
     });
   });
 
+  it("mobile number required", () => {
+    cy.apicall("lms.auth.register", { email: "" }, "POST").then((res) => {
+      expect(res.status).to.eq(422);
+      expect(res.body).to.have.property("message", "Validation Error");
+      expect(res.body.message).to.be.a("string");
+      expect(res.body).to.have.property("errors");
+      expect(res.body.errors).to.be.a("object");
+      expect(res.body.errors).to.have.property("mobile");
+      expect(res.body.errors.mobile).to.be.a("string");
+      cy.screenshot();
+    });
+  });
+
   it("email required", () => {
-    cy.apicall("lms.auth.register", {}, "POST").then((res) => {
+    cy.apicall("lms.auth.register", { email: "" }, "POST").then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
       expect(res.body.message).to.be.a("string");
@@ -128,7 +128,7 @@ context("Register API", () => {
   });
 
   it("firebase token required", () => {
-    cy.apicall("lms.auth.register", {}, "POST").then((res) => {
+    cy.apicall("lms.auth.register", { email: "" }, "POST").then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
       expect(res.body.message).to.be.a("string");
@@ -140,14 +140,14 @@ context("Register API", () => {
     });
   });
 
-  it("valid hit with mobile number", () => {
+  it("valid hit with right credentials", () => {
     cy.apicall(
       "lms.auth.register",
       {
-        first_name: "om",
+        first_name: "omddd",
         last_name: "kar",
-        mobile: "8111111111",
-        email: "omkardd@atriina.com",
+        mobile: "8111111126",
+        email: "omkdd@atriina.com",
         firebase_token: "asdf",
       },
       "POST"
