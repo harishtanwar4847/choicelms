@@ -33,6 +33,57 @@ context("Login API", () => {
       cy.screenshot();
     });
   });
+
+  it("valid hit with pin", () => {
+    cy.apicall(
+      "lms.auth.register",
+      {
+        first_name: "abcd",
+        last_name: "efgh",
+        mobile: "0000000000",
+        email: "0000000000@example.com",
+        firebase_token: "asdf",
+      },
+      "POST"
+    ).then((res) => {
+      var token = res.body.data.token;
+      cy.apicall("lms.user.set_pin", { pin: "1234" }, "POST", {
+        Authorization: token,
+      }).then((res) => {
+        cy.apicall(
+          "lms.auth.login",
+          {
+            mobile: "0000000000",
+            firebase_token: "asdf",
+            pin: "1234",
+            accept_terms: true,
+          },
+          "POST"
+        ).then((res) => {
+          expect(res.status).to.eq(200);
+          // expect(res.body).to.eq({})
+          expect(res.body).to.have.property(
+            "message",
+            "Logged in Successfully"
+          );
+          expect(res.body.message).to.be.a("string");
+          cy.screenshot();
+          cy.apicall(
+            "frappe.client.delete",
+            { doctype: "User", name: "0000000000@example.com" },
+            "POST",
+            {
+              Authorization:
+                "token " +
+                Cypress.config("adminApiKey") +
+                ":" +
+                Cypress.config("adminApiSecret"),
+            }
+          );
+        });
+      });
+    });
+  });
 });
 
 context("Verify OTP Api", () => {
@@ -144,10 +195,10 @@ context("Register API", () => {
     cy.apicall(
       "lms.auth.register",
       {
-        first_name: "omddd",
-        last_name: "kar",
-        mobile: "8111111126",
-        email: "omkdd@atriina.com",
+        first_name: "abcd",
+        last_name: "efgh",
+        mobile: "1111111111",
+        email: "1111111111@example.com",
         firebase_token: "asdf",
       },
       "POST"
@@ -156,6 +207,18 @@ context("Register API", () => {
       expect(res.body).to.have.property("message", "Registered Successfully.");
       expect(res.body.message).to.be.a("string");
       cy.screenshot();
+      cy.apicall(
+        "frappe.client.delete",
+        { doctype: "User", name: "1111111111@example.com" },
+        "POST",
+        {
+          Authorization:
+            "token " +
+            Cypress.config("adminApiKey") +
+            ":" +
+            Cypress.config("adminApiSecret"),
+        }
+      );
     });
   });
 });
