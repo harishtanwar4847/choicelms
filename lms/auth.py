@@ -86,18 +86,14 @@ def login(**kwargs):
                 )
 
             # save user login consent
-            login_consent_name = frappe.get_value(
-                "Consent", {"name": ["like", "login%"]}, "name"
+            login_consent_doc = frappe.get_doc(
+                {
+                    "doctype": "User Consent",
+                    "mobile": data.get("mobile"),
+                    "consent": "Login",
+                }
             )
-            if login_consent_name:
-                login_consent_doc = frappe.get_doc(
-                    {
-                        "doctype": "User Consent",
-                        "mobile": data.get("mobile"),
-                        "consent": login_consent_name,
-                    }
-                )
-                login_consent_doc.insert(ignore_permissions=True)
+            login_consent_doc.insert(ignore_permissions=True)
 
         lms.create_user_token(
             entity=data.get("mobile"), token=lms.random_token(length=4, is_numeric=True)
@@ -182,8 +178,12 @@ def terms_of_use():
 
         las_settings = frappe.get_single("LAS Settings")
         data = {
-            "terms_of_use_url": las_settings.terms_of_use_document or "",
-            "privacy_policy_url": las_settings.privacy_policy_document or "",
+            "terms_of_use_url": frappe.utils.get_url(las_settings.terms_of_use_document)
+            or "",
+            "privacy_policy_url": frappe.utils.get_url(
+                las_settings.privacy_policy_document
+            )
+            or "",
         }
         return utils.respondWithSuccess(message=frappe._("success"), data=data)
 

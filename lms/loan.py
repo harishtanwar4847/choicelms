@@ -122,24 +122,24 @@ def my_loans():
         customer = lms.get_customer(frappe.session.user)
 
         loans = frappe.db.sql(
-            """select 
+            """select
 			loan.total_collateral_value, loan.name, loan.sanctioned_limit, loan.drawing_power,
 
 			if (loan.total_collateral_value * loan.allowable_ltv / 100 > loan.sanctioned_limit, 1, 0) as top_up_available,
 
-			if (loan.total_collateral_value * loan.allowable_ltv / 100 > loan.sanctioned_limit, 
+			if (loan.total_collateral_value * loan.allowable_ltv / 100 > loan.sanctioned_limit,
 			loan.total_collateral_value * loan.allowable_ltv / 100 - loan.sanctioned_limit, 0.0) as top_up_amount,
 
-			IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, 
+			IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage,
 			IFNULL(mrgloan.shortfall_c, 0.0) as shortfall_c,
 			IFNULL(mrgloan.shortfall, 0.0) as shortfall,
 
-			SUM(COALESCE(CASE WHEN loantx.record_type = 'DR' THEN loantx.amount END,0)) 
-			- SUM(COALESCE(CASE WHEN loantx.record_type = 'CR' THEN loantx.amount END,0)) outstanding 
+			SUM(COALESCE(CASE WHEN loantx.record_type = 'DR' THEN loantx.amount END,0))
+			- SUM(COALESCE(CASE WHEN loantx.record_type = 'CR' THEN loantx.amount END,0)) outstanding
 
 			from `tabLoan` as loan
 			left join `tabLoan Margin Shortfall` as mrgloan
-			on loan.name = mrgloan.loan 
+			on loan.name = mrgloan.loan
 			left join `tabLoan Transaction` as loantx
 			on loan.name = loantx.loan
 			where loan.customer = '{}' group by loantx.loan """.format(
@@ -468,35 +468,9 @@ def loan_withdraw_details(**kwargs):
             )
 
         # set amount_available_for_withdrawal
+        max_withdraw_amount = loan.maximum_withdrawable_amount()
         loan = loan.as_dict()
-        # get if any pending withdraw requests
-        pending_withdraw_requests_amt = (
-            frappe.db.get_value(
-                "Loan Transaction",
-                {
-                    "loan": loan.name,
-                    "lender": loan.lender,
-                    "status": "Pending",
-                    "transaction_type": "Withdrawal",
-                },
-                ["sum(amount)"],
-            )
-            or 0
-        )
-
-        # get if any virtual interest applied
-        virtual_interest_sum = (
-            frappe.db.get_value(
-                "Virtual Interest",
-                {"loan": loan.name, "lender": loan.lender, "is_booked_for_base": 0},
-                ["sum(base_amount)"],
-            )
-            or 0
-        )
-
-        loan.amount_available_for_withdrawal = loan.drawing_power - (
-            loan.balance + pending_withdraw_requests_amt + virtual_interest_sum
-        )
+        loan.amount_available_for_withdrawal = max_withdraw_amount
 
         data = {
             "loan": loan,

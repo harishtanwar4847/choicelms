@@ -660,6 +660,7 @@ def process_dummy(cart_name):
             "allowable_ltv": cart.allowable_ltv,
             "customer": cart.customer,
             "loan": cart.loan,
+            "loan_margin_shortfall": cart.loan_margin_shortfall,
             "items": items,
         }
     )
@@ -679,7 +680,7 @@ def process_dummy(cart_name):
         + doc.full_name
         + ",\nYour pledge request and Loan Application was successfully accepted. \nPlease download your e-agreement - <Link>. \nApplication number: "
         + loan_application.name
-        + ". \nYou will be notified once your OD limit is approved by our bank partner."
+        + ". \nYou will be notified once your OD limit is approved by our lending partner."
     )
     frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
 
@@ -863,9 +864,9 @@ def get_tnc(**kwargs):
             "<li><strong> Legal & incidental charges </strong>: As per actuals;</li></ul>"
         )
 
-        url = ""
+        cart.create_tnc_file()
         tnc_header = "Please refer to the <a href='{}'>Terms & Conditions</a> for LAS facility, for detailed terms.".format(
-            url
+            frappe.utils.get_url("files/tnc/{}.pdf".format(cart.name))
         )
         tnc_footer = "You shall be required to authenticate (in token of you having fully read and irrevocably and unconditionally accepted and authenticated) the above application for loan including the pledge request and the Terms and Conditions (which can be opened by clicking on the links) and entire contents thereof, by entering the OTP that will be sent to you next on your registered mobile number with CDSL."
         tnc_checkboxes = [
@@ -879,7 +880,7 @@ def get_tnc(**kwargs):
         ]
 
         res = {
-            "tnc_list": [],  # will be removed
+            # "tnc_file": frappe.utils.get_url(tnc_file),
             "tnc_html": "".join(tnc_ul),
             "tnc_header": tnc_header,
             "tnc_footer": tnc_footer,

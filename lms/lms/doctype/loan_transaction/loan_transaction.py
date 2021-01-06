@@ -32,6 +32,22 @@ class LoanTransaction(Document):
         "Other Charges": "DR",
     }
 
+    def autoname(self):
+        latest_transaction = frappe.db.sql(
+            "select name from `tabLoan Transaction` where loan='{loan}' and name like '{loan}-%' order by creation desc limit 1".format(
+                loan=self.loan
+            ),
+            as_dict=True,
+        )
+
+        if len(latest_transaction) == 0:
+            self.name = "{}-00001".format(self.loan)
+        else:
+            latest_transaction_id = latest_transaction[0].name.split("-")[1]
+            self.name = "{}-".format(self.loan) + (
+                "%05d" % (int(latest_transaction_id) + 1)
+            )
+
     def validate_withdrawal_amount(self):
         if self.amount <= 0:
             frappe.throw("Please fix the amount.")
@@ -212,17 +228,3 @@ class LoanTransaction(Document):
                 frappe.enqueue(
                     method=send_sms, receiver_list=[customer.phone], msg=mess
                 )
-
-
-def get_permission_query_conditions(user):
-    if not user:
-        user = frappe.session.user
-
-    if "System Manager" in frappe.get_roles(user):
-        return None
-    elif "Lender" in frappe.get_roles(user):
-        roles = frappe.get_roles(user)
-
-        return """(`tabLoan Transaction`.lender in {role_tuple})""".format(
-            role_tuple=lms.convert_list_to_tuple_string(roles)
-        )

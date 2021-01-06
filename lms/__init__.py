@@ -15,6 +15,13 @@ from .exceptions import *
 
 __version__ = "1.0.0-beta.1.1"
 
+user_token_expiry_map = {
+    "OTP": 10,
+    "Email Verification Token": 60,
+    "Pledge OTP": 10,
+    "Withdraw OTP": 10,
+}
+
 
 def after_install():
     frappe.db.set_value(
@@ -325,7 +332,7 @@ def get_security_prices(securities=None):
 
 def get_security_categories(securities, lender):
     query = """select isin, category from `tabAllowed Security`
-				where 
+				where
 				lender = '{}' and
 				isin in {}""".format(
         lender, convert_list_to_tuple_string(securities)
@@ -342,13 +349,13 @@ def get_security_categories(securities, lender):
 
 
 def get_allowed_securities(securities, lender):
-    query = """select 
+    query = """select
 				allowed.isin, master.security_name, allowed.eligible_percentage,
 				master.category
 				from `tabAllowed Security` allowed
 				left join `tabSecurity` master
-				on allowed.isin = master.isin 
-				where 
+				on allowed.isin = master.isin
+				where
 				allowed.lender = '{}' and
 				allowed.isin in {}""".format(
         lender, convert_list_to_tuple_string(securities)
@@ -437,13 +444,6 @@ def add_firebase_token(firebase_token, user=None):
 
 
 def create_user_token(entity, token, token_type="OTP"):
-    expiry_map = {
-        "OTP": 10,
-        "Email Verification Token": 60,
-        "Pledge OTP": 10,
-        "Withdraw OTP": 10,
-    }
-
     doc_data = {
         "doctype": "User Token",
         "entity": entity,
@@ -451,13 +451,13 @@ def create_user_token(entity, token, token_type="OTP"):
         "token_type": token_type,
     }
 
-    expiry_in_minutes = expiry_map.get(token_type, None)
+    expiry_in_minutes = user_token_expiry_map.get(token_type, None)
     if expiry_in_minutes:
         # expire previous OTPs
         frappe.db.sql(
             """
 			update `tabUser Token` set expiry = CURRENT_TIMESTAMP
-			where entity = '{entity}' and token_type = '{token_type}' and used = 0 and expiry > CURRENT_TIMESTAMP; 
+			where entity = '{entity}' and token_type = '{token_type}' and used = 0 and expiry > CURRENT_TIMESTAMP;
 		""".format(
                 entity=entity, token_type=token_type
             )

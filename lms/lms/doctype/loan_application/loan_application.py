@@ -225,17 +225,3 @@ def only_pdf_upload(doc, method):
     if doc.attached_to_doctype == "Loan Application":
         if doc.file_name.split(".")[-1].lower() != "pdf":
             frappe.throw("Kindly upload PDF files only.")
-
-
-def get_permission_query_conditions(user):
-    if not user:
-        user = frappe.session.user
-
-    if "System Manager" in frappe.get_roles(user):
-        return None
-    elif "Lender" in frappe.get_roles(user):
-        roles = frappe.get_roles(user)
-
-        return """(`tabLoan Application`.lender in {role_tuple})""".format(
-            role_tuple=lms.convert_list_to_tuple_string(roles)
-        )

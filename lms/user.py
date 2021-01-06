@@ -103,18 +103,14 @@ def kyc(**kwargs):
 
             frappe.db.begin()
             # save user kyc consent
-            kyc_consent_name = frappe.get_value(
-                "Consent", {"name": ["like", "kyc%"]}, "name"
+            kyc_consent_doc = frappe.get_doc(
+                {
+                    "doctype": "User Consent",
+                    "mobile": user.phone,
+                    "consent": "Kyc",
+                }
             )
-            if kyc_consent_name:
-                kyc_consent_doc = frappe.get_doc(
-                    {
-                        "doctype": "User Consent",
-                        "mobile": user.phone,
-                        "consent": kyc_consent_name,
-                    }
-                )
-                kyc_consent_doc.insert(ignore_permissions=True)
+            kyc_consent_doc.insert(ignore_permissions=True)
 
             res = get_choice_kyc(data.get("pan_no"), data.get("birth_date"))
             user_kyc = res["user_kyc"]
@@ -129,7 +125,7 @@ def kyc(**kwargs):
             mess = _(
                 "Dear "
                 + user.full_name
-                + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our banking partner before you can avail the loan."
+                + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
             )
             frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
 
