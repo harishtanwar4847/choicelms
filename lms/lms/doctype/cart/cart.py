@@ -232,6 +232,50 @@ class Cart(Document):
     def on_update(self):
         if self.is_processed:
             self.notify_customer()
+        # frappe.enqueue_doc("Cart", self.name, method="create_tnc_file")
+
+    def create_tnc_file(self):
+        lender = self.get_lender()
+        customer = self.get_customer()
+        user_kyc = customer.get_kyc()
+
+        from num2words import num2words
+
+        doc = {
+            "borrower_name": user_kyc.investor_name,
+            "borrower_address": user_kyc.address,
+            "sanctioned_amount": self.eligible_loan,
+            "sanctioned_amount_in_words": num2words(self.eligible_loan, lang="en_IN"),
+            "rate_of_interest": lender.rate_of_interest,
+            "default_interest": lender.default_interest,
+            "account_renewal_charges": lender.account_renewal_charges,
+            "documentation_charges": lender.documentation_charges,
+            "processing_fee": lender.lender_processing_fees,
+            "transaction_charges_per_request": lender.transaction_charges_per_request,
+            "security_selling_share": lender.security_selling_share,
+            "cic_charges": lender.cic_charges,
+            "total_pages": lender.total_pages,
+        }
+        agreement_template = lender.get_loan_agreement_template()
+        agreement = frappe.render_template(
+            agreement_template.get_content(), {"doc": doc}
+        )
+
+        from frappe.utils.pdf import get_pdf
+
+        agreement_pdf = get_pdf(agreement)
+
+        tnc_dir_path = frappe.utils.get_files_path("tnc")
+        import os
+
+        if not os.path.exists(tnc_dir_path):
+            os.mkdir(tnc_dir_path)
+        tnc_file = "tnc/{}.pdf".format(self.name)
+        tnc_file_path = frappe.utils.get_files_path(tnc_file)
+
+        with open(tnc_file_path, "wb") as f:
+            f.write(agreement_pdf)
+        f.close()
 
     def before_save(self):
         self.process_cart_items()
