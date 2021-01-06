@@ -1,7 +1,7 @@
 var token = null;
 context("User API", () => {
   it("only get http method should be allowed(KYC)", () => {
-    cy.apicall(
+    cy.api_call(
       "lms.auth.register",
       {
         first_name: "abcd",
@@ -14,7 +14,7 @@ context("User API", () => {
     ).then((res) => {
       token = res.body.data.token;
       // expect(res.body).to.eq({})
-      cy.apicall("lms.user.kyc", {}, "POST", { Authorization: token }).then(
+      cy.api_call("lms.user.kyc", {}, "POST", { Authorization: token }).then(
         (res) => {
           expect(res.status).to.eq(405);
           expect(res.body).to.have.property("message", "Method not allowed");
@@ -25,7 +25,7 @@ context("User API", () => {
     });
   });
   it("KYC not found", () => {
-    cy.apicall(
+    cy.api_call(
       "lms.user.kyc",
       { pan_no: "ABCD2795", birth_date: "12-12-1999", accept_terms: true },
       "GET",
@@ -39,7 +39,7 @@ context("User API", () => {
     });
   });
   it("field empty pan no", () => {
-    cy.apicall(
+    cy.api_call(
       "lms.user.kyc",
       { pan_no: "", birth_date: "12-12-1999", accept_terms: true },
       "GET",
@@ -57,7 +57,7 @@ context("User API", () => {
     });
   });
   it("field empty birth date", () => {
-    cy.apicall(
+    cy.api_call(
       "lms.user.kyc",
       { pan_no: "ABCD2795", birth_date: "", accept_terms: true },
       "GET",
@@ -75,7 +75,7 @@ context("User API", () => {
     });
   });
   it("accept terms false", () => {
-    cy.apicall(
+    cy.api_call(
       "lms.user.kyc",
       { pan_no: "ABCD2795", birth_date: "12-12-1999", accept_terms: false },
       "GET",
@@ -92,7 +92,7 @@ context("User API", () => {
     });
   });
   it("Valid User KYC hit", () => {
-    cy.apicall(
+    cy.api_call(
       "lms.user.kyc",
       { pan_no: "AAKHR7426K", birth_date: "01-01-1970", accept_terms: true },
       "GET",
@@ -106,7 +106,7 @@ context("User API", () => {
     });
   });
   it("only get http method should be allowed(securities)", () => {
-    cy.apicall("lms.user.securities", {}, "POST", {
+    cy.api_call("lms.user.securities", {}, "POST", {
       Authorization: token,
     }).then((res) => {
       expect(res.status).to.eq(405);
@@ -117,14 +117,14 @@ context("User API", () => {
   });
 
   it("Valid Securities hit", () => {
-    cy.apicall("lms.user.securities", {}, "GET", { Authorization: token }).then(
-      (res) => {
-        expect(res.status).to.eq(200);
-        // expect(res.body).to.eq({});
-        expect(res.body).to.have.property("message", "Success");
-        expect(res.body.message).to.be.a("string");
-        cy.screenshot();
-      }
-    );
+    cy.api_call("lms.user.securities", {}, "GET", {
+      Authorization: token,
+    }).then((res) => {
+      expect(res.status).to.eq(200);
+      // expect(res.body).to.eq({});
+      expect(res.body).to.have.property("message", "Success");
+      expect(res.body.message).to.be.a("string");
+      cy.screenshot();
+    });
   });
 });

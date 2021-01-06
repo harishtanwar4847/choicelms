@@ -435,7 +435,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add(
-  "apicall",
+  "api_call",
   (method, args = {}, http_method = "POST", headers = {}) => {
     /*
      * calls an api method
@@ -455,5 +455,20 @@ Cypress.Commands.add(
       failOnStatusCode: false,
       headers: _headers,
     });
+  }
+);
+
+Cypress.Commands.add(
+  "admin_api_call",
+  (method, args = {}, http_method = "POST", headers = {}) => {
+    var headers_ = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `token ${Cypress.config("adminApiKey")}:${Cypress.config(
+        "adminApiSecret"
+      )}`,
+    };
+    var _headers = { ...headers_, ...headers };
+    return cy.api_call(method, args, http_method, _headers);
   }
 );

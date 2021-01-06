@@ -1,6 +1,6 @@
 context("Login API", () => {
   it("only post http method should be allowed", () => {
-    cy.apicall("lms.auth.login", {}, "GET").then((res) => {
+    cy.api_call("lms.auth.login", {}, "GET").then((res) => {
       expect(res.status).to.eq(405);
       expect(res.body).to.have.property("message", "Method not allowed");
       expect(res.body.message).to.be.a("string");
@@ -9,7 +9,7 @@ context("Login API", () => {
   });
 
   it("mobile number required", () => {
-    cy.apicall("lms.auth.login", {}, "POST").then((res) => {
+    cy.api_call("lms.auth.login", {}, "POST").then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
       expect(res.body.message).to.be.a("string");
@@ -22,7 +22,7 @@ context("Login API", () => {
   });
 
   it("valid hit with mobile number", () => {
-    cy.apicall(
+    cy.api_call(
       "lms.auth.login",
       { mobile: "9876543210", accept_terms: true },
       "POST"
@@ -35,7 +35,11 @@ context("Login API", () => {
   });
 
   it("valid hit with pin", () => {
-    cy.apicall(
+    cy.admin_api_call("frappe.client.delete", {
+      doctype: "User",
+      name: "0000000000@example.com",
+    });
+    cy.api_call(
       "lms.auth.register",
       {
         first_name: "abcd",
@@ -47,10 +51,10 @@ context("Login API", () => {
       "POST"
     ).then((res) => {
       var token = res.body.data.token;
-      cy.apicall("lms.user.set_pin", { pin: "1234" }, "POST", {
+      cy.api_call("lms.user.set_pin", { pin: "1234" }, "POST", {
         Authorization: token,
       }).then((res) => {
-        cy.apicall(
+        cy.api_call(
           "lms.auth.login",
           {
             mobile: "0000000000",
@@ -68,18 +72,6 @@ context("Login API", () => {
           );
           expect(res.body.message).to.be.a("string");
           cy.screenshot();
-          cy.apicall(
-            "frappe.client.delete",
-            { doctype: "User", name: "0000000000@example.com" },
-            "POST",
-            {
-              Authorization:
-                "token " +
-                Cypress.config("adminApiKey") +
-                ":" +
-                Cypress.config("adminApiSecret"),
-            }
-          );
         });
       });
     });
@@ -88,7 +80,7 @@ context("Login API", () => {
 
 context("Verify OTP Api", () => {
   it("only post http method should be allowed", () => {
-    cy.apicall("lms.auth.verify_otp", {}, "GET").then((res) => {
+    cy.api_call("lms.auth.verify_otp", {}, "GET").then((res) => {
       expect(res.status).to.eq(405);
       expect(res.body).to.have.property("message", "Method not allowed");
       expect(res.body.message).to.be.a("string");
@@ -97,31 +89,23 @@ context("Verify OTP Api", () => {
   });
 
   it("valid otp", () => {
-    cy.apicall(
+    cy.api_call(
       "lms.auth.login",
       { mobile: "9876543210", accept_terms: true },
       "POST"
     );
-    cy.apicall(
-      "frappe.client.get_list",
-      { doctype: "User Token", fields: ["token"] },
-      "POST",
-      {
-        Authorization:
-          "token " +
-          Cypress.config("adminApiKey") +
-          ":" +
-          Cypress.config("adminApiSecret"),
-      }
-    ).then((res) => {
+    cy.admin_api_call("frappe.client.get_list", {
+      doctype: "User Token",
+      fields: ["token"],
+    }).then((res) => {
       var otp = res.body.message[0].token;
-      cy.apicall(
+      cy.api_call(
         "lms.auth.verify_otp",
         { mobile: "9876543210", otp: otp, firebase_token: "janabe" },
         "POST"
       ).then((res) => {
         expect(res.status).to.eq(404);
-        expect(res.body).to.have.property("message", "Customer not found");
+        expect(res.body).to.have.property("message", "User not found.");
         expect(res.body.message).to.be.a("string");
         cy.screenshot();
       });
@@ -131,7 +115,7 @@ context("Verify OTP Api", () => {
 
 context("Register API", () => {
   it("only post http method should be allowed", () => {
-    cy.apicall("lms.auth.login", {}, "GET").then((res) => {
+    cy.api_call("lms.auth.login", {}, "GET").then((res) => {
       expect(res.status).to.eq(405);
       expect(res.body).to.have.property("message", "Method not allowed");
       expect(res.body.message).to.be.a("string");
@@ -140,7 +124,7 @@ context("Register API", () => {
   });
 
   it("first name required", () => {
-    cy.apicall("lms.auth.register", { email: "" }, "POST").then((res) => {
+    cy.api_call("lms.auth.register", { email: "" }, "POST").then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
       expect(res.body.message).to.be.a("string");
@@ -153,7 +137,7 @@ context("Register API", () => {
   });
 
   it("mobile number required", () => {
-    cy.apicall("lms.auth.register", { email: "" }, "POST").then((res) => {
+    cy.api_call("lms.auth.register", { email: "" }, "POST").then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
       expect(res.body.message).to.be.a("string");
@@ -166,7 +150,7 @@ context("Register API", () => {
   });
 
   it("email required", () => {
-    cy.apicall("lms.auth.register", { email: "" }, "POST").then((res) => {
+    cy.api_call("lms.auth.register", { email: "" }, "POST").then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
       expect(res.body.message).to.be.a("string");
@@ -179,7 +163,7 @@ context("Register API", () => {
   });
 
   it("firebase token required", () => {
-    cy.apicall("lms.auth.register", { email: "" }, "POST").then((res) => {
+    cy.api_call("lms.auth.register", { email: "" }, "POST").then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
       expect(res.body.message).to.be.a("string");
@@ -192,7 +176,11 @@ context("Register API", () => {
   });
 
   it("valid hit with right credentials", () => {
-    cy.apicall(
+    cy.admin_api_call("frappe.client.delete", {
+      doctype: "User",
+      name: "1111111111@example.com",
+    });
+    cy.api_call(
       "lms.auth.register",
       {
         first_name: "abcd",
@@ -207,18 +195,6 @@ context("Register API", () => {
       expect(res.body).to.have.property("message", "Registered Successfully.");
       expect(res.body.message).to.be.a("string");
       cy.screenshot();
-      cy.apicall(
-        "frappe.client.delete",
-        { doctype: "User", name: "1111111111@example.com" },
-        "POST",
-        {
-          Authorization:
-            "token " +
-            Cypress.config("adminApiKey") +
-            ":" +
-            Cypress.config("adminApiSecret"),
-        }
-      );
     });
   });
 });
