@@ -1,6 +1,6 @@
+var token = null;
 context("User API", () => {
-  var token = null;
-  it("only get http method should be allowed", () => {
+  it("only get http method should be allowed(KYC)", () => {
     cy.apicall(
       "lms.auth.register",
       {
@@ -104,5 +104,27 @@ context("User API", () => {
       expect(res.body.message).to.be.a("string");
       cy.screenshot();
     });
+  });
+  it("only get http method should be allowed(securities)", () => {
+    cy.apicall("lms.user.securities", {}, "POST", {
+      Authorization: token,
+    }).then((res) => {
+      expect(res.status).to.eq(405);
+      expect(res.body).to.have.property("message", "Method not allowed");
+      expect(res.body.message).to.be.a("string");
+      cy.screenshot();
+    });
+  });
+
+  it("Valid Securities hit", () => {
+    cy.apicall("lms.user.securities", {}, "GET", { Authorization: token }).then(
+      (res) => {
+        expect(res.status).to.eq(200);
+        // expect(res.body).to.eq({});
+        expect(res.body).to.have.property("message", "Success");
+        expect(res.body.message).to.be.a("string");
+        cy.screenshot();
+      }
+    );
   });
 });
