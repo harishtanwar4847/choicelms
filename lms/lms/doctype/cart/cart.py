@@ -215,7 +215,15 @@ class Cart(Document):
         elif doc.get("loan_application").get("status") == "Success":
             mess = "Congratulations! Your loan application has been approved. Please e-sign the loan agreement to avail the loan now."
         elif doc.get("loan_application").get("status") == "Partial Success":
-            mess = "Congratulations! Your application is being considered favourably by our lending partner\nHowever, the pledge request was partially succesful and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}.\nAccordingly the final loan amount sanctioned is Rs. {sanctioned_amount}. Please e-sign the loan agreement to avail the loan now."
+            mess = "Congratulations! Your application is being considered favourably by our lending partner\nHowever, the pledge request was partially succesful and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}.\nAccordingly the final loan amount sanctioned is Rs. {sanctioned_amount}. Please e-sign the loan agreement to avail the loan now.".format(
+                current_total_collateral_value=doc.get("loan_application").get(
+                    "current_total_collateral_value"
+                ),
+                requested_total_collateral_value=doc.get("loan_application").get(
+                    "requested_total_collateral_value"
+                ),
+                sanctioned_amount=doc.get("loan_application").get("sanctioned_amount"),
+            )
         receiver_list = list(set([str(customer.user), str(user_kyc.mobile_number)]))
         from frappe.core.doctype.sms_settings.sms_settings import send_sms
 

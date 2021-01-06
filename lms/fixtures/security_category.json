@@ -1,15 +1,5 @@
 [
  {
-  "category": "Super Cat A",
-  "docstatus": 0,
-  "doctype": "Security Category",
-  "modified": "2020-07-18 19:33:39.579327",
-  "name": "Super Cat A",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
- },
- {
   "category": "Cat A",
   "docstatus": 0,
   "doctype": "Security Category",
@@ -30,6 +20,16 @@
   "parenttype": null
  },
  {
+  "category": "Cat D",
+  "docstatus": 0,
+  "doctype": "Security Category",
+  "modified": "2020-07-18 21:14:15.509977",
+  "name": "Cat D",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null
+ },
+ {
   "category": "Cat C",
   "docstatus": 0,
   "doctype": "Security Category",
@@ -40,11 +40,11 @@
   "parenttype": null
  },
  {
-  "category": "Cat D",
+  "category": "Super Cat A",
   "docstatus": 0,
   "doctype": "Security Category",
-  "modified": "2020-07-18 21:14:15.509977",
-  "name": "Cat D",
+  "modified": "2020-07-18 19:33:39.579327",
+  "name": "Super Cat A",
   "parent": null,
   "parentfield": null,
   "parenttype": null

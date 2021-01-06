@@ -1,0 +1,22 @@
+[
+ {
+  "consent": "I agree to accept terms of use and privacy policy",
+  "docstatus": 0,
+  "doctype": "Consent",
+  "modified": "2021-01-06 17:35:09.908593",
+  "name": "Login",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null
+ },
+ {
+  "consent": "I allow my data to be collected from my DP (Demat Account).",
+  "docstatus": 0,
+  "doctype": "Consent",
+  "modified": "2021-01-06 17:35:32.421982",
+  "name": "Kyc",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null
+ }
+]
