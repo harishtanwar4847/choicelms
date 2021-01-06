@@ -325,7 +325,7 @@ def get_security_prices(securities=None):
 
 def get_security_categories(securities, lender):
     query = """select isin, category from `tabAllowed Security`
-				where 
+				where
 				lender = '{}' and
 				isin in {}""".format(
         lender, convert_list_to_tuple_string(securities)
@@ -342,13 +342,13 @@ def get_security_categories(securities, lender):
 
 
 def get_allowed_securities(securities, lender):
-    query = """select 
+    query = """select
 				allowed.isin, master.security_name, allowed.eligible_percentage,
 				master.category
 				from `tabAllowed Security` allowed
 				left join `tabSecurity` master
-				on allowed.isin = master.isin 
-				where 
+				on allowed.isin = master.isin
+				where
 				allowed.lender = '{}' and
 				allowed.isin in {}""".format(
         lender, convert_list_to_tuple_string(securities)
@@ -457,7 +457,7 @@ def create_user_token(entity, token, token_type="OTP"):
         frappe.db.sql(
             """
 			update `tabUser Token` set expiry = CURRENT_TIMESTAMP
-			where entity = '{entity}' and token_type = '{token_type}' and used = 0 and expiry > CURRENT_TIMESTAMP; 
+			where entity = '{entity}' and token_type = '{token_type}' and used = 0 and expiry > CURRENT_TIMESTAMP;
 		""".format(
                 entity=entity, token_type=token_type
             )

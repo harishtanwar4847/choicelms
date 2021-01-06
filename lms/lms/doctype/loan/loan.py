@@ -132,7 +132,7 @@ class Loan(Document):
                 "doctype": "Loan Transaction",
                 "loan": self.name,
                 "lender": self.lender,
-                "amount": amount,
+                "amount": round(amount, 2),
                 "transaction_type": transaction_type,
                 "record_type": LoanTransaction.loan_transaction_map.get(
                     transaction_type, "DR"
@@ -164,7 +164,7 @@ class Loan(Document):
 
     def update_loan_balance(self):
         summary = self.get_transaction_summary()
-        self.balance = summary.get("outstanding")
+        self.balance = round(summary.get("outstanding"), 2)
         self.save(ignore_permissions=True)
         frappe.db.commit()
 
@@ -208,7 +208,9 @@ class Loan(Document):
             i.amount = i.price * i.pledged_quantity
             self.total_collateral_value += i.amount
 
-        drawing_power = self.total_collateral_value * (self.allowable_ltv / 100)
+        drawing_power = round(
+            (self.total_collateral_value * (self.allowable_ltv / 100)), 2
+        )
         self.drawing_power = (
             drawing_power
             if drawing_power <= self.sanctioned_limit
@@ -368,8 +370,8 @@ class Loan(Document):
                 ),
                 "base_interest": interest_cofiguration["base_interest"],
                 "rebate_interest": interest_cofiguration["rebait_interest"],
-                "base_amount": base_amount,
-                "rebate_amount": rebate_amount,
+                "base_amount": round(base_amount, 2),
+                "rebate_amount": round(rebate_amount, 2),
                 "loan_balance": self.balance,
                 "interest_configuration": interest_cofiguration["name"],
             }

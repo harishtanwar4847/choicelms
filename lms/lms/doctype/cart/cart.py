@@ -119,9 +119,14 @@ class Cart(Document):
                 "Pledge Setup failed.", errors=pledge_response
             )
 
-        self.approved_total_collateral_value = self.approved_total_collateral_value
-        self.approved_eligible_loan = lms.round_down_amount_to_nearest_thousand(
-            (self.allowable_ltv / 100) * self.approved_total_collateral_value
+        self.approved_total_collateral_value = round(
+            self.approved_total_collateral_value, 2
+        )
+        self.approved_eligible_loan = round(
+            lms.round_down_amount_to_nearest_thousand(
+                (self.allowable_ltv / 100) * self.approved_total_collateral_value
+            ),
+            2,
         )
         self.is_processed = 1
 
@@ -258,10 +263,13 @@ class Cart(Document):
                 self.total_collateral_value += item.amount
                 self.allowable_ltv += item.eligible_percentage
 
-            self.total_collateral_value = self.total_collateral_value
+            self.total_collateral_value = round(self.total_collateral_value, 2)
             self.allowable_ltv = float(self.allowable_ltv) / len(self.items)
-            self.eligible_loan = lms.round_down_amount_to_nearest_thousand(
-                (self.allowable_ltv / 100) * self.total_collateral_value
+            self.eligible_loan = round(
+                lms.round_down_amount_to_nearest_thousand(
+                    (self.allowable_ltv / 100) * self.total_collateral_value
+                ),
+                2,
             )
 
     def process_bre(self):
