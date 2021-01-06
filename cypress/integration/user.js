@@ -120,7 +120,6 @@ context("User API", () => {
       cy.screenshot();
     });
   });
-
   it("Valid Securities hit", () => {
     cy.api_call("lms.user.securities", {}, "GET", {
       Authorization: token,
