@@ -1,6 +1,10 @@
-var token = null;
 context("User API", () => {
-  it("only get http method should be allowed(KYC)", () => {
+  var token = null;
+  before(() => {
+    cy.admin_api_call("frappe.client.delete", {
+      doctype: "User",
+      name: "0000000000@example.com",
+    });
     cy.api_call(
       "lms.auth.register",
       {
@@ -13,16 +17,17 @@ context("User API", () => {
       "POST"
     ).then((res) => {
       token = res.body.data.token;
-      // expect(res.body).to.eq({})
-      cy.api_call("lms.user.kyc", {}, "POST", { Authorization: token }).then(
-        (res) => {
-          expect(res.status).to.eq(405);
-          expect(res.body).to.have.property("message", "Method not allowed");
-          expect(res.body.message).to.be.a("string");
-          cy.screenshot();
-        }
-      );
     });
+  });
+  it("only get http method should be allowed(KYC)", () => {
+    cy.api_call("lms.user.kyc", {}, "POST", { Authorization: token }).then(
+      (res) => {
+        expect(res.status).to.eq(405);
+        expect(res.body).to.have.property("message", "Method not allowed");
+        expect(res.body.message).to.be.a("string");
+        cy.screenshot();
+      }
+    );
   });
   it("KYC not found", () => {
     cy.api_call(
