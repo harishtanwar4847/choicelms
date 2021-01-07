@@ -24,12 +24,6 @@ class SecurityPrice(Document):
 
 def update_security_prices(securities_dict, session_id):
     try:
-        # print(securities, session_id)
-        # securities_ = frappe.get_all('Security', filters=[['name', 'in', securities]], fields=['name', 'segment', 'token_id'])
-        # securities_dict = {}
-        # for i in securities_:
-        # 	securities_dict['{}@{}'.format(i.segment, i.token_id)] = i.name
-
         las_settings = frappe.get_single("LAS Settings")
         get_latest_security_price_url = "{}{}".format(
             las_settings.jiffy_host, las_settings.jiffy_security_get_latest_price_uri
@@ -47,6 +41,7 @@ def update_security_prices(securities_dict, session_id):
             fields = [
                 "name",
                 "security",
+                "security_name",
                 "time",
                 "price",
                 "creation",
@@ -56,14 +51,17 @@ def update_security_prices(securities_dict, session_id):
             ]
             values = {}
             for security in response_json.get("Response").get("lstMultipleTouchline"):
-                isin = securities_dict.get(
+                isin_tuple = securities_dict.get(
                     "{}@{}".format(security.get("SegmentId"), security.get("Token"))
                 )
+                isin = isin_tuple[0]
+                security_name = isin_tuple[1]
                 time = datetime.strptime(security.get("LUT"), "%d-%m-%Y %H:%M:%S")
                 price = float(security.get("LTP")) / security.get("PriceDivisor")
                 values["{}-{}".format(isin, time)] = (
                     "{}-{}".format(isin, time),
                     isin,
+                    security_name,
                     time,
                     price,
                     time,
@@ -72,21 +70,11 @@ def update_security_prices(securities_dict, session_id):
                     "Administrator",
                 )
 
-            # removing duplicates
-            duplicates = [
-                i.name
-                for i in frappe.get_all(
-                    "Security Price",
-                    fields=["name"],
-                    filters=[["name", "in", values.keys()]],
-                )
-            ]
-            for i in duplicates:
-                del values[i]
-
             values_ = list(values.values())
             values_.append(())
-            frappe.db.bulk_insert("Security Price", fields=fields, values=values_)
+            frappe.db.bulk_insert(
+                "Security Price", fields=fields, values=values_, ignore_duplicates=True
+            )
     except (RequestException, Exception) as e:
         frappe.log_error()
 
@@ -107,14 +95,17 @@ def update_all_security_prices():
             for start in chunks.get("chunks"):
                 security_list = frappe.db.get_all(
                     "Security",
-                    fields=["name", "segment", "token_id"],
+                    fields=["name", "security_name", "segment", "token_id"],
                     limit_page_length=chunks.get("limit"),
                     limit_start=start,
                 )
 
                 securities_dict = {}
                 for i in security_list:
-                    securities_dict["{}@{}".format(i.segment, i.token_id)] = i.name
+                    securities_dict["{}@{}".format(i.segment, i.token_id)] = (
+                        i.name,
+                        i.security_name,
+                    )
 
                 frappe.enqueue(
                     method="lms.lms.doctype.security_price.security_price.update_security_prices",

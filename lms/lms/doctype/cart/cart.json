@@ -1,231 +1,241 @@
 {
-  "autoname": "C.######",
-  "creation": "2020-05-08 16:23:34.952109",
-  "doctype": "DocType",
-  "editable_grid": 1,
-  "engine": "InnoDB",
-  "field_order": [
-    "customer",
-    "total_collateral_value",
-    "total_collateral_value_str",
-    "approved_total_collateral_value",
-    "approved_total_collateral_value_str",
-    "pledgor_boid",
-    "prf_number",
-    "allowable_ltv",
-    "loan_margin_shortfall",
-    "column_break_2",
-    "lender",
-    "eligible_loan",
-    "eligible_loan_str",
-    "approved_eligible_loan",
-    "approved_eligible_loan_str",
-    "pledgee_boid",
-    "expiry",
-    "loan",
-    "section_break_9",
-    "is_processed",
-    "column_break_11",
-    "status",
-    "section_break_4",
-    "items"
-  ],
-  "fields": [
-    {
-      "fieldname": "items",
-      "fieldtype": "Table",
-      "label": "Cart Item",
-      "options": "Cart Item",
-      "reqd": 1
-    },
-    {
-      "fieldname": "total_collateral_value",
-      "fieldtype": "Currency",
-      "in_list_view": 1,
-      "label": "Total Collateral Value",
-      "read_only": 1
-    },
-    {
-      "fieldname": "eligible_loan",
-      "fieldtype": "Currency",
-      "in_list_view": 1,
-      "label": "Eligible Loan",
-      "read_only": 1
-    },
-    {
-      "fieldname": "column_break_2",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "section_break_4",
-      "fieldtype": "Section Break"
-    },
-    {
-      "fieldname": "allowable_ltv",
-      "fieldtype": "Float",
-      "label": "Allowable LTV",
-      "read_only": 1
-    },
-    {
-      "default": "0",
-      "depends_on": "eval:doc.is_processed == 1",
-      "fieldname": "is_processed",
-      "fieldtype": "Check",
-      "in_list_view": 1,
-      "label": "Processed?",
-      "read_only": 1
-    },
-    {
-      "fieldname": "customer",
-      "fieldtype": "Link",
-      "in_list_view": 1,
-      "label": "Customer",
-      "options": "Customer",
-      "reqd": 1,
-      "set_only_once": 1
-    },
-    {
-      "fieldname": "loan",
-      "fieldtype": "Link",
-      "label": "Loan",
-      "options": "Loan",
-      "read_only": 1
-    },
-    {
-      "fieldname": "lender",
-      "fieldtype": "Link",
-      "label": "Lender",
-      "options": "Lender",
-      "set_only_once": 1
-    },
-    {
-      "fieldname": "pledgor_boid",
-      "fieldtype": "Data",
-      "label": "Pledgor BOID",
-      "read_only": 1
-    },
-    {
-      "depends_on": "eval:doc.is_processed",
-      "fieldname": "section_break_9",
-      "fieldtype": "Section Break"
-    },
-    {
-      "fieldname": "column_break_11",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "status",
-      "fieldtype": "Select",
-      "label": "Status",
-      "options": "Not Processed\nSuccess\nPartial Success\nFailure"
-    },
-    {
-      "fieldname": "pledgee_boid",
-      "fieldtype": "Data",
-      "label": "Pledgee BOID",
-      "read_only": 1
-    },
-    {
-      "fieldname": "prf_number",
-      "fieldtype": "Data",
-      "label": "PRF Number",
-      "read_only": 1
-    },
-    {
-      "fieldname": "expiry",
-      "fieldtype": "Date",
-      "label": "Expiry",
-      "read_only": 1
-    },
-    {
-      "depends_on": "eval:doc.is_processed",
-      "fieldname": "approved_total_collateral_value",
-      "fieldtype": "Currency",
-      "label": "Approved Total Collateral Value",
-      "read_only": 1
-    },
-    {
-      "depends_on": "eval:doc.is_processed",
-      "fieldname": "approved_eligible_loan",
-      "fieldtype": "Currency",
-      "label": "Approved Eligible Loan"
-    },
-    {
-      "fieldname": "loan_margin_shortfall",
-      "fieldtype": "Link",
-      "label": "Loan Margin Shortfall",
-      "options": "Loan Margin Shortfall",
-      "read_only": 1
-    },
-    {
-      "fieldname": "total_collateral_value_str",
-      "fieldtype": "Data",
-      "label": "Total Collateral Value Str",
-      "read_only": 1
-    },
-    {
-      "fieldname": "approved_total_collateral_value_str",
-      "fieldtype": "Data",
-      "label": "Approved Total Collateral Value Str",
-      "read_only": 1
-    },
-    {
-      "fieldname": "eligible_loan_str",
-      "fieldtype": "Data",
-      "label": "Eligible Loan",
-      "read_only": 1
-    },
-    {
-      "fieldname": "approved_eligible_loan_str",
-      "fieldtype": "Data",
-      "label": "Approved Eligible Loan",
-      "read_only": 1
-    }
-  ],
-  "modified": "2020-12-11 00:38:06.915776",
-  "modified_by": "Administrator",
-  "module": "Lms",
-  "name": "Cart",
-  "owner": "Administrator",
-  "permissions": [
-    {
-      "create": 1,
-      "delete": 1,
-      "email": 1,
-      "export": 1,
-      "print": 1,
-      "read": 1,
-      "report": 1,
-      "role": "System Manager",
-      "share": 1,
-      "write": 1
-    },
-    {
-      "create": 1,
-      "delete": 1,
-      "email": 1,
-      "export": 1,
-      "print": 1,
-      "read": 1,
-      "report": 1,
-      "role": "Loan Customer",
-      "share": 1,
-      "write": 1
-    },
-    {
-      "create": 1,
-      "delete": 1,
-      "email": 1,
-      "export": 1,
-      "print": 1,
-      "read": 1,
-      "report": 1,
-      "role": "Lender",
-      "share": 1,
-      "write": 1
-    }
-  ],
-  "sort_field": "modified",
-  "sort_order": "DESC",
-  "track_changes": 1
+ "autoname": "C.######",
+ "creation": "2020-05-08 16:23:34.952109",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "customer",
+  "customer_name",
+  "total_collateral_value",
+  "total_collateral_value_str",
+  "approved_total_collateral_value",
+  "approved_total_collateral_value_str",
+  "pledgor_boid",
+  "prf_number",
+  "allowable_ltv",
+  "loan_margin_shortfall",
+  "column_break_2",
+  "lender",
+  "eligible_loan",
+  "eligible_loan_str",
+  "approved_eligible_loan",
+  "approved_eligible_loan_str",
+  "pledgee_boid",
+  "expiry",
+  "loan",
+  "section_break_9",
+  "is_processed",
+  "column_break_11",
+  "status",
+  "section_break_4",
+  "items"
+ ],
+ "fields": [
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Cart Item",
+   "options": "Cart Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "total_collateral_value",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total Collateral Value",
+   "read_only": 1
+  },
+  {
+   "fieldname": "eligible_loan",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Eligible Loan",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "allowable_ltv",
+   "fieldtype": "Float",
+   "label": "Allowable LTV",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.is_processed == 1",
+   "fieldname": "is_processed",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Processed?",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer",
+   "options": "Customer",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "loan",
+   "fieldtype": "Link",
+   "label": "Loan",
+   "options": "Loan",
+   "read_only": 1
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "pledgor_boid",
+   "fieldtype": "Data",
+   "label": "Pledgor BOID",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.is_processed",
+   "fieldname": "section_break_9",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Not Processed\nSuccess\nPartial Success\nFailure"
+  },
+  {
+   "fieldname": "pledgee_boid",
+   "fieldtype": "Data",
+   "label": "Pledgee BOID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "prf_number",
+   "fieldtype": "Data",
+   "label": "PRF Number",
+   "read_only": 1
+  },
+  {
+   "fieldname": "expiry",
+   "fieldtype": "Date",
+   "label": "Expiry",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.is_processed",
+   "fieldname": "approved_total_collateral_value",
+   "fieldtype": "Currency",
+   "label": "Approved Total Collateral Value",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.is_processed",
+   "fieldname": "approved_eligible_loan",
+   "fieldtype": "Currency",
+   "label": "Approved Eligible Loan",
+   "read_only": 1
+  },
+  {
+   "fieldname": "loan_margin_shortfall",
+   "fieldtype": "Link",
+   "label": "Loan Margin Shortfall",
+   "options": "Loan Margin Shortfall",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_collateral_value_str",
+   "fieldtype": "Data",
+   "label": "Total Collateral Value Str",
+   "read_only": 1
+  },
+  {
+   "fieldname": "approved_total_collateral_value_str",
+   "fieldtype": "Data",
+   "label": "Approved Total Collateral Value Str",
+   "read_only": 1
+  },
+  {
+   "fieldname": "eligible_loan_str",
+   "fieldtype": "Data",
+   "label": "Eligible Loan  Str",
+   "read_only": 1
+  },
+  {
+   "fieldname": "approved_eligible_loan_str",
+   "fieldtype": "Data",
+   "label": "Approved Eligible Loan Str",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Read Only",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Customer Name"
+  }
+ ],
+ "modified": "2021-01-07 16:24:15.540256",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Cart",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Loan Customer",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lender",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
 }

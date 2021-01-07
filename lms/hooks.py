@@ -134,11 +134,10 @@ fixtures = [
             [
                 "name",
                 "in",
-                ["Loan Customer", "Support Team", "Lender"],
+                ["Loan Customer", "Lender", "Spark Manager"],
             ]
         ],
     },
-    {"doctype": "Print Format", "filters": [["doc_type", "in", ["Cart", "Loan"]]]},
     {"doctype": "Notification", "filters": [["document_type", "in", ["User"]]]},
     "Security",
     "Allowed Security",

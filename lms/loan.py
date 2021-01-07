@@ -81,9 +81,9 @@ def esign_done(**kwargs):
             )
 
         las_settings = frappe.get_single("LAS Settings")
-        esigned_pdf_url = las_settings.esign_download_signed_file_url.format(
-            file_id=data.get("file_id")
-        )
+        esigned_pdf_url = "{}{}".format(
+            las_settings.esign_host, las_settings.esign_download_signed_file_uri
+        ).format(file_id=data.get("file_id"))
 
         try:
             res = requests.get(esigned_pdf_url, allow_redirects=True)
@@ -165,26 +165,7 @@ def my_loans():
         return lms.generateResponse(is_success=False, error=e)
 
 
-def create_loan_collateral(loan_name, pledgor_boid, pledgee_boid, prf_number, items):
-    for item in items:
-        loan_collateral = frappe.get_doc(
-            {
-                "doctype": "Loan Collateral",
-                "loan": loan_name,
-                "request_type": "Pledge",
-                "pledgor_boid": pledgor_boid,
-                "pledgee_boid": pledgee_boid,
-                "request_identifier": prf_number,
-                "isin": item.isin,
-                "quantity": item.pledged_quantity,
-                "psn": item.psn,
-                "error_code": item.error_code,
-                "is_success": item.psn and not item.error_code,
-            }
-        )
-        loan_collateral.insert(ignore_permissions=True)
-
-
+# TODO: review. it has a query for tabLoan Collateral which has been deleted in Beta.1
 @frappe.whitelist()
 def create_unpledge(loan_name, securities_array):
     try:

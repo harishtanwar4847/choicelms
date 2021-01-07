@@ -187,6 +187,7 @@ class Cart(Document):
                 "expiry_date": self.expiry,
                 "allowable_ltv": self.allowable_ltv,
                 "customer": self.customer,
+                "customer_name": self.customer_name,
                 "loan": self.loan,
                 "items": items,
             }

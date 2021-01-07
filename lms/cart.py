@@ -111,7 +111,7 @@ def upsert(**kwargs):
         )
 
         customer = lms.__customer()
-
+        print(customer.name, customer.full_name)
         if data.get("loan_name", None):
             try:
                 loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -140,6 +140,7 @@ def upsert(**kwargs):
                 {
                     "doctype": "Cart",
                     "customer": customer.name,
+                    "customer_name": customer.full_name,
                     "lender": data.get("lender"),
                     "pledgor_boid": data.get("pledgor_boid"),
                     "expiry": expiry,
@@ -659,6 +660,7 @@ def process_dummy(cart_name):
             "expiry_date": "2021-01-31",
             "allowable_ltv": cart.allowable_ltv,
             "customer": cart.customer,
+            "customer_name": cart.customer_name,
             "loan": cart.loan,
             "loan_margin_shortfall": cart.loan_margin_shortfall,
             "items": items,
