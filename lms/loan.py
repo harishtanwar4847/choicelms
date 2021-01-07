@@ -81,9 +81,9 @@ def esign_done(**kwargs):
             )
 
         las_settings = frappe.get_single("LAS Settings")
-        esigned_pdf_url = las_settings.esign_download_signed_file_url.format(
-            file_id=data.get("file_id")
-        )
+        esigned_pdf_url = "{}{}".format(
+            las_settings.esign_host, las_settings.esign_download_signed_file_uri
+        ).format(file_id=data.get("file_id"))
 
         try:
             res = requests.get(esigned_pdf_url, allow_redirects=True)

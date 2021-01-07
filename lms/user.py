@@ -141,7 +141,6 @@ def get_choice_kyc(pan_no, birth_date):
     try:
         las_settings = frappe.get_single("LAS Settings")
 
-        # params = {"panNum": pan_no}
         params = {
             "PANNum": pan_no,
             "dob": (datetime.strptime(birth_date, "%d-%m-%Y")).strftime("%Y-%m-%d"),

@@ -59,7 +59,9 @@ class LoanApplication(Document):
         files = {"file": ("loan-aggrement.pdf", agreement_pdf)}
 
         return {
-            "file_upload_url": las_settings.esign_upload_file_url,
+            "file_upload_url": "{}{}".format(
+                las_settings.esign_host, las_settings.esign_upload_file_uri
+            ),
             "headers": headers,
             "files": files,
             "esign_url_dict": {
@@ -67,7 +69,9 @@ class LoanApplication(Document):
                 "y": coordinates[1],
                 "page_number": lender.esign_page,
             },
-            "esign_url": las_settings.esign_request_url,
+            "esign_url": "{}{}".format(
+                las_settings.esign_host, las_settings.esign_request_uri
+            ),
         }
 
     def on_update(self):
