@@ -134,7 +134,7 @@ fixtures = [
             [
                 "name",
                 "in",
-                ["Loan Customer", "Support Team", "Lender"],
+                ["Loan Customer", "Lender", "Spark Manager"],
             ]
         ],
     },
