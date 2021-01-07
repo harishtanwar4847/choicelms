@@ -13,7 +13,6 @@ from frappe.model.document import Document
 from num2words import num2words
 
 import lms
-from lms.loan import create_loan_collateral
 
 
 class LoanApplication(Document):
