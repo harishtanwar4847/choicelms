@@ -123,6 +123,7 @@ class LoanApplication(Document):
                 "expiry_date": self.expiry_date,
                 "allowable_ltv": self.allowable_ltv,
                 "customer": self.customer,
+                "customer_name": self.customer_name,
                 "lender": self.lender,
                 "items": items,
                 "is_eligible_for_interest": 1,
