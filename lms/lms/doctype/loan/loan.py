@@ -622,7 +622,8 @@ def daily_cron_job(loan_name, input_date=None):
 
 def add_loans_virtual_interest(loans):
     for loan in loans:
-        frappe.enqueue_doc("Loan", loan.name, method="add_virtual_interest")
+        loan = frappe.get_doc("Loan", loan)
+        loan.add_virtual_interest()
 
 
 @frappe.whitelist()
@@ -636,14 +637,15 @@ def add_all_loans_virtual_interest():
 
         frappe.enqueue(
             method="lms.lms.doctype.loan.loan.add_loans_virtual_interest",
-            chunk_loans=[loan for loan in all_loans],
+            loans=[loan for loan in all_loans],
             queue="long",
         )
 
 
 def check_for_loans_additional_interest(loans):
     for loan in loans:
-        frappe.enqueue_doc("Loan", loan.name, method="check_for_additional_interest")
+        loan = frappe.get_doc("Loan", loan)
+        loan.check_for_additional_interest()
 
 
 @frappe.whitelist()
@@ -657,14 +659,15 @@ def check_for_all_loans_additional_interest():
 
         frappe.enqueue(
             method="lms.lms.doctype.loan.loan.check_for_loans_additional_interest",
-            chunk_loans=[loan for loan in all_loans],
+            loans=[loan for loan in all_loans],
             queue="long",
         )
 
 
 def add_loans_penal_interest(loans):
     for loan in loans:
-        frappe.enqueue_doc("Loan", loan.name, method="add_penal_interest")
+        loan = frappe.get_doc("Loan", loan)
+        loan.add_penal_interest()
 
 
 @frappe.whitelist()
@@ -678,7 +681,7 @@ def add_all_loans_penal_interest():
 
         frappe.enqueue(
             method="lms.lms.doctype.loan.loan.add_loans_penal_interest",
-            chunk_loans=[loan for loan in all_loans],
+            loans=[loan for loan in all_loans],
             queue="long",
         )
 
@@ -695,7 +698,8 @@ def book_virtual_interest_for_month(loan_name, input_date=None):
 
 def book_loans_virtual_interest_for_month(loans):
     for loan in loans:
-        frappe.enqueue_doc("Loan", loan.name, method="book_virtual_interest_for_month")
+        loan = frappe.get_doc("Loan", loan)
+        loan.book_virtual_interest_for_month()
 
 
 @frappe.whitelist()
