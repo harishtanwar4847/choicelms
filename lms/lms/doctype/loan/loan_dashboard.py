@@ -6,7 +6,6 @@ def get_data():
                 "items": [
                     "Loan Transaction",
                     "Loan Margin Shortfall",
-                    "Loan Collateral",
                     "Lender Ledger",
                     "Collateral Ledger",
                     "Virtual Interest",

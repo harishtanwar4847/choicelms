@@ -49,7 +49,6 @@ def get_data():
                 {"type": "doctype", "name": "Cart", "onboard": 1},
                 {"type": "doctype", "name": "Loan Application", "onboard": 1},
                 {"type": "doctype", "name": "Loan", "onboard": 1},
-                {"type": "doctype", "name": "Loan Withdraw Ledger", "onboard": 1},
             ],
         },
     ]
