@@ -472,3 +472,14 @@ Cypress.Commands.add(
     return cy.api_call(method, args, http_method, _headers);
   }
 );
+
+Cypress.Commands.add("register_dummy_user", () => {
+  return cy.api_call("lms.auth.register", Cypress.config("dummy_user"), "POST");
+});
+
+Cypress.Commands.add("delete_dummy_user", () => {
+  cy.admin_api_call("frappe.client.delete", {
+    doctype: "User",
+    name: "0000000000@example.com",
+  });
+});

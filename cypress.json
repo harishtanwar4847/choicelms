@@ -6,5 +6,13 @@
   "viewportHeight": 1080,
   "viewportWidth": 1920,
   "video": false,
-  "screenshotOnRunFailure": false
+  "screenshotOnRunFailure": false,
+  "dummy_user": {
+    "first_name": "abcd",
+    "last_name": "efgh",
+    "mobile": "0000000000",
+    "email": "0000000000@example.com",
+    "firebase_token": "asdf",
+    "pin": "0000"
+  }
 }
