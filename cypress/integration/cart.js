@@ -1,5 +1,7 @@
+var cart_name = null;
+var token = null;
+
 context("Cart Upsert", () => {
-  var token = null;
   var pledgor_boid = "1206690000000027";
   before(() => {
     cy.delete_dummy_user();
@@ -109,6 +111,7 @@ context("Cart Upsert", () => {
         "POST",
         { Authorization: token }
       ).then((res) => {
+        cart_name = res.body.data.cart.name;
         expect(res.status).to.eq(200);
         // expect(res.body).to.eq({});
         expect(res.body).to.have.property("message", "Success");
@@ -119,14 +122,14 @@ context("Cart Upsert", () => {
 });
 
 context("Get TnC", () => {
-  var token = null;
-  before(() => {
-    cy.delete_dummy_user();
-    cy.register_dummy_user().then((res) => {
-      token = res.body.data.token;
-    });
-    cy.valid_user_kyc_hit(token);
-  });
+  // var token = null;
+  // before(() => {
+  //   cy.delete_dummy_user();
+  //   cy.register_dummy_user().then((res) => {
+  //     token = res.body.data.token;
+  //   });
+  //   cy.valid_user_kyc_hit(token);
+  // });
 
   it("only get http method should be allowed", () => {
     cy.api_call("lms.cart.get_tnc", {}, "POST", {
@@ -155,6 +158,17 @@ context("Get TnC", () => {
       expect(res.body.errors).to.be.a("object");
       expect(res.body.errors).to.have.property("cart_name");
       expect(res.body.errors.cart_name).to.be.a("string");
+      cy.screenshot();
+    });
+  });
+
+  it("valid hit get tnc", () => {
+    cy.valid_user_kyc_hit(token);
+    cy.api_call("lms.cart.get_tnc", { cart_name: cart_name }, "GET", {
+      Authorization: token,
+    }).then((res) => {
+      expect(res.status).to.eq(200);
+      expect(res.body).to.have.property("message", "Success");
       cy.screenshot();
     });
   });

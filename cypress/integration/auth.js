@@ -1,4 +1,4 @@
-context("Login API", () => {
+context("Login API - login with OTP", () => {
   it("only post http method should be allowed", () => {
     cy.api_call("lms.auth.login", {}, "GET").then((res) => {
       expect(res.status).to.eq(405);
@@ -19,6 +19,37 @@ context("Login API", () => {
     });
   });
 
+  it("invalid mobile number length", () => {
+    cy.api_call("lms.auth.login", { mobile: "12345678912" }, "POST").then(
+      (res) => {
+        expect(res.status).to.eq(422);
+        expect(res.body).to.have.property("message", "Validation Error");
+        expect(res.body).to.have.property("errors");
+        expect(res.body.errors).to.be.a("object");
+        expect(res.body.errors).to.have.property("mobile");
+        expect(res.body.errors.mobile).to.be.a("string");
+        expect(res.body.errors.mobile).to.eq("Should be atleast 10 in length.");
+        cy.screenshot();
+      }
+    );
+  });
+
+  it("accept terms required", () => {
+    cy.api_call(
+      "lms.auth.login",
+      { mobile: Cypress.config("dummy_user").mobile },
+      "POST"
+    ).then((res) => {
+      expect(res.status).to.eq(401);
+      expect(res.body).to.have.property(
+        "message",
+        "Please accept Terms of Use and Privacy Policy."
+      );
+      expect(res.body.message).to.be.a("string");
+      cy.screenshot();
+    });
+  });
+
   it("valid hit with mobile number", () => {
     cy.api_call(
       "lms.auth.login",
@@ -27,6 +58,48 @@ context("Login API", () => {
     ).then((res) => {
       expect(res.status).to.eq(200);
       expect(res.body).to.have.property("message", "OTP Sent");
+      cy.screenshot();
+    });
+  });
+});
+
+context("Login Api - login with PIN", () => {
+  it("firebase token required", () => {
+    cy.api_call(
+      "lms.auth.login",
+      {
+        mobile: Cypress.config("dummy_user").mobile,
+        pin: Cypress.config("dummy_user").pin,
+      },
+      "POST"
+    ).then((res) => {
+      expect(res.status).to.eq(422);
+      expect(res.body).to.have.property("message", "Validation Error");
+      expect(res.body).to.have.property("errors");
+      expect(res.body.errors).to.be.a("object");
+      expect(res.body.errors).to.have.property("firebase_token");
+      expect(res.body.errors.firebase_token).to.be.a("string");
+      cy.screenshot();
+    });
+  });
+
+  it("invalid pin length", () => {
+    cy.api_call(
+      "lms.auth.login",
+      {
+        mobile: Cypress.config("dummy_user").mobile,
+        pin: "11111",
+        firebase_token: Cypress.config("dummy_user").firebase_token,
+      },
+      "POST"
+    ).then((res) => {
+      expect(res.status).to.eq(422);
+      expect(res.body).to.have.property("message", "Validation Error");
+      expect(res.body).to.have.property("errors");
+      expect(res.body.errors).to.be.a("object");
+      expect(res.body.errors).to.have.property("pin");
+      expect(res.body.errors.pin).to.be.a("string");
+      expect(res.body.errors.pin).to.eq("Should be atleast 4 in length.");
       cy.screenshot();
     });
   });
@@ -58,6 +131,86 @@ context("Login API", () => {
       cy.screenshot();
     });
   });
+
+  it("invalid pin - attempt 1", () => {
+    cy.api_call(
+      "lms.auth.login",
+      {
+        mobile: Cypress.config("dummy_user").mobile,
+        pin: "1111",
+        firebase_token: Cypress.config("dummy_user").firebase_token,
+      },
+      "POST"
+    ).then((res) => {
+      expect(res.status).to.eq(401);
+      expect(res.body).to.have.property(
+        "message",
+        "Incorrect PIN. 1 invalid attempt."
+      );
+      expect(res.body.message).to.be.a("string");
+      cy.screenshot();
+    });
+  });
+
+  it("invalid pin - attempt 2", () => {
+    cy.api_call(
+      "lms.auth.login",
+      {
+        mobile: Cypress.config("dummy_user").mobile,
+        pin: "1111",
+        firebase_token: Cypress.config("dummy_user").firebase_token,
+      },
+      "POST"
+    ).then((res) => {
+      expect(res.status).to.eq(401);
+      expect(res.body).to.have.property(
+        "message",
+        "Incorrect PIN. 2 invalid attempts."
+      );
+      expect(res.body.message).to.be.a("string");
+      cy.screenshot();
+    });
+  });
+
+  it("invalid pin - attempt 3", () => {
+    cy.api_call(
+      "lms.auth.login",
+      {
+        mobile: Cypress.config("dummy_user").mobile,
+        pin: "1111",
+        firebase_token: Cypress.config("dummy_user").firebase_token,
+      },
+      "POST"
+    ).then((res) => {
+      expect(res.status).to.eq(401);
+      expect(res.body).to.have.property(
+        "message",
+        "Incorrect PIN. 3 invalid attempts."
+      );
+      expect(res.body.message).to.be.a("string");
+      cy.screenshot();
+    });
+  });
+
+  it("invalid pin - attempt 4", () => {
+    cy.api_call(
+      "lms.auth.login",
+      {
+        mobile: Cypress.config("dummy_user").mobile,
+        pin: "1111",
+        firebase_token: Cypress.config("dummy_user").firebase_token,
+      },
+      "POST"
+    ).then((res) => {
+      expect(res.status).to.eq(401);
+      expect(res.body).to.have.property(
+        "message",
+        "Your account has been locked and will resume after 60 seconds"
+      );
+      expect(res.body.message).to.be.a("string");
+      cy.screenshot();
+    });
+  });
 });
 
 context("Verify OTP Api", () => {
@@ -65,6 +218,85 @@ context("Verify OTP Api", () => {
     cy.api_call("lms.auth.verify_otp", {}, "GET").then((res) => {
       expect(res.status).to.eq(405);
       expect(res.body).to.have.property("message", "Method not allowed");
+      cy.screenshot();
+    });
+  });
+
+  it("otp required", () => {
+    cy.api_call(
+      "lms.auth.verify_otp",
+      {
+        mobile: Cypress.config("dummy_user").mobile,
+        firebase_token: Cypress.config("dummy_user").firebase_token,
+      },
+      "POST"
+    ).then((res) => {
+      expect(res.status).to.eq(422);
+      expect(res.body).to.have.property("message", "Validation Error");
+      expect(res.body).to.have.property("errors");
+      expect(res.body.errors).to.be.a("object");
+      expect(res.body.errors).to.have.property("otp");
+      expect(res.body.errors.otp).to.be.a("string");
+      cy.screenshot();
+    });
+  });
+
+  it("firebase token required", () => {
+    cy.api_call(
+      "lms.auth.verify_otp",
+      { mobile: Cypress.config("dummy_user").mobile, otp: "1111" },
+      "POST"
+    ).then((res) => {
+      expect(res.status).to.eq(422);
+      expect(res.body).to.have.property("message", "Validation Error");
+      expect(res.body).to.have.property("errors");
+      expect(res.body.errors).to.be.a("object");
+      expect(res.body.errors).to.have.property("firebase_token");
+      expect(res.body.errors.firebase_token).to.be.a("string");
+      cy.screenshot();
+    });
+  });
+
+  it("invalid otp length", () => {
+    cy.api_call(
+      "lms.auth.verify_otp",
+      {
+        mobile: Cypress.config("dummy_user").mobile,
+        otp: "11111",
+        firebase_token: Cypress.config("dummy_user").firebase_token,
+      },
+      "POST"
+    ).then((res) => {
+      expect(res.status).to.eq(422);
+      expect(res.body).to.have.property("message", "Validation Error");
+      expect(res.body).to.have.property("errors");
+      expect(res.body.errors).to.be.a("object");
+      expect(res.body.errors).to.have.property("otp");
+      expect(res.body.errors.otp).to.be.a("string");
+      expect(res.body.errors.otp).to.eq("Should be atleast 4 in length.");
+      cy.screenshot();
+    });
+  });
+
+  it("invalid otp attempts", () => {
+    cy.delete_dummy_user();
+    cy.api_call(
+      "lms.auth.login",
+      { mobile: Cypress.config("dummy_user").mobile, accept_terms: true },
+      "POST"
+    );
+    cy.api_call(
+      "lms.auth.verify_otp",
+      {
+        mobile: Cypress.config("dummy_user").mobile,
+        otp: "1111",
+        firebase_token: Cypress.config("dummy_user").firebase_token,
+      },
+      "POST"
+    ).then((res) => {
+      expect(res.status).to.eq(401);
+      expect(res.body).to.have.property("message", "Invalid OTP.");
+      expect(res.body.message).to.be.a("string");
       cy.screenshot();
     });
   });
