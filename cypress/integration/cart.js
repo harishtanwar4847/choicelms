@@ -1,45 +1,38 @@
-context("Cart API", () => {
+context("Cart Upsert", () => {
   var token = null;
+  var pledgor_boid = "1206690000000027";
   before(() => {
-    cy.admin_api_call("frappe.client.delete", {
-      doctype: "User",
-      name: "0000000000@example.com",
-    });
-    cy.api_call(
-      "lms.auth.register",
-      {
-        first_name: "abcd",
-        last_name: "efgh",
-        mobile: "0000000000",
-        email: "0000000000@example.com",
-        firebase_token: "asdf",
-      },
-      "POST"
-    ).then((res) => {
+    cy.delete_dummy_user();
+    cy.register_dummy_user().then((res) => {
       token = res.body.data.token;
+      cy.valid_user_kyc_hit(token);
     });
   });
+
   it("only post http method should be allowed", () => {
     cy.api_call("lms.cart.upsert", {}, "GET", { Authorization: token }).then(
       (res) => {
         expect(res.status).to.eq(405);
         expect(res.body).to.have.property("message", "Method not allowed");
-        expect(res.body.message).to.be.a("string");
         cy.screenshot();
       }
     );
   });
+
+  it("auth method", () => {
+    cy.api_call("lms.cart.upsert", {}, "POST").then((res) => {
+      expect(res.status).to.eq(403);
+      cy.screenshot();
+    });
+  });
+
   it("Securities required in upsert cart", () => {
-    cy.api_call(
-      "lms.cart.upsert",
-      { pledgor_boid: "1206690000000027" },
-      "POST",
-      { Authorization: token }
-    ).then((res) => {
+    cy.api_call("lms.cart.upsert", { pledgor_boid: pledgor_boid }, "POST", {
+      Authorization: token,
+    }).then((res) => {
       expect(res.status).to.eq(422);
       // expect(res.body).to.eq({});
       expect(res.body).to.have.property("message", "Validation Error");
-      expect(res.body.message).to.be.a("string");
       expect(res.body).to.have.property("errors");
       expect(res.body.errors).to.be.a("object");
       expect(res.body.errors).to.have.property("securities");
@@ -47,6 +40,7 @@ context("Cart API", () => {
       cy.screenshot();
     });
   });
+
   it("Field empty Pledgor boid", () => {
     cy.api_call("lms.cart.upsert", { pledgor_boid: "" }, "POST", {
       Authorization: token,
@@ -54,7 +48,6 @@ context("Cart API", () => {
       expect(res.status).to.eq(422);
       // expect(res.body).to.eq({});
       expect(res.body).to.have.property("message", "Validation Error");
-      expect(res.body.message).to.be.a("string");
       expect(res.body).to.have.property("errors");
       expect(res.body.errors).to.be.a("object");
       expect(res.body.errors).to.have.property("pledgor_boid");
@@ -62,12 +55,13 @@ context("Cart API", () => {
       cy.screenshot();
     });
   });
+
   it("ISIN not found", () => {
     cy.api_call(
       "lms.cart.upsert",
       {
         securities: { list: [{ isin: "INE280" }, { isin: "" }] },
-        pledgor_boid: "1206690000000027",
+        pledgor_boid: pledgor_boid,
       },
       "POST",
       { Authorization: token }
@@ -75,7 +69,6 @@ context("Cart API", () => {
       expect(res.status).to.eq(422);
       // expect(res.body).to.eq({});
       expect(res.body).to.have.property("message", "Validation Error");
-      expect(res.body.message).to.be.a("string");
       expect(res.body).to.have.property("errors");
       expect(res.body.errors).to.be.a("object");
       expect(res.body.errors).to.have.property("securities");
@@ -83,78 +76,136 @@ context("Cart API", () => {
       cy.screenshot();
     });
   });
+
   it("valid hit upsert cart", () => {
-    cy.api_call(
-      "lms.cart.upsert",
-      {
-        securities: {
-          list: [
-            { isin: "INE280A01028", quantity: 1 },
-            { isin: "INE101A01026", quantity: 1 },
-          ],
+    cy.api_call("lms.user.securities", {}, "GET", {
+      Authorization: token,
+    }).then((res) => {
+      var securities = res.body.data;
+      var approved_securities = securities.filter(
+        (x) => x.Is_Eligible && x.Quantity >= 1 && x.Depository == "CDSL"
+      );
+      var securities_list = [];
+      if (approved_securities.length >= 1) {
+        securities_list.push({
+          isin: approved_securities[0].ISIN,
+          quantity: 1,
+        });
+      }
+      if (approved_securities.length >= 2) {
+        securities_list.push({
+          isin: approved_securities[1].ISIN,
+          quantity: 1,
+        });
+      }
+      cy.api_call(
+        "lms.cart.upsert",
+        {
+          securities: {
+            list: securities_list,
+          },
+          pledgor_boid: pledgor_boid,
         },
-        pledgor_boid: "1206690000000027",
-      },
-      "POST",
-      { Authorization: token }
-    ).then((res) => {
-      expect(res.status).to.eq(200);
-      // expect(res.body).to.eq({});
-      expect(res.body).to.have.property("message", "Success");
-      expect(res.body.message).to.be.a("string");
+        "POST",
+        { Authorization: token }
+      ).then((res) => {
+        expect(res.status).to.eq(200);
+        // expect(res.body).to.eq({});
+        expect(res.body).to.have.property("message", "Success");
+        cy.screenshot();
+      });
+    });
+  });
+});
+
+context("Get TnC", () => {
+  var token = null;
+  before(() => {
+    cy.delete_dummy_user();
+    cy.register_dummy_user().then((res) => {
+      token = res.body.data.token;
+    });
+    cy.valid_user_kyc_hit(token);
+  });
+
+  it("only get http method should be allowed", () => {
+    cy.api_call("lms.cart.get_tnc", {}, "POST", {
+      Authorization: token,
+    }).then((res) => {
+      expect(res.status).to.eq(405);
+      expect(res.body).to.have.property("message", "Method not allowed");
       cy.screenshot();
     });
   });
 
-  it("only post http method should be allowed req pledge otp", () => {
+  it("auth method", () => {
+    cy.api_call("lms.cart.get_tnc", {}, "GET").then((res) => {
+      expect(res.status).to.eq(403);
+      cy.screenshot();
+    });
+  });
+
+  it("cart name required", () => {
+    cy.api_call("lms.cart.get_tnc", {}, "GET", {
+      Authorization: token,
+    }).then((res) => {
+      expect(res.status).to.eq(422);
+      expect(res.body).to.have.property("message", "Validation Error");
+      expect(res.body).to.have.property("errors");
+      expect(res.body.errors).to.be.a("object");
+      expect(res.body.errors).to.have.property("cart_name");
+      expect(res.body.errors.cart_name).to.be.a("string");
+      cy.screenshot();
+    });
+  });
+});
+
+context("Request Pledge OTP", () => {
+  var token = null;
+  before(() => {
+    cy.delete_dummy_user();
+    cy.register_dummy_user().then((res) => {
+      token = res.body.data.token;
+    });
+    cy.valid_user_kyc_hit(token);
+  });
+
+  it("only post http method should be allowed", () => {
     cy.api_call("lms.cart.request_pledge_otp", {}, "GET", {
       Authorization: token,
     }).then((res) => {
       expect(res.status).to.eq(405);
       expect(res.body).to.have.property("message", "Method not allowed");
-      expect(res.body.message).to.be.a("string");
       cy.screenshot();
     });
   });
-  it("Kyc not found in req pledge otp", () => {
-    cy.admin_api_call("frappe.client.get_list", {
-      doctype: "Customer",
-      username: "0000000000@example.com",
+
+  it("auth method", () => {
+    cy.api_call("lms.cart.request_pledge_otp", {}, "POST").then((res) => {
+      expect(res.status).to.eq(403);
+      cy.screenshot();
     });
-    cy.api_call(
-      "lms.user.kyc",
-      { pan_no: "ABCD2795", birth_date: "12-12-1999", accept_terms: true },
-      "GET",
-      { Authorization: token }
-    );
+  });
+
+  it("Kyc not found in req pledge otp", () => {
     cy.api_call("lms.cart.request_pledge_otp", {}, "POST", {
       Authorization: token,
     }).then((res) => {
       expect(res.status).to.eq(404);
       // expect(res.body).to.eq({});
       expect(res.body).to.have.property("message", "User KYC not found");
-      expect(res.body.message).to.be.a("string");
       cy.screenshot();
     });
   });
+
   it("valid hit req pledge otp", () => {
-    cy.admin_api_call("frappe.client.get_list", {
-      doctype: "Customer",
-      username: "0000000000@example.com",
-    });
-    cy.api_call(
-      "lms.user.kyc",
-      { pan_no: "AAKHR7426K", birth_date: "01-01-1970", accept_terms: true },
-      "GET",
-      { Authorization: token }
-    );
+    cy.valid_user_kyc_hit(token);
     cy.api_call("lms.cart.request_pledge_otp", {}, "POST", {
       Authorization: token,
     }).then((res) => {
       expect(res.status).to.eq(200);
       // expect(res.body).to.eq({});
       expect(res.body).to.have.property("message", "Pledge OTP sent");
-      expect(res.body.message).to.be.a("string");
       cy.screenshot();
     });
   });

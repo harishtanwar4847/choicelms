@@ -478,8 +478,17 @@ Cypress.Commands.add("register_dummy_user", () => {
 });
 
 Cypress.Commands.add("delete_dummy_user", () => {
-  cy.admin_api_call("frappe.client.delete", {
+  return cy.admin_api_call("frappe.client.delete", {
     doctype: "User",
-    name: "0000000000@example.com",
+    name: Cypress.config("dummy_user").email,
   });
+});
+
+Cypress.Commands.add("valid_user_kyc_hit", (token) => {
+  return cy.api_call(
+    "lms.user.kyc",
+    { pan_no: "AAKHR7426K", birth_date: "01-01-1970", accept_terms: true },
+    "GET",
+    { Authorization: token }
+  );
 });

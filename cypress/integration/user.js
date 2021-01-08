@@ -143,12 +143,7 @@ context("KYC", () => {
   });
 
   it("Valid User KYC hit", () => {
-    cy.api_call(
-      "lms.user.kyc",
-      { pan_no: "AAKHR7426K", birth_date: "01-01-1970", accept_terms: true },
-      "GET",
-      { Authorization: token }
-    ).then((res) => {
+    cy.valid_user_kyc_hit(token).then((res) => {
       expect(res.status).to.eq(200);
       // expect(res.body).to.eq({});
       expect(res.body).to.have.property("message", "Success");
@@ -184,12 +179,7 @@ context("Securities", () => {
   });
 
   it("Valid Securities hit", () => {
-    cy.api_call(
-      "lms.user.kyc",
-      { pan_no: "AAKHR7426K", birth_date: "01-01-1970", accept_terms: true },
-      "GET",
-      { Authorization: token }
-    );
+    cy.valid_user_kyc_hit(token);
     cy.api_call("lms.user.securities", {}, "GET", {
       Authorization: token,
     }).then((res) => {
