@@ -336,6 +336,10 @@ context("Verify OTP Api", () => {
 });
 
 context("Register API", () => {
+  before(() => {
+    cy.delete_dummy_user();
+  });
+
   it("only post http method should be allowed", () => {
     cy.api_call("lms.auth.login", {}, "GET").then((res) => {
       expect(res.status).to.eq(405);
@@ -345,7 +349,39 @@ context("Register API", () => {
   });
 
   it("first name required", () => {
-    cy.api_call("lms.auth.register", { email: "" }, "POST").then((res) => {
+    cy.api_call(
+      "lms.auth.register",
+      {
+        first_name: "",
+        last_name: Cypress.config("dummy_user").last_name,
+        mobile: Cypress.config("dummy_user").mobile,
+        email: Cypress.config("dummy_user").email,
+        firebase_token: Cypress.config("dummy_user").firebase_token,
+      },
+      "POST"
+    ).then((res) => {
+      expect(res.status).to.eq(422);
+      expect(res.body).to.have.property("message", "Validation Error");
+      expect(res.body).to.have.property("errors");
+      expect(res.body.errors).to.be.a("object");
+      expect(res.body.errors).to.have.property("first_name");
+      expect(res.body.errors.first_name).to.be.a("string");
+      cy.screenshot();
+    });
+  });
+
+  it("first name all characters to be alphabetic", () => {
+    cy.api_call(
+      "lms.auth.register",
+      {
+        first_name: "Iccha11",
+        last_name: Cypress.config("dummy_user").last_name,
+        mobile: Cypress.config("dummy_user").mobile,
+        email: Cypress.config("dummy_user").email,
+        firebase_token: Cypress.config("dummy_user").firebase_token,
+      },
+      "POST"
+    ).then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
       expect(res.body).to.have.property("errors");
@@ -357,7 +393,17 @@ context("Register API", () => {
   });
 
   it("mobile number required", () => {
-    cy.api_call("lms.auth.register", { email: "" }, "POST").then((res) => {
+    cy.api_call(
+      "lms.auth.register",
+      {
+        first_name: Cypress.config("dummy_user").first_name,
+        last_name: Cypress.config("dummy_user").last_name,
+        mobile: "",
+        email: Cypress.config("dummy_user").email,
+        firebase_token: Cypress.config("dummy_user").firebase_token,
+      },
+      "POST"
+    ).then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
       expect(res.body).to.have.property("errors");
@@ -369,7 +415,39 @@ context("Register API", () => {
   });
 
   it("email required", () => {
-    cy.api_call("lms.auth.register", { email: "" }, "POST").then((res) => {
+    cy.api_call(
+      "lms.auth.register",
+      {
+        first_name: Cypress.config("dummy_user").first_name,
+        last_name: Cypress.config("dummy_user").last_name,
+        mobile: Cypress.config("dummy_user").mobile,
+        email: "",
+        firebase_token: Cypress.config("dummy_user").firebase_token,
+      },
+      "POST"
+    ).then((res) => {
+      expect(res.status).to.eq(422);
+      expect(res.body).to.have.property("message", "Validation Error");
+      expect(res.body).to.have.property("errors");
+      expect(res.body.errors).to.be.a("object");
+      expect(res.body.errors).to.have.property("email");
+      expect(res.body.errors.email).to.be.a("string");
+      cy.screenshot();
+    });
+  });
+
+  it("Invalid email", () => {
+    cy.api_call(
+      "lms.auth.register",
+      {
+        first_name: Cypress.config("dummy_user").first_name,
+        last_name: Cypress.config("dummy_user").last_name,
+        mobile: Cypress.config("dummy_user").mobile,
+        email: "test@ddd",
+        firebase_token: Cypress.config("dummy_user").firebase_token,
+      },
+      "POST"
+    ).then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
       expect(res.body).to.have.property("errors");
@@ -381,7 +459,17 @@ context("Register API", () => {
   });
 
   it("firebase token required", () => {
-    cy.api_call("lms.auth.register", { email: "" }, "POST").then((res) => {
+    cy.api_call(
+      "lms.auth.register",
+      {
+        first_name: Cypress.config("dummy_user").first_name,
+        last_name: Cypress.config("dummy_user").last_name,
+        mobile: Cypress.config("dummy_user").mobile,
+        email: Cypress.config("dummy_user").email,
+        firebase_token: "",
+      },
+      "POST"
+    ).then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
       expect(res.body).to.have.property("errors");
