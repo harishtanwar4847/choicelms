@@ -493,7 +493,7 @@ Cypress.Commands.add("valid_user_kyc_hit", (token) => {
   );
 });
 
-Cypress.Commands.add("valid upsert cart", (token) => {
+Cypress.Commands.add("valid_upsert_cart", (token) => {
   return cy
     .api_call("lms.user.securities", {}, "GET", {
       Authorization: token,
