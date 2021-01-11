@@ -492,3 +492,42 @@ Cypress.Commands.add("valid_user_kyc_hit", (token) => {
     { Authorization: token }
   );
 });
+
+Cypress.Commands.add("valid upsert cart", (token) => {
+  return cy
+    .api_call("lms.user.securities", {}, "GET", {
+      Authorization: token,
+    })
+    .then((res) => {
+      var securities = res.body.data;
+      var approved_securities = securities.filter(
+        (x) => x.Is_Eligible && x.Quantity >= 1 && x.Depository == "CDSL"
+      );
+      var securities_list = [];
+      if (approved_securities.length >= 1) {
+        securities_list.push({
+          isin: approved_securities[0].ISIN,
+          quantity: 1,
+        });
+      }
+      if (approved_securities.length >= 2) {
+        securities_list.push({
+          isin: approved_securities[1].ISIN,
+          quantity: 1,
+        });
+      }
+      cy.api_call(
+        "lms.cart.upsert",
+        {
+          securities: {
+            list: securities_list,
+          },
+          pledgor_boid: "1206690000000027",
+        },
+        "POST",
+        { Authorization: token }
+      ).then((res) => {
+        cart_name = res.body.data.cart.name;
+      });
+    });
+});
