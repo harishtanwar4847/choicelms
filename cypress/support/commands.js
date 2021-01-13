@@ -493,61 +493,49 @@ Cypress.Commands.add("valid_user_kyc_hit", (token) => {
   );
 });
 
-Cypress.Commands.add("upsert_cart_process_dummy", (token) => {
-  return cy
-    .api_call("lms.user.securities", {}, "GET", {
-      Authorization: token,
-    })
-    .then((res) => {
-      var securities = res.body.data;
-      var approved_securities = securities.filter(
-        (x) => x.Is_Eligible && x.Quantity >= 1 && x.Depository == "CDSL"
-      );
-      var securities_list = [];
-      if (approved_securities.length >= 1) {
-        securities_list.push({
-          isin: approved_securities[0].ISIN,
-          quantity: 1,
-        });
-      }
-      if (approved_securities.length >= 2) {
-        securities_list.push({
-          isin: approved_securities[1].ISIN,
-          quantity: 1,
-        });
-      }
-      cy.api_call(
-        "lms.cart.upsert",
-        {
-          securities: {
-            list: securities_list,
-          },
-          pledgor_boid: pledgor_boid,
-        },
-        "POST",
-        { Authorization: token }
-      ).then((res) => {
-        var cart_name = res.body.data.cart.name;
-        // expect(res.body).to.eq({})
-        cy.api_call(
-          "lms.cart.process_dummy",
-          { cart_name: cart_name },
-          "POST",
-          {
-            Authorization: token,
-          }
-        ).then((res) => {
-          loan_app_name = res.body.message;
-          // expect(res.body).to.eq({});
-          cy.api_call(
-            "lms.loan.esign",
-            { loan_application_name: loan_app_name },
-            "POST",
-            {
-              Authorization: token,
-            }
-          );
-        });
-      });
-    });
-});
+// Cypress.Commands.add("upsert_cart_process_dummy", (token) => {
+//   return cy.api_call("lms.user.securities", {}, "GET", {
+//     Authorization: token,
+//   }).then((res) => {
+//     var securities = res.body.data;
+//     var approved_securities = securities.filter(
+//       (x) => x.Is_Eligible && x.Quantity >= 1 && x.Depository == "CDSL"
+//     );
+//     var securities_list = [];
+//     if (approved_securities.length >= 1) {
+//       securities_list.push({
+//         isin: approved_securities[0].ISIN,
+//         quantity: 1,
+//       });
+//     }
+//     if (approved_securities.length >= 2) {
+//       securities_list.push({
+//         isin: approved_securities[1].ISIN,
+//         quantity: 1,
+//       });
+//     }
+//     cy.api_call(
+//       "lms.cart.upsert",
+//       {
+//         securities: {
+//           list: securities_list,
+//         },
+//         pledgor_boid: pledgor_boid,
+//       },
+//       "POST",
+//       { Authorization: token }
+//     ).then((res) => {
+//       var cart_name = res.body.data.cart.name;
+//       // expect(res.body).to.eq({})
+//       cy.api_call("lms.cart.process_dummy", {cart_name:cart_name}, "POST", {
+//         Authorization: token,
+//       }).then((res) => {
+//         loan_app_name = res.body.message;
+//         // expect(res.body).to.eq({});
+//         cy.api_call("lms.loan.esign", {loan_application_name:loan_app_name}, "POST", {
+//           Authorization: token,
+//       })
+//     });
+//     });
+//   });
+// });
