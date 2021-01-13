@@ -493,7 +493,7 @@ Cypress.Commands.add("valid_user_kyc_hit", (token) => {
   );
 });
 
-Cypress.Commands.add("valid upsert cart", (token) => {
+Cypress.Commands.add("upsert_cart_process_dummy", (token) => {
   return cy
     .api_call("lms.user.securities", {}, "GET", {
       Authorization: token,
@@ -522,12 +522,32 @@ Cypress.Commands.add("valid upsert cart", (token) => {
           securities: {
             list: securities_list,
           },
-          pledgor_boid: "1206690000000027",
+          pledgor_boid: pledgor_boid,
         },
         "POST",
         { Authorization: token }
       ).then((res) => {
-        cart_name = res.body.data.cart.name;
+        var cart_name = res.body.data.cart.name;
+        // expect(res.body).to.eq({})
+        cy.api_call(
+          "lms.cart.process_dummy",
+          { cart_name: cart_name },
+          "POST",
+          {
+            Authorization: token,
+          }
+        ).then((res) => {
+          loan_app_name = res.body.message;
+          // expect(res.body).to.eq({});
+          cy.api_call(
+            "lms.loan.esign",
+            { loan_application_name: loan_app_name },
+            "POST",
+            {
+              Authorization: token,
+            }
+          );
+        });
       });
     });
 });

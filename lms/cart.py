@@ -300,13 +300,14 @@ def process_dummy(cart_name):
     items = []
     ISINstatusDtls = []
 
+    flag = 0
     for item in cart.items:
-        flag = bool(random.getrandbits(1))
+        # flag = bool(random.getrandbits(1))
         error_code = ["CIF3065-F", "PLD0152-E", "PLD0125-F"]
         ISINstatusDtls_item = {
             "ISIN": item.isin,
-            "PSN": lms.random_token(7, is_numeric=True) if flag else "",
-            "ErrorCode": "" if flag else random.choice(error_code),
+            "PSN": "" if flag else lms.random_token(7, is_numeric=True),
+            "ErrorCode": random.choice(error_code) if flag else "",
         }
         ISINstatusDtls.append(ISINstatusDtls_item)
 

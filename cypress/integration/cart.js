@@ -425,3 +425,14 @@ context("Process cart", () => {
     });
   });
 });
+
+context("Process dummy cart", () => {
+  it("process dummy hit", () => {
+    cy.valid_user_kyc_hit(token);
+    cy.api_call("lms.cart.process_dummy", { cart_name: cart_name }, "POST", {
+      Authorization: token,
+    }).then((res) => {
+      expect(res.status).to.eq(200);
+    });
+  });
+});

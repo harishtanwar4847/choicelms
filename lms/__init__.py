@@ -428,6 +428,7 @@ def get_customer(entity):
 def delete_user(doc, method):
     frappe.db.sql("delete from `tabUser KYC` where user = %s", doc.name)
     frappe.db.sql("delete from `tabCustomer` where username = %s", doc.name)
+    frappe.db.sql("delete from `tabWorkflow Action` where user = %s", doc.name)
     frappe.db.commit()
 
 
