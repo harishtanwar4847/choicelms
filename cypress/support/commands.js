@@ -500,9 +500,11 @@ Cypress.Commands.add("upsert_cart_process_dummy", (token) => {
     })
     .then((res) => {
       var securities = res.body.data;
-      var approved_securities = securities.filter(
-        (x) => x.Is_Eligible && x.Quantity >= 1 && x.Depository == "CDSL"
-      );
+      var approved_securities = cy
+        .get("securities")
+        .filter(
+          (x) => x.Is_Eligible && x.Quantity >= 1 && x.Depository == "CDSL"
+        );
       var securities_list = [];
       if (approved_securities.length >= 1) {
         securities_list.push({
@@ -550,4 +552,12 @@ Cypress.Commands.add("upsert_cart_process_dummy", (token) => {
         });
       });
     });
+});
+
+Cypress.Commands.add("register_dummy_lender", () => {
+  return cy.api_call(
+    "lms.auth.register",
+    Cypress.config("dummy_lender"),
+    "POST"
+  );
 });

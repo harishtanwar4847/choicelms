@@ -2,7 +2,7 @@
   "baseUrl": "http://localhost:8000",
   "adminPassword": "root",
   "adminApiKey": "3f710c2934dbed7",
-  "adminApiSecret": "ac252204ed26e64",
+  "adminApiSecret": "e70a714e141bd4a",
   "viewportHeight": 1080,
   "viewportWidth": 1920,
   "video": false,
@@ -12,6 +12,14 @@
     "last_name": "efgh",
     "mobile": "0000000000",
     "email": "0000000000@example.com",
+    "firebase_token": "asdf",
+    "pin": "0000"
+  },
+  "dummy_lender": {
+    "first_name": "xyz",
+    "last_name": "xyz",
+    "mobile": "1111111111",
+    "email": "1111111111@example.com",
     "firebase_token": "asdf",
     "pin": "0000"
   }
