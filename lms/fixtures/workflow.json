@@ -2,150 +2,9 @@
  {
   "docstatus": 0,
   "doctype": "Workflow",
-  "document_type": "User KYC Change Application",
-  "is_active": 1,
-  "modified": "2020-07-29 02:33:59.396255",
-  "name": "User KYC Change Approval",
-  "override_status": 0,
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "send_email_alert": 0,
-  "states": [
-   {
-    "allow_edit": "System Manager",
-    "doc_status": "0",
-    "is_optional_state": 0,
-    "message": null,
-    "next_action_email_template": null,
-    "parent": "User KYC Change Approval",
-    "parentfield": "states",
-    "parenttype": "Workflow",
-    "state": "Pending",
-    "update_field": "status",
-    "update_value": "Pending"
-   },
-   {
-    "allow_edit": "Support Team",
-    "doc_status": "0",
-    "is_optional_state": 0,
-    "message": null,
-    "next_action_email_template": null,
-    "parent": "User KYC Change Approval",
-    "parentfield": "states",
-    "parenttype": "Workflow",
-    "state": "Pending",
-    "update_field": "status",
-    "update_value": "Pending"
-   },
-   {
-    "allow_edit": "System Manager",
-    "doc_status": "0",
-    "is_optional_state": 0,
-    "message": null,
-    "next_action_email_template": null,
-    "parent": "User KYC Change Approval",
-    "parentfield": "states",
-    "parenttype": "Workflow",
-    "state": "Approved",
-    "update_field": "status",
-    "update_value": "Approved"
-   },
-   {
-    "allow_edit": "Support Team",
-    "doc_status": "0",
-    "is_optional_state": 0,
-    "message": null,
-    "next_action_email_template": null,
-    "parent": "User KYC Change Approval",
-    "parentfield": "states",
-    "parenttype": "Workflow",
-    "state": "Approved",
-    "update_field": "status",
-    "update_value": "Approved"
-   },
-   {
-    "allow_edit": "System Manager",
-    "doc_status": "0",
-    "is_optional_state": 0,
-    "message": null,
-    "next_action_email_template": null,
-    "parent": "User KYC Change Approval",
-    "parentfield": "states",
-    "parenttype": "Workflow",
-    "state": "Rejected",
-    "update_field": "status",
-    "update_value": "Rejected"
-   },
-   {
-    "allow_edit": "Support Team",
-    "doc_status": "0",
-    "is_optional_state": 0,
-    "message": null,
-    "next_action_email_template": null,
-    "parent": "User KYC Change Approval",
-    "parentfield": "states",
-    "parenttype": "Workflow",
-    "state": "Rejected",
-    "update_field": "status",
-    "update_value": "Rejected"
-   }
-  ],
-  "transitions": [
-   {
-    "action": "Approve",
-    "allow_self_approval": 1,
-    "allowed": "System Manager",
-    "condition": null,
-    "next_state": "Approved",
-    "parent": "User KYC Change Approval",
-    "parentfield": "transitions",
-    "parenttype": "Workflow",
-    "state": "Pending"
-   },
-   {
-    "action": "Approve",
-    "allow_self_approval": 1,
-    "allowed": "Support Team",
-    "condition": null,
-    "next_state": "Approved",
-    "parent": "User KYC Change Approval",
-    "parentfield": "transitions",
-    "parenttype": "Workflow",
-    "state": "Pending"
-   },
-   {
-    "action": "Reject",
-    "allow_self_approval": 1,
-    "allowed": "System Manager",
-    "condition": null,
-    "next_state": "Rejected",
-    "parent": "User KYC Change Approval",
-    "parentfield": "transitions",
-    "parenttype": "Workflow",
-    "state": "Pending"
-   },
-   {
-    "action": "Reject",
-    "allow_self_approval": 1,
-    "allowed": "Support Team",
-    "condition": null,
-    "next_state": "Rejected",
-    "parent": "User KYC Change Approval",
-    "parentfield": "transitions",
-    "parenttype": "Workflow",
-    "state": "Pending"
-   }
-  ],
-  "workflow_name": "User KYC Change Approval",
-  "workflow_state_field": "workflow_state"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow",
   "document_type": "Loan Application",
   "is_active": 1,
-  "modified": "2020-11-28 15:25:04.350926",
+  "modified": "2021-01-06 12:19:53.179404",
   "name": "Loan Application Approval",
   "override_status": 0,
   "parent": null,
@@ -153,19 +12,6 @@
   "parenttype": null,
   "send_email_alert": 0,
   "states": [
-   {
-    "allow_edit": "System Manager",
-    "doc_status": "0",
-    "is_optional_state": 0,
-    "message": null,
-    "next_action_email_template": null,
-    "parent": "Loan Application Approval",
-    "parentfield": "states",
-    "parenttype": "Workflow",
-    "state": "Pending",
-    "update_field": "status",
-    "update_value": "Pending"
-   },
    {
     "allow_edit": "Loan Customer",
     "doc_status": "0",
@@ -180,7 +26,7 @@
     "update_value": "Pending"
    },
    {
-    "allow_edit": "System Manager",
+    "allow_edit": "Lender",
     "doc_status": "0",
     "is_optional_state": 0,
     "message": null,
@@ -201,38 +47,12 @@
     "parent": "Loan Application Approval",
     "parentfield": "states",
     "parenttype": "Workflow",
-    "state": "Approved",
-    "update_field": "status",
-    "update_value": "Approved"
-   },
-   {
-    "allow_edit": "System Manager",
-    "doc_status": "0",
-    "is_optional_state": 0,
-    "message": null,
-    "next_action_email_template": null,
-    "parent": "Loan Application Approval",
-    "parentfield": "states",
-    "parenttype": "Workflow",
     "state": "Rejected",
     "update_field": "status",
     "update_value": "Rejected"
    },
    {
     "allow_edit": "Lender",
-    "doc_status": "0",
-    "is_optional_state": 0,
-    "message": null,
-    "next_action_email_template": null,
-    "parent": "Loan Application Approval",
-    "parentfield": "states",
-    "parenttype": "Workflow",
-    "state": "Rejected",
-    "update_field": "status",
-    "update_value": "Rejected"
-   },
-   {
-    "allow_edit": "System Manager",
     "doc_status": "0",
     "is_optional_state": 0,
     "message": null,
@@ -245,7 +65,7 @@
     "update_value": "Esign Done"
    },
    {
-    "allow_edit": "System Manager",
+    "allow_edit": "Lender",
     "doc_status": "0",
     "is_optional_state": 0,
     "message": null,
@@ -282,28 +102,6 @@
     "state": "Pending"
    },
    {
-    "action": "Approve",
-    "allow_self_approval": 0,
-    "allowed": "System Manager",
-    "condition": null,
-    "next_state": "Approved",
-    "parent": "Loan Application Approval",
-    "parentfield": "transitions",
-    "parenttype": "Workflow",
-    "state": "Esign Done"
-   },
-   {
-    "action": "Approve",
-    "allow_self_approval": 0,
-    "allowed": "Lender",
-    "condition": null,
-    "next_state": "Approved",
-    "parent": "Loan Application Approval",
-    "parentfield": "transitions",
-    "parenttype": "Workflow",
-    "state": "Esign Done"
-   },
-   {
     "action": "Send for Approval",
     "allow_self_approval": 1,
     "allowed": "System Manager",
@@ -324,6 +122,28 @@
     "parentfield": "transitions",
     "parenttype": "Workflow",
     "state": "Pending"
+   },
+   {
+    "action": "Approve",
+    "allow_self_approval": 0,
+    "allowed": "System Manager",
+    "condition": null,
+    "next_state": "Approved",
+    "parent": "Loan Application Approval",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Esign Done"
+   },
+   {
+    "action": "Approve",
+    "allow_self_approval": 0,
+    "allowed": "Lender",
+    "condition": null,
+    "next_state": "Approved",
+    "parent": "Loan Application Approval",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Esign Done"
    },
    {
     "action": "Approve",
@@ -400,28 +220,15 @@
   "doctype": "Workflow",
   "document_type": "Loan Transaction",
   "is_active": 1,
-  "modified": "2020-10-31 15:05:10.279872",
+  "modified": "2021-01-06 12:19:13.269026",
   "name": "Loan Transaction Approval",
   "override_status": 0,
   "parent": null,
   "parentfield": null,
   "parenttype": null,
-  "send_email_alert": 1,
+  "send_email_alert": 0,
   "states": [
    {
-    "allow_edit": "System Manager",
-    "doc_status": "0",
-    "is_optional_state": 0,
-    "message": null,
-    "next_action_email_template": null,
-    "parent": "Loan Transaction Approval",
-    "parentfield": "states",
-    "parenttype": "Workflow",
-    "state": "Pending",
-    "update_field": "status",
-    "update_value": "Pending"
-   },
-   {
     "allow_edit": "Lender",
     "doc_status": "0",
     "is_optional_state": 0,
@@ -435,19 +242,6 @@
     "update_value": "Pending"
    },
    {
-    "allow_edit": "System Manager",
-    "doc_status": "1",
-    "is_optional_state": 0,
-    "message": null,
-    "next_action_email_template": null,
-    "parent": "Loan Transaction Approval",
-    "parentfield": "states",
-    "parenttype": "Workflow",
-    "state": "Approved",
-    "update_field": "status",
-    "update_value": "Approved"
-   },
-   {
     "allow_edit": "Lender",
     "doc_status": "1",
     "is_optional_state": 0,
@@ -459,19 +253,6 @@
     "state": "Approved",
     "update_field": "status",
     "update_value": "Approved"
-   },
-   {
-    "allow_edit": "System Manager",
-    "doc_status": "0",
-    "is_optional_state": 0,
-    "message": null,
-    "next_action_email_template": null,
-    "parent": "Loan Transaction Approval",
-    "parentfield": "states",
-    "parenttype": "Workflow",
-    "state": "Rejected",
-    "update_field": "status",
-    "update_value": "Rejected"
    },
    {
     "allow_edit": "Lender",

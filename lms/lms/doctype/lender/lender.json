@@ -293,7 +293,7 @@
    "reqd": 1
   }
  ],
- "modified": "2020-11-28 14:23:27.323807",
+ "modified": "2021-01-07 18:44:24.064634",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
@@ -308,6 +308,18 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Spark Manager",
    "share": 1,
    "write": 1
   },

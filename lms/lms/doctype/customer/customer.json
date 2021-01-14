@@ -28,6 +28,7 @@
   "last_name",
   "father_last_name",
   "martial_status",
+  "full_name",
   "section_break_24",
   "username",
   "user",
@@ -109,11 +110,13 @@
   {
    "fieldname": "email",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Email"
   },
   {
    "fieldname": "phone",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Phone"
   },
   {
@@ -446,9 +449,17 @@
    "fieldname": "user",
    "fieldtype": "Data",
    "label": "User"
+  },
+  {
+   "fieldname": "full_name",
+   "fieldtype": "Read Only",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Full Name"
   }
  ],
- "modified": "2020-09-10 12:38:06.529162",
+ "modified": "2021-01-11 14:55:56.846077",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Customer",

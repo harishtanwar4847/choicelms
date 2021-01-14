@@ -1,37 +1,34 @@
 {
- "creation": "2020-12-01 20:32:23.726023",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
- "field_order": [
-  "amount",
-  "payment_transaction"
- ],
- "fields": [
-  {
-   "fieldname": "amount",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "Amount",
-   "reqd": 1
-  },
-  {
-   "fieldname": "payment_transaction",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Payment Transaction",
-   "options": "Loan Transaction"
-  }
- ],
- "istable": 1,
- "modified": "2020-12-02 17:43:28.499342",
- "modified_by": "Administrator",
- "module": "Lms",
- "name": "Interest Pay Log",
- "owner": "Administrator",
- "permissions": [],
- "quick_entry": 1,
- "sort_field": "modified",
- "sort_order": "DESC",
- "track_changes": 1
+  "creation": "2020-12-01 20:32:23.726023",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": ["amount", "payment_transaction"],
+  "fields": [
+    {
+      "fieldname": "amount",
+      "fieldtype": "Currency",
+      "in_list_view": 1,
+      "label": "Amount",
+      "reqd": 1
+    },
+    {
+      "fieldname": "payment_transaction",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Payment Transaction",
+      "options": "Loan Transaction"
+    }
+  ],
+  "istable": 1,
+  "modified": "2020-12-02 17:43:28.499342",
+  "modified_by": "Administrator",
+  "module": "Lms",
+  "name": "Interest Pay Log",
+  "owner": "Administrator",
+  "permissions": [],
+  "quick_entry": 1,
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "track_changes": 1
 }

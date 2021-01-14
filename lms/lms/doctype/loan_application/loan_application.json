@@ -17,6 +17,7 @@
   "loan_margin_shortfall",
   "loan_application_column_break",
   "customer",
+  "customer_name",
   "allowable_ltv",
   "expiry_date",
   "loan",
@@ -74,6 +75,7 @@
   {
    "fieldname": "customer",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Customer",
    "options": "Customer",
    "reqd": 1,
@@ -148,9 +150,15 @@
    "fieldtype": "Data",
    "label": "Pledged Total Collateral Value Str",
    "read_only": 1
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "label": "Customer Name"
   }
  ],
- "modified": "2020-12-11 00:56:47.065253",
+ "modified": "2021-01-11 14:39:43.244432",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

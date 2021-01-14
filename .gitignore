@@ -4,3 +4,5 @@
 *.swp
 tags
 lms/docs/current
+node_modules
+cypress/screenshots

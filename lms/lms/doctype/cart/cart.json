@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "customer",
+  "customer_name",
   "total_collateral_value",
   "total_collateral_value_str",
   "approved_total_collateral_value",
@@ -148,7 +149,8 @@
    "depends_on": "eval:doc.is_processed",
    "fieldname": "approved_eligible_loan",
    "fieldtype": "Currency",
-   "label": "Approved Eligible Loan"
+   "label": "Approved Eligible Loan",
+   "read_only": 1
   },
   {
    "fieldname": "loan_margin_shortfall",
@@ -172,17 +174,24 @@
   {
    "fieldname": "eligible_loan_str",
    "fieldtype": "Data",
-   "label": "Eligible Loan",
+   "label": "Eligible Loan  Str",
    "read_only": 1
   },
   {
    "fieldname": "approved_eligible_loan_str",
    "fieldtype": "Data",
-   "label": "Approved Eligible Loan",
+   "label": "Approved Eligible Loan Str",
    "read_only": 1
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Read Only",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "label": "Customer Name"
   }
  ],
- "modified": "2020-12-11 00:38:06.915776",
+ "modified": "2021-01-11 14:45:15.552789",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart",

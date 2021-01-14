@@ -47,10 +47,9 @@
   },
   {
    "fieldname": "base_amount",
-   "fieldtype": "Float",
+   "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Base Amount",
-   "precision": "2"
+   "label": "Base Amount"
   },
   {
    "default": "0",
@@ -60,7 +59,7 @@
   },
   {
    "fieldname": "rebate_amount",
-   "fieldtype": "Data",
+   "fieldtype": "Currency",
    "label": "Rebate Amount"
   },
   {
@@ -93,7 +92,7 @@
    "label": "Rebate Interest"
   }
  ],
- "modified": "2020-11-24 13:11:14.410418",
+ "modified": "2021-01-05 12:54:00.376799",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Virtual Interest",

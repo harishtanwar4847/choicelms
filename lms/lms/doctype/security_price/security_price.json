@@ -6,6 +6,8 @@
  "engine": "InnoDB",
  "field_order": [
   "security",
+  "security_name",
+  "column_break_1",
   "price",
   "time"
  ],
@@ -31,9 +33,20 @@
    "in_list_view": 1,
    "label": "Time",
    "reqd": 1
+  },
+  {
+   "fieldname": "security_name",
+   "fieldtype": "Read Only",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "label": "Security Name"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
   }
  ],
- "modified": "2020-11-07 18:40:10.928187",
+ "modified": "2021-01-07 17:31:49.890107",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Price",

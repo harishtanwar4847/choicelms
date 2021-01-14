@@ -4,10 +4,6 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "loan_settings_section_break",
-  "loan_margin",
-  "loan_settings_column_break",
-  "loan_interest",
   "choice_settings_section_break",
   "choice_pan_api",
   "choice_business_unit",
@@ -32,12 +28,17 @@
   "column_break_26",
   "jiffy_session_generator_uri",
   "section_break_28",
-  "esign_upload_file_url",
-  "esign_download_signed_file_url",
+  "esign_host",
+  "esign_request_uri",
   "column_break_31",
-  "esign_request_url",
+  "esign_upload_file_uri",
+  "esign_download_signed_file_uri",
   "section_break_33",
-  "app_identification_hash_string"
+  "app_identification_hash_string",
+  "terms_of_use_privacy_policy_section_break",
+  "terms_of_use_document",
+  "tnc_column_break",
+  "privacy_policy_document"
  ],
  "fields": [
   {
@@ -50,61 +51,34 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "JF",
    "fieldname": "choice_business_unit",
    "fieldtype": "Data",
    "label": "Business Unit"
   },
   {
-   "default": "1",
    "fieldname": "choice_investor_id",
    "fieldtype": "Data",
    "label": "Investor ID"
   },
   {
-   "default": "Spark",
    "fieldname": "choice_user_id",
    "fieldtype": "Data",
    "label": "User ID"
   },
   {
-   "default": "c3Bhcms=",
    "fieldname": "choice_ticket",
    "fieldtype": "Data",
    "label": "Ticket"
   },
   {
-   "default": "https://uat-pwa.choicetechlab.com/api/spark/getByPanNumDetails",
    "fieldname": "choice_pan_api",
    "fieldtype": "Data",
    "label": "PAN API"
   },
   {
-   "default": "https://api.choicebroking.in/api/middleware/GetClientHoldingDetails",
    "fieldname": "choice_securities_list_api",
    "fieldtype": "Data",
    "label": "Securities List"
-  },
-  {
-   "fieldname": "loan_settings_section_break",
-   "fieldtype": "Section Break",
-   "label": "Loan Settings"
-  },
-  {
-   "default": "50",
-   "fieldname": "loan_margin",
-   "fieldtype": "Float",
-   "label": "Loan Margin"
-  },
-  {
-   "fieldname": "loan_settings_column_break",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "15",
-   "fieldname": "loan_interest",
-   "fieldtype": "Data",
-   "label": "Loan Interest"
   },
   {
    "collapsible": 1,
@@ -113,13 +87,11 @@
    "label": "CDSL"
   },
   {
-   "default": "http://mockapp.cdslindia.com",
    "fieldname": "cdsl_host",
    "fieldtype": "Data",
    "label": "CDSL Host"
   },
   {
-   "default": "/PledgeAPIService/api/pledgesetup",
    "fieldname": "pledge_setup_uri",
    "fieldtype": "Data",
    "label": "Pledge Setup URI"
@@ -129,37 +101,31 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "/PledgeAPIService/api/UnPledgeSetup",
    "fieldname": "unpledge_setup_uri",
    "fieldtype": "Data",
    "label": "Unpledge Setup URI"
   },
   {
-   "default": "/PledgeAPIService/api/Confiscatesetup",
    "fieldname": "confiscate_setup_uri",
    "fieldtype": "Data",
    "label": "Confiscate Setup URI"
   },
   {
-   "default": "https://www.cdslindia.com/index.html",
    "fieldname": "cdsl_referrer",
    "fieldtype": "Data",
    "label": "CDSL Referrer"
   },
   {
-   "default": "ADMIN",
    "fieldname": "cdsl_user_id",
    "fieldtype": "Data",
    "label": "CDSL User Id"
   },
   {
-   "default": "66900",
    "fieldname": "cdsl_dpid",
    "fieldtype": "Data",
    "label": "CDSL DPID"
   },
   {
-   "default": "CDsl12##",
    "fieldname": "cdsl_password",
    "fieldtype": "Data",
    "label": "CDSL Password"
@@ -171,19 +137,16 @@
    "label": "Jiffy"
   },
   {
-   "default": "https://uat.jiffy.in",
    "fieldname": "jiffy_host",
    "fieldtype": "Data",
    "label": "Jiffy Host"
   },
   {
-   "default": "/api/settings/GenKey",
    "fieldname": "jiffy_session_generator_uri",
    "fieldtype": "Data",
    "label": "Jiffy Session Generator URI"
   },
   {
-   "default": "/api/cm/ProfileMkt/MultipleTouchline",
    "fieldname": "jiffy_security_get_latest_price_uri",
    "fieldtype": "Data",
    "label": "Jiffy Security Get Latest Price URI"
@@ -199,29 +162,10 @@
    "label": "ESign"
   },
   {
-   "default": "https://uat-pwa.choicetechlab.com/sparkesign/uploadFile",
-   "fieldname": "esign_upload_file_url",
-   "fieldtype": "Data",
-   "label": "Esign Upload File URL"
-  },
-  {
-   "default": "https://uat-pwa.choicetechlab.com/sparkesign/esignForms/{file_id}/loan-aggrement.pdf",
-   "fieldname": "esign_download_signed_file_url",
-   "fieldtype": "Data",
-   "label": "Esign Download signed file URL"
-  },
-  {
    "fieldname": "column_break_31",
    "fieldtype": "Column Break"
   },
   {
-   "default": "https://uat-pwa.choicetechlab.com/sparkesign/sparkEsignRequest?id={id}&xCoordinate={x}&yCoordinate={y}&pageNumber={page_number}",
-   "fieldname": "esign_request_url",
-   "fieldtype": "Data",
-   "label": "Esign Request URL"
-  },
-  {
-   "default": "Oy/3VpSHXSG",
    "fieldname": "app_identification_hash_string",
    "fieldtype": "Data",
    "label": "App Identification Hash String"
@@ -229,10 +173,49 @@
   {
    "fieldname": "section_break_33",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "terms_of_use_privacy_policy_section_break",
+   "fieldtype": "Section Break",
+   "label": "Terms Of Use and Privacy Policy Documents"
+  },
+  {
+   "fieldname": "terms_of_use_document",
+   "fieldtype": "Attach",
+   "label": "Terms of Use Document"
+  },
+  {
+   "fieldname": "privacy_policy_document",
+   "fieldtype": "Attach",
+   "label": "Privacy Policy Document"
+  },
+  {
+   "fieldname": "tnc_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "esign_host",
+   "fieldtype": "Data",
+   "label": "Esign Host"
+  },
+  {
+   "fieldname": "esign_request_uri",
+   "fieldtype": "Data",
+   "label": "Esign Request URI"
+  },
+  {
+   "fieldname": "esign_upload_file_uri",
+   "fieldtype": "Data",
+   "label": "Esign Upload File URI"
+  },
+  {
+   "fieldname": "esign_download_signed_file_uri",
+   "fieldtype": "Data",
+   "label": "Esign Download signed file URI"
   }
  ],
  "issingle": 1,
- "modified": "2020-10-26 18:11:54.168952",
+ "modified": "2021-01-07 20:08:56.130807",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

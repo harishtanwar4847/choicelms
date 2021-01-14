@@ -1,118 +1,137 @@
 {
- "autoname": "format:USR-KYC-{MM}-{YYYY}-{#####}",
- "creation": "2020-05-08 16:03:11.382269",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
- "field_order": [
-  "user",
-  "column_break_3",
-  "kyc_type",
-  "basic_details_section_break",
-  "investor_name",
-  "father_name",
-  "pan_no",
-  "basic_details_column_break",
-  "mobile_number",
-  "mother_name",
-  "address_section_break",
-  "address",
-  "city"
- ],
- "fields": [
-  {
-   "fieldname": "investor_name",
-   "fieldtype": "Data",
-   "label": "Investor Name"
-  },
-  {
-   "fieldname": "father_name",
-   "fieldtype": "Data",
-   "label": "Father Name"
-  },
-  {
-   "fieldname": "mother_name",
-   "fieldtype": "Data",
-   "label": "Mother Name"
-  },
-  {
-   "fieldname": "address",
-   "fieldtype": "Data",
-   "label": "Address"
-  },
-  {
-   "fieldname": "city",
-   "fieldtype": "Data",
-   "label": "City"
-  },
-  {
-   "fieldname": "mobile_number",
-   "fieldtype": "Data",
-   "label": "Mobile Number"
-  },
-  {
-   "fieldname": "pan_no",
-   "fieldtype": "Data",
-   "label": "PAN No"
-  },
-  {
-   "fieldname": "kyc_type",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "KYC Type",
-   "options": "CHOICE\nKRA",
-   "reqd": 1,
-   "set_only_once": 1
-  },
-  {
-   "fieldname": "basic_details_section_break",
-   "fieldtype": "Section Break",
-   "label": "Basic Details"
-  },
-  {
-   "fieldname": "basic_details_column_break",
-   "fieldtype": "Column Break"
-  },
-  {
-   "collapsible": 1,
-   "fieldname": "address_section_break",
-   "fieldtype": "Section Break",
-   "label": "Address"
-  },
-  {
-   "fieldname": "column_break_3",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "user",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "User",
-   "options": "User",
-   "reqd": 1,
-   "set_only_once": 1
-  }
- ],
- "modified": "2020-11-25 01:45:52.154323",
- "modified_by": "Administrator",
- "module": "Lms",
- "name": "User KYC",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
- "sort_field": "modified",
- "sort_order": "DESC",
- "track_changes": 1
+  "autoname": "format:USR-KYC-{MM}-{YYYY}-{#####}",
+  "creation": "2020-05-08 16:03:11.382269",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "user",
+    "column_break_3",
+    "kyc_type",
+    "basic_details_section_break",
+    "investor_name",
+    "father_name",
+    "pan_no",
+    "basic_details_column_break",
+    "mobile_number",
+    "mother_name",
+    "date_of_birth",
+    "address_section_break",
+    "address",
+    "city",
+    "bank_account_section_break",
+    "bank_account"
+  ],
+  "fields": [
+    {
+      "fieldname": "investor_name",
+      "fieldtype": "Data",
+      "label": "Investor Name"
+    },
+    {
+      "fieldname": "father_name",
+      "fieldtype": "Data",
+      "label": "Father Name"
+    },
+    {
+      "fieldname": "mother_name",
+      "fieldtype": "Data",
+      "label": "Mother Name"
+    },
+    {
+      "fieldname": "address",
+      "fieldtype": "Data",
+      "label": "Address"
+    },
+    {
+      "fieldname": "city",
+      "fieldtype": "Data",
+      "label": "City"
+    },
+    {
+      "fieldname": "mobile_number",
+      "fieldtype": "Data",
+      "label": "Mobile Number"
+    },
+    {
+      "fieldname": "pan_no",
+      "fieldtype": "Data",
+      "label": "PAN No"
+    },
+    {
+      "fieldname": "kyc_type",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "label": "KYC Type",
+      "options": "CHOICE\nKRA",
+      "reqd": 1,
+      "set_only_once": 1
+    },
+    {
+      "fieldname": "basic_details_section_break",
+      "fieldtype": "Section Break",
+      "label": "Basic Details"
+    },
+    {
+      "fieldname": "basic_details_column_break",
+      "fieldtype": "Column Break"
+    },
+    {
+      "collapsible": 1,
+      "fieldname": "address_section_break",
+      "fieldtype": "Section Break",
+      "label": "Address"
+    },
+    {
+      "fieldname": "column_break_3",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "user",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "User",
+      "options": "User",
+      "reqd": 1,
+      "set_only_once": 1
+    },
+    {
+      "fieldname": "date_of_birth",
+      "fieldtype": "Date",
+      "label": "Date Of Birth"
+    },
+    {
+      "fieldname": "bank_account_section_break",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "bank_account",
+      "fieldtype": "Table",
+      "label": "Bank Account",
+      "options": "User Bank Account",
+      "reqd": 1
+    }
+  ],
+  "modified": "2020-12-18 12:56:20.574673",
+  "modified_by": "Administrator",
+  "module": "Lms",
+  "name": "User KYC",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "track_changes": 1
 }
