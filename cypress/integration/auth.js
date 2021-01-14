@@ -317,12 +317,11 @@ context("Verify OTP Api", () => {
         used: 0,
       },
     }).then((res) => {
-      var otp = res.body.message[0].token;
       cy.api_call(
         "lms.auth.verify_otp",
         {
           mobile: Cypress.config("dummy_user").mobile,
-          otp: otp,
+          otp: res.body.message[0].token,
           firebase_token: Cypress.config("dummy_user").firebase_token,
         },
         "POST"
