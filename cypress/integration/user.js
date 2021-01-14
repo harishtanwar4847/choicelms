@@ -65,22 +65,21 @@ context.only("Set PIN", () => {
 });
 
 context("KYC", () => {
-  var token = null;
   before(() => {
     cy.delete_dummy_user();
     cy.register_dummy_user().then((res) => {
-      token = res.body.data.token;
+      Cypress.config("token", res.body.data.token);
     });
   });
 
   it("only get http method should be allowed", () => {
-    cy.api_call("lms.user.kyc", {}, "POST", { Authorization: token }).then(
-      (res) => {
-        expect(res.status).to.eq(405);
-        expect(res.body).to.have.property("message", "Method not allowed");
-        cy.screenshot();
-      }
-    );
+    cy.api_call("lms.user.kyc", {}, "POST", {
+      Authorization: Cypress.config("token"),
+    }).then((res) => {
+      expect(res.status).to.eq(405);
+      expect(res.body).to.have.property("message", "Method not allowed");
+      cy.screenshot();
+    });
   });
 
   it("auth method", () => {
@@ -95,7 +94,7 @@ context("KYC", () => {
       "lms.user.kyc",
       { pan_no: "", birth_date: "12-12-1999", accept_terms: true },
       "GET",
-      { Authorization: token }
+      { Authorization: Cypress.config("token") }
     ).then((res) => {
       expect(res.status).to.eq(422);
       // expect(res.body).to.eq({});
@@ -113,7 +112,7 @@ context("KYC", () => {
       "lms.user.kyc",
       { pan_no: "ABCD2795", birth_date: "", accept_terms: true },
       "GET",
-      { Authorization: token }
+      { Authorization: Cypress.config("token") }
     ).then((res) => {
       expect(res.status).to.eq(422);
       // expect(res.body).to.eq({});
@@ -131,7 +130,7 @@ context("KYC", () => {
       "lms.user.kyc",
       { pan_no: "ABCD2795", birth_date: "12-12-1999", accept_terms: false },
       "GET",
-      { Authorization: token }
+      { Authorization: Cypress.config("token") }
     ).then((res) => {
       expect(res.status).to.eq(401);
       // expect(res.body).to.eq({});
@@ -148,7 +147,7 @@ context("KYC", () => {
       "lms.user.kyc",
       { pan_no: "ABCD2795", birth_date: "12-12-1999", accept_terms: true },
       "GET",
-      { Authorization: token }
+      { Authorization: Cypress.config("token") }
     ).then((res) => {
       expect(res.status).to.eq(404);
       // expect(res.body).to.eq({});
@@ -158,7 +157,7 @@ context("KYC", () => {
   });
 
   it("Valid User KYC hit", () => {
-    cy.valid_user_kyc_hit(token).then((res) => {
+    cy.valid_user_kyc_hit(Cypress.config("token")).then((res) => {
       expect(res.status).to.eq(200);
       // expect(res.body).to.eq({});
       expect(res.body).to.have.property("message", "Success");
@@ -168,17 +167,16 @@ context("KYC", () => {
 });
 
 context("Securities", () => {
-  var token = null;
   before(() => {
     cy.delete_dummy_user();
     cy.register_dummy_user().then((res) => {
-      token = res.body.data.token;
+      Cypress.config("token", res.body.data.token);
     });
   });
 
   it("only get http method should be allowed", () => {
     cy.api_call("lms.user.securities", {}, "POST", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     }).then((res) => {
       expect(res.status).to.eq(405);
       expect(res.body).to.have.property("message", "Method not allowed");
@@ -194,9 +192,9 @@ context("Securities", () => {
   });
 
   it("Valid Securities hit", () => {
-    cy.valid_user_kyc_hit(token);
+    cy.valid_user_kyc_hit(Cypress.config("token"));
     cy.api_call("lms.user.securities", {}, "GET", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     }).then((res) => {
       expect(res.status).to.eq(200);
       // expect(res.body).to.eq({});
