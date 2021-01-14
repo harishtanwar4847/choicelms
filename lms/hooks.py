@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 from . import __version__ as app_version
 
 app_name = "lms"
 app_title = "Lms"
-app_publisher = "SMB SOlutions"
+app_publisher = "Atrina Technologies Pvt. Ltd."
 app_description = "Loan Managment System"
 app_icon = "octicon octicon-file-directory"
 app_color = "grey"
-app_email = "devloper@smb"
+app_email = "developers@atritechnocrat.com"
 app_license = "MIT"
 
 # Includes in <head>
@@ -39,7 +40,7 @@ app_license = "MIT"
 
 # website user home page (by Role)
 # role_home_page = {
-#	"Role": "home_page"
+# 	"Role": "home_page"
 # }
 
 # Website user home page (by function)
@@ -55,7 +56,7 @@ app_license = "MIT"
 # ------------
 
 # before_install = "lms.install.before_install"
-# after_install = "lms.install.after_install"
+after_install = "lms.after_install"
 
 # Desk Notifications
 # ------------------
@@ -79,13 +80,12 @@ app_license = "MIT"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-#	}
-# }
+doc_events = {
+    "User": {"on_trash": "lms.delete_user"},
+    "File": {
+        "before_insert": "lms.lms.doctype.loan_application.loan_application.only_pdf_upload"
+    },
+}
 
 # Scheduled Tasks
 # ---------------
@@ -127,3 +127,43 @@ app_license = "MIT"
 # 	"Task": "lms.task.get_dashboard_data"
 # }
 
+fixtures = [
+    {
+        "doctype": "Role",
+        "filters": [
+            [
+                "name",
+                "in",
+                ["Loan Customer", "Lender", "Spark Manager"],
+            ]
+        ],
+    },
+    {"doctype": "Notification", "filters": [["document_type", "in", ["User"]]]},
+    "Security",
+    "Allowed Security",
+    "Security Category",
+    "Concentration Rule",
+    "Terms and Conditions",
+    "Margin Shortfall Action",
+    "Lender",
+    "SMS Settings",
+    "API Doc",
+    "LAS Settings",
+    "Workflow State",
+    "Workflow Action Master",
+    "Workflow",
+    "Interest Configuration",
+    "Consent",
+]
+
+scheduler_events = {
+    "hourly": [
+        "lms.lms.doctype.security_price.security_price.update_all_security_prices"
+    ],
+    "daily": [
+        "lms.lms.doctype.loan.loan.add_all_loans_virtual_interest",
+        "lms.lms.doctype.loan.loan.check_for_all_loans_additional_interest",
+        "lms.lms.doctype.loan.loan.add_all_loans_penal_interest",
+    ],
+    "monthly": ["lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"],
+}

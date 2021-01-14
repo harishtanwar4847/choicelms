@@ -1,0 +1,91 @@
+{
+  "creation": "2020-07-28 17:23:54.113474",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "threshold",
+    "notifications_section",
+    "sms",
+    "column_break_4",
+    "email",
+    "sell_off_section",
+    "should_selloff",
+    "column_break_8",
+    "sell_off_after_days"
+  ],
+  "fields": [
+    {
+      "fieldname": "threshold",
+      "fieldtype": "Int",
+      "in_list_view": 1,
+      "label": "Threshold",
+      "reqd": 1
+    },
+    {
+      "default": "0",
+      "fieldname": "sms",
+      "fieldtype": "Check",
+      "in_list_view": 1,
+      "label": "SMS"
+    },
+    {
+      "default": "0",
+      "fieldname": "email",
+      "fieldtype": "Check",
+      "in_list_view": 1,
+      "label": "Email"
+    },
+    {
+      "fieldname": "notifications_section",
+      "fieldtype": "Section Break",
+      "label": "Notifications"
+    },
+    {
+      "fieldname": "sell_off_section",
+      "fieldtype": "Section Break",
+      "label": "Sell off"
+    },
+    {
+      "default": "0",
+      "fieldname": "should_selloff",
+      "fieldtype": "Check",
+      "label": "Sell Off?"
+    },
+    {
+      "fieldname": "sell_off_after_days",
+      "fieldtype": "Int",
+      "label": "Sell Off Deadline (in days)"
+    },
+    {
+      "fieldname": "column_break_4",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "column_break_8",
+      "fieldtype": "Column Break"
+    }
+  ],
+  "modified": "2020-08-31 01:33:33.466118",
+  "modified_by": "Administrator",
+  "module": "Lms",
+  "name": "Margin Shortfall Action",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "track_changes": 1
+}

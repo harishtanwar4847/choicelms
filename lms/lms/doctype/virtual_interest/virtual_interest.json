@@ -1,0 +1,118 @@
+{
+ "creation": "2020-11-07 15:58:44.291592",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "lender",
+  "base_amount",
+  "interest_configuration",
+  "base_interest",
+  "is_booked_for_base",
+  "time",
+  "column_break_1",
+  "loan",
+  "rebate_amount",
+  "loan_balance",
+  "rebate_interest",
+  "is_booked_for_rebate"
+ ],
+ "fields": [
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Lender",
+   "options": "Lender",
+   "reqd": 1
+  },
+  {
+   "fieldname": "time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "loan",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Loan",
+   "options": "Loan",
+   "reqd": 1
+  },
+  {
+   "fieldname": "base_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Base Amount"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_booked_for_base",
+   "fieldtype": "Check",
+   "label": "Is Booked For Base Interest"
+  },
+  {
+   "fieldname": "rebate_amount",
+   "fieldtype": "Currency",
+   "label": "Rebate Amount"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_booked_for_rebate",
+   "fieldtype": "Check",
+   "label": "Is Booked For Rebate Interest"
+  },
+  {
+   "fieldname": "interest_configuration",
+   "fieldtype": "Link",
+   "label": "Interest Configuration",
+   "options": "Interest Configuration",
+   "reqd": 1
+  },
+  {
+   "fieldname": "base_interest",
+   "fieldtype": "Float",
+   "label": "Base Interest"
+  },
+  {
+   "fieldname": "loan_balance",
+   "fieldtype": "Currency",
+   "label": "Loan Balance",
+   "reqd": 1
+  },
+  {
+   "fieldname": "rebate_interest",
+   "fieldtype": "Float",
+   "label": "Rebate Interest"
+  }
+ ],
+ "modified": "2021-01-05 12:54:00.376799",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Virtual Interest",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

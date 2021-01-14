@@ -1,0 +1,4 @@
+#!/bin/sh
+. "$(dirname $0)/_/husky.sh"
+
+../../env/bin/isort . && ../../env/bin/black . && ./node_modules/.bin/prettier --write . && git add .

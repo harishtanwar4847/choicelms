@@ -1,119 +1,165 @@
 {
- "autoname": "LOAN.######",
- "creation": "2020-05-08 17:37:41.555423",
+ "autoname": "L.######",
+ "creation": "2020-07-28 15:26:52.963305",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "cardid",
-  "user",
-  "platform",
-  "bankname",
-  "bankloadid",
-  "interest_rate",
-  "status",
-  "column_break_8",
-  "utilised_amount",
-  "interest_due_amount",
-  "total",
-  "total_interest",
-  "shortfall_amount",
-  "is_shortfall_recovery",
-  "last_fetched_from_bank",
-  "section_break_16",
-  "loan_item"
+  "total_collateral_value",
+  "total_collateral_value_str",
+  "drawing_power",
+  "drawing_power_str",
+  "lender",
+  "sanctioned_limit",
+  "sanctioned_limit_str",
+  "balance",
+  "balance_str",
+  "loan_column_break",
+  "customer",
+  "customer_name",
+  "allowable_ltv",
+  "expiry_date",
+  "loan_agreement",
+  "items_section",
+  "items",
+  "loan_status_section",
+  "is_eligible_for_interest",
+  "is_irregular",
+  "is_penalize"
  ],
  "fields": [
   {
-   "fieldname": "cardid",
-   "fieldtype": "Link",
-   "label": "CardID",
-   "options": "Cart"
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Expiry Date",
+   "read_only": 1,
+   "reqd": 1
   },
   {
-   "fieldname": "user",
-   "fieldtype": "Link",
-   "label": "User",
-   "options": "User"
-  },
-  {
-   "fieldname": "platform",
-   "fieldtype": "Data",
-   "label": "Platform"
-  },
-  {
-   "fieldname": "bankname",
-   "fieldtype": "Data",
-   "label": "BankName"
-  },
-  {
-   "fieldname": "bankloadid",
-   "fieldtype": "Data",
-   "label": "BankLoadID"
-  },
-  {
-   "fieldname": "interest_rate",
-   "fieldtype": "Float",
-   "label": "Interest Rate"
-  },
-  {
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "label": "Status",
-   "options": "\nCreated, Document Verification Pending\nDocument Verified\nApproved, Rejected\nDefault\nCancelled\nShortFall\nOn Hold\nLoan Agreement"
-  },
-  {
-   "fieldname": "column_break_8",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "utilised_amount",
-   "fieldtype": "Float",
-   "label": "Utilised Amount"
-  },
-  {
-   "fieldname": "interest_due_amount",
-   "fieldtype": "Float",
-   "label": "Interest Due Amount"
-  },
-  {
-   "fieldname": "total",
-   "fieldtype": "Float",
-   "label": "Total"
-  },
-  {
-   "fieldname": "total_interest",
-   "fieldtype": "Float",
-   "label": "Total Interest"
-  },
-  {
-   "fieldname": "shortfall_amount",
-   "fieldtype": "Float",
-   "label": "ShortFall Amount"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_shortfall_recovery",
-   "fieldtype": "Check",
-   "label": "Is ShortFall Recovery"
-  },
-  {
-   "fieldname": "last_fetched_from_bank",
-   "fieldtype": "Data",
-   "label": "Last Fetched From Bank"
-  },
-  {
-   "fieldname": "section_break_16",
+   "fieldname": "items_section",
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "loan_item",
+   "fieldname": "items",
    "fieldtype": "Table",
-   "label": "Loan Item",
-   "options": "Loan Item"
+   "label": "Item",
+   "options": "Loan Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "loan_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_collateral_value",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total Collateral Value",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "allowable_ltv",
+   "fieldtype": "Float",
+   "label": "Allowable LTV",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer",
+   "options": "Customer",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Sanctioned Limit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "drawing_power",
+   "fieldtype": "Currency",
+   "label": "Drawing Power",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "loan_agreement",
+   "fieldtype": "Attach",
+   "label": "Loan Agreement"
+  },
+  {
+   "fieldname": "balance",
+   "fieldtype": "Currency",
+   "label": "Balance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "loan_status_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_eligible_for_interest",
+   "fieldtype": "Check",
+   "label": "Is Eligible For Interest"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_irregular",
+   "fieldtype": "Check",
+   "label": "Is Irregular"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_penalize",
+   "fieldtype": "Check",
+   "label": "Is Penalize"
+  },
+  {
+   "fieldname": "total_collateral_value_str",
+   "fieldtype": "Data",
+   "label": "Total Collateral Value Str",
+   "read_only": 1
+  },
+  {
+   "fieldname": "drawing_power_str",
+   "fieldtype": "Data",
+   "label": "Drawing Power Str",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sanctioned_limit_str",
+   "fieldtype": "Data",
+   "label": "Sanctioned Limit Str",
+   "read_only": 1
+  },
+  {
+   "fieldname": "balance_str",
+   "fieldtype": "Data",
+   "label": "Balance Str",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "label": "Customer Name"
   }
  ],
- "modified": "2020-05-08 17:42:02.917452",
+ "modified": "2021-01-11 14:48:20.105048",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
@@ -128,6 +174,28 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Loan Customer",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lender",
    "share": 1,
    "write": 1
   }

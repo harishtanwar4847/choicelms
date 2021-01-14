@@ -1,0 +1,44 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Margin Shortfall Action",
+  "email": 0,
+  "modified": "2020-08-31 01:33:51.714890",
+  "name": "3f31e70b0a",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "sell_off_after_days": 0,
+  "should_selloff": 0,
+  "sms": 1,
+  "threshold": 5
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Margin Shortfall Action",
+  "email": 1,
+  "modified": "2020-08-31 01:34:06.699532",
+  "name": "826623d05a",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "sell_off_after_days": 2,
+  "should_selloff": 1,
+  "sms": 1,
+  "threshold": 10
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Margin Shortfall Action",
+  "email": 1,
+  "modified": "2020-08-31 01:34:14.587678",
+  "name": "13546e867c",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "sell_off_after_days": 0,
+  "should_selloff": 1,
+  "sms": 1,
+  "threshold": 15
+ }
+]

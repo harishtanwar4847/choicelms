@@ -1,0 +1,109 @@
+{
+  "allow_import": 1,
+  "autoname": "field:isin",
+  "creation": "2020-10-24 11:16:44.505259",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "isin",
+    "security_name",
+    "category",
+    "segment",
+    "depository",
+    "column_break_5",
+    "nse_symbol",
+    "type",
+    "token_id"
+  ],
+  "fields": [
+    {
+      "fieldname": "isin",
+      "fieldtype": "Data",
+      "label": "ISIN",
+      "reqd": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "security_name",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Security Name",
+      "unique": 1
+    },
+    {
+      "fieldname": "category",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Category",
+      "options": "Security Category"
+    },
+    {
+      "fieldname": "segment",
+      "fieldtype": "Data",
+      "label": "Segment"
+    },
+    {
+      "fieldname": "depository",
+      "fieldtype": "Data",
+      "label": "Depository"
+    },
+    {
+      "fieldname": "column_break_5",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "nse_symbol",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "NSE Symbol"
+    },
+    {
+      "fieldname": "type",
+      "fieldtype": "Select",
+      "label": "Type",
+      "options": "Share\nMutual Fund"
+    },
+    {
+      "fieldname": "token_id",
+      "fieldtype": "Data",
+      "label": "Token ID"
+    }
+  ],
+  "modified": "2020-11-07 18:23:45.767684",
+  "modified_by": "Administrator",
+  "module": "Lms",
+  "name": "Security",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "read": 1,
+      "role": "Loan Customer"
+    },
+    {
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Lender",
+      "share": 1
+    }
+  ],
+  "search_fields": "security_name",
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "track_changes": 1
+}

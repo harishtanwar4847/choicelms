@@ -1,100 +1,91 @@
 {
- "creation": "2020-05-08 17:41:42.780664",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
- "field_order": [
-  "user",
-  "security_name",
-  "depository",
-  "eligibility_percentage",
-  "qty",
-  "rate",
-  "amount",
-  "eligible_amount",
-  "last_rate",
-  "rate_last_updated",
-  "shortfall",
-  "shortfall_amount"
- ],
- "fields": [
-  {
-   "fieldname": "user",
-   "fieldtype": "Link",
-   "label": "User",
-   "options": "User"
-  },
-  {
-   "fieldname": "security_name",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Security Name"
-  },
-  {
-   "fieldname": "depository",
-   "fieldtype": "Data",
-   "label": "Depository"
-  },
-  {
-   "fieldname": "eligibility_percentage",
-   "fieldtype": "Int",
-   "label": "Eligibility Percentage"
-  },
-  {
-   "fieldname": "qty",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Qty"
-  },
-  {
-   "fieldname": "rate",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Rate"
-  },
-  {
-   "fieldname": "amount",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Amount"
-  },
-  {
-   "fieldname": "eligible_amount",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Eligible Amount"
-  },
-  {
-   "fieldname": "last_rate",
-   "fieldtype": "Float",
-   "label": "Last Rate"
-  },
-  {
-   "fieldname": "rate_last_updated",
-   "fieldtype": "Float",
-   "label": "Rate Last Updated"
-  },
-  {
-   "default": "0",
-   "fieldname": "shortfall",
-   "fieldtype": "Check",
-   "label": "ShortFall"
-  },
-  {
-   "fieldname": "shortfall_amount",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "ShortFall Amount"
-  }
- ],
- "istable": 1,
- "modified": "2020-05-08 17:41:42.780664",
- "modified_by": "Administrator",
- "module": "Lms",
- "name": "Loan Item",
- "owner": "Administrator",
- "permissions": [],
- "sort_field": "modified",
- "sort_order": "DESC",
- "track_changes": 1
+  "creation": "2020-07-28 15:27:39.594133",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "isin",
+    "security_name",
+    "security_category",
+    "pledged_quantity",
+    "price",
+    "amount",
+    "psn",
+    "error_code"
+  ],
+  "fields": [
+    {
+      "fieldname": "isin",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "ISIN",
+      "options": "Security",
+      "read_only": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "security_category",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Security Category",
+      "options": "Security Category",
+      "read_only": 1,
+      "reqd": 1
+    },
+    {
+      "description": "Pledged Qty",
+      "fieldname": "pledged_quantity",
+      "fieldtype": "Float",
+      "in_list_view": 1,
+      "label": "Quantity Pledged",
+      "read_only": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "price",
+      "fieldtype": "Currency",
+      "in_list_view": 1,
+      "label": "Price",
+      "read_only": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "amount",
+      "fieldtype": "Currency",
+      "in_list_view": 1,
+      "label": "Amount",
+      "read_only": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "psn",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "PSN",
+      "set_only_once": 1
+    },
+    {
+      "fieldname": "error_code",
+      "fieldtype": "Data",
+      "label": "Error Code",
+      "set_only_once": 1
+    },
+    {
+      "fieldname": "security_name",
+      "fieldtype": "Data",
+      "label": "Security Name",
+      "read_only": 1,
+      "reqd": 1
+    }
+  ],
+  "istable": 1,
+  "modified": "2020-11-23 20:58:27.610701",
+  "modified_by": "Administrator",
+  "module": "Lms",
+  "name": "Loan Item",
+  "owner": "Administrator",
+  "permissions": [],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "track_changes": 1
 }

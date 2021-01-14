@@ -1,0 +1,192 @@
+{
+  "creation": "2020-08-30 18:21:36.249843",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "loan",
+    "column_break_2",
+    "total_collateral_value",
+    "section_break_4",
+    "allowable_ltv",
+    "column_break_6",
+    "drawing_power",
+    "section_break_8",
+    "loan_balance",
+    "minimum_collateral_value",
+    "column_break_10",
+    "ltv",
+    "surplus_margin",
+    "section_break_14",
+    "shortfall",
+    "shortfall_c",
+    "minimum_pledge_amount",
+    "minimum_cash_amount",
+    "column_break_17",
+    "shortfall_percentage",
+    "margin_shortfall_action",
+    "advisable_pledge_amount",
+    "advisable_cash_amount",
+    "section_break_20",
+    "status",
+    "column_break_22",
+    "action_time"
+  ],
+  "fields": [
+    {
+      "fieldname": "loan",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Loan",
+      "options": "Loan",
+      "reqd": 1
+    },
+    {
+      "fieldname": "total_collateral_value",
+      "fieldtype": "Currency",
+      "label": "Total Collateral Value"
+    },
+    {
+      "fieldname": "allowable_ltv",
+      "fieldtype": "Float",
+      "label": "Allowable LTV"
+    },
+    {
+      "fieldname": "column_break_2",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "section_break_4",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "column_break_6",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "section_break_8",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "column_break_10",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "ltv",
+      "fieldtype": "Float",
+      "label": "LTV"
+    },
+    {
+      "fieldname": "minimum_collateral_value",
+      "fieldtype": "Currency",
+      "label": "Minimum Collateral Value"
+    },
+    {
+      "fieldname": "surplus_margin",
+      "fieldtype": "Float",
+      "label": "Surplus Margin"
+    },
+    {
+      "fieldname": "section_break_14",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "shortfall",
+      "fieldtype": "Currency",
+      "label": "Shortfall"
+    },
+    {
+      "fieldname": "shortfall_c",
+      "fieldtype": "Currency",
+      "label": "Shortfall C"
+    },
+    {
+      "fieldname": "column_break_17",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "shortfall_percentage",
+      "fieldtype": "Float",
+      "label": "Shortfall Percentage"
+    },
+    {
+      "fieldname": "margin_shortfall_action",
+      "fieldtype": "Link",
+      "label": "Margin Shortfall Action",
+      "options": "Margin Shortfall Action"
+    },
+    {
+      "fieldname": "section_break_20",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "column_break_22",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "action_time",
+      "fieldtype": "Datetime",
+      "label": "Action Time"
+    },
+    {
+      "default": "Pending",
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Status",
+      "options": "Pending\nPaid Cash\nPledged Securities\nSell Off\nResolved"
+    },
+    {
+      "fieldname": "drawing_power",
+      "fieldtype": "Currency",
+      "label": "Drawing Power"
+    },
+    {
+      "fieldname": "loan_balance",
+      "fieldtype": "Currency",
+      "label": "Loan Balance"
+    },
+    {
+      "fieldname": "minimum_pledge_amount",
+      "fieldtype": "Currency",
+      "label": "Minimum Pledge Amount"
+    },
+    {
+      "fieldname": "minimum_cash_amount",
+      "fieldtype": "Currency",
+      "label": "Minimum Cash Amount"
+    },
+    {
+      "fieldname": "advisable_pledge_amount",
+      "fieldtype": "Currency",
+      "label": "Advisable Pledge Amount"
+    },
+    {
+      "fieldname": "advisable_cash_amount",
+      "fieldtype": "Currency",
+      "label": "Advisable Cash Amount"
+    }
+  ],
+  "modified": "2020-12-10 23:52:53.981362",
+  "modified_by": "Administrator",
+  "module": "Lms",
+  "name": "Loan Margin Shortfall",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "quick_entry": 1,
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "track_changes": 1
+}
