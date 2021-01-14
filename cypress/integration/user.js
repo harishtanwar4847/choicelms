@@ -1,9 +1,8 @@
-context("Set PIN", () => {
-  var token = null;
+context.only("Set PIN", () => {
   before(() => {
     cy.delete_dummy_user();
     cy.register_dummy_user().then((res) => {
-      token = res.body.data.token;
+      Cypress.config("token", res.body.data.token);
     });
   });
 
@@ -24,7 +23,7 @@ context("Set PIN", () => {
       { pin: Cypress.config("dummy_user").pin },
       "GET",
       {
-        Authorization: token,
+        Authorization: Cypress.config("token"),
       }
     ).then((res) => {
       expect(res.status).to.eq(405);
@@ -35,15 +34,16 @@ context("Set PIN", () => {
 
   it("invalid pin length", () => {
     cy.api_call("lms.user.set_pin", { pin: "11111" }, "POST", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     }).then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
       expect(res.body).to.have.property("errors");
       expect(res.body.errors).to.be.a("object");
-      expect(res.body.errors).to.have.property("pin");
-      expect(res.body.errors.pin).to.be.a("string");
-      expect(res.body.errors.pin).to.eq("Should be atleast 4 in length.");
+      expect(res.body.errors).to.have.property(
+        "pin",
+        "Should be atleast 4 in length."
+      );
       cy.screenshot();
     });
   });
@@ -54,7 +54,7 @@ context("Set PIN", () => {
       { pin: Cypress.config("dummy_user").pin },
       "POST",
       {
-        Authorization: token,
+        Authorization: Cypress.config("token"),
       }
     ).then((res) => {
       expect(res.status).to.eq(200);
