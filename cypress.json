@@ -1,8 +1,8 @@
 {
   "baseUrl": "http://localhost:8000",
   "adminPassword": "root",
-  "adminApiKey": "ef45c77e5232ad9",
-  "adminApiSecret": "3575d7b61324c3e",
+  "adminApiKey": "3f710c2934dbed7",
+  "adminApiSecret": "7eb1b8f22bb40d5",
   "viewportHeight": 1080,
   "viewportWidth": 1920,
   "video": false,
@@ -16,7 +16,7 @@
     "firebase_token": "asdf",
     "pin": "0000"
   },
-  "dummy_lender": {
+  "extra_user": {
     "first_name": "xyz",
     "last_name": "xyz",
     "mobile": "1111111111",

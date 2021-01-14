@@ -1,8 +1,10 @@
 var cart_name = null;
+var extra_cart_name = null;
 var token = null;
+var extra_token = null;
+var pledgor_boid = "1206690000000027";
 
 context("Cart Upsert", () => {
-  var pledgor_boid = "1206690000000027";
   before(() => {
     cy.delete_dummy_user();
     cy.register_dummy_user().then((res) => {
@@ -122,14 +124,14 @@ context("Cart Upsert", () => {
 });
 
 context("Get TnC", () => {
-  // var token = null;
-  // before(() => {
-  //   cy.delete_dummy_user();
-  //   cy.register_dummy_user().then((res) => {
-  //     token = res.body.data.token;
-  //   });
-  //   cy.valid_user_kyc_hit(token);
-  // });
+  var extra_token = null;
+  before(() => {
+    cy.delete_extra_user();
+    cy.register_extra_user().then((res) => {
+      extra_token = res.body.data.token;
+    });
+    cy.valid_user_kyc_hit(extra_token);
+  });
 
   it("only get http method should be allowed", () => {
     cy.api_call("lms.cart.get_tnc", {}, "POST", {
@@ -164,25 +166,61 @@ context("Get TnC", () => {
 
   it("Cart not found", () => {
     cy.valid_user_kyc_hit(token);
-    cy.api_call("lms.cart.get_tnc", { cart_name: "C111111" }, "GET", {
-      Authorization: token,
-    }).then((res) => {
+    cy.api_call(
+      "lms.cart.get_tnc",
+      { cart_name: "this_cart_does_not_exist" },
+      "GET",
+      {
+        Authorization: token,
+      }
+    ).then((res) => {
       expect(res.status).to.eq(404);
       // expect(res.body).to.eq({});
       cy.screenshot();
     });
   });
+
   it("Use your own cart", () => {
-    cy.valid_user_kyc_hit(token);
-    cy.admin_api_call("frappe.client.get_list", {
-      doctype: "Cart",
-      name: "C000058",
-    });
-    cy.api_call("lms.cart.get_tnc", { cart_name: "C000058" }, "GET", {
-      Authorization: token,
+    cy.valid_user_kyc_hit(extra_token);
+    cy.api_call("lms.user.securities", {}, "GET", {
+      Authorization: extra_token,
     }).then((res) => {
-      expect(res.status).to.eq(403);
-      cy.screenshot();
+      var securities = res.body.data;
+      var approved_securities = securities.filter(
+        (x) => x.Is_Eligible && x.Quantity >= 1 && x.Depository == "CDSL"
+      );
+      var securities_list = [];
+      if (approved_securities.length >= 1) {
+        securities_list.push({
+          isin: approved_securities[0].ISIN,
+          quantity: 1,
+        });
+      }
+      if (approved_securities.length >= 2) {
+        securities_list.push({
+          isin: approved_securities[1].ISIN,
+          quantity: 1,
+        });
+      }
+      cy.api_call(
+        "lms.cart.upsert",
+        {
+          securities: {
+            list: securities_list,
+          },
+          pledgor_boid: pledgor_boid,
+        },
+        "POST",
+        { Authorization: token }
+      ).then((res) => {
+        extra_cart_name = res.body.data.cart.name;
+        cy.api_call("lms.cart.get_tnc", { cart_name: cart_name }, "GET", {
+          Authorization: extra_token,
+        }).then((res) => {
+          expect(res.status).to.eq(403);
+          cy.screenshot();
+        });
+      });
     });
   });
 
@@ -251,15 +289,6 @@ context("Request Pledge OTP", () => {
 });
 
 context("Process cart", () => {
-  // var cart_token = null;
-  // before(() => {
-  //   cy.delete_dummy_user();
-  //   cy.register_dummy_user().then((res) => {
-  //     cart_token = res.body.data.token;
-  //   });
-  //   cy.valid_user_kyc_hit(cart_token);
-  // });
-
   it("only post http method should be allowed", () => {
     cy.api_call("lms.cart.process", {}, "GET", {
       Authorization: token,
@@ -352,7 +381,7 @@ context("Process cart", () => {
       cy.valid_user_kyc_hit(token);
       cy.api_call(
         "lms.cart.process",
-        { cart_name: "C111", otp: pledge_otp },
+        { cart_name: "this_cart_does_not_exist", otp: pledge_otp },
         "POST",
         {
           Authorization: token,
@@ -363,39 +392,8 @@ context("Process cart", () => {
       });
     });
   });
-  it("Use your own cart", () => {
-    cy.api_call("lms.cart.request_pledge_otp", {}, "POST", {
-      Authorization: token,
-    });
-    cy.admin_api_call("frappe.client.get_list", {
-      doctype: "User Token",
-      fields: ["token"],
-      filters: {
-        entity: "9307242424",
-        token_type: "Pledge OTP",
-        used: 0,
-      },
-    }).then((res) => {
-      var pledge_otp = res.body.message[0].token;
-      cy.valid_user_kyc_hit(token);
-      cy.admin_api_call("frappe.client.get_list", {
-        doctype: "Cart",
-        name: "C000058",
-      });
-      cy.api_call(
-        "lms.cart.process",
-        { cart_name: "C000058", otp: pledge_otp },
-        "POST",
-        {
-          Authorization: token,
-        }
-      ).then((res) => {
-        expect(res.status).to.eq(403);
-        cy.screenshot();
-      });
-    });
-  });
-  it("valid hit process cart", () => {
+
+  it.skip("valid hit process cart", () => {
     cy.api_call("lms.cart.request_pledge_otp", {}, "POST", {
       Authorization: token,
     });
@@ -427,6 +425,45 @@ context("Process cart", () => {
 });
 
 context("Process dummy cart", () => {
+  var extra_token = null;
+  before(() => {
+    cy.delete_extra_user();
+    cy.register_extra_user().then((res) => {
+      extra_token = res.body.data.token;
+    });
+    cy.valid_user_kyc_hit(extra_token);
+  });
+
+  it("Use your own cart", () => {
+    cy.valid_user_kyc_hit(extra_token);
+    cy.api_call("lms.cart.request_pledge_otp", {}, "POST", {
+      Authorization: token,
+    });
+    cy.admin_api_call("frappe.client.get_list", {
+      doctype: "User Token",
+      fields: ["token"],
+      filters: {
+        entity: "9307242424",
+        token_type: "Pledge OTP",
+        used: 0,
+      },
+    }).then((res) => {
+      var pledge_otp = res.body.message[0].token;
+      cy.api_call(
+        "lms.cart.process_dummy",
+        { cart_name: extra_cart_name, otp: pledge_otp },
+        "POST",
+        {
+          Authorization: token,
+        }
+      ).then((res) => {
+        // expect(res.body).to.eq({});
+        expect(res.status).to.eq(403);
+        cy.screenshot();
+      });
+    });
+  });
+
   it("process dummy hit", () => {
     cy.valid_user_kyc_hit(token);
     cy.api_call("lms.cart.process_dummy", { cart_name: cart_name }, "POST", {
