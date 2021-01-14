@@ -8,19 +8,19 @@ context("Cart Upsert", () => {
   before(() => {
     cy.delete_dummy_user();
     cy.register_dummy_user().then((res) => {
-      token = res.body.data.token;
-      cy.valid_user_kyc_hit(token);
+      Cypress.config("token", res.body.data.token);
+      cy.valid_user_kyc_hit(Cypress.config("token"));
     });
   });
 
   it("only post http method should be allowed", () => {
-    cy.api_call("lms.cart.upsert", {}, "GET", { Authorization: token }).then(
-      (res) => {
-        expect(res.status).to.eq(405);
-        expect(res.body).to.have.property("message", "Method not allowed");
-        cy.screenshot();
-      }
-    );
+    cy.api_call("lms.cart.upsert", {}, "GET", {
+      Authorization: Cypress.config("token"),
+    }).then((res) => {
+      expect(res.status).to.eq(405);
+      expect(res.body).to.have.property("message", "Method not allowed");
+      cy.screenshot();
+    });
   });
 
   it("auth method", () => {
@@ -32,7 +32,7 @@ context("Cart Upsert", () => {
 
   it("Securities required in upsert cart", () => {
     cy.api_call("lms.cart.upsert", { pledgor_boid: pledgor_boid }, "POST", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     }).then((res) => {
       expect(res.status).to.eq(422);
       // expect(res.body).to.eq({});
@@ -47,7 +47,7 @@ context("Cart Upsert", () => {
 
   it("Field empty Pledgor boid", () => {
     cy.api_call("lms.cart.upsert", { pledgor_boid: "" }, "POST", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     }).then((res) => {
       expect(res.status).to.eq(422);
       // expect(res.body).to.eq({});
@@ -68,7 +68,7 @@ context("Cart Upsert", () => {
         pledgor_boid: pledgor_boid,
       },
       "POST",
-      { Authorization: token }
+      { Authorization: Cypress.config("token") }
     ).then((res) => {
       expect(res.status).to.eq(422);
       // expect(res.body).to.eq({});
@@ -83,7 +83,7 @@ context("Cart Upsert", () => {
 
   it("valid hit upsert cart", () => {
     cy.api_call("lms.user.securities", {}, "GET", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     }).then((res) => {
       var securities = res.body.data;
       var approved_securities = securities.filter(
@@ -111,7 +111,7 @@ context("Cart Upsert", () => {
           pledgor_boid: pledgor_boid,
         },
         "POST",
-        { Authorization: token }
+        { Authorization: Cypress.config("token") }
       ).then((res) => {
         cart_name = res.body.data.cart.name;
         expect(res.status).to.eq(200);
@@ -124,18 +124,17 @@ context("Cart Upsert", () => {
 });
 
 context("Get TnC", () => {
-  var extra_token = null;
   before(() => {
     cy.delete_extra_user();
     cy.register_extra_user().then((res) => {
-      extra_token = res.body.data.token;
+      Cypress.config("extra_token", res.body.data.token);
+      cy.valid_user_kyc_hit(Cypress.config("extra_token"));
     });
-    cy.valid_user_kyc_hit(extra_token);
   });
 
   it("only get http method should be allowed", () => {
     cy.api_call("lms.cart.get_tnc", {}, "POST", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     }).then((res) => {
       expect(res.status).to.eq(405);
       expect(res.body).to.have.property("message", "Method not allowed");
@@ -152,7 +151,7 @@ context("Get TnC", () => {
 
   it("cart name required", () => {
     cy.api_call("lms.cart.get_tnc", {}, "GET", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     }).then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
@@ -165,13 +164,13 @@ context("Get TnC", () => {
   });
 
   it("Cart not found", () => {
-    cy.valid_user_kyc_hit(token);
+    // cy.valid_user_kyc_hit(token);
     cy.api_call(
       "lms.cart.get_tnc",
       { cart_name: "this_cart_does_not_exist" },
       "GET",
       {
-        Authorization: token,
+        Authorization: Cypress.config("token"),
       }
     ).then((res) => {
       expect(res.status).to.eq(404);
@@ -181,9 +180,9 @@ context("Get TnC", () => {
   });
 
   it("Use your own cart", () => {
-    cy.valid_user_kyc_hit(extra_token);
+    // cy.valid_user_kyc_hit(Cypress.config("extra_token"));
     cy.api_call("lms.user.securities", {}, "GET", {
-      Authorization: extra_token,
+      Authorization: Cypress.config("extra_token"),
     }).then((res) => {
       var securities = res.body.data;
       var approved_securities = securities.filter(
@@ -211,11 +210,11 @@ context("Get TnC", () => {
           pledgor_boid: pledgor_boid,
         },
         "POST",
-        { Authorization: token }
+        { Authorization: Cypress.config("token") }
       ).then((res) => {
         extra_cart_name = res.body.data.cart.name;
         cy.api_call("lms.cart.get_tnc", { cart_name: cart_name }, "GET", {
-          Authorization: extra_token,
+          Authorization: Cypress.config("extra_token"),
         }).then((res) => {
           expect(res.status).to.eq(403);
           cy.screenshot();
@@ -225,9 +224,9 @@ context("Get TnC", () => {
   });
 
   it("valid hit get tnc", () => {
-    cy.valid_user_kyc_hit(token);
+    // cy.valid_user_kyc_hit(Cypress.config("token"));
     cy.api_call("lms.cart.get_tnc", { cart_name: cart_name }, "GET", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     }).then((res) => {
       expect(res.status).to.eq(200);
       // expect(res.body).to.eq({})
@@ -249,7 +248,7 @@ context("Request Pledge OTP", () => {
 
   it("only post http method should be allowed", () => {
     cy.api_call("lms.cart.request_pledge_otp", {}, "GET", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     }).then((res) => {
       expect(res.status).to.eq(405);
       expect(res.body).to.have.property("message", "Method not allowed");
@@ -276,9 +275,9 @@ context("Request Pledge OTP", () => {
   // });
 
   it("valid hit req pledge otp", () => {
-    cy.valid_user_kyc_hit(token);
+    // cy.valid_user_kyc_hit(Cypress.config("token"));
     cy.api_call("lms.cart.request_pledge_otp", {}, "POST", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     }).then((res) => {
       expect(res.status).to.eq(200);
       // expect(res.body).to.eq({});
@@ -291,7 +290,7 @@ context("Request Pledge OTP", () => {
 context("Process cart", () => {
   it("only post http method should be allowed", () => {
     cy.api_call("lms.cart.process", {}, "GET", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     }).then((res) => {
       expect(res.status).to.eq(405);
       // expect(res.body).to.eq({});
@@ -312,7 +311,7 @@ context("Process cart", () => {
       "lms.cart.process",
       { cart_name: cart_name, otp: "111" },
       "POST",
-      { Authorization: token }
+      { Authorization: Cypress.config("token") }
     ).then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
@@ -324,7 +323,7 @@ context("Process cart", () => {
 
   it("otp field empty", () => {
     cy.api_call("lms.cart.process", { cart_name: cart_name, otp: "" }, "POST", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     }).then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
@@ -336,7 +335,7 @@ context("Process cart", () => {
 
   it("cart name field empty", () => {
     cy.api_call("lms.cart.process", { cart_name: "", otp: "1234" }, "POST", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     }).then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
@@ -347,13 +346,13 @@ context("Process cart", () => {
   });
 
   it("invalid pledge otp", () => {
-    cy.valid_user_kyc_hit(token);
+    // cy.valid_user_kyc_hit(token);
     cy.api_call(
       "lms.cart.process",
       { cart_name: cart_name, otp: "1111" },
       "POST",
       {
-        Authorization: token,
+        Authorization: Cypress.config("token"),
       }
     ).then((res) => {
       expect(res.status).to.eq(422);
@@ -366,7 +365,7 @@ context("Process cart", () => {
 
   it("Cart not found", () => {
     cy.api_call("lms.cart.request_pledge_otp", {}, "POST", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     });
     cy.admin_api_call("frappe.client.get_list", {
       doctype: "User Token",
@@ -378,13 +377,13 @@ context("Process cart", () => {
       },
     }).then((res) => {
       var pledge_otp = res.body.message[0].token;
-      cy.valid_user_kyc_hit(token);
+      cy.valid_user_kyc_hit(Cypress.config("token"));
       cy.api_call(
         "lms.cart.process",
         { cart_name: "this_cart_does_not_exist", otp: pledge_otp },
         "POST",
         {
-          Authorization: token,
+          Authorization: Cypress.config("token"),
         }
       ).then((res) => {
         expect(res.status).to.eq(404);
@@ -395,7 +394,7 @@ context("Process cart", () => {
 
   it.skip("valid hit process cart", () => {
     cy.api_call("lms.cart.request_pledge_otp", {}, "POST", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     });
     cy.admin_api_call("frappe.client.get_list", {
       doctype: "User Token",
@@ -407,13 +406,13 @@ context("Process cart", () => {
       },
     }).then((res) => {
       var pledge_otp = res.body.message[0].token;
-      cy.valid_user_kyc_hit(token);
+      cy.valid_user_kyc_hit(Cypress.config("token"));
       cy.api_call(
         "lms.cart.process",
         { cart_name: cart_name, otp: pledge_otp },
         "POST",
         {
-          Authorization: token,
+          Authorization: Cypress.config("token"),
         }
       ).then((res) => {
         expect(res.status).to.eq(500);
@@ -425,19 +424,18 @@ context("Process cart", () => {
 });
 
 context("Process dummy cart", () => {
-  var extra_token = null;
   before(() => {
     cy.delete_extra_user();
     cy.register_extra_user().then((res) => {
-      extra_token = res.body.data.token;
+      Cypress.config("extra_token", res.body.data.token);
+      cy.valid_user_kyc_hit(Cypress.config("extra_token"));
     });
-    cy.valid_user_kyc_hit(extra_token);
   });
 
   it("Use your own cart", () => {
-    cy.valid_user_kyc_hit(extra_token);
+    // cy.valid_user_kyc_hit(Cypress.config("extra_token"));
     cy.api_call("lms.cart.request_pledge_otp", {}, "POST", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     });
     cy.admin_api_call("frappe.client.get_list", {
       doctype: "User Token",
@@ -454,7 +452,7 @@ context("Process dummy cart", () => {
         { cart_name: extra_cart_name, otp: pledge_otp },
         "POST",
         {
-          Authorization: token,
+          Authorization: Cypress.config("token"),
         }
       ).then((res) => {
         // expect(res.body).to.eq({});
@@ -465,9 +463,9 @@ context("Process dummy cart", () => {
   });
 
   it("process dummy hit", () => {
-    cy.valid_user_kyc_hit(token);
+    // cy.valid_user_kyc_hit(Cypress.config("token"));
     cy.api_call("lms.cart.process_dummy", { cart_name: cart_name }, "POST", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     }).then((res) => {
       expect(res.status).to.eq(200);
     });
