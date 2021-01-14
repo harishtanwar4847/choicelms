@@ -69,6 +69,7 @@ def esign_done(**kwargs):
             kwargs, {"loan_application_name": "required", "file_id": "required"}
         )
 
+        user = lms.__user()
         customer = lms.__customer()
         loan_application = frappe.get_doc(
             "Loan Application", data.get("loan_application_name")
@@ -88,6 +89,17 @@ def esign_done(**kwargs):
         try:
             res = requests.get(esigned_pdf_url, allow_redirects=True)
             frappe.db.begin()
+
+            # save e-sign consent
+            kyc_consent_doc = frappe.get_doc(
+                {
+                    "doctype": "User Consent",
+                    "mobile": user.phone,
+                    "consent": "E-sign",
+                }
+            )
+            kyc_consent_doc.insert(ignore_permissions=True)
+
             esigned_file = frappe.get_doc(
                 {
                     "doctype": "File",
