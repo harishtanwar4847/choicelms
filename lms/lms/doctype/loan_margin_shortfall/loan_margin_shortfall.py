@@ -39,7 +39,7 @@ class LoanMarginShortfall(Document):
             else 0
         )
         self.shortfall_percentage = (
-            ((self.loan_balance - self.drawing_power) / self.loan_balance)
+            ((self.loan_balance - self.drawing_power) / self.loan_balance) * 100
             if self.loan_balance > self.drawing_power
             else 0
         )
@@ -80,7 +80,7 @@ class LoanMarginShortfall(Document):
         margin_shortfall_action = self.get_shortfall_action()
         if margin_shortfall_action:
             customer = self.get_loan().get_customer()
-            mess = _("Your Loan {0} has been marked as margin shortfall.").format(
+            mess = _("Your Loan {0} has been marked for margin shortfall.").format(
                 self.loan
             )
 

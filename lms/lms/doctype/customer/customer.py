@@ -26,10 +26,13 @@ class Customer(Document):
         self.user = user.phone
         self.registeration = 1
 
+    def get_kyc(self):
+        return frappe.get_doc("User KYC", self.choice_kyc)
+
     def on_update(self):
         user_kyc = ""
         if self.choice_kyc:
-            user_kyc = frappe.get_doc("User KYC", self.choice_kyc).as_json()
+            user_kyc = self.get_kyc().as_json()
 
         pending_loan_applications = frappe.get_all(
             "Loan Application",

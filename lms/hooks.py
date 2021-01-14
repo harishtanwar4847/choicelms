@@ -81,7 +81,7 @@ after_install = "lms.after_install"
 # Hook on document methods and events
 
 doc_events = {
-    "User": {"on_trash": "lms.__init__.delete_user"},
+    "User": {"on_trash": "lms.delete_user"},
     "File": {
         "before_insert": "lms.lms.doctype.loan_application.loan_application.only_pdf_upload"
     },
@@ -134,11 +134,10 @@ fixtures = [
             [
                 "name",
                 "in",
-                ["Loan Customer", "Support Team", "Lender", "Choice Finserv"],
+                ["Loan Customer", "Lender", "Spark Manager"],
             ]
         ],
     },
-    {"doctype": "Print Format", "filters": [["doc_type", "in", ["Cart", "Loan"]]]},
     {"doctype": "Notification", "filters": [["document_type", "in", ["User"]]]},
     "Security",
     "Allowed Security",
@@ -154,6 +153,7 @@ fixtures = [
     "Workflow Action Master",
     "Workflow",
     "Interest Configuration",
+    "Consent",
 ]
 
 scheduler_events = {
@@ -166,15 +166,4 @@ scheduler_events = {
         "lms.lms.doctype.loan.loan.add_all_loans_penal_interest",
     ],
     "monthly": ["lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"],
-}
-
-permission_query_conditions = {
-    "Allowed Security": "lms.lms.doctype.allowed_security.allowed_security.get_permission_query_conditions",
-    "Cart": "lms.lms.doctype.cart.cart.get_permission_query_conditions",
-    "Lender": "lms.lms.doctype.lender.lender.get_permission_query_conditions",
-    "Loan Application": "lms.lms.doctype.loan_application.loan_application.get_permission_query_conditions",
-    "Loan": "lms.lms.doctype.loan.loan.get_permission_query_conditions",
-    "Loan Transaction": "lms.lms.doctype.loan_transaction.loan_transaction.get_permission_query_conditions",
-    "Lender Ledger": "lms.lms.doctype.lender_ledger.lender_ledger.get_permission_query_conditions",
-    "Virtual Interest": "lms.lms.doctype.virtual_interest.virtual_interest.get_permission_query_conditions",
 }

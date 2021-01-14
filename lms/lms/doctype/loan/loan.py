@@ -61,62 +61,41 @@ class Loan(Document):
         amount = lender.lender_processing_fees
         if lender.lender_processing_fees_type == "Percentage":
             amount = (amount / 100) * self.sanctioned_limit
-        processing_fees_transaction_id = self.get_new_transaction_id()
         self.create_loan_transaction(
             "Processing Fees",
             amount,
             approve=True,
-            transaction_id=processing_fees_transaction_id,
         )
 
         # Stamp Duty
         amount = lender.stamp_duty
         if lender.stamp_duty_type == "Percentage":
             amount = (amount / 100) * self.sanctioned_limit
-        stamp_duty_transaction_id = self.get_new_transaction_id()
         self.create_loan_transaction(
-            "Stamp Duty", amount, approve=True, transaction_id=stamp_duty_transaction_id
+            "Stamp Duty",
+            amount,
+            approve=True,
         )
 
         # Documentation Charges
         amount = lender.documentation_charges
         if lender.documentation_charge_type == "Percentage":
             amount = (amount / 100) * self.sanctioned_limit
-        documentation_charges_transaction_id = self.get_new_transaction_id()
         self.create_loan_transaction(
             "Documentation Charges",
             amount,
             approve=True,
-            transaction_id=documentation_charges_transaction_id,
         )
 
         # Mortgage Charges
         amount = lender.mortgage_charges
         if lender.mortgage_charge_type == "Percentage":
             amount = (amount / 100) * self.sanctioned_limit
-        mortgage_charges_transaction_id = self.get_new_transaction_id()
         self.create_loan_transaction(
             "Mortgage Charges",
             amount,
             approve=True,
-            transaction_id=mortgage_charges_transaction_id,
         )
-
-    def get_new_transaction_id(self):
-        latest_transaction = frappe.db.sql(
-            "select transaction_id from `tabLoan Transaction` where loan='{}' and transaction_id like 'loan-%' order by creation desc limit 1".format(
-                self.name
-            ),
-            as_dict=True,
-        )
-        if len(latest_transaction) == 0:
-            return "{}-0001".format(self.name)
-
-        latest_transaction_id = latest_transaction[0].transaction_id.split("-")[1]
-        new_transaction_id = "{}-".format(self.name) + (
-            "%04d" % (int(latest_transaction_id) + 1)
-        )
-        return new_transaction_id
 
     def create_loan_transaction(
         self,
@@ -132,7 +111,7 @@ class Loan(Document):
                 "doctype": "Loan Transaction",
                 "loan": self.name,
                 "lender": self.lender,
-                "amount": amount,
+                "amount": round(amount, 2),
                 "transaction_type": transaction_type,
                 "record_type": LoanTransaction.loan_transaction_map.get(
                     transaction_type, "DR"
@@ -151,6 +130,8 @@ class Loan(Document):
         loan_transaction.insert(ignore_permissions=True)
 
         if approve:
+            if not transaction_id:
+                loan_transaction.transaction_id = loan_transaction.name
             loan_transaction.status = "Approved"
             loan_transaction.workflow_state = "Approved"
             loan_transaction.docstatus = 1
@@ -164,7 +145,7 @@ class Loan(Document):
 
     def update_loan_balance(self):
         summary = self.get_transaction_summary()
-        self.balance = summary.get("outstanding")
+        self.balance = round(summary.get("outstanding"), 2)
         self.save(ignore_permissions=True)
         frappe.db.commit()
 
@@ -177,8 +158,8 @@ class Loan(Document):
 			SELECT loan
 				, SUM(COALESCE(CASE WHEN record_type = 'DR' THEN amount END,0)) total_debits
 				, SUM(COALESCE(CASE WHEN record_type = 'CR' THEN amount END,0)) total_credits
-				, SUM(COALESCE(CASE WHEN record_type = 'DR' THEN amount END,0)) 
-				- SUM(COALESCE(CASE WHEN record_type = 'CR' THEN amount END,0)) outstanding 
+				, SUM(COALESCE(CASE WHEN record_type = 'DR' THEN amount END,0))
+				- SUM(COALESCE(CASE WHEN record_type = 'CR' THEN amount END,0)) outstanding
 			FROM `tabLoan Transaction`
 			WHERE loan = '{}' AND docstatus = 1
 			GROUP BY loan
@@ -208,7 +189,9 @@ class Loan(Document):
             i.amount = i.price * i.pledged_quantity
             self.total_collateral_value += i.amount
 
-        drawing_power = self.total_collateral_value * (self.allowable_ltv / 100)
+        drawing_power = round(
+            (self.total_collateral_value * (self.allowable_ltv / 100)), 2
+        )
         self.drawing_power = (
             drawing_power
             if drawing_power <= self.sanctioned_limit
@@ -246,6 +229,7 @@ class Loan(Document):
 
             # update pending withdraw allowable for this loan
             self.update_pending_withdraw_requests()
+            frappe.db.commit()
 
     def update_pending_withdraw_requests(self):
         all_pending_withdraw_requests = frappe.get_all(
@@ -267,7 +251,6 @@ class Loan(Document):
                 "Loan Transaction", withdraw_req["name"]
             )
             loan_transaction_doc.db_set("allowable", max_withdraw_amount)
-        frappe.db.commit()
 
     def get_margin_shortfall(self):
         margin_shortfall_name = frappe.db.get_value(
@@ -368,8 +351,8 @@ class Loan(Document):
                 ),
                 "base_interest": interest_cofiguration["base_interest"],
                 "rebate_interest": interest_cofiguration["rebait_interest"],
-                "base_amount": base_amount,
-                "rebate_amount": rebate_amount,
+                "base_amount": round(base_amount, 2),
+                "rebate_amount": round(rebate_amount, 2),
                 "loan_balance": self.balance,
                 "interest_configuration": interest_cofiguration["name"],
             }
@@ -627,20 +610,6 @@ def check_all_loans_for_shortfall():
         )
 
 
-def get_permission_query_conditions(user):
-    if not user:
-        user = frappe.session.user
-
-    if "System Manager" in frappe.get_roles(user):
-        return None
-    elif "Lender" in frappe.get_roles(user):
-        roles = frappe.get_roles(user)
-
-        return """(`tabLoan`.lender in {role_tuple})""".format(
-            role_tuple=lms.convert_list_to_tuple_string(roles)
-        )
-
-
 @frappe.whitelist()
 def daily_cron_job(loan_name, input_date=None):
     frappe.enqueue_doc(
@@ -653,7 +622,8 @@ def daily_cron_job(loan_name, input_date=None):
 
 def add_loans_virtual_interest(loans):
     for loan in loans:
-        frappe.enqueue_doc("Loan", loan.name, method="add_virtual_interest")
+        loan = frappe.get_doc("Loan", loan)
+        loan.add_virtual_interest()
 
 
 @frappe.whitelist()
@@ -667,14 +637,15 @@ def add_all_loans_virtual_interest():
 
         frappe.enqueue(
             method="lms.lms.doctype.loan.loan.add_loans_virtual_interest",
-            chunk_loans=[loan for loan in all_loans],
+            loans=[loan for loan in all_loans],
             queue="long",
         )
 
 
 def check_for_loans_additional_interest(loans):
     for loan in loans:
-        frappe.enqueue_doc("Loan", loan.name, method="check_for_additional_interest")
+        loan = frappe.get_doc("Loan", loan)
+        loan.check_for_additional_interest()
 
 
 @frappe.whitelist()
@@ -688,14 +659,15 @@ def check_for_all_loans_additional_interest():
 
         frappe.enqueue(
             method="lms.lms.doctype.loan.loan.check_for_loans_additional_interest",
-            chunk_loans=[loan for loan in all_loans],
+            loans=[loan for loan in all_loans],
             queue="long",
         )
 
 
 def add_loans_penal_interest(loans):
     for loan in loans:
-        frappe.enqueue_doc("Loan", loan.name, method="add_penal_interest")
+        loan = frappe.get_doc("Loan", loan)
+        loan.add_penal_interest()
 
 
 @frappe.whitelist()
@@ -709,7 +681,7 @@ def add_all_loans_penal_interest():
 
         frappe.enqueue(
             method="lms.lms.doctype.loan.loan.add_loans_penal_interest",
-            chunk_loans=[loan for loan in all_loans],
+            loans=[loan for loan in all_loans],
             queue="long",
         )
 
@@ -726,7 +698,8 @@ def book_virtual_interest_for_month(loan_name, input_date=None):
 
 def book_loans_virtual_interest_for_month(loans):
     for loan in loans:
-        frappe.enqueue_doc("Loan", loan.name, method="book_virtual_interest_for_month")
+        loan = frappe.get_doc("Loan", loan)
+        loan.book_virtual_interest_for_month()
 
 
 @frappe.whitelist()

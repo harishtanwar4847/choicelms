@@ -13,7 +13,6 @@ from frappe.model.document import Document
 from num2words import num2words
 
 import lms
-from lms.loan import create_loan_collateral
 
 
 class LoanApplication(Document):
@@ -60,7 +59,9 @@ class LoanApplication(Document):
         files = {"file": ("loan-aggrement.pdf", agreement_pdf)}
 
         return {
-            "file_upload_url": las_settings.esign_upload_file_url,
+            "file_upload_url": "{}{}".format(
+                las_settings.esign_host, las_settings.esign_upload_file_uri
+            ),
             "headers": headers,
             "files": files,
             "esign_url_dict": {
@@ -68,7 +69,9 @@ class LoanApplication(Document):
                 "y": coordinates[1],
                 "page_number": lender.esign_page,
             },
-            "esign_url": las_settings.esign_request_url,
+            "esign_url": "{}{}".format(
+                las_settings.esign_host, las_settings.esign_request_uri
+            ),
         }
 
     def on_update(self):
@@ -123,6 +126,7 @@ class LoanApplication(Document):
                 "expiry_date": self.expiry_date,
                 "allowable_ltv": self.allowable_ltv,
                 "customer": self.customer,
+                "customer_name": self.customer_name,
                 "lender": self.lender,
                 "items": items,
                 "is_eligible_for_interest": 1,
@@ -225,17 +229,3 @@ def only_pdf_upload(doc, method):
     if doc.attached_to_doctype == "Loan Application":
         if doc.file_name.split(".")[-1].lower() != "pdf":
             frappe.throw("Kindly upload PDF files only.")
-
-
-def get_permission_query_conditions(user):
-    if not user:
-        user = frappe.session.user
-
-    if "System Manager" in frappe.get_roles(user):
-        return None
-    elif "Lender" in frappe.get_roles(user):
-        roles = frappe.get_roles(user)
-
-        return """(`tabLoan Application`.lender in {role_tuple})""".format(
-            role_tuple=lms.convert_list_to_tuple_string(roles)
-        )

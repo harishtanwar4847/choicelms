@@ -69,6 +69,7 @@ def esign_done(**kwargs):
             kwargs, {"loan_application_name": "required", "file_id": "required"}
         )
 
+        user = lms.__user()
         customer = lms.__customer()
         loan_application = frappe.get_doc(
             "Loan Application", data.get("loan_application_name")
@@ -81,13 +82,24 @@ def esign_done(**kwargs):
             )
 
         las_settings = frappe.get_single("LAS Settings")
-        esigned_pdf_url = las_settings.esign_download_signed_file_url.format(
-            file_id=data.get("file_id")
-        )
+        esigned_pdf_url = "{}{}".format(
+            las_settings.esign_host, las_settings.esign_download_signed_file_uri
+        ).format(file_id=data.get("file_id"))
 
         try:
             res = requests.get(esigned_pdf_url, allow_redirects=True)
             frappe.db.begin()
+
+            # save e-sign consent
+            kyc_consent_doc = frappe.get_doc(
+                {
+                    "doctype": "User Consent",
+                    "mobile": user.phone,
+                    "consent": "E-sign",
+                }
+            )
+            kyc_consent_doc.insert(ignore_permissions=True)
+
             esigned_file = frappe.get_doc(
                 {
                     "doctype": "File",
@@ -122,24 +134,24 @@ def my_loans():
         customer = lms.get_customer(frappe.session.user)
 
         loans = frappe.db.sql(
-            """select 
+            """select
 			loan.total_collateral_value, loan.name, loan.sanctioned_limit, loan.drawing_power,
 
 			if (loan.total_collateral_value * loan.allowable_ltv / 100 > loan.sanctioned_limit, 1, 0) as top_up_available,
 
-			if (loan.total_collateral_value * loan.allowable_ltv / 100 > loan.sanctioned_limit, 
+			if (loan.total_collateral_value * loan.allowable_ltv / 100 > loan.sanctioned_limit,
 			loan.total_collateral_value * loan.allowable_ltv / 100 - loan.sanctioned_limit, 0.0) as top_up_amount,
 
-			IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, 
+			IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage,
 			IFNULL(mrgloan.shortfall_c, 0.0) as shortfall_c,
 			IFNULL(mrgloan.shortfall, 0.0) as shortfall,
 
-			SUM(COALESCE(CASE WHEN loantx.record_type = 'DR' THEN loantx.amount END,0)) 
-			- SUM(COALESCE(CASE WHEN loantx.record_type = 'CR' THEN loantx.amount END,0)) outstanding 
+			SUM(COALESCE(CASE WHEN loantx.record_type = 'DR' THEN loantx.amount END,0))
+			- SUM(COALESCE(CASE WHEN loantx.record_type = 'CR' THEN loantx.amount END,0)) outstanding
 
 			from `tabLoan` as loan
 			left join `tabLoan Margin Shortfall` as mrgloan
-			on loan.name = mrgloan.loan 
+			on loan.name = mrgloan.loan
 			left join `tabLoan Transaction` as loantx
 			on loan.name = loantx.loan
 			where loan.customer = '{}' group by loantx.loan """.format(
@@ -165,26 +177,7 @@ def my_loans():
         return lms.generateResponse(is_success=False, error=e)
 
 
-def create_loan_collateral(loan_name, pledgor_boid, pledgee_boid, prf_number, items):
-    for item in items:
-        loan_collateral = frappe.get_doc(
-            {
-                "doctype": "Loan Collateral",
-                "loan": loan_name,
-                "request_type": "Pledge",
-                "pledgor_boid": pledgor_boid,
-                "pledgee_boid": pledgee_boid,
-                "request_identifier": prf_number,
-                "isin": item.isin,
-                "quantity": item.pledged_quantity,
-                "psn": item.psn,
-                "error_code": item.error_code,
-                "is_success": item.psn and not item.error_code,
-            }
-        )
-        loan_collateral.insert(ignore_permissions=True)
-
-
+# TODO: review. it has a query for tabLoan Collateral which has been deleted in Beta.1
 @frappe.whitelist()
 def create_unpledge(loan_name, securities_array):
     try:
@@ -468,35 +461,9 @@ def loan_withdraw_details(**kwargs):
             )
 
         # set amount_available_for_withdrawal
+        max_withdraw_amount = loan.maximum_withdrawable_amount()
         loan = loan.as_dict()
-        # get if any pending withdraw requests
-        pending_withdraw_requests_amt = (
-            frappe.db.get_value(
-                "Loan Transaction",
-                {
-                    "loan": loan.name,
-                    "lender": loan.lender,
-                    "status": "Pending",
-                    "transaction_type": "Withdrawal",
-                },
-                ["sum(amount)"],
-            )
-            or 0
-        )
-
-        # get if any virtual interest applied
-        virtual_interest_sum = (
-            frappe.db.get_value(
-                "Virtual Interest",
-                {"loan": loan.name, "lender": loan.lender, "is_booked_for_base": 0},
-                ["sum(base_amount)"],
-            )
-            or 0
-        )
-
-        loan.amount_available_for_withdrawal = loan.drawing_power - (
-            loan.balance + pending_withdraw_requests_amt + virtual_interest_sum
-        )
+        loan.amount_available_for_withdrawal = max_withdraw_amount
 
         data = {
             "loan": loan,

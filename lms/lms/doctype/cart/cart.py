@@ -119,9 +119,14 @@ class Cart(Document):
                 "Pledge Setup failed.", errors=pledge_response
             )
 
-        self.approved_total_collateral_value = self.approved_total_collateral_value
-        self.approved_eligible_loan = lms.round_down_amount_to_nearest_thousand(
-            (self.allowable_ltv / 100) * self.approved_total_collateral_value
+        self.approved_total_collateral_value = round(
+            self.approved_total_collateral_value, 2
+        )
+        self.approved_eligible_loan = round(
+            lms.round_down_amount_to_nearest_thousand(
+                (self.allowable_ltv / 100) * self.approved_total_collateral_value
+            ),
+            2,
         )
         self.is_processed = 1
 
@@ -182,6 +187,7 @@ class Cart(Document):
                 "expiry_date": self.expiry,
                 "allowable_ltv": self.allowable_ltv,
                 "customer": self.customer,
+                "customer_name": self.customer_name,
                 "loan": self.loan,
                 "items": items,
             }
@@ -210,7 +216,15 @@ class Cart(Document):
         elif doc.get("loan_application").get("status") == "Success":
             mess = "Congratulations! Your loan application has been approved. Please e-sign the loan agreement to avail the loan now."
         elif doc.get("loan_application").get("status") == "Partial Success":
-            mess = "Congratulations! Your application is being considered favourably by our lending partner\nHowever, the pledge request was partially succesful and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}.\nAccordingly the final loan amount sanctioned is Rs. {sanctioned_amount}. Please e-sign the loan agreement to avail the loan now."
+            mess = "Congratulations! Your application is being considered favourably by our lending partner\nHowever, the pledge request was partially succesful and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}.\nAccordingly the final loan amount sanctioned is Rs. {sanctioned_amount}. Please e-sign the loan agreement to avail the loan now.".format(
+                current_total_collateral_value=doc.get("loan_application").get(
+                    "current_total_collateral_value"
+                ),
+                requested_total_collateral_value=doc.get("loan_application").get(
+                    "requested_total_collateral_value"
+                ),
+                sanctioned_amount=doc.get("loan_application").get("sanctioned_amount"),
+            )
         receiver_list = list(set([str(customer.user), str(user_kyc.mobile_number)]))
         from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
@@ -219,6 +233,50 @@ class Cart(Document):
     def on_update(self):
         if self.is_processed:
             self.notify_customer()
+        # frappe.enqueue_doc("Cart", self.name, method="create_tnc_file")
+
+    def create_tnc_file(self):
+        lender = self.get_lender()
+        customer = self.get_customer()
+        user_kyc = customer.get_kyc()
+
+        from num2words import num2words
+
+        doc = {
+            "borrower_name": user_kyc.investor_name,
+            "borrower_address": user_kyc.address,
+            "sanctioned_amount": self.eligible_loan,
+            "sanctioned_amount_in_words": num2words(self.eligible_loan, lang="en_IN"),
+            "rate_of_interest": lender.rate_of_interest,
+            "default_interest": lender.default_interest,
+            "account_renewal_charges": lender.account_renewal_charges,
+            "documentation_charges": lender.documentation_charges,
+            "processing_fee": lender.lender_processing_fees,
+            "transaction_charges_per_request": lender.transaction_charges_per_request,
+            "security_selling_share": lender.security_selling_share,
+            "cic_charges": lender.cic_charges,
+            "total_pages": lender.total_pages,
+        }
+        agreement_template = lender.get_loan_agreement_template()
+        agreement = frappe.render_template(
+            agreement_template.get_content(), {"doc": doc}
+        )
+
+        from frappe.utils.pdf import get_pdf
+
+        agreement_pdf = get_pdf(agreement)
+
+        tnc_dir_path = frappe.utils.get_files_path("tnc")
+        import os
+
+        if not os.path.exists(tnc_dir_path):
+            os.mkdir(tnc_dir_path)
+        tnc_file = "tnc/{}.pdf".format(self.name)
+        tnc_file_path = frappe.utils.get_files_path(tnc_file)
+
+        with open(tnc_file_path, "wb") as f:
+            f.write(agreement_pdf)
+        f.close()
 
     def before_save(self):
         self.process_cart_items()
@@ -258,10 +316,13 @@ class Cart(Document):
                 self.total_collateral_value += item.amount
                 self.allowable_ltv += item.eligible_percentage
 
-            self.total_collateral_value = self.total_collateral_value
+            self.total_collateral_value = round(self.total_collateral_value, 2)
             self.allowable_ltv = float(self.allowable_ltv) / len(self.items)
-            self.eligible_loan = lms.round_down_amount_to_nearest_thousand(
-                (self.allowable_ltv / 100) * self.total_collateral_value
+            self.eligible_loan = round(
+                lms.round_down_amount_to_nearest_thousand(
+                    (self.allowable_ltv / 100) * self.total_collateral_value
+                ),
+                2,
             )
 
     def process_bre(self):
@@ -371,18 +432,4 @@ def process_concentration_rule(item, amount, rule, rule_type, total):
         item.bre_passing = 0
         item.bre_validation_message = "Script Amount should not exceed {}.".format(
             threshold_amt
-        )
-
-
-def get_permission_query_conditions(user):
-    if not user:
-        user = frappe.session.user
-
-    if "System Manager" in frappe.get_roles(user):
-        return None
-    elif "Lender" in frappe.get_roles(user):
-        roles = frappe.get_roles(user)
-
-        return """(`tabCart`.lender in {role_tuple})""".format(
-            role_tuple=lms.convert_list_to_tuple_string(roles)
         )

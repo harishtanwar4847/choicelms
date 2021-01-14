@@ -1,10 +1,27 @@
 {
   "baseUrl": "http://localhost:8000",
   "adminPassword": "root",
-  "adminApiKey": "43162629db4f17e",
-  "adminApiSecret": "3494cb595819143",
+  "adminApiKey": "3f710c2934dbed7",
+  "adminApiSecret": "7eb1b8f22bb40d5",
   "viewportHeight": 1080,
   "viewportWidth": 1920,
   "video": false,
-  "screenshotOnRunFailure": false
+  "screenshotOnRunFailure": false,
+  "responseTimeout": 120000,
+  "dummy_user": {
+    "first_name": "abcd",
+    "last_name": "efgh",
+    "mobile": "0000000000",
+    "email": "0000000000@example.com",
+    "firebase_token": "asdf",
+    "pin": "0000"
+  },
+  "extra_user": {
+    "first_name": "xyz",
+    "last_name": "xyz",
+    "mobile": "1111111111",
+    "email": "1111111111@example.com",
+    "firebase_token": "asdf",
+    "pin": "0000"
+  }
 }
