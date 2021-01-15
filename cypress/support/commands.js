@@ -473,43 +473,27 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add("register_dummy_user", () => {
-  return cy.api_call("lms.auth.register", Cypress.config("dummy_user"), "POST");
+Cypress.Commands.add("register_user", (user) => {
+  return cy.api_call("lms.auth.register", user, "POST");
 });
 
-Cypress.Commands.add("delete_dummy_user", () => {
+Cypress.Commands.add("delete_user", (email) => {
   return cy.admin_api_call("frappe.client.delete", {
     doctype: "User",
-    name: Cypress.config("dummy_user").email,
+    name: email,
   });
 });
 
 Cypress.Commands.add("valid_user_kyc_hit", (token) => {
   return cy.api_call(
     "lms.user.kyc",
-    { pan_no: "AAKHR7426K", birth_date: "01-01-1970", accept_terms: true },
+    {
+      pan_no: Cypress.config("pan_no"),
+      birth_date: Cypress.config("birth_date"),
+      accept_terms: true,
+    },
     "GET",
     { Authorization: token }
-  );
-});
-
-Cypress.Commands.add("register_extra_user", () => {
-  return cy.api_call("lms.auth.register", Cypress.config("extra_user"), "POST");
-});
-
-Cypress.Commands.add("delete_extra_user", () => {
-  return cy.admin_api_call("frappe.client.delete", {
-    doctype: "User",
-    name: Cypress.config("extra_user").email,
-  });
-});
-
-Cypress.Commands.add("valid_user_kyc_hit", (extra_token) => {
-  return cy.api_call(
-    "lms.user.kyc",
-    { pan_no: "AAKHR7426K", birth_date: "01-01-1970", accept_terms: true },
-    "GET",
-    { Authorization: extra_token }
   );
 });
 
@@ -572,12 +556,4 @@ Cypress.Commands.add("upsert_cart_process_dummy", (token) => {
         });
       });
     });
-});
-
-Cypress.Commands.add("register_dummy_lender", () => {
-  return cy.api_call(
-    "lms.auth.register",
-    Cypress.config("dummy_lender"),
-    "POST"
-  );
 });

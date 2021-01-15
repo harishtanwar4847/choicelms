@@ -1,8 +1,8 @@
 {
   "baseUrl": "http://localhost:8000",
   "adminPassword": "root",
-  "adminApiKey": "3f710c2934dbed7",
-  "adminApiSecret": "7eb1b8f22bb40d5",
+  "adminApiKey": "ef45c77e5232ad9",
+  "adminApiSecret": "5aec80a2ea407cc",
   "viewportHeight": 1080,
   "viewportWidth": 1920,
   "video": false,
@@ -23,5 +23,7 @@
     "email": "1111111111@example.com",
     "firebase_token": "asdf",
     "pin": "0000"
-  }
+  },
+  "pan_no": "AAKHR7426K",
+  "birth_date": "01-01-1970"
 }
