@@ -54,7 +54,7 @@ class Loan(Document):
     def get_lender(self):
         return frappe.get_doc("Lender", self.lender)
 
-    def after_insert(self):
+    def create_loan_charges(self):
         lender = self.get_lender()
 
         # Processing fees
@@ -145,9 +145,13 @@ class Loan(Document):
 
     def update_loan_balance(self):
         summary = self.get_transaction_summary()
-        self.balance = round(summary.get("outstanding"), 2)
-        self.save(ignore_permissions=True)
-        frappe.db.commit()
+        frappe.db.set_value(
+            self.doctype,
+            self.name,
+            "balance",
+            round(summary.get("outstanding"), 2),
+            update_modified=False,
+        )
 
     def on_update(self):
         frappe.enqueue_doc("Loan", self.name, method="check_for_shortfall")
