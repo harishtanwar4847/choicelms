@@ -548,18 +548,16 @@ Cypress.Commands.add("valid_user_kyc_hit", (extra_token) => {
   );
 });
 
-Cypress.Commands.add("upsert_cart_process_dummy", (token) => {
+Cypress.Commands.add("upsert_cart_process_dummy_esign", (token) => {
   return cy
     .api_call("lms.user.securities", {}, "GET", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     })
     .then((res) => {
       var securities = res.body.data;
-      var approved_securities = cy
-        .get("securities")
-        .filter(
-          (x) => x.Is_Eligible && x.Quantity >= 1 && x.Depository == "CDSL"
-        );
+      var approved_securities = securities.filter(
+        (x) => x.Is_Eligible && x.Quantity >= 1 && x.Depository == "CDSL"
+      );
       var securities_list = [];
       if (approved_securities.length >= 1) {
         securities_list.push({
@@ -582,7 +580,7 @@ Cypress.Commands.add("upsert_cart_process_dummy", (token) => {
           pledgor_boid: pledgor_boid,
         },
         "POST",
-        { Authorization: token }
+        { Authorization: Cypress.config("token") }
       ).then((res) => {
         var cart_name = res.body.data.cart.name;
         // expect(res.body).to.eq({})
@@ -591,17 +589,17 @@ Cypress.Commands.add("upsert_cart_process_dummy", (token) => {
           { cart_name: cart_name },
           "POST",
           {
-            Authorization: token,
+            Authorization: Cypress.config("token"),
           }
         ).then((res) => {
-          loan_app_name = res.body.message;
+          var loan_app_name = res.body.message;
           // expect(res.body).to.eq({});
           cy.api_call(
             "lms.loan.esign",
             { loan_application_name: loan_app_name },
             "POST",
             {
-              Authorization: token,
+              Authorization: Cypress.config("token"),
             }
           );
         });

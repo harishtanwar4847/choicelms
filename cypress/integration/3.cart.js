@@ -413,35 +413,35 @@ context("Process cart", () => {
 });
 
 context("Process dummy cart", () => {
-  it("Use your own cart", () => {
-    // cy.valid_user_kyc_hit(Cypress.config("extra_token"));
-    cy.api_call("lms.cart.request_pledge_otp", {}, "POST", {
-      Authorization: Cypress.config("token"),
-    });
-    cy.admin_api_call("frappe.client.get_list", {
-      doctype: "User Token",
-      fields: ["token"],
-      filters: {
-        entity: "9307242424",
-        token_type: "Pledge OTP",
-        used: 0,
-      },
-    }).then((res) => {
-      var pledge_otp = res.body.message[0].token;
-      cy.api_call(
-        "lms.cart.process_dummy",
-        { cart_name: extra_cart_name, otp: pledge_otp },
-        "POST",
-        {
-          Authorization: Cypress.config("token"),
-        }
-      ).then((res) => {
-        // expect(res.body).to.eq({});
-        expect(res.status).to.eq(403);
-        cy.screenshot();
-      });
-    });
-  });
+  // it("Use your own cart", () => {
+  //   // cy.valid_user_kyc_hit(Cypress.config("extra_token"));
+  //   cy.api_call("lms.cart.request_pledge_otp", {}, "POST", {
+  //     Authorization: Cypress.config("token"),
+  //   });
+  //   cy.admin_api_call("frappe.client.get_list", {
+  //     doctype: "User Token",
+  //     fields: ["token"],
+  //     filters: {
+  //       entity: "9307242424",
+  //       token_type: "Pledge OTP",
+  //       used: 0,
+  //     },
+  //   }).then((res) => {
+  //     var pledge_otp = res.body.message[0].token;
+  //     cy.api_call(
+  //       "lms.cart.process_dummy",
+  //       { cart_name: extra_cart_name, otp: pledge_otp },
+  //       "POST",
+  //       {
+  //         Authorization: Cypress.config("token"),
+  //       }
+  //     ).then((res) => {
+  //       // expect(res.body).to.eq({});
+  //       expect(res.status).to.eq(403);
+  //       cy.screenshot();
+  //     });
+  //   });
+  // });
 
   it("process dummy hit", () => {
     // cy.valid_user_kyc_hit(Cypress.config("token"));
