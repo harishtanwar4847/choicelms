@@ -8,13 +8,13 @@ var extra_loan_app_name = null;
 
 context("Esign", () => {
   before(() => {
-    cy.delete_dummy_user();
-    cy.register_dummy_user().then((res) => {
+    cy.delete_user(Cypress.config("dummy_user").email);
+    cy.register_user(Cypress.config("dummy_user")).then((res) => {
       Cypress.config("token", res.body.data.token);
       cy.valid_user_kyc_hit(Cypress.config("token"));
     });
-    cy.delete_extra_user();
-    cy.register_extra_user().then((res) => {
+    cy.delete_extra_user(Cypress.config("extra_user").email);
+    cy.register_extra_user(Cypress.config("extra_user")).then((res) => {
       Cypress.config("extra_token", res.body.data.token);
       cy.valid_user_kyc_hit(Cypress.config("extra_token"));
     });
@@ -39,9 +39,14 @@ context("Esign", () => {
   });
 
   it("loan application not found", () => {
-    cy.api_call("lms.loan.esign", { loan_application_name: "LA111" }, "POST", {
-      Authorization: Cypress.config("token"),
-    }).then((res) => {
+    cy.api_call(
+      "lms.loan.esign",
+      { loan_application_name: "this_loan_app_does_not_exist" },
+      "POST",
+      {
+        Authorization: Cypress.config("token"),
+      }
+    ).then((res) => {
       expect(res.status).to.eq(404);
       // expect(res.body).to.eq({});
       cy.screenshot();
@@ -106,10 +111,10 @@ context("Esign", () => {
           // expect(res.body).to.eq({});
           cy.api_call(
             "lms.loan.esign",
-            { loan_application_name: loan_app_name },
+            { loan_application_name: extra_loan_app_name },
             "POST",
             {
-              Authorization: extra_token,
+              Authorization: Cypress.config("token"),
             }
           );
           expect(res.status).to.eq(403);
@@ -172,8 +177,8 @@ context("Esign", () => {
               Authorization: Cypress.config("token"),
             }
           ).then((res) => {
-            expect(res.status).to.eq(200);
-            // expect(res.body).to.eq({})
+            expect(res.status).to.eq(404);
+            expect(res.body).to.eq({});
             cy.screenshot();
           });
         });
@@ -184,8 +189,8 @@ context("Esign", () => {
 
 context("Esign done", () => {
   before(() => {
-    cy.delete_dummy_user();
-    cy.register_dummy_user().then((res) => {
+    cy.delete_user(Cypress.config("dummy_user").email);
+    cy.register_user(Cypress.config("dummy_user")).then((res) => {
       Cypress.config("token", res.body.data.token);
       cy.valid_user_kyc_hit(Cypress.config("token"));
     });

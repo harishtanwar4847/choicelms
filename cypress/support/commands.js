@@ -48,6 +48,30 @@ Cypress.Commands.add("login", (email, password) => {
   });
 });
 
+Cypress.Commands.add("lender_login", (email, password) => {
+  /*
+   * login to the instance
+   * checks for provided email address and password, if no email is provided
+   * uses administrator. password is fetched from cypress config by default.
+   * @param email {string} email address for the login user
+   * @param password {string} password for the user
+   */
+  if (!email) {
+    email = "dummy_lender@example.com";
+  }
+  if (!password) {
+    password = Cypress.config("dummy_lender_pass");
+  }
+  cy.request({
+    url: "/api/method/login",
+    method: "POST",
+    body: {
+      usr: email,
+      pwd: password,
+    },
+  });
+});
+
 Cypress.Commands.add("call", (method, args) => {
   /*
    * calls an api method as a POST request
@@ -94,6 +118,9 @@ Cypress.Commands.add("get_field", (fieldname, fieldtype) => {
   }
   if (fieldtype === "Code") {
     selector = `[data-fieldname="${fieldname}"] .ace_text-input`;
+  }
+  if (["Attach", "Attach Image"].includes(fieldtype)) {
+    selector = `button[data-fieldname="${fieldname}"]`;
   }
   return cy.get(selector);
 });
@@ -494,6 +521,30 @@ Cypress.Commands.add("valid_user_kyc_hit", (token) => {
     },
     "GET",
     { Authorization: token }
+  );
+});
+
+Cypress.Commands.add("register_extra_user", (user) => {
+  return cy.api_call("lms.auth.register", user, "POST");
+});
+
+Cypress.Commands.add("delete_extra_user", (email) => {
+  return cy.admin_api_call("frappe.client.delete", {
+    doctype: "User",
+    name: email,
+  });
+});
+
+Cypress.Commands.add("valid_user_kyc_hit", (extra_token) => {
+  return cy.api_call(
+    "lms.user.kyc",
+    {
+      pan_no: Cypress.config("pan_no"),
+      birth_date: Cypress.config("birth_date"),
+      accept_terms: true,
+    },
+    "GET",
+    { Authorization: extra_token }
   );
 });
 

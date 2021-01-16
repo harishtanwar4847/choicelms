@@ -1,13 +1,14 @@
 {
   "baseUrl": "http://localhost:8000",
   "adminPassword": "root",
-  "adminApiKey": "ef45c77e5232ad9",
-  "adminApiSecret": "5aec80a2ea407cc",
+  "adminApiKey": "3a94aff4c3352e2",
+  "adminApiSecret": "9456fd385ffa6d6",
   "viewportHeight": 1080,
   "viewportWidth": 1920,
   "video": false,
   "screenshotOnRunFailure": false,
   "responseTimeout": 120000,
+  "dummy_lender_pass": "lender@123",
   "dummy_user": {
     "first_name": "abcd",
     "last_name": "efgh",
