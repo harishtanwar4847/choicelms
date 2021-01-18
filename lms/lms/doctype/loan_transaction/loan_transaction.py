@@ -99,7 +99,7 @@ class LoanTransaction(Document):
             ):
                 frappe.throw(_("You are not permitted to perform this action"))
             elif self.transaction_type in lender_team_transaction_list and (
-                "Lender Team" not in user_roles
+                "Lender" not in user_roles
             ):
                 frappe.throw(_("You are not permitted to perform this action"))
 

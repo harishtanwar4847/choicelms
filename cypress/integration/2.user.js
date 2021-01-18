@@ -1,7 +1,7 @@
-context.only("Set PIN", () => {
+context("Set PIN", () => {
   before(() => {
-    cy.delete_dummy_user();
-    cy.register_dummy_user().then((res) => {
+    cy.delete_user(Cypress.config("dummy_user").email);
+    cy.register_user(Cypress.config("dummy_user")).then((res) => {
       Cypress.config("token", res.body.data.token);
     });
   });
@@ -65,13 +65,6 @@ context.only("Set PIN", () => {
 });
 
 context("KYC", () => {
-  before(() => {
-    cy.delete_dummy_user();
-    cy.register_dummy_user().then((res) => {
-      Cypress.config("token", res.body.data.token);
-    });
-  });
-
   it("only get http method should be allowed", () => {
     cy.api_call("lms.user.kyc", {}, "POST", {
       Authorization: Cypress.config("token"),
@@ -158,8 +151,8 @@ context("KYC", () => {
 
   it("Valid User KYC hit", () => {
     cy.valid_user_kyc_hit(Cypress.config("token")).then((res) => {
-      expect(res.status).to.eq(200);
       // expect(res.body).to.eq({});
+      expect(res.status).to.eq(200);
       expect(res.body).to.have.property("message", "Success");
       cy.screenshot();
     });
@@ -167,13 +160,6 @@ context("KYC", () => {
 });
 
 context("Securities", () => {
-  before(() => {
-    cy.delete_dummy_user();
-    cy.register_dummy_user().then((res) => {
-      Cypress.config("token", res.body.data.token);
-    });
-  });
-
   it("only get http method should be allowed", () => {
     cy.api_call("lms.user.securities", {}, "POST", {
       Authorization: Cypress.config("token"),
