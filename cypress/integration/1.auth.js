@@ -105,8 +105,8 @@ context("Login Api - login with PIN", () => {
   });
 
   it("valid hit with pin", () => {
-    cy.delete_dummy_user();
-    cy.register_dummy_user().then((res) => {
+    cy.delete_user(Cypress.config("dummy_user").email);
+    cy.register_user(Cypress.config("dummy_user")).then((res) => {
       cy.api_call(
         "lms.user.set_pin",
         { pin: Cypress.config("dummy_user").pin },
@@ -279,7 +279,7 @@ context("Verify OTP Api", () => {
   });
 
   it("invalid otp attempts", () => {
-    cy.delete_dummy_user();
+    cy.delete_user(Cypress.config("dummy_user").email);
     cy.api_call(
       "lms.auth.login",
       { mobile: Cypress.config("dummy_user").mobile, accept_terms: true },
@@ -302,7 +302,7 @@ context("Verify OTP Api", () => {
   });
 
   it("valid otp", () => {
-    cy.delete_dummy_user();
+    cy.delete_user(Cypress.config("dummy_user").email);
     cy.api_call(
       "lms.auth.login",
       { mobile: Cypress.config("dummy_user").mobile, accept_terms: true },
@@ -336,7 +336,7 @@ context("Verify OTP Api", () => {
 
 context("Register API", () => {
   before(() => {
-    cy.delete_dummy_user();
+    cy.delete_user(Cypress.config("dummy_user").email);
   });
 
   it("only post http method should be allowed", () => {
@@ -480,8 +480,8 @@ context("Register API", () => {
   });
 
   it("valid hit with right credentials", () => {
-    cy.delete_dummy_user();
-    cy.register_dummy_user().then((res) => {
+    cy.delete_user(Cypress.config("dummy_user").email);
+    cy.register_user(Cypress.config("dummy_user")).then((res) => {
       expect(res.status).to.eq(200);
       expect(res.body).to.have.property("message", "Registered Successfully.");
       cy.screenshot();
@@ -489,7 +489,7 @@ context("Register API", () => {
   });
 
   it("register using existing credentials", () => {
-    cy.register_dummy_user().then((res) => {
+    cy.register_user(Cypress.config("dummy_user")).then((res) => {
       expect(res.status).to.eq(422);
       expect(res.body).to.have.property("message", "Validation Error");
       expect(res.body).to.have.property("errors");
