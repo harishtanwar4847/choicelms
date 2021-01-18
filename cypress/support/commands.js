@@ -48,6 +48,30 @@ Cypress.Commands.add("login", (email, password) => {
   });
 });
 
+Cypress.Commands.add("lender_login", (email, password) => {
+  /*
+   * login to the instance
+   * checks for provided email address and password, if no email is provided
+   * uses administrator. password is fetched from cypress config by default.
+   * @param email {string} email address for the login user
+   * @param password {string} password for the user
+   */
+  if (!email) {
+    email = "dummy_lender@example.com";
+  }
+  if (!password) {
+    password = Cypress.config("dummy_lender_pass");
+  }
+  cy.request({
+    url: "/api/method/login",
+    method: "POST",
+    body: {
+      usr: email,
+      pwd: password,
+    },
+  });
+});
+
 Cypress.Commands.add("call", (method, args) => {
   /*
    * calls an api method as a POST request
@@ -94,6 +118,9 @@ Cypress.Commands.add("get_field", (fieldname, fieldtype) => {
   }
   if (fieldtype === "Code") {
     selector = `[data-fieldname="${fieldname}"] .ace_text-input`;
+  }
+  if (["Attach", "Attach Image"].includes(fieldtype)) {
+    selector = `button[data-fieldname="${fieldname}"]`;
   }
   return cy.get(selector);
 });
@@ -473,58 +500,64 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add("register_dummy_user", () => {
-  return cy.api_call("lms.auth.register", Cypress.config("dummy_user"), "POST");
+Cypress.Commands.add("register_user", (user) => {
+  return cy.api_call("lms.auth.register", user, "POST");
 });
 
-Cypress.Commands.add("delete_dummy_user", () => {
+Cypress.Commands.add("delete_user", (email) => {
   return cy.admin_api_call("frappe.client.delete", {
     doctype: "User",
-    name: Cypress.config("dummy_user").email,
+    name: email,
   });
 });
 
 Cypress.Commands.add("valid_user_kyc_hit", (token) => {
   return cy.api_call(
     "lms.user.kyc",
-    { pan_no: "AAKHR7426K", birth_date: "01-01-1970", accept_terms: true },
+    {
+      pan_no: Cypress.config("pan_no"),
+      birth_date: Cypress.config("birth_date"),
+      accept_terms: true,
+    },
     "GET",
     { Authorization: token }
   );
 });
 
-Cypress.Commands.add("register_extra_user", () => {
-  return cy.api_call("lms.auth.register", Cypress.config("extra_user"), "POST");
+Cypress.Commands.add("register_extra_user", (user) => {
+  return cy.api_call("lms.auth.register", user, "POST");
 });
 
-Cypress.Commands.add("delete_extra_user", () => {
+Cypress.Commands.add("delete_extra_user", (email) => {
   return cy.admin_api_call("frappe.client.delete", {
     doctype: "User",
-    name: Cypress.config("extra_user").email,
+    name: email,
   });
 });
 
 Cypress.Commands.add("valid_user_kyc_hit", (extra_token) => {
   return cy.api_call(
     "lms.user.kyc",
-    { pan_no: "AAKHR7426K", birth_date: "01-01-1970", accept_terms: true },
+    {
+      pan_no: Cypress.config("pan_no"),
+      birth_date: Cypress.config("birth_date"),
+      accept_terms: true,
+    },
     "GET",
     { Authorization: extra_token }
   );
 });
 
-Cypress.Commands.add("upsert_cart_process_dummy", (token) => {
+Cypress.Commands.add("upsert_cart_process_dummy_esign", (token) => {
   return cy
     .api_call("lms.user.securities", {}, "GET", {
-      Authorization: token,
+      Authorization: Cypress.config("token"),
     })
     .then((res) => {
       var securities = res.body.data;
-      var approved_securities = cy
-        .get("securities")
-        .filter(
-          (x) => x.Is_Eligible && x.Quantity >= 1 && x.Depository == "CDSL"
-        );
+      var approved_securities = securities.filter(
+        (x) => x.Is_Eligible && x.Quantity >= 1 && x.Depository == "CDSL"
+      );
       var securities_list = [];
       if (approved_securities.length >= 1) {
         securities_list.push({
@@ -547,7 +580,7 @@ Cypress.Commands.add("upsert_cart_process_dummy", (token) => {
           pledgor_boid: pledgor_boid,
         },
         "POST",
-        { Authorization: token }
+        { Authorization: Cypress.config("token") }
       ).then((res) => {
         var cart_name = res.body.data.cart.name;
         // expect(res.body).to.eq({})
@@ -556,28 +589,20 @@ Cypress.Commands.add("upsert_cart_process_dummy", (token) => {
           { cart_name: cart_name },
           "POST",
           {
-            Authorization: token,
+            Authorization: Cypress.config("token"),
           }
         ).then((res) => {
-          loan_app_name = res.body.message;
+          var loan_app_name = res.body.message;
           // expect(res.body).to.eq({});
           cy.api_call(
             "lms.loan.esign",
             { loan_application_name: loan_app_name },
             "POST",
             {
-              Authorization: token,
+              Authorization: Cypress.config("token"),
             }
           );
         });
       });
     });
-});
-
-Cypress.Commands.add("register_dummy_lender", () => {
-  return cy.api_call(
-    "lms.auth.register",
-    Cypress.config("dummy_lender"),
-    "POST"
-  );
 });
