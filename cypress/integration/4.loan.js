@@ -1,11 +1,13 @@
-var loan_app_name = null;
-var cart_name = null;
-var file_id = null;
 var pledgor_boid = "1206690000000027";
-var extra_token = null;
+var file_id = null;
 var token = null;
-var extra_loan_app_name = null;
+var cart_name = null;
+var loan_app_name = null;
 var loan_name = null;
+var extra_token = null;
+var extra_cart_name = null;
+var extra_loan_app_name = null;
+var extra_loan_name = null;
 
 context("Esign", () => {
   before(() => {
@@ -522,14 +524,6 @@ context.skip("upload file and Reject loan application", () => {
 });
 
 context("Loan details", () => {
-  before(() => {
-    cy.delete_user(Cypress.config("extra_user").email);
-    cy.register_user(Cypress.config("extra_user")).then((res) => {
-      Cypress.config("extra_token", res.body.data.token);
-      cy.valid_user_kyc_hit(Cypress.config("extra_token"));
-    });
-  });
-
   it("only get http method should be allowed", () => {
     cy.api_call("lms.loan.loan_details", {}, "POST", {
       Authorization: Cypress.config("extra_token"),
@@ -674,7 +668,7 @@ context("Loan details", () => {
 
   it("valid hit loan details", () => {
     cy.api_call("lms.user.securities", {}, "GET", {
-      Authorization: Cypress.config("token"),
+      Authorization: Cypress.config("extra_token"),
     }).then((res) => {
       var securities = res.body.data;
       var approved_securities = securities.filter(
@@ -702,7 +696,7 @@ context("Loan details", () => {
           pledgor_boid: pledgor_boid,
         },
         "POST",
-        { Authorization: Cypress.config("token") }
+        { Authorization: Cypress.config("extra_token") }
       ).then((res) => {
         cart_name = res.body.data.cart.name;
         // expect(res.body).to.eq({})
@@ -711,7 +705,7 @@ context("Loan details", () => {
           { cart_name: cart_name },
           "POST",
           {
-            Authorization: Cypress.config("token"),
+            Authorization: Cypress.config("extra_token"),
           }
         ).then((res) => {
           loan_app_name = res.body.message;
@@ -721,7 +715,7 @@ context("Loan details", () => {
             { loan_application_name: loan_app_name },
             "POST",
             {
-              Authorization: Cypress.config("token"),
+              Authorization: Cypress.config("extra_token"),
             }
           ).then((res) => {
             file_id = res.body.data.file_id;
@@ -730,7 +724,7 @@ context("Loan details", () => {
               { loan_application_name: loan_app_name, file_id: file_id },
               "POST",
               {
-                Authorization: Cypress.config("token"),
+                Authorization: Cypress.config("extra_token"),
               }
             ).then((res) => {
               expect(res.status).to.eq(200);
@@ -748,14 +742,14 @@ context("Loan details", () => {
               cy.admin_api_call("frappe.client.get_list", {
                 doctype: "Loan",
               }).then((res) => {
-                loan_name = res.body.message[0];
+                extra_loan_name = res.body.message[0];
                 // expect(res.body).to.eq({});
                 cy.api_call(
                   "lms.loan.loan_details",
-                  { loan_name: loan_name },
+                  { loan_name: extra_loan_name },
                   "GET",
                   {
-                    Authorization: Cypress.config("token"),
+                    Authorization: Cypress.config("extra_token"),
                   }
                 ).then((res) => {
                   expect(res.status).to.eq(200);

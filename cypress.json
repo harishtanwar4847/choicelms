@@ -2,7 +2,7 @@
   "baseUrl": "http://localhost:8000",
   "adminPassword": "root",
   "adminApiKey": "3f710c2934dbed7",
-  "adminApiSecret": "e07383d7e8e2e06",
+  "adminApiSecret": "639002a0e512836",
   "viewportHeight": 1080,
   "viewportWidth": 1920,
   "video": false,
