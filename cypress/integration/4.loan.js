@@ -664,6 +664,11 @@ context("Loan details", () => {
               cy.contains("Approve").click();
               cy.wait(3000);
               cy.screenshot();
+              cy.contains("Actions").click();
+              // cy.wait(3000);
+              cy.contains("Approve").click();
+              // cy.wait(3000);
+              cy.screenshot();
               cy.contains("Settings").click();
               cy.contains("Logout").click();
               cy.admin_api_call("frappe.client.get_list", {
@@ -678,7 +683,7 @@ context("Loan details", () => {
                     Authorization: Cypress.config("token"),
                   }
                 ).then((res) => {
-                  expect(res.status).to.eq(500);
+                  expect(res.status).to.eq(200);
                   // expect(res.body).to.eq({});
                   cy.screenshot();
                 });
@@ -1061,6 +1066,11 @@ context("Loan withdraw Request", () => {
               cy.screenshot();
               cy.contains("Actions").click();
               cy.wait(3000);
+              cy.contains("Approve").click();
+              // cy.wait(3000);
+              cy.screenshot();
+              cy.contains("Actions").click();
+              // cy.wait(3000);
               cy.contains("Approve").click();
               // cy.wait(3000);
               cy.screenshot();
