@@ -27,7 +27,9 @@ class LoanApplication(Document):
         user = frappe.get_doc("User", customer.username)
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
         lender = self.get_lender()
+
         doc = {
+            "current_date": datetime.now().strftime("%d-%m-%Y"),
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
             "sanctioned_amount": self.drawing_power,
