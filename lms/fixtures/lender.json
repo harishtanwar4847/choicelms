@@ -1,7 +1,7 @@
 [
  {
   "account_renewal_charges": 0.5,
-  "agreement_template": null,
+  "agreement_template": "/private/files/choice_agreement (2).html",
   "cic_charges": 100.0,
   "coordinates": "340,570",
   "default_interest": 4.0,
@@ -22,7 +22,7 @@
   "lender_processing_fees_sharing": 10.0,
   "lender_processing_fees_sharing_type": "Percentage",
   "lender_processing_fees_type": "Percentage",
-  "modified": "2021-01-13 16:43:36.834386",
+  "modified": "2021-01-18 19:17:20.618340",
   "mortgage_charge_sharing_type": "Percentage",
   "mortgage_charge_type": "Percentage",
   "mortgage_charges": 0.1,
