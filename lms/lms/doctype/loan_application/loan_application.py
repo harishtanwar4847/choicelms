@@ -135,24 +135,38 @@ class LoanApplication(Document):
             }
         )
         loan.insert(ignore_permissions=True)
+        loan.create_loan_charges()
 
         file_name = frappe.db.get_value(
             "File", {"file_url": self.lender_esigned_document}
         )
         loan_agreement = frappe.get_doc("File", file_name)
+        loan_agreement_file_name = "{}-loan-aggrement.pdf".format(loan.name)
+        is_private = 0
+        loan_agreement_file_url = frappe.utils.get_files_path(
+            loan_agreement_file_name, is_private=is_private
+        )
         loan_agreement_file = frappe.get_doc(
             {
                 "doctype": "File",
-                "file_name": "{}-loan-aggrement.pdf".format(loan.name),
+                "file_name": loan_agreement_file_name,
                 "content": loan_agreement.get_content(),
                 "attached_to_doctype": "Loan",
                 "attached_to_name": loan.name,
                 "attached_to_field": "loan_agreement",
                 "folder": "Home",
+                "file_url": loan_agreement_file_url,
+                "is_private": is_private,
             }
         )
-        loan_agreement_file.save(ignore_permissions=True)
-        loan.db_set("loan_agreement", loan_agreement.file_url)
+        loan_agreement_file.insert(ignore_permissions=True)
+        frappe.db.set_value(
+            loan.doctype,
+            loan.name,
+            "loan_agreement",
+            loan_agreement_file.file_url,
+            update_modified=False,
+        )
 
         customer = frappe.get_doc("Customer", self.customer)
         if not customer.loan_open:
