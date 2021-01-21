@@ -22,7 +22,7 @@
   "jiffy_host": "https://jiffy.choicebroking.in",
   "jiffy_security_get_latest_price_uri": "/api/cm/ProfileMkt/MultipleTouchline",
   "jiffy_session_generator_uri": "/api/settings/GenKey",
-  "modified": "2021-01-19 20:10:06.036190",
+  "modified": "2021-01-20 11:45:10.687978",
   "name": "LAS Settings",
   "parent": null,
   "parentfield": null,
