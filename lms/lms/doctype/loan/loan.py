@@ -152,6 +152,7 @@ class Loan(Document):
             round(summary.get("outstanding"), 2),
             update_modified=False,
         )
+        frappe.db.commit()
 
     def on_update(self):
         frappe.enqueue_doc("Loan", self.name, method="check_for_shortfall")
