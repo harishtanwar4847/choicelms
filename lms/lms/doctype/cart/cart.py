@@ -243,7 +243,7 @@ class Cart(Document):
         from num2words import num2words
 
         doc = {
-            "__________": datetime.now().strftime("%d-%m-%Y"),
+            "esign_date": "__________",
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
             "sanctioned_amount": self.eligible_loan,
