@@ -7,6 +7,7 @@ import utils
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
 import lms
+from lms.exceptions.PledgeSetupFailureException import PledgeSetupFailureException
 
 
 def validate_securities_for_cart(securities, lender):
@@ -268,7 +269,7 @@ def process(**kwargs):
                 cart.status = "Failure"
                 cart.is_processed = 1
                 cart.save(ignore_permissions=True)
-                raise lms.PledgeSetupFailureException(errors=res.text)
+                raise PledgeSetupFailureException(errors=res.text)
 
             cart.reload()
             cart.process(data)

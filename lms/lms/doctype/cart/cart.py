@@ -10,6 +10,7 @@ import frappe
 from frappe.model.document import Document
 
 import lms
+from lms.exceptions.PledgeSetupFailureException import PledgeSetupFailureException
 
 
 class Cart(Document):
@@ -115,7 +116,7 @@ class Cart(Document):
         if total_successful_pledge == 0:
             self.is_processed = 1
             self.save(ignore_permissions=True)
-            raise lms.PledgeSetupFailureException(
+            raise PledgeSetupFailureException(
                 "Pledge Setup failed.", errors=pledge_response
             )
 

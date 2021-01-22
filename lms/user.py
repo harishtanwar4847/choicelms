@@ -8,6 +8,7 @@ from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.utils.password import update_password
 
 import lms
+from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
 from lms.firebase import FirebaseAdmin
 
 
@@ -37,7 +38,7 @@ def set_pin(**kwargs):
         frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
 
         return utils.respondWithSuccess(message=frappe._("User PIN has been set"))
-    except utils.exceptions.APIException as e:
+    except utils.APIException as e:
         frappe.db.rollback()
         return e.respond()
 
@@ -58,7 +59,7 @@ def kyc(**kwargs):
 
         try:
             user_kyc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
-        except lms.UserKYCNotFoundException:
+        except UserKYCNotFoundException:
             user_kyc = None
 
         if not user_kyc:
@@ -127,7 +128,7 @@ def get_choice_kyc(pan_no, birth_date):
         data = res.json()
 
         if not res.ok or "errorCode" in data:
-            raise lms.UserKYCNotFoundException
+            raise UserKYCNotFoundException
             raise utils.APIException(res.text)
 
         user_kyc = lms.__user_kyc(pan_no=pan_no, throw=False)
@@ -178,7 +179,7 @@ def get_choice_kyc(pan_no, birth_date):
 
     except requests.RequestException as e:
         raise utils.APIException(str(e))
-    except lms.UserKYCNotFoundException:
+    except UserKYCNotFoundException:
         raise
     except Exception as e:
         raise utils.APIException(str(e))
