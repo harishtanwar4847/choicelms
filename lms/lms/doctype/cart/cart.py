@@ -10,6 +10,7 @@ import frappe
 from frappe.model.document import Document
 
 import lms
+from lms.exceptions.PledgeSetupFailureException import PledgeSetupFailureException
 
 
 class Cart(Document):
@@ -115,7 +116,7 @@ class Cart(Document):
         if total_successful_pledge == 0:
             self.is_processed = 1
             self.save(ignore_permissions=True)
-            raise lms.PledgeSetupFailureException(
+            raise PledgeSetupFailureException(
                 "Pledge Setup failed.", errors=pledge_response
             )
 
@@ -243,7 +244,7 @@ class Cart(Document):
         from num2words import num2words
 
         doc = {
-            "__________": datetime.now().strftime("%d-%m-%Y"),
+            "esign_date": "__________",
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
             "sanctioned_amount": self.eligible_loan,
