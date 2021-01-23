@@ -152,6 +152,13 @@ class Loan(Document):
             round(summary.get("outstanding"), 2),
             update_modified=False,
         )
+        frappe.db.set_value(
+            self.doctype,
+            self.name,
+            "balance_str",
+            lms.amount_formatter(round(summary.get("outstanding"), 2)),
+            update_modified=False,
+        )
 
     def on_update(self):
         frappe.enqueue_doc("Loan", self.name, method="check_for_shortfall")
