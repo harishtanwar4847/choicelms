@@ -11,9 +11,13 @@ import utils
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-from .exceptions import *
+from lms.exceptions.InvalidUserTokenException import InvalidUserTokenException
+from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
 
-__version__ = "1.0.0-beta.1.1"
+# from .exceptions import *
+from lms.exceptions.UserNotFoundException import UserNotFoundException
+
+__version__ = "1.0.0-beta.1"
 
 user_token_expiry_map = {
     "OTP": 10,

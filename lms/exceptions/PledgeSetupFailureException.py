@@ -1,4 +1,4 @@
-from utils.exceptions import APIException
+from utils.exceptions.APIException import APIException
 
 
 class PledgeSetupFailureException(APIException):

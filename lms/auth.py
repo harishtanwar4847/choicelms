@@ -8,6 +8,9 @@ from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.utils.password import delete_login_failed_cache
 
 import lms
+from lms.exceptions.InvalidUserTokenException import InvalidUserTokenException
+from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
+from lms.exceptions.UserNotFoundException import UserNotFoundException
 
 
 @frappe.whitelist(allow_guest=True)
@@ -27,7 +30,7 @@ def login(**kwargs):
 
         try:
             user = lms.__user(data.get("mobile"))
-        except lms.UserNotFoundException:
+        except UserNotFoundException:
             user = None
 
         frappe.db.begin()
@@ -50,7 +53,7 @@ def login(**kwargs):
             customer = lms.__customer(user.name)
             try:
                 user_kyc = lms.__user_kyc(user.name)
-            except lms.UserKYCNotFoundException:
+            except UserKYCNotFoundException:
                 user_kyc = {}
 
             pending_loan_applications = frappe.get_all(
@@ -98,7 +101,7 @@ def login(**kwargs):
         )
         frappe.db.commit()
         return utils.respondWithSuccess(message=frappe._("OTP Sent"))
-    except utils.exceptions.APIException as e:
+    except utils.APIException as e:
         frappe.db.rollback()
         return e.respond()
 
@@ -163,12 +166,12 @@ def verify_otp(**kwargs):
             token = lms.verify_user_token(
                 entity=data.get("mobile"), token=data.get("otp"), token_type="OTP"
             )
-        except lms.InvalidUserTokenException:
+        except InvalidUserTokenException:
             token = None
 
         try:
             user = lms.__user(data.get("mobile"))
-        except lms.UserNotFoundException:
+        except UserNotFoundException:
             user = None
 
         if not token:
@@ -204,7 +207,7 @@ def verify_otp(**kwargs):
             customer = lms.__customer(user.name)
             try:
                 user_kyc = lms.__user_kyc(user.name)
-            except lms.UserKYCNotFoundException:
+            except UserKYCNotFoundException:
                 user_kyc = {}
 
             pending_loan_applications = frappe.get_all(

@@ -10,16 +10,6 @@
   "parenttype": null
  },
  {
-  "category": "Cat B",
-  "docstatus": 0,
-  "doctype": "Security Category",
-  "modified": "2020-07-18 19:33:51.705338",
-  "name": "Cat B",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null
- },
- {
   "category": "Cat D",
   "docstatus": 0,
   "doctype": "Security Category",
@@ -35,6 +25,16 @@
   "doctype": "Security Category",
   "modified": "2020-07-18 19:33:54.898655",
   "name": "Cat C",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null
+ },
+ {
+  "category": "Cat B",
+  "docstatus": 0,
+  "doctype": "Security Category",
+  "modified": "2020-07-18 19:33:51.705338",
+  "name": "Cat B",
   "parent": null,
   "parentfield": null,
   "parenttype": null
