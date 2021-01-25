@@ -19,7 +19,7 @@ class UserToken(Document):
             # "Your {token_type} for LMS is {token}. Do not share your {token_type} with anyone.{app_hash_string}"
             expiry_in_minutes = lms.user_token_expiry_map.get(self.token_type, None)
             mess = frappe._(
-                "Your {token_type} for LMS is {token}. Do not share your {token_type} with anyone. Your OTP is valid for {expiry_in_minutes} minutes."
+                "Your {token_type} for Spark.Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for {expiry_in_minutes} minutes."
             ).format(
                 token_type=self.token_type,
                 token=self.token,
