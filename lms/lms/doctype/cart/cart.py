@@ -72,7 +72,6 @@ class Cart(Document):
         payload = {
             "PledgorBOID": self.pledgor_boid,
             "PledgeeBOID": self.pledgee_boid,
-            # "PRFNumber": "SL{}".format(self.name),
             "PRFNumber": lms.random_token(length=12),
             "ExpiryDate": self.expiry.strftime("%d%m%Y"),
             "ISINDTLS": securities_array,

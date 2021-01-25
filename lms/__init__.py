@@ -162,13 +162,6 @@ def get_firebase_tokens(entity):
     return [i.token for i in token_list]
 
 
-def random_token_old(length=10, is_numeric=False):
-    set_ = "0123456789"
-    if not is_numeric:
-        set_ = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    return "".join(choice(set_) for _ in range(length))
-
-
 def get_user(input, throw=False):
     user_data = frappe.db.sql(
         """select name from `tabUser` where email=%s or phone=%s""",
