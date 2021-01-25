@@ -162,13 +162,6 @@ def get_firebase_tokens(entity):
     return [i.token for i in token_list]
 
 
-def random_token(length=10, is_numeric=False):
-    set_ = "0123456789"
-    if not is_numeric:
-        set_ = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    return "".join(choice(set_) for _ in range(length))
-
-
 def get_user(input, throw=False):
     user_data = frappe.db.sql(
         """select name from `tabUser` where email=%s or phone=%s""",
@@ -516,3 +509,27 @@ def amount_formatter(amount):
     formatted_amount = formatted_amount[: formatted_amount.index(".") + 3]
 
     return "{} {}".format(formatted_amount, denominations.get(denomination))
+
+
+def random_token(length=10, is_numeric=False):
+    import random
+    import string
+
+    if is_numeric:
+        sample_str = "".join((random.choice(string.digits) for i in range(length)))
+    else:
+        letters_count = random.randrange(length)
+        digits_count = length - letters_count
+
+        sample_str = "".join(
+            (random.choice(string.ascii_letters) for i in range(letters_count))
+        )
+        sample_str += "".join(
+            (random.choice(string.digits) for i in range(digits_count))
+        )
+
+    # Convert string to list and shuffle it to mix letters and digits
+    sample_list = list(sample_str)
+    random.shuffle(sample_list)
+    final_string = "".join(sample_list)
+    return final_string
