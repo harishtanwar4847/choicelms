@@ -294,7 +294,7 @@ def process_dummy(cart_name):
     cart = frappe.get_doc("Cart", cart_name)
 
     # generate and save prf number
-    frappe.db.set_value("Cart", cart.name, "prf_number", cart_name)
+    frappe.db.set_value("Cart", cart.name, "prf_number", lms.random_token(length=12))
 
     import random
 
