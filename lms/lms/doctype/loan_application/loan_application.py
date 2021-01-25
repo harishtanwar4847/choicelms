@@ -24,7 +24,7 @@ class LoanApplication(Document):
 
     def esign_request(self):
         customer = self.get_customer()
-        user = frappe.get_doc("User", customer.username)
+        user = frappe.get_doc("User", customer.user)
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
         lender = self.get_lender()
 
@@ -175,11 +175,11 @@ class LoanApplication(Document):
 
         self.update_collateral_ledger(loan.name)
 
-        customer = frappe.db.get_value("Customer", {"name": self.customer}, "username")
+        customer = frappe.db.get_value("Customer", {"name": self.customer}, "user")
         doc = frappe.get_doc("User", customer)
         frappe.enqueue_doc("Notification", "Loan Sanction", method="send", doc=doc)
 
-        mobile = frappe.db.get_value("Customer", {"name": self.customer}, "user")
+        mobile = frappe.db.get_value("Customer", {"name": self.customer}, "phone")
         mess = _(
             "Dear "
             + doc.full_name

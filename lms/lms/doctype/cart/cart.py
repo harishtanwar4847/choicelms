@@ -204,7 +204,7 @@ class Cart(Document):
     def notify_customer(self):
         customer = self.get_customer()
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
-        doc = frappe.get_doc("User", customer.username).as_dict()
+        doc = frappe.get_doc("User", customer.user).as_dict()
         doc["loan_application"] = {
             "status": self.status,
             "current_total_collateral_value": self.approved_total_collateral_value_str,
@@ -226,7 +226,7 @@ class Cart(Document):
                 ),
                 sanctioned_amount=doc.get("loan_application").get("sanctioned_amount"),
             )
-        receiver_list = list(set([str(customer.user), str(user_kyc.mobile_number)]))
+        receiver_list = list(set([str(customer.phone), str(user_kyc.mobile_number)]))
         from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
         frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)

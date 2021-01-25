@@ -5,9 +5,14 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "crn_no",
-  "column_break_11",
-  "user_status",
+  "section_break_62",
+  "registeration",
+  "is_email_verified",
+  "kyc_update",
+  "column_break_65",
+  "credit_check",
+  "pledge_securities",
+  "loan_open",
   "kyc_status_section",
   "choice_kyc",
   "column_break_21",
@@ -16,70 +21,13 @@
   "kra",
   "user_profile_section",
   "first_name",
-  "father_first_name",
-  "age",
   "phone",
   "column_break_7",
   "middle_name",
-  "father_middle_name",
-  "gender",
-  "address",
+  "full_name",
   "column_break_20",
   "last_name",
-  "father_last_name",
-  "martial_status",
-  "full_name",
-  "section_break_24",
-  "username",
-  "user",
-  "section_break_5",
-  "pan_number",
-  "aadhaar_number",
-  "column_break_26",
-  "pan_document",
-  "aadhaar_document",
-  "bank_details_section",
-  "bank_account_no",
-  "ifsc_code",
-  "account_type",
-  "section_break_32",
-  "bank_name",
-  "penny_drop",
-  "documents",
-  "section_break_39",
-  "source",
-  "section_break_41",
-  "dmat_account",
-  "section_break_43",
-  "registered_date",
-  "agent_id",
-  "email",
-  "column_break_41",
-  "spark_mobile",
-  "emergency_contact",
-  "alternate_email",
-  "section_break_45",
-  "nominee_details",
-  "column_break_47",
-  "choice_mobile",
-  "section_break_49",
-  "pending_payment",
-  "loan_account_no",
-  "pending_interest",
-  "column_break_53",
-  "cbil_score",
-  "referral_code",
-  "section_break_62",
-  "registeration",
-  "is_email_verified",
-  "column_break_65",
-  "kyc_update",
-  "column_break_67",
-  "credit_check",
-  "column_break_69",
-  "pledge_securities",
-  "column_break_71",
-  "loan_open"
+  "user"
  ],
  "fields": [
   {
@@ -93,12 +41,6 @@
    "label": "Last Name"
   },
   {
-   "fieldname": "username",
-   "fieldtype": "Link",
-   "label": "Username",
-   "options": "User"
-  },
-  {
    "fieldname": "column_break_4",
    "fieldtype": "Column Break"
   },
@@ -108,41 +50,14 @@
    "label": "Middle Name"
   },
   {
-   "fieldname": "email",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Email"
-  },
-  {
    "fieldname": "phone",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Phone"
   },
   {
-   "fieldname": "section_break_5",
-   "fieldtype": "Section Break",
-   "label": "ID Proofs"
-  },
-  {
    "fieldname": "column_break_7",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_11",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "crn_no",
-   "fieldtype": "Data",
-   "label": "CRN No",
-   "unique": 1
-  },
-  {
-   "fieldname": "user_status",
-   "fieldtype": "Select",
-   "label": "User Status",
-   "options": "\nActive\nIn Active\nLocked"
   },
   {
    "fieldname": "kyc_status_section",
@@ -173,217 +88,12 @@
    "label": "User Profile"
   },
   {
-   "fieldname": "father_first_name",
-   "fieldtype": "Data",
-   "label": "Father First Name"
-  },
-  {
-   "fieldname": "father_last_name",
-   "fieldtype": "Data",
-   "label": "Father Last Name"
-  },
-  {
-   "fieldname": "father_middle_name",
-   "fieldtype": "Data",
-   "label": "Father Middle Name"
-  },
-  {
-   "fieldname": "age",
-   "fieldtype": "Int",
-   "label": "Age"
-  },
-  {
-   "fieldname": "gender",
-   "fieldtype": "Select",
-   "label": "Gender",
-   "options": "\nMale\nFemale"
-  },
-  {
-   "fieldname": "martial_status",
-   "fieldtype": "Select",
-   "label": "Martial status",
-   "options": "\nMarried\nUnmarried"
-  },
-  {
-   "fieldname": "address",
-   "fieldtype": "Data",
-   "label": "Address"
-  },
-  {
-   "fieldname": "pan_number",
-   "fieldtype": "Data",
-   "label": "PAN Number"
-  },
-  {
-   "fieldname": "aadhaar_number",
-   "fieldtype": "Int",
-   "label": "AADHAAR Number"
-  },
-  {
-   "fieldname": "bank_details_section",
-   "fieldtype": "Section Break",
-   "label": "Bank Details"
-  },
-  {
-   "fieldname": "penny_drop",
-   "fieldtype": "Data",
-   "label": "Penny Drop"
-  },
-  {
-   "fieldname": "section_break_32",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "registered_date",
-   "fieldtype": "Date",
-   "label": "Registered Date"
-  },
-  {
-   "fieldname": "agent_id",
-   "fieldtype": "Data",
-   "label": "Agent ID"
-  },
-  {
-   "fieldname": "alternate_email",
-   "fieldtype": "Data",
-   "label": "Alternate Email"
-  },
-  {
-   "fieldname": "spark_mobile",
-   "fieldtype": "Data",
-   "label": "SPARK Mobile"
-  },
-  {
-   "fieldname": "emergency_contact",
-   "fieldtype": "Data",
-   "label": "Emergency Contact"
-  },
-  {
-   "fieldname": "nominee_details",
-   "fieldtype": "Data",
-   "label": "Nominee Details"
-  },
-  {
-   "fieldname": "choice_mobile",
-   "fieldtype": "Data",
-   "label": "Choice Mobile"
-  },
-  {
-   "fieldname": "loan_account_no",
-   "fieldtype": "Data",
-   "label": "Loan Account No"
-  },
-  {
-   "fieldname": "pending_payment",
-   "fieldtype": "Data",
-   "label": "Pending Payment"
-  },
-  {
-   "fieldname": "pending_interest",
-   "fieldtype": "Data",
-   "label": "Pending Interest"
-  },
-  {
-   "fieldname": "cbil_score",
-   "fieldtype": "Data",
-   "label": "CBIL Score"
-  },
-  {
-   "fieldname": "referral_code",
-   "fieldtype": "Data",
-   "label": "Referral Code"
-  },
-  {
    "fieldname": "column_break_21",
    "fieldtype": "Column Break"
   },
   {
    "fieldname": "column_break_20",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_26",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_41",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_45",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_47",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_49",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_53",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "source",
-   "fieldtype": "Table",
-   "label": "Source",
-   "options": "Source"
-  },
-  {
-   "fieldname": "section_break_39",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "pan_document",
-   "fieldtype": "Attach",
-   "label": "PAN Document"
-  },
-  {
-   "fieldname": "aadhaar_document",
-   "fieldtype": "Attach",
-   "label": "AADHAAR Document"
-  },
-  {
-   "fieldname": "bank_account_no",
-   "fieldtype": "Data",
-   "label": "Bank Account No"
-  },
-  {
-   "fieldname": "ifsc_code",
-   "fieldtype": "Data",
-   "label": "IFSC Code"
-  },
-  {
-   "fieldname": "account_type",
-   "fieldtype": "Select",
-   "label": "Account Type",
-   "options": "\nSaving Account\nRegular Savings\nCurrent Account\nRecurring Deposit Account\nFixed Deposit Account\nDEMAT Account\nNRI Accounts"
-  },
-  {
-   "fieldname": "bank_name",
-   "fieldtype": "Data",
-   "label": "Bank Name"
-  },
-  {
-   "fieldname": "documents",
-   "fieldtype": "Attach",
-   "label": "Documents"
-  },
-  {
-   "fieldname": "section_break_41",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "dmat_account",
-   "fieldtype": "Table",
-   "label": "DMAT Account",
-   "options": "DMAT Account"
-  },
-  {
-   "fieldname": "section_break_43",
-   "fieldtype": "Section Break"
   },
   {
    "fieldname": "section_break_62",
@@ -399,7 +109,7 @@
    "default": "0",
    "fieldname": "registeration",
    "fieldtype": "Check",
-   "label": "Registeration"
+   "label": "Registration"
   },
   {
    "fieldname": "column_break_65",
@@ -412,18 +122,10 @@
    "label": "KYC Update"
   },
   {
-   "fieldname": "column_break_67",
-   "fieldtype": "Column Break"
-  },
-  {
    "default": "0",
    "fieldname": "credit_check",
    "fieldtype": "Check",
    "label": "Credit Check"
-  },
-  {
-   "fieldname": "column_break_69",
-   "fieldtype": "Column Break"
   },
   {
    "default": "0",
@@ -432,23 +134,10 @@
    "label": "Pledge Securities"
   },
   {
-   "fieldname": "column_break_71",
-   "fieldtype": "Column Break"
-  },
-  {
    "default": "0",
    "fieldname": "loan_open",
    "fieldtype": "Check",
    "label": "Loan Open"
-  },
-  {
-   "fieldname": "section_break_24",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "user",
-   "fieldtype": "Data",
-   "label": "User"
   },
   {
    "fieldname": "full_name",
@@ -457,9 +146,15 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Full Name"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User"
   }
  ],
- "modified": "2021-01-11 14:55:56.846077",
+ "modified": "2021-01-25 23:36:51.410161",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Customer",
