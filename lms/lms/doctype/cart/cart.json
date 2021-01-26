@@ -81,7 +81,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Customer",
-   "options": "Customer",
+   "options": "Loan Customer",
    "reqd": 1,
    "set_only_once": 1
   },
@@ -191,7 +191,7 @@
    "label": "Customer Name"
   }
  ],
- "modified": "2021-01-11 14:45:15.552789",
+ "modified": "2021-01-26 14:36:45.420910",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart",

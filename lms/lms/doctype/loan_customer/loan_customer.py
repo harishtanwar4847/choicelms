@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2020, Atrina Technologies Pvt. Ltd. and contributors
+# Copyright (c) 2021, Atrina Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
-
-import json
 
 import frappe
 from frappe.model.document import Document
@@ -13,7 +11,7 @@ import lms
 from lms.firebase import FirebaseAdmin
 
 
-class Customer(Document):
+class LoanCustomer(Document):
     def before_insert(self):
         user = frappe.get_doc("User", self.user)
 

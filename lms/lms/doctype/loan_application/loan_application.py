@@ -20,7 +20,7 @@ class LoanApplication(Document):
         return frappe.get_doc("Lender", self.lender)
 
     def get_customer(self):
-        return frappe.get_doc("Customer", self.customer)
+        return frappe.get_doc("Loan Customer", self.customer)
 
     def esign_request(self):
         customer = self.get_customer()
@@ -168,18 +168,18 @@ class LoanApplication(Document):
             update_modified=False,
         )
 
-        customer = frappe.get_doc("Customer", self.customer)
+        customer = frappe.get_doc("Loan Customer", self.customer)
         if not customer.loan_open:
             customer.loan_open = 1
             customer.save(ignore_permissions=True)
 
         self.update_collateral_ledger(loan.name)
 
-        customer = frappe.db.get_value("Customer", {"name": self.customer}, "user")
+        customer = frappe.db.get_value("Loan Customer", {"name": self.customer}, "user")
         doc = frappe.get_doc("User", customer)
         frappe.enqueue_doc("Notification", "Loan Sanction", method="send", doc=doc)
 
-        mobile = frappe.db.get_value("Customer", {"name": self.customer}, "phone")
+        mobile = frappe.db.get_value("Loan Customer", {"name": self.customer}, "phone")
         mess = _(
             "Dear "
             + doc.full_name

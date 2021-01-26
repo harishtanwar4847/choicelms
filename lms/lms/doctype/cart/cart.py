@@ -15,7 +15,7 @@ from lms.exceptions.PledgeSetupFailureException import PledgeSetupFailureExcepti
 
 class Cart(Document):
     def get_customer(self):
-        return frappe.get_doc("Customer", self.customer)
+        return frappe.get_doc("Loan Customer", self.customer)
 
     def get_lender(self):
         return frappe.get_doc("Lender", self.lender)

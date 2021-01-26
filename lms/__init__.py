@@ -237,9 +237,9 @@ def create_user(first_name, last_name, mobile, email):
 
 def create_customer(user):
     try:
-        customer = frappe.get_doc({"doctype": "Customer", "user": user.email}).insert(
-            ignore_permissions=True
-        )
+        customer = frappe.get_doc(
+            {"doctype": "Loan Customer", "user": user.email}
+        ).insert(ignore_permissions=True)
 
         return customer
     except Exception as e:
@@ -263,9 +263,9 @@ def add_user(first_name, last_name, phone, email):
             )
         ).insert(ignore_permissions=True)
 
-        customer = frappe.get_doc(dict(doctype="Customer", user=user.email)).insert(
-            ignore_permissions=True
-        )
+        customer = frappe.get_doc(
+            dict(doctype="Loan Customer", user=user.email)
+        ).insert(ignore_permissions=True)
 
         create_user_token(
             entity=email, token=random_token(), token_type="Email Verification Token"
@@ -376,12 +376,12 @@ def chunk_doctype(doctype, limit=50):
 
 
 def __customer(entity=None):
-    res = frappe.get_all("Customer", filters={"user": __user(entity).name})
+    res = frappe.get_all("Loan Customer", filters={"user": __user(entity).name})
 
     if len(res) == 0:
         raise CustomerNotFoundException
 
-    return frappe.get_doc("Customer", res[0].name)
+    return frappe.get_doc("Loan Customer", res[0].name)
 
 
 def __user_kyc(entity=None, pan_no=None, throw=True):
@@ -418,13 +418,13 @@ def round_down_amount_to_nearest_thousand(amount):
 
 
 def get_customer(entity):
-    customer_list = frappe.get_all("Customer", filters={"user": get_user(entity)})
-    return frappe.get_doc("Customer", customer_list[0].name)
+    customer_list = frappe.get_all("Loan Customer", filters={"user": get_user(entity)})
+    return frappe.get_doc("Loan Customer", customer_list[0].name)
 
 
 def delete_user(doc, method):
     frappe.db.sql("delete from `tabUser KYC` where user = %s", doc.name)
-    frappe.db.sql("delete from `tabCustomer` where user = %s", doc.name)
+    frappe.db.sql("delete from `tabLoan Customer` where user = %s", doc.name)
     frappe.db.sql("delete from `tabWorkflow Action` where user = %s", doc.name)
     frappe.db.commit()
 

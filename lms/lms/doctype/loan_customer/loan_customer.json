@@ -1,6 +1,6 @@
 {
  "autoname": "format:CUST-{MM}-{YYYY}-{####}",
- "creation": "2020-08-10 15:31:11.771512",
+ "creation": "2021-01-26 14:35:53.972740",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -31,73 +31,14 @@
  ],
  "fields": [
   {
-   "fieldname": "first_name",
-   "fieldtype": "Data",
-   "label": "First Name"
-  },
-  {
-   "fieldname": "last_name",
-   "fieldtype": "Data",
-   "label": "Last Name"
-  },
-  {
-   "fieldname": "column_break_4",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "middle_name",
-   "fieldtype": "Data",
-   "label": "Middle Name"
-  },
-  {
-   "fieldname": "phone",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Phone"
-  },
-  {
-   "fieldname": "column_break_7",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "kyc_status_section",
-   "fieldtype": "Section Break",
-   "label": "KYC status"
-  },
-  {
-   "fieldname": "choice_kyc",
-   "fieldtype": "Link",
-   "label": "Choice KYC",
-   "options": "User KYC"
-  },
-  {
-   "fieldname": "ckcy",
-   "fieldtype": "Select",
-   "label": "CKCY",
-   "options": "\nYes\nNo\nNot Available"
-  },
-  {
-   "fieldname": "kra",
-   "fieldtype": "Select",
-   "label": "KRA",
-   "options": "\nYes\nNo\nNot Available"
-  },
-  {
-   "fieldname": "user_profile_section",
-   "fieldtype": "Section Break",
-   "label": "User Profile"
-  },
-  {
-   "fieldname": "column_break_21",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_20",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "section_break_62",
    "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "registeration",
+   "fieldtype": "Check",
+   "label": "Registration"
   },
   {
    "default": "0",
@@ -107,19 +48,13 @@
   },
   {
    "default": "0",
-   "fieldname": "registeration",
+   "fieldname": "kyc_update",
    "fieldtype": "Check",
-   "label": "Registration"
+   "label": "KYC Update"
   },
   {
    "fieldname": "column_break_65",
    "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "kyc_update",
-   "fieldtype": "Check",
-   "label": "KYC Update"
   },
   {
    "default": "0",
@@ -140,6 +75,62 @@
    "label": "Loan Open"
   },
   {
+   "fieldname": "kyc_status_section",
+   "fieldtype": "Section Break",
+   "label": "KYC status"
+  },
+  {
+   "fieldname": "choice_kyc",
+   "fieldtype": "Link",
+   "label": "Choice KYC",
+   "options": "User KYC"
+  },
+  {
+   "fieldname": "column_break_21",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ckcy",
+   "fieldtype": "Select",
+   "label": "CKCY",
+   "options": "\nYes\nNo\nNot Available"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "kra",
+   "fieldtype": "Select",
+   "label": "KRA",
+   "options": "\nYes\nNo\nNot Available"
+  },
+  {
+   "fieldname": "user_profile_section",
+   "fieldtype": "Section Break",
+   "label": "User Profile"
+  },
+  {
+   "fieldname": "first_name",
+   "fieldtype": "Data",
+   "label": "First Name"
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Phone"
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "middle_name",
+   "fieldtype": "Data",
+   "label": "Middle Name"
+  },
+  {
    "fieldname": "full_name",
    "fieldtype": "Read Only",
    "in_global_search": 1,
@@ -148,16 +139,25 @@
    "label": "Full Name"
   },
   {
+   "fieldname": "column_break_20",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_name",
+   "fieldtype": "Data",
+   "label": "Last Name"
+  },
+  {
    "fieldname": "user",
    "fieldtype": "Link",
    "label": "User",
    "options": "User"
   }
  ],
- "modified": "2021-01-25 23:36:51.410161",
+ "modified": "2021-01-26 14:35:53.972740",
  "modified_by": "Administrator",
  "module": "Lms",
- "name": "Customer",
+ "name": "Loan Customer",
  "owner": "Administrator",
  "permissions": [
   {
