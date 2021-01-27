@@ -533,3 +533,12 @@ def random_token(length=10, is_numeric=False):
     random.shuffle(sample_list)
     final_string = "".join(sample_list)
     return final_string
+
+
+def user_dashboard(data=None):
+    return {
+        "fieldname": "user",
+        "transactions": [
+            {"items": ["Loan Customer"]},
+        ],
+    }
