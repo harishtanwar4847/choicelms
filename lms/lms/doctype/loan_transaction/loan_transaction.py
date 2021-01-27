@@ -71,6 +71,10 @@ class LoanTransaction(Document):
     def before_insert(self):
         self.set_record_type()
         self.validate_withdrawal_amount()
+        # set customer
+        loan = self.get_loan()
+        self.customer = loan.customer
+        self.customer_name = loan.customer_name
         # check for user roles and permissions before adding transactions
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
