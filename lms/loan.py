@@ -588,6 +588,9 @@ def loan_withdraw_request(**kwargs):
                 "requested": amount,
                 "allowable": max_withdraw_amount,
                 "bank_account": data.get("bank_account_name"),
+                "bank": bank_account.bank,
+                "account_number": bank_account.account_number,
+                "ifsc": bank_account.ifsc,
                 "lender": loan.lender,
             }
         )
