@@ -85,6 +85,7 @@
   {
    "fieldname": "bank_account",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Bank Account",
    "options": "User Bank Account",
    "read_only": 1
@@ -201,7 +202,7 @@
   }
  ],
  "is_submittable": 1,
- "modified": "2021-01-27 12:56:25.261114",
+ "modified": "2021-01-27 14:55:48.262586",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
