@@ -19,6 +19,9 @@
   "time",
   "transaction_type",
   "bank_account",
+  "bank",
+  "account_number",
+  "ifsc",
   "status",
   "amended_from",
   "record_type",
@@ -180,10 +183,25 @@
    "fieldname": "customer_name",
    "fieldtype": "Read Only",
    "label": "Customer Name"
+  },
+  {
+   "fieldname": "bank",
+   "fieldtype": "Read Only",
+   "label": "Bank Name"
+  },
+  {
+   "fieldname": "account_number",
+   "fieldtype": "Read Only",
+   "label": "Account Number"
+  },
+  {
+   "fieldname": "ifsc",
+   "fieldtype": "Read Only",
+   "label": "IFSC"
   }
  ],
  "is_submittable": 1,
- "modified": "2021-01-27 12:35:35.911775",
+ "modified": "2021-01-27 12:56:25.261114",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
