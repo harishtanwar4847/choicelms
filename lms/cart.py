@@ -104,7 +104,7 @@ def upsert(**kwargs):
 
         if not data.get("expiry", None):
             current = datetime.now()
-            expiry = current.replace(year=current.year + 99, day=1)
+            expiry = current.replace(year=current.year + 5, day=1)
 
         securities = validate_securities_for_cart(
             data.get("securities", {}), data.get("lender")
