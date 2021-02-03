@@ -170,8 +170,7 @@
   {
    "fieldname": "disbursed",
    "fieldtype": "Currency",
-   "label": "Disbursed Withdraw Amount",
-   "read_only": 1
+   "label": "Disbursed Withdraw Amount"
   },
   {
    "fieldname": "customer",
@@ -202,7 +201,7 @@
   }
  ],
  "is_submittable": 1,
- "modified": "2021-01-27 14:55:48.262586",
+ "modified": "2021-02-03 11:05:01.493715",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",

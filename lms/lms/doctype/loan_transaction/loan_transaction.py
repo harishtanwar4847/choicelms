@@ -211,18 +211,18 @@ class LoanTransaction(Document):
             frappe.throw("Kindly add transaction id before approving")
 
         if self.transaction_type == "Withdrawal":
+            self.amount = self.disbursed
+
             if self.amount <= 0:
                 frappe.throw("Amount should be more than 0.")
 
             # amount should be less than equal requsted
             if self.amount > self.requested:
-                frappe.throw("Amount should be less than requested amount")
+                frappe.throw("Amount should be less than or equal to requested amount")
 
             # check if allowable is greater than amount
             if self.amount > self.allowable:
-                frappe.throw("Amount should be less than allowable amount")
-
-            self.disbursed = self.amount
+                frappe.throw("Amount should be less than or equal to allowable amount")
 
     def on_update(self):
         if self.transaction_type == "Withdrawal":
