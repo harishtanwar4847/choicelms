@@ -141,7 +141,7 @@ class Loan(Document):
         return loan_transaction
 
     def get_customer(self):
-        return frappe.get_doc("Customer", self.customer)
+        return frappe.get_doc("Loan Customer", self.customer)
 
     def update_loan_balance(self):
         summary = self.get_transaction_summary()

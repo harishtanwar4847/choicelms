@@ -37,7 +37,7 @@ def get_data():
             "label": _("User/Customer Details"),
             "items": [
                 {"type": "doctype", "name": "User", "onboard": 1},
-                {"type": "doctype", "name": "Customer", "onboard": 1},
+                {"type": "doctype", "name": "Loan Customer", "onboard": 1},
                 {
                     "type": "doctype",
                     "name": "Approved Terms and Conditions",

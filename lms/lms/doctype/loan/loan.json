@@ -70,7 +70,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Customer",
-   "options": "Customer",
+   "options": "Loan Customer",
    "reqd": 1,
    "set_only_once": 1
   },

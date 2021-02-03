@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2020, Atrina Technologies Pvt. Ltd. and contributors
+# Copyright (c) 2021, Atrina Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
-
-import json
 
 import frappe
 from frappe.model.document import Document
@@ -13,17 +11,18 @@ import lms
 from lms.firebase import FirebaseAdmin
 
 
-class Customer(Document):
+class LoanCustomer(Document):
     def before_insert(self):
-        user = frappe.get_doc("User", self.username)
+        user = frappe.get_doc("User", self.user)
 
         self.first_name = user.first_name
         self.middle_name = user.middle_name
         self.last_name = user.last_name
         self.full_name = user.full_name
-        self.email = user.email
+        # self.email = user.email
         self.phone = user.phone
-        self.user = user.phone
+        # self.user = user.phone
+        self.user = user.email
         self.registeration = 1
 
     def get_kyc(self):
@@ -56,7 +55,7 @@ class Customer(Document):
                     "user_kyc": user_kyc,
                     "pending_esigns": json.dumps(pending_esigns),
                 },
-                tokens=lms.get_firebase_tokens(self.username),
+                tokens=lms.get_firebase_tokens(self.user),
             )
         except Exception:
             pass
