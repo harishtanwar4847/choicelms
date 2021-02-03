@@ -600,6 +600,8 @@ def loan_withdraw_request(**kwargs):
         bank_account.save(ignore_permissions=True)
         frappe.db.commit()
 
+        data = {"loan_transaction_name": withdrawal_transaction.name}
+
         masked_bank_account_number = (
             len(bank_account.account_number[:-4]) * "x"
             + bank_account.account_number[-4:]
@@ -608,7 +610,7 @@ def loan_withdraw_request(**kwargs):
             masked_bank_account_number
         )
 
-        return utils.respondWithSuccess(message=message)
+        return utils.respondWithSuccess(message=message, data=data)
     except utils.APIException as e:
         return e.respond()
 
