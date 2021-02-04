@@ -111,7 +111,6 @@ def upsert(**kwargs):
         )
 
         customer = lms.__customer()
-        print(customer.name, customer.full_name)
         if data.get("loan_name", None):
             try:
                 loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -225,12 +224,12 @@ def process(**kwargs):
 
         pledge_request = cart.pledge_request()
         frappe.db.begin()
-        frappe.db.set_value(
-            "Cart",
-            cart.name,
-            "prf_number",
-            pledge_request.get("payload").get("PRFNumber"),
-        )
+        # frappe.db.set_value(
+        #     "Cart",
+        #     cart.name,
+        #     "prf_number",
+        #     pledge_request.get("payload").get("PRFNumber"),
+        # )
 
         try:
             res = requests.post(
@@ -266,8 +265,8 @@ def process(**kwargs):
 
             if not res.ok or not data.get("Success"):
                 cart.reload()
-                cart.status = "Failure"
-                cart.is_processed = 1
+                # cart.status = "Failure"
+                # cart.is_processed = 1
                 cart.save(ignore_permissions=True)
                 raise PledgeSetupFailureException(errors=res.text)
 
@@ -294,7 +293,7 @@ def process_dummy(cart_name):
     cart = frappe.get_doc("Cart", cart_name)
 
     # generate and save prf number
-    frappe.db.set_value("Cart", cart.name, "prf_number", lms.random_token(length=12))
+    # frappe.db.set_value("Cart", cart.name, "prf_number", lms.random_token(length=12))
 
     import random
 

@@ -72,7 +72,7 @@ class Cart(Document):
         payload = {
             "PledgorBOID": self.pledgor_boid,
             "PledgeeBOID": self.pledgee_boid,
-            "PRFNumber": lms.random_token(length=12),
+            # "PRFNumber": lms.random_token(length=12),
             "ExpiryDate": self.expiry.strftime("%d%m%Y"),
             "ISINDTLS": securities_array,
         }
@@ -82,7 +82,10 @@ class Cart(Document):
         return {"url": API_URL, "headers": headers, "payload": payload}
 
     def process(self, pledge_response):
-        if self.status != "Not Processed":
+        # TODO: here use cart.is_processed in condition
+        # if self.status != "Not Processed":
+        #     return
+        if self.is_processed:
             return
 
         isin_details_ = pledge_response.get("PledgeSetupResponse").get("ISINstatusDtls")
@@ -101,17 +104,17 @@ class Cart(Document):
             success = len(i.psn) > 0
 
             if success:
-                if self.status == "Not Processed":
-                    self.status = "Success"
-                elif self.status == "Failure":
-                    self.status = "Partial Success"
+                # if self.status == "Not Processed":
+                #     self.status = "Success"
+                # elif self.status == "Failure":
+                #     self.status = "Partial Success"
                 self.approved_total_collateral_value += i.amount
                 total_successful_pledge += 1
-            else:
-                if self.status == "Not Processed":
-                    self.status = "Failure"
-                elif self.status == "Success":
-                    self.status = "Partial Success"
+            # else:
+            #     if self.status == "Not Processed":
+            #         self.status = "Failure"
+            #     elif self.status == "Success":
+            #         self.status = "Partial Success"
 
         if total_successful_pledge == 0:
             self.is_processed = 1
@@ -141,7 +144,7 @@ class Cart(Document):
                     "lender": self.lender,
                     "loan_application": loan_application_name,
                     "request_type": "Pledge",
-                    "request_identifier": self.prf_number,
+                    # "request_identifier": self.prf_number,
                     "expiry": self.expiry,
                     "pledgor_boid": self.pledgor_boid,
                     "pledgee_boid": self.pledgee_boid,
@@ -155,7 +158,10 @@ class Cart(Document):
             collateral_ledger.save(ignore_permissions=True)
 
     def create_loan_application(self):
-        if self.status == "Not Processed":
+        # TODO: here use cart.is_processed in condition
+        # if self.status == "Not Processed":
+        #     return
+        if self.is_processed:
             return
 
         items = []
@@ -182,7 +188,7 @@ class Cart(Document):
                 "total_collateral_value": self.approved_total_collateral_value,
                 "pledged_total_collateral_value": self.total_collateral_value,
                 "loan_margin_shortfall": self.loan_margin_shortfall,
-                "pledge_status": self.status,
+                # "pledge_status": self.status,
                 "drawing_power": self.approved_eligible_loan,
                 "lender": self.lender,
                 "expiry_date": self.expiry,
@@ -202,6 +208,7 @@ class Cart(Document):
         return loan_application
 
     def notify_customer(self):
+        # TODO: need to shift this method to loan application
         customer = self.get_customer()
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
         doc = frappe.get_doc("User", customer.user).as_dict()
@@ -231,10 +238,11 @@ class Cart(Document):
 
         frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
 
-    def on_update(self):
-        if self.is_processed:
-            self.notify_customer()
-        # frappe.enqueue_doc("Cart", self.name, method="create_tnc_file")
+    # TODO : need to do this in loan application
+    # def on_update(self):
+    #     if self.is_processed:
+    #         self.notify_customer()
+    # frappe.enqueue_doc("Cart", self.name, method="create_tnc_file")
 
     def create_tnc_file(self):
         lender = self.get_lender()
@@ -296,7 +304,9 @@ class Cart(Document):
         )
 
     def process_cart_items(self):
-        if self.status == "Not Processed":
+        # TODO : here use cart.is_processed in condition
+        # if self.status == "Not Processed":
+        if not self.is_processed:
             self.pledgee_boid = self.get_lender().demat_account_number
             isin = [i.isin for i in self.items]
             price_map = lms.get_security_prices(isin)
@@ -312,7 +322,9 @@ class Cart(Document):
                 i.amount = i.pledged_quantity * i.price
 
     def process_cart(self):
-        if self.status == "Not Processed":
+        # TODO : here use cart.is_processed in condition
+        # if self.status == "Not Processed":
+        if not self.is_processed:
             self.total_collateral_value = 0
             self.allowable_ltv = 0
             for item in self.items:
