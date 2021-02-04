@@ -3,7 +3,7 @@
   "account_renewal_charges": 0.5,
   "agreement_template": "/private/files/Choice_agreement.html",
   "cic_charges": 100.0,
-  "coordinates": "340,570",
+  "coordinates": "370,610",
   "default_interest": 4.0,
   "default_interest_threshold": "15",
   "demat_account_number": "1206690000284106",
@@ -13,7 +13,7 @@
   "documentation_charge_type": "Fix",
   "documentation_charges": 10.0,
   "documentation_charges_sharing": 100.0,
-  "esign_page": 21,
+  "esign_page": 20,
   "full_name": "Choice Finserv",
   "gst_id": null,
   "interest_percentage_sharing": 0.84,
@@ -22,7 +22,7 @@
   "lender_processing_fees_sharing": 10.0,
   "lender_processing_fees_sharing_type": "Percentage",
   "lender_processing_fees_type": "Percentage",
-  "modified": "2021-01-27 18:05:47.630151",
+  "modified": "2021-02-04 11:39:58.099687",
   "mortgage_charge_sharing_type": "Percentage",
   "mortgage_charge_type": "Percentage",
   "mortgage_charges": 0.1,
@@ -40,7 +40,7 @@
   "stamp_duty_sharing": 100.0,
   "stamp_duty_sharing_type": "Percentage",
   "stamp_duty_type": "Percentage",
-  "total_pages": 21,
+  "total_pages": 20,
   "transaction_charges_per_request": 100.0
  }
 ]

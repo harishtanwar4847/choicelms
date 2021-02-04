@@ -136,7 +136,7 @@ def get_choice_kyc(pan_no, birth_date):
         user_kyc.investor_name = data["investorName"]
         user_kyc.father_name = data["fatherName"]
         user_kyc.mother_name = data["motherName"]
-        user_kyc.address = data["address"]
+        user_kyc.address = data["address"].replace("~", " ")
         user_kyc.city = data["addressCity"]
         user_kyc.state = data["addressState"]
         user_kyc.pincode = data["addressPinCode"]

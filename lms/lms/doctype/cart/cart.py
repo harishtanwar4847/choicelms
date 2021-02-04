@@ -245,6 +245,7 @@ class Cart(Document):
 
         doc = {
             "esign_date": "__________",
+            "loan_application_number": " ",
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
             "sanctioned_amount": self.eligible_loan,

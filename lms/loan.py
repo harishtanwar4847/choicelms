@@ -507,7 +507,7 @@ def loan_withdraw_request(**kwargs):
             kwargs,
             {
                 "loan_name": "required",
-                "amount": ["required", lambda x: type(x) == float or type(x) == int],
+                "amount": ["required", lambda x: type(x) == float],
                 "bank_account_name": "",
                 "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
             },
@@ -600,8 +600,6 @@ def loan_withdraw_request(**kwargs):
         bank_account.save(ignore_permissions=True)
         frappe.db.commit()
 
-        data = {"loan_transaction_name": withdrawal_transaction.name}
-
         masked_bank_account_number = (
             len(bank_account.account_number[:-4]) * "x"
             + bank_account.account_number[-4:]
@@ -610,7 +608,7 @@ def loan_withdraw_request(**kwargs):
             masked_bank_account_number
         )
 
-        return utils.respondWithSuccess(message=message, data=data)
+        return utils.respondWithSuccess(message=message)
     except utils.APIException as e:
         return e.respond()
 
@@ -624,7 +622,7 @@ def loan_payment(**kwargs):
             kwargs,
             {
                 "loan_name": "required",
-                "amount": ["required", lambda x: type(x) == float or type(x) == int],
+                "amount": ["required", lambda x: type(x) == float],
                 "transaction_id": "required",
                 "loan_margin_shortfall_name": "",
                 "is_for_interest": "",

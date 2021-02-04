@@ -30,6 +30,7 @@ class LoanApplication(Document):
 
         doc = {
             "esign_date": datetime.now().strftime("%d-%m-%Y"),
+            "loan_application_number": self.name,
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
             "sanctioned_amount": self.drawing_power,
