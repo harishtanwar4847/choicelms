@@ -93,7 +93,7 @@ class Cart(Document):
         for i in isin_details_:
             isin_details[i.get("ISIN")] = i
 
-        self.approved_total_collateral_value = 0
+        # self.approved_total_collateral_value = 0
         total_successful_pledge = 0
 
         for i in self.items:
@@ -103,13 +103,13 @@ class Cart(Document):
 
             success = len(i.psn) > 0
 
-            if success:
-                # if self.status == "Not Processed":
-                #     self.status = "Success"
-                # elif self.status == "Failure":
-                #     self.status = "Partial Success"
-                self.approved_total_collateral_value += i.amount
-                total_successful_pledge += 1
+            # if success:
+            # if self.status == "Not Processed":
+            #     self.status = "Success"
+            # elif self.status == "Failure":
+            #     self.status = "Partial Success"
+            # self.approved_total_collateral_value += i.amount
+            # total_successful_pledge += 1
             # else:
             #     if self.status == "Not Processed":
             #         self.status = "Failure"
@@ -123,15 +123,15 @@ class Cart(Document):
                 "Pledge Setup failed.", errors=pledge_response
             )
 
-        self.approved_total_collateral_value = round(
-            self.approved_total_collateral_value, 2
-        )
-        self.approved_eligible_loan = round(
-            lms.round_down_amount_to_nearest_thousand(
-                (self.allowable_ltv / 100) * self.approved_total_collateral_value
-            ),
-            2,
-        )
+        # self.approved_total_collateral_value = round(
+        #     self.approved_total_collateral_value, 2
+        # )
+        # self.approved_eligible_loan = round(
+        #     lms.round_down_amount_to_nearest_thousand(
+        #         (self.allowable_ltv / 100) * self.approved_total_collateral_value
+        #     ),
+        #     2,
+        # )
         self.is_processed = 1
 
     def save_collateral_ledger(self, loan_application_name=None):
@@ -185,11 +185,11 @@ class Cart(Document):
         loan_application = frappe.get_doc(
             {
                 "doctype": "Loan Application",
-                "total_collateral_value": self.approved_total_collateral_value,
+                # "total_collateral_value": self.approved_total_collateral_value,
                 "pledged_total_collateral_value": self.total_collateral_value,
                 "loan_margin_shortfall": self.loan_margin_shortfall,
                 # "pledge_status": self.status,
-                "drawing_power": self.approved_eligible_loan,
+                # "drawing_power": self.approved_eligible_loan,
                 "lender": self.lender,
                 "expiry_date": self.expiry,
                 "allowable_ltv": self.allowable_ltv,
@@ -207,36 +207,36 @@ class Cart(Document):
         self.save_collateral_ledger(loan_application.name)
         return loan_application
 
-    def notify_customer(self):
-        # TODO: need to shift this method to loan application
-        customer = self.get_customer()
-        user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
-        doc = frappe.get_doc("User", customer.user).as_dict()
-        doc["loan_application"] = {
-            "status": self.status,
-            "current_total_collateral_value": self.approved_total_collateral_value_str,
-            "requested_total_collateral_value": self.total_collateral_value_str,
-            "sanctioned_amount": self.approved_eligible_loan_str,
-        }
-        frappe.enqueue_doc("Notification", "Loan Application", method="send", doc=doc)
-        if doc.get("loan_application").get("status") == "Failure":
-            mess = "Sorry! Your loan application was turned down since the pledge was not successful. We regret the inconvenience caused."
-        elif doc.get("loan_application").get("status") == "Success":
-            mess = "Congratulations! Your loan application has been approved. Please e-sign the loan agreement to avail the loan now."
-        elif doc.get("loan_application").get("status") == "Partial Success":
-            mess = "Congratulations! Your application is being considered favourably by our lending partner\nHowever, the pledge request was partially succesful and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}.\nAccordingly the final loan amount sanctioned is Rs. {sanctioned_amount}. Please e-sign the loan agreement to avail the loan now.".format(
-                current_total_collateral_value=doc.get("loan_application").get(
-                    "current_total_collateral_value"
-                ),
-                requested_total_collateral_value=doc.get("loan_application").get(
-                    "requested_total_collateral_value"
-                ),
-                sanctioned_amount=doc.get("loan_application").get("sanctioned_amount"),
-            )
-        receiver_list = list(set([str(customer.phone), str(user_kyc.mobile_number)]))
-        from frappe.core.doctype.sms_settings.sms_settings import send_sms
+    # def notify_customer(self):
+    # TODO: need to shift this method to loan application
+    # customer = self.get_customer()
+    # user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+    # doc = frappe.get_doc("User", customer.user).as_dict()
+    # doc["loan_application"] = {
+    #     "status": self.status,
+    #     "current_total_collateral_value": self.approved_total_collateral_value_str,
+    #     "requested_total_collateral_value": self.total_collateral_value_str,
+    #     "sanctioned_amount": self.approved_eligible_loan_str,
+    # }
+    # frappe.enqueue_doc("Notification", "Loan Application", method="send", doc=doc)
+    # if doc.get("loan_application").get("status") == "Failure":
+    #     mess = "Sorry! Your loan application was turned down since the pledge was not successful. We regret the inconvenience caused."
+    # elif doc.get("loan_application").get("status") == "Success":
+    #     mess = "Congratulations! Your loan application has been approved. Please e-sign the loan agreement to avail the loan now."
+    # elif doc.get("loan_application").get("status") == "Partial Success":
+    #     mess = "Congratulations! Your application is being considered favourably by our lending partner\nHowever, the pledge request was partially succesful and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}.\nAccordingly the final loan amount sanctioned is Rs. {sanctioned_amount}. Please e-sign the loan agreement to avail the loan now.".format(
+    #         current_total_collateral_value=doc.get("loan_application").get(
+    #             "current_total_collateral_value"
+    #         ),
+    #         requested_total_collateral_value=doc.get("loan_application").get(
+    #             "requested_total_collateral_value"
+    #         ),
+    #         sanctioned_amount=doc.get("loan_application").get("sanctioned_amount"),
+    #     )
+    # receiver_list = list(set([str(customer.phone), str(user_kyc.mobile_number)]))
+    # from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-        frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
+    # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
 
     # TODO : need to do this in loan application
     # def on_update(self):
@@ -295,13 +295,13 @@ class Cart(Document):
         self.total_collateral_value_str = lms.amount_formatter(
             self.total_collateral_value
         )
-        self.approved_total_collateral_value_str = lms.amount_formatter(
-            self.approved_total_collateral_value
-        )
+        # self.approved_total_collateral_value_str = lms.amount_formatter(
+        #     self.approved_total_collateral_value
+        # )
         self.eligible_loan_str = lms.amount_formatter(self.eligible_loan)
-        self.approved_eligible_loan_str = lms.amount_formatter(
-            self.approved_eligible_loan
-        )
+        # self.approved_eligible_loan_str = lms.amount_formatter(
+        #     self.approved_eligible_loan
+        # )
 
     def process_cart_items(self):
         # TODO : here use cart.is_processed in condition
