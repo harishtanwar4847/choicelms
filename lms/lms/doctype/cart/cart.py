@@ -73,7 +73,7 @@ class Cart(Document):
             "PledgorBOID": self.pledgor_boid,
             "PledgeeBOID": self.pledgee_boid,
             # "PRFNumber": lms.random_token(length=12),
-            "ExpiryDate": self.expiry.strftime("%d%m%Y"),
+            # "ExpiryDate": self.expiry.strftime("%d%m%Y"),
             "ISINDTLS": securities_array,
         }
 
@@ -145,7 +145,7 @@ class Cart(Document):
                     "loan_application": loan_application_name,
                     "request_type": "Pledge",
                     # "request_identifier": self.prf_number,
-                    "expiry": self.expiry,
+                    # "expiry": self.expiry,
                     "pledgor_boid": self.pledgor_boid,
                     "pledgee_boid": self.pledgee_boid,
                     "isin": i.isin,
@@ -191,7 +191,7 @@ class Cart(Document):
                 # "pledge_status": self.status,
                 # "drawing_power": self.approved_eligible_loan,
                 "lender": self.lender,
-                "expiry_date": self.expiry,
+                # "expiry_date": self.expiry,
                 "allowable_ltv": self.allowable_ltv,
                 "customer": self.customer,
                 "customer_name": self.customer_name,
