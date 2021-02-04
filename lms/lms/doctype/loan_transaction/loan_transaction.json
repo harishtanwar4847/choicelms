@@ -176,7 +176,7 @@
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
-   "options": "Customer",
+   "options": "Loan Customer",
    "set_only_once": 1
   },
   {
@@ -201,7 +201,7 @@
   }
  ],
  "is_submittable": 1,
- "modified": "2021-02-03 11:05:01.493715",
+ "modified": "2021-02-04 13:46:23.866147",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
