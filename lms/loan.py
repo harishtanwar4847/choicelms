@@ -507,7 +507,7 @@ def loan_withdraw_request(**kwargs):
             kwargs,
             {
                 "loan_name": "required",
-                "amount": "required|decimal",
+                "amount": ["required", lambda x: type(x) == float or type(x) == int],
                 "bank_account_name": "",
                 "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
             },
@@ -624,7 +624,7 @@ def loan_payment(**kwargs):
             kwargs,
             {
                 "loan_name": "required",
-                "amount": "required|decimal",
+                "amount": ["required", lambda x: type(x) == float or type(x) == int],
                 "transaction_id": "required",
                 "loan_margin_shortfall_name": "",
                 "is_for_interest": "",
