@@ -150,9 +150,9 @@ class Cart(Document):
                     "pledgee_boid": self.pledgee_boid,
                     "isin": i.isin,
                     "quantity": i.pledged_quantity,
-                    "psn": i.psn,
-                    "error_code": i.error_code,
-                    "is_success": len(i.psn) > 0,
+                    # "psn": i.psn,
+                    # "error_code": i.error_code,
+                    # "is_success": len(i.psn) > 0,
                 }
             )
             collateral_ledger.save(ignore_permissions=True)
@@ -164,34 +164,40 @@ class Cart(Document):
         if self.is_processed:
             return
 
+        current = datetime.now()
+        expiry = current.replace(year=current.year + 5, day=1)
+
         items = []
         for item in self.items:
-            if len(item.psn) > 0:
-                item = frappe.get_doc(
-                    {
-                        "doctype": "Loan Application Item",
-                        "isin": item.isin,
-                        "security_name": item.security_name,
-                        "security_category": item.security_category,
-                        "pledged_quantity": item.pledged_quantity,
-                        "price": item.price,
-                        "amount": item.amount,
-                        "psn": item.psn,
-                        "error_code": item.error_code,
-                    }
-                )
-                items.append(item)
+            # if len(item.psn) > 0:
+            item = frappe.get_doc(
+                {
+                    "doctype": "Loan Application Item",
+                    "isin": item.isin,
+                    "security_name": item.security_name,
+                    "security_category": item.security_category,
+                    "pledged_quantity": item.pledged_quantity,
+                    "price": item.price,
+                    "amount": item.amount,
+                    # "psn": item.psn,
+                    # "error_code": item.error_code,
+                }
+            )
+            items.append(item)
 
         loan_application = frappe.get_doc(
             {
                 "doctype": "Loan Application",
                 # "total_collateral_value": self.approved_total_collateral_value,
+                "total_collateral_value": self.total_collateral_value,
                 "pledged_total_collateral_value": self.total_collateral_value,
                 "loan_margin_shortfall": self.loan_margin_shortfall,
                 # "pledge_status": self.status,
                 # "drawing_power": self.approved_eligible_loan,
+                "drawing_power": self.eligible_loan,
                 "lender": self.lender,
                 # "expiry_date": self.expiry,
+                "expiry_date": expiry,
                 "allowable_ltv": self.allowable_ltv,
                 "customer": self.customer,
                 "customer_name": self.customer_name,
@@ -200,11 +206,16 @@ class Cart(Document):
             }
         )
         loan_application.insert(ignore_permissions=True)
+
+        # mark cart as processed
+        self.is_processed = 1
+        self.save()
+
         if self.loan_margin_shortfall:
             loan_application.status = "Ready for Approval"
             loan_application.workflow_state = "Ready for Approval"
             loan_application.save(ignore_permissions=True)
-        self.save_collateral_ledger(loan_application.name)
+        # self.save_collateral_ledger(loan_application.name)
         return loan_application
 
     # def notify_customer(self):
