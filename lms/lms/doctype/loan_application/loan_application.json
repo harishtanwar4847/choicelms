@@ -23,6 +23,8 @@
   "loan",
   "lender_esigned_document",
   "pledge_status",
+  "pledgor_boid",
+  "pledgee_boid",
   "items_section",
   "items"
  ],
@@ -156,9 +158,21 @@
    "fieldtype": "Read Only",
    "in_list_view": 1,
    "label": "Customer Name"
+  },
+  {
+   "fieldname": "pledgor_boid",
+   "fieldtype": "Data",
+   "label": "Pledgor BOID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pledgee_boid",
+   "fieldtype": "Data",
+   "label": "Pledgee BOID",
+   "read_only": 1
   }
  ],
- "modified": "2021-02-06 13:33:59.865944",
+ "modified": "2021-02-09 18:34:38.542236",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",
