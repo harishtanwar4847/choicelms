@@ -420,8 +420,8 @@ def process_dummy(cart_name):
                 "pledged_quantity": item.pledged_quantity,
                 "price": item.price,
                 "amount": item.amount,
-                "psn": "psn",
-                "error_code": "error_code",
+                "psn": ISINstatusDtls_item.get("PSN"),
+                "error_code": ISINstatusDtls_item.get("ErrorCode"),
             }
         )
         items.append(item)

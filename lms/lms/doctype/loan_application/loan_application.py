@@ -7,12 +7,15 @@ from __future__ import unicode_literals
 from datetime import datetime
 
 import frappe
+import requests
+import utils
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
 from num2words import num2words
 
 import lms
+from lms.exceptions.PledgeSetupFailureException import PledgeSetupFailureException
 
 
 class LoanApplication(Document):
@@ -240,6 +243,309 @@ class LoanApplication(Document):
                 loan_name, self.name
             )
         )
+
+    # TODO : hit pledge request as per batch items
+    def pledge_request(self, security_list):
+        las_settings = frappe.get_single("LAS Settings")
+        API_URL = "{}{}".format(las_settings.cdsl_host, las_settings.pledge_setup_uri)
+
+        prf_number = lms.random_token(length=12)
+        securities_array = []
+        for i in self.items:
+            if i.isin in security_list:
+                # set prf_number to LA item
+                i.prf_number = prf_number
+                j = {
+                    "ISIN": i.isin,
+                    "Quantity": str(float(i.pledged_quantity)),
+                    "Value": str(float(i.price)),
+                }
+                securities_array.append(j)
+        self.save(ignore_permissions=True)
+
+        payload = {
+            "PledgorBOID": self.pledgor_boid,
+            "PledgeeBOID": self.pledgee_boid,
+            "PRFNumber": prf_number,
+            # "ExpiryDate": self.expiry.strftime("%d%m%Y"),
+            "ExpiryDate": self.expiry_date.strftime("%d%m%Y"),
+            "ISINDTLS": securities_array,
+        }
+
+        headers = las_settings.cdsl_headers()
+
+        return {"url": API_URL, "headers": headers, "payload": payload}
+
+    # dummy pledge response for pledge
+    def dummy_pledge_response(self, security_list):
+        import random
+
+        ISINstatusDtls = []
+        flag = 0
+        for item in security_list:
+            # flag = bool(random.getrandbits(1))
+            error_code = ["CIF3065-F", "PLD0152-E", "PLD0125-F"]
+            ISINstatusDtls_item = {
+                "ISIN": item.get("ISIN"),
+                "PSN": "" if flag else lms.random_token(7, is_numeric=True),
+                "ErrorCode": random.choice(error_code) if flag else "",
+            }
+            ISINstatusDtls.append(ISINstatusDtls_item)
+        return {
+            "Success": True,
+            "PledgeSetupResponse": {"ISINstatusDtls": ISINstatusDtls},
+        }
+
+    # TODO : handle pledge response(process loan application items)
+    def process(self, security_list, pledge_response):
+        isin_details_ = pledge_response.get("PledgeSetupResponse").get("ISINstatusDtls")
+        isin_details = {}
+        for i in isin_details_:
+            isin_details[i.get("ISIN")] = i
+
+        # self.approved_total_collateral_value = 0
+        total_collateral_value = 0
+        total_successful_pledge = 0
+
+        for i in self.items:
+            if i.get("isin") in security_list:
+                cur = isin_details.get(i.get("isin"))
+
+                i.psn = cur.get("PSN")
+                i.error_code = cur.get("ErrorCode")
+                i.pledge_executed = 1
+
+                success = len(i.psn) > 0
+
+                if success:
+                    # TODO : manage individual LA item pledge status
+                    i.status = "Success"
+                    # if self.status == "Not Processed":
+                    #     self.status = "Success"
+                    # elif self.status == "Failure":
+                    #     self.status = "Partial Success"
+                    # self.approved_total_collateral_value += i.amount
+                    total_collateral_value += i.amount
+                    total_successful_pledge += 1
+                else:
+                    i.status = "Failure"
+                #     if self.status == "Not Processed":
+                #         self.status = "Failure"
+                #     elif self.status == "Success":
+                #         self.status = "Partial Success"
+
+        self.total_collateral_value += total_collateral_value
+        self.save(ignore_permissions=True)
+        # if total_successful_pledge == 0:
+        #     self.is_processed = 1
+        #     self.save(ignore_permissions=True)
+        #     raise PledgeSetupFailureException(
+        #         "Pledge Setup failed.", errors=pledge_response
+        #     )
+
+        # self.approved_total_collateral_value = round(
+        #     self.approved_total_collateral_value, 2
+        # )
+        # self.approved_eligible_loan = round(
+        #     lms.round_down_amount_to_nearest_thousand(
+        #         (self.allowable_ltv / 100) * self.approved_total_collateral_value
+        #     ),
+        #     2,
+        # )
+        # self.is_processed = 1
+        return total_successful_pledge
+
+    def save_collateral_ledger(self, loan_application_name=None):
+        for i in self.items:
+            collateral_ledger = frappe.get_doc(
+                {
+                    "doctype": "Collateral Ledger",
+                    # "cart": self.name,
+                    "customer": self.customer,
+                    "lender": self.lender,
+                    "loan_application": self.name,
+                    "request_type": "Pledge",
+                    "request_identifier": i.prf_number,
+                    "expiry": self.expiry_date,
+                    "pledgor_boid": self.pledgor_boid,
+                    "pledgee_boid": self.pledgee_boid,
+                    "isin": i.isin,
+                    "quantity": i.pledged_quantity,
+                    "psn": i.psn,
+                    "error_code": i.error_code,
+                    "is_success": len(i.psn) > 0,
+                }
+            )
+            collateral_ledger.save(ignore_permissions=True)
+
+    def check_for_pledge(self):
+        # check if pledge is already in progress
+        is_pledge_executing = frappe.get_all(
+            "Loan Application",
+            fields=["count(name) as count", "status"],
+            filters={"status": "Executing pledge"},
+            debug=True,
+        )
+        # print(is_pledge_executing,"is_pledge_executing")
+        if is_pledge_executing[0].count == 0:
+            # TODO : Workers assigned for this cron can be set in las and we can apply (fetch records)limit as per no. of workers assigned
+            loan_application = frappe.get_all(
+                "Loan Application",
+                fields="name, creation",
+                filters={"status": "Waiting to be pledged"},
+                order_by="creation desc",
+                start=0,
+                page_length=1,
+                debug=True,
+            )
+            # print(loan_application, "loan_application")
+            if loan_application:
+                loan_application_doc = frappe.get_doc(
+                    "Loan Application", loan_application[0].name
+                )
+                frappe.db.begin()
+                loan_application_doc.total_collateral_value = 0
+                loan_application_doc.save(ignore_permissions=True)
+                frappe.db.commit()
+
+                customer = loan_application_doc.get_customer()
+                print(customer, "customer LA")
+                count_la_items = frappe.db.count(
+                    "Loan Application Item", {"parent": loan_application[0].name}
+                )
+                no_of_batches = 1
+                if count_la_items > 10:
+                    import math
+
+                    no_of_batches = math.ceil(count_la_items / 10)
+                # print(count_la_items, "count_la_items", no_of_batches, "no_of_batches")
+
+                # loop as per no of batches
+                start = 0
+                page_length = 10
+                total_successful_pledge = 0
+                for b_no in range(no_of_batches):
+                    frappe.db.begin()
+
+                    # fetch loan application items
+                    if b_no > 0:
+                        start += page_length
+                    # print(start, "start", page_length, "page_length")
+                    la_items = frappe.get_all(
+                        "Loan Application Item",
+                        fields="*",
+                        filters={"parent": loan_application[0].name},
+                        start=start,
+                        page_length=page_length,
+                        debug=True,
+                    )
+                    la_items_list = [item.isin for item in la_items]
+                    # print(la_items, "la_items")
+                    # print([item.isin for item in la_items])
+                    # TODO : generate prf number and assign to items in batch
+                    print(la_items_list, "la_items_list")
+
+                    pledge_request = loan_application_doc.pledge_request(la_items_list)
+                    print(pledge_request, "pledge_request")
+
+                    # print("Update `tabLoan Application Item` set prf_number='{}' where parent='{}' and name IN {}".format(pledge_request.get("payload").get("PRFNumber"), loan_application[0].name, la_items_list))
+
+                    # TODO : pledge request hit for all batches
+                    # try:
+                    #     res = requests.post(
+                    #         pledge_request.get("url"),
+                    #         headers=pledge_request.get("headers"),
+                    #         json=pledge_request.get("payload"),
+                    #     )
+                    #     data = res.json()
+
+                    #     # Pledge LOG
+                    #     log = {
+                    #         "url": pledge_request.get("url"),
+                    #         "headers": pledge_request.get("headers"),
+                    #         "request": pledge_request.get("payload"),
+                    #         "response": data,
+                    #     }
+
+                    #     import json
+                    #     import os
+
+                    #     pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
+                    #     pledge_log = None
+                    #     if os.path.exists(pledge_log_file):
+                    #         with open(pledge_log_file, "r") as f:
+                    #             pledge_log = f.read()
+                    #         f.close()
+                    #     pledge_log = json.loads(pledge_log or "[]")
+                    #     pledge_log.append(log)
+                    #     with open(pledge_log_file, "w") as f:
+                    #         f.write(json.dumps(pledge_log))
+                    #     f.close()
+                    #     # Pledge LOG end
+
+                    #     # if not res.ok or not data.get("Success"):
+                    #         # cart.reload()
+                    #         # cart.status = "Failure"
+                    #         # cart.is_processed = 1
+                    #         # cart.save(ignore_permissions=True)
+                    #         # raise PledgeSetupFailureException(errors=res.text)
+                    # except requests.RequestException as e:
+                    #     raise utils.APIException(str(e))
+
+                    data = loan_application_doc.dummy_pledge_response(
+                        pledge_request.get("payload").get("ISINDTLS")
+                    )
+                    print(data, "dummy_pledge_response")
+                    # TODO : process loan application items in batches
+                    total_successful_pledge_count = loan_application_doc.process(
+                        la_items_list, data
+                    )
+                    frappe.db.commit()
+                    total_successful_pledge += total_successful_pledge_count
+
+                frappe.db.begin()
+                if not customer.pledge_securities:
+                    customer.pledge_securities = 1
+                    customer.save(ignore_permissions=True)
+
+                # TODO : process loan application(handle collateral and eligible amount)
+                # loan_application_doc.reload()
+                loan_application_doc.total_collateral_value = round(
+                    loan_application_doc.total_collateral_value, 2
+                )
+                loan_application_doc.drawing_power = round(
+                    lms.round_down_amount_to_nearest_thousand(
+                        (loan_application_doc.allowable_ltv / 100)
+                        * loan_application_doc.total_collateral_value
+                    ),
+                    2,
+                )
+
+                # TODO : once done with all batches, mark LA as Pledge executed
+                loan_application_doc.status = "Pledge executed"
+                # TODO : In case of all failure mark status as "Rejected"
+
+                # manage loan application doc pledge status
+                if total_successful_pledge == len(loan_application_doc.items):
+                    loan_application_doc.pledge_status = "Success"
+                elif total_successful_pledge == 0:
+                    loan_application_doc.pledge_status = "Failure"
+                else:
+                    loan_application_doc.pledge_status = "Partial Success"
+
+                loan_application_doc.save(ignore_permissions=True)
+
+                loan_application_doc.save_collateral_ledger()
+                frappe.db.commit()
+
+                # TODO : Approved/Rejected LA items by lender
+                # TODO : esign by customer
+                # TODO : esign by lender
+                # TODO : Approved/Rejected LA by lender
+                # TODO : if Approved - created loan - notify customer
+                # TODO : if Rejected - notify customer
+        else:
+            return "pledge in progress"
 
 
 def only_pdf_upload(doc, method):
