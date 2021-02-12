@@ -94,17 +94,12 @@ def upsert(**kwargs):
                 "loan_name": "",
                 "loan_margin_shortfall_name": "",
                 "lender": "",
-                # "expiry": "",
                 "pledgor_boid": "required",
             },
         )
 
         if not data.get("lender", None):
             data["lender"] = frappe.get_last_doc("Lender").name
-
-        # if not data.get("expiry", None):
-        #     current = datetime.now()
-        #     expiry = current.replace(year=current.year + 5, day=1)
 
         securities = validate_securities_for_cart(
             data.get("securities", {}), data.get("lender")
@@ -144,7 +139,6 @@ def upsert(**kwargs):
                     "customer_name": customer.full_name,
                     "lender": data.get("lender"),
                     "pledgor_boid": data.get("pledgor_boid"),
-                    # "expiry": expiry,
                 }
             )
         else:
