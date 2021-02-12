@@ -283,7 +283,7 @@ class LoanApplication(Document):
         ISINstatusDtls = []
         flag = 0
         for item in security_list:
-            # flag = bool(random.getrandbits(1))
+            flag = bool(random.getrandbits(1))
             error_code = ["CIF3065-F", "PLD0152-E", "PLD0125-F"]
             ISINstatusDtls_item = {
                 "ISIN": item.get("ISIN"),
@@ -319,7 +319,7 @@ class LoanApplication(Document):
 
                 if success:
                     # TODO : manage individual LA item pledge status
-                    i.status = "Success"
+                    i.pledge_status = "Success"
                     # if self.status == "Not Processed":
                     #     self.status = "Success"
                     # elif self.status == "Failure":
@@ -328,7 +328,7 @@ class LoanApplication(Document):
                     total_collateral_value += i.amount
                     total_successful_pledge += 1
                 else:
-                    i.status = "Failure"
+                    i.pledge_status = "Failure"
                 #     if self.status == "Not Processed":
                 #         self.status = "Failure"
                 #     elif self.status == "Success":
@@ -360,7 +360,6 @@ class LoanApplication(Document):
             collateral_ledger = frappe.get_doc(
                 {
                     "doctype": "Collateral Ledger",
-                    # "cart": self.name,
                     "customer": self.customer,
                     "lender": self.lender,
                     "loan_application": self.name,
@@ -387,6 +386,7 @@ class LoanApplication(Document):
             debug=True,
         )
         # print(is_pledge_executing,"is_pledge_executing")
+
         if is_pledge_executing[0].count == 0:
             # TODO : Workers assigned for this cron can be set in las and we can apply (fetch records)limit as per no. of workers assigned
             loan_application = frappe.get_all(
@@ -399,17 +399,19 @@ class LoanApplication(Document):
                 debug=True,
             )
             # print(loan_application, "loan_application")
+
             if loan_application:
                 loan_application_doc = frappe.get_doc(
                     "Loan Application", loan_application[0].name
                 )
                 frappe.db.begin()
+                loan_application_doc.status = "Executing pledge"
                 loan_application_doc.total_collateral_value = 0
                 loan_application_doc.save(ignore_permissions=True)
                 frappe.db.commit()
 
                 customer = loan_application_doc.get_customer()
-                print(customer, "customer LA")
+                # print(customer, "customer LA")
                 count_la_items = frappe.db.count(
                     "Loan Application Item", {"parent": loan_application[0].name}
                 )
@@ -431,6 +433,7 @@ class LoanApplication(Document):
                     if b_no > 0:
                         start += page_length
                     # print(start, "start", page_length, "page_length")
+
                     la_items = frappe.get_all(
                         "Loan Application Item",
                         fields="*",
@@ -441,14 +444,11 @@ class LoanApplication(Document):
                     )
                     la_items_list = [item.isin for item in la_items]
                     # print(la_items, "la_items")
-                    # print([item.isin for item in la_items])
+
                     # TODO : generate prf number and assign to items in batch
-                    print(la_items_list, "la_items_list")
-
+                    # print(la_items_list, "la_items_list")
                     pledge_request = loan_application_doc.pledge_request(la_items_list)
-                    print(pledge_request, "pledge_request")
-
-                    # print("Update `tabLoan Application Item` set prf_number='{}' where parent='{}' and name IN {}".format(pledge_request.get("payload").get("PRFNumber"), loan_application[0].name, la_items_list))
+                    # print(pledge_request, "pledge_request")
 
                     # TODO : pledge request hit for all batches
                     # try:

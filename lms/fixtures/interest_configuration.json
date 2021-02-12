@@ -1,19 +1,5 @@
 [
  {
-  "base_interest": 1.34,
-  "docstatus": 0,
-  "doctype": "Interest Configuration",
-  "from_amount": 0.0,
-  "lender": "Choice Finserv",
-  "modified": "2020-11-07 17:34:29.817250",
-  "name": "c28b0bac2f",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "rebait_interest": 2.0,
-  "to_amount": 149000.0
- },
- {
   "base_interest": 2.68,
   "docstatus": 0,
   "doctype": "Interest Configuration",
@@ -26,5 +12,19 @@
   "parenttype": null,
   "rebait_interest": 3.5,
   "to_amount": 249000.0
+ },
+ {
+  "base_interest": 1.34,
+  "docstatus": 0,
+  "doctype": "Interest Configuration",
+  "from_amount": 0.0,
+  "lender": "Choice Finserv",
+  "modified": "2020-11-07 17:34:29.817250",
+  "name": "c28b0bac2f",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "rebait_interest": 2.0,
+  "to_amount": 149000.0
  }
 ]

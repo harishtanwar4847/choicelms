@@ -12,7 +12,8 @@
   "amount",
   "prf_number",
   "pledge_executed",
-  "status",
+  "pledge_status",
+  "lender_approval_status",
   "psn",
   "error_code"
  ],
@@ -97,16 +98,23 @@
    "label": "Pledge Executed"
   },
   {
+   "default": "Pending",
+   "fieldname": "lender_approval_status",
+   "fieldtype": "Select",
+   "label": "Lender Approval Status",
+   "options": "Pending\nApproved\nRejected"
+  },
+  {
    "columns": 1,
-   "fieldname": "status",
+   "fieldname": "pledge_status",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Status",
+   "label": "Pledge Status",
    "options": "\nSuccess\nFailure"
   }
  ],
  "istable": 1,
- "modified": "2021-02-11 11:50:28.963126",
+ "modified": "2021-02-12 13:14:51.797930",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application Item",
