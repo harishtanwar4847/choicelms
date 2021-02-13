@@ -48,5 +48,15 @@
   "parentfield": null,
   "parenttype": null,
   "workflow_action_name": "Esign"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2021-02-12 17:42:10.668445",
+  "name": "Pending pledge",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "workflow_action_name": "Pending pledge"
  }
 ]

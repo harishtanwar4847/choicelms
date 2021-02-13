@@ -1,0 +1,366 @@
+[
+    {
+        "cron_enque_start": "12:03:08:277627 PM"
+    },
+    {
+        "in_waiting_to_pledge": "12:03:08:408057 PM"
+    },
+    {
+        "cron_enque_end": "12:03:09:344386 PM"
+    }
+][
+    {
+        "cart_enque_start": "12:03:09:713848 PM"
+    },
+    {
+        "cart_enque_end": "12:03:50:040023 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:03:50:126751 PM"
+    },
+    {
+        "in_waiting_to_pledge": "12:03:50:168841 PM"
+    },
+    {
+        "cron_enque_end": "12:03:50:413379 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:04:08:188270 PM"
+    },
+    {
+        "background_job_running_if_executing_pledge": "12:04:08:218284 PM"
+    },
+    {
+        "cron_enque_end": "12:04:08:218317 PM"
+    }
+][
+    {
+        "cart_enque_start": "12:03:50:538074 PM"
+    },
+    {
+        "cart_enque_end": "12:04:30:713237 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:04:30:779561 PM"
+    },
+    {
+        "in_waiting_to_pledge": "12:04:30:816628 PM"
+    },
+    {
+        "cron_enque_end": "12:04:31:129527 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:05:08:346291 PM"
+    },
+    {
+        "background_job_running_if_executing_pledge": "12:05:08:378129 PM"
+    },
+    {
+        "cron_enque_end": "12:05:08:378164 PM"
+    }
+][
+    {
+        "cart_enque_start": "12:04:31:240314 PM"
+    },
+    {
+        "cart_enque_end": "12:05:11:414586 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:05:11:493698 PM"
+    },
+    {
+        "in_waiting_to_pledge": "12:05:11:537473 PM"
+    },
+    {
+        "cron_enque_end": "12:05:11:777689 PM"
+    }
+][
+    {
+        "cart_enque_start": "12:05:11:870017 PM"
+    },
+    {
+        "cart_enque_end": "12:05:52:123041 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:05:52:227148 PM"
+    },
+    {
+        "in_waiting_to_pledge": "12:05:52:264829 PM"
+    },
+    {
+        "cron_enque_end": "12:05:52:501959 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:06:11:092331 PM"
+    },
+    {
+        "background_job_running_if_executing_pledge": "12:06:11:121732 PM"
+    },
+    {
+        "cron_enque_end": "12:06:11:121770 PM"
+    }
+][
+    {
+        "cart_enque_start": "12:05:52:614351 PM"
+    },
+    {
+        "cart_enque_end": "12:06:32:801554 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:06:32:867560 PM"
+    },
+    {
+        "in_waiting_to_pledge": "12:06:32:908804 PM"
+    },
+    {
+        "cron_enque_end": "12:06:33:194972 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:07:08:862611 PM"
+    },
+    {
+        "background_job_running_if_executing_pledge": "12:07:08:891686 PM"
+    },
+    {
+        "cron_enque_end": "12:07:08:891735 PM"
+    }
+][
+    {
+        "cart_enque_start": "12:06:33:280212 PM"
+    },
+    {
+        "cart_enque_end": "12:07:13:471074 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:07:13:535429 PM"
+    },
+    {
+        "in_waiting_to_pledge": "12:07:13:568558 PM"
+    },
+    {
+        "cron_enque_end": "12:07:13:752893 PM"
+    }
+][
+    {
+        "cart_enque_start": "12:07:13:835131 PM"
+    },
+    {
+        "cart_enque_end": "12:07:54:045261 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:07:54:112971 PM"
+    },
+    {
+        "cron_enque_end": "12:07:54:147548 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:08:09:103603 PM"
+    },
+    {
+        "cron_enque_end": "12:08:09:189573 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:09:09:214044 PM"
+    },
+    {
+        "cron_enque_end": "12:09:09:245495 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:10:11:516516 PM"
+    },
+    {
+        "cron_enque_end": "12:10:11:562785 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:11:09:735182 PM"
+    },
+    {
+        "cron_enque_end": "12:11:09:763761 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:12:09:900106 PM"
+    },
+    {
+        "cron_enque_end": "12:12:09:928483 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:13:10:061506 PM"
+    },
+    {
+        "cron_enque_end": "12:13:10:089893 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:14:12:867958 PM"
+    },
+    {
+        "cron_enque_end": "12:14:13:055469 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:15:10:963608 PM"
+    },
+    {
+        "cron_enque_end": "12:15:11:069570 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:16:11:144979 PM"
+    },
+    {
+        "cron_enque_end": "12:16:11:194507 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:17:11:465939 PM"
+    },
+    {
+        "cron_enque_end": "12:17:11:552519 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:18:16:689481 PM"
+    },
+    {
+        "cron_enque_end": "12:18:16:825973 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:19:12:371917 PM"
+    },
+    {
+        "cron_enque_end": "12:19:12:437520 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:20:12:587439 PM"
+    },
+    {
+        "cron_enque_end": "12:20:12:653179 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:21:12:805399 PM"
+    },
+    {
+        "cron_enque_end": "12:21:12:911897 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:22:18:735665 PM"
+    },
+    {
+        "cron_enque_end": "12:22:18:773944 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:23:14:374762 PM"
+    },
+    {
+        "cron_enque_end": "12:23:14:545026 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:24:14:633307 PM"
+    },
+    {
+        "cron_enque_end": "12:24:14:708418 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:25:14:969671 PM"
+    },
+    {
+        "cron_enque_end": "12:25:15:086735 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:26:21:596383 PM"
+    },
+    {
+        "cron_enque_end": "12:26:21:637482 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:27:16:221839 PM"
+    },
+    {
+        "cron_enque_end": "12:27:16:293391 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:52:49:187690 PM"
+    },
+    {
+        "cron_enque_end": "12:52:49:237334 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:53:42:010685 PM"
+    },
+    {
+        "cron_enque_end": "12:53:42:059076 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:54:49:014931 PM"
+    },
+    {
+        "cron_enque_end": "12:54:49:152056 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:55:42:896168 PM"
+    },
+    {
+        "cron_enque_end": "12:55:42:933589 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:56:43:562603 PM"
+    },
+    {
+        "cron_enque_end": "12:56:43:716996 PM"
+    }
+<<<<<<< HEAD
+][
+    {
+        "cron_enque_start": "12:57:43:610133 PM"
+    },
+    {
+        "cron_enque_end": "12:57:43:654607 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:58:47:912518 PM"
+    },
+    {
+        "cron_enque_end": "12:58:47:941600 PM"
+    }
+][
+    {
+        "cron_enque_start": "12:59:44:469190 PM"
+    },
+    {
+        "cron_enque_end": "12:59:44:520375 PM"
+    }
+=======
+>>>>>>> 43fd3eb554420987562254449043b9cc0b9768cf
+]
