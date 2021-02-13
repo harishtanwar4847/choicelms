@@ -204,6 +204,7 @@ class Cart(Document):
                 "pledgor_boid": self.pledgor_boid,
                 "pledgee_boid": self.pledgee_boid,
                 "loan": self.loan,
+                "workflow_state": "Waiting to be pledged",
                 "items": items,
             }
         )
@@ -463,96 +464,93 @@ def process_concentration_rule(item, amount, rule, rule_type, total):
         )
 
 
-main_log = []
+# main_log = []
+# @frappe.whitelist()
+# def cron_for_cart_pledge():
+#     frappe.logger().info("in cron function")
+#     frappe.db.begin()
+#     import json
+#     import os
 
+#     main_log.append({"cron_enque_start": datetime.now().strftime("%I:%M:%S:%f %p")})
+#     # from frappe.utils.doctor import pending_jobs as _pending_jobs
+#     # frappe.logger().info(_pending_jobs())
+#     executing_pledge_count = frappe.get_all(
+#         "Loan Application",
+#         fields="count(status) as count,status",
+#         filters={"status": "Executing pledge"},
+#         debug=True,
+#     )
+#     if executing_pledge_count[0].count == 0:
+#         waiting_to_pledge_count = frappe.get_all(
+#             "Loan Application",
+#             fields="count(status) as count,status",
+#             filters={"status": "Waiting to be pledged"},
+#             debug=True,
+#         )
+#         if waiting_to_pledge_count[0].count > 0:
+#             main_log.append(
+#                 {"in_waiting_to_pledge": datetime.now().strftime("%I:%M:%S:%f %p")}
+#             )
+#             doc = frappe.get_all(
+#                 "Loan Application",
+#                 fields="name,creation,status",
+#                 filters={"status": "Waiting to be pledged"},
+#                 order_by="creation asc",
+#                 debug=True,
+#             )
+#             la_doc = frappe.get_doc("Loan Application", doc[0].name)
 
-@frappe.whitelist()
-def cron_for_cart_pledge():
-    frappe.logger().info("in cron function")
-    frappe.db.begin()
-    import json
-    import os
+#             la_doc.status = "Executing pledge"
+#             la_doc.save()
+#             frappe.db.commit()
+#             frappe.enqueue(
+#                 method="lms.lms.doctype.cart.cart.check_cart_for_pledge",
+#                 timeout=300,
+#                 job_name="cart_wala",
+#                 loan_application_name=la_doc,
+#             )
+#     else:
+#         main_log.append(
+#             {
+#                 "background_job_running_if_executing_pledge": datetime.now().strftime(
+#                     "%I:%M:%S:%f %p"
+#                 )
+#             }
+#         )
 
-    main_log.append({"cron_enque_start": datetime.now().strftime("%I:%M:%S:%f %p")})
-    # from frappe.utils.doctor import pending_jobs as _pending_jobs
-    # frappe.logger().info(_pending_jobs())
-    executing_pledge_count = frappe.get_all(
-        "Loan Application",
-        fields="count(status) as count,status",
-        filters={"status": "Executing pledge"},
-        debug=True,
-    )
-    if executing_pledge_count[0].count == 0:
-        waiting_to_pledge_count = frappe.get_all(
-            "Loan Application",
-            fields="count(status) as count,status",
-            filters={"status": "Waiting to be pledged"},
-            debug=True,
-        )
-        if waiting_to_pledge_count[0].count > 0:
-            main_log.append(
-                {"in_waiting_to_pledge": datetime.now().strftime("%I:%M:%S:%f %p")}
-            )
-            doc = frappe.get_all(
-                "Loan Application",
-                fields="name,creation,status",
-                filters={"status": "Waiting to be pledged"},
-                order_by="creation asc",
-                debug=True,
-            )
-            la_doc = frappe.get_doc("Loan Application", doc[0].name)
+#     main_log.append({"cron_enque_end": datetime.now().strftime("%I:%M:%S:%f %p")})
 
-            la_doc.status = "Executing pledge"
-            la_doc.save()
-            frappe.db.commit()
-            frappe.enqueue(
-                method="lms.lms.doctype.cart.cart.check_cart_for_pledge",
-                timeout=300,
-                job_name="cart_wala",
-                loan_application_name=la_doc,
-            )
-    else:
-        main_log.append(
-            {
-                "background_job_running_if_executing_pledge": datetime.now().strftime(
-                    "%I:%M:%S:%f %p"
-                )
-            }
-        )
+#     with open(
+#         "/home/vagrant/frappe-bench/apps/lms/lms/lms/doctype/cart/cron_log.json", "a+"
+#     ) as f:
+#         f.write(json.dumps(main_log, indent=4))
+#     f.close()
 
-    main_log.append({"cron_enque_end": datetime.now().strftime("%I:%M:%S:%f %p")})
+# def check_cart_for_pledge(loan_application_name):
+#     import json
+#     import os
+#     import time
 
-    with open(
-        "/home/vagrant/frappe-bench/apps/lms/lms/lms/doctype/cart/cron_log.json", "a+"
-    ) as f:
-        f.write(json.dumps(main_log, indent=4))
-    f.close()
+#     frappe.db.begin()
+#     frappe.logger().info("in cart function")
+#     main_log.append({"cart_enque_start": datetime.now().strftime("%I:%M:%S:%f %p")})
 
+#     localtime = time.localtime()
+#     result = time.strftime("%I:%M:%S %p", localtime)
+#     time.sleep(20)
+#     now = datetime.now()
+#     time.sleep(20)
+#     loan_application_name.status = "Pledge executed"
+#     loan_application_name.save()
+#     frappe.db.commit()
+#     frappe.enqueue(
+#         method="lms.lms.doctype.cart.cart.cron_for_cart_pledge",
+#     )
+#     main_log.append({"cart_enque_end": datetime.now().strftime("%I:%M:%S:%f %p")})
 
-def check_cart_for_pledge(loan_application_name):
-    import json
-    import os
-    import time
-
-    frappe.db.begin()
-    frappe.logger().info("in cart function")
-    main_log.append({"cart_enque_start": datetime.now().strftime("%I:%M:%S:%f %p")})
-
-    localtime = time.localtime()
-    result = time.strftime("%I:%M:%S %p", localtime)
-    time.sleep(20)
-    now = datetime.now()
-    time.sleep(20)
-    loan_application_name.status = "Pledge executed"
-    loan_application_name.save()
-    frappe.db.commit()
-    frappe.enqueue(
-        method="lms.lms.doctype.cart.cart.cron_for_cart_pledge",
-    )
-    main_log.append({"cart_enque_end": datetime.now().strftime("%I:%M:%S:%f %p")})
-
-    with open(
-        "/home/vagrant/frappe-bench/apps/lms/lms/lms/doctype/cart/cron_log.json", "a+"
-    ) as f:
-        f.write(json.dumps(main_log, indent=4))
-    f.close()
+#     with open(
+#         "/home/vagrant/frappe-bench/apps/lms/lms/lms/doctype/cart/cron_log.json", "a+"
+#     ) as f:
+#         f.write(json.dumps(main_log, indent=4))
+#     f.close()

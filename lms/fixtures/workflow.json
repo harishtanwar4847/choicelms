@@ -4,7 +4,7 @@
   "doctype": "Workflow",
   "document_type": "Loan Application",
   "is_active": 1,
-  "modified": "2021-01-06 12:19:53.179404",
+  "modified": "2021-02-13 10:05:24.418249",
   "name": "Loan Application Approval",
   "override_status": 0,
   "parent": null,
@@ -12,6 +12,45 @@
   "parenttype": null,
   "send_email_alert": 0,
   "states": [
+   {
+    "allow_edit": "Administrator",
+    "doc_status": "0",
+    "is_optional_state": 1,
+    "message": null,
+    "next_action_email_template": null,
+    "parent": "Loan Application Approval",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "state": "Waiting to be pledged",
+    "update_field": "",
+    "update_value": ""
+   },
+   {
+    "allow_edit": "Administrator",
+    "doc_status": "0",
+    "is_optional_state": 1,
+    "message": null,
+    "next_action_email_template": null,
+    "parent": "Loan Application Approval",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "state": "Executing pledge",
+    "update_field": "",
+    "update_value": ""
+   },
+   {
+    "allow_edit": "System Manager",
+    "doc_status": "0",
+    "is_optional_state": 0,
+    "message": null,
+    "next_action_email_template": null,
+    "parent": "Loan Application Approval",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "state": "Pledge executed",
+    "update_field": "status",
+    "update_value": "Pledge executed"
+   },
    {
     "allow_edit": "Loan Customer",
     "doc_status": "0",
@@ -21,35 +60,9 @@
     "parent": "Loan Application Approval",
     "parentfield": "states",
     "parenttype": "Workflow",
-    "state": "Pending",
+    "state": "Esign Pending",
     "update_field": "status",
-    "update_value": "Pending"
-   },
-   {
-    "allow_edit": "Lender",
-    "doc_status": "0",
-    "is_optional_state": 0,
-    "message": null,
-    "next_action_email_template": null,
-    "parent": "Loan Application Approval",
-    "parentfield": "states",
-    "parenttype": "Workflow",
-    "state": "Approved",
-    "update_field": "status",
-    "update_value": "Approved"
-   },
-   {
-    "allow_edit": "Lender",
-    "doc_status": "0",
-    "is_optional_state": 0,
-    "message": null,
-    "next_action_email_template": null,
-    "parent": "Loan Application Approval",
-    "parentfield": "states",
-    "parenttype": "Workflow",
-    "state": "Rejected",
-    "update_field": "status",
-    "update_value": "Rejected"
+    "update_value": "Esign Pending"
    },
    {
     "allow_edit": "Lender",
@@ -76,10 +89,80 @@
     "state": "Ready for Approval",
     "update_field": "status",
     "update_value": "Ready for Approval"
+   },
+   {
+    "allow_edit": "Lender",
+    "doc_status": "1",
+    "is_optional_state": 0,
+    "message": null,
+    "next_action_email_template": null,
+    "parent": "Loan Application Approval",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "state": "Approved",
+    "update_field": "status",
+    "update_value": "Approved"
+   },
+   {
+    "allow_edit": "Lender",
+    "doc_status": "0",
+    "is_optional_state": 0,
+    "message": null,
+    "next_action_email_template": null,
+    "parent": "Loan Application Approval",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "state": "Rejected",
+    "update_field": "status",
+    "update_value": "Rejected"
    }
   ],
   "transitions": [
    {
+    "action": "Pending pledge",
+    "allow_self_approval": 0,
+    "allowed": "Administrator",
+    "condition": null,
+    "next_state": "Executing pledge",
+    "parent": "Loan Application Approval",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Waiting to be pledged"
+   },
+   {
+    "action": "Pending pledge",
+    "allow_self_approval": 0,
+    "allowed": "Administrator",
+    "condition": null,
+    "next_state": "Pledge executed",
+    "parent": "Loan Application Approval",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Executing pledge"
+   },
+   {
+    "action": "Approve",
+    "allow_self_approval": 0,
+    "allowed": "Lender",
+    "condition": null,
+    "next_state": "Esign Pending",
+    "parent": "Loan Application Approval",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Pledge executed"
+   },
+   {
+    "action": "Approve",
+    "allow_self_approval": 0,
+    "allowed": "System Manager",
+    "condition": null,
+    "next_state": "Esign Pending",
+    "parent": "Loan Application Approval",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Pledge executed"
+   },
+   {
     "action": "Esign",
     "allow_self_approval": 0,
     "allowed": "System Manager",
@@ -88,7 +171,7 @@
     "parent": "Loan Application Approval",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Pending"
+    "state": "Esign Pending"
    },
    {
     "action": "Esign",
@@ -99,7 +182,7 @@
     "parent": "Loan Application Approval",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Pending"
+    "state": "Esign Pending"
    },
    {
     "action": "Send for Approval",
@@ -110,7 +193,7 @@
     "parent": "Loan Application Approval",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Pending"
+    "state": "Esign Pending"
    },
    {
     "action": "Send for Approval",
@@ -121,7 +204,7 @@
     "parent": "Loan Application Approval",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Pending"
+    "state": "Esign Pending"
    },
    {
     "action": "Approve",

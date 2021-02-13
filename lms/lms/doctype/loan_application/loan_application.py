@@ -357,6 +357,7 @@ class LoanApplication(Document):
 
     def save_collateral_ledger(self, loan_application_name=None):
         for i in self.items:
+            # print(i.isin,"in collateral")
             collateral_ledger = frappe.get_doc(
                 {
                     "doctype": "Collateral Ledger",
@@ -376,6 +377,7 @@ class LoanApplication(Document):
                 }
             )
             collateral_ledger.save(ignore_permissions=True)
+        # print("coll save done")
 
     def check_for_pledge(self):
         # check if pledge is already in progress
@@ -406,6 +408,7 @@ class LoanApplication(Document):
                 )
                 frappe.db.begin()
                 loan_application_doc.status = "Executing pledge"
+                loan_application_doc.workflow_state = "Executing pledge"
                 loan_application_doc.total_collateral_value = 0
                 loan_application_doc.save(ignore_permissions=True)
                 frappe.db.commit()
@@ -523,6 +526,7 @@ class LoanApplication(Document):
 
                 # TODO : once done with all batches, mark LA as Pledge executed
                 loan_application_doc.status = "Pledge executed"
+                loan_application_doc.workflow_state = "Pledge executed"
                 # TODO : In case of all failure mark status as "Rejected"
 
                 # manage loan application doc pledge status
@@ -534,7 +538,6 @@ class LoanApplication(Document):
                     loan_application_doc.pledge_status = "Partial Success"
 
                 loan_application_doc.save(ignore_permissions=True)
-
                 loan_application_doc.save_collateral_ledger()
                 frappe.db.commit()
 

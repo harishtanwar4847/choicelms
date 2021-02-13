@@ -3,6 +3,18 @@
   "docstatus": 0,
   "doctype": "Workflow State",
   "icon": "",
+  "modified": "2021-02-12 12:04:22.519559",
+  "name": "Esign Pending",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "style": "",
+  "workflow_state_name": "Esign Pending"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
   "modified": "2020-11-26 18:40:23.509573",
   "name": "Ready for Approval",
   "parent": null,
@@ -70,5 +82,41 @@
   "parenttype": null,
   "style": "",
   "workflow_state_name": "Esign Done"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2021-02-12 15:07:03.362941",
+  "name": "Waiting to be pledged",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "style": "",
+  "workflow_state_name": "Waiting to be pledged"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2021-02-12 15:09:58.160700",
+  "name": "Executing pledge",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "style": "",
+  "workflow_state_name": "Executing pledge"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2021-02-12 15:10:08.032725",
+  "name": "Pledge executed",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "style": "",
+  "workflow_state_name": "Pledge executed"
  }
 ]
