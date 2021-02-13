@@ -119,6 +119,32 @@ class LoanApplication(Document):
             and not self.loan_margin_shortfall
         ):
             frappe.throw("Please upload Lender Esigned Document")
+
+        if self.status == "Pledge accepted by Lender":
+            total_collateral_value = 0
+            total_approved = 0
+            for i in self.items:
+                if not i.is_success and self.lender_approval_status in [
+                    "Approved",
+                    "Rejected",
+                ]:
+                    frappe.throw("Pledge failed for ISIN - {}, can't Approve or Reject")
+                elif i.is_success and self.lender_approval_status == "Approved":
+                    total_approved += 1
+                    total_collateral_value += i.amount
+
+            if total_approved == 0:
+                frappe.throw("Please Approve atleast one item.")
+
+            # TODO : manage loan application and its item's as per lender approval
+            self.total_collateral_value = round(total_collateral_value, 2)
+            self.drawing_power = round(
+                lms.round_down_amount_to_nearest_thousand(
+                    (self.allowable_ltv / 100) * self.total_collateral_value
+                ),
+                2,
+            )
+
         self.total_collateral_value_str = lms.amount_formatter(
             self.total_collateral_value
         )
@@ -278,7 +304,7 @@ class LoanApplication(Document):
     def update_collateral_ledger(self, set_values={}, where=""):
         set_values_str = ""
         last_col = sorted(set_values.keys())[-1]
-        print(last_col)
+        # print(last_col)
         if len(set_values.keys()) == len(set_values.values()):
             for col, val in set_values.items():
                 set_values_str += "{} = '{}'".format(col, val)
@@ -506,7 +532,6 @@ class LoanApplication(Document):
                     # print(pledge_request, "pledge_request")
 
                     # TODO : pledge request hit for all batches
-                    # try:
                     #     res = requests.post(
                     #         pledge_request.get("url"),
                     #         headers=pledge_request.get("headers"),
@@ -539,18 +564,14 @@ class LoanApplication(Document):
                     #     # Pledge LOG end
 
                     #     # if not res.ok or not data.get("Success"):
-                    #         # cart.reload()
-                    #         # cart.status = "Failure"
-                    #         # cart.is_processed = 1
-                    #         # cart.save(ignore_permissions=True)
-                    #         # raise PledgeSetupFailureException(errors=res.text)
-                    # except requests.RequestException as e:
-                    #     raise utils.APIException(str(e))
+                    #         # loan_application_doc.reload()
+                    #         # loan_application_doc.status = "Pledge Failure"
+                    #         # loan_application_doc.save(ignore_permissions=True)
 
                     data = loan_application_doc.dummy_pledge_response(
                         pledge_request.get("payload").get("ISINDTLS")
                     )
-                    print(data, "dummy_pledge_response")
+                    # print(data, "dummy_pledge_response")
                     # TODO : process loan application items in batches
                     total_successful_pledge_count = loan_application_doc.process(
                         la_items_list, data
