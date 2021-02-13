@@ -39,11 +39,6 @@ def validate_securities_for_cart(securities, lender):
             securities_valid = False
             message = frappe._("duplicate isin")
 
-    # if securities_valid:
-    #     if len(set(securities_list)) > 10:
-    #         securities_valid = False
-    #         message = frappe._("max 10 isin allowed")
-
     if securities_valid:
         securities_list_from_db_ = frappe.db.sql(
             "select isin from `tabAllowed Security` where lender = '{}' and isin in {}".format(
@@ -291,7 +286,6 @@ def process(**kwargs):
             kwargs,
             {
                 "cart_name": "required",
-                # "expiry": "",
                 "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
             },
         )
@@ -316,60 +310,7 @@ def process(**kwargs):
         if cart.customer != customer.name:
             return utils.respondForbidden(message=frappe._("Please use your own cart."))
 
-        # pledge_request = cart.pledge_request()
         frappe.db.begin()
-        # frappe.db.set_value(
-        #     "Cart",
-        #     cart.name,
-        #     "prf_number",
-        #     pledge_request.get("payload").get("PRFNumber"),
-        # )
-
-        # try:
-        #     res = requests.post(
-        #         pledge_request.get("url"),
-        #         headers=pledge_request.get("headers"),
-        #         json=pledge_request.get("payload"),
-        #     )
-        #     data = res.json()
-
-        #     # Pledge LOG
-        #     log = {
-        #         "url": pledge_request.get("url"),
-        #         "headers": pledge_request.get("headers"),
-        #         "request": pledge_request.get("payload"),
-        #         "response": data,
-        #     }
-
-        #     import json
-        #     import os
-
-        #     pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
-        #     pledge_log = None
-        #     if os.path.exists(pledge_log_file):
-        #         with open(pledge_log_file, "r") as f:
-        #             pledge_log = f.read()
-        #         f.close()
-        #     pledge_log = json.loads(pledge_log or "[]")
-        #     pledge_log.append(log)
-        #     with open(pledge_log_file, "w") as f:
-        #         f.write(json.dumps(pledge_log))
-        #     f.close()
-        #     # Pledge LOG end
-
-        #     if not res.ok or not data.get("Success"):
-        #         cart.reload()
-        #         # cart.status = "Failure"
-        #         # cart.is_processed = 1
-        #         cart.save(ignore_permissions=True)
-        #         raise PledgeSetupFailureException(errors=res.text)
-
-        #     if not customer.pledge_securities:
-        #         customer.pledge_securities = 1
-        #         customer.save(ignore_permissions=True)
-        # except requests.RequestException as e:
-        #     raise utils.APIException(str(e))
-
         cart.reload()
         # cart.process(data) TODO: this will be shifted in loan application
         cart.save(ignore_permissions=True)

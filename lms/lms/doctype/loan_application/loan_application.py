@@ -177,7 +177,10 @@ class LoanApplication(Document):
             customer.loan_open = 1
             customer.save(ignore_permissions=True)
 
-        self.update_collateral_ledger(loan.name)
+        # self.update_collateral_ledger(loan.name)
+        self.update_collateral_ledger(
+            {"loan": loan.name}, "loan_application = '{}'".format(self.name)
+        )
 
         customer = frappe.db.get_value("Loan Customer", {"name": self.customer}, "user")
         doc = frappe.get_doc("User", customer)
@@ -219,7 +222,12 @@ class LoanApplication(Document):
             loan.drawing_power = loan.sanctioned_limit
 
         loan.save(ignore_permissions=True)
-        self.update_collateral_ledger(loan.name)
+
+        # self.update_collateral_ledger(loan.name)
+        self.update_collateral_ledger(
+            {"loan": loan.name}, "loan_application = '{}'".format(self.name)
+        )
+
         if self.loan_margin_shortfall:
             loan_margin_shortfall = frappe.get_doc(
                 "Loan Margin Shortfall", self.loan_margin_shortfall
@@ -233,16 +241,32 @@ class LoanApplication(Document):
 
         return loan
 
-    def update_collateral_ledger(self, loan_name):
-        frappe.db.sql(
-            """
-			update `tabCollateral Ledger`
-			set loan = '{}'
-			where loan_application = '{}';
-		""".format(
-                loan_name, self.name
-            )
-        )
+    # def update_collateral_ledger(self, loan_name):
+    #     frappe.db.sql(
+    #         """
+    # 		update `tabCollateral Ledger`
+    # 		set loan = '{}'
+    # 		where loan_application = '{}';
+    # 	""".format(
+    #             loan_name, self.name
+    #         )
+    #     )
+    def update_collateral_ledger(self, set_values={}, where=""):
+        set_values_str = ""
+        last_col = sorted(set_values.keys())[-1]
+        print(last_col)
+        if len(set_values.keys()) == len(set_values.values()):
+            for col, val in set_values.items():
+                set_values_str += "{} = '{}'".format(col, val)
+                if len(set_values.keys()) > 0 and col != last_col:
+                    set_values_str += ", "
+
+        sql = """update `tabCollateral Ledger` set {} """.format(set_values_str)
+
+        if len(where) > 0:
+            sql += " where {}".format(where)
+
+        frappe.db.sql(sql, debug=True)
 
     # TODO : hit pledge request as per batch items
     def pledge_request(self, security_list):

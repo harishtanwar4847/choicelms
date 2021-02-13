@@ -56,111 +56,104 @@ class Cart(Document):
         with open(loan_agreement_pdf, "rb") as f:
             return f.read()
 
-    def pledge_request(self):
-        las_settings = frappe.get_single("LAS Settings")
-        API_URL = "{}{}".format(las_settings.cdsl_host, las_settings.pledge_setup_uri)
+    # def pledge_request(self):
+    #     las_settings = frappe.get_single("LAS Settings")
+    #     API_URL = "{}{}".format(las_settings.cdsl_host, las_settings.pledge_setup_uri)
 
-        securities_array = []
-        for i in self.items:
-            j = {
-                "ISIN": i.isin,
-                "Quantity": str(float(i.pledged_quantity)),
-                "Value": str(float(i.price)),
-            }
-            securities_array.append(j)
+    #     securities_array = []
+    #     for i in self.items:
+    #         j = {
+    #             "ISIN": i.isin,
+    #             "Quantity": str(float(i.pledged_quantity)),
+    #             "Value": str(float(i.price)),
+    #         }
+    #         securities_array.append(j)
 
-        payload = {
-            "PledgorBOID": self.pledgor_boid,
-            "PledgeeBOID": self.pledgee_boid,
-            # "PRFNumber": lms.random_token(length=12),
-            # "ExpiryDate": self.expiry.strftime("%d%m%Y"),
-            "ISINDTLS": securities_array,
-        }
+    #     payload = {
+    #         "PledgorBOID": self.pledgor_boid,
+    #         "PledgeeBOID": self.pledgee_boid,
+    #         # "PRFNumber": lms.random_token(length=12),
+    #         # "ExpiryDate": self.expiry.strftime("%d%m%Y"),
+    #         "ISINDTLS": securities_array,
+    #     }
 
-        headers = las_settings.cdsl_headers()
+    #     headers = las_settings.cdsl_headers()
 
-        return {"url": API_URL, "headers": headers, "payload": payload}
+    #     return {"url": API_URL, "headers": headers, "payload": payload}
 
-    def process(self, pledge_response):
-        # TODO: here use cart.is_processed in condition
-        # if self.status != "Not Processed":
-        #     return
-        if self.is_processed:
-            return
+    # def process(self, pledge_response):
+    #     if self.is_processed:
+    #         return
 
-        isin_details_ = pledge_response.get("PledgeSetupResponse").get("ISINstatusDtls")
-        isin_details = {}
-        for i in isin_details_:
-            isin_details[i.get("ISIN")] = i
+    #     isin_details_ = pledge_response.get("PledgeSetupResponse").get("ISINstatusDtls")
+    #     isin_details = {}
+    #     for i in isin_details_:
+    #         isin_details[i.get("ISIN")] = i
 
-        # self.approved_total_collateral_value = 0
-        total_successful_pledge = 0
+    #     total_successful_pledge = 0
 
-        for i in self.items:
-            cur = isin_details.get(i.get("isin"))
-            i.psn = cur.get("PSN")
-            i.error_code = cur.get("ErrorCode")
+    #     for i in self.items:
+    #         cur = isin_details.get(i.get("isin"))
+    #         i.psn = cur.get("PSN")
+    #         i.error_code = cur.get("ErrorCode")
 
-            success = len(i.psn) > 0
+    #         success = len(i.psn) > 0
 
-            # if success:
-            # if self.status == "Not Processed":
-            #     self.status = "Success"
-            # elif self.status == "Failure":
-            #     self.status = "Partial Success"
-            # self.approved_total_collateral_value += i.amount
-            # total_successful_pledge += 1
-            # else:
-            #     if self.status == "Not Processed":
-            #         self.status = "Failure"
-            #     elif self.status == "Success":
-            #         self.status = "Partial Success"
+    #         # if success:
+    #         # if self.status == "Not Processed":
+    #         #     self.status = "Success"
+    #         # elif self.status == "Failure":
+    #         #     self.status = "Partial Success"
+    #         # self.approved_total_collateral_value += i.amount
+    #         # total_successful_pledge += 1
+    #         # else:
+    #         #     if self.status == "Not Processed":
+    #         #         self.status = "Failure"
+    #         #     elif self.status == "Success":
+    #         #         self.status = "Partial Success"
 
-        if total_successful_pledge == 0:
-            self.is_processed = 1
-            self.save(ignore_permissions=True)
-            raise PledgeSetupFailureException(
-                "Pledge Setup failed.", errors=pledge_response
-            )
+    #     if total_successful_pledge == 0:
+    #         self.is_processed = 1
+    #         self.save(ignore_permissions=True)
+    #         raise PledgeSetupFailureException(
+    #             "Pledge Setup failed.", errors=pledge_response
+    #         )
 
-        # self.approved_total_collateral_value = round(
-        #     self.approved_total_collateral_value, 2
-        # )
-        # self.approved_eligible_loan = round(
-        #     lms.round_down_amount_to_nearest_thousand(
-        #         (self.allowable_ltv / 100) * self.approved_total_collateral_value
-        #     ),
-        #     2,
-        # )
-        self.is_processed = 1
+    #     # self.approved_total_collateral_value = round(
+    #     #     self.approved_total_collateral_value, 2
+    #     # )
+    #     # self.approved_eligible_loan = round(
+    #     #     lms.round_down_amount_to_nearest_thousand(
+    #     #         (self.allowable_ltv / 100) * self.approved_total_collateral_value
+    #     #     ),
+    #     #     2,
+    #     # )
+    #     self.is_processed = 1
 
-    def save_collateral_ledger(self, loan_application_name=None):
-        for i in self.items:
-            collateral_ledger = frappe.get_doc(
-                {
-                    "doctype": "Collateral Ledger",
-                    "cart": self.name,
-                    "customer": self.customer,
-                    "lender": self.lender,
-                    "loan_application": loan_application_name,
-                    "request_type": "Pledge",
-                    # "request_identifier": self.prf_number,
-                    # "expiry": self.expiry,
-                    "pledgor_boid": self.pledgor_boid,
-                    "pledgee_boid": self.pledgee_boid,
-                    "isin": i.isin,
-                    "quantity": i.pledged_quantity,
-                    # "psn": i.psn,
-                    # "error_code": i.error_code,
-                    # "is_success": len(i.psn) > 0,
-                }
-            )
-            collateral_ledger.save(ignore_permissions=True)
+    # def save_collateral_ledger(self, loan_application_name=None):
+    #     for i in self.items:
+    #         collateral_ledger = frappe.get_doc(
+    #             {
+    #                 "doctype": "Collateral Ledger",
+    #                 "cart": self.name,
+    #                 "customer": self.customer,
+    #                 "lender": self.lender,
+    #                 "loan_application": loan_application_name,
+    #                 "request_type": "Pledge",
+    #                 # "request_identifier": self.prf_number,
+    #                 # "expiry": self.expiry,
+    #                 "pledgor_boid": self.pledgor_boid,
+    #                 "pledgee_boid": self.pledgee_boid,
+    #                 "isin": i.isin,
+    #                 "quantity": i.pledged_quantity,
+    #                 # "psn": i.psn,
+    #                 # "error_code": i.error_code,
+    #                 # "is_success": len(i.psn) > 0,
+    #             }
+    #         )
+    #         collateral_ledger.save(ignore_permissions=True)
 
     def create_loan_application(self):
-        # TODO: here use cart.is_processed in condition
-        # if self.status == "Not Processed":
-        #     return
         if self.is_processed:
             return
 
@@ -169,7 +162,6 @@ class Cart(Document):
 
         items = []
         for item in self.items:
-            # if len(item.psn) > 0:
             item = frappe.get_doc(
                 {
                     "doctype": "Loan Application Item",
@@ -179,8 +171,6 @@ class Cart(Document):
                     "pledged_quantity": item.pledged_quantity,
                     "price": item.price,
                     "amount": item.amount,
-                    # "psn": item.psn,
-                    # "error_code": item.error_code,
                 }
             )
             items.append(item)
@@ -317,8 +307,6 @@ class Cart(Document):
         # )
 
     def process_cart_items(self):
-        # TODO : here use cart.is_processed in condition
-        # if self.status == "Not Processed":
         if not self.is_processed:
             self.pledgee_boid = self.get_lender().demat_account_number
             isin = [i.isin for i in self.items]
@@ -335,8 +323,6 @@ class Cart(Document):
                 i.amount = i.pledged_quantity * i.price
 
     def process_cart(self):
-        # TODO : here use cart.is_processed in condition
-        # if self.status == "Not Processed":
         if not self.is_processed:
             self.total_collateral_value = 0
             self.allowable_ltv = 0
