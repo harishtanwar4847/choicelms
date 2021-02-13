@@ -87,6 +87,30 @@ class LoanApplication(Document):
             else:
                 loan = self.update_existing_loan()
             frappe.db.commit()
+        elif self.status == "Pledge accepted by Lender":
+            approved_isin_list = []
+            rejected_isin_list = []
+            for i in self.items:
+                if self.lender_approval_status == "Approved":
+                    approved_isin_list.append(i.isin)
+                elif self.lender_approval_status == "Rejected":
+                    rejected_isin_list.append(i.isin)
+
+            if len(approved_isin_list) > 0:
+                self.update_collateral_ledger(
+                    {"lender_approval_status": "Approved"},
+                    "loan_application = '{}' and isin IN {}".format(
+                        self.name, approved_isin_list
+                    ),
+                )
+
+            if len(rejected_isin_list) > 0:
+                self.update_collateral_ledger(
+                    {"lender_approval_status": "Rejected"},
+                    "loan_application = '{}' and isin IN {}".format(
+                        self.name, rejected_isin_list
+                    ),
+                )
 
     def before_save(self):
         if (
@@ -353,6 +377,7 @@ class LoanApplication(Document):
                     total_successful_pledge += 1
                 else:
                     i.pledge_status = "Failure"
+                    i.lender_approval_status = "Pledge Failure"
                 #     if self.status == "Not Processed":
                 #         self.status = "Failure"
                 #     elif self.status == "Success":
@@ -397,6 +422,9 @@ class LoanApplication(Document):
                     "psn": i.psn,
                     "error_code": i.error_code,
                     "is_success": len(i.psn) > 0,
+                    "lender_approval_status": "Pledge Failure"
+                    if len(i.error_code) > 0
+                    else "",
                 }
             )
             collateral_ledger.save(ignore_permissions=True)

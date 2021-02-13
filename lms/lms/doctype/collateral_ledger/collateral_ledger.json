@@ -128,14 +128,13 @@
    "options": "Lender"
   },
   {
-   "default": "Pending",
    "fieldname": "lender_approval_status",
    "fieldtype": "Select",
    "label": "Lender Approval Status",
-   "options": "Pending\nApproved\nRejected"
+   "options": "\nApproved\nRejected\nPledge Failure"
   }
  ],
- "modified": "2021-02-12 13:45:33.893572",
+ "modified": "2021-02-13 12:36:08.863300",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Collateral Ledger",
