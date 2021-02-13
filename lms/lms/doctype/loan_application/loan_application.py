@@ -91,9 +91,9 @@ class LoanApplication(Document):
             approved_isin_list = []
             rejected_isin_list = []
             for i in self.items:
-                if self.lender_approval_status == "Approved":
+                if i.lender_approval_status == "Approved":
                     approved_isin_list.append(i.isin)
-                elif self.lender_approval_status == "Rejected":
+                elif i.lender_approval_status == "Rejected":
                     rejected_isin_list.append(i.isin)
 
             if len(approved_isin_list) > 0:
@@ -120,21 +120,38 @@ class LoanApplication(Document):
         ):
             frappe.throw("Please upload Lender Esigned Document")
 
-        if self.status == "Pledge accepted by Lender":
+        if self.status == "Pledge executed":
+            # frappe.throw("Pledge executed")
+            # frappe.throw("Pledge accepted by Lender")
+
             total_collateral_value = 0
             total_approved = 0
             for i in self.items:
-                if not i.is_success and self.lender_approval_status in [
+                # if not i.is_success and i.lender_approval_status in [
+                #     "Approved",
+                #     "Rejected",
+                # ]:
+                if len(i.error_code) > 0 and i.lender_approval_status in [
                     "Approved",
                     "Rejected",
                 ]:
-                    frappe.throw("Pledge failed for ISIN - {}, can't Approve or Reject")
-                elif i.is_success and self.lender_approval_status == "Approved":
+                    frappe.throw(
+                        "Pledge failed for ISIN - {}, can't Approve or Reject".format(
+                            i.isin
+                        )
+                    )
+                elif len(i.psn) > 0 and i.lender_approval_status == "Approved":
                     total_approved += 1
                     total_collateral_value += i.amount
+        if self.status == "Pledge accepted by Lender":
+            total_approved = 0
 
-            if total_approved == 0:
-                frappe.throw("Please Approve atleast one item.")
+            for i in self.items:
+                if len(i.psn) > 0 and i.lender_approval_status == "":
+                    frappe.throw("Please Approve or Reject remaining items.")
+
+                if total_approved == 0:
+                    frappe.throw("Please Approve atleast one item.")
 
             # TODO : manage loan application and its item's as per lender approval
             self.total_collateral_value = round(total_collateral_value, 2)

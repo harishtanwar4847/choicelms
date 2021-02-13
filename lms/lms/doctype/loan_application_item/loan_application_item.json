@@ -95,7 +95,8 @@
    "fieldname": "pledge_executed",
    "fieldtype": "Check",
    "in_list_view": 1,
-   "label": "Pledge Executed"
+   "label": "Pledge Executed",
+   "read_only": 1
   },
   {
    "fieldname": "lender_approval_status",
@@ -109,11 +110,12 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Pledge Status",
-   "options": "\nSuccess\nFailure"
+   "options": "\nSuccess\nFailure",
+   "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2021-02-13 13:28:20.700698",
+ "modified": "2021-02-13 20:02:29.143311",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application Item",
