@@ -100,7 +100,7 @@ class LoanApplication(Document):
                 self.update_collateral_ledger(
                     {"lender_approval_status": "Approved"},
                     "loan_application = '{}' and isin IN {}".format(
-                        self.name, approved_isin_list
+                        self.name, tuple(approved_isin_list)
                     ),
                 )
 
@@ -108,7 +108,7 @@ class LoanApplication(Document):
                 self.update_collateral_ledger(
                     {"lender_approval_status": "Rejected"},
                     "loan_application = '{}' and isin IN {}".format(
-                        self.name, rejected_isin_list
+                        self.name, tuple(rejected_isin_list)
                     ),
                 )
 
@@ -120,17 +120,27 @@ class LoanApplication(Document):
         ):
             frappe.throw("Please upload Lender Esigned Document")
 
-        if self.status == "Pledge executed":
-            # frappe.throw("Pledge executed")
-            # frappe.throw("Pledge accepted by Lender")
-
-            total_collateral_value = 0
+        # elif self.status == "Pledge executed":
+        #     total_collateral_value = 0
+        #     total_approved = 0
+        #     for i in self.items:
+        #         if len(i.error_code) > 0 and i.lender_approval_status in [
+        #             "Approved",
+        #             "Rejected",
+        #         ]:
+        #             frappe.throw(
+        #                 "Pledge failed for ISIN - {}, can't Approve or Reject".format(
+        #                     i.isin
+        #                 )
+        #             )
+        #         elif len(i.psn) > 0 and i.lender_approval_status == "Approved":
+        #             total_approved += 1
+        #             total_collateral_value += i.amount
+        elif self.status == "Pledge accepted by Lender":
             total_approved = 0
+            total_collateral_value = 0
+
             for i in self.items:
-                # if not i.is_success and i.lender_approval_status in [
-                #     "Approved",
-                #     "Rejected",
-                # ]:
                 if len(i.error_code) > 0 and i.lender_approval_status in [
                     "Approved",
                     "Rejected",
@@ -140,18 +150,24 @@ class LoanApplication(Document):
                             i.isin
                         )
                     )
-                elif len(i.psn) > 0 and i.lender_approval_status == "Approved":
-                    total_approved += 1
-                    total_collateral_value += i.amount
-        if self.status == "Pledge accepted by Lender":
-            total_approved = 0
 
-            for i in self.items:
-                if len(i.psn) > 0 and i.lender_approval_status == "":
-                    frappe.throw("Please Approve or Reject remaining items.")
+                elif len(i.psn) > 0:
+                    if i.lender_approval_status == "Pledge Failure":
+                        frappe.throw(
+                            "Already pledge success for {}, not allowed to set Pledge Failure.".format(
+                                i.isin
+                            )
+                        )
 
-                if total_approved == 0:
-                    frappe.throw("Please Approve atleast one item.")
+                    elif i.lender_approval_status == "":
+                        frappe.throw("Please Approve/Reject {}".format(i.isin))
+
+                    if i.lender_approval_status == "Approved":
+                        total_approved += 1
+                        total_collateral_value += i.amount
+
+            if total_approved == 0:
+                frappe.throw("Please Approve atleast one item.")
 
             # TODO : manage loan application and its item's as per lender approval
             self.total_collateral_value = round(total_collateral_value, 2)
@@ -333,7 +349,7 @@ class LoanApplication(Document):
         if len(where) > 0:
             sql += " where {}".format(where)
 
-        frappe.db.sql(sql, debug=True)
+        frappe.db.sql(sql)
 
     # TODO : hit pledge request as per batch items
     def pledge_request(self, security_list):
