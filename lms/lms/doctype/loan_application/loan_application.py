@@ -100,7 +100,7 @@ class LoanApplication(Document):
                 self.update_collateral_ledger(
                     {"lender_approval_status": "Approved"},
                     "loan_application = '{}' and isin IN {}".format(
-                        self.name, tuple(approved_isin_list)
+                        self.name, lms.convert_list_to_tuple_string(approved_isin_list)
                     ),
                 )
 
@@ -108,7 +108,7 @@ class LoanApplication(Document):
                 self.update_collateral_ledger(
                     {"lender_approval_status": "Rejected"},
                     "loan_application = '{}' and isin IN {}".format(
-                        self.name, tuple(rejected_isin_list)
+                        self.name, lms.convert_list_to_tuple_string(rejected_isin_list)
                     ),
                 )
 
@@ -190,21 +190,22 @@ class LoanApplication(Document):
         items = []
 
         for item in self.items:
-            temp = frappe.get_doc(
-                {
-                    "doctype": "Loan Item",
-                    "isin": item.isin,
-                    "security_name": item.security_name,
-                    "security_category": item.security_category,
-                    "pledged_quantity": item.pledged_quantity,
-                    "price": item.price,
-                    "amount": item.amount,
-                    "psn": item.psn,
-                    "error_code": item.error_code,
-                }
-            )
+            if item.lender_approval_status == "Approved":
+                temp = frappe.get_doc(
+                    {
+                        "doctype": "Loan Item",
+                        "isin": item.isin,
+                        "security_name": item.security_name,
+                        "security_category": item.security_category,
+                        "pledged_quantity": item.pledged_quantity,
+                        "price": item.price,
+                        "amount": item.amount,
+                        "psn": item.psn,
+                        "error_code": item.error_code,
+                    }
+                )
 
-            items.append(temp)
+                items.append(temp)
 
         loan = frappe.get_doc(
             {
