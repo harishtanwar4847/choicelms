@@ -4,7 +4,7 @@
   "doctype": "Workflow",
   "document_type": "Loan Application",
   "is_active": 1,
-  "modified": "2021-02-13 10:05:24.418249",
+  "modified": "2021-02-15 21:03:19.992412",
   "name": "Loan Application Approval",
   "override_status": 0,
   "parent": null,
@@ -39,7 +39,7 @@
     "update_value": ""
    },
    {
-    "allow_edit": "System Manager",
+    "allow_edit": "Lender",
     "doc_status": "0",
     "is_optional_state": 0,
     "message": null,
@@ -52,7 +52,7 @@
     "update_value": "Pledge executed"
    },
    {
-    "allow_edit": "Loan Customer",
+    "allow_edit": "Lender",
     "doc_status": "0",
     "is_optional_state": 0,
     "message": null,
@@ -60,9 +60,9 @@
     "parent": "Loan Application Approval",
     "parentfield": "states",
     "parenttype": "Workflow",
-    "state": "Esign Pending",
+    "state": "Pledge accepted by Lender",
     "update_field": "status",
-    "update_value": "Esign Pending"
+    "update_value": "Pledge accepted by Lender"
    },
    {
     "allow_edit": "Lender",
@@ -92,7 +92,7 @@
    },
    {
     "allow_edit": "Lender",
-    "doc_status": "1",
+    "doc_status": "0",
     "is_optional_state": 0,
     "message": null,
     "next_action_email_template": null,
@@ -145,7 +145,7 @@
     "allow_self_approval": 0,
     "allowed": "Lender",
     "condition": null,
-    "next_state": "Esign Pending",
+    "next_state": "Pledge accepted by Lender",
     "parent": "Loan Application Approval",
     "parentfield": "transitions",
     "parenttype": "Workflow",
@@ -156,7 +156,7 @@
     "allow_self_approval": 0,
     "allowed": "System Manager",
     "condition": null,
-    "next_state": "Esign Pending",
+    "next_state": "Pledge accepted by Lender",
     "parent": "Loan Application Approval",
     "parentfield": "transitions",
     "parenttype": "Workflow",
@@ -165,24 +165,24 @@
    {
     "action": "Esign",
     "allow_self_approval": 0,
-    "allowed": "System Manager",
+    "allowed": "Lender",
     "condition": null,
     "next_state": "Esign Done",
     "parent": "Loan Application Approval",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Esign Pending"
+    "state": "Pledge accepted by Lender"
    },
    {
     "action": "Esign",
     "allow_self_approval": 0,
-    "allowed": "Loan Customer",
+    "allowed": "System Manager",
     "condition": null,
     "next_state": "Esign Done",
     "parent": "Loan Application Approval",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Esign Pending"
+    "state": "Pledge accepted by Lender"
    },
    {
     "action": "Send for Approval",
@@ -193,7 +193,7 @@
     "parent": "Loan Application Approval",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Esign Pending"
+    "state": "Pledge accepted by Lender"
    },
    {
     "action": "Send for Approval",
@@ -204,12 +204,12 @@
     "parent": "Loan Application Approval",
     "parentfield": "transitions",
     "parenttype": "Workflow",
-    "state": "Esign Pending"
+    "state": "Pledge accepted by Lender"
    },
    {
     "action": "Approve",
     "allow_self_approval": 0,
-    "allowed": "System Manager",
+    "allowed": "Lender",
     "condition": null,
     "next_state": "Approved",
     "parent": "Loan Application Approval",
@@ -220,7 +220,7 @@
    {
     "action": "Approve",
     "allow_self_approval": 0,
-    "allowed": "Lender",
+    "allowed": "System Manager",
     "condition": null,
     "next_state": "Approved",
     "parent": "Loan Application Approval",
