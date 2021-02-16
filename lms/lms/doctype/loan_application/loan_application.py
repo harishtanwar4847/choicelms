@@ -701,7 +701,7 @@ def process_pledge(loan_application_name=""):
     if (
         las_settings.scheduler_from_time
         <= current_hour
-        <= las_settings.scheduler_to_time
+        < las_settings.scheduler_to_time
     ):
         frappe.logger().info("call enqueue for pledge")
 
