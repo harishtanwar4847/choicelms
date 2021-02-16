@@ -135,23 +135,10 @@ class LoanApplication(Document):
         ):
             frappe.throw("Please upload Lender Esigned Document")
 
-        # elif self.status == "Pledge executed":
-        #     total_collateral_value = 0
-        #     total_approved = 0
-        #     for i in self.items:
-        #         if len(i.error_code) > 0 and i.lender_approval_status in [
-        #             "Approved",
-        #             "Rejected",
-        #         ]:
-        #             frappe.throw(
-        #                 "Pledge failed for ISIN - {}, can't Approve or Reject".format(
-        #                     i.isin
-        #                 )
-        #             )
-        #         elif len(i.psn) > 0 and i.lender_approval_status == "Approved":
-        #             total_approved += 1
-        #             total_collateral_value += i.amount
         elif self.status == "Pledge accepted by Lender":
+            if self.pledge_status == "Failure":
+                frappe.throw("Sorry! Pledge for this Loan Application is failed.")
+
             total_approved = 0
             total_collateral_value = 0
 

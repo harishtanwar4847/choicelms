@@ -318,10 +318,6 @@ def dashboard():
             pending_esigns.append(loan_application_doc)
 
     token = dict(
-        token=utils.create_user_access_token(user.name),
-        customer=customer,
-        user_kyc=user_kyc,
         pending_esigns=pending_esigns,
     )
-    lms.add_firebase_token(data.get("firebase_token"), user.name)
-    return token
+    return utils.respondWithSuccess(message=frappe._("Success"), data=token)
