@@ -58,7 +58,7 @@ def login(**kwargs):
 
             pending_loan_applications = frappe.get_all(
                 "Loan Application",
-                filters={"customer": customer.name, "status": "Pending"},
+                filters={"customer": customer.name, "status": "Esign Pending"},
                 fields=["*"],
             )
 
@@ -212,7 +212,7 @@ def verify_otp(**kwargs):
 
             pending_loan_applications = frappe.get_all(
                 "Loan Application",
-                filters={"customer": customer.name, "status": "Pending"},
+                filters={"customer": customer.name, "status": "Esign Pending"},
                 fields=["*"],
             )
 

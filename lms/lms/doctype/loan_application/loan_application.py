@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 
+import json
 from datetime import datetime
 
 import frappe
@@ -16,6 +17,7 @@ from num2words import num2words
 
 import lms
 from lms.exceptions.PledgeSetupFailureException import PledgeSetupFailureException
+from lms.firebase import FirebaseAdmin
 
 
 class LoanApplication(Document):
@@ -111,6 +113,17 @@ class LoanApplication(Document):
                         self.name, tuple(rejected_isin_list)
                     ),
                 )
+
+            try:
+                fa = FirebaseAdmin()
+                fa.send_data(
+                    data={
+                        "event": "Esign Pending",
+                    },
+                    tokens=lms.get_firebase_tokens(self.user),
+                )
+            except Exception:
+                pass
 
     def before_save(self):
         if (
