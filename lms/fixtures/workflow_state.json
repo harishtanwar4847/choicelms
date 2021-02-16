@@ -118,5 +118,17 @@
   "parenttype": null,
   "style": "",
   "workflow_state_name": "Pledge executed"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2021-02-13 16:02:38.161394",
+  "name": "Pledge accepted by Lender",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "style": "",
+  "workflow_state_name": "Pledge accepted by Lender"
  }
 ]
