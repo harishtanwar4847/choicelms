@@ -167,5 +167,9 @@ scheduler_events = {
         "lms.lms.doctype.loan.loan.add_all_loans_penal_interest",
     ],
     "monthly": ["lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"],
-    # "cron": {"* * * * *": ["lms.lms.doctype.cart.cart.cron_for_cart_pledge"]},
+    "cron": {
+        "* * * * *": [
+            "lms.lms.doctype.loan_application.loan_application.process_pledge"
+        ]
+    },
 }

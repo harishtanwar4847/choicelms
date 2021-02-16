@@ -13,6 +13,8 @@
   "choice_user_id",
   "choice_ticket",
   "cdsl_section_break",
+  "scheduler_from_time",
+  "scheduler_to_time",
   "cdsl_host",
   "pledge_setup_uri",
   "cdsl_referrer",
@@ -212,10 +214,24 @@
    "fieldname": "esign_download_signed_file_uri",
    "fieldtype": "Data",
    "label": "Esign Download signed file URI"
+  },
+  {
+   "fieldname": "scheduler_from_time",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "From time (in hour)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "scheduler_to_time",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "To Time(in hour)",
+   "reqd": 1
   }
  ],
  "issingle": 1,
- "modified": "2021-01-07 20:08:56.130807",
+ "modified": "2021-02-16 18:39:14.864993",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
