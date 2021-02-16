@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 
+import json
 from datetime import datetime
 
 import frappe
@@ -16,6 +17,7 @@ from num2words import num2words
 
 import lms
 from lms.exceptions.PledgeSetupFailureException import PledgeSetupFailureException
+from lms.firebase import FirebaseAdmin
 
 
 class LoanApplication(Document):
@@ -111,6 +113,19 @@ class LoanApplication(Document):
                         self.name, lms.convert_list_to_tuple_string(rejected_isin_list)
                     ),
                 )
+
+            try:
+                fa = FirebaseAdmin()
+                fa.send_data(
+                    data={
+                        "event": "Esign Pending",
+                    },
+                    tokens=lms.get_firebase_tokens(self.user),
+                )
+            except Exception:
+                pass
+
+        # self.notify_customer()
 
     def before_save(self):
         if (
@@ -656,6 +671,43 @@ class LoanApplication(Document):
                 # TODO : if Rejected - notify customer
         else:
             return "pledge in progress"
+
+    def notify_customer(self):
+        customer = self.get_customer()
+        user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+        doc = frappe.get_doc("User", customer.user).as_dict()
+        doc["loan_application"] = {
+            "status": self.status,
+            "pledge_status": self.pledge_status,
+            "current_total_collateral_value": self.total_collateral_value_str,
+            "requested_total_collateral_value": self.pledged_total_collateral_value_str,
+            "drawing_power": self.drawing_power_str,
+        }
+        frappe.enqueue_doc("Notification", "Loan Application", method="send", doc=doc)
+
+        if doc.get("loan_application").get("pledge_status") == "Failure":
+            mess = "Sorry! Your loan application was turned down since the pledge was not successful. We regret the inconvenience caused."
+
+        if doc.get("loan_application").get("status") == "Pledge accepted by Lender":
+            mess = "Congratulations! Your application is being considered favourably by our lending partner\nand finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}.\nAccordingly the final Drawing power is Rs. {drawing_power}. Please e-sign the loan agreement to avail the loan now.".format(
+                current_total_collateral_value=doc.get("loan_application").get(
+                    "current_total_collateral_value"
+                ),
+                requested_total_collateral_value=doc.get("loan_application").get(
+                    "requested_total_collateral_value"
+                ),
+                drawing_power=doc.get("loan_application").get("drawing_power"),
+            )
+
+        if doc.get("loan_application").get("status") == "Approved":
+            mess = "Congratulations! Your loan application is Approved."
+        if doc.get("loan_application").get("status") == "Rejected":
+            mess = "Sorry! Your loan application was turned down. We regret the inconvenience caused."
+
+        receiver_list = list(set([str(customer.phone), str(user_kyc.mobile_number)]))
+        from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+        frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
 
 
 def only_pdf_upload(doc, method):

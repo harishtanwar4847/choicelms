@@ -4,6 +4,8 @@
 
 from __future__ import unicode_literals
 
+import json
+
 import frappe
 from frappe.model.document import Document
 
@@ -35,7 +37,7 @@ class LoanCustomer(Document):
 
         pending_loan_applications = frappe.get_all(
             "Loan Application",
-            filters={"customer": self.name, "status": "Pending"},
+            filters={"customer": self.name, "status": "Pledge accepted by Lender"},
             fields=["*"],
         )
 

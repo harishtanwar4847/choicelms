@@ -9,6 +9,7 @@ from frappe.utils.password import update_password
 
 import lms
 from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
+from lms.exceptions.UserNotFoundException import UserNotFoundException
 from lms.firebase import FirebaseAdmin
 
 
@@ -290,3 +291,37 @@ def tds(tds_amount, year):
     return lms.generateResponse(
         message=frappe._("TDS Create Successfully."), data={"file": tds}
     )
+
+
+@frappe.whitelist()
+def dashboard():
+    user = frappe.get_doc("User", frappe.session.user)
+
+    customer = lms.__customer(user.name)
+    try:
+        user_kyc = lms.__user_kyc(user.name)
+    except UserKYCNotFoundException:
+        user_kyc = {}
+
+    pending_loan_applications = frappe.get_all(
+        "Loan Application",
+        filters={"customer": customer.name, "status": "Pledge accepted by Lender"},
+        fields=["*"],
+    )
+
+    pending_esigns = []
+    if pending_loan_applications:
+        for loan_application in pending_loan_applications:
+            loan_application_doc = frappe.get_doc(
+                "Loan Application", loan_application.name
+            )
+            pending_esigns.append(loan_application_doc)
+
+    token = dict(
+        token=utils.create_user_access_token(user.name),
+        customer=customer,
+        user_kyc=user_kyc,
+        pending_esigns=pending_esigns,
+    )
+    lms.add_firebase_token(data.get("firebase_token"), user.name)
+    return token
