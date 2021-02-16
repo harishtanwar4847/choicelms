@@ -581,45 +581,45 @@ class LoanApplication(Document):
                     # print(pledge_request, "pledge_request")
 
                     # TODO : pledge request hit for all batches
-                    #     res = requests.post(
-                    #         pledge_request.get("url"),
-                    #         headers=pledge_request.get("headers"),
-                    #         json=pledge_request.get("payload"),
-                    #     )
-                    #     data = res.json()
-
-                    #     # Pledge LOG
-                    #     log = {
-                    #         "url": pledge_request.get("url"),
-                    #         "headers": pledge_request.get("headers"),
-                    #         "request": pledge_request.get("payload"),
-                    #         "response": data,
-                    #     }
-
-                    #     import json
-                    #     import os
-
-                    #     pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
-                    #     pledge_log = None
-                    #     if os.path.exists(pledge_log_file):
-                    #         with open(pledge_log_file, "r") as f:
-                    #             pledge_log = f.read()
-                    #         f.close()
-                    #     pledge_log = json.loads(pledge_log or "[]")
-                    #     pledge_log.append(log)
-                    #     with open(pledge_log_file, "w") as f:
-                    #         f.write(json.dumps(pledge_log))
-                    #     f.close()
-                    #     # Pledge LOG end
-
-                    #     # if not res.ok or not data.get("Success"):
-                    #         # loan_application_doc.reload()
-                    #         # loan_application_doc.status = "Pledge Failure"
-                    #         # loan_application_doc.save(ignore_permissions=True)
-
-                    data = loan_application_doc.dummy_pledge_response(
-                        pledge_request.get("payload").get("ISINDTLS")
+                    res = requests.post(
+                        pledge_request.get("url"),
+                        headers=pledge_request.get("headers"),
+                        json=pledge_request.get("payload"),
                     )
+                    data = res.json()
+
+                    # Pledge LOG
+                    log = {
+                        "url": pledge_request.get("url"),
+                        "headers": pledge_request.get("headers"),
+                        "request": pledge_request.get("payload"),
+                        "response": data,
+                    }
+
+                    import json
+                    import os
+
+                    pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
+                    pledge_log = None
+                    if os.path.exists(pledge_log_file):
+                        with open(pledge_log_file, "r") as f:
+                            pledge_log = f.read()
+                        f.close()
+                    pledge_log = json.loads(pledge_log or "[]")
+                    pledge_log.append(log)
+                    with open(pledge_log_file, "w") as f:
+                        f.write(json.dumps(pledge_log))
+                    f.close()
+                    # Pledge LOG end
+
+                    if not res.ok or not data.get("Success"):
+                        loan_application_doc.reload()
+                        loan_application_doc.status = "Pledge Failure"
+                        loan_application_doc.save(ignore_permissions=True)
+
+                    # data = loan_application_doc.dummy_pledge_response(
+                    #     pledge_request.get("payload").get("ISINDTLS")
+                    # )
                     # print(data, "dummy_pledge_response")
                     # TODO : process loan application items in batches
                     total_successful_pledge_count = loan_application_doc.process(
