@@ -265,7 +265,11 @@ class LoanApplication(Document):
 
         # self.update_collateral_ledger(loan.name)
         self.update_collateral_ledger(
-            {"loan": loan.name}, "loan_application = '{}'".format(self.name)
+            {"loan": loan.name},
+            "loan_application = '{}' and isin in {}".format(
+                self.name,
+                lms.convert_list_to_tuple_string([i.isin for i in loan.items]),
+            ),
         )
 
         customer = frappe.db.get_value("Loan Customer", {"name": self.customer}, "user")
@@ -311,7 +315,11 @@ class LoanApplication(Document):
 
         # self.update_collateral_ledger(loan.name)
         self.update_collateral_ledger(
-            {"loan": loan.name}, "loan_application = '{}'".format(self.name)
+            {"loan": loan.name},
+            "loan_application = '{}' and isin in {}".format(
+                self.name,
+                lms.convert_list_to_tuple_string([i.isin for i in loan.items]),
+            ),
         )
 
         if self.loan_margin_shortfall:
