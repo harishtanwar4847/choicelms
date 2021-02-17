@@ -696,7 +696,11 @@ def check_for_pledge(loan_application_doc):
 def process_pledge(loan_application_name=""):
     # print(loan_application_name)
     frappe.logger().info(loan_application_name)
-    current_hour = datetime.now().hour
+    # current_hour = datetime.now().hour
+    from frappe import utils
+
+    current_hour = int(utils.nowtime().split(":")[0])
+
     frappe.logger().info(current_hour)
     las_settings = frappe.get_single("LAS Settings")
     frappe.logger().info(las_settings.scheduler_from_time)
