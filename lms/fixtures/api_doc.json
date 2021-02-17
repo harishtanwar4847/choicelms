@@ -1832,10 +1832,18 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-02-16 15:43:29.004153",
+  "modified": "2021-02-17 16:02:56.597310",
   "name": "8ebbf2ad2f",
   "parameters": [],
-  "parameters_example": [],
+  "parameters_example": [
+   {
+    "example": "{}",
+    "parent": "8ebbf2ad2f",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
   "parent": null,
   "parentfield": null,
   "parenttype": null,
