@@ -587,41 +587,45 @@ def check_for_pledge(loan_application_doc):
         # print(pledge_request, "pledge_request")
 
         # TODO : pledge request hit for all batches
-        res = requests.post(
-            pledge_request.get("url"),
-            headers=pledge_request.get("headers"),
-            json=pledge_request.get("payload"),
-        )
-        data = res.json()
+        try:
+            res = requests.post(
+                pledge_request.get("url"),
+                headers=pledge_request.get("headers"),
+                json=pledge_request.get("payload"),
+            )
+            data = res.json()
 
-        # Pledge LOG
-        log = {
-            "url": pledge_request.get("url"),
-            "headers": pledge_request.get("headers"),
-            "request": pledge_request.get("payload"),
-            "response": data,
-        }
+            # Pledge LOG
+            log = {
+                "url": pledge_request.get("url"),
+                "headers": pledge_request.get("headers"),
+                "request": pledge_request.get("payload"),
+                "response": data,
+            }
 
-        import json
-        import os
+            import json
+            import os
 
-        pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
-        pledge_log = None
-        if os.path.exists(pledge_log_file):
-            with open(pledge_log_file, "r") as f:
-                pledge_log = f.read()
+            pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
+            pledge_log = None
+            if os.path.exists(pledge_log_file):
+                with open(pledge_log_file, "r") as f:
+                    pledge_log = f.read()
+                f.close()
+            pledge_log = json.loads(pledge_log or "[]")
+            pledge_log.append(log)
+            with open(pledge_log_file, "w") as f:
+                f.write(json.dumps(pledge_log))
             f.close()
-        pledge_log = json.loads(pledge_log or "[]")
-        pledge_log.append(log)
-        with open(pledge_log_file, "w") as f:
-            f.write(json.dumps(pledge_log))
-        f.close()
-        # Pledge LOG end
+            # Pledge LOG end
 
-        if not res.ok or not data.get("Success"):
-            loan_application_doc.reload()
-            loan_application_doc.status = "Pledge Failure"
-            loan_application_doc.save(ignore_permissions=True)
+            if not res.ok or not data.get("Success"):
+                loan_application_doc.reload()
+                loan_application_doc.status = "Pledge Failure"
+                loan_application_doc.save(ignore_permissions=True)
+        except requests.RequestException as e:
+            frappe.logger().info(str(e))
+            frappe.logger().info("request exception catched")
 
         # data = loan_application_doc.dummy_pledge_response(
         #     pledge_request.get("payload").get("ISINDTLS")
@@ -738,7 +742,7 @@ def process_pledge(loan_application_name=""):
                 frappe.logger().info(loan_application_doc)
                 frappe.enqueue(
                     method="lms.lms.doctype.loan_application.loan_application.check_for_pledge",
-                    timeout=40,
+                    timeout=7200,
                     job_name="loan_application_pledge",
                     loan_application_doc=loan_application_doc,
                 )
