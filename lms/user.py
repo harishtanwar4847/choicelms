@@ -298,11 +298,6 @@ def dashboard():
     user = frappe.get_doc("User", frappe.session.user)
 
     customer = lms.__customer(user.name)
-    try:
-        user_kyc = lms.__user_kyc(user.name)
-    except UserKYCNotFoundException:
-        user_kyc = {}
-
     pending_loan_applications = frappe.get_all(
         "Loan Application",
         filters={"customer": customer.name, "status": "Pledge accepted by Lender"},

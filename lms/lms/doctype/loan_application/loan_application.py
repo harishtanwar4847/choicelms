@@ -169,7 +169,9 @@ class LoanApplication(Document):
                         total_collateral_value += i.amount
 
             if total_approved == 0:
-                frappe.throw("Please Approve atleast one item.")
+                frappe.throw(
+                    "Please Approve atleast one item or Reject the Loan Application"
+                )
 
             # TODO : manage loan application and its item's as per lender approval
             self.total_collateral_value = round(total_collateral_value, 2)
@@ -668,12 +670,12 @@ def check_for_pledge(loan_application_doc):
     loan_application_doc.status = "Pledge executed"
     loan_application_doc.workflow_state = "Pledge executed"
     # TODO : In case of all failure mark status as "Rejected"
-
     # manage loan application doc pledge status
     if total_successful_pledge == len(loan_application_doc.items):
         loan_application_doc.pledge_status = "Success"
     elif total_successful_pledge == 0:
         loan_application_doc.pledge_status = "Failure"
+        loan_application_doc.status = "Pledge Failure"
     else:
         loan_application_doc.pledge_status = "Partial Success"
 
