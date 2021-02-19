@@ -124,6 +124,8 @@ class LoanApplication(Document):
                 )
             except Exception:
                 pass
+            finally:
+                fa.delete_app()
 
         # self.notify_customer()
 
