@@ -113,14 +113,13 @@ class LoanApplication(Document):
                         self.name, lms.convert_list_to_tuple_string(rejected_isin_list)
                     ),
                 )
-
             try:
                 fa = FirebaseAdmin()
                 fa.send_data(
                     data={
                         "event": "Esign Pending",
                     },
-                    tokens=lms.get_firebase_tokens(self.user),
+                    tokens=lms.get_firebase_tokens(self.get_customer().user),
                 )
             except Exception:
                 pass
