@@ -402,80 +402,102 @@ class LoanApplication(Document):
     def dummy_pledge_response(self, security_list):
         import random
 
-        ISINstatusDtls = []
-        flag = 0
-        for item in security_list:
-            flag = bool(random.getrandbits(1))
-            error_code = ["CIF3065-F", "PLD0152-E", "PLD0125-F"]
-            ISINstatusDtls_item = {
-                "ISIN": item.get("ISIN"),
-                "PSN": "" if flag else lms.random_token(7, is_numeric=True),
-                "ErrorCode": random.choice(error_code) if flag else "",
+        # error_flag = 1
+        error_flag = bool(random.getrandbits(1))
+        if error_flag:
+            return {
+                "Success": False,
+                "PledgeSetupResponse": {
+                    "ErrorId": "ERR007",
+                    "ErrorMessage": "Invalid Pledgor BOID.",
+                },
             }
-            ISINstatusDtls.append(ISINstatusDtls_item)
-        return {
-            "Success": True,
-            "PledgeSetupResponse": {"ISINstatusDtls": ISINstatusDtls},
-        }
+        else:
+            ISINstatusDtls = []
+            flag = 0
+            for item in security_list:
+                flag = bool(random.getrandbits(1))
+                error_code = ["CIF3065-F", "PLD0152-E", "PLD0125-F"]
+                ISINstatusDtls_item = {
+                    "ISIN": item.get("ISIN"),
+                    "PSN": "" if flag else lms.random_token(7, is_numeric=True),
+                    "ErrorCode": random.choice(error_code) if flag else "",
+                }
+                ISINstatusDtls.append(ISINstatusDtls_item)
+            return {
+                "Success": True,
+                "PledgeSetupResponse": {"ISINstatusDtls": ISINstatusDtls},
+            }
 
     # TODO : handle pledge response(process loan application items)
     def process(self, security_list, pledge_response):
         isin_details_ = pledge_response.get("PledgeSetupResponse").get("ISINstatusDtls")
-        isin_details = {}
-        for i in isin_details_:
-            isin_details[i.get("ISIN")] = i
 
-        # self.approved_total_collateral_value = 0
-        total_collateral_value = 0
         total_successful_pledge = 0
+        if isin_details_:
+            isin_details = {}
+            for i in isin_details_:
+                isin_details[i.get("ISIN")] = i
 
-        for i in self.items:
-            if i.get("isin") in security_list:
-                cur = isin_details.get(i.get("isin"))
+            # self.approved_total_collateral_value = 0
+            total_collateral_value = 0
 
-                i.psn = cur.get("PSN")
-                i.error_code = cur.get("ErrorCode")
-                i.pledge_executed = 1
+            for i in self.items:
+                if i.get("isin") in security_list:
+                    cur = isin_details.get(i.get("isin"))
 
-                success = len(i.psn) > 0
+                    i.psn = cur.get("PSN")
+                    i.error_code = cur.get("ErrorCode")
+                    i.pledge_executed = 1
 
-                if success:
-                    # TODO : manage individual LA item pledge status
-                    i.pledge_status = "Success"
-                    # if self.status == "Not Processed":
-                    #     self.status = "Success"
-                    # elif self.status == "Failure":
-                    #     self.status = "Partial Success"
-                    # self.approved_total_collateral_value += i.amount
-                    total_collateral_value += i.amount
-                    total_successful_pledge += 1
-                else:
+                    success = len(i.psn) > 0
+
+                    if success:
+                        # TODO : manage individual LA item pledge status
+                        i.pledge_status = "Success"
+                        # if self.status == "Not Processed":
+                        #     self.status = "Success"
+                        # elif self.status == "Failure":
+                        #     self.status = "Partial Success"
+                        # self.approved_total_collateral_value += i.amount
+                        total_collateral_value += i.amount
+                        total_successful_pledge += 1
+                    else:
+                        i.pledge_status = "Failure"
+                        i.lender_approval_status = "Pledge Failure"
+                    #      if self.status == "Not Processed":
+                    #         self.status = "Failure"
+                    #     elif self.status == "Success":
+                    #         self.status = "Partial Success"
+
+            self.total_collateral_value += total_collateral_value
+            # if total_successful_pledge == 0:
+            #     self.is_processed = 1
+            #     self.save(ignore_permissions=True)
+            #     raise PledgeSetupFailureException(
+            #         "Pledge Setup failed.", errors=pledge_response
+            #     )
+
+            # self.approved_total_collateral_value = round(
+            #     self.approved_total_collateral_value, 2
+            # )
+            # self.approved_eligible_loan = round(
+            #     lms.round_down_amount_to_nearest_thousand(
+            #         (self.allowable_ltv / 100) * self.approved_total_collateral_value
+            #     ),
+            #     2,
+            # )
+            # self.is_processed = 1
+        else:
+            ErrorId = pledge_response.get("PledgeSetupResponse").get("ErrorId")
+            for i in self.items:
+                if i.get("isin") in security_list:
+                    i.error_code = ErrorId
+                    i.pledge_executed = 1
                     i.pledge_status = "Failure"
                     i.lender_approval_status = "Pledge Failure"
-                #     if self.status == "Not Processed":
-                #         self.status = "Failure"
-                #     elif self.status == "Success":
-                #         self.status = "Partial Success"
 
-        self.total_collateral_value += total_collateral_value
         self.save(ignore_permissions=True)
-        # if total_successful_pledge == 0:
-        #     self.is_processed = 1
-        #     self.save(ignore_permissions=True)
-        #     raise PledgeSetupFailureException(
-        #         "Pledge Setup failed.", errors=pledge_response
-        #     )
-
-        # self.approved_total_collateral_value = round(
-        #     self.approved_total_collateral_value, 2
-        # )
-        # self.approved_eligible_loan = round(
-        #     lms.round_down_amount_to_nearest_thousand(
-        #         (self.allowable_ltv / 100) * self.approved_total_collateral_value
-        #     ),
-        #     2,
-        # )
-        # self.is_processed = 1
         return total_successful_pledge
 
     def save_collateral_ledger(self, loan_application_name=None):
@@ -496,9 +518,9 @@ class LoanApplication(Document):
                     "quantity": i.pledged_quantity,
                     "psn": i.psn,
                     "error_code": i.error_code,
-                    "is_success": len(i.psn) > 0,
+                    "is_success": 1 if i.get("psn") and len(i.get("psn")) > 0 else 0,
                     "lender_approval_status": "Pledge Failure"
-                    if len(i.error_code) > 0
+                    if i.get("error_code") and len(i.get("error_code")) > 0
                     else "",
                 }
             )
@@ -631,10 +653,6 @@ def check_for_pledge(loan_application_doc):
             f.close()
             # Pledge LOG end
 
-            if not res.ok or not data.get("Success"):
-                loan_application_doc.reload()
-                loan_application_doc.status = "Pledge Failure"
-                loan_application_doc.save(ignore_permissions=True)
         except requests.RequestException as e:
             frappe.logger().info(str(e))
             frappe.logger().info("request exception catched")
@@ -642,18 +660,36 @@ def check_for_pledge(loan_application_doc):
         # data = loan_application_doc.dummy_pledge_response(
         #     pledge_request.get("payload").get("ISINDTLS")
         # )
-        # print(data, "dummy_pledge_response")
+        # frappe.logger().info("{} dummy_pledge_response".format(data))
+
+        # if not res.ok or not data.get("Success"):
+        # if data.get("Success"):
+        frappe.logger().info("batch pledge sucess")
         # TODO : process loan application items in batches
         total_successful_pledge_count = loan_application_doc.process(
             la_items_list, data
         )
-        frappe.db.commit()
         total_successful_pledge += total_successful_pledge_count
 
+        frappe.db.commit()
+
     frappe.db.begin()
-    if not customer.pledge_securities:
-        customer.pledge_securities = 1
-        customer.save(ignore_permissions=True)
+    frappe.logger().info("{} total_successful_pledge".format(total_successful_pledge))
+    # manage loan application doc pledge status
+    loan_application_doc.status = "Pledge executed"
+    if total_successful_pledge == len(loan_application_doc.items):
+        loan_application_doc.pledge_status = "Success"
+    elif total_successful_pledge == 0:
+        loan_application_doc.reload()
+        loan_application_doc.status = "Pledge Failure"
+        loan_application_doc.pledge_status = "Failure"
+        # loan_application_doc.workflow_state = "Pledge executed"
+        # loan_application_doc.save(ignore_permissions=True)
+    else:
+        loan_application_doc.pledge_status = "Partial Success"
+
+    # TODO : once done with all batches, mark LA as Pledge executed
+    loan_application_doc.workflow_state = "Pledge executed"
 
     # TODO : process loan application(handle collateral and eligible amount)
     # loan_application_doc.reload()
@@ -668,21 +704,13 @@ def check_for_pledge(loan_application_doc):
         2,
     )
 
-    # TODO : once done with all batches, mark LA as Pledge executed
-    loan_application_doc.status = "Pledge executed"
-    loan_application_doc.workflow_state = "Pledge executed"
-    # TODO : In case of all failure mark status as "Rejected"
-    # manage loan application doc pledge status
-    if total_successful_pledge == len(loan_application_doc.items):
-        loan_application_doc.pledge_status = "Success"
-    elif total_successful_pledge == 0:
-        loan_application_doc.pledge_status = "Failure"
-        loan_application_doc.status = "Pledge Failure"
-    else:
-        loan_application_doc.pledge_status = "Partial Success"
-
     loan_application_doc.save(ignore_permissions=True)
     loan_application_doc.save_collateral_ledger()
+
+    if not customer.pledge_securities:
+        customer.pledge_securities = 1
+        customer.save(ignore_permissions=True)
+
     frappe.db.commit()
 
     frappe.logger().info(
@@ -732,6 +760,10 @@ def process_pledge(loan_application_name=""):
             filters={"status": "Executing pledge"},
             debug=True,
         )
+        frappe.logger().info(
+            "{} is_pledge_executing cnt".format(is_pledge_executing[0].count)
+        )
+
         if is_pledge_executing[0].count == 0:
             frappe.logger().info("is_pledge_executing")
 
