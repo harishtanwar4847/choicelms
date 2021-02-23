@@ -56,103 +56,6 @@ class Cart(Document):
         with open(loan_agreement_pdf, "rb") as f:
             return f.read()
 
-    # def pledge_request(self):
-    #     las_settings = frappe.get_single("LAS Settings")
-    #     API_URL = "{}{}".format(las_settings.cdsl_host, las_settings.pledge_setup_uri)
-
-    #     securities_array = []
-    #     for i in self.items:
-    #         j = {
-    #             "ISIN": i.isin,
-    #             "Quantity": str(float(i.pledged_quantity)),
-    #             "Value": str(float(i.price)),
-    #         }
-    #         securities_array.append(j)
-
-    #     payload = {
-    #         "PledgorBOID": self.pledgor_boid,
-    #         "PledgeeBOID": self.pledgee_boid,
-    #         # "PRFNumber": lms.random_token(length=12),
-    #         # "ExpiryDate": self.expiry.strftime("%d%m%Y"),
-    #         "ISINDTLS": securities_array,
-    #     }
-
-    #     headers = las_settings.cdsl_headers()
-
-    #     return {"url": API_URL, "headers": headers, "payload": payload}
-
-    # def process(self, pledge_response):
-    #     if self.is_processed:
-    #         return
-
-    #     isin_details_ = pledge_response.get("PledgeSetupResponse").get("ISINstatusDtls")
-    #     isin_details = {}
-    #     for i in isin_details_:
-    #         isin_details[i.get("ISIN")] = i
-
-    #     total_successful_pledge = 0
-
-    #     for i in self.items:
-    #         cur = isin_details.get(i.get("isin"))
-    #         i.psn = cur.get("PSN")
-    #         i.error_code = cur.get("ErrorCode")
-
-    #         success = len(i.psn) > 0
-
-    #         # if success:
-    #         # if self.status == "Not Processed":
-    #         #     self.status = "Success"
-    #         # elif self.status == "Failure":
-    #         #     self.status = "Partial Success"
-    #         # self.approved_total_collateral_value += i.amount
-    #         # total_successful_pledge += 1
-    #         # else:
-    #         #     if self.status == "Not Processed":
-    #         #         self.status = "Failure"
-    #         #     elif self.status == "Success":
-    #         #         self.status = "Partial Success"
-
-    #     if total_successful_pledge == 0:
-    #         self.is_processed = 1
-    #         self.save(ignore_permissions=True)
-    #         raise PledgeSetupFailureException(
-    #             "Pledge Setup failed.", errors=pledge_response
-    #         )
-
-    #     # self.approved_total_collateral_value = round(
-    #     #     self.approved_total_collateral_value, 2
-    #     # )
-    #     # self.approved_eligible_loan = round(
-    #     #     lms.round_down_amount_to_nearest_thousand(
-    #     #         (self.allowable_ltv / 100) * self.approved_total_collateral_value
-    #     #     ),
-    #     #     2,
-    #     # )
-    #     self.is_processed = 1
-
-    # def save_collateral_ledger(self, loan_application_name=None):
-    #     for i in self.items:
-    #         collateral_ledger = frappe.get_doc(
-    #             {
-    #                 "doctype": "Collateral Ledger",
-    #                 "cart": self.name,
-    #                 "customer": self.customer,
-    #                 "lender": self.lender,
-    #                 "loan_application": loan_application_name,
-    #                 "request_type": "Pledge",
-    #                 # "request_identifier": self.prf_number,
-    #                 # "expiry": self.expiry,
-    #                 "pledgor_boid": self.pledgor_boid,
-    #                 "pledgee_boid": self.pledgee_boid,
-    #                 "isin": i.isin,
-    #                 "quantity": i.pledged_quantity,
-    #                 # "psn": i.psn,
-    #                 # "error_code": i.error_code,
-    #                 # "is_success": len(i.psn) > 0,
-    #             }
-    #         )
-    #         collateral_ledger.save(ignore_permissions=True)
-
     def create_loan_application(self):
         if self.is_processed:
             return
@@ -178,15 +81,11 @@ class Cart(Document):
         loan_application = frappe.get_doc(
             {
                 "doctype": "Loan Application",
-                # "total_collateral_value": self.approved_total_collateral_value,
                 "total_collateral_value": self.total_collateral_value,
                 "pledged_total_collateral_value": self.total_collateral_value,
                 "loan_margin_shortfall": self.loan_margin_shortfall,
-                # "pledge_status": self.status,
-                # "drawing_power": self.approved_eligible_loan,
                 "drawing_power": self.eligible_loan,
                 "lender": self.lender,
-                # "expiry_date": self.expiry,
                 "expiry_date": expiry,
                 "allowable_ltv": self.allowable_ltv,
                 "customer": self.customer,
@@ -208,45 +107,8 @@ class Cart(Document):
             loan_application.status = "Ready for Approval"
             loan_application.workflow_state = "Ready for Approval"
             loan_application.save(ignore_permissions=True)
-        # self.save_collateral_ledger(loan_application.name)
+
         return loan_application
-
-    # def notify_customer(self):
-    # TODO: need to shift this method to loan application
-    # customer = self.get_customer()
-    # user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
-    # doc = frappe.get_doc("User", customer.user).as_dict()
-    # doc["loan_application"] = {
-    #     "status": self.status,
-    #     "current_total_collateral_value": self.approved_total_collateral_value_str,
-    #     "requested_total_collateral_value": self.total_collateral_value_str,
-    #     "sanctioned_amount": self.approved_eligible_loan_str,
-    # }
-    # frappe.enqueue_doc("Notification", "Loan Application", method="send", doc=doc)
-    # if doc.get("loan_application").get("status") == "Failure":
-    #     mess = "Sorry! Your loan application was turned down since the pledge was not successful. We regret the inconvenience caused."
-    # elif doc.get("loan_application").get("status") == "Success":
-    #     mess = "Congratulations! Your loan application has been approved. Please e-sign the loan agreement to avail the loan now."
-    # elif doc.get("loan_application").get("status") == "Partial Success":
-    #     mess = "Congratulations! Your application is being considered favourably by our lending partner\nHowever, the pledge request was partially succesful and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}.\nAccordingly the final loan amount sanctioned is Rs. {sanctioned_amount}. Please e-sign the loan agreement to avail the loan now.".format(
-    #         current_total_collateral_value=doc.get("loan_application").get(
-    #             "current_total_collateral_value"
-    #         ),
-    #         requested_total_collateral_value=doc.get("loan_application").get(
-    #             "requested_total_collateral_value"
-    #         ),
-    #         sanctioned_amount=doc.get("loan_application").get("sanctioned_amount"),
-    #     )
-    # receiver_list = list(set([str(customer.phone), str(user_kyc.mobile_number)]))
-    # from frappe.core.doctype.sms_settings.sms_settings import send_sms
-
-    # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
-
-    # TODO : need to do this in loan application
-    # def on_update(self):
-    #     if self.is_processed:
-    #         self.notify_customer()
-    # frappe.enqueue_doc("Cart", self.name, method="create_tnc_file")
 
     def create_tnc_file(self):
         lender = self.get_lender()
@@ -299,13 +161,7 @@ class Cart(Document):
         self.total_collateral_value_str = lms.amount_formatter(
             self.total_collateral_value
         )
-        # self.approved_total_collateral_value_str = lms.amount_formatter(
-        #     self.approved_total_collateral_value
-        # )
         self.eligible_loan_str = lms.amount_formatter(self.eligible_loan)
-        # self.approved_eligible_loan_str = lms.amount_formatter(
-        #     self.approved_eligible_loan
-        # )
 
     def process_cart_items(self):
         if not self.is_processed:
@@ -448,95 +304,3 @@ def process_concentration_rule(item, amount, rule, rule_type, total):
         item.bre_validation_message = "Script Amount should not exceed {}.".format(
             threshold_amt
         )
-
-
-# main_log = []
-# @frappe.whitelist()
-# def cron_for_cart_pledge():
-#     frappe.logger().info("in cron function")
-#     frappe.db.begin()
-#     import json
-#     import os
-
-#     main_log.append({"cron_enque_start": datetime.now().strftime("%I:%M:%S:%f %p")})
-#     # from frappe.utils.doctor import pending_jobs as _pending_jobs
-#     # frappe.logger().info(_pending_jobs())
-#     executing_pledge_count = frappe.get_all(
-#         "Loan Application",
-#         fields="count(status) as count,status",
-#         filters={"status": "Executing pledge"},
-#         debug=True,
-#     )
-#     if executing_pledge_count[0].count == 0:
-#         waiting_to_pledge_count = frappe.get_all(
-#             "Loan Application",
-#             fields="count(status) as count,status",
-#             filters={"status": "Waiting to be pledged"},
-#             debug=True,
-#         )
-#         if waiting_to_pledge_count[0].count > 0:
-#             main_log.append(
-#                 {"in_waiting_to_pledge": datetime.now().strftime("%I:%M:%S:%f %p")}
-#             )
-#             doc = frappe.get_all(
-#                 "Loan Application",
-#                 fields="name,creation,status",
-#                 filters={"status": "Waiting to be pledged"},
-#                 order_by="creation asc",
-#                 debug=True,
-#             )
-#             la_doc = frappe.get_doc("Loan Application", doc[0].name)
-
-#             la_doc.status = "Executing pledge"
-#             la_doc.save()
-#             frappe.db.commit()
-#             frappe.enqueue(
-#                 method="lms.lms.doctype.cart.cart.check_cart_for_pledge",
-#                 timeout=300,
-#                 job_name="cart_wala",
-#                 loan_application_name=la_doc,
-#             )
-#     else:
-#         main_log.append(
-#             {
-#                 "background_job_running_if_executing_pledge": datetime.now().strftime(
-#                     "%I:%M:%S:%f %p"
-#                 )
-#             }
-#         )
-
-#     main_log.append({"cron_enque_end": datetime.now().strftime("%I:%M:%S:%f %p")})
-
-#     with open(
-#         "/home/vagrant/frappe-bench/apps/lms/lms/lms/doctype/cart/cron_log.json", "a+"
-#     ) as f:
-#         f.write(json.dumps(main_log, indent=4))
-#     f.close()
-
-# def check_cart_for_pledge(loan_application_name):
-#     import json
-#     import os
-#     import time
-
-#     frappe.db.begin()
-#     frappe.logger().info("in cart function")
-#     main_log.append({"cart_enque_start": datetime.now().strftime("%I:%M:%S:%f %p")})
-
-#     localtime = time.localtime()
-#     result = time.strftime("%I:%M:%S %p", localtime)
-#     time.sleep(20)
-#     now = datetime.now()
-#     time.sleep(20)
-#     loan_application_name.status = "Pledge executed"
-#     loan_application_name.save()
-#     frappe.db.commit()
-#     frappe.enqueue(
-#         method="lms.lms.doctype.cart.cart.cron_for_cart_pledge",
-#     )
-#     main_log.append({"cart_enque_end": datetime.now().strftime("%I:%M:%S:%f %p")})
-
-#     with open(
-#         "/home/vagrant/frappe-bench/apps/lms/lms/lms/doctype/cart/cron_log.json", "a+"
-#     ) as f:
-#         f.write(json.dumps(main_log, indent=4))
-#     f.close()

@@ -312,7 +312,6 @@ def process(**kwargs):
 
         frappe.db.begin()
         cart.reload()
-        # cart.process(data) TODO: this will be shifted in loan application
         cart.save(ignore_permissions=True)
         loan_application = cart.create_loan_application()
         frappe.db.commit()
@@ -326,9 +325,6 @@ def process(**kwargs):
 @frappe.whitelist()
 def process_dummy(cart_name):
     cart = frappe.get_doc("Cart", cart_name)
-
-    # generate and save prf number
-    # frappe.db.set_value("Cart", cart.name, "prf_number", lms.random_token(length=12))
 
     import random
 
