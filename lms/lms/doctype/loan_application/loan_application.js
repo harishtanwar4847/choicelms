@@ -34,5 +34,16 @@ frappe.ui.form.on("Loan Application", {
     } else {
       console.log(frm.doc.status);
     }
+    if (
+      frm.doc.workflow_state == "Approved" ||
+      frm.doc.workflow_state == "Rejected"
+    ) {
+      var df = frappe.meta.get_docfield(
+        "Loan Application Item",
+        "lender_approval_status",
+        cur_frm.doc.name
+      );
+      df.read_only = 1;
+    }
   },
 });
