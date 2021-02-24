@@ -265,7 +265,7 @@
   {
    "fieldname": "agreement_section",
    "fieldtype": "Section Break",
-   "label": "Agreement"
+   "label": "Loan Agreement"
   },
   {
    "fieldname": "total_pages",
@@ -301,7 +301,7 @@
   {
    "fieldname": "enhancement_agreement_section",
    "fieldtype": "Section Break",
-   "label": "Enhancement Agreement"
+   "label": "Loan Enhancement Agreement"
   },
   {
    "fieldname": "enhancement_agreement_template",
@@ -328,7 +328,7 @@
    "label": "Enhancement Esign Page"
   }
  ],
- "modified": "2021-02-24 12:59:40.538543",
+ "modified": "2021-02-24 14:55:15.599692",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",

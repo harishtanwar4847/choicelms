@@ -17,6 +17,12 @@ class Lender(Document):
         file_name = frappe.db.get_value("File", {"file_url": self.agreement_template})
         return frappe.get_doc("File", file_name)
 
+    def get_loan_enhancement_agreement_template(self):
+        file_name = frappe.db.get_value(
+            "File", {"file_url": self.enhancement_agreement_template}
+        )
+        return frappe.get_doc("File", file_name)
+
     def validate(self):
         if cint(self.interest_percentage_sharing) > 100:
             frappe.throw(
