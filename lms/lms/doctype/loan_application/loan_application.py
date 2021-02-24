@@ -27,7 +27,10 @@ class LoanApplication(Document):
     def get_customer(self):
         return frappe.get_doc("Loan Customer", self.customer)
 
-    def esign_request(self):
+    def get_loan(self):
+        return frappe.get_doc("Loan", self.loan)
+
+    def esign_request(self, increase_loan):
         customer = self.get_customer()
         user = frappe.get_doc("User", customer.user)
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
@@ -51,7 +54,22 @@ class LoanApplication(Document):
             "total_pages": lender.total_pages,
         }
 
-        agreement_template = lender.get_loan_agreement_template()
+        if increase_loan:
+            loan = self.get_loan()
+            doc["old_sanctioned_amount"] = loan.drawing_power
+            doc["old_sanctioned_amount_in_words"] = (
+                num2words(loan.drawing_power, lang="en_IN"),
+            )
+            agreement_template = lender.get_loan_enhancement_agreement_template()
+            loan_agreement_file = "loan-enhancement-aggrement.pdf"
+            coordinates = lender.enhancement_coordinates.split(",")
+            esign_page = lender.enhancement_esign_page
+        else:
+            agreement_template = lender.get_loan_agreement_template()
+            loan_agreement_file = "loan-aggrement.pdf"
+            coordinates = lender.coordinates.split(",")
+            esign_page = lender.esign_page
+
         agreement = frappe.render_template(
             agreement_template.get_content(), {"doc": doc}
         )
@@ -60,11 +78,9 @@ class LoanApplication(Document):
 
         agreement_pdf = get_pdf(agreement)
 
-        coordinates = lender.coordinates.split(",")
-
         las_settings = frappe.get_single("LAS Settings")
         headers = {"userId": las_settings.choice_user_id}
-        files = {"file": ("loan-aggrement.pdf", agreement_pdf)}
+        files = {"file": (loan_agreement_file, agreement_pdf)}
 
         return {
             "file_upload_url": "{}{}".format(
@@ -75,7 +91,7 @@ class LoanApplication(Document):
             "esign_url_dict": {
                 "x": coordinates[0],
                 "y": coordinates[1],
-                "page_number": lender.esign_page,
+                "page_number": esign_page,
             },
             "esign_url": "{}{}".format(
                 las_settings.esign_host, las_settings.esign_request_uri
@@ -144,17 +160,22 @@ class LoanApplication(Document):
             total_collateral_value = 0
 
             for i in self.items:
-                if len(i.error_code) > 0 and i.lender_approval_status in [
-                    "Approved",
-                    "Rejected",
-                ]:
+                if (
+                    i.get("error_code")
+                    and len(i.get("error_code")) > 0
+                    and i.lender_approval_status
+                    in [
+                        "Approved",
+                        "Rejected",
+                    ]
+                ):
                     frappe.throw(
                         "Pledge failed for ISIN - {}, can't Approve or Reject".format(
                             i.isin
                         )
                     )
 
-                elif len(i.psn) > 0:
+                elif i.get("psn") and len(i.get("psn")) > 0:
                     if i.lender_approval_status == "Pledge Failure":
                         frappe.throw(
                             "Already pledge success for {}, not allowed to set Pledge Failure.".format(
@@ -563,44 +584,44 @@ def check_for_pledge(loan_application_doc):
         pledge_request = loan_application_doc.pledge_request(la_items_list)
 
         # TODO : pledge request hit for all batches
-        try:
-            res = requests.post(
-                pledge_request.get("url"),
-                headers=pledge_request.get("headers"),
-                json=pledge_request.get("payload"),
-            )
-            data = res.json()
+        # try:
+        #     res = requests.post(
+        #         pledge_request.get("url"),
+        #         headers=pledge_request.get("headers"),
+        #         json=pledge_request.get("payload"),
+        #     )
+        #     data = res.json()
 
-            # Pledge LOG
-            log = {
-                "url": pledge_request.get("url"),
-                "headers": pledge_request.get("headers"),
-                "request": pledge_request.get("payload"),
-                "response": data,
-            }
+        #     # Pledge LOG
+        #     log = {
+        #         "url": pledge_request.get("url"),
+        #         "headers": pledge_request.get("headers"),
+        #         "request": pledge_request.get("payload"),
+        #         "response": data,
+        #     }
 
-            import json
-            import os
+        #     import json
+        #     import os
 
-            pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
-            pledge_log = None
-            if os.path.exists(pledge_log_file):
-                with open(pledge_log_file, "r") as f:
-                    pledge_log = f.read()
-                f.close()
-            pledge_log = json.loads(pledge_log or "[]")
-            pledge_log.append(log)
-            with open(pledge_log_file, "w") as f:
-                f.write(json.dumps(pledge_log))
-            f.close()
-            # Pledge LOG end
+        #     pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
+        #     pledge_log = None
+        #     if os.path.exists(pledge_log_file):
+        #         with open(pledge_log_file, "r") as f:
+        #             pledge_log = f.read()
+        #         f.close()
+        #     pledge_log = json.loads(pledge_log or "[]")
+        #     pledge_log.append(log)
+        #     with open(pledge_log_file, "w") as f:
+        #         f.write(json.dumps(pledge_log))
+        #     f.close()
+        #     # Pledge LOG end
 
-        except requests.RequestException as e:
-            pass
+        # except requests.RequestException as e:
+        #     pass
 
-        # data = loan_application_doc.dummy_pledge_response(
-        #     pledge_request.get("payload").get("ISINDTLS")
-        # )
+        data = loan_application_doc.dummy_pledge_response(
+            pledge_request.get("payload").get("ISINDTLS")
+        )
 
         # TODO : process loan application items in batches
         total_successful_pledge_count = loan_application_doc.process(

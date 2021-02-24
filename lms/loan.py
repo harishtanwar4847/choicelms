@@ -9,7 +9,7 @@ import lms
 
 
 @frappe.whitelist()
-def esign(**kwargs):
+def esign_old(**kwargs):
     try:
         utils.validator.validate_http_method("POST")
 
@@ -34,6 +34,66 @@ def esign(**kwargs):
         user = lms.__user()
 
         esign_request = loan_application.esign_request()
+        try:
+            res = requests.post(
+                esign_request.get("file_upload_url"),
+                files=esign_request.get("files"),
+                headers=esign_request.get("headers"),
+            )
+
+            if not res.ok:
+                raise utils.APIException(res.text)
+
+            data = res.json()
+
+            esign_url_dict = esign_request.get("esign_url_dict")
+            esign_url_dict["id"] = data.get("id")
+            url = esign_request.get("esign_url").format(**esign_url_dict)
+
+            return utils.respondWithSuccess(
+                message=_("Esign URL."),
+                data={"esign_url": url, "file_id": data.get("id")},
+            )
+        except requests.RequestException as e:
+            raise utils.APIException(str(e))
+    except utils.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist()
+def esign(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "loan_application_name": "required",
+            },
+        )
+
+        customer = lms.__customer()
+        loan_application = frappe.get_doc(
+            "Loan Application", data.get("loan_application_name")
+        )
+        if not loan_application:
+            return utils.respondNotFound(message=_("Loan Application not found."))
+        if loan_application.customer != customer.name:
+            return utils.respondForbidden(
+                message=_("Please use your own Loan Application.")
+            )
+
+        increase_loan = 0
+        if loan_application.loan:
+            loan_doc = loan_application.get_loan()
+            # check if margin shortfall
+            loan_margin_shortfall = loan_doc.get_margin_shortfall()
+            if loan_margin_shortfall.is_new():
+                increase_loan = 1
+
+        user = lms.__user()
+
+        esign_request = loan_application.esign_request(increase_loan)
         try:
             res = requests.post(
                 esign_request.get("file_upload_url"),
