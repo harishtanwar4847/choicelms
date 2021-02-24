@@ -27,6 +27,12 @@
   "column_break_18",
   "coordinates",
   "esign_page",
+  "enhancement_agreement_section",
+  "enhancement_agreement_template",
+  "enhancement_total_pages",
+  "column_break_26",
+  "enhancement_coordinates",
+  "enhancement_esign_page",
   "charges_details_section",
   "lender_processing_fees_type",
   "stamp_duty_type",
@@ -291,9 +297,38 @@
    "fieldtype": "Data",
    "label": "Default Interest Threshold",
    "reqd": 1
+  },
+  {
+   "fieldname": "enhancement_agreement_section",
+   "fieldtype": "Section Break",
+   "label": "Enhancement Agreement"
+  },
+  {
+   "fieldname": "enhancement_agreement_template",
+   "fieldtype": "Attach",
+   "label": "Enhancement Agreement Template"
+  },
+  {
+   "fieldname": "enhancement_total_pages",
+   "fieldtype": "Int",
+   "label": "Enhancement Total Pages"
+  },
+  {
+   "fieldname": "column_break_26",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "enhancement_coordinates",
+   "fieldtype": "Data",
+   "label": "Enhancement Coordinates (x,y)"
+  },
+  {
+   "fieldname": "enhancement_esign_page",
+   "fieldtype": "Int",
+   "label": "Enhancement Esign Page"
   }
  ],
- "modified": "2021-01-07 18:44:24.064634",
+ "modified": "2021-02-24 12:59:40.538543",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
