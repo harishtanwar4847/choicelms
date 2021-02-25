@@ -134,7 +134,18 @@ class Cart(Document):
             "cic_charges": lender.cic_charges,
             "total_pages": lender.total_pages,
         }
-        agreement_template = lender.get_loan_agreement_template()
+
+        if self.loan:
+            if not self.loan_margin_shortfall:
+                loan = frappe.get_doc("Loan", self.loan)
+                doc["old_sanctioned_amount"] = loan.drawing_power
+                doc["old_sanctioned_amount_in_words"] = num2words(
+                    loan.drawing_power, lang="en_IN"
+                )
+                agreement_template = lender.get_loan_enhancement_agreement_template()
+            else:
+                agreement_template = lender.get_loan_agreement_template()
+
         agreement = frappe.render_template(
             agreement_template.get_content(), {"doc": doc}
         )
