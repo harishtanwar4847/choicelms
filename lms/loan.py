@@ -209,10 +209,24 @@ def esign_done(**kwargs):
                 message=_("Please use your own Loan Application.")
             )
 
+        increase_loan = 0
+        if loan_application.loan:
+            loan_doc = loan_application.get_loan()
+            # check if margin shortfall
+            loan_margin_shortfall = loan_doc.get_margin_shortfall()
+            if loan_margin_shortfall.is_new():
+                increase_loan = 1
+
         las_settings = frappe.get_single("LAS Settings")
-        esigned_pdf_url = "{}{}".format(
-            las_settings.esign_host, las_settings.esign_download_signed_file_uri
-        ).format(file_id=data.get("file_id"))
+        if increase_loan:
+            esigned_pdf_url = "{}{}".format(
+                las_settings.esign_host,
+                las_settings.enhancement_esign_download_signed_file_uri,
+            ).format(file_id=data.get("file_id"))
+        else:
+            esigned_pdf_url = "{}{}".format(
+                las_settings.esign_host, las_settings.esign_download_signed_file_uri
+            ).format(file_id=data.get("file_id"))
 
         try:
             res = requests.get(esigned_pdf_url, allow_redirects=True)
