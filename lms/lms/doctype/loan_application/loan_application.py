@@ -315,24 +315,30 @@ class LoanApplication(Document):
         loan = frappe.get_doc("Loan", self.loan)
 
         for item in self.items:
-            loan.append(
-                "items",
-                {
-                    "isin": item.isin,
-                    "security_name": item.security_name,
-                    "security_category": item.security_category,
-                    "pledged_quantity": item.pledged_quantity,
-                    "price": item.price,
-                    "amount": item.amount,
-                    "psn": item.psn,
-                    "error_code": item.error_code,
-                },
-            )
+            if item.lender_approval_status == "Approved":
+                loan.append(
+                    "items",
+                    {
+                        "isin": item.isin,
+                        "security_name": item.security_name,
+                        "security_category": item.security_category,
+                        "pledged_quantity": item.pledged_quantity,
+                        "price": item.price,
+                        "amount": item.amount,
+                        "psn": item.psn,
+                        "error_code": item.error_code,
+                    },
+                )
 
         loan.total_collateral_value += self.total_collateral_value
         loan.drawing_power = (loan.allowable_ltv / 100) * loan.total_collateral_value
-        if loan.drawing_power > loan.sanctioned_limit:
-            loan.drawing_power = loan.sanctioned_limit
+        # loan.drawing_power += self.drawing_power
+
+        if not self.loan_margin_shortfall:
+            loan.drawing_power = round(
+                lms.round_down_amount_to_nearest_thousand(loan.drawing_power), 2
+            )
+            loan.sanctioned_limit = loan.drawing_power
 
         loan.save(ignore_permissions=True)
 
@@ -345,6 +351,9 @@ class LoanApplication(Document):
         )
 
         if self.loan_margin_shortfall:
+            if loan.drawing_power > loan.sanctioned_limit:
+                loan.drawing_power = loan.sanctioned_limit
+
             loan_margin_shortfall = frappe.get_doc(
                 "Loan Margin Shortfall", self.loan_margin_shortfall
             )
