@@ -57,8 +57,8 @@ class LoanApplication(Document):
         if increase_loan:
             loan = self.get_loan()
             doc["old_sanctioned_amount"] = loan.drawing_power
-            doc["old_sanctioned_amount_in_words"] = (
-                num2words(loan.drawing_power, lang="en_IN"),
+            doc["old_sanctioned_amount_in_words"] = num2words(
+                loan.drawing_power, lang="en_IN"
             )
             agreement_template = lender.get_loan_enhancement_agreement_template()
             loan_agreement_file = "loan-enhancement-aggrement.pdf"
