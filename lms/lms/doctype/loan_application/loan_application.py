@@ -89,6 +89,7 @@ class LoanApplication(Document):
             else:
                 loan = self.update_existing_loan()
             frappe.db.commit()
+
         elif self.status == "Pledge accepted by Lender":
             approved_isin_list = []
             rejected_isin_list = []
@@ -144,17 +145,22 @@ class LoanApplication(Document):
             total_collateral_value = 0
 
             for i in self.items:
-                if len(i.error_code) > 0 and i.lender_approval_status in [
-                    "Approved",
-                    "Rejected",
-                ]:
+                if (
+                    i.get("error_code")
+                    and len(i.get("error_code")) > 0
+                    and i.lender_approval_status
+                    in [
+                        "Approved",
+                        "Rejected",
+                    ]
+                ):
                     frappe.throw(
                         "Pledge failed for ISIN - {}, can't Approve or Reject".format(
                             i.isin
                         )
                     )
 
-                elif len(i.psn) > 0:
+                elif i.get("psn") and len(i.get("psn")) > 0:
                     if i.lender_approval_status == "Pledge Failure":
                         frappe.throw(
                             "Already pledge success for {}, not allowed to set Pledge Failure.".format(
@@ -182,6 +188,19 @@ class LoanApplication(Document):
                 ),
                 2,
             )
+
+        if self.status == "Pledge executed":
+            total_collateral_value = 0
+            for i in self.items:
+                if i.lender_approval_status == "Approved":
+                    total_collateral_value += i.amount
+                    self.total_collateral_value = round(total_collateral_value, 2)
+                    self.drawing_power = round(
+                        lms.round_down_amount_to_nearest_thousand(
+                            (self.allowable_ltv / 100) * self.total_collateral_value
+                        ),
+                        2,
+                    )
 
         self.total_collateral_value_str = lms.amount_formatter(
             self.total_collateral_value
@@ -413,7 +432,7 @@ class LoanApplication(Document):
             }
         else:
             ISINstatusDtls = []
-            flag = 0
+            flag = 1
             for item in security_list:
                 flag = bool(random.getrandbits(1))
                 error_code = ["CIF3065-F", "PLD0152-E", "PLD0125-F"]
@@ -620,45 +639,45 @@ def check_for_pledge(loan_application_doc):
         # print(pledge_request, "pledge_request")
 
         # TODO : pledge request hit for all batches
-        try:
-            res = requests.post(
-                pledge_request.get("url"),
-                headers=pledge_request.get("headers"),
-                json=pledge_request.get("payload"),
-            )
-            data = res.json()
+        # try:
+        #     res = requests.post(
+        #         pledge_request.get("url"),
+        #         headers=pledge_request.get("headers"),
+        #         json=pledge_request.get("payload"),
+        #     )
+        #     data = res.json()
 
-            # Pledge LOG
-            log = {
-                "url": pledge_request.get("url"),
-                "headers": pledge_request.get("headers"),
-                "request": pledge_request.get("payload"),
-                "response": data,
-            }
+        #     # Pledge LOG
+        #     log = {
+        #         "url": pledge_request.get("url"),
+        #         "headers": pledge_request.get("headers"),
+        #         "request": pledge_request.get("payload"),
+        #         "response": data,
+        #     }
 
-            import json
-            import os
+        #     import json
+        #     import os
 
-            pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
-            pledge_log = None
-            if os.path.exists(pledge_log_file):
-                with open(pledge_log_file, "r") as f:
-                    pledge_log = f.read()
-                f.close()
-            pledge_log = json.loads(pledge_log or "[]")
-            pledge_log.append(log)
-            with open(pledge_log_file, "w") as f:
-                f.write(json.dumps(pledge_log))
-            f.close()
-            # Pledge LOG end
+        #     pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
+        #     pledge_log = None
+        #     if os.path.exists(pledge_log_file):
+        #         with open(pledge_log_file, "r") as f:
+        #             pledge_log = f.read()
+        #         f.close()
+        #     pledge_log = json.loads(pledge_log or "[]")
+        #     pledge_log.append(log)
+        #     with open(pledge_log_file, "w") as f:
+        #         f.write(json.dumps(pledge_log))
+        #     f.close()
+        #     # Pledge LOG end
 
-        except requests.RequestException as e:
-            frappe.logger().info(str(e))
-            frappe.logger().info("request exception catched")
+        # except requests.RequestException as e:
+        #     frappe.logger().info(str(e))
+        #     frappe.logger().info("request exception catched")
 
-        # data = loan_application_doc.dummy_pledge_response(
-        #     pledge_request.get("payload").get("ISINDTLS")
-        # )
+        data = loan_application_doc.dummy_pledge_response(
+            pledge_request.get("payload").get("ISINDTLS")
+        )
         # frappe.logger().info("{} dummy_pledge_response".format(data))
 
         # if not res.ok or not data.get("Success"):
