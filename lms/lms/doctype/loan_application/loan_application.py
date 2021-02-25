@@ -105,6 +105,7 @@ class LoanApplication(Document):
             else:
                 loan = self.update_existing_loan()
             frappe.db.commit()
+
         elif self.status == "Pledge accepted by Lender":
             approved_isin_list = []
             rejected_isin_list = []
@@ -203,6 +204,19 @@ class LoanApplication(Document):
                 ),
                 2,
             )
+
+        if self.status == "Pledge executed":
+            total_collateral_value = 0
+            for i in self.items:
+                if i.lender_approval_status == "Approved":
+                    total_collateral_value += i.amount
+                    self.total_collateral_value = round(total_collateral_value, 2)
+                    self.drawing_power = round(
+                        lms.round_down_amount_to_nearest_thousand(
+                            (self.allowable_ltv / 100) * self.total_collateral_value
+                        ),
+                        2,
+                    )
 
         self.total_collateral_value_str = lms.amount_formatter(
             self.total_collateral_value
@@ -429,7 +443,7 @@ class LoanApplication(Document):
             }
         else:
             ISINstatusDtls = []
-            flag = 0
+            flag = 1
             for item in security_list:
                 flag = bool(random.getrandbits(1))
                 error_code = ["CIF3065-F", "PLD0152-E", "PLD0125-F"]
