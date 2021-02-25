@@ -32,6 +32,7 @@
   "section_break_28",
   "esign_host",
   "esign_request_uri",
+  "enhancement_esign_download_signed_file_uri",
   "column_break_31",
   "esign_upload_file_uri",
   "esign_download_signed_file_uri",
@@ -228,10 +229,15 @@
    "in_list_view": 1,
    "label": "To Time(in hour)",
    "reqd": 1
+  },
+  {
+   "fieldname": "enhancement_esign_download_signed_file_uri",
+   "fieldtype": "Data",
+   "label": "Enhancement Esign Download signed file URI"
   }
  ],
  "issingle": 1,
- "modified": "2021-02-16 18:39:14.864993",
+ "modified": "2021-02-25 12:04:09.280876",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
