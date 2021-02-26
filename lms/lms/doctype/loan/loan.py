@@ -599,6 +599,19 @@ class Loan(Document):
         self.sanctioned_limit_str = lms.amount_formatter(self.sanctioned_limit)
         self.balance_str = lms.amount_formatter(self.balance)
 
+    def save_loan_sanction_history(self, agreement_file, event="New loan"):
+        loan_sanction_history = frappe.get_doc(
+            {
+                "doctype": "Loan Sanction History",
+                "loan": self.name,
+                "sanctioned_limit": self.sanctioned_limit,
+                "agreement_file": agreement_file,
+                "time": datetime.now(),
+                "event": event,
+            }
+        )
+        loan_sanction_history.save(ignore_permissions=True)
+
 
 def check_loans_for_shortfall(loans):
     for loan_name in loans:

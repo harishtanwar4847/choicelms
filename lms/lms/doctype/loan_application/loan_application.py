@@ -295,6 +295,8 @@ class LoanApplication(Document):
             loan_agreement_file.file_url,
             update_modified=False,
         )
+        # save loan sanction history
+        loan.save_loan_sanction_history(loan_agreement_file.name)
 
         customer = frappe.get_doc("Loan Customer", self.customer)
         if not customer.loan_open:
@@ -355,6 +357,38 @@ class LoanApplication(Document):
             loan.sanctioned_limit = loan.drawing_power
 
         loan.save(ignore_permissions=True)
+
+        if self.lender_esigned_document and not self.loan_margin_shortfall:
+            file_name = frappe.db.get_value(
+                "File", {"file_url": self.lender_esigned_document}
+            )
+            loan_agreement = frappe.get_doc("File", file_name)
+            loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(
+                loan.name
+            )
+            is_private = 0
+            loan_agreement_file_url = frappe.utils.get_files_path(
+                loan_agreement_file_name, is_private=is_private
+            )
+            loan_agreement_file = frappe.get_doc(
+                {
+                    "doctype": "File",
+                    "file_name": loan_agreement_file_name,
+                    "content": loan_agreement.get_content(),
+                    "attached_to_doctype": "Loan",
+                    "attached_to_name": loan.name,
+                    "attached_to_field": "loan_agreement",
+                    "folder": "Home",
+                    "file_url": loan_agreement_file_url,
+                    "is_private": is_private,
+                }
+            )
+            loan_agreement_file.insert(ignore_permissions=True)
+            frappe.db.set_value(
+                "Loan", loan.name, "loan_agreement", loan_agreement_file.file_url
+            )
+            # save loan sanction history
+            loan.save_loan_sanction_history(loan_agreement_file.name, "Increase loan")
 
         self.update_collateral_ledger(
             {"loan": loan.name},
