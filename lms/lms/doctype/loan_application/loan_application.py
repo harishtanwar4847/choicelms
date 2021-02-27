@@ -272,12 +272,24 @@ class LoanApplication(Document):
         file_name = frappe.db.get_value(
             "File", {"file_url": self.lender_esigned_document}
         )
+        frappe.logger().info("file_name {}".format(file_name))
+
         loan_agreement = frappe.get_doc("File", file_name)
+        frappe.logger().info("loan_agreement {}".format(loan_agreement))
+
         loan_agreement_file_name = "{}-loan-aggrement.pdf".format(loan.name)
+        frappe.logger().info(
+            "loan_agreement_file_name {}".format(loan_agreement_file_name)
+        )
+
         is_private = 0
         loan_agreement_file_url = frappe.utils.get_files_path(
             loan_agreement_file_name, is_private=is_private
         )
+        frappe.logger().info(
+            "loan_agreement_file_url {}".format(loan_agreement_file_url)
+        )
+
         loan_agreement_file = frappe.get_doc(
             {
                 "doctype": "File",
@@ -292,6 +304,13 @@ class LoanApplication(Document):
             }
         )
         loan_agreement_file.insert(ignore_permissions=True)
+        frappe.logger().info(
+            "loan_agreement_file.name {}".format(loan_agreement_file.name)
+        )
+        frappe.logger().info(
+            "loan_agreement_file.file_url {}".format(loan_agreement_file.file_url)
+        )
+
         frappe.db.set_value(
             loan.doctype,
             loan.name,
@@ -300,7 +319,11 @@ class LoanApplication(Document):
             update_modified=False,
         )
         # save loan sanction history
+        frappe.logger().info(
+            "save_loan_sanction_history start {}".format(datetime.now())
+        )
         loan.save_loan_sanction_history(loan_agreement_file.name)
+        frappe.logger().info("save_loan_sanction_history end {}".format(datetime.now()))
 
         customer = frappe.get_doc("Loan Customer", self.customer)
         if not customer.loan_open:
@@ -333,6 +356,7 @@ class LoanApplication(Document):
 
     def update_existing_loan(self):
         loan = frappe.get_doc("Loan", self.loan)
+        frappe.logger().info("update_existing_loan {}".format(datetime.now()))
 
         for item in self.items:
             if item.lender_approval_status == "Approved":
@@ -366,14 +390,26 @@ class LoanApplication(Document):
             file_name = frappe.db.get_value(
                 "File", {"file_url": self.lender_esigned_document}
             )
+            frappe.logger().info("file_name {}".format(file_name))
+
             loan_agreement = frappe.get_doc("File", file_name)
+            frappe.logger().info("loan_agreement {}".format(loan_agreement))
+
             loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(
                 loan.name
             )
+            frappe.logger().info(
+                "loan_agreement_file_name {}".format(loan_agreement_file_name)
+            )
+
             is_private = 0
             loan_agreement_file_url = frappe.utils.get_files_path(
                 loan_agreement_file_name, is_private=is_private
             )
+            frappe.logger().info(
+                "loan_agreement_file_url {}".format(loan_agreement_file_url)
+            )
+
             loan_agreement_file = frappe.get_doc(
                 {
                     "doctype": "File",
@@ -388,11 +424,24 @@ class LoanApplication(Document):
                 }
             )
             loan_agreement_file.insert(ignore_permissions=True)
+            frappe.logger().info(
+                "loan_agreement_file.name {}".format(loan_agreement_file.name)
+            )
+            frappe.logger().info(
+                "loan_agreement_file.file_url {}".format(loan_agreement_file.file_url)
+            )
+
             frappe.db.set_value(
                 "Loan", loan.name, "loan_agreement", loan_agreement_file.file_url
             )
             # save loan sanction history
+            frappe.logger().info(
+                "save_loan_sanction_history start {}".format(datetime.now())
+            )
             loan.save_loan_sanction_history(loan_agreement_file.name, "Increase loan")
+            frappe.logger().info(
+                "save_loan_sanction_history end {}".format(datetime.now())
+            )
 
         self.update_collateral_ledger(
             {"loan": loan.name},
@@ -416,6 +465,9 @@ class LoanApplication(Document):
                 loan_margin_shortfall.action_time = datetime.now()
             loan_margin_shortfall.save(ignore_permissions=True)
 
+        frappe.logger().info(
+            "update existing loan end {} - {}".format(datetime.now(), loan)
+        )
         return loan
 
     def update_collateral_ledger(self, set_values={}, where=""):
