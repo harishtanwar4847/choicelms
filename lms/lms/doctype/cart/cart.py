@@ -123,11 +123,15 @@ class Cart(Document):
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
             "sanctioned_amount": self.eligible_loan,
-            "sanctioned_amount_in_words": num2words(self.eligible_loan, lang="en_IN"),
+            "sanctioned_amount_in_words": num2words(
+                self.eligible_loan, lang="en_IN"
+            ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,
             "account_renewal_charges": lender.account_renewal_charges,
             "documentation_charges": lender.documentation_charges,
+            "stamp_duty_charges": (lender.stamp_duty / 100)
+            * self.eligible_loan,  # CR loan agreement changes
             "processing_fee": lender.lender_processing_fees,
             "transaction_charges_per_request": lender.transaction_charges_per_request,
             "security_selling_share": lender.security_selling_share,
@@ -140,7 +144,7 @@ class Cart(Document):
             doc["old_sanctioned_amount"] = loan.drawing_power
             doc["old_sanctioned_amount_in_words"] = num2words(
                 loan.drawing_power, lang="en_IN"
-            )
+            ).title()
             agreement_template = lender.get_loan_enhancement_agreement_template()
         else:
             agreement_template = lender.get_loan_agreement_template()
