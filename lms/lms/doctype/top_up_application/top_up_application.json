@@ -17,8 +17,7 @@
   "section_break_10",
   "customer_esigned_document",
   "column_break_12",
-  "lender_esigned_document",
-  "data_14"
+  "lender_esigned_document"
  ],
  "fields": [
   {
@@ -27,16 +26,14 @@
    "in_list_view": 1,
    "label": "Loan",
    "options": "Loan",
-   "read_only": 1,
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "top_up_amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Top up Amount",
-   "read_only": 1,
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "time",
@@ -52,8 +49,7 @@
    "in_list_view": 1,
    "label": "Status",
    "options": "Pending\nEsign Done\nApproved\nRejected",
-   "read_only": 1,
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "customer",
@@ -66,8 +62,7 @@
    "fieldname": "customer_name",
    "fieldtype": "Read Only",
    "in_list_view": 1,
-   "label": "Customer Name",
-   "reqd": 1
+   "label": "Customer Name"
   },
   {
    "fieldname": "customer_esigned_document",
@@ -98,13 +93,9 @@
   {
    "fieldname": "column_break_12",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "data_14",
-   "fieldtype": "Data"
   }
  ],
- "modified": "2021-03-01 15:30:57.377658",
+ "modified": "2021-03-01 16:32:05.044308",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Top up Application",

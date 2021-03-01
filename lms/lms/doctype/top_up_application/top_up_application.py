@@ -4,9 +4,14 @@
 
 from __future__ import unicode_literals
 
-# import frappe
+import frappe
 from frappe.model.document import Document
 
 
 class TopupApplication(Document):
-    pass
+    def on_update(self):
+        loan = frappe.get_doc("Loan", self.loan)
+        if self.status == "Approved":
+            loan.drawing_power += self.top_up_amount
+            loan.sanctioned_limit += self.top_up_amount
+            loan.save(ignore_permissions=True)
