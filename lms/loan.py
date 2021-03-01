@@ -4,6 +4,7 @@ import frappe
 import requests
 import utils
 from frappe import _
+from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms
 
@@ -198,6 +199,64 @@ def esign_done(**kwargs):
 def my_loans():
     try:
         customer = lms.get_customer(frappe.session.user)
+        las_settings = frappe.get_single("LAS Settings")
+
+        loans = frappe.db.sql(
+            """select
+			loan.total_collateral_value, loan.name, loan.sanctioned_limit, loan.drawing_power,
+
+			if (loan.total_collateral_value * loan.allowable_ltv / 100 > loan.sanctioned_limit, 1, 0) as top_up_available,
+
+			if (loan.total_collateral_value * loan.allowable_ltv / 100 > loan.sanctioned_limit,
+			loan.total_collateral_value * loan.allowable_ltv / 100 - loan.sanctioned_limit, 0.0) as top_up_amount,
+
+			IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage,
+			IFNULL(mrgloan.shortfall_c, 0.0) as shortfall_c,
+			IFNULL(mrgloan.shortfall, 0.0) as shortfall,
+
+			SUM(COALESCE(CASE WHEN loantx.record_type = 'DR' THEN loantx.amount END,0))
+			- SUM(COALESCE(CASE WHEN loantx.record_type = 'CR' THEN loantx.amount END,0)) outstanding
+
+			from `tabLoan` as loan
+			left join `tabLoan Margin Shortfall` as mrgloan
+			on loan.name = mrgloan.loan
+			left join `tabLoan Transaction` as loantx
+			on loan.name = loantx.loan
+			where loan.customer = '{}' group by loantx.loan """.format(
+                customer.name
+            ),
+            as_dict=1,
+        )
+
+        data = {"loans": loans}
+        for loan in data.get("loans"):
+            if (
+                loan["top_up_available"]
+                and loan["top_up_amount"] >= las_settings.minimum_top_up_amount
+            ):
+                loan["top_up_amount"] = lms.round_down_amount_to_nearest_thousand(
+                    loan["top_up_amount"]
+                )
+            else:
+                loan["top_up_available"] = 0
+                loan["top_up_amount"] = 0
+        data["total_outstanding"] = float(sum([i.outstanding for i in loans]))
+        data["total_sanctioned_limit"] = float(sum([i.sanctioned_limit for i in loans]))
+        data["total_drawing_power"] = float(sum([i.drawing_power for i in loans]))
+        data["total_total_collateral_value"] = float(
+            sum([i.total_collateral_value for i in loans])
+        )
+        data["total_margin_shortfall"] = float(sum([i.shortfall_c for i in loans]))
+        return utils.respondWithSuccess(message="Loan", data=data)
+
+    except utils.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist()
+def my_loans_old():
+    try:
+        customer = lms.get_customer(frappe.session.user)
 
         loans = frappe.db.sql(
             """select
@@ -234,7 +293,6 @@ def my_loans():
             sum([i.total_collateral_value for i in loans])
         )
         data["total_margin_shortfall"] = float(sum([i.shortfall_c for i in loans]))
-
         return lms.generateResponse(message=_("Loan"), data=data)
 
     except (lms.ValidationError, lms.ServerError) as e:
@@ -421,6 +479,68 @@ def create_topup(loan_name, file_id):
         return lms.generateResponse(status=e.http_status_code, message=str(e))
     except Exception as e:
         return generateResponse(is_success=False, error=e)
+
+
+@frappe.whitelist()
+def request_topup(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "loan_name": "required",
+                "topup_amount": ["required", lambda x: type(x) == float],
+            },
+        )
+        customer = lms.__customer()
+        loan = frappe.get_doc("Loan", data.get("loan_name"))
+        if not loan:
+            return utils.respondNotFound(message=frappe._("Loan not found."))
+        if loan.customer != customer.name:
+            return utils.respondForbidden(message=_("Please use your own Loan."))
+
+        topup_amt = lms.round_down_amount_to_nearest_thousand(
+            (loan.total_collateral_value * (loan.allowable_ltv / 100))
+            - loan.sanctioned_limit
+        )
+
+        las_settings = frappe.get_single("LAS Settings")
+        if data.get("topup_amount") < las_settings.minimum_top_up_amount:
+            return utils.respondWithFailure(
+                message="Top up amount can not be less than Rs. {}".format(
+                    las_settings.minimum_top_up_amount
+                )
+            )
+        elif data.get("topup_amount") > topup_amt:
+            return utils.respondWithFailure(
+                message="Top up amount can not be more than Rs. {}".format(topup_amt)
+            )
+        elif (
+            las_settings.minimum_top_up_amount <= data.get("topup_amount") <= topup_amt
+        ):
+
+            frappe.db.begin()
+            topup_application = frappe.get_doc(
+                {
+                    "doctype": "Top up Application",
+                    "loan": data.get("loan_name"),
+                    "top_up_amount": data.get("topup_amount"),
+                    "time": datetime.now(),
+                    "status": "Pending",
+                    "customer": customer.name,
+                    "customer_name": customer.full_name,
+                }
+            )
+            topup_application.save(ignore_permissions=True)
+
+            frappe.db.commit()
+
+            data = {"topup_application_name": topup_application.name}
+
+        return utils.respondWithSuccess(data=data)
+    except utils.APIException as e:
+        return e.respond()
 
 
 @frappe.whitelist()
