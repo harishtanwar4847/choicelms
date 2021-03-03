@@ -100,53 +100,6 @@ class LoanApplication(Document):
             ),
         }
 
-    def on_update(self):
-        if self.status == "Approved":
-            if not self.loan:
-                loan = self.create_loan()
-            else:
-                loan = self.update_existing_loan()
-            frappe.db.commit()
-
-        elif self.status == "Pledge accepted by Lender":
-            approved_isin_list = []
-            rejected_isin_list = []
-            for i in self.items:
-                if i.lender_approval_status == "Approved":
-                    approved_isin_list.append(i.isin)
-                elif i.lender_approval_status == "Rejected":
-                    rejected_isin_list.append(i.isin)
-
-            if len(approved_isin_list) > 0:
-                self.update_collateral_ledger(
-                    {"lender_approval_status": "Approved"},
-                    "loan_application = '{}' and isin IN {}".format(
-                        self.name, lms.convert_list_to_tuple_string(approved_isin_list)
-                    ),
-                )
-
-            if len(rejected_isin_list) > 0:
-                self.update_collateral_ledger(
-                    {"lender_approval_status": "Rejected"},
-                    "loan_application = '{}' and isin IN {}".format(
-                        self.name, lms.convert_list_to_tuple_string(rejected_isin_list)
-                    ),
-                )
-            try:
-                fa = FirebaseAdmin()
-                fa.send_data(
-                    data={
-                        "event": "Esign Pending",
-                    },
-                    tokens=lms.get_firebase_tokens(self.get_customer().user),
-                )
-            except Exception:
-                pass
-            finally:
-                fa.delete_app()
-
-        # self.notify_customer()
-
     def before_save(self):
         if (
             self.status == "Approved"
@@ -228,6 +181,65 @@ class LoanApplication(Document):
             self.pledged_total_collateral_value
         )
 
+    def on_update(self):
+        if self.status == "Approved":
+            if not self.loan:
+                loan = self.create_loan()
+            else:
+                loan = self.update_existing_loan()
+
+            frappe.db.commit()
+
+            if not self.loan:
+                # new loan agreement mapping
+                self.map_loan_agreement_file(loan)
+            elif (
+                self.loan
+                and self.lender_esigned_document
+                and not self.loan_margin_shortfall
+            ):
+                # increase loan agreement mapping
+                self.map_loan_agreement_file(loan, increase_loan=True)
+
+        elif self.status == "Pledge accepted by Lender":
+            approved_isin_list = []
+            rejected_isin_list = []
+            for i in self.items:
+                if i.lender_approval_status == "Approved":
+                    approved_isin_list.append(i.isin)
+                elif i.lender_approval_status == "Rejected":
+                    rejected_isin_list.append(i.isin)
+
+            if len(approved_isin_list) > 0:
+                self.update_collateral_ledger(
+                    {"lender_approval_status": "Approved"},
+                    "loan_application = '{}' and isin IN {}".format(
+                        self.name, lms.convert_list_to_tuple_string(approved_isin_list)
+                    ),
+                )
+
+            if len(rejected_isin_list) > 0:
+                self.update_collateral_ledger(
+                    {"lender_approval_status": "Rejected"},
+                    "loan_application = '{}' and isin IN {}".format(
+                        self.name, lms.convert_list_to_tuple_string(rejected_isin_list)
+                    ),
+                )
+            try:
+                fa = FirebaseAdmin()
+                fa.send_data(
+                    data={
+                        "event": "Esign Pending",
+                    },
+                    tokens=lms.get_firebase_tokens(self.get_customer().user),
+                )
+            except Exception:
+                pass
+            finally:
+                fa.delete_app()
+
+        self.notify_customer()
+
     def create_loan(self):
         items = []
 
@@ -265,63 +277,10 @@ class LoanApplication(Document):
             }
         )
         loan.insert(ignore_permissions=True)
-        loan.create_loan_charges()
+        # loan.create_loan_charges()
+        # self.map_loan_agreement_file(loan)
 
-        file_name = frappe.db.get_value(
-            "File", {"file_url": self.lender_esigned_document}
-        )
-        frappe.logger().info("file_name {}".format(file_name))
-
-        loan_agreement = frappe.get_doc("File", file_name)
-        frappe.logger().info("loan_agreement {}".format(loan_agreement))
-
-        loan_agreement_file_name = "{}-loan-aggrement.pdf".format(loan.name)
-        frappe.logger().info(
-            "loan_agreement_file_name {}".format(loan_agreement_file_name)
-        )
-
-        is_private = 0
-        loan_agreement_file_url = frappe.utils.get_files_path(
-            loan_agreement_file_name, is_private=is_private
-        )
-        frappe.logger().info(
-            "loan_agreement_file_url {}".format(loan_agreement_file_url)
-        )
-
-        loan_agreement_file = frappe.get_doc(
-            {
-                "doctype": "File",
-                "file_name": loan_agreement_file_name,
-                "content": loan_agreement.get_content(),
-                "attached_to_doctype": "Loan",
-                "attached_to_name": loan.name,
-                "attached_to_field": "loan_agreement",
-                "folder": "Home",
-                "file_url": loan_agreement_file_url,
-                "is_private": is_private,
-            }
-        )
-        loan_agreement_file.insert(ignore_permissions=True)
-        frappe.logger().info(
-            "loan_agreement_file.name {}".format(loan_agreement_file.name)
-        )
-        frappe.logger().info(
-            "loan_agreement_file.file_url {}".format(loan_agreement_file.file_url)
-        )
-
-        frappe.db.set_value(
-            loan.doctype,
-            loan.name,
-            "loan_agreement",
-            loan_agreement_file.file_url,
-            update_modified=False,
-        )
-        # save loan sanction history
-        frappe.logger().info(
-            "save_loan_sanction_history start {}".format(datetime.now())
-        )
-        loan.save_loan_sanction_history(loan_agreement_file.name)
-        frappe.logger().info("save_loan_sanction_history end {}".format(datetime.now()))
+        # File code here #S
 
         customer = frappe.get_doc("Loan Customer", self.customer)
         if not customer.loan_open:
@@ -352,9 +311,56 @@ class LoanApplication(Document):
 
         return loan
 
+    def map_loan_agreement_file(self, loan, increase_loan=False):
+        file_name = frappe.db.get_value(
+            "File", {"file_url": self.lender_esigned_document}
+        )
+
+        loan_agreement = frappe.get_doc("File", file_name)
+
+        event = "New loan"
+        if increase_loan:
+            loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(
+                loan.name
+            )
+            event = "Increase loan"
+        else:
+            loan_agreement_file_name = "{}-loan-aggrement.pdf".format(loan.name)
+
+        is_private = 0
+        loan_agreement_file_url = frappe.utils.get_files_path(
+            loan_agreement_file_name, is_private=is_private
+        )
+
+        frappe.db.begin()
+        loan_agreement_file = frappe.get_doc(
+            {
+                "doctype": "File",
+                "file_name": loan_agreement_file_name,
+                "content": loan_agreement.get_content(),
+                "attached_to_doctype": "Loan",
+                "attached_to_name": loan.name,
+                "attached_to_field": "loan_agreement",
+                "folder": "Home",
+                "file_url": loan_agreement_file_url,
+                "is_private": is_private,
+            }
+        )
+        loan_agreement_file.insert(ignore_permissions=True)
+        frappe.db.commit()
+
+        frappe.db.set_value(
+            "Loan",
+            loan.name,
+            "loan_agreement",
+            loan_agreement_file.file_url,
+            update_modified=False,
+        )
+        # save loan sanction history
+        loan.save_loan_sanction_history(loan_agreement_file.name, event)
+
     def update_existing_loan(self):
         loan = frappe.get_doc("Loan", self.loan)
-        frappe.logger().info("update_existing_loan {}".format(datetime.now()))
 
         for item in self.items:
             if item.lender_approval_status == "Approved":
@@ -384,63 +390,6 @@ class LoanApplication(Document):
 
         loan.save(ignore_permissions=True)
 
-        if self.lender_esigned_document and not self.loan_margin_shortfall:
-            file_name = frappe.db.get_value(
-                "File", {"file_url": self.lender_esigned_document}
-            )
-            frappe.logger().info("file_name {}".format(file_name))
-
-            loan_agreement = frappe.get_doc("File", file_name)
-            frappe.logger().info("loan_agreement {}".format(loan_agreement))
-
-            loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(
-                loan.name
-            )
-            frappe.logger().info(
-                "loan_agreement_file_name {}".format(loan_agreement_file_name)
-            )
-
-            is_private = 0
-            loan_agreement_file_url = frappe.utils.get_files_path(
-                loan_agreement_file_name, is_private=is_private
-            )
-            frappe.logger().info(
-                "loan_agreement_file_url {}".format(loan_agreement_file_url)
-            )
-
-            loan_agreement_file = frappe.get_doc(
-                {
-                    "doctype": "File",
-                    "file_name": loan_agreement_file_name,
-                    "content": loan_agreement.get_content(),
-                    "attached_to_doctype": "Loan",
-                    "attached_to_name": loan.name,
-                    "attached_to_field": "loan_agreement",
-                    "folder": "Home",
-                    "file_url": loan_agreement_file_url,
-                    "is_private": is_private,
-                }
-            )
-            loan_agreement_file.insert(ignore_permissions=True)
-            frappe.logger().info(
-                "loan_agreement_file.name {}".format(loan_agreement_file.name)
-            )
-            frappe.logger().info(
-                "loan_agreement_file.file_url {}".format(loan_agreement_file.file_url)
-            )
-
-            frappe.db.set_value(
-                "Loan", loan.name, "loan_agreement", loan_agreement_file.file_url
-            )
-            # save loan sanction history
-            frappe.logger().info(
-                "save_loan_sanction_history start {}".format(datetime.now())
-            )
-            loan.save_loan_sanction_history(loan_agreement_file.name, "Increase loan")
-            frappe.logger().info(
-                "save_loan_sanction_history end {}".format(datetime.now())
-            )
-
         self.update_collateral_ledger(
             {"loan": loan.name},
             "loan_application = '{}' and isin in {}".format(
@@ -463,9 +412,6 @@ class LoanApplication(Document):
                 loan_margin_shortfall.action_time = datetime.now()
             loan_margin_shortfall.save(ignore_permissions=True)
 
-        frappe.logger().info(
-            "update existing loan end {} - {}".format(datetime.now(), loan)
-        )
         return loan
 
     def update_collateral_ledger(self, set_values={}, where=""):
@@ -626,7 +572,7 @@ class LoanApplication(Document):
             "drawing_power": self.drawing_power_str,
         }
         frappe.enqueue_doc("Notification", "Loan Application", method="send", doc=doc)
-
+        mess = ""
         if doc.get("loan_application").get("pledge_status") == "Failure":
             mess = "Sorry! Your loan application was turned down since the pledge was not successful. We regret the inconvenience caused."
 
@@ -646,10 +592,13 @@ class LoanApplication(Document):
         if doc.get("loan_application").get("status") == "Rejected":
             mess = "Sorry! Your loan application was turned down. We regret the inconvenience caused."
 
-        receiver_list = list(set([str(customer.phone), str(user_kyc.mobile_number)]))
-        from frappe.core.doctype.sms_settings.sms_settings import send_sms
+        if mess:
+            receiver_list = list(
+                set([str(customer.phone), str(user_kyc.mobile_number)])
+            )
+            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-        frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
 
 
 def check_for_pledge(loan_application_doc):
