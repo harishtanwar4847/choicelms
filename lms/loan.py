@@ -68,29 +68,49 @@ def esign(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {
-                "loan_application_name": "required",
-            },
+            {"loan_application_name": "", "topup_application_name": ""},
         )
 
         customer = lms.__customer()
-        loan_application = frappe.get_doc(
-            "Loan Application", data.get("loan_application_name")
-        )
-        if not loan_application:
-            return utils.respondNotFound(message=_("Loan Application not found."))
-        if loan_application.customer != customer.name:
+        if data.get("loan_application_name") and data.get("topup_application_name"):
             return utils.respondForbidden(
-                message=_("Please use your own Loan Application.")
+                message=_("Can not use both application at once, please use one.")
             )
+        elif not data.get("loan_application_name") and not data.get(
+            "topup_application_name"
+        ):
+            return utils.respondForbidden(
+                message=_("Loan Application and Top up Application not found.")
+            )
+        if data.get("loan_application_name"):
+            loan_application = frappe.get_doc(
+                "Loan Application", data.get("loan_application_name")
+            )
+            if not loan_application:
+                return utils.respondNotFound(message=_("Loan Application not found."))
+            if loan_application.customer != customer.name:
+                return utils.respondForbidden(
+                    message=_("Please use your own Loan Application.")
+                )
+            increase_loan = 0
+            if loan_application.loan and not loan_application.loan_margin_shortfall:
+                increase_loan = 1
+            esign_request = loan_application.esign_request(increase_loan)
 
-        increase_loan = 0
-        if loan_application.loan and not loan_application.loan_margin_shortfall:
-            increase_loan = 1
+        else:
+            topup_application = frappe.get_doc(
+                "Top up Application", data.get("topup_application_name")
+            )
+            if not topup_application:
+                return utils.respondNotFound(message=_("Topup Application not found."))
+            if topup_application.customer != customer.name:
+                return utils.respondForbidden(
+                    message=_("Please use your own Topup Application.")
+                )
+            esign_request = topup_application.esign_request()
 
         user = lms.__user()
 
-        esign_request = loan_application.esign_request(increase_loan)
         try:
             res = requests.post(
                 esign_request.get("file_upload_url"),
@@ -123,34 +143,65 @@ def esign_done(**kwargs):
         utils.validator.validate_http_method("POST")
 
         data = utils.validator.validate(
-            kwargs, {"loan_application_name": "required", "file_id": "required"}
+            kwargs,
+            {
+                "loan_application_name": "",
+                "topup_application_name": "",
+                "file_id": "required",
+            },
         )
 
         user = lms.__user()
         customer = lms.__customer()
-        loan_application = frappe.get_doc(
-            "Loan Application", data.get("loan_application_name")
-        )
-        if not loan_application:
-            return utils.respondNotFound(message=_("Loan Application not found."))
-        if loan_application.customer != customer.name:
+        las_settings = frappe.get_single("LAS Settings")
+
+        if data.get("loan_application_name") and data.get("topup_application_name"):
             return utils.respondForbidden(
-                message=_("Please use your own Loan Application.")
+                message=_("Can not use both application at once, please use one.")
+            )
+        elif not data.get("loan_application_name") and not data.get(
+            "topup_application_name"
+        ):
+            return utils.respondForbidden(
+                message=_("Loan Application and Top up Application not found.")
             )
 
-        increase_loan = 0
-        if loan_application.loan and not loan_application.loan_margin_shortfall:
-            increase_loan = 1
+        if data.get("loan_application_name"):
+            loan_application = frappe.get_doc(
+                "Loan Application", data.get("loan_application_name")
+            )
+            if not loan_application:
+                return utils.respondNotFound(message=_("Loan Application not found."))
+            if loan_application.customer != customer.name:
+                return utils.respondForbidden(
+                    message=_("Please use your own Loan Application.")
+                )
+            increase_loan = 0
+            if loan_application.loan and not loan_application.loan_margin_shortfall:
+                increase_loan = 1
+            if increase_loan:
+                esigned_pdf_url = "{}{}".format(
+                    las_settings.esign_host,
+                    las_settings.enhancement_esign_download_signed_file_uri,
+                ).format(file_id=data.get("file_id"))
+            else:
+                esigned_pdf_url = "{}{}".format(
+                    las_settings.esign_host, las_settings.esign_download_signed_file_uri
+                ).format(file_id=data.get("file_id"))
 
-        las_settings = frappe.get_single("LAS Settings")
-        if increase_loan:
+        else:
+            topup_application = frappe.get_doc(
+                "Top up Application", data.get("topup_application_name")
+            )
+            if not topup_application:
+                return utils.respondNotFound(message=_("Topup Application not found."))
+            if topup_application.customer != customer.name:
+                return utils.respondForbidden(
+                    message=_("Please use your own Topup Application.")
+                )
             esigned_pdf_url = "{}{}".format(
                 las_settings.esign_host,
                 las_settings.enhancement_esign_download_signed_file_uri,
-            ).format(file_id=data.get("file_id"))
-        else:
-            esigned_pdf_url = "{}{}".format(
-                las_settings.esign_host, las_settings.esign_download_signed_file_uri
             ).format(file_id=data.get("file_id"))
 
         try:
@@ -167,26 +218,48 @@ def esign_done(**kwargs):
             )
             kyc_consent_doc.insert(ignore_permissions=True)
 
-            esigned_file = frappe.get_doc(
-                {
-                    "doctype": "File",
-                    "file_name": "{}-aggrement.pdf".format(
-                        data.get("loan_application_name")
-                    ),
-                    "content": res.content,
-                    "attached_to_doctype": "Loan Application",
-                    "attached_to_name": data.get("loan_application_name"),
-                    "attached_to_field": "customer_esigned_document",
-                    "folder": "Home",
-                }
-            )
-            esigned_file.save(ignore_permissions=True)
+            if data.get("loan_application_name"):
+                esigned_file = frappe.get_doc(
+                    {
+                        "doctype": "File",
+                        "file_name": "{}-aggrement.pdf".format(
+                            data.get("loan_application_name")
+                        ),
+                        "content": res.content,
+                        "attached_to_doctype": "Loan Application",
+                        "attached_to_name": data.get("loan_application_name"),
+                        "attached_to_field": "customer_esigned_document",
+                        "folder": "Home",
+                    }
+                )
+                esigned_file.save(ignore_permissions=True)
 
-            loan_application.status = "Esign Done"
-            loan_application.workflow_state = "Esign Done"
-            loan_application.customer_esigned_document = esigned_file.file_url
-            loan_application.save(ignore_permissions=True)
-            frappe.db.commit()
+                loan_application.status = "Esign Done"
+                loan_application.workflow_state = "Esign Done"
+                loan_application.customer_esigned_document = esigned_file.file_url
+                loan_application.save(ignore_permissions=True)
+                frappe.db.commit()
+            else:
+                esigned_file = frappe.get_doc(
+                    {
+                        "doctype": "File",
+                        "file_name": "{}-aggrement.pdf".format(
+                            data.get("topup_application_name")
+                        ),
+                        "content": res.content,
+                        "attached_to_doctype": "Top up Application",
+                        "attached_to_name": data.get("topup_application_name"),
+                        "attached_to_field": "customer_esigned_document",
+                        "folder": "Home",
+                    }
+                )
+                esigned_file.save(ignore_permissions=True)
+
+                topup_application.status = "Esign Done"
+                topup_application.workflow_state = "Esign Done"
+                topup_application.customer_esigned_document = esigned_file.file_url
+                topup_application.save(ignore_permissions=True)
+                frappe.db.commit()
 
             return utils.respondWithSuccess()
         except requests.RequestException as e:

@@ -4,8 +4,11 @@
 
 from __future__ import unicode_literals
 
+from datetime import datetime
+
 import frappe
 from frappe.model.document import Document
+from num2words import num2words
 
 
 class TopupApplication(Document):
@@ -19,30 +22,158 @@ class TopupApplication(Document):
             loan.sanctioned_limit += self.top_up_amount
             loan.save(ignore_permissions=True)
 
-    #     self.notify_customer()
+        self.notify_customer()
 
-    # def notify_customer(self):
-    #     from frappe.core.doctype.sms_settings.sms_settings import send_sms
-    #     customer = self.get_customer()
-    #     user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
-    #     doc = frappe.get_doc("User", customer.user).as_dict()
-    #     doc["top_up_application"] = {
-    #         "status": self.status,
-    #         "loan": self.loan,
-    #         "top_up_amount": self.top_up_amount,
-    #     }
-    #     frappe.enqueue_doc("Notification", "Top up Application", method="send", doc=doc)
+    def get_loan(self):
+        return frappe.get_doc("Loan", self.loan)
 
-    #     if doc.get("top_up_application").get("status") == "Pending":
-    #         mess = "Your request has been successfully received. You will be notified when your new OD limit is approved by our banking partner."
-    #         frappe.enqueue(method=send_sms, receiver_list=list(set([str(customer.phone), str(user_kyc.mobile_number)])), msg=mess)
+    def get_lender(self):
+        return frappe.get_doc("Lender", self.get_loan().lender)
 
-    #     if doc.get("top_up_application").get("status") == "Approved":
-    #         mess = "Congratulations! Your Top up application for Loan {loan_name} is Approved.".format(doc.get("top_up_application").get("loan_name"))
-    #         frappe.enqueue(method=send_sms, receiver_list=list(set([str(customer.phone), str(user_kyc.mobile_number)])), msg=mess)
+    def create_tnc_file(self):
+        lender = self.get_lender()
+        customer = self.get_customer()
+        user_kyc = customer.get_kyc()
+        loan = self.get_loan()
 
-    #     if doc.get("top_up_application").get("status") == "Rejected":
-    #         mess = "Sorry! Your Top up application was turned down. We regret the inconvenience caused."
-    #         frappe.enqueue(method=send_sms, receiver_list=list(set([str(customer.phone), str(user_kyc.mobile_number)])), msg=mess)
+        doc = {
+            "esign_date": "__________",
+            "loan_application_number": self.name,
+            "borrower_name": user_kyc.investor_name,
+            "borrower_address": user_kyc.address,
+            "sanctioned_amount": self.top_up_amount,
+            "sanctioned_amount_in_words": num2words(
+                self.top_up_amount, lang="en_IN"
+            ).title(),
+            "old_sanctioned_amount": loan.sanctioned_limit,
+            "old_sanctioned_amount_in_words": num2words(
+                loan.sanctioned_limit, lang="en_IN"
+            ).title(),
+            "rate_of_interest": lender.rate_of_interest,
+            "default_interest": lender.default_interest,
+            "account_renewal_charges": lender.account_renewal_charges,
+            "documentation_charges": lender.documentation_charges,
+            # "stamp_duty_charges": (lender.stamp_duty / 100)
+            # * self.drawing_power,  # CR loan agreement changes
+            "processing_fee": lender.lender_processing_fees,
+            "transaction_charges_per_request": lender.transaction_charges_per_request,
+            "security_selling_share": lender.security_selling_share,
+            "cic_charges": lender.cic_charges,
+            "total_pages": lender.total_pages,
+        }
 
-    # receiver_list = list(set([str(customer.phone), str(user_kyc.mobile_number)]))
+        loan = self.get_loan()
+        doc["old_sanctioned_amount"] = loan.sanctioned_limit
+        doc["old_sanctioned_amount_in_words"] = num2words(
+            loan.sanctioned_limit, lang="en_IN"
+        ).title()
+        agreement_template = lender.get_loan_enhancement_agreement_template()
+
+        agreement = frappe.render_template(
+            agreement_template.get_content(), {"doc": doc}
+        )
+
+        from frappe.utils.pdf import get_pdf
+
+        agreement_pdf = get_pdf(agreement)
+
+        tnc_dir_path = frappe.utils.get_files_path("tnc")
+        import os
+
+        if not os.path.exists(tnc_dir_path):
+            os.mkdir(tnc_dir_path)
+        tnc_file = "tnc/{}.pdf".format(self.name)
+        tnc_file_path = frappe.utils.get_files_path(tnc_file)
+
+        with open(tnc_file_path, "wb") as f:
+            f.write(agreement_pdf)
+        f.close()
+
+    def esign_request(self):
+        customer = self.get_customer()
+        user = frappe.get_doc("User", customer.user)
+        user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+        lender = self.get_lender()
+        loan = self.get_loan()
+
+        doc = {
+            "esign_date": datetime.now().strftime("%d-%m-%Y"),
+            "loan_application_number": self.name,
+            "borrower_name": user_kyc.investor_name,
+            "borrower_address": user_kyc.address,
+            "sanctioned_amount": self.top_up_amount,
+            "sanctioned_amount_in_words": num2words(
+                self.top_up_amount, lang="en_IN"
+            ).title(),
+            "old_sanctioned_amount": loan.sanctioned_limit,
+            "old_sanctioned_amount_in_words": num2words(
+                loan.sanctioned_limit, lang="en_IN"
+            ).title(),
+            "rate_of_interest": lender.rate_of_interest,
+            "default_interest": lender.default_interest,
+            "account_renewal_charges": lender.account_renewal_charges,
+            "documentation_charges": lender.documentation_charges,
+            # "stamp_duty_charges": (lender.stamp_duty / 100)
+            # * self.drawing_power,  # CR loan agreement changes
+            "processing_fee": lender.lender_processing_fees,
+            "transaction_charges_per_request": lender.transaction_charges_per_request,
+            "security_selling_share": lender.security_selling_share,
+            "cic_charges": lender.cic_charges,
+            "total_pages": lender.total_pages,
+        }
+
+        agreement_template = lender.get_loan_enhancement_agreement_template()
+        loan_agreement_file = "loan-enhancement-aggrement.pdf"
+        coordinates = lender.enhancement_coordinates.split(",")
+        esign_page = lender.enhancement_esign_page
+        agreement = frappe.render_template(
+            agreement_template.get_content(), {"doc": doc}
+        )
+
+        from frappe.utils.pdf import get_pdf
+
+        agreement_pdf = get_pdf(agreement)
+
+        las_settings = frappe.get_single("LAS Settings")
+        headers = {"userId": las_settings.choice_user_id}
+        files = {"file": (loan_agreement_file, agreement_pdf)}
+
+        return {
+            "file_upload_url": "{}{}".format(
+                las_settings.esign_host, las_settings.esign_upload_file_uri
+            ),
+            "headers": headers,
+            "files": files,
+            "esign_url_dict": {
+                "x": coordinates[0],
+                "y": coordinates[1],
+                "page_number": esign_page,
+            },
+            "esign_url": "{}{}".format(
+                las_settings.esign_host, las_settings.esign_request_uri
+            ),
+        }
+
+    def notify_customer(self):
+        from frappe.core.doctype.sms_settings.sms_settings import send_sms
+        customer = self.get_customer()
+        user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+        doc = frappe.get_doc("User", customer.user).as_dict()
+        doc["top_up_application"] = {
+            "status": self.status,
+            "loan": self.loan,
+            "top_up_amount": self.top_up_amount,
+        }
+        frappe.enqueue_doc("Notification", "Top up Application", method="send", doc=doc)
+
+        if doc.get("top_up_application").get("status") == "Pending":
+            mess = "Your request has been successfully received. You will be notified when your new OD limit is approved by our banking partner."
+            frappe.enqueue(method=send_sms, receiver_list=list(set([str(customer.phone), str(user_kyc.mobile_number)])), msg=mess)
+        
+        if doc.get("top_up_application").get("status") == "Approved":
+            mess = "Congratulations! Your Top up application for Loan {} is Approved.".format(doc.get("top_up_application").get("loan"))
+            frappe.enqueue(method=send_sms, receiver_list=list(set([str(customer.phone), str(user_kyc.mobile_number)])), msg=mess)
+
+        if doc.get("top_up_application").get("status") == "Rejected":
+            mess = "Sorry! Your Top up application was turned down. We regret the inconvenience caused."
+            frappe.enqueue(method=send_sms, receiver_list=list(set([str(customer.phone), str(user_kyc.mobile_number)])), msg=mess)

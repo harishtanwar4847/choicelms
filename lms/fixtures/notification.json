@@ -244,5 +244,46 @@
   "slack_webhook_url": null,
   "subject": "Loan Application",
   "value_changed": null
+ },
+ {
+  "attach_print": 0,
+  "channel": "Email",
+  "condition": null,
+  "date_changed": null,
+  "days_in_advance": 0,
+  "docstatus": 0,
+  "doctype": "Notification",
+  "document_type": "User",
+  "enabled": 1,
+  "event": "Custom",
+  "is_standard": 0,
+  "message": "Add your message here",
+  "method": null,
+  "modified": "2021-03-01 19:10:23.627537",
+  "module": null,
+  "name": "Top up Application",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "print_format": null,
+  "property_value": null,
+  "recipients": [
+   {
+    "bcc": null,
+    "cc": null,
+    "condition": null,
+    "email_by_document_field": "email",
+    "email_by_role": null,
+    "parent": "Top up Application",
+    "parentfield": "recipients",
+    "parenttype": "Notification"
+   }
+  ],
+  "sender": null,
+  "sender_email": null,
+  "set_property_after_alert": null,
+  "slack_webhook_url": null,
+  "subject": "Top up Application",
+  "value_changed": null
  }
 ]

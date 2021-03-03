@@ -147,7 +147,7 @@ class LoanApplication(Document):
             finally:
                 fa.delete_app()
 
-        # self.notify_customer()
+        self.notify_customer()
 
     def before_save(self):
         if (
@@ -533,7 +533,7 @@ class LoanApplication(Document):
             }
         else:
             ISINstatusDtls = []
-            flag = 1
+            flag = 0
             for item in security_list:
                 flag = bool(random.getrandbits(1))
                 error_code = ["CIF3065-F", "PLD0152-E", "PLD0125-F"]
@@ -617,6 +617,8 @@ class LoanApplication(Document):
             collateral_ledger.save(ignore_permissions=True)
 
     def notify_customer(self):
+        from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
         customer = self.get_customer()
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
         doc = frappe.get_doc("User", customer.user).as_dict()
@@ -631,8 +633,15 @@ class LoanApplication(Document):
 
         if doc.get("loan_application").get("pledge_status") == "Failure":
             mess = "Sorry! Your loan application was turned down since the pledge was not successful. We regret the inconvenience caused."
+            frappe.enqueue(
+                method=send_sms,
+                receiver_list=list(
+                    set([str(customer.phone), str(user_kyc.mobile_number)])
+                ),
+                msg=mess,
+            )
 
-        if doc.get("loan_application").get("status") == "Pledge accepted by Lender":
+        elif doc.get("loan_application").get("status") == "Pledge accepted by Lender":
             mess = "Congratulations! Your application is being considered favourably by our lending partner\nand finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}.\nAccordingly the final Drawing power is Rs. {drawing_power}. Please e-sign the loan agreement to avail the loan now.".format(
                 current_total_collateral_value=doc.get("loan_application").get(
                     "current_total_collateral_value"
@@ -642,16 +651,36 @@ class LoanApplication(Document):
                 ),
                 drawing_power=doc.get("loan_application").get("drawing_power"),
             )
+            frappe.enqueue(
+                method=send_sms,
+                receiver_list=list(
+                    set([str(customer.phone), str(user_kyc.mobile_number)])
+                ),
+                msg=mess,
+            )
 
-        if doc.get("loan_application").get("status") == "Approved":
+        elif doc.get("loan_application").get("status") == "Approved":
             mess = "Congratulations! Your loan application is Approved."
-        if doc.get("loan_application").get("status") == "Rejected":
+            frappe.enqueue(
+                method=send_sms,
+                receiver_list=list(
+                    set([str(customer.phone), str(user_kyc.mobile_number)])
+                ),
+                msg=mess,
+            )
+        elif doc.get("loan_application").get("status") == "Rejected":
             mess = "Sorry! Your loan application was turned down. We regret the inconvenience caused."
+            frappe.enqueue(
+                method=send_sms,
+                receiver_list=list(
+                    set([str(customer.phone), str(user_kyc.mobile_number)])
+                ),
+                msg=mess,
+            )
 
-        receiver_list = list(set([str(customer.phone), str(user_kyc.mobile_number)]))
-        from frappe.core.doctype.sms_settings.sms_settings import send_sms
+        # receiver_list = list(set([str(customer.phone), str(user_kyc.mobile_number)]))
 
-        frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
+        # frappe.enqueue(method=send_sms, receiver_list=list(set([str(customer.phone), str(user_kyc.mobile_number)])), msg=mess)
 
 
 def check_for_pledge(loan_application_doc):
