@@ -520,18 +520,22 @@ def create_topup(**kwargs):
         )
 
         las_settings = frappe.get_single("LAS Settings")
-        if (
+        if topup_amt < las_settings.minimum_top_up_amount:
+            return utils.respondWithFailure(status=417, message="Top up not available")
+        elif (
             data.get("topup_amount") < las_settings.minimum_top_up_amount
             or data.get("topup_amount") <= 0
         ):
             return utils.respondWithFailure(
+                status=417,
                 message="Top up amount can not be less than Rs. {}".format(
                     las_settings.minimum_top_up_amount
-                )
+                ),
             )
         elif data.get("topup_amount") > topup_amt:
             return utils.respondWithFailure(
-                message="Top up amount can not be more than Rs. {}".format(topup_amt)
+                status=417,
+                message="Top up amount can not be more than Rs. {}".format(topup_amt),
             )
         elif (
             las_settings.minimum_top_up_amount <= data.get("topup_amount") <= topup_amt
@@ -654,21 +658,18 @@ def loan_details(**kwargs):
             topup[0]["top_up_amount"] = lms.round_down_amount_to_nearest_thousand(
                 topup[0]["top_up_amount"]
             )
+            topup = {
+                "top_up_amount": topup[0]["top_up_amount"],
+            }
         else:
-            topup[0]["top_up_available"] = 0
-            topup[0]["top_up_amount"] = 0
-
-        topup_amount_available = {
-            "top_up_available": topup[0]["top_up_available"],
-            "top_up_amount": topup[0]["top_up_amount"],
-        }
+            topup = None
 
         res = {
             "loan": loan,
             "transactions": loan_transactions_list,
             "margin_shortfall": loan_margin_shortfall,
             "interest": interest,
-            "topup_amount_available": topup_amount_available,
+            "topup": topup,
         }
 
         return utils.respondWithSuccess(data=res)

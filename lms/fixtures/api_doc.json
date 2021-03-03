@@ -211,7 +211,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2020-11-27 22:48:59.878220",
+  "modified": "2021-03-03 18:18:06.476384",
   "name": "20b2c24baa",
   "parameters": [
    {
@@ -291,11 +291,24 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "loan name if increase loan",
+    "field": "loan_name",
+    "group": null,
+    "optional": 1,
+    "parent": "20b2c24baa",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
    }
   ],
   "parameters_example": [
    {
-    "example": "{\"securities\":{\"list\":[{\"isin\":\"INE259A01022\",\"quantity\":12},{\"isin\":\"INE045B01015\",\"quantity\":20}]},\"pledgor_boid\":\"1206690000000027\",\"loan_margin_shortfall_name\":\"\"}",
+    "example": "{\"securities\":{\"list\":[{\"isin\":\"INE259A01022\",\"quantity\":12},{\"isin\":\"INE045B01015\",\"quantity\":20}]},\"pledgor_boid\":\"1206690000000027\",\"loan_margin_shortfall_name\":\"\",\"loan_name\":\"\"}",
     "parent": "20b2c24baa",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
