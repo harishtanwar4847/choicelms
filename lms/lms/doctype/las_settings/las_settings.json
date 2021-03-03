@@ -240,7 +240,7 @@
   {
    "fieldname": "minimum_top_up_amount",
    "fieldtype": "Currency",
-   "label": "Minimum Top Up Amount"
+   "label": "Minimum Top up Amount"
   },
   {
    "fieldname": "column_break_35",
@@ -248,7 +248,7 @@
   }
  ],
  "issingle": 1,
- "modified": "2021-02-27 15:03:04.842639",
+ "modified": "2021-03-03 18:47:33.607805",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

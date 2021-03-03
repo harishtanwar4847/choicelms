@@ -14,6 +14,9 @@ from lms.lms.doctype.loan_transaction.loan_transaction import LoanTransaction
 
 
 class Loan(Document):
+    def after_insert(self):
+        self.create_loan_charges()
+
     def maximum_withdrawable_amount(self, withdraw_req_name=None, req_time=None):
         balance = self.balance
 

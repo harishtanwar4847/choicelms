@@ -21,6 +21,8 @@ class TopupApplication(Document):
             loan.drawing_power += self.top_up_amount
             loan.sanctioned_limit += self.top_up_amount
             loan.save(ignore_permissions=True)
+            frappe.db.commit()
+            self.map_loan_agreement_file(loan)
 
         self.notify_customer()
 
@@ -156,6 +158,7 @@ class TopupApplication(Document):
 
     def notify_customer(self):
         from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
         customer = self.get_customer()
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
         doc = frappe.get_doc("User", customer.user).as_dict()
@@ -168,12 +171,83 @@ class TopupApplication(Document):
 
         if doc.get("top_up_application").get("status") == "Pending":
             mess = "Your request has been successfully received. You will be notified when your new OD limit is approved by our banking partner."
-            frappe.enqueue(method=send_sms, receiver_list=list(set([str(customer.phone), str(user_kyc.mobile_number)])), msg=mess)
-        
+            frappe.enqueue(
+                method=send_sms,
+                receiver_list=list(
+                    set([str(customer.phone), str(user_kyc.mobile_number)])
+                ),
+                msg=mess,
+            )
+
         if doc.get("top_up_application").get("status") == "Approved":
-            mess = "Congratulations! Your Top up application for Loan {} is Approved.".format(doc.get("top_up_application").get("loan"))
-            frappe.enqueue(method=send_sms, receiver_list=list(set([str(customer.phone), str(user_kyc.mobile_number)])), msg=mess)
+            mess = "Congratulations! Your Top up application for Loan {} is Approved.".format(
+                doc.get("top_up_application").get("loan")
+            )
+            frappe.enqueue(
+                method=send_sms,
+                receiver_list=list(
+                    set([str(customer.phone), str(user_kyc.mobile_number)])
+                ),
+                msg=mess,
+            )
 
         if doc.get("top_up_application").get("status") == "Rejected":
             mess = "Sorry! Your Top up application was turned down. We regret the inconvenience caused."
-            frappe.enqueue(method=send_sms, receiver_list=list(set([str(customer.phone), str(user_kyc.mobile_number)])), msg=mess)
+            frappe.enqueue(
+                method=send_sms,
+                receiver_list=list(
+                    set([str(customer.phone), str(user_kyc.mobile_number)])
+                ),
+                msg=mess,
+            )
+
+    def map_loan_agreement_file(self, loan):
+        file_name = frappe.db.get_value(
+            "File", {"file_url": self.lender_esigned_document}
+        )
+        print(file_name, "file name")
+
+        loan_agreement = frappe.get_doc("File", file_name)
+        print(loan_agreement, "loan_agreement")
+
+        loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(loan.name)
+        event = "Top up"
+
+        print(loan_agreement_file_name, "loan_agreement_file_name")
+
+        print(event, "event")
+        is_private = 0
+
+        print(is_private, "is_private")
+        loan_agreement_file_url = frappe.utils.get_files_path(
+            loan_agreement_file_name, is_private=is_private
+        )
+        print(loan_agreement_file_url, "loan_agreement_file_url")
+
+        loan_agreement_file = frappe.get_doc(
+            {
+                "doctype": "File",
+                "file_name": loan_agreement_file_name,
+                "content": loan_agreement.get_content(),
+                "attached_to_doctype": "Loan",
+                "attached_to_name": loan.name,
+                "attached_to_field": "loan_agreement",
+                "folder": "Home",
+                "file_url": loan_agreement_file_url,
+                "is_private": is_private,
+            }
+        )
+        loan_agreement_file.insert(ignore_permissions=True)
+        print(loan_agreement_file, "loan_agreement_file")
+        frappe.db.commit()
+        print(loan_agreement_file, "loan_agreement_file")
+
+        frappe.db.set_value(
+            "Loan",
+            loan.name,
+            "loan_agreement",
+            loan_agreement_file.file_url,
+            update_modified=False,
+        )
+        # save loan sanction history
+        loan.save_loan_sanction_history(loan_agreement_file.name, event)
