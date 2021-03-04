@@ -502,13 +502,13 @@ def loan_details(**kwargs):
         existing_loan_application = frappe.get_all(
             "Loan Application",
             filters={
-                "status": ["not IN", ["Approved", "Rejected"]],
+                "loan": loan.name,
                 "customer": loan.customer,
-                "pledge_status": ["IN", ["Partial Success", "Success"]],
+                "status": ["not IN", ["Approved", "Rejected"]]
+                # "pledge_status": ["IN", ["Partial Success", "Success"]],
             },
             fields=["count(name) as in_process"],
         )
-        print(existing_loan_application, "existing_loan_application")
 
         increase_loan = None
         if existing_loan_application[0]["in_process"] == 0:
