@@ -136,7 +136,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2020-10-28 23:18:43.156052",
+  "modified": "2021-03-05 10:49:32.088837",
   "name": "0986702424",
   "parameters": [
    {
@@ -151,11 +151,24 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "topup_application_name",
+    "group": null,
+    "optional": 0,
+    "parent": "0986702424",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
    }
   ],
   "parameters_example": [
    {
-    "example": "{\"loan_application_name\":\"LA00001\"}",
+    "example": "{\"loan_application_name\":\"LA000001\",\"topup_application_name\": \"TOPUP000001\"}",
     "parent": "0986702424",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -526,7 +539,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2020-10-29 01:17:10.105488",
+  "modified": "2021-03-05 10:49:06.192211",
   "name": "a9f5a81b01",
   "parameters": [
    {
@@ -534,6 +547,19 @@
     "default_value": null,
     "description": null,
     "field": "loan_application_name",
+    "group": null,
+    "optional": 0,
+    "parent": "a9f5a81b01",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "topup_application_name",
     "group": null,
     "optional": 0,
     "parent": "a9f5a81b01",
@@ -558,7 +584,7 @@
   ],
   "parameters_example": [
    {
-    "example": "{\"loan_application_name\":\"LA00001\",\"file_id\":\"asdf\"}",
+    "example": "{\"loan_application_name\":\"LA00001\",\"topup_application_name\": \"TOPUP000001\",\"file_id\":\"asdf\"}",
     "parent": "a9f5a81b01",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -614,7 +640,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-03-04 14:03:30.613204",
+  "modified": "2021-03-05 10:42:03.344913",
   "name": "424822d68b",
   "parameters": [
    {
@@ -720,11 +746,21 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "Topup details or null",
+    "field": "data.topup",
+    "group": null,
+    "parent": "424822d68b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
    }
   ],
   "success_example": [
    {
-    "example": "{\"message\": \"Success\",\"data\":{\"loan\":\"loan object\", \"transactions\":\"transactions list\", \"interest\":\"interest details object\", \"increase_loan\":1}}",
+    "example": "{\"message\": \"Success\",\"data\":{\"loan\":\"loan object\", \"transactions\":\"transactions list\", \"interest\":\"interest details object\", \"increase_loan\":1,\"topup\":\"topup details object or null\"}}",
     "parent": "424822d68b",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -1726,7 +1762,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2020-11-03 21:09:58.375648",
+  "modified": "2021-03-05 10:50:34.270155",
   "name": "2a23f121e5",
   "parameters": [
    {
@@ -1741,11 +1777,24 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "topup_application_name",
+    "group": null,
+    "optional": 0,
+    "parent": "2a23f121e5",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
    }
   ],
   "parameters_example": [
    {
-    "example": "{\"cart_name\" : \"C000007\"}",
+    "example": "{\"cart_name\" : \"C000007\",\"topup_application_name\": \"TOPUP000001\"}",
     "parent": "2a23f121e5",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -2174,5 +2223,93 @@
   "title": "DataValidationErrorResponse",
   "use_api_define": [],
   "version": null
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "Loan",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2021-03-05 10:46:07.141584",
+  "name": "950a3a862d",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "loan_name",
+    "group": null,
+    "optional": 0,
+    "parent": "950a3a862d",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "topup_amount",
+    "group": null,
+    "optional": 0,
+    "parent": "950a3a862d",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Number"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\"loan_name\":\"SL000001\",\"topup_amount\":10000.0}",
+    "parent": "950a3a862d",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.loan.create_topup",
+  "success": [],
+  "success_example": [],
+  "title": "Create Topup",
+  "use_api_define": [
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "950a3a862d",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "950a3a862d",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "950a3a862d",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "950a3a862d",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
  }
 ]
