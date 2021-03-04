@@ -520,7 +520,22 @@ def create_topup(**kwargs):
         )
 
         las_settings = frappe.get_single("LAS Settings")
-        if topup_amt < las_settings.minimum_top_up_amount:
+        existing_topup_application = frappe.get_all(
+            "Top up Application",
+            filters={
+                "loan": loan.name,
+                "customer": loan.customer,
+                "status": ["not IN", ["Approved", "Rejected"]],
+            },
+            fields=["count(name) as in_process"],
+        )
+
+        las_settings = frappe.get_single("LAS Settings")
+        if existing_topup_application[0]["in_process"] > 0:
+            return utils.respondForbidden(
+                message=_("Top up for {} is already in process.".format(loan.name))
+            )
+        elif topup_amt < las_settings.minimum_top_up_amount:
             return utils.respondWithFailure(status=417, message="Top up not available")
         elif (
             data.get("topup_amount") < las_settings.minimum_top_up_amount
@@ -554,7 +569,7 @@ def create_topup(**kwargs):
                 }
             )
             topup_application.save(ignore_permissions=True)
-
+            # topup_amt -= data.get("topup_amount")
             frappe.db.commit()
 
             data = {"topup_application_name": topup_application.name}
@@ -650,9 +665,20 @@ def loan_details(**kwargs):
             as_dict=1,
         )
 
+        existing_topup_application = frappe.get_all(
+            "Top up Application",
+            filters={
+                "loan": loan.name,
+                "customer": loan.customer,
+                "status": ["not IN", ["Approved", "Rejected"]],
+            },
+            fields=["count(name) as in_process"],
+        )
+
         las_settings = frappe.get_single("LAS Settings")
         if (
-            topup[0]["top_up_available"]
+            existing_topup_application[0]["in_process"] == 0
+            and topup[0]["top_up_available"]
             and topup[0]["top_up_amount"] >= las_settings.minimum_top_up_amount
         ):
             topup[0]["top_up_amount"] = lms.round_down_amount_to_nearest_thousand(
@@ -663,6 +689,21 @@ def loan_details(**kwargs):
             }
         else:
             topup = None
+        # Increase Loan
+        existing_loan_application = frappe.get_all(
+            "Loan Application",
+            filters={
+                "loan": loan.name,
+                "customer": loan.customer,
+                "status": ["not IN", ["Approved", "Rejected"]]
+                # "pledge_status": ["IN", ["Partial Success", "Success"]],
+            },
+            fields=["count(name) as in_process"],
+        )
+
+        increase_loan = None
+        if existing_loan_application[0]["in_process"] == 0:
+            increase_loan = 1
 
         res = {
             "loan": loan,
@@ -670,6 +711,7 @@ def loan_details(**kwargs):
             "margin_shortfall": loan_margin_shortfall,
             "interest": interest,
             "topup": topup,
+            "increase_loan": increase_loan,
         }
 
         return utils.respondWithSuccess(data=res)

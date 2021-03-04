@@ -26,6 +26,10 @@ class TopupApplication(Document):
 
         self.notify_customer()
 
+    def before_save(self):
+        if self.status == "Approved" and not self.lender_esigned_document:
+            frappe.throw("Please upload Lender Esigned Document")
+
     def get_loan(self):
         return frappe.get_doc("Loan", self.loan)
 
