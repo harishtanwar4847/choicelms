@@ -614,7 +614,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2020-11-28 14:22:29.095472",
+  "modified": "2021-03-04 14:03:30.613204",
   "name": "424822d68b",
   "parameters": [
    {
@@ -710,11 +710,21 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "null or 1",
+    "field": "data.increase_loan",
+    "group": null,
+    "parent": "424822d68b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
    }
   ],
   "success_example": [
    {
-    "example": "{\"message\": \"Success\",\"data\":{\"loan\":\"loan object\", \"transactions\":\"transactions list\", \"interest\":\"interest details object\"}}",
+    "example": "{\"message\": \"Success\",\"data\":{\"loan\":\"loan object\", \"transactions\":\"transactions list\", \"interest\":\"interest details object\", \"increase_loan\":1}}",
     "parent": "424822d68b",
     "parentfield": "success_example",
     "parenttype": "API Doc",
