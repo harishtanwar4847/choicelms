@@ -171,35 +171,14 @@ class TopupApplication(Document):
         mess = ""
         if doc.get("top_up_application").get("status") == "Pending":
             mess = "Your request has been successfully received. You will be notified when your new OD limit is approved by our banking partner."
-            # frappe.enqueue(
-            #     method=send_sms,
-            #     receiver_list=list(
-            #         set([str(customer.phone), str(user_kyc.mobile_number)])
-            #     ),
-            #     msg=mess,
-            # )
 
         if doc.get("top_up_application").get("status") == "Approved":
             mess = "Congratulations! Your Top up application for Loan {} is Approved.".format(
                 doc.get("top_up_application").get("loan")
             )
-            # frappe.enqueue(
-            #     method=send_sms,
-            #     receiver_list=list(
-            #         set([str(customer.phone), str(user_kyc.mobile_number)])
-            #     ),
-            #     msg=mess,
-            # )
 
         if doc.get("top_up_application").get("status") == "Rejected":
             mess = "Sorry! Your Top up application was turned down. We regret the inconvenience caused."
-            # frappe.enqueue(
-            #     method=send_sms,
-            #     receiver_list=list(
-            #         set([str(customer.phone), str(user_kyc.mobile_number)])
-            #     ),
-            #     msg=mess,
-            # )
 
         if mess:
             receiver_list = list(
@@ -231,7 +210,6 @@ class TopupApplication(Document):
         )
         print(loan_agreement_file_url, "loan_agreement_file_url")
 
-        frappe.db.begin()
         loan_agreement_file = frappe.get_doc(
             {
                 "doctype": "File",
@@ -248,7 +226,7 @@ class TopupApplication(Document):
         loan_agreement_file.insert(ignore_permissions=True)
         print(loan_agreement_file, "loan_agreement_file")
         frappe.db.commit()
-        print(loan_agreement_file_url, "loan_agreement_file_url")
+        print(loan_agreement_file, "loan_agreement_file")
 
         frappe.db.set_value(
             "Loan",
