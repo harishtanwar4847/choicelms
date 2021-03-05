@@ -59,8 +59,8 @@ class TopupApplication(Document):
             "default_interest": lender.default_interest,
             "account_renewal_charges": lender.account_renewal_charges,
             "documentation_charges": lender.documentation_charges,
-            # "stamp_duty_charges": (lender.stamp_duty / 100)
-            # * self.drawing_power,  # CR loan agreement changes
+            "stamp_duty_charges": (lender.stamp_duty / 100)
+            * self.drawing_power,  # CR loan agreement changes
             "processing_fee": lender.lender_processing_fees,
             "transaction_charges_per_request": lender.transaction_charges_per_request,
             "security_selling_share": lender.security_selling_share,
@@ -115,8 +115,8 @@ class TopupApplication(Document):
             "default_interest": lender.default_interest,
             "account_renewal_charges": lender.account_renewal_charges,
             "documentation_charges": lender.documentation_charges,
-            # "stamp_duty_charges": (lender.stamp_duty / 100)
-            # * self.drawing_power,  # CR loan agreement changes
+            "stamp_duty_charges": (lender.stamp_duty / 100)
+            * self.drawing_power,  # CR loan agreement changes
             "processing_fee": lender.lender_processing_fees,
             "transaction_charges_per_request": lender.transaction_charges_per_request,
             "security_selling_share": lender.security_selling_share,
