@@ -344,7 +344,7 @@ class LoanApplication(Document):
                 "attached_to_name": loan.name,
                 "attached_to_field": "loan_agreement",
                 "folder": "Home",
-                "file_url": loan_agreement_file_url,
+                # "file_url": loan_agreement_file_url,
                 "is_private": is_private,
             }
         )
