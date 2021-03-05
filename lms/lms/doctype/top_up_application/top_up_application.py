@@ -59,8 +59,8 @@ class TopupApplication(Document):
             "default_interest": lender.default_interest,
             "account_renewal_charges": lender.account_renewal_charges,
             "documentation_charges": lender.documentation_charges,
-            "stamp_duty_charges": (lender.stamp_duty / 100)
-            * self.drawing_power,  # CR loan agreement changes
+            # "stamp_duty_charges": (lender.stamp_duty / 100)
+            # * self.drawing_power,  # CR loan agreement changes
             "processing_fee": lender.lender_processing_fees,
             "transaction_charges_per_request": lender.transaction_charges_per_request,
             "security_selling_share": lender.security_selling_share,
@@ -115,8 +115,8 @@ class TopupApplication(Document):
             "default_interest": lender.default_interest,
             "account_renewal_charges": lender.account_renewal_charges,
             "documentation_charges": lender.documentation_charges,
-            "stamp_duty_charges": (lender.stamp_duty / 100)
-            * self.drawing_power,  # CR loan agreement changes
+            # "stamp_duty_charges": (lender.stamp_duty / 100)
+            # * self.drawing_power,  # CR loan agreement changes
             "processing_fee": lender.lender_processing_fees,
             "transaction_charges_per_request": lender.transaction_charges_per_request,
             "security_selling_share": lender.security_selling_share,
@@ -191,24 +191,17 @@ class TopupApplication(Document):
         file_name = frappe.db.get_value(
             "File", {"file_url": self.lender_esigned_document}
         )
-        print(file_name, "file name")
 
         loan_agreement = frappe.get_doc("File", file_name)
-        print(loan_agreement, "loan_agreement")
 
         loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(loan.name)
         event = "Top up"
 
-        print(loan_agreement_file_name, "loan_agreement_file_name")
-
-        print(event, "event")
         is_private = 0
 
-        print(is_private, "is_private")
         loan_agreement_file_url = frappe.utils.get_files_path(
             loan_agreement_file_name, is_private=is_private
         )
-        print(loan_agreement_file_url, "loan_agreement_file_url")
 
         loan_agreement_file = frappe.get_doc(
             {
@@ -219,14 +212,12 @@ class TopupApplication(Document):
                 "attached_to_name": loan.name,
                 "attached_to_field": "loan_agreement",
                 "folder": "Home",
-                "file_url": loan_agreement_file_url,
+                # "file_url": loan_agreement_file_url,
                 "is_private": is_private,
             }
         )
         loan_agreement_file.insert(ignore_permissions=True)
-        print(loan_agreement_file, "loan_agreement_file")
         frappe.db.commit()
-        print(loan_agreement_file, "loan_agreement_file")
 
         frappe.db.set_value(
             "Loan",
