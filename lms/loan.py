@@ -685,6 +685,7 @@ def loan_details(**kwargs):
                 topup[0]["top_up_amount"]
             )
             topup = {
+                "minimum_top_up_amount": las_settings.minimum_top_up_amount,
                 "top_up_amount": topup[0]["top_up_amount"],
             }
         else:
