@@ -605,19 +605,6 @@ def get_tnc(**kwargs):
         if data.get("cart_name"):
             cart.create_tnc_file()
             tnc_file_url = frappe.utils.get_url("files/tnc/{}.pdf".format(cart.name))
-            # tnc_header = "Please refer to the <a href='{}'>Terms & Conditions</a> for LAS facility, for detailed terms.".format(
-            #     tnc_file_url
-            # )
-            # tnc_footer = "You shall be required to authenticate (in token of you having fully read and irrevocably and unconditionally accepted and authenticated) the above application for loan including the pledge request and the Terms and Conditions (which can be opened by clicking on the links) and entire contents thereof, by entering the OTP that will be sent to you next on your registered mobile number with CDSL."
-            # tnc_checkboxes = [
-            #     i.tnc
-            #     for i in frappe.get_all(
-            #         "Terms and Conditions",
-            #         filters={"is_active": 1},
-            #         fields=["tnc"],
-            #         order_by="creation asc",
-            #     )
-            # ]
 
         else:
             topup_application.create_tnc_file()

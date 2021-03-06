@@ -472,9 +472,7 @@ def create_topup_old(loan_name, file_id):
             )
 
         # check if topup available
-        top_up_available = (
-            loan.total_collateral_value * (loan.allowable_ltv / 100)
-        ) > loan.sanctioned_limit
+        top_up_available = loan.max_topup_amount()
         if not top_up_available:
             raise lms.ValidationError(_("Topup not available."))
 
@@ -654,17 +652,6 @@ def loan_details(**kwargs):
         else:
             interest = None
 
-        topup = frappe.db.sql(
-            """
-        select if (loan.total_collateral_value * loan.allowable_ltv / 100 > loan.sanctioned_limit, 1, 0) as top_up_available,
-        if (loan.total_collateral_value * loan.allowable_ltv / 100 > loan.sanctioned_limit,
-        loan.total_collateral_value * loan.allowable_ltv / 100 - loan.sanctioned_limit, 0.0) as top_up_amount
-        from `tabLoan` as loan
-        where name=%s""",
-            loan.name,
-            as_dict=1,
-        )
-
         existing_topup_application = frappe.get_all(
             "Top up Application",
             filters={
@@ -674,22 +661,33 @@ def loan_details(**kwargs):
             },
             fields=["count(name) as in_process"],
         )
-
         las_settings = frappe.get_single("LAS Settings")
-        if (
-            existing_topup_application[0]["in_process"] == 0
-            and topup[0]["top_up_available"]
-            and topup[0]["top_up_amount"] >= las_settings.minimum_top_up_amount
-        ):
-            topup[0]["top_up_amount"] = lms.round_down_amount_to_nearest_thousand(
-                topup[0]["top_up_amount"]
+        topup = None
+        if existing_topup_application[0]["in_process"] == 0:
+            topup = frappe.db.sql(
+                """
+            select if (loan.total_collateral_value * loan.allowable_ltv / 100 > loan.sanctioned_limit, 1, 0) as top_up_available,
+            if (loan.total_collateral_value * loan.allowable_ltv / 100 > loan.sanctioned_limit,
+            loan.total_collateral_value * loan.allowable_ltv / 100 - loan.sanctioned_limit, 0.0) as top_up_amount
+            from `tabLoan` as loan
+            where name=%s""",
+                loan.name,
+                as_dict=1,
             )
-            topup = {
-                "minimum_top_up_amount": las_settings.minimum_top_up_amount,
-                "top_up_amount": topup[0]["top_up_amount"],
-            }
-        else:
-            topup = None
+
+            if (
+                topup[0]["top_up_available"]
+                and topup[0]["top_up_amount"] >= las_settings.minimum_top_up_amount
+            ):
+                topup[0]["top_up_amount"] = lms.round_down_amount_to_nearest_thousand(
+                    topup[0]["top_up_amount"]
+                )
+                topup = {
+                    "minimum_top_up_amount": las_settings.minimum_top_up_amount,
+                    "top_up_amount": topup[0]["top_up_amount"],
+                }
+            else:
+                topup = None
         # Increase Loan
         existing_loan_application = frappe.get_all(
             "Loan Application",

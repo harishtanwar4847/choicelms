@@ -26,12 +26,23 @@ class TopupApplication(Document):
 
         self.notify_customer()
 
+    def get_loan(self):
+        return frappe.get_doc("Loan", self.loan)
+
     def before_save(self):
         if self.status == "Approved" and not self.lender_esigned_document:
             frappe.throw("Please upload Lender Esigned Document")
 
-    def get_loan(self):
-        return frappe.get_doc("Loan", self.loan)
+        if self.status == "Approved":
+            loan = self.get_loan()
+            top_up_available = loan.max_topup_amount()
+            las_settings = frappe.get_single("LAS Settings")
+
+            if (
+                top_up_available < self.amount
+                or top_up_available < las_settings.minimum_top_up_amount
+            ):
+                frappe.throw("Top up not available.")
 
     def get_lender(self):
         return frappe.get_doc("Lender", self.get_loan().lender)
