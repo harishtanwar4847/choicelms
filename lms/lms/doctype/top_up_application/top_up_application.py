@@ -35,14 +35,17 @@ class TopupApplication(Document):
 
         if self.status == "Approved":
             loan = self.get_loan()
-            top_up_available = loan.max_topup_amount()
+            updated_top_up_amt = (
+                loan.total_collateral_value * (loan.allowable_ltv / 100)
+            ) - loan.sanctioned_limit
             las_settings = frappe.get_single("LAS Settings")
-
             if (
-                top_up_available < self.amount
-                or top_up_available < las_settings.minimum_top_up_amount
+                updated_top_up_amt < self.top_up_amount
+                or updated_top_up_amt < las_settings.minimum_top_up_amount
             ):
-                frappe.throw("Top up not available.")
+                frappe.throw(
+                    "Top up not available, please request for new Topup Application"
+                )
 
     def get_lender(self):
         return frappe.get_doc("Lender", self.get_loan().lender)
