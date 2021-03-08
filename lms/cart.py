@@ -461,7 +461,9 @@ def get_tnc(**kwargs):
 
         elif not data.get("cart_name") and not data.get("topup_application_name"):
             return utils.respondForbidden(
-                message=frappe._("Cart and Top up Application not found.")
+                message=frappe._(
+                    "Cart and Top up Application not found. Please use atleast one."
+                )
             )
 
         if data.get("cart_name"):

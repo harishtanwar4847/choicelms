@@ -43,9 +43,7 @@ class TopupApplication(Document):
                 updated_top_up_amt < self.top_up_amount
                 or updated_top_up_amt < las_settings.minimum_top_up_amount
             ):
-                frappe.throw(
-                    "Top up not available, please request for new Topup Application"
-                )
+                frappe.throw("Top up not available")
 
     def get_lender(self):
         return frappe.get_doc("Lender", self.get_loan().lender)
