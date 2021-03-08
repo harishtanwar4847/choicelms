@@ -80,7 +80,9 @@ def esign(**kwargs):
             "topup_application_name"
         ):
             return utils.respondForbidden(
-                message=_("Loan Application and Top up Application not found.")
+                message=_(
+                    "Loan Application and Top up Application not found. Please use atleast one."
+                )
             )
         if data.get("loan_application_name"):
             loan_application = frappe.get_doc(
@@ -177,7 +179,7 @@ def esign_done(**kwargs):
             "topup_application_name"
         ):
             return utils.respondForbidden(
-                message=_("Loan Application and Top up Application not found.")
+                "Loan Application and Top up Application not found. Please use atleast one."
             )
 
         if data.get("loan_application_name"):
@@ -581,7 +583,6 @@ def create_topup(**kwargs):
                 }
             )
             topup_application.save(ignore_permissions=True)
-            # topup_amt -= data.get("topup_amount")
             frappe.db.commit()
 
             data = {"topup_application_name": topup_application.name}
