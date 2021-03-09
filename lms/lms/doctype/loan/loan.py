@@ -27,26 +27,27 @@ class Loan(Document):
     def update_pending_topup_amount(self):
         las_settings = frappe.get_single("LAS Settings")
         min_topup_amt = las_settings.minimum_top_up_amount
-        frappe.db.begin()
-        pending_topup_request = frappe.get_doc(
+        # frappe.db.begin()
+        pending_topup_request = frappe.get_all(
             "Top up Application",
             filters={
                 "loan": self.name,
-                "status": ["Pending", "Esign Done"],
-                "creation": ("<=", datetime.now()),
+                "status": ["IN", ["Pending", "Esign Done"]],
+                # "creation": ("<=", datetime.now()),
             },
             fields=["*"],
             order_by="creation asc",
         )
-        max_topup_amount = (
-            self.total_collateral_value * (self.allowable_ltv / 100)
-        ) - self.sanctioned_limit
-        topup_doc = frappe.get_doc("Top up Application", pending_topup_request["name"])
-        if max_topup_amount >= min_topup_amt:
-            topup_doc.db_set("top_up_amount", max_topup_amount)
-        else:
-            topup_doc.db_set("top_up_amount", 0)
-        frappe.db.commit()
+        for topup_app in pending_topup_request:
+            max_topup_amount = (
+                self.total_collateral_value * (self.allowable_ltv / 100)
+            ) - self.sanctioned_limit
+            topup_doc = frappe.get_doc("Top up Application", topup_app["name"])
+            if max_topup_amount >= min_topup_amt:
+                topup_doc.db_set("top_up_amount", max_topup_amount)
+            else:
+                topup_doc.db_set("top_up_amount", 0)
+            frappe.db.commit()
 
     def maximum_withdrawable_amount(self, withdraw_req_name=None, req_time=None):
         balance = self.balance
