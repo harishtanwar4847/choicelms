@@ -33,7 +33,7 @@ class Loan(Document):
             filters={
                 "loan": self.name,
                 "status": ["IN", ["Pending", "Esign Done"]],
-                # "creation": ("<=", datetime.now()),
+                "creation": ("<=", datetime.now()),
             },
             fields=["*"],
             order_by="creation asc",
