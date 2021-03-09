@@ -20,9 +20,15 @@ class Loan(Document):
     def max_topup_amount(self):
         top_up_available = (
             self.total_collateral_value * (self.allowable_ltv / 100)
-        ) > self.sanctioned_limit
+        ) - self.sanctioned_limit
 
-        return top_up_available
+        las_settings = frappe.get_single("LAS Settings")
+
+        return (
+            top_up_available
+            if top_up_available >= las_settings.minimum_top_up_amount
+            else 0
+        )
 
     def maximum_withdrawable_amount(self, withdraw_req_name=None, req_time=None):
         balance = self.balance
