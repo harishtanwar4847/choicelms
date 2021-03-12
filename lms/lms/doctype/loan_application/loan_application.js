@@ -20,20 +20,21 @@ frappe.ui.form.on("Loan Application", {
       }
     }
 
-    if (frm.doc.status == "Waiting to be pledged") {
-      frm.add_custom_button(__("Process Pledge"), function () {
-        frappe.call({
-          method:
-            "lms.lms.doctype.loan_application.loan_application.process_pledge",
-          freeze: true,
-          args: {
-            loan_application_name: frm.doc.name,
-          },
+    if (false == true) {
+      if (frm.doc.status == "Waiting to be pledged") {
+        frm.add_custom_button(__("Process Pledge"), function () {
+          frappe.call({
+            method:
+              "lms.lms.doctype.loan_application.loan_application.process_pledge",
+            freeze: true,
+            args: {
+              loan_application_name: frm.doc.name,
+            },
+          });
         });
-      });
-    } else {
-      console.log(frm.doc.status);
+      }
     }
+
     if (
       frm.doc.workflow_state == "Approved" ||
       frm.doc.workflow_state == "Rejected"
