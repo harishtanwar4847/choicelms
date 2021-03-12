@@ -17,13 +17,6 @@ class Loan(Document):
     def after_insert(self):
         self.create_loan_charges()
 
-    def max_topup_amount(self):
-        top_up_available = (
-            self.total_collateral_value * (self.allowable_ltv / 100)
-        ) > self.sanctioned_limit
-
-        return top_up_available
-
     def maximum_withdrawable_amount(self, withdraw_req_name=None, req_time=None):
         balance = self.balance
 
@@ -250,6 +243,8 @@ class Loan(Document):
 
             # update pending withdraw allowable for this loan
             self.update_pending_withdraw_requests()
+            # update pending topup requests for this loan
+            # self.update_pending_topup_amount()
             frappe.db.commit()
 
     def update_pending_withdraw_requests(self):
@@ -621,6 +616,48 @@ class Loan(Document):
             }
         )
         loan_sanction_history.save(ignore_permissions=True)
+
+    def max_topup_amount(self):
+        top_up_available = (
+            self.total_collateral_value * (self.allowable_ltv / 100)
+        ) - self.sanctioned_limit
+
+        las_settings = frappe.get_single("LAS Settings")
+
+        return (
+            top_up_available
+            if top_up_available >= las_settings.minimum_top_up_amount
+            else 0
+        )
+
+    def update_pending_topup_amount(self):
+        las_settings = frappe.get_single("LAS Settings")
+        min_topup_amt = las_settings.minimum_top_up_amount
+        pending_topup_request = frappe.get_all(
+            "Top up Application",
+            filters={
+                "loan": self.name,
+                "status": ["IN", ["Pending", "Esign Done"]],
+            },
+            fields=["*"],
+            order_by="creation asc",
+        )
+        for topup_app in pending_topup_request:
+            max_topup_amount = (
+                self.total_collateral_value * (self.allowable_ltv / 100)
+            ) - self.sanctioned_limit
+            topup_doc = frappe.get_doc("Top up Application", topup_app["name"])
+            if (
+                lms.round_down_amount_to_nearest_thousand(max_topup_amount)
+                >= min_topup_amt
+            ):
+                topup_doc.db_set(
+                    "top_up_amount",
+                    lms.round_down_amount_to_nearest_thousand(max_topup_amount),
+                )
+            else:
+                topup_doc.db_set("top_up_amount", 0)
+            frappe.db.commit()
 
 
 def check_loans_for_shortfall(loans):

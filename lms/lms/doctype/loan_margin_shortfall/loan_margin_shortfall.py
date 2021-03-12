@@ -92,7 +92,7 @@ class LoanMarginShortfall(Document):
             if margin_shortfall_action.email:
                 frappe.enqueue(
                     method=frappe.sendmail,
-                    recipients=[customer.email],
+                    recipients=[customer.user],
                     sender=None,
                     subject="Margin Shortfall Notification",
                     message=mess,
