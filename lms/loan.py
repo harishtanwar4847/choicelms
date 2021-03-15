@@ -1,5 +1,6 @@
-from datetime import datetime, timedelta
-
+from datetime import date, timedelta, datetime
+import pdfkit
+import json
 import frappe
 import requests
 import utils
@@ -937,5 +938,134 @@ def loan_payment(**kwargs):
         frappe.db.commit()
 
         return utils.respondWithSuccess()
+    except utils.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist()
+def loan_statement(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+        data = utils.validator.validate(kwargs, {"loan_name": "required", "type": "required", "duration": "", "from_date": "", "to_date": "", "is_email":"", "is_download":""})
+        
+        customer = lms.__customer()
+        loan = frappe.get_doc("Loan", data.get("loan_name"))
+        if not loan:
+            return utils.respondNotFound(message=frappe._("Loan not found."))
+        if loan.customer != customer.name:
+            return utils.respondForbidden(
+                message=_("Please use your own Loan Application.")
+            )
+
+        if data.get("type") != "Account Statement" and data.get("type") != "Security Transactions":
+            return utils.respondNotFound(message=frappe._("Statement/Transaction not found."))
+
+        # if not data.get("duration"):
+        #     return utils.respondNotFound(message=frappe._("Duration not found."))
+            
+        #     if not data.get("from_date") or not data.get("to_date"):
+        #         return utils.respondNotFound(message=frappe._("From date and/or To date not found."))
+        if data.get("from_date") and data.get("to_date"):
+            from_date = datetime.strptime(data.get("from_date"), '%d-%m-%Y').date()
+            to_date = datetime.strptime(data.get("to_date"), '%d-%m-%Y').date()
+            filter={
+                    "loan": data.get("loan_name"),
+                    "creation":["between", (from_date, to_date)]}
+
+        # else:
+        #     return utils.respondNotFound(message=frappe._("From date and/or To date not found."))
+
+        elif data.get("duration"):
+            curr_month = date.today().replace(day=1)
+
+            last_day_of_prev_month = date.today().replace(day=1) - timedelta(days=1)
+
+            prev_1_month = (curr_month - timedelta(days=last_day_of_prev_month.day)).replace(day=1)
+            prev_3_month = (curr_month - timedelta(weeks=8,days=last_day_of_prev_month.day)).replace(day=1)
+            prev_6_month = (curr_month - timedelta(weeks=20,days=last_day_of_prev_month.day)).replace(day=1)
+            current_year = date(date.today().year, 1, 1)
+            filter={
+                    "loan": data.get("loan_name"),
+                    "creation":[">=", curr_month if data.get("duration") == "curr_month" else prev_1_month if data.get("duration") == "prev_1" else prev_3_month if data.get("duration") == "prev_3" else prev_6_month if data.get("duration") == "prev_6" else current_year if data.get("duration") == "current_year" else date.today() in data.get("duration")]}
+            # print(filter)
+            # print(data.get("duration"))
+        page_length = 15 if not data.get("from_date") and not data.get("to_date") and not data.get("duration") and not data.get("is_download") else ""
+
+        res = {
+            "pdf_file_url": "",
+            "excel_file_url": "",
+            "loan": loan
+        }
+        loan_statement_dir_path = frappe.utils.get_files_path("loan")
+        import os
+
+        if not os.path.exists(loan_statement_dir_path):
+            os.mkdir(loan_statement_dir_path)
+        
+        loan_statement_file = "loan/{}.pdf".format(loan.name+"Loan Statement")
+        loan_statement_file_path = frappe.utils.get_files_path(loan_statement_file)
+        if not data.get("from_date") and not data.get("to_date") and not data.get("duration"):
+            filter = {"loan": data.get("loan_name")}
+        if data.get("type") == "Account Statement":
+            loan_transaction_list = frappe.db.get_all(
+                "Loan Transaction",
+                filters=filter,
+                order_by="time asc",
+                fields=["name","transaction_type", "record_type", "amount", "time","status"],                
+                page_length = page_length
+            )
+            res['loan_transaction_list'] = loan_transaction_list
+            
+            # with open(loan_statement_file_path, "wb") as f:
+            #     f.write(res['loan_transaction_list'])
+            # f.close()
+            # loan_statement_file_url = frappe.utils.get_url("files/{}.pdf".format(loan.name))
+            # res["pdf_file_url"] = loan_statement_file_url
+
+        elif data.get("type") == "Security Transactions":
+            collateral_ledger_list = frappe.get_all(
+                "Collateral Ledger",
+                filters=filter,
+                order_by="creation asc",
+                # fields = ["*"],
+                page_length = page_length
+            )
+            res['loan_transaction_list'] = collateral_ledger_list
+            # import json
+            # import base64
+            # import zlib
+            # res['loan_transaction_list'] = collateral_ledger_list[:15] if not data.get("from_date") and not data.get("to_date") and not data.get("duration") else collateral_ledger_list
+            # loan_transaction_list = res["loan_transaction_list"]
+            # print(res['loan_transaction_list'])
+            # lt_list = []
+            # with open(loan_statement_file_path, "wb") as f:
+            #     for list in loan_transaction_list:
+            #         for k,v in list.items():
+            #             print(k,v)
+            #             lt_list.append
+                # json.dump(str.encode(loan_transaction_list), f)
+                                    # base64.b64encode(zlib.compress(str.encode(json.dumps(loan_transaction_list), 'utf-8'), 6))
+                                    # mess = base64.b64encode(zlib.compress(str.encode(json.dumps(loan_transaction_list), 'utf-8'), 6))
+                                    # print(mess)
+                # print(base64.b64encode(zlib.compress(str.encode(json.dumps(loan_transaction_list), 'utf-8'), 6)))
+                # f.write(fout)
+                # pdf = pdfkit.from_string(json.dumps(res['loan_transaction_list']), "out.pdf")
+                # print(pdf)
+                # f.write(pdf)
+            # f.close()
+            
+            # loan_statement_file_url = frappe.utils.get_url("files/{}.pdf".format(loan.name+"-Loan-Statement"))
+            # res["pdf_file_url"] = loan_statement_file_url
+
+        if data.get("is_email"):
+            
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=[customer.user],
+                sender=None,
+                subject="Loan Statement for {}".format(loan.name),
+                message=mess,
+            )
+        return utils.respondWithSuccess(data=res)
     except utils.APIException as e:
         return e.respond()
