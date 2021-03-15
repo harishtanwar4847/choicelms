@@ -1,5 +1,6 @@
 from datetime import date, timedelta, datetime
 import pdfkit
+import pandas as pd
 import json
 import frappe
 import requests
@@ -941,12 +942,11 @@ def loan_payment(**kwargs):
     except utils.APIException as e:
         return e.respond()
 
-
 @frappe.whitelist()
 def loan_statement(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
-        data = utils.validator.validate(kwargs, {"loan_name": "required", "type": "required", "duration": "", "from_date": "", "to_date": "", "is_email":"", "is_download":""})
+        data = utils.validator.validate(kwargs, {"loan_name": "required", "type":"required", "duration": "", "from_date": "", "to_date": "", "is_email":"", "is_download":""})
         
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -957,23 +957,15 @@ def loan_statement(**kwargs):
                 message=_("Please use your own Loan Application.")
             )
 
-        if data.get("type") != "Account Statement" and data.get("type") != "Security Transactions":
-            return utils.respondNotFound(message=frappe._("Statement/Transaction not found."))
+        if data.get("from_date") or data.get("to_date") and data.get("duration"):
+            return utils.respondWithFailure(message=frappe._("Please use either 'From date and To date' or Duration"))
 
-        # if not data.get("duration"):
-        #     return utils.respondNotFound(message=frappe._("Duration not found."))
-            
-        #     if not data.get("from_date") or not data.get("to_date"):
-        #         return utils.respondNotFound(message=frappe._("From date and/or To date not found."))
-        if data.get("from_date") and data.get("to_date"):
+        elif data.get("from_date") and data.get("to_date"):
             from_date = datetime.strptime(data.get("from_date"), '%d-%m-%Y').date()
             to_date = datetime.strptime(data.get("to_date"), '%d-%m-%Y').date()
             filter={
                     "loan": data.get("loan_name"),
                     "creation":["between", (from_date, to_date)]}
-
-        # else:
-        #     return utils.respondNotFound(message=frappe._("From date and/or To date not found."))
 
         elif data.get("duration"):
             curr_month = date.today().replace(day=1)
@@ -987,8 +979,7 @@ def loan_statement(**kwargs):
             filter={
                     "loan": data.get("loan_name"),
                     "creation":[">=", curr_month if data.get("duration") == "curr_month" else prev_1_month if data.get("duration") == "prev_1" else prev_3_month if data.get("duration") == "prev_3" else prev_6_month if data.get("duration") == "prev_6" else current_year if data.get("duration") == "current_year" else date.today() in data.get("duration")]}
-            # print(filter)
-            # print(data.get("duration"))
+
         page_length = 15 if not data.get("from_date") and not data.get("to_date") and not data.get("duration") and not data.get("is_download") else ""
 
         res = {
@@ -996,66 +987,99 @@ def loan_statement(**kwargs):
             "excel_file_url": "",
             "loan": loan
         }
+
+        if not data.get("from_date") and not data.get("to_date") and not data.get("duration"):
+            filter = {"loan": data.get("loan_name")}
+        
         loan_statement_dir_path = frappe.utils.get_files_path("loan")
         import os
 
         if not os.path.exists(loan_statement_dir_path):
             os.mkdir(loan_statement_dir_path)
         
-        loan_statement_file = "loan/{}.pdf".format(loan.name+"Loan Statement")
-        loan_statement_file_path = frappe.utils.get_files_path(loan_statement_file)
-        if not data.get("from_date") and not data.get("to_date") and not data.get("duration"):
-            filter = {"loan": data.get("loan_name")}
-        if data.get("type") == "Account Statement":
+        
+        lt_list = []
+        if data.get("type") != "Account Statement" and data.get("type") != "Pledged Securities Transactions":
+            return utils.respondNotFound(message=_("Type not found."))
+
+        elif data.get("type") == "Account Statement":
             loan_transaction_list = frappe.db.get_all(
                 "Loan Transaction",
                 filters=filter,
-                order_by="time asc",
+                order_by="creation desc",
                 fields=["name","transaction_type", "record_type", "amount", "time","status"],                
                 page_length = page_length
             )
             res['loan_transaction_list'] = loan_transaction_list
+            for list in loan_transaction_list:
+                lt_list.append(list.values())
+            df = pd.DataFrame(lt_list)
+            df.columns = loan_transaction_list[0].keys()
+            loan_statement_pdf_file = "{}-loan-statement.pdf".format(data.get("loan_name"))
+            loan_statement_excel_file = "{}-loan-statement.xlsx".format(data.get("loan_name"))
             
-            # with open(loan_statement_file_path, "wb") as f:
-            #     f.write(res['loan_transaction_list'])
-            # f.close()
-            # loan_statement_file_url = frappe.utils.get_url("files/{}.pdf".format(loan.name))
-            # res["pdf_file_url"] = loan_statement_file_url
-
-        elif data.get("type") == "Security Transactions":
+        elif data.get("type") == "Pledged Securities Transactions":
             collateral_ledger_list = frappe.get_all(
                 "Collateral Ledger",
                 filters=filter,
-                order_by="creation asc",
-                # fields = ["*"],
+                order_by="creation desc",
+                fields = ["name", "loan", "loan_application"],
                 page_length = page_length
             )
-            res['loan_transaction_list'] = collateral_ledger_list
-            # import json
-            # import base64
-            # import zlib
-            # res['loan_transaction_list'] = collateral_ledger_list[:15] if not data.get("from_date") and not data.get("to_date") and not data.get("duration") else collateral_ledger_list
-            # loan_transaction_list = res["loan_transaction_list"]
-            # print(res['loan_transaction_list'])
-            # lt_list = []
-            # with open(loan_statement_file_path, "wb") as f:
-            #     for list in loan_transaction_list:
-            #         for k,v in list.items():
-            #             print(k,v)
-            #             lt_list.append
-                # json.dump(str.encode(loan_transaction_list), f)
-                                    # base64.b64encode(zlib.compress(str.encode(json.dumps(loan_transaction_list), 'utf-8'), 6))
-                                    # mess = base64.b64encode(zlib.compress(str.encode(json.dumps(loan_transaction_list), 'utf-8'), 6))
-                                    # print(mess)
-                # print(base64.b64encode(zlib.compress(str.encode(json.dumps(loan_transaction_list), 'utf-8'), 6)))
-                # f.write(fout)
-                # pdf = pdfkit.from_string(json.dumps(res['loan_transaction_list']), "out.pdf")
-                # print(pdf)
-                # f.write(pdf)
-            # f.close()
+            res['collateral_ledger_list'] = collateral_ledger_list
+            for list in collateral_ledger_list:
+                lt_list.append(list.values())
+            df = pd.DataFrame(lt_list)
+            df.columns = collateral_ledger_list[0].keys()
+            loan_statement_pdf_file = "{}-pledged-securities-transactions.pdf".format(data.get("loan_name"))
+            loan_statement_excel_file = "{}-pledged-securities-transactions.xlsx".format(data.get("loan_name"))
+        
+        loan_statement_pdf_file_path = frappe.utils.get_files_path(loan_statement_pdf_file)
+        loan_statement_excel_file_path = frappe.utils.get_files_path(loan_statement_excel_file)
+
+        df.to_excel(loan_statement_excel_file_path,index=False)
+        
+        pdf_file = open(loan_statement_pdf_file_path,'wb')
+        a = df.to_html()
+        from frappe.utils.pdf import get_pdf
+        pdf = get_pdf(a)
+        pdf_file.write(pdf)
+        pdf_file.close()
+        
+        loan_statement_pdf_file = frappe.get_doc(
+            {
+                "doctype": "File",
+                "file_name": "{}-loan-statement.pdf".format(
+                    data.get("loan_name")) if data.get("type") == "Account Statement" else "{}-pledged-securities-transactions.pdf".format(data.get("loan_name"))
+                ,
+                "content": pdf,
+                "folder": "Home",
+            }
+        )
+        loan_statement_pdf_file.save(ignore_permissions=True)
+        
+        loan_statement_excel_file = frappe.get_doc(
+            {
+                "doctype": "File",
+                "file_name": "{}-loan-statement.xlsx".format(
+                    data.get("loan_name")) if data.get("type") == "Account Statement" else "{}-pledged-securities-transactions.xlsx".format(data.get("loan_name"))
+                ,
+                "content": df.to_csv(index=False),
+                "folder": "Home",
+            }
+        )
+        loan_statement_excel_file.save(ignore_permissions=True)
+
+        if data.get("type") == "Account Statement":
+            loan_statement_pdf_file_url = frappe.utils.get_url("files/{}-loan-statement.pdf".format(data.get("loan_name")))
+            loan_statement_excel_file_url = frappe.utils.get_url("files/{}-loan-statement.xlsx".format(data.get("loan_name")))
+        else:
+            loan_statement_pdf_file_url = frappe.utils.get_url("files/{}-pledged-securities-transactions.pdf".format(data.get("loan_name")))
+            loan_statement_excel_file_url = frappe.utils.get_url("files/{}-pledged-securities-transactions.xlsx".format(data.get("loan_name")))
             
-            # loan_statement_file_url = frappe.utils.get_url("files/{}.pdf".format(loan.name+"-Loan-Statement"))
-            # res["pdf_file_url"] = loan_statement_file_url
+        if data.get("is_download"):
+            res["pdf_file_url"] = loan_statement_pdf_file_url
+            res["excel_file_url"] = loan_statement_excel_file_url
 
         if data.get("is_email"):
             
@@ -1063,8 +1087,8 @@ def loan_statement(**kwargs):
                 method=frappe.sendmail,
                 recipients=[customer.user],
                 sender=None,
-                subject="Loan Statement for {}".format(loan.name),
-                message=mess,
+                subject="Pledged Securities Transactions for {}".format(loan.name),
+                message="Please see below links \n {pdf} \n {excel}".format(pdf = res["pdf_file_url"],excel = res["excel_file_url"])
             )
         return utils.respondWithSuccess(data=res)
     except utils.APIException as e:
