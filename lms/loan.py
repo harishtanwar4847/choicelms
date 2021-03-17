@@ -1104,29 +1104,69 @@ def loan_statement(**kwargs):
     except utils.APIException as e:
         return e.respond()
 
-# @frappe.whitelist()
-# def approved_securities(**kwargs):
-#     try:
-#         utils.validator.validate_http_method("GET")
+@frappe.whitelist()
+def approved_securities(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
         
-#         data = utils.validator.validate(kwargs,
-#         {
-#             "lender": "required"
-#             }
-#         )
-#         customer = lms.__customer()
-#         lender = frappe.get_doc("Lender", data.get("lender"))
-#         if not lender:
-#             return utils.respondNotFound(message=frappe._("Lender not found."))
+        data = utils.validator.validate(kwargs,
+        {
+            "lender": "required"
+        }
+        )
+        # customer = lms.__customer()
+        lender = frappe.get_doc("Lender", data.get("lender"))
+        if not lender:
+            return utils.respondNotFound(message=frappe._("Lender not found."))
 
-#         approved_security_list = frappe.get_all("Security",
-#                 # filters=,
-#                 # order_by="creation desc",
-#                 fields=["isin","security_name", "category", "ltv"],                
-#                 # page_length = page_length
-#             )
-#         """select s.isin,s.security_name,s.category"""
+        approved_security_list = frappe.get_all("Security",
+                # filters=,
+                # order_by="creation desc",
+                fields=["isin","security_name", "category"],                
+                # page_length = page_length
+            )
+        lt_list = []
+        approved_security_dir_path = frappe.utils.get_files_path("loan")
+        import os
 
-    
-#     except utils.APIException as e:
-#         return e.respond()
+        if not os.path.exists(approved_security_dir_path):
+            os.mkdir(approved_security_dir_path)
+        
+        for list in approved_security_list:
+                lt_list.append(list.values())
+        df = pd.DataFrame(lt_list)
+        df.columns = approved_security_list[0].keys()
+        approved_security_pdf_file = "{}-approved-securities.pdf".format(data.get("loan_name"))
+
+        approved_security_pdf_file_path = frappe.utils.get_files_path(approved_security_pdf_file)
+
+        
+        pdf_file = open(approved_security_pdf_file_path,'wb')
+        a = df.to_html()
+        from frappe.utils.pdf import get_pdf
+        pdf = get_pdf(a)
+        pdf_file.write(pdf)
+        pdf_file.close()
+        
+        approved_security_pdf_file = frappe.get_doc(
+            {
+                "doctype": "File",
+                "file_name": "{}-approved-securities.pdf".format(data.get("lender"))
+                ,
+                "content": pdf,
+                "folder": "Home",
+            }
+        )
+        approved_security_pdf_file.save(ignore_permissions=True)
+        approved_security_pdf_file_url = frappe.utils.get_url("files/{}-approved-securities.pdf".format(data.get("lender")).replace(" ","-"))
+        res = {
+            "pdf_file_url": "",
+            "approved_securities_list": approved_security_list
+        }
+        res["pdf_file_url"] = approved_security_pdf_file_url
+        
+        
+        return utils.respondWithSuccess(data=res)
+
+    except utils.APIException as e:
+        return e.respond()
