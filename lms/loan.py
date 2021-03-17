@@ -946,7 +946,17 @@ def loan_payment(**kwargs):
 def loan_statement(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
-        data = utils.validator.validate(kwargs, {"loan_name": "required", "type":"required", "duration": "", "from_date": "", "to_date": "", "is_email":"", "is_download":""})
+        data = utils.validator.validate(kwargs, 
+        {
+            "loan_name": "required",
+            "type":"required",
+            "duration": "",
+            "from_date": "",
+            "to_date": "",
+            "is_email":"",
+            "is_download":""
+            }
+        )
         
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -1093,3 +1103,30 @@ def loan_statement(**kwargs):
         return utils.respondWithSuccess(data=res)
     except utils.APIException as e:
         return e.respond()
+
+# @frappe.whitelist()
+# def approved_securities(**kwargs):
+#     try:
+#         utils.validator.validate_http_method("GET")
+        
+#         data = utils.validator.validate(kwargs,
+#         {
+#             "lender": "required"
+#             }
+#         )
+#         customer = lms.__customer()
+#         lender = frappe.get_doc("Lender", data.get("lender"))
+#         if not lender:
+#             return utils.respondNotFound(message=frappe._("Lender not found."))
+
+#         approved_security_list = frappe.get_all("Security",
+#                 # filters=,
+#                 # order_by="creation desc",
+#                 fields=["isin","security_name", "category", "ltv"],                
+#                 # page_length = page_length
+#             )
+#         """select s.isin,s.security_name,s.category"""
+
+    
+#     except utils.APIException as e:
+#         return e.respond()
