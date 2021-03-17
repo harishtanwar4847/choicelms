@@ -1,5 +1,4 @@
 from datetime import date, timedelta, datetime
-import pdfkit
 import pandas as pd
 import json
 import frappe
@@ -696,7 +695,6 @@ def loan_details(**kwargs):
                 "loan": loan.name,
                 "customer": loan.customer,
                 "status": ["not IN", ["Approved", "Rejected"]]
-                # "pledge_status": ["IN", ["Partial Success", "Success"]],
             },
             fields=["count(name) as in_process"],
         )
@@ -1046,7 +1044,7 @@ def loan_statement(**kwargs):
         
         loan_statement_pdf_file_path = frappe.utils.get_files_path(loan_statement_pdf_file)
         loan_statement_excel_file_path = frappe.utils.get_files_path(loan_statement_excel_file)
-
+        df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
         df.to_excel(loan_statement_excel_file_path,index=False)
         
         pdf_file = open(loan_statement_pdf_file_path,'wb')
@@ -1092,13 +1090,27 @@ def loan_statement(**kwargs):
             res["excel_file_url"] = loan_statement_excel_file_url
 
         if data.get("is_email"):
-            
+            pdf_file = frappe.get_doc("File", {"file_name":loan_statement_pdf_file.file_name})
+            pdf_content = pdf_file.get_content()
+            excel_file = frappe.get_doc("File", {"file_name":loan_statement_excel_file.file_name})
+            excel_content = excel_file.get_content()
+
+            attachments = [{
+                    'fname': pdf_file.file_name,
+                    'fcontent': pdf_content
+                    },
+                    {
+                    'fname': excel_file.file_name,
+                    'fcontent': excel_content
+                }]
+
             frappe.enqueue(
                 method=frappe.sendmail,
                 recipients=[customer.user],
                 sender=None,
-                subject="Pledged Securities Transactions for {}".format(loan.name),
-                message="Please see below links \n {pdf} \n {excel}".format(pdf = res["pdf_file_url"],excel = res["excel_file_url"])
+                subject="Pledged Securities Transactions for {}".format(loan.name) if data.get('type') == 'Pledged Securities Transactions' else "Loan A/c Statement for {}".format(loan.name),
+                message="Please see Attachments",
+                attachments = attachments
             )
         return utils.respondWithSuccess(data=res)
     except utils.APIException as e:
@@ -1111,22 +1123,24 @@ def approved_securities(**kwargs):
         
         data = utils.validator.validate(kwargs,
         {
-            "lender": "required"
+            "lender": "required",
+            "search": ""
         }
         )
-        # customer = lms.__customer()
-        lender = frappe.get_doc("Lender", data.get("lender"))
-        if not lender:
+        try:
+            lender = frappe.get_doc("Lender", data.get("lender"))
+        except frappe.DoesNotExistError:
             return utils.respondNotFound(message=frappe._("Lender not found."))
+        
+        filters_arr = {}
+        if data.get('search',None):
+            search_key = str("%"+data['search']+"%")
+            filters_arr = {"isin": ["like",search_key],"security_name": ["like", search_key],"category": ["like", search_key]}
+        
+        approved_security_list = frappe.get_all('Security', or_filters=filters_arr, fields=["isin","security_name", "category"])
 
-        approved_security_list = frappe.get_all("Security",
-                # filters=,
-                # order_by="creation desc",
-                fields=["isin","security_name", "category"],                
-                # page_length = page_length
-            )
         lt_list = []
-        approved_security_dir_path = frappe.utils.get_files_path("loan")
+        approved_security_dir_path = frappe.utils.get_files_path("lender")
         import os
 
         if not os.path.exists(approved_security_dir_path):
@@ -1136,7 +1150,7 @@ def approved_securities(**kwargs):
                 lt_list.append(list.values())
         df = pd.DataFrame(lt_list)
         df.columns = approved_security_list[0].keys()
-        approved_security_pdf_file = "{}-approved-securities.pdf".format(data.get("loan_name"))
+        approved_security_pdf_file = "{}-approved-securities.pdf".format(data.get("lender"))
 
         approved_security_pdf_file_path = frappe.utils.get_files_path(approved_security_pdf_file)
 
@@ -1160,10 +1174,9 @@ def approved_securities(**kwargs):
         approved_security_pdf_file.save(ignore_permissions=True)
         approved_security_pdf_file_url = frappe.utils.get_url("files/{}-approved-securities.pdf".format(data.get("lender")).replace(" ","-"))
         res = {
-            "pdf_file_url": "",
+            "pdf_file_url": approved_security_pdf_file_url,
             "approved_securities_list": approved_security_list
         }
-        res["pdf_file_url"] = approved_security_pdf_file_url
         
         
         return utils.respondWithSuccess(data=res)
