@@ -2311,5 +2311,250 @@
    }
   ],
   "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "Loan",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2021-03-19 17:37:57.626389",
+  "name": "948e28352e",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "SL000141",
+    "field": "loan_name",
+    "group": null,
+    "optional": 0,
+    "parent": "948e28352e",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "Account Statement",
+    "description": "Account Statement OR Pledged Securities Transactions",
+    "field": "type",
+    "group": null,
+    "optional": 0,
+    "parent": "948e28352e",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "curr_month",
+    "description": "curr_month, prev_1, prev_3, prev_6, current_year",
+    "field": "duration",
+    "group": null,
+    "optional": 1,
+    "parent": "948e28352e",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "",
+    "description": "date format = dd-mm-yyyy",
+    "field": "from_date",
+    "group": null,
+    "optional": 1,
+    "parent": "948e28352e",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "",
+    "description": "date format = dd-mm-yyyy",
+    "field": "to_date",
+    "group": null,
+    "optional": 1,
+    "parent": "948e28352e",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "",
+    "description": "pdf OR excel",
+    "field": "file_format",
+    "group": null,
+    "optional": 1,
+    "parent": "948e28352e",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "1 or 0 (is_download and is_email can not be \"1\" at same time)",
+    "field": "is_download",
+    "group": null,
+    "optional": 1,
+    "parent": "948e28352e",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "1 or 0 (is_download and is_email can not be \"1\" at same time)",
+    "field": "is_email",
+    "group": null,
+    "optional": 1,
+    "parent": "948e28352e",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"loan_name\": \"SL000001\",\n\t\"type\": \"Account Statement\",\n\t\"duration\": \"\",\n\t\"from_date\": \"19-03-2021\",\n\t\"to_date\": \"20-03-2021\",\n\t\"file_format\": \"pdf\",\n\t\"is_download\":1,\n\t\"is_email\":0\n}",
+    "parent": "948e28352e",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.loan.loan_statement",
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "Collateral Ledger List",
+    "field": "data.collateral_ledger_list",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "List"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Transaction List",
+    "field": "data.loan_transaction_list",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "List"
+   },
+   {
+    "default_value": null,
+    "description": "PDF URL",
+    "field": "data.pdf_file_url",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Excel URL",
+    "field": "data.excel_file_url",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Email Sent",
+    "field": "data.is_mail_sent",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\"message\": \"Success\",\"data\":{\"loan\":\"loan object\", \"loan_transaction\":\"loan_transaction_list list\" or  \"collateral_ledger\": \"collateral_ledger_list\", \"pdf_file_url\":\"url\", \"excel_file_url\":\"url\", \"increase_loan\":1,\"is_mail_sent\":1}}",
+    "parent": "948e28352e",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success Example"
+   }
+  ],
+  "title": "Loan Statement",
+  "use_api_define": [
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "948e28352e",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "948e28352e",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "948e28352e",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "948e28352e",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
  }
 ]
