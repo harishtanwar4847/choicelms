@@ -1224,7 +1224,7 @@ def approved_securities(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
-        data = utils.validator.validate(kwargs, {"lender": "required", "search": ""})
+        data = utils.validator.validate(kwargs, {"lender": "", "search": ""})
         try:
             lender = frappe.get_doc("Lender", data.get("lender"))
         except frappe.DoesNotExistError:
@@ -1236,21 +1236,29 @@ def approved_securities(**kwargs):
             filters_arr = {
                 "isin": ["like", search_key],
                 "security_name": ["like", search_key],
-                "category": ["like", search_key],
+                "lender": data.get("lender")
             }
 
         approved_security_list = frappe.get_all(
-            "Security",
+            "Allowed Security",
             or_filters=filters_arr,
-            fields=["isin", "security_name", "category"],
+            fields=["isin", "security_name", "eligible_percentage"],
+        )
+        # filters_arr = {"isin": ["like", search_key]}
+        securities_list = frappe.get_all(
+            "Security",
+            # or_filters=filters_arr,
+            fields=["isin"],
+        )
+        securities_list_ = [i["isin"] for i in securities_list]
+        securities_category_map = lms.get_allowed_securities(
+            securities_list_, data.get("lender")
         )
 
-        lt_list = []
-        # approved_security_dir_path = frappe.utils.get_files_path("lender")
-        # import os
+        for i in approved_security_list:
+            i["Category"] = securities_category_map[i["isin"]].get("category")
 
-        # if not os.path.exists(approved_security_dir_path):
-        #     os.mkdir(approved_security_dir_path)
+        lt_list = []
 
         for list in approved_security_list:
             lt_list.append(list.values())
