@@ -954,7 +954,7 @@ def loan_statement(**kwargs):
                 "duration": "",
                 "from_date": "",
                 "to_date": "",
-                "format": "",
+                "file_format": "",
                 "is_email": "",
                 "is_download": "",
             },
@@ -979,6 +979,13 @@ def loan_statement(**kwargs):
                 message=frappe._(
                     "Please use either 'From date and To date' or Duration"
                 )
+            )
+
+        elif (data.get("is_download") or data.get("is_email")) and not data.get(
+            "file_format"
+        ):
+            return utils.respondWithFailure(
+                message=frappe._("Please select PDF/Excel file format")
             )
 
         elif data.get("from_date") and data.get("to_date"):
@@ -1028,19 +1035,13 @@ def loan_statement(**kwargs):
             and not data.get("to_date")
             and not data.get("duration")
             and not data.get("is_download")
+            and not data.get("is_email")
             else ""
         )
 
-        res = {"pdf_file_url": "", "excel_file_url": "", "loan": loan}
-
+        res = {"loan": loan}
         # if not data.get("from_date") and not data.get("to_date") and not data.get("duration"):
         #     filter = {"loan": data.get("loan_name")}
-
-        loan_statement_dir_path = frappe.utils.get_files_path("loan")
-        import os
-
-        if not os.path.exists(loan_statement_dir_path):
-            os.mkdir(loan_statement_dir_path)
 
         lt_list = []
         if data.get("type") == "Account Statement":
@@ -1090,101 +1091,137 @@ def loan_statement(**kwargs):
                 "{}-pledged-securities-transactions.xlsx".format(data.get("loan_name"))
             )
 
-        loan_statement_pdf_file_path = frappe.utils.get_files_path(
-            loan_statement_pdf_file
-        )
-        loan_statement_excel_file_path = frappe.utils.get_files_path(
-            loan_statement_excel_file
-        )
-        df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
-        df.to_excel(loan_statement_excel_file_path, index=False)
+        if data.get("is_download") or data.get("is_email"):
+            loan_statement_dir_path = frappe.utils.get_files_path("loan")
+            import os
 
-        pdf_file = open(loan_statement_pdf_file_path, "wb")
-        df.index += 1
-        a = df.to_html()
-        from frappe.utils.pdf import get_pdf
+            if not os.path.exists(loan_statement_dir_path):
+                os.mkdir(loan_statement_dir_path)
 
-        pdf = get_pdf(a)
-        pdf_file.write(pdf)
-        pdf_file.close()
+            df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
 
-        loan_statement_pdf_file = frappe.get_doc(
-            {
-                "doctype": "File",
-                "file_name": "{}-loan-statement.pdf".format(data.get("loan_name"))
-                if data.get("type") == "Account Statement"
-                else "{}-pledged-securities-transactions.pdf".format(
-                    data.get("loan_name")
-                ),
-                "content": pdf,
-                "folder": "Home",
-            }
-        )
-        loan_statement_pdf_file.save(ignore_permissions=True)
-
-        loan_statement_excel_file = frappe.get_doc(
-            {
-                "doctype": "File",
-                "file_name": "{}-loan-statement.xlsx".format(data.get("loan_name"))
-                if data.get("type") == "Account Statement"
-                else "{}-pledged-securities-transactions.xlsx".format(
-                    data.get("loan_name")
-                ),
-                "content": df.to_csv(index=False),
-                "folder": "Home",
-            }
-        )
-        loan_statement_excel_file.save(ignore_permissions=True)
-
-        if data.get("type") == "Account Statement":
-            loan_statement_pdf_file_url = frappe.utils.get_url(
-                "files/{}-loan-statement.pdf".format(data.get("loan_name"))
-            )
-            loan_statement_excel_file_url = frappe.utils.get_url(
-                "files/{}-loan-statement.xlsx".format(data.get("loan_name"))
-            )
-        else:
-            loan_statement_pdf_file_url = frappe.utils.get_url(
-                "files/{}-pledged-securities-transactions.pdf".format(
-                    data.get("loan_name")
+            if data.get("file_format") == "pdf":
+                # PDF
+                loan_statement_pdf_file_path = frappe.utils.get_files_path(
+                    loan_statement_pdf_file
                 )
-            )
-            loan_statement_excel_file_url = frappe.utils.get_url(
-                "files/{}-pledged-securities-transactions.xlsx".format(
-                    data.get("loan_name")
+
+                pdf_file = open(loan_statement_pdf_file_path, "wb")
+                df.index += 1
+                a = df.to_html()
+                from frappe.utils.pdf import get_pdf
+
+                pdf = get_pdf(a)
+                pdf_file.write(pdf)
+                pdf_file.close()
+
+                loan_statement_pdf_file = frappe.get_doc(
+                    {
+                        "doctype": "File",
+                        "file_name": "{}-loan-statement.pdf".format(
+                            data.get("loan_name")
+                        )
+                        if data.get("type") == "Account Statement"
+                        else "{}-pledged-securities-transactions.pdf".format(
+                            data.get("loan_name")
+                        ),
+                        "content": pdf,
+                        "folder": "Home",
+                    }
                 )
-            )
+                loan_statement_pdf_file.save(ignore_permissions=True)
+            else:
+                # EXCEL
+                loan_statement_excel_file_path = frappe.utils.get_files_path(
+                    loan_statement_excel_file
+                )
+                df.to_excel(loan_statement_excel_file_path, index=False)
 
-        # TODO : work as per file format parameter : pdf/excel
-        if data.get("is_download"):
-            res["pdf_file_url"] = loan_statement_pdf_file_url
-            res["excel_file_url"] = loan_statement_excel_file_url
+                loan_statement_excel_file = frappe.get_doc(
+                    {
+                        "doctype": "File",
+                        "file_name": "{}-loan-statement.xlsx".format(
+                            data.get("loan_name")
+                        )
+                        if data.get("type") == "Account Statement"
+                        else "{}-pledged-securities-transactions.xlsx".format(
+                            data.get("loan_name")
+                        ),
+                        "content": df.to_csv(index=False),
+                        "folder": "Home",
+                    }
+                )
+                loan_statement_excel_file.save(ignore_permissions=True)
 
-        elif data.get("is_email"):
-            pdf_file = frappe.get_doc(
-                "File", {"file_name": loan_statement_pdf_file.file_name}
-            )
-            pdf_content = pdf_file.get_content()
-            excel_file = frappe.get_doc(
-                "File", {"file_name": loan_statement_excel_file.file_name}
-            )
-            excel_content = excel_file.get_content()
+            loan_statement_pdf_file_url = ""
+            loan_statement_excel_file_url = ""
+            if data.get("is_download"):
+                if data.get("type") == "Account Statement":
+                    loan_statement_pdf_file_url = (
+                        frappe.utils.get_url(
+                            "files/{}-loan-statement.pdf".format(data.get("loan_name"))
+                        )
+                        if data.get("file_format") == "pdf"
+                        else ""
+                    )
+                    loan_statement_excel_file_url = (
+                        frappe.utils.get_url(
+                            "files/{}-loan-statement.xlsx".format(data.get("loan_name"))
+                        )
+                        if data.get("file_format") == "excel"
+                        else ""
+                    )
+                else:
+                    loan_statement_pdf_file_url = (
+                        frappe.utils.get_url(
+                            "files/{}-pledged-securities-transactions.pdf".format(
+                                data.get("loan_name")
+                            )
+                        )
+                        if data.get("file_format") == "pdf"
+                        else ""
+                    )
+                    loan_statement_excel_file_url = (
+                        frappe.utils.get_url(
+                            "files/{}-pledged-securities-transactions.xlsx".format(
+                                data.get("loan_name")
+                            )
+                        )
+                        if data.get("file_format") == "excel"
+                        else ""
+                    )
+                res["pdf_file_url"] = loan_statement_pdf_file_url
+                res["excel_file_url"] = loan_statement_excel_file_url
 
-            attachments = [
-                {"fname": pdf_file.file_name, "fcontent": pdf_content},
-                {"fname": excel_file.file_name, "fcontent": excel_content},
-            ]
+            elif data.get("is_email"):
+                attachments = []
+                if data.get("file_format") == "pdf":
+                    pdf_file = frappe.get_doc(
+                        "File", {"file_name": loan_statement_pdf_file.file_name}
+                    )
+                    pdf_content = pdf_file.get_content()
+                    attachments = [
+                        {"fname": pdf_file.file_name, "fcontent": pdf_content}
+                    ]
+                else:
+                    excel_file = frappe.get_doc(
+                        "File", {"file_name": loan_statement_excel_file.file_name}
+                    )
+                    excel_content = excel_file.get_content()
+                    attachments = [
+                        {"fname": excel_file.file_name, "fcontent": excel_content},
+                    ]
 
-            frappe.enqueue(
-                method=frappe.sendmail,
-                recipients=[customer.user],
-                sender=None,
-                subject="Pledged Securities Transactions for {}".format(loan.name)
-                if data.get("type") == "Pledged Securities Transactions"
-                else "Loan A/c Statement for {}".format(loan.name),
-                message="Please see Attachments",
-                attachments=attachments,
-            )
+                res["is_mail_sent"] = frappe.enqueue(
+                    method=frappe.sendmail,
+                    recipients=["iccha.konalkar@atriina.com"],
+                    sender=None,
+                    subject="Pledged Securities Transactions for {}".format(loan.name)
+                    if data.get("type") == "Pledged Securities Transactions"
+                    else "Loan A/c Statement for {}".format(loan.name),
+                    message="Please see Attachments",
+                    attachments=attachments,
+                )
         return utils.respondWithSuccess(data=res)
     except utils.APIException as e:
         return e.respond()
