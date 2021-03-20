@@ -2322,7 +2322,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-03-19 17:37:57.626389",
+  "modified": "2021-03-20 13:14:05.066697",
   "name": "948e28352e",
   "parameters": [
    {
@@ -2354,7 +2354,7 @@
    {
     "allowed_values": null,
     "default_value": "curr_month",
-    "description": "curr_month, prev_1, prev_3, prev_6, current_year",
+    "description": "curr_month, prev_1, prev_3, prev_6, current_year (use duration when from date and to date is not given)",
     "field": "duration",
     "group": null,
     "optional": 1,
@@ -2367,7 +2367,7 @@
    {
     "allowed_values": null,
     "default_value": "",
-    "description": "date format = dd-mm-yyyy",
+    "description": "date format = dd-mm-yyyy (use from date and to date when duration is not given)",
     "field": "from_date",
     "group": null,
     "optional": 1,
@@ -2380,7 +2380,7 @@
    {
     "allowed_values": null,
     "default_value": "",
-    "description": "date format = dd-mm-yyyy",
+    "description": "date format = dd-mm-yyyy (use from date and to date when duration is not given)",
     "field": "to_date",
     "group": null,
     "optional": 1,
@@ -2393,7 +2393,7 @@
    {
     "allowed_values": null,
     "default_value": "",
-    "description": "pdf OR excel",
+    "description": "pdf OR excel (if pdf or excel then user must give duration or from time to time)",
     "field": "file_format",
     "group": null,
     "optional": 1,
