@@ -1184,13 +1184,11 @@ def loan_statement(**kwargs):
             elif data.get("is_email"):
                 attachments = []
                 if data.get("file_format") == "pdf":
-                #     pdf_file = frappe.get_doc(
-                #         "File", {"file_name": loan_statement_pdf_file.file_name}
-                #     )
-                #     pdf_content = pdf_file.get_content()
-                    attachments = [
-                        {"fname": loan_statement_pdf_file, "fcontent": pdf}
-                    ]
+                    #     pdf_file = frappe.get_doc(
+                    #         "File", {"file_name": loan_statement_pdf_file.file_name}
+                    #     )
+                    #     pdf_content = pdf_file.get_content()
+                    attachments = [{"fname": loan_statement_pdf_file, "fcontent": pdf}]
                     print(attachments)
                 else:
                     # excel_file = frappe.get_doc(
@@ -1198,7 +1196,10 @@ def loan_statement(**kwargs):
                     # )
                     # excel_content = excel_file.get_content()
                     attachments = [
-                        {"fname": loan_statement_excel_file, "fcontent": df.to_csv(index=False)},
+                        {
+                            "fname": loan_statement_excel_file,
+                            "fcontent": df.to_csv(index=False),
+                        },
                     ]
                     print(attachments)
 
@@ -1213,7 +1214,7 @@ def loan_statement(**kwargs):
                     message="Please see Attachments",
                     attachments=attachments,
                 )
-        
+
         return utils.respondWithSuccess(data=res)
     except utils.APIException as e:
         return e.respond()
@@ -1225,38 +1226,25 @@ def approved_securities(**kwargs):
         utils.validator.validate_http_method("GET")
 
         data = utils.validator.validate(kwargs, {"lender": "", "search": ""})
-        try:
-            lender = frappe.get_doc("Lender", data.get("lender"))
-        except frappe.DoesNotExistError:
-            return utils.respondNotFound(message=frappe._("Lender not found."))
 
-        filters_arr = {}
+        if not data.get("lender"):
+            data["lender"] = frappe.get_last_doc("Lender").name
+
+        or_filters = ""
         if data.get("search", None):
+            or_filters = str(" and ")
             search_key = str("%" + data["search"] + "%")
-            filters_arr = {
-                "isin": ["like", search_key],
-                "security_name": ["like", search_key],
-                "lender": data.get("lender")
-            }
+            or_filters += str(
+                "(allowed.isin like '{search_key}' or master.security_name like '{search_key}' or master.category like '{search_key}')".format(
+                    search_key=search_key
+                )
+            )
 
-        approved_security_list = frappe.get_all(
-            "Allowed Security",
-            or_filters=filters_arr,
-            fields=["isin", "security_name", "eligible_percentage"],
-        )
-        # filters_arr = {"isin": ["like", search_key]}
-        securities_list = frappe.get_all(
-            "Security",
-            # or_filters=filters_arr,
-            fields=["isin"],
-        )
-        securities_list_ = [i["isin"] for i in securities_list]
-        securities_category_map = lms.get_allowed_securities(
-            securities_list_, data.get("lender")
+        query = "select allowed.isin, master.security_name, allowed.eligible_percentage, master.category from `tabAllowed Security` allowed left join `tabSecurity` master on allowed.isin = master.isin where allowed.lender = '{}' {}".format(
+            data.get("lender"), or_filters
         )
 
-        for i in approved_security_list:
-            i["Category"] = securities_category_map[i["isin"]].get("category")
+        approved_security_list = frappe.db.sql(query, as_dict=1)
 
         lt_list = []
 
@@ -1268,9 +1256,7 @@ def approved_securities(**kwargs):
         df.index += 1
         approved_security_pdf_file = "{}-approved-securities.pdf".format(
             data.get("lender")
-        ).replace(
-                " ", "-"
-            )
+        ).replace(" ", "-")
 
         approved_security_pdf_file_path = frappe.utils.get_files_path(
             approved_security_pdf_file
@@ -1284,17 +1270,6 @@ def approved_securities(**kwargs):
         pdf_file.write(pdf)
         pdf_file.close()
 
-        # approved_security_pdf_file = frappe.get_doc(
-        #     {
-        #         "doctype": "File",
-        #         "file_name": "{}-approved-securities.pdf".format(data.get("lender")).replace(
-        #         " ", "-"
-        #     ),
-        #         "content": pdf,
-        #         "folder": "Home",
-        #     }
-        # )
-        # approved_security_pdf_file.save(ignore_permissions=True)
         approved_security_pdf_file_url = frappe.utils.get_url(
             "files/{}-approved-securities.pdf".format(data.get("lender")).replace(
                 " ", "-"
