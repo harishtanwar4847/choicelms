@@ -1246,6 +1246,9 @@ def approved_securities(**kwargs):
 
         approved_security_list = frappe.db.sql(query, as_dict=1)
 
+        if not approved_security_list:
+            return utils.respondNotFound(message=_("No Record Found"))
+
         lt_list = []
 
         for list in approved_security_list:
