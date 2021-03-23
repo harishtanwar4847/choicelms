@@ -1287,3 +1287,138 @@ def approved_securities(**kwargs):
 
     except utils.APIException as e:
         return e.respond()
+
+@frappe.whitelist()
+def dashboard(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        # data = utils.validator.validate(
+        #     kwargs,
+        #     {
+        #         "username": "required",
+        #     },
+        # )
+
+        user = frappe.get_doc("User", frappe.session.user)
+
+        customer = lms.__customer(user.name)
+        if not customer:
+            return utils.respondNotFound(message=frappe._("Customer not found."))
+        
+        
+        actionable_loans = frappe.db.sql("""select
+			loan.name, loan.drawing_power, loan.balance,
+            IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage,
+			IFNULL(mrgloan.shortfall, 0.0) as shortfall,
+            sum(loantx.unpaid_interest) as interest_amount
+			from `tabLoan` as loan
+            left join `tabLoan Margin Shortfall` as mrgloan
+            on loan.name = mrgloan.loan
+            left join `tabLoan Transaction` as loantx
+            on loan.name = loantx.loan
+            where loan.customer = '{}'
+            and loantx.transaction_type in ('Interest','Additional Interest','Penal Interest')
+            and loantx.unpaid_interest > 0
+            group by loan.name""".format(
+                customer.name
+            ),
+            as_dict=1,
+        )
+        mgloan = []
+        total_int_amt_all_loans = 0
+        for dictionary in actionable_loans:
+            loan = frappe.get_doc("Loan", dictionary.get("name"))
+            ## Margin shortfall list##
+            if dictionary["shortfall_percentage"]:
+                # mgloan.extend([dictionary["name"],dictionary["drawing_power"],dictionary["balance"],dictionary["shortfall_percentage"],dictionary["shortfall"]])
+                mgloan.append({"name":dictionary["name"]})
+                
+            # Interest ##
+            if dictionary["interest_amount"]:
+                current_date = datetime.now()
+                due_date = ""
+                due_date_txt = "Pay By"
+                info_msg = ""
+
+                rebate_threshold = int(loan.get_rebate_threshold())
+                default_threshold = int(loan.get_default_threshold())
+                if rebate_threshold:
+                    due_date = (
+                        (current_date.replace(day=1) - timedelta(days=1))
+                        + timedelta(days=rebate_threshold)
+                    ).replace(hour=23, minute=59, second=59, microsecond=999999)
+                    info_msg = """Interest becomes due and payable on the last date of every month. Please pay within {0} days to enjoy rebate which has already been applied while calculating the Interest Due.  After {0} days, the interest is recalculated without appliying applicable rebate and the difference appears as "Additional Interest" in your loan account. If interest remains unpaid after {1} days from the end of the month, "Penal Interest Charges" are debited to the account. Please check your terms and conditions of sanction for details.""".format(
+                        rebate_threshold, default_threshold
+                    )
+
+                    if current_date > due_date:
+                        due_date_txt = "Immediate"
+
+                total_int_amt_all_loans += dictionary["interest_amount"]
+                interest = {
+                    "total_interest_amt": dictionary["interest_amount"],
+                    "due_date": due_date,
+                    "due_date_txt": due_date_txt,
+                    "info_msg": info_msg,
+                }
+            else:
+                interest = None
+
+            dictionary["interest"] = interest
+
+        ## Under process loan application ##
+        under_process_la = frappe.get_all("Loan Application",filters= {"customer": customer.name, "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]], "pledge_status": ["!=", "Failure"]}, fields = ["name", "status"])
+
+        ## for top up and pledged total securities ##
+        all_loans = frappe.get_all("Loan", filters = {"customer": customer.name}, fields = ["name", "drawing_power", "balance"])
+            # ## Topup ##
+        sum_of_securities = 0
+     
+        topup = None
+        topup_list = []
+        for loan in all_loans:
+            loan = frappe.get_doc("Loan", loan.name)
+            existing_topup_application = frappe.get_all(
+            "Top up Application",
+            filters={
+                "loan": loan.name,
+                "customer": customer.name,
+                "status": ["not IN", ["Approved", "Rejected"]],
+                },
+                fields=["count(name) as in_process"],
+            )
+            las_settings = frappe.get_single("LAS Settings")
+
+            if existing_topup_application[0]["in_process"] == 0:
+                topup = loan.max_topup_amount()
+                if topup:
+                    top_up = {
+                        "loan": loan.name,
+                        "minimum_top_up_amount": las_settings.minimum_top_up_amount,
+                        "top_up_amount": lms.round_down_amount_to_nearest_thousand(topup),
+                    }
+                    topup_list.append(top_up)
+                else:
+                    top_up = None
+            
+            ## Total pledged securities ##
+            for i in loan.items:
+
+                sum_of_securities += i.amount
+            # sum_of_securities = {"loan": loan.name, "sum_of_securities":sum_of_securities}
+
+        # total_sum += sum_of_securities
+        res = {
+            "margin_shortfall": mgloan,
+            "total_int_amt_all_loans": total_int_amt_all_loans,
+            "under_process_la": under_process_la,
+            "actionable_loans": actionable_loans,
+            "top_up": topup_list,
+            "sum_of_securities": lms.amount_formatter(sum_of_securities)
+            }
+
+        return utils.respondWithSuccess(data=res)
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
