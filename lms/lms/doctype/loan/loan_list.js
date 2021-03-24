@@ -1,6 +1,6 @@
 frappe.listview_settings["Loan"] = {
   onload: function (listview) {
-    if (false == true) {
+    if (false == false) {
       listview.page.add_inner_button(
         __("Check for Margin Shortfall"),
         function () {
