@@ -11,6 +11,7 @@
   "loan",
   "section_break_4",
   "isin",
+  "security",
   "pledgor_boid",
   "request_identifier",
   "psn",
@@ -132,9 +133,14 @@
    "fieldtype": "Select",
    "label": "Lender Approval Status",
    "options": "\nApproved\nRejected\nPledge Failure"
+  },
+  {
+   "fieldname": "security",
+   "fieldtype": "Data",
+   "label": "Security"
   }
  ],
- "modified": "2021-02-13 13:27:43.011565",
+ "modified": "2021-03-24 12:19:17.215875",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Collateral Ledger",

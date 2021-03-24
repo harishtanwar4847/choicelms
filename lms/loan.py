@@ -1059,6 +1059,8 @@ def loan_statement(**kwargs):
                 ],
                 page_length=page_length,
             )
+            if not loan_transaction_list:
+                return utils.respondNotFound(message=_("No Record Found"))
             res["loan_transaction_list"] = loan_transaction_list
             for list in loan_transaction_list:
                 lt_list.append(list.values())
@@ -1076,9 +1078,11 @@ def loan_statement(**kwargs):
                 "Collateral Ledger",
                 filters=filter,
                 order_by="creation desc",
-                fields=["name", "loan", "loan_application"],
+                fields=["creation", "security", "isin", "quantity", "request_type"],
                 page_length=page_length,
             )
+            if not collateral_ledger_list:
+                return utils.respondNotFound(message=_("No Record Found"))
             res["collateral_ledger_list"] = collateral_ledger_list
             for list in collateral_ledger_list:
                 lt_list.append(list.values())
