@@ -972,7 +972,7 @@ def loan_statement(**kwargs):
         ):
             return utils.respondNotFound(message=_("Request Type not found."))
 
-        filter = {"loan": data.get("loan_name")}
+        filter = {"parent": data.get("loan_name")} if data.get("type") == "Pledged Securities Transactions" else {"loan": data.get("loan_name")}
 
         if (data.get("from_date") or data.get("to_date")) and data.get("duration"):
             return utils.respondWithFailure(
@@ -1013,7 +1013,10 @@ def loan_statement(**kwargs):
             prev_6_month = (
                 curr_month - timedelta(weeks=20, days=last_day_of_prev_month.day)
             ).replace(day=1)
-            current_year = date(date.today().year, 1, 1)
+            current_year = date(date.today().year, 4, 1)
+
+            if curr_month < current_year:
+                current_year = current_year - timedelta(weeks=52.1775) # previous financial year
             filter["creation"] = [
                 ">=",
                 curr_month
@@ -1059,6 +1062,8 @@ def loan_statement(**kwargs):
                 ],
                 page_length=page_length,
             )
+            if not loan_transaction_list:
+                return utils.respondNotFound(message=_("No Record Found"))
             res["loan_transaction_list"] = loan_transaction_list
             for list in loan_transaction_list:
                 lt_list.append(list.values())
@@ -1072,18 +1077,20 @@ def loan_statement(**kwargs):
             )
 
         elif data.get("type") == "Pledged Securities Transactions":
-            collateral_ledger_list = frappe.get_all(
-                "Collateral Ledger",
+            pledged_securities_transactions = frappe.get_all(
+                "Loan Item",
                 filters=filter,
                 order_by="creation desc",
-                fields=["name", "loan", "loan_application"],
+                fields=["pledged_quantity", "security_name", "isin", "security_category", "price", "amount"],
                 page_length=page_length,
             )
-            res["collateral_ledger_list"] = collateral_ledger_list
-            for list in collateral_ledger_list:
+            if not pledged_securities_transactions:
+                return utils.respondNotFound(message=_("No Record Found"))
+            res["pledged_securities_transactions"] = pledged_securities_transactions
+            for list in pledged_securities_transactions:
                 lt_list.append(list.values())
             df = pd.DataFrame(lt_list)
-            df.columns = collateral_ledger_list[0].keys()
+            df.columns = pledged_securities_transactions[0].keys()
             loan_statement_pdf_file = "{}-pledged-securities-transactions.pdf".format(
                 data.get("loan_name")
             )
