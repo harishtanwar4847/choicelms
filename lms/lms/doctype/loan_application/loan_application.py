@@ -551,7 +551,6 @@ class LoanApplication(Document):
                     "pledgor_boid": self.pledgor_boid,
                     "pledgee_boid": self.pledgee_boid,
                     "isin": i.isin,
-                    "security": i.security_name,
                     "quantity": i.pledged_quantity,
                     "psn": i.psn,
                     "error_code": i.error_code,
