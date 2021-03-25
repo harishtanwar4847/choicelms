@@ -972,7 +972,11 @@ def loan_statement(**kwargs):
         ):
             return utils.respondNotFound(message=_("Request Type not found."))
 
-        filter = {"parent": data.get("loan_name")} if data.get("type") == "Pledged Securities Transactions" else {"loan": data.get("loan_name")}
+        filter = (
+            {"parent": data.get("loan_name")}
+            if data.get("type") == "Pledged Securities Transactions"
+            else {"loan": data.get("loan_name")}
+        )
 
         if (data.get("from_date") or data.get("to_date")) and data.get("duration"):
             return utils.respondWithFailure(
@@ -1016,7 +1020,9 @@ def loan_statement(**kwargs):
             current_year = date(date.today().year, 4, 1)
 
             if curr_month < current_year:
-                current_year = current_year - timedelta(weeks=52.1775) # previous financial year
+                current_year = current_year - timedelta(
+                    weeks=52.1775
+                )  # previous financial year
             filter["creation"] = [
                 ">=",
                 curr_month
@@ -1082,7 +1088,14 @@ def loan_statement(**kwargs):
                 "Loan Item",
                 filters=filter,
                 order_by="creation desc",
-                fields=["pledged_quantity", "security_name", "isin", "security_category", "price", "amount"],
+                fields=[
+                    "pledged_quantity",
+                    "security_name",
+                    "isin",
+                    "security_category",
+                    "price",
+                    "amount",
+                ],
                 page_length=page_length,
             )
             if not pledged_securities_transactions:
@@ -1225,260 +1238,4 @@ def loan_statement(**kwargs):
 
         return utils.respondWithSuccess(data=res)
     except utils.APIException as e:
-        return e.respond()
-
-
-@frappe.whitelist()
-def approved_securities(**kwargs):
-    try:
-        utils.validator.validate_http_method("GET")
-
-        data = utils.validator.validate(kwargs, {"lender": "", "search": ""})
-
-        if not data.get("lender"):
-            data["lender"] = frappe.get_last_doc("Lender").name
-
-        or_filters = ""
-        if data.get("search", None):
-            or_filters = str(" and ")
-            search_key = str("%" + data["search"] + "%")
-            or_filters += str(
-                "(allowed.isin like '{search_key}' or master.security_name like '{search_key}' or master.category like '{search_key}')".format(
-                    search_key=search_key
-                )
-            )
-
-        query = "select allowed.isin, master.security_name, allowed.eligible_percentage, master.category from `tabAllowed Security` allowed left join `tabSecurity` master on allowed.isin = master.isin where allowed.lender = '{}' {}".format(
-            data.get("lender"), or_filters
-        )
-
-        approved_security_list = frappe.db.sql(query, as_dict=1)
-
-        if not approved_security_list:
-            return utils.respondNotFound(message=_("No Record Found"))
-
-        lt_list = []
-
-        for list in approved_security_list:
-            lt_list.append(list.values())
-        df = pd.DataFrame(lt_list)
-        df.columns = approved_security_list[0].keys()
-        df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
-        df.index += 1
-        approved_security_pdf_file = "{}-approved-securities.pdf".format(
-            data.get("lender")
-        ).replace(" ", "-")
-
-        approved_security_pdf_file_path = frappe.utils.get_files_path(
-            approved_security_pdf_file
-        )
-
-        pdf_file = open(approved_security_pdf_file_path, "wb")
-        a = df.to_html()
-        from frappe.utils.pdf import get_pdf
-
-        pdf = get_pdf(a)
-        pdf_file.write(pdf)
-        pdf_file.close()
-
-        approved_security_pdf_file_url = frappe.utils.get_url(
-            "files/{}-approved-securities.pdf".format(data.get("lender")).replace(
-                " ", "-"
-            )
-        )
-        res = {
-            "pdf_file_url": approved_security_pdf_file_url,
-            "approved_securities_list": approved_security_list,
-        }
-
-        return utils.respondWithSuccess(data=res)
-
-    except utils.APIException as e:
-        return e.respond()
-
-@frappe.whitelist()
-def dashboard(**kwargs):
-    try:
-        utils.validator.validate_http_method("GET")
-
-        # data = utils.validator.validate(
-        #     kwargs,
-        #     {
-        #         "username": "required",
-        #     },
-        # )
-
-        user = frappe.get_doc("User", frappe.session.user)
-
-        customer = lms.__customer(user.name)
-        if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
-        
-        
-        all_mgloans = frappe.db.sql("""select loan.name,
-        IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, IFNULL(mrgloan.shortfall, 0.0) as shortfall
-        from `tabLoan` as loan
-        left join `tabLoan Margin Shortfall` as mrgloan
-        on loan.name = mrgloan.loan
-        where loan.customer = '{}'
-        and mrgloan.status = "Pending"
-        and shortfall_percentage > 0.0
-        group by loan.name""".format(
-                customer.name
-            ),
-            as_dict=1,
-        )
-
-        all_interest_loans = frappe.db.sql("""select
-        loan.name,
-        sum(loantx.unpaid_interest) as interest_amount
-        from `tabLoan` as loan
-        left join `tabLoan Transaction` as loantx
-        on loan.name = loantx.loan
-        where loan.customer = '{}'
-        and loantx.transaction_type in ('Interest','Additional Interest','Penal Interest')
-        and loantx.unpaid_interest > 0
-        group by loan.name""".format(
-                customer.name
-            ),
-            as_dict=1,
-        )
-        actionable_loans = []
-        if all_mgloans:
-            actionable_loans_ = [i.name for i in all_mgloans]
-        mgloan = []
-        total_int_amt_all_loans = 0
-        all_loans_interest = []
-        interest_loan_list = []
-        # actionable_loans.append(all_mgloans)
-        # actionable_loans.append(all_interest_loans)
-        print(actionable_loans)
-        for dictionary in all_mgloans:
-            loan = frappe.get_doc("Loan", dictionary.get("name"))
-            ## Margin shortfall list##
-            if dictionary["shortfall_percentage"]:
-                # mgloan.extend([dictionary["name"],dictionary["drawing_power"],dictionary["balance"],dictionary["shortfall_percentage"],dictionary["shortfall"]])
-                mgloan.append({"name":dictionary["name"]})
-            # Interest ##
-        for dictionary in all_interest_loans:
-            if dictionary["interest_amount"]:
-                current_date = datetime.now()
-                due_date = ""
-                due_date_txt = "Pay By"
-                info_msg = ""
-
-                rebate_threshold = int(loan.get_rebate_threshold())
-                default_threshold = int(loan.get_default_threshold())
-                if rebate_threshold:
-                    due_date = (
-                        (current_date.replace(day=1) - timedelta(days=1))
-                        + timedelta(days=rebate_threshold)
-                    ).replace(hour=23, minute=59, second=59, microsecond=999999)
-                    info_msg = """Interest becomes due and payable on the last date of every month. Please pay within {0} days to enjoy rebate which has already been applied while calculating the Interest Due.  After {0} days, the interest is recalculated without appliying applicable rebate and the difference appears as "Additional Interest" in your loan account. If interest remains unpaid after {1} days from the end of the month, "Penal Interest Charges" are debited to the account. Please check your terms and conditions of sanction for details.""".format(
-                        rebate_threshold, default_threshold
-                    )
-
-                    if current_date > due_date:
-                        due_date_txt = "Immediate"
-
-                total_int_amt_all_loans += dictionary["interest_amount"]
-                interest_loan_list.append({"loan_name": dictionary["name"]})
-                
-                interest = {
-                    "due_date": due_date,
-                    "due_date_txt": due_date_txt,
-                    "info_msg": info_msg,
-                }
-            else:
-                interest = None
-
-            dictionary["interest"] = interest
-        ## Due date and text for interest ##
-        
-            all_loans_interest.append({"due_date": (dictionary["interest"]["due_date"]).strftime("%Y-%m-%d %H:%M:%S.%f"), "due_date_txt": dictionary["interest"]["due_date_txt"]})
-        # for d in all_loans_interest:
-        #     min(d, key=d.get)
-
-        # ## Interest card ##
-        # total_interest_all_loans = {"total_interest_amount": total_int_amt_all_loans , "loans_interest_due_date" : d, "interest_loan_list": interest_loan_list}
-
-        ## Under process loan application ##
-        under_process_la = frappe.get_all("Loan Application",filters= {"customer": customer.name, "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]], "pledge_status": ["!=", "Failure"]}, fields = ["name", "status"])
-
-        ## for top up and pledged total securities ##
-        # for dictionary in actionable_loans:
-        active_loans = frappe.get_all("Loan", filters = {"customer": customer.name, "name": ["not in", [list for list in actionable_loans]]})
-            # ## Topup ##
-        sum_of_securities = 0
-     
-        topup = None
-        topup_list = []
-        for loan in active_loans:
-            loan = frappe.get_doc("Loan", loan.name)
-            existing_topup_application = frappe.get_all(
-            "Top up Application",
-            filters={
-                "loan": loan.name,
-                "customer": customer.name,
-                "status": ["not IN", ["Approved", "Rejected"]],
-                },
-                fields=["count(name) as in_process"],
-            )
-            las_settings = frappe.get_single("LAS Settings")
-
-            if existing_topup_application[0]["in_process"] == 0:
-                topup = loan.max_topup_amount()
-                if topup:
-                    top_up = {
-                        "loan": loan.name,
-                        "minimum_top_up_amount": las_settings.minimum_top_up_amount,
-                        "top_up_amount": lms.round_down_amount_to_nearest_thousand(topup),
-                    }
-                    topup_list.append(top_up)
-                else:
-                    top_up = None
-            
-            ## Total pledged securities ##
-            # (last_sunday.replace(hour=21)).strftime("%d-%m-%Y %H:%M:%S")
-                        # yesterday = datetime.today() - timedelta(1)
-                        # offset = (yesterday.weekday() + 1) % 7
-                        # last_sunday = yesterday - timedelta(days=offset)
-                        # counter = 0
-                        # if yesterday == last_sunday:
-                        #     counter = 1
-                        # sec = []
-                        # while counter < 52:
-                        #     for i in loan.items:
-                        #         filter = {"security":i.isin, "time": ["=", (last_sunday).strftime("%d-%m-%Y")]}
-                        #         # print(filter)
-                        #         security_price_list = frappe.get_all("Security Price", filters = filter, fields = ["security", "price", "time"], debug = True)
-                        #         # sec.append(security_price_list)
-                        #         # print(security_price_list)
-                        #         last_sunday += timedelta(days=-7)
-                        #         counter += 1
-                        #         break
-            # print(yesterday)
-            #
-            # for i in loan.items:
-            #     security_price_list = frappe.get_all("Security Price", filters = {"security":i.isin}, fields = ["security", "price", "time"])
-            # print(sec)
-                # sum_of_securities += i.amount
-                
-            # sum_of_securities = {"loan": loan.name, "sum_of_securities":sum_of_securities}
-            # return utils.respondWithSuccess(data = security_price_list)
-        # total_sum += sum_of_securities
-        res = {
-            "customer": customer,
-            "margin_shortfall": mgloan,
-            # "total_interest_all_loans": total_interest_all_loans,
-            "under_process_la": under_process_la,
-            "actionable_loans": actionable_loans,
-            "active_loans": active_loans,
-            "top_up": topup_list,
-            "sum_of_securities": lms.amount_formatter(sum_of_securities)
-            }
-
-        return utils.respondWithSuccess(data=res)
-
-    except utils.exceptions.APIException as e:
         return e.respond()

@@ -2,8 +2,10 @@ import json
 from datetime import datetime
 
 import frappe
+import pandas as pd
 import requests
 import utils
+from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.utils.password import update_password
 
@@ -316,3 +318,131 @@ def dashboard():
         pending_esigns=pending_esigns,
     )
     return utils.respondWithSuccess(message=frappe._("Success"), data=token)
+
+
+@frappe.whitelist()
+def approved_securities(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "lender": "",
+                "start": "",
+                "per_page": "",
+                "search": "",
+                "is_download": "",
+            },
+        )
+
+        if not data.get("lender"):
+            data["lender"] = frappe.get_last_doc("Lender").name
+
+        security_category_list_ = frappe.db.get_all(
+            "Allowed Security",
+            fields=["distinct(security_category)"],
+            order_by="security_category asc",
+        )
+        security_category_list = [i.security_category for i in security_category_list_]
+
+        or_filters = ""
+        if data.get("search", None):
+            # or_filters = str(" and ")
+            # or_filters += str(
+            #     "(allowed.isin like '{search_key}' or master.security_name like '{search_key}' or master.category like '{search_key}')".format(
+            #         search_key=search_key
+            #     )
+            # )
+            search_key = ["like", str("%" + data["search"] + "%")]
+            or_filters = {
+                "isin": search_key,
+                "security_name": search_key,
+                "security_category": search_key,
+            }
+
+        # query = "select allowed.isin, master.security_name, allowed.eligible_percentage, master.category from `tabAllowed Security` allowed left join `tabSecurity` master on allowed.isin = master.isin where allowed.lender = '{}' {}".format(
+        #     data.get("lender"), or_filters
+        # )
+
+        # approved_security_list = frappe.db.sql(query, as_dict=1)
+        approved_security_list = []
+        approved_security_pdf_file_url = ""
+
+        if data.get("is_download"):
+            approved_security_list = frappe.db.get_all(
+                "Allowed Security",
+                filters={"lender": data.get("lender")},
+                or_filters=or_filters,
+                order_by="creation desc",
+                fields=[
+                    "isin",
+                    "security_name",
+                    "security_category",
+                    "eligible_percentage",
+                ],
+            )
+
+            if not approved_security_list:
+                return utils.respondNotFound(message=_("No Record Found"))
+
+            lt_list = []
+
+            for list in approved_security_list:
+                lt_list.append(list.values())
+            df = pd.DataFrame(lt_list)
+            df.columns = approved_security_list[0].keys()
+            df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
+            df.index += 1
+            approved_security_pdf_file = "{}-approved-securities.pdf".format(
+                data.get("lender")
+            ).replace(" ", "-")
+
+            approved_security_pdf_file_path = frappe.utils.get_files_path(
+                approved_security_pdf_file
+            )
+
+            pdf_file = open(approved_security_pdf_file_path, "wb")
+            a = df.to_html()
+            from frappe.utils.pdf import get_pdf
+
+            pdf = get_pdf(a)
+            pdf_file.write(pdf)
+            pdf_file.close()
+
+            approved_security_pdf_file_url = frappe.utils.get_url(
+                "files/{}-approved-securities.pdf".format(data.get("lender")).replace(
+                    " ", "-"
+                )
+            )
+        else:
+            if not data.get("per_page", None):
+                data["per_page"] = 20
+            if not data.get("start", None):
+                data["start"] = 0
+
+            approved_security_list = frappe.db.get_all(
+                "Allowed Security",
+                filters={"lender": data.get("lender")},
+                or_filters=or_filters,
+                order_by="creation desc",
+                fields=[
+                    "isin",
+                    "security_name",
+                    "security_category",
+                    "eligible_percentage",
+                ],
+                start=data.get("start"),
+                page_length=data.get("per_page"),
+            )
+
+        res = {
+            "security_category_list": security_category_list,
+            "approved_securities_list": approved_security_list,
+            "pdf_file_url": approved_security_pdf_file_url,
+        }
+
+        return utils.respondWithSuccess(data=res)
+
+    except utils.APIException as e:
+        return e.respond()
