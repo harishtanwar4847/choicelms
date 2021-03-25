@@ -369,22 +369,21 @@ def approved_securities(**kwargs):
         approved_security_list = []
         approved_security_pdf_file_url = ""
 
-        total_approved_security_list = frappe.db.get_all(
-            "Allowed Security",
-            filters={"lender": data.get("lender")},
-            or_filters=or_filters,
-            order_by="creation desc",
-            fields=[
-                "isin",
-                "security_name",
-                "security_category",
-                "eligible_percentage",
-            ],
-        )
-
         if data.get("is_download"):
+            approved_security_list = frappe.db.get_all(
+                "Allowed Security",
+                filters={"lender": data.get("lender")},
+                or_filters=or_filters,
+                order_by="creation desc",
+                fields=[
+                    "isin",
+                    "security_name",
+                    "security_category",
+                    "eligible_percentage",
+                ],
+            )
 
-            if not total_approved_security_list:
+            if not approved_security_list:
                 return utils.respondNotFound(message=_("No Record Found"))
 
             lt_list = []
