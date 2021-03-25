@@ -1239,3 +1239,211 @@ def loan_statement(**kwargs):
         return utils.respondWithSuccess(data=res)
     except utils.APIException as e:
         return e.respond()
+
+@frappe.whitelist()
+def dashboard(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        # data = utils.validator.validate(
+        #     kwargs,
+        #     {
+        #         "username": "required",
+        #     },
+        # )
+
+        user = frappe.get_doc("User", frappe.session.user)
+
+        customer = lms.__customer(user.name)
+        if not customer:
+            return utils.respondNotFound(message=frappe._("Customer not found."))
+        
+        
+        all_mgloans = frappe.db.sql("""select loan.name,
+        IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, IFNULL(mrgloan.shortfall, 0.0) as shortfall
+        from `tabLoan` as loan
+        left join `tabLoan Margin Shortfall` as mrgloan
+        on loan.name = mrgloan.loan
+        where loan.customer = '{}'
+        and mrgloan.status = "Pending"
+        and shortfall_percentage > 0.0
+        group by loan.name""".format(
+                customer.name
+            ),
+            as_dict=1,
+        )
+
+        all_interest_loans = frappe.db.sql("""select
+        loan.name,
+        sum(loantx.unpaid_interest) as interest_amount
+        from `tabLoan` as loan
+        left join `tabLoan Transaction` as loantx
+        on loan.name = loantx.loan
+        where loan.customer = '{}'
+        and loantx.transaction_type in ('Interest','Additional Interest','Penal Interest')
+        and loantx.unpaid_interest > 0
+        group by loan.name""".format(
+                customer.name
+            ),
+            as_dict=1,
+        )
+        actionable_loans = []
+        if all_mgloans:
+            actionable_loans_ = [i.name for i in all_mgloans]
+        mgloan = []
+        total_int_amt_all_loans = 0
+        all_loans_interest = []
+        interest_loan_list = []
+        # actionable_loans.append(all_mgloans)
+        # actionable_loans.append(all_interest_loans)
+        # print(actionable_loans)
+        for dictionary in all_mgloans:
+            loan = frappe.get_doc("Loan", dictionary.get("name"))
+            ## Margin shortfall list##
+            if dictionary["shortfall_percentage"]:
+                # mgloan.extend([dictionary["name"],dictionary["drawing_power"],dictionary["balance"],dictionary["shortfall_percentage"],dictionary["shortfall"]])
+                mgloan.append({"name":dictionary["name"]})
+            # Interest ##
+        for dictionary in all_interest_loans:
+            if dictionary["interest_amount"]:
+                loan = frappe.get_doc("Loan", dictionary.get("name"))
+                current_date = datetime.now()
+                due_date = ""
+                due_date_txt = "Pay By"
+                info_msg = ""
+
+                rebate_threshold = int(loan.get_rebate_threshold())
+                default_threshold = int(loan.get_default_threshold())
+                if rebate_threshold:
+                    due_date = (
+                        (current_date.replace(day=1) - timedelta(days=1))
+                        + timedelta(days=rebate_threshold)
+                    ).replace(hour=23, minute=59, second=59, microsecond=999999)
+                    info_msg = """Interest becomes due and payable on the last date of every month. Please pay within {0} days to enjoy rebate which has already been applied while calculating the Interest Due.  After {0} days, the interest is recalculated without appliying applicable rebate and the difference appears as "Additional Interest" in your loan account. If interest remains unpaid after {1} days from the end of the month, "Penal Interest Charges" are debited to the account. Please check your terms and conditions of sanction for details.""".format(
+                        rebate_threshold, default_threshold
+                    )
+
+                    if current_date > due_date:
+                        due_date_txt = "Immediate"
+
+                total_int_amt_all_loans += dictionary["interest_amount"]
+                interest_loan_list.append({"loan_name": dictionary["name"]})
+                
+                interest = {
+                    "due_date": due_date,
+                    "due_date_txt": due_date_txt,
+                    "info_msg": info_msg,
+                }
+            else:
+                interest = None
+
+            dictionary["interest"] = interest
+        ## Due date and text for interest ##
+        
+            all_loans_interest.append({"due_date": (dictionary["interest"]["due_date"]).strftime("%Y-%m-%d %H:%M:%S.%f"), "due_date_txt": dictionary["interest"]["due_date_txt"]})
+        # for d in all_loans_interest:
+        #     min(d, key=d.get)
+
+        # ## Interest card ##
+        # total_interest_all_loans = {"total_interest_amount": total_int_amt_all_loans , "loans_interest_due_date" : d, "interest_loan_list": interest_loan_list}
+
+        ## Under process loan application ##
+        under_process_la = frappe.get_all("Loan Application",filters= {"customer": customer.name, "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]], "pledge_status": ["!=", "Failure"]}, fields = ["name", "status"])
+
+        ## for top up and pledged total securities ##
+        # for dictionary in actionable_loans:
+        active_loans = frappe.get_all("Loan", filters = {"customer": customer.name, "name": ["not in", [list for list in actionable_loans]]})
+            # ## Topup ##
+        sum_of_securities = 0
+     
+        topup = None
+        topup_list = []
+
+        for loan in active_loans:
+            loan = frappe.get_doc("Loan", loan.name)
+            existing_topup_application = frappe.get_all(
+            "Top up Application",
+            filters={
+                "loan": loan.name,
+                "customer": customer.name,
+                "status": ["not IN", ["Approved", "Rejected"]],
+                },
+                fields=["count(name) as in_process"],
+            )
+            las_settings = frappe.get_single("LAS Settings")
+
+            if existing_topup_application[0]["in_process"] == 0:
+                topup = loan.max_topup_amount()
+                if topup:
+                    top_up = {
+                        "loan": loan.name,
+                        "minimum_top_up_amount": las_settings.minimum_top_up_amount,
+                        "top_up_amount": lms.round_down_amount_to_nearest_thousand(topup),
+                    }
+                    topup_list.append(top_up)
+                else:
+                    top_up = None
+            
+            # Total pledged securities ##
+        sec = []
+        all_loans = frappe.get_all("Loan", filters = {"customer": customer.name})
+        all_loan_items = frappe.get_all("Loan Item", filters = {"parent": ["in", [loan.name for loan in all_loans]]}, fields = ["distinct isin", "pledged_quantity"])
+        # print(all_loan_items)
+        # for loan in all_loans:
+        counter = 14
+        amount = 0
+        weekly_security_amount = []
+        yesterday = date.today()
+        offset = (yesterday.weekday()) % 7
+        last_sunday = yesterday - timedelta(days=offset)
+        while counter >= 1:
+            for loan_items in all_loan_items:
+                security_price_list = frappe.db.sql("""select security, price, time
+                from `tabSecurity Price`
+                where `tabSecurity Price`.security = '{}'
+                and `tabSecurity Price`.time like '%{}%'
+                order by modified desc limit 1""".format(loan_items.get("isin"), yesterday if counter == 14 else last_sunday),
+                    as_dict=1,
+                )
+                # if security_price_list: yesterday if counter == 1 else last_sunday if yesterday == last_sunday else last_sunday
+                for list in security_price_list:
+                    # sec.append({"list":list, "count":counter})
+                    # list["count"] = counter
+                    sec.append(list)
+                    amount += (loan_items.get("pledged_quantity") * list.get("price"))
+                    sec.append((amount,counter))
+                    # sec.append(counter)
+                    print(sec)
+            last_sunday += timedelta(days=-7)
+            # print()
+            weekly_security_amount.append({"week": counter, "weekly_amount_for_all_loans": amount})
+            amount = 0
+            counter -= 1
+        print(sec)
+        return utils.respondWithSuccess(data=weekly_security_amount)
+        
+            # print(yesterday)
+            
+            # for i in loan.items:
+            #     security_price_list = frappe.get_all("Security Price", filters = {"security":i.isin}, fields = ["security", "price", "time"])
+            # print(sec)
+                # sum_of_securities += i.amount
+                
+            # sum_of_securities = {"loan": loan.name, "sum_of_securities":sum_of_securities}
+            # return utils.respondWithSuccess(data = security_price_list)
+        # total_sum += sum_of_securities
+        res = {
+            "customer": customer,
+            "margin_shortfall": mgloan,
+            # "total_interest_all_loans": total_interest_all_loans,
+            "under_process_la": under_process_la,
+            "actionable_loans": actionable_loans,
+            "active_loans": active_loans,
+            "top_up": topup_list,
+            "sum_of_securities": lms.amount_formatter(sum_of_securities)
+            }
+
+        return utils.respondWithSuccess(data=res)
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
