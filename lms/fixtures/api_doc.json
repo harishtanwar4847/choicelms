@@ -5,6 +5,182 @@
   "doctype": "API Doc",
   "error": [],
   "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2021-03-25 10:21:44.344791",
+  "name": "b5e26f3219",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "If not provided then it will take latest lender added",
+    "field": "lender",
+    "group": null,
+    "optional": 1,
+    "parent": "b5e26f3219",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "0",
+    "description": null,
+    "field": "start",
+    "group": null,
+    "optional": 1,
+    "parent": "b5e26f3219",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "20",
+    "description": null,
+    "field": "per_page",
+    "group": null,
+    "optional": 1,
+    "parent": "b5e26f3219",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "search",
+    "group": null,
+    "optional": 1,
+    "parent": "b5e26f3219",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "is_download",
+    "group": null,
+    "optional": 1,
+    "parent": "b5e26f3219",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"lender\": \"\",\n\t\"start\":0,\n\t\"per_page\":20,\n\t\"search\": \"\",\n\t\"is_download\": 0\n}",
+    "parent": "b5e26f3219",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.approved_securities",
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "b5e26f3219",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object "
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "security_category_list",
+    "group": null,
+    "parent": "b5e26f3219",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "List"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "approved_securities_list",
+    "group": null,
+    "parent": "b5e26f3219",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "List"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "pdf_file_url",
+    "group": null,
+    "parent": "b5e26f3219",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\"message\": \"Success\",\"data\":{\"security_category_list\":\"security category list\", \"approved_securities_list\":\"approved securities list\", \"pdf_file_url\":\"pdf file url\"}}",
+    "parent": "b5e26f3219",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success Example"
+   }
+  ],
+  "title": "Approved Securities",
+  "use_api_define": [
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "b5e26f3219",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "b5e26f3219",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "b5e26f3219",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "b5e26f3219",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
   "group": "Loan",
   "headers": [],
   "headers_example": [],
@@ -1956,275 +2132,6 @@
   "version": "1.0.0"
  },
  {
-  "api_define": 1,
-  "docstatus": 0,
-  "doctype": "API Doc",
-  "error": [],
-  "error_example": [],
-  "group": null,
-  "headers": [
-   {
-    "default_value": "application/json",
-    "description": null,
-    "field": "Accept",
-    "group": null,
-    "optional": 0,
-    "parent": "70b8cb66dd",
-    "parentfield": "headers",
-    "parenttype": "API Doc",
-    "type": "String"
-   }
-  ],
-  "headers_example": [
-   {
-    "example": "{\"Accept\":\"application/json\"}",
-    "parent": "70b8cb66dd",
-    "parentfield": "headers_example",
-    "parenttype": "API Doc",
-    "title": "Mobile App Headers"
-   }
-  ],
-  "method": "GET",
-  "modified": "2020-09-13 15:38:54.433925",
-  "name": "70b8cb66dd",
-  "parameters": [],
-  "parameters_example": [],
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "path": null,
-  "success": [],
-  "success_example": [],
-  "title": "AcceptJsonHeader",
-  "use_api_define": [],
-  "version": null
- },
- {
-  "api_define": 1,
-  "docstatus": 0,
-  "doctype": "API Doc",
-  "error": [
-   {
-    "default_value": "Something went wrong",
-    "description": null,
-    "field": "message",
-    "group": "Error 500",
-    "parent": "5a72ab8655",
-    "parentfield": "error",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": "",
-    "field": "errors",
-    "group": "Error 500",
-    "parent": "5a72ab8655",
-    "parentfield": "error",
-    "parenttype": "API Doc",
-    "type": "Object"
-   },
-   {
-    "default_value": null,
-    "description": "field_x error message",
-    "field": "errors.field_x",
-    "group": "Error",
-    "parent": "5a72ab8655",
-    "parentfield": "error",
-    "parenttype": "API Doc",
-    "type": "String"
-   }
-  ],
-  "error_example": [
-   {
-    "example": "{\"message\":\"Something went wrong\",\"errors\":{\"field_x\":\"field_x error message\"}}",
-    "parent": "5a72ab8655",
-    "parentfield": "error_example",
-    "parenttype": "API Doc",
-    "title": "Error 500"
-   }
-  ],
-  "group": null,
-  "headers": [],
-  "headers_example": [],
-  "method": "GET",
-  "modified": "2020-09-13 15:28:10.237562",
-  "name": "5a72ab8655",
-  "parameters": [],
-  "parameters_example": [],
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "path": null,
-  "success": [
-   {
-    "default_value": "Success",
-    "description": null,
-    "field": "message",
-    "group": "Success 200",
-    "parent": "5a72ab8655",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   }
-  ],
-  "success_example": [
-   {
-    "example": "{\"message\":\"Success\"}",
-    "parent": "5a72ab8655",
-    "parentfield": "success_example",
-    "parenttype": "API Doc",
-    "title": "Success 200"
-   }
-  ],
-  "title": "APIResponse",
-  "use_api_define": [],
-  "version": null
- },
- {
-  "api_define": 1,
-  "docstatus": 0,
-  "doctype": "API Doc",
-  "error": [
-   {
-    "default_value": "Unauthorized",
-    "description": null,
-    "field": "message",
-    "group": "Error 401",
-    "parent": "81c55fbdcc",
-    "parentfield": "error",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": "Forbidden",
-    "description": null,
-    "field": "message",
-    "group": "Error 403",
-    "parent": "81c55fbdcc",
-    "parentfield": "error",
-    "parenttype": "API Doc",
-    "type": "String"
-   }
-  ],
-  "error_example": [
-   {
-    "example": "{\"message\":\"Unauthorized\"}",
-    "parent": "81c55fbdcc",
-    "parentfield": "error_example",
-    "parenttype": "API Doc",
-    "title": "Error 401"
-   },
-   {
-    "example": "{\"message\":\"Forbidden\"}",
-    "parent": "81c55fbdcc",
-    "parentfield": "error_example",
-    "parenttype": "API Doc",
-    "title": "Error 403"
-   }
-  ],
-  "group": "",
-  "headers": [
-   {
-    "default_value": "{{token}}",
-    "description": "Bearer token",
-    "field": "Authorization",
-    "group": null,
-    "optional": 0,
-    "parent": "81c55fbdcc",
-    "parentfield": "headers",
-    "parenttype": "API Doc",
-    "type": "String"
-   }
-  ],
-  "headers_example": [
-   {
-    "example": "{\"Authorization\":\"Bearer kalsjdfklajsdkfj\"}",
-    "parent": "81c55fbdcc",
-    "parentfield": "headers_example",
-    "parenttype": "API Doc",
-    "title": "User Authorization Header"
-   }
-  ],
-  "method": "GET",
-  "modified": "2020-10-20 03:23:26.735808",
-  "name": "81c55fbdcc",
-  "parameters": [],
-  "parameters_example": [],
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "path": null,
-  "success": [],
-  "success_example": [],
-  "title": "UserAuthorizationRequestandResponse",
-  "use_api_define": [],
-  "version": null
- },
- {
-  "api_define": 1,
-  "docstatus": 0,
-  "doctype": "API Doc",
-  "error": [
-   {
-    "default_value": "Validation Error",
-    "description": null,
-    "field": "message",
-    "group": "Error 422",
-    "parent": "2c99d6bf6d",
-    "parentfield": "error",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "errors",
-    "group": "Error 422",
-    "parent": "2c99d6bf6d",
-    "parentfield": "error",
-    "parenttype": "API Doc",
-    "type": "Object"
-   },
-   {
-    "default_value": "field x error message",
-    "description": null,
-    "field": "errors.field_x",
-    "group": "Error 422",
-    "parent": "2c99d6bf6d",
-    "parentfield": "error",
-    "parenttype": "API Doc",
-    "type": "String"
-   }
-  ],
-  "error_example": [
-   {
-    "example": "{\"message\":\"Validation Error\",\"errors\":{\"field_x\":\"field_x error message\"}}",
-    "parent": "2c99d6bf6d",
-    "parentfield": "error_example",
-    "parenttype": "API Doc",
-    "title": "Error 422"
-   }
-  ],
-  "group": null,
-  "headers": [],
-  "headers_example": [],
-  "method": "GET",
-  "modified": "2020-09-13 15:32:42.114732",
-  "name": "2c99d6bf6d",
-  "parameters": [],
-  "parameters_example": [],
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "path": null,
-  "success": [],
-  "success_example": [],
-  "title": "DataValidationErrorResponse",
-  "use_api_define": [],
-  "version": null
- },
- {
   "api_define": 0,
   "docstatus": 0,
   "doctype": "API Doc",
@@ -2556,5 +2463,274 @@
    }
   ],
   "version": "1.0.0"
+ },
+ {
+  "api_define": 1,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": null,
+  "headers": [
+   {
+    "default_value": "application/json",
+    "description": null,
+    "field": "Accept",
+    "group": null,
+    "optional": 0,
+    "parent": "70b8cb66dd",
+    "parentfield": "headers",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "headers_example": [
+   {
+    "example": "{\"Accept\":\"application/json\"}",
+    "parent": "70b8cb66dd",
+    "parentfield": "headers_example",
+    "parenttype": "API Doc",
+    "title": "Mobile App Headers"
+   }
+  ],
+  "method": "GET",
+  "modified": "2020-09-13 15:38:54.433925",
+  "name": "70b8cb66dd",
+  "parameters": [],
+  "parameters_example": [],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": null,
+  "success": [],
+  "success_example": [],
+  "title": "AcceptJsonHeader",
+  "use_api_define": [],
+  "version": null
+ },
+ {
+  "api_define": 1,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [
+   {
+    "default_value": "Something went wrong",
+    "description": null,
+    "field": "message",
+    "group": "Error 500",
+    "parent": "5a72ab8655",
+    "parentfield": "error",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "errors",
+    "group": "Error 500",
+    "parent": "5a72ab8655",
+    "parentfield": "error",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "field_x error message",
+    "field": "errors.field_x",
+    "group": "Error",
+    "parent": "5a72ab8655",
+    "parentfield": "error",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "error_example": [
+   {
+    "example": "{\"message\":\"Something went wrong\",\"errors\":{\"field_x\":\"field_x error message\"}}",
+    "parent": "5a72ab8655",
+    "parentfield": "error_example",
+    "parenttype": "API Doc",
+    "title": "Error 500"
+   }
+  ],
+  "group": null,
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2020-09-13 15:28:10.237562",
+  "name": "5a72ab8655",
+  "parameters": [],
+  "parameters_example": [],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": null,
+  "success": [
+   {
+    "default_value": "Success",
+    "description": null,
+    "field": "message",
+    "group": "Success 200",
+    "parent": "5a72ab8655",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\"message\":\"Success\"}",
+    "parent": "5a72ab8655",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success 200"
+   }
+  ],
+  "title": "APIResponse",
+  "use_api_define": [],
+  "version": null
+ },
+ {
+  "api_define": 1,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [
+   {
+    "default_value": "Unauthorized",
+    "description": null,
+    "field": "message",
+    "group": "Error 401",
+    "parent": "81c55fbdcc",
+    "parentfield": "error",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "Forbidden",
+    "description": null,
+    "field": "message",
+    "group": "Error 403",
+    "parent": "81c55fbdcc",
+    "parentfield": "error",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "error_example": [
+   {
+    "example": "{\"message\":\"Unauthorized\"}",
+    "parent": "81c55fbdcc",
+    "parentfield": "error_example",
+    "parenttype": "API Doc",
+    "title": "Error 401"
+   },
+   {
+    "example": "{\"message\":\"Forbidden\"}",
+    "parent": "81c55fbdcc",
+    "parentfield": "error_example",
+    "parenttype": "API Doc",
+    "title": "Error 403"
+   }
+  ],
+  "group": "",
+  "headers": [
+   {
+    "default_value": "{{token}}",
+    "description": "Bearer token",
+    "field": "Authorization",
+    "group": null,
+    "optional": 0,
+    "parent": "81c55fbdcc",
+    "parentfield": "headers",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "headers_example": [
+   {
+    "example": "{\"Authorization\":\"Bearer kalsjdfklajsdkfj\"}",
+    "parent": "81c55fbdcc",
+    "parentfield": "headers_example",
+    "parenttype": "API Doc",
+    "title": "User Authorization Header"
+   }
+  ],
+  "method": "GET",
+  "modified": "2020-10-20 03:23:26.735808",
+  "name": "81c55fbdcc",
+  "parameters": [],
+  "parameters_example": [],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": null,
+  "success": [],
+  "success_example": [],
+  "title": "UserAuthorizationRequestandResponse",
+  "use_api_define": [],
+  "version": null
+ },
+ {
+  "api_define": 1,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [
+   {
+    "default_value": "Validation Error",
+    "description": null,
+    "field": "message",
+    "group": "Error 422",
+    "parent": "2c99d6bf6d",
+    "parentfield": "error",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "errors",
+    "group": "Error 422",
+    "parent": "2c99d6bf6d",
+    "parentfield": "error",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": "field x error message",
+    "description": null,
+    "field": "errors.field_x",
+    "group": "Error 422",
+    "parent": "2c99d6bf6d",
+    "parentfield": "error",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "error_example": [
+   {
+    "example": "{\"message\":\"Validation Error\",\"errors\":{\"field_x\":\"field_x error message\"}}",
+    "parent": "2c99d6bf6d",
+    "parentfield": "error_example",
+    "parenttype": "API Doc",
+    "title": "Error 422"
+   }
+  ],
+  "group": null,
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2020-09-13 15:32:42.114732",
+  "name": "2c99d6bf6d",
+  "parameters": [],
+  "parameters_example": [],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": null,
+  "success": [],
+  "success_example": [],
+  "title": "DataValidationErrorResponse",
+  "use_api_define": [],
+  "version": null
  }
 ]
