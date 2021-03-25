@@ -175,7 +175,7 @@ class TopupApplication(Document):
             "loan": self.loan,
             "top_up_amount": self.top_up_amount,
         }
-        frappe.enqueue_doc("Notification", "Top up Application", method="send", doc=doc)
+        # frappe.enqueue_doc("Notification", "Top up Application", method="send", doc=doc)
         mess = ""
         if doc.get("top_up_application").get("status") == "Pending":
             mess = "Your request has been successfully received. You will be notified when your new OD limit is approved by our banking partner."
