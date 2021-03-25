@@ -972,7 +972,11 @@ def loan_statement(**kwargs):
         ):
             return utils.respondNotFound(message=_("Request Type not found."))
 
-        filter = {"parent": data.get("loan_name")} if data.get("type") == "Pledged Securities Transactions" else {"loan": data.get("loan_name")}
+        filter = (
+            {"parent": data.get("loan_name")}
+            if data.get("type") == "Pledged Securities Transactions"
+            else {"loan": data.get("loan_name")}
+        )
 
         if (data.get("from_date") or data.get("to_date")) and data.get("duration"):
             return utils.respondWithFailure(
@@ -1016,7 +1020,9 @@ def loan_statement(**kwargs):
             current_year = date(date.today().year, 4, 1)
 
             if curr_month < current_year:
-                current_year = current_year - timedelta(weeks=52.1775) # previous financial year
+                current_year = current_year - timedelta(
+                    weeks=52.1775
+                )  # previous financial year
             filter["creation"] = [
                 ">=",
                 curr_month
@@ -1081,7 +1087,14 @@ def loan_statement(**kwargs):
                 "Loan Item",
                 filters=filter,
                 order_by="creation desc",
-                fields=["pledged_quantity", "security_name", "isin", "security_category", "price", "amount"],
+                fields=[
+                    "pledged_quantity",
+                    "security_name",
+                    "isin",
+                    "security_category",
+                    "price",
+                    "amount",
+                ],
                 page_length=page_length,
             )
             if not pledged_securities_transactions:
@@ -1223,74 +1236,5 @@ def loan_statement(**kwargs):
                 )
 
         return utils.respondWithSuccess(data=res)
-    except utils.APIException as e:
-        return e.respond()
-
-
-@frappe.whitelist()
-def approved_securities(**kwargs):
-    try:
-        utils.validator.validate_http_method("GET")
-
-        data = utils.validator.validate(kwargs, {"lender": "", "search": ""})
-
-        if not data.get("lender"):
-            data["lender"] = frappe.get_last_doc("Lender").name
-
-        or_filters = ""
-        if data.get("search", None):
-            or_filters = str(" and ")
-            search_key = str("%" + data["search"] + "%")
-            or_filters += str(
-                "(allowed.isin like '{search_key}' or master.security_name like '{search_key}' or master.category like '{search_key}')".format(
-                    search_key=search_key
-                )
-            )
-
-        query = "select allowed.isin, master.security_name, allowed.eligible_percentage, master.category from `tabAllowed Security` allowed left join `tabSecurity` master on allowed.isin = master.isin where allowed.lender = '{}' {}".format(
-            data.get("lender"), or_filters
-        )
-
-        approved_security_list = frappe.db.sql(query, as_dict=1)
-
-        if not approved_security_list:
-            return utils.respondNotFound(message=_("No Record Found"))
-
-        lt_list = []
-
-        for list in approved_security_list:
-            lt_list.append(list.values())
-        df = pd.DataFrame(lt_list)
-        df.columns = approved_security_list[0].keys()
-        df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
-        df.index += 1
-        approved_security_pdf_file = "{}-approved-securities.pdf".format(
-            data.get("lender")
-        ).replace(" ", "-")
-
-        approved_security_pdf_file_path = frappe.utils.get_files_path(
-            approved_security_pdf_file
-        )
-
-        pdf_file = open(approved_security_pdf_file_path, "wb")
-        a = df.to_html()
-        from frappe.utils.pdf import get_pdf
-
-        pdf = get_pdf(a)
-        pdf_file.write(pdf)
-        pdf_file.close()
-
-        approved_security_pdf_file_url = frappe.utils.get_url(
-            "files/{}-approved-securities.pdf".format(data.get("lender")).replace(
-                " ", "-"
-            )
-        )
-        res = {
-            "pdf_file_url": approved_security_pdf_file_url,
-            "approved_securities_list": approved_security_list,
-        }
-
-        return utils.respondWithSuccess(data=res)
-
     except utils.APIException as e:
         return e.respond()
