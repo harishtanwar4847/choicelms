@@ -162,18 +162,51 @@ class LoanApplication(Document):
                 2,
             )
 
+        # if self.status == "Pledge executed":
+        #     total_collateral_value = 0
+        #     for i in self.items:
+        #         if i.lender_approval_status == "Approved":
+        #             total_collateral_value += i.amount
+        #             self.total_collateral_value = round(total_collateral_value, 2)
+        #             self.drawing_power = round(
+        #                 lms.round_down_amount_to_nearest_thousand(
+        #                     (self.allowable_ltv / 100) * self.total_collateral_value
+        #                 ),
+        #                 2,
+        #             )
+
         if self.status == "Pledge executed":
             total_collateral_value = 0
             for i in self.items:
-                if i.lender_approval_status == "Approved":
-                    total_collateral_value += i.amount
-                    self.total_collateral_value = round(total_collateral_value, 2)
-                    self.drawing_power = round(
-                        lms.round_down_amount_to_nearest_thousand(
-                            (self.allowable_ltv / 100) * self.total_collateral_value
-                        ),
-                        2,
-                    )
+                if i.pledge_status == "Success" or i.pledge_status == "":
+                    if (
+                        i.lender_approval_status == "Approved"
+                        or i.lender_approval_status == ""
+                    ):
+                        total_collateral_value += i.amount
+                        self.total_collateral_value = round(total_collateral_value, 2)
+                        self.drawing_power = round(
+                            lms.round_down_amount_to_nearest_thousand(
+                                (self.allowable_ltv / 100) * self.total_collateral_value
+                            ),
+                            2,
+                        )
+                    elif (
+                        i.lender_approval_status == "Rejected"
+                        or i.lender_approval_status == "Pledge Failure"
+                    ):
+                        if (
+                            total_collateral_value > 0
+                            and total_collateral_value >= i.amount
+                        ):
+                            total_collateral_value -= i.amount
+                        self.total_collateral_value = round(total_collateral_value, 2)
+                        self.drawing_power = round(
+                            lms.round_down_amount_to_nearest_thousand(
+                                (self.allowable_ltv / 100) * self.total_collateral_value
+                            ),
+                            2,
+                        )
 
         self.total_collateral_value_str = lms.amount_formatter(
             self.total_collateral_value
@@ -467,8 +500,8 @@ class LoanApplication(Document):
     def dummy_pledge_response(self, security_list):
         import random
 
-        # error_flag = 1
-        error_flag = bool(random.getrandbits(1))
+        error_flag = 0
+        # error_flag = bool(random.getrandbits(1))
         if error_flag:
             return {
                 "Success": False,
@@ -481,7 +514,7 @@ class LoanApplication(Document):
             ISINstatusDtls = []
             flag = 0
             for item in security_list:
-                flag = bool(random.getrandbits(1))
+                # flag = bool(random.getrandbits(1))
                 error_code = ["CIF3065-F", "PLD0152-E", "PLD0125-F"]
                 ISINstatusDtls_item = {
                     "ISIN": item.get("ISIN"),
