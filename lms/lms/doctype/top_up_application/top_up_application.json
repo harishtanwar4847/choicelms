@@ -95,7 +95,7 @@
    "fieldtype": "Column Break"
   }
  ],
- "modified": "2021-03-01 16:32:05.044308",
+ "modified": "2021-03-26 13:05:06.215147",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Top up Application",
@@ -116,6 +116,12 @@
   {
    "read": 1,
    "role": "Lender",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Loan Customer",
    "write": 1
   }
  ],
