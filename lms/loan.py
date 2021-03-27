@@ -985,8 +985,16 @@ def loan_statement(**kwargs):
                 )
             )
 
-        elif (data.get("is_download") or data.get("is_email")) and not data.get(
-            "file_format"
+        elif (data.get("from_date") and not data.get("to_date")) or (
+            not data.get("from_date") and data.get("to_date")
+        ):
+            return utils.respondWithFailure(
+                message=frappe._("Please use both 'From date and To date'")
+            )
+
+        elif (data.get("is_download") or data.get("is_email")) and (
+            not data.get("file_format")
+            or data.get("file_format") not in ["pdf", "excel"]
         ):
             return utils.respondWithFailure(
                 message=frappe._("Please select PDF/Excel file format")
@@ -1007,6 +1015,17 @@ def loan_statement(**kwargs):
                 filter["creation"] = ["between", (from_date, to_date)]
 
         elif data.get("duration"):
+            if data.get("duration") not in [
+                "curr_month",
+                "prev_1",
+                "prev_3",
+                "prev_6",
+                "current_year",
+            ]:
+                return utils.respondWithFailure(
+                    message=frappe._("Please provide valid Duration")
+                )
+
             curr_month = date.today().replace(day=1)
             last_day_of_prev_month = date.today().replace(day=1) - timedelta(days=1)
 
