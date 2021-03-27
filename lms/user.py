@@ -404,6 +404,15 @@ def approved_securities(**kwargs):
 
             pdf_file = open(approved_security_pdf_file_path, "wb")
             a = df.to_html()
+            style = """<style>
+                tr {
+                page-break-inside: avoid;
+                }
+                </style>
+                """
+
+            html_with_style = style + a
+
             from frappe.utils.pdf import get_pdf
 
             pdf = get_pdf(a)

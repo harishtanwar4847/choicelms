@@ -995,7 +995,6 @@ def loan_statement(**kwargs):
         if data.get("from_date") and data.get("to_date"):
             from_date = datetime.strptime(data.get("from_date"), "%d-%m-%Y")
             to_date = datetime.strptime(data.get("to_date"), "%d-%m-%Y")
-            
 
             if from_date > to_date:
                 return utils.respondWithFailure(
@@ -1006,7 +1005,7 @@ def loan_statement(**kwargs):
                 filter["time"] = ["between", (from_date, to_date)]
             elif data.get("type") == "Pledged Securities Transactions":
                 filter["creation"] = ["between", (from_date, to_date)]
-                
+
         elif data.get("duration"):
             curr_month = date.today().replace(day=1)
             last_day_of_prev_month = date.today().replace(day=1) - timedelta(days=1)
@@ -1043,7 +1042,10 @@ def loan_statement(**kwargs):
             if data.get("type") == "Account Statement":
                 filter["time"] = [">=", datetime.strftime(duration_date, "%Y-%m-%d")]
             elif data.get("type") == "Pledged Securities Transactions":
-                filter["creation"] = [">=", datetime.strftime(duration_date, "%Y-%m-%d")]
+                filter["creation"] = [
+                    ">=",
+                    datetime.strftime(duration_date, "%Y-%m-%d"),
+                ]
 
         page_length = (
             15
