@@ -659,7 +659,7 @@ def loan_details(**kwargs):
                     due_date_txt = "Immediate"
 
             interest = {
-                "total_interest_amt": interest_total[0]["total_amt"],
+                "total_interest_amt": round(interest_total[0]["total_amt"], 2),
                 "due_date": due_date,
                 "due_date_txt": due_date_txt,
                 "info_msg": info_msg,
@@ -992,20 +992,22 @@ def loan_statement(**kwargs):
                 message=frappe._("Please select PDF/Excel file format")
             )
 
-        elif data.get("from_date") and data.get("to_date"):
-            from_date = datetime.strptime(data.get("from_date"), "%d-%m-%Y").date()
-            to_date = datetime.strptime(data.get("to_date"), "%d-%m-%Y").date()
+        if data.get("from_date") and data.get("to_date"):
+            from_date = datetime.strptime(data.get("from_date"), "%d-%m-%Y")
+            to_date = datetime.strptime(data.get("to_date"), "%d-%m-%Y")
 
             if from_date > to_date:
                 return utils.respondWithFailure(
                     message=frappe._("From date cannot be greater than To date")
                 )
 
-            filter["creation"] = ["between", (from_date, to_date)]
+            if data.get("type") == "Account Statement":
+                filter["time"] = ["between", (from_date, to_date)]
+            elif data.get("type") == "Pledged Securities Transactions":
+                filter["creation"] = ["between", (from_date, to_date)]
 
         elif data.get("duration"):
             curr_month = date.today().replace(day=1)
-
             last_day_of_prev_month = date.today().replace(day=1) - timedelta(days=1)
 
             prev_1_month = (
@@ -1023,20 +1025,27 @@ def loan_statement(**kwargs):
                 current_year = current_year - timedelta(
                     weeks=52.1775
                 )  # previous financial year
-            filter["creation"] = [
-                ">=",
-                curr_month
-                if data.get("duration") == "curr_month"
-                else prev_1_month
-                if data.get("duration") == "prev_1"
-                else prev_3_month
-                if data.get("duration") == "prev_3"
-                else prev_6_month
-                if data.get("duration") == "prev_6"
-                else current_year
-                if data.get("duration") == "current_year"
-                else date.today() in data.get("duration"),
-            ]
+            duration_date = None
+            if data.get("duration") == "curr_month":
+                duration_date = curr_month
+            elif data.get("duration") == "prev_1":
+                duration_date = prev_1_month
+            elif data.get("duration") == "prev_3":
+                duration_date = prev_3_month
+            elif data.get("duration") == "prev_6":
+                duration_date = prev_6_month
+            elif data.get("duration") == "current_year":
+                duration_date = current_year
+            else:
+                duration_date = date.today()
+
+            if data.get("type") == "Account Statement":
+                filter["time"] = [">=", datetime.strftime(duration_date, "%Y-%m-%d")]
+            elif data.get("type") == "Pledged Securities Transactions":
+                filter["creation"] = [
+                    ">=",
+                    datetime.strftime(duration_date, "%Y-%m-%d"),
+                ]
 
         page_length = (
             15
@@ -1057,13 +1066,13 @@ def loan_statement(**kwargs):
             loan_transaction_list = frappe.db.get_all(
                 "Loan Transaction",
                 filters=filter,
-                order_by="creation desc",
+                order_by="time desc",
                 fields=[
                     "name",
                     "transaction_type",
                     "record_type",
                     "amount",
-                    "time",
+                    "DATE_FORMAT(time, '%Y-%m-%d %H:%i') as time",
                     "status",
                 ],
                 page_length=page_length,
@@ -1128,12 +1137,24 @@ def loan_statement(**kwargs):
                 )
 
                 pdf_file = open(loan_statement_pdf_file_path, "wb")
+                # pdf_file = open(loan_statement_pdf_file_path, "w")
                 df.index += 1
                 a = df.to_html()
+                style = """<style>
+                tr {
+                page-break-inside: avoid;
+                }
+                </style>
+                """
+
+                html_with_style = style + a
+
                 from frappe.utils.pdf import get_pdf
 
-                pdf = get_pdf(a)
+                # pdf = get_pdf(a)
+                pdf = get_pdf(html_with_style)
                 pdf_file.write(pdf)
+                # pdf_file.write(a)
                 pdf_file.close()
 
                 # loan_statement_pdf_file = frappe.get_doc(
@@ -1210,7 +1231,6 @@ def loan_statement(**kwargs):
                     #     )
                     #     pdf_content = pdf_file.get_content()
                     attachments = [{"fname": loan_statement_pdf_file, "fcontent": pdf}]
-                    print(attachments)
                 else:
                     # excel_file = frappe.get_doc(
                     #     "File", {"file_name": loan_statement_excel_file.file_name}
@@ -1222,7 +1242,6 @@ def loan_statement(**kwargs):
                             "fcontent": df.to_csv(index=False),
                         },
                     ]
-                    print(attachments)
 
                 res["is_mail_sent"] = 1
                 frappe.enqueue(
