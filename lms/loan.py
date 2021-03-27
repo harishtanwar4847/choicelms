@@ -1127,12 +1127,24 @@ def loan_statement(**kwargs):
                 )
 
                 pdf_file = open(loan_statement_pdf_file_path, "wb")
+                # pdf_file = open(loan_statement_pdf_file_path, "w")
                 df.index += 1
                 a = df.to_html()
+                style = """<style>
+                tr {
+                page-break-inside: avoid;
+                }
+                </style>
+                """
+
+                html_with_style = style + a
+
                 from frappe.utils.pdf import get_pdf
 
-                pdf = get_pdf(a)
+                # pdf = get_pdf(a)
+                pdf = get_pdf(html_with_style)
                 pdf_file.write(pdf)
+                # pdf_file.write(a)
                 pdf_file.close()
 
                 # loan_statement_pdf_file = frappe.get_doc(
@@ -1209,7 +1221,6 @@ def loan_statement(**kwargs):
                     #     )
                     #     pdf_content = pdf_file.get_content()
                     attachments = [{"fname": loan_statement_pdf_file, "fcontent": pdf}]
-                    print(attachments)
                 else:
                     # excel_file = frappe.get_doc(
                     #     "File", {"file_name": loan_statement_excel_file.file_name}
@@ -1221,7 +1232,6 @@ def loan_statement(**kwargs):
                             "fcontent": df.to_csv(index=False),
                         },
                     ]
-                    print(attachments)
 
                 res["is_mail_sent"] = 1
                 frappe.enqueue(
