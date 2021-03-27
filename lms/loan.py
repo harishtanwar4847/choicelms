@@ -999,12 +999,12 @@ def loan_statement(**kwargs):
             return utils.respondWithFailure(
                 message=frappe._("Please select PDF/Excel file format")
             )
-        elif (data.get("is_download") or data.get("is_email")) and ((not data.get("duration")
-            or (not data.get("from_date") and not data.get("to_date")))
-        ):
-            return utils.respondWithFailure(
-                message=frappe._("Please use either 'From date and To date' or Duration to proceed.")
-            )
+        # elif (data.get("is_download") or data.get("is_email")) and (not data.get("duration")
+        #     or (not data.get("from_date") and not data.get("to_date"))
+        # ):
+        #     return utils.respondWithFailure(
+        #         message=frappe._("Please use either 'From date and To date' or Duration to proceed.")
+        #     )
 
         if data.get("from_date") and data.get("to_date"):
             from_date = datetime.strptime(data.get("from_date"), "%d-%m-%Y")
