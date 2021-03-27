@@ -1039,6 +1039,7 @@ def loan_statement(**kwargs):
                 duration_date = current_year
             else:
                 duration_date = date.today()
+
             if data.get("type") == "Account Statement":
                 filter["time"] = [">=", datetime.strftime(duration_date, "%Y-%m-%d")]
             elif data.get("type") == "Pledged Securities Transactions":
@@ -1069,13 +1070,11 @@ def loan_statement(**kwargs):
                     "transaction_type",
                     "record_type",
                     "amount",
-                    "time",
+                    "DATE_FORMAT(time, '%Y-%m-%d %H:%i') as time",
                     "status",
                 ],
                 page_length=page_length,
             )
-            for loan_transaction in loan_transaction_list:
-                loan_transaction["time"] = (loan_transaction["time"]).strftime("%d-%m-%Y %H:%M")
             if not loan_transaction_list:
                 return utils.respondNotFound(message=_("No Record Found"))
             res["loan_transaction_list"] = loan_transaction_list
