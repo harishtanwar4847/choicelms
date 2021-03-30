@@ -668,6 +668,22 @@ def dashboard(**kwargs):
     except utils.exceptions.APIException as e:
         return e.respond()
 
+
+@frappe.whitelist()
+def all_loans_list(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        user = frappe.get_doc("User", frappe.session.user)
+
+        customer = lms.__customer(user.name)
+        all_loans = frappe.get_all("Loan", filters = {"customer": customer.name}, order_by="creation desc")
+
+        return utils.respondWithSuccess(data=all_loans)
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
 @frappe.whitelist()
 def my_pledge_securities(**kwargs):
     try:
@@ -681,9 +697,15 @@ def my_pledge_securities(**kwargs):
         user = frappe.get_doc("User", frappe.session.user)
 
         customer = lms.__customer(user.name)
-        loan = frappe.get_doc("Loan", data.get("loan_name"))
-        # if not data.get("loan_name", None):
-        #     loan = frappe.get_last_doc("Loan", filters = {"customer": customer.name}, order_by="creation asc")
+
+        if data.get("loan_name"):
+            loan = frappe.get_doc("Loan", data.get("loan_name"))
+        elif not data.get("loan_name", None):
+            latest_loan = frappe.get_all("Loan", filters = {"customer": customer.name}, order_by = "creation desc", page_length=1)
+            
+            for loans in latest_loan:
+                loan = frappe.get_doc("Loan", loans.name)
+
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
         
@@ -706,7 +728,7 @@ def my_pledge_securities(**kwargs):
             "all_pledged_securities": all_pledged_securities
         }
 
-        all_loans = frappe.get_all("Loan", filters = {"customer": customer.name}, order_by="creation asc")
+        all_loans = frappe.get_all("Loan", filters = {"customer": customer.name}, order_by="creation desc")
 
         res = {
             "all_loans_list": all_loans,

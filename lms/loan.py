@@ -1107,7 +1107,6 @@ def loan_statement(**kwargs):
                     "status",
                 ],
                 page_length=page_length,
-                debug = True
             )
             if not loan_transaction_list:
                 return utils.respondNotFound(message=_("No Record Found"))
