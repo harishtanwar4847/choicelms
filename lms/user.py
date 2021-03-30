@@ -624,16 +624,16 @@ def dashboard(**kwargs):
         counter = 14
         amount = 0
         weekly_security_amount = []
-        yesterday = date.today() + timedelta(days=-1)
-        offset = (yesterday.weekday()) % 7
-        last_sunday = yesterday - timedelta(days=offset)
+        yesterday = date.today()
+        last_monday = yesterday - timedelta(days=yesterday.weekday())
+
         while counter >= 1:
             for loan_items in all_loan_items:
                 security_price_list = frappe.db.sql("""select security, price, time
                 from `tabSecurity Price`
                 where `tabSecurity Price`.security = '{}'
                 and `tabSecurity Price`.time like '%{}%'
-                order by modified desc limit 1""".format(loan_items.get("isin"), yesterday if counter == 14 else last_sunday),
+                order by modified desc limit 1""".format(loan_items.get("isin"), yesterday if counter == 14 else last_monday),
                     as_dict=1,
                 )
 
@@ -645,7 +645,11 @@ def dashboard(**kwargs):
                     sec.append((amount,counter))
                     # sec.append(counter)
                     print(sec)
-            last_sunday += timedelta(days=-7) if yesterday != last_sunday else timedelta(days=0)
+            if counter != 14:
+                last_monday += timedelta(days=-7)
+                # print(last_monday,"last monday")
+            # print(counter,"counter")
+                
             weekly_security_amount.append({"week": counter, "weekly_amount_for_all_loans": amount})
             amount = 0
             counter -= 1
@@ -677,6 +681,9 @@ def all_loans_list(**kwargs):
         user = frappe.get_doc("User", frappe.session.user)
 
         customer = lms.__customer(user.name)
+        if not customer:
+            return utils.respondNotFound(message=frappe._("Customer not found."))
+        
         all_loans = frappe.get_all("Loan", filters = {"customer": customer.name}, order_by="creation desc")
 
         return utils.respondWithSuccess(data=all_loans)
@@ -702,9 +709,7 @@ def my_pledge_securities(**kwargs):
             loan = frappe.get_doc("Loan", data.get("loan_name"))
         elif not data.get("loan_name", None):
             latest_loan = frappe.get_all("Loan", filters = {"customer": customer.name}, order_by = "creation desc", page_length=1)
-            
-            for loans in latest_loan:
-                loan = frappe.get_doc("Loan", loans.name)
+            loan = frappe.get_doc("Loan", latest_loan[0].name)
 
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
@@ -728,10 +733,10 @@ def my_pledge_securities(**kwargs):
             "all_pledged_securities": all_pledged_securities
         }
 
-        all_loans = frappe.get_all("Loan", filters = {"customer": customer.name}, order_by="creation desc")
+        # all_loans = frappe.get_all("Loan", filters = {"customer": customer.name}, order_by="creation desc")
 
         res = {
-            "all_loans_list": all_loans,
+            # "all_loans_list": all_loans,
             "security_transactions": security_transactions
         }
         return utils.respondWithSuccess(data=res)
