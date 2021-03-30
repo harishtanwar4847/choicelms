@@ -336,6 +336,13 @@ def approved_securities(**kwargs):
                 "is_download": "",
             },
         )
+        # if isinstance(data.get("per_page"),str):
+        #     data["per_page"] = int(data.get("per_page"))
+
+        if isinstance(data.get("is_download"), str):
+            data["is_download"] = int(data.get("is_download"))
+
+        print(kwargs, data)
 
         if not data.get("lender"):
             data["lender"] = frappe.get_last_doc("Lender").name
@@ -405,6 +412,15 @@ def approved_securities(**kwargs):
 
             pdf_file = open(approved_security_pdf_file_path, "wb")
             a = df.to_html()
+            style = """<style>
+                tr {
+                page-break-inside: avoid;
+                }
+                </style>
+                """
+
+            html_with_style = style + a
+
             from frappe.utils.pdf import get_pdf
 
             pdf = get_pdf(a)
