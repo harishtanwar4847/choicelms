@@ -624,16 +624,16 @@ def dashboard(**kwargs):
         counter = 14
         amount = 0
         weekly_security_amount = []
-        yesterday = date.today() + timedelta(days=-1)
-        offset = (yesterday.weekday()) % 7
-        last_sunday = yesterday - timedelta(days=offset)
+        yesterday = date.today()
+        last_monday = yesterday - timedelta(days=yesterday.weekday())
+
         while counter >= 1:
             for loan_items in all_loan_items:
                 security_price_list = frappe.db.sql("""select security, price, time
                 from `tabSecurity Price`
                 where `tabSecurity Price`.security = '{}'
                 and `tabSecurity Price`.time like '%{}%'
-                order by modified desc limit 1""".format(loan_items.get("isin"), yesterday if counter == 14 else last_sunday),
+                order by modified desc limit 1""".format(loan_items.get("isin"), yesterday if counter == 14 else last_monday),
                     as_dict=1,
                 )
 
@@ -645,7 +645,11 @@ def dashboard(**kwargs):
                     sec.append((amount,counter))
                     # sec.append(counter)
                     print(sec)
-            last_sunday += timedelta(days=-7) if yesterday != last_sunday else timedelta(days=0)
+            if counter != 14:
+                last_monday += timedelta(days=-7)
+                # print(last_monday,"last monday")
+            # print(counter,"counter")
+                
             weekly_security_amount.append({"week": counter, "weekly_amount_for_all_loans": amount})
             amount = 0
             counter -= 1
