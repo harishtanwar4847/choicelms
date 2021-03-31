@@ -333,22 +333,22 @@ def approved_securities(**kwargs):
                 "start": "",
                 "per_page": "",
                 "search": "",
+                "category": "",
                 "is_download": "",
             },
         )
-        # if isinstance(data.get("per_page"),str):
-        #     data["per_page"] = int(data.get("per_page"))
 
         if isinstance(data.get("is_download"), str):
             data["is_download"] = int(data.get("is_download"))
 
-        print(kwargs, data)
-
         if not data.get("lender"):
             data["lender"] = frappe.get_last_doc("Lender").name
 
+        filters = {"lender": data.get("lender")}
+
         security_category_list_ = frappe.db.get_all(
             "Allowed Security",
+            filters=filters,
             fields=["distinct(security_category)"],
             order_by="security_category asc",
         )
@@ -356,31 +356,19 @@ def approved_securities(**kwargs):
 
         or_filters = ""
         if data.get("search", None):
-            # or_filters = str(" and ")
-            # or_filters += str(
-            #     "(allowed.isin like '{search_key}' or master.security_name like '{search_key}' or master.category like '{search_key}')".format(
-            #         search_key=search_key
-            #     )
-            # )
             search_key = ["like", str("%" + data["search"] + "%")]
-            or_filters = {
-                "isin": search_key,
-                "security_name": search_key,
-                "security_category": search_key,
-            }
+            or_filters = {"isin": search_key, "security_name": search_key}
 
-        # query = "select allowed.isin, master.security_name, allowed.eligible_percentage, master.category from `tabAllowed Security` allowed left join `tabSecurity` master on allowed.isin = master.isin where allowed.lender = '{}' {}".format(
-        #     data.get("lender"), or_filters
-        # )
+        if data.get("category", None):
+            filters["security_category"] = data.get("category")
 
-        # approved_security_list = frappe.db.sql(query, as_dict=1)
         approved_security_list = []
         approved_security_pdf_file_url = ""
 
         if data.get("is_download"):
             approved_security_list = frappe.db.get_all(
                 "Allowed Security",
-                filters={"lender": data.get("lender")},
+                filters=filters,
                 or_filters=or_filters,
                 order_by="creation desc",
                 fields=[
@@ -440,7 +428,7 @@ def approved_securities(**kwargs):
 
             approved_security_list = frappe.db.get_all(
                 "Allowed Security",
-                filters={"lender": data.get("lender")},
+                filters=filters,
                 or_filters=or_filters,
                 order_by="creation desc",
                 fields=[

@@ -966,7 +966,10 @@ def loan_statement(**kwargs):
             return utils.respondNotFound(message=frappe._("Loan not found."))
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
-        if data.get("type") not in ["Account Statement", "Pledged Securities Transactions"]:
+        if data.get("type") not in [
+            "Account Statement",
+            "Pledged Securities Transactions",
+        ]:
             return utils.respondNotFound(message=_("Request Type not found."))
 
         filter = (
@@ -974,13 +977,19 @@ def loan_statement(**kwargs):
             if data.get("type") == "Pledged Securities Transactions"
             else {"loan": data.get("loan_name")}
         )
-        
-        if (data.get("is_download") and data.get("is_email")):
+
+        if data.get("is_download") and data.get("is_email"):
             return utils.respondWithFailure(
-                message=frappe._("Please choose one between download or email transactions at a time.")
+                message=frappe._(
+                    "Please choose one between download or email transactions at a time."
+                )
             )
 
-        elif (data.get("is_download") or data.get("is_email")) and (data.get("from_date") or data.get("to_date")) and data.get("duration"):
+        elif (
+            (data.get("is_download") or data.get("is_email"))
+            and (data.get("from_date") or data.get("to_date"))
+            and data.get("duration")
+        ):
             return utils.respondWithFailure(
                 message=frappe._(
                     "Please use either 'From date and To date' or Duration"
@@ -1001,7 +1010,7 @@ def loan_statement(**kwargs):
             return utils.respondWithFailure(
                 message=frappe._("Please select PDF/Excel file format")
             )
-    
+
         if data.get("from_date") and data.get("to_date"):
             from_date = datetime.strptime(data.get("from_date"), "%d-%m-%Y")
             to_date = datetime.strptime(data.get("to_date"), "%d-%m-%Y")
@@ -1068,10 +1077,12 @@ def loan_statement(**kwargs):
                     datetime.strftime(duration_date, "%Y-%m-%d"),
                 ]
         else:
-            if (data.get("is_download") or data.get("is_email")):
+            if data.get("is_download") or data.get("is_email"):
                 return utils.respondWithFailure(
-                message=frappe._("Please use either 'From date and To date' or Duration to proceed")
-            )
+                    message=frappe._(
+                        "Please use either 'From date and To date' or Duration to proceed"
+                    )
+                )
 
         page_length = (
             15
