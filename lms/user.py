@@ -450,3 +450,14 @@ def approved_securities(**kwargs):
 
     except utils.APIException as e:
         return e.respond()
+
+@frappe.whitelist()
+def get_profile():
+    try:
+        user = frappe.get_doc("User", frappe.session.user)
+
+        customer = lms.__customer(user.name)
+        return utils.respondWithSuccess(data=customer)
+
+    except utils.APIException as e:
+        return e.respond()
