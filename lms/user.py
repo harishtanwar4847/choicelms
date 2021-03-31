@@ -343,14 +343,16 @@ def approved_securities(**kwargs):
         if not data.get("lender"):
             data["lender"] = frappe.get_last_doc("Lender").name
 
+        filters = {"lender": data.get("lender")}
+
         security_category_list_ = frappe.db.get_all(
             "Allowed Security",
+            filters=filters,
             fields=["distinct(security_category)"],
             order_by="security_category asc",
         )
         security_category_list = [i.security_category for i in security_category_list_]
 
-        filters = {"lender": data.get("lender")}
         or_filters = ""
         if data.get("search", None):
             search_key = ["like", str("%" + data["search"] + "%")]
