@@ -232,7 +232,9 @@ def securities(**kwargs):
 
             for i in securities_list:
                 try:
-                    i["Category"] = securities_category_map[i["ISIN"]].get("category")
+                    i["Category"] = securities_category_map[i["ISIN"]].get(
+                        "security_category"
+                    )
                     i["Is_Eligible"] = True
                 except KeyError:
                     i["Is_Eligible"] = False

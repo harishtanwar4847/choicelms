@@ -186,7 +186,7 @@ class Cart(Document):
 
             for i in self.items:
                 security = allowed_securities.get(i.isin)
-                i.security_category = security.category
+                i.security_category = security.security_category
                 i.security_name = security.security_name
                 i.eligible_percentage = security.eligible_percentage
 
