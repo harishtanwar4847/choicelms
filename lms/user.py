@@ -457,7 +457,7 @@ def countdown(t):
         mins, secs = divmod(t, 60)
         timer = '{:02d}:{:02d}'.format(mins, secs)
         print(timer, end="\r")
-        time.sleep(1)
+        time.sleep(60)
         t -= 1
 
 
@@ -517,9 +517,10 @@ def dashboard(**kwargs):
                 mgloan.append({"name":dictionary["name"]})
         #     print(countdown(int(1425))) 
                 # t = 1425
-        # countdown(int(t)) 
-        # mgloan_timer = countdown(int(1425))
+        # mgloan_timer = []
+        # mgloan_timer.append(countdown(int(1425)))
         # mgloan["mgloan_timer"] = mgloan_timer
+
         # Interest ##
         for dictionary in all_interest_loans:
             actionable_loans.append({"loan_name":dictionary.get("name"), "drawing_power":dictionary.get("drawing_power"),"balance":dictionary.get("balance")})
@@ -561,6 +562,7 @@ def dashboard(**kwargs):
         
             due_date_for_all_interest.append({"due_date": (dictionary["interest"]["due_date"]).strftime("%Y-%m-%d %H:%M:%S.%f"), "due_date_txt": dictionary["interest"]["due_date_txt"]})
         
+        ## taking min of due date for the earliest due date in list ##
         for d in due_date_for_all_interest:
             min(d, key=d.get)
 
@@ -574,6 +576,34 @@ def dashboard(**kwargs):
 
         ## Active loans ##            
         active_loans = frappe.get_all("Loan", filters = {"customer": customer.name, "name": ["not in", [list["loan_name"] for list in actionable_loans]]}, fields = ["name","drawing_power","balance"])
+
+        # pending esign object for loan application and topup application
+        pending_loan_applications = frappe.get_all(
+            "Loan Application",
+            filters={"customer": customer.name, "status": "Pledge accepted by Lender"},
+            fields=["*"],
+        )
+
+        la_pending_esigns = []
+        if pending_loan_applications:
+            for loan_application in pending_loan_applications:
+                la_pending_esigns.append(loan_application)
+
+        pending_topup_applications = frappe.get_all(
+            "Top up Application",
+            filters={"customer": customer.name, "status": "Pending"},
+            fields=["*"],
+        )
+
+        topup_pending_esigns = []
+        if pending_topup_applications:
+            for topup_application in pending_topup_applications:
+                topup_pending_esigns.append(topup_application)
+
+        pending_esigns_list = dict(
+            la_pending_esigns=la_pending_esigns,
+            topup_pending_esigns=topup_pending_esigns,
+        )
 
         ## Topup ##     
         topup = None
@@ -626,23 +656,16 @@ def dashboard(**kwargs):
                 )
 
                 for list in security_price_list:
-                    # sec.append({"list":list, "count":counter})
-                    # list["count"] = counter
-                    sec.append(list)
                     amount += (loan_items.get("pledged_quantity") * list.get("price"))
+                    sec.append(list)
                     sec.append((amount,counter))
-                    # sec.append(counter)
                     print(sec)
             if counter != 14:
                 last_monday += timedelta(days=-7)
-                # print(last_monday,"last monday")
-            # print(counter,"counter")
                 
             weekly_security_amount.append({"week": counter, "weekly_amount_for_all_loans": amount})
             amount = 0
             counter -= 1
-        # print(sec)
-        # return utils.respondWithSuccess(data=weekly_security_amount)
         
         res = {
             "customer": customer,
@@ -651,6 +674,7 @@ def dashboard(**kwargs):
             "under_process_la": under_process_la,
             "actionable_loans": actionable_loans,
             "active_loans": active_loans,
+            "pending_esigns_list": pending_esigns_list,
             "top_up": topup_list,
             "weekly_security_amount": weekly_security_amount
             }

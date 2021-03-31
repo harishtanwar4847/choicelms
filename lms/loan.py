@@ -1112,8 +1112,7 @@ def loan_statement(**kwargs):
                     "DATE_FORMAT(time, '%Y-%m-%d %H:%i') as time",
                     "status",
                 ],
-                page_length=page_length,
-                debug = True
+                page_length=page_length
             )
             if not loan_transaction_list:
                 return utils.respondNotFound(message=_("No Record Found"))
