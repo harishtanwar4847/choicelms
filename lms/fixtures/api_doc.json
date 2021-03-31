@@ -1528,7 +1528,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2020-10-17 19:39:17.738458",
+  "modified": "2021-03-30 17:21:17.436675",
   "name": "80b7e05080",
   "parameters": [
    {
@@ -1599,7 +1599,7 @@
   ],
   "parameters_example": [
    {
-    "example": "{\"first_name\":\"Neal\", \"last_name\":\"Bhanushali\", \"mobile\":\"9876543210\", \"email\":\"neal.bhanushali@atritechnocrat.in\", \"firebase_token\":\"asdf\"}",
+    "example": "{\"first_name\":\"John\", \"last_name\":\"Doe\", \"mobile\":\"9876543210\", \"email\":\"john.doe@example.com\", \"firebase_token\":\"asdf\"}",
     "parent": "80b7e05080",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
