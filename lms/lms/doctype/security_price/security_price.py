@@ -75,6 +75,20 @@ def update_security_prices(securities_dict, session_id):
             frappe.db.bulk_insert(
                 "Security Price", fields=fields, values=values_, ignore_duplicates=True
             )
+
+            # Sauce: https://tableplus.com/blog/2018/11/how-to-update-multiple-rows-at-once-in-mysql.html pt. 3
+            # code to update price in security with price received in this api
+            data = [str((i[1], i[4])) for i in values.values()]
+            query = """
+                INSERT INTO `tabSecurity`(name, price)
+                VALUES {values}
+                ON DUPLICATE KEY UPDATE
+                price = VALUES(price);
+            """.format(
+                values=",".join(data)
+            )
+            frappe.db.sql(query)
+
     except (RequestException, Exception) as e:
         frappe.log_error()
 
