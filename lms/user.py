@@ -7,7 +7,8 @@ import requests
 import utils
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
-from frappe.utils.password import update_password
+from frappe.utils.password import update_password, check_password
+import re
 
 import lms
 from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
@@ -454,10 +455,45 @@ def approved_securities(**kwargs):
 @frappe.whitelist()
 def get_profile():
     try:
+        utils.validator.validate_http_method("GET")
         user = frappe.get_doc("User", frappe.session.user)
-
         customer = lms.__customer(user.name)
-        return utils.respondWithSuccess(data=customer)
+
+        last_login = (datetime.strptime(user.last_login, "%Y-%m-%d %H:%M:%S.%f")).strftime("%Y-%m-%d %H:%M:%S")
+        res = {
+            "customer_details" : customer,
+            "last_login": last_login
+        }
+        return utils.respondWithSuccess(data=res)
 
     except utils.APIException as e:
+        return e.respond()
+
+@frappe.whitelist()
+def update_pin(**kwargs):
+    try:
+        # validation
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "old_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+                "new_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+            },
+        )
+        try:
+			# returns user in correct case
+            old_pass_check = check_password(frappe.session.user, data.get("old_pin"))
+        except frappe.AuthenticationError as e:
+            return utils.respondWithFailure(status=417, message=frappe._("Incorrect User or Password."))
+
+        if old_pass_check:
+            # update pin
+            update_password(frappe.session.user, data.get("new_pin"))
+            frappe.db.commit()
+        
+        return utils.respondWithSuccess(message=frappe._("User PIN has been updated."))
+    except utils.APIException as e:
+        frappe.db.rollback()
         return e.respond()
