@@ -573,6 +573,7 @@ def dashboard(**kwargs):
         
             due_date_for_all_interest.append({"due_date": (dictionary["interest"]["due_date"]).strftime("%Y-%m-%d %H:%M:%S.%f"), "due_date_txt": dictionary["interest"]["due_date_txt"]})
         
+        # take min of dates for fetching earliest due date
         for d in due_date_for_all_interest:
             min(d, key=d.get)
 
@@ -624,7 +625,7 @@ def dashboard(**kwargs):
         counter = 14
         amount = 0
         weekly_security_amount = []
-        yesterday = date.today()
+        yesterday = date.today() - timedelta(days=1)
         last_monday = yesterday - timedelta(days=yesterday.weekday())
 
         while counter >= 1:
@@ -638,23 +639,16 @@ def dashboard(**kwargs):
                 )
 
                 for list in security_price_list:
-                    # sec.append({"list":list, "count":counter})
-                    # list["count"] = counter
                     sec.append(list)
                     amount += (loan_items.get("pledged_quantity") * list.get("price"))
                     sec.append((amount,counter))
-                    # sec.append(counter)
                     print(sec)
             if counter != 14:
                 last_monday += timedelta(days=-7)
-                # print(last_monday,"last monday")
-            # print(counter,"counter")
                 
-            weekly_security_amount.append({"week": counter, "weekly_amount_for_all_loans": amount})
+            weekly_security_amount.append({"week": counter, "weekly_amount_for_all_loans": round(amount, 2)})
             amount = 0
             counter -= 1
-        # print(sec)
-        # return utils.respondWithSuccess(data=weekly_security_amount)
         
         res = {
             "customer": customer,
@@ -733,10 +727,7 @@ def my_pledge_securities(**kwargs):
             "all_pledged_securities": all_pledged_securities
         }
 
-        # all_loans = frappe.get_all("Loan", filters = {"customer": customer.name}, order_by="creation desc")
-
         res = {
-            # "all_loans_list": all_loans,
             "security_transactions": security_transactions
         }
         return utils.respondWithSuccess(data=res)
