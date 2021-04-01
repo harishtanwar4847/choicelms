@@ -411,7 +411,7 @@ def approved_securities(**kwargs):
 
             from frappe.utils.pdf import get_pdf
 
-            pdf = get_pdf(a)
+            pdf = get_pdf(html_with_style)
             pdf_file.write(pdf)
             pdf_file.close()
 
@@ -546,7 +546,7 @@ def dashboard(**kwargs):
                     if current_date > due_date:
                         due_date_txt = "Immediate"
 
-                total_int_amt_all_loans += dictionary["interest_amount"]
+                total_int_amt_all_loans += round(dictionary["interest_amount"], 2)
                 interest_loan_list.append({"loan_name": dictionary["name"]})
                 
                 interest = {
@@ -663,8 +663,8 @@ def dashboard(**kwargs):
             if counter != 14:
                 last_monday += timedelta(days=-7)
                 
-            weekly_security_amount.append({"week": counter, "weekly_amount_for_all_loans": amount})
-            amount = 0
+            weekly_security_amount.append({"week": counter, "weekly_amount_for_all_loans": round(amount,2)})
+            amount = 0.0
             counter -= 1
         
         res = {
