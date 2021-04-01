@@ -20,7 +20,7 @@ frappe.ui.form.on("Loan Application", {
       }
     }
 
-    if (false == true) {
+    if (false == false) {
       if (frm.doc.status == "Waiting to be pledged") {
         frm.add_custom_button(__("Process Pledge"), function () {
           frappe.call({
