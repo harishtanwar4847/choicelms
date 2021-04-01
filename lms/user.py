@@ -410,7 +410,7 @@ def approved_securities(**kwargs):
 
             from frappe.utils.pdf import get_pdf
 
-            pdf = get_pdf(a)
+            pdf = get_pdf(html_with_style)
             pdf_file.write(pdf)
             pdf_file.close()
 
