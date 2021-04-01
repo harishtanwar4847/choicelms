@@ -462,6 +462,72 @@ def countdown(t):
 
 
 @frappe.whitelist()
+def all_loans_list(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        user = frappe.get_doc("User", frappe.session.user)
+
+        customer = lms.__customer(user.name)
+        if not customer:
+            return utils.respondNotFound(message=frappe._("Customer not found."))
+        
+        all_loans = frappe.get_all("Loan", filters = {"customer": customer.name}, order_by="creation desc")
+
+        return utils.respondWithSuccess(data=all_loans)
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+@frappe.whitelist()
+def my_pledge_securities(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "loan_name": ""
+            },
+        )
+        user = frappe.get_doc("User", frappe.session.user)
+
+        customer = lms.__customer(user.name)
+        try:
+            if data.get("loan_name"):
+                loan = frappe.get_doc("Loan", data.get("loan_name"))
+            elif not data.get("loan_name", None):
+                latest_loan = frappe.get_all("Loan", filters = {"customer": customer.name}, order_by = "creation desc", page_length=1)
+                loan = frappe.get_doc("Loan", latest_loan[0].name)
+        except frappe.DoesNotExistError:
+            return utils.respondNotFound(message=frappe._("Loan not found."))
+
+        if loan.customer != customer.name:
+            return utils.respondForbidden(message=_("Please use your own Loan."))
+        
+        if not customer:
+            return utils.respondNotFound(message=frappe._("Customer not found."))
+
+        all_pledged_securities =[]
+        for i in loan.get("items"):
+            all_pledged_securities.append({"security_name":i.get("security_name"),
+            "pledged_quantity":i.get("pledged_quantity"),
+            "security_category":i.get("security_category"),
+            "price":i.get("price"),
+            "amount":i.get("amount")})
+
+        res = {
+            "loan_name" : loan.name,
+            "total_value": loan.total_collateral_value,
+            "drawing_power": loan.drawing_power,
+            "number_of_scrips": len(loan.items),
+            "all_pledged_securities": all_pledged_securities
+        }
+        return utils.respondWithSuccess(data=res)
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+@frappe.whitelist()
 def dashboard(**kwargs):
     try:
         utils.validator.validate_http_method("GET")

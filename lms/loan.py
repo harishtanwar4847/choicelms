@@ -1010,7 +1010,6 @@ def loan_statement(**kwargs):
             return utils.respondWithFailure(
                 message=frappe._("Please select PDF/Excel file format")
             )
-
         if data.get("from_date") and data.get("to_date"):
             from_date = datetime.strptime(data.get("from_date"), "%d-%m-%Y")
             to_date = datetime.strptime(data.get("to_date"), "%d-%m-%Y")
