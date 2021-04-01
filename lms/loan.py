@@ -978,14 +978,7 @@ def loan_statement(**kwargs):
             else {"loan": data.get("loan_name")}
         )
 
-        if data.get("is_download") and data.get("is_email"):
-            return utils.respondWithFailure(
-                message=frappe._(
-                    "Please choose one between download or email transactions at a time."
-                )
-            )
-
-        elif (
+        if (
             (data.get("is_download") or data.get("is_email"))
             and (data.get("from_date") or data.get("to_date"))
             and data.get("duration")
@@ -1010,6 +1003,13 @@ def loan_statement(**kwargs):
             return utils.respondWithFailure(
                 message=frappe._("Please select PDF/Excel file format")
             )
+        
+        # elif data.get("is_download") and data.get("is_email"):
+        #     return utils.respondWithFailure(
+        #         message=frappe._(
+        #             "Please choose one between download or email transactions at a time."
+        #         )
+        #     )
 
         if data.get("from_date") and data.get("to_date"):
             from_date = datetime.strptime(data.get("from_date"), "%d-%m-%Y")
