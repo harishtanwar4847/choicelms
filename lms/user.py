@@ -492,12 +492,14 @@ def my_pledge_securities(**kwargs):
         user = frappe.get_doc("User", frappe.session.user)
 
         customer = lms.__customer(user.name)
-
-        if data.get("loan_name"):
-            loan = frappe.get_doc("Loan", data.get("loan_name"))
-        elif not data.get("loan_name", None):
-            latest_loan = frappe.get_all("Loan", filters = {"customer": customer.name}, order_by = "creation desc", page_length=1)
-            loan = frappe.get_doc("Loan", latest_loan[0].name)
+        try:
+            if data.get("loan_name"):
+                loan = frappe.get_doc("Loan", data.get("loan_name"))
+            elif not data.get("loan_name", None):
+                latest_loan = frappe.get_all("Loan", filters = {"customer": customer.name}, order_by = "creation desc", page_length=1)
+                loan = frappe.get_doc("Loan", latest_loan[0].name)
+        except frappe.DoesNotExistError:
+            return utils.respondNotFound(message=frappe._("Loan not found."))
 
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
