@@ -9,6 +9,7 @@ from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.utils.password import update_password, check_password
 import re
+import base64
 
 import lms
 from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
@@ -458,10 +459,16 @@ def get_profile():
         utils.validator.validate_http_method("GET")
         user = frappe.get_doc("User", frappe.session.user)
         customer = lms.__customer(user.name)
+        
+        try:
+            user_kyc = lms.__user_kyc(user.email)
+        except UserKYCNotFoundException:
+            user_kyc = None
 
         last_login = (datetime.strptime(user.last_login, "%Y-%m-%d %H:%M:%S.%f")).strftime("%Y-%m-%d %H:%M:%S")
         res = {
             "customer_details" : customer,
+            "user_kyc": user_kyc,
             "last_login": last_login
         }
         return utils.respondWithSuccess(data=res)
@@ -470,30 +477,66 @@ def get_profile():
         return e.respond()
 
 @frappe.whitelist()
-def update_pin(**kwargs):
+def update_profile_pic_and_pin(**kwargs):
     try:
         # validation
         utils.validator.validate_http_method("POST")
+        user = frappe.get_doc("User", frappe.session.user)
 
         data = utils.validator.validate(
             kwargs,
             {
-                "old_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
-                "new_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+                "is_for_profile_pic": "",
+                "image": "",
+                "is_for_update_pin": "",
+                "old_pin": ["decimal", utils.validator.rules.LengthRule(4)],
+                "new_pin": ["decimal", utils.validator.rules.LengthRule(4)],
             },
         )
-        try:
-			# returns user in correct case
-            old_pass_check = check_password(frappe.session.user, data.get("old_pin"))
-        except frappe.AuthenticationError as e:
-            return utils.respondWithFailure(status=417, message=frappe._("Incorrect User or Password."))
 
-        if old_pass_check:
-            # update pin
-            update_password(frappe.session.user, data.get("new_pin"))
-            frappe.db.commit()
+        if isinstance(data.get("is_for_profile_pic"), str):
+            data["is_for_profile_pic"] = int(data.get("is_for_profile_pic"))
         
-        return utils.respondWithSuccess(message=frappe._("User PIN has been updated."))
+        if isinstance(data.get("image"), str):
+            data["image"] = bytes(data.get("image")[1:-1], encoding='utf8')
+
+        if isinstance(data.get("is_for_update_pin"), str):
+            data["is_for_update_pin"] = int(data.get("is_for_update_pin"))
+
+        if data.get("is_for_profile_pic") and data.get("image"):
+            profile_picture_file = "{}-profile-picture.jpeg".format(user.full_name).replace(" ", "-")
+
+            profile_picture_file_path = frappe.utils.get_files_path(profile_picture_file)
+
+            image_decode = base64.decodestring(data.get("image")) 
+            image_file = open(profile_picture_file_path, "wb").write(image_decode)
+
+            profile_picture_file_url = frappe.utils.get_url(
+                "files/{}-profile-picture.jpeg".format(user.full_name).replace(" ", "-")
+            )
+            # frappe.db.set_value('User', user.name, 'user_image', profile_picture_file_url)
+            return utils.respondWithSuccess(data={"profile_picture_file_url": profile_picture_file_url})
+    
+        elif data.get("is_for_profile_pic") and not data.get("image"):
+            return utils.respondWithFailure(status=417, message=frappe._("Please upload image."))
+
+        if data.get("is_for_update_pin") and data.get("old_pin") and data.get("new_pin"):
+            try:
+                # returns user in correct case
+                old_pass_check = check_password(frappe.session.user, data.get("old_pin"))
+            except frappe.AuthenticationError as e:
+                return utils.respondWithFailure(status=417, message=frappe._("Incorrect User or Password."))
+
+            if old_pass_check:
+                # update pin
+                update_password(frappe.session.user, data.get("new_pin"))
+                frappe.db.commit()
+            
+            return utils.respondWithSuccess(message=frappe._("User PIN has been updated."))
+    
+        elif data.get("is_for_update_pin") and (not data.get("old_pin") or not data.get("new_pin")):
+            return utils.respondWithFailure(status=417, message=frappe._("Please Enter old pin and new pin."))
+    
     except utils.APIException as e:
         frappe.db.rollback()
         return e.respond()
