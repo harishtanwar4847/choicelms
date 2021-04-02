@@ -659,6 +659,19 @@ class Loan(Document):
                 topup_doc.db_set("top_up_amount", 0)
             frappe.db.commit()
 
+    def max_unpledge_amount(self):
+        minimum_collateral_value = (100 / self.allowable_ltv) * self.balance
+        maximum_unpledge_amount = self.total_collateral_value - minimum_collateral_value
+
+        return {
+            "minimum_collateral_value": minimum_collateral_value
+            if minimum_collateral_value > 0
+            else 0,
+            "maximum_unpledge_amount": maximum_unpledge_amount
+            if maximum_unpledge_amount > 0
+            else 0,
+        }
+
 
 def check_loans_for_shortfall(loans):
     for loan_name in loans:
