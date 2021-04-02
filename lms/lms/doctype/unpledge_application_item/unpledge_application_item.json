@@ -1,0 +1,37 @@
+{
+ "creation": "2021-04-02 12:05:46.038427",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "isin",
+  "unpledged_quantity"
+ ],
+ "fields": [
+  {
+   "fieldname": "isin",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "ISIN",
+   "reqd": 1
+  },
+  {
+   "fieldname": "unpledged_quantity",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Unpledged Quantity",
+   "reqd": 1
+  }
+ ],
+ "istable": 1,
+ "modified": "2021-04-02 12:13:38.702482",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Unpledge Application Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
