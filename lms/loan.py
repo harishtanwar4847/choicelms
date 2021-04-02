@@ -1300,3 +1300,22 @@ def loan_statement(**kwargs):
         return utils.respondWithSuccess(data=res)
     except utils.APIException as e:
         return e.respond()
+
+
+@frappe.whitelist()
+def request_unpledge_otp():
+    try:
+        utils.validator.validate_http_method("POST")
+
+        user = lms.__user()
+
+        frappe.db.begin()
+        lms.create_user_token(
+            entity=user.username,
+            token_type="Unpledge OTP",
+            token=lms.random_token(length=4, is_numeric=True),
+        )
+        frappe.db.commit()
+        return utils.respondWithSuccess(message="Unpledge OTP sent")
+    except utils.APIException as e:
+        return e.respond()

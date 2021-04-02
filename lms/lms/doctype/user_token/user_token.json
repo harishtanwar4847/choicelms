@@ -1,81 +1,81 @@
 {
-  "creation": "2020-07-24 23:46:40.807366",
-  "doctype": "DocType",
-  "editable_grid": 1,
-  "engine": "InnoDB",
-  "field_order": [
-    "entity",
-    "token_type",
-    "used",
-    "column_break_4",
-    "token",
-    "expiry"
-  ],
-  "fields": [
-    {
-      "fieldname": "entity",
-      "fieldtype": "Data",
-      "in_list_view": 1,
-      "label": "Entity",
-      "read_only": 1,
-      "reqd": 1
-    },
-    {
-      "fieldname": "token_type",
-      "fieldtype": "Select",
-      "in_list_view": 1,
-      "label": "Token Type",
-      "options": "OTP\nEmail Verification Token\nFirebase Token\nPledge OTP\nWithdraw OTP",
-      "read_only": 1,
-      "reqd": 1
-    },
-    {
-      "fieldname": "token",
-      "fieldtype": "Small Text",
-      "in_list_view": 1,
-      "label": "Token",
-      "read_only": 1,
-      "reqd": 1
-    },
-    {
-      "fieldname": "expiry",
-      "fieldtype": "Datetime",
-      "label": "Expiry",
-      "read_only": 1
-    },
-    {
-      "fieldname": "column_break_4",
-      "fieldtype": "Column Break"
-    },
-    {
-      "default": "0",
-      "fieldname": "used",
-      "fieldtype": "Check",
-      "label": "Used",
-      "read_only": 1
-    }
-  ],
-  "modified": "2020-10-31 15:27:46.495423",
-  "modified_by": "Administrator",
-  "module": "Lms",
-  "name": "User Token",
-  "owner": "Administrator",
-  "permissions": [
-    {
-      "create": 1,
-      "delete": 1,
-      "email": 1,
-      "export": 1,
-      "print": 1,
-      "read": 1,
-      "report": 1,
-      "role": "System Manager",
-      "share": 1,
-      "write": 1
-    }
-  ],
-  "quick_entry": 1,
-  "sort_field": "modified",
-  "sort_order": "DESC",
-  "track_changes": 1
+ "creation": "2020-07-24 23:46:40.807366",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "entity",
+  "token_type",
+  "used",
+  "column_break_4",
+  "token",
+  "expiry"
+ ],
+ "fields": [
+  {
+   "fieldname": "entity",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Entity",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "token_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Token Type",
+   "options": "OTP\nEmail Verification Token\nFirebase Token\nPledge OTP\nWithdraw OTP\nUnpledge OTP",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "token",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Token",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "expiry",
+   "fieldtype": "Datetime",
+   "label": "Expiry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "used",
+   "fieldtype": "Check",
+   "label": "Used",
+   "read_only": 1
+  }
+ ],
+ "modified": "2021-04-02 17:33:19.087925",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "User Token",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
 }
