@@ -545,6 +545,10 @@ def dashboard(**kwargs):
         utils.validator.validate_http_method("GET")
 
         user = frappe.get_doc("User", frappe.session.user)
+        try:
+            user_kyc = lms.__user_kyc(user.email)
+        except UserKYCNotFoundException:
+            user_kyc = None
 
         customer = lms.__customer(user.name)
         if not customer:
@@ -654,7 +658,7 @@ def dashboard(**kwargs):
             due_date_for_all_interest.append(
                 {
                     "due_date": (dictionary["interest"]["due_date"]).strftime(
-                        "%Y-%m-%d %H:%M:%S.%f"
+                        "%m.%d.%Y"
                     ),
                     "due_date_txt": dictionary["interest"]["due_date_txt"],
                 }
@@ -668,7 +672,7 @@ def dashboard(**kwargs):
         total_interest_all_loans = []
         if due_date_for_all_interest:
             total_interest_all_loans = {
-                "total_interest_amount": total_int_amt_all_loans,
+                "total_interest_amount": lms.amount_formatter(total_int_amt_all_loans),
                 "loans_interest_due_date": d,
                 "interest_loan_list": interest_loan_list,
             }
@@ -765,39 +769,40 @@ def dashboard(**kwargs):
         counter = 14
         amount = 0
         weekly_security_amount = []
-        yesterday = date.today() - timedelta(days=1)
-        last_monday = yesterday - timedelta(days=yesterday.weekday())
+        # yesterday = date.today() - timedelta(days=1)
+        # last_monday = yesterday - timedelta(days=yesterday.weekday())
 
-        while counter >= 1:
-            for loan_items in all_loan_items:
-                security_price_list = frappe.db.sql(
-                    """select security, price, time
-                from `tabSecurity Price`
-                where `tabSecurity Price`.security = '{}'
-                and `tabSecurity Price`.time like '%{}%'
-                order by modified desc limit 1""".format(
-                        loan_items.get("isin"),
-                        yesterday if counter == 14 else last_monday,
-                    ),
-                    as_dict=1,
-                )
+        # while counter >= 1:
+        #     for loan_items in all_loan_items:
+        #         security_price_list = frappe.db.sql(
+        #             """select security, price, time
+        #         from `tabSecurity Price`
+        #         where `tabSecurity Price`.security = '{}'
+        #         and `tabSecurity Price`.time like '%{}%'
+        #         order by modified desc limit 1""".format(
+        #                 loan_items.get("isin"),
+        #                 yesterday if counter == 14 else last_monday,
+        #             ),
+        #             as_dict=1,
+        #         )
 
-                for list in security_price_list:
-                    amount += loan_items.get("pledged_quantity") * list.get("price")
-                    sec.append(list)
-                    sec.append((amount, counter))
-                    print(sec)
-            if counter != 14:
-                last_monday += timedelta(days=-7)
+        #         for list in security_price_list:
+        #             amount += loan_items.get("pledged_quantity") * list.get("price")
+        #             sec.append(list)
+        #             sec.append((amount, counter))
+        #             print(sec)
+        #     if counter != 14:
+        #         last_monday += timedelta(days=-7)
 
-            weekly_security_amount.append(
-                {"week": counter, "weekly_amount_for_all_loans": round(amount, 2)}
-            )
-            amount = 0.0
-            counter -= 1
+        #     weekly_security_amount.append(
+        #         {"week": counter, "weekly_amount_for_all_loans": round(amount, 2)}
+        #     )
+        #     amount = 0.0
+        #     counter -= 1
 
         res = {
             "customer": customer,
+            "user_kyc":user_kyc,
             "margin_shortfall_card": mgloan,
             "total_interest_all_loans_card": total_interest_all_loans,
             "under_process_la": under_process_la,
