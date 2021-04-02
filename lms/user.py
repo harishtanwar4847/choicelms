@@ -729,8 +729,9 @@ def dashboard(**kwargs):
         ## Topup ##
         topup = None
         topup_list = []
+        all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
 
-        for loan in active_loans:
+        for loan in all_loans:
             loan = frappe.get_doc("Loan", loan.name)
             existing_topup_application = frappe.get_all(
                 "Top up Application",
@@ -759,7 +760,6 @@ def dashboard(**kwargs):
 
         ## sum_of_all_pledged_securities for 52 weeks
         sec = []
-        all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
         all_loan_items = frappe.get_all(
             "Loan Item",
             filters={"parent": ["in", [loan.name for loan in all_loans]]},
@@ -769,36 +769,36 @@ def dashboard(**kwargs):
         counter = 14
         amount = 0
         weekly_security_amount = []
-        # yesterday = date.today() - timedelta(days=1)
-        # last_monday = yesterday - timedelta(days=yesterday.weekday())
+        yesterday = date.today() - timedelta(days=1)
+        last_monday = yesterday - timedelta(days=yesterday.weekday())
 
-        # while counter >= 1:
-        #     for loan_items in all_loan_items:
-        #         security_price_list = frappe.db.sql(
-        #             """select security, price, time
-        #         from `tabSecurity Price`
-        #         where `tabSecurity Price`.security = '{}'
-        #         and `tabSecurity Price`.time like '%{}%'
-        #         order by modified desc limit 1""".format(
-        #                 loan_items.get("isin"),
-        #                 yesterday if counter == 14 else last_monday,
-        #             ),
-        #             as_dict=1,
-        #         )
+        while counter >= 1:
+            for loan_items in all_loan_items:
+                security_price_list = frappe.db.sql(
+                    """select security, price, time
+                from `tabSecurity Price`
+                where `tabSecurity Price`.security = '{}'
+                and `tabSecurity Price`.time like '%{}%'
+                order by modified desc limit 1""".format(
+                        loan_items.get("isin"),
+                        yesterday if counter == 14 else last_monday,
+                    ),
+                    as_dict=1,
+                )
 
-        #         for list in security_price_list:
-        #             amount += loan_items.get("pledged_quantity") * list.get("price")
-        #             sec.append(list)
-        #             sec.append((amount, counter))
-        #             print(sec)
-        #     if counter != 14:
-        #         last_monday += timedelta(days=-7)
+                for list in security_price_list:
+                    amount += loan_items.get("pledged_quantity") * list.get("price")
+                    sec.append(list)
+                    sec.append((amount, counter))
+                    print(sec)
+            if counter != 14:
+                last_monday += timedelta(days=-7)
 
-        #     weekly_security_amount.append(
-        #         {"week": counter, "weekly_amount_for_all_loans": round(amount, 2)}
-        #     )
-        #     amount = 0.0
-        #     counter -= 1
+            weekly_security_amount.append(
+                {"week": counter, "weekly_amount_for_all_loans": round(amount, 2)}
+            )
+            amount = 0.0
+            counter -= 1
 
         res = {
             "customer": customer,
