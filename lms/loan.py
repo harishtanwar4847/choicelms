@@ -1319,3 +1319,26 @@ def request_unpledge_otp():
         return utils.respondWithSuccess(message="Unpledge OTP sent")
     except utils.APIException as e:
         return e.respond()
+
+
+@frappe.whitelist()
+def loan_unpledge_details(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(kwargs, {"loan_name": "required"})
+
+        customer = lms.__customer()
+        loan = frappe.get_doc("Loan", data.get("loan_name"))
+        if not loan:
+            return utils.respondNotFound(message=frappe._("Loan not found."))
+        if loan.customer != customer.name:
+            return utils.respondForbidden(message=_("Please use your own Loan."))
+
+        # get amount_available_for_unpledge,min collateral value
+        unpledge = loan.max_unpledge_amount()
+        data = {"loan": loan, "unpledge": unpledge}
+
+        return utils.respondWithSuccess(data=data)
+    except utils.APIException as e:
+        return e.respond()
