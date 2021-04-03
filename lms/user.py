@@ -708,7 +708,10 @@ def dashboard(**kwargs):
         la_pending_esigns = []
         if pending_loan_applications:
             for loan_application in pending_loan_applications:
-                la_pending_esigns.append(loan_application)
+                loan_application_doc = frappe.get_doc(
+                    "Loan Application", loan_application.name
+                )
+                la_pending_esigns.append(loan_application_doc)
 
         pending_topup_applications = frappe.get_all(
             "Top up Application",
@@ -719,7 +722,11 @@ def dashboard(**kwargs):
         topup_pending_esigns = []
         if pending_topup_applications:
             for topup_application in pending_topup_applications:
-                topup_pending_esigns.append(topup_application)
+                topup_application_doc = frappe.get_doc(
+                    "Top up Application", topup_application.name
+                )
+                topup_pending_esigns.append(topup_application_doc)
+
 
         pending_esigns_list = dict(
             la_pending_esigns=la_pending_esigns,
@@ -766,8 +773,8 @@ def dashboard(**kwargs):
             fields=["distinct isin", "pledged_quantity"],
         )
 
-        counter = 14
-        amount = 0
+        counter = 15
+        amount = 0.0
         weekly_security_amount = []
         yesterday = date.today() - timedelta(days=1)
         last_monday = yesterday - timedelta(days=yesterday.weekday())
@@ -781,7 +788,7 @@ def dashboard(**kwargs):
                 and `tabSecurity Price`.time like '%{}%'
                 order by modified desc limit 1""".format(
                         loan_items.get("isin"),
-                        yesterday if counter == 14 else last_monday,
+                        yesterday if counter == 15 else last_monday,
                     ),
                     as_dict=1,
                 )
@@ -791,7 +798,9 @@ def dashboard(**kwargs):
                     sec.append(list)
                     sec.append((amount, counter))
                     print(sec)
-            if counter != 14:
+            for list in security_price_list:
+                sec.append(list.get("time")) 
+            if counter != 15 or counter != 14:
                 last_monday += timedelta(days=-7)
 
             weekly_security_amount.append(
@@ -813,7 +822,7 @@ def dashboard(**kwargs):
             "weekly_security_amount": weekly_security_amount,
         }
 
-        return utils.respondWithSuccess(data=res)
+        return utils.respondWithSuccess(data=sec)
 
     except utils.exceptions.APIException as e:
         return e.respond()
