@@ -1342,3 +1342,22 @@ def loan_unpledge_details(**kwargs):
         return utils.respondWithSuccess(data=data)
     except utils.APIException as e:
         return e.respond()
+
+
+@frappe.whitelist()
+def loan_unpledge_request(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "loan_name": "required",
+                "securities": "",
+                "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+            },
+        )
+
+        return utils.respondWithSuccess(data=data)
+    except utils.APIException as e:
+        return e.respond()
