@@ -454,13 +454,13 @@ def approved_securities(**kwargs):
         return e.respond()
 
 @frappe.whitelist()
-def get_profile():
+def get_profile(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
         user = frappe.get_doc("User", frappe.session.user)
         customer = lms.__customer(user.name)
 
-                data = utils.validator.validate(
+        data = utils.validator.validate(
             kwargs,
             {
                 "is_for_reminders": "",
@@ -474,12 +474,61 @@ def get_profile():
             },
         )
 
+        if isinstance(data.get("is_for_reminders"), str):
+            data["is_for_reminders"] = int(data.get("is_for_reminders"))
+        if isinstance(data.get("is_for_alerts"), str):
+            data["is_for_alerts"] = int(data.get("is_for_alerts"))
+        if isinstance(data.get("repayment_reminders_push_message"), str):
+            data["repayment_reminders_push_message"] = int(data.get("repayment_reminders_push_message"))
+        if isinstance(data.get("repayment_reminders_email"), str):
+            data["repayment_reminders_email"] = int(data.get("repayment_reminders_email"))
+        if isinstance(data.get("important_updates_push_message"), str):
+            data["important_updates_push_message"] = int(data.get("important_updates_push_message"))
+        if isinstance(data.get("important_updates_email"), str):
+            data["important_updates_email"] = int(data.get("important_updates_email"))
+        if isinstance(data.get("new_product_offers_push_message"), str):
+            data["new_product_offers_push_message"] = int(data.get("new_product_offers_push_message"))
+        if isinstance(data.get("new_product_offers_email"), str):
+            data["new_product_offers_email"] = int(data.get("new_product_offers_email"))
+
+        if data.get("is_for_reminders"):
+            if data.get("repayment_reminders_push_message"):
+                customer.repayment_reminders_push_message = 1
+            if data.get("repayment_reminders_email"):
+                customer.repayment_reminders_email = 1
+            if data.get("important_updates_push_message"):
+                customer.important_updates_push_message = 1
+            if data.get("important_updates_email"):
+                customer.important_updates_email = 1
+            if data.get("new_product_offers_push_message"):
+                customer.new_product_offers_push_message = 1
+            if data.get("new_product_offers_email"):
+                customer.new_product_offers_email = 1
+            if not data.get("repayment_reminders_push_message"):
+                customer.repayment_reminders_push_message = 0
+            if not data.get("repayment_reminders_email"):
+                customer.repayment_reminders_email = 0
+            if not data.get("important_updates_push_message"):
+                customer.important_updates_push_message = 0
+            if not data.get("important_updates_email"):
+                customer.important_updates_email = 0
+            if not data.get("new_product_offers_push_message"):
+                customer.new_product_offers_push_message = 0
+            if not data.get("new_product_offers_email"):
+                customer.new_product_offers_email = 0
+            customer.save(ignore_permissions=True)
+            frappe.db.commit()
+        
         try:
             user_kyc = lms.__user_kyc(user.email)
         except UserKYCNotFoundException:
             user_kyc = None
 
-        last_login = (datetime.strptime(user.last_login, "%Y-%m-%d %H:%M:%S.%f")).strftime("%Y-%m-%d %H:%M:%S")
+        if not user.last_login:
+            last_login = None
+        else:
+            last_login = (datetime.strptime(user.last_login, "%Y-%m-%d %H:%M:%S.%f")).strftime("%Y-%m-%d %H:%M:%S")
+        
         res = {
             "customer_details" : customer,
             "user_kyc": user_kyc,
