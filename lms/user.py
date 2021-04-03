@@ -459,7 +459,21 @@ def get_profile():
         utils.validator.validate_http_method("GET")
         user = frappe.get_doc("User", frappe.session.user)
         customer = lms.__customer(user.name)
-        
+
+                data = utils.validator.validate(
+            kwargs,
+            {
+                "is_for_reminders": "",
+                "is_for_alerts":"",
+                "repayment_reminders_push_message": "",
+                "repayment_reminders_email": "",
+                "important_updates_push_message": "",
+                "important_updates_email": "",
+                "new_product_offers_push_message": "",
+                "new_product_offers_email": ""
+            },
+        )
+
         try:
             user_kyc = lms.__user_kyc(user.email)
         except UserKYCNotFoundException:
