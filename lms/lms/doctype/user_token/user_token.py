@@ -13,6 +13,7 @@ import lms
 
 class UserToken(Document):
     def after_insert(self):
+        # if self.token_type in ["OTP", "Pledge OTP", "Withdraw OTP", "Unpledge OTP"]:
         if self.token_type in ["OTP", "Pledge OTP", "Withdraw OTP"]:
             # las_settings = frappe.get_single("LAS Settings")
             # app_hash_string=las_settings.app_identification_hash_string,
