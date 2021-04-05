@@ -24,6 +24,7 @@ user_token_expiry_map = {
     "Email Verification Token": 60,
     "Pledge OTP": 10,
     "Withdraw OTP": 10,
+    "Sell Collateral OTP": 10,
 }
 
 
