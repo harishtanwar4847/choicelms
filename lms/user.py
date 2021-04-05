@@ -774,12 +774,12 @@ def dashboard(**kwargs):
         )
 
         counter = 15
-        amount = 0.0
         weekly_security_amount = []
         yesterday = date.today() - timedelta(days=1)
-        last_monday = yesterday - timedelta(days=yesterday.weekday())
+        last_friday = yesterday - timedelta(days=yesterday.weekday() - 4)
 
-        while counter >= 1:
+        while counter >= 0:
+            amount = 0.0
             for loan_items in all_loan_items:
                 security_price_list = frappe.db.sql(
                     """select security, price, time
@@ -788,25 +788,26 @@ def dashboard(**kwargs):
                 and `tabSecurity Price`.time like '%{}%'
                 order by modified desc limit 1""".format(
                         loan_items.get("isin"),
-                        yesterday if counter == 15 else last_monday,
+                        yesterday if counter == 15 else last_friday,
                     ),
                     as_dict=1,
                 )
 
                 for list in security_price_list:
-                    amount += loan_items.get("pledged_quantity") * list.get("price")
+                    amount += (loan_items.get("pledged_quantity") * list.get("price"))
                     sec.append(list)
                     sec.append((amount, counter))
                     print(sec)
-            for list in security_price_list:
-                sec.append(list.get("time")) 
-            if counter != 15 or counter != 14:
-                last_monday += timedelta(days=-7)
+            # for list in security_price_list:
+            #     sec.append(list.get("time"))
+            if counter == 15 or counter == 14:
+                last_friday = last_friday
+            else:
+                last_friday += timedelta(days=-7)
 
             weekly_security_amount.append(
                 {"week": counter, "weekly_amount_for_all_loans": round(amount, 2)}
             )
-            amount = 0.0
             counter -= 1
 
         res = {
@@ -822,7 +823,7 @@ def dashboard(**kwargs):
             "weekly_security_amount": weekly_security_amount,
         }
 
-        return utils.respondWithSuccess(data=sec)
+        return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
         return e.respond()
