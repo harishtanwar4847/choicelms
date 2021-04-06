@@ -18,6 +18,7 @@ from num2words import num2words
 import lms
 from lms.exceptions.PledgeSetupFailureException import PledgeSetupFailureException
 from lms.firebase import FirebaseAdmin
+from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
 
 
 class LoanApplication(Document):
@@ -118,22 +119,17 @@ class LoanApplication(Document):
             total_collateral_value = 0
 
             for i in self.items:
-                if (
-                    i.get("error_code")
-                    and len(i.get("error_code")) > 0
-                    and i.lender_approval_status
-                    in [
-                        "Approved",
-                        "Rejected",
-                    ]
-                ):
+                if i.get("pledge_status") == "Failure" and i.lender_approval_status in [
+                    "Approved",
+                    "Rejected",
+                ]:
                     frappe.throw(
                         "Pledge failed for ISIN - {}, can't Approve or Reject".format(
                             i.isin
                         )
                     )
 
-                elif i.get("psn") and len(i.get("psn")) > 0:
+                elif i.get("pledge_status") == "Success":
                     if i.lender_approval_status == "Pledge Failure":
                         frappe.throw(
                             "Already pledge success for {}, not allowed to set Pledge Failure.".format(
@@ -289,8 +285,6 @@ class LoanApplication(Document):
                         "pledged_quantity": item.pledged_quantity,
                         "price": item.price,
                         "amount": item.amount,
-                        "psn": item.psn,
-                        "error_code": item.error_code,
                     }
                 )
 
@@ -324,11 +318,15 @@ class LoanApplication(Document):
 
         self.update_collateral_ledger(
             {"loan": loan.name},
-            "loan_application = '{}' and isin in {}".format(
+            "loan_application = '{}'".format(
                 self.name,
-                lms.convert_list_to_tuple_string([i.isin for i in loan.items]),
             ),
         )
+
+        loan.reload()
+        loan.update_items()
+        loan.fill_items()
+        loan.save(ignore_permissions=True)
 
         customer = frappe.db.get_value("Loan Customer", {"name": self.customer}, "user")
         doc = frappe.get_doc("User", customer)
@@ -395,26 +393,32 @@ class LoanApplication(Document):
         loan.save_loan_sanction_history(loan_agreement_file.name, event)
 
     def update_existing_loan(self):
+        self.update_collateral_ledger(
+            {"loan": self.loan},
+            "loan_application = '{}'".format(self.name),
+        )
+
         loan = frappe.get_doc("Loan", self.loan)
 
-        for item in self.items:
-            if item.lender_approval_status == "Approved":
-                loan.append(
-                    "items",
-                    {
-                        "isin": item.isin,
-                        "security_name": item.security_name,
-                        "security_category": item.security_category,
-                        "pledged_quantity": item.pledged_quantity,
-                        "price": item.price,
-                        "amount": item.amount,
-                        "psn": item.psn,
-                        "error_code": item.error_code,
-                    },
-                )
+        loan.update_items()
+        loan.fill_items()
 
-        loan.total_collateral_value += self.total_collateral_value
-        loan.drawing_power = (loan.allowable_ltv / 100) * loan.total_collateral_value
+        # for item in self.items:
+        #     if item.lender_approval_status == "Approved":
+        #         loan.append(
+        #             "items",
+        #             {
+        #                 "isin": item.isin,
+        #                 "security_name": item.security_name,
+        #                 "security_category": item.security_category,
+        #                 "pledged_quantity": item.pledged_quantity,
+        #                 "price": item.price,
+        #                 "amount": item.amount
+        #             },
+        #         )
+
+        # loan.total_collateral_value += self.total_collateral_value
+        # loan.drawing_power = (loan.allowable_ltv / 100) * loan.total_collateral_value
         # loan.drawing_power += self.drawing_power
 
         if not self.loan_margin_shortfall:
@@ -424,14 +428,6 @@ class LoanApplication(Document):
             loan.sanctioned_limit = loan.drawing_power
 
         loan.save(ignore_permissions=True)
-
-        self.update_collateral_ledger(
-            {"loan": loan.name},
-            "loan_application = '{}' and isin in {}".format(
-                self.name,
-                lms.convert_list_to_tuple_string([i.isin for i in loan.items]),
-            ),
-        )
 
         if self.loan_margin_shortfall:
             if loan.drawing_power > loan.sanctioned_limit:
@@ -542,17 +538,31 @@ class LoanApplication(Document):
                 if i.get("isin") in security_list:
                     cur = isin_details.get(i.get("isin"))
 
-                    i.psn = cur.get("PSN")
-                    i.error_code = cur.get("ErrorCode")
                     i.pledge_executed = 1
 
-                    success = len(i.psn) > 0
+                    success = len(cur.get("PSN")) > 0
 
                     if success:
                         # TODO : manage individual LA item pledge status
                         i.pledge_status = "Success"
                         total_collateral_value += i.amount
                         total_successful_pledge += 1
+                        collateral_ledger_data = {
+                            "prf": i.get("prf_number"),
+                            "expiry": self.expiry_date,
+                            "pledgor_boid": self.pledgor_boid,
+                            "pledgee_boid": self.pledgee_boid,
+                            "psn": cur.get("PSN"),
+                        }
+                        collateral_ledger_input = {
+                            "doctype": "Loan Application",
+                            "docname": self.name,
+                            "request_type": "Pledge",
+                            "isin": i.get("isin"),
+                            "quantity": i.get("pledged_quantity"),
+                            "data": collateral_ledger_data,
+                        }
+                        CollateralLedger.create_entry(**collateral_ledger_input)
                     else:
                         i.pledge_status = "Failure"
                         i.lender_approval_status = "Pledge Failure"
@@ -570,7 +580,7 @@ class LoanApplication(Document):
         self.save(ignore_permissions=True)
         return total_successful_pledge
 
-    def save_collateral_ledger(self, loan_application_name=None):
+        # def save_collateral_ledger(self, loan_application_name=None):
         for i in self.items:
             collateral_ledger = frappe.get_doc(
                 {
@@ -756,7 +766,7 @@ def check_for_pledge(loan_application_doc):
     )
 
     loan_application_doc.save(ignore_permissions=True)
-    loan_application_doc.save_collateral_ledger()
+    # loan_application_doc.save_collateral_ledger()
 
     if not customer.pledge_securities:
         customer.pledge_securities = 1

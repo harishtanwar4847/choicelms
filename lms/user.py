@@ -233,7 +233,9 @@ def securities(**kwargs):
 
             for i in securities_list:
                 try:
-                    i["Category"] = securities_category_map[i["ISIN"]].get("category")
+                    i["Category"] = securities_category_map[i["ISIN"]].get(
+                        "security_category"
+                    )
                     i["Is_Eligible"] = True
                 except KeyError:
                     i["Is_Eligible"] = False
@@ -727,7 +729,6 @@ def dashboard(**kwargs):
                 )
                 topup_pending_esigns.append(topup_application_doc)
 
-
         pending_esigns_list = dict(
             la_pending_esigns=la_pending_esigns,
             topup_pending_esigns=topup_pending_esigns,
@@ -794,7 +795,7 @@ def dashboard(**kwargs):
                 )
 
                 for list in security_price_list:
-                    amount += (loan_items.get("pledged_quantity") * list.get("price"))
+                    amount += loan_items.get("pledged_quantity") * list.get("price")
                     sec.append(list)
                     sec.append((amount, counter))
                     print(sec)
@@ -812,7 +813,7 @@ def dashboard(**kwargs):
 
         res = {
             "customer": customer,
-            "user_kyc":user_kyc,
+            "user_kyc": user_kyc,
             "margin_shortfall_card": mgloan,
             "total_interest_all_loans_card": total_interest_all_loans,
             "under_process_la": under_process_la,
