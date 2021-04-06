@@ -21,11 +21,13 @@
   {
    "fieldname": "price",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Price"
   },
   {
    "fieldname": "amount",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Amount",
    "read_only": 1
   },
@@ -40,12 +42,13 @@
   {
    "fieldname": "security_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Security Name",
    "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2021-04-05 17:17:54.972873",
+ "modified": "2021-04-06 14:53:18.120553",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application Item",

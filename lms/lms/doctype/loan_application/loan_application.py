@@ -552,7 +552,6 @@ class LoanApplication(Document):
                             "expiry": self.expiry_date,
                             "pledgor_boid": self.pledgor_boid,
                             "pledgee_boid": self.pledgee_boid,
-                            "psn": cur.get("PSN"),
                         }
                         collateral_ledger_input = {
                             "doctype": "Loan Application",
@@ -561,6 +560,7 @@ class LoanApplication(Document):
                             "isin": i.get("isin"),
                             "quantity": i.get("pledged_quantity"),
                             "data": collateral_ledger_data,
+                            "psn": cur.get("PSN"),
                         }
                         CollateralLedger.create_entry(**collateral_ledger_input)
                     else:

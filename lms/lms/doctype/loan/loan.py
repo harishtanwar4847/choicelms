@@ -212,24 +212,25 @@ class Loan(Document):
             else self.sanctioned_limit
         )
 
-    def get_collateral_list(self):
+    def get_collateral_list(self, group_by_psn=False):
         # sauce: https://stackoverflow.com/a/23827026/9403680
         sql = """
 			SELECT
-                cl.loan, cl.isin,
+                cl.loan, cl.isin, cl.psn,
                 s.price, s.security_name,
                 als.security_category
 				, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
-				- SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0)) quantity
+				- SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
+                - SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) quantity
 			FROM `tabCollateral Ledger` cl
 			LEFT JOIN `tabSecurity` s
                 ON cl.isin = s.isin
             LEFT JOIN `tabAllowed Security` als
                 ON cl.isin = als.isin AND cl.lender = als.lender
-            WHERE cl.loan = '{}' AND cl.lender_approval_status = 'Approved'
-			GROUP BY cl.isin;
+            WHERE cl.loan = '{loan}' AND cl.lender_approval_status = 'Approved'
+			GROUP BY cl.isin{group_by_psn_clause};
 		""".format(
-            self.name
+            loan=self.name, group_by_psn_clause=" ,cl.psn" if group_by_psn else ""
         )
 
         return frappe.db.sql(sql, as_dict=1)

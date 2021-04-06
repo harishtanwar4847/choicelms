@@ -5,13 +5,16 @@
  "engine": "InnoDB",
  "field_order": [
   "loan",
+  "total_collateral_value",
   "lender",
   "column_break_2",
-  "total_collateral_value",
   "customer",
+  "selling_collateral_value",
   "section_break_4",
   "items",
-  "amended_from"
+  "sell_items",
+  "amended_from",
+  "status"
  ],
  "fields": [
   {
@@ -52,6 +55,7 @@
   {
    "fieldname": "lender",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Lender",
    "options": "Lender"
   },
@@ -60,10 +64,28 @@
    "fieldtype": "Link",
    "label": "Customer",
    "options": "Loan Customer"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Status",
+   "options": "Pending\nApproved\nRejected"
+  },
+  {
+   "fieldname": "sell_items",
+   "fieldtype": "Table",
+   "label": "Sell Items",
+   "options": "Sell Collateral Application Sell Item"
+  },
+  {
+   "fieldname": "selling_collateral_value",
+   "fieldtype": "Currency",
+   "label": "Selling Collateral Value"
   }
  ],
  "is_submittable": 1,
- "modified": "2021-04-05 17:17:35.008384",
+ "modified": "2021-04-06 15:17:58.238112",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",
@@ -79,6 +101,18 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lender",
+   "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],

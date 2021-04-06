@@ -1,0 +1,62 @@
+{
+ "creation": "2021-04-06 15:10:11.670046",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "isin",
+  "security_name",
+  "psn",
+  "quantity",
+  "sell_quantity"
+ ],
+ "fields": [
+  {
+   "fieldname": "isin",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "ISIN",
+   "options": "Security",
+   "read_only": 1
+  },
+  {
+   "fieldname": "security_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Security Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "psn",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "PSN",
+   "read_only": 1
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Quantity",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sell_quantity",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Sell Quantity",
+   "reqd": 1
+  }
+ ],
+ "istable": 1,
+ "modified": "2021-04-06 16:47:25.346761",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Sell Collateral Application Sell Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
