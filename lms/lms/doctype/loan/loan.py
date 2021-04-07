@@ -162,9 +162,10 @@ class Loan(Document):
             lms.amount_formatter(round(summary.get("outstanding"), 2)),
             update_modified=False,
         )
+        self.check_for_shortfall()
 
-    def on_update(self):
-        frappe.enqueue_doc("Loan", self.name, method="check_for_shortfall")
+    # def on_update(self):
+    #     frappe.enqueue_doc("Loan", self.name, method="check_for_shortfall")
 
     def get_transaction_summary(self):
         # sauce: https://stackoverflow.com/a/23827026/9403680
@@ -245,6 +246,7 @@ class Loan(Document):
         # setting check flag
         for i in self.items:
             curr = collateral_list_map.get(i.isin)
+            print(check, i.price, curr.price, not check or i.price != curr.price)
             if not check or i.price != curr.price:
                 check = True
 
@@ -272,6 +274,7 @@ class Loan(Document):
 
     def check_for_shortfall(self):
         check = False
+        print(check, "check_for_shortfall")
 
         securities_price_map = lms.get_security_prices([i.isin for i in self.items])
         check = self.update_items()
@@ -299,6 +302,8 @@ class Loan(Document):
             self.update_pending_withdraw_requests()
             # update pending topup requests for this loan
             # self.update_pending_topup_amount()
+            # update pending sell collateral application for this loan
+            self.update_pending_sell_collateral_amount()
             frappe.db.commit()
 
     def update_pending_withdraw_requests(self):
@@ -712,6 +717,25 @@ class Loan(Document):
             else:
                 topup_doc.db_set("top_up_amount", 0)
             frappe.db.commit()
+
+    def update_pending_sell_collateral_amount(self):
+        all_pending_sell_collateral_applications = frappe.get_all(
+            "Sell Collateral Application",
+            filters={
+                "loan": self.name,
+                "status": "Pending",
+                "creation": ("<=", datetime.now()),
+            },
+            fields=["*"],
+            order_by="creation asc",
+        )
+        for sell_collateral_req in all_pending_sell_collateral_applications:
+            sell_collateral = frappe.get_doc(
+                "Sell Collateral Application", sell_collateral_req["name"]
+            )
+            sell_collateral.process_items()
+            sell_collateral.process_sell_items()
+            sell_collateral.save(ignore_permissions=True)
 
 
 def check_loans_for_shortfall(loans):
