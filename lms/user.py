@@ -766,8 +766,7 @@ def dashboard(**kwargs):
                 else:
                     top_up = None
 
-        res = 
-        {
+        res = {
             "customer": customer,
             "user_kyc": user_kyc,
             "margin_shortfall_card": mgloan,
@@ -776,13 +775,14 @@ def dashboard(**kwargs):
             "actionable_loans": actionable_loans,
             "active_loans": active_loans,
             "pending_esigns_list": pending_esigns_list,
-            "top_up": topup_list
+            "top_up": topup_list,
         }
 
         return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
         return e.respond()
+
 
 @frappe.whitelist()
 def weekly_pledged_security_dashboard(**kwargs):
@@ -798,7 +798,7 @@ def weekly_pledged_security_dashboard(**kwargs):
         customer = lms.__customer(user.name)
         if not customer:
             return utils.respondNotFound(message=frappe._("Customer not found."))
-        
+
         ## sum_of_all_pledged_securities for 52 weeks
         all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
         sec = []

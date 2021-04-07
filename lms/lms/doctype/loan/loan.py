@@ -720,7 +720,7 @@ class Loan(Document):
             "minimum_collateral_value": minimum_collateral_value
             if minimum_collateral_value > 0
             else 0,
-            "maximum_unpledge_amount": maximum_unpledge_amount
+            "maximum_unpledge_amount": round(maximum_unpledge_amount, 2)
             if maximum_unpledge_amount > 0
             else 0,
         }
