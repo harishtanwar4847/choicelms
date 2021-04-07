@@ -766,7 +766,41 @@ def dashboard(**kwargs):
                 else:
                     top_up = None
 
+        res = 
+        {
+            "customer": customer,
+            "user_kyc": user_kyc,
+            "margin_shortfall_card": mgloan,
+            "total_interest_all_loans_card": total_interest_all_loans,
+            "under_process_la": under_process_la,
+            "actionable_loans": actionable_loans,
+            "active_loans": active_loans,
+            "pending_esigns_list": pending_esigns_list,
+            "top_up": topup_list
+        }
+
+        return utils.respondWithSuccess(data=res)
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+@frappe.whitelist()
+def weekly_pledged_security_dashboard(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        user = frappe.get_doc("User", frappe.session.user)
+        try:
+            user_kyc = lms.__user_kyc(user.email)
+        except UserKYCNotFoundException:
+            user_kyc = None
+
+        customer = lms.__customer(user.name)
+        if not customer:
+            return utils.respondNotFound(message=frappe._("Customer not found."))
+        
         ## sum_of_all_pledged_securities for 52 weeks
+        all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
         sec = []
         all_loan_items = frappe.get_all(
             "Loan Item",
@@ -810,21 +844,7 @@ def dashboard(**kwargs):
                 {"week": counter, "weekly_amount_for_all_loans": round(amount, 2)}
             )
             counter -= 1
-
-        res = {
-            "customer": customer,
-            "user_kyc": user_kyc,
-            "margin_shortfall_card": mgloan,
-            "total_interest_all_loans_card": total_interest_all_loans,
-            "under_process_la": under_process_la,
-            "actionable_loans": actionable_loans,
-            "active_loans": active_loans,
-            "pending_esigns_list": pending_esigns_list,
-            "top_up": topup_list,
-            "weekly_security_amount": weekly_security_amount,
-        }
-
-        return utils.respondWithSuccess(data=res)
+        return utils.respondWithSuccess(data=weekly_security_amount)
 
     except utils.exceptions.APIException as e:
         return e.respond()
