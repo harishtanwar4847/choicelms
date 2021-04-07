@@ -348,14 +348,11 @@ def get_security_categories(securities, lender):
 
 def get_allowed_securities(securities, lender):
     query = """select
-				allowed.isin, master.security_name, allowed.eligible_percentage,
-				master.category
-				from `tabAllowed Security` allowed
-				left join `tabSecurity` master
-				on allowed.isin = master.isin
+				isin, security_name, eligible_percentage, security_category
+				from `tabAllowed Security`
 				where
-				allowed.lender = '{}' and
-				allowed.isin in {}""".format(
+				lender = '{}' and
+				isin in {}""".format(
         lender, convert_list_to_tuple_string(securities)
     )
 

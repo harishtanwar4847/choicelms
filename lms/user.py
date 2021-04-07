@@ -233,7 +233,9 @@ def securities(**kwargs):
 
             for i in securities_list:
                 try:
-                    i["Category"] = securities_category_map[i["ISIN"]].get("category")
+                    i["Category"] = securities_category_map[i["ISIN"]].get(
+                        "security_category"
+                    )
                     i["Is_Eligible"] = True
                 except KeyError:
                     i["Is_Eligible"] = False
@@ -545,6 +547,10 @@ def dashboard(**kwargs):
         utils.validator.validate_http_method("GET")
 
         user = frappe.get_doc("User", frappe.session.user)
+        try:
+            user_kyc = lms.__user_kyc(user.email)
+        except UserKYCNotFoundException:
+            user_kyc = None
 
         customer = lms.__customer(user.name)
         if not customer:
@@ -637,7 +643,7 @@ def dashboard(**kwargs):
                     if current_date > due_date:
                         due_date_txt = "Immediate"
 
-                total_int_amt_all_loans += dictionary["interest_amount"]
+                total_int_amt_all_loans += round(dictionary["interest_amount"], 2)
                 interest_loan_list.append({"loan_name": dictionary["name"]})
 
                 interest = {
@@ -654,7 +660,7 @@ def dashboard(**kwargs):
             due_date_for_all_interest.append(
                 {
                     "due_date": (dictionary["interest"]["due_date"]).strftime(
-                        "%Y-%m-%d %H:%M:%S.%f"
+                        "%m.%d.%Y"
                     ),
                     "due_date_txt": dictionary["interest"]["due_date_txt"],
                 }
@@ -668,7 +674,7 @@ def dashboard(**kwargs):
         total_interest_all_loans = []
         if due_date_for_all_interest:
             total_interest_all_loans = {
-                "total_interest_amount": total_int_amt_all_loans,
+                "total_interest_amount": lms.amount_formatter(total_int_amt_all_loans),
                 "loans_interest_due_date": d,
                 "interest_loan_list": interest_loan_list,
             }
@@ -704,7 +710,10 @@ def dashboard(**kwargs):
         la_pending_esigns = []
         if pending_loan_applications:
             for loan_application in pending_loan_applications:
-                la_pending_esigns.append(loan_application)
+                loan_application_doc = frappe.get_doc(
+                    "Loan Application", loan_application.name
+                )
+                la_pending_esigns.append(loan_application_doc)
 
         pending_topup_applications = frappe.get_all(
             "Top up Application",
@@ -715,7 +724,10 @@ def dashboard(**kwargs):
         topup_pending_esigns = []
         if pending_topup_applications:
             for topup_application in pending_topup_applications:
-                topup_pending_esigns.append(topup_application)
+                topup_application_doc = frappe.get_doc(
+                    "Top up Application", topup_application.name
+                )
+                topup_pending_esigns.append(topup_application_doc)
 
         pending_esigns_list = dict(
             la_pending_esigns=la_pending_esigns,
@@ -725,8 +737,9 @@ def dashboard(**kwargs):
         ## Topup ##
         topup = None
         topup_list = []
+        all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
 
-        for loan in active_loans:
+        for loan in all_loans:
             loan = frappe.get_doc("Loan", loan.name)
             existing_topup_application = frappe.get_all(
                 "Top up Application",
@@ -755,20 +768,19 @@ def dashboard(**kwargs):
 
         ## sum_of_all_pledged_securities for 52 weeks
         sec = []
-        all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
         all_loan_items = frappe.get_all(
             "Loan Item",
             filters={"parent": ["in", [loan.name for loan in all_loans]]},
             fields=["distinct isin", "pledged_quantity"],
         )
 
-        counter = 14
-        amount = 0
+        counter = 15
         weekly_security_amount = []
         yesterday = date.today() - timedelta(days=1)
-        last_monday = yesterday - timedelta(days=yesterday.weekday())
+        last_friday = yesterday - timedelta(days=yesterday.weekday() - 4)
 
-        while counter >= 1:
+        while counter >= 0:
+            amount = 0.0
             for loan_items in all_loan_items:
                 security_price_list = frappe.db.sql(
                     """select security, price, time
@@ -777,7 +789,7 @@ def dashboard(**kwargs):
                 and `tabSecurity Price`.time like '%{}%'
                 order by modified desc limit 1""".format(
                         loan_items.get("isin"),
-                        yesterday if counter == 14 else last_monday,
+                        yesterday if counter == 15 else last_friday,
                     ),
                     as_dict=1,
                 )
@@ -787,17 +799,21 @@ def dashboard(**kwargs):
                     sec.append(list)
                     sec.append((amount, counter))
                     print(sec)
-            if counter != 14:
-                last_monday += timedelta(days=-7)
+            # for list in security_price_list:
+            #     sec.append(list.get("time"))
+            if counter == 15 or counter == 14:
+                last_friday = last_friday
+            else:
+                last_friday += timedelta(days=-7)
 
             weekly_security_amount.append(
-                {"week": counter, "weekly_amount_for_all_loans": amount}
+                {"week": counter, "weekly_amount_for_all_loans": round(amount, 2)}
             )
-            amount = 0
             counter -= 1
 
         res = {
             "customer": customer,
+            "user_kyc": user_kyc,
             "margin_shortfall_card": mgloan,
             "total_interest_all_loans_card": total_interest_all_loans,
             "under_process_la": under_process_la,

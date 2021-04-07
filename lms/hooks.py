@@ -142,7 +142,6 @@ fixtures = [
     {"doctype": "Notification", "filters": [["document_type", "in", ["User"]]]},
     "Security",
     "Allowed Security",
-    "Security Category",
     "Concentration Rule",
     "Terms and Conditions",
     "Margin Shortfall Action",

@@ -789,7 +789,6 @@ def loan_withdraw_request(**kwargs):
 
         customer = lms.__customer()
         user = lms.__user()
-        # user_kyc = lms.__user_kyc()
         banks = lms.__banks()
 
         token = lms.verify_user_token(
@@ -984,7 +983,14 @@ def loan_statement(**kwargs):
             else {"loan": data.get("loan_name")}
         )
 
-        if (
+        if data.get("is_download") and data.get("is_email"):
+            return utils.respondWithFailure(
+                message=frappe._(
+                    "Please choose one between download or email transactions at a time."
+                )
+            )
+
+        elif (
             (data.get("is_download") or data.get("is_email"))
             and (data.get("from_date") or data.get("to_date"))
             and data.get("duration")
@@ -1008,13 +1014,6 @@ def loan_statement(**kwargs):
         ):
             return utils.respondWithFailure(
                 message=frappe._("Please select PDF/Excel file format")
-            )
-
-        elif data.get("is_download") and data.get("is_email"):
-            return utils.respondWithFailure(
-                message=frappe._(
-                    "Please choose one between download or email transactions at a time."
-                )
             )
 
         if data.get("from_date") and data.get("to_date"):
@@ -1101,8 +1100,6 @@ def loan_statement(**kwargs):
         )
 
         res = {"loan": loan}
-        # if not data.get("from_date") and not data.get("to_date") and not data.get("duration"):
-        #     filter = {"loan": data.get("loan_name")}
 
         lt_list = []
         if data.get("type") == "Account Statement":
@@ -1164,12 +1161,6 @@ def loan_statement(**kwargs):
             )
 
         if data.get("is_download") or data.get("is_email"):
-            # loan_statement_dir_path = frappe.utils.get_files_path("loan")
-            # import os
-
-            # if not os.path.exists(loan_statement_dir_path):
-            #     os.mkdir(loan_statement_dir_path)
-
             df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
 
             if data.get("file_format") == "pdf":
@@ -1179,7 +1170,6 @@ def loan_statement(**kwargs):
                 )
 
                 pdf_file = open(loan_statement_pdf_file_path, "wb")
-                # pdf_file = open(loan_statement_pdf_file_path, "w")
                 df.index += 1
                 a = df.to_html()
                 style = """<style>
@@ -1193,37 +1183,16 @@ def loan_statement(**kwargs):
 
                 from frappe.utils.pdf import get_pdf
 
-                # pdf = get_pdf(a)
                 pdf = get_pdf(html_with_style)
                 pdf_file.write(pdf)
-                # pdf_file.write(a)
                 pdf_file.close()
 
-                # loan_statement_pdf_file = frappe.get_doc(
-                #     {
-                #         "doctype": "File",
-                #         "file_name": loan_statement_pdf_file,
-                #         "content": pdf,
-                #         "folder": "Home",
-                #     }
-                # )
-                # loan_statement_pdf_file.save(ignore_permissions=True)
             else:
                 # EXCEL
                 loan_statement_excel_file_path = frappe.utils.get_files_path(
                     loan_statement_excel_file
                 )
                 df.to_excel(loan_statement_excel_file_path, index=False)
-
-                # loan_statement_excel_file = frappe.get_doc(
-                #     {
-                #         "doctype": "File",
-                #         "file_name": loan_statement_excel_file,
-                #         "content": df.to_csv(index=False),
-                #         "folder": "Home",
-                #     }
-                # )
-                # loan_statement_excel_file.save(ignore_permissions=True)
 
             loan_statement_pdf_file_url = ""
             loan_statement_excel_file_url = ""
@@ -1268,16 +1237,8 @@ def loan_statement(**kwargs):
             elif data.get("is_email"):
                 attachments = []
                 if data.get("file_format") == "pdf":
-                    #     pdf_file = frappe.get_doc(
-                    #         "File", {"file_name": loan_statement_pdf_file.file_name}
-                    #     )
-                    #     pdf_content = pdf_file.get_content()
                     attachments = [{"fname": loan_statement_pdf_file, "fcontent": pdf}]
                 else:
-                    # excel_file = frappe.get_doc(
-                    #     "File", {"file_name": loan_statement_excel_file.file_name}
-                    # )
-                    # excel_content = excel_file.get_content()
                     attachments = [
                         {
                             "fname": loan_statement_excel_file,

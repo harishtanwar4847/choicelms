@@ -212,15 +212,68 @@ class Loan(Document):
             else self.sanctioned_limit
         )
 
+    def get_collateral_list(self):
+        # sauce: https://stackoverflow.com/a/23827026/9403680
+        sql = """
+			SELECT
+                cl.loan, cl.isin,
+                s.price, s.security_name,
+                als.security_category
+				, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
+				- SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0)) quantity
+			FROM `tabCollateral Ledger` cl
+			LEFT JOIN `tabSecurity` s
+                ON cl.isin = s.isin
+            LEFT JOIN `tabAllowed Security` als
+                ON cl.isin = als.isin AND cl.lender = als.lender
+            WHERE cl.loan = '{}' AND cl.lender_approval_status = 'Approved'
+			GROUP BY cl.isin;
+		""".format(
+            self.name
+        )
+
+        return frappe.db.sql(sql, as_dict=1)
+
+    def update_items(self):
+        check = False
+
+        collateral_list = self.get_collateral_list()
+        collateral_list_map = {i.isin: i for i in collateral_list}
+
+        # updating existing and
+        # setting check flag
+        for i in self.items:
+            curr = collateral_list_map.get(i.isin)
+            if not check or i.price != curr.price:
+                check = True
+
+            i.price = curr.price
+            i.pledged_quantity = curr.quantity
+
+            del collateral_list_map[curr.isin]
+
+        # adding new items if any
+        for i in collateral_list_map.values():
+            loan_item = frappe.get_doc(
+                {
+                    "doctype": "Loan Item",
+                    "isin": i.isin,
+                    "security_name": i.security_name,
+                    "security_category": i.security_category,
+                    "pledged_quantity": i.quantity,
+                    "price": i.price,
+                }
+            )
+
+            self.append("items", loan_item)
+
+        return check
+
     def check_for_shortfall(self):
         check = False
 
         securities_price_map = lms.get_security_prices([i.isin for i in self.items])
-
-        for i in self.items:
-            if i.price != securities_price_map.get(i.isin):
-                check = True
-                i.price = securities_price_map.get(i.isin)
+        check = self.update_items()
 
         if check:
             self.fill_items()
