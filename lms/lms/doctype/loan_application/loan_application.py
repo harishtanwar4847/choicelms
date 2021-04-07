@@ -682,7 +682,6 @@ def check_for_pledge(loan_application_doc):
             filters={"parent": loan_application_doc.name},
             start=start,
             page_length=page_length,
-            debug=True,
         )
         la_items_list = [item.isin for item in la_items]
 
@@ -794,7 +793,6 @@ def process_pledge(loan_application_name=""):
             "Loan Application",
             fields=["count(name) as count", "status"],
             filters={"status": "Executing pledge"},
-            debug=True,
         )
 
         if is_pledge_executing[0].count == 0:
@@ -809,7 +807,6 @@ def process_pledge(loan_application_name=""):
                 order_by="creation asc",
                 start=0,
                 page_length=1,
-                debug=True,
             )
 
             if loan_application:
