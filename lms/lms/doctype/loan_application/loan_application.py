@@ -401,7 +401,7 @@ class LoanApplication(Document):
         loan = frappe.get_doc("Loan", self.loan)
 
         loan.update_items()
-        # loan.fill_items()
+        loan.fill_items()
 
         # for item in self.items:
         #     if item.lender_approval_status == "Approved":
@@ -417,8 +417,8 @@ class LoanApplication(Document):
         #             },
         #         )
 
-        loan.total_collateral_value += self.total_collateral_value
-        loan.drawing_power = (loan.allowable_ltv / 100) * loan.total_collateral_value
+        # loan.total_collateral_value += self.total_collateral_value
+        # loan.drawing_power = (loan.allowable_ltv / 100) * loan.total_collateral_value
         # loan.drawing_power += self.drawing_power
 
         if not self.loan_margin_shortfall:
