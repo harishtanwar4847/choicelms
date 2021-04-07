@@ -11,6 +11,7 @@ import utils
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
+from lms.exceptions.CustomerNotFoundException import CustomerNotFoundException
 from lms.exceptions.InvalidUserTokenException import InvalidUserTokenException
 from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
 
