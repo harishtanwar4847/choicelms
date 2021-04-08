@@ -107,7 +107,10 @@ class Cart(Document):
             loan_application.status = "Ready for Approval"
             loan_application.workflow_state = "Ready for Approval"
             loan_application.save(ignore_permissions=True)
-
+        doc = frappe.get_doc("User", frappe.session.user)
+        frappe.enqueue_doc(
+            "Notification", "Loan Application Creation", method="send", doc=doc
+        )
         return loan_application
 
     def create_tnc_file(self):
