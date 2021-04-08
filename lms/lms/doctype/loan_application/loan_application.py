@@ -612,14 +612,14 @@ class LoanApplication(Document):
         doc = frappe.get_doc("User", customer.user).as_dict()
         doc["loan_application"] = {
             "status": self.status,
-            "pledge_status": self.pledge_status,
             "current_total_collateral_value": self.total_collateral_value_str,
             "requested_total_collateral_value": self.pledged_total_collateral_value_str,
             "drawing_power": self.drawing_power_str,
         }
-        frappe.enqueue_doc("Notification", "Loan Application", method="send", doc=doc)
+        if self.status in ["Pledge Failure","Pledge accepted by Lender","Approved","Rejected"]:
+            frappe.enqueue_doc("Notification", "Loan Application", method="send", doc=doc)
         mess = ""
-        if doc.get("loan_application").get("pledge_status") == "Failure":
+        if doc.get("loan_application").get("status") == "Pledge Failure":
             mess = "Sorry! Your loan application was turned down since the pledge was not successful. We regret the inconvenience caused."
 
         elif doc.get("loan_application").get("status") == "Pledge accepted by Lender":

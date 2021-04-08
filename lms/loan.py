@@ -289,7 +289,7 @@ def esign_done(**kwargs):
 @frappe.whitelist()
 def my_loans():
     try:
-        customer = lms.get_customer(frappe.session.user)
+        customer = lms.__customer()
         loans = frappe.db.sql(
             """select
 			loan.total_collateral_value, loan.name, loan.sanctioned_limit, loan.drawing_power,
@@ -483,7 +483,7 @@ def create_topup_old(loan_name, file_id):
                 status=404, message=_("Loan {} does not exist".format(loan_name))
             )
 
-        customer = lms.get_customer(frappe.session.user)
+        customer = lms.__customer()
         if loan.customer != customer.name:
             return lms.generateResponse(
                 status=403, message=_("Please use your own loan")
