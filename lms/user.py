@@ -300,9 +300,7 @@ def tds(tds_amount, year):
 
 @frappe.whitelist()
 def dashboard_old():
-    user = frappe.get_doc("User", frappe.session.user)
-
-    customer = lms.__customer(user.name)
+    customer = lms.__customer()
     pending_loan_applications = frappe.get_all(
         "Loan Application",
         filters={"customer": customer.name, "status": "Pledge accepted by Lender"},
@@ -467,11 +465,7 @@ def countdown(t):
 @frappe.whitelist()
 def all_loans_list(**kwargs):
     try:
-        utils.validator.validate_http_method("GET")
-
-        user = frappe.get_doc("User", frappe.session.user)
-
-        customer = lms.__customer(user.name)
+        customer = lms.__customer()
         if not customer:
             return utils.respondNotFound(message=frappe._("Customer not found."))
 
@@ -493,9 +487,7 @@ def my_pledge_securities(**kwargs):
             kwargs,
             {"loan_name": ""},
         )
-        user = frappe.get_doc("User", frappe.session.user)
-
-        customer = lms.__customer(user.name)
+        customer = lms.__customer()
         try:
             if data.get("loan_name"):
                 loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -546,13 +538,12 @@ def dashboard(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
-        user = frappe.get_doc("User", frappe.session.user)
         try:
-            user_kyc = lms.__user_kyc(user.email)
+            user_kyc = lms.__user_kyc()
         except UserKYCNotFoundException:
             user_kyc = None
 
-        customer = lms.__customer(user.name)
+        customer = lms.__customer()
         if not customer:
             return utils.respondNotFound(message=frappe._("Customer not found."))
 
@@ -789,13 +780,7 @@ def weekly_pledged_security_dashboard(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
-        user = frappe.get_doc("User", frappe.session.user)
-        try:
-            user_kyc = lms.__user_kyc(user.email)
-        except UserKYCNotFoundException:
-            user_kyc = None
-
-        customer = lms.__customer(user.name)
+        customer = lms.__customer()
         if not customer:
             return utils.respondNotFound(message=frappe._("Customer not found."))
 
