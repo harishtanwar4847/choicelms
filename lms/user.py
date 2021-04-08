@@ -786,6 +786,7 @@ def weekly_pledged_security_dashboard(**kwargs):
 
         ## sum_of_all_pledged_securities for 52 weeks
         all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
+        
         if not all_loans:
             return utils.respondWithSuccess(message="Please Pledge securities to see your securities performance", data=all_loans)
 
