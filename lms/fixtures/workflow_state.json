@@ -26,30 +26,6 @@
  {
   "docstatus": 0,
   "doctype": "Workflow State",
-  "icon": "question-sign",
-  "modified": "2020-09-21 21:03:36.272083",
-  "name": "Pending",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "style": "",
-  "workflow_state_name": "Pending"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": "ok-sign",
-  "modified": "2020-09-21 21:03:36.285318",
-  "name": "Approved",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "style": "Success",
-  "workflow_state_name": "Approved"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
   "icon": "remove",
   "modified": "2020-09-21 21:03:36.295204",
   "name": "Rejected",
@@ -130,5 +106,29 @@
   "parenttype": null,
   "style": "",
   "workflow_state_name": "Pledge accepted by Lender"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "ok-sign",
+  "modified": "2020-09-21 21:03:36.285318",
+  "name": "Approved",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "style": "Success",
+  "workflow_state_name": "Approved"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "question-sign",
+  "modified": "2020-09-21 21:03:36.272083",
+  "name": "Pending",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "style": "",
+  "workflow_state_name": "Pending"
  }
 ]

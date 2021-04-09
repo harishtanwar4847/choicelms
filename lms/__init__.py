@@ -11,6 +11,7 @@ import utils
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
+from lms.exceptions.CustomerNotFoundException import CustomerNotFoundException
 from lms.exceptions.InvalidUserTokenException import InvalidUserTokenException
 from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
 
@@ -24,6 +25,8 @@ user_token_expiry_map = {
     "Email Verification Token": 60,
     "Pledge OTP": 10,
     "Withdraw OTP": 10,
+    "Unpledge OTP": 10,
+    "Sell Collateral OTP": 10,
 }
 
 
@@ -347,14 +350,11 @@ def get_security_categories(securities, lender):
 
 def get_allowed_securities(securities, lender):
     query = """select
-				allowed.isin, master.security_name, allowed.eligible_percentage,
-				master.category
-				from `tabAllowed Security` allowed
-				left join `tabSecurity` master
-				on allowed.isin = master.isin
+				isin, security_name, eligible_percentage, security_category
+				from `tabAllowed Security`
 				where
-				allowed.lender = '{}' and
-				allowed.isin in {}""".format(
+				lender = '{}' and
+				isin in {}""".format(
         lender, convert_list_to_tuple_string(securities)
     )
 

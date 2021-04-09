@@ -2,6 +2,7 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Allowed Security", {
-  // refresh: function(frm) {
-  // }
+  refresh: function (frm) {
+    frm.set_df_property("lender", "hidden", true);
+  },
 });
