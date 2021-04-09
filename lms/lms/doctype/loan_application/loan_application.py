@@ -551,7 +551,6 @@ class LoanApplication(Document):
                             "expiry": self.expiry_date,
                             "pledgor_boid": self.pledgor_boid,
                             "pledgee_boid": self.pledgee_boid,
-                            "psn": cur.get("PSN"),
                         }
                         collateral_ledger_input = {
                             "doctype": "Loan Application",
@@ -560,6 +559,7 @@ class LoanApplication(Document):
                             "isin": i.get("isin"),
                             "quantity": i.get("pledged_quantity"),
                             "data": collateral_ledger_data,
+                            "psn": cur.get("PSN"),
                         }
                         CollateralLedger.create_entry(**collateral_ledger_input)
                     else:
@@ -616,8 +616,15 @@ class LoanApplication(Document):
             "requested_total_collateral_value": self.pledged_total_collateral_value_str,
             "drawing_power": self.drawing_power_str,
         }
-        if self.status in ["Pledge Failure","Pledge accepted by Lender","Approved","Rejected"]:
-            frappe.enqueue_doc("Notification", "Loan Application", method="send", doc=doc)
+        if self.status in [
+            "Pledge Failure",
+            "Pledge accepted by Lender",
+            "Approved",
+            "Rejected",
+        ]:
+            frappe.enqueue_doc(
+                "Notification", "Loan Application", method="send", doc=doc
+            )
         mess = ""
         if doc.get("loan_application").get("status") == "Pledge Failure":
             mess = "Sorry! Your loan application was turned down since the pledge was not successful. We regret the inconvenience caused."

@@ -162,9 +162,10 @@ class Loan(Document):
             lms.amount_formatter(round(summary.get("outstanding"), 2)),
             update_modified=False,
         )
+        self.check_for_shortfall()
 
-    def on_update(self):
-        frappe.enqueue_doc("Loan", self.name, method="check_for_shortfall")
+    # def on_update(self):
+    #     frappe.enqueue_doc("Loan", self.name, method="check_for_shortfall")
 
     def get_transaction_summary(self):
         # sauce: https://stackoverflow.com/a/23827026/9403680
@@ -212,24 +213,25 @@ class Loan(Document):
             else self.sanctioned_limit
         )
 
-    def get_collateral_list(self):
+    def get_collateral_list(self, group_by_psn=False):
         # sauce: https://stackoverflow.com/a/23827026/9403680
         sql = """
 			SELECT
-                cl.loan, cl.isin,
+                cl.loan, cl.isin, cl.psn,
                 s.price, s.security_name,
                 als.security_category
 				, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
-				- SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0)) quantity
+				- SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
+                - SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) quantity
 			FROM `tabCollateral Ledger` cl
 			LEFT JOIN `tabSecurity` s
                 ON cl.isin = s.isin
             LEFT JOIN `tabAllowed Security` als
                 ON cl.isin = als.isin AND cl.lender = als.lender
-            WHERE cl.loan = '{}' AND cl.lender_approval_status = 'Approved'
-			GROUP BY cl.isin;
+            WHERE cl.loan = '{loan}' AND cl.lender_approval_status = 'Approved'
+			GROUP BY cl.isin{group_by_psn_clause};
 		""".format(
-            self.name
+            loan=self.name, group_by_psn_clause=" ,cl.psn" if group_by_psn else ""
         )
 
         return frappe.db.sql(sql, as_dict=1)
@@ -244,6 +246,7 @@ class Loan(Document):
         # setting check flag
         for i in self.items:
             curr = collateral_list_map.get(i.isin)
+            print(check, i.price, curr.price, not check or i.price != curr.price)
             if not check or i.price != curr.price:
                 check = True
 
@@ -271,6 +274,7 @@ class Loan(Document):
 
     def check_for_shortfall(self):
         check = False
+        print(check, "check_for_shortfall")
 
         securities_price_map = lms.get_security_prices([i.isin for i in self.items])
         check = self.update_items()
@@ -298,6 +302,8 @@ class Loan(Document):
             self.update_pending_withdraw_requests()
             # update pending topup requests for this loan
             # self.update_pending_topup_amount()
+            # update pending sell collateral application for this loan
+            self.update_pending_sell_collateral_amount()
             frappe.db.commit()
 
     def update_pending_withdraw_requests(self):
@@ -724,6 +730,25 @@ class Loan(Document):
             if maximum_unpledge_amount > 0
             else 0,
         }
+
+    def update_pending_sell_collateral_amount(self):
+        all_pending_sell_collateral_applications = frappe.get_all(
+            "Sell Collateral Application",
+            filters={
+                "loan": self.name,
+                "status": "Pending",
+                "creation": ("<=", datetime.now()),
+            },
+            fields=["*"],
+            order_by="creation asc",
+        )
+        for sell_collateral_req in all_pending_sell_collateral_applications:
+            sell_collateral = frappe.get_doc(
+                "Sell Collateral Application", sell_collateral_req["name"]
+            )
+            sell_collateral.process_items()
+            sell_collateral.process_sell_items()
+            sell_collateral.save(ignore_permissions=True)
 
 
 def check_loans_for_shortfall(loans):

@@ -1455,3 +1455,157 @@ def loan_unpledge_request(**kwargs):
         return utils.respondWithSuccess(data=data)
     except utils.APIException as e:
         return e.respond()
+
+
+@frappe.whitelist()
+def request_sell_collateral_otp():
+    try:
+        utils.validator.validate_http_method("POST")
+
+        user = lms.__user()
+
+        frappe.db.begin()
+        lms.create_user_token(
+            entity=user.username,
+            token_type="Sell Collateral OTP",
+            token=lms.random_token(length=4, is_numeric=True),
+        )
+        frappe.db.commit()
+        return utils.respondWithSuccess(message="Sell Collateral OTP sent")
+    except utils.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist()
+def sell_collateral_request(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "loan_name": "required",
+                "securities": "",
+                "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+            },
+        )
+
+        user = lms.__user()
+        customer = lms.__customer()
+        try:
+            loan = frappe.get_doc("Loan", data.get("loan_name"))
+        except frappe.DoesNotExistError:
+            return utils.respondNotFound(message=frappe._("Loan not found."))
+        if loan.customer != customer.name:
+            return utils.respondForbidden(message=_("Please use your own Loan."))
+
+        securities = validate_securities_for_sell_collateral(
+            data.get("securities", {}), data.get("loan_name")
+        )
+
+        token = lms.verify_user_token(
+            entity=user.username,
+            token=data.get("otp"),
+            token_type="Sell Collateral OTP",
+        )
+
+        if token.expiry <= datetime.now():
+            return utils.respondUnauthorized(
+                message=frappe._("Sell Collateral OTP Expired.")
+            )
+
+        frappe.db.begin()
+
+        items = []
+        for i in securities:
+            temp = frappe.get_doc(
+                {
+                    "doctype": "Sell Collateral Application Item",
+                    "isin": i["isin"],
+                    "quantity": i["quantity"],
+                }
+            )
+            items.append(temp)
+
+        sell_collateral_application = frappe.get_doc(
+            {
+                "doctype": "Sell Collateral Application",
+                "loan": data.get("loan_name"),
+                "items": items,
+            }
+        )
+        sell_collateral_application.insert(ignore_permissions=True)
+
+        lms.token_mark_as_used(token)
+
+        frappe.db.commit()
+
+        return utils.respondWithSuccess(data=sell_collateral_application)
+    except utils.APIException as e:
+        return e.respond()
+
+
+def validate_securities_for_sell_collateral(securities, loan_name):
+    if not securities or (
+        type(securities) is not dict and "list" not in securities.keys()
+    ):
+        raise utils.ValidationException(
+            {"securities": {"required": frappe._("Securities required.")}}
+        )
+
+    securities = securities["list"]
+
+    if len(securities) == 0:
+        raise utils.ValidationException(
+            {"securities": {"required": frappe._("Securities required.")}}
+        )
+
+    # check if securities is a list of dict
+    securities_valid = True
+
+    if type(securities) is not list:
+        securities_valid = False
+        message = frappe._("securities should be list of dictionaries")
+
+    securities_list = [i["isin"] for i in securities]
+
+    if securities_valid:
+        if len(set(securities_list)) != len(securities_list):
+            securities_valid = False
+            message = frappe._("duplicate isin")
+
+    if securities_valid:
+        securities_list_from_db_ = frappe.db.sql(
+            "select isin from `tabLoan Item` where parent = '{}' and isin in {}".format(
+                loan_name, lms.convert_list_to_tuple_string(securities_list)
+            )
+        )
+        securities_list_from_db = [i[0] for i in securities_list_from_db_]
+
+        diff = list(set(securities_list) - set(securities_list_from_db))
+        if diff:
+            securities_valid = False
+            message = frappe._("{} isin not found".format(",".join(diff)))
+
+    if securities_valid:
+        for i in securities:
+            if type(i) is not dict:
+                securities_valid = False
+                message = frappe._("items in securities need to be dictionaries")
+                break
+
+            keys = i.keys()
+            if "isin" not in keys or "quantity" not in keys:
+                securities_valid = False
+                message = frappe._("isin or quantity not present")
+                break
+
+            if i.get("quantity") <= 0:
+                securities_valid = False
+                message = frappe._("quantity should be more than 0")
+                break
+
+    if not securities_valid:
+        raise utils.ValidationException({"securities": {"required": message}})
+
+    return securities
