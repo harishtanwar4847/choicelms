@@ -11,7 +11,6 @@ def get_data():
                 {"type": "doctype", "name": "Lender", "onboard": 1},
                 {"type": "doctype", "name": "Allowed Security", "onboard": 1},
                 {"type": "doctype", "name": "Security", "onboard": 1},
-                {"type": "doctype", "name": "Security Category", "onboard": 1},
                 {"type": "doctype", "name": "Security Price", "onboard": 1},
                 {"type": "doctype", "name": "Terms and Conditions", "onboard": 1},
                 {"type": "doctype", "name": "Consent", "onboard": 1},

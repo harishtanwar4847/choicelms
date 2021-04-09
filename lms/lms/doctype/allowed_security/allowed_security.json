@@ -17,7 +17,8 @@
    "fieldname": "security_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Security Name"
+   "label": "Security Name",
+   "read_only": 1
   },
   {
    "fieldname": "eligible_percentage",
@@ -50,7 +51,7 @@
    "label": "Security Category"
   }
  ],
- "modified": "2021-03-24 16:27:14.671985",
+ "modified": "2021-03-31 16:33:34.165829",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",
