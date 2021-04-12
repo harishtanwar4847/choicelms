@@ -1024,3 +1024,35 @@ def faq_details(**kwargs):
 		return utils.respondWithSuccess(data=faq)
 	except utils.exceptions.APIException as e:
 		return e.respond()
+
+@frappe.whitelist()
+def check_eligible_limit(**kwargs):
+	try:
+		utils.validator.validate_http_method("GET")
+
+		data = utils.validator.validate(
+			kwargs,
+			{
+				"lender": ""
+			}
+		)
+		if not data.get("lender"):
+			data["lender"] = frappe.get_last_doc("Lender").name
+
+		eligible_limit_list = frappe.db.sql("""
+			SELECT
+			als.isin, als.security_name, als.eligible_percentage, als.lender, als.security_category,
+			s.security_name, s.price
+			FROM `tabAllowed Security` als
+			LEFT JOIN `tabSecurity` s
+			ON als.isin = s.isin
+			where als.lender = '{}';
+			""".format(
+				data.get("lender")
+			),
+			as_dict=1,
+		)
+
+		return utils.respondWithSuccess(data=eligible_limit_list)
+	except utils.exceptions.APIException as e:
+		return e.respond()
