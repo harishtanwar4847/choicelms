@@ -452,16 +452,6 @@ def approved_securities(**kwargs):
     except utils.APIException as e:
         return e.respond()
 
-
-def countdown(t):
-    while t:
-        mins, secs = divmod(t, 60)
-        timer = "{:02d}:{:02d}".format(mins, secs)
-        print(timer, end="\r")
-        time.sleep(60)
-        t -= 1
-
-
 @frappe.whitelist()
 def all_loans_list(**kwargs):
     try:
@@ -549,34 +539,35 @@ def dashboard(**kwargs):
 
         all_mgloans = frappe.db.sql(
             """select loan.name, loan.drawing_power, loan.balance,
-        IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, IFNULL(mrgloan.shortfall, 0.0) as shortfall
-        from `tabLoan` as loan
-        left join `tabLoan Margin Shortfall` as mrgloan
-        on loan.name = mrgloan.loan
-        where loan.customer = '{}'
-        and mrgloan.status = "Pending"
-        and shortfall_percentage > 0.0
-        group by loan.name""".format(
-                customer.name
-            ),
-            as_dict=1,
-        )
+            IFNULL(mrgloan.creation, 0.0) as created_on,
+            IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage,
+            IFNULL(mrgloan.shortfall, 0.0) as shortfall
+            from `tabLoan` as loan
+            left join `tabLoan Margin Shortfall` as mrgloan
+            on loan.name = mrgloan.loan
+            where loan.customer = '{}'
+            and mrgloan.status = "Pending"
+            and shortfall_percentage > 0.0
+            group by loan.name""".format(
+                    customer.name
+                ),
+                as_dict=1,
+            )
 
         all_interest_loans = frappe.db.sql(
-            """select
-        loan.name, loan.drawing_power, loan.balance,
-        sum(loantx.unpaid_interest) as interest_amount
-        from `tabLoan` as loan
-        left join `tabLoan Transaction` as loantx
-        on loan.name = loantx.loan
-        where loan.customer = '{}'
-        and loantx.transaction_type in ('Interest','Additional Interest','Penal Interest')
-        and loantx.unpaid_interest > 0
-        group by loan.name""".format(
-                customer.name
-            ),
-            as_dict=1,
-        )
+            """select loan.name, loan.drawing_power, loan.balance,
+            sum(loantx.unpaid_interest) as interest_amount
+            from `tabLoan` as loan
+            left join `tabLoan Transaction` as loantx
+            on loan.name = loantx.loan
+            where loan.customer = '{}'
+            and loantx.transaction_type in ('Interest','Additional Interest','Penal Interest')
+            and loantx.unpaid_interest > 0
+            group by loan.name""".format(
+                    customer.name
+                ),
+                as_dict=1,
+            )
 
         actionable_loans = []
         mgloan = []
@@ -592,16 +583,15 @@ def dashboard(**kwargs):
                     "balance": dictionary.get("balance"),
                 }
             )
-            loan = frappe.get_doc("Loan", dictionary.get("name"))
 
             ## Margin shortfall list##
             if dictionary["shortfall_percentage"]:
-                mgloan.append({"name": dictionary["name"]})
-        #     print(countdown(int(1425)))
-        # t = 1425
-        # mgloan_timer = []
-        # mgloan_timer.append(countdown(int(1425)))
-        # mgloan["mgloan_timer"] = mgloan_timer
+                if dictionary["shortfall_percentage"] <= 20.0:
+                    mgloan.append({"name": dictionary["name"], "action_time": dictionary["created_on"] + timedelta(hours = 72)})
+                elif 25.0 >= dictionary["shortfall_percentage"] > 20.0:
+                    mgloan.append({"name": dictionary["name"], "action_time": dictionary["created_on"].replace(hour=22,minute=0,second=0,microsecond=0)})
+                elif dictionary["shortfall_percentage"] > 25.0:
+                    mgloan.append({"name": dictionary["name"], "action_time": "Immediate"})
 
         # Interest ##
         for dictionary in all_interest_loans:
@@ -646,8 +636,8 @@ def dashboard(**kwargs):
                 interest = None
 
             dictionary["interest"] = interest
-            ## Due date and text for interest ##
 
+            ## Due date and text for interest ##
             due_date_for_all_interest.append(
                 {
                     "due_date": (dictionary["interest"]["due_date"]).strftime(
@@ -662,7 +652,7 @@ def dashboard(**kwargs):
             min(d, key=d.get)
 
         ## Interest card ##
-        total_interest_all_loans = []
+        total_interest_all_loans = {}
         if due_date_for_all_interest:
             total_interest_all_loans = {
                 "total_interest_amount": lms.amount_formatter(total_int_amt_all_loans),
@@ -822,9 +812,8 @@ def weekly_pledged_security_dashboard(**kwargs):
 
                 for list in security_price_list:
                     amount += loan_items.get("pledged_quantity") * list.get("price")
-                    sec.append(list)
-                    sec.append((amount, counter))
-                    print(sec)
+                    # sec.append(list)
+                    # sec.append((amount, counter))
             # for list in security_price_list:
             #     sec.append(list.get("time"))
             if counter == 15 or counter == 14:
