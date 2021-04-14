@@ -244,7 +244,7 @@ class LoanApplication(Document):
             if len(approved_isin_list) > 0:
                 self.update_collateral_ledger(
                     {"lender_approval_status": "Approved"},
-                    "loan_application = '{}' and isin IN {}".format(
+                    "application_doctype = 'Loan Application' and application_name = '{}' and isin IN {}".format(
                         self.name, lms.convert_list_to_tuple_string(approved_isin_list)
                     ),
                 )
@@ -252,7 +252,7 @@ class LoanApplication(Document):
             if len(rejected_isin_list) > 0:
                 self.update_collateral_ledger(
                     {"lender_approval_status": "Rejected"},
-                    "loan_application = '{}' and isin IN {}".format(
+                    "application_doctype = 'Loan Application' and application_name = '{}' and isin IN {}".format(
                         self.name, lms.convert_list_to_tuple_string(rejected_isin_list)
                     ),
                 )
@@ -318,7 +318,7 @@ class LoanApplication(Document):
 
         self.update_collateral_ledger(
             {"loan": loan.name},
-            "loan_application = '{}'".format(
+            "application_doctype = 'Loan Application' and application_name = '{}'".format(
                 self.name,
             ),
         )
@@ -395,13 +395,15 @@ class LoanApplication(Document):
     def update_existing_loan(self):
         self.update_collateral_ledger(
             {"loan": self.loan},
-            "loan_application = '{}'".format(self.name),
+            "application_doctype = 'Loan Application' and application_name = '{}'".format(
+                self.name
+            ),
         )
 
         loan = frappe.get_doc("Loan", self.loan)
 
         loan.update_items()
-        # loan.fill_items()
+        loan.fill_items()
 
         # for item in self.items:
         #     if item.lender_approval_status == "Approved":
@@ -417,7 +419,7 @@ class LoanApplication(Document):
         #             },
         #         )
 
-        loan.total_collateral_value += self.total_collateral_value
+        # loan.total_collateral_value += self.total_collateral_value
         loan.drawing_power = (loan.allowable_ltv / 100) * loan.total_collateral_value
         # loan.drawing_power += self.drawing_power
 
