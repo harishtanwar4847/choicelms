@@ -662,7 +662,7 @@ def dashboard(**kwargs):
             min(d, key=d.get)
 
         ## Interest card ##
-        total_interest_all_loans = []
+        total_interest_all_loans = {}
         if due_date_for_all_interest:
             total_interest_all_loans = {
                 "total_interest_amount": lms.amount_formatter(total_int_amt_all_loans),
@@ -824,7 +824,7 @@ def weekly_pledged_security_dashboard(**kwargs):
                     amount += loan_items.get("pledged_quantity") * list.get("price")
                     sec.append(list)
                     sec.append((amount, counter))
-                    print(sec)
+                    # print(sec)
             # for list in security_price_list:
             #     sec.append(list.get("time"))
             if counter == 15 or counter == 14:

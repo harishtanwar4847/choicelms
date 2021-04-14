@@ -81,7 +81,7 @@ class SellCollateralApplication(Document):
             sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
 
         for i in self.items:
-            print(sell_quantity_map.get(i.isin), i.quantity)
+            # print(sell_quantity_map.get(i.isin), i.quantity)
             if sell_quantity_map.get(i.isin) < i.quantity:
                 frappe.throw(
                     "You need to sell all {} of isin {}".format(i.quantity, i.isin)

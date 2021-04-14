@@ -15,6 +15,6 @@ class TDSYear(Document):
         now = datetime.datetime.now()
         year = now.year
         tdsYear = frappe.db.count("TDS Year", {"is_active": 1})
-        print(tdsYear)
+        # print(tdsYear)
         if tdsYear == 2:
             frappe.throw("At a time only two entries can be active")

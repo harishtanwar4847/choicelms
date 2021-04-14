@@ -146,7 +146,7 @@ class Loan(Document):
     def get_customer(self):
         return frappe.get_doc("Loan Customer", self.customer)
 
-    def update_loan_balance(self):
+    def update_loan_balance(self, check_for_shortfall=True):
         summary = self.get_transaction_summary()
         frappe.db.set_value(
             self.doctype,
@@ -162,7 +162,8 @@ class Loan(Document):
             lms.amount_formatter(round(summary.get("outstanding"), 2)),
             update_modified=False,
         )
-        self.check_for_shortfall()
+        if check_for_shortfall:
+            self.check_for_shortfall()
 
     # def on_update(self):
     #     frappe.enqueue_doc("Loan", self.name, method="check_for_shortfall")
@@ -241,12 +242,11 @@ class Loan(Document):
 
         collateral_list = self.get_collateral_list()
         collateral_list_map = {i.isin: i for i in collateral_list}
-
         # updating existing and
         # setting check flag
         for i in self.items:
             curr = collateral_list_map.get(i.isin)
-            print(check, i.price, curr.price, not check or i.price != curr.price)
+            # print(check, i.price, curr.price, not check or i.price != curr.price)
             if not check or i.price != curr.price:
                 check = True
 
@@ -274,7 +274,6 @@ class Loan(Document):
 
     def check_for_shortfall(self):
         check = False
-        print(check, "check_for_shortfall")
 
         securities_price_map = lms.get_security_prices([i.isin for i in self.items])
         check = self.update_items()
@@ -684,7 +683,7 @@ class Loan(Document):
         las_settings = frappe.get_single("LAS Settings")
 
         return (
-            top_up_available
+            lms.round_down_amount_to_nearest_thousand(top_up_available)
             if top_up_available >= las_settings.minimum_top_up_amount
             else 0
         )
