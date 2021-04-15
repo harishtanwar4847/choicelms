@@ -466,6 +466,8 @@ def countdown(t):
 @frappe.whitelist()
 def all_loans_list(**kwargs):
 	try:
+		utils.validator.validate_http_method("GET")
+		
 		customer = lms.__customer()
 		if not customer:
 			return utils.respondNotFound(message=frappe._("Customer not found."))
@@ -942,6 +944,8 @@ def update_profile_pic_and_pin(**kwargs):
 @frappe.whitelist(allow_guest=True)
 def contact_us(**kwargs):
 	try:
+		utils.validator.validate_http_method("GET")
+		
 		data = utils.validator.validate(
 			kwargs,{
 				"search": "",
@@ -1002,3 +1006,18 @@ def check_eligible_limit(**kwargs):
 		return utils.respondWithSuccess(data=eligible_limit_list)
 	except utils.exceptions.APIException as e:
 		return e.respond()
+
+@frappe.whitelist()
+def all_lenders_list(**kwargs):
+	try:
+		utils.validator.validate_http_method("GET")
+		
+		all_lenders = frappe.get_all(
+			"Lender", order_by="creation desc"
+		)
+
+		return utils.respondWithSuccess(data=all_lenders)
+
+	except utils.exceptions.APIException as e:
+		return e.respond()
+

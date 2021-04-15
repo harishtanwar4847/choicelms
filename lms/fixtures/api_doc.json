@@ -3845,5 +3845,213 @@
    }
   ],
   "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2021-04-15 19:48:32.931195",
+  "name": "6e3c48529e",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "{}",
+    "group": null,
+    "optional": 0,
+    "parent": "6e3c48529e",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "object"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{}",
+    "parent": "6e3c48529e",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.all_lenders_list",
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "Data",
+    "group": null,
+    "parent": "6e3c48529e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "lender name",
+    "group": null,
+    "parent": "6e3c48529e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "List of Object"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "\"data\": [\n    {\n      \"name\": \"lender name\"\n    },\n    {\n      \"name\": \"lender  name\"\n    }\n  ]\n",
+    "parent": "6e3c48529e",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "success example"
+   }
+  ],
+  "title": "All Lenders List",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "6e3c48529e",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "6e3c48529e",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "6e3c48529e",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "6e3c48529e",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2021-04-15 19:52:49.349272",
+  "name": "c4921d34b1",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "",
+    "field": "lender",
+    "group": null,
+    "optional": 0,
+    "parent": "c4921d34b1",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "string"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"lender\": \"\"\n}",
+    "parent": "c4921d34b1",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.check_eligible_limit",
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "Data",
+    "group": null,
+    "parent": "c4921d34b1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "lender wise scrip details",
+    "group": null,
+    "parent": "c4921d34b1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "\"data\": [\n    {\n      \"security_name\": \"Adani Power Ltd.\",\n      \"eligible_percentage\": 50.0,\n      \"lender\": \"Choice Finserv\",\n      \"security_category\": \"Cat C\",\n      \"price\": 90.7\n    },\n    {\n      \"security_name\": \"L&T Technology Services Ltd.\",\n      \"eligible_percentage\": 50.0,\n      \"lender\": \"Choice Finserv\",\n      \"security_category\": \"Cat B\",\n      \"price\": 2756.85\n    }\n]",
+    "parent": "c4921d34b1",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "success example"
+   }
+  ],
+  "title": "Check Eligible Limit",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "c4921d34b1",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "c4921d34b1",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "c4921d34b1",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "c4921d34b1",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
  }
 ]
