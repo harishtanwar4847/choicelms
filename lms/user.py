@@ -742,17 +742,13 @@ def dashboard(**kwargs):
                 },
                 fields=["count(name) as in_process"],
             )
-            las_settings = frappe.get_single("LAS Settings")
 
             if existing_topup_application[0]["in_process"] == 0:
                 topup = loan.max_topup_amount()
                 if topup:
                     top_up = {
                         "loan": loan.name,
-                        "minimum_top_up_amount": las_settings.minimum_top_up_amount,
-                        "top_up_amount": lms.round_down_amount_to_nearest_thousand(
-                            topup
-                        ),
+                        "top_up_amount": lms.round_down_amount_to_nearest_thousand(topup)
                     }
                     topup_list.append(top_up)
                 else:
