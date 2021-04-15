@@ -940,7 +940,7 @@ def update_profile_pic_and_pin(**kwargs):
 		frappe.db.rollback()
 
 @frappe.whitelist(allow_guest=True)
-def faq_details(**kwargs):
+def contact_us(**kwargs):
 	try:
 		data = utils.validator.validate(
 			kwargs,{
