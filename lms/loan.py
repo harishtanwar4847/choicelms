@@ -1413,8 +1413,30 @@ def loan_unpledge_request(**kwargs):
             },
         )
 
-        user_kyc = lms.__user_kyc()
+        customer = lms.__customer()
+        loan = frappe.get_doc("Loan", data.get("loan_name"))
+        if not loan:
+            return utils.respondNotFound(message=frappe._("Loan not found."))
+        if loan.customer != customer.name:
+            return utils.respondForbidden(message=_("Please use your own Loan."))
 
+        unpledge_application_exist = frappe.get_all(
+            "Unpledge Application",
+            filters={"loan": loan.name, "status": "Pending"},
+            order_by="creation desc",
+            page_length=1,
+        )
+        if len(unpledge_application_exist):
+            return utils.respondWithFailure(
+                status=417,
+                message="Unpledge Application for {} is already in process.".format(
+                    loan.name
+                ),
+            )
+
+        securities = validate_securities_for_unpledge(data.get("securities", {}), loan)
+
+        user_kyc = lms.__user_kyc()
         token = lms.verify_user_token(
             entity=user_kyc.mobile_number,
             token=data.get("otp"),
@@ -1424,35 +1446,31 @@ def loan_unpledge_request(**kwargs):
         if token.expiry <= datetime.now():
             return utils.respondUnauthorized(message=frappe._("Pledge OTP Expired."))
 
+        frappe.db.begin()
+
         lms.token_mark_as_used(token)
 
-        customer = lms.__customer()
-        loan = frappe.get_doc("Loan", data.get("loan_name"))
-        if not loan:
-            return utils.respondNotFound(message=frappe._("Loan not found."))
-        if loan.customer != customer.name:
-            return utils.respondForbidden(message=_("Please use your own Loan."))
-
-        securities = validate_securities_for_unpledge(data.get("securities", {}), loan)
-
-        frappe.db.begin()
-        unpledge_application = frappe.get_doc(
-            {"doctype": "Unpledge Application", "loan": data.get("loan_name")}
-        )
-
+        items = []
         for i in securities:
-            unpledge_application.append(
-                "items",
+            temp = frappe.get_doc(
                 {
+                    "doctype": "Unpledge Application Item",
                     "isin": i["isin"],
-                    "pledged_quantity": i["quantity"],
-                },
+                    "quantity": i["quantity"],
+                }
             )
-        # unpledge_application.save(ignore_permissions=True)
+            items.append(temp)
 
-        data = {"unpledge_application": unpledge_application}
+        unpledge_application = frappe.get_doc(
+            {
+                "doctype": "Unpledge Application",
+                "loan": data.get("loan_name"),
+                "items": items,
+            }
+        )
+        unpledge_application.insert(ignore_permissions=True)
 
-        return utils.respondWithSuccess(data=data)
+        return utils.respondWithSuccess(data=unpledge_application)
     except utils.APIException as e:
         return e.respond()
 

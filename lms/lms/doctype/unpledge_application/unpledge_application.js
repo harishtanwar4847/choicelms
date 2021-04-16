@@ -7,7 +7,7 @@ frappe.ui.form.on("Unpledge Application", {
   },
 });
 
-frappe.ui.form.on("Sell Collateral Application Sell Item", {
+frappe.ui.form.on("Unpledge Application Unpledged Item", {
   sell_items_remove(frm) {
     show_fetch_items_button(frm);
   },

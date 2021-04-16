@@ -4,8 +4,11 @@
 
 from __future__ import unicode_literals
 
-# import frappe
+import frappe
 from frappe.model.document import Document
+
+import lms
+from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
 
 
 class UnpledgeApplication(Document):
@@ -59,7 +62,7 @@ class UnpledgeApplication(Document):
         for i in self.unpledge_items:
             if i.unpledge_quantity > i.quantity:
                 frappe.throw(
-                    "Can not sell {}(PSN: {}) more than {}".format(
+                    "Can not unpledge {}(PSN: {}) more than {}".format(
                         i.isin, i.psn, i.quantity
                     )
                 )
@@ -72,7 +75,9 @@ class UnpledgeApplication(Document):
 
         for i in self.items:
             if unpledge_quantity_map.get(i.isin) > i.quantity:
-                frappe.throw("Can not sell {} more than {}".format(i.isin, i.quantity))
+                frappe.throw(
+                    "Can not unpledge {} more than {}".format(i.isin, i.quantity)
+                )
 
 
 @frappe.whitelist()
