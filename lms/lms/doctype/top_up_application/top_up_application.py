@@ -20,6 +20,7 @@ class TopupApplication(Document):
         if self.status == "Approved":
             loan.drawing_power += self.top_up_amount
             loan.sanctioned_limit += self.top_up_amount
+            self.sanctioned_limit = loan.sanctioned_limit
             loan.save(ignore_permissions=True)
             frappe.db.commit()
             self.map_loan_agreement_file(loan)
@@ -175,7 +176,8 @@ class TopupApplication(Document):
             "loan": self.loan,
             "top_up_amount": self.top_up_amount,
         }
-        frappe.enqueue_doc("Notification", "Top up Application", method="send", doc=doc)
+        if self.status in ["Pending", "Approved", "Rejected"]:
+            frappe.enqueue_doc("Notification", "Top up Application", method="send", doc=doc)
         mess = ""
         if doc.get("top_up_application").get("status") == "Pending":
             mess = "Your request has been successfully received. You will be notified when your new OD limit is approved by our banking partner."

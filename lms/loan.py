@@ -567,8 +567,9 @@ def create_topup(**kwargs):
             topup_application = frappe.get_doc(
                 {
                     "doctype": "Top up Application",
-                    "loan": data.get("loan_name"),
+                    "loan": loan.name,
                     "top_up_amount": data.get("topup_amount"),
+                    "sanctioned_limit": loan.sanctioned_limit,
                     "time": datetime.now(),
                     "status": "Pending",
                     "customer": customer.name,
