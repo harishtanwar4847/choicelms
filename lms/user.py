@@ -1000,8 +1000,7 @@ def contact_us(**kwargs):
 
         if not faq:
             return utils.respondWithSuccess(
-                message="Your issue does not match with Common Issues. Please Contact Us.",
-                data=data.get("search"),
+                message="Your issue does not match with Common Issues. Please Contact Us."
             )
 
         return utils.respondWithSuccess(data=faq)

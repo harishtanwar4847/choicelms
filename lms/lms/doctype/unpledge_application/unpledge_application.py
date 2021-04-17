@@ -109,6 +109,7 @@ class UnpledgeApplication(Document):
                     "quantity": i.get("unpledge_quantity"),
                     "psn": i.get("psn"),
                     "loan_name": self.loan,
+                    "lender_approval_status": "Approved",
                 }
                 CollateralLedger.create_entry(**collateral_ledger_input)
 

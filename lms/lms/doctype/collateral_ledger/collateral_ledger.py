@@ -11,7 +11,15 @@ from frappe.model.document import Document
 class CollateralLedger(Document):
     @staticmethod
     def create_entry(
-        doctype, docname, request_type, psn, isin, quantity, loan_name=None, data=None
+        doctype,
+        docname,
+        request_type,
+        psn,
+        isin,
+        quantity,
+        loan_name=None,
+        data=None,
+        lender_approval_status=None,
     ):
         doc = frappe.get_doc(doctype, docname)
         collateral_ledger = frappe.get_doc(
@@ -38,5 +46,7 @@ class CollateralLedger(Document):
             collateral_ledger.pledgor_boid = data.pledgor_boid
             collateral_ledger.pledgee_boid = data.pledgee_boid
 
+        if lender_approval_status:
+            collateral_ledger.lender_approval_status = lender_approval_status
+
         collateral_ledger.save(ignore_permissions=True)
-        frappe.db.commit()
