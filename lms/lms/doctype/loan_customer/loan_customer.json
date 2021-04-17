@@ -27,16 +27,7 @@
   "full_name",
   "column_break_20",
   "last_name",
-  "user",
-  "reminders_and_notifications_section_section",
-  "repayment_reminders_push_message",
-  "repayment_reminders_email",
-  "column_break_25",
-  "important_updates_push_message",
-  "important_updates_email",
-  "section_break_28",
-  "new_product_offers_push_message",
-  "new_product_offers_email"
+  "user"
  ],
  "fields": [
   {
@@ -161,58 +152,9 @@
    "fieldtype": "Link",
    "label": "User",
    "options": "User"
-  },
-  {
-   "fieldname": "reminders_and_notifications_section_section",
-   "fieldtype": "Section Break",
-   "label": "Reminders And Notifications Section"
-  },
-  {
-   "default": "1",
-   "fieldname": "repayment_reminders_push_message",
-   "fieldtype": "Check",
-   "label": "Repayment Reminders Push Message"
-  },
-  {
-   "default": "1",
-   "fieldname": "repayment_reminders_email",
-   "fieldtype": "Check",
-   "label": "Repayment Reminders Email"
-  },
-  {
-   "fieldname": "column_break_25",
-   "fieldtype": "Section Break"
-  },
-  {
-   "default": "1",
-   "fieldname": "important_updates_push_message",
-   "fieldtype": "Check",
-   "label": "Important Updates Push Message"
-  },
-  {
-   "default": "1",
-   "fieldname": "important_updates_email",
-   "fieldtype": "Check",
-   "label": "Important Updates Email"
-  },
-  {
-   "fieldname": "section_break_28",
-   "fieldtype": "Section Break"
-  },
-  {
-   "default": "1",
-   "fieldname": "new_product_offers_push_message",
-   "fieldtype": "Check",
-   "label": "New Product Offers Push Message"
-  },
-  {
-   "default": "1",
-   "fieldname": "new_product_offers_email",
-   "fieldtype": "Check",
-   "label": "New Product Offers Email"
   }
  ],
- "modified": "2021-04-03 17:42:25.410884",
+ "modified": "2021-04-17 11:30:23.594306",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Customer",
