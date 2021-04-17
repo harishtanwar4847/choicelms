@@ -79,10 +79,53 @@ class UnpledgeApplication(Document):
                     "Can not unpledge {} more than {}".format(i.isin, i.quantity)
                 )
 
+    def before_submit(self):
+        # check if all securities are sold
+        unpledge_quantity_map = {i.isin: 0 for i in self.items}
+
+        if len(self.unpledge_items):
+            for i in self.unpledge_items:
+                unpledge_quantity_map[i.isin] = (
+                    unpledge_quantity_map[i.isin] + i.unpledge_quantity
+                )
+        else:
+            frappe.throw("Please add items to unpledge")
+
+        for i in self.items:
+            # print(unpledge_quantity_map.get(i.isin), i.quantity)
+            if unpledge_quantity_map.get(i.isin) < i.quantity:
+                frappe.throw(
+                    "You need to unpledge all {} of isin {}".format(i.quantity, i.isin)
+                )
+
+    def on_submit(self):
+        for i in self.unpledge_items:
+            if i.unpledge_quantity > 0:
+                collateral_ledger_input = {
+                    "doctype": "Unpledge Application",
+                    "docname": self.name,
+                    "request_type": "Unpledge",
+                    "isin": i.get("isin"),
+                    "quantity": i.get("unpledge_quantity"),
+                    "psn": i.get("psn"),
+                    "loan_name": self.loan,
+                }
+                CollateralLedger.create_entry(**collateral_ledger_input)
+
+        loan = self.get_loan()
+        loan.update_items()
+        loan.fill_items()
+        loan.save(ignore_permissions=True)
+
 
 @frappe.whitelist()
 def get_collateral_details(unpledge_application_name):
     doc = frappe.get_doc("Unpledge Application", unpledge_application_name)
     loan = doc.get_loan()
-
-    return loan.get_collateral_list(group_by_psn=True)
+    isin_list = [i.isin for i in doc.items]
+    return loan.get_collateral_list(
+        group_by_psn=True,
+        where_clause="and cl.isin IN {}".format(
+            lms.convert_list_to_tuple_string(isin_list)
+        ),
+    )

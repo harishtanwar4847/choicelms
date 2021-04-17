@@ -39,3 +39,4 @@ class CollateralLedger(Document):
             collateral_ledger.pledgee_boid = data.pledgee_boid
 
         collateral_ledger.save(ignore_permissions=True)
+        frappe.db.commit()

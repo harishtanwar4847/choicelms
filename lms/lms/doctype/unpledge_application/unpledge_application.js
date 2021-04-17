@@ -17,7 +17,7 @@ frappe.ui.form.on("Unpledge Application Unpledged Item", {
 });
 
 function show_fetch_items_button(frm) {
-  if (frm.doc.unpledge_item.length == 0) {
+  if (frm.doc.unpledge_items.length == 0) {
     frm.add_custom_button(__("Fetch Unpledge Items"), function () {
       frappe.call({
         type: "POST",
@@ -27,7 +27,7 @@ function show_fetch_items_button(frm) {
         freeze: true,
         freeze_message: "Fetching Collateral Details",
         callback: (res) => {
-          frm.set_value("unpledge_item", res.message);
+          frm.set_value("unpledge_items", res.message);
           show_fetch_items_button(frm);
         },
       });
