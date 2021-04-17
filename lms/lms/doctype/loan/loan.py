@@ -685,7 +685,7 @@ class Loan(Document):
         # show available top up amount only if topup amount is greater than 10% of sanctioned limit
         return (
             lms.round_down_amount_to_nearest_thousand(max_topup_amount)
-            if max_topup_amount > (self.sanctioned_limit*0.1)
+            if max_topup_amount > (self.sanctioned_limit * 0.1)
             else 0
         )
 
@@ -704,9 +704,8 @@ class Loan(Document):
                 self.total_collateral_value * (self.allowable_ltv / 100)
             ) - self.sanctioned_limit
             topup_doc = frappe.get_doc("Top up Application", topup_app["name"])
-            if (
-                lms.round_down_amount_to_nearest_thousand(max_topup_amount)
-                > (self.sanctioned_limit*0.1)
+            if lms.round_down_amount_to_nearest_thousand(max_topup_amount) > (
+                self.sanctioned_limit * 0.1
             ):
                 topup_doc.db_set(
                     "top_up_amount",

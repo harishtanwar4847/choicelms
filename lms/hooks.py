@@ -154,7 +154,7 @@ fixtures = [
     "Workflow",
     "Interest Configuration",
     "Consent",
-    "FAQ"
+    "FAQ",
 ]
 
 scheduler_events = {

@@ -551,17 +551,14 @@ def create_topup(**kwargs):
             return utils.respondWithFailure(status=417, message="Top up not available")
         elif data.get("topup_amount") <= 0:
             return utils.respondWithFailure(
-                status=417,
-                message="Top up amount can not be 0 or less than 0"
+                status=417, message="Top up amount can not be 0 or less than 0"
             )
         elif data.get("topup_amount") > topup_amt:
             return utils.respondWithFailure(
                 status=417,
                 message="Top up amount can not be more than Rs. {}".format(topup_amt),
             )
-        elif (
-            0.0 < data.get("topup_amount") <= topup_amt
-        ):
+        elif 0.0 < data.get("topup_amount") <= topup_amt:
 
             frappe.db.begin()
             topup_application = frappe.get_doc(
@@ -676,7 +673,7 @@ def loan_details(**kwargs):
             if topup:
                 top_up = {
                     "loan": loan.name,
-                    "top_up_amount": lms.round_down_amount_to_nearest_thousand(topup)
+                    "top_up_amount": lms.round_down_amount_to_nearest_thousand(topup),
                 }
             else:
                 topup = None
