@@ -171,6 +171,7 @@ def esign_done(**kwargs):
 
         user = lms.__user()
         customer = lms.__customer()
+        las_settings = frappe.get_single("LAS Settings")
 
         if data.get("loan_application_name") and data.get("topup_application_name"):
             return utils.respondForbidden(
