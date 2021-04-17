@@ -1047,3 +1047,62 @@ def all_lenders_list(**kwargs):
 
     except utils.exceptions.APIException as e:
         return e.respond()
+
+
+@frappe.whitelist()
+def feedback(**kwargs):
+	try:
+		utils.validator.validate_http_method("GET")
+		
+		data = utils.validator.validate(
+			kwargs,
+			{
+				"do_not_show_again": "",
+				"feedback_already_done": "",
+				"rating": "",
+				"comment": ""
+			}
+		)
+
+		customer = lms.__customer()
+		if isinstance(data.get("do_not_show_again"), str):
+			data["do_not_show_again"] = int(data.get("do_not_show_again"))
+		
+		if isinstance(data.get("feedback_already_done"), str):
+			data["feedback_already_done"] = int(data.get("feedback_already_done"))
+		
+		if isinstance(data.get("rating"), str):
+			data["rating"] = int(data.get("rating"))
+
+		if data.get("do_not_show_again") or data.get("feedback_already_done"):
+			return utils.respondWithFailure(message=frappe._("Dont show feedback popup again"))
+
+		if not data.get("do_not_show_again") or not data.get("feedback_already_done"):
+			if not data.get("rating") and not data.get("comment"):
+				return utils.respondWithFailure(message=frappe._("Please give us Rating and Feedback"))
+
+			number_of_user_login = frappe.get_all(
+				"Activity Log",
+				fields=["count(status) as status_count", "status"],
+				filters={"operation": "Login", "status": "Success", "user": customer.user},
+			)
+
+			if number_of_user_login[0].status_count > 10:
+				#show feedback popup
+				feedbacks = frappe.get_doc(
+					{
+						"doctype": "Feedback",
+						"customer": customer.name,
+						"rating": data.get("rating"),
+						"comment": data.get("comment"),
+					}
+				)
+				feedbacks.insert(ignore_permissions=True)
+				frappe.db.commit()
+
+				return utils.respondWithSuccess(message=frappe._("Feedback successfully submited."))
+			else:
+				return utils.respondWithFailure(status=417, message=frappe._("User did not login for 10 times."))
+
+	except utils.exceptions.APIException as e:
+		return e.respond()
