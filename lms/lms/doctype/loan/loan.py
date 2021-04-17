@@ -678,21 +678,18 @@ class Loan(Document):
         loan_sanction_history.save(ignore_permissions=True)
 
     def max_topup_amount(self):
-        top_up_available = (
+        max_topup_amount = (
             self.total_collateral_value * (self.allowable_ltv / 100)
         ) - self.sanctioned_limit
 
-        las_settings = frappe.get_single("LAS Settings")
-
+        # show available top up amount only if topup amount is greater than 10% of sanctioned limit
         return (
-            lms.round_down_amount_to_nearest_thousand(top_up_available)
-            if top_up_available >= las_settings.minimum_top_up_amount
+            lms.round_down_amount_to_nearest_thousand(max_topup_amount)
+            if max_topup_amount > (self.sanctioned_limit*0.1)
             else 0
         )
 
     def update_pending_topup_amount(self):
-        las_settings = frappe.get_single("LAS Settings")
-        min_topup_amt = las_settings.minimum_top_up_amount
         pending_topup_request = frappe.get_all(
             "Top up Application",
             filters={
@@ -709,7 +706,7 @@ class Loan(Document):
             topup_doc = frappe.get_doc("Top up Application", topup_app["name"])
             if (
                 lms.round_down_amount_to_nearest_thousand(max_topup_amount)
-                >= min_topup_amt
+                > (self.sanctioned_limit*0.1)
             ):
                 topup_doc.db_set(
                     "top_up_amount",

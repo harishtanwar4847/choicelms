@@ -171,7 +171,6 @@ def esign_done(**kwargs):
 
         user = lms.__user()
         customer = lms.__customer()
-        las_settings = frappe.get_single("LAS Settings")
 
         if data.get("loan_application_name") and data.get("topup_application_name"):
             return utils.respondForbidden(
@@ -533,7 +532,6 @@ def create_topup(**kwargs):
             return utils.respondForbidden(message=_("Please use your own Loan."))
 
         topup_amt = loan.max_topup_amount()
-        las_settings = frappe.get_single("LAS Settings")
 
         existing_topup_application = frappe.get_all(
             "Top up Application",
@@ -551,15 +549,10 @@ def create_topup(**kwargs):
             )
         elif not topup_amt:
             return utils.respondWithFailure(status=417, message="Top up not available")
-        elif (
-            data.get("topup_amount") < las_settings.minimum_top_up_amount
-            or data.get("topup_amount") <= 0
-        ):
+        elif data.get("topup_amount") <= 0:
             return utils.respondWithFailure(
                 status=417,
-                message="Top up amount can not be less than Rs. {}".format(
-                    las_settings.minimum_top_up_amount
-                ),
+                message="Top up amount can not be 0 or less than 0"
             )
         elif data.get("topup_amount") > topup_amt:
             return utils.respondWithFailure(
@@ -567,15 +560,16 @@ def create_topup(**kwargs):
                 message="Top up amount can not be more than Rs. {}".format(topup_amt),
             )
         elif (
-            las_settings.minimum_top_up_amount <= data.get("topup_amount") <= topup_amt
+            0.0 < data.get("topup_amount") <= topup_amt
         ):
 
             frappe.db.begin()
             topup_application = frappe.get_doc(
                 {
                     "doctype": "Top up Application",
-                    "loan": data.get("loan_name"),
+                    "loan": loan.name,
                     "top_up_amount": data.get("topup_amount"),
+                    "sanctioned_limit": loan.sanctioned_limit,
                     "time": datetime.now(),
                     "status": "Pending",
                     "customer": customer.name,
@@ -676,16 +670,13 @@ def loan_details(**kwargs):
             },
             fields=["count(name) as in_process"],
         )
-        las_settings = frappe.get_single("LAS Settings")
         topup = None
         if existing_topup_application[0]["in_process"] == 0:
             topup = loan.max_topup_amount()
-
             if topup:
-                topup = lms.round_down_amount_to_nearest_thousand(topup)
-                topup = {
-                    "minimum_top_up_amount": las_settings.minimum_top_up_amount,
-                    "top_up_amount": topup,
+                top_up = {
+                    "loan": loan.name,
+                    "top_up_amount": lms.round_down_amount_to_nearest_thousand(topup)
                 }
             else:
                 topup = None

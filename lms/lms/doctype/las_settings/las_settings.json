@@ -39,7 +39,6 @@
   "section_break_33",
   "app_identification_hash_string",
   "column_break_35",
-  "minimum_top_up_amount",
   "terms_of_use_privacy_policy_section_break",
   "terms_of_use_document",
   "tnc_column_break",
@@ -238,17 +237,12 @@
    "label": "Enhancement Esign Download signed file URI"
   },
   {
-   "fieldname": "minimum_top_up_amount",
-   "fieldtype": "Currency",
-   "label": "Minimum Top up Amount"
-  },
-  {
    "fieldname": "column_break_35",
    "fieldtype": "Column Break"
   }
  ],
  "issingle": 1,
- "modified": "2021-03-03 18:47:33.607805",
+ "modified": "2021-04-15 17:14:47.846423",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
