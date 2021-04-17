@@ -844,106 +844,106 @@ def weekly_pledged_security_dashboard(**kwargs):
 		return e.respond()
 
 
-@frappe.whitelist()
-def get_profile(**kwargs):
-	try:
-		utils.validator.validate_http_method("GET")
-		user = frappe.get_doc("User", frappe.session.user)
-		customer = lms.__customer(user.name)
+# @frappe.whitelist()
+# def get_profile(**kwargs):
+# 	try:
+# 		utils.validator.validate_http_method("GET")
+# 		user = frappe.get_doc("User", frappe.session.user)
+# 		customer = lms.__customer(user.name)
 
-		data = utils.validator.validate(
-			kwargs,
-			{
-				"is_for_alerts":"",
-				"percentage": "",
-				"amount": "decimal"
-			},
-		)
+# 		data = utils.validator.validate(
+# 			kwargs,
+# 			{
+# 				"is_for_alerts":"",
+# 				"percentage": "",
+# 				"amount": "decimal"
+# 			},
+# 		)
 
-		if isinstance(data.get("is_for_alerts"), str):
-			data["is_for_alerts"] = int(data.get("is_for_alerts"))
+# 		if isinstance(data.get("is_for_alerts"), str):
+# 			data["is_for_alerts"] = int(data.get("is_for_alerts"))
 		
-		try:
-			user_kyc = lms.__user_kyc(user.email)
-		except UserKYCNotFoundException:
-			user_kyc = None
+# 		try:
+# 			user_kyc = lms.__user_kyc(user.email)
+# 		except UserKYCNotFoundException:
+# 			user_kyc = None
 
-		if not user.last_login:
-			last_login = None
-		else:
-			last_login = (datetime.strptime(user.last_login, "%Y-%m-%d %H:%M:%S.%f")).strftime("%Y-%m-%d %H:%M:%S")
+# 		if not user.last_login:
+# 			last_login = None
+# 		else:
+# 			last_login = (datetime.strptime(user.last_login, "%Y-%m-%d %H:%M:%S.%f")).strftime("%Y-%m-%d %H:%M:%S")
 		
-		res = {
-			"customer_details" : customer,
-			"user_kyc": user_kyc,
-			"last_login": last_login
-		}
+# 		res = {
+# 			"customer_details" : customer,
+# 			"user_kyc": user_kyc,
+# 			"last_login": last_login
+# 		}
 		
-		if data.get("is_for_alerts") and not data.get("percentage") and not data.get("amount"):
-			return utils.respondWithFailure(status=417, message=frappe._("Please select Amount or Percentage for setting Alerts"))
+# 		if data.get("is_for_alerts") and not data.get("percentage") and not data.get("amount"):
+# 			return utils.respondWithFailure(status=417, message=frappe._("Please select Amount or Percentage for setting Alerts"))
 
-		elif data.get("is_for_alerts") and (data.get("percentage") or data.get("amount")):
-			all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
+# 		elif data.get("is_for_alerts") and (data.get("percentage") or data.get("amount")):
+# 			all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
 
-			if not all_loans:
-				return utils.respondWithSuccess(
-					message="Please Pledge securities to see your securities performance",
-					data=all_loans,
-				)
+# 			if not all_loans:
+# 				return utils.respondWithSuccess(
+# 					message="Please Pledge securities to see your securities performance",
+# 					data=all_loans,
+# 				)
 
-			all_loan_items = frappe.get_all(
-				"Loan Item",
-				filters={"parent": ["in", [loan.name for loan in all_loans]]},
-				fields=["isin", "pledged_quantity"],
-			)
-			old_amount = 0.0
-			new_amount = 0.0
-			for loan_items in all_loan_items:
-				print(loan_items,"loan_items")
-				security_price_list = frappe.db.sql(
-					"""select security, price, time
-					from `tabSecurity Price`
-					where `tabSecurity Price`.security = '{}'
-					order by modified desc limit 2""".format(
-							loan_items.get("isin")
-						),
-						as_dict=1,
-					)
-				# print(loan_items.get("isin"),"loan item isin")
-				# print(security_price_list[0].get("security"),"security_price_list isin")
-				# print(security_price_list[0].get("price"),"security_price_list isin")
-				# print(security_price_list[1].get("security"),"security_price_list isin")
-				# print(security_price_list[1].get("price"),"security_price_list isin")
-				new_amount += (loan_items.get("pledged_quantity") * security_price_list[0].get("price"))
-				# print(new_amount,"new_amount")
+# 			all_loan_items = frappe.get_all(
+# 				"Loan Item",
+# 				filters={"parent": ["in", [loan.name for loan in all_loans]]},
+# 				fields=["isin", "pledged_quantity"],
+# 			)
+# 			old_amount = 0.0
+# 			new_amount = 0.0
+# 			for loan_items in all_loan_items:
+# 				print(loan_items,"loan_items")
+# 				security_price_list = frappe.db.sql(
+# 					"""select security, price, time
+# 					from `tabSecurity Price`
+# 					where `tabSecurity Price`.security = '{}'
+# 					order by modified desc limit 2""".format(
+# 							loan_items.get("isin")
+# 						),
+# 						as_dict=1,
+# 					)
+# 				# print(loan_items.get("isin"),"loan item isin")
+# 				# print(security_price_list[0].get("security"),"security_price_list isin")
+# 				# print(security_price_list[0].get("price"),"security_price_list isin")
+# 				# print(security_price_list[1].get("security"),"security_price_list isin")
+# 				# print(security_price_list[1].get("price"),"security_price_list isin")
+# 				new_amount += (loan_items.get("pledged_quantity") * security_price_list[0].get("price"))
+# 				# print(new_amount,"new_amount")
 				
-				old_amount += (loan_items.get("pledged_quantity") * security_price_list[1].get("price"))
-				# print(old_amount,"old_amount")
-			if data.get("percentage"):
-				# print(new_amount,"new_amount")
-				# print(old_amount,"old_amount")
-				# print(old_amount+data.get("amount"),"old_amount_value by amount up")
-				# print(old_amount-data.get("amount"),"old_amount_value by amount down")
-				if new_amount > (old_amount+(old_amount*int(data.get("percentage"))/100)):
-					res["alert"] = "Alert price UP by {}%".format(data.get("percentage"))
-				elif new_amount < (old_amount-(old_amount*data.get("percentage")/100)):
-					res["alert"] = "Alert price DOWN by {}%".format(data.get("percentage"))
+# 				old_amount += (loan_items.get("pledged_quantity") * security_price_list[1].get("price"))
+# 				# print(old_amount,"old_amount")
+# 			if data.get("percentage"):
+# 				# print(new_amount,"new_amount")
+# 				# print(old_amount,"old_amount")
+# 				# print(old_amount+data.get("amount"),"old_amount_value by amount up")
+# 				# print(old_amount-data.get("amount"),"old_amount_value by amount down")
+# 				if new_amount > (old_amount+(old_amount*int(data.get("percentage"))/100)):
+# 					res["alert"] = "Alert price UP by {}%".format(data.get("percentage"))
+# 				elif new_amount < (old_amount-(old_amount*data.get("percentage")/100)):
+# 					res["alert"] = "Alert price DOWN by {}%".format(data.get("percentage"))
 
-			elif data.get("amount"):
-				print(new_amount,"new_amount")
-				print(old_amount,"old_amount")
-				print(old_amount+data.get("amount"),"old_amount_value by amount up")
-				print(old_amount-data.get("amount"),"old_amount_value by amount down")
-				if new_amount > (old_amount+data.get("amount")):
-					res["alert"] = "Alert price UP by Rs. {}".format(data.get("amount"))
-				elif new_amount < (old_amount-data.get("amount")):
-					res["alert"] = "Alert price DOWN by Rs. {}".format(data.get("amount"))
+# 			elif data.get("amount"):
+# 				print(new_amount,"new_amount")
+# 				print(old_amount,"old_amount")
+# 				print(old_amount+data.get("amount"),"old_amount_value by amount up")
+# 				print(old_amount-data.get("amount"),"old_amount_value by amount down")
+# 				if new_amount > (old_amount+data.get("amount")):
+# 					res["alert"] = "Alert price UP by Rs. {}".format(data.get("amount"))
+# 				elif new_amount < (old_amount-data.get("amount")):
+# 					res["alert"] = "Alert price DOWN by Rs. {}".format(data.get("amount"))
 
 
-		return utils.respondWithSuccess(data=res)
+# 		return utils.respondWithSuccess(data=res)
 
-	except utils.APIException as e:
-		return e.respond()
+# 	except utils.APIException as e:
+# 		return e.respond()
 
 @frappe.whitelist()
 def update_profile_pic_and_pin(**kwargs):
@@ -1112,60 +1112,60 @@ def all_lenders_list(**kwargs):
 		return e.respond()
 
 
-@frappe.whitelist()
-def feedback(**kwargs):
-	try:
-		utils.validator.validate_http_method("GET")
+# @frappe.whitelist()
+# def feedback(**kwargs):
+# 	try:
+# 		utils.validator.validate_http_method("GET")
 		
-		data = utils.validator.validate(
-			kwargs,
-			{
-				"do_not_show_again": "",
-				"feedback_already_done": "",
-				"rating": "",
-				"comment": ""
-			}
-		)
+# 		data = utils.validator.validate(
+# 			kwargs,
+# 			{
+# 				"do_not_show_again": "",
+# 				"feedback_already_done": "",
+# 				"rating": "",
+# 				"comment": ""
+# 			}
+# 		)
 
-		customer = lms.__customer()
-		if isinstance(data.get("do_not_show_again"), str):
-			data["do_not_show_again"] = int(data.get("do_not_show_again"))
+# 		customer = lms.__customer()
+# 		if isinstance(data.get("do_not_show_again"), str):
+# 			data["do_not_show_again"] = int(data.get("do_not_show_again"))
 		
-		if isinstance(data.get("feedback_already_done"), str):
-			data["feedback_already_done"] = int(data.get("feedback_already_done"))
+# 		if isinstance(data.get("feedback_already_done"), str):
+# 			data["feedback_already_done"] = int(data.get("feedback_already_done"))
 		
-		if isinstance(data.get("rating"), str):
-			data["rating"] = int(data.get("rating"))
+# 		if isinstance(data.get("rating"), str):
+# 			data["rating"] = int(data.get("rating"))
 
-		if data.get("do_not_show_again") or data.get("feedback_already_done"):
-			return utils.respondWithFailure(message=frappe._("Dont show feedback popup again"))
+# 		if data.get("do_not_show_again") or data.get("feedback_already_done"):
+# 			return utils.respondWithFailure(message=frappe._("Dont show feedback popup again"))
 
-		if not data.get("do_not_show_again") or not data.get("feedback_already_done"):
-			if not data.get("rating") and not data.get("comment"):
-				return utils.respondWithFailure(message=frappe._("Please give us Rating and Feedback"))
+# 		if not data.get("do_not_show_again") or not data.get("feedback_already_done"):
+# 			if not data.get("rating") and not data.get("comment"):
+# 				return utils.respondWithFailure(message=frappe._("Please give us Rating and Feedback"))
 
-			number_of_user_login = frappe.get_all(
-				"Activity Log",
-				fields=["count(status) as status_count", "status"],
-				filters={"operation": "Login", "status": "Success", "user": customer.user},
-			)
+# 			number_of_user_login = frappe.get_all(
+# 				"Activity Log",
+# 				fields=["count(status) as status_count", "status"],
+# 				filters={"operation": "Login", "status": "Success", "user": customer.user},
+# 			)
 
-			if number_of_user_login[0].status_count > 10:
-				#show feedback popup
-				feedbacks = frappe.get_doc(
-					{
-						"doctype": "Feedback",
-						"customer": customer.name,
-						"rating": data.get("rating"),
-						"comment": data.get("comment"),
-					}
-				)
-				feedbacks.insert(ignore_permissions=True)
-				frappe.db.commit()
+# 			if number_of_user_login[0].status_count > 10:
+# 				#show feedback popup
+# 				feedbacks = frappe.get_doc(
+# 					{
+# 						"doctype": "Feedback",
+# 						"customer": customer.name,
+# 						"rating": data.get("rating"),
+# 						"comment": data.get("comment"),
+# 					}
+# 				)
+# 				feedbacks.insert(ignore_permissions=True)
+# 				frappe.db.commit()
 
-				return utils.respondWithSuccess(message=frappe._("Feedback successfully submited."))
-			else:
-				return utils.respondWithFailure(status=417, message=frappe._("User did not login for 10 times."))
+# 				return utils.respondWithSuccess(message=frappe._("Feedback successfully submited."))
+# 			else:
+# 				return utils.respondWithFailure(status=417, message=frappe._("User did not login for 10 times."))
 
-	except utils.exceptions.APIException as e:
-		return e.respond()
+# 	except utils.exceptions.APIException as e:
+# 		return e.respond()
