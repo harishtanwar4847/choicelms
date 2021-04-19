@@ -3968,7 +3968,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-04-17 16:55:38.562330",
+  "modified": "2021-04-17 19:01:32.380392",
   "name": "1141858dda",
   "parameters": [
    {
@@ -3983,6 +3983,19 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "otp",
+    "group": null,
+    "optional": 0,
+    "parent": "1141858dda",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
    },
    {
     "allowed_values": null,
@@ -4039,7 +4052,7 @@
   ],
   "parameters_example": [
    {
-    "example": "{\"securities\":{\"list\":[{\"isin\":\"INE259A01022\",\"quantity\":12},{\"isin\":\"INE045B01015\",\"quantity\":20}]},\"loan_name\":\"SL001\"}",
+    "example": "{\n\t\"loan_name\": \"SL000047\",\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"INE169A01031\",\n\t\t\t\t\"quantity\": 5\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"isin\": \"INE021A01026\",\n\t\t\t\t\"quantity\": 5\n\t\t\t}\n\t\t]\n\t},\n\t\"otp\": \"5310\"\n}",
     "parent": "1141858dda",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
