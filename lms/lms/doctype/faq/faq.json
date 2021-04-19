@@ -18,7 +18,7 @@
   },
   {
    "fieldname": "description",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "in_list_view": 1,
    "label": "Description"
   },
@@ -28,7 +28,7 @@
    "label": "Resolution"
   }
  ],
- "modified": "2021-04-06 16:13:58.184177",
+ "modified": "2021-04-19 12:37:55.534260",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "FAQ",

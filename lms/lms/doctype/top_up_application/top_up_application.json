@@ -113,7 +113,7 @@
   }
  ],
  "is_submittable": 1,
- "modified": "2021-04-16 11:50:43.994694",
+ "modified": "2021-04-19 16:20:15.640225",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Top up Application",
@@ -129,11 +129,13 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
+   "submit": 1,
    "write": 1
   },
   {
    "read": 1,
    "role": "Lender",
+   "submit": 1,
    "write": 1
   },
   {
