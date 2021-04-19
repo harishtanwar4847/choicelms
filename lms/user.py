@@ -848,7 +848,7 @@ def weekly_pledged_security_dashboard(**kwargs):
 # def get_profile(**kwargs):
 # 	try:
 # 		utils.validator.validate_http_method("GET")
-# 		user = frappe.get_doc("User", frappe.session.user)
+# 		user = lms.__user()
 # 		customer = lms.__customer(user.name)
 
 # 		data = utils.validator.validate(
@@ -950,7 +950,7 @@ def update_profile_pic_and_pin(**kwargs):
 	try:
 		# validation
 		utils.validator.validate_http_method("POST")
-		user = frappe.get_doc("User", frappe.session.user)
+		user = lms.__user()
 
 		data = utils.validator.validate(
 			kwargs,
