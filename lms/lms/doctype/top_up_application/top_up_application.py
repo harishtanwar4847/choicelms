@@ -16,17 +16,21 @@ class TopupApplication(Document):
         return frappe.get_doc("Loan Customer", self.customer)
 
     def on_submit(self):
-        self.update_sanctioned_amount()
-        # loan = frappe.get_doc("Loan", self.loan)
-        if self.status == "Approved":
-        #     loan.drawing_power += self.top_up_amount
-        #     loan.sanctioned_limit += self.top_up_amount
-        #     self.sanctioned_limit = loan.sanctioned_limit
-        #     loan.save(ignore_permissions=True)
-        #     frappe.db.commit()
-            self.map_loan_agreement_file(loan)
+        # self.update_sanctioned_amount()
+        loan = frappe.get_doc("Loan", self.loan)
+        # if self.status == "Approved":
+        loan.drawing_power += self.top_up_amount
+        loan.sanctioned_limit += self.top_up_amount
+        self.sanctioned_limit = loan.sanctioned_limit
+        loan.save(ignore_permissions=True)
+        frappe.db.commit()
+        self.map_loan_agreement_file(loan)
 
         self.notify_customer()
+
+    def before_submit(self):
+        loan = frappe.get_doc("Loan", self.loan)
+        self.sanctioned_limit = loan.sanctioned_limit
 
     def update_sanctioned_amount(self):
         loan = frappe.get_doc("Loan", self.loan)
