@@ -18,7 +18,7 @@ from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
 # from .exceptions import *
 from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "1.0.0-beta.1.4"
+__version__ = "1.0.0-beta.1.5"
 
 user_token_expiry_map = {
     "OTP": 10,
