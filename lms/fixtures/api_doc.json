@@ -3260,7 +3260,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-04-17 12:44:51.378541",
+  "modified": "2021-04-20 16:24:57.268171",
   "name": "5b86bb8a43",
   "parameters": [
    {
@@ -3306,6 +3306,19 @@
     "allowed_values": null,
     "default_value": null,
     "description": null,
+    "field": "retype_pin",
+    "group": null,
+    "optional": 0,
+    "parent": "5b86bb8a43",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Decimal"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
     "field": "is_for_profile_pic",
     "group": null,
     "optional": 0,
@@ -3331,7 +3344,7 @@
   ],
   "parameters_example": [
    {
-    "example": "{\n\t\"is_for_update_pin\": \"\",\n\t\"old_pin\": \"\",\n\t\"new_pin\": \"\",\n        \"is_for_profile_pic\": \"\",\n\t\"image\": \"\",\n}",
+    "example": "{\n\t\"is_for_update_pin\": \"\",\n\t\"old_pin\": \"\",\n\t\"new_pin\": \"\",\n        \"retype_pin\" : \"\",\n        \"is_for_profile_pic\": \"\",\n\t\"image\": \"\",\n}",
     "parent": "5b86bb8a43",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -4092,6 +4105,107 @@
     "api_doc": "5a72ab8655",
     "api_doc_title": "APIResponse",
     "parent": "1141858dda",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2021-04-20 16:31:56.915768",
+  "name": "227ef993a2",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "is_for_alerts",
+    "group": null,
+    "optional": 0,
+    "parent": "227ef993a2",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "percentage",
+    "group": null,
+    "optional": 0,
+    "parent": "227ef993a2",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Decimal"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "amount",
+    "group": null,
+    "optional": 0,
+    "parent": "227ef993a2",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Decimal"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"is_for_alerts\": 1,\n\t\"percentage\": 10,\n\t\"amount\": 0\n}",
+    "parent": "227ef993a2",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.get_profile_set_alerts",
+  "success": [],
+  "success_example": [],
+  "title": "Get Profile And Set Alerts",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "227ef993a2",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "227ef993a2",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "227ef993a2",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "227ef993a2",
     "parentfield": "use_api_define",
     "parenttype": "API Doc"
    }
