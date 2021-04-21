@@ -19,8 +19,11 @@ class UnpledgeApplication(Document):
         self.process_items()
 
     def before_save(self):
-        self.process_items()
-        self.process_sell_items()
+        if self.status == "Rejected":
+            self.notify_customer()
+        else:
+            self.process_items()
+            self.process_sell_items()
 
     def process_items(self):
         self.total_collateral_value = 0
@@ -117,6 +120,25 @@ class UnpledgeApplication(Document):
         loan.update_items()
         loan.fill_items()
         loan.save(ignore_permissions=True)
+        self.notify_customer()
+
+    def notify_customer(self):
+        msg = ""
+        if self.status in ["Approved", "Rejected"]:
+            customer = self.get_loan().get_customer()
+            user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+
+            if self.status == "Approved":
+                msg = "Your unpledging of securities was successfully completed."
+            elif self.status == "Rejected":
+                msg = "Your unpledging of securities was not completed."
+
+            receiver_list = list(
+                set([str(customer.phone), str(user_kyc.mobile_number)])
+            )
+            from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
 
 @frappe.whitelist()
