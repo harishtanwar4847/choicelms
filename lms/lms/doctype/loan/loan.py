@@ -149,20 +149,23 @@ class Loan(Document):
 
 	def update_loan_balance(self, check_for_shortfall=True):
 		summary = self.get_transaction_summary()
-		frappe.db.set_value(
-			self.doctype,
-			self.name,
-			"balance",
-			round(summary.get("outstanding"), 2),
-			update_modified=False,
-		)
-		frappe.db.set_value(
-			self.doctype,
-			self.name,
-			"balance_str",
-			lms.amount_formatter(round(summary.get("outstanding"), 2)),
-			update_modified=False,
-		)
+		# frappe.db.set_value(
+		#     self.doctype,
+		#     self.name,
+		#     "balance",
+		#     round(summary.get("outstanding"), 2),
+		#     update_modified=False,
+		# )
+		# frappe.db.set_value(
+		#     self.doctype,
+		#     self.name,
+		#     "balance_str",
+		#     lms.amount_formatter(round(summary.get("outstanding"), 2)),
+		#     update_modified=False,
+		# )
+		self.balance = round(summary.get("outstanding"), 2)
+		self.balance_str = lms.amount_formatter(round(summary.get("outstanding"), 2))
+		self.save(ignore_permissions=True)
 		if check_for_shortfall:
 			self.check_for_shortfall()
 

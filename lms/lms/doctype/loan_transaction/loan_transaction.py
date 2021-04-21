@@ -24,7 +24,8 @@ class LoanTransaction(Document):
         "Stamp Duty": "DR",
         "Documentation Charges": "DR",
         "Mortgage Charges": "DR",
-        "Sell Collateral": "DR",  # confirm
+        # "Sell Collateral": "DR",  # confirm
+        "Sell Collateral": "CR",  # confirm
         "Invoke Pledge": "DR",  # confirm
         "Interest": "DR",
         "Additional Interest": "DR",

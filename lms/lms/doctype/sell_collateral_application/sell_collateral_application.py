@@ -98,6 +98,7 @@ class SellCollateralApplication(Document):
                     "quantity": i.get("sell_quantity"),
                     "psn": i.get("psn"),
                     "loan_name": self.loan,
+                    "lender_approval_status": "Approved",
                 }
                 CollateralLedger.create_entry(**collateral_ledger_input)
 
@@ -105,6 +106,12 @@ class SellCollateralApplication(Document):
         loan.update_items()
         loan.fill_items()
         loan.save(ignore_permissions=True)
+        loan.create_loan_transaction(
+            transaction_type="Sell Collateral",
+            amount=self.selling_collateral_value,
+            approve=True,
+        )
+        loan.update_loan_balance()
 
 
 @frappe.whitelist()

@@ -1169,10 +1169,8 @@ def loan_statement(**kwargs):
 				th {text-align: center;}
 				</style>
 				"""
-				print(a,"df_to_html")
 
 				html_with_style = style + a
-				print(html_with_style,"html_with_style")
 
 				from frappe.utils.pdf import get_pdf
 
