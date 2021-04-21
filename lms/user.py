@@ -406,9 +406,9 @@ def approved_securities(**kwargs):
 				tr {
 				page-break-inside: avoid;
 				}
+				th {text-align: center;}
 				</style>
 				"""
-
 			html_with_style = style + a
 
 			from frappe.utils.pdf import get_pdf
@@ -1039,6 +1039,52 @@ def contact_us(**kwargs):
 	except utils.exceptions.APIException as e:
 		return e.respond()
 
+# @frappe.whitelist(allow_guest=True)
+# def send_sms_email(**kwargs):
+# 	try:
+# 		utils.validator.validate_http_method("POST")
+
+# 		data = utils.validator.validate(kwargs, {"email": "", "sms": "", "query": ""})
+
+# 		if isinstance(data.get("email"), str):
+# 			data["email"] = int(data.get("email"))
+
+# 		if isinstance(data.get("sms"), str):
+# 			data["sms"] = int(data.get("sms"))
+
+# 		user = lms.__user()
+
+# 		if data.get("sms") and data.get("email"):
+# 			return utils.respondWithFailure(
+#                 message=frappe._(
+#                     "Please choose one between download or email transactions at a time."
+#                 )
+#             )
+# 		elif not data.get("sms") and not data.get("email"):
+# 			return utils.respondWithFailure(
+#                 message=frappe._(
+#                     "Please choose one between download or email transactions at a time."
+#                 )
+#             )
+
+# 		if not data.get("query"):
+# 			return utils.respondWithFailure(message=frappe._("Please write message in query field."))
+
+# 		if data.get("sms"):
+# 			frappe.enqueue(method=send_sms, sender_name="9137032242", receiver_list=["9137032242"], msg=data.get("query"))
+# 		elif data.get("email"):
+# 			frappe.enqueue(
+#                     method=frappe.sendmail,
+#                     recipients="omkar.darves@atriina.com",
+#                     # recipients="customercare@spark.loans",
+#                     sender="omkardarves@gmail.com",
+#                     subject="Spark FAQ",
+#                     message=data.get("query"),
+#                 )
+
+# 		return utils.respondWithSuccess(message=frappe._("Thank you for contacting us."))
+# 	except utils.exceptions.APIException as e:
+# 		return e.respond()
 
 @frappe.whitelist()
 def check_eligible_limit(**kwargs):
