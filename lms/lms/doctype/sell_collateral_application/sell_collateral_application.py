@@ -120,5 +120,10 @@ def get_collateral_details(sell_collateral_application_name):
         "Sell Collateral Application", sell_collateral_application_name
     )
     loan = doc.get_loan()
-
-    return loan.get_collateral_list(group_by_psn=True)
+    isin_list = [i.isin for i in doc.items]
+    return loan.get_collateral_list(
+        group_by_psn=True,
+        where_clause="and cl.isin IN {}".format(
+            lms.convert_list_to_tuple_string(isin_list)
+        ),
+    )
