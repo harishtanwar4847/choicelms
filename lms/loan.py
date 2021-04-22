@@ -1508,6 +1508,20 @@ def sell_collateral_request(**kwargs):
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
 
+        sell_application_exist = frappe.get_all(
+            "Sell Collateral Application",
+            filters={"loan": loan.name, "status": "Pending"},
+            order_by="creation desc",
+            page_length=1,
+        )
+        if len(sell_application_exist):
+            return utils.respondWithFailure(
+                status=417,
+                message="Sell Collateral Application for {} is already in process.".format(
+                    loan.name
+                ),
+            )
+
         securities = validate_securities_for_sell_collateral(
             data.get("securities", {}), data.get("loan_name")
         )
