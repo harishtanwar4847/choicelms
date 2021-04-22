@@ -1288,11 +1288,23 @@ def loan_unpledge_details(**kwargs):
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
 
-        # get amount_available_for_unpledge,min collateral value
-        unpledge = loan.max_unpledge_amount()
-        data = {"loan": loan, "unpledge": unpledge}
+        res = {"loan": loan}
 
-        return utils.respondWithSuccess(data=data)
+        # check if any pending unpledge application exist
+        unpledge_application_exist = frappe.get_all(
+            "Unpledge Application",
+            filters={"loan": loan.name, "status": "Pending"},
+            order_by="creation desc",
+            page_length=1,
+        )
+        if len(unpledge_application_exist):
+            res["unpledge"] = None
+        else:
+            # get amount_available_for_unpledge,min collateral value
+            res["unpledge"] = loan.max_unpledge_amount()
+        # data = {"loan": loan, "unpledge": unpledge}
+
+        return utils.respondWithSuccess(data=res)
     except utils.APIException as e:
         return e.respond()
 
