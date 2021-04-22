@@ -672,6 +672,9 @@ class Loan(Document):
             )
             frappe.db.commit()
             # TODO: send notification to user
+            doc = frappe.get_doc("User", self.get_customer().user).as_dict()
+            doc["loan"] = self.name
+            frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
 
     def add_penal_interest(self, input_date=None):
         # daily scheduler - executes at start of day i.e 00:00
