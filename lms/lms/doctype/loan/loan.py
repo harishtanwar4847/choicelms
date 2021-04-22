@@ -612,7 +612,11 @@ class Loan(Document):
                     self.save(ignore_permissions=True)
 
                     frappe.db.commit()
-                    # TODO: send notification to user
+                    
+                    doc = frappe.get_doc("User", self.get_customer().user).as_dict()
+                    doc["loan"] = {"loan_name": self.name, "transaction_type": additional_interest_transaction.transaction_type, "unpaid_interest": additional_interest_transaction.unpaid_interest}
+                    frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
+
                     return additional_interest_transaction.as_dict()
 
     def book_virtual_interest_for_month(self, input_date=None):
@@ -671,9 +675,9 @@ class Loan(Document):
                 )
             )
             frappe.db.commit()
-            # TODO: send notification to user
+
             doc = frappe.get_doc("User", self.get_customer().user).as_dict()
-            doc["loan"] = self.name
+            doc["loan"] = {"loan_name": self.name, "transaction_type": loan_transaction.transaction_type}
             frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
 
     def add_penal_interest(self, input_date=None):
@@ -747,7 +751,11 @@ class Loan(Document):
                         self.save(ignore_permissions=True)
 
                         frappe.db.commit()
-                        # TODO: send notification to user
+
+                        doc = frappe.get_doc("User", self.get_customer().user).as_dict()
+                        doc["loan"] = {"loan_name": self.name, "transaction_type": penal_interest_transaction.transaction_type, "unpaid_interest": penal_interest_transaction.unpaid_interest}
+                        frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
+
                         return penal_interest_transaction.as_dict()
 
     def before_save(self):
