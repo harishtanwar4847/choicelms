@@ -612,7 +612,7 @@ class Loan(Document):
                     self.save(ignore_permissions=True)
 
                     frappe.db.commit()
-                    
+
                     doc = frappe.get_doc("User", self.get_customer().user).as_dict()
                     doc["loan"] = {"loan_name": self.name, "transaction_type": additional_interest_transaction.transaction_type, "unpaid_interest": additional_interest_transaction.unpaid_interest}
                     frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
