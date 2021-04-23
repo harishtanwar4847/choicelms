@@ -70,3 +70,20 @@ def process_csv(upload_file):
     frappe.db.bulk_insert(
         "Dummy Security", fields=fields, values=values, ignore_duplicates=True
     )
+
+
+@frappe.whitelist(allow_guest=True)
+def get_holdings():
+    frappe.response.Status = "Success"
+    frappe.response.Response = frappe.get_all(
+        "Dummy Security",
+        fields=[
+            "scrip_name as Scrip_name",
+            "isin as ISIN",
+            "stock_at as Stock_At",
+            "quantity as Quantity",
+            "price as Price",
+        ],
+    )
+
+    return
