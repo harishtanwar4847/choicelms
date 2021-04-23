@@ -18,7 +18,7 @@ from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
 # from .exceptions import *
 from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "1.0.0-beta.1.4"
+__version__ = "1.0.0-beta.1.5"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -171,7 +171,7 @@ def get_user(input, throw=False):
         (input, input),
         as_dict=1,
     )
-    print("get_user", frappe.as_json(user_data))
+    # print("get_user", frappe.as_json(user_data))
     if len(user_data) >= 1:
         return user_data[0].name
     else:

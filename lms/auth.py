@@ -114,7 +114,7 @@ def logout(firebase_token):
     get_user_token = frappe.db.get_value(
         "User Token", {"token_type": "Firebase Token", "token": firebase_token}
     )
-    print(get_user_token)
+    # print(get_user_token)
     if not get_user_token:
         raise lms.ValidationError(_("Firebase Token does not exist."))
     else:

@@ -81,7 +81,7 @@ class SellCollateralApplication(Document):
             sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
 
         for i in self.items:
-            print(sell_quantity_map.get(i.isin), i.quantity)
+            # print(sell_quantity_map.get(i.isin), i.quantity)
             if sell_quantity_map.get(i.isin) < i.quantity:
                 frappe.throw(
                     "You need to sell all {} of isin {}".format(i.quantity, i.isin)
@@ -98,6 +98,7 @@ class SellCollateralApplication(Document):
                     "quantity": i.get("sell_quantity"),
                     "psn": i.get("psn"),
                     "loan_name": self.loan,
+                    "lender_approval_status": "Approved",
                 }
                 CollateralLedger.create_entry(**collateral_ledger_input)
 
@@ -105,6 +106,12 @@ class SellCollateralApplication(Document):
         loan.update_items()
         loan.fill_items()
         loan.save(ignore_permissions=True)
+        loan.create_loan_transaction(
+            transaction_type="Sell Collateral",
+            amount=self.selling_collateral_value,
+            approve=True,
+        )
+        loan.update_loan_balance()
 
 
 @frappe.whitelist()
@@ -113,5 +120,10 @@ def get_collateral_details(sell_collateral_application_name):
         "Sell Collateral Application", sell_collateral_application_name
     )
     loan = doc.get_loan()
-
-    return loan.get_collateral_list(group_by_psn=True)
+    isin_list = [i.isin for i in doc.items]
+    return loan.get_collateral_list(
+        group_by_psn=True,
+        where_clause="and cl.isin IN {}".format(
+            lms.convert_list_to_tuple_string(isin_list)
+        ),
+    )

@@ -1,4 +1,6 @@
+import base64
 import json
+import re
 import time
 from datetime import date, datetime, timedelta
 
@@ -8,7 +10,7 @@ import requests
 import utils
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
-from frappe.utils.password import update_password
+from frappe.utils.password import check_password, update_password
 
 import lms
 from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
@@ -401,12 +403,12 @@ def approved_securities(**kwargs):
             pdf_file = open(approved_security_pdf_file_path, "wb")
             a = df.to_html()
             style = """<style>
-                tr {
-                page-break-inside: avoid;
-                }
-                </style>
-                """
-
+				tr {
+				page-break-inside: avoid;
+				}
+				th {text-align: center;}
+				</style>
+				"""
             html_with_style = style + a
 
             from frappe.utils.pdf import get_pdf
@@ -455,6 +457,8 @@ def approved_securities(**kwargs):
 @frappe.whitelist()
 def all_loans_list(**kwargs):
     try:
+        utils.validator.validate_http_method("GET")
+
         customer = lms.__customer()
         if not customer:
             return utils.respondNotFound(message=frappe._("Customer not found."))
@@ -539,35 +543,34 @@ def dashboard(**kwargs):
 
         all_mgloans = frappe.db.sql(
             """select loan.name, loan.drawing_power, loan.balance,
-            IFNULL(mrgloan.creation, 0.0) as created_on,
-            IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage,
-            IFNULL(mrgloan.shortfall, 0.0) as shortfall
-            from `tabLoan` as loan
-            left join `tabLoan Margin Shortfall` as mrgloan
-            on loan.name = mrgloan.loan
-            where loan.customer = '{}'
-            and mrgloan.status = "Pending"
-            and shortfall_percentage > 0.0
-            group by loan.name""".format(
-                    customer.name
-                ),
-                as_dict=1,
-            )
+		IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, IFNULL(mrgloan.shortfall, 0.0) as shortfall
+		from `tabLoan` as loan
+		left join `tabLoan Margin Shortfall` as mrgloan
+		on loan.name = mrgloan.loan
+		where loan.customer = '{}'
+		and mrgloan.status = "Pending"
+		and shortfall_percentage > 0.0
+		group by loan.name""".format(
+                customer.name
+            ),
+            as_dict=1,
+        )
 
         all_interest_loans = frappe.db.sql(
-            """select loan.name, loan.drawing_power, loan.balance,
-            sum(loantx.unpaid_interest) as interest_amount
-            from `tabLoan` as loan
-            left join `tabLoan Transaction` as loantx
-            on loan.name = loantx.loan
-            where loan.customer = '{}'
-            and loantx.transaction_type in ('Interest','Additional Interest','Penal Interest')
-            and loantx.unpaid_interest > 0
-            group by loan.name""".format(
-                    customer.name
-                ),
-                as_dict=1,
-            )
+            """select
+		loan.name, loan.drawing_power, loan.balance,
+		sum(loantx.unpaid_interest) as interest_amount
+		from `tabLoan` as loan
+		left join `tabLoan Transaction` as loantx
+		on loan.name = loantx.loan
+		where loan.customer = '{}'
+		and loantx.transaction_type in ('Interest','Additional Interest','Penal Interest')
+		and loantx.unpaid_interest > 0
+		group by loan.name""".format(
+                customer.name
+            ),
+            as_dict=1,
+        )
 
         actionable_loans = []
         mgloan = []
@@ -731,14 +734,12 @@ def dashboard(**kwargs):
                 },
                 fields=["count(name) as in_process"],
             )
-            las_settings = frappe.get_single("LAS Settings")
 
             if existing_topup_application[0]["in_process"] == 0:
                 topup = loan.max_topup_amount()
                 if topup:
                     top_up = {
                         "loan": loan.name,
-                        "minimum_top_up_amount": las_settings.minimum_top_up_amount,
                         "top_up_amount": lms.round_down_amount_to_nearest_thousand(
                             topup
                         ),
@@ -800,10 +801,10 @@ def weekly_pledged_security_dashboard(**kwargs):
             for loan_items in all_loan_items:
                 security_price_list = frappe.db.sql(
                     """select security, price, time
-                from `tabSecurity Price`
-                where `tabSecurity Price`.security = '{}'
-                and `tabSecurity Price`.time like '%{}%'
-                order by modified desc limit 1""".format(
+				from `tabSecurity Price`
+				where `tabSecurity Price`.security = '{}'
+				and `tabSecurity Price`.time like '%{}%'
+				order by modified desc limit 1""".format(
                         loan_items.get("isin"),
                         yesterday if counter == 15 else last_friday,
                     ),
@@ -829,3 +830,437 @@ def weekly_pledged_security_dashboard(**kwargs):
 
     except utils.exceptions.APIException as e:
         return e.respond()
+
+
+@frappe.whitelist()
+def get_profile_set_alerts(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+        user = lms.__user()
+        customer = lms.__customer(user.name)
+
+        data = utils.validator.validate(
+            kwargs,
+            {"is_for_alerts": "", "percentage": "decimal", "amount": "decimal"},
+        )
+
+        if isinstance(data.get("is_for_alerts"), str):
+            data["is_for_alerts"] = int(data.get("is_for_alerts"))
+
+        # user_kyc details
+        try:
+            user_kyc = lms.__user_kyc(user.email)
+        except UserKYCNotFoundException:
+            user_kyc = None
+
+        # last login details
+        if not user.last_login:
+            last_login = None
+        else:
+            last_login = (
+                datetime.strptime(user.last_login, "%Y-%m-%d %H:%M:%S.%f")
+            ).strftime("%Y-%m-%d %H:%M:%S")
+
+        # alerts percentage and amount save in doctype
+        if (
+            data.get("is_for_alerts")
+            and not data.get("percentage")
+            and not data.get("amount")
+        ):
+            return utils.respondWithFailure(
+                status=417,
+                message=frappe._(
+                    "Please select Amount or Percentage for setting Alerts"
+                ),
+            )
+
+        elif (
+            data.get("is_for_alerts") and data.get("percentage") and data.get("amount")
+        ):
+            return utils.respondWithFailure(
+                status=417,
+                message=frappe._(
+                    "Please choose one between Amount or Percentage for setting Alerts"
+                ),
+            )
+
+        elif data.get("is_for_alerts") and data.get("percentage"):
+            customer.alerts_based_on_percentage = data.get("percentage")
+            # if percentage given then amount should be zero
+            customer.alerts_based_on_amount = 0
+            customer.save(ignore_permissions=True)
+            frappe.db.commit()
+
+        elif data.get("is_for_alerts") and data.get("amount"):
+            customer.alerts_based_on_amount = data.get("amount")
+            # if amount given then percentage should be zero
+            customer.alerts_based_on_percentage = 0
+            customer.save(ignore_permissions=True)
+            frappe.db.commit()
+
+        res = {
+            "customer_details": customer,
+            "user_kyc": user_kyc,
+            "last_login": last_login,
+        }
+
+        return utils.respondWithSuccess(data=res)
+    except utils.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist()
+def update_profile_pic_and_pin(**kwargs):
+	try:
+		# validation
+		utils.validator.validate_http_method("POST")
+		user = lms.__user()
+
+		data = utils.validator.validate(
+			kwargs,
+			{
+				"is_for_profile_pic": "",
+				"image": "",
+				"is_for_update_pin": "",
+				"old_pin": ["decimal", utils.validator.rules.LengthRule(4)],
+				"new_pin": ["decimal", utils.validator.rules.LengthRule(4)],
+				"retype_pin": ["decimal", utils.validator.rules.LengthRule(4)],
+			},
+		)
+
+		if isinstance(data.get("is_for_profile_pic"), str):
+			data["is_for_profile_pic"] = int(data.get("is_for_profile_pic"))
+
+		if isinstance(data.get("image"), str):
+			data["image"] = bytes(data.get("image")[1:-1], encoding="utf8")
+
+		if isinstance(data.get("is_for_update_pin"), str):
+			data["is_for_update_pin"] = int(data.get("is_for_update_pin"))
+
+		if data.get("is_for_profile_pic") and data.get("image"):
+			profile_picture_file = "{}-profile-picture.jpeg".format(
+				user.full_name
+			).replace(" ", "-")
+
+			profile_picture_file_path = frappe.utils.get_files_path(
+				profile_picture_file
+			)
+
+			image_decode = base64.decodestring(data.get("image"))
+			image_file = open(profile_picture_file_path, "wb").write(image_decode)
+
+			profile_picture_file_url = frappe.utils.get_url(
+				"files/{}-profile-picture.jpeg".format(user.full_name).replace(" ", "-")
+			)
+			# user.user_image = 0
+			# user.user_image = profile_picture_file_url
+			# user.save(ignore_permissions=True)
+			# frappe.db.commit()
+			return utils.respondWithSuccess(
+				data={"profile_picture_file_url": profile_picture_file_url}
+			)
+
+		elif data.get("is_for_profile_pic") and not data.get("image"):
+			return utils.respondWithFailure(
+				status=417, message=frappe._("Please upload image.")
+			)
+
+		if (
+			data.get("is_for_update_pin")
+			and data.get("old_pin")
+			and data.get("new_pin")
+			and data.get("retype_pin")
+		):
+			try:
+				# returns user in correct case
+				old_pass_check = check_password(
+					frappe.session.user, data.get("old_pin")
+				)
+			except frappe.AuthenticationError:
+				return utils.respondWithFailure(
+					status=417, message=frappe._("Incorrect User or Password.")
+				)
+
+			if old_pass_check:
+				if data.get("retype_pin") == data.get("new_pin") and data.get("old_pin") != data.get("new_pin"):
+					# update pin
+					update_password(frappe.session.user, data.get("retype_pin"))
+					frappe.db.commit()
+				elif data.get("old_pin") == data.get("new_pin"):
+					return utils.respondWithFailure(
+						status=417, message=frappe._("Dont put new pin same as old pin.")
+					)
+				else:
+					return utils.respondWithFailure(
+						status=417, message=frappe._("Please retype correct pin.")
+					)
+					
+			return utils.respondWithSuccess(
+				message=frappe._("User PIN has been updated.")
+			)
+
+		elif data.get("is_for_update_pin") and (
+			not data.get("old_pin") or not data.get("new_pin")
+		):
+			return utils.respondWithFailure(
+				status=417, message=frappe._("Please Enter old pin and new pin.")
+			)
+
+	except utils.APIException:
+		frappe.db.rollback()
+
+
+@frappe.whitelist(allow_guest=True)
+def contact_us(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(kwargs, {"search": "", "view_more": ""})
+        if isinstance(data.get("view_more"), str):
+            data["view_more"] = int(data.get("view_more"))
+
+        filters_arr = {}
+        if data.get("view_more") or data.get("search"):
+            # all FAQ will be shown
+            page_length = ""
+        else:
+            # only recent 6 FAQ will be shown
+            page_length = 6
+
+        if data.get("search", None):
+            search_key = str("%" + data["search"] + "%")
+            filters_arr = {
+                "topic": ["like", search_key],
+                "description": ["like", search_key],
+                "resolution": ["like", search_key],
+            }
+
+        faq = frappe.get_all(
+            "FAQ", or_filters=filters_arr, fields=["*"], page_length=page_length
+        )
+
+        if not faq:
+            return utils.respondWithSuccess(
+                message="Your issue does not match with Common Issues. Please Contact Us."
+            )
+
+        return utils.respondWithSuccess(data=faq)
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist()
+def check_eligible_limit(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(kwargs, {"lender": "", "search": ""})
+        if not data.get("lender"):
+            data["lender"] = frappe.get_last_doc("Lender").name
+
+        eligible_limit_list = frappe.db.sql(
+            """
+			SELECT
+			als.security_name, als.eligible_percentage, als.lender, als.security_category, s.price
+			FROM `tabAllowed Security` als
+			LEFT JOIN `tabSecurity` s
+			ON als.isin = s.isin
+			where als.lender = '{}'
+			and als.security_name like '%{}%';
+			""".format(
+                data.get("lender"), data.get("search")
+            ),
+            as_dict=1,
+        )
+
+        if not eligible_limit_list:
+            return utils.respondNotFound(message=_("No Record Found"))
+
+        return utils.respondWithSuccess(data=eligible_limit_list)
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist()
+def all_lenders_list(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        all_lenders = frappe.get_all("Lender", order_by="creation desc")
+
+        return utils.respondWithSuccess(data=all_lenders)
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist()
+def feedback(**kwargs):
+	try:
+		utils.validator.validate_http_method("GET")
+
+		data = utils.validator.validate(
+			kwargs,
+			{
+				"do_not_show_again": "",
+				"feedback_already_done": "",
+				"bulls_eye": "",
+				"can_do_better": "",
+				"related_to_user_experience": "",
+				"related_to_functionality": "",
+				"others": "",
+				"comment": ""
+			}
+		)
+
+		customer = lms.__customer()
+		if isinstance(data.get("do_not_show_again"), str):
+			data["do_not_show_again"] = int(data.get("do_not_show_again"))
+
+		if isinstance(data.get("feedback_already_done"), str):
+			data["feedback_already_done"] = int(data.get("feedback_already_done"))
+
+		if isinstance(data.get("bulls_eye"), str):
+			data["bulls_eye"] = int(data.get("bulls_eye"))
+
+		if isinstance(data.get("can_do_better"), str):
+			data["can_do_better"] = int(data.get("can_do_better"))
+
+		if isinstance(data.get("related_to_user_experience"), str):
+			data["related_to_user_experience"] = int(data.get("related_to_user_experience"))
+
+		if isinstance(data.get("related_to_functionality"), str):
+			data["related_to_functionality"] = int(data.get("related_to_functionality"))
+
+		if isinstance(data.get("others"), str):
+			data["others"] = int(data.get("others"))
+
+		#validation
+		if data.get("do_not_show_again") or data.get("feedback_already_done"):
+			return utils.respondWithFailure(message=frappe._("Dont show feedback popup again"))
+		
+		if (data.get("bulls_eye") and data.get("can_do_better")) or (not data.get("bulls_eye") and not data.get("can_do_better")):
+			return utils.respondWithFailure(
+				status=417,
+				message=frappe._(
+					"Please select one option."
+				),
+			)
+
+		if data.get("can_do_better") and not data.get("related_to_user_experience") and not data.get("related_to_functionality") and not data.get("others"):
+			return utils.respondWithFailure(
+				status=417,
+				message=frappe._(
+					"Please select below options."
+				),
+			)
+
+		if not data.get("do_not_show_again") or not data.get("feedback_already_done"):
+			if not data.get("comment"):
+				return utils.respondWithFailure(message=frappe._("Please give us Feedback"))
+
+			number_of_user_login = frappe.get_all(
+				"Activity Log",
+				fields=["count(status) as status_count", "status"],
+				filters={"operation": "Login", "status": "Success", "user": customer.user},
+			)
+
+			if number_of_user_login[0].status_count > 0:
+				#show feedback popup 
+				
+				feedbacks = frappe.get_doc(
+					{
+						"doctype": "Feedback",
+						"customer": customer.name,
+						"sparkloans_have_hit_the_bulls_eye": data.get("bulls_eye"),
+						"sparkloans_can_do_better": data.get("can_do_better"),
+						"related_to_user_experience": data.get("related_to_user_experience"),
+						"related_to_functionality": data.get("related_to_functionality"),
+						"others": data.get("others"),
+						"comment": data.get("comment"),
+					}
+				)
+				feedbacks.insert(ignore_permissions=True)
+				frappe.db.commit()
+
+				return utils.respondWithSuccess(message=frappe._("Feedback successfully submited."))
+			else:
+				return utils.respondWithFailure(status=417, message=frappe._("User did not login for 10 times."))
+
+	except utils.exceptions.APIException as e:
+		return e.respond()
+
+
+@frappe.whitelist()
+def feedback_in_more_menu(**kwargs):
+	try:
+		utils.validator.validate_http_method("GET")
+
+		data = utils.validator.validate(
+			kwargs,
+			{
+				"bulls_eye": "",
+				"can_do_better": "",
+				"related_to_user_experience": "",
+				"related_to_functionality": "",
+				"others": "",
+				"comment": ""
+			}
+		)
+
+		customer = lms.__customer()
+
+		if isinstance(data.get("bulls_eye"), str):
+			data["bulls_eye"] = int(data.get("bulls_eye"))
+
+		if isinstance(data.get("can_do_better"), str):
+			data["can_do_better"] = int(data.get("can_do_better"))
+
+		if isinstance(data.get("related_to_user_experience"), str):
+			data["related_to_user_experience"] = int(data.get("related_to_user_experience"))
+
+		if isinstance(data.get("related_to_functionality"), str):
+			data["related_to_functionality"] = int(data.get("related_to_functionality"))
+
+		if isinstance(data.get("others"), str):
+			data["others"] = int(data.get("others"))
+
+		#validation
+		if (data.get("bulls_eye") and data.get("can_do_better")) or (not data.get("bulls_eye") and not data.get("can_do_better")):
+			return utils.respondWithFailure(
+				status=417,
+				message=frappe._(
+					"Please select one option."
+				),
+			)
+
+		if data.get("can_do_better") and not data.get("related_to_user_experience") and not data.get("related_to_functionality") and not data.get("others"):
+			return utils.respondWithFailure(
+				status=417,
+				message=frappe._(
+					"Please select below options."
+				),
+			)
+
+		if not data.get("comment"):
+			return utils.respondWithFailure(message=frappe._("Please give us Feedback"))
+
+		feedbacks = frappe.get_doc(
+			{
+				"doctype": "Feedback",
+				"customer": customer.name,
+				"sparkloans_have_hit_the_bulls_eye": data.get("bulls_eye"),
+				"sparkloans_can_do_better": data.get("can_do_better"),
+				"related_to_user_experience": data.get("related_to_user_experience"),
+				"related_to_functionality": data.get("related_to_functionality"),
+				"others": data.get("others"),
+				"comment": data.get("comment"),
+			}
+		)
+		feedbacks.insert(ignore_permissions=True)
+		frappe.db.commit()
+
+		return utils.respondWithSuccess(message=frappe._("Feedback successfully submited."))
+
+	except utils.exceptions.APIException as e:
+		return e.respond()

@@ -1,6 +1,6 @@
 frappe.listview_settings["Security Price"] = {
   onload: function (listview) {
-    if (false == true) {
+    if (false == false) {
       listview.page.add_inner_button(__("Update Prices"), function () {
         frappe.call({
           method:

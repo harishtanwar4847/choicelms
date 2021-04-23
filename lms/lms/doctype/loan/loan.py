@@ -10,6 +10,7 @@ import frappe
 from frappe.model.document import Document
 
 import lms
+from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.loan_transaction.loan_transaction import LoanTransaction
 
 
@@ -146,23 +147,27 @@ class Loan(Document):
     def get_customer(self):
         return frappe.get_doc("Loan Customer", self.customer)
 
-    def update_loan_balance(self):
+    def update_loan_balance(self, check_for_shortfall=True):
         summary = self.get_transaction_summary()
-        frappe.db.set_value(
-            self.doctype,
-            self.name,
-            "balance",
-            round(summary.get("outstanding"), 2),
-            update_modified=False,
-        )
-        frappe.db.set_value(
-            self.doctype,
-            self.name,
-            "balance_str",
-            lms.amount_formatter(round(summary.get("outstanding"), 2)),
-            update_modified=False,
-        )
-        self.check_for_shortfall()
+        # frappe.db.set_value(
+        #     self.doctype,
+        #     self.name,
+        #     "balance",
+        #     round(summary.get("outstanding"), 2),
+        #     update_modified=False,
+        # )
+        # frappe.db.set_value(
+        #     self.doctype,
+        #     self.name,
+        #     "balance_str",
+        #     lms.amount_formatter(round(summary.get("outstanding"), 2)),
+        #     update_modified=False,
+        # )
+        self.balance = round(summary.get("outstanding"), 2)
+        self.balance_str = lms.amount_formatter(round(summary.get("outstanding"), 2))
+        self.save(ignore_permissions=True)
+        if check_for_shortfall:
+            self.check_for_shortfall()
 
     # def on_update(self):
     #     frappe.enqueue_doc("Loan", self.name, method="check_for_shortfall")
@@ -213,25 +218,27 @@ class Loan(Document):
             else self.sanctioned_limit
         )
 
-    def get_collateral_list(self, group_by_psn=False):
+    def get_collateral_list(self, group_by_psn=False, where_clause=""):
         # sauce: https://stackoverflow.com/a/23827026/9403680
         sql = """
 			SELECT
-                cl.loan, cl.isin, cl.psn,
-                s.price, s.security_name,
-                als.security_category
+				cl.loan, cl.isin, cl.psn,
+				s.price, s.security_name,
+				als.security_category
 				, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
 				- SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
-                - SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) quantity
+				- SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) quantity
 			FROM `tabCollateral Ledger` cl
 			LEFT JOIN `tabSecurity` s
-                ON cl.isin = s.isin
-            LEFT JOIN `tabAllowed Security` als
-                ON cl.isin = als.isin AND cl.lender = als.lender
-            WHERE cl.loan = '{loan}' AND cl.lender_approval_status = 'Approved'
+				ON cl.isin = s.isin
+			LEFT JOIN `tabAllowed Security` als
+				ON cl.isin = als.isin AND cl.lender = als.lender
+			WHERE cl.loan = '{loan}' {where_clause} AND cl.lender_approval_status = 'Approved'
 			GROUP BY cl.isin{group_by_psn_clause};
 		""".format(
-            loan=self.name, group_by_psn_clause=" ,cl.psn" if group_by_psn else ""
+            loan=self.name,
+            where_clause=where_clause if where_clause else "",
+            group_by_psn_clause=" ,cl.psn" if group_by_psn else "",
         )
 
         return frappe.db.sql(sql, as_dict=1)
@@ -241,12 +248,11 @@ class Loan(Document):
 
         collateral_list = self.get_collateral_list()
         collateral_list_map = {i.isin: i for i in collateral_list}
-
         # updating existing and
         # setting check flag
         for i in self.items:
             curr = collateral_list_map.get(i.isin)
-            print(check, i.price, curr.price, not check or i.price != curr.price)
+            # print(check, i.price, curr.price, not check or i.price != curr.price)
             if not check or i.price != curr.price:
                 check = True
 
@@ -274,7 +280,8 @@ class Loan(Document):
 
     def check_for_shortfall(self):
         check = False
-        print(check, "check_for_shortfall")
+        customer = self.get_customer()
+        old_total_collateral_value = self.total_collateral_value
 
         securities_price_map = lms.get_security_prices([i.isin for i in self.items])
         check = self.update_items()
@@ -297,6 +304,91 @@ class Loan(Document):
                     loan_margin_shortfall.status = "Resolved"
                     loan_margin_shortfall.action_time = datetime.now()
                 loan_margin_shortfall.save(ignore_permissions=True)
+
+            # alerts comparison with percentage and amount
+            if customer.alerts_based_on_percentage:
+                if self.total_collateral_value > (
+                    old_total_collateral_value
+                    + (
+                        old_total_collateral_value
+                        * int(customer.alerts_based_on_percentage)
+                        / 100
+                    )
+                ):
+                    try:
+                        fa = FirebaseAdmin()
+                        fa.send_data(
+                            data={
+                                "event": "Alert price UP by {}%".format(
+                                    customer.alerts_based_on_percentage
+                                ),
+                            },
+                            tokens=lms.get_firebase_tokens(customer.user),
+                        )
+                    except Exception:
+                        pass
+                    finally:
+                        fa.delete_app()
+
+                elif self.total_collateral_value < (
+                    old_total_collateral_value
+                    - (
+                        old_total_collateral_value
+                        * customer.alerts_based_on_percentage
+                        / 100
+                    )
+                ):
+                    try:
+                        fa = FirebaseAdmin()
+                        fa.send_data(
+                            data={
+                                "event": "Alert price DOWN by {}%".format(
+                                    customer.alerts_based_on_percentage
+                                ),
+                            },
+                            tokens=lms.get_firebase_tokens(customer.user),
+                        )
+                    except Exception:
+                        pass
+                    finally:
+                        fa.delete_app()
+
+            elif customer.alerts_based_on_amount:
+                if self.total_collateral_value > (
+                    old_total_collateral_value + customer.alerts_based_on_amount
+                ):
+                    try:
+                        fa = FirebaseAdmin()
+                        fa.send_data(
+                            data={
+                                "event": "Alert price UP by Rs. {}".format(
+                                    customer.alerts_based_on_amount
+                                ),
+                            },
+                            tokens=lms.get_firebase_tokens(customer.user),
+                        )
+                    except Exception:
+                        pass
+                    finally:
+                        fa.delete_app()
+
+                elif self.total_collateral_value < (
+                    old_total_collateral_value - customer.alerts_based_on_amount
+                ):
+                    try:
+                        fa = FirebaseAdmin()
+                        fa.send_data(
+                            data={
+                                "event": "Alert price DOWN by Rs. {}".format(
+                                    customer.alerts_based_on_amount
+                                ),
+                            },
+                            tokens=lms.get_firebase_tokens(customer.user),
+                        )
+                    except Exception:
+                        pass
+                    finally:
+                        fa.delete_app()
 
             # update pending withdraw allowable for this loan
             self.update_pending_withdraw_requests()
@@ -520,7 +612,11 @@ class Loan(Document):
                     self.save(ignore_permissions=True)
 
                     frappe.db.commit()
-                    # TODO: send notification to user
+
+                    doc = frappe.get_doc("User", self.get_customer().user).as_dict()
+                    doc["loan"] = {"loan_name": self.name, "transaction_type": additional_interest_transaction.transaction_type, "unpaid_interest": additional_interest_transaction.unpaid_interest}
+                    frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
+
                     return additional_interest_transaction.as_dict()
 
     def book_virtual_interest_for_month(self, input_date=None):
@@ -579,7 +675,10 @@ class Loan(Document):
                 )
             )
             frappe.db.commit()
-            # TODO: send notification to user
+
+            doc = frappe.get_doc("User", self.get_customer().user).as_dict()
+            doc["loan"] = {"loan_name": self.name, "transaction_type": loan_transaction.transaction_type}
+            frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
 
     def add_penal_interest(self, input_date=None):
         # daily scheduler - executes at start of day i.e 00:00
@@ -652,7 +751,11 @@ class Loan(Document):
                         self.save(ignore_permissions=True)
 
                         frappe.db.commit()
-                        # TODO: send notification to user
+
+                        doc = frappe.get_doc("User", self.get_customer().user).as_dict()
+                        doc["loan"] = {"loan_name": self.name, "transaction_type": penal_interest_transaction.transaction_type, "unpaid_interest": penal_interest_transaction.unpaid_interest}
+                        frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
+
                         return penal_interest_transaction.as_dict()
 
     def before_save(self):
@@ -677,21 +780,18 @@ class Loan(Document):
         loan_sanction_history.save(ignore_permissions=True)
 
     def max_topup_amount(self):
-        top_up_available = (
+        max_topup_amount = (
             self.total_collateral_value * (self.allowable_ltv / 100)
         ) - self.sanctioned_limit
 
-        las_settings = frappe.get_single("LAS Settings")
-
+        # show available top up amount only if topup amount is greater than 10% of sanctioned limit
         return (
-            top_up_available
-            if top_up_available >= las_settings.minimum_top_up_amount
+            lms.round_down_amount_to_nearest_thousand(max_topup_amount)
+            if max_topup_amount > (self.sanctioned_limit * 0.1)
             else 0
         )
 
     def update_pending_topup_amount(self):
-        las_settings = frappe.get_single("LAS Settings")
-        min_topup_amt = las_settings.minimum_top_up_amount
         pending_topup_request = frappe.get_all(
             "Top up Application",
             filters={
@@ -706,9 +806,8 @@ class Loan(Document):
                 self.total_collateral_value * (self.allowable_ltv / 100)
             ) - self.sanctioned_limit
             topup_doc = frappe.get_doc("Top up Application", topup_app["name"])
-            if (
-                lms.round_down_amount_to_nearest_thousand(max_topup_amount)
-                >= min_topup_amt
+            if lms.round_down_amount_to_nearest_thousand(max_topup_amount) > (
+                self.sanctioned_limit * 0.1
             ):
                 topup_doc.db_set(
                     "top_up_amount",

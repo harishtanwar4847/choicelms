@@ -14,9 +14,7 @@ import lms
 
 class Lender(Document):
     def get_loan_agreement_template(self):
-        print("aaya")
         file_name = frappe.db.get_value("File", {"file_url": self.agreement_template})
-        print(self.agreement_template, file_name)
         return frappe.get_doc("File", file_name)
 
     def get_loan_enhancement_agreement_template(self):

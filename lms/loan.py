@@ -533,7 +533,6 @@ def create_topup(**kwargs):
             return utils.respondForbidden(message=_("Please use your own Loan."))
 
         topup_amt = loan.max_topup_amount()
-        las_settings = frappe.get_single("LAS Settings")
 
         existing_topup_application = frappe.get_all(
             "Top up Application",
@@ -551,31 +550,24 @@ def create_topup(**kwargs):
             )
         elif not topup_amt:
             return utils.respondWithFailure(status=417, message="Top up not available")
-        elif (
-            data.get("topup_amount") < las_settings.minimum_top_up_amount
-            or data.get("topup_amount") <= 0
-        ):
+        elif data.get("topup_amount") <= 0:
             return utils.respondWithFailure(
-                status=417,
-                message="Top up amount can not be less than Rs. {}".format(
-                    las_settings.minimum_top_up_amount
-                ),
+                status=417, message="Top up amount can not be 0 or less than 0"
             )
         elif data.get("topup_amount") > topup_amt:
             return utils.respondWithFailure(
                 status=417,
                 message="Top up amount can not be more than Rs. {}".format(topup_amt),
             )
-        elif (
-            las_settings.minimum_top_up_amount <= data.get("topup_amount") <= topup_amt
-        ):
+        elif 0.0 < data.get("topup_amount") <= topup_amt:
 
             frappe.db.begin()
             topup_application = frappe.get_doc(
                 {
                     "doctype": "Top up Application",
-                    "loan": data.get("loan_name"),
+                    "loan": loan.name,
                     "top_up_amount": data.get("topup_amount"),
+                    "sanctioned_limit": loan.sanctioned_limit,
                     "time": datetime.now(),
                     "status": "Pending",
                     "customer": customer.name,
@@ -660,7 +652,7 @@ def loan_details(**kwargs):
 
             interest = {
                 "total_interest_amt": round(interest_total[0]["total_amt"], 2),
-                "due_date": due_date,
+                "due_date": due_date.strftime("%m.%d.%Y"),
                 "due_date_txt": due_date_txt,
                 "info_msg": info_msg,
             }
@@ -676,16 +668,13 @@ def loan_details(**kwargs):
             },
             fields=["count(name) as in_process"],
         )
-        las_settings = frappe.get_single("LAS Settings")
         topup = None
         if existing_topup_application[0]["in_process"] == 0:
             topup = loan.max_topup_amount()
-
             if topup:
-                topup = lms.round_down_amount_to_nearest_thousand(topup)
-                topup = {
-                    "minimum_top_up_amount": las_settings.minimum_top_up_amount,
-                    "top_up_amount": topup,
+                top_up = {
+                    "loan": loan.name,
+                    "top_up_amount": lms.round_down_amount_to_nearest_thousand(topup),
                 }
             else:
                 topup = None
@@ -1172,12 +1161,14 @@ def loan_statement(**kwargs):
                 pdf_file = open(loan_statement_pdf_file_path, "wb")
                 df.index += 1
                 a = df.to_html()
+                a.replace("dataframe", "center")
                 style = """<style>
-                tr {
-                page-break-inside: avoid;
-                }
-                </style>
-                """
+				tr {
+				page-break-inside: avoid;
+				}
+				th {text-align: center;}
+				</style>
+				"""
 
                 html_with_style = style + a
 
@@ -1297,11 +1288,23 @@ def loan_unpledge_details(**kwargs):
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
 
-        # get amount_available_for_unpledge,min collateral value
-        unpledge = loan.max_unpledge_amount()
-        data = {"loan": loan, "unpledge": unpledge}
+        res = {"loan": loan}
 
-        return utils.respondWithSuccess(data=data)
+        # check if any pending unpledge application exist
+        unpledge_application_exist = frappe.get_all(
+            "Unpledge Application",
+            filters={"loan": loan.name, "status": "Pending"},
+            order_by="creation desc",
+            page_length=1,
+        )
+        if len(unpledge_application_exist):
+            res["unpledge"] = None
+        else:
+            # get amount_available_for_unpledge,min collateral value
+            res["unpledge"] = loan.max_unpledge_amount()
+        # data = {"loan": loan, "unpledge": unpledge}
+
+        return utils.respondWithSuccess(data=res)
     except utils.APIException as e:
         return e.respond()
 
@@ -1413,8 +1416,30 @@ def loan_unpledge_request(**kwargs):
             },
         )
 
-        user_kyc = lms.__user_kyc()
+        customer = lms.__customer()
+        loan = frappe.get_doc("Loan", data.get("loan_name"))
+        if not loan:
+            return utils.respondNotFound(message=frappe._("Loan not found."))
+        if loan.customer != customer.name:
+            return utils.respondForbidden(message=_("Please use your own Loan."))
 
+        unpledge_application_exist = frappe.get_all(
+            "Unpledge Application",
+            filters={"loan": loan.name, "status": "Pending"},
+            order_by="creation desc",
+            page_length=1,
+        )
+        if len(unpledge_application_exist):
+            return utils.respondWithFailure(
+                status=417,
+                message="Unpledge Application for {} is already in process.".format(
+                    loan.name
+                ),
+            )
+
+        securities = validate_securities_for_unpledge(data.get("securities", {}), loan)
+
+        user_kyc = lms.__user_kyc()
         token = lms.verify_user_token(
             entity=user_kyc.mobile_number,
             token=data.get("otp"),
@@ -1424,35 +1449,31 @@ def loan_unpledge_request(**kwargs):
         if token.expiry <= datetime.now():
             return utils.respondUnauthorized(message=frappe._("Pledge OTP Expired."))
 
+        frappe.db.begin()
+
         lms.token_mark_as_used(token)
 
-        customer = lms.__customer()
-        loan = frappe.get_doc("Loan", data.get("loan_name"))
-        if not loan:
-            return utils.respondNotFound(message=frappe._("Loan not found."))
-        if loan.customer != customer.name:
-            return utils.respondForbidden(message=_("Please use your own Loan."))
-
-        securities = validate_securities_for_unpledge(data.get("securities", {}), loan)
-
-        frappe.db.begin()
-        unpledge_application = frappe.get_doc(
-            {"doctype": "Unpledge Application", "loan": data.get("loan_name")}
-        )
-
+        items = []
         for i in securities:
-            unpledge_application.append(
-                "items",
+            temp = frappe.get_doc(
                 {
+                    "doctype": "Unpledge Application Item",
                     "isin": i["isin"],
-                    "pledged_quantity": i["quantity"],
-                },
+                    "quantity": i["quantity"],
+                }
             )
-        # unpledge_application.save(ignore_permissions=True)
+            items.append(temp)
 
-        data = {"unpledge_application": unpledge_application}
+        unpledge_application = frappe.get_doc(
+            {
+                "doctype": "Unpledge Application",
+                "loan": data.get("loan_name"),
+                "items": items,
+            }
+        )
+        unpledge_application.insert(ignore_permissions=True)
 
-        return utils.respondWithSuccess(data=data)
+        return utils.respondWithSuccess(data=unpledge_application)
     except utils.APIException as e:
         return e.respond()
 
@@ -1498,6 +1519,20 @@ def sell_collateral_request(**kwargs):
             return utils.respondNotFound(message=frappe._("Loan not found."))
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
+
+        sell_application_exist = frappe.get_all(
+            "Sell Collateral Application",
+            filters={"loan": loan.name, "status": "Pending"},
+            order_by="creation desc",
+            page_length=1,
+        )
+        if len(sell_application_exist):
+            return utils.respondWithFailure(
+                status=417,
+                message="Sell Collateral Application for {} is already in process.".format(
+                    loan.name
+                ),
+            )
 
         securities = validate_securities_for_sell_collateral(
             data.get("securities", {}), data.get("loan_name")

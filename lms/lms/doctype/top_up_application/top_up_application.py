@@ -15,31 +15,29 @@ class TopupApplication(Document):
     def get_customer(self):
         return frappe.get_doc("Loan Customer", self.customer)
 
-    def on_update(self):
-        loan = frappe.get_doc("Loan", self.loan)
-        if self.status == "Approved":
-            loan.drawing_power += self.top_up_amount
-            loan.sanctioned_limit += self.top_up_amount
-            loan.save(ignore_permissions=True)
-            frappe.db.commit()
-            self.map_loan_agreement_file(loan)
-
-        self.notify_customer()
-
     def get_loan(self):
         return frappe.get_doc("Loan", self.loan)
 
-    def before_save(self):
-        if self.status == "Approved" and not self.lender_esigned_document:
+    def on_submit(self):
+        loan = self.get_loan()
+        loan.drawing_power += self.top_up_amount
+        loan.sanctioned_limit += self.top_up_amount
+        loan.save(ignore_permissions=True)
+        frappe.db.commit()
+
+        self.map_loan_agreement_file(loan)
+        self.notify_customer()
+
+    def before_submit(self):
+        if not self.lender_esigned_document:
             frappe.throw("Please upload Lender Esigned Document")
 
-        if self.status == "Approved":
-            loan = self.get_loan()
-            updated_top_up_amt = loan.max_topup_amount()
-            if updated_top_up_amt < self.top_up_amount:
-                frappe.throw("Top up not available")
-            if self.top_up_amount <= 0:
-                frappe.throw("Top up can not be approved with Amount Rs. 0")
+        loan = self.get_loan()
+        updated_top_up_amt = loan.max_topup_amount()
+        if updated_top_up_amt < (loan.sanctioned_limit * 0.1):
+            frappe.throw("Top up not available")
+        if self.top_up_amount <= 0:
+            frappe.throw("Top up can not be approved with Amount Rs. 0")
 
     def get_lender(self):
         return frappe.get_doc("Lender", self.get_loan().lender)
@@ -175,7 +173,10 @@ class TopupApplication(Document):
             "loan": self.loan,
             "top_up_amount": self.top_up_amount,
         }
-        frappe.enqueue_doc("Notification", "Top up Application", method="send", doc=doc)
+        if self.status in ["Pending", "Approved", "Rejected"]:
+            frappe.enqueue_doc(
+                "Notification", "Top up Application", method="send", doc=doc
+            )
         mess = ""
         if doc.get("top_up_application").get("status") == "Pending":
             mess = "Your request has been successfully received. You will be notified when your new OD limit is approved by our banking partner."

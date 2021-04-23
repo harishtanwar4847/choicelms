@@ -1,14 +1,14 @@
 {
- "creation": "2021-04-02 12:05:46.038427",
+ "creation": "2021-04-15 17:56:01.213654",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "isin",
   "security_name",
+  "psn",
   "quantity",
-  "price",
-  "amount"
+  "unpledge_quantity"
  ],
  "fields": [
   {
@@ -17,39 +17,42 @@
    "in_list_view": 1,
    "label": "ISIN",
    "options": "Security",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "security_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Security Name"
+   "label": "Security Name",
+   "read_only": 1
   },
   {
-   "fieldname": "price",
-   "fieldtype": "Currency",
+   "fieldname": "psn",
+   "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Price"
-  },
-  {
-   "fieldname": "amount",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "Amount"
+   "label": "PSN",
+   "read_only": 1
   },
   {
    "fieldname": "quantity",
    "fieldtype": "Int",
    "in_list_view": 1,
    "label": "Quantity",
+   "read_only": 1
+  },
+  {
+   "fieldname": "unpledge_quantity",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Unpledge Quantity",
    "reqd": 1
   }
  ],
  "istable": 1,
- "modified": "2021-04-16 15:50:26.517180",
+ "modified": "2021-04-15 17:56:01.213654",
  "modified_by": "Administrator",
  "module": "Lms",
- "name": "Unpledge Application Item",
+ "name": "Unpledge Application Unpledged Item",
  "owner": "Administrator",
  "permissions": [],
  "quick_entry": 1,

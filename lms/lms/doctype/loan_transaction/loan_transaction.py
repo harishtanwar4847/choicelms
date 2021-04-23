@@ -24,7 +24,8 @@ class LoanTransaction(Document):
         "Stamp Duty": "DR",
         "Documentation Charges": "DR",
         "Mortgage Charges": "DR",
-        "Sell Collateral": "DR",  # confirm
+        # "Sell Collateral": "DR",  # confirm
+        "Sell Collateral": "CR",  # confirm
         "Invoke Pledge": "DR",  # confirm
         "Interest": "DR",
         "Additional Interest": "DR",
@@ -108,12 +109,14 @@ class LoanTransaction(Document):
                 frappe.throw(_("You are not permitted to perform this action"))
 
     def on_submit(self):
+        check_for_shortfall = True
         if self.transaction_type in [
             "Processing Fees",
             "Stamp Duty",
             "Documentation Charges",
             "Mortgage Charges",
         ]:
+            check_for_shortfall = False
             lender = self.get_lender()
             if self.transaction_type == "Processing Fees":
                 sharing_amount = lender.lender_processing_fees_sharing
@@ -137,7 +140,7 @@ class LoanTransaction(Document):
             )
 
         loan = self.get_loan()
-        loan.update_loan_balance()
+        loan.update_loan_balance(check_for_shortfall=check_for_shortfall)
 
         if self.loan_margin_shortfall:
             loan_margin_shortfall = frappe.get_doc(

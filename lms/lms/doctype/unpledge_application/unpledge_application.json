@@ -1,12 +1,20 @@
 {
- "autoname": "UA.######",
  "creation": "2021-04-02 12:09:56.917558",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "loan",
-  "items"
+  "total_collateral_value",
+  "lender",
+  "column_break_1",
+  "customer",
+  "unpledge_collateral_value",
+  "section_braek_1",
+  "items",
+  "unpledge_items",
+  "status",
+  "amended_from"
  ],
  "fields": [
   {
@@ -14,18 +22,69 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Loan",
-   "options": "Loan",
-   "reqd": 1
+   "options": "Loan"
   },
   {
    "fieldname": "items",
    "fieldtype": "Table",
-   "label": "Item",
+   "label": "Items",
    "options": "Unpledge Application Item",
    "reqd": 1
+  },
+  {
+   "fieldname": "total_collateral_value",
+   "fieldtype": "Currency",
+   "label": "Total Collateral Value"
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "unpledge_collateral_value",
+   "fieldtype": "Currency",
+   "label": "Unpledge Collateral Value"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nApproved\nRejected"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Loan Customer"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Unpledge Application",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_braek_1",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "unpledge_items",
+   "fieldtype": "Table",
+   "label": "Unpledge Items",
+   "options": "Unpledge Application Unpledged Item"
   }
  ],
- "modified": "2021-04-08 13:40:16.478173",
+ "is_submittable": 1,
+ "modified": "2021-04-15 20:06:09.016362",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Unpledge Application",
