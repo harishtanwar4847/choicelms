@@ -16,7 +16,7 @@ from frappe.model.document import Document
 from num2words import num2words
 
 import lms
-from lms.exceptions.PledgeSetupFailureException import PledgeSetupFailureException
+from lms.exceptions import PledgeSetupFailureException
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
 
