@@ -680,6 +680,7 @@ def check_for_pledge(loan_application_doc):
     page_length = 10
     total_successful_pledge = 0
     for b_no in range(no_of_batches):
+        frappe.logger().info(b_no)
         frappe.db.begin()
         # fetch loan application items
         if b_no > 0:
@@ -696,7 +697,8 @@ def check_for_pledge(loan_application_doc):
 
         # TODO : generate prf number and assign to items in batch
         pledge_request = loan_application_doc.pledge_request(la_items_list)
-
+        frappe.logger().info(pledge_request)
+        frappe.logger().info(datetime.now())
         # TODO : pledge request hit for all batches
         try:
             res = requests.post(
@@ -705,6 +707,7 @@ def check_for_pledge(loan_application_doc):
                 json=pledge_request.get("payload"),
             )
             data = res.json()
+            frappe.logger().info(data)
 
             # Pledge LOG
             log = {
@@ -713,7 +716,7 @@ def check_for_pledge(loan_application_doc):
                 "request": pledge_request.get("payload"),
                 "response": data,
             }
-
+            frappe.logger().info(log)
             import json
             import os
 
