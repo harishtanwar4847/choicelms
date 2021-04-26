@@ -70,6 +70,7 @@ class LoanMarginShortfall(Document):
         self.notify_customer()
         self.set_deadline()
         self.set_bank_holiday_check()
+        self.timer_start_stop_fcm()
         # TODO: notify customer even if not set margin shortfall action
 
     def get_loan(self):
@@ -138,7 +139,7 @@ class LoanMarginShortfall(Document):
         # self.save(ignore_permissions=True)
         frappe.db.commit()
 
-    def timer_start_stop(self):
+    def timer_start_stop_fcm(self):
         if self.is_bank_holiday == 1:
             try:
                 fa = FirebaseAdmin()
@@ -174,5 +175,6 @@ class LoanMarginShortfall(Document):
     def on_update(self):
         self.set_deadline()
         self.set_bank_holiday_check()
+        self.timer_start_stop_fcm()
         self.save(ignore_permissions=True)
         frappe.db.commit()
