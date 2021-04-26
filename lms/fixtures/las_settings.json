@@ -12,7 +12,6 @@
   "choice_securities_list_api": "https://api.choicebroking.in/api/middleware/GetClientHoldingDetails",
   "choice_ticket": "c3Bhcms=",
   "choice_user_id": "Spark",
-  "confiscate_setup_uri": "/PledgeAPIService/api/Confiscatesetup",
   "docstatus": 0,
   "doctype": "LAS Settings",
   "enhancement_esign_download_signed_file_uri": "/esignForms/{file_id}/loan-enhancement-aggrement.pdf",
@@ -23,16 +22,15 @@
   "jiffy_host": "https://jiffy.choicebroking.in",
   "jiffy_security_get_latest_price_uri": "/api/cm/ProfileMkt/MultipleTouchline",
   "jiffy_session_generator_uri": "/api/settings/GenKey",
-  "modified": "2021-03-26 13:09:04.614503",
+  "modified": "2021-04-24 10:50:09.516884",
   "name": "LAS Settings",
   "parent": null,
   "parentfield": null,
   "parenttype": null,
   "pledge_setup_uri": "/PledgeAPIService/api/pledgesetup",
   "privacy_policy_document": null,
-  "scheduler_from_time": 11,
+  "scheduler_from_time": 10,
   "scheduler_to_time": 21,
-  "terms_of_use_document": null,
-  "unpledge_setup_uri": "/PledgeAPIService/api/UnPledgeSetup"
+  "terms_of_use_document": null
  }
 ]
