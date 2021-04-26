@@ -574,6 +574,7 @@ def dashboard(**kwargs):
 
         actionable_loans = []
         mgloan = []
+        deadline_for_all_mg_shortfall = {}
         total_int_amt_all_loans = 0
         due_date_for_all_interest = []
         interest_loan_list = []
@@ -586,15 +587,22 @@ def dashboard(**kwargs):
                     "balance": dictionary.get("balance"),
                 }
             )
+            loan = frappe.get_doc("Loan", dictionary["name"])
+            mg_shortfall_doc = loan.get_margin_shortfall()
+            if mg_shortfall_doc:
+                mgloan.append({"name": dictionary["name"], "deadline": (mg_shortfall_doc.deadline).strftime(
+                        "%d-%m-%Y %H:%M:%S")})
+            
 
-            ## Margin shortfall list##
-            if dictionary["shortfall_percentage"]:
-                if dictionary["shortfall_percentage"] <= 20.0:
-                    mgloan.append({"name": dictionary["name"], "action_time": dictionary["created_on"] + timedelta(hours = 72)})
-                elif 25.0 >= dictionary["shortfall_percentage"] > 20.0:
-                    mgloan.append({"name": dictionary["name"], "action_time": dictionary["created_on"].replace(hour=22,minute=0,second=0,microsecond=0)})
-                elif dictionary["shortfall_percentage"] > 25.0:
-                    mgloan.append({"name": dictionary["name"], "action_time": "Immediate"})
+        ## taking min of deadline for the earliest deadline in list ##
+        mgloan.sort(key=lambda item:item['deadline'])
+        
+        ## Margin Shortfall card ##
+        if mgloan:
+            deadline_for_all_mg_shortfall = {
+                "earliest_deadline": mgloan[0].get("deadline"),
+                "loan_with_margin_shortfall_list": mgloan,
+            }
 
         # Interest ##
         for dictionary in all_interest_loans:
@@ -651,15 +659,14 @@ def dashboard(**kwargs):
             )
 
         ## taking min of due date for the earliest due date in list ##
-        for d in due_date_for_all_interest:
-            min(d, key=d.get)
+        due_date_for_all_interest.sort(key=lambda item:item['due_date'])
 
         ## Interest card ##
         total_interest_all_loans = {}
         if due_date_for_all_interest:
             total_interest_all_loans = {
                 "total_interest_amount": lms.amount_formatter(total_int_amt_all_loans),
-                "loans_interest_due_date": d,
+                "loans_interest_due_date": due_date_for_all_interest[0],
                 "interest_loan_list": interest_loan_list,
             }
 
@@ -751,7 +758,7 @@ def dashboard(**kwargs):
         res = {
             "customer": customer,
             "user_kyc": user_kyc,
-            "margin_shortfall_card": mgloan,
+            "margin_shortfall_card": deadline_for_all_mg_shortfall,
             "total_interest_all_loans_card": total_interest_all_loans,
             "under_process_la": under_process_la,
             "actionable_loans": actionable_loans,
