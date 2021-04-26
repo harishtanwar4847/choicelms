@@ -1177,7 +1177,7 @@ def feedback(**kwargs):
 				filters={"operation": "Login", "status": "Success", "user": customer.user},
 			)
 
-			if number_of_user_login[0].status_count > 0:
+			if number_of_user_login[0].status_count > 10:
 				#show feedback popup 
 				
 				feedbacks = frappe.get_doc(
