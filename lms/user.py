@@ -756,6 +756,16 @@ def dashboard(**kwargs):
                 else:
                     top_up = None
 
+        number_of_user_login = frappe.get_all(
+                "Activity Log",
+                fields=["count(status) as status_count", "status"],
+                filters={
+                    "operation": "Login",
+                    "status": "Success",
+                    "user": customer.user,
+                },
+            )
+
         res = {
             "customer": customer,
             "user_kyc": user_kyc,
@@ -766,6 +776,7 @@ def dashboard(**kwargs):
             "active_loans": active_loans,
             "pending_esigns_list": pending_esigns_list,
             "top_up": topup_list,
+            "number_of_user_login": number_of_user_login[0].status_count
         }
 
         return utils.respondWithSuccess(data=res)
@@ -1114,7 +1125,6 @@ def feedback(**kwargs):
             kwargs,
             {
                 "do_not_show_again": "",
-                "feedback_already_done": "",
                 "bulls_eye": "",
                 "can_do_better": "",
                 "related_to_user_experience": "",
@@ -1127,9 +1137,6 @@ def feedback(**kwargs):
         customer = lms.__customer()
         if isinstance(data.get("do_not_show_again"), str):
             data["do_not_show_again"] = int(data.get("do_not_show_again"))
-
-        if isinstance(data.get("feedback_already_done"), str):
-            data["feedback_already_done"] = int(data.get("feedback_already_done"))
 
         if isinstance(data.get("bulls_eye"), str):
             data["bulls_eye"] = int(data.get("bulls_eye"))
@@ -1149,7 +1156,7 @@ def feedback(**kwargs):
             data["others"] = int(data.get("others"))
 
         # validation
-        if data.get("do_not_show_again") or data.get("feedback_already_done"):
+        if data.get("do_not_show_again") or customer.feedback_already_submitted:
             return utils.respondWithFailure(
                 message=frappe._("Dont show feedback popup again")
             )
@@ -1173,7 +1180,7 @@ def feedback(**kwargs):
                 message=frappe._("Please select below options."),
             )
 
-        if not data.get("do_not_show_again") or not data.get("feedback_already_done"):
+        if not data.get("do_not_show_again") or not customer.feedback_already_submitted:
             if not data.get("comment"):
                 return utils.respondWithFailure(
                     message=frappe._("Please give us Feedback")
@@ -1209,6 +1216,10 @@ def feedback(**kwargs):
                     }
                 )
                 feedbacks.insert(ignore_permissions=True)
+                feedback_already_given = frappe.get_doc("Feedback", {"customer": customer.name})
+                if feedback_already_given:
+                    customer.feedback_already_submitted = 1
+                    customer.save(ignore_permissions=True)
                 frappe.db.commit()
 
                 return utils.respondWithSuccess(
