@@ -120,7 +120,8 @@ class Loan(Document):
                 "record_type": LoanTransaction.loan_transaction_map.get(
                     transaction_type, "DR"
                 ),
-                "time": datetime.now(),
+                # "time": datetime.now(),
+                "time": frappe.utils.now_datetime(),
             }
         )
 
@@ -614,8 +615,14 @@ class Loan(Document):
                     frappe.db.commit()
 
                     doc = frappe.get_doc("User", self.get_customer().user).as_dict()
-                    doc["loan"] = {"loan_name": self.name, "transaction_type": additional_interest_transaction.transaction_type, "unpaid_interest": additional_interest_transaction.unpaid_interest}
-                    frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
+                    doc["loan"] = {
+                        "loan_name": self.name,
+                        "transaction_type": additional_interest_transaction.transaction_type,
+                        "unpaid_interest": additional_interest_transaction.unpaid_interest,
+                    }
+                    frappe.enqueue_doc(
+                        "Notification", "Interest Due", method="send", doc=doc
+                    )
 
                     return additional_interest_transaction.as_dict()
 
@@ -677,7 +684,10 @@ class Loan(Document):
             frappe.db.commit()
 
             doc = frappe.get_doc("User", self.get_customer().user).as_dict()
-            doc["loan"] = {"loan_name": self.name, "transaction_type": loan_transaction.transaction_type}
+            doc["loan"] = {
+                "loan_name": self.name,
+                "transaction_type": loan_transaction.transaction_type,
+            }
             frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
 
     def add_penal_interest(self, input_date=None):
@@ -753,8 +763,14 @@ class Loan(Document):
                         frappe.db.commit()
 
                         doc = frappe.get_doc("User", self.get_customer().user).as_dict()
-                        doc["loan"] = {"loan_name": self.name, "transaction_type": penal_interest_transaction.transaction_type, "unpaid_interest": penal_interest_transaction.unpaid_interest}
-                        frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
+                        doc["loan"] = {
+                            "loan_name": self.name,
+                            "transaction_type": penal_interest_transaction.transaction_type,
+                            "unpaid_interest": penal_interest_transaction.unpaid_interest,
+                        }
+                        frappe.enqueue_doc(
+                            "Notification", "Interest Due", method="send", doc=doc
+                        )
 
                         return penal_interest_transaction.as_dict()
 

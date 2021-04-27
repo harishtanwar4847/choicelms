@@ -7,7 +7,7 @@ import utils
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
 import lms
-from lms.exceptions.PledgeSetupFailureException import PledgeSetupFailureException
+from lms.exceptions import PledgeSetupFailureException
 
 
 def validate_securities_for_cart(securities, lender):

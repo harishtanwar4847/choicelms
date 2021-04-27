@@ -9,7 +9,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-04-17 12:36:37.507443",
+  "modified": "2021-04-27 14:49:27.893068",
   "name": "4621dd797d",
   "parameters": [],
   "parameters_example": [
@@ -135,11 +135,21 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "List"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "number_of_user_login",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
    }
   ],
   "success_example": [
    {
-    "example": "\"data\": {\n    \"customer\": {\n      customer_info\n    },\n    \"margin_shortfall_card\": [\n      {\n        \"name\": \"SL000137\"\n      }\n    ],\n    \"total_interest_all_loans_card\": {\n      \"total_interest_amount\": 1.6793870000000002,\n      \"loans_interest_due_date\": {\n        \"due_date\": \"2021-03-07 23:59:59.999999\",\n        \"due_date_txt\": \"Immediate\"\n      },\n      \"interest_loan_list\": [\n        {\n          \"loan_name\": \"SL000139\"\n        }\n      ]\n    },\n    \"under_process_la\": [\n      {\n        \"name\": \"LA001946\",\n        \"status\": \"Pledge accepted by Lender\"\n      }\n    ],\n    \"actionable_loans\": [\n      {\n        \"loan_name\": \"SL000137\",\n        \"drawing_power\": 13417.28,\n        \"balance\": 22000.0\n      }\n    ],\n    \"active_loans\": [\n      {\n        \"name\": \"SL000138\",\n        \"drawing_power\": 3273.27,\n        \"balance\": 2046.0\n      }\n    ],\n    \"pending_esigns_list\": {\n      \"la_pending_esigns\": [\n        {\n          loan_application_pending_list\n        }\n      ],\n      \"topup_pending_esigns\": [\n        {\n          topup_pending_list\n        }\n      ]\n    },\n    \"top_up\": []\n  }",
+    "example": "\"data\": {\n    \"customer\": {\n      customer_info\n    },\n    \"margin_shortfall_card\": [\n      {\n        \"name\": \"SL000137\"\n      }\n    ],\n    \"total_interest_all_loans_card\": {\n      \"total_interest_amount\": 1.6793870000000002,\n      \"loans_interest_due_date\": {\n        \"due_date\": \"2021-03-07 23:59:59.999999\",\n        \"due_date_txt\": \"Immediate\"\n      },\n      \"interest_loan_list\": [\n        {\n          \"loan_name\": \"SL000139\"\n        }\n      ]\n    },\n    \"under_process_la\": [\n      {\n        \"name\": \"LA001946\",\n        \"status\": \"Pledge accepted by Lender\"\n      }\n    ],\n    \"actionable_loans\": [\n      {\n        \"loan_name\": \"SL000137\",\n        \"drawing_power\": 13417.28,\n        \"balance\": 22000.0\n      }\n    ],\n    \"active_loans\": [\n      {\n        \"name\": \"SL000138\",\n        \"drawing_power\": 3273.27,\n        \"balance\": 2046.0\n      }\n    ],\n    \"pending_esigns_list\": {\n      \"la_pending_esigns\": [\n        {\n          loan_application_pending_list\n        }\n      ],\n      \"topup_pending_esigns\": [\n        {\n          topup_pending_list\n        }\n      ]\n    },\n    \"top_up\": [],\n    \"number_of_user_login\" : 1\n  }",
     "parent": "4621dd797d",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -2593,7 +2603,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-04-17 12:47:24.455106",
+  "modified": "2021-04-27 13:56:16.325067",
   "name": "023a7ca67c",
   "parameters": [
    {
@@ -2612,7 +2622,7 @@
   ],
   "parameters_example": [
    {
-    "example": "{\n\t\"lender\": \"\"\n}",
+    "example": "{\n\t\"loan_name\": \"\"\n}",
     "parent": "023a7ca67c",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -4219,6 +4229,299 @@
     "api_doc": "5a72ab8655",
     "api_doc_title": "APIResponse",
     "parent": "227ef993a2",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2021-04-27 15:20:11.403805",
+  "name": "48990067b4",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "do_not_show_again",
+    "group": null,
+    "optional": 0,
+    "parent": "48990067b4",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "bulls_eye",
+    "group": null,
+    "optional": 0,
+    "parent": "48990067b4",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "can_do_better",
+    "group": null,
+    "optional": 0,
+    "parent": "48990067b4",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "related_to_user_experience",
+    "group": null,
+    "optional": 0,
+    "parent": "48990067b4",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "related_to_functionality",
+    "group": null,
+    "optional": 0,
+    "parent": "48990067b4",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "others",
+    "group": null,
+    "optional": 0,
+    "parent": "48990067b4",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "comment",
+    "group": null,
+    "optional": 0,
+    "parent": "48990067b4",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"do_not_show_again\": 0,\n\t\"bulls_eye\": 1,\n\t\"can_do_better\": 0,\n\t\"related_to_user_experience\": 0,\n\t\"related_to_functionality\": 0,\n\t\"others\": 0,\n\t\"comment\": \"\"\n}",
+    "parent": "48990067b4",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.feedback",
+  "success": [],
+  "success_example": [],
+  "title": "Feedback",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "48990067b4",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "48990067b4",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "48990067b4",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "48990067b4",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2021-04-27 15:21:22.613478",
+  "name": "978895d31f",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "bulls_eye",
+    "group": null,
+    "optional": 0,
+    "parent": "978895d31f",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "can_do_better",
+    "group": null,
+    "optional": 0,
+    "parent": "978895d31f",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "related_to_user_experience",
+    "group": null,
+    "optional": 0,
+    "parent": "978895d31f",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "related_to_functionality",
+    "group": null,
+    "optional": 0,
+    "parent": "978895d31f",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "others",
+    "group": null,
+    "optional": 0,
+    "parent": "978895d31f",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "comment",
+    "group": null,
+    "optional": 0,
+    "parent": "978895d31f",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"bulls_eye\": 1,\n\t\"can_do_better\": 0,\n\t\"related_to_user_experience\": 0,\n\t\"related_to_functionality\": 0,\n\t\"others\": 0,\n\t\"comment\": \"\"\n}",
+    "parent": "978895d31f",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.feedback_in_more_menu",
+  "success": [],
+  "success_example": [],
+  "title": "Feedback in More Menu",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "978895d31f",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "978895d31f",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "978895d31f",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "978895d31f",
     "parentfield": "use_api_define",
     "parenttype": "API Doc"
    }

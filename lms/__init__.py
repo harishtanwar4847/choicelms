@@ -11,12 +11,13 @@ import utils
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-from lms.exceptions.CustomerNotFoundException import CustomerNotFoundException
-from lms.exceptions.InvalidUserTokenException import InvalidUserTokenException
-from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
+from .exceptions import *
 
-# from .exceptions import *
-from lms.exceptions.UserNotFoundException import UserNotFoundException
+# from lms.exceptions.CustomerNotFoundException import CustomerNotFoundException
+# from lms.exceptions.InvalidUserTokenException import InvalidUserTokenException
+# from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
+
+# from lms.exceptions.UserNotFoundException import UserNotFoundException
 
 __version__ = "1.0.0-beta.1.5"
 
@@ -145,7 +146,7 @@ def check_user_token(entity, token, token_type):
                 "token_type": token_type,
                 "token": token,
                 "used": 0,
-                "expiry": (">", datetime.now()),
+                "expiry": (">", frappe.utils.now_datetime()),
             },
         )
 
@@ -461,7 +462,9 @@ def create_user_token(entity, token, token_type="OTP"):
                 entity=entity, token_type=token_type
             )
         )
-        doc_data["expiry"] = datetime.now() + timedelta(minutes=expiry_in_minutes)
+        doc_data["expiry"] = frappe.utils.now_datetime() + timedelta(
+            minutes=expiry_in_minutes
+        )
 
     user_token = frappe.get_doc(doc_data)
     user_token.save(ignore_permissions=True)

@@ -16,7 +16,7 @@ from frappe.model.document import Document
 from num2words import num2words
 
 import lms
-from lms.exceptions.PledgeSetupFailureException import PledgeSetupFailureException
+from lms.exceptions import PledgeSetupFailureException
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
 
@@ -680,6 +680,7 @@ def check_for_pledge(loan_application_doc):
     page_length = 10
     total_successful_pledge = 0
     for b_no in range(no_of_batches):
+        frappe.logger().info(b_no)
         frappe.db.begin()
         # fetch loan application items
         if b_no > 0:
@@ -696,46 +697,48 @@ def check_for_pledge(loan_application_doc):
 
         # TODO : generate prf number and assign to items in batch
         pledge_request = loan_application_doc.pledge_request(la_items_list)
-
+        frappe.logger().info(pledge_request)
+        frappe.logger().info(datetime.now())
         # TODO : pledge request hit for all batches
-        # try:
-        #     res = requests.post(
-        #         pledge_request.get("url"),
-        #         headers=pledge_request.get("headers"),
-        #         json=pledge_request.get("payload"),
-        #     )
-        #     data = res.json()
+        try:
+            res = requests.post(
+                pledge_request.get("url"),
+                headers=pledge_request.get("headers"),
+                json=pledge_request.get("payload"),
+            )
+            data = res.json()
+            frappe.logger().info(data)
 
-        #     # Pledge LOG
-        #     log = {
-        #         "url": pledge_request.get("url"),
-        #         "headers": pledge_request.get("headers"),
-        #         "request": pledge_request.get("payload"),
-        #         "response": data,
-        #     }
+            # Pledge LOG
+            log = {
+                "url": pledge_request.get("url"),
+                "headers": pledge_request.get("headers"),
+                "request": pledge_request.get("payload"),
+                "response": data,
+            }
+            frappe.logger().info(log)
+            import json
+            import os
 
-        #     import json
-        #     import os
+            pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
+            pledge_log = None
+            if os.path.exists(pledge_log_file):
+                with open(pledge_log_file, "r") as f:
+                    pledge_log = f.read()
+                f.close()
+            pledge_log = json.loads(pledge_log or "[]")
+            pledge_log.append(log)
+            with open(pledge_log_file, "w") as f:
+                f.write(json.dumps(pledge_log))
+            f.close()
+            # Pledge LOG end
 
-        #     pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
-        #     pledge_log = None
-        #     if os.path.exists(pledge_log_file):
-        #         with open(pledge_log_file, "r") as f:
-        #             pledge_log = f.read()
-        #         f.close()
-        #     pledge_log = json.loads(pledge_log or "[]")
-        #     pledge_log.append(log)
-        #     with open(pledge_log_file, "w") as f:
-        #         f.write(json.dumps(pledge_log))
-        #     f.close()
-        #     # Pledge LOG end
+        except requests.RequestException as e:
+            pass
 
-        # except requests.RequestException as e:
-        #     pass
-
-        data = loan_application_doc.dummy_pledge_response(
-            pledge_request.get("payload").get("ISINDTLS")
-        )
+        # data = loan_application_doc.dummy_pledge_response(
+        #     pledge_request.get("payload").get("ISINDTLS")
+        # )
 
         # TODO : process loan application items in batches
         total_successful_pledge_count = loan_application_doc.process(

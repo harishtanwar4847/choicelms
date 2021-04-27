@@ -67,9 +67,11 @@ class LoanMarginShortfall(Document):
             self.margin_shortfall_action = action_list[0].name
 
     def after_insert(self):
-        self.notify_customer()
-        self.set_deadline()
-        self.set_bank_holiday_check()
+        if self.status == "Pending":
+            self.notify_customer()
+            self.set_deadline()
+            self.set_bank_holiday_check()
+            self.timer_start_stop_fcm()
         # TODO: notify customer even if not set margin shortfall action
 
     def get_loan(self):
@@ -104,22 +106,21 @@ class LoanMarginShortfall(Document):
                 )
 
     def set_deadline(self):
-        if self.status == "Pending":
-            margin_shortfall_action = self.get_shortfall_action()
-            if margin_shortfall_action:
-                if margin_shortfall_action.sell_off_after_hours and not margin_shortfall_action.sell_off_deadline_eod:
-                    # sell off after 72 hours
-                    self.deadline = (datetime.strptime(self.modified,"%Y-%m-%d %H:%M:%S.%f") + timedelta(hours = margin_shortfall_action.sell_off_after_hours))
+        margin_shortfall_action = self.get_shortfall_action()
+        if margin_shortfall_action:
+            if margin_shortfall_action.sell_off_after_hours and not margin_shortfall_action.sell_off_deadline_eod:
+                # sell off after 72 hours
+                self.deadline = (datetime.strptime(self.modified,"%Y-%m-%d %H:%M:%S.%f") + timedelta(hours = margin_shortfall_action.sell_off_after_hours))
 
-                elif not margin_shortfall_action.sell_off_after_hours and margin_shortfall_action.sell_off_deadline_eod:
-                    # sell off at EOD
-                    self.deadline = datetime.strptime(self.modified,"%Y-%m-%d %H:%M:%S.%f").replace(hour=margin_shortfall_action.sell_off_deadline_eod,minute=0,second=0,microsecond=0)
-                    
-                elif not margin_shortfall_action.sell_off_after_hours and not margin_shortfall_action.sell_off_deadline_eod:
-                    # sell off immediately
-                    self.deadline = self.modified
-                # self.save(ignore_permissions=True)
-                frappe.db.commit()
+            elif not margin_shortfall_action.sell_off_after_hours and margin_shortfall_action.sell_off_deadline_eod:
+                # sell off at EOD
+                self.deadline = datetime.strptime(self.modified,"%Y-%m-%d %H:%M:%S.%f").replace(hour=margin_shortfall_action.sell_off_deadline_eod,minute=0,second=0,microsecond=0)
+                
+            elif not margin_shortfall_action.sell_off_after_hours and not margin_shortfall_action.sell_off_deadline_eod:
+                # sell off immediately
+                self.deadline = self.modified
+            # self.save(ignore_permissions=True)
+            frappe.db.commit()
 
     def set_bank_holiday_check(self):
         date_list = []
@@ -133,18 +134,19 @@ class LoanMarginShortfall(Document):
         # if check_if_holiday:
         if tomorrow in date_list:
             self.is_bank_holiday = 1
+            # self.deadline = self.deadline + timedelta(hours=24)
         else:
             self.is_bank_holiday = 0
         # self.save(ignore_permissions=True)
         frappe.db.commit()
 
-    def timer_start_stop(self):
+    def timer_start_stop_fcm(self):
         if self.is_bank_holiday == 1:
             try:
                 fa = FirebaseAdmin()
                 fa.send_data(
                     data={
-                        "event": "timer stop at {}".format(datetime.now().replace(hour=23, minute=59, second=59, microsecond=999999
+                        "event": "timer stop at {}".format(frappe.utils.now_datetime().replace(hour=23, minute=59, second=59, microsecond=999999
                 )
                         ),
                     },
@@ -159,7 +161,7 @@ class LoanMarginShortfall(Document):
                 fa = FirebaseAdmin()
                 fa.send_data(
                     data={
-                        "event": "timer start at {}".format(datetime.now().replace(hour=23, minute=59, second=59, microsecond=999999
+                        "event": "timer start at {}".format(frappe.utils.now_datetime().replace(hour=23, minute=59, second=59, microsecond=999999
                 )
                         ),
                     },
@@ -170,9 +172,10 @@ class LoanMarginShortfall(Document):
             finally:
                 fa.delete_app()
 
-
     def on_update(self):
-        self.set_deadline()
-        self.set_bank_holiday_check()
-        self.save(ignore_permissions=True)
-        frappe.db.commit()
+        if self.status == "Pending":
+            self.set_deadline()
+            self.set_bank_holiday_check()
+            self.timer_start_stop_fcm()
+            self.save(ignore_permissions=True)
+            frappe.db.commit()

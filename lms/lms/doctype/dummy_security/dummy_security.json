@@ -1,41 +1,46 @@
 {
- "autoname": "YYYY",
- "creation": "2021-04-23 11:19:17.709773",
+ "creation": "2021-04-23 18:12:34.984148",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "day",
-  "date",
-  "holiday"
+  "isin",
+  "scrip_name",
+  "stock_at",
+  "quantity",
+  "price"
  ],
  "fields": [
   {
-   "fieldname": "day",
+   "fieldname": "isin",
    "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "DAY",
-   "read_only": 1
+   "label": "ISIN"
   },
   {
-   "fieldname": "date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "DATE",
-   "read_only": 1
+   "fieldname": "scrip_name",
+   "fieldtype": "Data",
+   "label": "Script Name"
   },
   {
-   "fieldname": "holiday",
+   "fieldname": "stock_at",
    "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "HOLIDAY",
-   "read_only": 1
+   "label": "Stock At"
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "label": "Quantity"
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Currency",
+   "label": "Price"
   }
  ],
- "modified": "2021-04-27 16:00:36.791978",
+ "modified": "2021-04-23 18:12:34.984148",
  "modified_by": "Administrator",
  "module": "Lms",
- "name": "Bank Holiday",
+ "name": "Dummy Security",
  "owner": "Administrator",
  "permissions": [
   {
