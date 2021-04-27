@@ -120,7 +120,8 @@ class Loan(Document):
                 "record_type": LoanTransaction.loan_transaction_map.get(
                     transaction_type, "DR"
                 ),
-                "time": datetime.now(),
+                # "time": datetime.now(),
+                "time": frappe.utils.now_datetime(),
             }
         )
 
