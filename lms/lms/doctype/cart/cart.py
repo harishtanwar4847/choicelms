@@ -10,7 +10,7 @@ import frappe
 from frappe.model.document import Document
 
 import lms
-from lms.exceptions.PledgeSetupFailureException import PledgeSetupFailureException
+from lms.exceptions import PledgeSetupFailureException
 
 
 class Cart(Document):

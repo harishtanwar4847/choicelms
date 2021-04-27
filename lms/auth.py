@@ -8,9 +8,11 @@ from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.utils.password import delete_login_failed_cache
 
 import lms
-from lms.exceptions.InvalidUserTokenException import InvalidUserTokenException
-from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
-from lms.exceptions.UserNotFoundException import UserNotFoundException
+
+# from lms.exceptions.InvalidUserTokenException import InvalidUserTokenException
+# from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
+# from lms.exceptions.UserNotFoundException import UserNotFoundException
+from lms.exceptions import *
 
 
 @frappe.whitelist(allow_guest=True)
