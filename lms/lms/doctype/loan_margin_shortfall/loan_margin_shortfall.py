@@ -120,7 +120,7 @@ class LoanMarginShortfall(Document):
                 # sell off immediately
                 self.deadline = self.modified
             # self.save(ignore_permissions=True)
-            # frappe.db.commit()
+            frappe.db.commit()
 
     def set_bank_holiday_check(self):
         date_list = []
@@ -138,7 +138,7 @@ class LoanMarginShortfall(Document):
         else:
             self.is_bank_holiday = 0
         # self.save(ignore_permissions=True)
-        # frappe.db.commit()
+        frappe.db.commit()
 
     def timer_start_stop_fcm(self):
         if self.is_bank_holiday == 1:

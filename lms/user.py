@@ -593,7 +593,7 @@ def dashboard(**kwargs):
             loan = frappe.get_doc("Loan", dictionary["name"])
             mg_shortfall_doc = loan.get_margin_shortfall()
             if mg_shortfall_doc:
-                mgloan.append({"name": dictionary["name"], "deadline": time.strftime("%H:%M:%S", gmtime(abs(mg_shortfall_doc.deadline - frappe.utils.now_datetime()).total_seconds())) if mg_shortfall_doc.deadline > frappe.utils.now_datetime() else "00:00:00" })
+                mgloan.append({"name": dictionary["name"], "deadline": convert_sec_to_hh_mm_ss(abs(mg_shortfall_doc.deadline - frappe.utils.now_datetime()).total_seconds()) if mg_shortfall_doc.deadline > frappe.utils.now_datetime() else "00:00:00" })
 
         ## taking min of deadline for the earliest deadline in list ##
         mgloan.sort(key=lambda item:item['deadline'])
@@ -776,7 +776,7 @@ def dashboard(**kwargs):
             "active_loans": active_loans,
             "pending_esigns_list": pending_esigns_list,
             "top_up": topup_list,
-            "number_of_user_login": number_of_user_login[0].status_count
+            "login_more_than_10": 1 if number_of_user_login[0].status_count > 10 else 0
         }
 
         return utils.respondWithSuccess(data=res)
@@ -1318,3 +1318,8 @@ def feedback_in_more_menu(**kwargs):
 
     except utils.exceptions.APIException as e:
         return e.respond()
+
+def convert_sec_to_hh_mm_ss(seconds):
+    min, sec = divmod(seconds, 60)
+    hour, min = divmod(min, 60)
+    return "%d:%02d:%02d" % (hour, min, sec)
