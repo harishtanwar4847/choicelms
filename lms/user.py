@@ -593,7 +593,7 @@ def dashboard(**kwargs):
             loan = frappe.get_doc("Loan", dictionary["name"])
             mg_shortfall_doc = loan.get_margin_shortfall()
             if mg_shortfall_doc:
-                mgloan.append({"name": dictionary["name"], "deadline": time.strftime("%H:%M:%S", gmtime(abs(mg_shortfall_doc.deadline - now_datetime()).total_seconds()))})
+                mgloan.append({"name": dictionary["name"], "deadline": time.strftime("%H:%M:%S", gmtime(abs(mg_shortfall_doc.deadline - frappe.utils.now_datetime()).total_seconds())) if mg_shortfall_doc.deadline > frappe.utils.now_datetime() else "00:00:00" })
 
         ## taking min of deadline for the earliest deadline in list ##
         mgloan.sort(key=lambda item:item['deadline'])
@@ -617,7 +617,7 @@ def dashboard(**kwargs):
 
             if dictionary["interest_amount"]:
                 loan = frappe.get_doc("Loan", dictionary.get("name"))
-                current_date = now_datetime()
+                current_date = frappe.utils.now_datetime()
                 due_date = ""
                 due_date_txt = "Pay By"
                 info_msg = ""
@@ -1306,6 +1306,10 @@ def feedback_in_more_menu(**kwargs):
             }
         )
         feedbacks.insert(ignore_permissions=True)
+        feedback_already_given = frappe.get_doc("Feedback", {"customer": customer.name})
+        if feedback_already_given:
+            customer.feedback_already_submitted = 1
+            customer.save(ignore_permissions=True)
         frappe.db.commit()
 
         return utils.respondWithSuccess(
