@@ -1318,3 +1318,78 @@ def feedback_in_more_menu(**kwargs):
 
     except utils.exceptions.APIException as e:
         return e.respond()
+
+
+@frappe.whitelist()
+def request_forgot_pin_otp():
+    try:
+        utils.validator.validate_http_method("POST")
+
+        user = lms.__user()
+
+        frappe.db.begin()
+        lms.create_user_token(
+            entity=user.email,
+            token_type="Forgot Pin OTP",
+            token=lms.random_token(length=4, is_numeric=True),
+        )
+        frappe.db.commit()
+        return utils.respondWithSuccess(message="Forgot Pin OTP sent")
+    except utils.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist(allow_guest=True)
+def verify_forgot_pin_otp(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        user = lms.__user()
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+                "new_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+				"retype_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+            },
+        )
+
+        try:
+            token = lms.verify_user_token(
+            entity=user.email,
+            token=data.get("otp"),
+            token_type="Forgot Pin OTP",
+        )
+        except InvalidUserTokenException:
+            token = None
+
+        print(token,"token")
+        # if token.expiry <= datetime.now():
+        #     return utils.respondUnauthorized(message=frappe._("Pledge OTP Expired."))
+
+        frappe.db.begin()
+        lms.token_mark_as_used(token)
+
+        if data.get("otp") and data.get("new_pin") and data.get("retype_pin"):
+            if data.get("retype_pin") == data.get("new_pin"):
+                # update pin
+                update_password(frappe.session.user, data.get("retype_pin"))
+                frappe.db.commit()
+                		
+                return utils.respondWithSuccess(
+                    message=frappe._("User PIN has been updated.")
+                )
+
+            else:
+                return utils.respondWithFailure(
+                    status=417, message=frappe._("Please retype correct pin.")
+                )
+			
+        elif not data.get("retype_pin") or not data.get("new_pin"):
+            return utils.respondWithFailure(
+				status=417, message=frappe._("Please Enter value for new pin and retype pin.")
+			)
+
+    except utils.APIException:
+        frappe.db.rollback()
+
