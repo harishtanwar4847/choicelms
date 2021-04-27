@@ -2,6 +2,7 @@ import base64
 import json
 import re
 import time
+from time import gmtime
 from datetime import date, datetime, timedelta
 
 import frappe
@@ -592,9 +593,7 @@ def dashboard(**kwargs):
             loan = frappe.get_doc("Loan", dictionary["name"])
             mg_shortfall_doc = loan.get_margin_shortfall()
             if mg_shortfall_doc:
-                mgloan.append({"name": dictionary["name"], "deadline": (mg_shortfall_doc.deadline).strftime(
-                        "%d-%m-%Y %H:%M:%S")})
-            
+                mgloan.append({"name": dictionary["name"], "deadline": time.strftime("%H:%M:%S", gmtime(abs(mg_shortfall_doc.deadline - now_datetime()).total_seconds()))})
 
         ## taking min of deadline for the earliest deadline in list ##
         mgloan.sort(key=lambda item:item['deadline'])
@@ -618,7 +617,7 @@ def dashboard(**kwargs):
 
             if dictionary["interest_amount"]:
                 loan = frappe.get_doc("Loan", dictionary.get("name"))
-                current_date = datetime.now()
+                current_date = now_datetime()
                 due_date = ""
                 due_date_txt = "Pay By"
                 info_msg = ""
