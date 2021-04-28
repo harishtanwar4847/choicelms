@@ -581,30 +581,30 @@ class LoanApplication(Document):
         self.save(ignore_permissions=True)
         return total_successful_pledge
 
-        # def save_collateral_ledger(self, loan_application_name=None):
-        for i in self.items:
-            collateral_ledger = frappe.get_doc(
-                {
-                    "doctype": "Collateral Ledger",
-                    "customer": self.customer,
-                    "lender": self.lender,
-                    "loan_application": self.name,
-                    "request_type": "Pledge",
-                    "request_identifier": i.prf_number,
-                    "expiry": self.expiry_date,
-                    "pledgor_boid": self.pledgor_boid,
-                    "pledgee_boid": self.pledgee_boid,
-                    "isin": i.isin,
-                    "quantity": i.pledged_quantity,
-                    "psn": i.psn,
-                    "error_code": i.error_code,
-                    "is_success": 1 if i.get("psn") and len(i.get("psn")) > 0 else 0,
-                    "lender_approval_status": "Pledge Failure"
-                    if i.get("error_code") and len(i.get("error_code")) > 0
-                    else "",
-                }
-            )
-            collateral_ledger.save(ignore_permissions=True)
+    # def save_collateral_ledger(self, loan_application_name=None):
+    # for i in self.items:
+    #     collateral_ledger = frappe.get_doc(
+    #         {
+    #             "doctype": "Collateral Ledger",
+    #             "customer": self.customer,
+    #             "lender": self.lender,
+    #             "loan_application": self.name,
+    #             "request_type": "Pledge",
+    #             "request_identifier": i.prf_number,
+    #             "expiry": self.expiry_date,
+    #             "pledgor_boid": self.pledgor_boid,
+    #             "pledgee_boid": self.pledgee_boid,
+    #             "isin": i.isin,
+    #             "quantity": i.pledged_quantity,
+    #             "psn": i.psn,
+    #             "error_code": i.error_code,
+    #             "is_success": 1 if i.get("psn") and len(i.get("psn")) > 0 else 0,
+    #             "lender_approval_status": "Pledge Failure"
+    #             if i.get("error_code") and len(i.get("error_code")) > 0
+    #             else "",
+    #         }
+    #     )
+    #     collateral_ledger.save(ignore_permissions=True)
 
     def notify_customer(self):
         from frappe.core.doctype.sms_settings.sms_settings import send_sms
@@ -700,45 +700,45 @@ def check_for_pledge(loan_application_doc):
         frappe.logger().info(pledge_request)
         frappe.logger().info(datetime.now())
         # TODO : pledge request hit for all batches
-        # try:
-        #     res = requests.post(
-        #         pledge_request.get("url"),
-        #         headers=pledge_request.get("headers"),
-        #         json=pledge_request.get("payload"),
-        #     )
-        #     data = res.json()
-        #     frappe.logger().info(data)
+        try:
+            res = requests.post(
+                pledge_request.get("url"),
+                headers=pledge_request.get("headers"),
+                json=pledge_request.get("payload"),
+            )
+            data = res.json()
+            frappe.logger().info(data)
 
-        #     # Pledge LOG
-        #     log = {
-        #         "url": pledge_request.get("url"),
-        #         "headers": pledge_request.get("headers"),
-        #         "request": pledge_request.get("payload"),
-        #         "response": data,
-        #     }
-        #     frappe.logger().info(log)
-        #     import json
-        #     import os
+            # Pledge LOG
+            log = {
+                "url": pledge_request.get("url"),
+                "headers": pledge_request.get("headers"),
+                "request": pledge_request.get("payload"),
+                "response": data,
+            }
+            frappe.logger().info(log)
+            import json
+            import os
 
-        #     pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
-        #     pledge_log = None
-        #     if os.path.exists(pledge_log_file):
-        #         with open(pledge_log_file, "r") as f:
-        #             pledge_log = f.read()
-        #         f.close()
-        #     pledge_log = json.loads(pledge_log or "[]")
-        #     pledge_log.append(log)
-        #     with open(pledge_log_file, "w") as f:
-        #         f.write(json.dumps(pledge_log))
-        #     f.close()
-        #     # Pledge LOG end
+            pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
+            pledge_log = None
+            if os.path.exists(pledge_log_file):
+                with open(pledge_log_file, "r") as f:
+                    pledge_log = f.read()
+                f.close()
+            pledge_log = json.loads(pledge_log or "[]")
+            pledge_log.append(log)
+            with open(pledge_log_file, "w") as f:
+                f.write(json.dumps(pledge_log))
+            f.close()
+            # Pledge LOG end
 
-        # except requests.RequestException as e:
-        #     pass
+        except requests.RequestException as e:
+            pass
 
-        data = loan_application_doc.dummy_pledge_response(
-            pledge_request.get("payload").get("ISINDTLS")
-        )
+        # data = loan_application_doc.dummy_pledge_response(
+        #     pledge_request.get("payload").get("ISINDTLS")
+        # )
 
         # TODO : process loan application items in batches
         total_successful_pledge_count = loan_application_doc.process(
