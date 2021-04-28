@@ -2,8 +2,8 @@ import base64
 import json
 import re
 import time
-from time import gmtime
 from datetime import date, datetime, timedelta
+from time import gmtime
 
 import frappe
 import pandas as pd
@@ -457,6 +457,7 @@ def approved_securities(**kwargs):
     except utils.APIException as e:
         return e.respond()
 
+
 @frappe.whitelist()
 def all_loans_list(**kwargs):
     try:
@@ -593,11 +594,22 @@ def dashboard(**kwargs):
             loan = frappe.get_doc("Loan", dictionary["name"])
             mg_shortfall_doc = loan.get_margin_shortfall()
             if mg_shortfall_doc:
-                mgloan.append({"name": dictionary["name"], "deadline": convert_sec_to_hh_mm_ss(abs(mg_shortfall_doc.deadline - frappe.utils.now_datetime()).total_seconds()) if mg_shortfall_doc.deadline > frappe.utils.now_datetime() else "00:00:00" })
+                mgloan.append(
+                    {
+                        "name": dictionary["name"],
+                        "deadline": convert_sec_to_hh_mm_ss(
+                            abs(
+                                mg_shortfall_doc.deadline - frappe.utils.now_datetime()
+                            ).total_seconds()
+                        )
+                        if mg_shortfall_doc.deadline > frappe.utils.now_datetime()
+                        else "00:00:00",
+                    }
+                )
 
         ## taking min of deadline for the earliest deadline in list ##
-        mgloan.sort(key=lambda item:item['deadline'])
-        
+        mgloan.sort(key=lambda item: item["deadline"])
+
         ## Margin Shortfall card ##
         if mgloan:
             deadline_for_all_mg_shortfall = {
@@ -660,7 +672,7 @@ def dashboard(**kwargs):
             )
 
         ## taking min of due date for the earliest due date in list ##
-        due_date_for_all_interest.sort(key=lambda item:item['due_date'])
+        due_date_for_all_interest.sort(key=lambda item: item["due_date"])
 
         ## Interest card ##
         total_interest_all_loans = {}
@@ -757,14 +769,14 @@ def dashboard(**kwargs):
                     top_up = None
 
         number_of_user_login = frappe.get_all(
-                "Activity Log",
-                fields=["count(status) as status_count", "status"],
-                filters={
-                    "operation": "Login",
-                    "status": "Success",
-                    "user": customer.user,
-                },
-            )
+            "Activity Log",
+            fields=["count(status) as status_count", "status"],
+            filters={
+                "operation": "Login",
+                "status": "Success",
+                "user": customer.user,
+            },
+        )
 
         res = {
             "customer": customer,
@@ -776,7 +788,7 @@ def dashboard(**kwargs):
             "active_loans": active_loans,
             "pending_esigns_list": pending_esigns_list,
             "top_up": topup_list,
-            "login_more_than_10": 1 if number_of_user_login[0].status_count > 10 else 0
+            "login_more_than_10": 1 if number_of_user_login[0].status_count > 10 else 0,
         }
 
         return utils.respondWithSuccess(data=res)
@@ -1216,7 +1228,9 @@ def feedback(**kwargs):
                     }
                 )
                 feedbacks.insert(ignore_permissions=True)
-                feedback_already_given = frappe.get_doc("Feedback", {"customer": customer.name})
+                feedback_already_given = frappe.get_doc(
+                    "Feedback", {"customer": customer.name}
+                )
                 if feedback_already_given:
                     customer.feedback_already_submitted = 1
                     customer.save(ignore_permissions=True)
@@ -1318,6 +1332,7 @@ def feedback_in_more_menu(**kwargs):
 
     except utils.exceptions.APIException as e:
         return e.respond()
+
 
 def convert_sec_to_hh_mm_ss(seconds):
     min, sec = divmod(seconds, 60)
