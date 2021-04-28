@@ -5,14 +5,15 @@
 from __future__ import unicode_literals
 
 import math
+from datetime import date, datetime, timedelta
 
 import frappe
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
-from datetime import date, datetime, timedelta
-from lms.firebase import FirebaseAdmin
+
 import lms
+from lms.firebase import FirebaseAdmin
 
 
 class LoanMarginShortfall(Document):
@@ -108,15 +109,33 @@ class LoanMarginShortfall(Document):
     def set_deadline(self):
         margin_shortfall_action = self.get_shortfall_action()
         if margin_shortfall_action:
-            if margin_shortfall_action.sell_off_after_hours and not margin_shortfall_action.sell_off_deadline_eod:
+            if (
+                margin_shortfall_action.sell_off_after_hours
+                and not margin_shortfall_action.sell_off_deadline_eod
+            ):
                 # sell off after 72 hours
-                self.deadline = (datetime.strptime(self.modified,"%Y-%m-%d %H:%M:%S.%f") + timedelta(hours = margin_shortfall_action.sell_off_after_hours))
+                self.deadline = datetime.strptime(
+                    self.modified, "%Y-%m-%d %H:%M:%S.%f"
+                ) + timedelta(hours=margin_shortfall_action.sell_off_after_hours)
 
-            elif not margin_shortfall_action.sell_off_after_hours and margin_shortfall_action.sell_off_deadline_eod:
+            elif (
+                not margin_shortfall_action.sell_off_after_hours
+                and margin_shortfall_action.sell_off_deadline_eod
+            ):
                 # sell off at EOD
-                self.deadline = datetime.strptime(self.modified,"%Y-%m-%d %H:%M:%S.%f").replace(hour=margin_shortfall_action.sell_off_deadline_eod,minute=0,second=0,microsecond=0)
-                
-            elif not margin_shortfall_action.sell_off_after_hours and not margin_shortfall_action.sell_off_deadline_eod:
+                self.deadline = datetime.strptime(
+                    self.modified, "%Y-%m-%d %H:%M:%S.%f"
+                ).replace(
+                    hour=margin_shortfall_action.sell_off_deadline_eod,
+                    minute=0,
+                    second=0,
+                    microsecond=0,
+                )
+
+            elif (
+                not margin_shortfall_action.sell_off_after_hours
+                and not margin_shortfall_action.sell_off_deadline_eod
+            ):
                 # sell off immediately
                 self.deadline = self.modified
             # self.save(ignore_permissions=True)
@@ -126,9 +145,9 @@ class LoanMarginShortfall(Document):
         date_list = []
         tomorrow = date.today() + timedelta(days=1)
         holiday_list = frappe.get_all("Bank Holiday", "date")
-        for i,dates in enumerate(d['date'] for d in holiday_list): 
+        for i, dates in enumerate(d["date"] for d in holiday_list):
             date_list.append(dates)
-        
+
         # date_array = (self.creation.date() + timedelta(days=x) for x in range(0, (self.deadline.date()-self.creation.date()).days+1))
         # check_if_holiday = [i for i, j in zip(date_list, date_array) if i == j]
         # if check_if_holiday:
@@ -146,8 +165,10 @@ class LoanMarginShortfall(Document):
                 fa = FirebaseAdmin()
                 fa.send_data(
                     data={
-                        "event": "timer stop at {}".format(frappe.utils.now_datetime().replace(hour=23, minute=59, second=59, microsecond=999999
-                )
+                        "event": "timer stop at {}".format(
+                            frappe.utils.now_datetime().replace(
+                                hour=23, minute=59, second=59, microsecond=999999
+                            )
                         ),
                     },
                     tokens=lms.get_firebase_tokens(self.get_loan().get_customer().user),
@@ -161,8 +182,10 @@ class LoanMarginShortfall(Document):
                 fa = FirebaseAdmin()
                 fa.send_data(
                     data={
-                        "event": "timer start at {}".format(frappe.utils.now_datetime().replace(hour=23, minute=59, second=59, microsecond=999999
-                )
+                        "event": "timer start at {}".format(
+                            frappe.utils.now_datetime().replace(
+                                hour=23, minute=59, second=59, microsecond=999999
+                            )
                         ),
                     },
                     tokens=lms.get_firebase_tokens(self.get_loan().get_customer().user),
