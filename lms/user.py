@@ -768,15 +768,35 @@ def dashboard(**kwargs):
                 else:
                     top_up = None
 
-        number_of_user_login = frappe.get_all(
-            "Activity Log",
-            fields=["count(status) as status_count", "status"],
-            filters={
-                "operation": "Login",
-                "status": "Success",
-                "user": customer.user,
-            },
+        # number_of_user_login = frappe.get_all(
+        #     "Activity Log",
+        #     fields=["count(status) as status_count", "status"],
+        #     filters={
+        #         "operation": "Login",
+        #         "status": "Success",
+        #         "user": customer.user,
+        #     },
+        # )
+        number_of_user_login = frappe.db.count(
+            "User Token",
+            filters={"token_type": "Firebase Token", "entity": customer.user},
         )
+        loan_customer_feedback_config = frappe.db.get_value(
+            "Loan Customer",
+            {"name": customer.user},
+            ["name", "feedback_do_not_show_popup", "feedback_submitted"],
+            as_dict=1,
+        )
+        show_feedback_popup = 1
+
+        if (
+            loan_customer_feedback_config
+            and (
+                loan_customer_feedback_config.feedback_submitted
+                or loan_customer_feedback_config.feedback_do_not_show_popup
+            )
+        ) or number_of_user_login < 10:
+            show_feedback_popup = 0
 
         res = {
             "customer": customer,
@@ -788,7 +808,8 @@ def dashboard(**kwargs):
             "active_loans": active_loans,
             "pending_esigns_list": pending_esigns_list,
             "top_up": topup_list,
-            "login_more_than_10": 1 if number_of_user_login[0].status_count > 10 else 0,
+            # "login_more_than_10": 1 if number_of_user_login[0].status_count > 10 else 0,
+            "show_feedback_popup": show_feedback_popup,
         }
 
         return utils.respondWithSuccess(data=res)
@@ -1168,7 +1189,7 @@ def feedback(**kwargs):
             data["others"] = int(data.get("others"))
 
         # validation
-        if data.get("do_not_show_again") or customer.feedback_already_submitted:
+        if data.get("do_not_show_again") or customer.feedback_submitted:
             return utils.respondWithFailure(
                 message=frappe._("Dont show feedback popup again")
             )
@@ -1192,7 +1213,7 @@ def feedback(**kwargs):
                 message=frappe._("Please select below options."),
             )
 
-        if not data.get("do_not_show_again") or not customer.feedback_already_submitted:
+        if not data.get("do_not_show_again") or not customer.feedback_submitted:
             if not data.get("comment"):
                 return utils.respondWithFailure(
                     message=frappe._("Please give us Feedback")
@@ -1232,7 +1253,7 @@ def feedback(**kwargs):
                     "Feedback", {"customer": customer.name}
                 )
                 if feedback_already_given:
-                    customer.feedback_already_submitted = 1
+                    customer.feedback_submitted = 1
                     customer.save(ignore_permissions=True)
                 frappe.db.commit()
 
@@ -1322,7 +1343,7 @@ def feedback_in_more_menu(**kwargs):
         feedbacks.insert(ignore_permissions=True)
         feedback_already_given = frappe.get_doc("Feedback", {"customer": customer.name})
         if feedback_already_given:
-            customer.feedback_already_submitted = 1
+            customer.feedback_submitted = 1
             customer.save(ignore_permissions=True)
         frappe.db.commit()
 
