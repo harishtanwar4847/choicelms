@@ -1152,7 +1152,8 @@ def all_lenders_list(**kwargs):
 @frappe.whitelist()
 def feedback(**kwargs):
     try:
-        utils.validator.validate_http_method("GET")
+        # utils.validator.validate_http_method("GET")
+        utils.validator.validate_http_method("POST")
 
         data = utils.validator.validate(
             kwargs,
@@ -1189,17 +1190,17 @@ def feedback(**kwargs):
             data["others"] = int(data.get("others"))
 
         # validation
-        if data.get("do_not_show_again") or customer.feedback_submitted:
-            return utils.respondWithFailure(
-                message=frappe._("Dont show feedback popup again")
-            )
+        # if data.get("do_not_show_again") or customer.feedback_submitted:
+        #     return utils.respondWithFailure(
+        #         message=frappe._("Dont show feedback popup again")
+        #     )
 
         if (data.get("bulls_eye") and data.get("can_do_better")) or (
             not data.get("bulls_eye") and not data.get("can_do_better")
         ):
             return utils.respondWithFailure(
                 status=417,
-                message=frappe._("Please select one option."),
+                message=frappe._("Please select atleast one option."),
             )
 
         if (
@@ -1210,61 +1211,80 @@ def feedback(**kwargs):
         ):
             return utils.respondWithFailure(
                 status=417,
-                message=frappe._("Please select below options."),
+                message=frappe._("Please select atleast one from below options."),
             )
 
-        if not data.get("do_not_show_again") or not customer.feedback_submitted:
-            if not data.get("comment"):
-                return utils.respondWithFailure(
-                    message=frappe._("Please give us Feedback")
-                )
-
-            number_of_user_login = frappe.get_all(
-                "Activity Log",
-                fields=["count(status) as status_count", "status"],
-                filters={
-                    "operation": "Login",
-                    "status": "Success",
-                    "user": customer.user,
-                },
+        # if not data.get("do_not_show_again") or not customer.feedback_submitted:
+        if not data.get("comment"):
+            return utils.respondWithFailure(
+                message=frappe._("Please write your suggestion to us.")
             )
 
-            if number_of_user_login[0].status_count > 10:
-                # show feedback popup
+        # number_of_user_login = frappe.get_all(
+        #     "Activity Log",
+        #     fields=["count(status) as status_count", "status"],
+        #     filters={
+        #         "operation": "Login",
+        #         "status": "Success",
+        #         "user": customer.user,
+        #     },
+        # )
 
-                feedbacks = frappe.get_doc(
-                    {
-                        "doctype": "Feedback",
-                        "customer": customer.name,
-                        "sparkloans_have_hit_the_bulls_eye": data.get("bulls_eye"),
-                        "sparkloans_can_do_better": data.get("can_do_better"),
-                        "related_to_user_experience": data.get(
-                            "related_to_user_experience"
-                        ),
-                        "related_to_functionality": data.get(
-                            "related_to_functionality"
-                        ),
-                        "others": data.get("others"),
-                        "comment": data.get("comment"),
-                    }
-                )
-                feedbacks.insert(ignore_permissions=True)
-                feedback_already_given = frappe.get_doc(
-                    "Feedback", {"customer": customer.name}
-                )
-                if feedback_already_given:
-                    customer.feedback_submitted = 1
-                    customer.save(ignore_permissions=True)
-                frappe.db.commit()
+        # if number_of_user_login[0].status_count > 10:
+        # show feedback popup
+        number_of_user_login = frappe.db.count(
+            "User Token",
+            filters={"token_type": "Firebase Token", "entity": customer.user},
+        )
+        loan_customer_feedback_config = frappe.db.get_value(
+            "Loan Customer",
+            {"name": customer.user},
+            ["name", "feedback_do_not_show_popup", "feedback_submitted"],
+            as_dict=1,
+        )
 
-                return utils.respondWithSuccess(
-                    message=frappe._("Feedback successfully submited.")
-                )
-            else:
-                return utils.respondWithFailure(
-                    status=417, message=frappe._("User did not login for 10 times.")
-                )
+        if data.get("do_not_show_again"):
+            customer.feedback_do_not_show_popup = 1
+            customer.save(ignore_permissions=True)
+            frappe.db.commit()
 
+            return utils.respondWithSuccess(message=frappe._("successfully saved."))
+        elif (
+            number_of_user_login > 10
+            and not loan_customer_feedback_config.feedback_do_not_show_popup
+        ):
+            feedback_doc = frappe.get_doc(
+                {
+                    "doctype": "Feedback",
+                    "customer": customer.name,
+                    "sparkloans_have_hit_the_bulls_eye": data.get("bulls_eye"),
+                    "sparkloans_can_do_better": data.get("can_do_better"),
+                    "related_to_user_experience": data.get(
+                        "related_to_user_experience"
+                    ),
+                    "related_to_functionality": data.get("related_to_functionality"),
+                    "others": data.get("others"),
+                    "comment": data.get("comment"),
+                }
+            )
+            feedback_doc.insert(ignore_permissions=True)
+            # feedback_already_given = frappe.get_doc(
+            #     "Feedback", {"customer": customer.name}
+            # )
+            # if feedback_already_given:
+            if not loan_customer_feedback_config.feedback_submitted:
+                customer.feedback_submitted = 1
+                customer.save(ignore_permissions=True)
+
+            frappe.db.commit()
+
+            return utils.respondWithSuccess(
+                message=frappe._("Feedback submitted successfully.")
+            )
+        else:
+            return utils.respondWithFailure(
+                status=417, message=frappe._("Oops something went wrong.")
+            )
     except utils.exceptions.APIException as e:
         return e.respond()
 
