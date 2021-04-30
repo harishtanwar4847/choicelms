@@ -5,15 +5,17 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "section_break_62",
   "registeration",
   "is_email_verified",
   "kyc_update",
-  "feedback_already_submitted",
   "column_break_65",
   "credit_check",
   "pledge_securities",
   "loan_open",
+  "customer_feedback_section",
+  "feedback_submitted",
+  "feedback_column_break",
+  "feedback_do_not_show_popup",
   "kyc_status_section",
   "choice_kyc",
   "column_break_21",
@@ -35,10 +37,6 @@
   "alerts_based_on_amount"
  ],
  "fields": [
-  {
-   "fieldname": "section_break_62",
-   "fieldtype": "Section Break"
-  },
   {
    "default": "0",
    "fieldname": "registeration",
@@ -181,13 +179,29 @@
   },
   {
    "default": "0",
-   "fieldname": "feedback_already_submitted",
+   "fieldname": "feedback_submitted",
    "fieldtype": "Check",
-   "label": "Feedback Already Submitted",
+   "label": "Feedback Submitted",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "feedback_do_not_show_popup",
+   "fieldtype": "Check",
+   "label": "Feedback Do Not Show Popup",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_feedback_section",
+   "fieldtype": "Section Break",
+   "label": "Feedback"
+  },
+  {
+   "fieldname": "feedback_column_break",
+   "fieldtype": "Column Break"
   }
  ],
- "modified": "2021-04-27 14:18:18.423020",
+ "modified": "2021-04-29 21:30:07.522047",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Customer",
