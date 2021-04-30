@@ -47,6 +47,7 @@ class UserToken(Document):
                 doc=doc,
             )
 
+
 # putting these here for the logs
 # will be removed afterwards
 # uncomment the import on line 8 after removing this

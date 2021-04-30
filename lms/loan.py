@@ -783,7 +783,7 @@ def loan_withdraw_request(**kwargs):
         token = lms.verify_user_token(
             entity=user.username, token=data.get("otp"), token_type="Withdraw OTP"
         )
-        
+
         if token.expiry <= datetime.now():
             return utils.respondUnauthorized(message=frappe._("Withdraw OTP Expired."))
 
@@ -1031,8 +1031,14 @@ def loan_statement(**kwargs):
                     message=frappe._("Please provide valid Duration")
                 )
 
-            curr_month = datetime.strptime(frappe.utils.today(),"%Y-%m-%d").date().replace(day=1)
-            last_day_of_prev_month = datetime.strptime(frappe.utils.today(),"%Y-%m-%d").date().replace(day=1) - timedelta(days=1)
+            curr_month = (
+                datetime.strptime(frappe.utils.today(), "%Y-%m-%d")
+                .date()
+                .replace(day=1)
+            )
+            last_day_of_prev_month = datetime.strptime(
+                frappe.utils.today(), "%Y-%m-%d"
+            ).date().replace(day=1) - timedelta(days=1)
 
             prev_1_month = (
                 curr_month - timedelta(days=last_day_of_prev_month.day)
@@ -1043,7 +1049,9 @@ def loan_statement(**kwargs):
             prev_6_month = (
                 curr_month - timedelta(weeks=20, days=last_day_of_prev_month.day)
             ).replace(day=1)
-            current_year = date(datetime.strptime(frappe.utils.today(),"%Y-%m-%d").date().year, 4, 1)
+            current_year = date(
+                datetime.strptime(frappe.utils.today(), "%Y-%m-%d").date().year, 4, 1
+            )
 
             if curr_month < current_year:
                 current_year = current_year - timedelta(
@@ -1061,7 +1069,9 @@ def loan_statement(**kwargs):
             elif data.get("duration") == "current_year":
                 duration_date = current_year
             else:
-                duration_date = datetime.strptime(frappe.utils.today(),"%Y-%m-%d").date()
+                duration_date = datetime.strptime(
+                    frappe.utils.today(), "%Y-%m-%d"
+                ).date()
 
             if data.get("type") == "Account Statement":
                 filter["time"] = [">=", datetime.strftime(duration_date, "%Y-%m-%d")]
