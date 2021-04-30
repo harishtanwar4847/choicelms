@@ -73,7 +73,7 @@ class LoanMarginShortfall(Document):
             loan = self.get_loan()
             self.notify_customer()
             self.update_deadline_based_on_holidays()
-
+            print()
             try:
                 fa = FirebaseAdmin()
                 fa.send_data(
