@@ -1157,7 +1157,6 @@ def all_lenders_list(**kwargs):
 @frappe.whitelist()
 def feedback(**kwargs):
     try:
-        # utils.validator.validate_http_method("GET")
         utils.validator.validate_http_method("POST")
 
         data = utils.validator.validate(
@@ -1170,10 +1169,12 @@ def feedback(**kwargs):
                 "related_to_functionality": "",
                 "others": "",
                 "comment": "",
+                "from_more_menu": "",
             },
         )
 
         customer = lms.__customer()
+
         if isinstance(data.get("do_not_show_again"), str):
             data["do_not_show_again"] = int(data.get("do_not_show_again"))
 
@@ -1194,36 +1195,39 @@ def feedback(**kwargs):
         if isinstance(data.get("others"), str):
             data["others"] = int(data.get("others"))
 
+        if isinstance(data.get("from_more_menu"), str):
+            data["from_more_menu"] = int(data.get("from_more_menu"))
+
         # validation
         # if data.get("do_not_show_again") or customer.feedback_submitted:
         #     return utils.respondWithFailure(
         #         message=frappe._("Dont show feedback popup again")
         #     )
+        if not data.get("do_not_show_again"):
+            if (data.get("bulls_eye") and data.get("can_do_better")) or (
+                not data.get("bulls_eye") and not data.get("can_do_better")
+            ):
+                return utils.respondWithFailure(
+                    status=417,
+                    message=frappe._("Please select atleast one option."),
+                )
 
-        if (data.get("bulls_eye") and data.get("can_do_better")) or (
-            not data.get("bulls_eye") and not data.get("can_do_better")
-        ):
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._("Please select atleast one option."),
-            )
+            if (
+                data.get("can_do_better")
+                and not data.get("related_to_user_experience")
+                and not data.get("related_to_functionality")
+                and not data.get("others")
+            ):
+                return utils.respondWithFailure(
+                    status=417,
+                    message=frappe._("Please select atleast one from below options."),
+                )
 
-        if (
-            data.get("can_do_better")
-            and not data.get("related_to_user_experience")
-            and not data.get("related_to_functionality")
-            and not data.get("others")
-        ):
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._("Please select atleast one from below options."),
-            )
-
-        # if not data.get("do_not_show_again") or not customer.feedback_submitted:
-        if not data.get("comment"):
-            return utils.respondWithFailure(
-                message=frappe._("Please write your suggestion to us.")
-            )
+            # if not data.get("do_not_show_again") or not customer.feedback_submitted:
+            if not data.get("comment"):
+                return utils.respondWithFailure(
+                    message=frappe._("Please write your suggestion to us.")
+                )
 
         # number_of_user_login = frappe.get_all(
         #     "Activity Log",
@@ -1243,7 +1247,7 @@ def feedback(**kwargs):
         )
         loan_customer_feedback_config = frappe.db.get_value(
             "Loan Customer",
-            {"name": customer.user},
+            {"name": customer.name},
             ["name", "feedback_do_not_show_popup", "feedback_submitted"],
             as_dict=1,
         )
@@ -1252,12 +1256,9 @@ def feedback(**kwargs):
             customer.feedback_do_not_show_popup = 1
             customer.save(ignore_permissions=True)
             frappe.db.commit()
-
             return utils.respondWithSuccess(message=frappe._("successfully saved."))
-        elif (
-            number_of_user_login > 10
-            and not loan_customer_feedback_config.feedback_do_not_show_popup
-        ):
+
+        elif number_of_user_login > 10 or data.get("from_more_menu"):
             feedback_doc = frappe.get_doc(
                 {
                     "doctype": "Feedback",
@@ -1277,7 +1278,10 @@ def feedback(**kwargs):
             #     "Feedback", {"customer": customer.name}
             # )
             # if feedback_already_given:
-            if not loan_customer_feedback_config.feedback_submitted:
+            if (
+                loan_customer_feedback_config
+                and not loan_customer_feedback_config["feedback_submitted"]
+            ):
                 customer.feedback_submitted = 1
                 customer.save(ignore_permissions=True)
 
@@ -1286,6 +1290,7 @@ def feedback(**kwargs):
             return utils.respondWithSuccess(
                 message=frappe._("Feedback submitted successfully.")
             )
+
         else:
             return utils.respondWithFailure(
                 status=417, message=frappe._("Oops something went wrong.")
@@ -1294,90 +1299,90 @@ def feedback(**kwargs):
         return e.respond()
 
 
-@frappe.whitelist()
-def feedback_in_more_menu(**kwargs):
-    try:
-        utils.validator.validate_http_method("GET")
+# @frappe.whitelist()
+# def feedback_in_more_menu(**kwargs):
+#     try:
+#         utils.validator.validate_http_method("GET")
 
-        data = utils.validator.validate(
-            kwargs,
-            {
-                "bulls_eye": "",
-                "can_do_better": "",
-                "related_to_user_experience": "",
-                "related_to_functionality": "",
-                "others": "",
-                "comment": "",
-            },
-        )
+#         data = utils.validator.validate(
+#             kwargs,
+#             {
+#                 "bulls_eye": "",
+#                 "can_do_better": "",
+#                 "related_to_user_experience": "",
+#                 "related_to_functionality": "",
+#                 "others": "",
+#                 "comment": "",
+#             },
+#         )
 
-        customer = lms.__customer()
+#         customer = lms.__customer()
 
-        if isinstance(data.get("bulls_eye"), str):
-            data["bulls_eye"] = int(data.get("bulls_eye"))
+#         if isinstance(data.get("bulls_eye"), str):
+#             data["bulls_eye"] = int(data.get("bulls_eye"))
 
-        if isinstance(data.get("can_do_better"), str):
-            data["can_do_better"] = int(data.get("can_do_better"))
+#         if isinstance(data.get("can_do_better"), str):
+#             data["can_do_better"] = int(data.get("can_do_better"))
 
-        if isinstance(data.get("related_to_user_experience"), str):
-            data["related_to_user_experience"] = int(
-                data.get("related_to_user_experience")
-            )
+#         if isinstance(data.get("related_to_user_experience"), str):
+#             data["related_to_user_experience"] = int(
+#                 data.get("related_to_user_experience")
+#             )
 
-        if isinstance(data.get("related_to_functionality"), str):
-            data["related_to_functionality"] = int(data.get("related_to_functionality"))
+#         if isinstance(data.get("related_to_functionality"), str):
+#             data["related_to_functionality"] = int(data.get("related_to_functionality"))
 
-        if isinstance(data.get("others"), str):
-            data["others"] = int(data.get("others"))
+#         if isinstance(data.get("others"), str):
+#             data["others"] = int(data.get("others"))
 
-        # validation
-        if (data.get("bulls_eye") and data.get("can_do_better")) or (
-            not data.get("bulls_eye") and not data.get("can_do_better")
-        ):
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._("Please select one option."),
-            )
+#         # validation
+#         if (data.get("bulls_eye") and data.get("can_do_better")) or (
+#             not data.get("bulls_eye") and not data.get("can_do_better")
+#         ):
+#             return utils.respondWithFailure(
+#                 status=417,
+#                 message=frappe._("Please select one option."),
+#             )
 
-        if (
-            data.get("can_do_better")
-            and not data.get("related_to_user_experience")
-            and not data.get("related_to_functionality")
-            and not data.get("others")
-        ):
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._("Please select below options."),
-            )
+#         if (
+#             data.get("can_do_better")
+#             and not data.get("related_to_user_experience")
+#             and not data.get("related_to_functionality")
+#             and not data.get("others")
+#         ):
+#             return utils.respondWithFailure(
+#                 status=417,
+#                 message=frappe._("Please select below options."),
+#             )
 
-        if not data.get("comment"):
-            return utils.respondWithFailure(message=frappe._("Please give us Feedback"))
+#         if not data.get("comment"):
+#             return utils.respondWithFailure(message=frappe._("Please give us Feedback"))
 
-        feedbacks = frappe.get_doc(
-            {
-                "doctype": "Feedback",
-                "customer": customer.name,
-                "sparkloans_have_hit_the_bulls_eye": data.get("bulls_eye"),
-                "sparkloans_can_do_better": data.get("can_do_better"),
-                "related_to_user_experience": data.get("related_to_user_experience"),
-                "related_to_functionality": data.get("related_to_functionality"),
-                "others": data.get("others"),
-                "comment": data.get("comment"),
-            }
-        )
-        feedbacks.insert(ignore_permissions=True)
-        feedback_already_given = frappe.get_doc("Feedback", {"customer": customer.name})
-        if feedback_already_given:
-            customer.feedback_submitted = 1
-            customer.save(ignore_permissions=True)
-        frappe.db.commit()
+#         feedbacks = frappe.get_doc(
+#             {
+#                 "doctype": "Feedback",
+#                 "customer": customer.name,
+#                 "sparkloans_have_hit_the_bulls_eye": data.get("bulls_eye"),
+#                 "sparkloans_can_do_better": data.get("can_do_better"),
+#                 "related_to_user_experience": data.get("related_to_user_experience"),
+#                 "related_to_functionality": data.get("related_to_functionality"),
+#                 "others": data.get("others"),
+#                 "comment": data.get("comment"),
+#             }
+#         )
+#         feedbacks.insert(ignore_permissions=True)
+#         feedback_already_given = frappe.get_doc("Feedback", {"customer": customer.name})
+#         if feedback_already_given:
+#             customer.feedback_submitted = 1
+#             customer.save(ignore_permissions=True)
+#         frappe.db.commit()
 
-        return utils.respondWithSuccess(
-            message=frappe._("Feedback successfully submited.")
-        )
+#         return utils.respondWithSuccess(
+#             message=frappe._("Feedback successfully submited.")
+#         )
 
-    except utils.exceptions.APIException as e:
-        return e.respond()
+#     except utils.exceptions.APIException as e:
+#         return e.respond()
 
 
 # @frappe.whitelist()
