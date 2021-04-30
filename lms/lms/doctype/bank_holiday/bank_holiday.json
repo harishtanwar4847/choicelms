@@ -14,25 +14,23 @@
    "fieldname": "day",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "DAY",
-   "read_only": 1
+   "label": "DAY"
   },
   {
    "fieldname": "date",
    "fieldtype": "Date",
+   "in_filter": 1,
    "in_list_view": 1,
-   "label": "DATE",
-   "read_only": 1
+   "label": "DATE"
   },
   {
    "fieldname": "holiday",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "HOLIDAY",
-   "read_only": 1
+   "label": "HOLIDAY"
   }
  ],
- "modified": "2021-04-27 16:00:36.791978",
+ "modified": "2021-04-30 10:42:18.400651",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Bank Holiday",

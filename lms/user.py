@@ -593,17 +593,22 @@ def dashboard(**kwargs):
             )
             loan = frappe.get_doc("Loan", dictionary["name"])
             mg_shortfall_doc = loan.get_margin_shortfall()
+            mg_shortfall_action = frappe.get_doc("Margin Shortfall Action", mg_shortfall_doc.margin_shortfall_action)
             if mg_shortfall_doc:
+                hrs_difference = mg_shortfall_doc.deadline - frappe.utils.now_datetime()
+                if mg_shortfall_action.sell_off_after_hours:
+                    date_array = set(mg_shortfall_doc.creation.date() + timedelta(days=x) for x in range(0, (mg_shortfall_doc.deadline.date()-mg_shortfall_doc.creation.date()).days+1))
+                    holidays = date_array.intersection(set(holiday_list()))
+                    hrs_difference = mg_shortfall_doc.deadline - frappe.utils.now_datetime() - timedelta(days=(len(holidays) if holidays else 0)-1)
+
                 mgloan.append(
                     {
                         "name": dictionary["name"],
                         "deadline": convert_sec_to_hh_mm_ss(
                             abs(
-                                mg_shortfall_doc.deadline - frappe.utils.now_datetime()
+                                hrs_difference
                             ).total_seconds()
-                        )
-                        if mg_shortfall_doc.deadline > frappe.utils.now_datetime()
-                        else "00:00:00",
+                        ) if mg_shortfall_doc.deadline > frappe.utils.now_datetime() else "00:00:00"
                     }
                 )
 
@@ -845,7 +850,7 @@ def weekly_pledged_security_dashboard(**kwargs):
 
         counter = 15
         weekly_security_amount = []
-        yesterday = date.today() - timedelta(days=1)
+        yesterday = datetime.strptime(frappe.utils.today(),"%Y-%m-%d").date() - timedelta(days=1)
         last_friday = yesterday - timedelta(days=yesterday.weekday() - 4)
 
         while counter >= 0:
@@ -1384,3 +1389,11 @@ def convert_sec_to_hh_mm_ss(seconds):
     min, sec = divmod(seconds, 60)
     hour, min = divmod(min, 60)
     return "%d:%02d:%02d" % (hour, min, sec)
+
+def holiday_list():
+    date_list = []
+    holiday_list = frappe.get_all("Bank Holiday", "date", order_by="date asc")
+    for i,dates in enumerate(d['date'] for d in holiday_list): 
+        date_list.append(dates)
+    
+    return date_list

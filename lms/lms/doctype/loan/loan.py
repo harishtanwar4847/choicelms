@@ -292,8 +292,9 @@ class Loan(Document):
             self.save(ignore_permissions=True)
 
             loan_margin_shortfall = self.get_margin_shortfall()
-
+            old_shortfall_action = loan_margin_shortfall.margin_shortfall_action
             loan_margin_shortfall.fill_items()
+            loan_margin_shortfall.set_deadline(old_shortfall_action)
 
             if loan_margin_shortfall.is_new():
                 # if loan_margin_shortfall.margin_shortfall_action:
@@ -303,7 +304,7 @@ class Loan(Document):
                 # if not loan_margin_shortfall.margin_shortfall_action:
                 if loan_margin_shortfall.shortfall_percentage == 0:
                     loan_margin_shortfall.status = "Resolved"
-                    loan_margin_shortfall.action_time = datetime.now()
+                    loan_margin_shortfall.action_time = frappe.utils.now_datetime()
                 loan_margin_shortfall.save(ignore_permissions=True)
 
             # alerts comparison with percentage and amount
