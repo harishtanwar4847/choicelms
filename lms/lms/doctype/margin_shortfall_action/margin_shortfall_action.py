@@ -12,3 +12,6 @@ class MarginShortfallAction(Document):
     def before_save(self):
         if self.sell_off_after_hours and self.sell_off_deadline_eod:
             frappe.throw("Please put value at sell off deadline either EOD or in hours")
+
+        if self.sell_off_deadline_eod > 24:
+            frappe.throw("Please keep the value for EOD below 24.")

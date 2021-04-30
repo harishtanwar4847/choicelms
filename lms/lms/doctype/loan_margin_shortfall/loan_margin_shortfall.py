@@ -14,7 +14,7 @@ from frappe.model.document import Document
 
 import lms
 from lms.firebase import FirebaseAdmin
-from lms.user import convert_sec_to_hh_mm_ss
+from lms.user import convert_sec_to_hh_mm_ss, holiday_list
 
 
 class LoanMarginShortfall(Document):
@@ -70,9 +70,43 @@ class LoanMarginShortfall(Document):
 
     def after_insert(self):
         if self.status == "Pending":
+            loan = self.get_loan()
             self.notify_customer()
-            # self.set_deadline()
-            self.new_fcm_timer_start_stop()
+            self.update_deadline_based_on_holidays()
+
+            try:
+                fa = FirebaseAdmin()
+                fa.send_data(
+                    data={
+                        "event": "timer start",
+                        "condition": "after insert",
+                        "time": convert_sec_to_hh_mm_ss(abs(self.deadline - frappe.utils.now_datetime()).total_seconds()),
+                        "loan_name": loan.name,
+                        "margin_shortfall_doc": self.as_json()
+                    },
+                    tokens=lms.get_firebase_tokens(loan.get_customer().user),
+                )
+            except Exception:
+                pass
+            finally:
+                fa.delete_app()
+            try:
+                fa = FirebaseAdmin()
+                fa.send_data(
+                    data={
+                        "event": "timer stop",
+                        "condition": "after insert",
+                        "time": "00:00:00",
+                        "loan_name": loan.name,
+                        "margin_shortfall_doc": self.as_json()
+                    },
+                    tokens=lms.get_firebase_tokens(loan.get_customer().user),
+                )
+            except Exception:
+                pass
+            finally:
+                fa.delete_app()
+        
             # self.set_bank_holiday_check()
             # self.timer_start_stop_fcm()
 
@@ -111,77 +145,86 @@ class LoanMarginShortfall(Document):
 
     def set_deadline(self, old_shortfall_action=None):
         margin_shortfall_action = self.get_shortfall_action()
-        print(old_shortfall_action,"old_shortfall_action")
-        print(margin_shortfall_action.name,"margin_shortfall_action")
-        if margin_shortfall_action:
-            if (
+        
+        if margin_shortfall_action and old_shortfall_action != margin_shortfall_action.name:
+            if old_shortfall_action:
+                old_shortfall_action = frappe.get_doc("Margin Shortfall Action", old_shortfall_action).sell_off_deadline_eod
+            
+            """suppose mg shortfall deadline was after 72 hours and suddenly more shortfall happens the deadline will be
+            EOD and before EOD security values increased and margin shortfall percentage gone below 20% then deadline should be 72 hrs which was started at initial stage"""
+            if old_shortfall_action and margin_shortfall_action.sell_off_after_hours:
+                self.deadline = self.creation + timedelta(hours = margin_shortfall_action.sell_off_after_hours)
+
+            elif (
                 margin_shortfall_action.sell_off_after_hours
                 and not margin_shortfall_action.sell_off_deadline_eod
             ):
                 # sell off after 72 hours
-                if old_shortfall_action != margin_shortfall_action.name:
-                    self.deadline = (frappe.utils.now_datetime() + timedelta(hours = margin_shortfall_action.sell_off_after_hours))
+                self.deadline = (frappe.utils.now_datetime() + timedelta(hours = margin_shortfall_action.sell_off_after_hours))
 
             elif not margin_shortfall_action.sell_off_after_hours and margin_shortfall_action.sell_off_deadline_eod:
                 # sell off at EOD
-                if old_shortfall_action != margin_shortfall_action.name:
-                    self.deadline = frappe.utils.now_datetime().replace(hour=margin_shortfall_action.sell_off_deadline_eod,minute=0,second=0,microsecond=0)
+                self.deadline = frappe.utils.now_datetime().replace(hour=margin_shortfall_action.sell_off_deadline_eod,minute=0,second=0,microsecond=0)
                 
             elif not margin_shortfall_action.sell_off_after_hours and not margin_shortfall_action.sell_off_deadline_eod:
                 # sell off immediately
-                if old_shortfall_action != margin_shortfall_action.name:
-                    self.deadline = frappe.utils.now_datetime()
+                self.deadline = frappe.utils.now_datetime()
+
             self.save(ignore_permissions=True)
             frappe.db.commit()
+  
         self.set_bank_holiday_check()
 
     def set_bank_holiday_check(self):
-        date_list = []
-        tomorrow = date.today() + timedelta(days=1)
-        if tomorrow <= (self.deadline).date():
-            holiday_list = frappe.get_all("Bank Holiday", "date")
-            for i,dates in enumerate(d['date'] for d in holiday_list): 
-                date_list.append(dates)
+        # date_list = []
+        tomorrow = datetime.strptime(frappe.utils.today(),"%Y-%m-%d").date() + timedelta(days=1)
+        if (self.deadline).date() >= tomorrow:
             
-            # date_array = (self.creation.date() + timedelta(days=x) for x in range(0, (self.deadline.date()-self.creation.date()).days+1))
-            # check_if_holiday = [i for i, j in zip(date_list, date_array) if i == j]
-            # if check_if_holiday:
-            if tomorrow in date_list:
+            if tomorrow in holiday_list():
                 self.is_bank_holiday = 1
-                # self.deadline = self.deadline + timedelta(hours=24)
             else:
                 self.is_bank_holiday = 0
             # self.save(ignore_permissions=True)
             frappe.db.commit()
 
     def timer_start_stop_fcm(self):
-        if self.is_bank_holiday == 1:
+        loan = self.get_loan()
+        tomorrow = datetime.strptime(frappe.utils.today(),"%Y-%m-%d").date() + timedelta(days=1)
+        
+        # if tomorrow in holiday list and parva is holiday
+        # holiday che 12:00:01 - created date (stop time)
+        # 2nd holiday che 11.59.59 - created date (start timer)
+        if tomorrow in holiday_list():
+            print(convert_sec_to_hh_mm_ss(abs(self.deadline - frappe.utils.now_datetime().replace(hour=23, minute=59, second=59, microsecond=999999)).total_seconds()),"tom in holiday")
             try:
                 fa = FirebaseAdmin()
                 fa.send_data(
                     data={
-                        "timer_start_event": {
-                            "condition": "if bank holiday",
-                            "time": convert_sec_to_hh_mm_ss(abs(self.deadline - frappe.utils.now_datetime().replace(hour=23, minute=59, second=59, microsecond=999999)).total_seconds()),
-                            "loan_name": self.get_loan().name
-                    }},
-                    tokens=lms.get_firebase_tokens(self.get_loan().get_customer().user),
+                        "event": "timer stop",
+                        "condition": "if tomorrow bank holiday",
+                        "time": convert_sec_to_hh_mm_ss(abs(self.deadline - frappe.utils.now_datetime().replace(hour=23, minute=59, second=59, microsecond=999999)).total_seconds()),
+                        "loan_name": loan.name,
+                        "margin_shortfall_doc": self.as_json()
+                    },
+                    tokens=lms.get_firebase_tokens(loan.get_customer().user),
                 )
             except Exception:
                 pass
             finally:
                 fa.delete_app()
-        else:
+
+        if datetime.strptime(frappe.utils.today(),"%Y-%m-%d").date() in holiday_list() and tomorrow not in holiday_list():
             try:
                 fa = FirebaseAdmin()
                 fa.send_data(
                     data={
-                        "timer_stop_event": {
-                            "condition": "if bank holiday",
-                            "time": convert_sec_to_hh_mm_ss(abs(self.deadline - frappe.utils.now_datetime().replace(hour=23, minute=59, second=59, microsecond=999999)).total_seconds()),
-                            "loan_name": self.get_loan().name
-                    }},
-                    tokens=lms.get_firebase_tokens(self.get_loan().get_customer().user),
+                        "event": "timer start",
+                        "condition": "if tomorrow no bank holiday",
+                        "time": convert_sec_to_hh_mm_ss(abs(self.deadline - frappe.utils.now_datetime().replace(hour=23, minute=59, second=59, microsecond=999999)).total_seconds()),
+                        "loan_name": loan.name,
+                        "margin_shortfall_doc": self.as_json()
+                    },
+                    tokens=lms.get_firebase_tokens(loan.get_customer().user),
                 )
             except Exception:
                 pass
@@ -190,33 +233,23 @@ class LoanMarginShortfall(Document):
 
     def on_update(self):
         if self.status == "Pending":
-            # self.set_deadline()
-            # self.set_bank_holiday_check()
             self.timer_start_stop_fcm()
             # self.save(ignore_permissions=True)
             frappe.db.commit()
+    
+    def update_deadline_based_on_holidays(self):
+        margin_shortfall_action = self.get_shortfall_action()
+        if margin_shortfall_action.sell_off_after_hours:
+            total_hrs = []
+            creation_date = (datetime.strptime(str(self.creation), "%Y-%m-%d %H:%M:%S.%f")).date()
+            counter = 1
+            while counter<=margin_shortfall_action.sell_off_after_hours/24:
+                if creation_date not in holiday_list():
+                    total_hrs.append(creation_date)
+                    counter+=1
+                creation_date += timedelta(hours=24)
 
-    def new_fcm_timer_start_stop(self):
-        # if self.deadline > frappe.utils.now_datetime():
-        try:
-            fa = FirebaseAdmin()
-            fa.send_data(
-                data={
-                    "timer_start_event": {
-                    "condition": "after insert",
-                    "time": convert_sec_to_hh_mm_ss(abs(self.deadline - frappe.utils.now_datetime()).total_seconds()),
-                    "loan_name": self.get_loan().name
-                },
-                "timer_stop_event": {
-                    "condition": "after insert",
-                    "time": "00:00:00",
-                    "loan_name": self.get_loan().name
-                }
-                },
-                tokens=lms.get_firebase_tokens(self.get_loan().get_customer().user),
-            )
-        except Exception:
-            pass
-        finally:
-            fa.delete_app()
+            creation_datetime = datetime.strptime(str(self.creation), "%Y-%m-%d %H:%M:%S.%f")
+            date_of_deadline = datetime.strptime(total_hrs[-1].strftime("%Y-%m-%d %H:%M:%S.%f"),"%Y-%m-%d %H:%M:%S.%f")
+            self.deadline = date_of_deadline.replace(hour=creation_datetime.hour,minute=creation_datetime.minute,second=creation_datetime.second,microsecond=creation_datetime.microsecond)
     

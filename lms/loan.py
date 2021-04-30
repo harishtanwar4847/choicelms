@@ -1031,8 +1031,8 @@ def loan_statement(**kwargs):
                     message=frappe._("Please provide valid Duration")
                 )
 
-            curr_month = date.today().replace(day=1)
-            last_day_of_prev_month = date.today().replace(day=1) - timedelta(days=1)
+            curr_month = datetime.strptime(frappe.utils.today(),"%Y-%m-%d").date().replace(day=1)
+            last_day_of_prev_month = datetime.strptime(frappe.utils.today(),"%Y-%m-%d").date().replace(day=1) - timedelta(days=1)
 
             prev_1_month = (
                 curr_month - timedelta(days=last_day_of_prev_month.day)
@@ -1043,7 +1043,7 @@ def loan_statement(**kwargs):
             prev_6_month = (
                 curr_month - timedelta(weeks=20, days=last_day_of_prev_month.day)
             ).replace(day=1)
-            current_year = date(date.today().year, 4, 1)
+            current_year = date(datetime.strptime(frappe.utils.today(),"%Y-%m-%d").date().year, 4, 1)
 
             if curr_month < current_year:
                 current_year = current_year - timedelta(
@@ -1061,7 +1061,7 @@ def loan_statement(**kwargs):
             elif data.get("duration") == "current_year":
                 duration_date = current_year
             else:
-                duration_date = date.today()
+                duration_date = datetime.strptime(frappe.utils.today(),"%Y-%m-%d").date()
 
             if data.get("type") == "Account Statement":
                 filter["time"] = [">=", datetime.strftime(duration_date, "%Y-%m-%d")]
