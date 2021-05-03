@@ -70,10 +70,10 @@ class LoanMarginShortfall(Document):
 
     def after_insert(self):
         if self.status == "Pending":
+            self.set_deadline()
             loan = self.get_loan()
             self.notify_customer()
             self.update_deadline_based_on_holidays()
-            print()
             try:
                 fa = FirebaseAdmin()
                 fa.send_data(
@@ -162,7 +162,6 @@ class LoanMarginShortfall(Document):
                 self.deadline = self.creation + timedelta(
                     hours=margin_shortfall_action.sell_off_after_hours
                 )
-                print(self.deadline, "EOD to 72")
 
             elif (
                 margin_shortfall_action.sell_off_after_hours
@@ -195,22 +194,6 @@ class LoanMarginShortfall(Document):
             self.save(ignore_permissions=True)
             frappe.db.commit()
 
-        self.set_bank_holiday_check()
-        self.timer_start_stop_fcm()
-
-    def set_bank_holiday_check(self):
-        # date_list = []
-        tomorrow = datetime.strptime(
-            frappe.utils.today(), "%Y-%m-%d"
-        ).date() + timedelta(days=1)
-        if (self.deadline).date() >= tomorrow:
-
-            if tomorrow in holiday_list():
-                self.is_bank_holiday = 1
-            else:
-                self.is_bank_holiday = 0
-            # self.save(ignore_permissions=True)
-            frappe.db.commit()
 
     def timer_start_stop_fcm(self):
         loan = self.get_loan()
@@ -222,17 +205,6 @@ class LoanMarginShortfall(Document):
             hour=23, minute=00, second=00, microsecond=0
         ):
             if tomorrow in holiday_list() and (self.deadline).date() >= tomorrow:
-                print(
-                    convert_sec_to_hh_mm_ss(
-                        abs(
-                            self.deadline
-                            - frappe.utils.now_datetime().replace(
-                                hour=23, minute=59, second=59, microsecond=999999
-                            )
-                        ).total_seconds()
-                    ),
-                    "tom in holiday",
-                )
                 try:
                     fa = FirebaseAdmin()
                     fa.send_data(
@@ -307,11 +279,11 @@ class LoanMarginShortfall(Document):
                 datetime.strptime(str(self.creation), "%Y-%m-%d %H:%M:%S.%f")
             ).date()
             counter = 1
-            while counter <= margin_shortfall_action.sell_off_after_hours / 24:
+            while counter <= int(margin_shortfall_action.sell_off_after_hours / 24):
                 if creation_date not in holiday_list():
+                    creation_date += timedelta(hours=24)
                     total_hrs.append(creation_date)
                     counter += 1
-                creation_date += timedelta(hours=24)
 
             creation_datetime = datetime.strptime(
                 str(self.creation), "%Y-%m-%d %H:%M:%S.%f"
@@ -325,4 +297,3 @@ class LoanMarginShortfall(Document):
                 second=creation_datetime.second,
                 microsecond=creation_datetime.microsecond,
             )
-            print(self.deadline, "update_deadline_based_on_holidays")

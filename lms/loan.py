@@ -671,13 +671,7 @@ def loan_details(**kwargs):
         topup = None
         if existing_topup_application[0]["in_process"] == 0:
             topup = loan.max_topup_amount()
-            if topup:
-                top_up = {
-                    "loan": loan.name,
-                    "top_up_amount": lms.round_down_amount_to_nearest_thousand(topup),
-                }
-            else:
-                topup = None
+
         # Increase Loan
         existing_loan_application = frappe.get_all(
             "Loan Application",
