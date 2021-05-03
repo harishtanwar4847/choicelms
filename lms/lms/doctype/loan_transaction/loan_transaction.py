@@ -150,7 +150,7 @@ class LoanTransaction(Document):
             # if not loan_margin_shortfall.margin_shortfall_action:
             if loan_margin_shortfall.shortfall_percentage == 0:
                 loan_margin_shortfall.status = "Paid Cash"
-                loan_margin_shortfall.action_time = datetime.now()
+                loan_margin_shortfall.action_time = frappe.utils.now_datetime()
             loan_margin_shortfall.save(ignore_permissions=True)
 
         if self.is_for_interest:

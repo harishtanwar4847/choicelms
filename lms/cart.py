@@ -199,7 +199,7 @@ def process_old(**kwargs):
             token_type="Pledge OTP",
         )
 
-        if token.expiry <= datetime.now():
+        if token.expiry <= frappe.utils.now_datetime():
             return utils.respondUnauthorized(message=frappe._("Pledge OTP Expired."))
 
         lms.token_mark_as_used(token)
@@ -298,7 +298,7 @@ def process(**kwargs):
             token_type="Pledge OTP",
         )
 
-        if token.expiry <= datetime.now():
+        if token.expiry <= frappe.utils.now_datetime():
             return utils.respondUnauthorized(message=frappe._("Pledge OTP Expired."))
 
         lms.token_mark_as_used(token)
@@ -422,7 +422,7 @@ def request_pledge_otp():
                     "doctype": "Approved Terms and Conditions",
                     "mobile": user.username,
                     "tnc": tnc.name,
-                    "time": datetime.now(),
+                    "time": frappe.utils.now_datetime(),
                 }
             )
             approved_tnc.insert(ignore_permissions=True)

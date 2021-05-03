@@ -199,7 +199,7 @@ def verify_otp(**kwargs):
 
         if token:
             frappe.db.begin()
-            if token.expiry <= datetime.now():
+            if token.expiry <= frappe.utils.now_datetime():
                 return utils.respondUnauthorized(message=frappe._("OTP Expired."))
 
             if not user:
@@ -347,7 +347,7 @@ def verify_user(token, user):
             indicator_color="red",
         )
 
-    if len(token_document) > 0 and token_document[0].expiry < datetime.now():
+    if len(token_document) > 0 and token_document[0].expiry < frappe.utils.now_datetime():
         return frappe.respond_as_web_page(
             frappe._("Something went wrong"),
             frappe._("Verification link has been Expired!"),

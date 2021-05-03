@@ -262,7 +262,7 @@ def add_user(first_name, last_name, phone, email):
                 phone=phone,
                 mobile_no=phone,
                 send_welcome_email=0,
-                new_password="{0}-{0}".format(datetime.now().strftime("%s")),
+                new_password="{0}-{0}".format(frappe.utils.now_datetime().strftime("%s")),
                 roles=[{"doctype": "Has Role", "role": "Loan Customer"}],
             )
         ).insert(ignore_permissions=True)
@@ -296,7 +296,7 @@ def is_float_num_valid(num, length, precision):
 
 
 def get_cdsl_prf_no():
-    return "PF{}".format(datetime.now().strftime("%s"))
+    return "PF{}".format(frappe.utils.now_datetime().strftime("%s"))
 
 
 def convert_list_to_tuple_string(list_):

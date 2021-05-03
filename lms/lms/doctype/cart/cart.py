@@ -60,7 +60,7 @@ class Cart(Document):
         if self.is_processed:
             return
 
-        current = datetime.now()
+        current = frappe.utils.now_datetime()
         expiry = current.replace(year=current.year + 5, day=1)
 
         items = []

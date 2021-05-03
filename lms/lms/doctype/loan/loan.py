@@ -120,7 +120,7 @@ class Loan(Document):
                 "record_type": LoanTransaction.loan_transaction_map.get(
                     transaction_type, "DR"
                 ),
-                # "time": datetime.now(),
+                # "time": frappe.utils.now_datetime(),
                 "time": frappe.utils.now_datetime(),
             }
         )
@@ -407,7 +407,7 @@ class Loan(Document):
                 "loan": self.name,
                 "transaction_type": "Withdrawal",
                 "status": "Pending",
-                "creation": ("<=", datetime.now()),
+                "creation": ("<=", frappe.utils.now_datetime()),
             },
             fields=["*"],
             order_by="creation asc",
@@ -489,7 +489,7 @@ class Loan(Document):
         if input_date:
             input_date = datetime.strptime(input_date, "%Y-%m-%d") - timedelta(days=1)
         else:
-            input_date = datetime.now() - timedelta(days=1)
+            input_date = frappe.utils.now_datetime() - timedelta(days=1)
 
         # get no of days in month
         num_of_days_in_month = (
@@ -535,7 +535,7 @@ class Loan(Document):
         if input_date:
             current_date = datetime.strptime(input_date, "%Y-%m-%d")
         else:
-            current_date = datetime.now()
+            current_date = frappe.utils.now_datetime()
 
         job_date = (current_date - timedelta(days=1)).replace(
             hour=23, minute=59, second=59, microsecond=999999
@@ -631,7 +631,7 @@ class Loan(Document):
         if input_date:
             current_date = datetime.strptime(input_date, "%Y-%m-%d")
         else:
-            current_date = datetime.now()
+            current_date = frappe.utils.now_datetime()
 
         job_date = (current_date - timedelta(days=1)).replace(
             hour=23, minute=59, second=59, microsecond=999999
@@ -697,7 +697,7 @@ class Loan(Document):
         if input_date:
             current_date = datetime.strptime(input_date, "%Y-%m-%d")
         else:
-            current_date = datetime.now()
+            current_date = frappe.utils.now_datetime()
 
         job_date = (current_date - timedelta(days=1)).replace(
             hour=23, minute=59, second=59, microsecond=999999
@@ -790,7 +790,7 @@ class Loan(Document):
                 "loan": self.name,
                 "sanctioned_limit": self.sanctioned_limit,
                 "agreement_file": agreement_file,
-                "time": datetime.now(),
+                "time": frappe.utils.now_datetime(),
                 "event": event,
             }
         )
@@ -853,7 +853,7 @@ class Loan(Document):
             filters={
                 "loan": self.name,
                 "status": "Pending",
-                "creation": ("<=", datetime.now()),
+                "creation": ("<=", frappe.utils.now_datetime()),
             },
             fields=["*"],
             order_by="creation asc",

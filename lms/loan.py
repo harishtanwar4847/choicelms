@@ -120,7 +120,7 @@ def esign(**kwargs):
                         "doctype": "Approved Terms and Conditions",
                         "mobile": customer.phone,
                         "tnc": tnc.name,
-                        "time": datetime.now(),
+                        "time": frappe.utils.now_datetime(),
                     }
                 )
                 approved_tnc.insert(ignore_permissions=True)
@@ -568,7 +568,7 @@ def create_topup(**kwargs):
                     "loan": loan.name,
                     "top_up_amount": data.get("topup_amount"),
                     "sanctioned_limit": loan.sanctioned_limit,
-                    "time": datetime.now(),
+                    "time": frappe.utils.now_datetime(),
                     "status": "Pending",
                     "customer": customer.name,
                     "customer_name": customer.full_name,
@@ -631,7 +631,7 @@ def loan_details(**kwargs):
         )
 
         if interest_total[0]["total_amt"]:
-            current_date = datetime.now()
+            current_date = frappe.utils.now_datetime()
             due_date = ""
             due_date_txt = "Pay By"
             info_msg = ""
@@ -784,7 +784,7 @@ def loan_withdraw_request(**kwargs):
             entity=user.username, token=data.get("otp"), token_type="Withdraw OTP"
         )
 
-        if token.expiry <= datetime.now():
+        if token.expiry <= frappe.utils.now_datetime():
             return utils.respondUnauthorized(message=frappe._("Withdraw OTP Expired."))
 
         lms.token_mark_as_used(token)
@@ -845,7 +845,7 @@ def loan_withdraw_request(**kwargs):
                 "loan": loan.name,
                 "transaction_type": "Withdrawal",
                 "record_type": "DR",
-                "time": datetime.now(),
+                "time": frappe.utils.now_datetime(),
                 "amount": amount,
                 "requested": amount,
                 "allowable": max_withdraw_amount,
@@ -1456,7 +1456,7 @@ def loan_unpledge_request(**kwargs):
             token_type="Unpledge OTP",
         )
 
-        if token.expiry <= datetime.now():
+        if token.expiry <= frappe.utils.now_datetime():
             return utils.respondUnauthorized(message=frappe._("Pledge OTP Expired."))
 
         frappe.db.begin()
@@ -1554,7 +1554,7 @@ def sell_collateral_request(**kwargs):
             token_type="Sell Collateral OTP",
         )
 
-        if token.expiry <= datetime.now():
+        if token.expiry <= frappe.utils.now_datetime():
             return utils.respondUnauthorized(
                 message=frappe._("Sell Collateral OTP Expired.")
             )
