@@ -510,6 +510,7 @@ def my_pledge_securities(**kwargs):
         for i in loan.get("items"):
             all_pledged_securities.append(
                 {
+                    "isin": i.get("isin"),
                     "security_name": i.get("security_name"),
                     "pledged_quantity": i.get("pledged_quantity"),
                     "security_category": i.get("security_category"),
