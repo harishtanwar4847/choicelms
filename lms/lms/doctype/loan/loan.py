@@ -805,11 +805,15 @@ class Loan(Document):
         ) - self.sanctioned_limit
 
         # show available top up amount only if topup amount is greater than 10% of sanctioned limit
-        return (
-            lms.round_down_amount_to_nearest_thousand(max_topup_amount)
-            if max_topup_amount > (self.sanctioned_limit * 0.1)
-            else 0
-        )
+        if max_topup_amount > (self.sanctioned_limit *0.1):
+            if max_topup_amount > 1000:
+                max_topup_amount = lms.round_down_amount_to_nearest_thousand(max_topup_amount)
+            else:
+                max_topup_amount = round(max_topup_amount,1)
+        else:
+            max_topup_amount = 0   
+            
+        return max_topup_amount
 
     def update_pending_topup_amount(self):
         pending_topup_request = frappe.get_all(

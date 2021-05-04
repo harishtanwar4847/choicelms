@@ -692,7 +692,7 @@ def loan_details(**kwargs):
             "transactions": loan_transactions_list,
             "margin_shortfall": loan_margin_shortfall,
             "interest": interest,
-            "topup": topup,
+            "topup": topup if topup else None,
             "increase_loan": increase_loan,
         }
 
