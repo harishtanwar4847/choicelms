@@ -409,7 +409,6 @@ class Loan(Document):
             frappe.db.commit()
 
     def update_pending_withdraw_requests(self):
-        print("in update pending withdraw")
         all_pending_withdraw_requests = frappe.get_all(
             "Loan Transaction",
             filters={
@@ -428,8 +427,7 @@ class Loan(Document):
             loan_transaction_doc = frappe.get_doc(
                 "Loan Transaction", withdraw_req["name"]
             )
-            loan_transaction_doc.allowable = max_withdraw_amount
-            print(loan_transaction_doc.allowable,"loan_transaction_doc.allowable")
+            loan_transaction_doc.db_set("allowable", max_withdraw_amount)
 
     def get_margin_shortfall(self):
         margin_shortfall_name = frappe.db.get_value(
