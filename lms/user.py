@@ -523,6 +523,7 @@ def my_pledge_securities(**kwargs):
             "loan_name": loan.name,
             "total_value": loan.total_collateral_value,
             "drawing_power": loan.drawing_power,
+            "balance": loan.balance,
             "number_of_scrips": len(loan.items),
             "all_pledged_securities": all_pledged_securities,
         }
