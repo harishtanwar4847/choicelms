@@ -618,8 +618,8 @@ class Loan(Document):
                     )
 
                     # Mark loan as 'is_irregular'
-                    self.is_irregular = 1
-                    self.save(ignore_permissions=True)
+                    # self.is_irregular = 1
+                    # self.save(ignore_permissions=True)
 
                     frappe.db.commit()
 
@@ -766,8 +766,8 @@ class Loan(Document):
                         penal_interest_transaction.save(ignore_permissions=True)
 
                         # Mark loan as 'is_penalize'
-                        self.is_penalize = 1
-                        self.save(ignore_permissions=True)
+                        # self.is_penalize = 1
+                        # self.save(ignore_permissions=True)
 
                         frappe.db.commit()
 

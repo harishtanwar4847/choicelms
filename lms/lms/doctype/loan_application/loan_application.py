@@ -696,7 +696,7 @@ def check_for_pledge(loan_application_doc):
 
         # TODO : generate prf number and assign to items in batch
         pledge_request = loan_application_doc.pledge_request(la_items_list)
-        TODO : pledge request hit for all batches
+        # TODO : pledge request hit for all batches
         try:
             res = requests.post(
                 pledge_request.get("url"),
