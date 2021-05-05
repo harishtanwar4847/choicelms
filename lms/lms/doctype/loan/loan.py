@@ -301,9 +301,9 @@ class Loan(Document):
                 # if loan_margin_shortfall.margin_shortfall_action:
                 if loan_margin_shortfall.shortfall_percentage > 0:
                     loan_margin_shortfall.insert(ignore_permissions=True)
-                    # if frappe.utils.now_datetime() > loan_margin_shortfall.deadline:
-                    #     loan_margin_shortfall.status = "Sell Triggered"
-                    #     loan_margin_shortfall.save(ignore_permissions=True)
+                    if frappe.utils.now_datetime() > loan_margin_shortfall.deadline:
+                        loan_margin_shortfall.status = "Sell Triggered"
+                        loan_margin_shortfall.save(ignore_permissions=True)
             else:
                 # if not loan_margin_shortfall.margin_shortfall_action:
                 if loan_margin_shortfall.status == "Pending":
@@ -311,8 +311,8 @@ class Loan(Document):
                 if loan_margin_shortfall.shortfall_percentage == 0:
                     loan_margin_shortfall.status = "Resolved"
                     loan_margin_shortfall.action_time = frappe.utils.now_datetime()
-                # if loan_margin_shortfall.shortfall_percentage > 0 and frappe.utils.now_datetime() > loan_margin_shortfall.deadline:
-                #     loan_margin_shortfall.status = "Sell Triggered"
+                if loan_margin_shortfall.shortfall_percentage > 0 and frappe.utils.now_datetime() > loan_margin_shortfall.deadline:
+                    loan_margin_shortfall.status = "Sell Triggered"
                 loan_margin_shortfall.save(ignore_permissions=True)
 
             # alerts comparison with percentage and amount
