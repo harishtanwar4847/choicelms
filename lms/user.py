@@ -754,8 +754,16 @@ def dashboard(**kwargs):
                 topup_application_doc = frappe.get_doc(
                     "Top up Application", topup_application.name
                 )
-                topup_tnc = frappe.get_all("Approved Terms and Conditions", filters={"application_name": topup_application.name})
-                topup_pending_esigns.append({"topup_application_doc": topup_application_doc,"is_topup_tnc_done": 1 if topup_tnc else 0})
+                topup_tnc = frappe.get_all(
+                    "Approved Terms and Conditions",
+                    filters={"application_name": topup_application.name},
+                )
+                topup_pending_esigns.append(
+                    {
+                        "topup_application_doc": topup_application_doc,
+                        "is_topup_tnc_done": 1 if topup_tnc else 0,
+                    }
+                )
 
         pending_esigns_list = dict(
             la_pending_esigns=la_pending_esigns,
