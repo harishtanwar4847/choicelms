@@ -269,6 +269,13 @@ class LoanApplication(Document):
             finally:
                 fa.delete_app()
 
+        elif self.status == "Rejected":
+            customer = self.get_customer()
+            if not customer.pledge_securities:
+                customer.pledge_securities = 0
+                customer.save(ignore_permissions=True)
+                # frappe.db.commit()
+
         self.notify_customer()
 
     def create_loan(self):
@@ -697,43 +704,43 @@ def check_for_pledge(loan_application_doc):
         # TODO : generate prf number and assign to items in batch
         pledge_request = loan_application_doc.pledge_request(la_items_list)
         # TODO : pledge request hit for all batches
-        try:
-            res = requests.post(
-                pledge_request.get("url"),
-                headers=pledge_request.get("headers"),
-                json=pledge_request.get("payload"),
-            )
-            data = res.json()
+        # try:
+        #     res = requests.post(
+        #         pledge_request.get("url"),
+        #         headers=pledge_request.get("headers"),
+        #         json=pledge_request.get("payload"),
+        #     )
+        #     data = res.json()
 
-            # Pledge LOG
-            log = {
-                "url": pledge_request.get("url"),
-                "headers": pledge_request.get("headers"),
-                "request": pledge_request.get("payload"),
-                "response": data,
-            }
-            import json
-            import os
+        #     # Pledge LOG
+        #     log = {
+        #         "url": pledge_request.get("url"),
+        #         "headers": pledge_request.get("headers"),
+        #         "request": pledge_request.get("payload"),
+        #         "response": data,
+        #     }
+        #     import json
+        #     import os
 
-            pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
-            pledge_log = None
-            if os.path.exists(pledge_log_file):
-                with open(pledge_log_file, "r") as f:
-                    pledge_log = f.read()
-                f.close()
-            pledge_log = json.loads(pledge_log or "[]")
-            pledge_log.append(log)
-            with open(pledge_log_file, "w") as f:
-                f.write(json.dumps(pledge_log))
-            f.close()
-            # Pledge LOG end
+        #     pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
+        #     pledge_log = None
+        #     if os.path.exists(pledge_log_file):
+        #         with open(pledge_log_file, "r") as f:
+        #             pledge_log = f.read()
+        #         f.close()
+        #     pledge_log = json.loads(pledge_log or "[]")
+        #     pledge_log.append(log)
+        #     with open(pledge_log_file, "w") as f:
+        #         f.write(json.dumps(pledge_log))
+        #     f.close()
+        #     # Pledge LOG end
 
-        except requests.RequestException as e:
-            pass
+        # except requests.RequestException as e:
+        #     pass
 
-        # data = loan_application_doc.dummy_pledge_response(
-        #     pledge_request.get("payload").get("ISINDTLS")
-        # )
+        data = loan_application_doc.dummy_pledge_response(
+            pledge_request.get("payload").get("ISINDTLS")
+        )
 
         # TODO : process loan application items in batches
         total_successful_pledge_count = loan_application_doc.process(
@@ -745,15 +752,17 @@ def check_for_pledge(loan_application_doc):
     frappe.db.begin()
     # manage loan application doc pledge status
     loan_application_doc.status = "Pledge executed"
+    pledge_securities = 0
     if total_successful_pledge == len(loan_application_doc.items):
         loan_application_doc.pledge_status = "Success"
+        pledge_securities = 1
     elif total_successful_pledge == 0:
         loan_application_doc.reload()
         loan_application_doc.status = "Pledge Failure"
         loan_application_doc.pledge_status = "Failure"
     else:
         loan_application_doc.pledge_status = "Partial Success"
-
+        pledge_securities = 1
     # TODO : once done with all batches, mark LA as Pledge executed
     loan_application_doc.workflow_state = "Pledge executed"
 
@@ -774,7 +783,8 @@ def check_for_pledge(loan_application_doc):
     # loan_application_doc.save_collateral_ledger()
 
     if not customer.pledge_securities:
-        customer.pledge_securities = 1
+        # customer.pledge_securities = 1
+        customer.pledge_securities = pledge_securities
         customer.save(ignore_permissions=True)
 
     frappe.db.commit()
