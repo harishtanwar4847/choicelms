@@ -111,20 +111,6 @@ def esign(**kwargs):
                 return utils.respondForbidden(
                     message=_("Please use your own Topup Application.")
                 )
-            frappe.db.begin()
-            for tnc in frappe.get_list(
-                "Terms and Conditions", filters={"is_active": 1}
-            ):
-                approved_tnc = frappe.get_doc(
-                    {
-                        "doctype": "Approved Terms and Conditions",
-                        "mobile": customer.phone,
-                        "tnc": tnc.name,
-                        "time": frappe.utils.now_datetime(),
-                    }
-                )
-                approved_tnc.insert(ignore_permissions=True)
-            frappe.db.commit()
             esign_request = topup_application.esign_request()
 
         user = lms.__user()
