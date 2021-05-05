@@ -301,6 +301,9 @@ class Loan(Document):
                 # if loan_margin_shortfall.margin_shortfall_action:
                 if loan_margin_shortfall.shortfall_percentage > 0:
                     loan_margin_shortfall.insert(ignore_permissions=True)
+                    if frappe.utils.now_datetime() > loan_margin_shortfall.deadline:
+                        loan_margin_shortfall.status = "Sell Triggered"
+                        loan_margin_shortfall.save(ignore_permissions=True)
             else:
                 # if not loan_margin_shortfall.margin_shortfall_action:
                 if loan_margin_shortfall.status == "Pending":
@@ -308,6 +311,8 @@ class Loan(Document):
                 if loan_margin_shortfall.shortfall_percentage == 0:
                     loan_margin_shortfall.status = "Resolved"
                     loan_margin_shortfall.action_time = frappe.utils.now_datetime()
+                if loan_margin_shortfall.shortfall_percentage > 0 and frappe.utils.now_datetime() > loan_margin_shortfall.deadline:
+                    loan_margin_shortfall.status = "Sell Triggered"
                 loan_margin_shortfall.save(ignore_permissions=True)
 
             # alerts comparison with percentage and amount
@@ -613,17 +618,16 @@ class Loan(Document):
                     )
 
                     # Mark loan as 'is_irregular'
-                    self.is_irregular = 1
-                    self.save(ignore_permissions=True)
+                    # self.is_irregular = 1
+                    # self.save(ignore_permissions=True)
 
                     frappe.db.commit()
 
                     doc = frappe.get_doc("User", self.get_customer().user).as_dict()
-                    doc["loan"] = {
-                        "loan_name": self.name,
-                        "transaction_type": additional_interest_transaction.transaction_type,
-                        "unpaid_interest": additional_interest_transaction.unpaid_interest,
-                    }
+                    doc["loan_name"]= self.name
+                    doc["transaction_type"]= additional_interest_transaction.transaction_type
+                    doc["unpaid_interest"]= additional_interest_transaction.unpaid_interest
+
                     frappe.enqueue_doc(
                         "Notification", "Interest Due", method="send", doc=doc
                     )
@@ -688,10 +692,9 @@ class Loan(Document):
             frappe.db.commit()
 
             doc = frappe.get_doc("User", self.get_customer().user).as_dict()
-            doc["loan"] = {
-                "loan_name": self.name,
-                "transaction_type": loan_transaction.transaction_type,
-            }
+            doc["loan_name"]= self.name
+            doc["transaction_type"]= loan_transaction.transaction_type
+
             frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
 
     def add_penal_interest(self, input_date=None):
@@ -761,17 +764,16 @@ class Loan(Document):
                         penal_interest_transaction.save(ignore_permissions=True)
 
                         # Mark loan as 'is_penalize'
-                        self.is_penalize = 1
-                        self.save(ignore_permissions=True)
+                        # self.is_penalize = 1
+                        # self.save(ignore_permissions=True)
 
                         frappe.db.commit()
 
                         doc = frappe.get_doc("User", self.get_customer().user).as_dict()
-                        doc["loan"] = {
-                            "loan_name": self.name,
-                            "transaction_type": penal_interest_transaction.transaction_type,
-                            "unpaid_interest": penal_interest_transaction.unpaid_interest,
-                        }
+                        doc["loan_name"]= self.name
+                        doc["transaction_type"]= penal_interest_transaction.transaction_type
+                        doc["unpaid_interest"]= penal_interest_transaction.unpaid_interest
+                        
                         frappe.enqueue_doc(
                             "Notification", "Interest Due", method="send", doc=doc
                         )

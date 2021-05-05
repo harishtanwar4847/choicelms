@@ -140,6 +140,12 @@ class LoanTransaction(Document):
             )
 
         loan = self.get_loan()
+        
+        # Mark loan as 'is_irregular' and 'is_penalize
+        if self.transaction_type == "Additional Interest":
+            loan.is_irregular = 1
+        elif self.transaction_type == "Penal Interest":
+            loan.is_penalize = 1
         loan.update_loan_balance(check_for_shortfall=check_for_shortfall)
 
         if self.loan_margin_shortfall:
