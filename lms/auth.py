@@ -58,28 +58,10 @@ def login(**kwargs):
             except UserKYCNotFoundException:
                 user_kyc = {}
 
-            pending_loan_applications = frappe.get_all(
-                "Loan Application",
-                filters={
-                    "customer": customer.name,
-                    "status": "Pledge accepted by Lender",
-                },
-                fields=["*"],
-            )
-
-            pending_esigns = []
-            if pending_loan_applications:
-                for loan_application in pending_loan_applications:
-                    loan_application_doc = frappe.get_doc(
-                        "Loan Application", loan_application.name
-                    )
-                    pending_esigns.append(loan_application_doc)
-
             token = dict(
                 token=utils.create_user_access_token(user.name),
                 customer=customer,
                 user_kyc=user_kyc,
-                pending_esigns=pending_esigns,
             )
             lms.add_firebase_token(data.get("firebase_token"), user.name)
             return utils.respondWithSuccess(
@@ -215,28 +197,10 @@ def verify_otp(**kwargs):
             except UserKYCNotFoundException:
                 user_kyc = {}
 
-            pending_loan_applications = frappe.get_all(
-                "Loan Application",
-                filters={
-                    "customer": customer.name,
-                    "status": "Pledge accepted by Lender",
-                },
-                fields=["*"],
-            )
-
-            pending_esigns = []
-            if pending_loan_applications:
-                for loan_application in pending_loan_applications:
-                    loan_application_doc = frappe.get_doc(
-                        "Loan Application", loan_application.name
-                    )
-                    pending_esigns.append(loan_application_doc)
-
             res = {
                 "token": utils.create_user_access_token(user.name),
                 "customer": customer,
                 "user_kyc": user_kyc,
-                "pending_esigns": pending_esigns,
             }
             token.used = 1
             token.save(ignore_permissions=True)

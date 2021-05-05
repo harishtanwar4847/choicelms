@@ -442,6 +442,7 @@ def get_tnc(**kwargs):
 
         customer = lms.__customer()
         user_kyc = lms.__user_kyc()
+        user = lms.__user()
 
         if data.get("cart_name") and data.get("topup_application_name"):
             return utils.respondForbidden(
@@ -465,7 +466,6 @@ def get_tnc(**kwargs):
                 return utils.respondForbidden(
                     message=frappe._("Please use your own cart.")
                 )
-            user = lms.__user()
             lender = frappe.get_doc("Lender", cart.lender)
         else:
             topup_application = frappe.get_doc(
@@ -624,9 +624,7 @@ def get_tnc(**kwargs):
             "tnc_html": "".join(tnc_ul),
             "tnc_header": tnc_header,
             "tnc_footer": tnc_footer,
-            "tnc_checkboxes": tnc_checkboxes,
-            "is_cart_tnc_done": 0,
-            "is_topup_tnc_done": 0
+            "tnc_checkboxes": tnc_checkboxes
         }
 
         for tnc in frappe.get_list(
@@ -641,10 +639,7 @@ def get_tnc(**kwargs):
                     "time": frappe.utils.now_datetime(),
                 }
                 ApprovedTermsandConditions.create_entry(**top_up_approved_tnc)
-                topup_tnc = frappe.get_all("Approved Terms and Conditions", filters={"application_name": data.get("topup_application_name")})
                 frappe.db.commit()
-                if topup_tnc:
-                    res["is_topup_tnc_done"] = 1
             else:
                 cart_approved_tnc = {
                     "doctype": "Cart",
@@ -654,10 +649,7 @@ def get_tnc(**kwargs):
                     "time": frappe.utils.now_datetime(),
                 }
                 ApprovedTermsandConditions.create_entry(**cart_approved_tnc)
-                cart_tnc = frappe.get_all("Approved Terms and Conditions", filters={"application_name":data.get("cart_name")})
                 frappe.db.commit()
-                if cart_tnc:
-                    res["is_cart_tnc_done"] = 1
 
         return utils.respondWithSuccess(data=res)
 
