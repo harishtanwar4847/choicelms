@@ -46,7 +46,22 @@ class UserToken(Document):
                 now=True,
                 doc=doc,
             )
-
+        elif self.token_type == "Forgot Pin OTP":
+            # expiry_in_minutes = lms.user_token_expiry_map.get(self.token_type, None)
+            doc = frappe.get_doc("User", self.entity).as_dict()
+            doc["url"] = frappe.utils.get_url(
+                "/api/method/lms.auth.verify_user?token={}&user={}".format(
+                    self.token, self.entity
+                )
+            )
+            doc["otp_info"] = {"token_type":self.token_type, "token": self.token}
+            frappe.enqueue_doc(
+                "Notification",
+                "Forgot Pin",
+                method="send",
+                now=True,
+                doc=doc,
+            )
 
 # putting these here for the logs
 # will be removed afterwards
