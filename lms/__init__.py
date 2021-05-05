@@ -262,7 +262,9 @@ def add_user(first_name, last_name, phone, email):
                 phone=phone,
                 mobile_no=phone,
                 send_welcome_email=0,
-                new_password="{0}-{0}".format(frappe.utils.now_datetime().strftime("%s")),
+                new_password="{0}-{0}".format(
+                    frappe.utils.now_datetime().strftime("%s")
+                ),
                 roles=[{"doctype": "Has Role", "role": "Loan Customer"}],
             )
         ).insert(ignore_permissions=True)

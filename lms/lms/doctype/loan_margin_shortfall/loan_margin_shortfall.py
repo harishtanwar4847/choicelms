@@ -194,7 +194,6 @@ class LoanMarginShortfall(Document):
             self.save(ignore_permissions=True)
             frappe.db.commit()
 
-
     def timer_start_stop_fcm(self):
         loan = self.get_loan()
         tomorrow = datetime.strptime(

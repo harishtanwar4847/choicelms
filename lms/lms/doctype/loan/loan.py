@@ -311,7 +311,10 @@ class Loan(Document):
                 if loan_margin_shortfall.shortfall_percentage == 0:
                     loan_margin_shortfall.status = "Resolved"
                     loan_margin_shortfall.action_time = frappe.utils.now_datetime()
-                if loan_margin_shortfall.shortfall_percentage > 0 and frappe.utils.now_datetime() > loan_margin_shortfall.deadline:
+                if (
+                    loan_margin_shortfall.shortfall_percentage > 0
+                    and frappe.utils.now_datetime() > loan_margin_shortfall.deadline
+                ):
                     loan_margin_shortfall.status = "Sell Triggered"
                 loan_margin_shortfall.save(ignore_permissions=True)
 
@@ -624,9 +627,13 @@ class Loan(Document):
                     frappe.db.commit()
 
                     doc = frappe.get_doc("User", self.get_customer().user).as_dict()
-                    doc["loan_name"]= self.name
-                    doc["transaction_type"]= additional_interest_transaction.transaction_type
-                    doc["unpaid_interest"]= additional_interest_transaction.unpaid_interest
+                    doc["loan_name"] = self.name
+                    doc[
+                        "transaction_type"
+                    ] = additional_interest_transaction.transaction_type
+                    doc[
+                        "unpaid_interest"
+                    ] = additional_interest_transaction.unpaid_interest
 
                     frappe.enqueue_doc(
                         "Notification", "Interest Due", method="send", doc=doc
@@ -692,8 +699,8 @@ class Loan(Document):
             frappe.db.commit()
 
             doc = frappe.get_doc("User", self.get_customer().user).as_dict()
-            doc["loan_name"]= self.name
-            doc["transaction_type"]= loan_transaction.transaction_type
+            doc["loan_name"] = self.name
+            doc["transaction_type"] = loan_transaction.transaction_type
 
             frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
 
@@ -770,10 +777,14 @@ class Loan(Document):
                         frappe.db.commit()
 
                         doc = frappe.get_doc("User", self.get_customer().user).as_dict()
-                        doc["loan_name"]= self.name
-                        doc["transaction_type"]= penal_interest_transaction.transaction_type
-                        doc["unpaid_interest"]= penal_interest_transaction.unpaid_interest
-                        
+                        doc["loan_name"] = self.name
+                        doc[
+                            "transaction_type"
+                        ] = penal_interest_transaction.transaction_type
+                        doc[
+                            "unpaid_interest"
+                        ] = penal_interest_transaction.unpaid_interest
+
                         frappe.enqueue_doc(
                             "Notification", "Interest Due", method="send", doc=doc
                         )
@@ -807,14 +818,16 @@ class Loan(Document):
         ) - self.sanctioned_limit
 
         # show available top up amount only if topup amount is greater than 10% of sanctioned limit
-        if max_topup_amount > (self.sanctioned_limit *0.1):
+        if max_topup_amount > (self.sanctioned_limit * 0.1):
             if max_topup_amount > 1000:
-                max_topup_amount = lms.round_down_amount_to_nearest_thousand(max_topup_amount)
+                max_topup_amount = lms.round_down_amount_to_nearest_thousand(
+                    max_topup_amount
+                )
             else:
-                max_topup_amount = round(max_topup_amount,1)
+                max_topup_amount = round(max_topup_amount, 1)
         else:
-            max_topup_amount = 0   
-            
+            max_topup_amount = 0
+
         return max_topup_amount
 
     def update_pending_topup_amount(self):
