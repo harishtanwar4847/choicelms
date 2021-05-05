@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from itertools import groupby
 
 import frappe
+from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions import ApprovedTermsandConditions
 import requests
 import utils
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
@@ -416,16 +417,6 @@ def request_pledge_otp():
         user_kyc = lms.__user_kyc()
 
         frappe.db.begin()
-        for tnc in frappe.get_list("Terms and Conditions", filters={"is_active": 1}):
-            approved_tnc = frappe.get_doc(
-                {
-                    "doctype": "Approved Terms and Conditions",
-                    "mobile": user.username,
-                    "tnc": tnc.name,
-                    "time": frappe.utils.now_datetime(),
-                }
-            )
-            approved_tnc.insert(ignore_permissions=True)
 
         lms.create_user_token(
             entity=user_kyc.mobile_number,
@@ -451,6 +442,7 @@ def get_tnc(**kwargs):
 
         customer = lms.__customer()
         user_kyc = lms.__user_kyc()
+        user = lms.__user()
 
         if data.get("cart_name") and data.get("topup_application_name"):
             return utils.respondForbidden(
@@ -474,7 +466,6 @@ def get_tnc(**kwargs):
                 return utils.respondForbidden(
                     message=frappe._("Please use your own cart.")
                 )
-            user = lms.__user()
             lender = frappe.get_doc("Lender", cart.lender)
         else:
             topup_application = frappe.get_doc(
@@ -633,8 +624,32 @@ def get_tnc(**kwargs):
             "tnc_html": "".join(tnc_ul),
             "tnc_header": tnc_header,
             "tnc_footer": tnc_footer,
-            "tnc_checkboxes": tnc_checkboxes,
+            "tnc_checkboxes": tnc_checkboxes
         }
+
+        for tnc in frappe.get_list(
+            "Terms and Conditions", filters={"is_active": 1}
+        ):
+            if data.get("topup_application_name"):
+                top_up_approved_tnc = {
+                    "doctype": "Top up Application",
+                    "docname": data.get("topup_application_name"),
+                    "mobile": user.username,
+                    "tnc": tnc.name,
+                    "time": frappe.utils.now_datetime(),
+                }
+                ApprovedTermsandConditions.create_entry(**top_up_approved_tnc)
+                frappe.db.commit()
+            else:
+                cart_approved_tnc = {
+                    "doctype": "Cart",
+                    "docname": data.get("cart_name"),
+                    "mobile": user.username,
+                    "tnc": tnc.name,
+                    "time": frappe.utils.now_datetime(),
+                }
+                ApprovedTermsandConditions.create_entry(**cart_approved_tnc)
+                frappe.db.commit()
 
         return utils.respondWithSuccess(data=res)
 

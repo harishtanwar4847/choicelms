@@ -90,7 +90,7 @@
   "docstatus": 0,
   "doctype": "Notification",
   "document_type": "User",
-  "enabled": 0,
+  "enabled": 1,
   "event": "Custom",
   "is_standard": 0,
   "message": "<h3>Dear {{ doc.full_name or \"\" }},</h3>\r\n\r\n{% if doc.get(\"top_up_application\").get(\"status\") == \"Pending\" %}\r\nYour request has been successfully received. You will be notified when your new OD limit is approved by our banking partner.\r\n{% endif %}\r\n{% if doc.get(\"top_up_application\").get(\"status\") == \"Approved\" %}\r\nCongratulations! Your Top up application for Loan {{doc.get(\"top_up_application\").get(\"loan\")}} is Approved.\r\n{% endif %}\r\n{% if doc.get(\"top_up_application\").get(\"status\") == \"Rejected\" %}\r\nSorry! Your Top up application was turned down. We regret the inconvenience caused.\r\n{% endif %}\r\n\r\n<p>Thanks,</p>\r\n<p>The Spark Team\t</p>",
