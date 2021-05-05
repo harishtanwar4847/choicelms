@@ -2,13 +2,15 @@ from datetime import datetime, timedelta
 from itertools import groupby
 
 import frappe
-from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions import ApprovedTermsandConditions
 import requests
 import utils
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
 import lms
 from lms.exceptions import PledgeSetupFailureException
+from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions import (
+    ApprovedTermsandConditions,
+)
 
 
 def validate_securities_for_cart(securities, lender):
@@ -624,12 +626,10 @@ def get_tnc(**kwargs):
             "tnc_html": "".join(tnc_ul),
             "tnc_header": tnc_header,
             "tnc_footer": tnc_footer,
-            "tnc_checkboxes": tnc_checkboxes
+            "tnc_checkboxes": tnc_checkboxes,
         }
 
-        for tnc in frappe.get_list(
-            "Terms and Conditions", filters={"is_active": 1}
-        ):
+        for tnc in frappe.get_list("Terms and Conditions", filters={"is_active": 1}):
             if data.get("topup_application_name"):
                 top_up_approved_tnc = {
                     "doctype": "Top up Application",

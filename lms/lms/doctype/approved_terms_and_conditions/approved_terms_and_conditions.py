@@ -10,13 +10,7 @@ from frappe.model.document import Document
 
 class ApprovedTermsandConditions(Document):
     @staticmethod
-    def create_entry(
-        doctype,
-        docname,
-        mobile,
-        tnc,
-        time
-    ):
+    def create_entry(doctype, docname, mobile, tnc, time):
         doc = frappe.get_doc(doctype, docname)
         approved_tnc = frappe.get_doc(
             {
