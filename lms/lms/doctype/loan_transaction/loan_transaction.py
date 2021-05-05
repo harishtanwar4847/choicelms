@@ -140,7 +140,7 @@ class LoanTransaction(Document):
             )
 
         loan = self.get_loan()
-        
+
         # Mark loan as 'is_irregular' and 'is_penalize
         if self.transaction_type == "Additional Interest":
             loan.is_irregular = 1
