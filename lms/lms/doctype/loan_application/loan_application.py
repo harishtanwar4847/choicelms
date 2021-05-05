@@ -745,15 +745,17 @@ def check_for_pledge(loan_application_doc):
     frappe.db.begin()
     # manage loan application doc pledge status
     loan_application_doc.status = "Pledge executed"
+    pledge_securities = 0
     if total_successful_pledge == len(loan_application_doc.items):
         loan_application_doc.pledge_status = "Success"
+        pledge_securities = 1
     elif total_successful_pledge == 0:
         loan_application_doc.reload()
         loan_application_doc.status = "Pledge Failure"
         loan_application_doc.pledge_status = "Failure"
     else:
         loan_application_doc.pledge_status = "Partial Success"
-
+        pledge_securities = 1
     # TODO : once done with all batches, mark LA as Pledge executed
     loan_application_doc.workflow_state = "Pledge executed"
 
@@ -774,7 +776,8 @@ def check_for_pledge(loan_application_doc):
     # loan_application_doc.save_collateral_ledger()
 
     if not customer.pledge_securities:
-        customer.pledge_securities = 1
+        # customer.pledge_securities = 1
+        customer.pledge_securities = pledge_securities
         customer.save(ignore_permissions=True)
 
     frappe.db.commit()
