@@ -6,6 +6,7 @@ import utils
 from frappe.auth import LoginManager, get_login_failed_count
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.utils.password import delete_login_failed_cache
+from frappe.utils.password import check_password, update_password
 
 import lms
 
@@ -344,3 +345,85 @@ def verify_user(token, user):
         frappe._("Your email has been successfully verified."),
         indicator_color="green",
     )
+
+
+@frappe.whitelist()
+def request_forgot_pin_otp(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "email": ["required", "mail"]
+            },
+        )
+        
+        try:
+            user = frappe.get_doc("User", data.get("email"))
+
+        except frappe.DoesNotExistError:
+            return utils.respondNotFound(message=frappe._("Please use registered email."))
+
+        frappe.db.begin()
+        lms.create_user_token(
+            entity=user.email,
+            token_type="Forgot Pin OTP",
+            token=lms.random_token(length=4, is_numeric=True),
+        )
+        frappe.db.commit()
+        return utils.respondWithSuccess(message="Forgot Pin OTP sent")
+    except utils.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist()
+def verify_forgot_pin_otp(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "email": ["required", "mail"],
+                "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+                "new_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+				"retype_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+            },
+        )
+
+        try:
+            token = lms.verify_user_token(
+            entity=data.get("email"),
+            token=data.get("otp"),
+            token_type="Forgot Pin OTP",
+        )
+        except InvalidUserTokenException:
+            return utils.respondForbidden(message=frappe._("Invalid Forgot Pin OTP."))
+
+        frappe.db.begin()
+        lms.token_mark_as_used(token)
+
+        if data.get("otp") and data.get("new_pin") and data.get("retype_pin"):
+            if data.get("retype_pin") == data.get("new_pin"):
+                # update pin
+                update_password(data.get("email"), data.get("retype_pin"))
+                frappe.db.commit()
+                		
+                return utils.respondWithSuccess(
+                    message=frappe._("User PIN has been updated.")
+                )
+
+            else:
+                return utils.respondWithFailure(
+                    status=417, message=frappe._("Please retype correct pin.")
+                )
+			
+        elif not data.get("retype_pin") or not data.get("new_pin"):
+            return utils.respondWithFailure(
+				status=417, message=frappe._("Please Enter value for new pin and retype pin.")
+			)
+
+    except utils.APIException:
+        frappe.db.rollback()
+
