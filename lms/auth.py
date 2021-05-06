@@ -348,11 +348,21 @@ def verify_user(token, user):
 
 
 @frappe.whitelist()
-def request_forgot_pin_otp():
+def request_forgot_pin_otp(**kwargs):
     try:
         utils.validator.validate_http_method("POST")
 
-        user = lms.__user()
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "email": ["required", "mail"]
+            },
+        )
+        try:
+            user = frappe.get_doc("User", data.get("email"))
+
+        except frappe.DoesNotExistError:
+            return utils.respondNotFound(message=frappe._("Please use registered email."))
 
         frappe.db.begin()
         lms.create_user_token(
@@ -371,10 +381,10 @@ def verify_forgot_pin_otp(**kwargs):
     try:
         utils.validator.validate_http_method("POST")
 
-        user = lms.__user()
         data = utils.validator.validate(
             kwargs,
             {
+                "email": ["required", "mail"],
                 "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
                 "new_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
 				"retype_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
@@ -383,7 +393,7 @@ def verify_forgot_pin_otp(**kwargs):
 
         try:
             token = lms.verify_user_token(
-            entity=user.email,
+            entity=data.get("email"),
             token=data.get("otp"),
             token_type="Forgot Pin OTP",
         )
@@ -396,7 +406,7 @@ def verify_forgot_pin_otp(**kwargs):
         if data.get("otp") and data.get("new_pin") and data.get("retype_pin"):
             if data.get("retype_pin") == data.get("new_pin"):
                 # update pin
-                update_password(frappe.session.user, data.get("retype_pin"))
+                update_password(data.get("email"), data.get("retype_pin"))
                 frappe.db.commit()
                 		
                 return utils.respondWithSuccess(
