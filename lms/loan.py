@@ -946,11 +946,7 @@ def loan_statement(**kwargs):
         ]:
             return utils.respondNotFound(message=_("Request Type not found."))
 
-        filter = (
-            {"parent": data.get("loan_name")}
-            if data.get("type") == "Pledged Securities Transactions"
-            else {"loan": data.get("loan_name")}
-        )
+        filter = {"loan": data.get("loan_name")}
 
         if data.get("is_download") and data.get("is_email"):
             return utils.respondWithFailure(
@@ -997,7 +993,7 @@ def loan_statement(**kwargs):
             if data.get("type") == "Account Statement":
                 filter["time"] = ["between", (from_date, to_date)]
             elif data.get("type") == "Pledged Securities Transactions":
-                filter["creation"] = ["between", (from_date, to_date)]
+                from_to_date = "'{}'<= `tabCollateral Ledger`.creation <= '{}'".format(from_date,to_date)
 
         elif data.get("duration"):
             if data.get("duration") not in [
@@ -1056,10 +1052,7 @@ def loan_statement(**kwargs):
             if data.get("type") == "Account Statement":
                 filter["time"] = [">=", datetime.strftime(duration_date, "%Y-%m-%d")]
             elif data.get("type") == "Pledged Securities Transactions":
-                filter["creation"] = [
-                    ">=",
-                    datetime.strftime(duration_date, "%Y-%m-%d"),
-                ]
+                duration_date = "`tabCollateral Ledger`.creation >= '{}'".format(datetime.strftime(duration_date, "%Y-%m-%d %H:%M:%S"))
         else:
             if data.get("is_download") or data.get("is_email"):
                 return utils.respondWithFailure(
@@ -1082,6 +1075,15 @@ def loan_statement(**kwargs):
 
         lt_list = []
         if data.get("type") == "Account Statement":
+            page_length = (
+                15
+                if not data.get("from_date")
+                and not data.get("to_date")
+                and not data.get("duration")
+                and not data.get("is_download")
+                and not data.get("is_email")
+                else ""
+            )
             loan_transaction_list = frappe.db.get_all(
                 "Loan Transaction",
                 filters=filter,
@@ -1111,19 +1113,23 @@ def loan_statement(**kwargs):
             )
 
         elif data.get("type") == "Pledged Securities Transactions":
-            pledged_securities_transactions = frappe.get_all(
-                "Loan Item",
-                filters=filter,
-                order_by="creation desc",
-                fields=[
-                    "pledged_quantity",
-                    "security_name",
-                    "isin",
-                    "security_category",
-                    "price",
-                    "amount",
-                ],
-                page_length=page_length,
+            page_length = (
+                "15"
+                if not data.get("from_date")
+                and not data.get("to_date")
+                and not data.get("duration")
+                and not data.get("is_download")
+                and not data.get("is_email")
+                else ""
+            )
+            pledged_securities_transactions = frappe.db.sql("""select `tabCollateral Ledger`.creation, `tabSecurity`.security_name, `tabCollateral Ledger`.isin, `tabCollateral Ledger`.quantity, `tabCollateral Ledger`.request_type from `tabCollateral Ledger`
+            left join `tabSecurity`
+            on `tabSecurity`.name = `tabCollateral Ledger`.isin
+            where `tabCollateral Ledger`.loan = '{}'
+            {}
+            order by creation desc
+            {}""".format(data.get("loan_name"), "and "+from_to_date if data.get("from_date") and data.get("to_date") else "and "+duration_date if data.get("duration") else "", "limit "+page_length+";" if page_length else page_length+";"),
+            as_dict=1
             )
             if not pledged_securities_transactions:
                 return utils.respondNotFound(message=_("No Record Found"))
