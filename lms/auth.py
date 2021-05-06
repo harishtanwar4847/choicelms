@@ -358,6 +358,7 @@ def request_forgot_pin_otp(**kwargs):
                 "email": ["required", "mail"]
             },
         )
+        
         try:
             user = frappe.get_doc("User", data.get("email"))
 
