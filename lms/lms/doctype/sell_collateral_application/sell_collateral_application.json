@@ -10,6 +10,7 @@
   "column_break_2",
   "customer",
   "selling_collateral_value",
+  "loan_margin_shortfall",
   "section_break_4",
   "items",
   "sell_items",
@@ -55,9 +56,9 @@
   {
    "fieldname": "lender",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Lender",
-   "options": "Lender"
+   "options": "Lender",
+   "read_only": 1
   },
   {
    "fieldname": "customer",
@@ -82,10 +83,17 @@
    "fieldname": "selling_collateral_value",
    "fieldtype": "Currency",
    "label": "Selling Collateral Value"
+  },
+  {
+   "fieldname": "loan_margin_shortfall",
+   "fieldtype": "Link",
+   "label": "Loan Margin Shortfall",
+   "options": "Loan Margin Shortfall",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
- "modified": "2021-04-06 15:17:58.238112",
+ "modified": "2021-05-07 14:33:45.239085",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",

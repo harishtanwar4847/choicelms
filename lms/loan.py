@@ -1516,6 +1516,7 @@ def sell_collateral_request(**kwargs):
             {
                 "loan_name": "required",
                 "securities": "",
+                "loan_margin_shortfall_name": "",
                 "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
             },
         )
@@ -1578,6 +1579,12 @@ def sell_collateral_request(**kwargs):
                 "items": items,
             }
         )
+
+        if data.get("loan_margin_shortfall_name"):
+            sell_collateral_application.loan_margin_shortfall = data.get(
+                "loan_margin_shortfall_name"
+            )
+
         sell_collateral_application.insert(ignore_permissions=True)
 
         lms.token_mark_as_used(token)
