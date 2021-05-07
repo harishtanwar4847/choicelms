@@ -705,7 +705,6 @@ def loan_details(**kwargs):
             # get amount_available_for_unpledge,min collateral value
             res["unpledge"] = loan.max_unpledge_amount()
 
-
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
         return e.respond()
@@ -839,7 +838,9 @@ def loan_withdraw_request(**kwargs):
         if amount > max_withdraw_amount:
             return utils.respondWithFailure(
                 status=417,
-                message="Amount can not be more than {}".format(round(max_withdraw_amount,2)),
+                message="Amount can not be more than {}".format(
+                    round(max_withdraw_amount, 2)
+                ),
             )
 
         frappe.db.begin()

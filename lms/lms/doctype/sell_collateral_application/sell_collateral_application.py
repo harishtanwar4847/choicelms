@@ -115,7 +115,9 @@ class SellCollateralApplication(Document):
         # loan.update_loan_balance()
 
     def validate(self):
-        for i, item in enumerate(sorted(self.items, key=lambda item: item.security_name), start=1):
+        for i, item in enumerate(
+            sorted(self.items, key=lambda item: item.security_name), start=1
+        ):
             item.idx = i
 
 
