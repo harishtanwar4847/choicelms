@@ -141,8 +141,11 @@ class UnpledgeApplication(Document):
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
     def validate(self):
-        for i, item in enumerate(sorted(self.items, key=lambda item: item.security_name), start=1):
+        for i, item in enumerate(
+            sorted(self.items, key=lambda item: item.security_name), start=1
+        ):
             item.idx = i
+
 
 @frappe.whitelist()
 def get_collateral_details(unpledge_application_name):
