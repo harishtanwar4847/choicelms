@@ -993,7 +993,9 @@ def loan_statement(**kwargs):
             if data.get("type") == "Account Statement":
                 filter["time"] = ["between", (from_date, to_date)]
             elif data.get("type") == "Pledged Securities Transactions":
-                from_to_date = "'{}'<= `tabCollateral Ledger`.creation <= '{}'".format(from_date,to_date)
+                from_to_date = "'{}'<= `tabCollateral Ledger`.creation <= '{}'".format(
+                    from_date, to_date
+                )
 
         elif data.get("duration"):
             if data.get("duration") not in [
@@ -1052,7 +1054,9 @@ def loan_statement(**kwargs):
             if data.get("type") == "Account Statement":
                 filter["time"] = [">=", datetime.strftime(duration_date, "%Y-%m-%d")]
             elif data.get("type") == "Pledged Securities Transactions":
-                duration_date = "`tabCollateral Ledger`.creation >= '{}'".format(datetime.strftime(duration_date, "%Y-%m-%d %H:%M:%S"))
+                duration_date = "`tabCollateral Ledger`.creation >= '{}'".format(
+                    datetime.strftime(duration_date, "%Y-%m-%d %H:%M:%S")
+                )
         else:
             if data.get("is_download") or data.get("is_email"):
                 return utils.respondWithFailure(
@@ -1122,14 +1126,23 @@ def loan_statement(**kwargs):
                 and not data.get("is_email")
                 else ""
             )
-            pledged_securities_transactions = frappe.db.sql("""select `tabCollateral Ledger`.creation, `tabSecurity`.security_name, `tabCollateral Ledger`.isin, `tabCollateral Ledger`.quantity, `tabCollateral Ledger`.request_type from `tabCollateral Ledger`
+            pledged_securities_transactions = frappe.db.sql(
+                """select `tabCollateral Ledger`.creation, `tabSecurity`.security_name, `tabCollateral Ledger`.isin, `tabCollateral Ledger`.quantity, `tabCollateral Ledger`.request_type from `tabCollateral Ledger`
             left join `tabSecurity`
             on `tabSecurity`.name = `tabCollateral Ledger`.isin
             where `tabCollateral Ledger`.loan = '{}'
             {}
             order by creation desc
-            {}""".format(data.get("loan_name"), "and "+from_to_date if data.get("from_date") and data.get("to_date") else "and "+duration_date if data.get("duration") else "", "limit "+page_length+";" if page_length else page_length+";"),
-            as_dict=1
+            {}""".format(
+                    data.get("loan_name"),
+                    "and " + from_to_date
+                    if data.get("from_date") and data.get("to_date")
+                    else "and " + duration_date
+                    if data.get("duration")
+                    else "",
+                    "limit " + page_length + ";" if page_length else page_length + ";",
+                ),
+                as_dict=1,
             )
             if not pledged_securities_transactions:
                 return utils.respondNotFound(message=_("No Record Found"))
