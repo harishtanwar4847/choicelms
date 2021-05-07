@@ -48,7 +48,7 @@ class UserToken(Document):
             )
         elif self.token_type == "Forgot Pin OTP":
             doc = frappe.get_doc("User", self.entity).as_dict()
-            doc["otp_info"] = {"token_type":self.token_type, "token": self.token}
+            doc["otp_info"] = {"token_type": self.token_type, "token": self.token}
             frappe.enqueue_doc(
                 "Notification",
                 "Forgot Pin",
@@ -56,6 +56,7 @@ class UserToken(Document):
                 now=True,
                 doc=doc,
             )
+
 
 # putting these here for the logs
 # will be removed afterwards
