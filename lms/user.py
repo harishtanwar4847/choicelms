@@ -891,9 +891,8 @@ def dashboard(**kwargs):
                 order_by="creation desc",
                 page_length=1,
             )
+            res["sell_collateral"] = 1
             if len(sell_collateral_application_exist):
-                res["sell_collateral"] = 1
-            else:
                 res["sell_collateral"] = None
 
             # Increase Loan

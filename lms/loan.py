@@ -688,9 +688,8 @@ def loan_details(**kwargs):
             order_by="creation desc",
             page_length=1,
         )
+        res["sell_collateral"] = 1
         if len(sell_collateral_application_exist):
-            res["sell_collateral"] = 1
-        else:
             res["sell_collateral"] = None
 
         # check if any pending unpledge application exist
@@ -840,7 +839,7 @@ def loan_withdraw_request(**kwargs):
         if amount > max_withdraw_amount:
             return utils.respondWithFailure(
                 status=417,
-                message="Amount can not be more than {}".format(round(max_withdraw_amount)),
+                message="Amount can not be more than {}".format(round(max_withdraw_amount,2)),
             )
 
         frappe.db.begin()
