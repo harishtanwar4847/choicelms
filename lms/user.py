@@ -527,6 +527,46 @@ def my_pledge_securities(**kwargs):
             "number_of_scrips": len(loan.items),
             "all_pledged_securities": all_pledged_securities,
         }
+
+        sell_collateral_application_exist = frappe.get_all(
+            "Sell Collateral Application",
+            filters={"loan": loan.name, "status": "Pending"},
+            order_by="creation desc",
+            page_length=1,
+        )
+        if len(sell_collateral_application_exist):
+            res["sell_collateral"] = 1
+        else:
+            res["sell_collateral"] = None
+
+        # Increase Loan
+        existing_loan_application = frappe.get_all(
+            "Loan Application",
+            filters={
+                "loan": loan.name,
+                "customer": loan.customer,
+                "status": ["not IN", ["Approved", "Rejected"]],
+            },
+            fields=["count(name) as in_process"],
+        )
+
+        res["increase_loan"] = None
+        if existing_loan_application[0]["in_process"] == 0:
+            res["increase_loan"] = 1
+    
+        # check if any pending unpledge application exist
+        unpledge_application_exist = frappe.get_all(
+            "Unpledge Application",
+            filters={"loan": loan.name, "status": "Pending"},
+            order_by="creation desc",
+            page_length=1,
+        )
+        if len(unpledge_application_exist):
+            res["unpledge"] = None
+        else:
+            # get amount_available_for_unpledge,min collateral value
+            res["unpledge"] = loan.max_unpledge_amount()
+
         return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
@@ -841,6 +881,34 @@ def dashboard(**kwargs):
             # "login_more_than_10": 1 if number_of_user_login[0].status_count > 10 else 0,
             "show_feedback_popup": show_feedback_popup,
         }
+
+        for loan in all_loans:
+            sell_collateral_application_exist = frappe.get_all(
+                "Sell Collateral Application",
+                filters={"loan": loan.name, "status": "Pending"},
+                order_by="creation desc",
+                page_length=1,
+            )
+            if len(sell_collateral_application_exist):
+                res["sell_collateral"] = 1
+            else:
+                res["sell_collateral"] = None
+
+            # Increase Loan
+            existing_loan_application = frappe.get_all(
+                "Loan Application",
+                filters={
+                    "loan": loan.name,
+                    "customer": loan.customer,
+                    "status": ["not IN", ["Approved", "Rejected"]],
+                },
+                fields=["count(name) as in_process"],
+            )
+
+            res["increase_loan"] = None
+            if existing_loan_application[0]["in_process"] == 0:
+                res["increase_loan"] = 1
+        
 
         return utils.respondWithSuccess(data=res)
 
