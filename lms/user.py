@@ -383,6 +383,7 @@ def approved_securities(**kwargs):
                     "eligible_percentage",
                 ],
             )
+            approved_security_list.sort(key=lambda item: (item["security_name"]).title())
 
             if not approved_security_list:
                 return utils.respondNotFound(message=_("No Record Found"))
@@ -518,6 +519,7 @@ def my_pledge_securities(**kwargs):
                     "amount": i.get("amount"),
                 }
             )
+        all_pledged_securities.sort(key=lambda item: item["security_name"])
 
         res = {
             "loan_name": loan.name,

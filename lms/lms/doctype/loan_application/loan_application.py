@@ -662,6 +662,9 @@ class LoanApplication(Document):
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
 
+    def validate(self):
+        for i, item in enumerate(sorted(self.items, key=lambda item: item.security_name), start=1):
+            item.idx = i
 
 def check_for_pledge(loan_application_doc):
     # TODO : Workers assigned for this cron can be set in las and we can apply (fetch records)limit as per no. of workers assigned
