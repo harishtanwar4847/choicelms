@@ -868,10 +868,10 @@ class Loan(Document):
         return {
             "minimum_collateral_value": minimum_collateral_value
             if minimum_collateral_value > 0
-            else 0,
+            else 0.0,
             "maximum_unpledge_amount": round(maximum_unpledge_amount, 2)
             if maximum_unpledge_amount > 0
-            else 0,
+            else 0.0,
         }
 
     def update_pending_sell_collateral_amount(self):
