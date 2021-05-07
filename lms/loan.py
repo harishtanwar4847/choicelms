@@ -280,9 +280,9 @@ def my_loans():
             """select
 			loan.total_collateral_value, loan.name, loan.sanctioned_limit, loan.drawing_power,
 
-			if (loan.total_collateral_value * loan.allowable_ltv / 100 > loan.sanctioned_limit, 1, 0) as top_up_available,
+			if ((loan.total_collateral_value * loan.allowable_ltv / 100 - loan.sanctioned_limit) > (loan.sanctioned_limit * 0.1), 1, 0) as top_up_available,
 
-			if (loan.total_collateral_value * loan.allowable_ltv / 100 > loan.sanctioned_limit,
+			if ((loan.total_collateral_value * loan.allowable_ltv / 100) - loan.sanctioned_limit > (loan.sanctioned_limit * 0.1),
 			loan.total_collateral_value * loan.allowable_ltv / 100 - loan.sanctioned_limit, 0.0) as top_up_amount,
 
 			IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage,
@@ -682,6 +682,30 @@ def loan_details(**kwargs):
             "increase_loan": increase_loan,
         }
 
+        sell_collateral_application_exist = frappe.get_all(
+            "Sell Collateral Application",
+            filters={"loan": loan.name, "status": "Pending"},
+            order_by="creation desc",
+            page_length=1,
+        )
+        res["sell_collateral"] = 1
+        if len(sell_collateral_application_exist):
+            res["sell_collateral"] = None
+
+        # check if any pending unpledge application exist
+        unpledge_application_exist = frappe.get_all(
+            "Unpledge Application",
+            filters={"loan": loan.name, "status": "Pending"},
+            order_by="creation desc",
+            page_length=1,
+        )
+        if len(unpledge_application_exist):
+            res["unpledge"] = None
+        else:
+            # get amount_available_for_unpledge,min collateral value
+            res["unpledge"] = loan.max_unpledge_amount()
+
+
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
         return e.respond()
@@ -815,7 +839,7 @@ def loan_withdraw_request(**kwargs):
         if amount > max_withdraw_amount:
             return utils.respondWithFailure(
                 status=417,
-                message="Amount can not be more than {}".format(max_withdraw_amount),
+                message="Amount can not be more than {}".format(round(max_withdraw_amount,2)),
             )
 
         frappe.db.begin()
