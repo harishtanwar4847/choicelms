@@ -9,6 +9,146 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
+  "modified": "2021-04-27 15:21:22.613478",
+  "name": "978895d31f",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "bulls_eye",
+    "group": null,
+    "optional": 0,
+    "parent": "978895d31f",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "can_do_better",
+    "group": null,
+    "optional": 0,
+    "parent": "978895d31f",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "related_to_user_experience",
+    "group": null,
+    "optional": 0,
+    "parent": "978895d31f",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "related_to_functionality",
+    "group": null,
+    "optional": 0,
+    "parent": "978895d31f",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "others",
+    "group": null,
+    "optional": 0,
+    "parent": "978895d31f",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "comment",
+    "group": null,
+    "optional": 0,
+    "parent": "978895d31f",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"bulls_eye\": 1,\n\t\"can_do_better\": 0,\n\t\"related_to_user_experience\": 0,\n\t\"related_to_functionality\": 0,\n\t\"others\": 0,\n\t\"comment\": \"\"\n}",
+    "parent": "978895d31f",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.feedback_in_more_menu",
+  "success": [],
+  "success_example": [],
+  "title": "Feedback in More Menu",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "978895d31f",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "978895d31f",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "978895d31f",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "978895d31f",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
   "modified": "2021-04-27 14:49:27.893068",
   "name": "4621dd797d",
   "parameters": [],
@@ -2922,7 +3062,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-05-06 13:09:47.661901",
+  "modified": "2021-05-07 15:33:18.798280",
   "name": "f856d53778",
   "parameters": [
    {
@@ -3002,11 +3142,24 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "if sell collateral is for margin shortfall",
+    "field": "loan_margin_shortfall_name",
+    "group": null,
+    "optional": 0,
+    "parent": "f856d53778",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
    }
   ],
   "parameters_example": [
    {
-    "example": "{\"securities\":{\"list\":[{\"isin\":\"INE259A01022\",\"quantity\":12},{\"isin\":\"INE045B01015\",\"quantity\":20}]},\"loan_name\":\"SL001\",\"otp\":\"1234\"}",
+    "example": "{\n\t\"loan_name\": \"SL000051\",\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"INE721A01013\",\n\t\t\t\t\"quantity\": 1\n\t\t\t}\n\t\t]\n\t},\n\t\"loan_margin_shortfall_name\": \"02d7ad6bd7\",\n\t\"otp\": \"3606\"\n}",
     "parent": "f856d53778",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -4146,6 +4299,181 @@
   "version": "1.0.0"
  },
  {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "Auth",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2021-05-06 13:04:18.633864",
+  "name": "21ada9247a",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "email",
+    "group": null,
+    "optional": 0,
+    "parent": "21ada9247a",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\"email\":\"john.doe@example.com\"\n}",
+    "parent": "21ada9247a",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.auth.request_forgot_pin_otp",
+  "success": [],
+  "success_example": [],
+  "title": "Request Forgot Pin OTP",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "21ada9247a",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "21ada9247a",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "21ada9247a",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "Auth",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2021-05-06 13:07:32.960248",
+  "name": "e220f1fc4c",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "email",
+    "group": null,
+    "optional": 0,
+    "parent": "e220f1fc4c",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "otp",
+    "group": null,
+    "optional": 0,
+    "parent": "e220f1fc4c",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "new_pin",
+    "group": null,
+    "optional": 0,
+    "parent": "e220f1fc4c",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "retype_pin",
+    "group": null,
+    "optional": 0,
+    "parent": "e220f1fc4c",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\"email\":\"john.doe@example.com\",\n\"otp\": \"1111\",\n\"new_pin\": \"1234\",\n\"retype_pin\": \"1234\"\n}",
+    "parent": "e220f1fc4c",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.auth.verify_forgot_pin_otp",
+  "success": [],
+  "success_example": [],
+  "title": "Verify Forgot Pin OTP",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "e220f1fc4c",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "e220f1fc4c",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "e220f1fc4c",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
   "api_define": 1,
   "docstatus": 0,
   "doctype": "API Doc",
@@ -4413,180 +4741,5 @@
   "title": "DataValidationErrorResponse",
   "use_api_define": [],
   "version": null
- },
- {
-  "api_define": 0,
-  "docstatus": 0,
-  "doctype": "API Doc",
-  "error": [],
-  "error_example": [],
-  "group": "Auth",
-  "headers": [],
-  "headers_example": [],
-  "method": "POST",
-  "modified": "2021-05-06 13:04:18.633864",
-  "name": "21ada9247a",
-  "parameters": [
-   {
-    "allowed_values": null,
-    "default_value": null,
-    "description": null,
-    "field": "email",
-    "group": null,
-    "optional": 0,
-    "parent": "21ada9247a",
-    "parentfield": "parameters",
-    "parenttype": "API Doc",
-    "size": null,
-    "type": "String"
-   }
-  ],
-  "parameters_example": [
-   {
-    "example": "{\n\"email\":\"john.doe@example.com\"\n}",
-    "parent": "21ada9247a",
-    "parentfield": "parameters_example",
-    "parenttype": "API Doc",
-    "title": "Request Example"
-   }
-  ],
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "path": "/api/method/lms.auth.request_forgot_pin_otp",
-  "success": [],
-  "success_example": [],
-  "title": "Request Forgot Pin OTP",
-  "use_api_define": [
-   {
-    "api_doc": "70b8cb66dd",
-    "api_doc_title": "AcceptJsonHeader",
-    "parent": "21ada9247a",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "2c99d6bf6d",
-    "api_doc_title": "DataValidationErrorResponse",
-    "parent": "21ada9247a",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "5a72ab8655",
-    "api_doc_title": "APIResponse",
-    "parent": "21ada9247a",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   }
-  ],
-  "version": "1.0.0"
- },
- {
-  "api_define": 0,
-  "docstatus": 0,
-  "doctype": "API Doc",
-  "error": [],
-  "error_example": [],
-  "group": "Auth",
-  "headers": [],
-  "headers_example": [],
-  "method": "POST",
-  "modified": "2021-05-06 13:07:32.960248",
-  "name": "e220f1fc4c",
-  "parameters": [
-   {
-    "allowed_values": null,
-    "default_value": null,
-    "description": null,
-    "field": "email",
-    "group": null,
-    "optional": 0,
-    "parent": "e220f1fc4c",
-    "parentfield": "parameters",
-    "parenttype": "API Doc",
-    "size": null,
-    "type": "String"
-   },
-   {
-    "allowed_values": null,
-    "default_value": null,
-    "description": null,
-    "field": "otp",
-    "group": null,
-    "optional": 0,
-    "parent": "e220f1fc4c",
-    "parentfield": "parameters",
-    "parenttype": "API Doc",
-    "size": null,
-    "type": "Integer"
-   },
-   {
-    "allowed_values": null,
-    "default_value": null,
-    "description": null,
-    "field": "new_pin",
-    "group": null,
-    "optional": 0,
-    "parent": "e220f1fc4c",
-    "parentfield": "parameters",
-    "parenttype": "API Doc",
-    "size": null,
-    "type": "Integer"
-   },
-   {
-    "allowed_values": null,
-    "default_value": null,
-    "description": null,
-    "field": "retype_pin",
-    "group": null,
-    "optional": 0,
-    "parent": "e220f1fc4c",
-    "parentfield": "parameters",
-    "parenttype": "API Doc",
-    "size": null,
-    "type": "Integer"
-   }
-  ],
-  "parameters_example": [
-   {
-    "example": "{\n\"email\":\"john.doe@example.com\",\n\"otp\": \"1111\",\n\"new_pin\": \"1234\",\n\"retype_pin\": \"1234\"\n}",
-    "parent": "e220f1fc4c",
-    "parentfield": "parameters_example",
-    "parenttype": "API Doc",
-    "title": "Request Example"
-   }
-  ],
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "path": "/api/method/lms.auth.verify_forgot_pin_otp",
-  "success": [],
-  "success_example": [],
-  "title": "Verify Forgot Pin OTP",
-  "use_api_define": [
-   {
-    "api_doc": "70b8cb66dd",
-    "api_doc_title": "AcceptJsonHeader",
-    "parent": "e220f1fc4c",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "2c99d6bf6d",
-    "api_doc_title": "DataValidationErrorResponse",
-    "parent": "e220f1fc4c",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "5a72ab8655",
-    "api_doc_title": "APIResponse",
-    "parent": "e220f1fc4c",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   }
-  ],
-  "version": "1.0.0"
  }
 ]

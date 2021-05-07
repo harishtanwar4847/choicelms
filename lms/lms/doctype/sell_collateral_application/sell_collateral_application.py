@@ -110,8 +110,9 @@ class SellCollateralApplication(Document):
             transaction_type="Sell Collateral",
             amount=self.selling_collateral_value,
             approve=True,
+            loan_margin_shortfall_name=self.loan_margin_shortfall,
         )
-        loan.update_loan_balance()
+        # loan.update_loan_balance()
 
     def validate(self):
         for i, item in enumerate(sorted(self.items, key=lambda item: item.security_name), start=1):
