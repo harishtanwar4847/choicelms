@@ -269,12 +269,12 @@ class LoanApplication(Document):
             finally:
                 fa.delete_app()
 
-        elif self.status == "Rejected":
-            customer = self.get_customer()
-            if not customer.pledge_securities:
-                customer.pledge_securities = 0
-                customer.save(ignore_permissions=True)
-                # frappe.db.commit()
+        # elif self.status == "Rejected":
+        #     customer = self.get_customer()
+        #     if not customer.pledge_securities:
+        #         customer.pledge_securities = 0
+        #         customer.save(ignore_permissions=True)
+        # frappe.db.commit()
 
         self.notify_customer()
 
