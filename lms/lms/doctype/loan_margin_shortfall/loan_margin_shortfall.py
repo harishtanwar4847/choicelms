@@ -73,7 +73,7 @@ class LoanMarginShortfall(Document):
             self.set_deadline()
             loan = self.get_loan()
             self.notify_customer()
-            self.update_deadline_based_on_holidays()
+            # self.update_deadline_based_on_holidays()
             try:
                 fa = FirebaseAdmin()
                 fa.send_data(
@@ -159,18 +159,20 @@ class LoanMarginShortfall(Document):
             """suppose mg shortfall deadline was after 72 hours and suddenly more shortfall happens the deadline will be
             EOD and before EOD security values increased and margin shortfall percentage gone below 20% then deadline should be 72 hrs which was started at initial stage"""
             if old_shortfall_action and margin_shortfall_action.sell_off_after_hours:
-                self.deadline = self.creation + timedelta(
-                    hours=margin_shortfall_action.sell_off_after_hours
-                )
+                # self.deadline = self.creation + timedelta(
+                #     hours=margin_shortfall_action.sell_off_after_hours
+                # )
+                self.update_deadline_based_on_holidays()
 
             elif (
                 margin_shortfall_action.sell_off_after_hours
                 and not margin_shortfall_action.sell_off_deadline_eod
             ):
                 # sell off after 72 hours
-                self.deadline = frappe.utils.now_datetime() + timedelta(
-                    hours=margin_shortfall_action.sell_off_after_hours
-                )
+                # self.deadline = frappe.utils.now_datetime() + timedelta(
+                #     hours=margin_shortfall_action.sell_off_after_hours
+                # )
+                self.update_deadline_based_on_holidays(frappe.utils.now_datetime())
 
             elif (
                 not margin_shortfall_action.sell_off_after_hours
@@ -263,30 +265,39 @@ class LoanMarginShortfall(Document):
                 finally:
                     fa.delete_app()
 
-    def on_update(self):
-        if self.status == "Pending":
-            # self.timer_start_stop_fcm()
-            self.update_deadline_based_on_holidays()
-            # self.save(ignore_permissions=True)
-            frappe.db.commit()
+    # def on_update(self):
+    #     if self.status == "Pending":
+    #         # self.timer_start_stop_fcm()
+    #         self.update_deadline_based_on_holidays()
+    #         # self.save(ignore_permissions=True)
+    #         frappe.db.commit()
 
-    def update_deadline_based_on_holidays(self):
+    def update_deadline_based_on_holidays(self, input_datetime=None):
         margin_shortfall_action = self.get_shortfall_action()
         if margin_shortfall_action.sell_off_after_hours:
             total_hrs = []
-            creation_date = (
-                datetime.strptime(str(self.creation), "%Y-%m-%d %H:%M:%S.%f")
-            ).date()
-            counter = 1
-            while counter <= int(margin_shortfall_action.sell_off_after_hours / 24):
-                if creation_date not in holiday_list():
-                    creation_date += timedelta(hours=24)
-                    total_hrs.append(creation_date)
-                    counter += 1
+            if input_datetime:
+                creation_date = input_datetime.date() + timedelta(days=1)
+                creation_datetime = input_datetime
+            else:
+                creation_date = (
+                    datetime.strptime(str(self.creation), "%Y-%m-%d %H:%M:%S.%f")
+                ).date() + timedelta(days=1)
 
-            creation_datetime = datetime.strptime(
-                str(self.creation), "%Y-%m-%d %H:%M:%S.%f"
-            )
+                creation_datetime = datetime.strptime(
+                    str(self.creation), "%Y-%m-%d %H:%M:%S.%f"
+                )
+
+            counter = 1
+            max_days = int(margin_shortfall_action.sell_off_after_hours / 24)
+            while counter <= max_days:
+                if creation_date not in holiday_list():
+                    total_hrs.append(creation_date)
+                    creation_date += timedelta(hours=24)
+                    counter += 1
+                else:
+                    creation_date += timedelta(hours=24)
+
             date_of_deadline = datetime.strptime(
                 total_hrs[-1].strftime("%Y-%m-%d %H:%M:%S.%f"), "%Y-%m-%d %H:%M:%S.%f"
             )
