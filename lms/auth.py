@@ -350,7 +350,7 @@ def verify_user(token, user):
     )
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def request_forgot_pin_otp(**kwargs):
     try:
         utils.validator.validate_http_method("POST")
@@ -380,7 +380,7 @@ def request_forgot_pin_otp(**kwargs):
         return e.respond()
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def verify_forgot_pin_otp(**kwargs):
     try:
         utils.validator.validate_http_method("POST")
