@@ -1,7 +1,7 @@
 [
  {
   "account_renewal_charges": 0.5,
-  "agreement_template": "/private/files/Choice_agreement.html",
+  "agreement_template": "/private/files/Loan Agreementfb734a.html",
   "cic_charges": 100.0,
   "coordinates": "370,610",
   "default_interest": 4.0,
@@ -13,7 +13,7 @@
   "documentation_charge_type": "Fix",
   "documentation_charges": 10.0,
   "documentation_charges_sharing": 100.0,
-  "enhancement_agreement_template": "/private/files/Loan Enhancement Agreement.html",
+  "enhancement_agreement_template": "/private/files/Loan Enhancement Agreement1c07f9.html",
   "enhancement_coordinates": "370,580",
   "enhancement_esign_page": 20,
   "enhancement_total_pages": 20,
@@ -26,7 +26,7 @@
   "lender_processing_fees_sharing": 10.0,
   "lender_processing_fees_sharing_type": "Percentage",
   "lender_processing_fees_type": "Percentage",
-  "modified": "2021-02-25 12:22:29.270086",
+  "modified": "2021-05-10 10:59:08.247717",
   "mortgage_charge_sharing_type": "Percentage",
   "mortgage_charge_type": "Percentage",
   "mortgage_charges": 0.1,
