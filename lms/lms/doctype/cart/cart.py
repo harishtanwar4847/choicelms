@@ -103,10 +103,10 @@ class Cart(Document):
         self.is_processed = 1
         self.save()
 
-        if self.loan_margin_shortfall:
-            loan_application.status = "Ready for Approval"
-            loan_application.workflow_state = "Ready for Approval"
-            loan_application.save(ignore_permissions=True)
+        # if self.loan_margin_shortfall:
+        #     loan_application.status = "Ready for Approval"
+        #     loan_application.workflow_state = "Ready for Approval"
+        #     loan_application.save(ignore_permissions=True)
         doc = frappe.get_doc("User", frappe.session.user)
         frappe.enqueue_doc(
             "Notification", "Loan Application Creation", method="send", doc=doc
