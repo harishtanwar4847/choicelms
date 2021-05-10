@@ -661,7 +661,7 @@ def dashboard(**kwargs):
                     hrs_difference = (
                         mg_shortfall_doc.deadline
                         - frappe.utils.now_datetime()
-                        - timedelta(days=(len(holidays) if holidays else 0) - 1)
+                        - timedelta(days=(len(holidays) if holidays else 0))
                     )
 
                 mgloan.append(
@@ -994,6 +994,10 @@ def weekly_pledged_security_dashboard(**kwargs):
 
         while counter >= 0:
             amount = 0.0
+            if yesterday in holiday_list():
+                yesterday -= timedelta(days=2)
+            if last_friday in holiday_list() or yesterday == last_friday:
+                last_friday -= timedelta(days=1)
             for loan_items in all_loan_items:
                 security_price_list = frappe.db.sql(
                     """select security, price, time
