@@ -198,13 +198,12 @@ class LoanMarginShortfall(Document):
 
     def timer_start_stop_fcm(self):
         loan = self.get_loan()
+        now = frappe.utils.now_datetime()
         tomorrow = datetime.strptime(
             frappe.utils.today(), "%Y-%m-%d"
         ).date() + timedelta(days=1)
 
-        if frappe.utils.now_datetime().replace(
-            hour=23, minute=00, second=00, microsecond=0
-        ):
+        if now.hour == 23 and now.minute == 00 and now.second == 00 and now.microsecond == 0:
             if tomorrow in holiday_list() and (self.deadline).date() >= tomorrow:
                 try:
                     fa = FirebaseAdmin()

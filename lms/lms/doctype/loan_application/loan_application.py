@@ -36,15 +36,17 @@ class LoanApplication(Document):
         user = frappe.get_doc("User", customer.user)
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
         lender = self.get_lender()
+        if self.loan and not self.loan_margin_shortfall:
+            loan = self.get_loan()
 
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_application_number": self.name,
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
-            "sanctioned_amount": self.drawing_power,
+            "sanctioned_amount": (self.drawing_power + loan.drawing_power) if loan.drawing_power else self.drawing_power,
             "sanctioned_amount_in_words": num2words(
-                self.drawing_power, lang="en_IN"
+                (self.drawing_power + loan.drawing_power) if loan.drawing_power else self.drawing_power, lang="en_IN"
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,

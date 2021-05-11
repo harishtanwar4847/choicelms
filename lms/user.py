@@ -985,19 +985,16 @@ def weekly_pledged_security_dashboard(**kwargs):
             fields=["distinct isin", "pledged_quantity"],
         )
 
-        counter = 15
+        counter = 52
         weekly_security_amount = []
         yesterday = datetime.strptime(
             frappe.utils.today(), "%Y-%m-%d"
-        ).date() - timedelta(days=1)
-        last_friday = yesterday - timedelta(days=yesterday.weekday() - 4)
-
+        ).date() + timedelta(days=3)
+        offset_with_mod = (yesterday.weekday() - 4) % 7
+        last_friday = yesterday - timedelta(days=offset_with_mod)
         while counter >= 0:
+            sec.append({"yesterday": yesterday, "last_friday": last_friday})
             amount = 0.0
-            if yesterday in holiday_list():
-                yesterday -= timedelta(days=2)
-            if last_friday in holiday_list() or yesterday == last_friday:
-                last_friday -= timedelta(days=1)
             for loan_items in all_loan_items:
                 security_price_list = frappe.db.sql(
                     """select security, price, time
@@ -1006,7 +1003,7 @@ def weekly_pledged_security_dashboard(**kwargs):
 				and `tabSecurity Price`.time like '%{}%'
 				order by modified desc limit 1""".format(
                         loan_items.get("isin"),
-                        yesterday if counter == 15 else last_friday,
+                        yesterday if counter == 52 else last_friday,
                     ),
                     as_dict=1,
                 )
@@ -1015,18 +1012,20 @@ def weekly_pledged_security_dashboard(**kwargs):
                     amount += loan_items.get("pledged_quantity") * list.get("price")
                     # sec.append(list)
                     # sec.append((amount, counter))
-            # for list in security_price_list:
-            #     sec.append(list.get("time"))
-            if counter == 15 or counter == 14:
-                last_friday = last_friday
-            else:
+            for list in security_price_list:
+                sec.append(list.get("time"))
+            if counter != 52:
                 last_friday += timedelta(days=-7)
 
-            weekly_security_amount.append(
+            # weekly_security_amount.append(
+            #     {"week": counter, "weekly_amount_for_all_loans": round(amount, 2)}
+            # )
+            sec.append(
                 {"week": counter, "weekly_amount_for_all_loans": round(amount, 2)}
             )
             counter -= 1
-        return utils.respondWithSuccess(data=weekly_security_amount)
+            print(sec)
+        return utils.respondWithSuccess(data=sec)
 
     except utils.exceptions.APIException as e:
         return e.respond()
