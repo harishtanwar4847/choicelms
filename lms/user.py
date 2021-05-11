@@ -989,7 +989,7 @@ def weekly_pledged_security_dashboard(**kwargs):
         weekly_security_amount = []
         yesterday = datetime.strptime(
             frappe.utils.today(), "%Y-%m-%d"
-        ).date() + timedelta(days=3)
+        ).date() - timedelta(days=1)
         offset_with_mod = (yesterday.weekday() - 4) % 7
         last_friday = yesterday - timedelta(days=offset_with_mod)
         while counter >= 0:

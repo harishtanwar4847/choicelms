@@ -73,7 +73,30 @@ class LoanMarginShortfall(Document):
             self.set_deadline()
             loan = self.get_loan()
             self.notify_customer()
-            # self.update_deadline_based_on_holidays()
+
+            creation = datetime.strptime(self.creation, "%Y-%m-%d %H:%M:%S.%f")
+            deadline = self.deadline
+            hrs_difference = deadline - frappe.utils.now_datetime()
+            margin_shortfall_action = self.get_shortfall_action()
+            if margin_shortfall_action.sell_off_after_hours:
+                date_array = set(
+                    creation.date() + timedelta(days=x)
+                    for x in range(
+                        0,
+                        (
+                            deadline.date()
+                            - creation.date()
+                        ).days
+                        + 1,
+                    )
+                )
+                holidays = date_array.intersection(set(holiday_list()))
+                hrs_difference = (
+                    deadline
+                    - frappe.utils.now_datetime()
+                    - timedelta(days=(len(holidays) if holidays else 0))
+                )
+
             try:
                 fa = FirebaseAdmin()
                 fa.send_data(
@@ -82,7 +105,7 @@ class LoanMarginShortfall(Document):
                         "condition": "after insert",
                         "time": convert_sec_to_hh_mm_ss(
                             abs(
-                                self.deadline - frappe.utils.now_datetime()
+                                hrs_difference
                             ).total_seconds()
                         ),
                         "loan_name": loan.name,
@@ -203,7 +226,7 @@ class LoanMarginShortfall(Document):
             frappe.utils.today(), "%Y-%m-%d"
         ).date() + timedelta(days=1)
 
-        if now.hour == 23 and now.minute == 00 and now.second == 00 and now.microsecond == 0:
+        if now.hour == 23 and now.minute >= 00 and now.second >= 00 and now.microsecond >= 0:
             if tomorrow in holiday_list() and (self.deadline).date() >= tomorrow:
                 try:
                     fa = FirebaseAdmin()
@@ -219,7 +242,7 @@ class LoanMarginShortfall(Document):
                                         minute=59,
                                         second=59,
                                         microsecond=999999,
-                                    )
+                                    ) - timedelta(days=1)
                                 ).total_seconds()
                             ),
                             "loan_name": loan.name,
@@ -251,7 +274,7 @@ class LoanMarginShortfall(Document):
                                         minute=59,
                                         second=59,
                                         microsecond=999999,
-                                    )
+                                    ) - timedelta(days=1)
                                 ).total_seconds()
                             ),
                             "loan_name": loan.name,
