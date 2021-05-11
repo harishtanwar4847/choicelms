@@ -1018,7 +1018,7 @@ def loan_statement(**kwargs):
             if data.get("type") == "Account Statement":
                 filter["time"] = ["between", (from_date, to_date)]
             elif data.get("type") == "Pledged Securities Transactions":
-                from_to_date = "'{}'<= `tabCollateral Ledger`.creation <= '{}'".format(
+                from_to_date = "`tabCollateral Ledger`.creation BETWEEN '{}' and '{}'".format(
                     from_date, to_date
                 )
 
@@ -1089,16 +1089,6 @@ def loan_statement(**kwargs):
                         "Please use either 'From date and To date' or Duration to proceed"
                     )
                 )
-
-        page_length = (
-            15
-            if not data.get("from_date")
-            and not data.get("to_date")
-            and not data.get("duration")
-            and not data.get("is_download")
-            and not data.get("is_email")
-            else ""
-        )
 
         res = {"loan": loan}
 
