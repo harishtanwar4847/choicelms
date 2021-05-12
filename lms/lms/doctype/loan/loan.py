@@ -893,6 +893,11 @@ class Loan(Document):
             sell_collateral.process_sell_items()
             sell_collateral.save(ignore_permissions=True)
 
+    def validate(self):
+        #remove row from items if pledge quantity is 0
+        for i in self.items:
+            if i.pledged_quantity == 0:
+                self.items.remove(i)
 
 def check_loans_for_shortfall(loans):
     for loan_name in loans:
