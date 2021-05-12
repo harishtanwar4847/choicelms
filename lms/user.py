@@ -979,12 +979,6 @@ def weekly_pledged_security_dashboard(**kwargs):
             )
 
         sec = []
-        all_loan_items = frappe.get_all(
-            "Loan Item",
-            filters={"parent": ["in", [loan.name for loan in all_loans]]},
-            fields=["distinct isin", "pledged_quantity"],
-        )
-
         counter = 52
         weekly_security_amount = []
         yesterday = datetime.strptime(
@@ -992,28 +986,53 @@ def weekly_pledged_security_dashboard(**kwargs):
         ).date() - timedelta(days=1)
         offset_with_mod = (yesterday.weekday() - 4) % 7
         last_friday = yesterday - timedelta(days=offset_with_mod)
+
+        all_loan_items = frappe.get_all(
+            "Loan Item",
+            filters={
+                "parent": ["in", [loan.name for loan in all_loans]],
+                "pledged_quantity": [">", 0],
+            },
+            fields=["isin", "sum(pledged_quantity) as total_pledged_qty"],
+            group_by="isin",
+        )
+        all_isin_list = [i.isin for i in all_loan_items]
+        all_isin_dict = {i.isin: i.total_pledged_qty for i in all_loan_items}
+
         while counter >= 0:
             sec.append({"yesterday": yesterday, "last_friday": last_friday})
             amount = 0.0
-            for loan_items in all_loan_items:
-                security_price_list = frappe.db.sql(
-                    """select security, price, time
+            security_price_list = frappe.db.sql(
+                """select security, price, time
 				from `tabSecurity Price`
-				where `tabSecurity Price`.security = '{}'
+				where `tabSecurity Price`.security IN {}
 				and `tabSecurity Price`.time like '%{}%'
 				order by modified desc limit 1""".format(
-                        loan_items.get("isin"),
-                        yesterday if counter == 52 else last_friday,
-                    ),
-                    as_dict=1,
-                )
+                    lms.convert_list_to_tuple_string(all_isin_list),
+                    yesterday if counter == 52 else last_friday,
+                ),
+                as_dict=1,
+                debug=True,
+            )
 
-                for list in security_price_list:
-                    amount += loan_items.get("pledged_quantity") * list.get("price")
-                    # sec.append(list)
-                    # sec.append((amount, counter))
-            for list in security_price_list:
-                sec.append(list.get("time"))
+            # for loan_items in all_loan_items:
+            #     security_price_list = frappe.db.sql(
+            #         """select security, price, time
+            # 	from `tabSecurity Price`
+            # 	where `tabSecurity Price`.security = '{}'
+            # 	and `tabSecurity Price`.time like '%{}%'
+            # 	order by modified desc limit 1""".format(
+            #             loan_items.get("isin"),
+            #             yesterday if counter == 52 else last_friday,
+            #         ),
+            #         as_dict=1,
+            #     )
+
+            #     for list in security_price_list:
+            #         amount += loan_items.get("pledged_quantity") * list.get("price")
+            #         # sec.append(list)
+            #         # sec.append((amount, counter))
+
             if counter != 52:
                 last_friday += timedelta(days=-7)
 

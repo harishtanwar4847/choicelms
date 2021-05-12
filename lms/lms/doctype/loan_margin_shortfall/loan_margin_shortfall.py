@@ -83,11 +83,7 @@ class LoanMarginShortfall(Document):
                     creation.date() + timedelta(days=x)
                     for x in range(
                         0,
-                        (
-                            deadline.date()
-                            - creation.date()
-                        ).days
-                        + 1,
+                        (deadline.date() - creation.date()).days + 1,
                     )
                 )
                 holidays = date_array.intersection(set(holiday_list()))
@@ -104,9 +100,7 @@ class LoanMarginShortfall(Document):
                         "event": "timer start",
                         "condition": "after insert",
                         "time": convert_sec_to_hh_mm_ss(
-                            abs(
-                                hrs_difference
-                            ).total_seconds()
+                            abs(hrs_difference).total_seconds()
                         ),
                         "loan_name": loan.name,
                         "margin_shortfall_doc": self.as_json(),
@@ -226,7 +220,12 @@ class LoanMarginShortfall(Document):
             frappe.utils.today(), "%Y-%m-%d"
         ).date() + timedelta(days=1)
 
-        if now.hour == 23 and now.minute >= 00 and now.second >= 00 and now.microsecond >= 0:
+        if (
+            now.hour == 23
+            and now.minute >= 00
+            and now.second >= 00
+            and now.microsecond >= 0
+        ):
             if tomorrow in holiday_list() and (self.deadline).date() >= tomorrow:
                 try:
                     fa = FirebaseAdmin()
@@ -242,7 +241,8 @@ class LoanMarginShortfall(Document):
                                         minute=59,
                                         second=59,
                                         microsecond=999999,
-                                    ) - timedelta(days=1)
+                                    )
+                                    - timedelta(days=1)
                                 ).total_seconds()
                             ),
                             "loan_name": loan.name,
@@ -274,7 +274,8 @@ class LoanMarginShortfall(Document):
                                         minute=59,
                                         second=59,
                                         microsecond=999999,
-                                    ) - timedelta(days=1)
+                                    )
+                                    - timedelta(days=1)
                                 ).total_seconds()
                             ),
                             "loan_name": loan.name,

@@ -127,8 +127,14 @@ class Cart(Document):
             "loan_application_number": " ",
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
-            "sanctioned_amount": (self.eligible_loan + loan.drawing_power) if loan.drawing_power else self.eligible_loan,
-            "sanctioned_amount_in_words": num2words((self.eligible_loan + loan.drawing_power) if loan.drawing_power else self.eligible_loan, lang="en_IN"
+            "sanctioned_amount": (self.eligible_loan + loan.drawing_power)
+            if loan.drawing_power
+            else self.eligible_loan,
+            "sanctioned_amount_in_words": num2words(
+                (self.eligible_loan + loan.drawing_power)
+                if loan.drawing_power
+                else self.eligible_loan,
+                lang="en_IN",
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,
