@@ -971,7 +971,7 @@ def loan_statement(**kwargs):
         ]:
             return utils.respondNotFound(message=_("Request Type not found."))
 
-        filter = {"loan": data.get("loan_name")}
+        filter = {"loan": data.get("loan_name"), "docstatus": 1} if data.get("type") == "Account Statement" else {"loan": data.get("loan_name")}
 
         if data.get("is_download") and data.get("is_email"):
             return utils.respondWithFailure(
