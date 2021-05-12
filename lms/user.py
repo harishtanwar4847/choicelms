@@ -997,54 +997,32 @@ def weekly_pledged_security_dashboard(**kwargs):
             group_by="isin",
         )
         all_isin_list = [i.isin for i in all_loan_items]
-        all_isin_dict = {i.isin: i.total_pledged_qty for i in all_loan_items}
-
-        while counter >= 0:
+        # all_isin_dict = {i.isin: i.total_pledged_qty for i in all_loan_items}
+        while counter >= 1:
             sec.append({"yesterday": yesterday, "last_friday": last_friday})
-            amount = 0.0
             security_price_list = frappe.db.sql(
                 """select security, price, time
 				from `tabSecurity Price`
-				where `tabSecurity Price`.security IN {}
+				where name in (select max(name) from `tabSecurity Price` where security  IN {}
 				and `tabSecurity Price`.time like '%{}%'
-				order by modified desc limit 1""".format(
+                group by security
+				order by modified desc)""".format(
                     lms.convert_list_to_tuple_string(all_isin_list),
                     yesterday if counter == 52 else last_friday,
                 ),
                 as_dict=1,
-                debug=True,
             )
 
-            # for loan_items in all_loan_items:
-            #     security_price_list = frappe.db.sql(
-            #         """select security, price, time
-            # 	from `tabSecurity Price`
-            # 	where `tabSecurity Price`.security = '{}'
-            # 	and `tabSecurity Price`.time like '%{}%'
-            # 	order by modified desc limit 1""".format(
-            #             loan_items.get("isin"),
-            #             yesterday if counter == 52 else last_friday,
-            #         ),
-            #         as_dict=1,
-            #     )
-
-            #     for list in security_price_list:
-            #         amount += loan_items.get("pledged_quantity") * list.get("price")
-            #         # sec.append(list)
-            #         # sec.append((amount, counter))
+            total = sum([i.price*j.total_pledged_qty for j in all_loan_items for i in security_price_list if i.security == j.isin])
 
             if counter != 52:
                 last_friday += timedelta(days=-7)
 
-            # weekly_security_amount.append(
-            #     {"week": counter, "weekly_amount_for_all_loans": round(amount, 2)}
-            # )
-            sec.append(
-                {"week": counter, "weekly_amount_for_all_loans": round(amount, 2)}
+            weekly_security_amount.append(
+                {"week": counter, "weekly_amount_for_all_loans": round(total, 2) if total else 0.0}
             )
             counter -= 1
-            print(sec)
-        return utils.respondWithSuccess(data=sec)
+        return utils.respondWithSuccess(data=weekly_security_amount)
 
     except utils.exceptions.APIException as e:
         return e.respond()
