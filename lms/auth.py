@@ -367,6 +367,9 @@ def request_forgot_pin_otp(**kwargs):
             return utils.respondNotFound(
                 message=frappe._("Please use registered email.")
             )
+        old_token_name = frappe.get_all("User Token", filters={"entity":user.email, "token_type":"Forgot Pin OTP"}, order_by="creation desc", fields=["*"])[0].name
+        old_token = frappe.get_doc("User Token", old_token_name)
+        lms.token_mark_as_used(old_token)
 
         frappe.db.begin()
         lms.create_user_token(
@@ -409,7 +412,6 @@ def verify_forgot_pin_otp(**kwargs):
             return utils.respondForbidden(message=frappe._("Invalid Forgot Pin OTP."))
 
         frappe.db.begin()
-        lms.token_mark_as_used(token)
 
         if data.get("otp") and data.get("new_pin") and data.get("retype_pin"):
             if data.get("retype_pin") == data.get("new_pin"):
@@ -431,6 +433,7 @@ def verify_forgot_pin_otp(**kwargs):
                 status=417,
                 message=frappe._("Please Enter value for new pin and retype pin."),
             )
+        lms.token_mark_as_used(token)
 
     except utils.APIException:
         frappe.db.rollback()
