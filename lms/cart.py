@@ -393,19 +393,20 @@ def process_dummy(cart_name):
     cart.save_collateral_ledger(loan_application.name)
     frappe.db.commit()
 
-    doc = frappe.get_doc("User", frappe.session.user)
+    customer = frappe.get_doc("Loan Customer", cart.customer)
+    doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
     frappe.enqueue_doc(
         "Notification", "Loan Application Creation", method="send", doc=doc
     )
 
     mess = frappe._(
         "Dear "
-        + doc.full_name
+        + doc.investor_name
         + ",\nYour pledge request and Loan Application was successfully accepted. \nPlease download your e-agreement - <Link>. \nApplication number: "
         + loan_application.name
         + ". \nYou will be notified once your OD limit is approved by our lending partner."
     )
-    frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
+    frappe.enqueue(method=send_sms, receiver_list=[doc.mobile_number], msg=mess)
 
     return loan_application.name
 

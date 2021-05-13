@@ -26,6 +26,9 @@ class TopupApplication(Document):
         frappe.db.commit()
 
         self.map_loan_agreement_file(loan)
+        # self.notify_customer()
+
+    def on_update(self):
         self.notify_customer()
 
     def before_submit(self):
@@ -165,9 +168,7 @@ class TopupApplication(Document):
     def notify_customer(self):
         from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-        customer = self.get_customer()
-        user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
-        doc = frappe.get_doc("User", customer.user).as_dict()
+        doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
         doc["top_up_application"] = {
             "status": self.status,
             "loan": self.loan,
@@ -191,7 +192,7 @@ class TopupApplication(Document):
 
         if mess:
             receiver_list = list(
-                set([str(customer.phone), str(user_kyc.mobile_number)])
+                set([str(self.get_customer().phone), str(doc.mobile_number)])
             )
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)

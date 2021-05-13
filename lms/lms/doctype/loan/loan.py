@@ -626,14 +626,14 @@ class Loan(Document):
 
                     frappe.db.commit()
 
-                    doc = frappe.get_doc("User", self.get_customer().user).as_dict()
+                    doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
                     doc["loan_name"] = self.name
                     doc[
                         "transaction_type"
                     ] = additional_interest_transaction.transaction_type
                     doc[
                         "unpaid_interest"
-                    ] = additional_interest_transaction.unpaid_interest
+                    ] = round(additional_interest_transaction.unpaid_interest,2)
 
                     frappe.enqueue_doc(
                         "Notification", "Interest Due", method="send", doc=doc
@@ -698,7 +698,7 @@ class Loan(Document):
             )
             frappe.db.commit()
 
-            doc = frappe.get_doc("User", self.get_customer().user).as_dict()
+            doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
             doc["loan_name"] = self.name
             doc["transaction_type"] = loan_transaction.transaction_type
 
@@ -776,14 +776,14 @@ class Loan(Document):
 
                         frappe.db.commit()
 
-                        doc = frappe.get_doc("User", self.get_customer().user).as_dict()
+                        doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
                         doc["loan_name"] = self.name
                         doc[
                             "transaction_type"
                         ] = penal_interest_transaction.transaction_type
                         doc[
                             "unpaid_interest"
-                        ] = penal_interest_transaction.unpaid_interest
+                        ] = round(penal_interest_transaction.unpaid_interest,2)
 
                         frappe.enqueue_doc(
                             "Notification", "Interest Due", method="send", doc=doc

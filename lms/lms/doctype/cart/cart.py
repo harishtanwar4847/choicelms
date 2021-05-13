@@ -107,7 +107,8 @@ class Cart(Document):
         #     loan_application.status = "Ready for Approval"
         #     loan_application.workflow_state = "Ready for Approval"
         #     loan_application.save(ignore_permissions=True)
-        doc = frappe.get_doc("User", frappe.session.user)
+        customer = frappe.get_doc("Loan Customer", self.customer)
+        doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
         frappe.enqueue_doc(
             "Notification", "Loan Application Creation", method="send", doc=doc
         )

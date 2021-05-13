@@ -47,7 +47,7 @@ class UserToken(Document):
                 doc=doc,
             )
         elif self.token_type == "Forgot Pin OTP":
-            doc = frappe.get_doc("User", self.entity).as_dict()
+            doc = frappe.get_all("User KYC", filters={"user":self.entity},fields=["*"])[0]
             doc["otp_info"] = {"token_type": self.token_type, "token": self.token}
             frappe.enqueue_doc(
                 "Notification",
