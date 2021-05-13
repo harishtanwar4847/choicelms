@@ -880,6 +880,7 @@ def dashboard(**kwargs):
                     else None,
                 }
             )
+        topup_list.sort(key=lambda item: (item["loan"]), reverse=True)
         sell_collateral_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
 
