@@ -880,6 +880,8 @@ def dashboard(**kwargs):
                     else None,
                 }
             )
+        sell_collateral_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
+        increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
 
         # number_of_user_login = frappe.get_all(
         #     "Activity Log",
