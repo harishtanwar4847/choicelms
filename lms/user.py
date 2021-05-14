@@ -1263,7 +1263,7 @@ def check_eligible_limit(**kwargs):
         eligible_limit_list = frappe.db.sql(
             """
 			SELECT
-			als.security_name, als.eligible_percentage, als.lender, als.security_category, s.price
+			als.security_name as Scrip_Name, als.eligible_percentage, als.lender, als.security_category as Category, s.price as Price
 			FROM `tabAllowed Security` als
 			LEFT JOIN `tabSecurity` s
 			ON als.isin = s.isin
