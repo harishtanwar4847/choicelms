@@ -884,19 +884,16 @@ def dashboard(**kwargs):
         sell_collateral_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
 
-        # number_of_user_login = frappe.get_all(
-        #     "Activity Log",
-        #     fields=["count(status) as status_count", "status"],
-        #     filters={
-        #         "operation": "Login",
-        #         "status": "Success",
-        #         "user": customer.user,
-        #     },
-        # )
-        number_of_user_login = frappe.db.count(
-            "User Token",
-            filters={"token_type": "Firebase Token", "entity": customer.user},
+        number_of_user_login = frappe.get_all(
+            "Activity Log",
+            fields=["count(status) as status_count", "status"],
+            filters={
+                "operation": "Login",
+                "status": "Success",
+                "user": customer.user,
+            },
         )
+        
         loan_customer_feedback_config = frappe.db.get_value(
             "Loan Customer",
             {"name": customer.name},
@@ -911,7 +908,7 @@ def dashboard(**kwargs):
                 loan_customer_feedback_config.feedback_submitted
                 or loan_customer_feedback_config.feedback_do_not_show_popup
             )
-        ) or number_of_user_login < 10:
+        ) or number_of_user_login[0].status_count <= 10:
             show_feedback_popup = 0
 
         res = {
@@ -924,38 +921,10 @@ def dashboard(**kwargs):
             "active_loans": active_loans,
             "pending_esigns_list": pending_esigns_list,
             "top_up": topup_list,
-            # "login_more_than_10": 1 if number_of_user_login[0].status_count > 10 else 0,
-            "show_feedback_popup": show_feedback_popup,
             "sell_collateral_list": sell_collateral_list,
             "increase_loan_list": increase_loan_list,
+            "show_feedback_popup": show_feedback_popup,
         }
-
-        # for loan in all_loans:
-        #     sell_collateral_application_exist = frappe.get_all(
-        #         "Sell Collateral Application",
-        #         filters={"loan": loan.name, "status": "Pending"},
-        #         order_by="creation desc",
-        #         page_length=1,
-        #     )
-        #     res["sell_collateral"] = 1
-        #     if len(sell_collateral_application_exist):
-        #         res["sell_collateral"] = None
-
-        #     # Increase Loan
-        #     existing_loan_application = frappe.get_all(
-        #         "Loan Application",
-        #         filters={
-        #             "loan": loan.name,
-        #             "customer": loan.customer,
-        #             "status": ["not IN", ["Approved", "Rejected"]],
-        #         },
-        #         fields=["count(name) as in_process"],
-        #     )
-
-        #     if existing_loan_application[0]["in_process"] == 0:
-        #         res["increase_loan"] = 1
-        #     else:
-        #         res["increase_loan"] = None
 
         return utils.respondWithSuccess(data=res)
 
@@ -1053,12 +1022,12 @@ def get_profile_set_alerts(**kwargs):
             user_kyc = None
 
         # last login details
-        if not user.last_login:
-            last_login = None
-        else:
-            last_login = (
-                datetime.strptime(user.last_login, "%Y-%m-%d %H:%M:%S.%f")
-            ).strftime("%Y-%m-%d %H:%M:%S")
+        last_login = None
+        last_login = frappe.get_all("Activity Log", fields=["*"], filters={"operation": "Login",
+                "status": "Success",
+                "user": user.email}, order_by="creation desc")[1]
+        if last_login:
+            last_login = (last_login.creation).strftime("%Y-%m-%d %H:%M:%S")
 
         # alerts percentage and amount save in doctype
         if (
@@ -1372,22 +1341,22 @@ def feedback(**kwargs):
                     message=frappe._("Please write your suggestion to us.")
                 )
 
-        # number_of_user_login = frappe.get_all(
-        #     "Activity Log",
-        #     fields=["count(status) as status_count", "status"],
-        #     filters={
-        #         "operation": "Login",
-        #         "status": "Success",
-        #         "user": customer.user,
-        #     },
-        # )
+        number_of_user_login = frappe.get_all(
+            "Activity Log",
+            fields=["count(status) as status_count", "status"],
+            filters={
+                "operation": "Login",
+                "status": "Success",
+                "user": customer.user,
+            },
+        )
 
         # if number_of_user_login[0].status_count > 10:
         # show feedback popup
-        number_of_user_login = frappe.db.count(
-            "User Token",
-            filters={"token_type": "Firebase Token", "entity": customer.user},
-        )
+        # number_of_user_login = frappe.db.count(
+        #     "User Token",
+        #     filters={"token_type": "Firebase Token", "entity": customer.user},
+        # )
         loan_customer_feedback_config = frappe.db.get_value(
             "Loan Customer",
             {"name": customer.name},
@@ -1401,7 +1370,7 @@ def feedback(**kwargs):
             frappe.db.commit()
             return utils.respondWithSuccess(message=frappe._("successfully saved."))
 
-        elif number_of_user_login > 10 or data.get("from_more_menu"):
+        elif number_of_user_login[0].status_count > 10 or data.get("from_more_menu"):
             feedback_doc = frappe.get_doc(
                 {
                     "doctype": "Feedback",
