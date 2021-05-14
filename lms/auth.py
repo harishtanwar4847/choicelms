@@ -62,6 +62,7 @@ def login(**kwargs):
             except UserKYCNotFoundException:
                 user_kyc = {}
 
+            lms.auth.login_activity(customer)
             token = dict(
                 token=utils.create_user_access_token(user.name),
                 customer=customer,
@@ -209,6 +210,7 @@ def verify_otp(**kwargs):
             token.used = 1
             token.save(ignore_permissions=True)
             lms.add_firebase_token(data.get("firebase_token"), user.name)
+            lms.auth.login_activity(customer)
             frappe.db.commit()
             return utils.respondWithSuccess(data=res)
 
@@ -268,6 +270,7 @@ def register(**kwargs):
             "customer": customer,
         }
         frappe.db.commit()
+        lms.auth.login_activity(customer)
         return utils.respondWithSuccess(
             message=frappe._("Registered Successfully."), data=data
         )
@@ -437,3 +440,19 @@ def verify_forgot_pin_otp(**kwargs):
 
     except utils.APIException:
         frappe.db.rollback()
+
+
+def login_activity(customer):
+    activity_log = frappe.get_doc({
+            "doctype": "Activity Log",
+            "owner": customer.user,
+            "subject": customer.full_name+" logged in",
+            "communication_date": frappe.utils.now_datetime(),
+            "operation": "Login",
+            "status": "Success",
+            "user": customer.user,
+            "full_name": customer.full_name
+        }
+    )
+    activity_log.insert(ignore_permissions=True)
+    frappe.db.commit()
