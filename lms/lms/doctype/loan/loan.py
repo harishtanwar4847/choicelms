@@ -898,6 +898,7 @@ class Loan(Document):
         for i in self.items:
             if i.pledged_quantity == 0:
                 self.items.remove(i)
+        frappe.db.commit()
 
 def check_loans_for_shortfall(loans):
     for loan_name in loans:

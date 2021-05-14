@@ -512,16 +512,17 @@ def my_pledge_securities(**kwargs):
 
         all_pledged_securities = []
         for i in loan.get("items"):
-            all_pledged_securities.append(
-                {
-                    "isin": i.get("isin"),
-                    "security_name": i.get("security_name"),
-                    "pledged_quantity": i.get("pledged_quantity"),
-                    "security_category": i.get("security_category"),
-                    "price": i.get("price"),
-                    "amount": i.get("amount"),
-                }
-            )
+            if i.get("pledged_quantity") != 0:
+                all_pledged_securities.append(
+                    {
+                        "isin": i.get("isin"),
+                        "security_name": i.get("security_name"),
+                        "pledged_quantity": i.get("pledged_quantity"),
+                        "security_category": i.get("security_category"),
+                        "price": i.get("price"),
+                        "amount": i.get("amount"),
+                    }
+                )
         all_pledged_securities.sort(key=lambda item: item["security_name"])
 
         res = {
