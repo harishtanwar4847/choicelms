@@ -29,6 +29,8 @@ class TopupApplication(Document):
         # self.notify_customer()
 
     def on_update(self):
+        if self.status == "Esign Done":
+            return
         self.notify_customer()
 
     def before_submit(self):
