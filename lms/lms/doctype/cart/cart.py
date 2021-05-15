@@ -129,11 +129,11 @@ class Cart(Document):
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
             "sanctioned_amount": (self.eligible_loan + loan.drawing_power)
-            if loan.drawing_power
+            if self.loan
             else self.eligible_loan,
             "sanctioned_amount_in_words": num2words(
                 (self.eligible_loan + loan.drawing_power)
-                if loan.drawing_power
+                if self.loan
                 else self.eligible_loan,
                 lang="en_IN",
             ).title(),

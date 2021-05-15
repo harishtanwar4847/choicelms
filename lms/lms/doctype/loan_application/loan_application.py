@@ -45,11 +45,11 @@ class LoanApplication(Document):
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
             "sanctioned_amount": (self.drawing_power + loan.drawing_power)
-            if loan.drawing_power
+            if self.loan
             else self.drawing_power,
             "sanctioned_amount_in_words": num2words(
                 (self.drawing_power + loan.drawing_power)
-                if loan.drawing_power
+                if self.loan
                 else self.drawing_power,
                 lang="en_IN",
             ).title(),
@@ -67,7 +67,6 @@ class LoanApplication(Document):
         }
 
         if increase_loan:
-            loan = self.get_loan()
             doc["old_sanctioned_amount"] = loan.drawing_power
             doc["old_sanctioned_amount_in_words"] = num2words(
                 loan.drawing_power, lang="en_IN"

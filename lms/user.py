@@ -1248,6 +1248,9 @@ def check_eligible_limit(**kwargs):
         if not eligible_limit_list:
             return utils.respondNotFound(message=_("No Record Found"))
 
+        for i in eligible_limit_list:
+            i["Is_Eligible"] = True
+
         return utils.respondWithSuccess(data=eligible_limit_list)
     except utils.exceptions.APIException as e:
         return e.respond()
