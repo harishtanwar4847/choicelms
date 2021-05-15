@@ -416,6 +416,10 @@ def verify_forgot_pin_otp(**kwargs):
 
         frappe.db.begin()
 
+        if token:
+            if token.expiry <= frappe.utils.now_datetime():
+                return utils.respondUnauthorized(message=frappe._("OTP Expired."))
+
         if data.get("otp") and data.get("new_pin") and data.get("retype_pin"):
             if data.get("retype_pin") == data.get("new_pin"):
                 # update pin
