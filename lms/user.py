@@ -785,7 +785,9 @@ def dashboard(**kwargs):
                 loan_application_doc = frappe.get_doc(
                     "Loan Application", loan_application.name
                 )
-                la_pending_esigns.append(loan_application_doc)
+                for items in loan_application_doc.items:
+                    if items.lender_approval_status in ["Approved", "Rejected"]:
+                        la_pending_esigns.append(loan_application_doc)
 
         pending_topup_applications = frappe.get_all(
             "Top up Application",
