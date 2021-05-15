@@ -673,6 +673,23 @@ class LoanApplication(Document):
         ):
             item.idx = i
 
+    def approve_all_isin(self):
+        for item in self.items:
+            if item.pledge_status == "Success":
+                item.lender_approval_status = "Approved"
+        self.save(ignore_permissions=True)
+
+    def reject_all_isin(self):
+        for item in self.items:
+            if item.pledge_status == "Success":
+                item.lender_approval_status = "Rejected"
+        self.save(ignore_permissions=True)
+    
+    def undo_select_all_isin(self):
+        for item in self.items:
+            if item.pledge_status == "Success":
+                item.lender_approval_status = ""
+        self.save(ignore_permissions=True)
 
 def check_for_pledge(loan_application_doc):
     # TODO : Workers assigned for this cron can be set in las and we can apply (fetch records)limit as per no. of workers assigned
@@ -853,3 +870,19 @@ def only_pdf_upload(doc, method):
     if doc.attached_to_doctype == "Loan Application":
         if doc.file_name.split(".")[-1].lower() != "pdf":
             frappe.throw("Kindly upload PDF files only.")
+
+
+@frappe.whitelist()
+def approve_all_isin_button(loan_application_name):
+    loan_application = frappe.get_doc("Loan Application", loan_application_name)
+    loan_application.approve_all_isin()
+
+@frappe.whitelist()
+def reject_all_isin_button(loan_application_name):
+    loan_application = frappe.get_doc("Loan Application", loan_application_name)
+    loan_application.reject_all_isin()
+
+@frappe.whitelist()
+def undo_select_all_isin_button(loan_application_name):
+    loan_application = frappe.get_doc("Loan Application", loan_application_name)
+    loan_application.undo_select_all_isin()

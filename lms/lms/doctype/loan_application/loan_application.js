@@ -35,6 +35,41 @@ frappe.ui.form.on("Loan Application", {
       }
     }
 
+    if (frm.doc.status == "Pledge executed") {
+        frm.add_custom_button(__("Approve All ISIN"), function () {
+          frappe.call({
+            method:
+              "lms.lms.doctype.loan_application.loan_application.approve_all_isin_button",
+            freeze: true,
+            args: {
+              loan_application_name: frm.doc.name,
+            },
+          });
+        }, __("Select All ISIN"));
+
+        frm.add_custom_button(__("Reject All ISIN"), function () {
+          frappe.call({
+            method:
+              "lms.lms.doctype.loan_application.loan_application.reject_all_isin_button",
+            freeze: true,
+            args: {
+              loan_application_name: frm.doc.name,
+            },
+          });
+        }, __("Select All ISIN"));
+
+        frm.add_custom_button(__("Undo Select All ISIN"), function () {
+          frappe.call({
+            method:
+              "lms.lms.doctype.loan_application.loan_application.undo_select_all_isin_button",
+            freeze: true,
+            args: {
+              loan_application_name: frm.doc.name,
+            },
+          });
+        }, __("Select All ISIN"));
+      }
+
     if (
       frm.doc.workflow_state == "Approved" ||
       frm.doc.workflow_state == "Rejected"
