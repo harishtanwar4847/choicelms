@@ -512,17 +512,16 @@ def my_pledge_securities(**kwargs):
 
         all_pledged_securities = []
         for i in loan.get("items"):
-            if i.get("pledged_quantity") != 0:
-                all_pledged_securities.append(
-                    {
-                        "isin": i.get("isin"),
-                        "security_name": i.get("security_name"),
-                        "pledged_quantity": i.get("pledged_quantity"),
-                        "security_category": i.get("security_category"),
-                        "price": i.get("price"),
-                        "amount": i.get("amount"),
-                    }
-                )
+            all_pledged_securities.append(
+                {
+                    "isin": i.get("isin"),
+                    "security_name": i.get("security_name"),
+                    "pledged_quantity": i.get("pledged_quantity"),
+                    "security_category": i.get("security_category"),
+                    "price": i.get("price"),
+                    "amount": i.get("amount"),
+                }
+            )
         all_pledged_securities.sort(key=lambda item: item["security_name"])
 
         res = {
@@ -1249,7 +1248,12 @@ def check_eligible_limit(**kwargs):
         if not eligible_limit_list:
             return utils.respondNotFound(message=_("No Record Found"))
 
-        return utils.respondWithSuccess(data=eligible_limit_list)
+        # for i in eligible_limit_list:
+        #     i["Is_Eligible"] = True
+        list = map(lambda item: dict(item, Is_Eligible=True), eligible_limit_list)
+
+
+        return utils.respondWithSuccess(data=list)
     except utils.exceptions.APIException as e:
         return e.respond()
 
