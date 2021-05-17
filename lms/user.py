@@ -785,10 +785,19 @@ def dashboard(**kwargs):
                 loan_application_doc = frappe.get_doc(
                     "Loan Application", loan_application.name
                 )
-                for items in loan_application_doc.items:
-                    if items.lender_approval_status in ["Approved", "Rejected"]:
-                        la_pending_esigns.append(loan_application_doc)
 
+                mess = "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly the final Drawing power is Rs. {drawing_power}. Please e-sign the loan agreement to avail the loan now.".format(
+                    current_total_collateral_value = loan_application_doc.total_collateral_value_str,
+                    requested_total_collateral_value = loan_application_doc.pledged_total_collateral_value_str,
+                    drawing_power = loan_application_doc.drawing_power_str,
+                )
+                if loan_application_doc.loan and not loan_application_doc.loan_margin_shortfall:
+                    loan = frappe.get_doc("Loan", loan_application_doc.loan)
+                    
+                    increase_loan_mess = dict(existing_limit=loan.drawing_power,existing_collateral_value=loan.total_collateral_value,new_limit=(lms.round_down_amount_to_nearest_thousand((loan_application_doc.total_collateral_value + loan.total_collateral_value)*loan_application_doc.allowable_ltv/100)),new_collateral_value=loan_application_doc.total_collateral_value+loan.total_collateral_value)
+
+                la_pending_esigns.append({"loan_application":loan_application_doc,"message": mess, "increase_loan_message": increase_loan_mess if loan_application_doc.loan and not loan_application_doc.loan_margin_shortfall else None})
+                
         pending_topup_applications = frappe.get_all(
             "Top up Application",
             filters={"customer": customer.name, "status": "Pending"},
@@ -851,15 +860,17 @@ def dashboard(**kwargs):
             sell_collateral_application_exist = frappe.get_all(
                 "Sell Collateral Application",
                 filters={"loan": loan.name, "status": "Pending"},
+                fields=["*"],
                 order_by="creation desc",
                 page_length=1,
             )
+
             sell_collateral_list.append(
                 {
                     "loan_name": loan.name,
-                    "sell_collateral_available": None
+                    "sell_collateral_available": sell_collateral_application_exist
                     if len(sell_collateral_application_exist)
-                    else 1,
+                    else None,
                 }
             )
 
@@ -914,13 +925,13 @@ def dashboard(**kwargs):
             show_feedback_popup = 0
 
         res = {
-            "customer": customer,
-            "user_kyc": user_kyc,
-            "margin_shortfall_card": deadline_for_all_mg_shortfall,
-            "total_interest_all_loans_card": total_interest_all_loans,
-            "under_process_la": under_process_la,
-            "actionable_loans": actionable_loans,
-            "active_loans": active_loans,
+            # "customer": customer,
+            # "user_kyc": user_kyc,
+            # "margin_shortfall_card": deadline_for_all_mg_shortfall,
+            # "total_interest_all_loans_card": total_interest_all_loans,
+            # "under_process_la": under_process_la,
+            # "actionable_loans": actionable_loans,
+            # "active_loans": active_loans,
             "pending_esigns_list": pending_esigns_list,
             "top_up": topup_list,
             "sell_collateral_list": sell_collateral_list,
@@ -1250,7 +1261,10 @@ def check_eligible_limit(**kwargs):
         if not eligible_limit_list:
             return utils.respondNotFound(message=_("No Record Found"))
 
+        # for i in eligible_limit_list:
+        #     i["Is_Eligible"] = True
         list = map(lambda item: dict(item, Is_Eligible=True), eligible_limit_list)
+
 
         return utils.respondWithSuccess(data=list)
     except utils.exceptions.APIException as e:
