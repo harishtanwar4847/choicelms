@@ -53,7 +53,7 @@ class Loan(Document):
         if max_withdraw_amount < 0:
             max_withdraw_amount = 0
 
-        return max_withdraw_amount
+        return round(max_withdraw_amount, 2)
 
     def get_lender(self):
         return frappe.get_doc("Lender", self.lender)
@@ -626,14 +626,16 @@ class Loan(Document):
 
                     frappe.db.commit()
 
-                    doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
+                    doc = frappe.get_doc(
+                        "User KYC", self.get_customer().choice_kyc
+                    ).as_dict()
                     doc["loan_name"] = self.name
                     doc[
                         "transaction_type"
                     ] = additional_interest_transaction.transaction_type
-                    doc[
-                        "unpaid_interest"
-                    ] = round(additional_interest_transaction.unpaid_interest,2)
+                    doc["unpaid_interest"] = round(
+                        additional_interest_transaction.unpaid_interest, 2
+                    )
 
                     frappe.enqueue_doc(
                         "Notification", "Interest Due", method="send", doc=doc
@@ -776,14 +778,16 @@ class Loan(Document):
 
                         frappe.db.commit()
 
-                        doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
+                        doc = frappe.get_doc(
+                            "User KYC", self.get_customer().choice_kyc
+                        ).as_dict()
                         doc["loan_name"] = self.name
                         doc[
                             "transaction_type"
                         ] = penal_interest_transaction.transaction_type
-                        doc[
-                            "unpaid_interest"
-                        ] = round(penal_interest_transaction.unpaid_interest,2)
+                        doc["unpaid_interest"] = round(
+                            penal_interest_transaction.unpaid_interest, 2
+                        )
 
                         frappe.enqueue_doc(
                             "Notification", "Interest Due", method="send", doc=doc
@@ -823,12 +827,12 @@ class Loan(Document):
                 max_topup_amount = lms.round_down_amount_to_nearest_thousand(
                     max_topup_amount
                 )
-            else:
-                max_topup_amount = round(max_topup_amount, 1)
+            # else:
+            #     max_topup_amount = round(max_topup_amount, 1)
         else:
             max_topup_amount = 0
 
-        return max_topup_amount
+        return round(max_topup_amount, 2)
 
     def update_pending_topup_amount(self):
         pending_topup_request = frappe.get_all(
@@ -898,6 +902,7 @@ class Loan(Document):
     #     for i in self.items:
     #         if i.pledged_quantity == 0:
     #             self.items.remove(i)
+
 
 def check_loans_for_shortfall(loans):
     for loan_name in loans:

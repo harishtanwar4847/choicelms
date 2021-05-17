@@ -321,7 +321,7 @@ def my_loans():
 
 # TODO: review. it has a query for tabLoan Collateral which has been deleted in Beta.1
 @frappe.whitelist()
-def create_unpledge(loan_name, securities_array):
+def create_unpledge_old(loan_name, securities_array):
     try:
         lms.validate_http_method("POST")
 
@@ -600,7 +600,12 @@ def loan_details(**kwargs):
             "Loan Transaction",
             filters={"loan": data.get("loan_name"), "docstatus": 1},
             order_by="time desc",
-            fields=["transaction_type", "record_type", "amount", "time"],
+            fields=[
+                "transaction_type",
+                "record_type",
+                "round(amount, 2) as amount",
+                "time",
+            ],
             start=data.get("transactions_start"),
             page_length=data.get("transactions_per_page"),
         )
@@ -971,7 +976,11 @@ def loan_statement(**kwargs):
         ]:
             return utils.respondNotFound(message=_("Request Type not found."))
 
-        filter = {"loan": data.get("loan_name"), "docstatus": 1} if data.get("type") == "Account Statement" else {"loan": data.get("loan_name")}
+        filter = (
+            {"loan": data.get("loan_name"), "docstatus": 1}
+            if data.get("type") == "Account Statement"
+            else {"loan": data.get("loan_name")}
+        )
 
         if data.get("is_download") and data.get("is_email"):
             return utils.respondWithFailure(
