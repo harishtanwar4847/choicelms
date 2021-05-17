@@ -925,13 +925,13 @@ def dashboard(**kwargs):
             show_feedback_popup = 0
 
         res = {
-            # "customer": customer,
-            # "user_kyc": user_kyc,
-            # "margin_shortfall_card": deadline_for_all_mg_shortfall,
-            # "total_interest_all_loans_card": total_interest_all_loans,
-            # "under_process_la": under_process_la,
-            # "actionable_loans": actionable_loans,
-            # "active_loans": active_loans,
+            "customer": customer,
+            "user_kyc": user_kyc,
+            "margin_shortfall_card": deadline_for_all_mg_shortfall,
+            "total_interest_all_loans_card": total_interest_all_loans,
+            "under_process_la": under_process_la,
+            "actionable_loans": actionable_loans,
+            "active_loans": active_loans,
             "pending_esigns_list": pending_esigns_list,
             "top_up": topup_list,
             "sell_collateral_list": sell_collateral_list,
