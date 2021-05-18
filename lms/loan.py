@@ -603,12 +603,22 @@ def loan_details(**kwargs):
             fields=[
                 "transaction_type",
                 "record_type",
-                "round(amount, 2) as amount",
+                "amount",
                 "time",
             ],
             start=data.get("transactions_start"),
             page_length=data.get("transactions_per_page"),
         )
+
+        if len(loan_transactions_list) > 0:
+            loan_transactions_list = list(
+                map(
+                    lambda item: dict(
+                        item, amount=lms.amount_formatter(item["amount"])
+                    ),
+                    loan_transactions_list,
+                )
+            )
 
         loan_margin_shortfall = loan.get_margin_shortfall()
         if loan_margin_shortfall.get("__islocal", None):

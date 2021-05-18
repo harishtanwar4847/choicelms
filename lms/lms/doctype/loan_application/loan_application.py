@@ -44,11 +44,19 @@ class LoanApplication(Document):
             "loan_application_number": self.name,
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
-            "sanctioned_amount": lms.round_down_amount_to_nearest_thousand((self.total_collateral_value + loan.total_collateral_value)*self.allowable_ltv/100)
+            "sanctioned_amount": lms.round_down_amount_to_nearest_thousand(
+                (self.total_collateral_value + loan.total_collateral_value)
+                * self.allowable_ltv
+                / 100
+            )
             if self.loan
             else self.drawing_power,
             "sanctioned_amount_in_words": num2words(
-                lms.round_down_amount_to_nearest_thousand((self.total_collateral_value + loan.total_collateral_value)*self.allowable_ltv/100)
+                lms.round_down_amount_to_nearest_thousand(
+                    (self.total_collateral_value + loan.total_collateral_value)
+                    * self.allowable_ltv
+                    / 100
+                )
                 if self.loan
                 else self.drawing_power,
                 lang="en_IN",
