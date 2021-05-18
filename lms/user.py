@@ -593,7 +593,7 @@ def dashboard(**kwargs):
             return utils.respondNotFound(message=frappe._("Customer not found."))
 
         all_mgloans = frappe.db.sql(
-            """select loan.name, loan.drawing_power, loan.balance,
+            """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str,
 		IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, IFNULL(mrgloan.shortfall, 0.0) as shortfall
 		from `tabLoan` as loan
 		left join `tabLoan Margin Shortfall` as mrgloan
@@ -608,8 +608,7 @@ def dashboard(**kwargs):
         )
 
         all_interest_loans = frappe.db.sql(
-            """select
-		loan.name, loan.drawing_power, loan.balance,
+            """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str,
 		sum(loantx.unpaid_interest) as interest_amount
 		from `tabLoan` as loan
 		left join `tabLoan Transaction` as loantx
@@ -635,7 +634,9 @@ def dashboard(**kwargs):
                 {
                     "loan_name": dictionary.get("name"),
                     "drawing_power": dictionary.get("drawing_power"),
+                    "drawing_power_str": dictionary.get("drawing_power_str"),
                     "balance": dictionary.get("balance"),
+                    "balance_str": dictionary.get("balance_str"),
                 }
             )
             loan = frappe.get_doc("Loan", dictionary["name"])
@@ -691,7 +692,9 @@ def dashboard(**kwargs):
                 {
                     "loan_name": dictionary.get("name"),
                     "drawing_power": dictionary.get("drawing_power"),
+                    "drawing_power_str": dictionary.get("drawing_power_str"),
                     "balance": dictionary.get("balance"),
+                    "balance_str": dictionary.get("balance_str"),
                 }
             )
 
@@ -769,7 +772,13 @@ def dashboard(**kwargs):
                 "customer": customer.name,
                 "name": ["not in", [list["loan_name"] for list in actionable_loans]],
             },
-            fields=["name", "drawing_power", "balance"],
+            fields=[
+                "name",
+                "drawing_power",
+                "drawing_power_str",
+                "balance",
+                "balance_str",
+            ],
         )
 
         # pending esign object for loan application and topup application
@@ -836,7 +845,12 @@ def dashboard(**kwargs):
             for topup_application in pending_topup_applications:
                 topup_application_doc = frappe.get_doc(
                     "Top up Application", topup_application.name
+                ).as_dict()
+
+                topup_application_doc.top_up_amount = lms.amount_formatter(
+                    topup_application_doc.top_up_amount
                 )
+
                 topup_tnc = frappe.get_all(
                     "Approved Terms and Conditions",
                     filters={"application_name": topup_application.name},
@@ -1095,15 +1109,15 @@ def get_profile_set_alerts(**kwargs):
             user_kyc = None
 
         # last login details
-        last_login = None
+        last_login_time = None
         last_login = frappe.get_all(
             "Activity Log",
             fields=["*"],
             filters={"operation": "Login", "status": "Success", "user": user.email},
             order_by="creation desc",
-        )[1]
-        if last_login:
-            last_login = (last_login.creation).strftime("%Y-%m-%d %H:%M:%S")
+        )
+        if len(last_login) > 1:
+            last_login_time = (last_login[1].creation).strftime("%Y-%m-%d %H:%M:%S")
 
         # alerts percentage and amount save in doctype
         if (
@@ -1145,7 +1159,7 @@ def get_profile_set_alerts(**kwargs):
         res = {
             "customer_details": customer,
             "user_kyc": user_kyc,
-            "last_login": last_login,
+            "last_login": last_login_time,
         }
 
         return utils.respondWithSuccess(data=res)
