@@ -926,7 +926,7 @@ def dashboard(**kwargs):
             unpledge_application_exist = frappe.get_all(
                 "Unpledge Application",
                 filters={"loan": loan.name, "status": "Pending"},
-                fields=['*'],
+                fields=["*"],
                 order_by="creation desc",
                 page_length=1,
             )
@@ -942,7 +942,9 @@ def dashboard(**kwargs):
         topup_list.sort(key=lambda item: (item["loan"]), reverse=True)
         sell_collateral_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
-        unpledge_application_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
+        unpledge_application_list.sort(
+            key=lambda item: (item["loan_name"]), reverse=True
+        )
 
         number_of_user_login = frappe.get_all(
             "Activity Log",
@@ -1487,92 +1489,6 @@ def feedback(**kwargs):
             )
     except utils.exceptions.APIException as e:
         return e.respond()
-
-
-# @frappe.whitelist()
-# def feedback_in_more_menu(**kwargs):
-#     try:
-#         utils.validator.validate_http_method("GET")
-
-#         data = utils.validator.validate(
-#             kwargs,
-#             {
-#                 "bulls_eye": "",
-#                 "can_do_better": "",
-#                 "related_to_user_experience": "",
-#                 "related_to_functionality": "",
-#                 "others": "",
-#                 "comment": "",
-#             },
-#         )
-
-#         customer = lms.__customer()
-
-#         if isinstance(data.get("bulls_eye"), str):
-#             data["bulls_eye"] = int(data.get("bulls_eye"))
-
-#         if isinstance(data.get("can_do_better"), str):
-#             data["can_do_better"] = int(data.get("can_do_better"))
-
-#         if isinstance(data.get("related_to_user_experience"), str):
-#             data["related_to_user_experience"] = int(
-#                 data.get("related_to_user_experience")
-#             )
-
-#         if isinstance(data.get("related_to_functionality"), str):
-#             data["related_to_functionality"] = int(data.get("related_to_functionality"))
-
-#         if isinstance(data.get("others"), str):
-#             data["others"] = int(data.get("others"))
-
-#         # validation
-#         if (data.get("bulls_eye") and data.get("can_do_better")) or (
-#             not data.get("bulls_eye") and not data.get("can_do_better")
-#         ):
-#             return utils.respondWithFailure(
-#                 status=417,
-#                 message=frappe._("Please select one option."),
-#             )
-
-#         if (
-#             data.get("can_do_better")
-#             and not data.get("related_to_user_experience")
-#             and not data.get("related_to_functionality")
-#             and not data.get("others")
-#         ):
-#             return utils.respondWithFailure(
-#                 status=417,
-#                 message=frappe._("Please select below options."),
-#             )
-
-#         if not data.get("comment"):
-#             return utils.respondWithFailure(message=frappe._("Please give us Feedback"))
-
-#         feedbacks = frappe.get_doc(
-#             {
-#                 "doctype": "Feedback",
-#                 "customer": customer.name,
-#                 "sparkloans_have_hit_the_bulls_eye": data.get("bulls_eye"),
-#                 "sparkloans_can_do_better": data.get("can_do_better"),
-#                 "related_to_user_experience": data.get("related_to_user_experience"),
-#                 "related_to_functionality": data.get("related_to_functionality"),
-#                 "others": data.get("others"),
-#                 "comment": data.get("comment"),
-#             }
-#         )
-#         feedbacks.insert(ignore_permissions=True)
-#         feedback_already_given = frappe.get_doc("Feedback", {"customer": customer.name})
-#         if feedback_already_given:
-#             customer.feedback_submitted = 1
-#             customer.save(ignore_permissions=True)
-#         frappe.db.commit()
-
-#         return utils.respondWithSuccess(
-#             message=frappe._("Feedback successfully submited.")
-#         )
-
-#     except utils.exceptions.APIException as e:
-#         return e.respond()
 
 
 def convert_sec_to_hh_mm_ss(seconds):
