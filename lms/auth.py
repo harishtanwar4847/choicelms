@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timedelta
+import re
 
 import frappe
 import utils
@@ -12,6 +13,7 @@ from frappe.utils.password import (
 )
 
 import lms
+regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
 
 # from lms.exceptions.InvalidUserTokenException import InvalidUserTokenException
 # from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
@@ -30,7 +32,7 @@ def login(**kwargs):
                 "mobile": ["required", "decimal", utils.validator.rules.LengthRule(10)],
                 "pin": [utils.validator.rules.LengthRule(4)],
                 "firebase_token": [utils.validator.rules.RequiredIfPresent("pin")],
-                "accept_terms": "",
+                "accept_terms": "decimal|between:0,1",
             },
         )
 
@@ -249,6 +251,11 @@ def register(**kwargs):
                 "firebase_token": "required",
             },
         )
+        if regex.search(data.get("last_name")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         user_data = {
             "first_name": data.get("first_name"),

@@ -20,6 +20,7 @@ import lms
 from lms.exceptions import *
 from lms.firebase import FirebaseAdmin
 
+regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
 
 @frappe.whitelist()
 def set_pin(**kwargs):
@@ -62,7 +63,7 @@ def kyc(**kwargs):
             {
                 "pan_no": "required",
                 "birth_date": "required|date",
-                "accept_terms": "required",
+                "accept_terms": "decimal|between:0,1",
             },
         )
 
@@ -335,13 +336,19 @@ def approved_securities(**kwargs):
             kwargs,
             {
                 "lender": "",
-                "start": "",
-                "per_page": "",
+                "start": "min:0",
+                "per_page": "min:0",
                 "search": "",
                 "category": "",
-                "is_download": "",
+                "is_download": "decimal|between:0,1",
             },
         )
+
+        if regex.search(data.get("lender")) != None or regex.search(data.get("search")) != None or regex.search(data.get("category")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         if isinstance(data.get("is_download"), str):
             data["is_download"] = int(data.get("is_download"))
@@ -1053,7 +1060,7 @@ def get_profile_set_alerts(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {"is_for_alerts": "", "percentage": "decimal", "amount": "decimal"},
+            {"is_for_alerts": "decimal|between:0,1", "percentage": "decimal", "amount": "decimal"},
         )
 
         if isinstance(data.get("is_for_alerts"), str):
@@ -1134,9 +1141,9 @@ def update_profile_pic_and_pin(**kwargs):
         data = utils.validator.validate(
             kwargs,
             {
-                "is_for_profile_pic": "",
+                "is_for_profile_pic": "decimal|between:0,1",
                 "image": "",
-                "is_for_update_pin": "",
+                "is_for_update_pin": "decimal|between:0,1",
                 "old_pin": ["decimal", utils.validator.rules.LengthRule(4)],
                 "new_pin": ["decimal", utils.validator.rules.LengthRule(4)],
                 "retype_pin": ["decimal", utils.validator.rules.LengthRule(4)],
@@ -1233,7 +1240,14 @@ def contact_us(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
-        data = utils.validator.validate(kwargs, {"search": "", "view_more": ""})
+        data = utils.validator.validate(kwargs, {"search": "", "view_more": "decimal|between:0,1"})
+
+        if regex.search(data.get("search")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
+
         if isinstance(data.get("view_more"), str):
             data["view_more"] = int(data.get("view_more"))
 
@@ -1325,18 +1339,25 @@ def feedback(**kwargs):
         data = utils.validator.validate(
             kwargs,
             {
-                "do_not_show_again": "",
-                "bulls_eye": "",
-                "can_do_better": "",
-                "related_to_user_experience": "",
-                "related_to_functionality": "",
-                "others": "",
+                "do_not_show_again": "decimal|between:0,1",
+                "bulls_eye": "decimal|between:0,1",
+                "can_do_better": "decimal|between:0,1",
+                "related_to_user_experience": "decimal|between:0,1",
+                "related_to_functionality": "decimal|between:0,1",
+                "others": "decimal|between:0,1",
                 "comment": "",
-                "from_more_menu": "",
+                "from_more_menu": "decimal|between:0,1",
             },
         )
 
         customer = lms.__customer()
+
+        # regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
+        if regex.search(data.get("comment")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         if isinstance(data.get("do_not_show_again"), str):
             data["do_not_show_again"] = int(data.get("do_not_show_again"))
