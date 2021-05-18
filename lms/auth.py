@@ -370,7 +370,12 @@ def request_forgot_pin_otp(**kwargs):
             return utils.respondNotFound(
                 message=frappe._("Please use registered email.")
             )
-        old_token_name = frappe.get_all("User Token", filters={"entity":user.email, "token_type":"Forgot Pin OTP"}, order_by="creation desc", fields=["*"])[0].name
+        old_token_name = frappe.get_all(
+            "User Token",
+            filters={"entity": user.email, "token_type": "Forgot Pin OTP"},
+            order_by="creation desc",
+            fields=["*"],
+        )[0].name
         old_token = frappe.get_doc("User Token", old_token_name)
         lms.token_mark_as_used(old_token)
 
@@ -447,15 +452,16 @@ def verify_forgot_pin_otp(**kwargs):
 
 
 def login_activity(customer):
-    activity_log = frappe.get_doc({
+    activity_log = frappe.get_doc(
+        {
             "doctype": "Activity Log",
             "owner": customer.user,
-            "subject": customer.full_name+" logged in",
+            "subject": customer.full_name + " logged in",
             "communication_date": frappe.utils.now_datetime(),
             "operation": "Login",
             "status": "Success",
             "user": customer.user,
-            "full_name": customer.full_name
+            "full_name": customer.full_name,
         }
     )
     activity_log.insert(ignore_permissions=True)

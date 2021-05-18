@@ -926,7 +926,7 @@ def dashboard(**kwargs):
                 "user": customer.user,
             },
         )
-        
+
         loan_customer_feedback_config = frappe.db.get_value(
             "Loan Customer",
             {"name": customer.name},
@@ -1019,13 +1019,23 @@ def weekly_pledged_security_dashboard(**kwargs):
                 as_dict=1,
             )
 
-            total = sum([i.price*j.total_pledged_qty for j in all_loan_items for i in security_price_list if i.security == j.isin])
+            total = sum(
+                [
+                    i.price * j.total_pledged_qty
+                    for j in all_loan_items
+                    for i in security_price_list
+                    if i.security == j.isin
+                ]
+            )
 
             if counter != 52:
                 last_friday += timedelta(days=-7)
 
             weekly_security_amount.append(
-                {"week": counter, "weekly_amount_for_all_loans": round(total, 2) if total else 0.0}
+                {
+                    "week": counter,
+                    "weekly_amount_for_all_loans": round(total, 2) if total else 0.0,
+                }
             )
             counter -= 1
         return utils.respondWithSuccess(data=weekly_security_amount)
@@ -1057,9 +1067,12 @@ def get_profile_set_alerts(**kwargs):
 
         # last login details
         last_login = None
-        last_login = frappe.get_all("Activity Log", fields=["*"], filters={"operation": "Login",
-                "status": "Success",
-                "user": user.email}, order_by="creation desc")[1]
+        last_login = frappe.get_all(
+            "Activity Log",
+            fields=["*"],
+            filters={"operation": "Login", "status": "Success", "user": user.email},
+            order_by="creation desc",
+        )[1]
         if last_login:
             last_login = (last_login.creation).strftime("%Y-%m-%d %H:%M:%S")
 
@@ -1285,7 +1298,6 @@ def check_eligible_limit(**kwargs):
         # for i in eligible_limit_list:
         #     i["Is_Eligible"] = True
         list = map(lambda item: dict(item, Is_Eligible=True), eligible_limit_list)
-
 
         return utils.respondWithSuccess(data=list)
     except utils.exceptions.APIException as e:
