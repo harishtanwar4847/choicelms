@@ -831,6 +831,7 @@ def dashboard(**kwargs):
         topup_list = []
         sell_collateral_list = []
         increase_loan_list = []
+        unpledge_application_list = []
         all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
 
         for loan in all_loans:
@@ -893,9 +894,28 @@ def dashboard(**kwargs):
                     else None,
                 }
             )
+
+            # check if any pending unpledge application exist
+            unpledge_application_exist = frappe.get_all(
+                "Unpledge Application",
+                filters={"loan": loan.name, "status": "Pending"},
+                fields=['*'],
+                order_by="creation desc",
+                page_length=1,
+            )
+            unpledge_application_list.append(
+                {
+                    "loan_name": loan.name,
+                    "unpledge_application_available": unpledge_application_exist
+                    if unpledge_application_exist
+                    else None,
+                }
+            )
+
         topup_list.sort(key=lambda item: (item["loan"]), reverse=True)
         sell_collateral_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
+        unpledge_application_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
 
         number_of_user_login = frappe.get_all(
             "Activity Log",
@@ -936,6 +956,7 @@ def dashboard(**kwargs):
             "top_up": topup_list,
             "sell_collateral_list": sell_collateral_list,
             "increase_loan_list": increase_loan_list,
+            "unpledge_application_list": unpledge_application_list,
             "show_feedback_popup": show_feedback_popup,
         }
 
