@@ -585,9 +585,11 @@ def loan_details(**kwargs):
         )
 
         customer = lms.__customer()
-        loan = frappe.get_doc("Loan", data.get("loan_name"))
-        if not loan:
+        try:
+            loan = frappe.get_doc("Loan", data.get("loan_name"))
+        except frappe.DoesNotExistError:
             return utils.respondNotFound(message=frappe._("Loan not found."))
+
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
 
@@ -975,9 +977,11 @@ def loan_statement(**kwargs):
             data["is_email"] = int(data.get("is_email"))
 
         customer = lms.__customer()
-        loan = frappe.get_doc("Loan", data.get("loan_name"))
-        if not loan:
+        try:
+            loan = frappe.get_doc("Loan", data.get("loan_name"))
+        except frappe.DoesNotExistError:
             return utils.respondNotFound(message=frappe._("Loan not found."))
+
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
         if data.get("type") not in [
@@ -1132,17 +1136,20 @@ def loan_statement(**kwargs):
                     "name",
                     "transaction_type",
                     "record_type",
-                    "round(amount, 2) as amount",
+                    "amount",
                     "DATE_FORMAT(time, '%Y-%m-%d %H:%i') as time",
                     "status",
                 ],
                 page_length=page_length,
             )
-            if not loan_transaction_list:
+            if len(loan_transaction_list) <= 0:
                 return utils.respondNotFound(message=_("No Record Found"))
-            res["loan_transaction_list"] = loan_transaction_list
+
             for list in loan_transaction_list:
+                list["amount"] = lms.amount_formatter(list["amount"])
                 lt_list.append(list.values())
+            # lt_list = [lst.values() for lst in loan_transaction_list]
+            res["loan_transaction_list"] = loan_transaction_list
             df = pd.DataFrame(lt_list)
             df.columns = loan_transaction_list[0].keys()
             loan_statement_pdf_file = "{}-loan-statement.pdf".format(
