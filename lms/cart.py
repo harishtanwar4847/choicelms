@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from itertools import groupby
+import re
 
 import frappe
 import requests
@@ -11,6 +12,7 @@ from lms.exceptions import PledgeSetupFailureException
 from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions import (
     ApprovedTermsandConditions,
 )
+regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
 
 
 def validate_securities_for_cart(securities, lender):
@@ -95,6 +97,13 @@ def upsert(**kwargs):
                 "pledgor_boid": "required",
             },
         )
+
+        if regex.search(data.get("cart_name")) != None or regex.search(data.get("loan_name")) != None or regex.search(data.get("loan_margin_shortfall_name")) != None or regex.search(data.get("lender")) != None or regex.search(data.get("pledgor_boid")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
+
 
         if not data.get("lender", None):
             data["lender"] = frappe.get_last_doc("Lender").name
@@ -293,6 +302,13 @@ def process(**kwargs):
             },
         )
 
+        if regex.search(data.get("cart_name")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
+
+
         user_kyc = lms.__user_kyc()
 
         token = lms.verify_user_token(
@@ -442,6 +458,13 @@ def get_tnc(**kwargs):
             kwargs,
             {"cart_name": "", "topup_application_name": ""},
         )
+
+        #[@_!#$%^&*()<>?/\|}{~:`]
+        if regex.search(data.get("cart_name")) != None or regex.search(data.get("topup_application_name")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         customer = lms.__customer()
         user_kyc = lms.__user_kyc()

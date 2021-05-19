@@ -1,5 +1,6 @@
 import json
 from datetime import date, datetime, timedelta
+import re
 
 import frappe
 import pandas as pd
@@ -9,6 +10,7 @@ from frappe import _
 from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms
+regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
 
 
 @frappe.whitelist()
@@ -72,6 +74,12 @@ def esign(**kwargs):
             kwargs,
             {"loan_application_name": "", "topup_application_name": ""},
         )
+
+        if regex.search(data.get("loan_application_name")) != None or regex.search(data.get("topup_application_name")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         customer = lms.__customer()
         if data.get("loan_application_name") and data.get("topup_application_name"):
@@ -154,6 +162,12 @@ def esign_done(**kwargs):
                 "file_id": "required",
             },
         )
+
+        if regex.search(data.get("loan_application_name")) != None or regex.search(data.get("topup_application_name")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         user = lms.__user()
         customer = lms.__customer()
@@ -511,6 +525,12 @@ def create_topup(**kwargs):
                 "topup_amount": ["required", lambda x: type(x) == float],
             },
         )
+
+        if regex.search(data.get("loan_name")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
@@ -583,6 +603,12 @@ def loan_details(**kwargs):
                 "transactions_start": "",
             },
         )
+
+        if regex.search(data.get("loan_name")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -722,6 +748,12 @@ def loan_withdraw_details(**kwargs):
 
         data = utils.validator.validate(kwargs, {"loan_name": "required"})
 
+        if regex.search(data.get("loan_name")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
+
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
@@ -783,6 +815,12 @@ def loan_withdraw_request(**kwargs):
                 "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
             },
         )
+
+        if regex.search(data.get("loan_name")) != None or regex.search(data.get("bank_account_name")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         customer = lms.__customer()
         user = lms.__user()
@@ -899,9 +937,15 @@ def loan_payment(**kwargs):
                 "amount": ["required", lambda x: type(x) == float],
                 "transaction_id": "required",
                 "loan_margin_shortfall_name": "",
-                "is_for_interest": "",
+                "is_for_interest": "decimal|between:0,1",
             },
         )
+
+        if regex.search(data.get("loan_name")) != None or regex.search(data.get("amount")) != None or regex.search(data.get("transaction_id")) != None or regex.search(data.get("loan_margin_shortfall_name")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         customer = lms.__customer()
         try:
@@ -1316,6 +1360,12 @@ def loan_unpledge_details(**kwargs):
 
         data = utils.validator.validate(kwargs, {"loan_name": "required"})
 
+        if regex.search(data.get("loan_name")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
+
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
@@ -1451,6 +1501,12 @@ def loan_unpledge_request(**kwargs):
             },
         )
 
+        if regex.search(data.get("loan_name")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
+
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
@@ -1546,6 +1602,12 @@ def sell_collateral_request(**kwargs):
                 "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
             },
         )
+
+        if regex.search(data.get("loan_margin_shortfall_name")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         user = lms.__user()
         customer = lms.__customer()
