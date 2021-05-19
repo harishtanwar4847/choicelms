@@ -691,12 +691,13 @@ class LoanApplication(Document):
             if item.pledge_status == "Success":
                 item.lender_approval_status = "Rejected"
         self.save(ignore_permissions=True)
-    
+
     def undo_select_all_isin(self):
         for item in self.items:
             if item.pledge_status == "Success":
                 item.lender_approval_status = ""
         self.save(ignore_permissions=True)
+
 
 def check_for_pledge(loan_application_doc):
     # TODO : Workers assigned for this cron can be set in las and we can apply (fetch records)limit as per no. of workers assigned
@@ -880,14 +881,68 @@ def only_pdf_upload(doc, method):
 
 
 @frappe.whitelist()
-def approve_all_isin_button(loan_application_name):
-    loan_application = frappe.get_doc("Loan Application", loan_application_name)
-    loan_application.approve_all_isin()
+def approve_all_isin_button(loan_application):
+    # print(type(loan_application), type(json.loads(loan_application)))
+    loan_application = json.loads(loan_application)
+    print(type(loan_application))
+    loan_application_doc = frappe.get_doc("Loan Application", loan_application["name"])
+    if loan_application_doc.status == "Pledge executed":
+        total_collateral_value = 0
+        drawing_power = 0
+        print(type(loan_application["items"]), loan_application["items"])
+        for i in loan_application["items"]:
+            if i["pledge_status"] == "Success" or i["pledge_status"] == "":
+                if (
+                    i["lender_approval_status"] == "Approved"
+                    or i["lender_approval_status"] == ""
+                ):
+                    total_collateral_value += i["amount"]
+                    total_collateral_value = round(total_collateral_value, 2)
+                    drawing_power = round(
+                        lms.round_down_amount_to_nearest_thousand(
+                            (loan_application["allowable_ltv"] / 100)
+                            * total_collateral_value
+                        ),
+                        2,
+                    )
+                elif (
+                    i["lender_approval_status"] == "Rejected"
+                    or i["lender_approval_status"] == "Pledge Failure"
+                ):
+                    if (
+                        total_collateral_value > 0
+                        and total_collateral_value >= i["amount"]
+                    ):
+                        total_collateral_value -= i["amount"]
+                    total_collateral_value = round(total_collateral_value, 2)
+                    drawing_power = round(
+                        lms.round_down_amount_to_nearest_thousand(
+                            (loan_application["allowable_ltv"] / 100)
+                            * total_collateral_value
+                        ),
+                        2,
+                    )
+
+        response = {
+            "total_collateral_value": total_collateral_value,
+            "drawing_power": drawing_power,
+            "total_collateral_value_str": lms.amount_formatter(total_collateral_value),
+            "drawing_power_str": lms.amount_formatter(drawing_power),
+            "pledged_total_collateral_value_str": lms.amount_formatter(
+                loan_application["pledged_total_collateral_value"]
+            ),
+        }
+
+        return response
+        # loan_application = frappe.get_doc("Loan Application", loan_application_name)
+        # loan_application.approve_all_isin()
+
 
 @frappe.whitelist()
 def reject_all_isin_button(loan_application_name):
     loan_application = frappe.get_doc("Loan Application", loan_application_name)
     loan_application.reject_all_isin()
+
 
 @frappe.whitelist()
 def undo_select_all_isin_button(loan_application_name):
