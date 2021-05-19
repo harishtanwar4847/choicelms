@@ -593,7 +593,7 @@ def dashboard(**kwargs):
             return utils.respondNotFound(message=frappe._("Customer not found."))
 
         all_mgloans = frappe.db.sql(
-            """select loan.name, loan.drawing_power, loan.balance,
+            """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str,
 		IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, IFNULL(mrgloan.shortfall, 0.0) as shortfall
 		from `tabLoan` as loan
 		left join `tabLoan Margin Shortfall` as mrgloan
@@ -608,8 +608,7 @@ def dashboard(**kwargs):
         )
 
         all_interest_loans = frappe.db.sql(
-            """select
-		loan.name, loan.drawing_power, loan.balance,
+            """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str,
 		sum(loantx.unpaid_interest) as interest_amount
 		from `tabLoan` as loan
 		left join `tabLoan Transaction` as loantx
@@ -635,7 +634,9 @@ def dashboard(**kwargs):
                 {
                     "loan_name": dictionary.get("name"),
                     "drawing_power": dictionary.get("drawing_power"),
+                    "drawing_power_str": dictionary.get("drawing_power_str"),
                     "balance": dictionary.get("balance"),
+                    "balance_str": dictionary.get("balance_str"),
                 }
             )
             loan = frappe.get_doc("Loan", dictionary["name"])
@@ -691,7 +692,9 @@ def dashboard(**kwargs):
                 {
                     "loan_name": dictionary.get("name"),
                     "drawing_power": dictionary.get("drawing_power"),
+                    "drawing_power_str": dictionary.get("drawing_power_str"),
                     "balance": dictionary.get("balance"),
+                    "balance_str": dictionary.get("balance_str"),
                 }
             )
 
@@ -769,7 +772,13 @@ def dashboard(**kwargs):
                 "customer": customer.name,
                 "name": ["not in", [list["loan_name"] for list in actionable_loans]],
             },
-            fields=["name", "drawing_power", "balance"],
+            fields=[
+                "name",
+                "drawing_power",
+                "drawing_power_str",
+                "balance",
+                "balance_str",
+            ],
         )
 
         # pending esign object for loan application and topup application
@@ -785,7 +794,45 @@ def dashboard(**kwargs):
                 loan_application_doc = frappe.get_doc(
                     "Loan Application", loan_application.name
                 )
-                la_pending_esigns.append(loan_application_doc)
+
+                mess = "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly the final Drawing power is Rs. {drawing_power}. Please e-sign the loan agreement to avail the loan now.".format(
+                    current_total_collateral_value=loan_application_doc.total_collateral_value_str,
+                    requested_total_collateral_value=loan_application_doc.pledged_total_collateral_value_str,
+                    drawing_power=loan_application_doc.drawing_power_str,
+                )
+                if (
+                    loan_application_doc.loan
+                    and not loan_application_doc.loan_margin_shortfall
+                ):
+                    loan = frappe.get_doc("Loan", loan_application_doc.loan)
+
+                    increase_loan_mess = dict(
+                        existing_limit=loan.drawing_power,
+                        existing_collateral_value=loan.total_collateral_value,
+                        new_limit=(
+                            lms.round_down_amount_to_nearest_thousand(
+                                (
+                                    loan_application_doc.total_collateral_value
+                                    + loan.total_collateral_value
+                                )
+                                * loan_application_doc.allowable_ltv
+                                / 100
+                            )
+                        ),
+                        new_collateral_value=loan_application_doc.total_collateral_value
+                        + loan.total_collateral_value,
+                    )
+
+                la_pending_esigns.append(
+                    {
+                        "loan_application": loan_application_doc,
+                        "message": mess,
+                        "increase_loan_message": increase_loan_mess
+                        if loan_application_doc.loan
+                        and not loan_application_doc.loan_margin_shortfall
+                        else None,
+                    }
+                )
 
         pending_topup_applications = frappe.get_all(
             "Top up Application",
@@ -798,7 +845,12 @@ def dashboard(**kwargs):
             for topup_application in pending_topup_applications:
                 topup_application_doc = frappe.get_doc(
                     "Top up Application", topup_application.name
+                ).as_dict()
+
+                topup_application_doc.top_up_amount = lms.amount_formatter(
+                    topup_application_doc.top_up_amount
                 )
+
                 topup_tnc = frappe.get_all(
                     "Approved Terms and Conditions",
                     filters={"application_name": topup_application.name},
@@ -820,6 +872,7 @@ def dashboard(**kwargs):
         topup_list = []
         sell_collateral_list = []
         increase_loan_list = []
+        unpledge_application_list = []
         all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
 
         for loan in all_loans:
@@ -849,15 +902,17 @@ def dashboard(**kwargs):
             sell_collateral_application_exist = frappe.get_all(
                 "Sell Collateral Application",
                 filters={"loan": loan.name, "status": "Pending"},
+                fields=["*"],
                 order_by="creation desc",
                 page_length=1,
             )
+
             sell_collateral_list.append(
                 {
                     "loan_name": loan.name,
-                    "sell_collateral_available": None
+                    "sell_collateral_available": sell_collateral_application_exist
                     if len(sell_collateral_application_exist)
-                    else 1,
+                    else None,
                 }
             )
 
@@ -880,23 +935,41 @@ def dashboard(**kwargs):
                     else None,
                 }
             )
+
+            # check if any pending unpledge application exist
+            unpledge_application_exist = frappe.get_all(
+                "Unpledge Application",
+                filters={"loan": loan.name, "status": "Pending"},
+                fields=["*"],
+                order_by="creation desc",
+                page_length=1,
+            )
+            unpledge_application_list.append(
+                {
+                    "loan_name": loan.name,
+                    "unpledge_application_available": unpledge_application_exist
+                    if unpledge_application_exist
+                    else None,
+                }
+            )
+
         topup_list.sort(key=lambda item: (item["loan"]), reverse=True)
         sell_collateral_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
-
-        # number_of_user_login = frappe.get_all(
-        #     "Activity Log",
-        #     fields=["count(status) as status_count", "status"],
-        #     filters={
-        #         "operation": "Login",
-        #         "status": "Success",
-        #         "user": customer.user,
-        #     },
-        # )
-        number_of_user_login = frappe.db.count(
-            "User Token",
-            filters={"token_type": "Firebase Token", "entity": customer.user},
+        unpledge_application_list.sort(
+            key=lambda item: (item["loan_name"]), reverse=True
         )
+
+        number_of_user_login = frappe.get_all(
+            "Activity Log",
+            fields=["count(status) as status_count", "status"],
+            filters={
+                "operation": "Login",
+                "status": "Success",
+                "user": customer.user,
+            },
+        )
+
         loan_customer_feedback_config = frappe.db.get_value(
             "Loan Customer",
             {"name": customer.name},
@@ -911,7 +984,7 @@ def dashboard(**kwargs):
                 loan_customer_feedback_config.feedback_submitted
                 or loan_customer_feedback_config.feedback_do_not_show_popup
             )
-        ) or number_of_user_login < 10:
+        ) or number_of_user_login[0].status_count <= 10:
             show_feedback_popup = 0
 
         res = {
@@ -924,38 +997,11 @@ def dashboard(**kwargs):
             "active_loans": active_loans,
             "pending_esigns_list": pending_esigns_list,
             "top_up": topup_list,
-            # "login_more_than_10": 1 if number_of_user_login[0].status_count > 10 else 0,
-            "show_feedback_popup": show_feedback_popup,
             "sell_collateral_list": sell_collateral_list,
             "increase_loan_list": increase_loan_list,
+            "unpledge_application_list": unpledge_application_list,
+            "show_feedback_popup": show_feedback_popup,
         }
-
-        # for loan in all_loans:
-        #     sell_collateral_application_exist = frappe.get_all(
-        #         "Sell Collateral Application",
-        #         filters={"loan": loan.name, "status": "Pending"},
-        #         order_by="creation desc",
-        #         page_length=1,
-        #     )
-        #     res["sell_collateral"] = 1
-        #     if len(sell_collateral_application_exist):
-        #         res["sell_collateral"] = None
-
-        #     # Increase Loan
-        #     existing_loan_application = frappe.get_all(
-        #         "Loan Application",
-        #         filters={
-        #             "loan": loan.name,
-        #             "customer": loan.customer,
-        #             "status": ["not IN", ["Approved", "Rejected"]],
-        #         },
-        #         fields=["count(name) as in_process"],
-        #     )
-
-        #     if existing_loan_application[0]["in_process"] == 0:
-        #         res["increase_loan"] = 1
-        #     else:
-        #         res["increase_loan"] = None
 
         return utils.respondWithSuccess(data=res)
 
@@ -1016,13 +1062,23 @@ def weekly_pledged_security_dashboard(**kwargs):
                 as_dict=1,
             )
 
-            total = sum([i.price*j.total_pledged_qty for j in all_loan_items for i in security_price_list if i.security == j.isin])
+            total = sum(
+                [
+                    i.price * j.total_pledged_qty
+                    for j in all_loan_items
+                    for i in security_price_list
+                    if i.security == j.isin
+                ]
+            )
 
             if counter != 52:
                 last_friday += timedelta(days=-7)
 
             weekly_security_amount.append(
-                {"week": counter, "weekly_amount_for_all_loans": round(total, 2) if total else 0.0}
+                {
+                    "week": counter,
+                    "weekly_amount_for_all_loans": round(total, 2) if total else 0.0,
+                }
             )
             counter -= 1
         return utils.respondWithSuccess(data=weekly_security_amount)
@@ -1053,12 +1109,15 @@ def get_profile_set_alerts(**kwargs):
             user_kyc = None
 
         # last login details
-        if not user.last_login:
-            last_login = None
-        else:
-            last_login = (
-                datetime.strptime(user.last_login, "%Y-%m-%d %H:%M:%S.%f")
-            ).strftime("%Y-%m-%d %H:%M:%S")
+        last_login_time = None
+        last_login = frappe.get_all(
+            "Activity Log",
+            fields=["*"],
+            filters={"operation": "Login", "status": "Success", "user": user.email},
+            order_by="creation desc",
+        )
+        if len(last_login) > 1:
+            last_login_time = (last_login[1].creation).strftime("%Y-%m-%d %H:%M:%S")
 
         # alerts percentage and amount save in doctype
         if (
@@ -1100,7 +1159,7 @@ def get_profile_set_alerts(**kwargs):
         res = {
             "customer_details": customer,
             "user_kyc": user_kyc,
-            "last_login": last_login,
+            "last_login": last_login_time,
         }
 
         return utils.respondWithSuccess(data=res)
@@ -1263,7 +1322,7 @@ def check_eligible_limit(**kwargs):
         eligible_limit_list = frappe.db.sql(
             """
 			SELECT
-			als.security_name, als.eligible_percentage, als.lender, als.security_category, s.price
+			als.security_name as Scrip_Name, als.eligible_percentage, als.lender, als.security_category as Category, s.price as Price
 			FROM `tabAllowed Security` als
 			LEFT JOIN `tabSecurity` s
 			ON als.isin = s.isin
@@ -1279,7 +1338,11 @@ def check_eligible_limit(**kwargs):
         if not eligible_limit_list:
             return utils.respondNotFound(message=_("No Record Found"))
 
-        return utils.respondWithSuccess(data=eligible_limit_list)
+        # for i in eligible_limit_list:
+        #     i["Is_Eligible"] = True
+        list = map(lambda item: dict(item, Is_Eligible=True), eligible_limit_list)
+
+        return utils.respondWithSuccess(data=list)
     except utils.exceptions.APIException as e:
         return e.respond()
 
@@ -1372,22 +1435,22 @@ def feedback(**kwargs):
                     message=frappe._("Please write your suggestion to us.")
                 )
 
-        # number_of_user_login = frappe.get_all(
-        #     "Activity Log",
-        #     fields=["count(status) as status_count", "status"],
-        #     filters={
-        #         "operation": "Login",
-        #         "status": "Success",
-        #         "user": customer.user,
-        #     },
-        # )
+        number_of_user_login = frappe.get_all(
+            "Activity Log",
+            fields=["count(status) as status_count", "status"],
+            filters={
+                "operation": "Login",
+                "status": "Success",
+                "user": customer.user,
+            },
+        )
 
         # if number_of_user_login[0].status_count > 10:
         # show feedback popup
-        number_of_user_login = frappe.db.count(
-            "User Token",
-            filters={"token_type": "Firebase Token", "entity": customer.user},
-        )
+        # number_of_user_login = frappe.db.count(
+        #     "User Token",
+        #     filters={"token_type": "Firebase Token", "entity": customer.user},
+        # )
         loan_customer_feedback_config = frappe.db.get_value(
             "Loan Customer",
             {"name": customer.name},
@@ -1401,7 +1464,7 @@ def feedback(**kwargs):
             frappe.db.commit()
             return utils.respondWithSuccess(message=frappe._("successfully saved."))
 
-        elif number_of_user_login > 10 or data.get("from_more_menu"):
+        elif number_of_user_login[0].status_count > 10 or data.get("from_more_menu"):
             feedback_doc = frappe.get_doc(
                 {
                     "doctype": "Feedback",
@@ -1440,92 +1503,6 @@ def feedback(**kwargs):
             )
     except utils.exceptions.APIException as e:
         return e.respond()
-
-
-# @frappe.whitelist()
-# def feedback_in_more_menu(**kwargs):
-#     try:
-#         utils.validator.validate_http_method("GET")
-
-#         data = utils.validator.validate(
-#             kwargs,
-#             {
-#                 "bulls_eye": "",
-#                 "can_do_better": "",
-#                 "related_to_user_experience": "",
-#                 "related_to_functionality": "",
-#                 "others": "",
-#                 "comment": "",
-#             },
-#         )
-
-#         customer = lms.__customer()
-
-#         if isinstance(data.get("bulls_eye"), str):
-#             data["bulls_eye"] = int(data.get("bulls_eye"))
-
-#         if isinstance(data.get("can_do_better"), str):
-#             data["can_do_better"] = int(data.get("can_do_better"))
-
-#         if isinstance(data.get("related_to_user_experience"), str):
-#             data["related_to_user_experience"] = int(
-#                 data.get("related_to_user_experience")
-#             )
-
-#         if isinstance(data.get("related_to_functionality"), str):
-#             data["related_to_functionality"] = int(data.get("related_to_functionality"))
-
-#         if isinstance(data.get("others"), str):
-#             data["others"] = int(data.get("others"))
-
-#         # validation
-#         if (data.get("bulls_eye") and data.get("can_do_better")) or (
-#             not data.get("bulls_eye") and not data.get("can_do_better")
-#         ):
-#             return utils.respondWithFailure(
-#                 status=417,
-#                 message=frappe._("Please select one option."),
-#             )
-
-#         if (
-#             data.get("can_do_better")
-#             and not data.get("related_to_user_experience")
-#             and not data.get("related_to_functionality")
-#             and not data.get("others")
-#         ):
-#             return utils.respondWithFailure(
-#                 status=417,
-#                 message=frappe._("Please select below options."),
-#             )
-
-#         if not data.get("comment"):
-#             return utils.respondWithFailure(message=frappe._("Please give us Feedback"))
-
-#         feedbacks = frappe.get_doc(
-#             {
-#                 "doctype": "Feedback",
-#                 "customer": customer.name,
-#                 "sparkloans_have_hit_the_bulls_eye": data.get("bulls_eye"),
-#                 "sparkloans_can_do_better": data.get("can_do_better"),
-#                 "related_to_user_experience": data.get("related_to_user_experience"),
-#                 "related_to_functionality": data.get("related_to_functionality"),
-#                 "others": data.get("others"),
-#                 "comment": data.get("comment"),
-#             }
-#         )
-#         feedbacks.insert(ignore_permissions=True)
-#         feedback_already_given = frappe.get_doc("Feedback", {"customer": customer.name})
-#         if feedback_already_given:
-#             customer.feedback_submitted = 1
-#             customer.save(ignore_permissions=True)
-#         frappe.db.commit()
-
-#         return utils.respondWithSuccess(
-#             message=frappe._("Feedback successfully submited.")
-#         )
-
-#     except utils.exceptions.APIException as e:
-#         return e.respond()
 
 
 def convert_sec_to_hh_mm_ss(seconds):

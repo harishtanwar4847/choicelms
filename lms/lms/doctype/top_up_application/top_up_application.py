@@ -29,6 +29,8 @@ class TopupApplication(Document):
         # self.notify_customer()
 
     def on_update(self):
+        if self.status == "Esign Done":
+            return
         self.notify_customer()
 
     def before_submit(self):
@@ -60,6 +62,10 @@ class TopupApplication(Document):
             "sanctioned_amount_in_words": num2words(
                 self.top_up_amount, lang="en_IN"
             ).title(),
+            # "sanctioned_amount": (self.top_up_amount + loan.drawing_power),
+            # "sanctioned_amount_in_words": num2words(
+            #     (self.top_up_amount + loan.drawing_power), lang="en_IN"
+            # ).title(),
             "old_sanctioned_amount": loan.sanctioned_limit,
             "old_sanctioned_amount_in_words": num2words(
                 loan.sanctioned_limit, lang="en_IN"
@@ -77,7 +83,6 @@ class TopupApplication(Document):
             "total_pages": lender.total_pages,
         }
 
-        loan = self.get_loan()
         agreement_template = lender.get_loan_enhancement_agreement_template()
 
         agreement = frappe.render_template(
@@ -116,6 +121,10 @@ class TopupApplication(Document):
             "sanctioned_amount_in_words": num2words(
                 self.top_up_amount, lang="en_IN"
             ).title(),
+            # "sanctioned_amount": (self.top_up_amount + loan.drawing_power),
+            # "sanctioned_amount_in_words": num2words(
+            #     (self.top_up_amount + loan.drawing_power), lang="en_IN"
+            # ).title(),
             "old_sanctioned_amount": loan.sanctioned_limit,
             "old_sanctioned_amount_in_words": num2words(
                 loan.sanctioned_limit, lang="en_IN"

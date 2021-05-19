@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 
 # from frappe.core.doctype.sms_settings.sms_settings import send_sms
@@ -47,14 +48,35 @@ class UserToken(Document):
                 doc=doc,
             )
         elif self.token_type == "Forgot Pin OTP":
-            doc = frappe.get_all("User KYC", filters={"user":self.entity},fields=["*"])[0]
+            customer = frappe.get_all(
+                "Loan Customer", filters={"user": self.entity}, fields=["*"]
+            )[0]
+
+            if customer.choice_kyc:
+                doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+            else:
+                doc = frappe.get_doc("User", self.entity).as_dict()
             doc["otp_info"] = {"token_type": self.token_type, "token": self.token}
-            frappe.enqueue_doc(
-                "Notification",
-                "Forgot Pin",
-                method="send",
-                now=True,
-                doc=doc,
+
+            mess = _(
+                """<html><body><h3>Dear {},<h3><br>
+            Your {} for Spark.Loans is {}. Do not share your {} with anyone.<br>
+            <br>
+            Thanks,<br>
+            The Spark Team</body></html>"""
+            ).format(
+                doc.investor_name if customer.choice_kyc else doc.full_name,
+                doc.get("otp_info").get("token_type"),
+                doc.get("otp_info").get("token"),
+                doc.get("otp_info").get("token_type"),
+            )
+
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=[doc.email if doc.email else doc.user],
+                sender=None,
+                subject="Forgot Pin Notification",
+                message=mess,
             )
 
 
