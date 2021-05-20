@@ -175,7 +175,7 @@ class UnpledgeApplication(Document):
     #         self.workflow_state = "Rejected"
     #         self.save(ignore_permissions=True)
     #         frappe.db.commit()
-    #         self.notify_customer(check = True)
+    #         self.notify_customer(check=True)
 
 
 @frappe.whitelist()
