@@ -620,7 +620,7 @@ def dashboard(**kwargs):
             return utils.respondNotFound(message=frappe._("Customer not found."))
 
         all_mgloans = frappe.db.sql(
-            """select loan.name, loan.drawing_power, loan.balance,
+            """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str,
 		IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, IFNULL(mrgloan.shortfall, 0.0) as shortfall
 		from `tabLoan` as loan
 		left join `tabLoan Margin Shortfall` as mrgloan
@@ -635,8 +635,7 @@ def dashboard(**kwargs):
         )
 
         all_interest_loans = frappe.db.sql(
-            """select
-		loan.name, loan.drawing_power, loan.balance,
+            """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str,
 		sum(loantx.unpaid_interest) as interest_amount
 		from `tabLoan` as loan
 		left join `tabLoan Transaction` as loantx
@@ -662,7 +661,9 @@ def dashboard(**kwargs):
                 {
                     "loan_name": dictionary.get("name"),
                     "drawing_power": dictionary.get("drawing_power"),
+                    "drawing_power_str": dictionary.get("drawing_power_str"),
                     "balance": dictionary.get("balance"),
+                    "balance_str": dictionary.get("balance_str"),
                 }
             )
             loan = frappe.get_doc("Loan", dictionary["name"])
@@ -718,7 +719,9 @@ def dashboard(**kwargs):
                 {
                     "loan_name": dictionary.get("name"),
                     "drawing_power": dictionary.get("drawing_power"),
+                    "drawing_power_str": dictionary.get("drawing_power_str"),
                     "balance": dictionary.get("balance"),
+                    "balance_str": dictionary.get("balance_str"),
                 }
             )
 
@@ -796,7 +799,13 @@ def dashboard(**kwargs):
                 "customer": customer.name,
                 "name": ["not in", [list["loan_name"] for list in actionable_loans]],
             },
-            fields=["name", "drawing_power", "balance"],
+            fields=[
+                "name",
+                "drawing_power",
+                "drawing_power_str",
+                "balance",
+                "balance_str",
+            ],
         )
 
         # pending esign object for loan application and topup application
@@ -814,17 +823,44 @@ def dashboard(**kwargs):
                 )
 
                 mess = "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly the final Drawing power is Rs. {drawing_power}. Please e-sign the loan agreement to avail the loan now.".format(
-                    current_total_collateral_value = loan_application_doc.total_collateral_value_str,
-                    requested_total_collateral_value = loan_application_doc.pledged_total_collateral_value_str,
-                    drawing_power = loan_application_doc.drawing_power_str,
+                    current_total_collateral_value=loan_application_doc.total_collateral_value_str,
+                    requested_total_collateral_value=loan_application_doc.pledged_total_collateral_value_str,
+                    drawing_power=loan_application_doc.drawing_power_str,
                 )
-                if loan_application_doc.loan and not loan_application_doc.loan_margin_shortfall:
+                if (
+                    loan_application_doc.loan
+                    and not loan_application_doc.loan_margin_shortfall
+                ):
                     loan = frappe.get_doc("Loan", loan_application_doc.loan)
-                    
-                    increase_loan_mess = dict(existing_limit=loan.drawing_power,existing_collateral_value=loan.total_collateral_value,new_limit=(lms.round_down_amount_to_nearest_thousand((loan_application_doc.total_collateral_value + loan.total_collateral_value)*loan_application_doc.allowable_ltv/100)),new_collateral_value=loan_application_doc.total_collateral_value+loan.total_collateral_value)
 
-                la_pending_esigns.append({"loan_application":loan_application_doc,"message": mess, "increase_loan_message": increase_loan_mess if loan_application_doc.loan and not loan_application_doc.loan_margin_shortfall else None})
-                
+                    increase_loan_mess = dict(
+                        existing_limit=loan.drawing_power,
+                        existing_collateral_value=loan.total_collateral_value,
+                        new_limit=(
+                            lms.round_down_amount_to_nearest_thousand(
+                                (
+                                    loan_application_doc.total_collateral_value
+                                    + loan.total_collateral_value
+                                )
+                                * loan_application_doc.allowable_ltv
+                                / 100
+                            )
+                        ),
+                        new_collateral_value=loan_application_doc.total_collateral_value
+                        + loan.total_collateral_value,
+                    )
+
+                la_pending_esigns.append(
+                    {
+                        "loan_application": loan_application_doc,
+                        "message": mess,
+                        "increase_loan_message": increase_loan_mess
+                        if loan_application_doc.loan
+                        and not loan_application_doc.loan_margin_shortfall
+                        else None,
+                    }
+                )
+
         pending_topup_applications = frappe.get_all(
             "Top up Application",
             filters={"customer": customer.name, "status": "Pending"},
@@ -836,7 +872,12 @@ def dashboard(**kwargs):
             for topup_application in pending_topup_applications:
                 topup_application_doc = frappe.get_doc(
                     "Top up Application", topup_application.name
+                ).as_dict()
+
+                topup_application_doc.top_up_amount = lms.amount_formatter(
+                    topup_application_doc.top_up_amount
                 )
+
                 topup_tnc = frappe.get_all(
                     "Approved Terms and Conditions",
                     filters={"application_name": topup_application.name},
@@ -926,7 +967,7 @@ def dashboard(**kwargs):
             unpledge_application_exist = frappe.get_all(
                 "Unpledge Application",
                 filters={"loan": loan.name, "status": "Pending"},
-                fields=['*'],
+                fields=["*"],
                 order_by="creation desc",
                 page_length=1,
             )
@@ -942,7 +983,9 @@ def dashboard(**kwargs):
         topup_list.sort(key=lambda item: (item["loan"]), reverse=True)
         sell_collateral_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
-        unpledge_application_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
+        unpledge_application_list.sort(
+            key=lambda item: (item["loan_name"]), reverse=True
+        )
 
         number_of_user_login = frappe.get_all(
             "Activity Log",
@@ -1093,15 +1136,15 @@ def get_profile_set_alerts(**kwargs):
             user_kyc = None
 
         # last login details
-        last_login = None
+        last_login_time = None
         last_login = frappe.get_all(
             "Activity Log",
             fields=["*"],
             filters={"operation": "Login", "status": "Success", "user": user.email},
             order_by="creation desc",
-        )[1]
-        if last_login:
-            last_login = (last_login.creation).strftime("%Y-%m-%d %H:%M:%S")
+        )
+        if len(last_login) > 1:
+            last_login_time = (last_login[1].creation).strftime("%Y-%m-%d %H:%M:%S")
 
         # alerts percentage and amount save in doctype
         if (
@@ -1143,7 +1186,7 @@ def get_profile_set_alerts(**kwargs):
         res = {
             "customer_details": customer,
             "user_kyc": user_kyc,
-            "last_login": last_login,
+            "last_login": last_login_time,
         }
 
         return utils.respondWithSuccess(data=res)
@@ -1501,92 +1544,6 @@ def feedback(**kwargs):
             )
     except utils.exceptions.APIException as e:
         return e.respond()
-
-
-# @frappe.whitelist()
-# def feedback_in_more_menu(**kwargs):
-#     try:
-#         utils.validator.validate_http_method("GET")
-
-#         data = utils.validator.validate(
-#             kwargs,
-#             {
-#                 "bulls_eye": "",
-#                 "can_do_better": "",
-#                 "related_to_user_experience": "",
-#                 "related_to_functionality": "",
-#                 "others": "",
-#                 "comment": "",
-#             },
-#         )
-
-#         customer = lms.__customer()
-
-#         if isinstance(data.get("bulls_eye"), str):
-#             data["bulls_eye"] = int(data.get("bulls_eye"))
-
-#         if isinstance(data.get("can_do_better"), str):
-#             data["can_do_better"] = int(data.get("can_do_better"))
-
-#         if isinstance(data.get("related_to_user_experience"), str):
-#             data["related_to_user_experience"] = int(
-#                 data.get("related_to_user_experience")
-#             )
-
-#         if isinstance(data.get("related_to_functionality"), str):
-#             data["related_to_functionality"] = int(data.get("related_to_functionality"))
-
-#         if isinstance(data.get("others"), str):
-#             data["others"] = int(data.get("others"))
-
-#         # validation
-#         if (data.get("bulls_eye") and data.get("can_do_better")) or (
-#             not data.get("bulls_eye") and not data.get("can_do_better")
-#         ):
-#             return utils.respondWithFailure(
-#                 status=417,
-#                 message=frappe._("Please select one option."),
-#             )
-
-#         if (
-#             data.get("can_do_better")
-#             and not data.get("related_to_user_experience")
-#             and not data.get("related_to_functionality")
-#             and not data.get("others")
-#         ):
-#             return utils.respondWithFailure(
-#                 status=417,
-#                 message=frappe._("Please select below options."),
-#             )
-
-#         if not data.get("comment"):
-#             return utils.respondWithFailure(message=frappe._("Please give us Feedback"))
-
-#         feedbacks = frappe.get_doc(
-#             {
-#                 "doctype": "Feedback",
-#                 "customer": customer.name,
-#                 "sparkloans_have_hit_the_bulls_eye": data.get("bulls_eye"),
-#                 "sparkloans_can_do_better": data.get("can_do_better"),
-#                 "related_to_user_experience": data.get("related_to_user_experience"),
-#                 "related_to_functionality": data.get("related_to_functionality"),
-#                 "others": data.get("others"),
-#                 "comment": data.get("comment"),
-#             }
-#         )
-#         feedbacks.insert(ignore_permissions=True)
-#         feedback_already_given = frappe.get_doc("Feedback", {"customer": customer.name})
-#         if feedback_already_given:
-#             customer.feedback_submitted = 1
-#             customer.save(ignore_permissions=True)
-#         frappe.db.commit()
-
-#         return utils.respondWithSuccess(
-#             message=frappe._("Feedback successfully submited.")
-#         )
-
-#     except utils.exceptions.APIException as e:
-#         return e.respond()
 
 
 def convert_sec_to_hh_mm_ss(seconds):
