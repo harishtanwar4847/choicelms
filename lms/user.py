@@ -532,6 +532,7 @@ def my_pledge_securities(**kwargs):
             "number_of_scrips": len(loan.items),
             "all_pledged_securities": all_pledged_securities,
         }
+        loan_margin_shortfall = frappe.get_all("Loan Margin Shortfall", {"loan": loan.name, "status": "Pending"}, page_length=1)
 
         # Sell Collateral
         sell_collateral_application_exist = frappe.get_all(
@@ -568,6 +569,8 @@ def my_pledge_securities(**kwargs):
         )
         if len(unpledge_application_exist):
             res["unpledge"] = None
+        elif loan_margin_shortfall:
+            res["unpledge"] = """OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(loan.get_customer().first_name)
         else:
             # get amount_available_for_unpledge,min collateral value
             res["unpledge"] = loan.max_unpledge_amount()

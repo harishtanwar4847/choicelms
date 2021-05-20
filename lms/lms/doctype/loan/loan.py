@@ -409,6 +409,9 @@ class Loan(Document):
             # self.update_pending_topup_amount()
             # update pending sell collateral application for this loan
             self.update_pending_sell_collateral_amount()
+            unpledge_application = self.get_unpledge_application()
+            if unpledge_application:
+                unpledge_application.unpledge_with_margin_shortfall()
             frappe.db.commit()
 
     def update_pending_withdraw_requests(self):
@@ -896,6 +899,13 @@ class Loan(Document):
             sell_collateral.process_items()
             sell_collateral.process_sell_items()
             sell_collateral.save(ignore_permissions=True)
+
+    def get_unpledge_application(self):
+        unpledge_application_name = frappe.db.get_value(
+            "Unpledge Application", {"loan": self.name, "status": "Pending"}, "name"
+        )
+
+        return frappe.get_doc("Unpledge Application", unpledge_application_name) if unpledge_application_name else None
 
     # def validate(self):
     #     #remove row from items if pledge quantity is 0
