@@ -75,7 +75,8 @@ def esign(**kwargs):
             {"loan_application_name": "", "topup_application_name": ""},
         )
 
-        if regex.search(data.get("loan_application_name")) != None or regex.search(data.get("topup_application_name")) != None:
+        reg = lms.regex_special_characters(search=data.get("loan_application_name")+data.get("topup_application_name"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -163,7 +164,8 @@ def esign_done(**kwargs):
             },
         )
 
-        if regex.search(data.get("loan_application_name")) != None or regex.search(data.get("topup_application_name")) != None or regex.search(data.get("file_id")) != None:
+        reg = lms.regex_special_characters(search=data.get("loan_application_name")+data.get("topup_application_name")+data.get("file_id"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -526,7 +528,8 @@ def create_topup(**kwargs):
             },
         )
 
-        if regex.search(data.get("loan_name")) != None:
+        reg = lms.regex_special_characters(search=data.get("loan_name"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -604,7 +607,8 @@ def loan_details(**kwargs):
             },
         )
 
-        if regex.search(data.get("loan_name")) != None:
+        reg = lms.regex_special_characters(search=data.get("loan_name"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -748,7 +752,8 @@ def loan_withdraw_details(**kwargs):
 
         data = utils.validator.validate(kwargs, {"loan_name": "required"})
 
-        if regex.search(data.get("loan_name")) != None:
+        reg = lms.regex_special_characters(search=data.get("loan_name"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -816,7 +821,8 @@ def loan_withdraw_request(**kwargs):
             },
         )
 
-        if regex.search(data.get("loan_name")) != None or regex.search(data.get("bank_account_name")) != None:
+        reg = lms.regex_special_characters(search=data.get("loan_name")+data.get("bank_account_name"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -941,7 +947,8 @@ def loan_payment(**kwargs):
             },
         )
 
-        if regex.search(data.get("loan_name")) != None or regex.search(data.get("transaction_id")) != None:
+        reg = lms.regex_special_characters(search=data.get("loan_name")+data.get("transaction_id")+data.get("loan_margin_shortfall_name"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -1002,7 +1009,8 @@ def loan_statement(**kwargs):
             },
         )
 
-        if regex.search(data.get("loan_name")) != None or regex.search(data.get("file_format")) != None or regex.search(data.get("type")) != None:
+        reg = lms.regex_special_characters(search=data.get("loan_name")+data.get("file_format")+data.get("type"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -1366,7 +1374,8 @@ def loan_unpledge_details(**kwargs):
 
         data = utils.validator.validate(kwargs, {"loan_name": "required"})
 
-        if regex.search(data.get("loan_name")) != None:
+        reg = lms.regex_special_characters(search=data.get("loan_name"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -1507,7 +1516,8 @@ def loan_unpledge_request(**kwargs):
             },
         )
 
-        if regex.search(data.get("loan_name")) != None:
+        reg = lms.regex_special_characters(search=data.get("loan_name"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -1609,7 +1619,8 @@ def sell_collateral_request(**kwargs):
             },
         )
 
-        if regex.search(data.get("loan_margin_shortfall_name")) != None:
+        reg = lms.regex_special_characters(search=data.get("loan_name")+data.get("loan_margin_shortfall_name"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),

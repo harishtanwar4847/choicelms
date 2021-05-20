@@ -67,7 +67,8 @@ def kyc(**kwargs):
             },
         )
         
-        if regex.search(data.get("loan_name")) != None:
+        reg = lms.regex_special_characters(search=data.get("pan_no"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -212,7 +213,8 @@ def securities(**kwargs):
                 "lender": "",
             },
         )
-        if regex.search(data.get("lender")) != None:
+        reg = lms.regex_special_characters(search=data.get("lender"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -355,7 +357,8 @@ def approved_securities(**kwargs):
             },
         )
 
-        if regex.search(data.get("lender")) != None or regex.search(data.get("search")) != None or regex.search(data.get("category")) != None:
+        reg = lms.regex_special_characters(search=data.get("lender")+data.get("search")+data.get("category"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -508,7 +511,8 @@ def my_pledge_securities(**kwargs):
             {"loan_name": ""},
         )
         customer = lms.__customer()
-        if regex.search(data.get("loan_name")) != None:
+        reg = lms.regex_special_characters(search=data.get("loan_name"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -1258,7 +1262,8 @@ def contact_us(**kwargs):
 
         data = utils.validator.validate(kwargs, {"search": "", "view_more": "decimal|between:0,1"})
 
-        if regex.search(data.get("search")) != None:
+        reg = lms.regex_special_characters(search=data.get("search"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -1367,8 +1372,8 @@ def feedback(**kwargs):
         )
 
         customer = lms.__customer()
-
-        if regex.search(data.get("comment")) != None:
+        reg = lms.regex_special_characters(search=data.get("comment"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),

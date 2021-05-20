@@ -98,7 +98,8 @@ def upsert(**kwargs):
             },
         )
 
-        if regex.search(data.get("cart_name")) != None or regex.search(data.get("loan_name")) != None or regex.search(data.get("loan_margin_shortfall_name")) != None or regex.search(data.get("lender")) != None or regex.search(data.get("pledgor_boid")) != None:
+        reg = lms.regex_special_characters(search=data.get("cart_name")+data.get("loan_name")+data.get("loan_margin_shortfall_name")+data.get("lender")+data.get("pledgor_boid"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -302,11 +303,13 @@ def process(**kwargs):
             },
         )
 
-        if regex.search(data.get("cart_name")) != None:
+        reg = lms.regex_special_characters(search=data.get("cart_name"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
                 )
+
 
 
         user_kyc = lms.__user_kyc()
@@ -459,8 +462,8 @@ def get_tnc(**kwargs):
             {"cart_name": "", "topup_application_name": ""},
         )
 
-        #[@_!#$%^&*()<>?/\|}{~:`]
-        if regex.search(data.get("cart_name")) != None or regex.search(data.get("topup_application_name")) != None:
+        reg = lms.regex_special_characters(search=data.get("cart_name")+data.get("topup_application_name"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),

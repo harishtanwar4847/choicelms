@@ -251,7 +251,8 @@ def register(**kwargs):
                 "firebase_token": "required",
             },
         )
-        if regex.search(data.get("last_name")) != None:
+        reg = lms.regex_special_characters(search=data.get("last_name"))
+        if reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),

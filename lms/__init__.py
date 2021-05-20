@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from datetime import datetime, timedelta
 from itertools import groupby
 from random import choice
+import re
 from traceback import format_exc
 
 import frappe
@@ -548,3 +549,10 @@ def user_dashboard(data=None):
             {"items": ["Loan Customer"]},
         ],
     }
+
+def regex_special_characters(search):
+    regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
+    if regex.search(search) != None:
+        return True
+    else:
+        return False
