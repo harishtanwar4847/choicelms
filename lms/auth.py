@@ -251,6 +251,7 @@ def register(**kwargs):
                 "firebase_token": "required",
             },
         )
+        
         reg = lms.regex_special_characters(search=data.get("last_name"))
         if reg:
             return utils.respondWithFailure(
