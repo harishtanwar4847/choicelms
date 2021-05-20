@@ -3,11 +3,15 @@
 
 frappe.ui.form.on("Loan Application", {
   refresh: function (frm) {
-    // frm.set_df_property("items", "read_only", 1);
-    frm.get_field("items").grid.only_sortable();
-    $(".grid-add-row").hide();
-    $(".grid-remove-rows").hide();
+    if (frm.doc.status != "Pledge executed") {
+      frm.set_df_property("items", "read_only", 1);
+    } else {
+      frm.get_field("items").grid.only_sortable();
+      $(".grid-add-row").hide();
+      $(".grid-remove-rows").hide();
+    }
 
+    // enable/disable file inputs
     frm.attachments.parent.hide();
     if (["Esign Done", "Approved"].includes(frm.doc.status)) {
       if (frm.doc.customer_esigned_document) {
@@ -24,6 +28,7 @@ frappe.ui.form.on("Loan Application", {
       }
     }
 
+    // enable/disable custom process pledge btn
     if (false == false) {
       if (frm.doc.status == "Waiting to be pledged") {
         frm.add_custom_button(__("Process Pledge"), function () {
@@ -39,6 +44,20 @@ frappe.ui.form.on("Loan Application", {
       }
     }
 
+    // enable/disable lender_approval_status field in LA items
+    if (
+      frm.doc.workflow_state == "Approved" ||
+      frm.doc.workflow_state == "Rejected"
+    ) {
+      var df = frappe.meta.get_docfield(
+        "Loan Application Item",
+        "lender_approval_status",
+        cur_frm.doc.name
+      );
+      df.read_only = 1;
+    }
+
+    // enable/disable custom btn to actions on LA items when status is Pledge executed
     if (frm.doc.status == "Pledge executed") {
       frm.add_custom_button(
         __("Approve All ISIN"),
@@ -70,13 +89,27 @@ frappe.ui.form.on("Loan Application", {
                 callback: function (res) {
                   console.log("in clbck");
                   console.log(res);
-                  cur_frm.doc.total_collateral_value =
-                    res.message.total_collateral_value;
-                  cur_frm.doc.total_collateral_value_str =
-                    res.message.total_collateral_value_str;
-                  cur_frm.doc.drawing_power = res.message.drawing_power;
-                  cur_frm.doc.drawing_power_str = res.message.drawing_power_str;
-                  cur_frm.refresh_fields();
+                  frm.set_value(
+                    "total_collateral_value",
+                    res.message.total_collateral_value
+                  );
+                  // frm.refresh_field("total_collateral_value");
+                  // cur_frm.doc.total_collateral_value =
+                  //   res.message.total_collateral_value;
+                  frm.set_value(
+                    "total_collateral_value_str",
+                    res.message.total_collateral_value_str
+                  );
+                  // cur_frm.doc.total_collateral_value_str =
+                  //   res.message.total_collateral_value_str;
+                  frm.set_value("drawing_power", res.message.drawing_power);
+                  // cur_frm.doc.drawing_power = res.message.drawing_power;
+                  frm.set_value(
+                    "drawing_power_str",
+                    res.message.drawing_power_str
+                  );
+                  // cur_frm.doc.drawing_power_str = res.message.drawing_power_str;
+                  frm.refresh_fields();
                 },
               })
               .then((res) => {
@@ -114,6 +147,46 @@ frappe.ui.form.on("Loan Application", {
               }
             });
             cur_frm.refresh_fields();
+
+            frappe
+              .call({
+                method:
+                  "lms.lms.doctype.loan_application.loan_application.approve_all_isin_button",
+                freeze: true,
+                args: {
+                  loan_application: frm.doc,
+                },
+                callback: function (res) {
+                  console.log("in clbck");
+                  console.log(res);
+                  frm.set_value(
+                    "total_collateral_value",
+                    res.message.total_collateral_value
+                  );
+                  // frm.refresh_field("total_collateral_value");
+                  // cur_frm.doc.total_collateral_value =
+                  //   res.message.total_collateral_value;
+                  frm.set_value(
+                    "total_collateral_value_str",
+                    res.message.total_collateral_value_str
+                  );
+                  // cur_frm.doc.total_collateral_value_str =
+                  //   res.message.total_collateral_value_str;
+                  frm.set_value("drawing_power", res.message.drawing_power);
+                  // cur_frm.doc.drawing_power = res.message.drawing_power;
+                  frm.set_value(
+                    "drawing_power_str",
+                    res.message.drawing_power_str
+                  );
+                  // cur_frm.doc.drawing_power_str = res.message.drawing_power_str;
+                  frm.refresh_fields();
+                  // cur_frm.refresh_fields();
+                },
+              })
+              .then((res) => {
+                console.log("then");
+                console.log(res);
+              });
           }
           //   frappe.call({
           //     method:
@@ -126,29 +199,6 @@ frappe.ui.form.on("Loan Application", {
         },
         __("Actions On ISIN")
       );
-
-      // frm.add_custom_button(__("Undo Select All ISIN"), function () {
-      //   frappe.call({
-      //     method:
-      //       "lms.lms.doctype.loan_application.loan_application.undo_select_all_isin_button",
-      //     freeze: true,
-      //     args: {
-      //       loan_application_name: frm.doc.name,
-      //     },
-      //   });
-      // }, __("Actions On ISIN"));
-    }
-
-    if (
-      frm.doc.workflow_state == "Approved" ||
-      frm.doc.workflow_state == "Rejected"
-    ) {
-      var df = frappe.meta.get_docfield(
-        "Loan Application Item",
-        "lender_approval_status",
-        cur_frm.doc.name
-      );
-      df.read_only = 1;
     }
   },
 });

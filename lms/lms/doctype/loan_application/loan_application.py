@@ -201,22 +201,22 @@ class LoanApplication(Document):
                             ),
                             2,
                         )
-                    elif (
-                        i.lender_approval_status == "Rejected"
-                        or i.lender_approval_status == "Pledge Failure"
-                    ):
-                        if (
-                            total_collateral_value > 0
-                            and total_collateral_value >= i.amount
-                        ):
-                            total_collateral_value -= i.amount
-                        self.total_collateral_value = round(total_collateral_value, 2)
-                        self.drawing_power = round(
-                            lms.round_down_amount_to_nearest_thousand(
-                                (self.allowable_ltv / 100) * self.total_collateral_value
-                            ),
-                            2,
-                        )
+                    # elif (
+                    #     i.lender_approval_status == "Rejected"
+                    #     or i.lender_approval_status == "Pledge Failure"
+                    # ):
+                    #     if (
+                    #         total_collateral_value > 0
+                    #         and total_collateral_value >= i.amount
+                    #     ):
+                    #         total_collateral_value -= i.amount
+                    #     self.total_collateral_value = round(total_collateral_value, 2)
+                    #     self.drawing_power = round(
+                    #         lms.round_down_amount_to_nearest_thousand(
+                    #             (self.allowable_ltv / 100) * self.total_collateral_value
+                    #         ),
+                    #         2,
+                    #     )
 
         self.total_collateral_value_str = lms.amount_formatter(
             self.total_collateral_value
@@ -530,9 +530,9 @@ class LoanApplication(Document):
             }
         else:
             ISINstatusDtls = []
-            flag = 0
+            # flag = 0
             for item in security_list:
-                # flag = bool(random.getrandbits(1))
+                flag = bool(random.getrandbits(1))
                 error_code = ["CIF3065-F", "PLD0152-E", "PLD0125-F"]
                 ISINstatusDtls_item = {
                     "ISIN": item.get("ISIN"),
@@ -889,7 +889,7 @@ def approve_all_isin_button(loan_application):
     if loan_application_doc.status == "Pledge executed":
         total_collateral_value = 0
         drawing_power = 0
-        print(type(loan_application["items"]), loan_application["items"])
+        # print(type(loan_application["items"]), loan_application["items"])
         for i in loan_application["items"]:
             if i["pledge_status"] == "Success" or i["pledge_status"] == "":
                 if (
@@ -905,23 +905,23 @@ def approve_all_isin_button(loan_application):
                         ),
                         2,
                     )
-                elif (
-                    i["lender_approval_status"] == "Rejected"
-                    or i["lender_approval_status"] == "Pledge Failure"
-                ):
-                    if (
-                        total_collateral_value > 0
-                        and total_collateral_value >= i["amount"]
-                    ):
-                        total_collateral_value -= i["amount"]
-                    total_collateral_value = round(total_collateral_value, 2)
-                    drawing_power = round(
-                        lms.round_down_amount_to_nearest_thousand(
-                            (loan_application["allowable_ltv"] / 100)
-                            * total_collateral_value
-                        ),
-                        2,
-                    )
+                # elif (
+                #     i["lender_approval_status"] == "Rejected"
+                #     or i["lender_approval_status"] == "Pledge Failure"
+                # ):
+                #     if (
+                #         total_collateral_value > 0
+                #         and total_collateral_value >= i["amount"]
+                #     ):
+                #         total_collateral_value -= i["amount"]
+                #     total_collateral_value = round(total_collateral_value, 2)
+                #     drawing_power = round(
+                #         lms.round_down_amount_to_nearest_thousand(
+                #             (loan_application["allowable_ltv"] / 100)
+                #             * total_collateral_value
+                #         ),
+                #         2,
+                #     )
 
         response = {
             "total_collateral_value": total_collateral_value,
