@@ -163,7 +163,7 @@ def esign_done(**kwargs):
             },
         )
 
-        if regex.search(data.get("loan_application_name")) != None or regex.search(data.get("topup_application_name")) != None:
+        if regex.search(data.get("loan_application_name")) != None or regex.search(data.get("topup_application_name")) != None or regex.search(data.get("file_id")) != None:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -941,7 +941,7 @@ def loan_payment(**kwargs):
             },
         )
 
-        if regex.search(data.get("loan_name")) != None or regex.search(data.get("amount")) != None or regex.search(data.get("transaction_id")) != None or regex.search(data.get("loan_margin_shortfall_name")) != None:
+        if regex.search(data.get("loan_name")) != None or regex.search(data.get("transaction_id")) != None:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),
@@ -997,10 +997,16 @@ def loan_statement(**kwargs):
                 "from_date": "",
                 "to_date": "",
                 "file_format": "",
-                "is_email": "",
-                "is_download": "",
+                "is_email": "between:0,1",
+                "is_download": "between:0,1",
             },
         )
+
+        if regex.search(data.get("loan_name")) != None or regex.search(data.get("file_format")) != None or regex.search(data.get("type")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         if isinstance(data.get("is_download"), str):
             data["is_download"] = int(data.get("is_download"))

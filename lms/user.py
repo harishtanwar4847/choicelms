@@ -66,6 +66,12 @@ def kyc(**kwargs):
                 "accept_terms": "decimal|between:0,1",
             },
         )
+        
+        if regex.search(data.get("loan_name")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         try:
             user_kyc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
@@ -206,6 +212,11 @@ def securities(**kwargs):
                 "lender": "",
             },
         )
+        if regex.search(data.get("lender")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         if not data.get("lender", None):
             data["lender"] = frappe.get_last_doc("Lender").name
@@ -497,6 +508,11 @@ def my_pledge_securities(**kwargs):
             {"loan_name": ""},
         )
         customer = lms.__customer()
+        if regex.search(data.get("loan_name")) != None:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
         try:
             if data.get("loan_name"):
                 loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -1352,7 +1368,6 @@ def feedback(**kwargs):
 
         customer = lms.__customer()
 
-        # regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
         if regex.search(data.get("comment")) != None:
             return utils.respondWithFailure(
                     status=422,
@@ -1408,7 +1423,7 @@ def feedback(**kwargs):
                 )
 
             # if not data.get("do_not_show_again") or not customer.feedback_submitted:
-            if not data.get("comment"):
+            if not data.get("comment") or data.get("comment").isspace():
                 return utils.respondWithFailure(
                     message=frappe._("Please write your suggestion to us.")
                 )
