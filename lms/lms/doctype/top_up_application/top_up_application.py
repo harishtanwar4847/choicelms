@@ -58,14 +58,14 @@ class TopupApplication(Document):
             "loan_application_number": self.name,
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
-            "sanctioned_amount": self.top_up_amount,
-            "sanctioned_amount_in_words": num2words(
-                self.top_up_amount, lang="en_IN"
-            ).title(),
-            # "sanctioned_amount": (self.top_up_amount + loan.drawing_power),
+            # "sanctioned_amount": self.top_up_amount,
             # "sanctioned_amount_in_words": num2words(
-            #     (self.top_up_amount + loan.drawing_power), lang="en_IN"
+            #     self.top_up_amount, lang="en_IN"
             # ).title(),
+            "sanctioned_amount": (self.top_up_amount + loan.drawing_power),
+            "sanctioned_amount_in_words": num2words(
+                (self.top_up_amount + loan.drawing_power), lang="en_IN"
+            ).title(),
             "old_sanctioned_amount": loan.sanctioned_limit,
             "old_sanctioned_amount_in_words": num2words(
                 loan.sanctioned_limit, lang="en_IN"
@@ -117,14 +117,14 @@ class TopupApplication(Document):
             "loan_application_number": self.name,
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
-            "sanctioned_amount": self.top_up_amount,
-            "sanctioned_amount_in_words": num2words(
-                self.top_up_amount, lang="en_IN"
-            ).title(),
-            # "sanctioned_amount": (self.top_up_amount + loan.drawing_power),
+            # "sanctioned_amount": self.top_up_amount,
             # "sanctioned_amount_in_words": num2words(
-            #     (self.top_up_amount + loan.drawing_power), lang="en_IN"
+            #     self.top_up_amount, lang="en_IN"
             # ).title(),
+            "sanctioned_amount": (self.top_up_amount + loan.drawing_power),
+            "sanctioned_amount_in_words": num2words(
+                (self.top_up_amount + loan.drawing_power), lang="en_IN"
+            ).title(),
             "old_sanctioned_amount": loan.sanctioned_limit,
             "old_sanctioned_amount_in_words": num2words(
                 loan.sanctioned_limit, lang="en_IN"
