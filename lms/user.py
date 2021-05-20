@@ -569,11 +569,9 @@ def my_pledge_securities(**kwargs):
         )
         if len(unpledge_application_exist):
             res["unpledge"] = None
-        elif loan_margin_shortfall:
-            res["unpledge"] = """OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(loan.get_customer().first_name)
         else:
             # get amount_available_for_unpledge,min collateral value
-            res["unpledge"] = loan.max_unpledge_amount()
+            res["unpledge"] = dict(unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(loan.get_customer().first_name) if loan_margin_shortfall else None,unpledge=loan.max_unpledge_amount())
 
         return utils.respondWithSuccess(data=res)
 
@@ -940,6 +938,7 @@ def dashboard(**kwargs):
             )
 
             # check if any pending unpledge application exist
+            loan_margin_shortfall = frappe.get_all("Loan Margin Shortfall", {"loan": loan.name, "status": "Pending"}, page_length=1)
             unpledge_application_exist = frappe.get_all(
                 "Unpledge Application",
                 filters={"loan": loan.name, "status": "Pending"},
@@ -947,12 +946,13 @@ def dashboard(**kwargs):
                 order_by="creation desc",
                 page_length=1,
             )
+            dict_ = dict(unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(loan.get_customer().first_name) if loan_margin_shortfall else None,unpledge=loan.max_unpledge_amount())
             unpledge_application_list.append(
                 {
                     "loan_name": loan.name,
                     "unpledge_application_available": unpledge_application_exist
                     if unpledge_application_exist
-                    else None,
+                    else dict_,
                 }
             )
 
