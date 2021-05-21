@@ -86,5 +86,17 @@ frappe.ui.form.on("Loan", {
     // 		})
     // 	})
     // });
+    
+    // hiding loan item if pledged quantity is zero (0)
+    cur_frm.doc.items.forEach((x) => {
+      if (x.pledged_quantity <= 0){
+        console.log(x.name)
+        console.log(x.idx)
+        $("[data-idx='"+x.idx+"']").hide()
+      }
+      else {
+        $("[data-idx='"+x.idx+"']").show()
+      }
+    });
   },
 });
