@@ -64,67 +64,40 @@ frappe.ui.form.on("Loan Application", {
         function () {
           let selected = frm.get_selected();
           if (Object.keys(selected).length > 0) {
-            console.log(selected);
             cur_frm.doc.items.forEach((x) => {
-              console.log(x.pledge_status);
               if (x.pledge_status != "Failure") {
                 if (selected.items.includes(x.name)) {
-                  console.log("if");
                   x.lender_approval_status = "Approved";
                 }
-              } else {
-                console.log("else");
               }
             });
             cur_frm.refresh_fields();
 
-            frappe
-              .call({
-                method:
-                  "lms.lms.doctype.loan_application.loan_application.approve_all_isin_button",
-                freeze: true,
-                args: {
-                  loan_application: frm.doc,
-                },
-                callback: function (res) {
-                  console.log("in clbck");
-                  console.log(res);
-                  frm.set_value(
-                    "total_collateral_value",
-                    res.message.total_collateral_value
-                  );
-                  // frm.refresh_field("total_collateral_value");
-                  // cur_frm.doc.total_collateral_value =
-                  //   res.message.total_collateral_value;
-                  frm.set_value(
-                    "total_collateral_value_str",
-                    res.message.total_collateral_value_str
-                  );
-                  // cur_frm.doc.total_collateral_value_str =
-                  //   res.message.total_collateral_value_str;
-                  frm.set_value("drawing_power", res.message.drawing_power);
-                  // cur_frm.doc.drawing_power = res.message.drawing_power;
-                  frm.set_value(
-                    "drawing_power_str",
-                    res.message.drawing_power_str
-                  );
-                  // cur_frm.doc.drawing_power_str = res.message.drawing_power_str;
-                  frm.refresh_fields();
-                },
-              })
-              .then((res) => {
-                console.log("then");
-                console.log(res);
-              });
+            frappe.call({
+              method:
+                "lms.lms.doctype.loan_application.loan_application.actions_on_isin",
+              freeze: true,
+              args: {
+                loan_application: frm.doc,
+              },
+              callback: function (res) {
+                frm.set_value(
+                  "total_collateral_value",
+                  res.message.total_collateral_value
+                );
+                frm.set_value(
+                  "total_collateral_value_str",
+                  res.message.total_collateral_value_str
+                );
+                frm.set_value("drawing_power", res.message.drawing_power);
+                frm.set_value(
+                  "drawing_power_str",
+                  res.message.drawing_power_str
+                );
+                frm.refresh_fields();
+              },
+            });
           }
-          //   frappe.call({
-          //     method:
-          //       "lms.lms.doctype.loan_application.loan_application.approve_all_isin_button",
-          //     freeze: true,
-          //     args: {
-          //       loan_application_name: frm.doc.name,
-          //     },
-          //   });
         },
         __("Actions On ISIN")
       );
@@ -134,68 +107,40 @@ frappe.ui.form.on("Loan Application", {
         function () {
           let selected = frm.get_selected();
           if (Object.keys(selected).length > 0) {
-            console.log(selected);
             cur_frm.doc.items.forEach((x) => {
-              console.log(x.pledge_status);
               if (x.pledge_status != "Failure") {
                 if (selected.items.includes(x.name)) {
-                  console.log("if");
                   x.lender_approval_status = "Rejected";
                 }
-              } else {
-                console.log("else");
               }
             });
             cur_frm.refresh_fields();
 
-            frappe
-              .call({
-                method:
-                  "lms.lms.doctype.loan_application.loan_application.approve_all_isin_button",
-                freeze: true,
-                args: {
-                  loan_application: frm.doc,
-                },
-                callback: function (res) {
-                  console.log("in clbck");
-                  console.log(res);
-                  frm.set_value(
-                    "total_collateral_value",
-                    res.message.total_collateral_value
-                  );
-                  // frm.refresh_field("total_collateral_value");
-                  // cur_frm.doc.total_collateral_value =
-                  //   res.message.total_collateral_value;
-                  frm.set_value(
-                    "total_collateral_value_str",
-                    res.message.total_collateral_value_str
-                  );
-                  // cur_frm.doc.total_collateral_value_str =
-                  //   res.message.total_collateral_value_str;
-                  frm.set_value("drawing_power", res.message.drawing_power);
-                  // cur_frm.doc.drawing_power = res.message.drawing_power;
-                  frm.set_value(
-                    "drawing_power_str",
-                    res.message.drawing_power_str
-                  );
-                  // cur_frm.doc.drawing_power_str = res.message.drawing_power_str;
-                  frm.refresh_fields();
-                  // cur_frm.refresh_fields();
-                },
-              })
-              .then((res) => {
-                console.log("then");
-                console.log(res);
-              });
+            frappe.call({
+              method:
+                "lms.lms.doctype.loan_application.loan_application.actions_on_isin",
+              freeze: true,
+              args: {
+                loan_application: frm.doc,
+              },
+              callback: function (res) {
+                frm.set_value(
+                  "total_collateral_value",
+                  res.message.total_collateral_value
+                );
+                frm.set_value(
+                  "total_collateral_value_str",
+                  res.message.total_collateral_value_str
+                );
+                frm.set_value("drawing_power", res.message.drawing_power);
+                frm.set_value(
+                  "drawing_power_str",
+                  res.message.drawing_power_str
+                );
+                frm.refresh_fields();
+              },
+            });
           }
-          //   frappe.call({
-          //     method:
-          //       "lms.lms.doctype.loan_application.loan_application.reject_all_isin_button",
-          //     freeze: true,
-          //     args: {
-          //       loan_application_name: frm.doc.name,
-          //     },
-          //   });
         },
         __("Actions On ISIN")
       );

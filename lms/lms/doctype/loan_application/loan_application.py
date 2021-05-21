@@ -172,19 +172,6 @@ class LoanApplication(Document):
                 2,
             )
 
-        # if self.status == "Pledge executed":
-        #     total_collateral_value = 0
-        #     for i in self.items:
-        #         if i.lender_approval_status == "Approved":
-        #             total_collateral_value += i.amount
-        #             self.total_collateral_value = round(total_collateral_value, 2)
-        #             self.drawing_power = round(
-        #                 lms.round_down_amount_to_nearest_thousand(
-        #                     (self.allowable_ltv / 100) * self.total_collateral_value
-        #                 ),
-        #                 2,
-        #             )
-
         if self.status == "Pledge executed":
             total_collateral_value = 0
             for i in self.items:
@@ -483,7 +470,7 @@ class LoanApplication(Document):
 
         frappe.db.sql(sql)
 
-    # TODO : hit pledge request as per batch items
+    # hit pledge request as per batch items
     def pledge_request(self, security_list):
         las_settings = frappe.get_single("LAS Settings")
         API_URL = "{}{}".format(las_settings.cdsl_host, las_settings.pledge_setup_uri)
@@ -530,9 +517,9 @@ class LoanApplication(Document):
             }
         else:
             ISINstatusDtls = []
-            # flag = 0
+            flag = 0
             for item in security_list:
-                flag = bool(random.getrandbits(1))
+                # flag = bool(random.getrandbits(1))
                 error_code = ["CIF3065-F", "PLD0152-E", "PLD0125-F"]
                 ISINstatusDtls_item = {
                     "ISIN": item.get("ISIN"),
@@ -545,7 +532,7 @@ class LoanApplication(Document):
                 "PledgeSetupResponse": {"ISINstatusDtls": ISINstatusDtls},
             }
 
-    # TODO : handle pledge response(process loan application items)
+    # handle pledge response(process loan application items)
     def process(self, security_list, pledge_response):
         isin_details_ = pledge_response.get("PledgeSetupResponse").get("ISINstatusDtls")
 
@@ -602,31 +589,6 @@ class LoanApplication(Document):
         self.save(ignore_permissions=True)
         return total_successful_pledge
 
-    # def save_collateral_ledger(self, loan_application_name=None):
-    # for i in self.items:
-    #     collateral_ledger = frappe.get_doc(
-    #         {
-    #             "doctype": "Collateral Ledger",
-    #             "customer": self.customer,
-    #             "lender": self.lender,
-    #             "loan_application": self.name,
-    #             "request_type": "Pledge",
-    #             "request_identifier": i.prf_number,
-    #             "expiry": self.expiry_date,
-    #             "pledgor_boid": self.pledgor_boid,
-    #             "pledgee_boid": self.pledgee_boid,
-    #             "isin": i.isin,
-    #             "quantity": i.pledged_quantity,
-    #             "psn": i.psn,
-    #             "error_code": i.error_code,
-    #             "is_success": 1 if i.get("psn") and len(i.get("psn")) > 0 else 0,
-    #             "lender_approval_status": "Pledge Failure"
-    #             if i.get("error_code") and len(i.get("error_code")) > 0
-    #             else "",
-    #         }
-    #     )
-    #     collateral_ledger.save(ignore_permissions=True)
-
     def notify_customer(self):
         from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
@@ -679,24 +641,6 @@ class LoanApplication(Document):
             sorted(self.items, key=lambda item: item.security_name), start=1
         ):
             item.idx = i
-
-    def approve_all_isin(self):
-        for item in self.items:
-            if item.pledge_status == "Success":
-                item.lender_approval_status = "Approved"
-        self.save(ignore_permissions=True)
-
-    def reject_all_isin(self):
-        for item in self.items:
-            if item.pledge_status == "Success":
-                item.lender_approval_status = "Rejected"
-        self.save(ignore_permissions=True)
-
-    def undo_select_all_isin(self):
-        for item in self.items:
-            if item.pledge_status == "Success":
-                item.lender_approval_status = ""
-        self.save(ignore_permissions=True)
 
 
 def check_for_pledge(loan_application_doc):
@@ -881,15 +825,12 @@ def only_pdf_upload(doc, method):
 
 
 @frappe.whitelist()
-def approve_all_isin_button(loan_application):
-    # print(type(loan_application), type(json.loads(loan_application)))
+def actions_on_isin(loan_application):
     loan_application = json.loads(loan_application)
-    print(type(loan_application))
     loan_application_doc = frappe.get_doc("Loan Application", loan_application["name"])
     if loan_application_doc.status == "Pledge executed":
         total_collateral_value = 0
         drawing_power = 0
-        # print(type(loan_application["items"]), loan_application["items"])
         for i in loan_application["items"]:
             if i["pledge_status"] == "Success" or i["pledge_status"] == "":
                 if (
@@ -934,17 +875,3 @@ def approve_all_isin_button(loan_application):
         }
 
         return response
-        # loan_application = frappe.get_doc("Loan Application", loan_application_name)
-        # loan_application.approve_all_isin()
-
-
-@frappe.whitelist()
-def reject_all_isin_button(loan_application_name):
-    loan_application = frappe.get_doc("Loan Application", loan_application_name)
-    loan_application.reject_all_isin()
-
-
-@frappe.whitelist()
-def undo_select_all_isin_button(loan_application_name):
-    loan_application = frappe.get_doc("Loan Application", loan_application_name)
-    loan_application.undo_select_all_isin()
