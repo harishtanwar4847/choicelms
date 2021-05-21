@@ -907,11 +907,13 @@ def dashboard(**kwargs):
                 order_by="creation desc",
                 page_length=1,
             )
+            if sell_collateral_application_exist:
+                sell_collateral_application_exist[0]["items"] = frappe.get_all("Sell Collateral Application Item", filters={"parent": sell_collateral_application_exist[0].name}, fields=["*"])
 
             sell_collateral_list.append(
                 {
                     "loan_name": loan.name,
-                    "sell_collateral_available": sell_collateral_application_exist
+                    "sell_collateral_available": sell_collateral_application_exist[0]
                     if len(sell_collateral_application_exist)
                     else None,
                 }
@@ -946,13 +948,17 @@ def dashboard(**kwargs):
                 order_by="creation desc",
                 page_length=1,
             )
-            dict_ = dict(unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(loan.get_customer().first_name) if loan_margin_shortfall else None,unpledge=loan.max_unpledge_amount())
+            if unpledge_application_exist:
+                unpledge_application_exist[0]["items"] = frappe.get_all("Unpledge Application Item", filters={"parent": unpledge_application_exist[0].name}, fields=["*"])
+
             unpledge_application_list.append(
                 {
                     "loan_name": loan.name,
-                    "unpledge_application_available": unpledge_application_exist
+                    "unpledge_application_available": unpledge_application_exist[0]
                     if unpledge_application_exist
-                    else dict_,
+                    else None,
+                    "unpledge_msg_while_margin_shortfall": """OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(loan.get_customer().first_name) if loan_margin_shortfall else None,
+                    "unpledge": None if unpledge_application_exist or loan_margin_shortfall else loan.max_unpledge_amount()
                 }
             )
 
