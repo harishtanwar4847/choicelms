@@ -532,7 +532,11 @@ def my_pledge_securities(**kwargs):
             "number_of_scrips": len(loan.items),
             "all_pledged_securities": all_pledged_securities,
         }
-        loan_margin_shortfall = frappe.get_all("Loan Margin Shortfall", {"loan": loan.name, "status": "Pending"}, page_length=1)
+        loan_margin_shortfall = frappe.get_all(
+            "Loan Margin Shortfall",
+            {"loan": loan.name, "status": "Pending"},
+            page_length=1,
+        )
 
         # Sell Collateral
         sell_collateral_application_exist = frappe.get_all(
@@ -571,7 +575,14 @@ def my_pledge_securities(**kwargs):
             res["unpledge"] = None
         else:
             # get amount_available_for_unpledge,min collateral value
-            res["unpledge"] = dict(unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(loan.get_customer().first_name) if loan_margin_shortfall else None,unpledge=loan.max_unpledge_amount())
+            res["unpledge"] = dict(
+                unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                    loan.get_customer().first_name
+                )
+                if loan_margin_shortfall
+                else None,
+                unpledge=loan.max_unpledge_amount(),
+            )
 
         return utils.respondWithSuccess(data=res)
 
@@ -908,7 +919,11 @@ def dashboard(**kwargs):
                 page_length=1,
             )
             if sell_collateral_application_exist:
-                sell_collateral_application_exist[0]["items"] = frappe.get_all("Sell Collateral Application Item", filters={"parent": sell_collateral_application_exist[0].name}, fields=["*"])
+                sell_collateral_application_exist[0]["items"] = frappe.get_all(
+                    "Sell Collateral Application Item",
+                    filters={"parent": sell_collateral_application_exist[0].name},
+                    fields=["*"],
+                )
 
             sell_collateral_list.append(
                 {
@@ -940,7 +955,11 @@ def dashboard(**kwargs):
             )
 
             # check if any pending unpledge application exist
-            loan_margin_shortfall = frappe.get_all("Loan Margin Shortfall", {"loan": loan.name, "status": "Pending"}, page_length=1)
+            loan_margin_shortfall = frappe.get_all(
+                "Loan Margin Shortfall",
+                {"loan": loan.name, "status": "Pending"},
+                page_length=1,
+            )
             unpledge_application_exist = frappe.get_all(
                 "Unpledge Application",
                 filters={"loan": loan.name, "status": "Pending"},
@@ -949,7 +968,11 @@ def dashboard(**kwargs):
                 page_length=1,
             )
             if unpledge_application_exist:
-                unpledge_application_exist[0]["items"] = frappe.get_all("Unpledge Application Item", filters={"parent": unpledge_application_exist[0].name}, fields=["*"])
+                unpledge_application_exist[0]["items"] = frappe.get_all(
+                    "Unpledge Application Item",
+                    filters={"parent": unpledge_application_exist[0].name},
+                    fields=["*"],
+                )
 
             unpledge_application_list.append(
                 {
@@ -957,8 +980,14 @@ def dashboard(**kwargs):
                     "unpledge_application_available": unpledge_application_exist[0]
                     if unpledge_application_exist
                     else None,
-                    "unpledge_msg_while_margin_shortfall": """OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(loan.get_customer().first_name) if loan_margin_shortfall else None,
-                    "unpledge": None if unpledge_application_exist or loan_margin_shortfall else loan.max_unpledge_amount()
+                    "unpledge_msg_while_margin_shortfall": """OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                        loan.get_customer().first_name
+                    )
+                    if loan_margin_shortfall
+                    else None,
+                    "unpledge": None
+                    if unpledge_application_exist or loan_margin_shortfall
+                    else loan.max_unpledge_amount(),
                 }
             )
 

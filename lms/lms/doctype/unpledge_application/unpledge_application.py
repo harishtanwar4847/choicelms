@@ -19,7 +19,11 @@ class UnpledgeApplication(Document):
         self.process_items()
 
     def before_save(self):
-        loan_margin_shortfall = frappe.get_all("Loan Margin Shortfall", {"loan": self.loan, "status": "Pending"}, page_length=1)
+        loan_margin_shortfall = frappe.get_all(
+            "Loan Margin Shortfall",
+            {"loan": self.loan, "status": "Pending"},
+            page_length=1,
+        )
         if self.status == "Rejected" and not loan_margin_shortfall:
             self.notify_customer()
         else:
@@ -123,7 +127,7 @@ class UnpledgeApplication(Document):
         loan.save(ignore_permissions=True)
         self.notify_customer()
 
-    def notify_customer(self,check=None):
+    def notify_customer(self, check=None):
         msg = ""
         if self.status in ["Approved", "Rejected"]:
             customer = self.get_loan().get_customer()
@@ -136,7 +140,9 @@ class UnpledgeApplication(Document):
                     msg = """Dear {},
                     Your unpledge request was rejected.
                     There is a margin shortfall.
-                    You can send another unpledge request when there is no margin shortfall.""".format(self.get_loan().get_customer().first_name)
+                    You can send another unpledge request when there is no margin shortfall.""".format(
+                        self.get_loan().get_customer().first_name
+                    )
                 else:
                     msg = "Your unpledging of securities was not completed."
 
@@ -154,7 +160,11 @@ class UnpledgeApplication(Document):
             item.idx = i
 
     def unpledge_with_margin_shortfall(self):
-        loan_margin_shortfall = frappe.get_all("Loan Margin Shortfall", {"loan": self.loan, "status": "Pending"}, page_length=1)
+        loan_margin_shortfall = frappe.get_all(
+            "Loan Margin Shortfall",
+            {"loan": self.loan, "status": "Pending"},
+            page_length=1,
+        )
 
         if self.status == "Pending" and loan_margin_shortfall:
             self.status = "Rejected"

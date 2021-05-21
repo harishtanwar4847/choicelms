@@ -905,7 +905,11 @@ class Loan(Document):
             "Unpledge Application", {"loan": self.name, "status": "Pending"}, "name"
         )
 
-        return frappe.get_doc("Unpledge Application", unpledge_application_name) if unpledge_application_name else None
+        return (
+            frappe.get_doc("Unpledge Application", unpledge_application_name)
+            if unpledge_application_name
+            else None
+        )
 
     # def validate(self):
     #     #remove row from items if pledge quantity is 0
