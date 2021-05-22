@@ -62,10 +62,20 @@ def kyc(**kwargs):
             kwargs,
             {
                 "pan_no": "required",
-                "birth_date": "required|date",
-                "accept_terms": "decimal|between:0,1",
+                "birth_date": "required",
+                "accept_terms": "required|decimal|between:0,1",
             },
         )
+
+        try:
+            datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
+        except ValueError:
+            return utils.respondWithFailure(
+                status=417,
+                message=frappe._(
+                    "Incorrect data format, should be DD-MM-YYYY"
+                ),
+            )
         
         reg = lms.regex_special_characters(search=data.get("pan_no"))
         if reg:
@@ -349,15 +359,15 @@ def approved_securities(**kwargs):
             kwargs,
             {
                 "lender": "",
-                "start": "min:0",
-                "per_page": "min:0",
+                "start": "decimal|min:0",
+                "per_page": "decimal|min:0",
                 "search": "",
                 "category": "",
                 "is_download": "decimal|between:0,1",
             },
         )
 
-        reg = lms.regex_special_characters(search=data.get("lender")+data.get("search")+data.get("category"))
+        reg = lms.regex_special_characters(search=data.get("lender")+data.get("category"))
         if reg:
             return utils.respondWithFailure(
                     status=422,
@@ -1161,7 +1171,7 @@ def get_profile_set_alerts(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {"is_for_alerts": "decimal|between:0,1", "percentage": "decimal", "amount": "decimal"},
+            {"is_for_alerts": "decimal|between:0,1", "percentage": "decimal|min:0", "amount": "decimal|min:0"},
         )
 
         if isinstance(data.get("is_for_alerts"), str):
@@ -1343,12 +1353,12 @@ def contact_us(**kwargs):
 
         data = utils.validator.validate(kwargs, {"search": "", "view_more": "decimal|between:0,1"})
 
-        reg = lms.regex_special_characters(search=data.get("search"))
-        if reg:
-            return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
-                )
+        # reg = lms.regex_special_characters(search=data.get("search"))
+        # if reg:
+        #     return utils.respondWithFailure(
+        #             status=422,
+        #             message=frappe._("Special Characters not allowed."),
+        #         )
 
         if isinstance(data.get("view_more"), str):
             data["view_more"] = int(data.get("view_more"))
@@ -1389,6 +1399,14 @@ def check_eligible_limit(**kwargs):
         utils.validator.validate_http_method("GET")
 
         data = utils.validator.validate(kwargs, {"lender": "", "search": ""})
+
+        reg = lms.regex_special_characters(search=data.get("lender"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
+
         if not data.get("lender"):
             data["lender"] = frappe.get_last_doc("Lender").name
 

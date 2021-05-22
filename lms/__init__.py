@@ -550,8 +550,12 @@ def user_dashboard(data=None):
         ],
     }
 
-def regex_special_characters(search):
-    regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
+def regex_special_characters(search,regex=None):
+    if regex:
+        regex = regex
+    else:
+        regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
+
     if regex.search(search) != None:
         return True
     else:

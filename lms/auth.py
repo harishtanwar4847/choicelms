@@ -35,6 +35,14 @@ def login(**kwargs):
                 "accept_terms": "decimal|between:0,1",
             },
         )
+        if data.get("firebase_token"):
+            #for firebase token "-_:" these characters are excluded from regex string
+            reg = lms.regex_special_characters(search=data.get("firebase_token"),regex=re.compile('[@!#$%^&*()<>?/\|}{~`]'))
+            if reg:
+                return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         try:
             user = lms.__user(data.get("mobile"))
@@ -155,6 +163,14 @@ def verify_otp(**kwargs):
                 "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
             },
         )
+        if data.get("firebase_token"):
+            #for firebase token "-_:" these characters are excluded from regex string
+            reg = lms.regex_special_characters(search=data.get("firebase_token"),regex=re.compile('[@!#$%^&*()<>?/\|}{~`]'))
+            if reg:
+                return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         try:
             token = lms.verify_user_token(
@@ -251,9 +267,10 @@ def register(**kwargs):
                 "firebase_token": "required",
             },
         )
-        
         reg = lms.regex_special_characters(search=data.get("last_name"))
-        if reg:
+        #for firebase token "-_:" these characters are excluded from regex string
+        firebase_reg = lms.regex_special_characters(search=data.get("firebase_token"),regex=re.compile('[@!#$%^&*()<>?/\|}{~`]'))
+        if reg or firebase_reg:
             return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Special Characters not allowed."),

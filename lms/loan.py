@@ -1028,8 +1028,8 @@ def loan_statement(**kwargs):
                 "from_date": "",
                 "to_date": "",
                 "file_format": "",
-                "is_email": "between:0,1",
-                "is_download": "between:0,1",
+                "is_email": "decimal|between:0,1",
+                "is_download": "decimal|between:0,1",
             },
         )
 
@@ -1100,6 +1100,16 @@ def loan_statement(**kwargs):
             )
 
         if data.get("from_date") and data.get("to_date"):
+            try:
+                datetime.strptime(data.get("from_date"), "%d-%m-%Y")
+                datetime.strptime(data.get("to_date"), "%d-%m-%Y")
+            except ValueError:
+                return utils.respondWithFailure(
+                    status=417,
+                    message=frappe._(
+                        "Incorrect date format, should be DD-MM-YYYY"
+                    ),
+                )
             from_date = datetime.strptime(data.get("from_date"), "%d-%m-%Y")
             to_date = datetime.strptime(data.get("to_date"), "%d-%m-%Y")
 
