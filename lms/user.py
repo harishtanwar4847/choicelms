@@ -1515,7 +1515,7 @@ def feedback(**kwargs):
                     ),
                     "related_to_functionality": data.get("related_to_functionality"),
                     "others": data.get("others"),
-                    "comment": data.get("comment"),
+                    "comment": data.get("comment").strip(),
                 }
             )
             feedback_doc.insert(ignore_permissions=True)
