@@ -78,7 +78,7 @@ def get_holdings():
     frappe.response.Response = frappe.get_all(
         "Dummy Security",
         fields=[
-            "scrip_name as Scrip_name",
+            "scrip_name as Scrip_Name",
             "isin as ISIN",
             "stock_at as Stock_At",
             "quantity as Quantity",
