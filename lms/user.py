@@ -749,7 +749,7 @@ def dashboard(**kwargs):
             due_date_for_all_interest.append(
                 {
                     "due_date": (dictionary["interest"]["due_date"]).strftime(
-                        "%m.%d.%Y"
+                        "%d.%m.%Y"
                     ),
                     "due_date_txt": dictionary["interest"]["due_date_txt"],
                 }

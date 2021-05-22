@@ -655,7 +655,7 @@ def loan_details(**kwargs):
 
             interest = {
                 "total_interest_amt": round(interest_total[0]["total_amt"], 2),
-                "due_date": due_date.strftime("%m.%d.%Y"),
+                "due_date": due_date.strftime("%d.%m.%Y"),
                 "due_date_txt": due_date_txt,
                 "info_msg": info_msg,
             }
