@@ -73,7 +73,7 @@ def kyc(**kwargs):
             return utils.respondWithFailure(
                 status=417,
                 message=frappe._(
-                    "Incorrect data format, should be DD-MM-YYYY"
+                    "Incorrect date format, should be DD-MM-YYYY"
                 ),
             )
         
@@ -478,7 +478,6 @@ def approved_securities(**kwargs):
                 ],
                 start=data.get("start"),
                 page_length=data.get("per_page"),
-                debug=True,
             )
 
         res = {
@@ -737,15 +736,16 @@ def dashboard(**kwargs):
 
         # Interest ##
         for dictionary in all_interest_loans:
-            actionable_loans.append(
-                {
-                    "loan_name": dictionary.get("name"),
-                    "drawing_power": dictionary.get("drawing_power"),
-                    "drawing_power_str": dictionary.get("drawing_power_str"),
-                    "balance": dictionary.get("balance"),
-                    "balance_str": dictionary.get("balance_str"),
-                }
-            )
+            if dictionary not in actionable_loans:
+                actionable_loans.append(
+                    {
+                        "loan_name": dictionary.get("name"),
+                        "drawing_power": dictionary.get("drawing_power"),
+                        "drawing_power_str": dictionary.get("drawing_power_str"),
+                        "balance": dictionary.get("balance"),
+                        "balance_str": dictionary.get("balance_str"),
+                    }
+                )
 
             if dictionary["interest_amount"]:
                 loan = frappe.get_doc("Loan", dictionary.get("name"))
@@ -785,7 +785,7 @@ def dashboard(**kwargs):
             due_date_for_all_interest.append(
                 {
                     "due_date": (dictionary["interest"]["due_date"]).strftime(
-                        "%m.%d.%Y"
+                        "%d.%m.%Y"
                     ),
                     "due_date_txt": dictionary["interest"]["due_date_txt"],
                 }
@@ -1573,7 +1573,7 @@ def feedback(**kwargs):
                     ),
                     "related_to_functionality": data.get("related_to_functionality"),
                     "others": data.get("others"),
-                    "comment": data.get("comment"),
+                    "comment": data.get("comment").strip(),
                 }
             )
             feedback_doc.insert(ignore_permissions=True)
