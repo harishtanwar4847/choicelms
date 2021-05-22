@@ -700,15 +700,16 @@ def dashboard(**kwargs):
 
         # Interest ##
         for dictionary in all_interest_loans:
-            actionable_loans.append(
-                {
-                    "loan_name": dictionary.get("name"),
-                    "drawing_power": dictionary.get("drawing_power"),
-                    "drawing_power_str": dictionary.get("drawing_power_str"),
-                    "balance": dictionary.get("balance"),
-                    "balance_str": dictionary.get("balance_str"),
-                }
-            )
+            if dictionary not in actionable_loans:
+                actionable_loans.append(
+                    {
+                        "loan_name": dictionary.get("name"),
+                        "drawing_power": dictionary.get("drawing_power"),
+                        "drawing_power_str": dictionary.get("drawing_power_str"),
+                        "balance": dictionary.get("balance"),
+                        "balance_str": dictionary.get("balance_str"),
+                    }
+                )
 
             if dictionary["interest_amount"]:
                 loan = frappe.get_doc("Loan", dictionary.get("name"))
