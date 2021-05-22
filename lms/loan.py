@@ -740,6 +740,11 @@ def loan_details(**kwargs):
             res["sell_collateral"] = None
 
         # check if any pending unpledge application exist
+        loan_margin_shortfall = frappe.get_all(
+            "Loan Margin Shortfall",
+            {"loan": loan.name, "status": "Pending"},
+            page_length=1,
+        )
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",
             filters={"loan": loan.name, "status": "Pending"},
@@ -750,7 +755,14 @@ def loan_details(**kwargs):
             res["unpledge"] = None
         else:
             # get amount_available_for_unpledge,min collateral value
-            res["unpledge"] = loan.max_unpledge_amount()
+            res["unpledge"] = dict(
+                unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                    loan.get_customer().first_name
+                )
+                if loan_margin_shortfall
+                else None,
+                unpledge=loan.max_unpledge_amount(),
+            )
 
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
@@ -1407,6 +1419,11 @@ def loan_unpledge_details(**kwargs):
 
         res = {"loan": loan}
 
+        loan_margin_shortfall = frappe.get_all(
+            "Loan Margin Shortfall",
+            {"loan": loan.name, "status": "Pending"},
+            page_length=1,
+        )
         # check if any pending unpledge application exist
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",
@@ -1418,7 +1435,14 @@ def loan_unpledge_details(**kwargs):
             res["unpledge"] = None
         else:
             # get amount_available_for_unpledge,min collateral value
-            res["unpledge"] = loan.max_unpledge_amount()
+            res["unpledge"] = dict(
+                unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                    loan.get_customer().first_name
+                )
+                if loan_margin_shortfall
+                else None,
+                unpledge=loan.max_unpledge_amount(),
+            )
         # data = {"loan": loan, "unpledge": unpledge}
 
         return utils.respondWithSuccess(data=res)
@@ -1546,6 +1570,18 @@ def loan_unpledge_request(**kwargs):
             return utils.respondNotFound(message=frappe._("Loan not found."))
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
+        loan_margin_shortfall = frappe.get_all(
+            "Loan Margin Shortfall",
+            {"loan": loan.name, "status": "Pending"},
+            page_length=1,
+        )
+        if loan_margin_shortfall:
+            return utils.respondWithFailure(
+                status=417,
+                message="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                    loan.get_customer().first_name
+                ),
+            )
 
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",
