@@ -516,11 +516,12 @@ def get_tnc(**kwargs):
             )
         elif data.get("cart_name") and cart.loan:
             tnc_ul.append(
-                "<li><strong> Sanctioned Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(lms.round_down_amount_to_nearest_thousand(
-                (cart.total_collateral_value + loan.total_collateral_value)
-                * cart.allowable_ltv
-                / 100
-            )
+                "<li><strong> Sanctioned Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
+                    lms.round_down_amount_to_nearest_thousand(
+                        (cart.total_collateral_value + loan.total_collateral_value)
+                        * cart.allowable_ltv
+                        / 100
+                    )
                 )
                 + "</li>"
             )
