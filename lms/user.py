@@ -671,6 +671,7 @@ def dashboard(**kwargs):
         )
 
         actionable_loans = []
+        action_loans = []
         mgloan = []
         deadline_for_all_mg_shortfall = {}
         total_int_amt_all_loans = 0
@@ -687,6 +688,7 @@ def dashboard(**kwargs):
                     "balance_str": dictionary.get("balance_str"),
                 }
             )
+            action_loans.append(dictionary.get("name"))
             loan = frappe.get_doc("Loan", dictionary["name"])
             mg_shortfall_doc = loan.get_margin_shortfall()
             mg_shortfall_action = frappe.get_doc(
@@ -733,10 +735,9 @@ def dashboard(**kwargs):
                 "earliest_deadline": mgloan[0].get("deadline"),
                 "loan_with_margin_shortfall_list": mgloan,
             }
-
         # Interest ##
         for dictionary in all_interest_loans:
-            if dictionary not in actionable_loans:
+            if dictionary.get("name") not in action_loans:
                 actionable_loans.append(
                     {
                         "loan_name": dictionary.get("name"),
