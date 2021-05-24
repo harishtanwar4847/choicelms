@@ -20,6 +20,7 @@ import lms
 from lms.exceptions import *
 from lms.firebase import FirebaseAdmin
 
+regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
 
 @frappe.whitelist()
 def set_pin(**kwargs):
@@ -61,10 +62,27 @@ def kyc(**kwargs):
             kwargs,
             {
                 "pan_no": "required",
-                "birth_date": "required|date",
-                "accept_terms": "required",
+                "birth_date": "required",
+                "accept_terms": "required|decimal|between:0,1",
             },
         )
+
+        try:
+            datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
+        except ValueError:
+            return utils.respondWithFailure(
+                status=417,
+                message=frappe._(
+                    "Incorrect date format, should be DD-MM-YYYY"
+                ),
+            )
+        
+        reg = lms.regex_special_characters(search=data.get("pan_no"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         try:
             user_kyc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
@@ -205,6 +223,12 @@ def securities(**kwargs):
                 "lender": "",
             },
         )
+        reg = lms.regex_special_characters(search=data.get("lender"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         if not data.get("lender", None):
             data["lender"] = frappe.get_last_doc("Lender").name
@@ -335,13 +359,20 @@ def approved_securities(**kwargs):
             kwargs,
             {
                 "lender": "",
-                "start": "",
-                "per_page": "",
+                "start": "decimal|min:0",
+                "per_page": "decimal|min:0",
                 "search": "",
                 "category": "",
-                "is_download": "",
+                "is_download": "decimal|between:0,1",
             },
         )
+
+        reg = lms.regex_special_characters(search=data.get("lender")+data.get("category"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         if isinstance(data.get("is_download"), str):
             data["is_download"] = int(data.get("is_download"))
@@ -447,7 +478,6 @@ def approved_securities(**kwargs):
                 ],
                 start=data.get("start"),
                 page_length=data.get("per_page"),
-                debug=True,
             )
 
         res = {
@@ -490,6 +520,12 @@ def my_pledge_securities(**kwargs):
             {"loan_name": ""},
         )
         customer = lms.__customer()
+        reg = lms.regex_special_characters(search=data.get("loan_name"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
         try:
             if data.get("loan_name"):
                 loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -1136,7 +1172,7 @@ def get_profile_set_alerts(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {"is_for_alerts": "", "percentage": "decimal", "amount": "decimal"},
+            {"is_for_alerts": "decimal|between:0,1", "percentage": "decimal|min:0", "amount": "decimal|min:0"},
         )
 
         if isinstance(data.get("is_for_alerts"), str):
@@ -1217,9 +1253,9 @@ def update_profile_pic_and_pin(**kwargs):
         data = utils.validator.validate(
             kwargs,
             {
-                "is_for_profile_pic": "",
+                "is_for_profile_pic": "decimal|between:0,1",
                 "image": "",
-                "is_for_update_pin": "",
+                "is_for_update_pin": "decimal|between:0,1",
                 "old_pin": ["decimal", utils.validator.rules.LengthRule(4)],
                 "new_pin": ["decimal", utils.validator.rules.LengthRule(4)],
                 "retype_pin": ["decimal", utils.validator.rules.LengthRule(4)],
@@ -1316,7 +1352,15 @@ def contact_us(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
-        data = utils.validator.validate(kwargs, {"search": "", "view_more": ""})
+        data = utils.validator.validate(kwargs, {"search": "", "view_more": "decimal|between:0,1"})
+
+        # reg = lms.regex_special_characters(search=data.get("search"))
+        # if reg:
+        #     return utils.respondWithFailure(
+        #             status=422,
+        #             message=frappe._("Special Characters not allowed."),
+        #         )
+
         if isinstance(data.get("view_more"), str):
             data["view_more"] = int(data.get("view_more"))
 
@@ -1356,6 +1400,14 @@ def check_eligible_limit(**kwargs):
         utils.validator.validate_http_method("GET")
 
         data = utils.validator.validate(kwargs, {"lender": "", "search": ""})
+
+        reg = lms.regex_special_characters(search=data.get("lender"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
+
         if not data.get("lender"):
             data["lender"] = frappe.get_last_doc("Lender").name
 
@@ -1408,18 +1460,24 @@ def feedback(**kwargs):
         data = utils.validator.validate(
             kwargs,
             {
-                "do_not_show_again": "",
-                "bulls_eye": "",
-                "can_do_better": "",
-                "related_to_user_experience": "",
-                "related_to_functionality": "",
-                "others": "",
+                "do_not_show_again": "decimal|between:0,1",
+                "bulls_eye": "decimal|between:0,1",
+                "can_do_better": "decimal|between:0,1",
+                "related_to_user_experience": "decimal|between:0,1",
+                "related_to_functionality": "decimal|between:0,1",
+                "others": "decimal|between:0,1",
                 "comment": "",
-                "from_more_menu": "",
+                "from_more_menu": "decimal|between:0,1",
             },
         )
 
         customer = lms.__customer()
+        reg = lms.regex_special_characters(search=data.get("comment"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         if isinstance(data.get("do_not_show_again"), str):
             data["do_not_show_again"] = int(data.get("do_not_show_again"))
@@ -1470,7 +1528,7 @@ def feedback(**kwargs):
                 )
 
             # if not data.get("do_not_show_again") or not customer.feedback_submitted:
-            if not data.get("comment"):
+            if not data.get("comment") or data.get("comment").isspace():
                 return utils.respondWithFailure(
                     message=frappe._("Please write your suggestion to us.")
                 )
