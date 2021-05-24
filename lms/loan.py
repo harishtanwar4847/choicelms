@@ -655,6 +655,36 @@ def loan_details(**kwargs):
         loan_margin_shortfall = loan.get_margin_shortfall()
         if loan_margin_shortfall.get("__islocal", None):
             loan_margin_shortfall = None
+        
+        if loan_margin_shortfall:
+            loan_margin_shortfall = loan_margin_shortfall.as_dict()
+            if loan_margin_shortfall.status == "Pending":
+                mg_shortfall_action = frappe.get_doc(
+                    "Margin Shortfall Action", loan_margin_shortfall.margin_shortfall_action
+                )
+                hrs_difference = loan_margin_shortfall.deadline - frappe.utils.now_datetime()
+                if mg_shortfall_action.sell_off_after_hours:
+                    date_array = set(
+                        loan_margin_shortfall.creation.date() + timedelta(days=x)
+                        for x in range(
+                            0,
+                            (
+                                loan_margin_shortfall.deadline.date()
+                                - loan_margin_shortfall.creation.date()
+                            ).days
+                            + 1,
+                        )
+                    )
+                    holidays = date_array.intersection(set(lms.user.holiday_list()))
+                    hrs_difference = (
+                        loan_margin_shortfall.deadline
+                        - frappe.utils.now_datetime()
+                        - timedelta(days=(len(holidays) if holidays else 0))
+                    )
+
+                loan_margin_shortfall["deadline_in_hrs"] = lms.user.convert_sec_to_hh_mm_ss(
+                    abs(hrs_difference).total_seconds()
+                ) if loan_margin_shortfall.deadline > frappe.utils.now_datetime() else "00:00:00"
 
         # Interest Details
         interest_total = frappe.db.sql(
