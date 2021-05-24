@@ -1101,8 +1101,8 @@ def loan_statement(**kwargs):
 
         if data.get("from_date") and data.get("to_date"):
             try:
-                datetime.strptime(data.get("from_date"), "%d-%m-%Y")
-                datetime.strptime(data.get("to_date"), "%d-%m-%Y")
+                from_date = datetime.strptime(data.get("from_date"), "%d-%m-%Y")
+                to_date = datetime.strptime(data.get("to_date"), "%d-%m-%Y")
             except ValueError:
                 return utils.respondWithFailure(
                     status=417,
@@ -1110,8 +1110,6 @@ def loan_statement(**kwargs):
                         "Incorrect date format, should be DD-MM-YYYY"
                     ),
                 )
-            from_date = datetime.strptime(data.get("from_date"), "%d-%m-%Y")
-            to_date = datetime.strptime(data.get("to_date"), "%d-%m-%Y")
 
             if from_date > to_date:
                 return utils.respondWithFailure(
