@@ -994,7 +994,7 @@ def loan_payment(**kwargs):
             kwargs,
             {
                 "loan_name": "required",
-                "amount": ["required", lambda x: type(x) == float],
+                "amount": ["required", "decimal"],
                 "transaction_id": "required",
                 "loan_margin_shortfall_name": "",
                 "is_for_interest": "decimal|between:0,1",
