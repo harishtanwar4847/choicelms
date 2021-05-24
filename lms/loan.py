@@ -948,6 +948,10 @@ def loan_payment(**kwargs):
                 return utils.respondForbidden(
                     message=_("Loan Margin Shortfall should be for the provided loan.")
                 )
+            if loan_margin_shortfall.status == "Pending":
+                loan_margin_shortfall.status = "Request Pending"
+                loan_margin_shortfall.save(ignore_permissions=True)
+                frappe.db.commit()
 
         frappe.db.begin()
         loan.create_loan_transaction(
@@ -1663,6 +1667,11 @@ def sell_collateral_request(**kwargs):
             sell_collateral_application.loan_margin_shortfall = data.get(
                 "loan_margin_shortfall_name"
             )
+            loan_margin_shortfall = frappe.get_doc("Loan Margin Shortfall", date.get("loan_margin_shortfall_name"))
+            if loan_margin_shortfall.status == "Pending":
+                loan_margin_shortfall.status = "Request Pending"
+                loan_margin_shortfall.save(ignore_permissions=True)
+                frappe.db.commit()
 
         sell_collateral_application.insert(ignore_permissions=True)
 
