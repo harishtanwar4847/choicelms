@@ -12,7 +12,6 @@ from frappe import _
 from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms
-regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
 
 
 @frappe.whitelist()
@@ -677,7 +676,7 @@ def loan_details(**kwargs):
             #             Action Taken on: Rs. {}
             #             On {} we received a payment request of Rs. {}. The request is under process
             #             and will soon be approved by the Lender.
-            #             Remaining Margin Shortfall (after the processing of the payment/pledge request)): Rs. {}""".format(loan_margin_shortfall.shortfall, loan_margin_shortfall.shortfall, pledged_securities_for_mg_shortfall[0].creation if pledged_securities_for_mg_shortfall else payment_for_mg_shortfall[0].creation, paid_shortfall, remaining_shortfall if loan_margin_shortfall.shortfall_percentage > 0 else 0) if paid_shortfall else None
+            #             Remaining Margin Shortfall (after the processing of the payment/pledge request)): Rs. {}""".format(loan_margin_shortfall.shortfall, loan_margin_shortfall.shortfall, datetime.strptime(pledged_securities_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p") if pledged_securities_for_mg_shortfall else datetime.strptime(payment_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p"), paid_shortfall, remaining_shortfall if loan_margin_shortfall.shortfall_percentage > 0 else 0) if paid_shortfall else None
             #     loan_margin_shortfall["deadline_in_hrs"] = None       
 
             if loan_margin_shortfall.status == "Pending":
