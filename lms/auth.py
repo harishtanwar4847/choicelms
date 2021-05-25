@@ -13,7 +13,6 @@ from frappe.utils.password import (
 )
 
 import lms
-regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
 
 # from lms.exceptions.InvalidUserTokenException import InvalidUserTokenException
 # from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
