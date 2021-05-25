@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timedelta
+import re
 
 import frappe
 import utils
@@ -30,9 +31,17 @@ def login(**kwargs):
                 "mobile": ["required", "decimal", utils.validator.rules.LengthRule(10)],
                 "pin": [utils.validator.rules.LengthRule(4)],
                 "firebase_token": [utils.validator.rules.RequiredIfPresent("pin")],
-                "accept_terms": "",
+                "accept_terms": "decimal|between:0,1",
             },
         )
+        if data.get("firebase_token"):
+            #for firebase token "-_:" these characters are excluded from regex string
+            reg = lms.regex_special_characters(search=data.get("firebase_token"),regex=re.compile('[@!#$%^&*()<>?/\|}{~`]'))
+            if reg:
+                return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         try:
             user = lms.__user(data.get("mobile"))
@@ -153,6 +162,14 @@ def verify_otp(**kwargs):
                 "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
             },
         )
+        if data.get("firebase_token"):
+            #for firebase token "-_:" these characters are excluded from regex string
+            reg = lms.regex_special_characters(search=data.get("firebase_token"),regex=re.compile('[@!#$%^&*()<>?/\|}{~`]'))
+            if reg:
+                return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         try:
             token = lms.verify_user_token(
@@ -249,6 +266,14 @@ def register(**kwargs):
                 "firebase_token": "required",
             },
         )
+        reg = lms.regex_special_characters(search=data.get("last_name"))
+        #for firebase token "-_:" these characters are excluded from regex string
+        firebase_reg = lms.regex_special_characters(search=data.get("firebase_token"),regex=re.compile('[@!#$%^&*()<>?/\|}{~`]'))
+        if reg or firebase_reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         user_data = {
             "first_name": data.get("first_name"),
