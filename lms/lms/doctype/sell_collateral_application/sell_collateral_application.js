@@ -4,6 +4,7 @@
 frappe.ui.form.on("Sell Collateral Application", {
   refresh: function (frm) {
     show_fetch_items_button(frm);
+    frm.set_df_property("items", "read_only", 1);
   },
 });
 
