@@ -653,33 +653,32 @@ def loan_details(**kwargs):
                 )
             )
 
-        loan_margin_shortfall = frappe.get_all("Loan Margin Shortfall", filters={"status": ["in", ["Pending", "Request Pending"]]}, fields=["*"])
-        if not loan_margin_shortfall:
+        loan_margin_shortfall = loan.get_margin_shortfall()
+        if loan_margin_shortfall.get("__islocal", None):
             loan_margin_shortfall = None
-        # if loan_margin_shortfall.get("__islocal", None):
 
         if loan_margin_shortfall:
-            loan_margin_shortfall = loan_margin_shortfall[0]
-            # if loan_margin_shortfall.status == "Request Pending":
-            #     pledged_securities_for_mg_shortfall = frappe.get_all("Loan Application", filters={"loan_margin_shortfall": loan_margin_shortfall.name, "status": ["not in",["Approved", "Rejected"]]}, fields=["*"])
+            loan_margin_shortfall = loan_margin_shortfall.as_dict()
+            if loan_margin_shortfall.status == "Request Pending":
+                pledged_securities_for_mg_shortfall = frappe.get_all("Loan Application", filters={"loan_margin_shortfall": loan_margin_shortfall.name, "status": ["not in",["Approved", "Rejected"]]}, fields=["*"])
 
-            #     payment_for_mg_shortfall = frappe.get_all("Loan Transaction", filters={"loan_margin_shortfall": loan_margin_shortfall.name, "transaction_type": "Payment", "status": ["not in",["Approved", "Rejected"]]}, fields=["*"])
+                # payment_for_mg_shortfall = frappe.get_all("Loan Transaction", filters={"loan_margin_shortfall": loan_margin_shortfall.name, "transaction_type": "Payment", "status": ["not in",["Approved", "Rejected"]]}, fields=["*"])
                 
-            #     if pledged_securities_for_mg_shortfall:
-            #         paid_shortfall = math.ceil(pledged_securities_for_mg_shortfall[0].total_collateral_value)
-            #         remaining_shortfall = loan_margin_shortfall.shortfall - paid_shortfall
-            #     elif payment_for_mg_shortfall:
-            #         paid_shortfall = payment_for_mg_shortfall[0].amount
-            #         remaining_shortfall = loan_margin_shortfall.minimum_cash_amount - paid_shortfall
+                # if pledged_securities_for_mg_shortfall:
+                #     pledged_paid_shortfall = math.ceil(pledged_securities_for_mg_shortfall[0].total_collateral_value)
+                #     remaining_shortfall = loan_margin_shortfall.shortfall - pledged_paid_shortfall
+                # elif payment_for_mg_shortfall:
+                #     cash_paid_shortfall = payment_for_mg_shortfall[0].amount
+                #     remaining_shortfall = loan_margin_shortfall.minimum_cash_amount - cash_paid_shortfall
 
-            #     loan_margin_shortfall["action_taken_msg"] = """Total Margin Shortfall: Rs. {}
-            #             Action Taken on: Rs. {}
-            #             On {} we received a payment request of Rs. {}. The request is under process
-            #             and will soon be approved by the Lender.
-            #             Remaining Margin Shortfall (after the processing of the payment/pledge request)): Rs. {}""".format(loan_margin_shortfall.shortfall, loan_margin_shortfall.shortfall, pledged_securities_for_mg_shortfall[0].creation if pledged_securities_for_mg_shortfall else payment_for_mg_shortfall[0].creation, paid_shortfall, remaining_shortfall if loan_margin_shortfall.shortfall_percentage > 0 else 0) if paid_shortfall else None
-            #     loan_margin_shortfall["deadline_in_hrs"] = None       
+                # loan_margin_shortfall["action_taken_msg"] = """Total Margin Shortfall: Rs. {}
+                #         Action Taken on: Rs. {}
+                #         On {} we received a payment request of Rs. {}. The request is under process
+                #         and will soon be approved by the Lender.
+                #         Remaining Margin Shortfall (after the processing of the payment/pledge request)): Rs. {}""".format(loan_margin_shortfall.shortfall, loan_margin_shortfall.shortfall, (pledged_securities_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p") if pledged_securities_for_mg_shortfall else (payment_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p"), pledged_paid_shortfall if pledged_securities_for_mg_shortfall else cash_paid_shortfall, 0 if remaining_shortfall <= 0 else remaining_shortfall) if pledged_securities_for_mg_shortfall or payment_for_mg_shortfall else None
+                # loan_margin_shortfall["deadline_in_hrs"] = None       
 
-            if loan_margin_shortfall.status == "Pending":
+            elif loan_margin_shortfall.status == "Pending":
                 mg_shortfall_action = frappe.get_doc(
                     "Margin Shortfall Action", loan_margin_shortfall.margin_shortfall_action
                 )
