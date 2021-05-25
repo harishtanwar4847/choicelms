@@ -19,7 +19,12 @@ class UnpledgeApplication(Document):
         self.process_items()
 
     def before_save(self):
-        if self.status == "Rejected":
+        loan_margin_shortfall = frappe.get_all(
+            "Loan Margin Shortfall",
+            {"loan": self.loan, "status": "Pending"},
+            page_length=1,
+        )
+        if self.status == "Rejected" and not loan_margin_shortfall:
             self.notify_customer()
         else:
             self.process_items()
@@ -122,7 +127,7 @@ class UnpledgeApplication(Document):
         loan.save(ignore_permissions=True)
         self.notify_customer()
 
-    def notify_customer(self):
+    def notify_customer(self, check=None):
         msg = ""
         if self.status in ["Approved", "Rejected"]:
             customer = self.get_loan().get_customer()
@@ -131,7 +136,15 @@ class UnpledgeApplication(Document):
             if self.status == "Approved":
                 msg = "Your unpledging of securities was successfully completed."
             elif self.status == "Rejected":
-                msg = "Your unpledging of securities was not completed."
+                if check == True:
+                    msg = """Dear {},
+                    Your unpledge request was rejected.
+                    There is a margin shortfall.
+                    You can send another unpledge request when there is no margin shortfall.""".format(
+                        self.get_loan().get_customer().first_name
+                    )
+                else:
+                    msg = "Your unpledging of securities was not completed."
 
             receiver_list = list(
                 set([str(customer.phone), str(user_kyc.mobile_number)])
@@ -145,6 +158,34 @@ class UnpledgeApplication(Document):
             sorted(self.items, key=lambda item: item.security_name), start=1
         ):
             item.idx = i
+
+    def unpledge_with_margin_shortfall(self):
+        loan_margin_shortfall = frappe.get_all(
+            "Loan Margin Shortfall",
+            {"loan": self.loan, "status": "Pending"},
+            page_length=1,
+        )
+
+        if self.status == "Pending" and loan_margin_shortfall:
+            self.status = "Rejected"
+            self.workflow_state = "Rejected"
+            check = True
+            self.save(ignore_permissions=True)
+            frappe.db.commit()
+            self.notify_customer(check)
+
+    # def check(self):
+    #     loan = self.get_loan()
+    #     final_drawing_power = (loan.total_collateral_value - self.unpledge_collateral_value)*loan.allowable_ltv/100
+    #     print(loan.total_collateral_value,"loan.total_collateral_value")
+    #     print(self.unpledge_collateral_value,"self.unpledge_collateral_value")
+    #     print(final_drawing_power,"final_drawing_power")
+    #     if self.status == "Pending" and final_drawing_power < loan.balance:
+    #         self.status = "Rejected"
+    #         self.workflow_state = "Rejected"
+    #         self.save(ignore_permissions=True)
+    #         frappe.db.commit()
+    #         self.notify_customer(check=True)
 
 
 @frappe.whitelist()

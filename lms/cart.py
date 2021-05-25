@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from itertools import groupby
+import re
 
 import frappe
 import requests
@@ -11,6 +12,7 @@ from lms.exceptions import PledgeSetupFailureException
 from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions import (
     ApprovedTermsandConditions,
 )
+regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
 
 
 def validate_securities_for_cart(securities, lender):
@@ -95,6 +97,14 @@ def upsert(**kwargs):
                 "pledgor_boid": "required",
             },
         )
+
+        reg = lms.regex_special_characters(search=data.get("cart_name")+data.get("loan_name")+data.get("loan_margin_shortfall_name")+data.get("lender")+data.get("pledgor_boid"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
+
 
         if not data.get("lender", None):
             data["lender"] = frappe.get_last_doc("Lender").name
@@ -293,6 +303,15 @@ def process(**kwargs):
             },
         )
 
+        reg = lms.regex_special_characters(search=data.get("cart_name"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
+
+
+
         user_kyc = lms.__user_kyc()
 
         token = lms.verify_user_token(
@@ -443,6 +462,13 @@ def get_tnc(**kwargs):
             {"cart_name": "", "topup_application_name": ""},
         )
 
+        reg = lms.regex_special_characters(search=data.get("cart_name")+data.get("topup_application_name"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
+
         customer = lms.__customer()
         user_kyc = lms.__user_kyc()
         user = lms.__user()
@@ -470,6 +496,9 @@ def get_tnc(**kwargs):
                     message=frappe._("Please use your own cart.")
                 )
             lender = frappe.get_doc("Lender", cart.lender)
+            if cart.loan:
+                loan = frappe.get_doc("Loan", cart.loan)
+
         else:
             topup_application = frappe.get_doc(
                 "Top up Application", data.get("topup_application_name")
@@ -504,17 +533,28 @@ def get_tnc(**kwargs):
         tnc_ul.append(
             "<li><strong> Purpose </strong>: General Purpose. The facility shall not be used for anti-social or illegal purposes;</li>"
         )
-        if data.get("cart_name"):
+        if data.get("cart_name") and not cart.loan:
             tnc_ul.append(
                 "<li><strong> Sanctioned Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
                     cart.eligible_loan
                 )
                 + "</li>"
             )
+        elif data.get("cart_name") and cart.loan:
+            tnc_ul.append(
+                "<li><strong> Sanctioned Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
+                    lms.round_down_amount_to_nearest_thousand(
+                        (cart.total_collateral_value + loan.total_collateral_value)
+                        * cart.allowable_ltv
+                        / 100
+                    )
+                )
+                + "</li>"
+            )
         else:
             tnc_ul.append(
                 "<li><strong> Top up Amount </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
-                    topup_application.top_up_amount
+                    topup_application.top_up_amount + loan.drawing_power
                 )
                 + "</li>"
             )

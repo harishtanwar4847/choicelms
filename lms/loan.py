@@ -1,5 +1,6 @@
 import json
 from datetime import date, datetime, timedelta
+import re
 
 import frappe
 import pandas as pd
@@ -9,6 +10,7 @@ from frappe import _
 from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms
+regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
 
 
 @frappe.whitelist()
@@ -72,6 +74,13 @@ def esign(**kwargs):
             kwargs,
             {"loan_application_name": "", "topup_application_name": ""},
         )
+
+        reg = lms.regex_special_characters(search=data.get("loan_application_name")+data.get("topup_application_name"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         customer = lms.__customer()
         if data.get("loan_application_name") and data.get("topup_application_name"):
@@ -154,6 +163,13 @@ def esign_done(**kwargs):
                 "file_id": "required",
             },
         )
+
+        reg = lms.regex_special_characters(search=data.get("loan_application_name")+data.get("topup_application_name")+data.get("file_id"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         user = lms.__user()
         customer = lms.__customer()
@@ -511,6 +527,13 @@ def create_topup(**kwargs):
                 "topup_amount": ["required", lambda x: type(x) == float],
             },
         )
+
+        reg = lms.regex_special_characters(search=data.get("loan_name"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
@@ -584,6 +607,13 @@ def loan_details(**kwargs):
             },
         )
 
+        reg = lms.regex_special_characters(search=data.get("loan_name"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
+
         customer = lms.__customer()
         try:
             loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -655,7 +685,7 @@ def loan_details(**kwargs):
 
             interest = {
                 "total_interest_amt": round(interest_total[0]["total_amt"], 2),
-                "due_date": due_date.strftime("%m.%d.%Y"),
+                "due_date": due_date.strftime("%d.%m.%Y"),
                 "due_date_txt": due_date_txt,
                 "info_msg": info_msg,
             }
@@ -710,6 +740,11 @@ def loan_details(**kwargs):
             res["sell_collateral"] = None
 
         # check if any pending unpledge application exist
+        loan_margin_shortfall = frappe.get_all(
+            "Loan Margin Shortfall",
+            {"loan": loan.name, "status": "Pending"},
+            page_length=1,
+        )
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",
             filters={"loan": loan.name, "status": "Pending"},
@@ -720,7 +755,14 @@ def loan_details(**kwargs):
             res["unpledge"] = None
         else:
             # get amount_available_for_unpledge,min collateral value
-            res["unpledge"] = loan.max_unpledge_amount()
+            res["unpledge"] = dict(
+                unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                    loan.get_customer().first_name
+                )
+                if loan_margin_shortfall
+                else None,
+                unpledge=loan.max_unpledge_amount(),
+            )
 
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
@@ -733,6 +775,13 @@ def loan_withdraw_details(**kwargs):
         utils.validator.validate_http_method("GET")
 
         data = utils.validator.validate(kwargs, {"loan_name": "required"})
+
+        reg = lms.regex_special_characters(search=data.get("loan_name"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -795,6 +844,13 @@ def loan_withdraw_request(**kwargs):
                 "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
             },
         )
+
+        reg = lms.regex_special_characters(search=data.get("loan_name")+data.get("bank_account_name"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         customer = lms.__customer()
         user = lms.__user()
@@ -911,9 +967,16 @@ def loan_payment(**kwargs):
                 "amount": ["required", lambda x: type(x) == float],
                 "transaction_id": "required",
                 "loan_margin_shortfall_name": "",
-                "is_for_interest": "",
+                "is_for_interest": "decimal|between:0,1",
             },
         )
+
+        reg = lms.regex_special_characters(search=data.get("loan_name")+data.get("transaction_id")+data.get("loan_margin_shortfall_name"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         customer = lms.__customer()
         try:
@@ -965,10 +1028,17 @@ def loan_statement(**kwargs):
                 "from_date": "",
                 "to_date": "",
                 "file_format": "",
-                "is_email": "",
-                "is_download": "",
+                "is_email": "decimal|between:0,1",
+                "is_download": "decimal|between:0,1",
             },
         )
+
+        reg = lms.regex_special_characters(search=data.get("loan_name")+data.get("file_format")+data.get("type"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         if isinstance(data.get("is_download"), str):
             data["is_download"] = int(data.get("is_download"))
@@ -1030,8 +1100,16 @@ def loan_statement(**kwargs):
             )
 
         if data.get("from_date") and data.get("to_date"):
-            from_date = datetime.strptime(data.get("from_date"), "%d-%m-%Y")
-            to_date = datetime.strptime(data.get("to_date"), "%d-%m-%Y")
+            try:
+                from_date = datetime.strptime(data.get("from_date"), "%d-%m-%Y")
+                to_date = datetime.strptime(data.get("to_date"), "%d-%m-%Y")
+            except ValueError:
+                return utils.respondWithFailure(
+                    status=417,
+                    message=frappe._(
+                        "Incorrect date format, should be DD-MM-YYYY"
+                    ),
+                )
 
             if from_date > to_date:
                 return utils.respondWithFailure(
@@ -1333,6 +1411,13 @@ def loan_unpledge_details(**kwargs):
 
         data = utils.validator.validate(kwargs, {"loan_name": "required"})
 
+        reg = lms.regex_special_characters(search=data.get("loan_name"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
+
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
@@ -1342,6 +1427,11 @@ def loan_unpledge_details(**kwargs):
 
         res = {"loan": loan}
 
+        loan_margin_shortfall = frappe.get_all(
+            "Loan Margin Shortfall",
+            {"loan": loan.name, "status": "Pending"},
+            page_length=1,
+        )
         # check if any pending unpledge application exist
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",
@@ -1353,7 +1443,14 @@ def loan_unpledge_details(**kwargs):
             res["unpledge"] = None
         else:
             # get amount_available_for_unpledge,min collateral value
-            res["unpledge"] = loan.max_unpledge_amount()
+            res["unpledge"] = dict(
+                unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                    loan.get_customer().first_name
+                )
+                if loan_margin_shortfall
+                else None,
+                unpledge=loan.max_unpledge_amount(),
+            )
         # data = {"loan": loan, "unpledge": unpledge}
 
         return utils.respondWithSuccess(data=res)
@@ -1468,12 +1565,31 @@ def loan_unpledge_request(**kwargs):
             },
         )
 
+        reg = lms.regex_special_characters(search=data.get("loan_name"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
+
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
             return utils.respondNotFound(message=frappe._("Loan not found."))
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
+        loan_margin_shortfall = frappe.get_all(
+            "Loan Margin Shortfall",
+            {"loan": loan.name, "status": "Pending"},
+            page_length=1,
+        )
+        if loan_margin_shortfall:
+            return utils.respondWithFailure(
+                status=417,
+                message="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                    loan.get_customer().first_name
+                ),
+            )
 
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",
@@ -1563,6 +1679,13 @@ def sell_collateral_request(**kwargs):
                 "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
             },
         )
+
+        reg = lms.regex_special_characters(search=data.get("loan_name")+data.get("loan_margin_shortfall_name"))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         user = lms.__user()
         customer = lms.__customer()

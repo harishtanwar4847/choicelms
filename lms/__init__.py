@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from datetime import datetime, timedelta
 from itertools import groupby
 from random import choice
+import re
 from traceback import format_exc
 
 import frappe
@@ -19,7 +20,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "1.0.0-beta.1.8"
+__version__ = "1.0.0-beta.1.2"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -548,3 +549,14 @@ def user_dashboard(data=None):
             {"items": ["Loan Customer"]},
         ],
     }
+
+def regex_special_characters(search,regex=None):
+    if regex:
+        regex = regex
+    else:
+        regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
+
+    if regex.search(search) != None:
+        return True
+    else:
+        return False
