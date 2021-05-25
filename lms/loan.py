@@ -4,6 +4,7 @@ import math
 import re
 
 import frappe
+from lms.user import holiday_list, convert_sec_to_hh_mm_ss
 import pandas as pd
 import requests
 import utils
@@ -696,7 +697,7 @@ def loan_details(**kwargs):
                             + 1,
                         )
                     )
-                    holidays = date_array.intersection(set(lms.user.holiday_list()))
+                    holidays = date_array.intersection(set(holiday_list()))
                     hrs_difference = (
                         loan_margin_shortfall.deadline
                         - frappe.utils.now_datetime()
@@ -704,7 +705,7 @@ def loan_details(**kwargs):
                     )
 
                 loan_margin_shortfall["action_taken_msg"] = None
-                loan_margin_shortfall["deadline_in_hrs"] = lms.user.convert_sec_to_hh_mm_ss(
+                loan_margin_shortfall["deadline_in_hrs"] = convert_sec_to_hh_mm_ss(
                     abs(hrs_difference).total_seconds()
                 ) if loan_margin_shortfall.deadline > frappe.utils.now_datetime() else "00:00:00"
 
