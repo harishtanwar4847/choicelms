@@ -12,7 +12,6 @@ from lms.exceptions import PledgeSetupFailureException
 from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions import (
     ApprovedTermsandConditions,
 )
-regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
 
 
 def validate_securities_for_cart(securities, lender):

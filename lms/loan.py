@@ -12,7 +12,6 @@ from frappe import _
 from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms
-regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
 
 
 @frappe.whitelist()
