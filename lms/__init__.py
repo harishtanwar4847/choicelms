@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import re
 from datetime import datetime, timedelta
 from itertools import groupby
 from random import choice
-import re
 from traceback import format_exc
 
 import frappe
@@ -550,11 +550,12 @@ def user_dashboard(data=None):
         ],
     }
 
-def regex_special_characters(search,regex=None):
+
+def regex_special_characters(search, regex=None):
     if regex:
         regex = regex
     else:
-        regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
+        regex = re.compile("[@_!#$%^&*()<>?/\|}{~:`]")
 
     if regex.search(search) != None:
         return True
