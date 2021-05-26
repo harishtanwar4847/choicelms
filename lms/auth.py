@@ -1,6 +1,6 @@
 import json
-from datetime import datetime, timedelta
 import re
+from datetime import datetime, timedelta
 
 import frappe
 import utils
@@ -13,7 +13,8 @@ from frappe.utils.password import (
 )
 
 import lms
-regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
+
+regex = re.compile("[@_!#$%^&*()<>?/\|}{~:`]")
 
 # from lms.exceptions.InvalidUserTokenException import InvalidUserTokenException
 # from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
@@ -36,8 +37,11 @@ def login(**kwargs):
             },
         )
         if data.get("firebase_token"):
-            #for firebase token "-_:" these characters are excluded from regex string
-            reg = lms.regex_special_characters(search=data.get("firebase_token"),regex=re.compile('[@!#$%^&*()<>?/\|}{~`]'))
+            # for firebase token "-_:" these characters are excluded from regex string
+            reg = lms.regex_special_characters(
+                search=data.get("firebase_token"),
+                regex=re.compile("[@!#$%^&*()<>?/\|}{~`]"),
+            )
             if reg:
                 return utils.respondWithFailure(
                     status=422,
@@ -164,8 +168,11 @@ def verify_otp(**kwargs):
             },
         )
         if data.get("firebase_token"):
-            #for firebase token "-_:" these characters are excluded from regex string
-            reg = lms.regex_special_characters(search=data.get("firebase_token"),regex=re.compile('[@!#$%^&*()<>?/\|}{~`]'))
+            # for firebase token "-_:" these characters are excluded from regex string
+            reg = lms.regex_special_characters(
+                search=data.get("firebase_token"),
+                regex=re.compile("[@!#$%^&*()<>?/\|}{~`]"),
+            )
             if reg:
                 return utils.respondWithFailure(
                     status=422,
@@ -268,13 +275,16 @@ def register(**kwargs):
             },
         )
         reg = lms.regex_special_characters(search=data.get("last_name"))
-        #for firebase token "-_:" these characters are excluded from regex string
-        firebase_reg = lms.regex_special_characters(search=data.get("firebase_token"),regex=re.compile('[@!#$%^&*()<>?/\|}{~`]'))
+        # for firebase token "-_:" these characters are excluded from regex string
+        firebase_reg = lms.regex_special_characters(
+            search=data.get("firebase_token"),
+            regex=re.compile("[@!#$%^&*()<>?/\|}{~`]"),
+        )
         if reg or firebase_reg:
             return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
-                )
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
 
         user_data = {
             "first_name": data.get("first_name"),

@@ -21,17 +21,25 @@ class UserToken(Document):
             "Unpledge OTP",
             "Sell Collateral OTP",
         ]:
-            # las_settings = frappe.get_single("LAS Settings")
-            # app_hash_string=las_settings.app_identification_hash_string,
+            las_settings = frappe.get_single("LAS Settings")
+            app_hash_string = (las_settings.app_identification_hash_string,)
             # "Your {token_type} for LMS is {token}. Do not share your {token_type} with anyone.{app_hash_string}"
             expiry_in_minutes = lms.user_token_expiry_map.get(self.token_type, None)
             mess = frappe._(
-                "Your {token_type} for Spark.Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for {expiry_in_minutes} minutes."
+                "Your {token_type} for LMS is {token}. Do not share your {token_type} with anyone.{app_hash_string} Your OTP is valid for {expiry_in_minutes} minutes"
             ).format(
                 token_type=self.token_type,
                 token=self.token,
+                app_hash_string=app_hash_string,
                 expiry_in_minutes=expiry_in_minutes,
             )
+            # mess = frappe._(
+            #     "Your {token_type} for Spark.Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for {expiry_in_minutes} minutes."
+            # ).format(
+            #     token_type=self.token_type,
+            #     token=self.token,
+            #     expiry_in_minutes=expiry_in_minutes,
+            # )
             frappe.enqueue(method=send_sms, receiver_list=[self.entity], msg=mess)
         elif self.token_type == "Email Verification Token":
             doc = frappe.get_doc("User", self.entity).as_dict()

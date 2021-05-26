@@ -1,6 +1,6 @@
 import json
-from datetime import date, datetime, timedelta
 import re
+from datetime import date, datetime, timedelta
 
 import frappe
 import pandas as pd
@@ -10,7 +10,8 @@ from frappe import _
 from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms
-regex = re.compile('[@_!#$%^&*()<>?/\|}{~:`]')
+
+regex = re.compile("[@_!#$%^&*()<>?/\|}{~:`]")
 
 
 @frappe.whitelist()
@@ -75,12 +76,15 @@ def esign(**kwargs):
             {"loan_application_name": "", "topup_application_name": ""},
         )
 
-        reg = lms.regex_special_characters(search=data.get("loan_application_name")+data.get("topup_application_name"))
+        reg = lms.regex_special_characters(
+            search=data.get("loan_application_name")
+            + data.get("topup_application_name")
+        )
         if reg:
             return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
-                )
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
 
         customer = lms.__customer()
         if data.get("loan_application_name") and data.get("topup_application_name"):
@@ -164,12 +168,16 @@ def esign_done(**kwargs):
             },
         )
 
-        reg = lms.regex_special_characters(search=data.get("loan_application_name")+data.get("topup_application_name")+data.get("file_id"))
+        reg = lms.regex_special_characters(
+            search=data.get("loan_application_name")
+            + data.get("topup_application_name")
+            + data.get("file_id")
+        )
         if reg:
             return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
-                )
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
 
         user = lms.__user()
         customer = lms.__customer()
@@ -531,9 +539,9 @@ def create_topup(**kwargs):
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
             return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
-                )
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
@@ -610,9 +618,9 @@ def loan_details(**kwargs):
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
             return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
-                )
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
 
         customer = lms.__customer()
         try:
@@ -779,9 +787,9 @@ def loan_withdraw_details(**kwargs):
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
             return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
-                )
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
 
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -845,12 +853,14 @@ def loan_withdraw_request(**kwargs):
             },
         )
 
-        reg = lms.regex_special_characters(search=data.get("loan_name")+data.get("bank_account_name"))
+        reg = lms.regex_special_characters(
+            search=data.get("loan_name") + data.get("bank_account_name")
+        )
         if reg:
             return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
-                )
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
 
         customer = lms.__customer()
         user = lms.__user()
@@ -971,12 +981,16 @@ def loan_payment(**kwargs):
             },
         )
 
-        reg = lms.regex_special_characters(search=data.get("loan_name")+data.get("transaction_id")+data.get("loan_margin_shortfall_name"))
+        reg = lms.regex_special_characters(
+            search=data.get("loan_name")
+            + data.get("transaction_id")
+            + data.get("loan_margin_shortfall_name")
+        )
         if reg:
             return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
-                )
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
 
         customer = lms.__customer()
         try:
@@ -1033,12 +1047,14 @@ def loan_statement(**kwargs):
             },
         )
 
-        reg = lms.regex_special_characters(search=data.get("loan_name")+data.get("file_format")+data.get("type"))
+        reg = lms.regex_special_characters(
+            search=data.get("loan_name") + data.get("file_format") + data.get("type")
+        )
         if reg:
             return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
-                )
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
 
         if isinstance(data.get("is_download"), str):
             data["is_download"] = int(data.get("is_download"))
@@ -1106,9 +1122,7 @@ def loan_statement(**kwargs):
             except ValueError:
                 return utils.respondWithFailure(
                     status=417,
-                    message=frappe._(
-                        "Incorrect date format, should be DD-MM-YYYY"
-                    ),
+                    message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
                 )
 
             if from_date > to_date:
@@ -1414,9 +1428,9 @@ def loan_unpledge_details(**kwargs):
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
             return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
-                )
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
 
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -1568,9 +1582,9 @@ def loan_unpledge_request(**kwargs):
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
             return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
-                )
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
 
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -1680,12 +1694,14 @@ def sell_collateral_request(**kwargs):
             },
         )
 
-        reg = lms.regex_special_characters(search=data.get("loan_name")+data.get("loan_margin_shortfall_name"))
+        reg = lms.regex_special_characters(
+            search=data.get("loan_name") + data.get("loan_margin_shortfall_name")
+        )
         if reg:
             return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
-                )
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
 
         user = lms.__user()
         customer = lms.__customer()
