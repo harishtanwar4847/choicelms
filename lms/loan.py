@@ -1046,15 +1046,25 @@ def loan_payment(**kwargs):
         frappe.logger().info(data.get("amount"))
         frappe.logger().info(type(data.get("amount")))
         reg = lms.regex_special_characters(
-            search=data.get("loan_name")
-            + data.get("transaction_id")
-            + data.get("loan_margin_shortfall_name")
+            search=data.get("loan_name") + data.get("loan_margin_shortfall_name")
         )
         if reg:
             return utils.respondWithFailure(
                 status=422,
                 message=frappe._("Special Characters not allowed."),
             )
+
+        if data.get("transaction_id"):
+            # for firebase token "-_:" these characters are excluded from regex string
+            reg = lms.regex_special_characters(
+                search=data.get("transaction_id"),
+                regex=re.compile("[@!#$%^&*()<>?/\|}{~`]"),
+            )
+            if reg:
+                return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         customer = lms.__customer()
         try:
