@@ -1209,7 +1209,7 @@ def loan_statement(**kwargs):
             elif data.get("type") == "Pledged Securities Transactions":
                 from_to_date = (
                     "`tabCollateral Ledger`.creation BETWEEN '{}' and '{}'".format(
-                        from_date, to_date
+                        from_date, to_date + timedelta(days=1)
                     )
                 )
 
