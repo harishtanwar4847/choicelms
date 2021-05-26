@@ -31,7 +31,7 @@ def login(**kwargs):
                 "mobile": ["required", "decimal", utils.validator.rules.LengthRule(10)],
                 "pin": [utils.validator.rules.LengthRule(4)],
                 "firebase_token": [utils.validator.rules.RequiredIfPresent("pin")],
-                "accept_terms": "decimal|between:0,1",
+                "accept_terms": ["between:0,1", lambda x: type(x) == int],
             },
         )
         if data.get("firebase_token"):

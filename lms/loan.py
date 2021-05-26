@@ -1039,7 +1039,7 @@ def loan_payment(**kwargs):
                 "amount": ["required", lambda x: type(x) == float],
                 "transaction_id": "required",
                 "loan_margin_shortfall_name": "",
-                "is_for_interest": "decimal|between:0,1",
+                "is_for_interest": ["between:0,1", lambda x: type(x) == int],
             },
         )
         frappe.logger().info(data.get("loan_name"))
@@ -1116,8 +1116,8 @@ def loan_statement(**kwargs):
                 "from_date": "",
                 "to_date": "",
                 "file_format": "",
-                "is_email": "decimal|between:0,1",
-                "is_download": "decimal|between:0,1",
+                "is_email": ["between:0,1", lambda x: type(x) == int],
+                "is_download": ["between:0,1", lambda x: type(x) == int],
             },
         )
 
