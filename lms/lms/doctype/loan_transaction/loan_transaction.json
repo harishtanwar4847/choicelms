@@ -201,7 +201,7 @@
   }
  ],
  "is_submittable": 1,
- "modified": "2021-02-04 13:46:23.866147",
+ "modified": "2021-05-27 12:49:30.115259",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
@@ -230,6 +230,7 @@
    "share": 1
   },
   {
+   "create": 1,
    "email": 1,
    "export": 1,
    "print": 1,

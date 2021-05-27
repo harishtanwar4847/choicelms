@@ -103,6 +103,13 @@ class Cart(Document):
         self.is_processed = 1
         self.save()
 
+        if self.loan_margin_shortfall:
+            loan_margin_shortfall = frappe.get_doc("Loan Margin Shortfall", self.loan_margin_shortfall)
+            if loan_margin_shortfall.status == "Pending":
+                loan_margin_shortfall.status = "Request Pending"
+                loan_margin_shortfall.save(ignore_permissions=True)
+                frappe.db.commit()
+
         # if self.loan_margin_shortfall:
         #     loan_application.status = "Ready for Approval"
         #     loan_application.workflow_state = "Ready for Approval"

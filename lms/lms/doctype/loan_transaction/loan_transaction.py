@@ -166,6 +166,12 @@ class LoanTransaction(Document):
                     loan_margin_shortfall.status = "Sell Off"
 
                 loan_margin_shortfall.action_time = frappe.utils.now_datetime()
+
+            # if shortfall is not recoverd then margin shortfall status will change from request pending to pending
+            if loan_margin_shortfall.status == "Request Pending" and loan_margin_shortfall.shortfall_percentage > 0 and loan_margin_shortfall.shortfall_percentage < 25:
+                loan_margin_shortfall.status = "Pending"
+                # loan_margin_shortfall.save(ignore_permissions=True)
+                # frappe.db.commit()
             loan_margin_shortfall.save(ignore_permissions=True)
 
         if self.is_for_interest:

@@ -646,7 +646,7 @@ def dashboard(**kwargs):
 		left join `tabLoan Margin Shortfall` as mrgloan
 		on loan.name = mrgloan.loan
 		where loan.customer = '{}'
-		and mrgloan.status = "Pending"
+		and mrgloan.status = "Pending" or mrgloan.status = "Sell Triggered"
 		and shortfall_percentage > 0.0
 		group by loan.name""".format(
                 customer.name

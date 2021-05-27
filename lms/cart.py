@@ -142,10 +142,6 @@ def upsert(**kwargs):
                             "Loan Margin Shortfall should be for the provided loan."
                         )
                     )
-                if loan_margin_shortfall.status == "Pending":
-                    loan_margin_shortfall.status = "Request Pending"
-                    loan_margin_shortfall.save(ignore_permissions=True)
-                    frappe.db.commit()
 
         if not data.get("cart_name", None):
             cart = frappe.get_doc(
