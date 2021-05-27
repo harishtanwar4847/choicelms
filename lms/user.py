@@ -65,7 +65,7 @@ def kyc(**kwargs):
             {
                 "pan_no": "required",
                 "birth_date": "required",
-                "accept_terms": "required|decimal|between:0,1",
+                "accept_terms": ["required", "between:0,1", "decimal"],
             },
         )
 
@@ -370,10 +370,9 @@ def approved_securities(**kwargs):
             },
         )
 
-        reg = lms.regex_special_characters(
-            search=data.get("lender") + data.get("category")
-        )
-        if reg:
+        reg = lms.regex_special_characters(search=data.get("lender")+data.get("category"))
+        search_reg = lms.regex_special_characters(search=data.get("search"),regex=re.compile('[@!#$%_^&*<>?/\|}{~`]'))
+        if reg or search_reg:
             return utils.respondWithFailure(
                 status=422,
                 message=frappe._("Special Characters not allowed."),
@@ -1365,12 +1364,12 @@ def contact_us(**kwargs):
             kwargs, {"search": "", "view_more": "decimal|between:0,1"}
         )
 
-        # reg = lms.regex_special_characters(search=data.get("search"))
-        # if reg:
-        #     return utils.respondWithFailure(
-        #             status=422,
-        #             message=frappe._("Special Characters not allowed."),
-        #         )
+        reg = lms.regex_special_characters(search=data.get("search"),regex=re.compile('[@!#$%_^&*<>?/\|}{~`]'))
+        if reg:
+            return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         if isinstance(data.get("view_more"), str):
             data["view_more"] = int(data.get("view_more"))
@@ -1413,7 +1412,8 @@ def check_eligible_limit(**kwargs):
         data = utils.validator.validate(kwargs, {"lender": "", "search": ""})
 
         reg = lms.regex_special_characters(search=data.get("lender"))
-        if reg:
+        search_reg = lms.regex_special_characters(search=data.get("search"),regex=re.compile('[@!#$%_^&*<>?/\|}{~`]'))
+        if reg or search_reg:
             return utils.respondWithFailure(
                 status=422,
                 message=frappe._("Special Characters not allowed."),

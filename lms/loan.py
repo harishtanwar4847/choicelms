@@ -1042,9 +1042,6 @@ def loan_payment(**kwargs):
                 "is_for_interest": "decimal|between:0,1",
             },
         )
-        frappe.logger().info(data.get("loan_name"))
-        frappe.logger().info(data.get("amount"))
-        frappe.logger().info(type(data.get("amount")))
         reg = lms.regex_special_characters(
             search=data.get("loan_name") + data.get("loan_margin_shortfall_name")
         )
