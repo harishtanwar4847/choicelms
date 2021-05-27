@@ -346,90 +346,90 @@ def process(**kwargs):
         return e.respond()
 
 
-@frappe.whitelist()
-def process_dummy(cart_name):
-    cart = frappe.get_doc("Cart", cart_name)
+# @frappe.whitelist()
+# def process_dummy(cart_name):
+#     cart = frappe.get_doc("Cart", cart_name)
 
-    import random
+#     import random
 
-    items = []
-    ISINstatusDtls = []
+#     items = []
+#     ISINstatusDtls = []
 
-    flag = 0
-    for item in cart.items:
-        # flag = bool(random.getrandbits(1))
-        error_code = ["CIF3065-F", "PLD0152-E", "PLD0125-F"]
-        ISINstatusDtls_item = {
-            "ISIN": item.isin,
-            "PSN": "" if flag else lms.random_token(7, is_numeric=True),
-            "ErrorCode": random.choice(error_code) if flag else "",
-        }
-        ISINstatusDtls.append(ISINstatusDtls_item)
+#     flag = 0
+#     for item in cart.items:
+#         # flag = bool(random.getrandbits(1))
+#         error_code = ["CIF3065-F", "PLD0152-E", "PLD0125-F"]
+#         ISINstatusDtls_item = {
+#             "ISIN": item.isin,
+#             "PSN": "" if flag else lms.random_token(7, is_numeric=True),
+#             "ErrorCode": random.choice(error_code) if flag else "",
+#         }
+#         ISINstatusDtls.append(ISINstatusDtls_item)
 
-        item = frappe.get_doc(
-            {
-                "doctype": "Loan Application Item",
-                "isin": item.isin,
-                "security_name": item.security_name,
-                "security_category": item.security_category,
-                "pledged_quantity": item.pledged_quantity,
-                "price": item.price,
-                "amount": item.amount,
-                "psn": ISINstatusDtls_item.get("PSN"),
-                "error_code": ISINstatusDtls_item.get("ErrorCode"),
-            }
-        )
-        items.append(item)
+#         item = frappe.get_doc(
+#             {
+#                 "doctype": "Loan Application Item",
+#                 "isin": item.isin,
+#                 "security_name": item.security_name,
+#                 "security_category": item.security_category,
+#                 "pledged_quantity": item.pledged_quantity,
+#                 "price": item.price,
+#                 "amount": item.amount,
+#                 "psn": ISINstatusDtls_item.get("PSN"),
+#                 "error_code": ISINstatusDtls_item.get("ErrorCode"),
+#             }
+#         )
+#         items.append(item)
 
-    # dummy pledge request response
-    data = {"Success": True, "PledgeSetupResponse": {"ISINstatusDtls": ISINstatusDtls}}
+#     # dummy pledge request response
+#     data = {"Success": True, "PledgeSetupResponse": {"ISINstatusDtls": ISINstatusDtls}}
 
-    cart.reload()
-    cart.process(data)
-    cart.save(ignore_permissions=True)
+#     cart.reload()
+#     cart.process(data)
+#     cart.save(ignore_permissions=True)
 
-    # create loan application
-    loan_application = frappe.get_doc(
-        {
-            "doctype": "Loan Application",
-            "total_collateral_value": cart.total_collateral_value,
-            "drawing_power": cart.eligible_loan,
-            "lender": cart.lender,
-            "status": "Esign Done",
-            "pledgor_boid": "pledgor",
-            "pledgee_boid": "pledgee",
-            "prf_number": "prf",
-            "expiry_date": "2021-01-31",
-            "allowable_ltv": cart.allowable_ltv,
-            "customer": cart.customer,
-            "customer_name": cart.customer_name,
-            "loan": cart.loan,
-            "loan_margin_shortfall": cart.loan_margin_shortfall,
-            "items": items,
-        }
-    )
-    loan_application.insert(ignore_permissions=True)
+#     # create loan application
+#     loan_application = frappe.get_doc(
+#         {
+#             "doctype": "Loan Application",
+#             "total_collateral_value": cart.total_collateral_value,
+#             "drawing_power": cart.eligible_loan,
+#             "lender": cart.lender,
+#             "status": "Esign Done",
+#             "pledgor_boid": "pledgor",
+#             "pledgee_boid": "pledgee",
+#             "prf_number": "prf",
+#             "expiry_date": "2021-01-31",
+#             "allowable_ltv": cart.allowable_ltv,
+#             "customer": cart.customer,
+#             "customer_name": cart.customer_name,
+#             "loan": cart.loan,
+#             "loan_margin_shortfall": cart.loan_margin_shortfall,
+#             "items": items,
+#         }
+#     )
+#     loan_application.insert(ignore_permissions=True)
 
-    # save Collateral Ledger
-    cart.save_collateral_ledger(loan_application.name)
-    frappe.db.commit()
+#     # save Collateral Ledger
+#     cart.save_collateral_ledger(loan_application.name)
+#     frappe.db.commit()
 
-    customer = frappe.get_doc("Loan Customer", cart.customer)
-    doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-    frappe.enqueue_doc(
-        "Notification", "Loan Application Creation", method="send", doc=doc
-    )
+#     customer = frappe.get_doc("Loan Customer", cart.customer)
+#     doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+#     frappe.enqueue_doc(
+#         "Notification", "Loan Application Creation", method="send", doc=doc
+#     )
 
-    mess = frappe._(
-        "Dear "
-        + doc.investor_name
-        + ",\nYour pledge request and Loan Application was successfully accepted. \nPlease download your e-agreement - <Link>. \nApplication number: "
-        + loan_application.name
-        + ". \nYou will be notified once your OD limit is approved by our lending partner."
-    )
-    frappe.enqueue(method=send_sms, receiver_list=[doc.mobile_number], msg=mess)
+#     mess = frappe._(
+#         "Dear "
+#         + doc.investor_name
+#         + ",\nYour pledge request and Loan Application was successfully accepted. \nPlease download your e-agreement - <Link>. \nApplication number: "
+#         + loan_application.name
+#         + ". \nYou will be notified once your OD limit is approved by our lending partner."
+#     )
+#     frappe.enqueue(method=send_sms, receiver_list=[doc.mobile_number], msg=mess)
 
-    return loan_application.name
+#     return loan_application.name
 
 
 @frappe.whitelist()

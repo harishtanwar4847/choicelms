@@ -372,11 +372,14 @@ def verify_user(token, user):
 
     frappe.enqueue_doc("Notification", "User Welcome Email", method="send", doc=doc)
 
+    # mess = frappe._(
+    #     "Dear"
+    #     + " "
+    #     + customer.first_name
+    #     + ",\nYour registration at Spark.Loans was successfull!\nWelcome aboard."
+    # )
     mess = frappe._(
-        "Dear"
-        + " "
-        + customer.first_name
-        + ",\nYour registration at Spark.Loans was successfull!\nWelcome aboard."
+        "Welcome aboard.\nYour registration at Spark.Loans was successfull!"
     )
     frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
 
