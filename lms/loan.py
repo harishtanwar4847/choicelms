@@ -1393,6 +1393,7 @@ def loan_statement(**kwargs):
                 from frappe.utils.pdf import get_pdf
 
                 pdf = get_pdf(html_with_style)
+                # pdf = get_pdf(html_with_style, {"password": "1234"})
                 pdf_file.write(pdf)
                 pdf_file.close()
 
