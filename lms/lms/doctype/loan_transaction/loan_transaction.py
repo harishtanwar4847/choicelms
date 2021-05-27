@@ -84,7 +84,7 @@ class LoanTransaction(Document):
             frappe.throw(_("Invalid User"))
         user_roles = [role[0] for role in user_roles]
 
-        loan_cust_transaction_list = ["Withdrawal", "Payment", "Sell Collateral"]
+        loan_cust_transaction_list = ["Withdrawal", "Payment"]
         lender_team_transaction_list = [
             "Debit Note",
             "Credit Note",
