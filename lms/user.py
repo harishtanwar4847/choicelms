@@ -41,10 +41,13 @@ def set_pin(**kwargs):
         frappe.db.commit()
 
         doc = frappe.get_doc("User", frappe.session.user)
+        # mess = frappe._(
+        #     "Dear "
+        #     + doc.full_name
+        #     + ", You have successfully updated your Finger Print / PIN registration at Spark.Loans!."
+        # )
         mess = frappe._(
-            "Dear "
-            + doc.full_name
-            + ", You have successfully updated your Finger Print / PIN registration at Spark.Loans!."
+            "You have successfully updated your Finger Print / PIN registration at Spark.Loans!."
         )
         frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
 
@@ -118,10 +121,13 @@ def kyc(**kwargs):
 
             frappe.enqueue_doc("Notification", "User KYC", method="send", doc=user)
 
+            # mess = frappe._(
+            #     "Dear "
+            #     + user.full_name
+            #     + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
+            # )
             mess = frappe._(
-                "Dear "
-                + user.full_name
-                + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
+                "Congratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
             )
             frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
 
