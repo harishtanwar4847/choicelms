@@ -137,8 +137,13 @@ class UnpledgeApplication(Document):
                 msg = "Your unpledging of securities was successfully completed."
             elif self.status == "Rejected":
                 if check == True:
-                    msg = """Dear {},
-                    Your unpledge request was rejected.
+                    # msg = """Dear {},
+                    # Your unpledge request was rejected.
+                    # There is a margin shortfall.
+                    # You can send another unpledge request when there is no margin shortfall.""".format(
+                    #     self.get_loan().get_customer().first_name
+                    # )
+                    msg = """Your unpledge request was rejected.
                     There is a margin shortfall.
                     You can send another unpledge request when there is no margin shortfall.""".format(
                         self.get_loan().get_customer().first_name
