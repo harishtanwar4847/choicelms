@@ -65,7 +65,7 @@ def kyc(**kwargs):
             {
                 "pan_no": "required",
                 "birth_date": "required",
-                "accept_terms": ["required","between:0,1", lambda x: type(x) == int],
+                "accept_terms": ["required", "between:0,1", "decimal"],
             },
         )
 
@@ -362,11 +362,11 @@ def approved_securities(**kwargs):
             kwargs,
             {
                 "lender": "",
-                "start": ["min:0", lambda x: type(x) == int],
-                "per_page": ["min:0", lambda x: type(x) == int],
+                "start": "decimal|min:0",
+                "per_page": "decimal|min:0",
                 "search": "",
                 "category": "",
-                "is_download": ["between:0,1", lambda x: type(x) == int],
+                "is_download": "decimal|between:0,1",
             },
         )
 
@@ -1177,9 +1177,9 @@ def get_profile_set_alerts(**kwargs):
         data = utils.validator.validate(
             kwargs,
             {
-                "is_for_alerts": ["between:0,1", lambda x: type(x) == int],
-                "percentage": ["min:0", lambda x: type(x) == int],
-                "amount": ["min:0", lambda x: type(x) == int],
+                "is_for_alerts": "decimal|between:0,1",
+                "percentage": "decimal|min:0",
+                "amount": "decimal|min:0",
             },
         )
 
@@ -1261,9 +1261,9 @@ def update_profile_pic_and_pin(**kwargs):
         data = utils.validator.validate(
             kwargs,
             {
-                "is_for_profile_pic": ["between:0,1", lambda x: type(x) == int],
+                "is_for_profile_pic": "decimal|between:0,1",
                 "image": "",
-                "is_for_update_pin": ["between:0,1", lambda x: type(x) == int],
+                "is_for_update_pin": "decimal|between:0,1",
                 "old_pin": ["decimal", utils.validator.rules.LengthRule(4)],
                 "new_pin": ["decimal", utils.validator.rules.LengthRule(4)],
                 "retype_pin": ["decimal", utils.validator.rules.LengthRule(4)],
@@ -1361,7 +1361,7 @@ def contact_us(**kwargs):
         utils.validator.validate_http_method("GET")
 
         data = utils.validator.validate(
-            kwargs, {"search": "", "view_more": ["between:0,1", lambda x: type(x) == int]}
+            kwargs, {"search": "", "view_more": "decimal|between:0,1"}
         )
 
         reg = lms.regex_special_characters(search=data.get("search"),regex=re.compile('[@!#$%_^&*<>?/\|}{~`]'))
@@ -1471,14 +1471,14 @@ def feedback(**kwargs):
         data = utils.validator.validate(
             kwargs,
             {
-                "do_not_show_again": ["between:0,1", lambda x: type(x) == int],
-                "bulls_eye": ["between:0,1", lambda x: type(x) == int],
-                "can_do_better": ["between:0,1", lambda x: type(x) == int],
-                "related_to_user_experience": ["between:0,1", lambda x: type(x) == int],
-                "related_to_functionality": ["between:0,1", lambda x: type(x) == int],
-                "others": ["between:0,1", lambda x: type(x) == int],
+                "do_not_show_again": "decimal|between:0,1",
+                "bulls_eye": "decimal|between:0,1",
+                "can_do_better": "decimal|between:0,1",
+                "related_to_user_experience": "decimal|between:0,1",
+                "related_to_functionality": "decimal|between:0,1",
+                "others": "decimal|between:0,1",
                 "comment": "",
-                "from_more_menu": ["between:0,1", lambda x: type(x) == int],
+                "from_more_menu": "decimal|between:0,1",
             },
         )
 
