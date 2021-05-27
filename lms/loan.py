@@ -1209,7 +1209,7 @@ def loan_statement(**kwargs):
             elif data.get("type") == "Pledged Securities Transactions":
                 from_to_date = (
                     "`tabCollateral Ledger`.creation BETWEEN '{}' and '{}'".format(
-                        from_date, to_date
+                        from_date, to_date + timedelta(days=1)
                     )
                 )
 
@@ -1336,7 +1336,7 @@ def loan_statement(**kwargs):
                 else ""
             )
             pledged_securities_transactions = frappe.db.sql(
-                """select `tabCollateral Ledger`.creation, `tabSecurity`.security_name, `tabCollateral Ledger`.isin, `tabCollateral Ledger`.quantity, `tabCollateral Ledger`.request_type from `tabCollateral Ledger`
+                """select DATE_FORMAT(`tabCollateral Ledger`.creation, '%Y-%m-%d %H:%i') as creation, `tabSecurity`.security_name, `tabCollateral Ledger`.isin, `tabCollateral Ledger`.quantity, `tabCollateral Ledger`.request_type from `tabCollateral Ledger`
             left join `tabSecurity`
             on `tabSecurity`.name = `tabCollateral Ledger`.isin
             where `tabCollateral Ledger`.loan = '{}'
