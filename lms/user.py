@@ -20,8 +20,6 @@ import lms
 from lms.exceptions import *
 from lms.firebase import FirebaseAdmin
 
-regex = re.compile("[@_!#$%^&*()<>?/\|}{~:`]")
-
 
 @frappe.whitelist()
 def set_pin(**kwargs):

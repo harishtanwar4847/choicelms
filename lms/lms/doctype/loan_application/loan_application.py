@@ -36,7 +36,7 @@ class LoanApplication(Document):
         user = frappe.get_doc("User", customer.user)
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
         lender = self.get_lender()
-        if self.loan and not self.loan_margin_shortfall:
+        if self.loan:
             loan = self.get_loan()
 
         doc = {
@@ -49,7 +49,7 @@ class LoanApplication(Document):
                 * self.allowable_ltv
                 / 100
             )
-            if self.loan
+            if self.loan and not self.loan_margin_shortfall
             else self.drawing_power,
             "sanctioned_amount_in_words": num2words(
                 lms.round_down_amount_to_nearest_thousand(
@@ -57,7 +57,7 @@ class LoanApplication(Document):
                     * self.allowable_ltv
                     / 100
                 )
-                if self.loan
+                if self.loan and not self.loan_margin_shortfall
                 else self.drawing_power,
                 lang="en_IN",
             ).title(),

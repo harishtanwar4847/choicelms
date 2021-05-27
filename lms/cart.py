@@ -13,8 +13,6 @@ from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions
     ApprovedTermsandConditions,
 )
 
-regex = re.compile("[@_!#$%^&*()<>?/\|}{~:`]")
-
 
 def validate_securities_for_cart(securities, lender):
     if not securities or (

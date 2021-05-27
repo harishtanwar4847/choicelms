@@ -118,7 +118,7 @@ class Cart(Document):
         lender = self.get_lender()
         customer = self.get_customer()
         user_kyc = customer.get_kyc()
-        if self.loan and not self.loan_margin_shortfall:
+        if self.loan:
             loan = frappe.get_doc("Loan", self.loan)
 
         from num2words import num2words
@@ -133,7 +133,7 @@ class Cart(Document):
                 * self.allowable_ltv
                 / 100
             )
-            if self.loan
+            if self.loan and not self.loan_margin_shortfall
             else self.eligible_loan,
             "sanctioned_amount_in_words": num2words(
                 lms.round_down_amount_to_nearest_thousand(
@@ -141,7 +141,7 @@ class Cart(Document):
                     * self.allowable_ltv
                     / 100
                 )
-                if self.loan
+                if self.loan and not self.loan_margin_shortfall
                 else self.eligible_loan,
                 lang="en_IN",
             ).title(),

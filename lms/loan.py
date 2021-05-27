@@ -1,4 +1,5 @@
 import json
+import math
 import re
 from datetime import date, datetime, timedelta
 
@@ -10,8 +11,7 @@ from frappe import _
 from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms
-
-regex = re.compile("[@_!#$%^&*()<>?/\|}{~:`]")
+from lms.user import convert_sec_to_hh_mm_ss, holiday_list
 
 
 @frappe.whitelist()
@@ -664,6 +664,68 @@ def loan_details(**kwargs):
         if loan_margin_shortfall.get("__islocal", None):
             loan_margin_shortfall = None
 
+        if loan_margin_shortfall:
+            loan_margin_shortfall = loan_margin_shortfall.as_dict()
+            if loan_margin_shortfall.status == "Request Pending":
+                pledged_securities_for_mg_shortfall = frappe.get_all(
+                    "Loan Application",
+                    filters={
+                        "loan_margin_shortfall": loan_margin_shortfall.name,
+                        "status": ["not in", ["Approved", "Rejected"]],
+                    },
+                    fields=["*"],
+                )
+
+                # payment_for_mg_shortfall = frappe.get_all("Loan Transaction", filters={"loan_margin_shortfall": loan_margin_shortfall.name, "transaction_type": "Payment", "status": ["not in",["Approved", "Rejected"]]}, fields=["*"])
+
+                # if pledged_securities_for_mg_shortfall:
+                #     pledged_paid_shortfall = math.ceil(pledged_securities_for_mg_shortfall[0].total_collateral_value)
+                #     remaining_shortfall = loan_margin_shortfall.shortfall - pledged_paid_shortfall
+                # elif payment_for_mg_shortfall:
+                #     cash_paid_shortfall = payment_for_mg_shortfall[0].amount
+                #     remaining_shortfall = loan_margin_shortfall.minimum_cash_amount - cash_paid_shortfall
+
+                # loan_margin_shortfall["action_taken_msg"] = """Total Margin Shortfall: Rs. {}
+                #         Action Taken on: Rs. {}
+                #         On {} we received a payment request of Rs. {}. The request is under process
+                #         and will soon be approved by the Lender.
+                #         Remaining Margin Shortfall (after the processing of the payment/pledge request)): Rs. {}""".format(loan_margin_shortfall.shortfall, loan_margin_shortfall.shortfall, (pledged_securities_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p") if pledged_securities_for_mg_shortfall else (payment_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p"), pledged_paid_shortfall if pledged_securities_for_mg_shortfall else cash_paid_shortfall, 0 if remaining_shortfall <= 0 else remaining_shortfall) if pledged_securities_for_mg_shortfall or payment_for_mg_shortfall else None
+                # loan_margin_shortfall["deadline_in_hrs"] = None
+
+            elif loan_margin_shortfall.status == "Pending":
+                mg_shortfall_action = frappe.get_doc(
+                    "Margin Shortfall Action",
+                    loan_margin_shortfall.margin_shortfall_action,
+                )
+                hrs_difference = (
+                    loan_margin_shortfall.deadline - frappe.utils.now_datetime()
+                )
+                if mg_shortfall_action.sell_off_after_hours:
+                    date_array = set(
+                        loan_margin_shortfall.creation.date() + timedelta(days=x)
+                        for x in range(
+                            0,
+                            (
+                                loan_margin_shortfall.deadline.date()
+                                - loan_margin_shortfall.creation.date()
+                            ).days
+                            + 1,
+                        )
+                    )
+                    holidays = date_array.intersection(set(holiday_list()))
+                    hrs_difference = (
+                        loan_margin_shortfall.deadline
+                        - frappe.utils.now_datetime()
+                        - timedelta(days=(len(holidays) if holidays else 0))
+                    )
+
+                loan_margin_shortfall["action_taken_msg"] = None
+                loan_margin_shortfall["deadline_in_hrs"] = (
+                    convert_sec_to_hh_mm_ss(abs(hrs_difference).total_seconds())
+                    if loan_margin_shortfall.deadline > frappe.utils.now_datetime()
+                    else "00:00:00"
+                )
+
         # Interest Details
         interest_total = frappe.db.sql(
             """select sum(unpaid_interest) as total_amt from `tabLoan Transaction` where loan=%s and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and unpaid_interest > 0""",
@@ -980,17 +1042,29 @@ def loan_payment(**kwargs):
                 "is_for_interest": "decimal|between:0,1",
             },
         )
-
+        frappe.logger().info(data.get("loan_name"))
+        frappe.logger().info(data.get("amount"))
+        frappe.logger().info(type(data.get("amount")))
         reg = lms.regex_special_characters(
-            search=data.get("loan_name")
-            + data.get("transaction_id")
-            + data.get("loan_margin_shortfall_name")
+            search=data.get("loan_name") + data.get("loan_margin_shortfall_name")
         )
         if reg:
             return utils.respondWithFailure(
                 status=422,
                 message=frappe._("Special Characters not allowed."),
             )
+
+        if data.get("transaction_id"):
+            # for firebase token "-_:" these characters are excluded from regex string
+            reg = lms.regex_special_characters(
+                search=data.get("transaction_id"),
+                regex=re.compile("[@!#$%^&*()<>?/\|}{~`]"),
+            )
+            if reg:
+                return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Special Characters not allowed."),
+                )
 
         customer = lms.__customer()
         try:
