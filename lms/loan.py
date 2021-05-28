@@ -661,6 +661,7 @@ def loan_details(**kwargs):
             )
 
         loan_margin_shortfall = loan.get_margin_shortfall()
+        # mg_shortfall_doc = frappe.get_all("Loan Margin Shortfall", filters={"loan": dictionary["name"], "status":["in", ["Pending", "Request Pending", "Sell Triggered"]]}, fields=["*"])
         if loan_margin_shortfall.get("__islocal", None):
             loan_margin_shortfall = None
 

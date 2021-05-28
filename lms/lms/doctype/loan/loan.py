@@ -437,7 +437,7 @@ class Loan(Document):
 
     def get_margin_shortfall(self):
         margin_shortfall_name = frappe.db.get_value(
-            "Loan Margin Shortfall", {"loan": self.name, "status": ["in", ["Pending", "Request Pending", "Sell Triggered"]]}, "name"
+            "Loan Margin Shortfall", {"loan": self.name, "status": ["in", ["Pending", "Request Pending"]]}, "name"
         )
         if not margin_shortfall_name:
             margin_shortfall = frappe.new_doc("Loan Margin Shortfall")

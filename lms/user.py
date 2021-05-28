@@ -695,6 +695,7 @@ def dashboard(**kwargs):
             action_loans.append(dictionary.get("name"))
             loan = frappe.get_doc("Loan", dictionary["name"])
             mg_shortfall_doc = loan.get_margin_shortfall()
+            # mg_shortfall_doc = frappe.get_all("Loan Margin Shortfall", filters={"loan": dictionary["name"], "status":["in", ["Pending", "Sell Triggered"]]}, fields=["*"])[0]
             mg_shortfall_action = frappe.get_doc(
                 "Margin Shortfall Action", mg_shortfall_doc.margin_shortfall_action
             )
