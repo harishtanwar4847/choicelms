@@ -142,6 +142,13 @@ def upsert(**kwargs):
                             "Loan Margin Shortfall should be for the provided loan."
                         )
                     )
+                if loan_margin_shortfall.status == "Request Pending":
+                    return utils.respondWithFailure(
+                        status=417,
+                        message="Payment for Margin shortfall of Loan {} is already in process.".format(
+                            loan.name
+                        ),
+                    )
 
         if not data.get("cart_name", None):
             cart = frappe.get_doc(
