@@ -660,13 +660,15 @@ def loan_details(**kwargs):
                 )
             )
 
-        loan_margin_shortfall = loan.get_margin_shortfall()
-        # mg_shortfall_doc = frappe.get_all("Loan Margin Shortfall", filters={"loan": dictionary["name"], "status":["in", ["Pending", "Request Pending", "Sell Triggered"]]}, fields=["*"])
-        if loan_margin_shortfall.get("__islocal", None):
+        # loan_margin_shortfall = loan.get_margin_shortfall()
+        loan_margin_shortfall = frappe.get_all("Loan Margin Shortfall", filters={"loan": loan.name, "status":["in", ["Pending", "Request Pending", "Sell Triggered"]]}, fields=["*"])
+        # if loan_margin_shortfall.get("__islocal", None):
+        if not loan_margin_shortfall:
             loan_margin_shortfall = None
 
         if loan_margin_shortfall:
-            loan_margin_shortfall = loan_margin_shortfall.as_dict()
+            # loan_margin_shortfall = loan_margin_shortfall.as_dict()
+            loan_margin_shortfall = loan_margin_shortfall[0]
             loan_margin_shortfall["action_taken_msg"] = None
             loan_margin_shortfall["linked_application"] = None
             loan_margin_shortfall["deadline_in_hrs"] = None
@@ -694,7 +696,7 @@ def loan_details(**kwargs):
                     (Click here to see pledge summary)
                     Remaining Margin Shortfall (after successful processing of your action): Rs. {}/-""".format(loan_margin_shortfall.shortfall, (pledged_securities_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p"), pledged_paid_shortfall, remaining_shortfall if remaining_shortfall > 0 else 0)
 
-                    loan_margin_shortfall["linked_application"] = pledged_securities_for_mg_shortfall[0]
+                    loan_margin_shortfall["linked_application"] = {"loan_application": pledged_securities_for_mg_shortfall[0], "sell_collateral_application": None}
 
                 elif payment_for_mg_shortfall:
                     cash_paid_shortfall = payment_for_mg_shortfall[0].amount
@@ -714,9 +716,7 @@ def loan_details(**kwargs):
 
                     Remaining Margin Shortfall (after successful processing of your action): Rs. {}/-""".format(loan_margin_shortfall.shortfall, (sell_collateral_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p"), sell_off_shortfall, remaining_shortfall if remaining_shortfall > 0 else 0)
 
-                    print(loan_margin_shortfall["action_taken_msg"])
-
-                    loan_margin_shortfall["linked_application"] = sell_collateral_for_mg_shortfall[0]
+                    loan_margin_shortfall["linked_application"] = {"loan_application": None, "sell_collateral_application": sell_collateral_for_mg_shortfall[0]}
 
             elif loan_margin_shortfall.status in ["Pending", "Sell Triggered"]:
                 mg_shortfall_action = frappe.get_doc(
@@ -1113,7 +1113,7 @@ def loan_payment(**kwargs):
             if loan_margin_shortfall.status == "Request Pending":
                 return utils.respondWithFailure(
                     status=417,
-                    message="Payment for Margin shortfall of Loan {} is already in process.".format(
+                    message="Payment for Margin Shortfall of Loan {} is already in process.".format(
                         loan.name
                     ),
                 )
@@ -1878,7 +1878,7 @@ def sell_collateral_request(**kwargs):
             if loan_margin_shortfall.status == "Request Pending":
                 return utils.respondWithFailure(
                     status=417,
-                    message="Payment for Margin shortfall of Loan {} is already in process.".format(
+                    message="Payment for Margin Shortfall of Loan {} is already in process.".format(
                         loan.name
                     ),
                 )

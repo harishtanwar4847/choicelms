@@ -292,31 +292,45 @@ class Loan(Document):
             self.save(ignore_permissions=True)
 
             loan_margin_shortfall = self.get_margin_shortfall()
-            old_shortfall_action = loan_margin_shortfall.margin_shortfall_action
-            loan_margin_shortfall.fill_items()
-            if old_shortfall_action:
-                loan_margin_shortfall.set_deadline(old_shortfall_action)
+            # if loan_margin_shortfall.status == "Sell Triggered":
+            #     user_roles = frappe.db.get_values(
+            #         "Has Role", {"role": "Lender", "parenttype": "User"}, ["parent"]
+            #     )[0]
+            #     msg = "Hello {}, Sell Triggered for Margin Shortfall of Loan {}. Please take Action.".format(user_roles[0], self.loan)
 
-            if loan_margin_shortfall.is_new():
-                # if loan_margin_shortfall.margin_shortfall_action:
-                if loan_margin_shortfall.shortfall_percentage > 0:
-                    loan_margin_shortfall.insert(ignore_permissions=True)
-                    if frappe.utils.now_datetime() > loan_margin_shortfall.deadline:
+            #     frappe.enqueue(
+            #         method=frappe.sendmail,
+            #         recipients=list(user_roles),
+            #         sender=None,
+            #         subject="Sell Triggered Notification",
+            #         message=msg,
+            #     )
+            if loan_margin_shortfall.status != "Sell Triggered":
+                old_shortfall_action = loan_margin_shortfall.margin_shortfall_action
+                loan_margin_shortfall.fill_items()
+                if old_shortfall_action:
+                    loan_margin_shortfall.set_deadline(old_shortfall_action)
+
+                if loan_margin_shortfall.is_new():
+                    # if loan_margin_shortfall.margin_shortfall_action:
+                    if loan_margin_shortfall.shortfall_percentage > 0:
+                        loan_margin_shortfall.insert(ignore_permissions=True)
+                        if frappe.utils.now_datetime() > loan_margin_shortfall.deadline:
+                            loan_margin_shortfall.status = "Sell Triggered"
+                            loan_margin_shortfall.save(ignore_permissions=True)
+                else:
+                    # if not loan_margin_shortfall.margin_shortfall_action:
+                    if loan_margin_shortfall.status == "Pending":
+                        loan_margin_shortfall.timer_start_stop_fcm()
+                    if loan_margin_shortfall.shortfall_percentage == 0:
+                        loan_margin_shortfall.status = "Resolved"
+                        loan_margin_shortfall.action_time = frappe.utils.now_datetime()
+                    if (
+                        loan_margin_shortfall.shortfall_percentage > 0
+                        and frappe.utils.now_datetime() > loan_margin_shortfall.deadline
+                    ):
                         loan_margin_shortfall.status = "Sell Triggered"
-                        loan_margin_shortfall.save(ignore_permissions=True)
-            else:
-                # if not loan_margin_shortfall.margin_shortfall_action:
-                if loan_margin_shortfall.status == "Pending":
-                    loan_margin_shortfall.timer_start_stop_fcm()
-                if loan_margin_shortfall.shortfall_percentage == 0:
-                    loan_margin_shortfall.status = "Resolved"
-                    loan_margin_shortfall.action_time = frappe.utils.now_datetime()
-                if (
-                    loan_margin_shortfall.shortfall_percentage > 0
-                    and frappe.utils.now_datetime() > loan_margin_shortfall.deadline
-                ):
-                    loan_margin_shortfall.status = "Sell Triggered"
-                loan_margin_shortfall.save(ignore_permissions=True)
+                    loan_margin_shortfall.save(ignore_permissions=True)
 
             # alerts comparison with percentage and amount
             if customer.alerts_based_on_percentage:
@@ -436,15 +450,18 @@ class Loan(Document):
             loan_transaction_doc.db_set("allowable", max_withdraw_amount)
 
     def get_margin_shortfall(self):
+        sell_triggered_shortfall_name =  frappe.db.get_value(
+            "Loan Margin Shortfall", {"loan": self.name, "status": "Sell Triggered"}, "name"
+        )
         margin_shortfall_name = frappe.db.get_value(
             "Loan Margin Shortfall", {"loan": self.name, "status": ["in", ["Pending", "Request Pending"]]}, "name"
         )
-        if not margin_shortfall_name:
+        if not margin_shortfall_name and not sell_triggered_shortfall_name:
             margin_shortfall = frappe.new_doc("Loan Margin Shortfall")
             margin_shortfall.loan = self.name
             return margin_shortfall
 
-        return frappe.get_doc("Loan Margin Shortfall", margin_shortfall_name)
+        return frappe.get_doc("Loan Margin Shortfall", sell_triggered_shortfall_name if sell_triggered_shortfall_name else margin_shortfall_name)
 
     def get_updated_total_collateral_value(self):
         securities = [i.isin for i in self.items]

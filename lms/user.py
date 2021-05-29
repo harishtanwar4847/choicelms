@@ -694,8 +694,8 @@ def dashboard(**kwargs):
             )
             action_loans.append(dictionary.get("name"))
             loan = frappe.get_doc("Loan", dictionary["name"])
-            mg_shortfall_doc = loan.get_margin_shortfall()
-            # mg_shortfall_doc = frappe.get_all("Loan Margin Shortfall", filters={"loan": dictionary["name"], "status":["in", ["Pending", "Sell Triggered"]]}, fields=["*"])[0]
+            # mg_shortfall_doc = loan.get_margin_shortfall()
+            mg_shortfall_doc = frappe.get_all("Loan Margin Shortfall", filters={"loan": dictionary["name"], "status":["in", ["Pending", "Sell Triggered"]]}, fields=["*"])[0]
             mg_shortfall_action = frappe.get_doc(
                 "Margin Shortfall Action", mg_shortfall_doc.margin_shortfall_action
             )
@@ -775,7 +775,7 @@ def dashboard(**kwargs):
                         due_date_txt = "Immediate"
 
                 total_int_amt_all_loans += round(dictionary["interest_amount"], 2)
-                interest_loan_list.append({"loan_name": dictionary["name"]})
+                interest_loan_list.append({"loan_name": dictionary["name"],"interest_amount": round(dictionary["interest_amount"], 2)})
 
                 interest = {
                     "due_date": due_date,

@@ -145,7 +145,7 @@ def upsert(**kwargs):
                 if loan_margin_shortfall.status == "Request Pending":
                     return utils.respondWithFailure(
                         status=417,
-                        message="Payment for Margin shortfall of Loan {} is already in process.".format(
+                        message="Payment for Margin Shortfall of Loan {} is already in process.".format(
                             loan.name
                         ),
                     )
