@@ -578,6 +578,8 @@ def my_pledge_securities(**kwargs):
         }
 
         loan_margin_shortfall = loan.get_margin_shortfall()
+        if loan_margin_shortfall.get("__islocal", None):
+            loan_margin_shortfall = None
 
         # Sell Collateral
         sell_collateral_application_exist = frappe.get_all(
@@ -1005,6 +1007,8 @@ def dashboard(**kwargs):
 
             # check if any pending unpledge application exist
             loan_margin_shortfall =  loan.get_margin_shortfall()
+            if loan_margin_shortfall.get("__islocal", None):
+                loan_margin_shortfall = None
             unpledge_application_exist = frappe.get_all(
                 "Unpledge Application",
                 filters={"loan": loan.name, "status": "Pending"},

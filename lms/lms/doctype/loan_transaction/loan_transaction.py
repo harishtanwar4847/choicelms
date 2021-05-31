@@ -171,7 +171,6 @@ class LoanTransaction(Document):
             if (
                 loan_margin_shortfall.status == "Request Pending"
                 and loan_margin_shortfall.shortfall_percentage > 0
-                and loan_margin_shortfall.shortfall_percentage < 25
             ):
                 loan_margin_shortfall.status = "Pending"
                 # loan_margin_shortfall.save(ignore_permissions=True)
@@ -260,3 +259,17 @@ class LoanTransaction(Document):
                 frappe.enqueue(
                     method=send_sms, receiver_list=[customer.phone], msg=mess
                 )
+
+        if self.loan_margin_shortfall:
+            if self.status == "Rejected":
+                # if shortfall is not recoverd then margin shortfall status will change from request pending to pending
+                loan_margin_shortfall = frappe.get_doc(
+                    "Loan Margin Shortfall", self.loan_margin_shortfall
+                )
+                if (
+                    loan_margin_shortfall.status == "Request Pending"
+                    and loan_margin_shortfall.shortfall_percentage > 0
+                ):
+                    loan_margin_shortfall.status = "Pending"
+                    loan_margin_shortfall.save(ignore_permissions=True)
+                    frappe.db.commit()
