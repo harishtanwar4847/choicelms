@@ -7,12 +7,10 @@
   "loan",
   "total_collateral_value",
   "lender",
-  "initial_margin_shortfall",
   "column_break_2",
   "customer",
   "selling_collateral_value",
   "loan_margin_shortfall",
-  "current_margin_shortfall",
   "section_break_4",
   "items",
   "sell_items",
@@ -91,21 +89,10 @@
    "fieldtype": "Link",
    "label": "Loan Margin Shortfall",
    "options": "Loan Margin Shortfall"
-  },
-  {
-   "fieldname": "current_margin_shortfall",
-   "fieldtype": "Read Only",
-   "label": "Current Margin Shortfall"
-  },
-  {
-   "fieldname": "initial_margin_shortfall",
-   "fieldtype": "Read Only",
-   "label": "Initial Margin Shortfall",
-   "set_only_once": 1
   }
  ],
  "is_submittable": 1,
- "modified": "2021-05-31 12:09:46.889484",
+ "modified": "2021-05-31 15:18:18.884902",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",

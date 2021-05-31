@@ -661,12 +661,10 @@ def loan_details(**kwargs):
             )
 
         loan_margin_shortfall = loan.get_margin_shortfall()
-        # loan_margin_shortfall = frappe.get_all("Loan Margin Shortfall", filters={"loan": loan.name, "status":["in", ["Pending", "Request Pending", "Sell Triggered"]]}, fields=["*"])
-        # if loan_margin_shortfall.get("__islocal", None):
-        if not loan_margin_shortfall:
+        if loan_margin_shortfall.get("__islocal", None):
             loan_margin_shortfall = None
 
-        if loan_margin_shortfall:
+        elif loan_margin_shortfall:
             loan_margin_shortfall = loan_margin_shortfall.as_dict()
             # loan_margin_shortfall = loan_margin_shortfall[0]
             loan_margin_shortfall["action_taken_msg"] = None
@@ -691,10 +689,7 @@ def loan_details(**kwargs):
                     pledged_paid_shortfall = math.ceil(pledged_securities_for_mg_shortfall[0].total_collateral_value)
                     remaining_shortfall = loan_margin_shortfall.shortfall - pledged_paid_shortfall
 
-                    loan_margin_shortfall["action_taken_msg"] = """Total Margin Shortfall: Rs. {}/-
-                    On {} we received a pledge request of Rs. {}/- which is under process.
-                    (Click here to see pledge summary)
-                    Remaining Margin Shortfall (after successful processing of your action): Rs. {}/-""".format(loan_margin_shortfall.shortfall, (pledged_securities_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p"), pledged_paid_shortfall, remaining_shortfall if remaining_shortfall > 0 else 0)
+                    loan_margin_shortfall["action_taken_msg"] = """Total Margin Shortfall: Rs. {}/- \nOn {} we received a pledge request of Rs. {}/- which is under process. \n(Click here to see pledge summary) \nRemaining Margin Shortfall (after successful processing of your action): Rs. {}/-""".format(loan_margin_shortfall.shortfall, (pledged_securities_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p"), pledged_paid_shortfall, remaining_shortfall if remaining_shortfall > 0 else 0)
 
                     loan_margin_shortfall["linked_application"] = {"loan_application": pledged_securities_for_mg_shortfall[0], "sell_collateral_application": None}
 
@@ -702,19 +697,13 @@ def loan_details(**kwargs):
                     cash_paid_shortfall = payment_for_mg_shortfall[0].amount
                     remaining_shortfall = loan_margin_shortfall.minimum_cash_amount - cash_paid_shortfall
 
-                    loan_margin_shortfall["action_taken_msg"] = """Total Margin Shortfall: Rs. {}/-
-                    On {} we received a payment of Rs. {}/- which is under process.
-                    Remaining Margin Shortfall (after successful processing of your action): Rs. {}/-""".format(loan_margin_shortfall.shortfall, (payment_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p"), cash_paid_shortfall, remaining_shortfall if remaining_shortfall > 0 else 0)
+                    loan_margin_shortfall["action_taken_msg"] = """Total Margin Shortfall: Rs. {}/- \nOn {} we received a payment of Rs. {}/- which is under process. \nRemaining Margin Shortfall (after successful processing of your action): Rs. {}/-""".format(loan_margin_shortfall.shortfall, (payment_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p"), cash_paid_shortfall, remaining_shortfall if remaining_shortfall > 0 else 0)
 
                 elif sell_collateral_for_mg_shortfall:
                     sell_off_shortfall = sell_collateral_for_mg_shortfall[0].total_collateral_value
                     remaining_shortfall = loan_margin_shortfall.minimum_cash_amount - sell_off_shortfall
 
-                    loan_margin_shortfall["action_taken_msg"] = """Total Margin Shortfall: Rs. {}/-
-                    On {} we received a sell collateral request of Rs. {}/- which is under process.
-                    (Click here to see sell collateral summary)
-
-                    Remaining Margin Shortfall (after successful processing of your action): Rs. {}/-""".format(loan_margin_shortfall.shortfall, (sell_collateral_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p"), sell_off_shortfall, remaining_shortfall if remaining_shortfall > 0 else 0)
+                    loan_margin_shortfall["action_taken_msg"] = """Total Margin Shortfall: Rs. {}/- \nOn {} we received a sell collateral request of Rs. {}/- which is under process. \n(Click here to see sell collateral summary) \nRemaining Margin Shortfall (after successful processing of your action): Rs. {}/-""".format(loan_margin_shortfall.shortfall, (sell_collateral_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p"), sell_off_shortfall, remaining_shortfall if remaining_shortfall > 0 else 0)
 
                     loan_margin_shortfall["linked_application"] = {"loan_application": None, "sell_collateral_application": sell_collateral_for_mg_shortfall[0]}
 
