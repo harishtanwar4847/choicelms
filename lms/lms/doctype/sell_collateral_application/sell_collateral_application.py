@@ -27,7 +27,10 @@ class SellCollateralApplication(Document):
         loan = self.get_loan()
         self.lender = loan.lender
         self.customer = loan.customer
-        triggered_margin_shortfall = frappe.get_all("Loan Margin Shortfall", filters={"loan":self.loan, "status": "Sell Triggered"})
+        triggered_margin_shortfall = frappe.get_all(
+            "Loan Margin Shortfall",
+            filters={"loan": self.loan, "status": "Sell Triggered"},
+        )
         if triggered_margin_shortfall:
             self.loan_margin_shortfall = triggered_margin_shortfall[0].name
 

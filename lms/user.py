@@ -370,8 +370,12 @@ def approved_securities(**kwargs):
             },
         )
 
-        reg = lms.regex_special_characters(search=data.get("lender")+data.get("category"))
-        search_reg = lms.regex_special_characters(search=data.get("search"),regex=re.compile('[@!#$%_^&*<>?/\|}{~`]'))
+        reg = lms.regex_special_characters(
+            search=data.get("lender") + data.get("category")
+        )
+        search_reg = lms.regex_special_characters(
+            search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
+        )
         if reg or search_reg:
             return utils.respondWithFailure(
                 status=422,
@@ -648,7 +652,7 @@ def dashboard(**kwargs):
 		left join `tabLoan Margin Shortfall` as mrgloan
 		on loan.name = mrgloan.loan
 		where loan.customer = '{}'
-		and mrgloan.status = "Pending" or mrgloan.status = "Sell Triggered"
+		and (mrgloan.status = "Pending" or mrgloan.status = "Sell Triggered")
 		and shortfall_percentage > 0.0
 		group by loan.name""".format(
                 customer.name
@@ -772,7 +776,12 @@ def dashboard(**kwargs):
                         due_date_txt = "Immediate"
 
                 total_int_amt_all_loans += round(dictionary["interest_amount"], 2)
-                interest_loan_list.append({"loan_name": dictionary["name"],"interest_amount": round(dictionary["interest_amount"], 2)})
+                interest_loan_list.append(
+                    {
+                        "loan_name": dictionary["name"],
+                        "interest_amount": round(dictionary["interest_amount"], 2),
+                    }
+                )
 
                 interest = {
                     "due_date": due_date,
@@ -1358,12 +1367,14 @@ def contact_us(**kwargs):
             kwargs, {"search": "", "view_more": "decimal|between:0,1"}
         )
 
-        reg = lms.regex_special_characters(search=data.get("search"),regex=re.compile('[@!#$%_^&*<>?/\|}{~`]'))
+        reg = lms.regex_special_characters(
+            search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
+        )
         if reg:
             return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
-                )
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
 
         if isinstance(data.get("view_more"), str):
             data["view_more"] = int(data.get("view_more"))
@@ -1406,7 +1417,9 @@ def check_eligible_limit(**kwargs):
         data = utils.validator.validate(kwargs, {"lender": "", "search": ""})
 
         reg = lms.regex_special_characters(search=data.get("lender"))
-        search_reg = lms.regex_special_characters(search=data.get("search"),regex=re.compile('[@!#$%_^&*<>?/\|}{~`]'))
+        search_reg = lms.regex_special_characters(
+            search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
+        )
         if reg or search_reg:
             return utils.respondWithFailure(
                 status=422,

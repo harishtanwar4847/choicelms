@@ -448,18 +448,27 @@ class Loan(Document):
             loan_transaction_doc.db_set("allowable", max_withdraw_amount)
 
     def get_margin_shortfall(self):
-        sell_triggered_shortfall_name =  frappe.db.get_value(
-            "Loan Margin Shortfall", {"loan": self.name, "status": "Sell Triggered"}, "name"
+        sell_triggered_shortfall_name = frappe.db.get_value(
+            "Loan Margin Shortfall",
+            {"loan": self.name, "status": "Sell Triggered"},
+            "name",
         )
         margin_shortfall_name = frappe.db.get_value(
-            "Loan Margin Shortfall", {"loan": self.name, "status": ["in", ["Pending", "Request Pending"]]}, "name"
+            "Loan Margin Shortfall",
+            {"loan": self.name, "status": ["in", ["Pending", "Request Pending"]]},
+            "name",
         )
         if not margin_shortfall_name and not sell_triggered_shortfall_name:
             margin_shortfall = frappe.new_doc("Loan Margin Shortfall")
             margin_shortfall.loan = self.name
             return margin_shortfall
 
-        return frappe.get_doc("Loan Margin Shortfall", sell_triggered_shortfall_name if sell_triggered_shortfall_name else margin_shortfall_name)
+        return frappe.get_doc(
+            "Loan Margin Shortfall",
+            sell_triggered_shortfall_name
+            if sell_triggered_shortfall_name
+            else margin_shortfall_name,
+        )
 
     def get_updated_total_collateral_value(self):
         securities = [i.isin for i in self.items]
