@@ -1004,7 +1004,7 @@ def dashboard(**kwargs):
             )
 
             # check if any pending unpledge application exist
-            loan_margin_shortfall =  loan.get_margin_shortfall()
+            loan_margin_shortfall = loan.get_margin_shortfall()
             unpledge_application_exist = frappe.get_all(
                 "Unpledge Application",
                 filters={"loan": loan.name, "status": "Pending"},

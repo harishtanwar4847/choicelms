@@ -293,8 +293,13 @@ class Loan(Document):
 
             loan_margin_shortfall = self.get_margin_shortfall()
             if loan_margin_shortfall.status == "Sell Triggered":
-                lender = frappe.db.sql("select u.email,u.first_name from `tabUser` as u left join `tabHas Role` as r on u.email=r.parent where role='Lender'", as_dict=1)[0]
-                msg = "Hello {}, Sell is Triggered for Margin Shortfall of Loan {}. Please take Action.".format(lender.get("first_name"), self.name)
+                lender = frappe.db.sql(
+                    "select u.email,u.first_name from `tabUser` as u left join `tabHas Role` as r on u.email=r.parent where role='Lender'",
+                    as_dict=1,
+                )[0]
+                msg = "Hello {}, Sell is Triggered for Margin Shortfall of Loan {}. Please take Action.".format(
+                    lender.get("first_name"), self.name
+                )
 
                 frappe.enqueue(
                     method=frappe.sendmail,
