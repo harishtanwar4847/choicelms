@@ -93,6 +93,21 @@ class SellCollateralApplication(Document):
                     "You need to sell all {} of isin {}".format(i.quantity, i.isin)
                 )
 
+    def on_update(self):
+        if self.loan_margin_shortfall:
+            if self.status == "Rejected":
+                # if shortfall is not recoverd then margin shortfall status will change from request pending to pending
+                loan_margin_shortfall = frappe.get_doc(
+                    "Loan Margin Shortfall", self.loan_margin_shortfall
+                )
+                if (
+                    loan_margin_shortfall.status == "Request Pending"
+                    and loan_margin_shortfall.shortfall_percentage > 0
+                ):
+                    loan_margin_shortfall.status = "Pending"
+                    loan_margin_shortfall.save(ignore_permissions=True)
+                    frappe.db.commit()
+
     def on_submit(self):
         for i in self.sell_items:
             if i.sell_quantity > 0:

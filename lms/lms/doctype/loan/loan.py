@@ -292,20 +292,18 @@ class Loan(Document):
             self.save(ignore_permissions=True)
 
             loan_margin_shortfall = self.get_margin_shortfall()
-            # if loan_margin_shortfall.status == "Sell Triggered":
-            #     user_roles = frappe.db.get_values(
-            #         "Has Role", {"role": "Lender", "parenttype": "User"}, ["parent"]
-            #     )[0]
-            #     msg = "Hello {}, Sell Triggered for Margin Shortfall of Loan {}. Please take Action.".format(user_roles[0], self.loan)
+            if loan_margin_shortfall.status == "Sell Triggered":
+                lender = frappe.db.sql("select u.email,u.first_name from `tabUser` as u left join `tabHas Role` as r on u.email=r.parent where role='Lender'", as_dict=1)[0]
+                msg = "Hello {}, Sell is Triggered for Margin Shortfall of Loan {}. Please take Action.".format(lender.get("first_name"), self.name)
 
-            #     frappe.enqueue(
-            #         method=frappe.sendmail,
-            #         recipients=list(user_roles),
-            #         sender=None,
-            #         subject="Sell Triggered Notification",
-            #         message=msg,
-            #     )
-            if loan_margin_shortfall.status != "Sell Triggered":
+                frappe.enqueue(
+                    method=frappe.sendmail,
+                    recipients=[lender.get("email")],
+                    sender=None,
+                    subject="Sell Triggered Notification",
+                    message=msg,
+                )
+            elif loan_margin_shortfall.status != "Sell Triggered":
                 old_shortfall_action = loan_margin_shortfall.margin_shortfall_action
                 loan_margin_shortfall.fill_items()
                 if old_shortfall_action:

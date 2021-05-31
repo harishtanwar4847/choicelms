@@ -241,7 +241,6 @@ class LoanApplication(Document):
                 if (
                     loan_margin_shortfall.status == "Request Pending"
                     and loan_margin_shortfall.shortfall_percentage > 0
-                    and loan_margin_shortfall.shortfall_percentage < 25
                 ):
                     loan_margin_shortfall.status = "Pending"
                     loan_margin_shortfall.save(ignore_permissions=True)
@@ -284,7 +283,20 @@ class LoanApplication(Document):
             finally:
                 fa.delete_app()
 
-        # elif self.status == "Rejected":
+        elif self.status == "Rejected":
+            if self.loan_margin_shortfall:
+                # if shortfall is not recoverd then margin shortfall status will change from request pending to pending
+                loan_margin_shortfall = frappe.get_doc(
+                    "Loan Margin Shortfall", self.loan_margin_shortfall
+                )
+                if (
+                    loan_margin_shortfall.status == "Request Pending"
+                    and loan_margin_shortfall.shortfall_percentage > 0
+                ):
+                    loan_margin_shortfall.status = "Pending"
+                    loan_margin_shortfall.save(ignore_permissions=True)
+                    frappe.db.commit()
+
         #     customer = self.get_customer()
         #     if not customer.pledge_securities:
         #         customer.pledge_securities = 0
