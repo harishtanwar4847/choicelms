@@ -660,15 +660,15 @@ def loan_details(**kwargs):
                 )
             )
 
-        # loan_margin_shortfall = loan.get_margin_shortfall()
-        loan_margin_shortfall = frappe.get_all("Loan Margin Shortfall", filters={"loan": loan.name, "status":["in", ["Pending", "Request Pending", "Sell Triggered"]]}, fields=["*"])
+        loan_margin_shortfall = loan.get_margin_shortfall()
+        # loan_margin_shortfall = frappe.get_all("Loan Margin Shortfall", filters={"loan": loan.name, "status":["in", ["Pending", "Request Pending", "Sell Triggered"]]}, fields=["*"])
         # if loan_margin_shortfall.get("__islocal", None):
         if not loan_margin_shortfall:
             loan_margin_shortfall = None
 
         if loan_margin_shortfall:
-            # loan_margin_shortfall = loan_margin_shortfall.as_dict()
-            loan_margin_shortfall = loan_margin_shortfall[0]
+            loan_margin_shortfall = loan_margin_shortfall.as_dict()
+            # loan_margin_shortfall = loan_margin_shortfall[0]
             loan_margin_shortfall["action_taken_msg"] = None
             loan_margin_shortfall["linked_application"] = None
             loan_margin_shortfall["deadline_in_hrs"] = None
@@ -835,11 +835,7 @@ def loan_details(**kwargs):
             res["sell_collateral"] = None
 
         # check if any pending unpledge application exist
-        loan_margin_shortfall = frappe.get_all(
-            "Loan Margin Shortfall",
-            {"loan": loan.name, "status": "Pending"},
-            page_length=1,
-        )
+        loan_margin_shortfall = loan.get_margin_shortfall()
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",
             filters={"loan": loan.name, "status": "Pending"},
@@ -1550,11 +1546,7 @@ def loan_unpledge_details(**kwargs):
 
         res = {"loan": loan}
 
-        loan_margin_shortfall = frappe.get_all(
-            "Loan Margin Shortfall",
-            {"loan": loan.name, "status": "Pending"},
-            page_length=1,
-        )
+        loan_margin_shortfall = loan.get_margin_shortfall()
         # check if any pending unpledge application exist
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",
@@ -1701,11 +1693,7 @@ def loan_unpledge_request(**kwargs):
             return utils.respondNotFound(message=frappe._("Loan not found."))
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
-        loan_margin_shortfall = frappe.get_all(
-            "Loan Margin Shortfall",
-            {"loan": loan.name, "status": "Pending"},
-            page_length=1,
-        )
+        loan_margin_shortfall = loan.get_margin_shortfall()
         if loan_margin_shortfall:
             return utils.respondWithFailure(
                 status=417,

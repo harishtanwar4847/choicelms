@@ -572,11 +572,8 @@ def my_pledge_securities(**kwargs):
             "number_of_scrips": len(loan.items),
             "all_pledged_securities": all_pledged_securities,
         }
-        loan_margin_shortfall = frappe.get_all(
-            "Loan Margin Shortfall",
-            {"loan": loan.name, "status": "Pending"},
-            page_length=1,
-        )
+
+        loan_margin_shortfall = loan.get_margin_shortfall()
 
         # Sell Collateral
         sell_collateral_application_exist = frappe.get_all(
@@ -694,8 +691,8 @@ def dashboard(**kwargs):
             )
             action_loans.append(dictionary.get("name"))
             loan = frappe.get_doc("Loan", dictionary["name"])
-            # mg_shortfall_doc = loan.get_margin_shortfall()
-            mg_shortfall_doc = frappe.get_all("Loan Margin Shortfall", filters={"loan": dictionary["name"], "status":["in", ["Pending", "Sell Triggered"]]}, fields=["*"])[0]
+            mg_shortfall_doc = loan.get_margin_shortfall()
+            # mg_shortfall_doc = frappe.get_all("Loan Margin Shortfall", filters={"loan": dictionary["name"], "status":["in", ["Pending", "Sell Triggered"]]}, fields=["*"])[0]
             mg_shortfall_action = frappe.get_doc(
                 "Margin Shortfall Action", mg_shortfall_doc.margin_shortfall_action
             )
@@ -998,11 +995,7 @@ def dashboard(**kwargs):
             )
 
             # check if any pending unpledge application exist
-            loan_margin_shortfall = frappe.get_all(
-                "Loan Margin Shortfall",
-                {"loan": loan.name, "status": "Pending"},
-                page_length=1,
-            )
+            loan_margin_shortfall =  loan.get_margin_shortfall()
             unpledge_application_exist = frappe.get_all(
                 "Unpledge Application",
                 filters={"loan": loan.name, "status": "Pending"},

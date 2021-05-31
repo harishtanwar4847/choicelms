@@ -30,6 +30,13 @@ class SellCollateralApplication(Document):
         triggered_margin_shortfall = frappe.get_all("Loan Margin Shortfall", filters={"loan":self.loan, "status": "Sell Triggered"})
         if triggered_margin_shortfall:
             self.loan_margin_shortfall = triggered_margin_shortfall[0].name
+            loan_margin_shortfall = frappe.get_doc("Loan Margin Shortfall", self.loan_margin_shortfall)
+            print(loan_margin_shortfall.shortfall,"loan_margin_shortfall")
+            self.initial_margin_shortfall = loan_margin_shortfall.shortfall
+            loan_margin_shortfall = loan_margin_shortfall.fill_items()
+            # loan_margin_shortfall.insert(ignore_permissions=True)
+            # frappe.db.commit()
+            self.current_margin_shortfall = loan_margin_shortfall.shortfall if loan_margin_shortfall else 0.0
 
         securities_list = [i.isin for i in self.items]
 
