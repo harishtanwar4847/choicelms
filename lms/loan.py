@@ -728,7 +728,7 @@ def loan_details(**kwargs):
                         0
                     ].total_collateral_value
                     remaining_shortfall = (
-                        loan_margin_shortfall.minimum_cash_amount - sell_off_shortfall
+                        loan_margin_shortfall.shortfall - sell_off_shortfall
                     )
 
                     loan_margin_shortfall["action_taken_msg"] = """Total Margin Shortfall: Rs. {}/- \nOn {} we received a sell collateral request of Rs. {}/- which is under process. \n(Click here to see sell collateral summary) \nRemaining Margin Shortfall (after successful processing of your action): Rs. {}/-""".format(loan_margin_shortfall.shortfall, (sell_collateral_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p"), sell_off_shortfall, remaining_shortfall if remaining_shortfall > 0 else 0)
