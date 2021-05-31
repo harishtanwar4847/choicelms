@@ -104,7 +104,9 @@ class Cart(Document):
         self.save()
 
         if self.loan_margin_shortfall:
-            loan_margin_shortfall = frappe.get_doc("Loan Margin Shortfall", self.loan_margin_shortfall)
+            loan_margin_shortfall = frappe.get_doc(
+                "Loan Margin Shortfall", self.loan_margin_shortfall
+            )
             if loan_margin_shortfall.status == "Pending":
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
