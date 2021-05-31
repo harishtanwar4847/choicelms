@@ -88,12 +88,11 @@
    "fieldname": "loan_margin_shortfall",
    "fieldtype": "Link",
    "label": "Loan Margin Shortfall",
-   "options": "Loan Margin Shortfall",
-   "read_only": 1
+   "options": "Loan Margin Shortfall"
   }
  ],
  "is_submittable": 1,
- "modified": "2021-05-27 12:45:06.315141",
+ "modified": "2021-05-27 12:57:45.181591",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",

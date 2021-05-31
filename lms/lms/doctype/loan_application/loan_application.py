@@ -233,6 +233,14 @@ class LoanApplication(Document):
                 # increase loan agreement mapping
                 self.map_loan_agreement_file(loan, increase_loan=True)
 
+            if self.loan_margin_shortfall:
+                # if shortfall is not recoverd then margin shortfall status will change from request pending to pending
+                loan_margin_shortfall = frappe.get_doc("Loan Margin Shortfall", self.loan_margin_shortfall)
+                if loan_margin_shortfall.status == "Request Pending" and loan_margin_shortfall.shortfall_percentage > 0 and loan_margin_shortfall.shortfall_percentage < 25:
+                    loan_margin_shortfall.status = "Pending"
+                    loan_margin_shortfall.save(ignore_permissions=True)
+                    frappe.db.commit()
+
         elif self.status == "Pledge accepted by Lender":
             approved_isin_list = []
             rejected_isin_list = []
