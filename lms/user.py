@@ -401,7 +401,7 @@ def approved_securities(**kwargs):
         or_filters = ""
         if data.get("search", None):
             search_key = ["like", str("%" + data["search"] + "%")]
-            or_filters = {"isin": search_key, "security_name": search_key}
+            or_filters = {"security_name": search_key}
 
         if data.get("category", None):
             filters["security_category"] = data.get("category")
