@@ -664,7 +664,7 @@ def loan_details(**kwargs):
         if loan_margin_shortfall.get("__islocal", None):
             loan_margin_shortfall = None
 
-        elif loan_margin_shortfall:
+        if loan_margin_shortfall:
             loan_margin_shortfall = loan_margin_shortfall.as_dict()
             # loan_margin_shortfall = loan_margin_shortfall[0]
             loan_margin_shortfall["action_taken_msg"] = None
@@ -885,6 +885,8 @@ def loan_details(**kwargs):
 
         # check if any pending unpledge application exist
         loan_margin_shortfall = loan.get_margin_shortfall()
+        if loan_margin_shortfall.get("__islocal", None):
+            loan_margin_shortfall = None
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",
             filters={"loan": loan.name, "status": "Pending"},
@@ -1596,6 +1598,8 @@ def loan_unpledge_details(**kwargs):
         res = {"loan": loan}
 
         loan_margin_shortfall = loan.get_margin_shortfall()
+        if loan_margin_shortfall.get("__islocal", None):
+            loan_margin_shortfall = None
         # check if any pending unpledge application exist
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",
@@ -1743,6 +1747,8 @@ def loan_unpledge_request(**kwargs):
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
         loan_margin_shortfall = loan.get_margin_shortfall()
+        if loan_margin_shortfall.get("__islocal", None):
+            loan_margin_shortfall = None
         if loan_margin_shortfall:
             return utils.respondWithFailure(
                 status=417,
