@@ -673,7 +673,7 @@ class Loan(Document):
                         "Notification", "Interest Due", method="send", doc=doc
                     )
 
-                    msg = """Dear Customer, \nRebate of Rs. {} was reversed in your loan account {}. This will appear as 'Addl Interest' in your loan account. \nPlease pay the interest due before the 15th of this month in order to avoid the penal interest/charges.Kindly check the app for details \n- Spark Loans""".format(round(additional_interest_transaction.unpaid_interest, 2),self.name)
+                    msg = """Dear Customer, \nRebate of Rs. {} was reversed in your loan account {}. This will appear as 'Addl Interest' in your loan account. \nPlease pay the interest due before the 15th of this month in order to avoid the penal interest/charges.Kindly check the app for details \n-Spark Loans""".format(round(additional_interest_transaction.unpaid_interest, 2),self.name)
 
                     if msg:
                         receiver_list = list(
@@ -748,7 +748,7 @@ class Loan(Document):
 
             frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
 
-            msg = """Dear Customer, \nAn interest of Rs. {} is due on your loan account {}. \nPlease pay the interest due before the 7th of this month in order to continue to enjoy the rebate provided on the interest rate. Kindly check the app for details. \n- Spark Loans""".format(round(loan_transaction.unpaid_interest,2), self.name)
+            msg = """Dear Customer, \nAn interest of Rs. {} is due on your loan account {}. \nPlease pay the interest due before the 7th of this month in order to continue to enjoy the rebate provided on the interest rate. Kindly check the app for details. \n-Spark Loans""".format(round(loan_transaction.unpaid_interest,2), self.name)
             if msg:
                 receiver_list = list(
                     set([str(self.get_customer().phone), str(doc.mobile_number)])
@@ -843,7 +843,7 @@ class Loan(Document):
                         frappe.enqueue_doc(
                             "Notification", "Interest Due", method="send", doc=doc
                         )
-                        msg = """Dear Customer, \nPenal interest of Rs.{} has been debited to your loan account {} . \nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details \n- Spark Loans""".format(round(penal_interest_transaction.unpaid_interest,2), self.name)
+                        msg = """Dear Customer, \nPenal interest of Rs.{} has been debited to your loan account {} . \nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details \n-Spark Loans""".format(round(penal_interest_transaction.unpaid_interest,2), self.name)
 
                         if msg:
                             receiver_list = list(

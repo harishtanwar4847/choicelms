@@ -111,7 +111,7 @@ class Cart(Document):
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
                 frappe.db.commit()
-                msg = "Dear Customer, \nThank you for taking action against the margin shortfall. \nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner."
+                msg = "Dear Customer, \nThank you for taking action against the margin shortfall. \nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner.\n-Spark Loans"
                 receiver_list = list(
                     set([str(self.get_customer().phone), str(self.get_customer().get_kyc().mobile_number)])
                 )

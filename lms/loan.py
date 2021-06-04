@@ -288,7 +288,7 @@ def esign_done(**kwargs):
                 topup_application.customer_esigned_document = esigned_file.file_url
                 topup_application.save(ignore_permissions=True)
                 frappe.db.commit()
-                msg = "Dear Customer, \nYour E-sign process is completed. You shall soon receive a confirmation of your new OD limit. Thank you for your patience. \n- Spark Loans"
+                msg = "Dear Customer, \nYour E-sign process is completed. You shall soon receive a confirmation of your new OD limit. Thank you for your patience. \n-Spark Loans"
                 receiver_list = list(
                     set([str(customer.phone), str(customer.get_kyc().mobile_number)])
                 )
@@ -1183,7 +1183,7 @@ def loan_payment(**kwargs):
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
                 frappe.db.commit()
-                msg = "Dear Customer, \nThank you for taking action against the margin shortfall. \nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner."
+                msg = "Dear Customer, \nThank you for taking action against the margin shortfall. \nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner.\n-Spark Loans"
                 receiver_list = list(
                     set([str(customer.phone), str(customer.get_kyc().mobile_number)])
                 )
@@ -1201,8 +1201,8 @@ def loan_payment(**kwargs):
         )
         frappe.db.commit()
 
-        if not data.get("loan_margin_shortfall_name"):
-            msg = """Dear Customer, \nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within some time .""".format(data.get("amount"),loan.name)
+        # if not data.get("loan_margin_shortfall_name"):
+        #     msg = """Dear Customer, \nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within some time .""".format(data.get("amount"),loan.name)
 
         if msg:
             receiver_list = list(
@@ -1840,7 +1840,7 @@ def loan_unpledge_request(**kwargs):
             }
         )
         unpledge_application.insert(ignore_permissions=True)
-        msg = "Dear Customer, \nYour unpledge request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. \n- Spark Loans"
+        msg = "Dear Customer, \nYour unpledge request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. \n-Spark Loans"
 
         receiver_list = list(
             set([str(customer.phone), str(customer.get_kyc().mobile_number)])
@@ -1982,7 +1982,7 @@ def sell_collateral_request(**kwargs):
 
         frappe.db.commit()
         if not data.get("loan_margin_shortfall_name"):
-            msg = "Dear Customer, \nYour sell collateral request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. \n- Spark Loans"
+            msg = "Dear Customer, \nYour sell collateral request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. \n-Spark Loans"
 
         if msg:
             receiver_list = list(

@@ -168,7 +168,7 @@ class LoanTransaction(Document):
             if self.requested == self.disbursed:
                 mess = "Dear Customer, \nYour withdrawal request has been executed and Rs. {amount} transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . Your loan balance is Rs. {balance}. {date_time}. If this is not you report immediately on 'Contact Us' in the app \n-Spark Loans".format(amount=self.amount, disbursed=self.disbursed, balance=loan.balance, date_time=datetime.strptime(self.time, "%Y-%m-%d %H:%M:%S.%f").strftime("%d-%m-%Y %H:%M"))
             elif self.disbursed < self.requested:
-                mess = "Dear Customer, \nYour withdrawal request for Rs. {requested} has been partially executed and Rs. {disbursed} transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(requested=self.requested, disbursed=self.disbursed)
+                mess = "Dear Customer, \nYour withdrawal request for Rs. {requested} has been partially executed and Rs. {disbursed} transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . If this is not you report immediately on 'Contact Us' in the app \n-Spark Loans".format(requested=self.requested, disbursed=self.disbursed)
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(

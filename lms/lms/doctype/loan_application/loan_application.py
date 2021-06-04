@@ -654,7 +654,7 @@ class LoanApplication(Document):
             msg = "Dear Customer, \nSorry! Your Increase loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans" if self.loan and not self.loan_margin_shortfall else "Dear Customer, \nSorry! Your loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans"
         
         elif doc.get("loan_application").get("status") == "Esign Done":
-            msg = "Dear Customer, \nYour E-sign process is completed. You shall soon receive a confirmation of loan approval. Thank you for your patience. \n- Spark Loans"
+            msg = "Dear Customer, \nYour E-sign process is completed. You shall soon receive a confirmation of loan approval. Thank you for your patience. \n-Spark Loans"
 
         if self.pledge_status == "Partial Success":
             msg = "Dear Customer, \nCongratulations! Your pledge request was successfully considered and was partially accepted for Rs. {} due to technical reasons. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. \n-Spark Loans".format(self.total_collateral_value_str)
