@@ -186,9 +186,9 @@ class Cart(Document):
 
         if self.loan and not self.loan_margin_shortfall:
             loan = frappe.get_doc("Loan", self.loan)
-            doc["old_sanctioned_amount"] = loan.drawing_power
+            doc["old_sanctioned_amount"] = loan.sanctioned_limit
             doc["old_sanctioned_amount_in_words"] = num2words(
-                loan.drawing_power, lang="en_IN"
+                loan.sanctioned_limit, lang="en_IN"
             ).title()
             agreement_template = lender.get_loan_enhancement_agreement_template()
         else:

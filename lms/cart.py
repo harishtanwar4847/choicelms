@@ -468,11 +468,13 @@ def get_tnc(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {"cart_name": "", "topup_application_name": ""},
+            # {"cart_name": "", "topup_application_name": ""},
+            {"cart_name": ""}
         )
 
         reg = lms.regex_special_characters(
-            search=data.get("cart_name") + data.get("topup_application_name")
+            # search=data.get("cart_name") + data.get("topup_application_name")
+            search=data.get("cart_name")
         )
         if reg:
             return utils.respondWithFailure(
@@ -484,17 +486,19 @@ def get_tnc(**kwargs):
         user_kyc = lms.__user_kyc()
         user = lms.__user()
 
-        if data.get("cart_name") and data.get("topup_application_name"):
-            return utils.respondForbidden(
-                message=frappe._(
-                    "Can not use both application at once, please use one."
-                )
-            )
+        # if data.get("cart_name") and data.get("topup_application_name"):
+        #     return utils.respondForbidden(
+        #         message=frappe._(
+        #             "Can not use both application at once, please use one."
+        #         )
+        #     )
 
-        elif not data.get("cart_name") and not data.get("topup_application_name"):
+        # elif not data.get("cart_name") and not data.get("topup_application_name"):
+        if not data.get("cart_name"):
             return utils.respondForbidden(
                 message=frappe._(
-                    "Cart and Top up Application not found. Please use atleast one."
+                    # "Cart and Top up Application not found. Please use atleast one."
+                    "Cart name field empty"
                 )
             )
 
@@ -510,27 +514,27 @@ def get_tnc(**kwargs):
             if cart.loan:
                 loan = frappe.get_doc("Loan", cart.loan)
 
-        else:
-            topup_application = frappe.get_doc(
-                "Top up Application", data.get("topup_application_name")
-            )
-            if not topup_application:
-                return utils.respondNotFound(
-                    message=frappe._("Topup Application not found.")
-                )
-            if topup_application.customer != customer.name:
-                return utils.respondForbidden(
-                    message=frappe._("Please use your own Topup Application.")
-                )
-            loan = frappe.get_doc("Loan", topup_application.loan)
-            lender = frappe.get_doc("Lender", loan.lender)
-            msg = "Dear Customer, \nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app \n-Spark Loans"
-            receiver_list = list(
-                set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-            )
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
+        # else:
+        #     topup_application = frappe.get_doc(
+        #         "Top up Application", data.get("topup_application_name")
+        #     )
+        #     if not topup_application:
+        #         return utils.respondNotFound(
+        #             message=frappe._("Topup Application not found.")
+        #         )
+        #     if topup_application.customer != customer.name:
+        #         return utils.respondForbidden(
+        #             message=frappe._("Please use your own Topup Application.")
+        #         )
+        #     loan = frappe.get_doc("Loan", topup_application.loan)
+        #     lender = frappe.get_doc("Lender", loan.lender)
+        #     msg = "Dear Customer, \nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app \n-Spark Loans"
+        #     receiver_list = list(
+        #         set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+        #     )
+        #     from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+        #     frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         tnc_ul = ["<ul>"]
         tnc_ul.append(
@@ -551,14 +555,14 @@ def get_tnc(**kwargs):
         tnc_ul.append(
             "<li><strong> Purpose </strong>: General Purpose. The facility shall not be used for anti-social or illegal purposes;</li>"
         )
-        if data.get("cart_name") and not cart.loan:
+        if data.get("cart_name") or cart.loan_margin_shortfall:
             tnc_ul.append(
                 "<li><strong> Sanctioned Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
                     cart.eligible_loan
                 )
                 + "</li>"
             )
-        elif data.get("cart_name") and cart.loan:
+        elif data.get("cart_name") and cart.loan and not cart.loan_margin_shortfall:
             tnc_ul.append(
                 "<li><strong> Sanctioned Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
                     lms.round_down_amount_to_nearest_thousand(
@@ -581,13 +585,13 @@ def get_tnc(**kwargs):
             # )
             # tnc_ul.append(
             #     "<li><strong> Previous Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong>;".format(loan.drawing_power)+ "</li>")
-        else:
-            tnc_ul.append(
-                "<li><strong> Top up Amount </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
-                    topup_application.top_up_amount + loan.drawing_power
-                )
-                + "</li>"
-            )
+        # else:
+        #     tnc_ul.append(
+        #         "<li><strong> Top up Amount </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
+        #             topup_application.top_up_amount + loan.drawing_power
+        #         )
+        #         + "</li>"
+        #     )
         tnc_ul.append("<li><strong> Interest type </strong>: Floating</li>")
         tnc_ul.append(
             "<li><strong> Rate of Interest </strong>: <strong>{}%  per month</strong> after rebate, if paid within <strong>7 days</strong> of due date. Otherwise Rebate of <strong>0.20%</strong> will not be applicable and higher interest rate will be applicable [Interest rate is subject to change based on management discretion from time to time];".format(
@@ -672,11 +676,11 @@ def get_tnc(**kwargs):
             cart.create_tnc_file()
             tnc_file_url = frappe.utils.get_url("files/tnc/{}.pdf".format(cart.name))
 
-        else:
-            topup_application.create_tnc_file()
-            tnc_file_url = frappe.utils.get_url(
-                "files/tnc/{}.pdf".format(topup_application.name)
-            )
+        # else:
+        #     topup_application.create_tnc_file()
+        #     tnc_file_url = frappe.utils.get_url(
+        #         "files/tnc/{}.pdf".format(topup_application.name)
+        #     )
 
         tnc_header = "Please refer to the <a href='{}'>Terms & Conditions</a> for LAS facility, for detailed terms.".format(
             tnc_file_url
@@ -701,17 +705,17 @@ def get_tnc(**kwargs):
         }
 
         for tnc in frappe.get_list("Terms and Conditions", filters={"is_active": 1}):
-            if data.get("topup_application_name"):
-                top_up_approved_tnc = {
-                    "doctype": "Top up Application",
-                    "docname": data.get("topup_application_name"),
-                    "mobile": user.username,
-                    "tnc": tnc.name,
-                    "time": frappe.utils.now_datetime(),
-                }
-                ApprovedTermsandConditions.create_entry(**top_up_approved_tnc)
-                frappe.db.commit()
-            else:
+            # if data.get("topup_application_name"):
+            #     top_up_approved_tnc = {
+            #         "doctype": "Top up Application",
+            #         "docname": data.get("topup_application_name"),
+            #         "mobile": user.username,
+            #         "tnc": tnc.name,
+            #         "time": frappe.utils.now_datetime(),
+            #     }
+            #     ApprovedTermsandConditions.create_entry(**top_up_approved_tnc)
+            #     frappe.db.commit()
+            if data.get("cart_name"):
                 cart_approved_tnc = {
                     "doctype": "Cart",
                     "docname": data.get("cart_name"),
