@@ -124,8 +124,11 @@ def kyc(**kwargs):
             #     + user.full_name
             #     + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
             # )
+            # mess = frappe._(
+            #     "Congratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
+            # )
             mess = frappe._(
-                "Congratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
+                "Dear Customer, \nCongratulations! \nYour KYC verification is completed. \n-Spark Loans"
             )
             frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
 
@@ -1006,7 +1009,7 @@ def dashboard(**kwargs):
             )
 
             # check if any pending unpledge application exist
-            loan_margin_shortfall =  loan.get_margin_shortfall()
+            loan_margin_shortfall = loan.get_margin_shortfall()
             if loan_margin_shortfall.get("__islocal", None):
                 loan_margin_shortfall = None
             unpledge_application_exist = frappe.get_all(

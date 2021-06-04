@@ -288,6 +288,13 @@ def esign_done(**kwargs):
                 topup_application.customer_esigned_document = esigned_file.file_url
                 topup_application.save(ignore_permissions=True)
                 frappe.db.commit()
+                msg = "Dear Customer, \nYour E-sign process is completed. You shall soon receive a confirmation of your new OD limit. Thank you for your patience. \n-Spark Loans"
+                receiver_list = list(
+                    set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+                )
+                from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
             return utils.respondWithSuccess()
         except requests.RequestException as e:
@@ -708,7 +715,16 @@ def loan_details(**kwargs):
                         loan_margin_shortfall.shortfall - pledged_paid_shortfall
                     )
 
-                    loan_margin_shortfall["action_taken_msg"] = """Total Margin Shortfall: Rs. {}/- \nOn {} we received a pledge request of Rs. {}/- which is under process. \n(Click here to see pledge summary) \nRemaining Margin Shortfall (after successful processing of your action): Rs. {}/-""".format(loan_margin_shortfall.shortfall, (pledged_securities_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p"), pledged_paid_shortfall, remaining_shortfall if remaining_shortfall > 0 else 0)
+                    loan_margin_shortfall[
+                        "action_taken_msg"
+                    ] = """Total Margin Shortfall: Rs. {}/- \nOn {} we received a pledge request of Rs. {}/- which is under process. \n(Click here to see pledge summary) \nRemaining Margin Shortfall (after successful processing of your action): Rs. {}/-""".format(
+                        loan_margin_shortfall.shortfall,
+                        (pledged_securities_for_mg_shortfall[0].creation).strftime(
+                            "%d.%m.%Y %I:%M %p"
+                        ),
+                        pledged_paid_shortfall,
+                        remaining_shortfall if remaining_shortfall > 0 else 0,
+                    )
 
                     loan_margin_shortfall["linked_application"] = {
                         "loan_application": pledged_securities_for_mg_shortfall[0],
@@ -721,7 +737,16 @@ def loan_details(**kwargs):
                         loan_margin_shortfall.minimum_cash_amount - cash_paid_shortfall
                     )
 
-                    loan_margin_shortfall["action_taken_msg"] = """Total Margin Shortfall: Rs. {}/- \nOn {} we received a payment of Rs. {}/- which is under process. \nRemaining Margin Shortfall (after successful processing of your action): Rs. {}/-""".format(loan_margin_shortfall.shortfall, (payment_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p"), cash_paid_shortfall, remaining_shortfall if remaining_shortfall > 0 else 0)
+                    loan_margin_shortfall[
+                        "action_taken_msg"
+                    ] = """Total Margin Shortfall: Rs. {}/- \nOn {} we received a payment of Rs. {}/- which is under process. \nRemaining Margin Shortfall (after successful processing of your action): Rs. {}/-""".format(
+                        loan_margin_shortfall.shortfall,
+                        (payment_for_mg_shortfall[0].creation).strftime(
+                            "%d.%m.%Y %I:%M %p"
+                        ),
+                        cash_paid_shortfall,
+                        remaining_shortfall if remaining_shortfall > 0 else 0,
+                    )
 
                 elif sell_collateral_for_mg_shortfall:
                     sell_off_shortfall = sell_collateral_for_mg_shortfall[
@@ -731,7 +756,16 @@ def loan_details(**kwargs):
                         loan_margin_shortfall.shortfall - sell_off_shortfall
                     )
 
-                    loan_margin_shortfall["action_taken_msg"] = """Total Margin Shortfall: Rs. {}/- \nOn {} we received a sell collateral request of Rs. {}/- which is under process. \n(Click here to see sell collateral summary) \nRemaining Margin Shortfall (after successful processing of your action): Rs. {}/-""".format(loan_margin_shortfall.shortfall, (sell_collateral_for_mg_shortfall[0].creation).strftime("%d.%m.%Y %I:%M %p"), sell_off_shortfall, remaining_shortfall if remaining_shortfall > 0 else 0)
+                    loan_margin_shortfall[
+                        "action_taken_msg"
+                    ] = """Total Margin Shortfall: Rs. {}/- \nOn {} we received a sell collateral request of Rs. {}/- which is under process. \n(Click here to see sell collateral summary) \nRemaining Margin Shortfall (after successful processing of your action): Rs. {}/-""".format(
+                        loan_margin_shortfall.shortfall,
+                        (sell_collateral_for_mg_shortfall[0].creation).strftime(
+                            "%d.%m.%Y %I:%M %p"
+                        ),
+                        sell_off_shortfall,
+                        remaining_shortfall if remaining_shortfall > 0 else 0,
+                    )
 
                     loan_margin_shortfall["linked_application"] = {
                         "loan_application": None,
@@ -1066,6 +1100,14 @@ def loan_withdraw_request(**kwargs):
         message = "Great! Your request for withdrawal has been successfully received. The amount shall be credited to your bank account {} within next 24 hours.".format(
             masked_bank_account_number
         )
+        msg = "Dear Customer, \nYour withdrawal request has been received and is under process. We shall reach out to you very soon. Thank you for your patience \n-Spark Loans"
+        if msg:
+            receiver_list = list(
+                set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+            )
+            from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         return utils.respondWithSuccess(message=message, data=data)
     except utils.APIException as e:
@@ -1141,6 +1183,13 @@ def loan_payment(**kwargs):
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
                 frappe.db.commit()
+                msg = "Dear Customer, \nThank you for taking action against the margin shortfall. \nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner.\n-Spark Loans"
+                receiver_list = list(
+                    set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+                )
+                from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         frappe.db.begin()
         loan.create_loan_transaction(
@@ -1151,6 +1200,18 @@ def loan_payment(**kwargs):
             is_for_interest=data.get("is_for_interest", None),
         )
         frappe.db.commit()
+
+        # if not data.get("loan_margin_shortfall_name"):
+        #     msg = """Dear Customer, \nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within some time .""".format(data.get("amount"),loan.name)
+
+        if msg:
+            receiver_list = list(
+                set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+            )
+            from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
 
         return utils.respondWithSuccess()
     except utils.APIException as e:
@@ -1779,6 +1840,14 @@ def loan_unpledge_request(**kwargs):
             }
         )
         unpledge_application.insert(ignore_permissions=True)
+        msg = "Dear Customer, \nYour unpledge request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. \n-Spark Loans"
+
+        receiver_list = list(
+            set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+        )
+        from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+        frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         return utils.respondWithSuccess(data=unpledge_application)
     except utils.APIException as e:
@@ -1905,12 +1974,23 @@ def sell_collateral_request(**kwargs):
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
                 frappe.db.commit()
+                msg = "Dear Customer, \nThank you for taking action against the margin shortfall. \nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner."
 
         sell_collateral_application.insert(ignore_permissions=True)
 
         lms.token_mark_as_used(token)
 
         frappe.db.commit()
+        if not data.get("loan_margin_shortfall_name"):
+            msg = "Dear Customer, \nYour sell collateral request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. \n-Spark Loans"
+
+        if msg:
+            receiver_list = list(
+                set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+            )
+            from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         return utils.respondWithSuccess(data=sell_collateral_application)
     except utils.APIException as e:

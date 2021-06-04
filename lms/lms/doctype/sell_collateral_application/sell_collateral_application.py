@@ -94,8 +94,19 @@ class SellCollateralApplication(Document):
                 )
 
     def on_update(self):
-        if self.loan_margin_shortfall:
-            if self.status == "Rejected":
+        if self.status == "Rejected":
+            msg = "Dear Customer, \nSorry! Your sell collateral request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans"
+
+            receiver_list = list(
+                set([str(self.get_loan().get_customer().phone), str(self.get_loan().get_customer().get_kyc().mobile_number)])
+            )
+            from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+            if self.loan_margin_shortfall:
+                # if frappe.session.user != self.owner:
+
                 # if shortfall is not recoverd then margin shortfall status will change from request pending to pending
                 loan_margin_shortfall = frappe.get_doc(
                     "Loan Margin Shortfall", self.loan_margin_shortfall
@@ -133,6 +144,18 @@ class SellCollateralApplication(Document):
             approve=True,
             loan_margin_shortfall_name=self.loan_margin_shortfall,
         )
+        if self.owner == frappe.session.user and self.loan_margin_shortfall:
+            msg = "Dear Customer, \nSale of securities initiated by the lending partner for your loan account {} is now completed .The sale proceeds have been credited to your loan account and collateral value updated. Please check the app for details.".format(self.loan)
+        else:
+            msg = "Dear Customer, \nCongratulations! Your sell collateral request has been successfully executed and sale proceeds credited to your loan account. Kindly check the app for details \n-Spark Loans"
+
+        if msg:
+            receiver_list = list(
+                set([str(self.get_loan().get_customer().phone), str(self.get_loan().get_customer().get_kyc().mobile_number)])
+            )
+            from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
         # loan.update_loan_balance()
 
     def validate(self):

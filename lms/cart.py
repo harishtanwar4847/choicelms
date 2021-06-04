@@ -524,6 +524,13 @@ def get_tnc(**kwargs):
                 )
             loan = frappe.get_doc("Loan", topup_application.loan)
             lender = frappe.get_doc("Lender", loan.lender)
+            msg = "Dear Customer, \nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app \n-Spark Loans"
+            receiver_list = list(
+                set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+            )
+            from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         tnc_ul = ["<ul>"]
         tnc_ul.append(

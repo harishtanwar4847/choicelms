@@ -412,9 +412,10 @@ def request_forgot_pin_otp(**kwargs):
             filters={"entity": user.email, "token_type": "Forgot Pin OTP"},
             order_by="creation desc",
             fields=["*"],
-        )[0].name
-        old_token = frappe.get_doc("User Token", old_token_name)
-        lms.token_mark_as_used(old_token)
+        )
+        if old_token_name:
+            old_token = frappe.get_doc("User Token", old_token_name[0].name)
+            lms.token_mark_as_used(old_token)
 
         frappe.db.begin()
         lms.create_user_token(
