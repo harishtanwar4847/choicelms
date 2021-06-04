@@ -1184,12 +1184,12 @@ def loan_payment(**kwargs):
                 loan_margin_shortfall.save(ignore_permissions=True)
                 frappe.db.commit()
                 msg = "Dear Customer, \nThank you for taking action against the margin shortfall. \nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner.\n-Spark Loans"
-                receiver_list = list(
-                    set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-                )
-                from frappe.core.doctype.sms_settings.sms_settings import send_sms
+                # receiver_list = list(
+                #     set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+                # )
+                # from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         frappe.db.begin()
         loan.create_loan_transaction(
@@ -1202,7 +1202,7 @@ def loan_payment(**kwargs):
         frappe.db.commit()
 
         # if not data.get("loan_margin_shortfall_name"):
-        #     msg = """Dear Customer, \nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within some time .""".format(data.get("amount"),loan.name)
+        #     msg = """Dear Customer, \nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within some time .\n-Spark Loans""".format(data.get("amount"),loan.name)
 
         if msg:
             receiver_list = list(
