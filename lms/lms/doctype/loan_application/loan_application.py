@@ -374,12 +374,12 @@ class LoanApplication(Document):
         #     + str(loan.drawing_power)
         #     + "."
         # )
-        mess = _(
-            "Congratulations! Your loan account is active now! \nCurrent available limit - "
-            + str(loan.drawing_power)
-            + "."
-        )
-        frappe.enqueue(method=send_sms, receiver_list=[doc.mobile_number], msg=mess)
+        # mess = _(
+        #     "Congratulations! Your loan account is active now! \nCurrent available limit - "
+        #     + str(loan.drawing_power)
+        #     + "."
+        # )
+        # frappe.enqueue(method=send_sms, receiver_list=[doc.mobile_number], msg=mess)
 
         return loan
 
@@ -634,38 +634,38 @@ class LoanApplication(Document):
             "Pledge Failure",
             "Pledge accepted by Lender",
             "Approved",
+            "Esign Done",
             "Rejected",
-        ]:
+        ] or self.pledge_status in ["Success", "Partial Success", "Failure"]:
             frappe.enqueue_doc(
                 "Notification", "Loan Application", method="send", doc=doc
             )
-        mess = ""
+        msg = ""
         if doc.get("loan_application").get("status") == "Pledge Failure":
-            mess = "Sorry! Your loan application was turned down since the pledge was not successful. We regret the inconvenience caused."
+            msg = "Dear Customer, \nSorry! Your Increase loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans" if self.loan and not self.loan_margin_shortfall else "Dear Customer, \nSorry! Your loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans"
 
         elif doc.get("loan_application").get("status") == "Pledge accepted by Lender":
-            mess = "Congratulations! Your application is being considered favourably by our lending partner\nand finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}.\nAccordingly the final Drawing power is Rs. {drawing_power}. Please e-sign the loan agreement to avail the loan now.".format(
-                current_total_collateral_value=doc.get("loan_application").get(
-                    "current_total_collateral_value"
-                ),
-                requested_total_collateral_value=doc.get("loan_application").get(
-                    "requested_total_collateral_value"
-                ),
-                drawing_power=doc.get("loan_application").get("drawing_power"),
-            )
+            msg = "Dear Customer, \nCongratulations! Your Increase loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app \n-Spark Loans" if self.loan and not self.loan_margin_shortfall else "Dear Customer, \nCongratulations! Your loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app \n-Spark Loans"
+
         elif doc.get("loan_application").get("status") == "Approved":
-            mess = "Congratulations! Your loan application is Approved."
+            msg = "Dear Customer, \nCongratulations! Your loan account is open. Kindly check the app. You may now withdraw funds as per your convenience. \n-Spark Loans"
 
         elif doc.get("loan_application").get("status") == "Rejected":
-            mess = "Sorry! Your loan application was turned down. We regret the inconvenience caused."
+            msg = "Dear Customer, \nSorry! Your Increase loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans" if self.loan and not self.loan_margin_shortfall else "Dear Customer, \nSorry! Your loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans"
+        
+        elif doc.get("loan_application").get("status") == "Esign Done":
+            msg = "Dear Customer, \nYour E-sign process is completed. You shall soon receive a confirmation of loan approval. Thank you for your patience. \n- Spark Loans"
 
-        if mess:
+        if self.pledge_status == "Partial Success":
+            msg = "Dear Customer, \nCongratulations! Your pledge request was successfully considered and was partially accepted for Rs. {} due to technical reasons. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. \n-Spark Loans".format(self.total_collateral_value_str)
+
+        if msg:
             receiver_list = list(
                 set([str(self.get_customer().phone), str(doc.mobile_number)])
             )
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
     def validate(self):
         for i, item in enumerate(

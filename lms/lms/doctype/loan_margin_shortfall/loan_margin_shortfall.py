@@ -141,16 +141,41 @@ class LoanMarginShortfall(Document):
 
     def notify_customer(self):
         margin_shortfall_action = self.get_shortfall_action()
+        if margin_shortfall_action.sell_off_after_hours:
+            mess = "Dear Customer, \nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {}. Please check the app and take an appropriate action within {} hours; else sale will be triggered.".format(self.loan,margin_shortfall_action.sell_off_after_hours)
+        elif margin_shortfall_action.sell_off_deadline_eod:
+            eod_sell_off = frappe.get_all("Margin Shortfall Action", filters={"sell_off_after_hours": ("!=", 0)}, fields=["max_threshold"])
+
+            mess = "Dear Customer, \nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {} which exceeds {}% of portfolio value. Please check the app and take an appropriate action by {} Today; else sale will be triggered.".format(self.loan, eod_sell_off[0].max_threshold, datetime.strptime(str(margin_shortfall_action.sell_off_deadline_eod), "%H").strftime("%I:%M %p"))
+
+        else:
+            hrs_sell_off = frappe.get_all("Margin Shortfall Action", filters={"sell_off_deadline_eod": ("!=", 0)}, fields=["max_threshold"])
+            mess = "Dear Customer, \nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {}% of portfolio value. Therefore sale has been triggered in your loan account {}.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details.".format(hrs_sell_off[0].max_threshold, self.loan)
+             
+            msg = "Dear Customer, \nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details.".format(self.loan)
+
+        if mess:
+            print(mess)
+            frappe.enqueue(
+                method=send_sms, receiver_list=[self.get_loan().get_customer().phone], msg=mess
+            )
+        if msg:
+            print(msg)
+
+            frappe.enqueue(
+                method=send_sms, receiver_list=[self.get_loan().get_customer().phone], msg=msg
+            )
+
         if margin_shortfall_action:
             customer = self.get_loan().get_customer()
             mess = _(
                 "Your Loan {0} has been marked for margin shortfall. Please take action"
             ).format(self.loan)
 
-            if margin_shortfall_action.sms:
-                frappe.enqueue(
-                    method=send_sms, receiver_list=[customer.phone], msg=mess
-                )
+            # if margin_shortfall_action.sms:
+            #     frappe.enqueue(
+            #         method=send_sms, receiver_list=[customer.phone], msg=mess
+            #     )
 
             if margin_shortfall_action.email:
                 frappe.enqueue(
