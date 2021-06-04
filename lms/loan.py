@@ -1202,15 +1202,15 @@ def loan_payment(**kwargs):
         frappe.db.commit()
 
         # if not data.get("loan_margin_shortfall_name"):
-        #     msg = """Dear Customer, \nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within some time .""".format(data.get("amount"),loan.name)
+        #     msg = """Dear Customer, \nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within some time .\n-Spark Loans""".format(data.get("amount"),loan.name)
 
-        if msg:
-            receiver_list = list(
-                set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-            )
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
+        # if msg:
+        #     receiver_list = list(
+        #         set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+        #     )
+        #     from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+        #     frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
 
         return utils.respondWithSuccess()
