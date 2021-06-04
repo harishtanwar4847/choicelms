@@ -219,7 +219,7 @@ class Loan(Document):
             else self.sanctioned_limit
         )
 
-    def get_collateral_list(self, group_by_psn=False, where_clause=""):
+    def get_collateral_list(self, group_by_psn=False, where_clause="", having_clause=""):
         # sauce: https://stackoverflow.com/a/23827026/9403680
         sql = """
 			SELECT
@@ -235,11 +235,12 @@ class Loan(Document):
 			LEFT JOIN `tabAllowed Security` als
 				ON cl.isin = als.isin AND cl.lender = als.lender
 			WHERE cl.loan = '{loan}' {where_clause} AND cl.lender_approval_status = 'Approved'
-			GROUP BY cl.isin{group_by_psn_clause};
+			GROUP BY cl.isin{group_by_psn_clause}{having_clause};
 		""".format(
             loan=self.name,
             where_clause=where_clause if where_clause else "",
             group_by_psn_clause=" ,cl.psn" if group_by_psn else "",
+            having_clause=having_clause if having_clause else "",
         )
 
         return frappe.db.sql(sql, as_dict=1)
