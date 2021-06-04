@@ -154,7 +154,7 @@ class LoanTransaction(Document):
         loan.update_loan_balance(check_for_shortfall=check_for_shortfall)
 
         if self.transaction_type == "Payment":
-            msg = """Dear Customer, \nYou loan account {} has been credited by payment of Rs. {} . Your loan balance is Rs. {}. {}.""".format(self.loan, self.amount, loan.balance, datetime.strptime(self.time, "%Y-%m-%d %H:%M:%S.%f").strftime("%d-%m-%Y %H:%M"))
+            msg = """Dear Customer, \nYou loan account {} has been credited by payment of Rs. {} . Your loan balance is Rs. {}. {}.\n-Spark Loans""".format(self.loan, self.amount, loan.balance, datetime.strptime(self.time, "%Y-%m-%d %H:%M:%S.%f").strftime("%d-%m-%Y %H:%M"))
 
             if msg:
                 receiver_list = list(

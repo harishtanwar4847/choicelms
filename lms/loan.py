@@ -1202,7 +1202,7 @@ def loan_payment(**kwargs):
         frappe.db.commit()
 
         # if not data.get("loan_margin_shortfall_name"):
-        #     msg = """Dear Customer, \nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within some time .""".format(data.get("amount"),loan.name)
+        #     msg = """Dear Customer, \nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within some time .\n-Spark Loans""".format(data.get("amount"),loan.name)
 
         if msg:
             receiver_list = list(
