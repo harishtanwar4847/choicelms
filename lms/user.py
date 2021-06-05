@@ -404,7 +404,7 @@ def approved_securities(**kwargs):
         or_filters = ""
         if data.get("search", None):
             search_key = ["like", str("%" + data["search"] + "%")]
-            or_filters = {"isin": search_key, "security_name": search_key}
+            or_filters = {"security_name": search_key}
 
         if data.get("category", None):
             filters["security_category"] = data.get("category")
@@ -657,7 +657,7 @@ def dashboard(**kwargs):
 		left join `tabLoan Margin Shortfall` as mrgloan
 		on loan.name = mrgloan.loan
 		where loan.customer = '{}'
-		and (mrgloan.status = "Pending" or mrgloan.status = "Sell Triggered")
+		and (mrgloan.status = "Pending" or mrgloan.status = "Sell Triggered" or mrgloan.status = "Request Pending")
 		and shortfall_percentage > 0.0
 		group by loan.name""".format(
                 customer.name
