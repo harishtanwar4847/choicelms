@@ -873,7 +873,7 @@ def dashboard(**kwargs):
                     loan = frappe.get_doc("Loan", loan_application_doc.loan)
 
                     increase_loan_mess = dict(
-                        existing_limit=loan.drawing_power,
+                        existing_limit=loan.sanctioned_limit,
                         existing_collateral_value=loan.total_collateral_value,
                         new_limit=(
                             lms.round_down_amount_to_nearest_thousand(
@@ -1679,4 +1679,4 @@ def holiday_list():
     for i, dates in enumerate(d["date"] for d in holiday_list):
         date_list.append(dates)
 
-    return date_list
+    return list(set(date_list))

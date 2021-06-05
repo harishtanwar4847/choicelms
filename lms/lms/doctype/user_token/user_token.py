@@ -35,7 +35,7 @@ class UserToken(Document):
             #     expiry_in_minutes=expiry_in_minutes,
             # )
             mess = frappe._(
-                "Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for {expiry_in_minutes} minutes."
+                "Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for {expiry_in_minutes} minutes.\n-Spark Loans"
             ).format(
                 token_type=self.token_type.replace(" ", ""),
                 token=self.token,
