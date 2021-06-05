@@ -1366,7 +1366,6 @@ def loan_payment(**kwargs):
 
         #     frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
-
         return utils.respondWithSuccess()
     except utils.APIException as e:
         return e.respond()

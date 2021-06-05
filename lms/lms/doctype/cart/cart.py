@@ -113,12 +113,16 @@ class Cart(Document):
                 frappe.db.commit()
                 msg = "Dear Customer, \nThank you for taking action against the margin shortfall. \nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner.\n-Spark Loans"
                 receiver_list = list(
-                    set([str(self.get_customer().phone), str(self.get_customer().get_kyc().mobile_number)])
+                    set(
+                        [
+                            str(self.get_customer().phone),
+                            str(self.get_customer().get_kyc().mobile_number),
+                        ]
+                    )
                 )
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-
 
         # if self.loan_margin_shortfall:
         #     loan_application.status = "Ready for Approval"

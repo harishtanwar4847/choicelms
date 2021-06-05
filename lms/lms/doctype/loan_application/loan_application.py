@@ -630,34 +630,52 @@ class LoanApplication(Document):
             "requested_total_collateral_value": self.pledged_total_collateral_value_str,
             "drawing_power": self.drawing_power_str,
         }
-        if self.status in [
-            "Pledge Failure",
-            "Pledge accepted by Lender",
-            "Approved",
-            "Esign Done",
-            "Rejected",
-        ] or self.pledge_status in ["Success", "Partial Success", "Failure"]:
+        if (
+            self.status
+            in [
+                "Pledge Failure",
+                "Pledge accepted by Lender",
+                "Approved",
+                "Esign Done",
+                "Rejected",
+            ]
+            or self.pledge_status in ["Success", "Partial Success", "Failure"]
+        ):
             frappe.enqueue_doc(
                 "Notification", "Loan Application", method="send", doc=doc
             )
         msg = ""
         if doc.get("loan_application").get("status") == "Pledge Failure":
-            msg = "Dear Customer, \nSorry! Your Increase loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans" if self.loan and not self.loan_margin_shortfall else "Dear Customer, \nSorry! Your loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans"
+            msg = (
+                "Dear Customer, \nSorry! Your Increase loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans"
+                if self.loan and not self.loan_margin_shortfall
+                else "Dear Customer, \nSorry! Your loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans"
+            )
 
         elif doc.get("loan_application").get("status") == "Pledge accepted by Lender":
-            msg = "Dear Customer, \nCongratulations! Your Increase loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app \n-Spark Loans" if self.loan and not self.loan_margin_shortfall else "Dear Customer, \nCongratulations! Your loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app \n-Spark Loans"
+            msg = (
+                "Dear Customer, \nCongratulations! Your Increase loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app \n-Spark Loans"
+                if self.loan and not self.loan_margin_shortfall
+                else "Dear Customer, \nCongratulations! Your loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app \n-Spark Loans"
+            )
 
         elif doc.get("loan_application").get("status") == "Approved":
             msg = "Dear Customer, \nCongratulations! Your loan account is open. Kindly check the app. You may now withdraw funds as per your convenience. \n-Spark Loans"
 
         elif doc.get("loan_application").get("status") == "Rejected":
-            msg = "Dear Customer, \nSorry! Your Increase loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans" if self.loan and not self.loan_margin_shortfall else "Dear Customer, \nSorry! Your loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans"
-        
+            msg = (
+                "Dear Customer, \nSorry! Your Increase loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans"
+                if self.loan and not self.loan_margin_shortfall
+                else "Dear Customer, \nSorry! Your loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans"
+            )
+
         elif doc.get("loan_application").get("status") == "Esign Done":
             msg = "Dear Customer, \nYour E-sign process is completed. You shall soon receive a confirmation of loan approval. Thank you for your patience. \n-Spark Loans"
 
         if self.pledge_status == "Partial Success":
-            msg = "Dear Customer, \nCongratulations! Your pledge request was successfully considered and was partially accepted for Rs. {} due to technical reasons. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. \n-Spark Loans".format(self.total_collateral_value_str)
+            msg = "Dear Customer, \nCongratulations! Your pledge request was successfully considered and was partially accepted for Rs. {} due to technical reasons. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. \n-Spark Loans".format(
+                self.total_collateral_value_str
+            )
 
         if msg:
             receiver_list = list(
@@ -715,43 +733,43 @@ def check_for_pledge(loan_application_doc):
         # TODO : generate prf number and assign to items in batch
         pledge_request = loan_application_doc.pledge_request(la_items_list)
         # TODO : pledge request hit for all batches
-        try:
-            res = requests.post(
-                pledge_request.get("url"),
-                headers=pledge_request.get("headers"),
-                json=pledge_request.get("payload"),
-            )
-            data = res.json()
+        # try:
+        #     res = requests.post(
+        #         pledge_request.get("url"),
+        #         headers=pledge_request.get("headers"),
+        #         json=pledge_request.get("payload"),
+        #     )
+        #     data = res.json()
 
-            # Pledge LOG
-            log = {
-                "url": pledge_request.get("url"),
-                "headers": pledge_request.get("headers"),
-                "request": pledge_request.get("payload"),
-                "response": data,
-            }
-            import json
-            import os
+        #     # Pledge LOG
+        #     log = {
+        #         "url": pledge_request.get("url"),
+        #         "headers": pledge_request.get("headers"),
+        #         "request": pledge_request.get("payload"),
+        #         "response": data,
+        #     }
+        #     import json
+        #     import os
 
-            pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
-            pledge_log = None
-            if os.path.exists(pledge_log_file):
-                with open(pledge_log_file, "r") as f:
-                    pledge_log = f.read()
-                f.close()
-            pledge_log = json.loads(pledge_log or "[]")
-            pledge_log.append(log)
-            with open(pledge_log_file, "w") as f:
-                f.write(json.dumps(pledge_log))
-            f.close()
-            # Pledge LOG end
+        #     pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
+        #     pledge_log = None
+        #     if os.path.exists(pledge_log_file):
+        #         with open(pledge_log_file, "r") as f:
+        #             pledge_log = f.read()
+        #         f.close()
+        #     pledge_log = json.loads(pledge_log or "[]")
+        #     pledge_log.append(log)
+        #     with open(pledge_log_file, "w") as f:
+        #         f.write(json.dumps(pledge_log))
+        #     f.close()
+        #     # Pledge LOG end
 
-        except requests.RequestException as e:
-            pass
+        # except requests.RequestException as e:
+        #     pass
 
-        # data = loan_application_doc.dummy_pledge_response(
-        #     pledge_request.get("payload").get("ISINDTLS")
-        # )
+        data = loan_application_doc.dummy_pledge_response(
+            pledge_request.get("payload").get("ISINDTLS")
+        )
 
         # TODO : process loan application items in batches
         total_successful_pledge_count = loan_application_doc.process(
