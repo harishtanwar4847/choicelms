@@ -98,7 +98,12 @@ class SellCollateralApplication(Document):
             msg = "Dear Customer, \nSorry! Your sell collateral request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans"
 
             receiver_list = list(
-                set([str(self.get_loan().get_customer().phone), str(self.get_loan().get_customer().get_kyc().mobile_number)])
+                set(
+                    [
+                        str(self.get_loan().get_customer().phone),
+                        str(self.get_loan().get_customer().get_kyc().mobile_number),
+                    ]
+                )
             )
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
@@ -145,13 +150,20 @@ class SellCollateralApplication(Document):
             loan_margin_shortfall_name=self.loan_margin_shortfall,
         )
         if self.owner == frappe.session.user and self.loan_margin_shortfall:
-            msg = "Dear Customer, \nSale of securities initiated by the lending partner for your loan account {} is now completed .The sale proceeds have been credited to your loan account and collateral value updated. Please check the app for details.".format(self.loan)
+            msg = "Dear Customer, \nSale of securities initiated by the lending partner for your loan account {} is now completed .The sale proceeds have been credited to your loan account and collateral value updated. Please check the app for details.".format(
+                self.loan
+            )
         else:
             msg = "Dear Customer, \nCongratulations! Your sell collateral request has been successfully executed and sale proceeds credited to your loan account. Kindly check the app for details \n-Spark Loans"
 
         if msg:
             receiver_list = list(
-                set([str(self.get_loan().get_customer().phone), str(self.get_loan().get_customer().get_kyc().mobile_number)])
+                set(
+                    [
+                        str(self.get_loan().get_customer().phone),
+                        str(self.get_loan().get_customer().get_kyc().mobile_number),
+                    ]
+                )
             )
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
@@ -177,5 +189,5 @@ def get_collateral_details(sell_collateral_application_name):
         where_clause="and cl.isin IN {}".format(
             lms.convert_list_to_tuple_string(isin_list)
         ),
-        having_clause=" HAVING quantity > 0"
+        having_clause=" HAVING quantity > 0",
     )

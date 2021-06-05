@@ -203,5 +203,5 @@ def get_collateral_details(unpledge_application_name):
         where_clause="and cl.isin IN {}".format(
             lms.convert_list_to_tuple_string(isin_list)
         ),
-        having_clause=" HAVING quantity > 0"
+        having_clause=" HAVING quantity > 0",
     )
