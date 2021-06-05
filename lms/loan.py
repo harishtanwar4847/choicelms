@@ -1406,6 +1406,7 @@ def loan_statement(**kwargs):
             data["is_email"] = int(data.get("is_email"))
 
         customer = lms.__customer()
+        user_kyc = lms.__user_kyc()
         try:
             loan = frappe.get_doc("Loan", data.get("loan_name"))
         except frappe.DoesNotExistError:
@@ -1661,8 +1662,10 @@ def loan_statement(**kwargs):
 
                 from frappe.utils.pdf import get_pdf
 
-                pdf = get_pdf(html_with_style)
-                # pdf = get_pdf(html_with_style, {"password": "1234"})
+                # pdf = get_pdf(html_with_style)
+                #password content for password protected pdf 
+                pwd = user_kyc.pan_no[:4] + str(user_kyc.date_of_birth.year)
+                pdf = get_pdf(html_with_style, options={"password": pwd})
                 pdf_file.write(pdf)
                 pdf_file.close()
 
