@@ -1338,12 +1338,12 @@ def loan_payment(**kwargs):
                 loan_margin_shortfall.save(ignore_permissions=True)
                 frappe.db.commit()
                 msg = "Dear Customer, \nThank you for taking action against the margin shortfall. \nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner.\n-Spark Loans"
-                # receiver_list = list(
-                #     set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-                # )
-                # from frappe.core.doctype.sms_settings.sms_settings import send_sms
+                receiver_list = list(
+                    set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+                )
+                from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-                # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         frappe.db.begin()
         loan.create_loan_transaction(
