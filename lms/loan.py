@@ -11,8 +11,10 @@ from frappe import _
 from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms
+from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions import (
+    ApprovedTermsandConditions,
+)
 from lms.user import convert_sec_to_hh_mm_ss, holiday_list
-from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions import ApprovedTermsandConditions
 
 
 @frappe.whitelist()
@@ -746,7 +748,9 @@ def create_topup(**kwargs):
                 "tnc_checkboxes": tnc_checkboxes,
             }
 
-            for tnc in frappe.get_list("Terms and Conditions", filters={"is_active": 1}):
+            for tnc in frappe.get_list(
+                "Terms and Conditions", filters={"is_active": 1}
+            ):
                 top_up_approved_tnc = {
                     "doctype": "Top up Application",
                     "docname": topup_application.name,
