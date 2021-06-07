@@ -1011,24 +1011,24 @@ def dashboard(**kwargs):
             # )
 
             # Increase Loan
-            existing_loan_application = frappe.get_all(
-                "Loan Application",
-                filters={
-                    "loan": loan.name,
-                    "customer": loan.customer,
-                    "status": ["not IN", ["Approved", "Rejected"]],
-                },
-                fields=["count(name) as in_process"],
-            )
+            # existing_loan_application = frappe.get_all(
+            #     "Loan Application",
+            #     filters={
+            #         "loan": loan.name,
+            #         "customer": loan.customer,
+            #         "status": ["not IN", ["Approved", "Rejected"]],
+            #     },
+            #     fields=["count(name) as in_process"],
+            # )
 
-            increase_loan_list.append(
-                {
-                    "loan_name": loan.name,
-                    "increase_loan_available": 1
-                    if existing_loan_application[0]["in_process"] == 0
-                    else None,
-                }
-            )
+            # increase_loan_list.append(
+            #     {
+            #         "loan_name": loan.name,
+            #         "increase_loan_available": 1
+            #         if existing_loan_application[0]["in_process"] == 0
+            #         else None,
+            #     }
+            # )
 
             # check if any pending unpledge application exist
         #     loan_margin_shortfall = loan.get_margin_shortfall()
@@ -1086,7 +1086,7 @@ def dashboard(**kwargs):
 
         # topup_list.sort(key=lambda item: (item["loan"]), reverse=True)
         # sell_collateral_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
-        increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
+        # increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         # unpledge_application_list.sort(
         #     key=lambda item: (item["loan_name"]), reverse=True
         # )
@@ -1129,7 +1129,7 @@ def dashboard(**kwargs):
             "pending_esigns_list": pending_esigns_list,
             # "top_up": topup_list,
             # "sell_collateral_list": sell_collateral_list,
-            "increase_loan_list": increase_loan_list,
+            # "increase_loan_list": increase_loan_list,
             # "unpledge_application_list": unpledge_application_list,
             "show_feedback_popup": show_feedback_popup,
         }
@@ -1695,6 +1695,7 @@ def loan_summary_dashboard(**kwargs):
         sell_collateral_list = []
         unpledge_list = []
         topup_list = []
+        increase_loan_list = []
 
         mg_interest_loan.extend(margin_shortfall_and_interest_loans[0])
         mg_interest_loan.extend([loan for loan in margin_shortfall_and_interest_loans[1] if loan["name"] not in loan_name])
@@ -1784,17 +1785,11 @@ def loan_summary_dashboard(**kwargs):
                     "top_up_amount": 0.0,
                     "existing_topup_application": None
                 })
-            else:
-                sell_collateral_list.append({
-                    "loan_name": loan.name,
-                    # "creation": mindate,
-                    "sell_collateral_available": None,
-                    # "unpledge_application_available": None,
-                    # "unpledge_msg_while_margin_shortfall": None,
-                    # "unpledge": None,
-                    # "top_up_amount": 0.0,
-                    # "existing_topup_application": None
-                })
+            # else:
+            sell_collateral_list.append({
+                "loan_name": loan.name,
+                "sell_collateral_available": sell_collateral_application_exist[0] if sell_collateral_application_exist else None,
+            })
 
 
             loan_margin_shortfall = loan.get_margin_shortfall()
@@ -1899,10 +1894,32 @@ def loan_summary_dashboard(**kwargs):
                     # "sell_collateral_available":None
                 })
 
+            # Increase Loan
+            existing_loan_application = frappe.get_all(
+                "Loan Application",
+                filters={
+                    "loan": loan.name,
+                    "customer": loan.customer,
+                    "status": ["not IN", ["Approved", "Rejected"]],
+                },
+                fields=["count(name) as in_process"],
+            )
+
+            increase_loan_list.append(
+                {
+                    "loan_name": loan.name,
+                    "increase_loan_available": 1
+                    if existing_loan_application[0]["in_process"] == 0
+                    else None,
+                }
+            )
+
+
         sell_collateral_topup_and_unpledge_list.sort(key=lambda item: (item["creation"]), reverse=True)
         sell_collateral_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         unpledge_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         topup_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
+        increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
 
         res = {
             "sell_collateral_topup_and_unpledge_list": sell_collateral_topup_and_unpledge_list,
@@ -1911,7 +1928,8 @@ def loan_summary_dashboard(**kwargs):
             "active_loans": active_loans,
             "sell_collateral_list": sell_collateral_list,
             "unpledge_list": unpledge_list,
-            "topup_list": topup_list
+            "topup_list": topup_list,
+            "increase_loan_list": increase_loan_list
             }
         
         return utils.respondWithSuccess(data=res)
