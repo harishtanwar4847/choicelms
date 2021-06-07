@@ -2,7 +2,7 @@ import base64
 import json
 import re
 import time
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, MINYEAR
 from time import gmtime
 
 import frappe
@@ -650,35 +650,35 @@ def dashboard(**kwargs):
         if not customer:
             return utils.respondNotFound(message=frappe._("Customer not found."))
 
-        all_mgloans = frappe.db.sql(
-            """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str,
-		IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, IFNULL(mrgloan.shortfall, 0.0) as shortfall
-		from `tabLoan` as loan
-		left join `tabLoan Margin Shortfall` as mrgloan
-		on loan.name = mrgloan.loan
-		where loan.customer = '{}'
-		and (mrgloan.status = "Pending" or mrgloan.status = "Sell Triggered" or mrgloan.status = "Request Pending")
-		and shortfall_percentage > 0.0
-		group by loan.name""".format(
-                customer.name
-            ),
-            as_dict=1,
-        )
+        # all_mgloans = frappe.db.sql(
+        #     """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str,
+		# IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, IFNULL(mrgloan.shortfall, 0.0) as shortfall
+		# from `tabLoan` as loan
+		# left join `tabLoan Margin Shortfall` as mrgloan
+		# on loan.name = mrgloan.loan
+		# where loan.customer = '{}'
+		# and (mrgloan.status = "Pending" or mrgloan.status = "Sell Triggered" or mrgloan.status = "Request Pending")
+		# and shortfall_percentage > 0.0
+		# group by loan.name""".format(
+        #         customer.name
+        #     ),
+        #     as_dict=1,
+        # )
 
-        all_interest_loans = frappe.db.sql(
-            """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str,
-		sum(loantx.unpaid_interest) as interest_amount
-		from `tabLoan` as loan
-		left join `tabLoan Transaction` as loantx
-		on loan.name = loantx.loan
-		where loan.customer = '{}'
-		and loantx.transaction_type in ('Interest','Additional Interest','Penal Interest')
-		and loantx.unpaid_interest > 0
-		group by loan.name""".format(
-                customer.name
-            ),
-            as_dict=1,
-        )
+        # all_interest_loans = frappe.db.sql(
+        #     """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str,
+		# sum(loantx.unpaid_interest) as interest_amount
+		# from `tabLoan` as loan
+		# left join `tabLoan Transaction` as loantx
+		# on loan.name = loantx.loan
+		# where loan.customer = '{}'
+		# and loantx.transaction_type in ('Interest','Additional Interest','Penal Interest')
+		# and loantx.unpaid_interest > 0
+		# group by loan.name""".format(
+        #         customer.name
+        #     ),
+        #     as_dict=1,
+        # )
 
         actionable_loans = []
         action_loans = []
@@ -687,18 +687,19 @@ def dashboard(**kwargs):
         total_int_amt_all_loans = 0
         due_date_for_all_interest = []
         interest_loan_list = []
+        margin_shortfall_and_interest_loans = lms.user.margin_shortfall_and_interest_loans(customer)
 
-        for dictionary in all_mgloans:
-            actionable_loans.append(
-                {
-                    "loan_name": dictionary.get("name"),
-                    "drawing_power": dictionary.get("drawing_power"),
-                    "drawing_power_str": dictionary.get("drawing_power_str"),
-                    "balance": dictionary.get("balance"),
-                    "balance_str": dictionary.get("balance_str"),
-                }
-            )
-            action_loans.append(dictionary.get("name"))
+        for dictionary in margin_shortfall_and_interest_loans[0]:
+            # actionable_loans.append(
+            #     {
+            #         "loan_name": dictionary.get("name"),
+            #         "drawing_power": dictionary.get("drawing_power"),
+            #         "drawing_power_str": dictionary.get("drawing_power_str"),
+            #         "balance": dictionary.get("balance"),
+            #         "balance_str": dictionary.get("balance_str"),
+            #     }
+            # )
+            # action_loans.append(dictionary.get("name"))
             loan = frappe.get_doc("Loan", dictionary["name"])
             mg_shortfall_doc = loan.get_margin_shortfall()
             # mg_shortfall_doc = frappe.get_all("Loan Margin Shortfall", filters={"loan": dictionary["name"], "status":["in", ["Pending", "Sell Triggered"]]}, fields=["*"])[0]
@@ -734,6 +735,7 @@ def dashboard(**kwargs):
                         )
                         if mg_shortfall_doc.deadline > frappe.utils.now_datetime()
                         else "00:00:00",
+                        "status": dictionary["status"]
                     }
                 )
 
@@ -747,17 +749,17 @@ def dashboard(**kwargs):
                 "loan_with_margin_shortfall_list": mgloan,
             }
         # Interest ##
-        for dictionary in all_interest_loans:
-            if dictionary.get("name") not in action_loans:
-                actionable_loans.append(
-                    {
-                        "loan_name": dictionary.get("name"),
-                        "drawing_power": dictionary.get("drawing_power"),
-                        "drawing_power_str": dictionary.get("drawing_power_str"),
-                        "balance": dictionary.get("balance"),
-                        "balance_str": dictionary.get("balance_str"),
-                    }
-                )
+        for dictionary in margin_shortfall_and_interest_loans[1]:
+            # if dictionary.get("name") not in action_loans:
+            #     actionable_loans.append(
+            #         {
+            #             "loan_name": dictionary.get("name"),
+            #             "drawing_power": dictionary.get("drawing_power"),
+            #             "drawing_power_str": dictionary.get("drawing_power_str"),
+            #             "balance": dictionary.get("balance"),
+            #             "balance_str": dictionary.get("balance_str"),
+            #         }
+            #     )
 
             if dictionary["interest_amount"]:
                 loan = frappe.get_doc("Loan", dictionary.get("name"))
@@ -821,31 +823,31 @@ def dashboard(**kwargs):
             }
 
         ## Under process loan application ##
-        under_process_la = frappe.get_all(
-            "Loan Application",
-            filters={
-                "customer": customer.name,
-                "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
-                "pledge_status": ["!=", "Failure"],
-            },
-            fields=["name", "status"],
-        )
+        # under_process_la = frappe.get_all(
+        #     "Loan Application",
+        #     filters={
+        #         "customer": customer.name,
+        #         "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
+        #         "pledge_status": ["!=", "Failure"],
+        #     },
+        #     fields=["name", "status"],
+        # )
 
-        ## Active loans ##
-        active_loans = frappe.get_all(
-            "Loan",
-            filters={
-                "customer": customer.name,
-                "name": ["not in", [list["loan_name"] for list in actionable_loans]],
-            },
-            fields=[
-                "name",
-                "drawing_power",
-                "drawing_power_str",
-                "balance",
-                "balance_str",
-            ],
-        )
+        # ## Active loans ##
+        # active_loans = frappe.get_all(
+        #     "Loan",
+        #     filters={
+        #         "customer": customer.name,
+        #         "name": ["not in", [list["loan_name"] for list in actionable_loans]],
+        #     },
+        #     fields=[
+        #         "name",
+        #         "drawing_power",
+        #         "drawing_power_str",
+        #         "balance",
+        #         "balance_str",
+        #     ],
+        # )
 
         # pending esign object for loan application and topup application
         pending_loan_applications = frappe.get_all(
@@ -943,70 +945,70 @@ def dashboard(**kwargs):
 
         for loan in all_loans:
             loan = frappe.get_doc("Loan", loan.name)
-            existing_topup_application = frappe.get_all(
-                "Top up Application",
-                filters={
-                    "loan": loan.name,
-                    "customer": customer.name,
-                    "status": ["not IN", ["Approved", "Rejected"]],
-                },
-                fields=["count(name) as in_process"],
-            )
+            # existing_topup_application = frappe.get_all(
+            #     "Top up Application",
+            #     filters={
+            #         "loan": loan.name,
+            #         "customer": customer.name,
+            #         "status": ["not IN", ["Approved", "Rejected"]],
+            #     },
+            #     fields=["count(name) as in_process"],
+            # )
 
-            if existing_topup_application[0]["in_process"] == 0:
-                topup = loan.max_topup_amount()
-                if topup:
-                    top_up = {
-                        "loan": loan.name,
-                        "top_up_amount": topup,
-                    }
-                    topup_list.append(top_up)
-                else:
-                    top_up = None
+            # if existing_topup_application[0]["in_process"] == 0:
+            #     topup = loan.max_topup_amount()
+            #     if topup:
+            #         top_up = {
+            #             "loan": loan.name,
+            #             "top_up_amount": topup,
+            #         }
+            #         topup_list.append(top_up)
+            #     else:
+            #         top_up = None
 
-            # Sell Collateral
-            sell_collateral_application_exist = frappe.get_all(
-                "Sell Collateral Application",
-                filters={"loan": loan.name, "status": "Pending"},
-                fields=[
-                    "name",
-                    "creation",
-                    "modified",
-                    "modified_by",
-                    "owner",
-                    "docstatus",
-                    "parent",
-                    "parentfield",
-                    "parenttype",
-                    "idx",
-                    "loan",
-                    "total_collateral_value",
-                    "lender",
-                    "customer",
-                    "selling_collateral_value",
-                    "amended_from",
-                    "status",
-                    "workflow_state",
-                    "loan_margin_shortfall",
-                ],
-                order_by="creation desc",
-                page_length=1,
-            )
-            if sell_collateral_application_exist:
-                sell_collateral_application_exist[0]["items"] = frappe.get_all(
-                    "Sell Collateral Application Item",
-                    filters={"parent": sell_collateral_application_exist[0].name},
-                    fields=["*"],
-                )
+            # # Sell Collateral
+            # sell_collateral_application_exist = frappe.get_all(
+            #     "Sell Collateral Application",
+            #     filters={"loan": loan.name, "status": "Pending"},
+            #     fields=[
+            #         "name",
+            #         "creation",
+            #         "modified",
+            #         "modified_by",
+            #         "owner",
+            #         "docstatus",
+            #         "parent",
+            #         "parentfield",
+            #         "parenttype",
+            #         "idx",
+            #         "loan",
+            #         "total_collateral_value",
+            #         "lender",
+            #         "customer",
+            #         "selling_collateral_value",
+            #         "amended_from",
+            #         "status",
+            #         "workflow_state",
+            #         "loan_margin_shortfall",
+            #     ],
+            #     order_by="creation desc",
+            #     page_length=1,
+            # )
+            # if sell_collateral_application_exist:
+            #     sell_collateral_application_exist[0]["items"] = frappe.get_all(
+            #         "Sell Collateral Application Item",
+            #         filters={"parent": sell_collateral_application_exist[0].name},
+            #         fields=["*"],
+            #     )
 
-            sell_collateral_list.append(
-                {
-                    "loan_name": loan.name,
-                    "sell_collateral_available": sell_collateral_application_exist[0]
-                    if len(sell_collateral_application_exist)
-                    else None,
-                }
-            )
+            # sell_collateral_list.append(
+            #     {
+            #         "loan_name": loan.name,
+            #         "sell_collateral_available": sell_collateral_application_exist[0]
+            #         if len(sell_collateral_application_exist)
+            #         else None,
+            #     }
+            # )
 
             # Increase Loan
             existing_loan_application = frappe.get_all(
@@ -1029,65 +1031,65 @@ def dashboard(**kwargs):
             )
 
             # check if any pending unpledge application exist
-            loan_margin_shortfall = loan.get_margin_shortfall()
-            if loan_margin_shortfall.get("__islocal", None):
-                loan_margin_shortfall = None
-            unpledge_application_exist = frappe.get_all(
-                "Unpledge Application",
-                filters={"loan": loan.name, "status": "Pending"},
-                fields=[
-                    "name",
-                    "creation",
-                    "modified",
-                    "modified_by",
-                    "owner",
-                    "docstatus",
-                    "parent",
-                    "parentfield",
-                    "parenttype",
-                    "idx",
-                    "loan",
-                    "total_collateral_value",
-                    "lender",
-                    "customer",
-                    "unpledge_collateral_value",
-                    "amended_from",
-                    "status",
-                    "workflow_state",
-                ],
-                order_by="creation desc",
-                page_length=1,
-            )
-            if unpledge_application_exist:
-                unpledge_application_exist[0]["items"] = frappe.get_all(
-                    "Unpledge Application Item",
-                    filters={"parent": unpledge_application_exist[0].name},
-                    fields=["*"],
-                )
+        #     loan_margin_shortfall = loan.get_margin_shortfall()
+        #     if loan_margin_shortfall.get("__islocal", None):
+        #         loan_margin_shortfall = None
+        #     unpledge_application_exist = frappe.get_all(
+        #         "Unpledge Application",
+        #         filters={"loan": loan.name, "status": "Pending"},
+        #         fields=[
+        #             "name",
+        #             "creation",
+        #             "modified",
+        #             "modified_by",
+        #             "owner",
+        #             "docstatus",
+        #             "parent",
+        #             "parentfield",
+        #             "parenttype",
+        #             "idx",
+        #             "loan",
+        #             "total_collateral_value",
+        #             "lender",
+        #             "customer",
+        #             "unpledge_collateral_value",
+        #             "amended_from",
+        #             "status",
+        #             "workflow_state",
+        #         ],
+        #         order_by="creation desc",
+        #         page_length=1,
+        #     )
+        #     if unpledge_application_exist:
+        #         unpledge_application_exist[0]["items"] = frappe.get_all(
+        #             "Unpledge Application Item",
+        #             filters={"parent": unpledge_application_exist[0].name},
+        #             fields=["*"],
+        #         )
 
-            unpledge_application_list.append(
-                {
-                    "loan_name": loan.name,
-                    "unpledge_application_available": unpledge_application_exist[0]
-                    if unpledge_application_exist
-                    else None,
-                    "unpledge_msg_while_margin_shortfall": """OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
-                        loan.get_customer().first_name
-                    )
-                    if loan_margin_shortfall
-                    else None,
-                    "unpledge": None
-                    if unpledge_application_exist or loan_margin_shortfall
-                    else loan.max_unpledge_amount(),
-                }
-            )
+        #     unpledge_application_list.append(
+        #         {
+        #             "loan_name": loan.name,
+        #             "unpledge_application_available": unpledge_application_exist[0]
+        #             if unpledge_application_exist
+        #             else None,
+        #             "unpledge_msg_while_margin_shortfall": """OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+        #                 loan.get_customer().first_name
+        #             )
+        #             if loan_margin_shortfall
+        #             else None,
+        #             "unpledge": None
+        #             if unpledge_application_exist or loan_margin_shortfall
+        #             else loan.max_unpledge_amount(),
+        #         }
+        #     )
 
-        topup_list.sort(key=lambda item: (item["loan"]), reverse=True)
-        sell_collateral_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
+        # topup_list.sort(key=lambda item: (item["loan"]), reverse=True)
+        # sell_collateral_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
-        unpledge_application_list.sort(
-            key=lambda item: (item["loan_name"]), reverse=True
-        )
+        # unpledge_application_list.sort(
+        #     key=lambda item: (item["loan_name"]), reverse=True
+        # )
 
         number_of_user_login = frappe.get_all(
             "Activity Log",
@@ -1121,14 +1123,14 @@ def dashboard(**kwargs):
             "user_kyc": user_kyc,
             "margin_shortfall_card": deadline_for_all_mg_shortfall,
             "total_interest_all_loans_card": total_interest_all_loans,
-            "under_process_la": under_process_la,
-            "actionable_loans": actionable_loans,
-            "active_loans": active_loans,
+            # "under_process_la": under_process_la,
+            # "actionable_loans": actionable_loans,
+            # "active_loans": active_loans,
             "pending_esigns_list": pending_esigns_list,
-            "top_up": topup_list,
-            "sell_collateral_list": sell_collateral_list,
+            # "top_up": topup_list,
+            # "sell_collateral_list": sell_collateral_list,
             "increase_loan_list": increase_loan_list,
-            "unpledge_application_list": unpledge_application_list,
+            # "unpledge_application_list": unpledge_application_list,
             "show_feedback_popup": show_feedback_popup,
         }
 
@@ -1665,6 +1667,290 @@ def feedback(**kwargs):
             )
     except utils.exceptions.APIException as e:
         return e.respond()
+
+
+@frappe.whitelist()
+def loan_summary_dashboard(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        try:
+            user_kyc = lms.__user_kyc()
+        except UserKYCNotFoundException:
+            user_kyc = None
+
+        customer = lms.__customer()
+        if not customer:
+            return utils.respondNotFound(message=frappe._("Customer not found."))
+
+        mindate = datetime(MINYEAR, 1, 1)
+        all_loans = frappe.get_all("Loan", filters={"customer": customer.name}, fields=["*"])
+
+        margin_shortfall_and_interest_loans = lms.user.margin_shortfall_and_interest_loans(customer)
+        loan_name = [loan["name"] for loan in margin_shortfall_and_interest_loans[0]]
+        
+        actionable_loan = []
+        mg_interest_loan = []
+        sell_collateral_topup_and_unpledge_list = []
+        sell_collateral_list = []
+        unpledge_list = []
+        topup_list = []
+
+        mg_interest_loan.extend(margin_shortfall_and_interest_loans[0])
+        mg_interest_loan.extend([loan for loan in margin_shortfall_and_interest_loans[1] if loan["name"] not in loan_name])
+        for loans in mg_interest_loan:
+            actionable_loan.append({
+                "name": loans["name"],
+                "drawing_power": loans["drawing_power"],
+                "drawing_power_str": loans["drawing_power_str"],
+                "balance": loans["balance"],
+                "balance_str": loans["balance_str"],
+                "creation": loans["creation"],
+            })
+
+
+        under_process_la = frappe.get_all(
+            "Loan Application",
+            filters={
+                "customer": customer.name,
+                "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
+                "pledge_status": ["!=", "Failure"],
+            },
+            fields=["name", "status", "creation"],
+            order_by= "creation desc"
+        )
+
+        ## Active loans ##
+        active_loans = frappe.get_all(
+            "Loan",
+            filters={
+                "customer": customer.name,
+                "name": ["not in", [list["name"] for list in actionable_loan]],
+            },
+            fields=[
+                "name",
+                "drawing_power",
+                "drawing_power_str",
+                "balance",
+                "balance_str",
+                "creation"
+            ],
+            order_by= "creation desc"
+        )
+        for loan in all_loans:
+            loan = frappe.get_doc("Loan", loan.name)
+            # Sell Collateral
+            sell_collateral_application_exist = frappe.get_all(
+                "Sell Collateral Application",
+                filters={"loan": loan.name, "status": "Pending"},
+                fields=[
+                    "name",
+                    "creation",
+                    "modified",
+                    "modified_by",
+                    "owner",
+                    "docstatus",
+                    "parent",
+                    "parentfield",
+                    "parenttype",
+                    "idx",
+                    "loan",
+                    "total_collateral_value",
+                    "lender",
+                    "customer",
+                    "selling_collateral_value",
+                    "amended_from",
+                    "status",
+                    "workflow_state",
+                    "loan_margin_shortfall",
+                ],
+                order_by="creation desc",
+                page_length=1,
+            )
+            if sell_collateral_application_exist:
+                sell_collateral_application_exist[0]["items"] = frappe.get_all(
+                    "Sell Collateral Application Item",
+                    filters={"parent": sell_collateral_application_exist[0].name},
+                    fields=["*"],
+                )
+
+                sell_collateral_topup_and_unpledge_list.append({
+                    "loan_name": loan.name,
+                    "creation": sell_collateral_application_exist[0].creation,
+                    "sell_collateral_available": sell_collateral_application_exist[0],
+                    "unpledge_application_available": None,
+                    "unpledge_msg_while_margin_shortfall": None,
+                    "unpledge": None,
+                    "top_up_amount": 0.0,
+                    "existing_topup_application": None
+                })
+            else:
+                sell_collateral_list.append({
+                    "loan_name": loan.name,
+                    # "creation": mindate,
+                    "sell_collateral_available": None,
+                    # "unpledge_application_available": None,
+                    # "unpledge_msg_while_margin_shortfall": None,
+                    # "unpledge": None,
+                    # "top_up_amount": 0.0,
+                    # "existing_topup_application": None
+                })
+
+
+            loan_margin_shortfall = loan.get_margin_shortfall()
+            if loan_margin_shortfall.get("__islocal", None):
+                loan_margin_shortfall = None
+            unpledge_application_exist = frappe.get_all(
+                "Unpledge Application",
+                filters={"loan": loan.name, "status": "Pending"},
+                fields=[
+                    "name",
+                    "creation",
+                    "modified",
+                    "modified_by",
+                    "owner",
+                    "docstatus",
+                    "parent",
+                    "parentfield",
+                    "parenttype",
+                    "idx",
+                    "loan",
+                    "total_collateral_value",
+                    "lender",
+                    "customer",
+                    "unpledge_collateral_value",
+                    "amended_from",
+                    "status",
+                    "workflow_state",
+                ],
+                order_by="creation desc",
+                page_length=1,
+            )
+            if unpledge_application_exist:
+                unpledge_application_exist[0]["items"] = frappe.get_all(
+                    "Unpledge Application Item",
+                    filters={"parent": unpledge_application_exist[0].name},
+                    fields=["*"],
+                )
+
+                sell_collateral_topup_and_unpledge_list.append(
+                    {
+                        "loan_name": loan.name,
+                        "creation": unpledge_application_exist[0].creation,
+                        "unpledge_application_available": unpledge_application_exist[0],
+                        "unpledge_msg_while_margin_shortfall": None,
+                        "unpledge": None,
+                        "sell_collateral_available":None,
+                        "top_up_amount": 0.0,
+                        "existing_topup_application": None
+                    }
+                )
+            else:
+                unpledge_list.append(
+                {
+                    "loan_name": loan.name,
+                    # "creation": mindate,
+                    "unpledge_application_available": None,
+                    "unpledge_msg_while_margin_shortfall": """OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                        loan.get_customer().first_name
+                    )
+                    if loan_margin_shortfall
+                    else None,
+                    "unpledge": None
+                    if unpledge_application_exist or loan_margin_shortfall
+                    else loan.max_unpledge_amount(),
+                    # "sell_collateral_available": None,
+                    # "top_up_amount": 0.0,
+                    # "existing_topup_application": None
+                }
+            )
+
+            existing_topup_application = frappe.get_all(
+                "Top up Application",
+                filters={
+                    "loan": loan.name,
+                    "status": ["not IN", ["Approved", "Rejected"]],
+                },
+                fields=["*"],
+            )
+
+            if existing_topup_application:
+                sell_collateral_topup_and_unpledge_list.append({
+                    "loan_name": loan.name,
+                    "creation": existing_topup_application[0].creation,
+                    "top_up_amount": 0.0,
+                    "existing_topup_application": existing_topup_application[0],
+                    "unpledge_application_available": None,
+                    "unpledge_msg_while_margin_shortfall": None,
+                    "unpledge": None,
+                    "sell_collateral_available":None
+                    })
+                
+            else:
+                topup = loan.max_topup_amount()
+                topup_list.append({
+                    "loan_name": loan.name,
+                    # "creation": mindate,
+                    "top_up_amount": topup if topup else 0.0,
+                    # "existing_topup_application": None,
+                    # "unpledge_application_available": None,
+                    # "unpledge_msg_while_margin_shortfall": None,
+                    # "unpledge": None,
+                    # "sell_collateral_available":None
+                })
+
+        sell_collateral_topup_and_unpledge_list.sort(key=lambda item: (item["creation"]), reverse=True)
+        sell_collateral_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
+        unpledge_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
+        topup_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
+
+        res = {
+            "sell_collateral_topup_and_unpledge_list": sell_collateral_topup_and_unpledge_list,
+            "actionable_loan": actionable_loan,
+            "under_process_la": under_process_la,
+            "active_loans": active_loans,
+            "sell_collateral_list": sell_collateral_list,
+            "unpledge_list": unpledge_list,
+            "topup_list": topup_list
+            }
+        
+        return utils.respondWithSuccess(data=res)
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+def margin_shortfall_and_interest_loans(customer):
+    all_mgloans = frappe.db.sql(
+    """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str, loan.creation, IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, IFNULL(mrgloan.shortfall, 0.0) as shortfall, mrgloan.status as status
+    from `tabLoan` as loan
+    left join `tabLoan Margin Shortfall` as mrgloan
+    on loan.name = mrgloan.loan
+    where loan.customer = '{}'
+    and (mrgloan.status = "Pending" or mrgloan.status = "Sell Triggered" or mrgloan.status = "Request Pending")
+    and shortfall_percentage > 0.0
+    group by loan.name
+    order by loan.creation desc""".format(
+            customer.name
+        ),
+        as_dict=1,
+    )
+
+    all_interest_loans = frappe.db.sql(
+    """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str, loan.creation, sum(loantx.unpaid_interest) as interest_amount
+    from `tabLoan` as loan
+    left join `tabLoan Transaction` as loantx
+    on loan.name = loantx.loan
+    where loan.customer = '{}'
+    and loantx.transaction_type in ('Interest','Additional Interest','Penal Interest')
+    and loantx.unpaid_interest > 0
+    group by loan.name
+    order by loan.creation desc""".format(
+            customer.name
+        ),
+        as_dict=1,
+    )
+
+    return all_mgloans, all_interest_loans
 
 
 def convert_sec_to_hh_mm_ss(seconds):
