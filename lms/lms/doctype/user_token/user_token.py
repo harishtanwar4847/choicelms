@@ -37,11 +37,12 @@ class UserToken(Document):
             mess = frappe._(
                 "Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for {expiry_in_minutes} minutes.\n-Spark Loans"
             ).format(
-                token_type=self.token_type.replace(" ",""),
+                token_type=self.token_type.replace(" ", ""),
                 token=self.token,
                 expiry_in_minutes=expiry_in_minutes,
             )
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
             frappe.enqueue(method=send_sms, receiver_list=[self.entity], msg=mess)
         elif self.token_type == "Email Verification Token":
             doc = frappe.get_doc("User", self.entity).as_dict()
@@ -67,7 +68,11 @@ class UserToken(Document):
                 doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
             else:
                 doc = frappe.get_doc("User", self.entity).as_dict()
-            doc["otp_info"] = {"token_type": self.token_type, "token": self.token, "expiry_in_minutes": expiry_in_minutes}
+            doc["otp_info"] = {
+                "token_type": self.token_type,
+                "token": self.token,
+                "expiry_in_minutes": expiry_in_minutes,
+            }
 
             mess = _(
                 """<html><body><h3>Dear Customer,<h3><br>
@@ -76,9 +81,9 @@ class UserToken(Document):
             -Spark Loans</body></html>"""
             ).format(
                 doc.investor_name if customer.choice_kyc else doc.full_name,
-                doc.get("otp_info").get("token_type").replace(" ",""),
+                doc.get("otp_info").get("token_type").replace(" ", ""),
                 doc.get("otp_info").get("token"),
-                doc.get("otp_info").get("token_type").replace(" ",""),
+                doc.get("otp_info").get("token_type").replace(" ", ""),
                 doc.get("otp_info").get("expiry_in_minutes"),
             )
 
@@ -92,15 +97,14 @@ class UserToken(Document):
             msg = frappe._(
                 """Dear Customer,
                 Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for {expiry_in_minutes} minutes.
-                -Spark Loans""").format(
-                token_type=self.token_type.replace(" ",""),
+                -Spark Loans"""
+            ).format(
+                token_type=self.token_type.replace(" ", ""),
                 token=self.token,
-                expiry_in_minutes=expiry_in_minutes
+                expiry_in_minutes=expiry_in_minutes,
             )
             if msg:
-                receiver_list = list(
-                    set([str(customer.phone), str(doc.mobile_number)])
-                )
+                receiver_list = list(set([str(customer.phone), str(doc.mobile_number)]))
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)

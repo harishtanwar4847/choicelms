@@ -404,7 +404,7 @@ def approved_securities(**kwargs):
         or_filters = ""
         if data.get("search", None):
             search_key = ["like", str("%" + data["search"] + "%")]
-            or_filters = {"isin": search_key, "security_name": search_key}
+            or_filters = {"security_name": search_key}
 
         if data.get("category", None):
             filters["security_category"] = data.get("category")
@@ -657,7 +657,7 @@ def dashboard(**kwargs):
 		left join `tabLoan Margin Shortfall` as mrgloan
 		on loan.name = mrgloan.loan
 		where loan.customer = '{}'
-		and (mrgloan.status = "Pending" or mrgloan.status = "Sell Triggered")
+		and (mrgloan.status = "Pending" or mrgloan.status = "Sell Triggered" or mrgloan.status = "Request Pending")
 		and shortfall_percentage > 0.0
 		group by loan.name""".format(
                 customer.name
@@ -968,7 +968,27 @@ def dashboard(**kwargs):
             sell_collateral_application_exist = frappe.get_all(
                 "Sell Collateral Application",
                 filters={"loan": loan.name, "status": "Pending"},
-                fields=["name", "creation", "modified", "modified_by", "owner", "docstatus", "parent", "parentfield", "parenttype", "idx", "loan", "total_collateral_value", "lender", "customer", "selling_collateral_value", "amended_from", "status", "workflow_state", "loan_margin_shortfall"],
+                fields=[
+                    "name",
+                    "creation",
+                    "modified",
+                    "modified_by",
+                    "owner",
+                    "docstatus",
+                    "parent",
+                    "parentfield",
+                    "parenttype",
+                    "idx",
+                    "loan",
+                    "total_collateral_value",
+                    "lender",
+                    "customer",
+                    "selling_collateral_value",
+                    "amended_from",
+                    "status",
+                    "workflow_state",
+                    "loan_margin_shortfall",
+                ],
                 order_by="creation desc",
                 page_length=1,
             )
@@ -1015,7 +1035,26 @@ def dashboard(**kwargs):
             unpledge_application_exist = frappe.get_all(
                 "Unpledge Application",
                 filters={"loan": loan.name, "status": "Pending"},
-                fields=["name", "creation", "modified", "modified_by", "owner", "docstatus", "parent", "parentfield", "parenttype", "idx", "loan", "total_collateral_value", "lender", "customer", "unpledge_collateral_value", "amended_from", "status", "workflow_state"],
+                fields=[
+                    "name",
+                    "creation",
+                    "modified",
+                    "modified_by",
+                    "owner",
+                    "docstatus",
+                    "parent",
+                    "parentfield",
+                    "parenttype",
+                    "idx",
+                    "loan",
+                    "total_collateral_value",
+                    "lender",
+                    "customer",
+                    "unpledge_collateral_value",
+                    "amended_from",
+                    "status",
+                    "workflow_state",
+                ],
                 order_by="creation desc",
                 page_length=1,
             )

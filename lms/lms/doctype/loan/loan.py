@@ -219,7 +219,9 @@ class Loan(Document):
             else self.sanctioned_limit
         )
 
-    def get_collateral_list(self, group_by_psn=False, where_clause=""):
+    def get_collateral_list(
+        self, group_by_psn=False, where_clause="", having_clause=""
+    ):
         # sauce: https://stackoverflow.com/a/23827026/9403680
         sql = """
 			SELECT
@@ -235,11 +237,12 @@ class Loan(Document):
 			LEFT JOIN `tabAllowed Security` als
 				ON cl.isin = als.isin AND cl.lender = als.lender
 			WHERE cl.loan = '{loan}' {where_clause} AND cl.lender_approval_status = 'Approved'
-			GROUP BY cl.isin{group_by_psn_clause};
+			GROUP BY cl.isin{group_by_psn_clause}{having_clause};
 		""".format(
             loan=self.name,
             where_clause=where_clause if where_clause else "",
             group_by_psn_clause=" ,cl.psn" if group_by_psn else "",
+            having_clause=having_clause if having_clause else "",
         )
 
         return frappe.db.sql(sql, as_dict=1)
@@ -673,15 +676,24 @@ class Loan(Document):
                         "Notification", "Interest Due", method="send", doc=doc
                     )
 
-                    msg = """Dear Customer, \nRebate of Rs. {} was reversed in your loan account {}. This will appear as 'Addl Interest' in your loan account. \nPlease pay the interest due before the 15th of this month in order to avoid the penal interest/charges.Kindly check the app for details \n-Spark Loans""".format(round(additional_interest_transaction.unpaid_interest, 2),self.name)
+                    msg = """Dear Customer, \nRebate of Rs. {} was reversed in your loan account {}. This will appear as 'Addl Interest' in your loan account. \nPlease pay the interest due before the 15th of this month in order to avoid the penal interest/charges.Kindly check the app for details \n-Spark Loans""".format(
+                        round(additional_interest_transaction.unpaid_interest, 2),
+                        self.name,
+                    )
 
                     if msg:
                         receiver_list = list(
-                            set([str(self.get_customer().phone), str(doc.mobile_number)])
+                            set(
+                                [str(self.get_customer().phone), str(doc.mobile_number)]
+                            )
                         )
-                        from frappe.core.doctype.sms_settings.sms_settings import send_sms
+                        from frappe.core.doctype.sms_settings.sms_settings import (
+                            send_sms,
+                        )
 
-                        frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                        frappe.enqueue(
+                            method=send_sms, receiver_list=receiver_list, msg=msg
+                        )
 
                     return additional_interest_transaction.as_dict()
 
@@ -748,7 +760,9 @@ class Loan(Document):
 
             frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
 
-            msg = """Dear Customer, \nAn interest of Rs. {} is due on your loan account {}. \nPlease pay the interest due before the 7th of this month in order to continue to enjoy the rebate provided on the interest rate. Kindly check the app for details. \n-Spark Loans""".format(round(loan_transaction.unpaid_interest,2), self.name)
+            msg = """Dear Customer, \nAn interest of Rs. {} is due on your loan account {}. \nPlease pay the interest due before the 7th of this month in order to continue to enjoy the rebate provided on the interest rate. Kindly check the app for details. \n-Spark Loans""".format(
+                round(loan_transaction.unpaid_interest, 2), self.name
+            )
             if msg:
                 receiver_list = list(
                     set([str(self.get_customer().phone), str(doc.mobile_number)])
@@ -843,15 +857,27 @@ class Loan(Document):
                         frappe.enqueue_doc(
                             "Notification", "Interest Due", method="send", doc=doc
                         )
-                        msg = """Dear Customer, \nPenal interest of Rs.{} has been debited to your loan account {} . \nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details \n-Spark Loans""".format(round(penal_interest_transaction.unpaid_interest,2), self.name)
+                        msg = """Dear Customer, \nPenal interest of Rs.{} has been debited to your loan account {} . \nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details \n-Spark Loans""".format(
+                            round(penal_interest_transaction.unpaid_interest, 2),
+                            self.name,
+                        )
 
                         if msg:
                             receiver_list = list(
-                                set([str(self.get_customer().phone), str(doc.mobile_number)])
+                                set(
+                                    [
+                                        str(self.get_customer().phone),
+                                        str(doc.mobile_number),
+                                    ]
+                                )
                             )
-                            from frappe.core.doctype.sms_settings.sms_settings import send_sms
+                            from frappe.core.doctype.sms_settings.sms_settings import (
+                                send_sms,
+                            )
 
-                            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                            frappe.enqueue(
+                                method=send_sms, receiver_list=receiver_list, msg=msg
+                            )
 
                         return penal_interest_transaction.as_dict()
 

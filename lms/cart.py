@@ -469,7 +469,7 @@ def get_tnc(**kwargs):
         data = utils.validator.validate(
             kwargs,
             # {"cart_name": "", "topup_application_name": ""},
-            {"cart_name": ""}
+            {"cart_name": ""},
         )
 
         reg = lms.regex_special_characters(
