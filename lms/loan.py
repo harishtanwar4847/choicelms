@@ -608,16 +608,16 @@ def create_topup(**kwargs):
             frappe.db.commit()
 
             for tnc in frappe.get_list("Terms and Conditions", filters={"is_active": 1}):
-                if data.get("loan_name"):
-                    top_up_approved_tnc = {
-                        "doctype": "Loan",
-                        "docname": data.get("loan_name"),
-                        "mobile": user.username,
-                        "tnc": tnc.name,
-                        "time": frappe.utils.now_datetime(),
-                    }
-                    ApprovedTermsandConditions.create_entry(**top_up_approved_tnc)
-                    frappe.db.commit()
+                # if data.get("loan_name"):
+                top_up_approved_tnc = {
+                    "doctype": "Top up Application",
+                    "docname": topup_application.name,
+                    "mobile": user.username,
+                    "tnc": tnc.name,
+                    "time": frappe.utils.now_datetime(),
+                }
+                ApprovedTermsandConditions.create_entry(**top_up_approved_tnc)
+                frappe.db.commit()
 
             # loan = frappe.get_doc("Loan", topup_application.loan)
             # lender = frappe.get_doc("Lender", loan.lender)

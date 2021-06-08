@@ -2128,7 +2128,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-03-05 10:50:34.270155",
+  "modified": "2021-06-08 16:52:50.121693",
   "name": "2a23f121e5",
   "parameters": [
    {
@@ -2148,7 +2148,7 @@
     "allowed_values": null,
     "default_value": null,
     "description": null,
-    "field": "topup_application_name",
+    "field": "loan_name",
     "group": null,
     "optional": 0,
     "parent": "2a23f121e5",
@@ -2156,11 +2156,24 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "topup_amount",
+    "group": null,
+    "optional": 0,
+    "parent": "2a23f121e5",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Decimal"
    }
   ],
   "parameters_example": [
    {
-    "example": "{\"cart_name\" : \"C000007\",\"topup_application_name\": \"TOPUP000001\"}",
+    "example": "{\"cart_name\" : \"C000007\",\"loan_name\": \"TOPUP000001\", \"topup_amount\": 1.0}",
     "parent": "2a23f121e5",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
