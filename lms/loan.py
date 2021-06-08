@@ -638,7 +638,7 @@ def create_topup(**kwargs):
             )
             tnc_ul.append(
                 "<li><strong> Top up Amount </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
-                    topup_application.top_up_amount + loan.drawing_power
+                    topup_application.top_up_amount + loan.sanctioned_limit
                 )
                 + "</li>"
             )

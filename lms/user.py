@@ -863,10 +863,10 @@ def dashboard(**kwargs):
                     "Loan Application", loan_application.name
                 )
 
-                mess = "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly the final Drawing power is Rs. {drawing_power}. Please e-sign the loan agreement to avail the loan now.".format(
+                mess = "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly the final Sanctioned Limit is Rs. {sanctioned_limit}. Please e-sign the loan agreement to avail the loan now.".format(
                     current_total_collateral_value=loan_application_doc.total_collateral_value_str,
                     requested_total_collateral_value=loan_application_doc.pledged_total_collateral_value_str,
-                    drawing_power=loan_application_doc.drawing_power_str,
+                    sanctioned_limit=loan_application_doc.sanctioned_limit_str,
                 )
                 if (
                     loan_application_doc.loan
