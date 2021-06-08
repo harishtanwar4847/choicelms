@@ -76,15 +76,13 @@ class UserToken(Document):
 
             mess = _(
                 """<html><body><h3>Dear Customer,<h3><br>
-            Your {} for Spark Loans is {}. Do not share your {} with anyone.<br>
-            Your OTP is valid for {} minutes<br>
+            Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone.<br>
+            Your OTP is valid for {expiry_in_minutes} minutes<br>
             -Spark Loans</body></html>"""
             ).format(
-                doc.investor_name if customer.choice_kyc else doc.full_name,
-                doc.get("otp_info").get("token_type").replace(" ", ""),
-                doc.get("otp_info").get("token"),
-                doc.get("otp_info").get("token_type").replace(" ", ""),
-                doc.get("otp_info").get("expiry_in_minutes"),
+                token_type=doc.get("otp_info").get("token_type").replace(" ", ""),
+                token=doc.get("otp_info").get("token"),
+                expiry_in_minutes=doc.get("otp_info").get("expiry_in_minutes"),
             )
 
             frappe.enqueue(
