@@ -863,10 +863,10 @@ def dashboard(**kwargs):
                     "Loan Application", loan_application.name
                 )
 
-                mess = "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly the final Drawing power is Rs. {drawing_power}. Please e-sign the loan agreement to avail the loan now.".format(
+                mess = "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly the final Sanctioned Limit is Rs. {sanctioned_limit}. Please e-sign the loan agreement to avail the loan now.".format(
                     current_total_collateral_value=loan_application_doc.total_collateral_value_str,
                     requested_total_collateral_value=loan_application_doc.pledged_total_collateral_value_str,
-                    drawing_power=loan_application_doc.drawing_power_str,
+                    sanctioned_limit=loan_application_doc.sanctioned_limit_str,
                 )
                 if (
                     loan_application_doc.loan
@@ -919,14 +919,14 @@ def dashboard(**kwargs):
                     topup_application_doc.top_up_amount
                 )
 
-                topup_tnc = frappe.get_all(
-                    "Approved Terms and Conditions",
-                    filters={"application_name": topup_application.name},
-                )
+                # topup_tnc = frappe.get_all(
+                #     "Approved Terms and Conditions",
+                #     filters={"application_name": topup_application.name},
+                # )
                 topup_pending_esigns.append(
                     {
                         "topup_application_doc": topup_application_doc,
-                        "is_topup_tnc_done": 1 if topup_tnc else 0,
+                        # "is_topup_tnc_done": 1 if topup_tnc else 0,
                     }
                 )
 
@@ -1883,16 +1883,11 @@ def loan_summary_dashboard(**kwargs):
                 
             else:
                 topup = loan.max_topup_amount()
-                topup_list.append({
-                    "loan_name": loan.name,
-                    # "creation": mindate,
-                    "top_up_amount": topup if topup else 0.0,
-                    # "existing_topup_application": None,
-                    # "unpledge_application_available": None,
-                    # "unpledge_msg_while_margin_shortfall": None,
-                    # "unpledge": None,
-                    # "sell_collateral_available":None
-                })
+                if topup:
+                    topup_list.append({
+                        "loan_name": loan.name,
+                        "top_up_amount": topup
+                    })
 
             # Increase Loan
             existing_loan_application = frappe.get_all(

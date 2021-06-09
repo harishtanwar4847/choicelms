@@ -12,6 +12,7 @@ from frappe.model.document import Document
 import lms
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.loan_transaction.loan_transaction import LoanTransaction
+from num2words import num2words
 
 
 class Loan(Document):
@@ -999,6 +1000,64 @@ class Loan(Document):
     #     for i in self.items:
     #         if i.pledged_quantity == 0:
     #             self.items.remove(i)
+
+    def create_tnc_file(self, topup_amount=None):
+        lender = self.get_lender()
+        customer = self.get_customer()
+        user_kyc = customer.get_kyc()
+        # loan = self.get_loan()
+
+        doc = {
+            "esign_date": "__________",
+            "loan_application_number": self.name,
+            "borrower_name": user_kyc.investor_name,
+            "borrower_address": user_kyc.address,
+            # "sanctioned_amount": topup_amount,
+            # "sanctioned_amount_in_words": num2words(
+            #     topup_amount, lang="en_IN"
+            # ).title(),
+            "sanctioned_amount": (topup_amount + self.sanctioned_limit),
+            "sanctioned_amount_in_words": num2words(
+                (topup_amount + self.sanctioned_limit), lang="en_IN"
+            ).title(),
+            "old_sanctioned_amount": self.sanctioned_limit,
+            "old_sanctioned_amount_in_words": num2words(
+                self.sanctioned_limit, lang="en_IN"
+            ).title(),
+            "rate_of_interest": lender.rate_of_interest,
+            "default_interest": lender.default_interest,
+            "account_renewal_charges": lender.account_renewal_charges,
+            "documentation_charges": lender.documentation_charges,
+            # "stamp_duty_charges": (lender.stamp_duty / 100)
+            # * self.sanctioned_limit,  # CR loan agreement changes
+            "processing_fee": lender.lender_processing_fees,
+            "transaction_charges_per_request": lender.transaction_charges_per_request,
+            "security_selling_share": lender.security_selling_share,
+            "cic_charges": lender.cic_charges,
+            "total_pages": lender.total_pages,
+        }
+
+        agreement_template = lender.get_loan_enhancement_agreement_template()
+
+        agreement = frappe.render_template(
+            agreement_template.get_content(), {"doc": doc}
+        )
+
+        from frappe.utils.pdf import get_pdf
+
+        agreement_pdf = get_pdf(agreement)
+
+        tnc_dir_path = frappe.utils.get_files_path("tnc")
+        import os
+
+        if not os.path.exists(tnc_dir_path):
+            os.mkdir(tnc_dir_path)
+        tnc_file = "tnc/{}.pdf".format(self.name)
+        tnc_file_path = frappe.utils.get_files_path(tnc_file)
+
+        with open(tnc_file_path, "wb") as f:
+            f.write(agreement_pdf)
+        f.close()
 
 
 def check_loans_for_shortfall(loans):

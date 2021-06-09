@@ -47,63 +47,63 @@ class TopupApplication(Document):
     def get_lender(self):
         return frappe.get_doc("Lender", self.get_loan().lender)
 
-    def create_tnc_file(self):
-        lender = self.get_lender()
-        customer = self.get_customer()
-        user_kyc = customer.get_kyc()
-        loan = self.get_loan()
+    # def create_tnc_file(self):
+    #     lender = self.get_lender()
+    #     customer = self.get_customer()
+    #     user_kyc = customer.get_kyc()
+    #     loan = self.get_loan()
 
-        doc = {
-            "esign_date": "__________",
-            "loan_application_number": self.name,
-            "borrower_name": user_kyc.investor_name,
-            "borrower_address": user_kyc.address,
-            # "sanctioned_amount": self.top_up_amount,
-            # "sanctioned_amount_in_words": num2words(
-            #     self.top_up_amount, lang="en_IN"
-            # ).title(),
-            "sanctioned_amount": (self.top_up_amount + loan.drawing_power),
-            "sanctioned_amount_in_words": num2words(
-                (self.top_up_amount + loan.drawing_power), lang="en_IN"
-            ).title(),
-            "old_sanctioned_amount": loan.sanctioned_limit,
-            "old_sanctioned_amount_in_words": num2words(
-                loan.sanctioned_limit, lang="en_IN"
-            ).title(),
-            "rate_of_interest": lender.rate_of_interest,
-            "default_interest": lender.default_interest,
-            "account_renewal_charges": lender.account_renewal_charges,
-            "documentation_charges": lender.documentation_charges,
-            # "stamp_duty_charges": (lender.stamp_duty / 100)
-            # * self.drawing_power,  # CR loan agreement changes
-            "processing_fee": lender.lender_processing_fees,
-            "transaction_charges_per_request": lender.transaction_charges_per_request,
-            "security_selling_share": lender.security_selling_share,
-            "cic_charges": lender.cic_charges,
-            "total_pages": lender.total_pages,
-        }
+    #     doc = {
+    #         "esign_date": "__________",
+    #         "loan_application_number": self.loan,
+    #         "borrower_name": user_kyc.investor_name,
+    #         "borrower_address": user_kyc.address,
+    #         # "sanctioned_amount": self.top_up_amount,
+    #         # "sanctioned_amount_in_words": num2words(
+    #         #     self.top_up_amount, lang="en_IN"
+    #         # ).title(),
+    #         "sanctioned_amount": (self.top_up_amount + loan.sanctioned_limit),
+    #         "sanctioned_amount_in_words": num2words(
+    #             (self.top_up_amount + loan.sanctioned_limit), lang="en_IN"
+    #         ).title(),
+    #         "old_sanctioned_amount": loan.sanctioned_limit,
+    #         "old_sanctioned_amount_in_words": num2words(
+    #             loan.sanctioned_limit, lang="en_IN"
+    #         ).title(),
+    #         "rate_of_interest": lender.rate_of_interest,
+    #         "default_interest": lender.default_interest,
+    #         "account_renewal_charges": lender.account_renewal_charges,
+    #         "documentation_charges": lender.documentation_charges,
+    #         # "stamp_duty_charges": (lender.stamp_duty / 100)
+    #         # * self.sanctioned_limit,  # CR loan agreement changes
+    #         "processing_fee": lender.lender_processing_fees,
+    #         "transaction_charges_per_request": lender.transaction_charges_per_request,
+    #         "security_selling_share": lender.security_selling_share,
+    #         "cic_charges": lender.cic_charges,
+    #         "total_pages": lender.total_pages,
+    #     }
 
-        agreement_template = lender.get_loan_enhancement_agreement_template()
+    #     agreement_template = lender.get_loan_enhancement_agreement_template()
 
-        agreement = frappe.render_template(
-            agreement_template.get_content(), {"doc": doc}
-        )
+    #     agreement = frappe.render_template(
+    #         agreement_template.get_content(), {"doc": doc}
+    #     )
 
-        from frappe.utils.pdf import get_pdf
+    #     from frappe.utils.pdf import get_pdf
 
-        agreement_pdf = get_pdf(agreement)
+    #     agreement_pdf = get_pdf(agreement)
 
-        tnc_dir_path = frappe.utils.get_files_path("tnc")
-        import os
+    #     tnc_dir_path = frappe.utils.get_files_path("tnc")
+    #     import os
 
-        if not os.path.exists(tnc_dir_path):
-            os.mkdir(tnc_dir_path)
-        tnc_file = "tnc/{}.pdf".format(self.name)
-        tnc_file_path = frappe.utils.get_files_path(tnc_file)
+    #     if not os.path.exists(tnc_dir_path):
+    #         os.mkdir(tnc_dir_path)
+    #     tnc_file = "tnc/{}.pdf".format(self.loan)
+    #     tnc_file_path = frappe.utils.get_files_path(tnc_file)
 
-        with open(tnc_file_path, "wb") as f:
-            f.write(agreement_pdf)
-        f.close()
+    #     with open(tnc_file_path, "wb") as f:
+    #         f.write(agreement_pdf)
+    #     f.close()
 
     def esign_request(self):
         customer = self.get_customer()
@@ -121,9 +121,9 @@ class TopupApplication(Document):
             # "sanctioned_amount_in_words": num2words(
             #     self.top_up_amount, lang="en_IN"
             # ).title(),
-            "sanctioned_amount": (self.top_up_amount + loan.drawing_power),
+            "sanctioned_amount": (self.top_up_amount + loan.sanctioned_limit),
             "sanctioned_amount_in_words": num2words(
-                (self.top_up_amount + loan.drawing_power), lang="en_IN"
+                (self.top_up_amount + loan.sanctioned_limit), lang="en_IN"
             ).title(),
             "old_sanctioned_amount": loan.sanctioned_limit,
             "old_sanctioned_amount_in_words": num2words(
@@ -134,7 +134,7 @@ class TopupApplication(Document):
             "account_renewal_charges": lender.account_renewal_charges,
             "documentation_charges": lender.documentation_charges,
             # "stamp_duty_charges": (lender.stamp_duty / 100)
-            # * self.drawing_power,  # CR loan agreement changes
+            # * self.sanctioned_limit,  # CR loan agreement changes
             "processing_fee": lender.lender_processing_fees,
             "transaction_charges_per_request": lender.transaction_charges_per_request,
             "security_selling_share": lender.security_selling_share,
