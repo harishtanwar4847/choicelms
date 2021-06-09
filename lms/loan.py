@@ -944,7 +944,7 @@ def loan_details(**kwargs):
                         ],
                     }
 
-            elif loan_margin_shortfall.status in ["Pending", "Sell Triggered"]:
+            if loan_margin_shortfall.status in ["Pending", "Request Pending", "Sell Triggered"]:
                 mg_shortfall_action = frappe.get_doc(
                     "Margin Shortfall Action",
                     loan_margin_shortfall.margin_shortfall_action,
