@@ -465,7 +465,7 @@ def request_pledge_otp():
 @frappe.whitelist()
 def get_tnc(**kwargs):
     try:
-        utils.validator.validate_http_method("GET")
+        utils.validator.validate_http_method("POST")
 
         data = utils.validator.validate(
             kwargs,
