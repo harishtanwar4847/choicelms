@@ -538,7 +538,9 @@ class Loan(Document):
                 pass
 
             if input_date:
-                input_date = datetime.strptime(input_date, "%Y-%m-%d") - timedelta(days=1)
+                input_date = datetime.strptime(input_date, "%Y-%m-%d") - timedelta(
+                    days=1
+                )
             else:
                 input_date = frappe.utils.now_datetime() - timedelta(days=1)
 
@@ -629,8 +631,10 @@ class Loan(Document):
                             "lender": self.lender,
                             "transaction_type": "Additional Interest",
                             "record_type": "DR",
-                            "amount": round(rebate_interest_sum[0]["amount"],2),
-                            "unpaid_interest": round(rebate_interest_sum[0]["amount"],2),
+                            "amount": round(rebate_interest_sum[0]["amount"], 2),
+                            "unpaid_interest": round(
+                                rebate_interest_sum[0]["amount"], 2
+                            ),
                             "time": transaction_time.replace(
                                 hour=23, minute=59, second=59, microsecond=999999
                             ),
@@ -737,8 +741,8 @@ class Loan(Document):
                     "doctype": "Loan Transaction",
                     "loan": self.name,
                     "lender": self.lender,
-                    "amount": round(virtual_interest_sum[0]["amount"],2),
-                    "unpaid_interest": round(virtual_interest_sum[0]["amount"],2),
+                    "amount": round(virtual_interest_sum[0]["amount"], 2),
+                    "unpaid_interest": round(virtual_interest_sum[0]["amount"], 2),
                     "transaction_type": "Interest",
                     "record_type": "DR",
                     "time": job_date,
@@ -792,8 +796,9 @@ class Loan(Document):
         prev_month = last_day_of_prev_month.month
         prev_month_year = last_day_of_prev_month.year
 
-
-        last_day_of_current_month = (current_date.replace(day=1) + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+        last_day_of_current_month = (
+            current_date.replace(day=1) + timedelta(days=32)
+        ).replace(day=1) - timedelta(days=1)
         num_of_days_in_current_month = last_day_of_current_month.day
 
         # check if any not paid booked interest exist
@@ -803,7 +808,6 @@ class Loan(Document):
             ),
             as_dict=1,
         )
-
 
         if booked_interest:
             # get default threshold
@@ -832,8 +836,8 @@ class Loan(Document):
                                 "lender": self.lender,
                                 "transaction_type": "Penal Interest",
                                 "record_type": "DR",
-                                "amount": round(amount,2),
-                                "unpaid_interest": round(amount,2),
+                                "amount": round(amount, 2),
+                                "unpaid_interest": round(amount, 2),
                                 "time": current_date,
                             }
                         )
@@ -1202,11 +1206,14 @@ def book_all_loans_virtual_interest_for_month():
             queue="long",
         )
 
+
 def job_dates_for_penal(loan_name):
     current_date_ = frappe.utils.now_datetime()
     current_date_ = current_date_.replace(day=1)
     loan = frappe.get_doc("Loan", loan_name)
-    last_date = (current_date_.replace(day=1) + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+    last_date = (current_date_.replace(day=1) + timedelta(days=32)).replace(
+        day=1
+    ) - timedelta(days=1)
     while current_date_ <= last_date:
         loan.add_penal_interest(current_date_.strftime("%Y-%m-%d"))
         current_date_ += timedelta(days=1)
