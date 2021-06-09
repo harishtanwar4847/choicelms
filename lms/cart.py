@@ -5,6 +5,7 @@ from itertools import groupby
 import frappe
 import requests
 import utils
+from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
 import lms
@@ -12,7 +13,6 @@ from lms.exceptions import PledgeSetupFailureException
 from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions import (
     ApprovedTermsandConditions,
 )
-from frappe import _
 
 
 def validate_securities_for_cart(securities, lender):
@@ -469,12 +469,17 @@ def get_tnc(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {"cart_name": "", "loan_name": "", "topup_amount": [lambda x: type(x) == float]},
+            {
+                "cart_name": "",
+                "loan_name": "",
+                "topup_amount": [lambda x: type(x) == float],
+            },
             # {"cart_name": ""},
         )
 
         reg = lms.regex_special_characters(
-            search=data.get("cart_name") + data.get("loan_name")
+            search=data.get("cart_name")
+            + data.get("loan_name")
             # search=data.get("cart_name")
         )
         if reg:
@@ -495,7 +500,7 @@ def get_tnc(**kwargs):
             )
 
         elif not data.get("cart_name") and not data.get("loan_name"):
-        # if not data.get("cart_name"):
+            # if not data.get("cart_name"):
             return utils.respondForbidden(
                 message=frappe._(
                     "Cart and Loan not found. Please use atleast one."
@@ -526,13 +531,9 @@ def get_tnc(**kwargs):
                     status=417,
                     message=frappe._("Please enter topup amount."),
                 )
-            loan = frappe.get_doc(
-                "Loan", data.get("loan_name")
-            )
+            loan = frappe.get_doc("Loan", data.get("loan_name"))
             if not loan:
-                return utils.respondNotFound(
-                    message=frappe._("Loan not found.")
-                )
+                return utils.respondNotFound(message=frappe._("Loan not found."))
             if loan.customer != customer.name:
                 return utils.respondForbidden(
                     message=frappe._("Please use your own Loan.")
@@ -540,7 +541,7 @@ def get_tnc(**kwargs):
             loan = frappe.get_doc("Loan", data.get("loan_name"))
             lender = frappe.get_doc("Lender", loan.lender)
 
-            #topup validation
+            # topup validation
             topup_amt = loan.max_topup_amount()
 
             existing_topup_application = frappe.get_all(
@@ -558,7 +559,9 @@ def get_tnc(**kwargs):
                     message=_("Top up for {} is already in process.".format(loan.name))
                 )
             elif not topup_amt:
-                return utils.respondWithFailure(status=417, message="Top up not available")
+                return utils.respondWithFailure(
+                    status=417, message="Top up not available"
+                )
             elif data.get("topup_amount") <= 0:
                 return utils.respondWithFailure(
                     status=417, message="Top up amount can not be 0 or less than 0"
@@ -566,9 +569,11 @@ def get_tnc(**kwargs):
             elif data.get("topup_amount") > topup_amt:
                 return utils.respondWithFailure(
                     status=417,
-                    message="Top up amount can not be more than Rs. {}".format(topup_amt),
+                    message="Top up amount can not be more than Rs. {}".format(
+                        topup_amt
+                    ),
                 )
-            
+
             # msg = "Dear Customer, \nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app \n-Spark Loans"
             # receiver_list = list(
             #     set([str(customer.phone), str(customer.get_kyc().mobile_number)])
@@ -720,9 +725,7 @@ def get_tnc(**kwargs):
 
         else:
             loan.create_tnc_file(topup_amount=data.get("topup_amount"))
-            tnc_file_url = frappe.utils.get_url(
-                "files/tnc/{}.pdf".format(loan.name)
-            )
+            tnc_file_url = frappe.utils.get_url("files/tnc/{}.pdf".format(loan.name))
 
         tnc_header = "Please refer to the <a href='{}'>Terms & Conditions</a> for LAS facility, for detailed terms.".format(
             tnc_file_url

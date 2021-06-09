@@ -8,11 +8,11 @@ from datetime import datetime, timedelta
 
 import frappe
 from frappe.model.document import Document
+from num2words import num2words
 
 import lms
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.loan_transaction.loan_transaction import LoanTransaction
-from num2words import num2words
 
 
 class Loan(Document):
@@ -524,7 +524,7 @@ class Loan(Document):
     def add_virtual_interest(self, input_date=None):
         if self.balance > 0:
             try:
-                interest_cofiguration = frappe.db.get_value(
+                interest_configuration = frappe.db.get_value(
                     "Interest Configuration",
                     {
                         "lender": self.lender,
@@ -550,13 +550,13 @@ class Loan(Document):
 
             # calculate daily base interest
             base_interest_daily = (
-                interest_cofiguration["base_interest"] / num_of_days_in_month
+                interest_configuration["base_interest"] / num_of_days_in_month
             )
             base_amount = self.balance * base_interest_daily / 100
 
             # calculate daily rebate interest
             rebate_interest_daily = (
-                interest_cofiguration["rebait_interest"] / num_of_days_in_month
+                interest_configuration["rebait_interest"] / num_of_days_in_month
             )
             rebate_amount = self.balance * rebate_interest_daily / 100
 
@@ -569,12 +569,12 @@ class Loan(Document):
                     "time": input_date.replace(
                         hour=23, minute=59, second=59, microsecond=999999
                     ),
-                    "base_interest": interest_cofiguration["base_interest"],
-                    "rebate_interest": interest_cofiguration["rebait_interest"],
+                    "base_interest": interest_configuration["base_interest"],
+                    "rebate_interest": interest_configuration["rebait_interest"],
                     "base_amount": base_amount,
                     "rebate_amount": rebate_amount,
                     "loan_balance": self.balance,
-                    "interest_configuration": interest_cofiguration["name"],
+                    "interest_configuration": interest_configuration["name"],
                 }
             )
             virtual_interest_doc.save(ignore_permissions=True)
