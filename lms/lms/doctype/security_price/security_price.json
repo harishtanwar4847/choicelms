@@ -1,5 +1,5 @@
 {
- "autoname": "format:{security}-{time}",
+ "autoname": "format:{security}-{#######}",
  "creation": "2020-07-28 18:34:38.302925",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -46,7 +46,7 @@
    "fieldtype": "Column Break"
   }
  ],
- "modified": "2021-01-07 17:31:49.890107",
+ "modified": "2021-06-09 11:28:52.127903",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Price",
