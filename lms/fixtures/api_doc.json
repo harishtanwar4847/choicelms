@@ -2127,8 +2127,8 @@
   "group": "Cart",
   "headers": [],
   "headers_example": [],
-  "method": "GET",
-  "modified": "2021-06-08 16:52:50.121693",
+  "method": "POST",
+  "modified": "2021-06-09 13:02:35.909182",
   "name": "2a23f121e5",
   "parameters": [
    {
