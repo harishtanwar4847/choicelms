@@ -92,7 +92,7 @@
   }
  ],
  "is_submittable": 1,
- "modified": "2021-05-31 15:18:18.884902",
+ "modified": "2021-06-09 19:20:14.364107",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",
@@ -113,13 +113,15 @@
   },
   {
    "create": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
    "read": 1,
-   "report": 1,
    "role": "Lender",
-   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Spark Manager",
    "submit": 1,
    "write": 1
   }
