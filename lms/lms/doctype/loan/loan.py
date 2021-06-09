@@ -521,60 +521,64 @@ class Loan(Document):
         penal_intrst = self.add_penal_interest(input_date)
 
     def add_virtual_interest(self, input_date=None):
-        interest_cofiguration = frappe.db.get_value(
-            "Interest Configuration",
-            {
-                "lender": self.lender,
-                "from_amount": ["<=", self.balance],
-                "to_amount": [">=", self.balance],
-            },
-            ["name", "base_interest", "rebait_interest"],
-            as_dict=1,
-        )
+        if self.balance > 0:
+            try:
+                interest_cofiguration = frappe.db.get_value(
+                    "Interest Configuration",
+                    {
+                        "lender": self.lender,
+                        "from_amount": ["<=", self.balance],
+                        "to_amount": [">=", self.balance],
+                    },
+                    ["name", "base_interest", "rebait_interest"],
+                    as_dict=1,
+                )
+            except:
+                pass
 
-        if input_date:
-            input_date = datetime.strptime(input_date, "%Y-%m-%d") - timedelta(days=1)
-        else:
-            input_date = frappe.utils.now_datetime() - timedelta(days=1)
+            if input_date:
+                input_date = datetime.strptime(input_date, "%Y-%m-%d") - timedelta(days=1)
+            else:
+                input_date = frappe.utils.now_datetime() - timedelta(days=1)
 
-        # get no of days in month
-        num_of_days_in_month = (
-            (input_date.replace(day=1) + timedelta(days=32)).replace(day=1)
-            - timedelta(days=1)
-        ).day
+            # get no of days in month
+            num_of_days_in_month = (
+                (input_date.replace(day=1) + timedelta(days=32)).replace(day=1)
+                - timedelta(days=1)
+            ).day
 
-        # calculate daily base interest
-        base_interest_daily = (
-            interest_cofiguration["base_interest"] / num_of_days_in_month
-        )
-        base_amount = self.balance * base_interest_daily / 100
+            # calculate daily base interest
+            base_interest_daily = (
+                interest_cofiguration["base_interest"] / num_of_days_in_month
+            )
+            base_amount = self.balance * base_interest_daily / 100
 
-        # calculate daily rebate interest
-        rebate_interest_daily = (
-            interest_cofiguration["rebait_interest"] / num_of_days_in_month
-        )
-        rebate_amount = self.balance * rebate_interest_daily / 100
+            # calculate daily rebate interest
+            rebate_interest_daily = (
+                interest_cofiguration["rebait_interest"] / num_of_days_in_month
+            )
+            rebate_amount = self.balance * rebate_interest_daily / 100
 
-        frappe.db.begin()
-        virtual_interest_doc = frappe.get_doc(
-            {
-                "doctype": "Virtual Interest",
-                "lender": self.lender,
-                "loan": self.name,
-                "time": input_date.replace(
-                    hour=23, minute=59, second=59, microsecond=999999
-                ),
-                "base_interest": interest_cofiguration["base_interest"],
-                "rebate_interest": interest_cofiguration["rebait_interest"],
-                "base_amount": round(base_amount, 2),
-                "rebate_amount": round(rebate_amount, 2),
-                "loan_balance": self.balance,
-                "interest_configuration": interest_cofiguration["name"],
-            }
-        )
-        virtual_interest_doc.save(ignore_permissions=True)
-        frappe.db.commit()
-        return virtual_interest_doc.as_dict()
+            frappe.db.begin()
+            virtual_interest_doc = frappe.get_doc(
+                {
+                    "doctype": "Virtual Interest",
+                    "lender": self.lender,
+                    "loan": self.name,
+                    "time": input_date.replace(
+                        hour=23, minute=59, second=59, microsecond=999999
+                    ),
+                    "base_interest": interest_cofiguration["base_interest"],
+                    "rebate_interest": interest_cofiguration["rebait_interest"],
+                    "base_amount": base_amount,
+                    "rebate_amount": rebate_amount,
+                    "loan_balance": self.balance,
+                    "interest_configuration": interest_cofiguration["name"],
+                }
+            )
+            virtual_interest_doc.save(ignore_permissions=True)
+            frappe.db.commit()
+            return virtual_interest_doc.as_dict()
 
     def check_for_additional_interest(self, input_date=None):
         # daily scheduler - executes at start of day i.e 00:00
@@ -624,8 +628,8 @@ class Loan(Document):
                             "lender": self.lender,
                             "transaction_type": "Additional Interest",
                             "record_type": "DR",
-                            "amount": rebate_interest_sum[0]["amount"],
-                            "unpaid_interest": rebate_interest_sum[0]["amount"],
+                            "amount": round(rebate_interest_sum[0]["amount"],2),
+                            "unpaid_interest": round(rebate_interest_sum[0]["amount"],2),
                             "time": transaction_time.replace(
                                 hour=23, minute=59, second=59, microsecond=999999
                             ),
@@ -732,8 +736,8 @@ class Loan(Document):
                     "doctype": "Loan Transaction",
                     "loan": self.name,
                     "lender": self.lender,
-                    "amount": virtual_interest_sum[0]["amount"],
-                    "unpaid_interest": virtual_interest_sum[0]["amount"],
+                    "amount": round(virtual_interest_sum[0]["amount"],2),
+                    "unpaid_interest": round(virtual_interest_sum[0]["amount"],2),
                     "transaction_type": "Interest",
                     "record_type": "DR",
                     "time": job_date,
@@ -779,13 +783,17 @@ class Loan(Document):
         else:
             current_date = frappe.utils.now_datetime()
 
-        job_date = (current_date - timedelta(days=1)).replace(
+        current_date = (current_date - timedelta(days=1)).replace(
             hour=23, minute=59, second=59, microsecond=999999
         )
-        last_day_of_prev_month = job_date.replace(day=1) - timedelta(days=1)
-        num_of_days_in_prev_month = last_day_of_prev_month.day
+        last_day_of_prev_month = current_date.replace(day=1) - timedelta(days=1)
+        # num_of_days_in_prev_month = last_day_of_prev_month.day
         prev_month = last_day_of_prev_month.month
         prev_month_year = last_day_of_prev_month.year
+
+
+        last_day_of_current_month = (current_date.replace(day=1) + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+        num_of_days_in_current_month = last_day_of_current_month.day
 
         # check if any not paid booked interest exist
         booked_interest = frappe.db.sql(
@@ -794,6 +802,7 @@ class Loan(Document):
             ),
             as_dict=1,
         )
+        print(booked_interest)
 
         if booked_interest:
             # get default threshold
@@ -802,15 +811,16 @@ class Loan(Document):
                 transaction_time = booked_interest[0]["time"] + timedelta(
                     days=default_threshold
                 )
-
+                print(current_date, transaction_time)
                 # check if interest booked time is more than default threshold
-                if job_date > transaction_time:
+                if current_date > transaction_time:
                     # if yes, apply penalty interest
                     # calculate daily penalty interest
                     default_interest = int(self.get_default_interest())
+                    print(default_interest)
                     if default_interest:
                         default_interest_daily = (
-                            default_interest / num_of_days_in_prev_month
+                            default_interest / num_of_days_in_current_month
                         )
                         amount = self.balance * default_interest_daily / 100
 
@@ -823,15 +833,16 @@ class Loan(Document):
                                 "lender": self.lender,
                                 "transaction_type": "Penal Interest",
                                 "record_type": "DR",
-                                "amount": amount,
-                                "unpaid_interest": amount,
-                                "time": job_date,
+                                "amount": round(amount,2),
+                                "unpaid_interest": round(amount,2),
+                                "time": current_date,
                             }
                         )
                         penal_interest_transaction.insert(ignore_permissions=True)
                         penal_interest_transaction.transaction_id = (
                             penal_interest_transaction.name
                         )
+                        print("create penal entry in transaction")
                         penal_interest_transaction.status = "Approved"
                         penal_interest_transaction.workflow_state = "Approved"
                         penal_interest_transaction.docstatus = 1
