@@ -2,7 +2,7 @@ import base64
 import json
 import re
 import time
-from datetime import date, datetime, timedelta, MINYEAR
+from datetime import MINYEAR, date, datetime, timedelta
 from time import gmtime
 
 import frappe
@@ -652,14 +652,14 @@ def dashboard(**kwargs):
 
         # all_mgloans = frappe.db.sql(
         #     """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str,
-		# IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, IFNULL(mrgloan.shortfall, 0.0) as shortfall
-		# from `tabLoan` as loan
-		# left join `tabLoan Margin Shortfall` as mrgloan
-		# on loan.name = mrgloan.loan
-		# where loan.customer = '{}'
-		# and (mrgloan.status = "Pending" or mrgloan.status = "Sell Triggered" or mrgloan.status = "Request Pending")
-		# and shortfall_percentage > 0.0
-		# group by loan.name""".format(
+        # IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, IFNULL(mrgloan.shortfall, 0.0) as shortfall
+        # from `tabLoan` as loan
+        # left join `tabLoan Margin Shortfall` as mrgloan
+        # on loan.name = mrgloan.loan
+        # where loan.customer = '{}'
+        # and (mrgloan.status = "Pending" or mrgloan.status = "Sell Triggered" or mrgloan.status = "Request Pending")
+        # and shortfall_percentage > 0.0
+        # group by loan.name""".format(
         #         customer.name
         #     ),
         #     as_dict=1,
@@ -667,14 +667,14 @@ def dashboard(**kwargs):
 
         # all_interest_loans = frappe.db.sql(
         #     """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str,
-		# sum(loantx.unpaid_interest) as interest_amount
-		# from `tabLoan` as loan
-		# left join `tabLoan Transaction` as loantx
-		# on loan.name = loantx.loan
-		# where loan.customer = '{}'
-		# and loantx.transaction_type in ('Interest','Additional Interest','Penal Interest')
-		# and loantx.unpaid_interest > 0
-		# group by loan.name""".format(
+        # sum(loantx.unpaid_interest) as interest_amount
+        # from `tabLoan` as loan
+        # left join `tabLoan Transaction` as loantx
+        # on loan.name = loantx.loan
+        # where loan.customer = '{}'
+        # and loantx.transaction_type in ('Interest','Additional Interest','Penal Interest')
+        # and loantx.unpaid_interest > 0
+        # group by loan.name""".format(
         #         customer.name
         #     ),
         #     as_dict=1,
@@ -687,7 +687,9 @@ def dashboard(**kwargs):
         total_int_amt_all_loans = 0
         due_date_for_all_interest = []
         interest_loan_list = []
-        margin_shortfall_and_interest_loans = lms.user.margin_shortfall_and_interest_loans(customer)
+        margin_shortfall_and_interest_loans = (
+            lms.user.margin_shortfall_and_interest_loans(customer)
+        )
 
         for dictionary in margin_shortfall_and_interest_loans[0]:
             # actionable_loans.append(
@@ -735,7 +737,7 @@ def dashboard(**kwargs):
                         )
                         if mg_shortfall_doc.deadline > frappe.utils.now_datetime()
                         else "00:00:00",
-                        "status": dictionary["status"]
+                        "status": dictionary["status"],
                     }
                 )
 
@@ -1684,11 +1686,15 @@ def loan_summary_dashboard(**kwargs):
             return utils.respondNotFound(message=frappe._("Customer not found."))
 
         mindate = datetime(MINYEAR, 1, 1)
-        all_loans = frappe.get_all("Loan", filters={"customer": customer.name}, fields=["*"])
+        all_loans = frappe.get_all(
+            "Loan", filters={"customer": customer.name}, fields=["*"]
+        )
 
-        margin_shortfall_and_interest_loans = lms.user.margin_shortfall_and_interest_loans(customer)
+        margin_shortfall_and_interest_loans = (
+            lms.user.margin_shortfall_and_interest_loans(customer)
+        )
         loan_name = [loan["name"] for loan in margin_shortfall_and_interest_loans[0]]
-        
+
         actionable_loan = []
         mg_interest_loan = []
         sell_collateral_topup_and_unpledge_list = []
@@ -1698,17 +1704,24 @@ def loan_summary_dashboard(**kwargs):
         increase_loan_list = []
 
         mg_interest_loan.extend(margin_shortfall_and_interest_loans[0])
-        mg_interest_loan.extend([loan for loan in margin_shortfall_and_interest_loans[1] if loan["name"] not in loan_name])
+        mg_interest_loan.extend(
+            [
+                loan
+                for loan in margin_shortfall_and_interest_loans[1]
+                if loan["name"] not in loan_name
+            ]
+        )
         for loans in mg_interest_loan:
-            actionable_loan.append({
-                "name": loans["name"],
-                "drawing_power": loans["drawing_power"],
-                "drawing_power_str": loans["drawing_power_str"],
-                "balance": loans["balance"],
-                "balance_str": loans["balance_str"],
-                "creation": loans["creation"],
-            })
-
+            actionable_loan.append(
+                {
+                    "name": loans["name"],
+                    "drawing_power": loans["drawing_power"],
+                    "drawing_power_str": loans["drawing_power_str"],
+                    "balance": loans["balance"],
+                    "balance_str": loans["balance_str"],
+                    "creation": loans["creation"],
+                }
+            )
 
         under_process_la = frappe.get_all(
             "Loan Application",
@@ -1718,7 +1731,7 @@ def loan_summary_dashboard(**kwargs):
                 "pledge_status": ["!=", "Failure"],
             },
             fields=["name", "status", "creation"],
-            order_by= "creation desc"
+            order_by="creation desc",
         )
 
         ## Active loans ##
@@ -1734,9 +1747,9 @@ def loan_summary_dashboard(**kwargs):
                 "drawing_power_str",
                 "balance",
                 "balance_str",
-                "creation"
+                "creation",
             ],
-            order_by= "creation desc"
+            order_by="creation desc",
         )
         for loan in all_loans:
             loan = frappe.get_doc("Loan", loan.name)
@@ -1775,22 +1788,29 @@ def loan_summary_dashboard(**kwargs):
                     fields=["*"],
                 )
 
-                sell_collateral_topup_and_unpledge_list.append({
-                    "loan_name": loan.name,
-                    "creation": sell_collateral_application_exist[0].creation,
-                    "sell_collateral_available": sell_collateral_application_exist[0],
-                    "unpledge_application_available": None,
-                    "unpledge_msg_while_margin_shortfall": None,
-                    "unpledge": None,
-                    "top_up_amount": 0.0,
-                    "existing_topup_application": None
-                })
+                sell_collateral_topup_and_unpledge_list.append(
+                    {
+                        "loan_name": loan.name,
+                        "creation": sell_collateral_application_exist[0].creation,
+                        "sell_collateral_available": sell_collateral_application_exist[
+                            0
+                        ],
+                        "unpledge_application_available": None,
+                        "unpledge_msg_while_margin_shortfall": None,
+                        "unpledge": None,
+                        "top_up_amount": 0.0,
+                        "existing_topup_application": None,
+                    }
+                )
             # else:
-            sell_collateral_list.append({
-                "loan_name": loan.name,
-                "sell_collateral_available": sell_collateral_application_exist[0] if sell_collateral_application_exist else None,
-            })
-
+            sell_collateral_list.append(
+                {
+                    "loan_name": loan.name,
+                    "sell_collateral_available": sell_collateral_application_exist[0]
+                    if sell_collateral_application_exist
+                    else None,
+                }
+            )
 
             loan_margin_shortfall = loan.get_margin_shortfall()
             if loan_margin_shortfall.get("__islocal", None):
@@ -1835,30 +1855,30 @@ def loan_summary_dashboard(**kwargs):
                         "unpledge_application_available": unpledge_application_exist[0],
                         "unpledge_msg_while_margin_shortfall": None,
                         "unpledge": None,
-                        "sell_collateral_available":None,
+                        "sell_collateral_available": None,
                         "top_up_amount": 0.0,
-                        "existing_topup_application": None
+                        "existing_topup_application": None,
                     }
                 )
             else:
                 unpledge_list.append(
-                {
-                    "loan_name": loan.name,
-                    # "creation": mindate,
-                    "unpledge_application_available": None,
-                    "unpledge_msg_while_margin_shortfall": """OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
-                        loan.get_customer().first_name
-                    )
-                    if loan_margin_shortfall
-                    else None,
-                    "unpledge": None
-                    if unpledge_application_exist or loan_margin_shortfall
-                    else loan.max_unpledge_amount(),
-                    # "sell_collateral_available": None,
-                    # "top_up_amount": 0.0,
-                    # "existing_topup_application": None
-                }
-            )
+                    {
+                        "loan_name": loan.name,
+                        # "creation": mindate,
+                        "unpledge_application_available": None,
+                        "unpledge_msg_while_margin_shortfall": """OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                            loan.get_customer().first_name
+                        )
+                        if loan_margin_shortfall
+                        else None,
+                        "unpledge": None
+                        if unpledge_application_exist or loan_margin_shortfall
+                        else loan.max_unpledge_amount(),
+                        # "sell_collateral_available": None,
+                        # "top_up_amount": 0.0,
+                        # "existing_topup_application": None
+                    }
+                )
 
             existing_topup_application = frappe.get_all(
                 "Top up Application",
@@ -1870,29 +1890,33 @@ def loan_summary_dashboard(**kwargs):
             )
 
             if existing_topup_application:
-                sell_collateral_topup_and_unpledge_list.append({
-                    "loan_name": loan.name,
-                    "creation": existing_topup_application[0].creation,
-                    "top_up_amount": 0.0,
-                    "existing_topup_application": existing_topup_application[0],
-                    "unpledge_application_available": None,
-                    "unpledge_msg_while_margin_shortfall": None,
-                    "unpledge": None,
-                    "sell_collateral_available":None
-                    })
-                
+                sell_collateral_topup_and_unpledge_list.append(
+                    {
+                        "loan_name": loan.name,
+                        "creation": existing_topup_application[0].creation,
+                        "top_up_amount": 0.0,
+                        "existing_topup_application": existing_topup_application[0],
+                        "unpledge_application_available": None,
+                        "unpledge_msg_while_margin_shortfall": None,
+                        "unpledge": None,
+                        "sell_collateral_available": None,
+                    }
+                )
+
             else:
                 topup = loan.max_topup_amount()
-                topup_list.append({
-                    "loan_name": loan.name,
-                    # "creation": mindate,
-                    "top_up_amount": topup if topup else 0.0,
-                    # "existing_topup_application": None,
-                    # "unpledge_application_available": None,
-                    # "unpledge_msg_while_margin_shortfall": None,
-                    # "unpledge": None,
-                    # "sell_collateral_available":None
-                })
+                topup_list.append(
+                    {
+                        "loan_name": loan.name,
+                        # "creation": mindate,
+                        "top_up_amount": topup if topup else 0.0,
+                        # "existing_topup_application": None,
+                        # "unpledge_application_available": None,
+                        # "unpledge_msg_while_margin_shortfall": None,
+                        # "unpledge": None,
+                        # "sell_collateral_available":None
+                    }
+                )
 
             # Increase Loan
             existing_loan_application = frappe.get_all(
@@ -1914,8 +1938,9 @@ def loan_summary_dashboard(**kwargs):
                 }
             )
 
-
-        sell_collateral_topup_and_unpledge_list.sort(key=lambda item: (item["creation"]), reverse=True)
+        sell_collateral_topup_and_unpledge_list.sort(
+            key=lambda item: (item["creation"]), reverse=True
+        )
         sell_collateral_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         unpledge_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         topup_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
@@ -1929,17 +1954,18 @@ def loan_summary_dashboard(**kwargs):
             "sell_collateral_list": sell_collateral_list,
             "unpledge_list": unpledge_list,
             "topup_list": topup_list,
-            "increase_loan_list": increase_loan_list
-            }
-        
+            "increase_loan_list": increase_loan_list,
+        }
+
         return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
         return e.respond()
 
+
 def margin_shortfall_and_interest_loans(customer):
     all_mgloans = frappe.db.sql(
-    """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str, loan.creation, IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, IFNULL(mrgloan.shortfall, 0.0) as shortfall, mrgloan.status as status
+        """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str, loan.creation, IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, IFNULL(mrgloan.shortfall, 0.0) as shortfall, mrgloan.status as status
     from `tabLoan` as loan
     left join `tabLoan Margin Shortfall` as mrgloan
     on loan.name = mrgloan.loan
@@ -1954,7 +1980,7 @@ def margin_shortfall_and_interest_loans(customer):
     )
 
     all_interest_loans = frappe.db.sql(
-    """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str, loan.creation, sum(loantx.unpaid_interest) as interest_amount
+        """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str, loan.creation, sum(loantx.unpaid_interest) as interest_amount
     from `tabLoan` as loan
     left join `tabLoan Transaction` as loantx
     on loan.name = loantx.loan
