@@ -784,9 +784,9 @@ class Loan(Document):
         else:
             current_date = frappe.utils.now_datetime()
 
-        current_date = (current_date - timedelta(days=1)).replace(
-            hour=23, minute=59, second=59, microsecond=999999
-        )
+        # current_date = (current_date - timedelta(days=1)).replace(
+        #     hour=23, minute=59, second=59, microsecond=999999
+        # )
         last_day_of_prev_month = current_date.replace(day=1) - timedelta(days=1)
         # num_of_days_in_prev_month = last_day_of_prev_month.day
         prev_month = last_day_of_prev_month.month
@@ -803,7 +803,7 @@ class Loan(Document):
             ),
             as_dict=1,
         )
-        print(booked_interest)
+
 
         if booked_interest:
             # get default threshold
@@ -812,13 +812,11 @@ class Loan(Document):
                 transaction_time = booked_interest[0]["time"] + timedelta(
                     days=default_threshold
                 )
-                print(current_date, transaction_time)
                 # check if interest booked time is more than default threshold
                 if current_date > transaction_time:
                     # if yes, apply penalty interest
                     # calculate daily penalty interest
                     default_interest = int(self.get_default_interest())
-                    print(default_interest)
                     if default_interest:
                         default_interest_daily = (
                             default_interest / num_of_days_in_current_month
@@ -843,7 +841,6 @@ class Loan(Document):
                         penal_interest_transaction.transaction_id = (
                             penal_interest_transaction.name
                         )
-                        print("create penal entry in transaction")
                         penal_interest_transaction.status = "Approved"
                         penal_interest_transaction.workflow_state = "Approved"
                         penal_interest_transaction.docstatus = 1
@@ -1204,3 +1201,12 @@ def book_all_loans_virtual_interest_for_month():
             loans=[loan for loan in all_loans],
             queue="long",
         )
+
+def job_dates_for_penal(loan_name):
+    current_date_ = frappe.utils.now_datetime()
+    current_date_ = current_date_.replace(day=1)
+    loan = frappe.get_doc("Loan", loan_name)
+    last_date = (current_date_.replace(day=1) + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+    while current_date_ <= last_date:
+        loan.add_penal_interest(current_date_.strftime("%Y-%m-%d"))
+        current_date_ += timedelta(days=1)
