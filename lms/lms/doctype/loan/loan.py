@@ -8,11 +8,11 @@ from datetime import datetime, timedelta
 
 import frappe
 from frappe.model.document import Document
+from num2words import num2words
 
 import lms
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.loan_transaction.loan_transaction import LoanTransaction
-from num2words import num2words
 
 
 class Loan(Document):

@@ -607,7 +607,9 @@ def create_topup(**kwargs):
             topup_application.save(ignore_permissions=True)
             frappe.db.commit()
 
-            for tnc in frappe.get_list("Terms and Conditions", filters={"is_active": 1}):
+            for tnc in frappe.get_list(
+                "Terms and Conditions", filters={"is_active": 1}
+            ):
                 # if data.get("loan_name"):
                 top_up_approved_tnc = {
                     "doctype": "Top up Application",
@@ -753,11 +755,11 @@ def create_topup(**kwargs):
 
             data = {
                 "topup_application_name": topup_application.name,
-            #     "tnc_file": tnc_file_url,
-            #     "tnc_html": "".join(tnc_ul),
-            #     "tnc_header": tnc_header,
-            #     "tnc_footer": tnc_footer,
-            #     "tnc_checkboxes": tnc_checkboxes,
+                #     "tnc_file": tnc_file_url,
+                #     "tnc_html": "".join(tnc_ul),
+                #     "tnc_header": tnc_header,
+                #     "tnc_footer": tnc_footer,
+                #     "tnc_checkboxes": tnc_checkboxes,
             }
 
             # for tnc in frappe.get_list(
@@ -944,7 +946,11 @@ def loan_details(**kwargs):
                         ],
                     }
 
-            if loan_margin_shortfall.status in ["Pending", "Request Pending", "Sell Triggered"]:
+            if loan_margin_shortfall.status in [
+                "Pending",
+                "Request Pending",
+                "Sell Triggered",
+            ]:
                 mg_shortfall_action = frappe.get_doc(
                     "Margin Shortfall Action",
                     loan_margin_shortfall.margin_shortfall_action,
@@ -1678,7 +1684,7 @@ def loan_statement(**kwargs):
                 from frappe.utils.pdf import get_pdf
 
                 # pdf = get_pdf(html_with_style)
-                #password content for password protected pdf 
+                # password content for password protected pdf
                 pwd = user_kyc.pan_no[:4] + str(user_kyc.date_of_birth.year)
                 pdf = get_pdf(html_with_style, options={"password": pwd})
                 pdf_file.write(pdf)
