@@ -607,150 +607,8 @@ def create_topup(**kwargs):
             topup_application.save(ignore_permissions=True)
             frappe.db.commit()
 
-            loan = frappe.get_doc("Loan", topup_application.loan)
-            lender = frappe.get_doc("Lender", loan.lender)
-            msg = "Dear Customer, \nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app \n-Spark Loans"
-            receiver_list = list(
-                set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-            )
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
-
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-
-            tnc_ul = ["<ul>"]
-            tnc_ul.append(
-                "<li><strong> Name Of Borrower : {} </strong>".format(
-                    user_kyc.investor_name
-                )
-                + "</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Address Of Borrower </strong> : {}".format(
-                    user_kyc.address or ""
-                )
-                + "</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Nature of facility sanctioned : Loan Against Securities - Overdraft facility;</strong></li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Purpose </strong>: General Purpose. The facility shall not be used for anti-social or illegal purposes;</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Top up Amount </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
-                    topup_application.top_up_amount + loan.sanctioned_limit
-                )
-                + "</li>"
-            )
-            tnc_ul.append("<li><strong> Interest type </strong>: Floating</li>")
-            tnc_ul.append(
-                "<li><strong> Rate of Interest </strong>: <strong>{}%  per month</strong> after rebate, if paid within <strong>7 days</strong> of due date. Otherwise Rebate of <strong>0.20%</strong> will not be applicable and higher interest rate will be applicable [Interest rate is subject to change based on management discretion from time to time];".format(
-                    lender.rate_of_interest
-                )
-                + "</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Details of security / Collateral obtained </strong>: Shares and other securities as will be pledged from time to time to maintain the required security coverage;</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Security Coverage </strong>: Shares & Equity oriented Mutual Funds - <strong>Minimum 200%</strong>, Other Securities - As per rules applicable from time to time;</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Facility Tenure </strong>: <strong>12 Months</strong> (Renewable at Lender’s discretion, as detailed in the T&C);</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Repayment Through </strong>: Cash Flows /Sale of Securities/Other Investments Maturing;</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Mode of communication</strong> of changes in interest rates and others : Website and Mobile App notification, SMS, Email, Letters, Notices at branches, communication through statement of accounts of the borrower, or any other mode of communication;</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> EMI Payable </strong>: <strong>Not Applicable;</strong></li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Penal Interest rate / Penal Charges </strong>: In case of occurrence of Event of Default (EOD), Penal Interest shall be charged <strong>upto 4.00% per month</strong> over and above applicable Interest Rate;</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Processing Fee </strong>: <strong>{}%</strong> of the sanctioned amount, subject to minimum amount of <strong>Rs. 1500/-;</strong>".format(
-                    lender.lender_processing_fees
-                )
-                + "</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Account Renewal charges </strong>: <strong>{}%</strong> of the renewal amount (Facility valid for a period of 12 months from the date of sanction; account renewal charges shall be debited at the end of 12 months), subject to minimum amount of <strong>Rs. 750/-;</strong>".format(
-                    lender.account_renewal_charges
-                )
-                + "</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Documentation charges </strong>: <strong>Rs. {}/-;</strong>".format(
-                    lender.documentation_charges
-                )
-                + "</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Stamp duty & other statutory charges </strong>: At actuals;</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Pre-payment charges </strong>: <strong>NIL;</strong></li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Transaction Charges per Request (per variation in the composition of the Demat securities pledged) </strong>: <strong>Upto Rs. {}/-</strong> per request;".format(
-                    lender.transaction_charges_per_request
-                )
-                + "</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Collection Charges on Sale of security in the event of default or otherwise </strong>: <strong>{}%</strong> of the sale amount plus all brokerage, incidental transaction charges, costs and expenses and other levies as per actuals;".format(
-                    lender.security_selling_share
-                )
-                + "</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Credit Information Companies'(CICs) Charges </strong>: <strong>Upto Rs {}/-</strong> per instance (For individuals);".format(
-                    lender.cic_charges
-                )
-                + "</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Solvency Certificate </strong>: Not Applicable;</li>"
-            )
-            tnc_ul.append(
-                "<li><strong> No Due Certificate / No Objection Certificate (NOC) </strong>: <strong>NIL;</strong></li>"
-            )
-            tnc_ul.append(
-                "<li><strong> Legal & incidental charges </strong>: As per actuals;</li></ul>"
-            )
-            topup_application.create_tnc_file()
-            tnc_file_url = frappe.utils.get_url(
-                "files/tnc/{}.pdf".format(topup_application.name)
-            )
-            tnc_header = "Please refer to the <a href='{}'>Terms & Conditions</a> for LAS facility, for detailed terms.".format(
-                tnc_file_url
-            )
-            tnc_footer = "You shall be required to authenticate (in token of you having fully read and irrevocably and unconditionally accepted and authenticated) the above application for loan including the pledge request and the Terms and Conditions (which can be opened by clicking on the links) and entire contents thereof, by entering the OTP that will be sent to you next on your registered mobile number with CDSL."
-            tnc_checkboxes = [
-                i.tnc
-                for i in frappe.get_all(
-                    "Terms and Conditions",
-                    filters={"is_active": 1},
-                    fields=["tnc"],
-                    order_by="creation asc",
-                )
-            ]
-
-            data = {
-                "topup_application_name": topup_application.name,
-                "tnc_file": tnc_file_url,
-                "tnc_html": "".join(tnc_ul),
-                "tnc_header": tnc_header,
-                "tnc_footer": tnc_footer,
-                "tnc_checkboxes": tnc_checkboxes,
-            }
-
-            for tnc in frappe.get_list(
-                "Terms and Conditions", filters={"is_active": 1}
-            ):
+            for tnc in frappe.get_list("Terms and Conditions", filters={"is_active": 1}):
+                # if data.get("loan_name"):
                 top_up_approved_tnc = {
                     "doctype": "Top up Application",
                     "docname": topup_application.name,
@@ -760,6 +618,160 @@ def create_topup(**kwargs):
                 }
                 ApprovedTermsandConditions.create_entry(**top_up_approved_tnc)
                 frappe.db.commit()
+
+            # loan = frappe.get_doc("Loan", topup_application.loan)
+            # lender = frappe.get_doc("Lender", loan.lender)
+            msg = "Dear Customer, \nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app \n-Spark Loans"
+            receiver_list = list(
+                set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+            )
+            from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+            # tnc_ul = ["<ul>"]
+            # tnc_ul.append(
+            #     "<li><strong> Name Of Borrower : {} </strong>".format(
+            #         user_kyc.investor_name
+            #     )
+            #     + "</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Address Of Borrower </strong> : {}".format(
+            #         user_kyc.address or ""
+            #     )
+            #     + "</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Nature of facility sanctioned : Loan Against Securities - Overdraft facility;</strong></li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Purpose </strong>: General Purpose. The facility shall not be used for anti-social or illegal purposes;</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Top up Amount </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
+            #         topup_application.top_up_amount + loan.drawing_power
+            #     )
+            #     + "</li>"
+            # )
+            # tnc_ul.append("<li><strong> Interest type </strong>: Floating</li>")
+            # tnc_ul.append(
+            #     "<li><strong> Rate of Interest </strong>: <strong>{}%  per month</strong> after rebate, if paid within <strong>7 days</strong> of due date. Otherwise Rebate of <strong>0.20%</strong> will not be applicable and higher interest rate will be applicable [Interest rate is subject to change based on management discretion from time to time];".format(
+            #         lender.rate_of_interest
+            #     )
+            #     + "</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Details of security / Collateral obtained </strong>: Shares and other securities as will be pledged from time to time to maintain the required security coverage;</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Security Coverage </strong>: Shares & Equity oriented Mutual Funds - <strong>Minimum 200%</strong>, Other Securities - As per rules applicable from time to time;</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Facility Tenure </strong>: <strong>12 Months</strong> (Renewable at Lender’s discretion, as detailed in the T&C);</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Repayment Through </strong>: Cash Flows /Sale of Securities/Other Investments Maturing;</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Mode of communication</strong> of changes in interest rates and others : Website and Mobile App notification, SMS, Email, Letters, Notices at branches, communication through statement of accounts of the borrower, or any other mode of communication;</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> EMI Payable </strong>: <strong>Not Applicable;</strong></li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Penal Interest rate / Penal Charges </strong>: In case of occurrence of Event of Default (EOD), Penal Interest shall be charged <strong>upto 4.00% per month</strong> over and above applicable Interest Rate;</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Processing Fee </strong>: <strong>{}%</strong> of the sanctioned amount, subject to minimum amount of <strong>Rs. 1500/-;</strong>".format(
+            #         lender.lender_processing_fees
+            #     )
+            #     + "</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Account Renewal charges </strong>: <strong>{}%</strong> of the renewal amount (Facility valid for a period of 12 months from the date of sanction; account renewal charges shall be debited at the end of 12 months), subject to minimum amount of <strong>Rs. 750/-;</strong>".format(
+            #         lender.account_renewal_charges
+            #     )
+            #     + "</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Documentation charges </strong>: <strong>Rs. {}/-;</strong>".format(
+            #         lender.documentation_charges
+            #     )
+            #     + "</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Stamp duty & other statutory charges </strong>: At actuals;</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Pre-payment charges </strong>: <strong>NIL;</strong></li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Transaction Charges per Request (per variation in the composition of the Demat securities pledged) </strong>: <strong>Upto Rs. {}/-</strong> per request;".format(
+            #         lender.transaction_charges_per_request
+            #     )
+            #     + "</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Collection Charges on Sale of security in the event of default or otherwise </strong>: <strong>{}%</strong> of the sale amount plus all brokerage, incidental transaction charges, costs and expenses and other levies as per actuals;".format(
+            #         lender.security_selling_share
+            #     )
+            #     + "</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Credit Information Companies'(CICs) Charges </strong>: <strong>Upto Rs {}/-</strong> per instance (For individuals);".format(
+            #         lender.cic_charges
+            #     )
+            #     + "</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Solvency Certificate </strong>: Not Applicable;</li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> No Due Certificate / No Objection Certificate (NOC) </strong>: <strong>NIL;</strong></li>"
+            # )
+            # tnc_ul.append(
+            #     "<li><strong> Legal & incidental charges </strong>: As per actuals;</li></ul>"
+            # )
+            # topup_application.create_tnc_file()
+            # tnc_file_url = frappe.utils.get_url(
+            #     "files/tnc/{}.pdf".format(topup_application.name)
+            # )
+            # tnc_header = "Please refer to the <a href='{}'>Terms & Conditions</a> for LAS facility, for detailed terms.".format(
+            #     tnc_file_url
+            # )
+            # tnc_footer = "You shall be required to authenticate (in token of you having fully read and irrevocably and unconditionally accepted and authenticated) the above application for loan including the pledge request and the Terms and Conditions (which can be opened by clicking on the links) and entire contents thereof, by entering the OTP that will be sent to you next on your registered mobile number with CDSL."
+            # tnc_checkboxes = [
+            #     i.tnc
+            #     for i in frappe.get_all(
+            #         "Terms and Conditions",
+            #         filters={"is_active": 1},
+            #         fields=["tnc"],
+            #         order_by="creation asc",
+            #     )
+            # ]
+
+            data = {
+                "topup_application_name": topup_application.name,
+            #     "tnc_file": tnc_file_url,
+            #     "tnc_html": "".join(tnc_ul),
+            #     "tnc_header": tnc_header,
+            #     "tnc_footer": tnc_footer,
+            #     "tnc_checkboxes": tnc_checkboxes,
+            }
+
+            # for tnc in frappe.get_list(
+            #     "Terms and Conditions", filters={"is_active": 1}
+            # ):
+            #     top_up_approved_tnc = {
+            #         "doctype": "Top up Application",
+            #         "docname": topup_application.name,
+            #         "mobile": user.username,
+            #         "tnc": tnc.name,
+            #         "time": frappe.utils.now_datetime(),
+            #     }
+            #     ApprovedTermsandConditions.create_entry(**top_up_approved_tnc)
+            #     frappe.db.commit()
 
         return utils.respondWithSuccess(data=data)
     except utils.APIException as e:
@@ -932,7 +944,7 @@ def loan_details(**kwargs):
                         ],
                     }
 
-            elif loan_margin_shortfall.status in ["Pending", "Sell Triggered"]:
+            if loan_margin_shortfall.status in ["Pending", "Request Pending", "Sell Triggered"]:
                 mg_shortfall_action = frappe.get_doc(
                     "Margin Shortfall Action",
                     loan_margin_shortfall.margin_shortfall_action,
