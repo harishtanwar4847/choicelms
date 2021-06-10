@@ -38,11 +38,13 @@
   "stamp_duty_type",
   "documentation_charge_type",
   "mortgage_charge_type",
+  "dp_reimbursement_charges_type",
   "column_break_2",
   "lender_processing_fees",
   "stamp_duty",
   "documentation_charges",
   "mortgage_charges",
+  "dp_reimbursement_charges",
   "charges_sharing_details_section",
   "lender_processing_fees_sharing_type",
   "stamp_duty_sharing_type",
@@ -326,9 +328,20 @@
    "fieldname": "enhancement_esign_page",
    "fieldtype": "Int",
    "label": "Enhancement Esign Page"
+  },
+  {
+   "fieldname": "dp_reimbursement_charges_type",
+   "fieldtype": "Select",
+   "label": "DP Reimbursement Charges Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "dp_reimbursement_charges",
+   "fieldtype": "Float",
+   "label": "DP Reimbursement Charges"
   }
  ],
- "modified": "2021-02-24 14:55:15.599692",
+ "modified": "2021-06-10 14:35:40.775874",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",

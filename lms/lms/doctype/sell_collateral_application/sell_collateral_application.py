@@ -33,6 +33,10 @@ class SellCollateralApplication(Document):
         )
         if triggered_margin_shortfall:
             self.loan_margin_shortfall = triggered_margin_shortfall[0].name
+            loan_margin_shortfall = frappe.get_doc("Loan Margin Shortfall", triggered_margin_shortfall[0].name)
+            self.initial_shortfall_amount = loan_margin_shortfall.shortfall
+            loan_margin_shortfall.fill_items()
+            self.current_shortfall_amount = loan_margin_shortfall.shortfall
 
         securities_list = [i.isin for i in self.items]
 
@@ -139,13 +143,25 @@ class SellCollateralApplication(Document):
                 }
                 CollateralLedger.create_entry(**collateral_ledger_input)
 
+        lender = self.get_lender()
+        dp_reinbursement_charges = lender.dp_reimbursement_charges
+        total_dp_reinbursement_charges = len(self.sell_items) * dp_reinbursement_charges
+        # return dp_reinbursement_charges,len(self.sell_items),total_dp_reinbursement_charges
+
         loan = self.get_loan()
         loan.update_items()
         loan.fill_items()
         loan.save(ignore_permissions=True)
         loan.create_loan_transaction(
             transaction_type="Sell Collateral",
-            amount=self.selling_collateral_value,
+            amount=self.net_proceeds,
+            # amount=self.selling_collateral_value,
+            approve=True,
+            loan_margin_shortfall_name=self.loan_margin_shortfall,
+        )
+        loan.create_loan_transaction(
+            transaction_type="DP Reimbursement Charges",
+            amount=total_dp_reinbursement_charges,
             approve=True,
             loan_margin_shortfall_name=self.loan_margin_shortfall,
         )
@@ -176,6 +192,8 @@ class SellCollateralApplication(Document):
         ):
             item.idx = i
 
+    def get_lender(self):
+        return frappe.get_doc("Lender", self.lender)
 
 @frappe.whitelist()
 def get_collateral_details(sell_collateral_application_name):
