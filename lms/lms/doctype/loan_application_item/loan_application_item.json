@@ -1,0 +1,114 @@
+{
+ "creation": "2020-07-28 10:01:21.020159",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "lender_approval_status",
+  "isin",
+  "security_name",
+  "security_category",
+  "pledged_quantity",
+  "price",
+  "amount",
+  "prf_number",
+  "pledge_status",
+  "pledge_executed"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "isin",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "ISIN",
+   "options": "Security",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "security_category",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Security Category",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "pledged_quantity",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Pledged Quantity",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "price",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Price",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "security_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Security Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "prf_number",
+   "fieldtype": "Read Only",
+   "label": "PRF Number"
+  },
+  {
+   "default": "0",
+   "fieldname": "pledge_executed",
+   "fieldtype": "Check",
+   "label": "Pledge Executed",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "depends_on": "eval:doc.pledge_status == \"Success\"",
+   "fieldname": "lender_approval_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Lender Approval Status",
+   "options": "\nApproved\nRejected\nPledge Failure"
+  },
+  {
+   "columns": 1,
+   "fieldname": "pledge_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Pledge Status",
+   "options": "\nSuccess\nFailure",
+   "read_only": 1
+  }
+ ],
+ "istable": 1,
+ "modified": "2021-05-19 13:42:50.954673",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Loan Application Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

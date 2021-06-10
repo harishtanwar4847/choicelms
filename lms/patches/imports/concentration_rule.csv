@@ -1,0 +1,6 @@
+"Category","Single Script Threshold","Single Script Allowed?","Single Script Threshold Type","Per Script Threshold","Group Script Threshold","Is there a Group Script Limit","Per Script Threshold Type","Group Script Threshold Type","Group Script Max Limit","Is there a Group Script Max Limit","Group Script Max Limit Type"
+"Cat D",0.0,0,"Amount",20.0,20.0,1,"Percentage","Percentage",10000000.0,1,"Amount"
+"Cat C",0.0,0,"Amount",30.0,50.0,1,"Percentage","Percentage",10000000.0,1,"Amount"
+"Cat B",0.0,0,"Amount",40.0,100.0,1,"Percentage","Percentage",10000000.0,1,"Amount"
+"Cat A",30000000.0,1,"Amount",0.0,0.0,0,"Amount","Amount",0.0,0,"Amount"
+"Super Cat A",50000000.0,1,"Amount",0.0,0.0,0,"Amount","Amount",0.0,0,"Amount"

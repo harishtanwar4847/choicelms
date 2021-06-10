@@ -1,0 +1,254 @@
+{
+ "creation": "2020-07-25 03:31:32.303055",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "choice_settings_section_break",
+  "choice_pan_api",
+  "choice_business_unit",
+  "choice_investor_id",
+  "choice_settings_column_break",
+  "choice_securities_list_api",
+  "choice_user_id",
+  "choice_ticket",
+  "cdsl_section_break",
+  "scheduler_from_time",
+  "scheduler_to_time",
+  "cdsl_host",
+  "pledge_setup_uri",
+  "cdsl_column_break",
+  "cdsl_referrer",
+  "cdsl_user_id",
+  "cdsl_dpid",
+  "cdsl_password",
+  "jiffy_section",
+  "jiffy_host",
+  "jiffy_security_get_latest_price_uri",
+  "column_break_26",
+  "jiffy_session_generator_uri",
+  "section_break_28",
+  "esign_host",
+  "esign_request_uri",
+  "enhancement_esign_download_signed_file_uri",
+  "column_break_31",
+  "esign_upload_file_uri",
+  "esign_download_signed_file_uri",
+  "section_break_33",
+  "app_identification_hash_string",
+  "column_break_35",
+  "terms_of_use_privacy_policy_section_break",
+  "terms_of_use_document",
+  "tnc_column_break",
+  "privacy_policy_document"
+ ],
+ "fields": [
+  {
+   "fieldname": "choice_settings_section_break",
+   "fieldtype": "Section Break",
+   "label": "Choice Settings"
+  },
+  {
+   "fieldname": "choice_settings_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "choice_business_unit",
+   "fieldtype": "Data",
+   "label": "Business Unit"
+  },
+  {
+   "fieldname": "choice_investor_id",
+   "fieldtype": "Data",
+   "label": "Investor ID"
+  },
+  {
+   "fieldname": "choice_user_id",
+   "fieldtype": "Data",
+   "label": "User ID"
+  },
+  {
+   "fieldname": "choice_ticket",
+   "fieldtype": "Data",
+   "label": "Ticket"
+  },
+  {
+   "fieldname": "choice_pan_api",
+   "fieldtype": "Data",
+   "label": "PAN API"
+  },
+  {
+   "fieldname": "choice_securities_list_api",
+   "fieldtype": "Data",
+   "label": "Securities List"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "cdsl_section_break",
+   "fieldtype": "Section Break",
+   "label": "CDSL"
+  },
+  {
+   "fieldname": "cdsl_host",
+   "fieldtype": "Data",
+   "label": "CDSL Host"
+  },
+  {
+   "fieldname": "pledge_setup_uri",
+   "fieldtype": "Data",
+   "label": "Pledge Setup URI"
+  },
+  {
+   "fieldname": "cdsl_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cdsl_referrer",
+   "fieldtype": "Data",
+   "label": "CDSL Referrer"
+  },
+  {
+   "fieldname": "cdsl_user_id",
+   "fieldtype": "Data",
+   "label": "CDSL User Id"
+  },
+  {
+   "fieldname": "cdsl_dpid",
+   "fieldtype": "Data",
+   "label": "CDSL DPID"
+  },
+  {
+   "fieldname": "cdsl_password",
+   "fieldtype": "Data",
+   "label": "CDSL Password"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "jiffy_section",
+   "fieldtype": "Section Break",
+   "label": "Jiffy"
+  },
+  {
+   "fieldname": "jiffy_host",
+   "fieldtype": "Data",
+   "label": "Jiffy Host"
+  },
+  {
+   "fieldname": "jiffy_session_generator_uri",
+   "fieldtype": "Data",
+   "label": "Jiffy Session Generator URI"
+  },
+  {
+   "fieldname": "jiffy_security_get_latest_price_uri",
+   "fieldtype": "Data",
+   "label": "Jiffy Security Get Latest Price URI"
+  },
+  {
+   "fieldname": "column_break_26",
+   "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_28",
+   "fieldtype": "Section Break",
+   "label": "ESign"
+  },
+  {
+   "fieldname": "column_break_31",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "app_identification_hash_string",
+   "fieldtype": "Data",
+   "label": "App Identification Hash String"
+  },
+  {
+   "fieldname": "section_break_33",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "terms_of_use_privacy_policy_section_break",
+   "fieldtype": "Section Break",
+   "label": "Terms Of Use and Privacy Policy Documents"
+  },
+  {
+   "fieldname": "terms_of_use_document",
+   "fieldtype": "Attach",
+   "label": "Terms of Use Document"
+  },
+  {
+   "fieldname": "privacy_policy_document",
+   "fieldtype": "Attach",
+   "label": "Privacy Policy Document"
+  },
+  {
+   "fieldname": "tnc_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "esign_host",
+   "fieldtype": "Data",
+   "label": "Esign Host"
+  },
+  {
+   "fieldname": "esign_request_uri",
+   "fieldtype": "Data",
+   "label": "Esign Request URI"
+  },
+  {
+   "fieldname": "esign_upload_file_uri",
+   "fieldtype": "Data",
+   "label": "Esign Upload File URI"
+  },
+  {
+   "fieldname": "esign_download_signed_file_uri",
+   "fieldtype": "Data",
+   "label": "Esign Download signed file URI"
+  },
+  {
+   "fieldname": "scheduler_from_time",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "From time (in hour)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "scheduler_to_time",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "To Time(in hour)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "enhancement_esign_download_signed_file_uri",
+   "fieldtype": "Data",
+   "label": "Enhancement Esign Download signed file URI"
+  },
+  {
+   "fieldname": "column_break_35",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "issingle": 1,
+ "modified": "2021-04-23 18:45:48.240971",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "LAS Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

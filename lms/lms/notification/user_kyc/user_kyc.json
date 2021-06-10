@@ -1,0 +1,25 @@
+{
+  "attach_print": 0,
+  "channel": "Email",
+  "creation": "2021-06-09 12:37:43.591928",
+  "days_in_advance": 0,
+  "docstatus": 0,
+  "doctype": "Notification",
+  "document_type": "User",
+  "enabled": 1,
+  "event": "Custom",
+  "idx": 0,
+  "is_standard": 1,
+  "message": "<p>Dear {{ doc.full_name or \"\" }},</p>\n<h2>Congratulations</h2>\n<p>Your KYC has been successfully verified.</p>\n<p>You can now go ahead and apply for your loan and fulfill your fund requirements!</p>\n<p>Get loan - <a href=\"{{ frappe.utils.get_url() }}\">Click Here</a></p>\n<p>We look forward to serve you soon.</p>\n\n<p>Thanks,</p>\n<p>The Spark Team</p>",
+  "modified": "2021-06-09 12:43:13.384024",
+  "modified_by": "Administrator",
+  "module": "Lms",
+  "name": "User KYC",
+  "owner": "Administrator",
+  "recipients": [
+    {
+      "email_by_document_field": "email"
+    }
+  ],
+  "subject": "User KYC "
+}

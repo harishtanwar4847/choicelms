@@ -1,0 +1,71 @@
+{
+ "autoname": "format:{security}-{time}",
+ "creation": "2020-07-28 18:34:38.302925",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "security",
+  "security_name",
+  "column_break_1",
+  "price",
+  "time"
+ ],
+ "fields": [
+  {
+   "fieldname": "security",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Security",
+   "options": "Security",
+   "reqd": 1
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Price",
+   "reqd": 1
+  },
+  {
+   "fieldname": "time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "security_name",
+   "fieldtype": "Read Only",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "label": "Security Name"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "modified": "2021-01-07 17:31:49.890107",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Security Price",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

@@ -1,0 +1,6 @@
+firebase-admin
+black
+isort
+pandas
+Click==7.0
+google-auth==1.19.1

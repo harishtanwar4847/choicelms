@@ -1,0 +1,25 @@
+{
+  "attach_print": 0,
+  "channel": "Email",
+  "creation": "2021-06-09 12:37:43.630495",
+  "days_in_advance": 0,
+  "docstatus": 0,
+  "doctype": "Notification",
+  "document_type": "User",
+  "enabled": 1,
+  "event": "Custom",
+  "idx": 0,
+  "is_standard": 1,
+  "message": "\n\n\n<h3>Hello {{ doc.full_name or \"\" }},</h3>\n\n<p>Thank you for joining Spark.loans.</p>\n\n<p> Click <a href=\"{{ doc.url }}\">here</a> to confirm that this is the correct email to reach you.</p>\n\n<p> Tip: Add our email address to your contacts to make sure they are never lost or get marked as spam - <a>reception@spark.loans</a></p>\n\n<p>Thanks,</p>\n<p> The Spark Team </p>\n",
+  "modified": "2021-06-09 12:43:26.448119",
+  "modified_by": "Administrator",
+  "module": "Lms",
+  "name": "User Email Verification",
+  "owner": "Administrator",
+  "recipients": [
+    {
+      "email_by_document_field": "email"
+    }
+  ],
+  "subject": "Email Verification"
+}

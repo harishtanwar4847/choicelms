@@ -1,0 +1,82 @@
+{
+  "creation": "2020-11-07 15:48:29.537597",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "lender",
+    "from_amount",
+    "rebait_interest",
+    "column_break_1",
+    "base_interest",
+    "to_amount"
+  ],
+  "fields": [
+    {
+      "fieldname": "lender",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Lender",
+      "options": "Lender",
+      "reqd": 1
+    },
+    {
+      "fieldname": "from_amount",
+      "fieldtype": "Float",
+      "in_list_view": 1,
+      "label": "From Amount",
+      "precision": "2",
+      "reqd": 1
+    },
+    {
+      "fieldname": "rebait_interest",
+      "fieldtype": "Float",
+      "in_list_view": 1,
+      "label": "Rebate Interest (Per Month)",
+      "precision": "2",
+      "reqd": 1
+    },
+    {
+      "fieldname": "column_break_1",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "base_interest",
+      "fieldtype": "Float",
+      "in_list_view": 1,
+      "label": "Base Interest (Per Month)",
+      "precision": "2",
+      "reqd": 1
+    },
+    {
+      "fieldname": "to_amount",
+      "fieldtype": "Float",
+      "label": "To Amount",
+      "precision": "2",
+      "reqd": 1
+    }
+  ],
+  "modified": "2020-11-27 10:50:38.854995",
+  "modified_by": "Administrator",
+  "module": "Lms",
+  "name": "Interest Configuration",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "quick_entry": 1,
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "track_changes": 1
+}
