@@ -129,7 +129,6 @@ override_doctype_dashboards = {
 }
 
 fixtures = [
-    "SMS Settings",
     "API Doc",
     "LAS Settings",
     "Workflow State",
