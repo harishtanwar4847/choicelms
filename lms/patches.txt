@@ -4,3 +4,4 @@ lms.patches.create_choice_lender
 lms.patches.import_allowed_security_master_for_choice_lender
 lms.patches.import_concentration_rule
 lms.patches.create_terms_and_conditions
+lms.patches.import_margin_shortfall_action
