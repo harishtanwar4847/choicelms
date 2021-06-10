@@ -130,7 +130,6 @@ override_doctype_dashboards = {
 
 fixtures = [
     "API Doc",
-    "LAS Settings",
     "Workflow State",
     "Workflow Action Master",
     "Workflow",
