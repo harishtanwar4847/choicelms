@@ -154,7 +154,7 @@ fixtures = [
     "Workflow",
     "Interest Configuration",
     "Consent",
-    "FAQ",
+    # "FAQ",
     "Contact Us Settings",
 ]
 
