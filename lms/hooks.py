@@ -137,7 +137,6 @@ fixtures = [
     "Interest Configuration",
     "Consent",
     "FAQ",
-    "Contact Us Settings",
 ]
 
 scheduler_events = {
