@@ -24,7 +24,7 @@ __version__ = "1.0.0-beta.1.2.3"
 
 user_token_expiry_map = {
     "OTP": 10,
-    "Email Verification Token": 60,
+    # "Email Verification Token": 60,
     "Pledge OTP": 10,
     "Withdraw OTP": 10,
     "Unpledge OTP": 10,
