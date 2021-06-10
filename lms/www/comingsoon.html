@@ -1,0 +1,166 @@
+{% extends 'templates/lmsbase.html' %} {% block body_content %}
+<!-- <section class="fw">
+  <div class="container">
+    <div class="row">
+      <div class="col titlesec maintitle">
+        <h5 style="margin-bottom: 0px;">Loan Calculator</h5>
+      </div>
+    </div>
+  </div>
+</section> -->
+<section class="fw landing content-privacy">
+  <div class="container container3 pr">
+    <div
+      class="comingsoon comingsoon2 d-flex justify-content-center align-items-center"
+    >
+      <div class="text-center">
+        <img src="assets/lms/images/chronometer.svg" />
+        <h4>Coming Soon...</h4>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- The Modal -->
+<div
+  class="modal fade common-modal"
+  id="apply-now-pop"
+  tabindex="-1"
+  role="dialog"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <h5 class="modal-title">Apply Now</h5>
+      <button
+        type="button"
+        class="close"
+        data-dismiss="modal"
+        aria-label="Close"
+      >
+        <img src="assets/lms/images/close-bt.png" />
+      </button>
+      <div class="modal-body">
+        <form
+          class="fw placeholder_txt"
+          name="apply-now-forum"
+          id="apply-now-forum"
+        >
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>First Name</span>
+                <input type="text" name="firstname" class="required number" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Last Name</span>
+                <input type="email" name="lastname" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Email <a href="#" class="optionalBtn"> Optional</a></span>
+                <input type="email" name="email" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Mobile</span>
+                <input type="tel" name="mobile" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="fw text-center mt-5">
+            <button type="submit" class="applybtn">
+              <span>Submit</span><span>&nbsp;</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- >Apply for position -->
+
+<div
+  class="modal fade common-modal"
+  id="Apply-position-pop"
+  tabindex="-1"
+  role="dialog"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <h5 class="modal-title">Apply for position</h5>
+      <button
+        type="button"
+        class="close"
+        data-dismiss="modal"
+        aria-label="Close"
+      >
+        <img src="assets/lms/images/close-bt.png" />
+      </button>
+      <div class="modal-body">
+        <form
+          class="fw placeholder_txt"
+          name="applyPosition"
+          id="applyPosition"
+        >
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>First Name</span>
+                <input type="text" name="firstname" class="required number" />
+              </label>
+            </div>
+          </div>
+
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Last Name</span>
+                <input type="email" name="lastname" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Email <a href="#" class="optionalBtn"> Optional</a></span>
+                <input type="email" name="email" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Mobile</span>
+                <input type="tel" name="mobile" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="form_upload">
+            <input type="file" name="files" />
+          </div>
+
+          <div class="fw text-center mt-5">
+            <button type="submit" class="applybtn">
+              <span>Submit</span><span>&nbsp;</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
