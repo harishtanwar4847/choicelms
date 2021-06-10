@@ -1,0 +1,357 @@
+html {
+  font-size: 10px;
+}
+
+.fileuploader,
+.fileuploader *,
+.fileuploader :before,
+.fileuploader :after {
+  box-sizing: border-box;
+}
+
+/* 
+    Parent
+*/
+.fileuploader {
+  display: block;
+  width: 100%;
+  margin: 35px 0px 40px 0px;
+}
+
+.fileuploader-input {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  border: 1px solid transparent;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/* input caption */
+.fileuploader-input-caption {
+  position: relative;
+  display: inline-block;
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -ms-flex-item-align: start;
+  align-self: flex-start;
+  padding: 10px 15px;
+  margin-right: 15px;
+  background: #fff;
+  border: 1px solid #dde4f6;
+  border-radius: 4px;
+  color: #94a2e8;
+  font-weight: bold;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  -webkit-transition: all 0.2s ease-out;
+  transition: all 0.2s ease-out;
+}
+
+/* input button */
+.fileuploader-input-button {
+  display: inline-block;
+  background: #687ddb;
+  padding: 11px 20px;
+  border-radius: 4px;
+  color: #fff;
+  text-align: center;
+  font-weight: bold;
+  vertical-align: top;
+  cursor: pointer;
+  -webkit-transition: all 0.2s ease-out;
+  transition: all 0.2s ease-out;
+}
+.fileuploader-input-button:hover {
+  background: #7b90ef;
+}
+.fileuploader-input-button:active {
+  background: #687ddb;
+  box-shadow: inset 0 1px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* input focused state */
+.fileuploader-focused .fileuploader-input-caption {
+  border-color: #b8c2ef;
+}
+.fileuploader-focused .fileuploader-input-button {
+  background: #7b90ef;
+  border-color: #7b90ef;
+}
+
+/* input disabled state */
+.fileuploader-disabled .fileuploader-input {
+  opacity: 0.7;
+  cursor: default;
+  pointer-events: none !important;
+}
+
+/* input dragging state */
+.fileuploader-theme-default .fileuploader-dragging {
+  background: #fff;
+  border: 1px dashed #dde4f6;
+}
+.fileuploader-theme-default .fileuploader-dragging .fileuploader-input-caption {
+  border-color: transparent;
+}
+.fileuploader-theme-default .fileuploader-dragging .fileuploader-input-button {
+  -webkit-transform: translateY(100%);
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+/* input uploading state */
+.fileuploader.fileuploader-is-uploading .fileuploader-input-caption:after {
+  width: 14px;
+  height: 14px;
+  right: 10px;
+  top: 50%;
+  margin-top: -10px;
+  opacity: 0.8;
+}
+
+/* global loader */
+.fileuploader.fileuploader-is-uploading .fileuploader-input-caption:after,
+.fileuploader-item .fileuploader-item-image.fileuploader-loading:after,
+.fileuploader-item.upload-pending .fileuploader-action-remove:after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border-top: 3px solid #dde4f6;
+  border-right: 3px solid #dde4f6;
+  border-bottom: 3px solid #dde4f6;
+  border-left: 3px solid #979fb8;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-animation: fileuploaderSpin 1s infinite linear;
+  animation: fileuploaderSpin 1s infinite linear;
+}
+/*
+    Thumbnails
+    default theme
+*/
+
+/* list */
+.fileuploader-items-list {
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* item */
+.fileuploader-item {
+  position: relative;
+  margin: 0;
+  padding: 14px 0px 36px 0px;
+  border-bottom: 1px solid #e8e8e8;
+  -webkit-animation: fileuploaderSlideIn 0.4s ease;
+  animation: fileuploaderSlideIn 0.4s ease;
+}
+.fileuploader-item:last-child {
+  border-bottom: 0;
+  margin-bottom: -15px;
+}
+
+/* item uploading state */
+
+.fileuploader-item.upload-pending .fileuploader-action-remove:after {
+  width: 26px;
+  height: 26px;
+  right: -5px;
+  top: 50%;
+  margin-top: -13px;
+  opacity: 0.2;
+}
+
+/* item columns */
+.fileuploader-item .columns {
+  position: relative;
+  z-index: 2;
+}
+
+/* item column-thumbnail */
+.fileuploader-item .column-thumbnail {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  left: 0;
+  top: 0;
+  display: none;
+}
+.fileuploader-item .column-thumbnail .fileuploader-item-image {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.fileuploader-item .fileuploader-item-image img,
+.fileuploader-item .fileuploader-item-image canvas {
+  border-radius: 4px;
+  -webkit-animation: fileuploaderFadeIn 0.2s ease;
+  animation: fileuploaderFadeIn 0.2s ease;
+}
+
+/* thumbnail loading state */
+.fileuploader-item
+  .column-thumbnail
+  .fileuploader-item-image.fileuploader-loading:after {
+  width: 24px;
+  height: 24px;
+  left: 50%;
+  top: 50%;
+  margin-left: -12px;
+  margin-top: -12px;
+  border-radius: 50%;
+  opacity: 0.12;
+}
+
+/* item column-title */
+.fileuploader-item .column-title {
+  display: block;
+  padding: 0px 30px;
+  color: #333;
+  font-size: 1.6rem;
+  font-family: "Gilroy_Medium";
+}
+.fileuploader-item a {
+  color: #333;
+  text-decoration: none;
+}
+.fileuploader-item .column-title div {
+  width: 100%;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.fileuploader-item .column-title span {
+  font-size: 12px;
+  color: #979fb8;
+  display: none;
+}
+
+/* item actions */
+.fileuploader-item .column-actions {
+  position: relative;
+  right: 0px;
+  top: 50%;
+  margin-top: -24px;
+}
+.fileuploader-action {
+  display: inline-block;
+  position: relative;
+}
+.fileuploader-item .column-actions .fileuploader-action + .fileuploader-action {
+  cursor: pointer;
+}
+.fileuploader-item .column-actions .fileuploader-action-success {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.fileuploader-item .column-actions .fileuploader-action-success:hover,
+.fileuploader-item .column-actions .fileuploader-action-success:active {
+  opacity: 0;
+}
+
+/* icon.remove */
+.fileuploader-action-remove {
+  background: #fff;
+  position: absolute;
+  right: 0px;
+  top: 1px;
+}
+.fileuploader-action-remove:hover {
+  background: #fff;
+}
+.fileuploader-action-remove:active {
+  background: #fff;
+}
+.fileuploader-action-remove i:before,
+.fileuploader-action-remove i:after {
+  content: "";
+  position: absolute;
+  top: 0px;
+  left: 7px;
+  border-radius: 50px;
+  height: 18px;
+  width: 3px;
+  background-color: #eb5e50;
+}
+.fileuploader-action-remove i:before {
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+.fileuploader-action-remove i:after {
+  -webkit-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+}
+
+/* icon-retry */
+.fileuploader-action-retry {
+  background: #fff;
+  position: absolute;
+  left: 0px;
+}
+
+/* input */
+.fileuploader-theme-dragdrop .fileuploader-input {
+  display: block;
+  padding: 20px;
+  background: #f5f7fc;
+  border: 2px dashed #949db2;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+  -webkit-transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease;
+}
+.fileuploader-theme-dragdrop .fileuploader-input .fileuploader-input-inner {
+  -webkit-transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease;
+}
+.fileuploader-theme-dragdrop
+  .fileuploader-input.fileuploader-dragging
+  .fileuploader-input-inner {
+  opacity: 0.4;
+}
+.fileuploader-theme-dragdrop .fileuploader-input.fileuploader-dragging img {
+  -webkit-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+.fileuploader-theme-dragdrop .fileuploader-input img {
+  display: block;
+  margin: 0 auto;
+
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+.fileuploader-theme-dragdrop .fileuploader-input h3 {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: "Gilroy_SemiBold";
+  font-size: 1.4rem;
+  color: #1b2e6a;
+}
+.fileuploader-theme-dragdrop .fileuploader-input p {
+  color: #74809d;
+}
+.fileuploader-theme-dragdrop.fileuploader-is-uploading
+  .fileuploader-input-caption:after {
+  display: none;
+}
+.fileuploader-theme-dragdrop .fileuploader-pending-loader .right-half,
+.fileuploader-theme-dragdrop .fileuploader-pending-loader .spinner {
+  background: #687ddb;
+}
+.fileuploader-theme-dragdrop .fileuploader-input p {
+  margin: 10px 0;
+}
