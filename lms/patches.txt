@@ -7,3 +7,4 @@ lms.patches.create_terms_and_conditions
 lms.patches.import_margin_shortfall_action
 lms.patches.update_sms_settings
 lms.patches.update_contact_us_settings
+lms.patches.import_faq
