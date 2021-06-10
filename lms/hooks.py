@@ -129,7 +129,6 @@ override_doctype_dashboards = {
 }
 
 fixtures = [
-    "Terms and Conditions",
     "Margin Shortfall Action",
     "SMS Settings",
     "API Doc",
