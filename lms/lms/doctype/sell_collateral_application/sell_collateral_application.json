@@ -13,7 +13,7 @@
   "customer",
   "selling_collateral_value",
   "loan_margin_shortfall",
-  "net_proceeds",
+  "lender_selling_amount",
   "section_break_4",
   "items",
   "sell_items",
@@ -94,6 +94,7 @@
    "options": "Loan Margin Shortfall"
   },
   {
+   "depends_on": "eval:doc.owner == frappe.session.user",
    "fieldname": "initial_shortfall_amount",
    "fieldtype": "Currency",
    "label": "Initial Shortfall Amount"
@@ -104,13 +105,13 @@
    "label": "Current Shortfall Amount"
   },
   {
-   "fieldname": "net_proceeds",
+   "fieldname": "lender_selling_amount",
    "fieldtype": "Currency",
-   "label": "Net Proceeds"
+   "label": "Lender Selling Amount"
   }
  ],
  "is_submittable": 1,
- "modified": "2021-06-10 13:44:50.111615",
+ "modified": "2021-06-11 12:45:42.532221",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",

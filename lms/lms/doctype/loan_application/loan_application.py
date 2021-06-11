@@ -238,8 +238,34 @@ class LoanApplication(Document):
                 loan_margin_shortfall = frappe.get_doc(
                     "Loan Margin Shortfall", self.loan_margin_shortfall
                 )
+                under_process_la = frappe.get_all(
+                    "Loan Application",
+                    filters={
+                        "loan": self.loan,
+                        "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
+                        "pledge_status": ["!=", "Failure"],
+                        "loan_margin_shortfall": ["!=", None]
+                    }
+                )
+                pending_loan_transaction = frappe.get_all(
+                    "Loan Transaction",
+                    filters={
+                        "loan": self.loan,
+                        "status": ["not IN", ["Approved", "Rejected"]],
+                        "loan_margin_shortfall": ["!=", None]
+                    }
+                )
+                pending_sell_collateral_application = frappe.get_all(
+                    "Sell Collateral Application",
+                    filters={
+                        "loan": self.loan,
+                        "status": ["not IN", ["Approved", "Rejected"]],
+                        "loan_margin_shortfall": ["!=", None]
+                    }
+                )
                 if (
-                    loan_margin_shortfall.status == "Request Pending"
+                    (not pending_loan_transaction and not pending_sell_collateral_application and not under_process_la)
+                    and loan_margin_shortfall.status == "Request Pending"
                     and loan_margin_shortfall.shortfall_percentage > 0
                 ):
                     loan_margin_shortfall.status = "Pending"
@@ -289,8 +315,34 @@ class LoanApplication(Document):
                 loan_margin_shortfall = frappe.get_doc(
                     "Loan Margin Shortfall", self.loan_margin_shortfall
                 )
+                under_process_la = frappe.get_all(
+                    "Loan Application",
+                    filters={
+                        "loan": self.loan,
+                        "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
+                        "pledge_status": ["!=", "Failure"],
+                        "loan_margin_shortfall": ["!=", None]
+                    }
+                )
+                pending_loan_transaction = frappe.get_all(
+                    "Loan Transaction",
+                    filters={
+                        "loan": self.loan,
+                        "status": ["not IN", ["Approved", "Rejected"]],
+                        "loan_margin_shortfall": ["!=", None]
+                    }
+                )
+                pending_sell_collateral_application = frappe.get_all(
+                    "Sell Collateral Application",
+                    filters={
+                        "loan": self.loan,
+                        "status": ["not IN", ["Approved", "Rejected"]],
+                        "loan_margin_shortfall": ["!=", None]
+                    }
+                )
                 if (
-                    loan_margin_shortfall.status == "Request Pending"
+                    (not pending_loan_transaction and not pending_sell_collateral_application and not under_process_la)
+                    and loan_margin_shortfall.status == "Request Pending"
                     and loan_margin_shortfall.shortfall_percentage > 0
                 ):
                     loan_margin_shortfall.status = "Pending"

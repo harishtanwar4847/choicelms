@@ -1348,14 +1348,31 @@ def loan_payment(**kwargs):
                     message=_("Loan Margin Shortfall should be for the provided loan.")
                 )
 
-            if loan_margin_shortfall.status == "Request Pending":
+            pending_loan_transaction = frappe.get_all(
+                    "Loan Transaction",
+                    filters={
+                        "loan": loan.name,
+                        "status": ["not IN", ["Approved", "Rejected"]],
+                        "loan_margin_shortfall": ["!=", None]
+                    },
+                )
+            print(pending_loan_transaction)
+            if pending_loan_transaction:
                 return utils.respondWithFailure(
                     status=417,
                     message="Payment for Margin Shortfall of Loan {} is already in process.".format(
                         loan.name
                     ),
                 )
-            elif loan_margin_shortfall.status == "Pending":
+
+            # if loan_margin_shortfall.status == "Request Pending":
+            #     return utils.respondWithFailure(
+            #         status=417,
+            #         message="Payment for Margin Shortfall of Loan {} is already in process.".format(
+            #             loan.name
+            #         ),
+            #     )
+            if loan_margin_shortfall.status == "Pending":
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
                 frappe.db.commit()
@@ -2133,6 +2150,7 @@ def sell_collateral_request(**kwargs):
                 "items": items,
             }
         )
+        msg = ""
 
         if data.get("loan_margin_shortfall_name"):
             sell_collateral_application.loan_margin_shortfall = data.get(
@@ -2141,14 +2159,29 @@ def sell_collateral_request(**kwargs):
             loan_margin_shortfall = frappe.get_doc(
                 "Loan Margin Shortfall", data.get("loan_margin_shortfall_name")
             )
-            if loan_margin_shortfall.status == "Request Pending":
+            pending_sell_collateral_application = frappe.get_all(
+                    "Sell Collateral Application",
+                    filters={
+                        "loan": loan.name,
+                        "status": ["not IN", ["Approved", "Rejected"]],
+                        "loan_margin_shortfall": ["!=", None]
+                    }
+                )
+            if pending_sell_collateral_application:
                 return utils.respondWithFailure(
                     status=417,
                     message="Payment for Margin Shortfall of Loan {} is already in process.".format(
                         loan.name
                     ),
                 )
-            elif loan_margin_shortfall.status == "Pending":
+            # if loan_margin_shortfall.status == "Request Pending":
+            #     return utils.respondWithFailure(
+            #         status=417,
+            #         message="Payment for Margin Shortfall of Loan {} is already in process.".format(
+            #             loan.name
+            #         ),
+            #     )
+            if loan_margin_shortfall.status == "Pending":
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
                 frappe.db.commit()
