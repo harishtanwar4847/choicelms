@@ -366,7 +366,7 @@ class LoanApplication(Document):
         doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc)
         frappe.enqueue_doc("Notification", "Loan Sanction", method="send", doc=doc)
 
-        mobile = frappe.db.get_value("Loan Customer", {"name": self.customer}, "phone")
+        # mobile = frappe.db.get_value("Loan Customer", {"name": self.customer}, "phone")
         # mess = _(
         #     "Dear "
         #     + doc.investor_name
