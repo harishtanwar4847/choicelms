@@ -102,7 +102,15 @@ class SellCollateralApplication(Document):
                     "You need to sell all {} of isin {}".format(i.quantity, i.isin)
                 )
 
-    def on_submit(self):
+        lender = self.get_lender()
+        dp_reimburse_sell_charges = lender.dp_reimburse_sell_charges
+        sell_charges = lender.sell_collateral_charges
+        if dp_reimburse_sell_charges <= 0:
+            frappe.throw("You need to check the amount of DP Reimbursement Charges for Sell Collateral")
+        elif sell_charges <= 0:
+            frappe.throw("You need to check the amount of Sell Collateral Charges")
+
+    def on_update(self):
         if self.status == "Rejected":
             msg = "Dear Customer, \nSorry! Your sell collateral request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans"
 
@@ -142,7 +150,7 @@ class SellCollateralApplication(Document):
         dp_reimburse_sell_charges = lender.dp_reimburse_sell_charges
         sell_charges = lender.sell_collateral_charges
 
-        total_dp_reimburse_sell_charges = len(self.sell_items) * dp_reimburse_sell_charges
+        total_dp_reimburse_sell_charges = len(self.items) * dp_reimburse_sell_charges
         sell_collateral_charges = self.lender_selling_amount * sell_charges/100
 
         loan.create_loan_transaction(

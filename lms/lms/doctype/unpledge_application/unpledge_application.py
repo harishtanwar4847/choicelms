@@ -106,6 +106,11 @@ class UnpledgeApplication(Document):
                     "You need to unpledge all {} of isin {}".format(i.quantity, i.isin)
                 )
 
+        lender = self.get_lender()
+        dp_reimburse_unpledge_charges = lender.dp_reimburse_unpledge_charges
+        if dp_reimburse_unpledge_charges <= 0:
+            frappe.throw("You need to check the amount of DP Reimbursement Charges for Sell Collateral")
+
     def on_submit(self):
         for i in self.unpledge_items:
             if i.unpledge_quantity > 0:
@@ -128,7 +133,7 @@ class UnpledgeApplication(Document):
 
         lender = self.get_lender()
         dp_reimburse_unpledge_charges = lender.dp_reimburse_unpledge_charges
-        total_dp_reimburse_unpledge_charges = len(self.unpledge_items) * dp_reimburse_unpledge_charges
+        total_dp_reimburse_unpledge_charges = len(self.items) * dp_reimburse_unpledge_charges
 
         loan.create_loan_transaction(
             transaction_type="DP Reimbursement(Unpledge)",
