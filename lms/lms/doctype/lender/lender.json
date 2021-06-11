@@ -43,6 +43,13 @@
   "stamp_duty",
   "documentation_charges",
   "mortgage_charges",
+  "column_break_39",
+  "lender_processing_max_amount",
+  "data_41",
+  "lender_stamp_duty_min_amount",
+  "lender_documentation_min_amount",
+  "lender_mortgage_min_amount",
+  "column_break_54",
   "charges_sharing_details_section",
   "lender_processing_fees_sharing_type",
   "stamp_duty_sharing_type",
@@ -189,10 +196,6 @@
    "options": "Fix\nPercentage"
   },
   {
-   "fieldname": "column_break_3",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "lender_processing_fees_sharing",
    "fieldtype": "Float",
    "label": "Lender Processing Fees Sharing",
@@ -326,9 +329,45 @@
    "fieldname": "enhancement_esign_page",
    "fieldtype": "Int",
    "label": "Enhancement Esign Page"
+  },
+  {
+   "fieldname": "column_break_39",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lender_processing_max_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Amount"
+  },
+  {
+   "fieldname": "data_41",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "lender_stamp_duty_min_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "lender_documentation_min_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "lender_mortgage_min_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "column_break_54",
+   "fieldtype": "Column Break"
   }
  ],
- "modified": "2021-02-24 14:55:15.599692",
+ "modified": "2021-06-11 11:04:47.745174",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
