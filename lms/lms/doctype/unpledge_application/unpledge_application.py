@@ -133,7 +133,10 @@ class UnpledgeApplication(Document):
 
         lender = self.get_lender()
         dp_reimburse_unpledge_charges = lender.dp_reimburse_unpledge_charges
-        total_dp_reimburse_unpledge_charges = len(self.items) * dp_reimburse_unpledge_charges
+        if lender.dp_reimburse_unpledge_charge_type == "Fix":
+            total_dp_reimburse_unpledge_charges = len(self.items) * dp_reimburse_unpledge_charges
+        elif lender.dp_reimburse_unpledge_charge_type == "Percentage":
+            total_dp_reimburse_unpledge_charges = len(self.items) * dp_reimburse_unpledge_charges/100
 
         loan.create_loan_transaction(
             transaction_type="DP Reimbursement(Unpledge)",

@@ -150,8 +150,14 @@ class SellCollateralApplication(Document):
         dp_reimburse_sell_charges = lender.dp_reimburse_sell_charges
         sell_charges = lender.sell_collateral_charges
 
-        total_dp_reimburse_sell_charges = len(self.items) * dp_reimburse_sell_charges
-        sell_collateral_charges = self.lender_selling_amount * sell_charges/100
+        if lender.dp_reimburse_sell_charge_type == "Fix":
+            total_dp_reimburse_sell_charges = len(self.items) * dp_reimburse_sell_charges
+        elif lender.dp_reimburse_sell_charge_type == "Percentage":
+            total_dp_reimburse_sell_charges = len(self.items) * dp_reimburse_sell_charges/100
+        if lender.sell_collateral_charge_type == "Fix":
+            sell_collateral_charges = self.lender_selling_amount * sell_charges
+        elif lender.sell_collateral_charge_type == "Percentage":
+            sell_collateral_charges = self.lender_selling_amount * sell_charges/100
 
         loan.create_loan_transaction(
             transaction_type="Sell Collateral",
