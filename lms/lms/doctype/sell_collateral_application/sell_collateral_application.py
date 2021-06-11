@@ -118,54 +118,6 @@ class SellCollateralApplication(Document):
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
-            # if self.loan_margin_shortfall:
-            #     # if frappe.session.user != self.owner:
-
-            #     # if shortfall is not recoverd then margin shortfall status will change from request pending to pending
-            #     loan_margin_shortfall = frappe.get_doc(
-            #         "Loan Margin Shortfall", self.loan_margin_shortfall
-            #     )
-                # under_process_la = frappe.get_all(
-                #     "Loan Application",
-                #     filters={
-                #         "loan": self.loan,
-                #         "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
-                #         "pledge_status": ["!=", "Failure"],
-                #         "loan_margin_shortfall": ["!=", None]
-                #     }
-                # )
-                # print(len(under_process_la))
-                # pending_loan_transaction = frappe.get_all(
-                #     "Loan Transaction",
-                #     filters={
-                #         "loan": self.loan,
-                #         "status": ["not IN", ["Approved", "Rejected"]],
-                #         "loan_margin_shortfall": ["!=", None]
-                #     }
-                # )
-                # print(len(pending_loan_transaction))
-                # pending_sell_collateral_application = frappe.get_all(
-                #     "Sell Collateral Application",
-                #     filters={
-                #         "loan": self.loan,
-                #         "status": ["not IN", ["Approved", "Rejected"]],
-                #         "loan_margin_shortfall": ["!=", None]
-                #     }
-                # )
-                # print(len(pending_sell_collateral_application))
-                # print((not pending_loan_transaction and not pending_sell_collateral_application and not under_process_la)
-                #     and loan_margin_shortfall.status == "Request Pending"
-                #     and loan_margin_shortfall.shortfall_percentage > 0)
-                # print(loan_margin_shortfall.status)
-                # if (
-                #     (not pending_loan_transaction and not pending_sell_collateral_application and not under_process_la)
-                #     and loan_margin_shortfall.status == "Request Pending"
-                #     and loan_margin_shortfall.shortfall_percentage > 0
-                # ):
-                #     loan_margin_shortfall.status = "Pending"
-                #     loan_margin_shortfall.save(ignore_permissions=True)
-                #     frappe.db.commit()
-
     def on_submit(self):
         for i in self.sell_items:
             if i.sell_quantity > 0:
@@ -181,14 +133,18 @@ class SellCollateralApplication(Document):
                 }
                 CollateralLedger.create_entry(**collateral_ledger_input)
 
-        # lender = self.get_lender()
-        # dp_reinbursement_charges = lender.dp_reimbursement_charges
-        # total_dp_reinbursement_charges = len(self.sell_items) * dp_reinbursement_charges
-
         loan = self.get_loan()
         loan.update_items()
         loan.fill_items()
         loan.save(ignore_permissions=True)
+
+        lender = self.get_lender()
+        dp_reimburse_sell_charges = lender.dp_reimburse_sell_charges
+        sell_charges = lender.sell_collateral_charges
+
+        total_dp_reimburse_sell_charges = len(self.sell_items) * dp_reimburse_sell_charges
+        sell_collateral_charges = self.lender_selling_amount * sell_charges/100
+
         loan.create_loan_transaction(
             transaction_type="Sell Collateral",
             amount=self.lender_selling_amount,
@@ -196,12 +152,20 @@ class SellCollateralApplication(Document):
             approve=True,
             loan_margin_shortfall_name=self.loan_margin_shortfall,
         )
-        # loan.create_loan_transaction(
-        #     transaction_type="DP Reimbursement Charges",
-        #     amount=total_dp_reinbursement_charges,
-        #     approve=True,
-        #     loan_margin_shortfall_name=self.loan_margin_shortfall,
-        # )
+        # DP Reimbursement(Sell)
+        # Sell Collateral Charges
+        loan.create_loan_transaction(
+            transaction_type="DP Reimbursement(Sell)",
+            amount=total_dp_reimburse_sell_charges,
+            approve=True,
+            loan_margin_shortfall_name=self.loan_margin_shortfall,
+        )
+        loan.create_loan_transaction(
+            transaction_type="Sell Collateral Charges",
+            amount=sell_collateral_charges,
+            approve=True,
+            loan_margin_shortfall_name=self.loan_margin_shortfall,
+        )
         if self.owner == frappe.session.user and self.loan_margin_shortfall:
             msg = "Dear Customer, \nSale of securities initiated by the lending partner for your loan account {} is now completed .The sale proceeds have been credited to your loan account and collateral value updated. Please check the app for details.".format(
                 self.loan

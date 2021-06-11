@@ -94,12 +94,13 @@
    "options": "Loan Margin Shortfall"
   },
   {
-   "depends_on": "eval:doc.owner == frappe.session.user",
+   "depends_on": "eval:(doc.owner == frappe.session.user && doc.loan_margin_shortfall)",
    "fieldname": "initial_shortfall_amount",
    "fieldtype": "Currency",
    "label": "Initial Shortfall Amount"
   },
   {
+   "depends_on": "eval:doc.loan_margin_shortfall",
    "fieldname": "current_shortfall_amount",
    "fieldtype": "Currency",
    "label": "Current Shortfall Amount"
@@ -111,7 +112,7 @@
   }
  ],
  "is_submittable": 1,
- "modified": "2021-06-11 12:45:42.532221",
+ "modified": "2021-06-11 16:31:38.649738",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",

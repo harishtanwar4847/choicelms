@@ -125,6 +125,17 @@ class UnpledgeApplication(Document):
         loan.update_items()
         loan.fill_items()
         loan.save(ignore_permissions=True)
+
+        lender = self.get_lender()
+        dp_reimburse_unpledge_charges = lender.dp_reimburse_unpledge_charges
+        total_dp_reimburse_unpledge_charges = len(self.unpledge_items) * dp_reimburse_unpledge_charges
+
+        loan.create_loan_transaction(
+            transaction_type="DP Reimbursement(Unpledge)",
+            amount=total_dp_reimburse_unpledge_charges,
+            approve=True,
+        )
+        
         self.notify_customer()
 
     def notify_customer(self, check=None):
@@ -178,6 +189,9 @@ class UnpledgeApplication(Document):
             self.save(ignore_permissions=True)
             frappe.db.commit()
             self.notify_customer(check)
+
+    def get_lender(self):
+        return frappe.get_doc("Lender", self.lender)
 
     # def check(self):
     #     loan = self.get_loan()
