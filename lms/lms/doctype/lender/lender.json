@@ -44,12 +44,15 @@
   "documentation_charges",
   "mortgage_charges",
   "column_break_39",
-  "lender_processing_max_amount",
-  "data_41",
-  "lender_stamp_duty_min_amount",
-  "lender_documentation_min_amount",
-  "lender_mortgage_min_amount",
+  "lender_processing_minimum_amount",
+  "lender_stamp_duty_minimum_amount",
+  "lender_documentation_minimum_amount",
+  "lender_mortgage_minimum_amount",
   "column_break_54",
+  "lender_processing_maximum_amount",
+  "lender_stamp_duty_maximum_amount",
+  "lender_documentation_maximum_amount",
+  "lender_mortgage_maximum_amount",
   "charges_sharing_details_section",
   "lender_processing_fees_sharing_type",
   "stamp_duty_sharing_type",
@@ -339,35 +342,51 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "lender_processing_max_amount",
+   "fieldname": "column_break_54",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lender_processing_minimum_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "lender_processing_maximum_amount",
    "fieldtype": "Float",
    "label": "Maximum Amount"
   },
   {
-   "fieldname": "data_41",
-   "fieldtype": "Data"
+   "fieldname": "lender_stamp_duty_maximum_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Amount"
   },
   {
-   "fieldname": "lender_stamp_duty_min_amount",
+   "fieldname": "lender_documentation_maximum_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Amount"
+  },
+  {
+   "fieldname": "lender_mortgage_maximum_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Amount"
+  },
+  {
+   "fieldname": "lender_stamp_duty_minimum_amount",
    "fieldtype": "Float",
    "label": "Minimum Amount"
   },
   {
-   "fieldname": "lender_documentation_min_amount",
+   "fieldname": "lender_documentation_minimum_amount",
    "fieldtype": "Float",
    "label": "Minimum Amount"
   },
   {
-   "fieldname": "lender_mortgage_min_amount",
+   "fieldname": "lender_mortgage_minimum_amount",
    "fieldtype": "Float",
    "label": "Minimum Amount"
-  },
-  {
-   "fieldname": "column_break_54",
-   "fieldtype": "Column Break"
   }
  ],
- "modified": "2021-06-11 11:04:47.745174",
+ "modified": "2021-06-11 14:52:34.187674",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
