@@ -340,7 +340,7 @@ class LoanApplication(Document):
             }
         )
         loan.insert(ignore_permissions=True)
-        # loan.create_loan_charges()
+        loan.create_loan_charges()
         # self.map_loan_agreement_file(loan)
 
         # File code here #S

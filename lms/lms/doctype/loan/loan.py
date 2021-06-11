@@ -16,8 +16,8 @@ from lms.lms.doctype.loan_transaction.loan_transaction import LoanTransaction
 
 
 class Loan(Document):
-    def after_insert(self):
-        self.create_loan_charges()
+    # def after_insert(self):
+    #     self.create_loan_charges()
 
     def maximum_withdrawable_amount(self, withdraw_req_name=None, req_time=None):
         balance = self.balance
@@ -59,7 +59,7 @@ class Loan(Document):
     def get_lender(self):
         return frappe.get_doc("Lender", self.lender)
 
-    def create_loan_charges(self):
+    def create_loan_charges_old(self):
         lender = self.get_lender()
 
         # Processing fees
@@ -101,6 +101,88 @@ class Loan(Document):
             amount,
             approve=True,
         )
+
+    def create_loan_charges(self):
+        lender = self.get_lender()
+
+        # Processing fees
+        processing_fees = lender.lender_processing_fees
+        if lender.lender_processing_fees_type == "Percentage":
+            amount = (processing_fees / 100) * self.sanctioned_limit
+            processing_fees = self.validate_loan_charges_amount(
+                lender,
+                amount,
+                "lender_processing_minimum_amount",
+                "lender_processing_maximum_amount",
+            )
+            # if amount < lender.lender_processing_minimum_amount:
+            #     amount = lender.lender_processing_minimum_amount
+            # elif amount > lender.lender_processing_maximum_amount:
+            #     amount = lender.lender_processing_maximum_amount
+
+        self.create_loan_transaction(
+            "Processing Fees",
+            processing_fees,
+            approve=True,
+        )
+
+        # Stamp Duty
+        stamp_duty = lender.stamp_duty
+        if lender.stamp_duty_type == "Percentage":
+            amount = (stamp_duty / 100) * self.sanctioned_limit
+            stamp_duty = self.validate_loan_charges_amount(
+                lender,
+                amount,
+                "lender_stamp_duty_minimum_amount",
+                "lender_stamp_duty_maximum_amount",
+            )
+
+        self.create_loan_transaction(
+            "Stamp Duty",
+            stamp_duty,
+            approve=True,
+        )
+
+        # Documentation Charges
+        documentation_charges = lender.documentation_charges
+        if lender.documentation_charge_type == "Percentage":
+            amount = (documentation_charges / 100) * self.sanctioned_limit
+            documentation_charges = self.validate_loan_charges_amount(
+                lender,
+                amount,
+                "lender_documentation_minimum_amount",
+                "lender_documentation_maximum_amount",
+            )
+
+        self.create_loan_transaction(
+            "Documentation Charges",
+            documentation_charges,
+            approve=True,
+        )
+
+        # Mortgage Charges
+        mortgage_charges = lender.mortgage_charges
+        if lender.mortgage_charge_type == "Percentage":
+            amount = (mortgage_charges / 100) * self.sanctioned_limit
+            mortgage_charges = self.validate_loan_charges_amount(
+                lender,
+                amount,
+                "lender_mortgage_minimum_amount",
+                "lender_mortgage_maximum_amount",
+            )
+
+        self.create_loan_transaction(
+            "Mortgage Charges",
+            mortgage_charges,
+            approve=True,
+        )
+
+    def validate_loan_charges_amount(self, lender_doc, amount, min_field, max_field):
+        if amount < lender_doc[min_field]:
+            amount = lender_doc[min_field]
+        elif amount > lender_doc[max_field]:
+            amount = lender_doc[max_field]
+        return amount
 
     def create_loan_transaction(
         self,
