@@ -133,7 +133,6 @@ fixtures = [
     "Workflow State",
     "Workflow Action Master",
     "Workflow",
-    "Interest Configuration",
 ]
 
 scheduler_events = {
