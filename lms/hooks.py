@@ -130,9 +130,6 @@ override_doctype_dashboards = {
 
 fixtures = [
     "API Doc",
-    "Workflow State",
-    "Workflow Action Master",
-    "Workflow",
 ]
 
 scheduler_events = {
