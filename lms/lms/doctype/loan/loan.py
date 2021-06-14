@@ -115,16 +115,13 @@ class Loan(Document):
                 "lender_processing_minimum_amount",
                 "lender_processing_maximum_amount",
             )
-            # if amount < lender.lender_processing_minimum_amount:
-            #     amount = lender.lender_processing_minimum_amount
-            # elif amount > lender.lender_processing_maximum_amount:
-            #     amount = lender.lender_processing_maximum_amount
 
-        self.create_loan_transaction(
-            "Processing Fees",
-            processing_fees,
-            approve=True,
-        )
+        if processing_fees > 0:
+            self.create_loan_transaction(
+                "Processing Fees",
+                processing_fees,
+                approve=True,
+            )
 
         # Stamp Duty
         stamp_duty = lender.stamp_duty
@@ -137,11 +134,12 @@ class Loan(Document):
                 "lender_stamp_duty_maximum_amount",
             )
 
-        self.create_loan_transaction(
-            "Stamp Duty",
-            stamp_duty,
-            approve=True,
-        )
+        if stamp_duty > 0:
+            self.create_loan_transaction(
+                "Stamp Duty",
+                stamp_duty,
+                approve=True,
+            )
 
         # Documentation Charges
         documentation_charges = lender.documentation_charges
@@ -154,11 +152,12 @@ class Loan(Document):
                 "lender_documentation_maximum_amount",
             )
 
-        self.create_loan_transaction(
-            "Documentation Charges",
-            documentation_charges,
-            approve=True,
-        )
+        if documentation_charges > 0:
+            self.create_loan_transaction(
+                "Documentation Charges",
+                documentation_charges,
+                approve=True,
+            )
 
         # Mortgage Charges
         mortgage_charges = lender.mortgage_charges
@@ -171,17 +170,19 @@ class Loan(Document):
                 "lender_mortgage_maximum_amount",
             )
 
-        self.create_loan_transaction(
-            "Mortgage Charges",
-            mortgage_charges,
-            approve=True,
-        )
+        if mortgage_charges > 0:
+            self.create_loan_transaction(
+                "Mortgage Charges",
+                mortgage_charges,
+                approve=True,
+            )
 
     def validate_loan_charges_amount(self, lender_doc, amount, min_field, max_field):
-        if amount < lender_doc[min_field]:
-            amount = lender_doc[min_field]
-        elif amount > lender_doc[max_field]:
-            amount = lender_doc[max_field]
+        lender_dict = lender_doc.as_dict()
+        if (lender_dict[min_field] > 0) and (amount < lender_dict[min_field]):
+            amount = lender_dict[min_field]
+        elif (lender_dict[max_field] > 0) and (amount > lender_dict[max_field]):
+            amount = lender_dict[max_field]
         return amount
 
     def create_loan_transaction(
