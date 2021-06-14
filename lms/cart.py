@@ -149,7 +149,7 @@ def upsert(**kwargs):
                         "loan": loan.name,
                         "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
                         "pledge_status": ["!=", "Failure"],
-                        "loan_margin_shortfall": ["!=", None]
+                        "loan_margin_shortfall": loan_margin_shortfall.name
                     }
                 )
                 if under_process_la:

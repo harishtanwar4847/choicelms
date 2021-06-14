@@ -244,7 +244,7 @@ class LoanApplication(Document):
                         "loan": self.loan,
                         "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
                         "pledge_status": ["!=", "Failure"],
-                        "loan_margin_shortfall": ["!=", None]
+                        "loan_margin_shortfall": loan_margin_shortfall.name
                     }
                 )
                 pending_loan_transaction = frappe.get_all(
@@ -252,7 +252,7 @@ class LoanApplication(Document):
                     filters={
                         "loan": self.loan,
                         "status": ["not IN", ["Approved", "Rejected"]],
-                        "loan_margin_shortfall": ["!=", None]
+                        "loan_margin_shortfall": loan_margin_shortfall.name
                     }
                 )
                 pending_sell_collateral_application = frappe.get_all(
@@ -260,7 +260,7 @@ class LoanApplication(Document):
                     filters={
                         "loan": self.loan,
                         "status": ["not IN", ["Approved", "Rejected"]],
-                        "loan_margin_shortfall": ["!=", None]
+                        "loan_margin_shortfall": loan_margin_shortfall.name
                     }
                 )
                 if (
@@ -321,7 +321,7 @@ class LoanApplication(Document):
                         "loan": self.loan,
                         "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
                         "pledge_status": ["!=", "Failure"],
-                        "loan_margin_shortfall": ["!=", None]
+                        "loan_margin_shortfall": loan_margin_shortfall.name
                     }
                 )
                 pending_loan_transaction = frappe.get_all(
@@ -329,7 +329,7 @@ class LoanApplication(Document):
                     filters={
                         "loan": self.loan,
                         "status": ["not IN", ["Approved", "Rejected"]],
-                        "loan_margin_shortfall": ["!=", None]
+                        "loan_margin_shortfall": loan_margin_shortfall.name
                     }
                 )
                 pending_sell_collateral_application = frappe.get_all(
@@ -337,7 +337,7 @@ class LoanApplication(Document):
                     filters={
                         "loan": self.loan,
                         "status": ["not IN", ["Approved", "Rejected"]],
-                        "loan_margin_shortfall": ["!=", None]
+                        "loan_margin_shortfall": loan_margin_shortfall.name
                     }
                 )
                 if (

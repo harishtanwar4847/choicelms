@@ -67,7 +67,7 @@
    "fieldtype": "Datetime",
    "in_list_view": 1,
    "label": "Time",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "transaction_id",
@@ -200,7 +200,7 @@
   }
  ],
  "is_submittable": 1,
- "modified": "2021-06-11 16:43:42.547364",
+ "modified": "2021-06-14 10:41:35.488850",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
