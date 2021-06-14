@@ -176,15 +176,12 @@ class LoanMarginShortfall(Document):
             )
 
         if mess:
-            print(mess)
             frappe.enqueue(
                 method=send_sms,
                 receiver_list=[self.get_loan().get_customer().phone],
                 msg=mess,
             )
         if msg:
-            print(msg)
-
             frappe.enqueue(
                 method=send_sms,
                 receiver_list=[self.get_loan().get_customer().phone],

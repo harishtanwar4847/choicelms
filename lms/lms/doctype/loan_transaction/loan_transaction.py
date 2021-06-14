@@ -203,9 +203,10 @@ class LoanTransaction(Document):
                 )
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-            frappe.enqueue(
-                method=send_sms, receiver_list=[self.get_customer().phone], msg=mess
-            )
+            if mess:
+                frappe.enqueue(
+                    method=send_sms, receiver_list=[self.get_customer().phone], msg=mess
+                )
 
         if self.loan_margin_shortfall:
             loan_margin_shortfall = frappe.get_doc(

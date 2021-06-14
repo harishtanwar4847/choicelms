@@ -102,6 +102,11 @@ class SellCollateralApplication(Document):
                     "You need to sell all {} of isin {}".format(i.quantity, i.isin)
                 )
 
+        if self.lender_selling_amount > self.selling_collateral_value:
+            frappe.throw("Can not sell amount more than {}".format(self.selling_collateral_value))
+        if self.lender_selling_amount <= 0:
+            frappe.throw("Please fix the Lender Selling Amount.")
+
         lender = self.get_lender()
         dp_reimburse_sell_charges = lender.dp_reimburse_sell_charges
         sell_charges = lender.sell_collateral_charges

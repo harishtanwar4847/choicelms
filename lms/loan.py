@@ -854,7 +854,6 @@ def loan_details(**kwargs):
                 pledged_paid_shortfall = 0
                 sell_off_shortfall = 0
                 cash_paid_shortfall = 0
-                loan_margin_shortfall["action_taken_msg"] = "Total Margin Shortfall: Rs. {}/- ".format(loan_margin_shortfall.shortfall)
                 pledged_securities_for_mg_shortfall = frappe.get_all(
                     "Loan Application",
                     filters={
@@ -883,13 +882,13 @@ def loan_details(**kwargs):
                     fields=["*"],
                 )
 
+                if pledged_securities_for_mg_shortfall or payment_for_mg_shortfall or sell_collateral_for_mg_shortfall:
+                    loan_margin_shortfall["action_taken_msg"] = "Total Margin Shortfall: Rs. {}/- ".format(loan_margin_shortfall.shortfall)
+
                 if pledged_securities_for_mg_shortfall:
                     pledged_paid_shortfall = math.ceil(
                         pledged_securities_for_mg_shortfall[0].total_collateral_value
                     )
-                    # pledged_remaining_shortfall = (
-                    #     loan_margin_shortfall.shortfall - pledged_paid_shortfall
-                    # )
 
                     action_taken_for_pledge = """\nOn {} we received a pledge request of Rs. {}/- which is under process. \n(Click here to see pledge summary)""".format(
                         (pledged_securities_for_mg_shortfall[0].creation).strftime(
@@ -899,16 +898,8 @@ def loan_details(**kwargs):
                     )
                     loan_margin_shortfall["action_taken_msg"] += action_taken_for_pledge
 
-                    # loan_margin_shortfall["linked_application"] = {
-                    #     "loan_application": pledged_securities_for_mg_shortfall[0],
-                    #     "sell_collateral_application": None,
-                    # }
-
                 if payment_for_mg_shortfall:
                     cash_paid_shortfall = payment_for_mg_shortfall[0].amount
-                    # paid_remaining_shortfall = (
-                    #     loan_margin_shortfall.minimum_cash_amount - cash_paid_shortfall
-                    # )
 
                     action_taken_for_payment = """\nOn {} we received a payment of Rs. {}/- which is under process. """.format(
                         (payment_for_mg_shortfall[0].creation).strftime(
@@ -922,9 +913,6 @@ def loan_details(**kwargs):
                     sell_off_shortfall = sell_collateral_for_mg_shortfall[
                         0
                     ].total_collateral_value
-                    # sold_remaining_shortfall = (
-                    #     loan_margin_shortfall.shortfall - sell_off_shortfall
-                    # )
 
                     action_taken_for_sell = """\nOn {} we received a sell collateral request of Rs. {}/- which is under process. \n(Click here to see sell collateral summary) """.format(
                         (sell_collateral_for_mg_shortfall[0].creation).strftime(
@@ -933,8 +921,11 @@ def loan_details(**kwargs):
                         sell_off_shortfall,
                     )
                     loan_margin_shortfall["action_taken_msg"] += action_taken_for_sell
+
                 remaining_shortfall = loan_margin_shortfall.shortfall - pledged_paid_shortfall - sell_off_shortfall - (cash_paid_shortfall*(100/loan_margin_shortfall.allowable_ltv))
-                loan_margin_shortfall["action_taken_msg"] += "\nRemaining Margin Shortfall (after successful processing of your action): Rs. {}/-".format(round(remaining_shortfall,2))
+
+                if pledged_securities_for_mg_shortfall or payment_for_mg_shortfall or sell_collateral_for_mg_shortfall:
+                    loan_margin_shortfall["action_taken_msg"] += "\nRemaining Margin Shortfall (after successful processing of your action): Rs. {}/-".format(round(remaining_shortfall,2) if remaining_shortfall > 0 else 0)
 
                 loan_margin_shortfall["linked_application"] = {
                     "loan_application": pledged_securities_for_mg_shortfall[0] if pledged_securities_for_mg_shortfall else None,
