@@ -4,6 +4,7 @@
 frappe.ui.form.on("Sell Collateral Application", {
   refresh: function (frm) {
     show_fetch_items_button(frm);
+    // if (frm.doc.status != "Pending" || frappe.session.user != frm.doc.owner) {
     if (frm.doc.status != "Pending") {
       frm.set_df_property("items", "read_only", 1);
     }
@@ -23,8 +24,8 @@ frappe.ui.form.on("Sell Collateral Application", {
         // });
         var tabletransfer = frappe.model.get_doc("Loan", cur_frm.doc.loan);
         $.each(tabletransfer.items, function (index, row) {
-          var d = cur_frm.add_child("items");
           if (row.pledged_quantity > 0) {
+            var d = cur_frm.add_child("items");
             d.isin = row.isin;
             d.quantity = row.pledged_quantity;
             cur_frm.refresh_field("items");
