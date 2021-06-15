@@ -136,7 +136,6 @@ class Cart(Document):
         )
         if not self.loan_margin_shortfall:
             mess = "Dear Customer, \nYour pledge request has been successfully received and is under process. We shall reach out to you very soon. \nThank you for your patience \n-Spark Loans"
-        if mess:
             receiver_list = list(
                 set([str(self.get_customer().phone), str(doc.mobile_number)])
             )

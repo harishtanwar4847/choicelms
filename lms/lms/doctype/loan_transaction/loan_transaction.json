@@ -67,7 +67,7 @@
    "fieldtype": "Datetime",
    "in_list_view": 1,
    "label": "Time",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "transaction_id",
@@ -78,7 +78,7 @@
    "fieldname": "transaction_type",
    "fieldtype": "Select",
    "label": "Transaction Type",
-   "options": "Withdrawal\nPayment\nDebit Note\nCredit Note\nProcessing Fees\nStamp Duty\nDocumentation Charges\nMortgage Charges\nSell Collateral\nInvoke Pledge\nInterest\nAdditional Interest\nPenal Interest\nOther Charges\nLegal Charges\nRenewal Charges",
+   "options": "Withdrawal\nPayment\nDebit Note\nCredit Note\nProcessing Fees\nStamp Duty\nDocumentation Charges\nMortgage Charges\nSell Collateral\nInvoke Pledge\nInterest\nAdditional Interest\nPenal Interest\nOther Charges\nLegal Charges\nRenewal Charges\nDP Reimbursement(Unpledge)\nDP Reimbursement(Sell)\nSell Collateral Charges",
    "reqd": 1
   },
   {
