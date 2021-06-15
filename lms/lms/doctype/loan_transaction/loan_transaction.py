@@ -35,6 +35,7 @@ class LoanTransaction(Document):
         "DP Reimbursement(Unpledge)": "DR",
         "DP Reimbursement(Sell)": "DR",
         "Sell Collateral Charges": "DR",
+        "Renewal Charges": "DR",
     }
 
     def autoname(self):
@@ -108,6 +109,7 @@ class LoanTransaction(Document):
             "DP Reimbursement(Unpledge)",
             "DP Reimbursement(Sell)",
             "Sell Collateral Charges",
+            "Renewal Charges"
         ]
 
         if "System Manager" not in user_roles:
