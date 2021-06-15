@@ -441,6 +441,11 @@ class LoanApplication(Document):
 
         loan = frappe.get_doc("Loan", self.loan)
 
+        # TODO : apply processing fees on new sanctioned limit(loan application drawing power)
+        # TODO : apply renewal charges on existing loan sanctioned limit
+        self.apply_renewal_charges(loan)
+
+        loan.reload()
         loan.update_items()
         loan.fill_items()
 
@@ -467,6 +472,8 @@ class LoanApplication(Document):
                 lms.round_down_amount_to_nearest_thousand(loan.drawing_power), 2
             )
             loan.sanctioned_limit = loan.drawing_power
+            # TODO : manage expiry date
+            loan.expiry_date = self.expiry_date
         loan.save(ignore_permissions=True)
 
         if self.loan_margin_shortfall:
@@ -484,6 +491,94 @@ class LoanApplication(Document):
             loan_margin_shortfall.save(ignore_permissions=True)
 
         return loan
+
+    def apply_renewal_charges(self, loan):
+        lender = loan.get_lender()
+
+        # renewal charges
+        renewal_charges = lender.renewal_charges
+        if lender.renewal_charge_type == "Percentage":
+            amount = (renewal_charges / 100) * loan.sanctioned_limit
+            renewal_charges = loan.validate_loan_charges_amount(
+                lender, amount, "renewal_minimum_amount", "renewal_maximum_amount"
+            )
+
+        if renewal_charges > 0:
+            loan.create_loan_transaction(
+                "Renewal Charges", renewal_charges, approve=True
+            )
+
+        # Processing fees
+        processing_fees = lender.lender_processing_fees
+        if lender.lender_processing_fees_type == "Percentage":
+            amount = (processing_fees / 100) * self.drawing_power
+            processing_fees = loan.validate_loan_charges_amount(
+                lender,
+                amount,
+                "lender_processing_minimum_amount",
+                "lender_processing_maximum_amount",
+            )
+
+        if processing_fees > 0:
+            loan.create_loan_transaction(
+                "Processing Fees",
+                processing_fees,
+                approve=True,
+            )
+
+        # Stamp Duty
+        stamp_duty = lender.stamp_duty
+        if lender.stamp_duty_type == "Percentage":
+            amount = (stamp_duty / 100) * self.drawing_power
+            stamp_duty = loan.validate_loan_charges_amount(
+                lender,
+                amount,
+                "lender_stamp_duty_minimum_amount",
+                "lender_stamp_duty_maximum_amount",
+            )
+
+        if stamp_duty > 0:
+            loan.create_loan_transaction(
+                "Stamp Duty",
+                stamp_duty,
+                approve=True,
+            )
+
+        # Documentation Charges
+        documentation_charges = lender.documentation_charges
+        if lender.documentation_charge_type == "Percentage":
+            amount = (documentation_charges / 100) * self.drawing_power
+            documentation_charges = loan.validate_loan_charges_amount(
+                lender,
+                amount,
+                "lender_documentation_minimum_amount",
+                "lender_documentation_maximum_amount",
+            )
+
+        if documentation_charges > 0:
+            loan.create_loan_transaction(
+                "Documentation Charges",
+                documentation_charges,
+                approve=True,
+            )
+
+        # Mortgage Charges
+        mortgage_charges = lender.mortgage_charges
+        if lender.mortgage_charge_type == "Percentage":
+            amount = (mortgage_charges / 100) * self.drawing_power
+            mortgage_charges = loan.validate_loan_charges_amount(
+                lender,
+                amount,
+                "lender_mortgage_minimum_amount",
+                "lender_mortgage_maximum_amount",
+            )
+
+        if mortgage_charges > 0:
+            loan.create_loan_transaction(
+                "Mortgage Charges",
+                mortgage_charges,
+                approve=True,
+            )
 
     def update_collateral_ledger(self, set_values={}, where=""):
         set_values_str = ""
