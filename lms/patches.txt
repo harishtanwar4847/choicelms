@@ -1,0 +1,14 @@
+lms.patches.create_roles
+lms.patches.import_security_master
+lms.patches.create_choice_lender
+lms.patches.import_allowed_security_master_for_choice_lender
+lms.patches.import_concentration_rule
+lms.patches.create_terms_and_conditions
+lms.patches.import_margin_shortfall_action
+lms.patches.update_sms_settings
+lms.patches.update_contact_us_settings
+lms.patches.import_faq
+lms.patches.create_consents
+lms.patches.update_las_settings
+lms.patches.import_interest_configuration
+lms.patches.import_workflows
