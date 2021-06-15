@@ -32,6 +32,10 @@ class LoanTransaction(Document):
         "Penal Interest": "DR",
         "Other Charges": "DR",
         "Legal Charges": "DR",
+        "DP Reimbursement(Unpledge)": "DR",
+        "DP Reimbursement(Sell)": "DR",
+        "Sell Collateral Charges": "DR",
+        "Renewal Charges": "DR",
     }
 
     def autoname(self):
@@ -71,6 +75,8 @@ class LoanTransaction(Document):
         return frappe.get_doc("Lender", self.lender)
 
     def before_insert(self):
+        if not self.time:
+            self.time = frappe.utils.now_datetime()
         self.set_record_type()
         self.validate_withdrawal_amount()
         # set customer
@@ -100,6 +106,10 @@ class LoanTransaction(Document):
             "Other Charges",
             "Sell Collateral",
             "Legal Charges",
+            "DP Reimbursement(Unpledge)",
+            "DP Reimbursement(Sell)",
+            "Sell Collateral Charges",
+            "Renewal Charges"
         ]
 
         if "System Manager" not in user_roles:
@@ -179,6 +189,7 @@ class LoanTransaction(Document):
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         if self.transaction_type == "Withdrawal":
+            mess = ""
             if self.requested == self.disbursed:
                 mess = "Dear Customer, \nYour withdrawal request has been executed and Rs. {amount} transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . Your loan balance is Rs. {balance}. {date_time}. If this is not you report immediately on 'Contact Us' in the app \n-Spark Loans".format(
                     amount=self.amount,
@@ -194,9 +205,10 @@ class LoanTransaction(Document):
                 )
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-            frappe.enqueue(
-                method=send_sms, receiver_list=[self.get_customer().phone], msg=mess
-            )
+            if mess:
+                frappe.enqueue(
+                    method=send_sms, receiver_list=[self.get_customer().phone], msg=mess
+                )
 
         if self.loan_margin_shortfall:
             loan_margin_shortfall = frappe.get_doc(
@@ -213,13 +225,47 @@ class LoanTransaction(Document):
                 loan_margin_shortfall.action_time = frappe.utils.now_datetime()
 
             # if shortfall is not recoverd then margin shortfall status will change from request pending to pending
+            under_process_la = frappe.get_all(
+                "Loan Application",
+                filters={
+                    "loan": self.loan,
+                    "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
+                    "pledge_status": ["!=", "Failure"],
+                    "loan_margin_shortfall": loan_margin_shortfall.name
+                }
+            )
+            pending_loan_transaction = frappe.get_all(
+                "Loan Transaction",
+                filters={
+                    "loan": self.loan,
+                    "status": ["not IN", ["Approved", "Rejected"]],
+                    "loan_margin_shortfall": loan_margin_shortfall.name
+                }
+            )
+            pending_sell_collateral_application = frappe.get_all(
+                "Sell Collateral Application",
+                filters={
+                    "loan": self.loan,
+                    "status": ["not IN", ["Approved", "Rejected"]],
+                    "loan_margin_shortfall": loan_margin_shortfall.name
+                }
+            )
             if (
-                loan_margin_shortfall.status == "Request Pending"
+                (not pending_loan_transaction and not pending_sell_collateral_application and not under_process_la)
+                and loan_margin_shortfall.status == "Request Pending"
                 and loan_margin_shortfall.shortfall_percentage > 0
             ):
                 loan_margin_shortfall.status = "Pending"
-                # loan_margin_shortfall.save(ignore_permissions=True)
-                # frappe.db.commit()
+                    # loan_margin_shortfall.save(ignore_permissions=True)
+                    # frappe.db.commit()
+
+            # if (
+            #     loan_margin_shortfall.status == "Request Pending"
+            #     and loan_margin_shortfall.shortfall_percentage > 0
+            # ):
+            #     loan_margin_shortfall.status = "Pending"
+            #     # loan_margin_shortfall.save(ignore_permissions=True)
+            #     # frappe.db.commit()
             loan_margin_shortfall.save(ignore_permissions=True)
 
         if self.is_for_interest:
@@ -314,8 +360,34 @@ class LoanTransaction(Document):
                 loan_margin_shortfall = frappe.get_doc(
                     "Loan Margin Shortfall", self.loan_margin_shortfall
                 )
+                under_process_la = frappe.get_all(
+                    "Loan Application",
+                    filters={
+                        "loan": self.loan,
+                        "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
+                        "pledge_status": ["!=", "Failure"],
+                        "loan_margin_shortfall": loan_margin_shortfall.name
+                    }
+                )
+                pending_loan_transaction = frappe.get_all(
+                    "Loan Transaction",
+                    filters={
+                        "loan": self.loan,
+                        "status": ["not IN", ["Approved", "Rejected"]],
+                        "loan_margin_shortfall": loan_margin_shortfall.name
+                    }
+                )
+                pending_sell_collateral_application = frappe.get_all(
+                    "Sell Collateral Application",
+                    filters={
+                        "loan": self.loan,
+                        "status": ["not IN", ["Approved", "Rejected"]],
+                        "loan_margin_shortfall": loan_margin_shortfall.name
+                    }
+                )
                 if (
-                    loan_margin_shortfall.status == "Request Pending"
+                    (not pending_loan_transaction and not pending_sell_collateral_application and not under_process_la)
+                    and loan_margin_shortfall.status == "Request Pending"
                     and loan_margin_shortfall.shortfall_percentage > 0
                 ):
                     loan_margin_shortfall.status = "Pending"
