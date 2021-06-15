@@ -141,6 +141,7 @@ class LoanMarginShortfall(Document):
 
     def notify_customer(self):
         margin_shortfall_action = self.get_shortfall_action()
+        mess = ""
         if margin_shortfall_action.sell_off_after_hours:
             mess = "Dear Customer, \nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {}. Please check the app and take an appropriate action within {} hours; else sale will be triggered.\n-Spark Loans".format(
                 self.loan, margin_shortfall_action.sell_off_after_hours
@@ -175,15 +176,12 @@ class LoanMarginShortfall(Document):
             )
 
         if mess:
-            print(mess)
             frappe.enqueue(
                 method=send_sms,
                 receiver_list=[self.get_loan().get_customer().phone],
                 msg=mess,
             )
         if msg:
-            print(msg)
-
             frappe.enqueue(
                 method=send_sms,
                 receiver_list=[self.get_loan().get_customer().phone],

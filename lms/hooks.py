@@ -129,33 +129,7 @@ override_doctype_dashboards = {
 }
 
 fixtures = [
-    {
-        "doctype": "Role",
-        "filters": [
-            [
-                "name",
-                "in",
-                ["Loan Customer", "Lender", "Spark Manager"],
-            ]
-        ],
-    },
-    {"doctype": "Notification", "filters": [["document_type", "in", ["User"]]]},
-    "Security",
-    "Allowed Security",
-    "Concentration Rule",
-    "Terms and Conditions",
-    "Margin Shortfall Action",
-    "Lender",
-    "SMS Settings",
     "API Doc",
-    "LAS Settings",
-    "Workflow State",
-    "Workflow Action Master",
-    "Workflow",
-    "Interest Configuration",
-    "Consent",
-    # "FAQ",
-    "Contact Us Settings",
 ]
 
 scheduler_events = {

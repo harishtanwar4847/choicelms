@@ -1,0 +1,9 @@
+<p>Dear {{ doc.full_name or "" }},</p>
+<h2>Congratulations</h2>
+<p>Your KYC has been successfully verified.</p>
+<p>You can now go ahead and apply for your loan and fulfill your fund requirements!</p>
+<p>Get loan - <a href="{{ frappe.utils.get_url() }}">Click Here</a></p>
+<p>We look forward to serve you soon.</p>
+
+<p>Thanks,</p>
+<p>The Spark Team</p>

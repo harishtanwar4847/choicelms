@@ -143,7 +143,16 @@ def upsert(**kwargs):
                             "Loan Margin Shortfall should be for the provided loan."
                         )
                     )
-                if loan_margin_shortfall.status == "Request Pending":
+                under_process_la = frappe.get_all(
+                    "Loan Application",
+                    filters={
+                        "loan": loan.name,
+                        "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
+                        "pledge_status": ["!=", "Failure"],
+                        "loan_margin_shortfall": loan_margin_shortfall.name
+                    }
+                )
+                if under_process_la:
                     return utils.respondWithFailure(
                         status=417,
                         message="Payment for Margin Shortfall of Loan {} is already in process.".format(
