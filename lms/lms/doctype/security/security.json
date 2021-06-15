@@ -61,11 +61,10 @@
    "fieldname": "price",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Price",
-   "read_only": 1
+   "label": "Price"
   }
  ],
- "modified": "2021-06-09 13:47:34.135466",
+ "modified": "2021-06-15 18:53:13.418223",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security",
