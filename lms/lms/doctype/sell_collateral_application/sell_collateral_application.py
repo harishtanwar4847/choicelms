@@ -168,7 +168,6 @@ class SellCollateralApplication(Document):
                     loan_margin_shortfall.save(ignore_permissions=True)
                     frappe.db.commit()
 
-
     def on_submit(self):
         for i in self.sell_items:
             if i.sell_quantity > 0:
