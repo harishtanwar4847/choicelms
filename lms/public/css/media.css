@@ -455,6 +455,7 @@
     width: auto;
     display: block;
     margin: auto;
+    max-width: 300px;
   }
   .appdownload {
     padding: 20px 0 0;

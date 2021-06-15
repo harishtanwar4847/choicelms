@@ -174,18 +174,17 @@ class LoanMarginShortfall(Document):
             msg = "Dear Customer, \nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details.\n-Spark Loans".format(
                 self.loan
             )
+            frappe.enqueue(
+                method=send_sms,
+                receiver_list=[self.get_loan().get_customer().phone],
+                msg=msg,
+            )
 
         if mess:
             frappe.enqueue(
                 method=send_sms,
                 receiver_list=[self.get_loan().get_customer().phone],
                 msg=mess,
-            )
-        if msg:
-            frappe.enqueue(
-                method=send_sms,
-                receiver_list=[self.get_loan().get_customer().phone],
-                msg=msg,
             )
 
         if margin_shortfall_action:
