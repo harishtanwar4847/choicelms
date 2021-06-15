@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Sparkloans</title>
+    {% block head_content %} {% endblock %}
     <link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -38,6 +38,11 @@
         /></a>
         <div class="right dx_jcsbalctr">
           <!-- <p><a href="javascript:void(0);" class="applybtn"><span>Apply Now</span><span>&nbsp;</span></a></p> -->
+          <p>
+            <a href="/comingsoon" class="applybtn"
+              ><span>Apply Now</span><span>&nbsp;</span></a
+            >
+          </p>
           <div class="menuic">
             <span>&nbsp;</span> <span>&nbsp;</span> <span>&nbsp;</span>
             <span>&nbsp;</span>
@@ -53,10 +58,14 @@
               ><img src="/assets/lms/images/logo.svg"
             /></a>
             <div class="menu">
-              <!--<a href="products.html">Products</a> <a href="demo-videos.html" class="active">Demo Videos</a>-->
+              <a href="/products">Products</a>
+              <a href="/comingsoon">Demo Videos</a>
               <a href="/comingsoon">Loan Calculator</a>
               <a href="/contact">Contact</a>
-              <!-- <a href="javascript:void(0);" class="applybtn" data-toggle="modal" data-target="#apply-now-pop"><span>Apply Now</span><span>&nbsp;</span></a>  -->
+              <!-- <a href="javascript:void(0);" class="applybtn" data-toggle="modal" data-target="#apply-now-pop"><span>Apply Now</span><span>&nbsp;</span></a>   -->
+              <a href="/comingsoon" class="applybtn"
+                ><span>Apply Now</span><span>&nbsp;</span></a
+              >
             </div>
           </div>
         </div>
@@ -103,16 +112,17 @@
                 </li>
                 <li><a href="/aboutus">About Us</a></li>
                 <li><a href="/aboutus#team">Team</a></li>
-                <!--<li><a href="partner-with-us.html">Partner With Us</a></li> -->
+                <li><a href="/comingsoon">Partner With Us</a></li>
                 <li><a href="/help">Help / FAQs</a></li>
-                <li><a href="/career">Career</a></li>
+                <li><a href="/comingsoon">Career</a></li>
               </ul>
               <ul>
                 <li>
                   <p class="mainlink">Resources</p>
                 </li>
                 <li><a href="/comingsoon">Loan Tips</a></li>
-                <!-- <li><a href="news-blog.html">News and Blogs</a></li> -->
+                <li><a href="/comingsoon">News and Blogs</a></li>
+                <li><a href="/privacypolicy">Privacy Policy</a></li>
                 <li><a href="/termsconditions">Terms & Conditions</a></li>
               </ul>
               <ul>
@@ -137,17 +147,8 @@
       <div class="container">
         <div class="row">
           <div class="fw dx footer_bottom">
-            <div class="col dx_jcsb">
+            <div class="col" style="display: flex; justify-content: center">
               <p>&copy; Spark Financial Technologies Private Limited 2021</p>
-              <p>
-                <a href="/privacypolicy">Privacy Policy</a>&nbsp;|&nbsp;
-                <a href="cookiepolicy.html">Cookie Policy</a>&nbsp;|&nbsp;
-                <a href="copyright.html">Copyright</a>
-              </p>
-              <p>
-                Designed & Developed by&nbsp;
-                <a href="https://leo9studio.com/" target="_blank">Leo9studio</a>
-              </p>
             </div>
           </div>
         </div>

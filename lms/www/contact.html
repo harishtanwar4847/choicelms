@@ -1,4 +1,11 @@
-{% extends 'templates/lmsbase.html' %} {% block body_content %}
+{% extends 'templates/lmsbase.html' %} {% block body_content %} {% block
+head_content %}
+<title>We're Listerning - Contact SparkLoans Team</title>
+<meta
+  name="description"
+  content="Hey, do you a query related to service or our product? Speak with our SparkLoans team to find a instant solution today."
+/>
+{% endblock %}
 <section class="fw">
   <div class="container">
     <div class="row">
@@ -61,53 +68,65 @@
         </div>
       </div>
       <div class="col-md-4">
-        <!-- <form class="fw placeholder_txt contact_from"  name="contact-forum" id="contact-forum"  >
-          <h4 class="contact_title"> Got a query?</h4>
-          <p> We are happy to help you!</p>
+        <form
+          class="fw placeholder_txt contact_from"
+          name="contact-forum"
+          id="contact-forum"
+        >
+          <h4 class="contact_title">Got a query?</h4>
+          <p>We are happy to help you!</p>
           <div class="form_group">
             <div class="form_control">
               <label>
-              <h6>Type of Loan</h6>
-              <select class="required">
-                <option disabled selected> Select</option>
-                <option> Car Loan</option>
-                <option> Car Loan</option>
-              </select>
+                <h6>Type of Loan</h6>
+                <select class="required">
+                  <option disabled selected>Select</option>
+                  <option>Car Loan</option>
+                  <option>Car Loan</option>
+                </select>
               </label>
             </div>
           </div>
           <div class="form_group">
             <div class="form_control">
-              <label> <span>First Name</span>
-                <input type="text" name="firstname" class="required">
+              <label>
+                <span>First Name</span>
+                <input type="text" name="firstname" class="required" />
               </label>
             </div>
           </div>
           <div class="form_group">
             <div class="form_control">
-              <label> <span>Email <a href="#" class="optionalBtn"> Optional</a></span>
-                <input type="email" name="email" class="required">
+              <label>
+                <span>Email <a href="#" class="optionalBtn"> Optional</a></span>
+                <input type="email" name="email" class="required" />
               </label>
             </div>
           </div>
           <div class="form_group">
             <div class="form_control">
-              <label> <span>Mobile</span>
-                <input type="tel" name="mobile" class="required">
+              <label>
+                <span>Mobile</span>
+                <input type="tel" name="mobile" class="required" />
               </label>
             </div>
           </div>
           <div class="form_group">
             <div class="form_control">
-              <label> <span>Message</span>
-                <textarea type="text" name="messages" class="required" row="4"> </textarea>
+              <label>
+                <span>Message</span>
+                <textarea type="text" name="messages" class="required" row="4">
+                </textarea>
               </label>
             </div>
           </div>
           <div class="fw text-center mt-5">
-            <button type="submit" class="applybtn" ><span>Submit</span><span>&nbsp;</span></button>
+            <!-- <button type="submit" class="applybtn" ><span>Submit</span><span>&nbsp;</span></button> -->
+            <a href="/comingsoon" class="applybtn"
+              ><span>Submit</span><span>&nbsp;</span></a
+            >
           </div>
-        </form> -->
+        </form>
       </div>
     </div>
     <div class="cont_icon2">

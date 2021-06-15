@@ -251,6 +251,7 @@ button {
   display: flex;
   justify-content: space-between;
 }
+
 .dx_aic {
   display: flex;
   align-items: center;
