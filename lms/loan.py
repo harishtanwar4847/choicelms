@@ -882,8 +882,16 @@ def loan_details(**kwargs):
                     fields=["*"],
                 )
 
-                if pledged_securities_for_mg_shortfall or payment_for_mg_shortfall or sell_collateral_for_mg_shortfall:
-                    loan_margin_shortfall["action_taken_msg"] = "Total Margin Shortfall: Rs. {}/- ".format(loan_margin_shortfall.shortfall)
+                if (
+                    pledged_securities_for_mg_shortfall
+                    or payment_for_mg_shortfall
+                    or sell_collateral_for_mg_shortfall
+                ):
+                    loan_margin_shortfall[
+                        "action_taken_msg"
+                    ] = "Total Margin Shortfall: Rs. {}/- ".format(
+                        loan_margin_shortfall.shortfall
+                    )
 
                 if pledged_securities_for_mg_shortfall:
                     pledged_paid_shortfall = math.ceil(
@@ -907,7 +915,9 @@ def loan_details(**kwargs):
                         ),
                         cash_paid_shortfall,
                     )
-                    loan_margin_shortfall["action_taken_msg"] += action_taken_for_payment
+                    loan_margin_shortfall[
+                        "action_taken_msg"
+                    ] += action_taken_for_payment
 
                 if sell_collateral_for_mg_shortfall:
                     sell_off_shortfall = sell_collateral_for_mg_shortfall[
@@ -922,14 +932,34 @@ def loan_details(**kwargs):
                     )
                     loan_margin_shortfall["action_taken_msg"] += action_taken_for_sell
 
-                remaining_shortfall = loan_margin_shortfall.shortfall - pledged_paid_shortfall - sell_off_shortfall - (cash_paid_shortfall*(100/loan_margin_shortfall.allowable_ltv))
+                remaining_shortfall = (
+                    loan_margin_shortfall.shortfall
+                    - pledged_paid_shortfall
+                    - sell_off_shortfall
+                    - (
+                        cash_paid_shortfall
+                        * (100 / loan_margin_shortfall.allowable_ltv)
+                    )
+                )
 
-                if pledged_securities_for_mg_shortfall or payment_for_mg_shortfall or sell_collateral_for_mg_shortfall:
-                    loan_margin_shortfall["action_taken_msg"] += "\nRemaining Margin Shortfall (after successful processing of your action): Rs. {}/-".format(round(remaining_shortfall,2) if remaining_shortfall > 0 else 0)
+                if (
+                    pledged_securities_for_mg_shortfall
+                    or payment_for_mg_shortfall
+                    or sell_collateral_for_mg_shortfall
+                ):
+                    loan_margin_shortfall[
+                        "action_taken_msg"
+                    ] += "\nRemaining Margin Shortfall (after successful processing of your action): Rs. {}/-".format(
+                        round(remaining_shortfall, 2) if remaining_shortfall > 0 else 0
+                    )
 
                 loan_margin_shortfall["linked_application"] = {
-                    "loan_application": pledged_securities_for_mg_shortfall[0] if pledged_securities_for_mg_shortfall else None,
-                    "sell_collateral_application": sell_collateral_for_mg_shortfall[0] if sell_collateral_for_mg_shortfall else None,
+                    "loan_application": pledged_securities_for_mg_shortfall[0]
+                    if pledged_securities_for_mg_shortfall
+                    else None,
+                    "sell_collateral_application": sell_collateral_for_mg_shortfall[0]
+                    if sell_collateral_for_mg_shortfall
+                    else None,
                 }
 
             if loan_margin_shortfall.status in [
@@ -1335,13 +1365,13 @@ def loan_payment(**kwargs):
                 )
 
             pending_loan_transaction = frappe.get_all(
-                    "Loan Transaction",
-                    filters={
-                        "loan": loan.name,
-                        "status": ["not IN", ["Approved", "Rejected"]],
-                        "loan_margin_shortfall": loan_margin_shortfall.name
-                    },
-                )
+                "Loan Transaction",
+                filters={
+                    "loan": loan.name,
+                    "status": ["not IN", ["Approved", "Rejected"]],
+                    "loan_margin_shortfall": loan_margin_shortfall.name,
+                },
+            )
             if pending_loan_transaction:
                 return utils.respondWithFailure(
                     status=417,
@@ -2145,13 +2175,13 @@ def sell_collateral_request(**kwargs):
                 "Loan Margin Shortfall", data.get("loan_margin_shortfall_name")
             )
             pending_sell_collateral_application = frappe.get_all(
-                    "Sell Collateral Application",
-                    filters={
-                        "loan": loan.name,
-                        "status": ["not IN", ["Approved", "Rejected"]],
-                        "loan_margin_shortfall": loan_margin_shortfall.name
-                    }
-                )
+                "Sell Collateral Application",
+                filters={
+                    "loan": loan.name,
+                    "status": ["not IN", ["Approved", "Rejected"]],
+                    "loan_margin_shortfall": loan_margin_shortfall.name,
+                },
+            )
             if pending_sell_collateral_application:
                 return utils.respondWithFailure(
                     status=417,

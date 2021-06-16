@@ -32,13 +32,17 @@ class SellCollateralApplication(Document):
             filters={"loan": self.loan, "status": "Sell Triggered"},
         )
         if self.loan_margin_shortfall:
-            loan_margin_shortfall = frappe.get_doc("Loan Margin Shortfall", self.loan_margin_shortfall)
+            loan_margin_shortfall = frappe.get_doc(
+                "Loan Margin Shortfall", self.loan_margin_shortfall
+            )
             if loan_margin_shortfall.status in ["Request Pending"]:
                 self.current_shortfall_amount = loan_margin_shortfall.shortfall
 
         if triggered_margin_shortfall:
             self.loan_margin_shortfall = triggered_margin_shortfall[0].name
-            loan_margin_shortfall = frappe.get_doc("Loan Margin Shortfall", triggered_margin_shortfall[0].name)
+            loan_margin_shortfall = frappe.get_doc(
+                "Loan Margin Shortfall", triggered_margin_shortfall[0].name
+            )
             self.initial_shortfall_amount = loan_margin_shortfall.shortfall
             loan_margin_shortfall.fill_items()
             self.current_shortfall_amount = loan_margin_shortfall.shortfall
@@ -103,7 +107,9 @@ class SellCollateralApplication(Document):
                 )
 
         if self.lender_selling_amount > self.selling_collateral_value:
-            frappe.throw("Can not sell amount more than {}".format(self.selling_collateral_value))
+            frappe.throw(
+                "Can not sell amount more than {}".format(self.selling_collateral_value)
+            )
         if self.lender_selling_amount <= 0:
             frappe.throw("Please fix the Lender Selling Amount.")
 
@@ -111,7 +117,9 @@ class SellCollateralApplication(Document):
         dp_reimburse_sell_charges = lender.dp_reimburse_sell_charges
         sell_charges = lender.sell_collateral_charges
         if dp_reimburse_sell_charges <= 0:
-            frappe.throw("You need to check the amount of DP Reimbursement Charges for Sell Collateral")
+            frappe.throw(
+                "You need to check the amount of DP Reimbursement Charges for Sell Collateral"
+            )
         elif sell_charges <= 0:
             frappe.throw("You need to check the amount of Sell Collateral Charges")
 
@@ -132,35 +140,44 @@ class SellCollateralApplication(Document):
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         if self.loan_margin_shortfall:
-            loan_margin_shortfall = frappe.get_doc("Loan Margin Shortfall", self.loan_margin_shortfall)
+            loan_margin_shortfall = frappe.get_doc(
+                "Loan Margin Shortfall", self.loan_margin_shortfall
+            )
             if loan_margin_shortfall.status == "Request Pending":
                 under_process_la = frappe.get_all(
                     "Loan Application",
                     filters={
                         "loan": self.loan,
-                        "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
+                        "status": [
+                            "not IN",
+                            ["Approved", "Rejected", "Pledge Failure"],
+                        ],
                         "pledge_status": ["!=", "Failure"],
-                        "loan_margin_shortfall": loan_margin_shortfall.name
-                    }
+                        "loan_margin_shortfall": loan_margin_shortfall.name,
+                    },
                 )
                 pending_loan_transaction = frappe.get_all(
                     "Loan Transaction",
                     filters={
                         "loan": self.loan,
                         "status": ["not IN", ["Approved", "Rejected"]],
-                        "loan_margin_shortfall": loan_margin_shortfall.name
-                    }
+                        "loan_margin_shortfall": loan_margin_shortfall.name,
+                    },
                 )
                 pending_sell_collateral_application = frappe.get_all(
                     "Sell Collateral Application",
                     filters={
                         "loan": self.loan,
                         "status": ["not IN", ["Approved", "Rejected"]],
-                        "loan_margin_shortfall": loan_margin_shortfall.name
-                    }
+                        "loan_margin_shortfall": loan_margin_shortfall.name,
+                    },
                 )
                 if (
-                    (not pending_loan_transaction and not pending_sell_collateral_application and not under_process_la)
+                    (
+                        not pending_loan_transaction
+                        and not pending_sell_collateral_application
+                        and not under_process_la
+                    )
                     and loan_margin_shortfall.status == "Request Pending"
                     and loan_margin_shortfall.shortfall_percentage > 0
                 ):
@@ -193,13 +210,17 @@ class SellCollateralApplication(Document):
         sell_charges = lender.sell_collateral_charges
 
         if lender.dp_reimburse_sell_charge_type == "Fix":
-            total_dp_reimburse_sell_charges = len(self.items) * dp_reimburse_sell_charges
+            total_dp_reimburse_sell_charges = (
+                len(self.items) * dp_reimburse_sell_charges
+            )
         elif lender.dp_reimburse_sell_charge_type == "Percentage":
-            total_dp_reimburse_sell_charges = len(self.items) * dp_reimburse_sell_charges/100
+            total_dp_reimburse_sell_charges = (
+                len(self.items) * dp_reimburse_sell_charges / 100
+            )
         if lender.sell_collateral_charge_type == "Fix":
             sell_collateral_charges = self.lender_selling_amount * sell_charges
         elif lender.sell_collateral_charge_type == "Percentage":
-            sell_collateral_charges = self.lender_selling_amount * sell_charges/100
+            sell_collateral_charges = self.lender_selling_amount * sell_charges / 100
 
         loan.create_loan_transaction(
             transaction_type="Sell Collateral",
@@ -251,6 +272,7 @@ class SellCollateralApplication(Document):
 
     def get_lender(self):
         return frappe.get_doc("Lender", self.lender)
+
 
 @frappe.whitelist()
 def get_collateral_details(sell_collateral_application_name):
