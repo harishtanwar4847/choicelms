@@ -379,7 +379,7 @@ def verify_user(token, user):
     #     + ",\nYour registration at Spark.Loans was successfull!\nWelcome aboard."
     # )
     mess = frappe._(
-        "Welcome aboard.\nYour registration at Spark.Loans was successfull!"
+        "Welcome aboard. Your registration at Spark.Loans was successfull!"
     )
     frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
 

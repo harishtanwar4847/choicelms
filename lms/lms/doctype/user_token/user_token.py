@@ -35,11 +35,11 @@ class UserToken(Document):
             #     expiry_in_minutes=expiry_in_minutes,
             # )
             mess = frappe._(
-                "Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for {expiry_in_minutes} minutes.\n-Spark Loans"
+                "Dear Customer,\nYour {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
             ).format(
                 token_type=self.token_type.replace(" ", ""),
                 token=self.token,
-                expiry_in_minutes=expiry_in_minutes,
+                # expiry_in_minutes=expiry_in_minutes,
             )
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
@@ -92,14 +92,10 @@ class UserToken(Document):
                 subject="Forgot Pin Notification",
                 message=mess,
             )
-            msg = frappe._(
-                """Dear Customer,
-                Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for {expiry_in_minutes} minutes.
-                -Spark Loans"""
-            ).format(
+            msg = frappe._("Dear Customer,\nYour {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes. -Spark Loans").format(
                 token_type=self.token_type.replace(" ", ""),
                 token=self.token,
-                expiry_in_minutes=expiry_in_minutes,
+                # expiry_in_minutes=expiry_in_minutes,
             )
             if msg:
                 receiver_list = list(set([str(customer.phone), str(doc.mobile_number)]))
