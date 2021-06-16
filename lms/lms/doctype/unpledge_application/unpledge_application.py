@@ -109,7 +109,7 @@ class UnpledgeApplication(Document):
         lender = self.get_lender()
         dp_reimburse_unpledge_charges = lender.dp_reimburse_unpledge_charges
         if dp_reimburse_unpledge_charges <= 0:
-            frappe.throw("You need to check the amount of DP Reimbursement Charges for Sell Collateral")
+            frappe.throw("You need to check the amount of DP Reimbursement Charges for Unpledge")
 
     def on_submit(self):
         for i in self.unpledge_items:

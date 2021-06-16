@@ -680,8 +680,8 @@ def dashboard(**kwargs):
         #     as_dict=1,
         # )
 
-        actionable_loans = []
-        action_loans = []
+        # actionable_loans = []
+        # action_loans = []
         mgloan = []
         deadline_for_all_mg_shortfall = {}
         total_int_amt_all_loans = 0
@@ -938,15 +938,15 @@ def dashboard(**kwargs):
         )
 
         ## Topup ##
-        topup = None
-        topup_list = []
-        sell_collateral_list = []
-        increase_loan_list = []
-        unpledge_application_list = []
-        all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
+        # topup = None
+        # topup_list = []
+        # sell_collateral_list = []
+        # increase_loan_list = []
+        # unpledge_application_list = []
+        # all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
 
-        for loan in all_loans:
-            loan = frappe.get_doc("Loan", loan.name)
+        # for loan in all_loans:
+            # loan = frappe.get_doc("Loan", loan.name)
             # existing_topup_application = frappe.get_all(
             #     "Top up Application",
             #     filters={
