@@ -112,7 +112,7 @@ class Cart(Document):
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
                 frappe.db.commit()
-                msg = "Dear Customer, \nThank you for taking action against the margin shortfall. \nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner.\n-Spark Loans"
+                msg = "Dear Customer,\nThank you for taking action against the margin shortfall. You can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner."
                 receiver_list = list(
                     set(
                         [
@@ -135,7 +135,8 @@ class Cart(Document):
             "Notification", "Loan Application Creation", method="send", doc=doc
         )
         if not self.loan_margin_shortfall:
-            mess = "Dear Customer, \nYour pledge request has been successfully received and is under process. We shall reach out to you very soon. \nThank you for your patience \n-Spark Loans"
+            mess = "Dear Customer,\nYour pledge request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans"
+            # if mess:
             receiver_list = list(
                 set([str(self.get_customer().phone), str(doc.mobile_number)])
             )

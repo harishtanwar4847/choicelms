@@ -125,7 +125,7 @@ class SellCollateralApplication(Document):
 
     def on_update(self):
         if self.status == "Rejected":
-            msg = "Dear Customer, \nSorry! Your sell collateral request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app \n-Spark Loans"
+            msg = "Dear Customer,\nSorry! Your sell collateral request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app -Spark Loans"
 
             receiver_list = list(
                 set(
@@ -138,6 +138,52 @@ class SellCollateralApplication(Document):
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+        if self.loan_margin_shortfall:
+            loan_margin_shortfall = frappe.get_doc(
+                "Loan Margin Shortfall", self.loan_margin_shortfall
+            )
+            if loan_margin_shortfall.status == "Request Pending":
+                under_process_la = frappe.get_all(
+                    "Loan Application",
+                    filters={
+                        "loan": self.loan,
+                        "status": [
+                            "not IN",
+                            ["Approved", "Rejected", "Pledge Failure"],
+                        ],
+                        "pledge_status": ["!=", "Failure"],
+                        "loan_margin_shortfall": loan_margin_shortfall.name,
+                    },
+                )
+                pending_loan_transaction = frappe.get_all(
+                    "Loan Transaction",
+                    filters={
+                        "loan": self.loan,
+                        "status": ["not IN", ["Approved", "Rejected"]],
+                        "loan_margin_shortfall": loan_margin_shortfall.name,
+                    },
+                )
+                pending_sell_collateral_application = frappe.get_all(
+                    "Sell Collateral Application",
+                    filters={
+                        "loan": self.loan,
+                        "status": ["not IN", ["Approved", "Rejected"]],
+                        "loan_margin_shortfall": loan_margin_shortfall.name,
+                    },
+                )
+                if (
+                    (
+                        not pending_loan_transaction
+                        and not pending_sell_collateral_application
+                        and not under_process_la
+                    )
+                    and loan_margin_shortfall.status == "Request Pending"
+                    and loan_margin_shortfall.shortfall_percentage > 0
+                ):
+                    loan_margin_shortfall.status = "Pending"
+                    loan_margin_shortfall.save(ignore_permissions=True)
+                    frappe.db.commit()
 
     def on_submit(self):
         for i in self.sell_items:
@@ -198,11 +244,11 @@ class SellCollateralApplication(Document):
             loan_margin_shortfall_name=self.loan_margin_shortfall,
         )
         if self.owner == frappe.session.user and self.loan_margin_shortfall:
-            msg = "Dear Customer, \nSale of securities initiated by the lending partner for your loan account {} is now completed .The sale proceeds have been credited to your loan account and collateral value updated. Please check the app for details.".format(
+            msg = "Dear Customer,\nSale of securities initiated by the lending partner for your loan account {} is now completed .The sale proceeds have been credited to your loan account and collateral value updated. Please check the app for details.".format(
                 self.loan
             )
         else:
-            msg = "Dear Customer, \nCongratulations! Your sell collateral request has been successfully executed and sale proceeds credited to your loan account. Kindly check the app for details \n-Spark Loans"
+            msg = "Dear Customer,\nCongratulations! Your sell collateral request has been successfully executed and sale proceeds credited to your loan account. Kindly check the app for details -Spark Loans"
 
         if msg:
             receiver_list = list(

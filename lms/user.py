@@ -128,7 +128,7 @@ def kyc(**kwargs):
             #     "Congratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
             # )
             mess = frappe._(
-                "Dear Customer, \nCongratulations! \nYour KYC verification is completed. \n-Spark Loans"
+                "Dear Customer,\nCongratulations! Your KYC verification is completed. -Spark Loans"
             )
             frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
 
@@ -680,8 +680,8 @@ def dashboard(**kwargs):
         #     as_dict=1,
         # )
 
-        actionable_loans = []
-        action_loans = []
+        # actionable_loans = []
+        # action_loans = []
         mgloan = []
         deadline_for_all_mg_shortfall = {}
         total_int_amt_all_loans = 0
@@ -938,101 +938,101 @@ def dashboard(**kwargs):
         )
 
         ## Topup ##
-        topup = None
-        topup_list = []
-        sell_collateral_list = []
-        increase_loan_list = []
-        unpledge_application_list = []
-        all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
+        # topup = None
+        # topup_list = []
+        # sell_collateral_list = []
+        # increase_loan_list = []
+        # unpledge_application_list = []
+        # all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
 
-        for loan in all_loans:
-            loan = frappe.get_doc("Loan", loan.name)
-            # existing_topup_application = frappe.get_all(
-            #     "Top up Application",
-            #     filters={
-            #         "loan": loan.name,
-            #         "customer": customer.name,
-            #         "status": ["not IN", ["Approved", "Rejected"]],
-            #     },
-            #     fields=["count(name) as in_process"],
-            # )
+        # for loan in all_loans:
+        # loan = frappe.get_doc("Loan", loan.name)
+        # existing_topup_application = frappe.get_all(
+        #     "Top up Application",
+        #     filters={
+        #         "loan": loan.name,
+        #         "customer": customer.name,
+        #         "status": ["not IN", ["Approved", "Rejected"]],
+        #     },
+        #     fields=["count(name) as in_process"],
+        # )
 
-            # if existing_topup_application[0]["in_process"] == 0:
-            #     topup = loan.max_topup_amount()
-            #     if topup:
-            #         top_up = {
-            #             "loan": loan.name,
-            #             "top_up_amount": topup,
-            #         }
-            #         topup_list.append(top_up)
-            #     else:
-            #         top_up = None
+        # if existing_topup_application[0]["in_process"] == 0:
+        #     topup = loan.max_topup_amount()
+        #     if topup:
+        #         top_up = {
+        #             "loan": loan.name,
+        #             "top_up_amount": topup,
+        #         }
+        #         topup_list.append(top_up)
+        #     else:
+        #         top_up = None
 
-            # # Sell Collateral
-            # sell_collateral_application_exist = frappe.get_all(
-            #     "Sell Collateral Application",
-            #     filters={"loan": loan.name, "status": "Pending"},
-            #     fields=[
-            #         "name",
-            #         "creation",
-            #         "modified",
-            #         "modified_by",
-            #         "owner",
-            #         "docstatus",
-            #         "parent",
-            #         "parentfield",
-            #         "parenttype",
-            #         "idx",
-            #         "loan",
-            #         "total_collateral_value",
-            #         "lender",
-            #         "customer",
-            #         "selling_collateral_value",
-            #         "amended_from",
-            #         "status",
-            #         "workflow_state",
-            #         "loan_margin_shortfall",
-            #     ],
-            #     order_by="creation desc",
-            #     page_length=1,
-            # )
-            # if sell_collateral_application_exist:
-            #     sell_collateral_application_exist[0]["items"] = frappe.get_all(
-            #         "Sell Collateral Application Item",
-            #         filters={"parent": sell_collateral_application_exist[0].name},
-            #         fields=["*"],
-            #     )
+        # # Sell Collateral
+        # sell_collateral_application_exist = frappe.get_all(
+        #     "Sell Collateral Application",
+        #     filters={"loan": loan.name, "status": "Pending"},
+        #     fields=[
+        #         "name",
+        #         "creation",
+        #         "modified",
+        #         "modified_by",
+        #         "owner",
+        #         "docstatus",
+        #         "parent",
+        #         "parentfield",
+        #         "parenttype",
+        #         "idx",
+        #         "loan",
+        #         "total_collateral_value",
+        #         "lender",
+        #         "customer",
+        #         "selling_collateral_value",
+        #         "amended_from",
+        #         "status",
+        #         "workflow_state",
+        #         "loan_margin_shortfall",
+        #     ],
+        #     order_by="creation desc",
+        #     page_length=1,
+        # )
+        # if sell_collateral_application_exist:
+        #     sell_collateral_application_exist[0]["items"] = frappe.get_all(
+        #         "Sell Collateral Application Item",
+        #         filters={"parent": sell_collateral_application_exist[0].name},
+        #         fields=["*"],
+        #     )
 
-            # sell_collateral_list.append(
-            #     {
-            #         "loan_name": loan.name,
-            #         "sell_collateral_available": sell_collateral_application_exist[0]
-            #         if len(sell_collateral_application_exist)
-            #         else None,
-            #     }
-            # )
+        # sell_collateral_list.append(
+        #     {
+        #         "loan_name": loan.name,
+        #         "sell_collateral_available": sell_collateral_application_exist[0]
+        #         if len(sell_collateral_application_exist)
+        #         else None,
+        #     }
+        # )
 
-            # Increase Loan
-            # existing_loan_application = frappe.get_all(
-            #     "Loan Application",
-            #     filters={
-            #         "loan": loan.name,
-            #         "customer": loan.customer,
-            #         "status": ["not IN", ["Approved", "Rejected"]],
-            #     },
-            #     fields=["count(name) as in_process"],
-            # )
+        # Increase Loan
+        # existing_loan_application = frappe.get_all(
+        #     "Loan Application",
+        #     filters={
+        #         "loan": loan.name,
+        #         "customer": loan.customer,
+        #         "status": ["not IN", ["Approved", "Rejected"]],
+        #     },
+        #     fields=["count(name) as in_process"],
+        # )
 
-            # increase_loan_list.append(
-            #     {
-            #         "loan_name": loan.name,
-            #         "increase_loan_available": 1
-            #         if existing_loan_application[0]["in_process"] == 0
-            #         else None,
-            #     }
-            # )
+        # increase_loan_list.append(
+        #     {
+        #         "loan_name": loan.name,
+        #         "increase_loan_available": 1
+        #         if existing_loan_application[0]["in_process"] == 0
+        #         else None,
+        #     }
+        # )
 
-            # check if any pending unpledge application exist
+        # check if any pending unpledge application exist
         #     loan_margin_shortfall = loan.get_margin_shortfall()
         #     if loan_margin_shortfall.get("__islocal", None):
         #         loan_margin_shortfall = None
@@ -1914,7 +1914,7 @@ def loan_summary_dashboard(**kwargs):
                 filters={
                     "loan": loan.name,
                     "customer": loan.customer,
-                    "status": ["not IN", ["Approved", "Rejected"]],
+                    "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
                 },
                 fields=["count(name) as in_process"],
             )

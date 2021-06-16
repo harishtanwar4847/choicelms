@@ -143,7 +143,7 @@ class LoanMarginShortfall(Document):
         margin_shortfall_action = self.get_shortfall_action()
         mess = ""
         if margin_shortfall_action.sell_off_after_hours:
-            mess = "Dear Customer, \nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {}. Please check the app and take an appropriate action within {} hours; else sale will be triggered.\n-Spark Loans".format(
+            mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {}. Please check the app and take an appropriate action within {} hours; else sale will be triggered.".format(
                 self.loan, margin_shortfall_action.sell_off_after_hours
             )
         elif margin_shortfall_action.sell_off_deadline_eod:
@@ -153,7 +153,7 @@ class LoanMarginShortfall(Document):
                 fields=["max_threshold"],
             )
 
-            mess = "Dear Customer, \nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {} which exceeds {}% of portfolio value. Please check the app and take an appropriate action by {} Today; else sale will be triggered.\n-Spark Loans".format(
+            mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {} which exceeds {}% of portfolio value. Please check the app and take an appropriate action by {} Today; else sale will be triggered.".format(
                 self.loan,
                 eod_sell_off[0].max_threshold,
                 datetime.strptime(
@@ -167,12 +167,17 @@ class LoanMarginShortfall(Document):
                 filters={"sell_off_deadline_eod": ("!=", 0)},
                 fields=["max_threshold"],
             )
-            mess = "Dear Customer, \nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {}% of portfolio value. Therefore sale has been triggered in your loan account {}.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details.\n-Spark Loans".format(
+            mess = "Dear Customer,\nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {}% of portfolio value. Therefore sale has been triggered in your loan account {}.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details.".format(
                 hrs_sell_off[0].max_threshold, self.loan
             )
 
-            msg = "Dear Customer, \nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details.\n-Spark Loans".format(
+            msg = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details.".format(
                 self.loan
+            )
+            frappe.enqueue(
+                method=send_sms,
+                receiver_list=[self.get_loan().get_customer().phone],
+                msg=msg,
             )
 
         if mess:
@@ -180,12 +185,6 @@ class LoanMarginShortfall(Document):
                 method=send_sms,
                 receiver_list=[self.get_loan().get_customer().phone],
                 msg=mess,
-            )
-        if msg:
-            frappe.enqueue(
-                method=send_sms,
-                receiver_list=[self.get_loan().get_customer().phone],
-                msg=msg,
             )
 
         if margin_shortfall_action:
