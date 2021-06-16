@@ -20,6 +20,11 @@ class TopupApplication(Document):
 
     def on_submit(self):
         loan = self.get_loan()
+
+        # apply loan charges
+        self.apply_loan_charges(loan)
+        loan.reload()
+
         loan.drawing_power += self.top_up_amount
         loan.sanctioned_limit += self.top_up_amount
         loan.save(ignore_permissions=True)
@@ -27,6 +32,76 @@ class TopupApplication(Document):
 
         self.map_loan_agreement_file(loan)
         # self.notify_customer()
+
+    def apply_loan_charges(self, loan):
+        lender = loan.get_lender()
+
+        # renewal charges
+        renewal_charges = lender.renewal_charges
+        if lender.renewal_charge_type == "Percentage":
+            amount = (renewal_charges / 100) * loan.sanctioned_limit
+            renewal_charges = loan.validate_loan_charges_amount(
+                lender, amount, "renewal_minimum_amount", "renewal_maximum_amount"
+            )
+
+        if renewal_charges > 0:
+            loan.create_loan_transaction(
+                "Renewal Charges", renewal_charges, approve=True
+            )
+
+        # Processing fees
+        processing_fees = lender.lender_processing_fees
+        if lender.lender_processing_fees_type == "Percentage":
+            amount = (processing_fees / 100) * self.top_up_amount
+            processing_fees = loan.validate_loan_charges_amount(
+                lender,
+                amount,
+                "lender_processing_minimum_amount",
+                "lender_processing_maximum_amount",
+            )
+
+        if processing_fees > 0:
+            loan.create_loan_transaction(
+                "Processing Fees",
+                processing_fees,
+                approve=True,
+            )
+
+        # Stamp Duty
+        stamp_duty = lender.stamp_duty
+        if lender.stamp_duty_type == "Percentage":
+            amount = (stamp_duty / 100) * self.top_up_amount
+            stamp_duty = loan.validate_loan_charges_amount(
+                lender,
+                amount,
+                "lender_stamp_duty_minimum_amount",
+                "lender_stamp_duty_maximum_amount",
+            )
+
+        if stamp_duty > 0:
+            loan.create_loan_transaction(
+                "Stamp Duty",
+                stamp_duty,
+                approve=True,
+            )
+
+        # Documentation Charges
+        documentation_charges = lender.documentation_charges
+        if lender.documentation_charge_type == "Percentage":
+            amount = (documentation_charges / 100) * self.top_up_amount
+            documentation_charges = loan.validate_loan_charges_amount(
+                lender,
+                amount,
+                "lender_documentation_minimum_amount",
+                "lender_documentation_maximum_amount",
+            )
+
+        if documentation_charges > 0:
+            loan.create_loan_transaction(
+                "Documentation Charges",
+                documentation_charges,
+                approve=True,
+            )
 
     def on_update(self):
         if self.status == "Esign Done":
@@ -222,9 +297,9 @@ class TopupApplication(Document):
 
         is_private = 0
 
-        loan_agreement_file_url = frappe.utils.get_files_path(
-            loan_agreement_file_name, is_private=is_private
-        )
+        # loan_agreement_file_url = frappe.utils.get_files_path(
+        #     loan_agreement_file_name, is_private=is_private
+        # )
 
         loan_agreement_file = frappe.get_doc(
             {
