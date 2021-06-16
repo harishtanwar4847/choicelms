@@ -583,7 +583,7 @@ def get_tnc(**kwargs):
                     ),
                 )
 
-            # msg = "Dear Customer, \nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app \n-Spark Loans"
+            # msg = "Dear Customer,\nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app \n-Spark Loans"
             # receiver_list = list(
             #     set([str(customer.phone), str(customer.get_kyc().mobile_number)])
             # )
