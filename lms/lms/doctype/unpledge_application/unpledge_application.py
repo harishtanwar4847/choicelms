@@ -110,7 +110,7 @@ class UnpledgeApplication(Document):
         dp_reimburse_unpledge_charges = lender.dp_reimburse_unpledge_charges
         if dp_reimburse_unpledge_charges <= 0:
             frappe.throw(
-                "You need to check the amount of DP Reimbursement Charges for Sell Collateral"
+                "You need to check the amount of DP Reimbursement Charges for Unpledge"
             )
 
     def on_submit(self):
@@ -159,7 +159,7 @@ class UnpledgeApplication(Document):
             user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
 
             if self.status == "Approved":
-                msg = "Dear Customer, \nCongratulations! Your unpledge request has been successfully executed. Kindly check the app now. \n-Spark Loans"
+                msg = "Dear Customer,\nCongratulations! Your unpledge request has been successfully executed. Kindly check the app now. -Spark Loans"
             elif self.status == "Rejected":
                 if check == True:
                     # msg = """Dear {},
@@ -168,13 +168,11 @@ class UnpledgeApplication(Document):
                     # You can send another unpledge request when there is no margin shortfall.""".format(
                     #     self.get_loan().get_customer().first_name
                     # )
-                    msg = """Your unpledge request was rejected.
-                    There is a margin shortfall.
-                    You can send another unpledge request when there is no margin shortfall.""".format(
+                    msg = """Your unpledge request was rejected. There is a margin shortfall. You can send another unpledge request when there is no margin shortfall.""".format(
                         self.get_loan().get_customer().first_name
                     )
                 else:
-                    msg = "Dear Customer, \nSorry! Your unpledge application was turned down due to technical reasons. Please try again after sometime or reach us through 'Contact Us' on the app \n-Spark Loans"
+                    msg = "Dear Customer,\nSorry! Your unpledge application was turned down due to technical reasons. Please try again after sometime or reach us through 'Contact Us' on the app -Spark Loans"
 
             receiver_list = list(
                 set([str(customer.phone), str(user_kyc.mobile_number)])
