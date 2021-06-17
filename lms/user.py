@@ -601,7 +601,7 @@ def my_pledge_securities(**kwargs):
             filters={
                 "loan": loan.name,
                 "customer": loan.customer,
-                "status": ["not IN", ["Approved", "Rejected"]],
+                "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
             },
             fields=["count(name) as in_process"],
         )
