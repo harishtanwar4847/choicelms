@@ -261,7 +261,7 @@ def securities(**kwargs):
 
             # setting eligibility
             # securities_list = res_json["Response"]
-            securities_list = [i for i in res_json["Response"] if i.get("Price")>0]
+            securities_list = [i for i in res_json["Response"] if i.get("Price") > 0]
             securities_list_ = [i["ISIN"] for i in securities_list]
             securities_category_map = lms.get_allowed_securities(
                 securities_list_, data.get("lender")
