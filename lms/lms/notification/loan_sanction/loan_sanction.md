@@ -12,4 +12,3 @@
 
 <p>Thanks,</p>
 <p>The Spark Team	</p>
-

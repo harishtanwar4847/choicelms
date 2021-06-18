@@ -39,13 +39,15 @@
         <tr>
           <td>
             <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
-                <strong>Congratulations</strong><br />
+                <strong>Congratulations!!</strong><br />
                 <br />
-                Your KYC has been successfully verified.<br />
-                You can now go ahead and apply for your loan and fulfill your fund requirements!<br/>
-                Get loan - <a href="{{ frappe.utils.get_url() }}" style="color:#000">Click Here</a><br />
+                Your pledge request has been successfully received and is under process.<br />
+                Your loan application number is LAS0001234<br />
+                We shall reach out to you very soon.<br />
+                Thank you for your patience.<br />
+                You can reach to us through 'Contact Us' on the app.<br />
                 We look forward to serve you soon.<br />
-            </td>
+            </span></td>
         </tr>
         <tr>
           <td>&nbsp;</td>
