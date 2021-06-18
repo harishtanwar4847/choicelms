@@ -1,25 +1,25 @@
 {
- "attach_print": 0,
- "channel": "Email",
- "creation": "2021-05-10 11:10:21.585111",
- "days_in_advance": 0,
- "docstatus": 0,
- "doctype": "Notification",
- "document_type": "User KYC",
- "enabled": 1,
- "event": "Custom",
- "idx": 0,
- "is_standard": 1,
- "message": "<h3>Dear {{ doc.investor_name or \"\" }},</h3>\n\n{% if doc.get(\"loan_application\").get(\"status\") == \"Pledge Failure\" %}\nSorry! Your loan application was turned down since the Pledge request was not successful.\nWe regret the inconvenience caused.\n{% endif %}\n{% if doc.get(\"loan_application\").get(\"status\") == \"Pledge accepted by Lender\" %}\nCongratulations! Your application is being considered favourably by our lending partner\nand finally accepted at Rs. {{doc.get(\"loan_application\").get(\"current_total_collateral_value\")}} against the request value of Rs. {{doc.get(\"loan_application\").get(\"requested_total_collateral_value\")}}.\nAccordingly the final Drawing power is Rs. {{doc.get(\"loan_application\").get(\"drawing_power\")}}.\nPlease e-sign the loan agreement to avail the loan now.\n{% endif %}\n{% if doc.get(\"loan_application\").get(\"status\") == \"Approved\" %}\nCongratulations! Your loan application is Approved.\n{% endif %}\n{% if doc.get(\"loan_application\").get(\"status\") == \"Rejected\" %}\nSorry! Your loan application was turned down. We regret the inconvenience caused.\n{% endif %}\n<p>Thanks,</p>\n<p>The Spark Team\t</p>\n",
- "modified": "2021-06-18 14:43:09.535317",
- "modified_by": "Administrator",
- "module": "Lms",
- "name": "Loan Application",
- "owner": "Administrator",
- "recipients": [
-  {
-   "email_by_document_field": "user"
-  }
- ],
- "subject": "Loan Application"
+  "attach_print": 0,
+  "channel": "Email",
+  "creation": "2021-05-10 11:10:21.585111",
+  "days_in_advance": 0,
+  "docstatus": 0,
+  "doctype": "Notification",
+  "document_type": "User KYC",
+  "enabled": 1,
+  "event": "Custom",
+  "idx": 0,
+  "is_standard": 1,
+  "message": "<h3>Dear {{ doc.investor_name or \"\" }},</h3>\n\n{% if doc.get(\"loan_application\").get(\"status\") == \"Pledge Failure\" %}\nSorry! Your loan application was turned down since the Pledge request was not successful.\nWe regret the inconvenience caused.\n{% endif %}\n{% if doc.get(\"loan_application\").get(\"status\") == \"Pledge accepted by Lender\" %}\nCongratulations! Your application is being considered favourably by our lending partner\nand finally accepted at Rs. {{doc.get(\"loan_application\").get(\"current_total_collateral_value\")}} against the request value of Rs. {{doc.get(\"loan_application\").get(\"requested_total_collateral_value\")}}.\nAccordingly the final Drawing power is Rs. {{doc.get(\"loan_application\").get(\"drawing_power\")}}.\nPlease e-sign the loan agreement to avail the loan now.\n{% endif %}\n{% if doc.get(\"loan_application\").get(\"status\") == \"Approved\" %}\nCongratulations! Your loan application is Approved.\n{% endif %}\n{% if doc.get(\"loan_application\").get(\"status\") == \"Rejected\" %}\nSorry! Your loan application was turned down. We regret the inconvenience caused.\n{% endif %}\n<p>Thanks,</p>\n<p>The Spark Team\t</p>\n",
+  "modified": "2021-06-18 14:43:09.535317",
+  "modified_by": "Administrator",
+  "module": "Lms",
+  "name": "Loan Application",
+  "owner": "Administrator",
+  "recipients": [
+    {
+      "email_by_document_field": "user"
+    }
+  ],
+  "subject": "Loan Application"
 }
