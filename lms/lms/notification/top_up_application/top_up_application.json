@@ -1,0 +1,26 @@
+{
+ "attach_print": 0,
+ "channel": "Email",
+ "condition": "",
+ "creation": "2021-05-10 11:10:21.213187",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "User KYC",
+ "enabled": 1,
+ "event": "Custom",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "<h3>Dear {{ doc.investor_name or \"\" }},</h3>\n\n{% if doc.get(\"top_up_application\").get(\"status\") == \"Pending\" %}\nYour request has been successfully received. You will be notified when your new OD limit is approved by our banking partner.\n{% endif %}\n{% if doc.get(\"top_up_application\").get(\"status\") == \"Approved\" %}\nCongratulations! Your Top up application for Loan {{doc.get(\"top_up_application\").get(\"loan\")}} is Approved.\n{% endif %}\n{% if doc.get(\"top_up_application\").get(\"status\") == \"Rejected\" %}\nSorry! Your Top up application was turned down. We regret the inconvenience caused.\n{% endif %}\n\n<p>Thanks,</p>\n<p>The Spark Team\t</p>",
+ "modified": "2021-06-18 14:42:34.936837",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Top up Application",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "email_by_document_field": "user"
+  }
+ ],
+ "subject": "Top up Application"
+}
