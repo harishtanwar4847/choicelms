@@ -179,9 +179,8 @@ class Cart(Document):
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,
             "account_renewal_charges": lender.account_renewal_charges,
-            "documentation_charges": lender.documentation_charges,
-            "stamp_duty_charges": (lender.stamp_duty / 100)
-            * self.eligible_loan,  # CR loan agreement changes
+            "documentation_charges": lender.lender_documentation_minimum_amount,
+            "stamp_duty_charges": lender.lender_stamp_duty_minimum_amount,
             "processing_fee": lender.lender_processing_fees,
             "transaction_charges_per_request": lender.transaction_charges_per_request,
             "security_selling_share": lender.security_selling_share,

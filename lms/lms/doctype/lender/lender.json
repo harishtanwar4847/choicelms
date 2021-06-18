@@ -389,7 +389,7 @@
   {
    "fieldname": "lender_stamp_duty_minimum_amount",
    "fieldtype": "Float",
-   "label": "Maximum Amount"
+   "label": "Minimum Amount"
   },
   {
    "fieldname": "lender_documentation_minimum_amount",
@@ -486,7 +486,7 @@
    "label": "Maximum Amount"
   }
  ],
- "modified": "2021-06-11 16:03:04.396940",
+ "modified": "2021-06-17 16:58:09.999306",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
