@@ -130,6 +130,7 @@ override_doctype_dashboards = {
 
 fixtures = [
     "API Doc",
+    "Notification",
 ]
 
 scheduler_events = {
