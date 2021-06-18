@@ -1,4 +1,4 @@
-from utils.exceptions.APIException import APIException
+from utils.exceptions import APIException
 
 
 class CustomerNotFoundException(APIException):
