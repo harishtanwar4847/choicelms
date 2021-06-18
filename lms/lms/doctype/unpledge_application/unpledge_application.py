@@ -113,11 +113,19 @@ class UnpledgeApplication(Document):
                 "You need to check the amount of DP Reimbursement Charges for Unpledge"
             )
 
-        loan_items = frappe.get_all("Loan Item", filters={"parent": self.loan}, fields=["*"])
+        loan_items = frappe.get_all(
+            "Loan Item", filters={"parent": self.loan}, fields=["*"]
+        )
         for i in loan_items:
             for j in self.unpledge_items:
-                if i["isin"]==j.isin and i["pledged_quantity"] < j.unpledge_quantity:
-                    frappe.throw("Sufficient quantity not available for ISIN {unpledge_isin},\nCurrent Quantity= {loan_qty} Requested Unpledge Quantity {unpledge_quantity}\nPlease Reject this Application".format(unpledge_isin=j.isin,loan_qty=i["pledged_quantity"],unpledge_quantity=j.unpledge_quantity)) 
+                if i["isin"] == j.isin and i["pledged_quantity"] < j.unpledge_quantity:
+                    frappe.throw(
+                        "Sufficient quantity not available for ISIN {unpledge_isin},\nCurrent Quantity= {loan_qty} Requested Unpledge Quantity {unpledge_quantity}\nPlease Reject this Application".format(
+                            unpledge_isin=j.isin,
+                            loan_qty=i["pledged_quantity"],
+                            unpledge_quantity=j.unpledge_quantity,
+                        )
+                    )
 
     def on_submit(self):
         for i in self.unpledge_items:

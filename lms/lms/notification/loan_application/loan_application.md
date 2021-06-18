@@ -16,5 +16,6 @@ Congratulations! Your loan application is Approved.
 {% if doc.get("loan_application").get("status") == "Rejected" %}
 Sorry! Your loan application was turned down. We regret the inconvenience caused.
 {% endif %}
+
 <p>Thanks,</p>
 <p>The Spark Team	</p>

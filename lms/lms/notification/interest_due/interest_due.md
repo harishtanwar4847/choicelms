@@ -4,10 +4,12 @@
 {% endif %}
 
 {% if doc.transaction_type == "Additional Interest" %}
+
 <p>You have been charged Additional interest of INR {{doc.unpaid_interest}} for {{doc.loan_name}}<p>
 {% endif %}
 
 {% if doc.transaction_type == "Penal Interest" %}
+
 <p>You have been charged Penal interest of INR {{doc.unpaid_interest}} for {{doc.loan_name}}<p>
 {% endif %}
 

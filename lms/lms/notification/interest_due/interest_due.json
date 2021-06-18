@@ -1,25 +1,25 @@
 {
- "attach_print": 0,
- "channel": "Email",
- "creation": "2021-05-10 11:10:21.144908",
- "days_in_advance": 0,
- "docstatus": 0,
- "doctype": "Notification",
- "document_type": "User KYC",
- "enabled": 1,
- "event": "Custom",
- "idx": 0,
- "is_standard": 1,
- "message": "<h3>Dear {{ doc.investor_name or \"\" }},</h3>\n{% if doc.transaction_type == \"Interest\" %}\n<p>Your interest for Loan Account {{doc.loan_name}} is due for payment. Please take action<p>\n{% endif %}\n\n{% if doc.transaction_type == \"Additional Interest\" %}\n<p>You have been charged Additional interest of INR {{doc.unpaid_interest}} for {{doc.loan_name}}<p>\n{% endif %}\n\n{% if doc.transaction_type == \"Penal Interest\" %}\n<p>You have been charged Penal interest of INR {{doc.unpaid_interest}} for {{doc.loan_name}}<p>\n{% endif %}\n\n<p>Thanks,</p>\n<p>The Spark Team\t</p>\n",
- "modified": "2021-06-18 14:42:52.732634",
- "modified_by": "Administrator",
- "module": "Lms",
- "name": "Interest Due",
- "owner": "Administrator",
- "recipients": [
-  {
-   "email_by_document_field": "user"
-  }
- ],
- "subject": "Interest Due"
+  "attach_print": 0,
+  "channel": "Email",
+  "creation": "2021-05-10 11:10:21.144908",
+  "days_in_advance": 0,
+  "docstatus": 0,
+  "doctype": "Notification",
+  "document_type": "User KYC",
+  "enabled": 1,
+  "event": "Custom",
+  "idx": 0,
+  "is_standard": 1,
+  "message": "<h3>Dear {{ doc.investor_name or \"\" }},</h3>\n{% if doc.transaction_type == \"Interest\" %}\n<p>Your interest for Loan Account {{doc.loan_name}} is due for payment. Please take action<p>\n{% endif %}\n\n{% if doc.transaction_type == \"Additional Interest\" %}\n<p>You have been charged Additional interest of INR {{doc.unpaid_interest}} for {{doc.loan_name}}<p>\n{% endif %}\n\n{% if doc.transaction_type == \"Penal Interest\" %}\n<p>You have been charged Penal interest of INR {{doc.unpaid_interest}} for {{doc.loan_name}}<p>\n{% endif %}\n\n<p>Thanks,</p>\n<p>The Spark Team\t</p>\n",
+  "modified": "2021-06-18 14:42:52.732634",
+  "modified_by": "Administrator",
+  "module": "Lms",
+  "name": "Interest Due",
+  "owner": "Administrator",
+  "recipients": [
+    {
+      "email_by_document_field": "user"
+    }
+  ],
+  "subject": "Interest Due"
 }
