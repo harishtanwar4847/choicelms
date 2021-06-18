@@ -124,12 +124,10 @@ class SellCollateralApplication(Document):
             frappe.throw("You need to check the amount of Sell Collateral Charges")
 
         loan_items = frappe.get_all("Loan Item", filters={"parent": self.loan}, fields=["*"])
-        sell_items = [j for j in self.sell_items]
         for i in loan_items:
-            for j in sell_items:
+            for j in self.sell_items:
                 if i["isin"]==j.isin and i["pledged_quantity"] < j.sell_quantity:
-                    print("helollolo")
-                    frappe.throw("Sufficient quantity not available for ISIN {sell_isin},\nCurrent Quantity= {loan_qty} Requested Sell Quantity {sell_quantity}\nPlease Reject this Application".format(sell_isin=j.isin,loan_qty=i["pledged_quantity"],sell_quantity=j.quantity))              
+                    frappe.throw("Sufficient quantity not available for ISIN {sell_isin},\nCurrent Quantity= {loan_qty} Requested Sell Quantity {sell_quantity}\nPlease Reject this Application".format(sell_isin=j.isin,loan_qty=i["pledged_quantity"],sell_quantity=j.sell_quantity))              
 
     def on_update(self):
         if self.status == "Rejected":

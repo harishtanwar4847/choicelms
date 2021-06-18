@@ -1488,6 +1488,7 @@ def check_eligible_limit(**kwargs):
 			LEFT JOIN `tabSecurity` s
 			ON als.isin = s.isin
 			where als.lender = '{}'
+            and s.price > 0
 			and als.security_name like '%{}%'
             order by als.security_name;
 			""".format(
