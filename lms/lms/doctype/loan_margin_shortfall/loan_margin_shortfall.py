@@ -241,7 +241,7 @@ class LoanMarginShortfall(Document):
                     filters={"sell_off_deadline_eod": ("!=", 0)},
                     fields=["max_threshold"],
                 )
-                mess = "Dear Customer,\nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {} of portfolio value. Therefore sale has been triggered in your loan account {}.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
+                mess = "Dear Customer,\nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {}% of portfolio value. Therefore sale has been triggered in your loan account {}.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
                     hrs_sell_off[0].max_threshold, self.loan
                 )
                 frappe.enqueue(
