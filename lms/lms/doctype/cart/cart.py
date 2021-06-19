@@ -129,20 +129,26 @@ class Cart(Document):
         #     loan_application.status = "Ready for Approval"
         #     loan_application.workflow_state = "Ready for Approval"
         #     loan_application.save(ignore_permissions=True)
+
+        # if not self.loan_margin_shortfall:
         customer = frappe.get_doc("Loan Customer", self.customer)
         doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+        doc["loan_application_name"] = loan_application.name
+        # frappe.enqueue_doc(
+        #     "Notification", "Loan Application Creation", method="send", doc=doc
+        # )
         frappe.enqueue_doc(
-            "Notification", "Loan Application Creation", method="send", doc=doc
+            "Notification", "Pledge Application Success", method="send", doc=doc
         )
-        if not self.loan_margin_shortfall:
-            mess = "Dear Customer,\nYour pledge request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans"
-            # if mess:
-            receiver_list = list(
-                set([str(self.get_customer().phone), str(doc.mobile_number)])
-            )
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
+        mess = "Dear Customer,\nYour pledge request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans"
+        # if mess:
+        receiver_list = list(
+            set([str(self.get_customer().phone), str(doc.mobile_number)])
+        )
+        from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+        frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
         return loan_application
 
     def create_tnc_file(self):

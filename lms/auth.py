@@ -369,7 +369,7 @@ def verify_user(token, user):
     frappe.db.commit()
 
     """changes as per latest email notification list-sent by vinayak - email verification final 2.0"""
-    # doc = frappe.get_doc("User", user)
+    doc = frappe.get_doc("User", user)
 
     # frappe.enqueue_doc("Notification", "User Welcome Email", method="send", doc=doc)
 
