@@ -142,11 +142,7 @@ class LoanMarginShortfall(Document):
     def notify_customer(self):
         margin_shortfall_action = self.get_shortfall_action()
         mess = ""
-        if self.deadline < frappe.utils.now_datetime():
-            mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
-                self.loan
-            )
-        elif margin_shortfall_action.sell_off_after_hours:
+        if margin_shortfall_action.sell_off_after_hours:
             mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {}. Please check the app and take an appropriate action within {} hours; else sale will be triggered. Spark Loans".format(
                 self.loan, margin_shortfall_action.sell_off_after_hours
             )
@@ -165,16 +161,6 @@ class LoanMarginShortfall(Document):
                 ).strftime("%I:%M%P"),
             )
 
-        else:
-            hrs_sell_off = frappe.get_all(
-                "Margin Shortfall Action",
-                filters={"sell_off_deadline_eod": ("!=", 0)},
-                fields=["max_threshold"],
-            )
-            if self.shortfall_percentage > hrs_sell_off[0].max_threshold:
-                mess = "Dear Customer,\nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {} of portfolio value. Therefore sale has been triggered in your loan account {}.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
-                    hrs_sell_off[0].max_threshold, self.loan
-                )
 
         if mess:
             frappe.enqueue(
@@ -251,6 +237,20 @@ class LoanMarginShortfall(Document):
             ):
                 # sell off immediately
                 self.deadline = frappe.utils.now_datetime()
+                hrs_sell_off = frappe.get_all(
+                    "Margin Shortfall Action",
+                    filters={"sell_off_deadline_eod": ("!=", 0)},
+                    fields=["max_threshold"],
+                )
+                mess = "Dear Customer,\nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {} of portfolio value. Therefore sale has been triggered in your loan account {}.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
+                    hrs_sell_off[0].max_threshold, self.loan
+                )
+                frappe.enqueue(
+                    method=send_sms,
+                    receiver_list=[self.get_loan().get_customer().phone],
+                    msg=mess,
+                )
+                
 
             self.save(ignore_permissions=True)
             frappe.db.commit()
@@ -331,7 +331,7 @@ class LoanMarginShortfall(Document):
                     fa.delete_app()
 
     def on_update(self):
-        if self.shortfall_percentage > 0 and frappe.utils.now_datetime() > self.deadline:
+        if self.shortfall_percentage > 0 and frappe.utils.now_datetime() > datetime.strptime(self.deadline,"%Y-%m-%d %H:%M:%S.%f"):
             frappe.db.set_value(
                 self.doctype,
                 self.name,
@@ -339,6 +339,14 @@ class LoanMarginShortfall(Document):
                 "Sell Triggered",
             )
             frappe.db.commit()
+            mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
+                self.loan
+            )
+            frappe.enqueue(
+                method=send_sms,
+                receiver_list=[self.get_customer().phone],
+                msg=mess,
+            )
         self.notify_customer()
     #     if self.status == "Pending":
     #         # self.timer_start_stop_fcm()

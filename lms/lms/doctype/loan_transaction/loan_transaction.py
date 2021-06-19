@@ -191,7 +191,7 @@ class LoanTransaction(Document):
         if self.transaction_type == "Withdrawal":
             mess = ""
             if self.requested == self.disbursed:
-                mess = "Dear Customer,\nYour withdrawal request has been executed and Rs. {amount}  transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . Your loan balance is Rs. {balance}. Date Time {date_time}. If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(
+                mess = "Dear Customer,\nYour withdrawal request has been executed and Rs. {amount}  transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . Your loan balance is Rs. {balance}. {date_time}. If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(
                     amount=self.amount,
                     disbursed=self.disbursed,
                     balance=loan.balance,
