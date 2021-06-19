@@ -368,9 +368,10 @@ def verify_user(token, user):
     customer.save(ignore_permissions=True)
     frappe.db.commit()
 
-    doc = frappe.get_doc("User", user)
+    """changes as per latest email notification list-sent by vinayak - email verification final 2.0"""
+    # doc = frappe.get_doc("User", user)
 
-    frappe.enqueue_doc("Notification", "User Welcome Email", method="send", doc=doc)
+    # frappe.enqueue_doc("Notification", "User Welcome Email", method="send", doc=doc)
 
     # mess = frappe._(
     #     "Dear"
