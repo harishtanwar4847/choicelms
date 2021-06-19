@@ -55,7 +55,7 @@ class UserToken(Document):
                 "Notification",
                 "User Email Verification",
                 method="send",
-                now=True,
+                # now=True,
                 doc=doc,
             )
         elif self.token_type == "Forgot Pin OTP":

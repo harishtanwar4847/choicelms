@@ -117,7 +117,8 @@ def kyc(**kwargs):
             customer.save(ignore_permissions=True)
             frappe.db.commit()
 
-            frappe.enqueue_doc("Notification", "User KYC", method="send", doc=user)
+            """changes as per latest email notification list-sent by vinayak - email verification final 2.0"""
+            # frappe.enqueue_doc("Notification", "User KYC", method="send", doc=user)
 
             # mess = frappe._(
             #     "Dear "

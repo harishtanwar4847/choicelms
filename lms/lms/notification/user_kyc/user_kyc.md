@@ -31,7 +31,7 @@
           <td height="25">&nbsp;</td>
         </tr>
         <tr>
-          <td><strong><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#2c2a2b">Dear {{ doc.full_name or "" }},</span></strong></td>
+          <td><strong><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#2c2a2b">Dear {{ doc.investor_name or "" }},</span></strong></td>
         </tr>
         <tr>
           <td>&nbsp;</td>
@@ -43,7 +43,7 @@
                 <br />
                 Your KYC has been successfully verified.<br />
                 You can now go ahead and apply for your loan and fulfill your fund requirements!<br/>
-                Get loan - <a href="{{ frappe.utils.get_url() }}" style="color:#000">Click Here</a><br />
+                Get loan - <a href="{{ frappe.utils.get_url('/home') }}" style="color:#000">Click Here</a><br />
                 We look forward to serve you soon.<br />
             </td>
         </tr>
