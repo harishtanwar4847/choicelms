@@ -72,7 +72,7 @@ class LoanMarginShortfall(Document):
         if self.status == "Pending":
             self.set_deadline()
             loan = self.get_loan()
-            self.notify_customer()
+            # self.notify_customer()
 
             creation = datetime.strptime(self.creation, "%Y-%m-%d %H:%M:%S.%f")
             deadline = self.deadline
@@ -142,8 +142,12 @@ class LoanMarginShortfall(Document):
     def notify_customer(self):
         margin_shortfall_action = self.get_shortfall_action()
         mess = ""
-        if margin_shortfall_action.sell_off_after_hours:
-            mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {}. Please check the app and take an appropriate action within {} hours; else sale will be triggered.".format(
+        if self.deadline < frappe.utils.now_datetime():
+            mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
+                self.loan
+            )
+        elif margin_shortfall_action.sell_off_after_hours:
+            mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {}. Please check the app and take an appropriate action within {} hours; else sale will be triggered. Spark Loans".format(
                 self.loan, margin_shortfall_action.sell_off_after_hours
             )
         elif margin_shortfall_action.sell_off_deadline_eod:
@@ -153,12 +157,12 @@ class LoanMarginShortfall(Document):
                 fields=["max_threshold"],
             )
 
-            mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {} which exceeds {}% of portfolio value. Please check the app and take an appropriate action by {} Today; else sale will be triggered.".format(
+            mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {} which exceeds {}% of portfolio value. Please check the app and take an appropriate action by {} Today; else sale will be triggered. Spark Loans".format(
                 self.loan,
                 eod_sell_off[0].max_threshold,
                 datetime.strptime(
                     str(margin_shortfall_action.sell_off_deadline_eod), "%H"
-                ).strftime("%I:%M %p"),
+                ).strftime("%I:%M%P"),
             )
 
         else:
@@ -167,18 +171,10 @@ class LoanMarginShortfall(Document):
                 filters={"sell_off_deadline_eod": ("!=", 0)},
                 fields=["max_threshold"],
             )
-            mess = "Dear Customer,\nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {}% of portfolio value. Therefore sale has been triggered in your loan account {}.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details.".format(
-                hrs_sell_off[0].max_threshold, self.loan
-            )
-
-            msg = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details.".format(
-                self.loan
-            )
-            frappe.enqueue(
-                method=send_sms,
-                receiver_list=[self.get_loan().get_customer().phone],
-                msg=msg,
-            )
+            if self.shortfall_percentage > hrs_sell_off[0].max_threshold:
+                mess = "Dear Customer,\nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {} of portfolio value. Therefore sale has been triggered in your loan account {}.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
+                    hrs_sell_off[0].max_threshold, self.loan
+                )
 
         if mess:
             frappe.enqueue(
@@ -334,7 +330,16 @@ class LoanMarginShortfall(Document):
                 finally:
                     fa.delete_app()
 
-    # def on_update(self):
+    def on_update(self):
+        if self.shortfall_percentage > 0 and frappe.utils.now_datetime() > self.deadline:
+            frappe.db.set_value(
+                self.doctype,
+                self.name,
+                "status",
+                "Sell Triggered",
+            )
+            frappe.db.commit()
+        self.notify_customer()
     #     if self.status == "Pending":
     #         # self.timer_start_stop_fcm()
     #         self.update_deadline_based_on_holidays()

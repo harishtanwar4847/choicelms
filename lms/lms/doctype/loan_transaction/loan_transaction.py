@@ -166,7 +166,7 @@ class LoanTransaction(Document):
         loan.update_loan_balance(check_for_shortfall=check_for_shortfall)
 
         if self.transaction_type == "Payment":
-            msg = """Dear Customer,\nYou loan account {} has been credited by payment of Rs. {} . Your loan balance is Rs. {}. {}.""".format(
+            msg = "Dear Customer,\nYou loan account {}  has been credited by payment of Rs. {} . Your loan balance is Rs. {}. {} Spark Loans".format(
                 self.loan,
                 self.amount,
                 loan.balance,
@@ -191,7 +191,7 @@ class LoanTransaction(Document):
         if self.transaction_type == "Withdrawal":
             mess = ""
             if self.requested == self.disbursed:
-                mess = "Dear Customer,\nYour withdrawal request has been executed and Rs. {amount} transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . Your loan balance is Rs. {balance}. {date_time}. If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(
+                mess = "Dear Customer,\nYour withdrawal request has been executed and Rs. {amount}  transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . Your loan balance is Rs. {balance}. Date Time {date_time}. If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(
                     amount=self.amount,
                     disbursed=self.disbursed,
                     balance=loan.balance,
@@ -200,7 +200,7 @@ class LoanTransaction(Document):
                     ).strftime("%d-%m-%Y %H:%M"),
                 )
             elif self.disbursed < self.requested:
-                mess = "Dear Customer,\nYour withdrawal request for Rs. {requested} has been partially executed and Rs. {disbursed} transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(
+                mess = "Dear Customer,\nYour withdrawal request for Rs. {requested}  has been partially executed and Rs. {disbursed}  transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(
                     requested=self.requested, disbursed=self.disbursed
                 )
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
@@ -350,7 +350,7 @@ class LoanTransaction(Document):
         if self.transaction_type == "Withdrawal":
             customer = self.get_loan().get_customer()
             if self.status == "Rejected":
-                mess = "Dear Customer,\nSorry! Your withdrawal request has been rejected by our lending partner for technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app -Spark Loans"
+                mess = "Dear Customer,\nSorry! Your withdrawal request has been rejected by our lending partner for technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
 
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
