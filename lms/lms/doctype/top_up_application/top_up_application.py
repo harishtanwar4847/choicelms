@@ -265,7 +265,7 @@ class TopupApplication(Document):
         mess = ""
         if doc.get("top_up_application").get("status") == "Pending":
             # mess = "Your request has been successfully received. You will be notified when your new OD limit is approved by our banking partner."
-            mess = "Dear Customer,\nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app -Spark Loans"
+            mess = 'Dear Customer,\nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans'
 
         if doc.get("top_up_application").get("status") == "Approved":
             mess = "Dear Customer,\nCongratulations! Your loan account has been topped up. Please check the app for details. -Spark Loans"
@@ -276,7 +276,7 @@ class TopupApplication(Document):
         if doc.get("top_up_application").get("status") == "Rejected":
             # mess = "Sorry! Your Top up application was turned down. We regret the inconvenience caused."
 
-            mess = "Dear Customer,\nSorry! Your top up request could not be executed due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app -Spark Loans"
+            mess = "Dear Customer,\nSorry! Your top up request could not be executed due to technical reasons. We regret the inconvenience caused.Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
 
         if mess:
             receiver_list = list(

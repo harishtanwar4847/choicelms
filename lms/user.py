@@ -129,7 +129,8 @@ def kyc(**kwargs):
             #     "Congratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
             # )
             mess = frappe._(
-                "Dear Customer,\nCongratulations! Your KYC verification is completed. -Spark Loans"
+                # "Dear Customer,\nCongratulations! Your KYC verification is completed. -Spark Loans"
+                "Dear Customer, \nCongratulations! \nYour KYC verification is completed.  -Spark Loans"
             )
             frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
 
@@ -1489,6 +1490,7 @@ def check_eligible_limit(**kwargs):
 			LEFT JOIN `tabSecurity` s
 			ON als.isin = s.isin
 			where als.lender = '{}'
+            and s.price > 0
 			and als.security_name like '%{}%'
             order by als.security_name;
 			""".format(
