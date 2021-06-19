@@ -139,7 +139,7 @@ class SellCollateralApplication(Document):
 
     def on_update(self):
         if self.status == "Rejected":
-            msg = "Dear Customer,\nSorry! Your sell collateral request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app -Spark Loans"
+            msg = "Dear Customer,\nSorry! Your sell collateral request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
 
             receiver_list = list(
                 set(
@@ -235,6 +235,12 @@ class SellCollateralApplication(Document):
             sell_collateral_charges = self.lender_selling_amount * sell_charges
         elif lender.sell_collateral_charge_type == "Percentage":
             sell_collateral_charges = self.lender_selling_amount * sell_charges / 100
+        # sell_collateral_charges = self.validate_loan_charges_amount(
+        #     lender,
+        #     sell_collateral_charges,
+        #     "sell_collateral_minimum_amount",
+        #     "sell_collateral_maximum_amount",
+        # )
 
         loan.create_loan_transaction(
             transaction_type="Sell Collateral",
@@ -258,7 +264,7 @@ class SellCollateralApplication(Document):
             loan_margin_shortfall_name=self.loan_margin_shortfall,
         )
         if self.owner == frappe.session.user and self.loan_margin_shortfall:
-            msg = "Dear Customer,\nSale of securities initiated by the lending partner for your loan account {} is now completed .The sale proceeds have been credited to your loan account and collateral value updated. Please check the app for details.".format(
+            msg = "Dear Customer,\nSale of securities initiated by the lending partner for your loan account  {} is now completed .The sale proceeds have been credited to your loan account and collateral value updated. Please check the app for details. Spark Loans".format(
                 self.loan
             )
         else:
