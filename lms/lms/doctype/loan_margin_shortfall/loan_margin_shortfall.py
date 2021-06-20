@@ -329,26 +329,34 @@ class LoanMarginShortfall(Document):
                     fa.delete_app()
 
     def on_update(self):
-        if (
-            self.shortfall_percentage > 0
-            and frappe.utils.now_datetime()
-            > datetime.strptime(self.deadline, "%Y-%m-%d %H:%M:%S.%f")
-        ):
-            frappe.db.set_value(
-                self.doctype,
-                self.name,
-                "status",
-                "Sell Triggered",
-            )
-            frappe.db.commit()
-            mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
-                self.loan
-            )
-            frappe.enqueue(
-                method=send_sms,
-                receiver_list=[self.get_customer().phone],
-                msg=mess,
-            )
+        frappe.logger().info(self.deadline,"deadline out")
+        if self.deadline:
+            deadline = self.deadline
+            frappe.logger().info(deadline,"deadline1")
+            frappe.logger().info(type(deadline),"type(deadline)1")
+            if isinstance(deadline, str):
+                deadline = datetime.strptime(deadline, "%Y-%m-%d %H:%M:%S.%f")
+            if (
+                self.shortfall_percentage > 0
+                and frappe.utils.now_datetime()
+                > deadline
+                and self.status != "Sell Triggered"
+            ):
+                frappe.db.set_value(
+                    self.doctype,
+                    self.name,
+                    "status",
+                    "Sell Triggered",
+                )
+                frappe.db.commit()
+                mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
+                    self.loan
+                )
+                frappe.enqueue(
+                    method=send_sms,
+                    receiver_list=[self.get_customer().phone],
+                    msg=mess,
+                )
         self.notify_customer()
 
     #     if self.status == "Pending":
