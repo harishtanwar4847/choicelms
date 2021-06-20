@@ -329,19 +329,11 @@ class LoanMarginShortfall(Document):
                     fa.delete_app()
 
     def on_update(self):
-        frappe.logger().info(self.deadline,"deadline out")
-        if self.deadline:
+        if self.deadline and self.status != "Sell Triggered":
             deadline = self.deadline
-            frappe.logger().info(deadline,"deadline1")
-            frappe.logger().info(type(deadline),"type(deadline)1")
             if isinstance(deadline, str):
                 deadline = datetime.strptime(deadline, "%Y-%m-%d %H:%M:%S.%f")
-            if (
-                self.shortfall_percentage > 0
-                and frappe.utils.now_datetime()
-                > deadline
-                and self.status != "Sell Triggered"
-            ):
+            if self.shortfall_percentage > 0 and frappe.utils.now_datetime() > deadline:
                 frappe.db.set_value(
                     self.doctype,
                     self.name,
@@ -354,7 +346,7 @@ class LoanMarginShortfall(Document):
                 )
                 frappe.enqueue(
                     method=send_sms,
-                    receiver_list=[self.get_customer().phone],
+                    receiver_list=[self.get_loan().get_customer().phone],
                     msg=mess,
                 )
         self.notify_customer()
