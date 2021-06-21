@@ -1,0 +1,26 @@
+{
+ "attach_print": 0,
+ "channel": "Email",
+ "condition": "",
+ "creation": "2021-06-21 16:29:00.051084",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "User KYC",
+ "enabled": 1,
+ "event": "Custom",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "",
+ "modified": "2021-06-21 16:46:37.585611",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Sale Triggered",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "email_by_document_field": "user"
+  }
+ ],
+ "subject": "Sale Triggered"
+}

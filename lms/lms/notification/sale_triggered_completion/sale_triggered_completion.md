@@ -39,53 +39,13 @@
         <tr>
             <td>
                 <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
-                    {% if doc.get("loan_application").get("status") == "Pledge accepted by Lender" %}
-                        <strong>Congratulations!!</strong><br />
-                        <br />
-                        Your loan application has been accepted.<br />
-                        Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now.<br />
-                        <br />
-                        For any help on e-sign please view our tutorial videos or you can reach to us through 'Contact Us' on the app.<br />
-                        We look forward to serve you soon.<br />
-                        <br />
-                    {% endif %}
-                    {% if doc.get("loan_application").get("status") == "Pledge Failure" %}
-                        Sorry! Your loan application was turned down since the pledge was not successful due to technical reasons.<br />
-                        <br />
-                        We regret the inconvenience caused.<br />
-                        <br />
-                        Please try again after sometime or you can reach to us through 'Contact Us' on the app.<br />
-                        We look forward to serve you soon.<br />
-                        <br />
-                    {% endif %}
-                    {% if doc.get("loan_application").get("status") == "Esign Done" %}
-                        Your E-sign process is completed, you shall soon receive a confirmation of loan approval.<br />
-                        <br />
-                        Thank you for your patience<br />
-                        <br />
-                        You can reach to us through 'Contact Us' on the app.<br />
-                        <br />
-                        We look forward to serve you soon.<br />
-                        <br />
-                    {% endif %}
-                    {% if doc.get("loan_application").get("status") == "Approved" %}
-                        Your loan account is now open!<br />
-                        <br />
-                        You may now withdraw funds as per your convenience.<br />
-                        <br />
-                        You can reach to us through 'Contact Us' on the app.
-                        We look forward to serve you soon.<br />
-                        <br />
-                    {% endif %}
-                    {% if doc.get("loan_application").get("status") == "Rejected" %}
-                        Sorry! Your loan application was turned down due to technical reasons.<br />
-                        <br />
-                        We regret the inconvenience caused.<br />
-                        <br />
-                        Please try again after sometime or you can reach to us through 'Contact Us' on the app.
-                        We look forward to serve you soon.<br />
-                        <br />
-                    {% endif %}
+                    Sale of securities initiated by the lending partner for your loan account {{doc.get("sell_triggered_completion").get("loan")}} is now completed .<br />
+                    The sale proceeds have been credited to your loan account and collateral value updated. 
+                    Please check the app for details.<br />
+                    <br />
+                    You can reach to us through 'Contact Us' on the app.<br />
+                    We look forward to serve you soon.<br />
+                    <br />
                 </span>
             </td>
         </tr>

@@ -622,7 +622,11 @@ def create_topup(**kwargs):
                 frappe.db.commit()
 
             # loan = frappe.get_doc("Loan", topup_application.loan)
-            # lender = frappe.get_doc("Lender", loan.lender)
+            # lender = frappe.get_doc("Lender", loan.lender) 
+            frappe.enqueue_doc(
+                "Notification", "Top up Request", method="send", doc=user_kyc
+            )
+
             msg = "Dear Customer,\nYour top up request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans"
             receiver_list = list(
                 set([str(customer.phone), str(customer.get_kyc().mobile_number)])
@@ -1391,13 +1395,17 @@ def loan_payment(**kwargs):
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
                 frappe.db.commit()
-                msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
-                receiver_list = list(
-                    set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-                )
-                from frappe.core.doctype.sms_settings.sms_settings import send_sms
+            doc = frappe.get_doc("User KYC",customer.choice_kyc).as_dict()
+            frappe.enqueue_doc(
+                "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
+            )
+            msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
+            receiver_list = list(
+                set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+            )
+            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         frappe.db.begin()
         loan.create_loan_transaction(
@@ -2050,6 +2058,9 @@ def loan_unpledge_request(**kwargs):
             }
         )
         unpledge_application.insert(ignore_permissions=True)
+        frappe.enqueue_doc(
+            "Notification", "Unpledge Request", method="send", doc=user_kyc
+        )
         msg = "Dear Customer,\nYour unpledge request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. - Spark Loans"
 
         receiver_list = list(
@@ -2200,6 +2211,10 @@ def sell_collateral_request(**kwargs):
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
                 frappe.db.commit()
+            doc = frappe.get_doc("User KYC",customer.choice_kyc).as_dict()
+            frappe.enqueue_doc(
+                "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
+            )
             msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
 
         sell_collateral_application.insert(ignore_permissions=True)

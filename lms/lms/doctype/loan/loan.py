@@ -1176,10 +1176,10 @@ def check_all_loans_for_shortfall():
         )
 
 
-@frappe.whitelist()
-def check_single_loan_for_shortfall(loan_name):
-    loan = frappe.get_doc("Loan", loan_name)
-    loan.check_for_shortfall()
+# @frappe.whitelist()
+# def check_single_loan_for_shortfall(loan_name):
+#     loan = frappe.get_doc("Loan", loan_name)
+#     loan.check_for_shortfall()
 
 
 @frappe.whitelist()

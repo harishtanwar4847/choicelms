@@ -799,7 +799,6 @@ class LoanApplication(Document):
                 "Esign Done",
                 "Rejected",
             ]
-            or self.pledge_status in ["Success", "Partial Success", "Failure"]
         ):
             frappe.enqueue_doc(
                 "Notification", "Loan Application", method="send", doc=doc

@@ -39,50 +39,41 @@
         <tr>
             <td>
                 <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
-                    {% if doc.get("loan_application").get("status") == "Pledge accepted by Lender" %}
-                        <strong>Congratulations!!</strong><br />
+                    {% if doc.get("loan_margin_shortfall").get("margin_shortfall_action").sell_off_after_hours != 0 %}
+                        URGENT ACTION REQUIRED.<br />
                         <br />
-                        Your loan application has been accepted.<br />
-                        Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now.<br />
+                        There is a margin shortfall in your loan account {{doc.get("loan_margin_shortfall").get("loan")}}.<br />
                         <br />
-                        For any help on e-sign please view our tutorial videos or you can reach to us through 'Contact Us' on the app.<br />
-                        We look forward to serve you soon.<br />
+                        To mitigate the margin shortfall, you can do the following from the spark loans application:<br />
                         <br />
-                    {% endif %}
-                    {% if doc.get("loan_application").get("status") == "Pledge Failure" %}
-                        Sorry! Your loan application was turned down since the pledge was not successful due to technical reasons.<br />
+                        <ul>
+                            <li>Sell Collateral</li>
+                            <li>Pledge additional securities</li>
+                            <li>Make payments</li>
+                        </ul>
                         <br />
-                        We regret the inconvenience caused.<br />
-                        <br />
-                        Please try again after sometime or you can reach to us through 'Contact Us' on the app.<br />
-                        We look forward to serve you soon.<br />
-                        <br />
-                    {% endif %}
-                    {% if doc.get("loan_application").get("status") == "Esign Done" %}
-                        Your E-sign process is completed, you shall soon receive a confirmation of loan approval.<br />
-                        <br />
-                        Thank you for your patience<br />
+                        Please check the app and take appropriate action within {{doc.get("loan_margin_shortfall").get("margin_shortfall_action").sell_off_after_hours}} hours; else a sale will be triggered.<br />
                         <br />
                         You can reach to us through 'Contact Us' on the app.<br />
-                        <br />
                         We look forward to serve you soon.<br />
                         <br />
                     {% endif %}
-                    {% if doc.get("loan_application").get("status") == "Approved" %}
-                        Your loan account is now open!<br />
+                    {% if doc.get("loan_margin_shortfall").get("margin_shortfall_action").sell_off_deadline_eod != 0 %}
+                        URGENT ACTION REQUIRED.<br />
                         <br />
-                        You may now withdraw funds as per your convenience.<br />
+                        There is a margin shortfall in your loan account {{doc.get("loan_margin_shortfall").get("loan")}} which exceeds 15% of portfolio value.<br />
                         <br />
-                        You can reach to us through 'Contact Us' on the app.
-                        We look forward to serve you soon.<br />
+                        To mitigate the margin shortfall, you can do the following from the spark loans application:<br />
                         <br />
-                    {% endif %}
-                    {% if doc.get("loan_application").get("status") == "Rejected" %}
-                        Sorry! Your loan application was turned down due to technical reasons.<br />
+                        <ul>
+                            <li>Sell Collateral</li>
+                            <li>Pledge additional securities</li>
+                            <li>Make payments</li>
+                        </ul>
                         <br />
-                        We regret the inconvenience caused.<br />
+                        Please check the app and take an appropriate action by 10:00pm Today; else sale will be triggered.<br />
                         <br />
-                        Please try again after sometime or you can reach to us through 'Contact Us' on the app.
+                        You can reach to us through 'Contact Us' on the app.<br />
                         We look forward to serve you soon.<br />
                         <br />
                     {% endif %}

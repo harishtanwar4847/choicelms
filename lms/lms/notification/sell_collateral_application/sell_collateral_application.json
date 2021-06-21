@@ -1,0 +1,26 @@
+{
+ "attach_print": 0,
+ "channel": "Email",
+ "condition": "",
+ "creation": "2021-06-21 12:57:50.878468",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "User KYC",
+ "enabled": 1,
+ "event": "Custom",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "",
+ "modified": "2021-06-21 12:57:50.878468",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Sell Collateral Application",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "email_by_document_field": "user"
+  }
+ ],
+ "subject": "Sell Collateral Application"
+}

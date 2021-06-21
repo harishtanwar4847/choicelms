@@ -39,45 +39,24 @@
         <tr>
           <td>
             <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
-                {% if doc.get("top_up_application").get("status") == "Pending" %}
-                    Congratulations! Your Top Up application has been accepted.<br />
-                    <br />
-                    Kindly check the app for details under e-sign banner on the dashboard.<br />
-                    <br />
-                    Please e-sign the loan agreement to avail the loan now.<br />
-                    <br />
-                    For any help on e-sign please view our tutorial videos or you can reach to us through 'Contact Us' on the app.<br />
-                    We look forward to serve you soon.<br />
-                    <br />
+                {% if doc.get("unpledge_application").get("status") == "Approved" %}
+                Congratulations!<br />
+                <br />
+                Your unpledge request has been successfully executed<br />
+                <br />
+                You can reach to us through 'Contact Us' on the app.<br />
+                We look forward to serve you soon.<br />
+                <br />
                 {% endif %}
-                {% if doc.get("top_up_application").get("status") == "Esign Done" %}
-                    Your E-sign process is completed.<br />
-                    <br />
-                    You shall soon receive a confirmation of your new OD limit.<br />
-                    <br />
-                    Thank you for your patience.<br />
-                    <br />
-                    You can reach to us through 'Contact Us' on the app.<br />
-                    We look forward to serve you soon.<br />
-                    <br />
-                {% endif %}
-                {% if doc.get("top_up_application").get("status") == "Approved" %}
-                    Congratulations! Your loan account has been topped up.<br />
-                    <br />
-                    Please check the app for details.<br />
-                    <br />
-                    You can reach to us through 'Contact Us' on the app.<br />
-                    We look forward to serve you soon.<br />
-                    <br />
-                {% endif %}
-                {% if doc.get("top_up_application").get("status") == "Rejected" %}
-                    Sorry! Your top up request could not be executed due to technical reasons.<br />
-                    <br />
-                    We regret the inconvenience caused.<br />
-                    <br />
-                    Please try again after sometime or you can reach to us through 'Contact Us' on the app.<br />
-                    We look forward to serve you soon.<br />
-                    <br />
+                {% if doc.get("unpledge_application").get("status") == "Rejected" %}
+                Sorry! Your unpledge application was turned down since the pledge was not successful due to technical reasons.<br />
+                <br />
+                We regret the inconvenience caused.<br /> 
+                <br />
+                Please try again after sometime or you can reach to us through 'Contact Us' on the app.<br />
+                <br />
+                We look forward to serve you soon.<br />
+                <br />
                 {% endif %}
             </span></td>
         </tr>
