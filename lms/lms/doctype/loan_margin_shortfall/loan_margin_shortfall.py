@@ -29,7 +29,13 @@ class LoanMarginShortfall(Document):
         self.drawing_power = loan.drawing_power
 
         self.loan_balance = loan.balance
-        self.ltv = (self.loan_balance / self.total_collateral_value) * 100
+        # self.ltv = (self.loan_balance / self.total_collateral_value) * 100
+        self.ltv = (
+            (self.loan_balance / self.total_collateral_value) * 100
+            if self.total_collateral_value > 0
+            else loan.allowable_ltv
+        )
+
         self.surplus_margin = 100 - self.ltv
         self.minimum_collateral_value = (100 / self.allowable_ltv) * self.loan_balance
 
