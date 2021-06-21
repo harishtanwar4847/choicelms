@@ -1296,6 +1296,10 @@ def loan_withdraw_request(**kwargs):
         message = "Great! Your request for withdrawal has been successfully received. The amount shall be credited to your bank account {} within next 24 hours.".format(
             masked_bank_account_number
         )
+        doc = frappe.get_doc("User KYC",customer.choice_kyc).as_dict()
+        frappe.enqueue_doc(
+            "Notification", "Withdrawal Request", method="send", doc=doc
+        )
         msg = "Dear Customer,\nYour withdrawal request has been received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans"
         if msg:
             receiver_list = list(

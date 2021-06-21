@@ -190,6 +190,11 @@ class LoanTransaction(Document):
 
         if self.transaction_type == "Withdrawal":
             mess = ""
+            doc = frappe.get_doc("User KYC",self.get_customer().choice_kyc).as_dict()
+            doc["withdrawal"] = {"status": self.status, "requested_amt": self.requested, "disbursed_amt": self.disbursed, "amount": self.amount, "balance": loan.balance,"date_time":datetime.strptime(self.time, "%Y-%m-%d %H:%M:%S.%f").strftime("%d-%m-%Y %H:%M")}
+            frappe.enqueue_doc(
+                "Notification", "Withdrawal", method="send", doc=doc
+            )
             if self.requested == self.disbursed:
                 mess = "Dear Customer,\nYour withdrawal request has been executed and Rs. {amount}  transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . Your loan balance is Rs. {balance}. {date_time}. If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(
                     amount=self.amount,
@@ -354,6 +359,11 @@ class LoanTransaction(Document):
 
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
+                doc = frappe.get_doc("User KYC",customer.choice_kyc).as_dict()
+                doc["withdrawal"] = {"status": self.status}
+                frappe.enqueue_doc(
+                    "Notification", "Withdrawal", method="send", doc=doc
+                )
                 frappe.enqueue(
                     method=send_sms, receiver_list=[customer.phone], msg=mess
                 )
