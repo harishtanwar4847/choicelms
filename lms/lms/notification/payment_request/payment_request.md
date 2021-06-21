@@ -39,41 +39,12 @@
         <tr>
             <td>
                 <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
-                {% if doc.transaction_type == "Interest" %}
-                    An interest of Rs. {{doc.unpaid_interest}} is due on your loan account {{doc.loan_name}}<br />
+                    Congratulations! You payment of Rs. {{doc.get("payment").get("amount")}}  has been successfully received against loan account  {{doc.get("payment").get("loan")}}.<br />
                     <br />
-                    Please pay the interest due before the 7th of this month in order to continue to enjoy the rebate provided on the interest rate.<br />
-                    <br />
-                    Kindly check the app for details.<br />
+                    It shall be reflected in your account within 24 hours .<br />
                     <br />
                     You can reach to us through 'Contact Us' on the app.<br />
                     We look forward to serve you soon.<br />
-                    <br />
-                {% endif %}
-                {% if doc.transaction_type == "Additional Interest" %}
-                    Rebate of Rs. {{doc.unpaid_interest}}  was reversed in your loan account {{doc.loan_name}}.<br />
-                    <br />
-                    This will appear as 'Addl Interest' in your loan account.<br />
-                    <br />
-                    Please pay the interest due before the 15th of this month in order to avoid the penal interest/charges.<br />
-                    <br />
-                    Kindly check the app for details.<br />
-                    <br />
-                    You can reach to us through 'Contact Us' on the app.<br />
-                    We look forward to serve you soon.<br />
-                    <br />
-                {% endif %}
-                {% if doc.transaction_type == "Penal Interest" %}
-                    Penal interest of Rs.{{doc.unpaid_interest}} has been debited to your loan account {{doc.loan_name}} .<br />
-                    <br />
-                    Please pay the total interest due immediately in order to avoid further penal interest / charges.<br />
-                    <br />
-                    Kindly check the app for details.<br />
-                    <br />
-                    You can reach to us through 'Contact Us' on the app.<br />
-                    We look forward to serve you soon.<br />
-                    <br />
-                {% endif %}
                     <br />
                 </span>
             </td>

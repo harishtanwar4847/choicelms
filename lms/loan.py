@@ -1421,7 +1421,12 @@ def loan_payment(**kwargs):
         )
         frappe.db.commit()
 
-        # if not data.get("loan_margin_shortfall_name"):
+        if not data.get("loan_margin_shortfall_name"):
+            doc = frappe.get_doc("User KYC",customer.choice_kyc).as_dict()
+            doc["payment"] = {"amount": data.get("amount"), "loan": loan.name}
+            frappe.enqueue_doc(
+                "Notification", "Payment Request", method="send", doc=doc
+            )
         #     msg = """Dear Customer,\nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within some time .-Spark Loans""".format(data.get("amount"),loan.name)
 
         ## if msg:

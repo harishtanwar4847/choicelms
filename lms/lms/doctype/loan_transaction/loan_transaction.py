@@ -166,6 +166,11 @@ class LoanTransaction(Document):
         loan.update_loan_balance(check_for_shortfall=check_for_shortfall)
 
         if self.transaction_type == "Payment":
+            doc = frappe.get_doc("User KYC",self.get_customer().choice_kyc).as_dict()
+            doc["payment"] = {"status":self.status,"loan": self.loan, "amount": self.amount, "balance": loan.balance, "date_time": datetime.strptime(self.time, "%Y-%m-%d %H:%M:%S.%f").strftime("%d-%m-%Y %H:%M")}
+            frappe.enqueue_doc(
+                "Notification", "Payment", method="send", doc=doc
+            )
             msg = "Dear Customer,\nYou loan account {}  has been credited by payment of Rs. {} . Your loan balance is Rs. {}. {} Spark Loans".format(
                 self.loan,
                 self.amount,

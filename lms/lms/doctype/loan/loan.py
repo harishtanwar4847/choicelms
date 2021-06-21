@@ -849,6 +849,7 @@ class Loan(Document):
             doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
             doc["loan_name"] = self.name
             doc["transaction_type"] = loan_transaction.transaction_type
+            doc["unpaid_interest"] = round(loan_transaction.unpaid_interest, 2)
 
             frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
 
