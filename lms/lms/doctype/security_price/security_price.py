@@ -56,7 +56,11 @@ def update_security_prices(securities_dict, session_id):
                 )
                 isin = isin_tuple[0]
                 security_name = isin_tuple[1]
-                time = datetime.strptime(security.get("LUT"), "%d-%m-%Y %H:%M:%S")
+                time = (
+                    datetime.strptime(security.get("LUT"), "%d-%m-%Y %H:%M:%S")
+                    if security.get("LUT")
+                    else frappe.utils.now_datetime()
+                )
                 price = float(security.get("LTP")) / security.get("PriceDivisor")
                 values["{}-{}".format(isin, time)] = (
                     "{}-{}".format(isin, time),

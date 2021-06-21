@@ -30,6 +30,7 @@ class LoanMarginShortfall(Document):
 
         self.loan_balance = loan.balance
         # self.ltv = (self.loan_balance / self.total_collateral_value) * 100
+        # Zero division error - handling
         self.ltv = (
             (self.loan_balance / self.total_collateral_value) * 100
             if self.total_collateral_value > 0
