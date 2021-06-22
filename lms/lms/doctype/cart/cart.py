@@ -112,7 +112,7 @@ class Cart(Document):
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
                 frappe.db.commit()
-            doc = frappe.get_doc("User KYC",self.get_customer().choice_kyc).as_dict()
+            doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
             frappe.enqueue_doc(
                 "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
             )

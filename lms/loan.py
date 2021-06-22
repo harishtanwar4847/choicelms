@@ -622,7 +622,7 @@ def create_topup(**kwargs):
                 frappe.db.commit()
 
             # loan = frappe.get_doc("Loan", topup_application.loan)
-            # lender = frappe.get_doc("Lender", loan.lender) 
+            # lender = frappe.get_doc("Lender", loan.lender)
             frappe.enqueue_doc(
                 "Notification", "Top up Request", method="send", doc=user_kyc
             )
@@ -1296,10 +1296,8 @@ def loan_withdraw_request(**kwargs):
         message = "Great! Your request for withdrawal has been successfully received. The amount shall be credited to your bank account {} within next 24 hours.".format(
             masked_bank_account_number
         )
-        doc = frappe.get_doc("User KYC",customer.choice_kyc).as_dict()
-        frappe.enqueue_doc(
-            "Notification", "Withdrawal Request", method="send", doc=doc
-        )
+        doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+        frappe.enqueue_doc("Notification", "Withdrawal Request", method="send", doc=doc)
         msg = "Dear Customer,\nYour withdrawal request has been received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans"
         if msg:
             receiver_list = list(
@@ -1399,7 +1397,7 @@ def loan_payment(**kwargs):
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
                 frappe.db.commit()
-            doc = frappe.get_doc("User KYC",customer.choice_kyc).as_dict()
+            doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
             frappe.enqueue_doc(
                 "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
             )
@@ -1422,7 +1420,7 @@ def loan_payment(**kwargs):
         frappe.db.commit()
 
         if not data.get("loan_margin_shortfall_name"):
-            doc = frappe.get_doc("User KYC",customer.choice_kyc).as_dict()
+            doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
             doc["payment"] = {"amount": data.get("amount"), "loan": loan.name}
             frappe.enqueue_doc(
                 "Notification", "Payment Request", method="send", doc=doc
@@ -1793,7 +1791,9 @@ def loan_statement(**kwargs):
                 attachments = []
                 if data.get("file_format") == "pdf":
                     attachments = [{"fname": loan_statement_pdf_file, "fcontent": pdf}]
-                    loan_statement_notification = frappe.db.sql("select message from `tabNotification` where name='Loan Statement PDF';")[0][0]
+                    loan_statement_notification = frappe.db.sql(
+                        "select message from `tabNotification` where name='Loan Statement PDF';"
+                    )[0][0]
                 else:
                     attachments = [
                         {
@@ -1801,9 +1801,13 @@ def loan_statement(**kwargs):
                             "fcontent": df.to_csv(index=False),
                         },
                     ]
-                    loan_statement_notification = frappe.db.sql("select message from `tabNotification` where name='Loan Statement EXCEL';")[0][0]
+                    loan_statement_notification = frappe.db.sql(
+                        "select message from `tabNotification` where name='Loan Statement EXCEL';"
+                    )[0][0]
 
-                loan_statement_notification = loan_statement_notification.replace('investor_name',user_kyc.investor_name)
+                loan_statement_notification = loan_statement_notification.replace(
+                    "investor_name", user_kyc.investor_name
+                )
 
                 res["is_mail_sent"] = 1
                 frappe.enqueue(
@@ -2227,7 +2231,7 @@ def sell_collateral_request(**kwargs):
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
                 frappe.db.commit()
-            doc = frappe.get_doc("User KYC",customer.choice_kyc).as_dict()
+            doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
             frappe.enqueue_doc(
                 "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
             )

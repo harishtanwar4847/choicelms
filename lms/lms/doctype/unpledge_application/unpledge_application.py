@@ -172,9 +172,7 @@ class UnpledgeApplication(Document):
             customer = self.get_loan().get_customer()
             user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
             doc = user_kyc.as_dict()
-            doc["unpledge_application"] = {
-                "status": self.status
-            }
+            doc["unpledge_application"] = {"status": self.status}
             frappe.enqueue_doc(
                 "Notification", "Unpledge Application", method="send", doc=doc
             )

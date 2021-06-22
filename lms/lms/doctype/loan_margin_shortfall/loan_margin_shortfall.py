@@ -167,14 +167,14 @@ class LoanMarginShortfall(Document):
                 ).strftime("%I:%M%P"),
             )
 
-        doc = frappe.get_doc("User KYC",self.get_loan().get_customer().choice_kyc).as_dict()
+        doc = frappe.get_doc(
+            "User KYC", self.get_loan().get_customer().choice_kyc
+        ).as_dict()
         doc["loan_margin_shortfall"] = {
             "loan": self.loan,
             "margin_shortfall_action": margin_shortfall_action,
         }
-        frappe.enqueue_doc(
-            "Notification", "Margin Shortfall", method="send", doc=doc
-        )
+        frappe.enqueue_doc("Notification", "Margin Shortfall", method="send", doc=doc)
         if mess:
             frappe.enqueue(
                 method=send_sms,
@@ -255,11 +255,13 @@ class LoanMarginShortfall(Document):
                     filters={"sell_off_deadline_eod": ("!=", 0)},
                     fields=["max_threshold"],
                 )
-                doc = frappe.get_doc("User KYC",self.get_loan().get_customer().choice_kyc).as_dict()
+                doc = frappe.get_doc(
+                    "User KYC", self.get_loan().get_customer().choice_kyc
+                ).as_dict()
                 doc["loan_margin_shortfall"] = {
                     "loan": self.loan,
                     "margin_shortfall_action": margin_shortfall_action,
-                    "hrs_sell_off": hrs_sell_off[0].max_threshold
+                    "hrs_sell_off": hrs_sell_off[0].max_threshold,
                 }
                 # if self.status in ["Pending", "Approved", "Rejected"]:
                 frappe.enqueue_doc(

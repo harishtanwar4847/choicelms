@@ -790,16 +790,13 @@ class LoanApplication(Document):
             "requested_total_collateral_value": self.pledged_total_collateral_value_str,
             "drawing_power": self.drawing_power_str,
         }
-        if (
-            self.status
-            in [
-                "Pledge Failure",
-                "Pledge accepted by Lender",
-                "Approved",
-                "Esign Done",
-                "Rejected",
-            ]
-        ):
+        if self.status in [
+            "Pledge Failure",
+            "Pledge accepted by Lender",
+            "Approved",
+            "Esign Done",
+            "Rejected",
+        ]:
             if self.loan and not self.loan_margin_shortfall:
                 frappe.enqueue_doc(
                     "Notification", "Increase Loan Application", method="send", doc=doc
@@ -808,7 +805,7 @@ class LoanApplication(Document):
                 frappe.enqueue_doc(
                     "Notification", "Loan Application", method="send", doc=doc
                 )
-            
+
         msg = ""
         if doc.get("loan_application").get("status") == "Pledge Failure":
             msg = (

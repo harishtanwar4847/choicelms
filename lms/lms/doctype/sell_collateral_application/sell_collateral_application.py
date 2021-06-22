@@ -107,11 +107,11 @@ class SellCollateralApplication(Document):
                 frappe.throw(
                     "You need to sell all {} of isin {}".format(i.quantity, i.isin)
                 )
-
-        if self.lender_selling_amount > self.selling_collateral_value:
-            frappe.throw(
-                "Can not sell amount more than {}".format(self.selling_collateral_value)
-            )
+        """22-06-21 informed by vinayak"""
+        # if self.lender_selling_amount > self.selling_collateral_value:
+        #     frappe.throw(
+        #         "Can not sell amount more than {}".format(self.selling_collateral_value)
+        #     )
         if self.lender_selling_amount <= 0:
             frappe.throw("Please fix the Lender Selling Amount.")
 
@@ -266,10 +266,8 @@ class SellCollateralApplication(Document):
             loan_margin_shortfall_name=self.loan_margin_shortfall,
         )
         if self.owner == frappe.session.user and self.loan_margin_shortfall:
-            doc = frappe.get_doc("User KYC",self.get_customer().choice_kyc).as_dict()
-            doc["sell_triggered_completion"] = {
-                "loan": self.loan
-            }
+            doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
+            doc["sell_triggered_completion"] = {"loan": self.loan}
             # if self.status in ["Pending", "Approved", "Rejected"]:
             frappe.enqueue_doc(
                 "Notification", "Sale Triggered Completion", method="send", doc=doc
@@ -309,9 +307,7 @@ class SellCollateralApplication(Document):
 
     def notify_customer(self):
         doc = self.get_customer().get_kyc().as_dict()
-        doc["sell_collateral_application"] = {
-            "status": self.status
-        }
+        doc["sell_collateral_application"] = {"status": self.status}
         frappe.enqueue_doc(
             "Notification", "Sell Collateral Application", method="send", doc=doc
         )
