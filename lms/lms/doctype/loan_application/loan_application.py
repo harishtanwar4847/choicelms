@@ -902,43 +902,43 @@ def check_for_pledge(loan_application_doc):
         # TODO : generate prf number and assign to items in batch
         pledge_request = loan_application_doc.pledge_request(la_items_list)
         # TODO : pledge request hit for all batches
-        # try:
-        #     res = requests.post(
-        #         pledge_request.get("url"),
-        #         headers=pledge_request.get("headers"),
-        #         json=pledge_request.get("payload"),
-        #     )
-        #     data = res.json()
+        try:
+            res = requests.post(
+                pledge_request.get("url"),
+                headers=pledge_request.get("headers"),
+                json=pledge_request.get("payload"),
+            )
+            data = res.json()
 
-        #     # Pledge LOG
-        #     log = {
-        #         "url": pledge_request.get("url"),
-        #         "headers": pledge_request.get("headers"),
-        #         "request": pledge_request.get("payload"),
-        #         "response": data,
-        #     }
-        #     import json
-        #     import os
+            # Pledge LOG
+            log = {
+                "url": pledge_request.get("url"),
+                "headers": pledge_request.get("headers"),
+                "request": pledge_request.get("payload"),
+                "response": data,
+            }
+            import json
+            import os
 
-        #     pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
-        #     pledge_log = None
-        #     if os.path.exists(pledge_log_file):
-        #         with open(pledge_log_file, "r") as f:
-        #             pledge_log = f.read()
-        #         f.close()
-        #     pledge_log = json.loads(pledge_log or "[]")
-        #     pledge_log.append(log)
-        #     with open(pledge_log_file, "w") as f:
-        #         f.write(json.dumps(pledge_log))
-        #     f.close()
-        #     # Pledge LOG end
+            pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
+            pledge_log = None
+            if os.path.exists(pledge_log_file):
+                with open(pledge_log_file, "r") as f:
+                    pledge_log = f.read()
+                f.close()
+            pledge_log = json.loads(pledge_log or "[]")
+            pledge_log.append(log)
+            with open(pledge_log_file, "w") as f:
+                f.write(json.dumps(pledge_log))
+            f.close()
+            # Pledge LOG end
 
-        # except requests.RequestException as e:
-        #     pass
+        except requests.RequestException as e:
+            pass
 
-        data = loan_application_doc.dummy_pledge_response(
-            pledge_request.get("payload").get("ISINDTLS")
-        )
+        # data = loan_application_doc.dummy_pledge_response(
+        #     pledge_request.get("payload").get("ISINDTLS")
+        # )
 
         # TODO : process loan application items in batches
         total_successful_pledge_count = loan_application_doc.process(
