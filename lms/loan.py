@@ -1732,10 +1732,13 @@ def loan_statement(**kwargs):
 
                 from frappe.utils.pdf import get_pdf
 
-                # pdf = get_pdf(html_with_style)
-                # password content for password protected pdf
-                pwd = user_kyc.pan_no[:4] + str(user_kyc.date_of_birth.year)
-                pdf = get_pdf(html_with_style, options={"password": pwd})
+                if data.get("is_email"):
+                    # password content for password protected pdf
+                    pwd = user_kyc.pan_no[:4] + str(user_kyc.date_of_birth.year)
+                    pdf = get_pdf(html_with_style, options={"password": pwd})
+                else:
+                    pdf = get_pdf(html_with_style)
+
                 pdf_file.write(pdf)
                 pdf_file.close()
 
@@ -1790,6 +1793,7 @@ def loan_statement(**kwargs):
                 attachments = []
                 if data.get("file_format") == "pdf":
                     attachments = [{"fname": loan_statement_pdf_file, "fcontent": pdf}]
+                    loan_statement_notification = frappe.db.sql("select message from `tabNotification` where name='Loan Statement PDF';")[0][0]
                 else:
                     attachments = [
                         {
@@ -1797,6 +1801,9 @@ def loan_statement(**kwargs):
                             "fcontent": df.to_csv(index=False),
                         },
                     ]
+                    loan_statement_notification = frappe.db.sql("select message from `tabNotification` where name='Loan Statement EXCEL';")[0][0]
+
+                loan_statement_notification = loan_statement_notification.replace('investor_name',user_kyc.investor_name)
 
                 res["is_mail_sent"] = 1
                 frappe.enqueue(
@@ -1806,7 +1813,7 @@ def loan_statement(**kwargs):
                     subject="Pledged Securities Transactions for {}".format(loan.name)
                     if data.get("type") == "Pledged Securities Transactions"
                     else "Loan A/c Statement for {}".format(loan.name),
-                    message="Please see Attachments",
+                    message=loan_statement_notification,
                     attachments=attachments,
                 )
 
