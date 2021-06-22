@@ -799,11 +799,16 @@ class LoanApplication(Document):
                 "Esign Done",
                 "Rejected",
             ]
-            or self.pledge_status in ["Success", "Partial Success", "Failure"]
         ):
-            frappe.enqueue_doc(
-                "Notification", "Loan Application", method="send", doc=doc
-            )
+            if self.loan and not self.loan_margin_shortfall:
+                frappe.enqueue_doc(
+                    "Notification", "Increase Loan Application", method="send", doc=doc
+                )
+            else:
+                frappe.enqueue_doc(
+                    "Notification", "Loan Application", method="send", doc=doc
+                )
+            
         msg = ""
         if doc.get("loan_application").get("status") == "Pledge Failure":
             msg = (
