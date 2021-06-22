@@ -47,6 +47,44 @@
                         <br />
                         For any help on e-sign please view our tutorial videos or you can reach to us through 'Contact Us' on the app.<br />
                         We look forward to serve you soon.<br />
+                        <br />
+                    {% endif %}
+                    {% if doc.get("loan_application").get("status") == "Pledge Failure" %}
+                        Sorry! Your loan application was turned down since the pledge was not successful due to technical reasons.<br />
+                        <br />
+                        We regret the inconvenience caused.<br />
+                        <br />
+                        Please try again after sometime or you can reach to us through 'Contact Us' on the app.<br />
+                        We look forward to serve you soon.<br />
+                        <br />
+                    {% endif %}
+                    {% if doc.get("loan_application").get("status") == "Esign Done" %}
+                        Your E-sign process is completed, you shall soon receive a confirmation of loan approval.<br />
+                        <br />
+                        Thank you for your patience<br />
+                        <br />
+                        You can reach to us through 'Contact Us' on the app.<br />
+                        <br />
+                        We look forward to serve you soon.<br />
+                        <br />
+                    {% endif %}
+                    {% if doc.get("loan_application").get("status") == "Approved" %}
+                        Your loan account is now open!<br />
+                        <br />
+                        You may now withdraw funds as per your convenience.<br />
+                        <br />
+                        You can reach to us through 'Contact Us' on the app.
+                        We look forward to serve you soon.<br />
+                        <br />
+                    {% endif %}
+                    {% if doc.get("loan_application").get("status") == "Rejected" %}
+                        Sorry! Your loan application was turned down due to technical reasons.<br />
+                        <br />
+                        We regret the inconvenience caused.<br />
+                        <br />
+                        Please try again after sometime or you can reach to us through 'Contact Us' on the app.
+                        We look forward to serve you soon.<br />
+                        <br />
                     {% endif %}
                 </span>
             </td>

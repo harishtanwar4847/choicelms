@@ -623,6 +623,10 @@ def create_topup(**kwargs):
 
             # loan = frappe.get_doc("Loan", topup_application.loan)
             # lender = frappe.get_doc("Lender", loan.lender)
+            frappe.enqueue_doc(
+                "Notification", "Top up Request", method="send", doc=user_kyc
+            )
+
             msg = "Dear Customer,\nYour top up request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans"
             receiver_list = list(
                 set([str(customer.phone), str(customer.get_kyc().mobile_number)])
@@ -1292,6 +1296,8 @@ def loan_withdraw_request(**kwargs):
         message = "Great! Your request for withdrawal has been successfully received. The amount shall be credited to your bank account {} within next 24 hours.".format(
             masked_bank_account_number
         )
+        doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+        frappe.enqueue_doc("Notification", "Withdrawal Request", method="send", doc=doc)
         msg = "Dear Customer,\nYour withdrawal request has been received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans"
         if msg:
             receiver_list = list(
@@ -1391,13 +1397,17 @@ def loan_payment(**kwargs):
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
                 frappe.db.commit()
-                msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
-                receiver_list = list(
-                    set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-                )
-                from frappe.core.doctype.sms_settings.sms_settings import send_sms
+            doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+            frappe.enqueue_doc(
+                "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
+            )
+            msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
+            receiver_list = list(
+                set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+            )
+            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         frappe.db.begin()
         loan.create_loan_transaction(
@@ -1409,7 +1419,12 @@ def loan_payment(**kwargs):
         )
         frappe.db.commit()
 
-        # if not data.get("loan_margin_shortfall_name"):
+        if not data.get("loan_margin_shortfall_name"):
+            doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+            doc["payment"] = {"amount": data.get("amount"), "loan": loan.name}
+            frappe.enqueue_doc(
+                "Notification", "Payment Request", method="send", doc=doc
+            )
         #     msg = """Dear Customer,\nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within some time .-Spark Loans""".format(data.get("amount"),loan.name)
 
         ## if msg:
@@ -1715,10 +1730,13 @@ def loan_statement(**kwargs):
 
                 from frappe.utils.pdf import get_pdf
 
-                # pdf = get_pdf(html_with_style)
-                # password content for password protected pdf
-                pwd = user_kyc.pan_no[:4] + str(user_kyc.date_of_birth.year)
-                pdf = get_pdf(html_with_style, options={"password": pwd})
+                if data.get("is_email"):
+                    # password content for password protected pdf
+                    pwd = user_kyc.pan_no[:4] + str(user_kyc.date_of_birth.year)
+                    pdf = get_pdf(html_with_style, options={"password": pwd})
+                else:
+                    pdf = get_pdf(html_with_style)
+
                 pdf_file.write(pdf)
                 pdf_file.close()
 
@@ -1773,6 +1791,9 @@ def loan_statement(**kwargs):
                 attachments = []
                 if data.get("file_format") == "pdf":
                     attachments = [{"fname": loan_statement_pdf_file, "fcontent": pdf}]
+                    loan_statement_notification = frappe.db.sql(
+                        "select message from `tabNotification` where name='Loan Statement PDF';"
+                    )[0][0]
                 else:
                     attachments = [
                         {
@@ -1780,6 +1801,13 @@ def loan_statement(**kwargs):
                             "fcontent": df.to_csv(index=False),
                         },
                     ]
+                    loan_statement_notification = frappe.db.sql(
+                        "select message from `tabNotification` where name='Loan Statement EXCEL';"
+                    )[0][0]
+
+                loan_statement_notification = loan_statement_notification.replace(
+                    "investor_name", user_kyc.investor_name
+                )
 
                 res["is_mail_sent"] = 1
                 frappe.enqueue(
@@ -1789,7 +1817,7 @@ def loan_statement(**kwargs):
                     subject="Pledged Securities Transactions for {}".format(loan.name)
                     if data.get("type") == "Pledged Securities Transactions"
                     else "Loan A/c Statement for {}".format(loan.name),
-                    message="Please see Attachments",
+                    message=loan_statement_notification,
                     attachments=attachments,
                 )
 
@@ -2050,6 +2078,9 @@ def loan_unpledge_request(**kwargs):
             }
         )
         unpledge_application.insert(ignore_permissions=True)
+        frappe.enqueue_doc(
+            "Notification", "Unpledge Request", method="send", doc=user_kyc
+        )
         msg = "Dear Customer,\nYour unpledge request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. - Spark Loans"
 
         receiver_list = list(
@@ -2200,6 +2231,10 @@ def sell_collateral_request(**kwargs):
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
                 frappe.db.commit()
+            doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+            frappe.enqueue_doc(
+                "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
+            )
             msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
 
         sell_collateral_application.insert(ignore_permissions=True)

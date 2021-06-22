@@ -21,6 +21,8 @@ class SellCollateralApplication(Document):
     def before_save(self):
         self.process_items()
         self.process_sell_items()
+        if self.status == "Rejected":
+            self.notify_customer()
 
     def process_items(self):
         self.total_collateral_value = 0
@@ -105,11 +107,11 @@ class SellCollateralApplication(Document):
                 frappe.throw(
                     "You need to sell all {} of isin {}".format(i.quantity, i.isin)
                 )
-
-        if self.lender_selling_amount > self.selling_collateral_value:
-            frappe.throw(
-                "Can not sell amount more than {}".format(self.selling_collateral_value)
-            )
+        """22-06-21 informed by vinayak"""
+        # if self.lender_selling_amount > self.selling_collateral_value:
+        #     frappe.throw(
+        #         "Can not sell amount more than {}".format(self.selling_collateral_value)
+        #     )
         if self.lender_selling_amount <= 0:
             frappe.throw("Please fix the Lender Selling Amount.")
 
@@ -144,8 +146,8 @@ class SellCollateralApplication(Document):
             receiver_list = list(
                 set(
                     [
-                        str(self.get_loan().get_customer().phone),
-                        str(self.get_loan().get_customer().get_kyc().mobile_number),
+                        str(self.get_customer().phone),
+                        str(self.get_customer().get_kyc().mobile_number),
                     ]
                 )
             )
@@ -264,6 +266,12 @@ class SellCollateralApplication(Document):
             loan_margin_shortfall_name=self.loan_margin_shortfall,
         )
         if self.owner == frappe.session.user and self.loan_margin_shortfall:
+            doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
+            doc["sell_triggered_completion"] = {"loan": self.loan}
+            # if self.status in ["Pending", "Approved", "Rejected"]:
+            frappe.enqueue_doc(
+                "Notification", "Sale Triggered Completion", method="send", doc=doc
+            )
             msg = "Dear Customer,\nSale of securities initiated by the lending partner for your loan account  {} is now completed .The sale proceeds have been credited to your loan account and collateral value updated. Please check the app for details. Spark Loans".format(
                 self.loan
             )
@@ -274,8 +282,8 @@ class SellCollateralApplication(Document):
             receiver_list = list(
                 set(
                     [
-                        str(self.get_loan().get_customer().phone),
-                        str(self.get_loan().get_customer().get_kyc().mobile_number),
+                        str(self.get_customer().phone),
+                        str(self.get_customer().get_kyc().mobile_number),
                     ]
                 )
             )
@@ -283,6 +291,7 @@ class SellCollateralApplication(Document):
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
         # loan.update_loan_balance()
+        self.notify_customer()
 
     def validate(self):
         for i, item in enumerate(
@@ -292,6 +301,16 @@ class SellCollateralApplication(Document):
 
     def get_lender(self):
         return frappe.get_doc("Lender", self.lender)
+
+    def get_customer(self):
+        return frappe.get_doc("Loan Customer", self.customer)
+
+    def notify_customer(self):
+        doc = self.get_customer().get_kyc().as_dict()
+        doc["sell_collateral_application"] = {"status": self.status}
+        frappe.enqueue_doc(
+            "Notification", "Sell Collateral Application", method="send", doc=doc
+        )
 
 
 @frappe.whitelist()

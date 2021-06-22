@@ -54,8 +54,7 @@ frappe.ui.form.on("Loan", {
         );
       });
 
-      // frm.add_custom_button(__("Check for shortfall"), function () {
-
+      //   frm.add_custom_button(__("Check for shortfall"), function () {
       //     frappe.call({
       //       method: "lms.lms.doctype.loan.loan.check_single_loan_for_shortfall",
       //       freeze: true,
@@ -63,8 +62,7 @@ frappe.ui.form.on("Loan", {
       //         loan_name: frm.doc.name,
       //       },
       //     });
-
-      // });
+      //   });
     }
 
     // frm.add_custom_button(__('Check Additional Interest'), function(){
