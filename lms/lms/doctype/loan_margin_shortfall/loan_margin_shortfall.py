@@ -29,7 +29,13 @@ class LoanMarginShortfall(Document):
         self.drawing_power = loan.drawing_power
 
         self.loan_balance = loan.balance
-        self.ltv = (self.loan_balance / self.total_collateral_value) * 100
+        # self.ltv = (self.loan_balance / self.total_collateral_value) * 100
+        self.ltv = (
+            (self.loan_balance / self.total_collateral_value) * 100
+            if self.total_collateral_value > 0
+            else loan.allowable_ltv
+        )
+
         self.surplus_margin = 100 - self.ltv
         self.minimum_collateral_value = (100 / self.allowable_ltv) * self.loan_balance
 
@@ -347,33 +353,30 @@ class LoanMarginShortfall(Document):
                     fa.delete_app()
 
     def on_update(self):
-        if self.deadline and self.status != "Sell Triggered":
-            deadline = self.deadline
-            if isinstance(deadline, str):
-                deadline = datetime.strptime(deadline, "%Y-%m-%d %H:%M:%S.%f")
-            if self.shortfall_percentage > 0 and frappe.utils.now_datetime() > deadline:
-                frappe.db.set_value(
-                    self.doctype,
-                    self.name,
-                    "status",
-                    "Sell Triggered",
-                )
-                frappe.db.commit()
-                mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
-                    self.loan
-                )
-                frappe.enqueue(
-                    method=send_sms,
-                    receiver_list=[self.get_loan().get_customer().phone],
-                    msg=mess,
-                )
         self.notify_customer()
-
-    #     if self.status == "Pending":
-    #         # self.timer_start_stop_fcm()
-    #         self.update_deadline_based_on_holidays()
-    #         # self.save(ignore_permissions=True)
-    #         frappe.db.commit()
+        # TODO : manage 'Sell Triggered' Notify Customer and Update Deadline Scenario - with scheduler/any
+        """
+        # if (
+        #     self.shortfall_percentage > 0
+        #     and frappe.utils.now_datetime()
+        #     > datetime.strptime(self.deadline, "%Y-%m-%d %H:%M:%S.%f")
+        # ):
+        #     frappe.db.set_value(
+        #         self.doctype,
+        #         self.name,
+        #         "status",
+        #         "Sell Triggered",
+        #     )
+        #     frappe.db.commit()
+        #     mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
+        #         self.loan
+        #     )
+        #     frappe.enqueue(
+        #         method=send_sms,
+        #         receiver_list=[self.get_customer().phone],
+        #         msg=mess,
+        #     )
+        """
 
     def update_deadline_based_on_holidays(self, input_datetime=None):
         margin_shortfall_action = self.get_shortfall_action()
