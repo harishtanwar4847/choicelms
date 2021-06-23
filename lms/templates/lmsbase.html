@@ -31,6 +31,25 @@
   </head>
 
   <body>
+    {% if "webview" in frappe.form_dict %}
+    <style>
+      @media (max-width: 768px) {
+        .fw.mobnav,
+        footer,
+        .appdownloadbg {
+          display: none !important;
+        }
+
+        .maintitle h5 {
+          margin-top: 2% !important;
+        }
+        .privacy {
+          padding-bottom: 0px;
+        }
+      }
+    </style>
+    {% endif %}
+
     <div class="fw mobnav">
       <div class="fw mobileheader dx_jcsbalctr">
         <a href="/" class="logo"
@@ -50,6 +69,7 @@
         </div>
       </div>
     </div>
+
     <header class="fw dx_ctr bg">
       <div class="container">
         <div class="row">
