@@ -1641,7 +1641,8 @@ def loan_statement(**kwargs):
                     "transaction_type",
                     "record_type",
                     "amount",
-                    "DATE_FORMAT(time, '%Y-%m-%d %H:%i') as time",
+                    "time",
+                    # "DATE_FORMAT(time, '%Y-%m-%d %H:%i') as time",
                     "status",
                 ],
                 page_length=page_length,
@@ -1651,6 +1652,7 @@ def loan_statement(**kwargs):
 
             for list in loan_transaction_list:
                 list["amount"] = lms.amount_formatter(list["amount"])
+                list["time"] = list["time"].strftime("%Y-%m-%d %H:%M")
                 lt_list.append(list.values())
             # lt_list = [lst.values() for lst in loan_transaction_list]
             res["loan_transaction_list"] = loan_transaction_list

@@ -1005,11 +1005,17 @@ class Loan(Document):
         ) - self.sanctioned_limit
 
         # show available top up amount only if topup amount is greater than 10% of sanctioned limit
-        if max_topup_amount > (self.sanctioned_limit * 0.1):
-            if max_topup_amount > 1000:
-                max_topup_amount = lms.round_down_amount_to_nearest_thousand(
-                    max_topup_amount
-                )
+        if (
+            max_topup_amount > (self.sanctioned_limit * 0.1)
+            and max_topup_amount >= 1000
+        ):
+            max_topup_amount = lms.round_down_amount_to_nearest_thousand(
+                max_topup_amount
+            )
+            # if max_topup_amount > 1000:
+            #     max_topup_amount = lms.round_down_amount_to_nearest_thousand(
+            #         max_topup_amount
+            #     )
             # else:
             #     max_topup_amount = round(max_topup_amount, 1)
         else:
