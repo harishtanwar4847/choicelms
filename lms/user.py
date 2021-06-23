@@ -117,7 +117,8 @@ def kyc(**kwargs):
             customer.save(ignore_permissions=True)
             frappe.db.commit()
 
-            frappe.enqueue_doc("Notification", "User KYC", method="send", doc=user)
+            """changes as per latest email notification list-sent by vinayak - email verification final 2.0"""
+            # frappe.enqueue_doc("Notification", "User KYC", method="send", doc=user)
 
             # mess = frappe._(
             #     "Dear "
@@ -128,7 +129,8 @@ def kyc(**kwargs):
             #     "Congratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
             # )
             mess = frappe._(
-                "Dear Customer,\nCongratulations! Your KYC verification is completed. -Spark Loans"
+                # "Dear Customer,\nCongratulations! Your KYC verification is completed. -Spark Loans"
+                "Dear Customer, \nCongratulations! \nYour KYC verification is completed.  -Spark Loans"
             )
             frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
 

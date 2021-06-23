@@ -166,7 +166,18 @@ class LoanTransaction(Document):
         loan.update_loan_balance(check_for_shortfall=check_for_shortfall)
 
         if self.transaction_type == "Payment":
-            msg = """Dear Customer,\nYou loan account {} has been credited by payment of Rs. {} . Your loan balance is Rs. {}. {}.""".format(
+            doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
+            doc["payment"] = {
+                "status": self.status,
+                "loan": self.loan,
+                "amount": self.amount,
+                "balance": loan.balance,
+                "date_time": datetime.strptime(
+                    self.time, "%Y-%m-%d %H:%M:%S.%f"
+                ).strftime("%d-%m-%Y %H:%M"),
+            }
+            frappe.enqueue_doc("Notification", "Payment", method="send", doc=doc)
+            msg = "Dear Customer,\nYou loan account {}  has been credited by payment of Rs. {} . Your loan balance is Rs. {}. {} Spark Loans".format(
                 self.loan,
                 self.amount,
                 loan.balance,
@@ -190,8 +201,20 @@ class LoanTransaction(Document):
 
         if self.transaction_type == "Withdrawal":
             mess = ""
+            doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
+            doc["withdrawal"] = {
+                "status": self.status,
+                "requested_amt": self.requested,
+                "disbursed_amt": self.disbursed,
+                "amount": self.amount,
+                "balance": loan.balance,
+                "date_time": datetime.strptime(
+                    self.time, "%Y-%m-%d %H:%M:%S.%f"
+                ).strftime("%d-%m-%Y %H:%M"),
+            }
+            frappe.enqueue_doc("Notification", "Withdrawal", method="send", doc=doc)
             if self.requested == self.disbursed:
-                mess = "Dear Customer,\nYour withdrawal request has been executed and Rs. {amount} transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . Your loan balance is Rs. {balance}. {date_time}. If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(
+                mess = "Dear Customer,\nYour withdrawal request has been executed and Rs. {amount}  transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . Your loan balance is Rs. {balance}. {date_time}. If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(
                     amount=self.amount,
                     disbursed=self.disbursed,
                     balance=loan.balance,
@@ -200,7 +223,7 @@ class LoanTransaction(Document):
                     ).strftime("%d-%m-%Y %H:%M"),
                 )
             elif self.disbursed < self.requested:
-                mess = "Dear Customer,\nYour withdrawal request for Rs. {requested} has been partially executed and Rs. {disbursed} transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(
+                mess = "Dear Customer,\nYour withdrawal request for Rs. {requested}  has been partially executed and Rs. {disbursed}  transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(
                     requested=self.requested, disbursed=self.disbursed
                 )
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
@@ -350,10 +373,13 @@ class LoanTransaction(Document):
         if self.transaction_type == "Withdrawal":
             customer = self.get_loan().get_customer()
             if self.status == "Rejected":
-                mess = "Dear Customer,\nSorry! Your withdrawal request has been rejected by our lending partner for technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app -Spark Loans"
+                mess = "Dear Customer,\nSorry! Your withdrawal request has been rejected by our lending partner for technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
 
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
+                doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+                doc["withdrawal"] = {"status": self.status}
+                frappe.enqueue_doc("Notification", "Withdrawal", method="send", doc=doc)
                 frappe.enqueue(
                     method=send_sms, receiver_list=[customer.phone], msg=mess
                 )

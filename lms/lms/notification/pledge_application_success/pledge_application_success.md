@@ -31,7 +31,7 @@
           <td height="25">&nbsp;</td>
         </tr>
         <tr>
-          <td><strong><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#2c2a2b">Dear {{ doc.full_name or "" }},</span></strong></td>
+          <td><strong><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#2c2a2b">Dear {{ doc.investor_name or "" }},</span></strong></td>
         </tr>
         <tr>
           <td>&nbsp;</td>
@@ -42,7 +42,7 @@
                 <strong>Congratulations!!</strong><br />
                 <br />
                 Your pledge request has been successfully received and is under process.<br />
-                Your loan application number is LAS0001234<br />
+                Your loan application number is <strong>{{ doc.loan_application_name or "" }}</strong><br />
                 We shall reach out to you very soon.<br />
                 Thank you for your patience.<br />
                 You can reach to us through 'Contact Us' on the app.<br />

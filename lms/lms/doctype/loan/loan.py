@@ -768,7 +768,7 @@ class Loan(Document):
                         "Notification", "Interest Due", method="send", doc=doc
                     )
 
-                    msg = """Dear Customer,\nRebate of Rs. {} was reversed in your loan account {}. This will appear as 'Addl Interest' in your loan account. Please pay the interest due before the 15th of this month in order to avoid the penal interest/charges.Kindly check the app for details -Spark Loans""".format(
+                    msg = "Dear Customer,\nRebate of Rs.  {}  was reversed in your loan account {}. This will appear as 'Addl Interest' in your loan account. \nPlease pay the interest due before the 15th of this month in order to avoid the penal interest/charges.Kindly check the app for details - Spark Loans".format(
                         round(additional_interest_transaction.unpaid_interest, 2),
                         self.name,
                     )
@@ -849,10 +849,11 @@ class Loan(Document):
             doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
             doc["loan_name"] = self.name
             doc["transaction_type"] = loan_transaction.transaction_type
+            doc["unpaid_interest"] = round(loan_transaction.unpaid_interest, 2)
 
             frappe.enqueue_doc("Notification", "Interest Due", method="send", doc=doc)
 
-            msg = """Dear Customer,\nAn interest of Rs. {} is due on your loan account {}. Please pay the interest due before the 7th of this month in order to continue to enjoy the rebate provided on the interest rate. Kindly check the app for details. -Spark Loans""".format(
+            msg = "Dear Customer,\nAn interest of Rs.  {} is due on your loan account {}.\nPlease pay the interest due before the 7th of this month in order to continue to enjoy the rebate provided on the interest rate. Kindly check the app for details. - Spark Loans".format(
                 round(loan_transaction.unpaid_interest, 2), self.name
             )
             if msg:
@@ -953,7 +954,7 @@ class Loan(Document):
                         frappe.enqueue_doc(
                             "Notification", "Interest Due", method="send", doc=doc
                         )
-                        msg = """Dear Customer,\nPenal interest of Rs.{} has been debited to your loan account {} . Please pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details -Spark Loans""".format(
+                        msg = "Dear Customer,\nPenal interest of Rs.{}  has been debited to your loan account {} .\nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details - Spark Loans".format(
                             round(penal_interest_transaction.unpaid_interest, 2),
                             self.name,
                         )
@@ -1178,7 +1179,7 @@ def check_all_loans_for_shortfall():
 
 # @frappe.whitelist()
 # def check_single_loan_for_shortfall(loan_name):
-#     loan = frappe.get_doc("Loan",loan_name)
+#     loan = frappe.get_doc("Loan", loan_name)
 #     loan.check_for_shortfall()
 
 

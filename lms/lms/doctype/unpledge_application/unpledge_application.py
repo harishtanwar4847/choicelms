@@ -171,6 +171,11 @@ class UnpledgeApplication(Document):
         if self.status in ["Approved", "Rejected"]:
             customer = self.get_loan().get_customer()
             user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+            doc = user_kyc.as_dict()
+            doc["unpledge_application"] = {"status": self.status}
+            frappe.enqueue_doc(
+                "Notification", "Unpledge Application", method="send", doc=doc
+            )
 
             if self.status == "Approved":
                 msg = "Dear Customer,\nCongratulations! Your unpledge request has been successfully executed. Kindly check the app now. -Spark Loans"
@@ -186,7 +191,7 @@ class UnpledgeApplication(Document):
                         self.get_loan().get_customer().first_name
                     )
                 else:
-                    msg = "Dear Customer,\nSorry! Your unpledge application was turned down due to technical reasons. Please try again after sometime or reach us through 'Contact Us' on the app -Spark Loans"
+                    msg = "Dear Customer,\nSorry! Your unpledge application was turned down due to technical reasons. Please try again after sometime or reach us through 'Contact Us' on the app  -Spark Loans"
 
             receiver_list = list(
                 set([str(customer.phone), str(user_kyc.mobile_number)])
