@@ -308,7 +308,7 @@ def register(**kwargs):
         return utils.respondWithSuccess(
             message=frappe._("Registered Successfully."), data=data
         )
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         frappe.db.rollback()
         return e.respond()
 
