@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 from datetime import datetime, timedelta
 
 import frappe
+from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
 from num2words import num2words
 
@@ -408,6 +409,14 @@ class Loan(Document):
                         if frappe.utils.now_datetime() > loan_margin_shortfall.deadline:
                             loan_margin_shortfall.status = "Sell Triggered"
                             loan_margin_shortfall.save(ignore_permissions=True)
+                            mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
+                                self.loan
+                            )
+                            frappe.enqueue(
+                                method=send_sms,
+                                receiver_list=[self.get_customer().phone],
+                                msg=mess,
+                            )
                 else:
                     # if not loan_margin_shortfall.margin_shortfall_action:
                     if loan_margin_shortfall.status == "Pending":
@@ -420,6 +429,14 @@ class Loan(Document):
                         and frappe.utils.now_datetime() > loan_margin_shortfall.deadline
                     ):
                         loan_margin_shortfall.status = "Sell Triggered"
+                        mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
+                            self.loan
+                        )
+                        frappe.enqueue(
+                            method=send_sms,
+                            receiver_list=[self.get_customer().phone],
+                            msg=mess,
+                        )
                     loan_margin_shortfall.save(ignore_permissions=True)
 
             # alerts comparison with percentage and amount

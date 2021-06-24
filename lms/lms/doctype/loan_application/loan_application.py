@@ -511,9 +511,9 @@ class LoanApplication(Document):
         self.apply_renewal_charges(loan)
 
         loan.reload()
-        # loan.update_items()
-        # loan.fill_items()
-        loan.check_for_shortfall()
+        loan.update_items()
+        loan.fill_items()
+        # loan.check_for_shortfall()
 
         # for item in self.items:
         #     if item.lender_approval_status == "Approved":
