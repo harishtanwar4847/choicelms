@@ -855,7 +855,8 @@ head_content %}
     </div>
   </section>
 
-  <script type="text/javascript" src="js/main.js"></script>
+  <script type="text/javascript" src="/assets/lms/js/main.js"></script>
+  {% block custom_script %}
   <script>
     $(document).ready(function () {
       // Add minus icon for collapse element which is open by default
@@ -885,5 +886,5 @@ head_content %}
         });
     });
   </script>
-  {% endblock %}
+  {% endblock %} {% endblock %}
 </body>
