@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 from datetime import datetime, timedelta
 
 import frappe
+from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
 from num2words import num2words
 
@@ -408,6 +409,14 @@ class Loan(Document):
                         if frappe.utils.now_datetime() > loan_margin_shortfall.deadline:
                             loan_margin_shortfall.status = "Sell Triggered"
                             loan_margin_shortfall.save(ignore_permissions=True)
+                            mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
+                                self.loan
+                            )
+                            frappe.enqueue(
+                                method=send_sms,
+                                receiver_list=[self.get_customer().phone],
+                                msg=mess,
+                            )
                 else:
                     # if not loan_margin_shortfall.margin_shortfall_action:
                     if loan_margin_shortfall.status == "Pending":
@@ -420,6 +429,14 @@ class Loan(Document):
                         and frappe.utils.now_datetime() > loan_margin_shortfall.deadline
                     ):
                         loan_margin_shortfall.status = "Sell Triggered"
+                        mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
+                            self.loan
+                        )
+                        frappe.enqueue(
+                            method=send_sms,
+                            receiver_list=[self.get_customer().phone],
+                            msg=mess,
+                        )
                     loan_margin_shortfall.save(ignore_permissions=True)
 
             # alerts comparison with percentage and amount
@@ -1103,7 +1120,7 @@ class Loan(Document):
     #         if i.pledged_quantity == 0:
     #             self.items.remove(i)
 
-    def create_tnc_file(self, topup_amount=None):
+    def create_tnc_file(self, topup_amount):
         lender = self.get_lender()
         customer = self.get_customer()
         user_kyc = customer.get_kyc()
@@ -1129,7 +1146,9 @@ class Loan(Document):
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,
             "account_renewal_charges": lender.account_renewal_charges,
-            "documentation_charges": lender.documentation_charges,
+            "documentation_charges": lender.lender_documentation_minimum_amount,
+            "stamp_duty_charges": lender.lender_stamp_duty_minimum_amount,
+            # "documentation_charges": lender.documentation_charges,
             # "stamp_duty_charges": (lender.stamp_duty / 100)
             # * self.sanctioned_limit,  # CR loan agreement changes
             "processing_fee": lender.lender_processing_fees,
