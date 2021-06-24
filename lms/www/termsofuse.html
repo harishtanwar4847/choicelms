@@ -1,11 +1,34 @@
-{% extends 'templates/lmsbase.html' %} {% block body_content %} {% block
-head_content %}
+{% extends 'templates/lmsbase.html' %} {% block head_content %}
 <title>Terms of Use - SparkLoans</title>
 <meta
   name="description"
   content="Read our terms and conditions on SparkLoans web portal."
 />
-{% endblock %}
+
+<style>
+  li::marker {
+    font-size: 1.8em;
+  }
+  ul li::marker {
+    font-size: 2.5em;
+  }
+  ul li {
+    margin-left: 40px !important;
+  }
+  .privacy h4 {
+    font-size: 2.3em !important;
+    padding-bottom: 12px !important;
+    padding-top: 10px !important;
+  }
+  p {
+    padding-bottom: 10px !important;
+  }
+  .some p {
+    padding-bottom: 0px !important;
+  }
+</style>
+
+{% endblock %} {% block body_content %}
 <section class="fw">
   <div class="container">
     <div class="row">
@@ -20,7 +43,7 @@ head_content %}
     <div class="row">
       <div class="col">
         <div class="fw privacy">
-          <h5>Last updated on: 15th October 2020</h5>
+          <h4><u>Last updated on: 15th October 2020</u></h4>
           <em>
             <p>
               This document is an electronic record in terms of the Information
@@ -56,8 +79,9 @@ head_content %}
                 Spark.loans and any other dedicated electronic platform that may
                 be introduced or amended from time to time. For brevity sake, an
                 existing SFTPL customer and eligible individual who are new to
-                SFTPL and who visit SFTPL Network, are collectively referred to
-                as <strong> “User(s)”</strong>.
+                SFTPL and who visit SFTPL Network, are
+                <em>collectively</em> referred to as
+                <strong> “User(s)”</strong>.
               </p>
             </li>
             <li>
@@ -69,7 +93,9 @@ head_content %}
                 Network basis their details of existing loan(s) availed through
                 SFTPL Network from its Financial Partners including but not
                 limited to such other facilities/finance facilities/services
-                offered via SFTPL Network, from time to time (hereinafter
+                offered via SFTPL Network, from time to time (<em
+                  >hereinafter</em
+                >
                 “<strong> SFTPL Products &amp; Services </strong>”).
               </p>
             </li>
@@ -154,10 +180,10 @@ head_content %}
             the User agrees and explicitly consents to all the terms and
             conditions under the Terms of Use, Security Terms and the Privacy
             Terms, including any modification/amendments thereof from time to
-            time (collectively “<strong>Terms</strong>”) by confirming the same
-            through One Time Password (“<strong>OTP</strong>”) sent on his/her
-            mobile number and/or confirming acceptance over his/her email
-            available in SFTPL records and/or submitted by User to SFTPL.
+            time (<em>collectively</em> “<strong>Terms</strong>”) by confirming
+            the same through One Time Password (“<strong>OTP</strong>”) sent on
+            his/her mobile number and/or confirming acceptance over his/her
+            email available in SFTPL records and/or submitted by User to SFTPL.
           </p>
           <p>
             By submitting the “OTP” User hereby agree and expressly authorize
@@ -176,9 +202,10 @@ head_content %}
             User will also have the option to withdraw his/her consent for these
             Terms of Use, after fulfilling the pending contractual obligations
             if any to SFTPL. After fulfilling the contractual obligations, User
-            is at liberty to refrain from using the SFTPL Network and/or SFTPL
-            Products & Services. However, User’s continued use/availing of the
-            SFTPL Network / SFTPL Products & Services would be construed as
+            is at liberty to refrain from using the SFTPL Network and/or
+            <strong>SFTPL Products & Services</strong>. However, User’s
+            continued use/availing of the SFTPL Network /
+            <strong>SFTPL Products & Services</strong> would be construed as
             deemed acceptance of these Terms and its associated policies
             mentioned hereof, including any modification thereof.
           </p>
@@ -211,7 +238,10 @@ head_content %}
               </p>
             </li>
             <li>
-              <p>User further agree <strong>NOT TO</strong>:</p>
+              <p>
+                User further agree <strong><u>NOT TO</u></strong
+                >:
+              </p>
             </li>
 
             <ol type="i">
@@ -379,7 +409,7 @@ head_content %}
                         ask for the following information: -
                       </p>
 
-                      <ul style="list-style-type: circle">
+                      <ul style="list-style-type: circle" class="some">
                         <li>
                           <p>Name (First Name, Middle Name and Last Name);</p>
                         </li>
@@ -579,10 +609,11 @@ head_content %}
                     </li>
                     <li>
                       <p>
-                        Communicating with User about SFTPL Network / SFTPL
-                        Products & Services, or addressing any general queries,
-                        such as updates, customer support, or information about
-                        our events or notices.
+                        Communicating with User about SFTPL Network /
+                        <strong>SFTPL Products & Services</strong>, or
+                        addressing any general queries, such as updates,
+                        customer support, or information about our events or
+                        notices.
                       </p>
                     </li>
                     <li>
@@ -616,8 +647,8 @@ head_content %}
                     <li>
                       <p>
                         <strong><u>Creating Account:</u></strong> Setting up
-                        User’s SFTPL Network account and for availing SFTPL
-                        Products & Services.
+                        User’s SFTPL Network account and for availing
+                        <strong>SFTPL Products & Services</strong>.
                       </p>
                     </li>
                     <li>
