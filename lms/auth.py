@@ -264,7 +264,6 @@ def register(**kwargs):
                 ],
                 "email": [
                     "required",
-                    "mail",
                     utils.validator.rules.ExistsRule(
                         doctype="User", fields="email", message="Email already taken"
                     ),
@@ -278,6 +277,14 @@ def register(**kwargs):
             search=data.get("firebase_token"),
             regex=re.compile("[@!#$%^&*()<>?/\|}{~`]"),
         )
+        # email validation
+        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        if re.search(email_regex, data.get("email")) is None:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Expected a Mail, Got: {}".format(data.get("email"))),
+            )
+
         if reg or firebase_reg:
             return utils.respondWithFailure(
                 status=422,
@@ -396,8 +403,15 @@ def request_forgot_pin_otp(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {"email": ["required", "mail"]},
+            {"email": ["required"]},
         )
+        # email validation
+        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        if re.search(email_regex, data.get("email")) is None:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Expected a Mail, Got: {}".format(data.get("email"))),
+            )
 
         try:
             user = frappe.get_doc("User", data.get("email"))
@@ -436,7 +450,7 @@ def verify_forgot_pin_otp(**kwargs):
         data = utils.validator.validate(
             kwargs,
             {
-                "email": ["required", "mail"],
+                "email": ["required"],
                 "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
                 "new_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
                 "retype_pin": [
@@ -446,6 +460,13 @@ def verify_forgot_pin_otp(**kwargs):
                 ],
             },
         )
+        # email validation
+        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        if re.search(email_regex, data.get("email")) is None:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Expected a Mail, Got: {}".format(data.get("email"))),
+            )
 
         try:
             token = lms.verify_user_token(

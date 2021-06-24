@@ -153,8 +153,8 @@ class LoanTransaction(Document):
                 self.name, lender_sharing_amount, spark_sharing_amount
             )
 
-        elif self.transaction_type in ["Sell Collateral"]:
-            check_for_shortfall = False
+        # elif self.transaction_type in ["Sell Collateral"]:
+        #     check_for_shortfall = False
 
         loan = self.get_loan()
 
