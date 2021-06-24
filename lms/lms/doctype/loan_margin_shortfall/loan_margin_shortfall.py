@@ -290,7 +290,10 @@ class LoanMarginShortfall(Document):
                         str(margin_shortfall_action.sell_off_deadline_eod), "%H"
                     ).strftime("%I:%M%P"),
                 )
-            if margin_shortfall_action.sell_off_after_hours or margin_shortfall_action.sell_off_deadline_eod:
+            if (
+                margin_shortfall_action.sell_off_after_hours
+                or margin_shortfall_action.sell_off_deadline_eod
+            ):
                 doc = frappe.get_doc(
                     "User KYC", self.get_loan().get_customer().choice_kyc
                 ).as_dict()
@@ -298,8 +301,10 @@ class LoanMarginShortfall(Document):
                     "loan": self.loan,
                     "margin_shortfall_action": margin_shortfall_action,
                 }
-                frappe.enqueue_doc("Notification", "Margin Shortfall", method="send", doc=doc)
-            
+                frappe.enqueue_doc(
+                    "Notification", "Margin Shortfall", method="send", doc=doc
+                )
+
             if mess:
                 frappe.enqueue(
                     method=send_sms,
