@@ -625,7 +625,7 @@ def get_tnc(**kwargs):
                 )
             elif data.get("cart_name") and cart.loan and not cart.loan_margin_shortfall:
                 tnc_ul.append(
-                    "<li><strong> New credit limit / Drawing power </strong>: <strong>Rs. {}</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
+                    "<li><strong> Increased loan amount </strong>: <strong>Rs. {}</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
                         cart.eligible_loan
                     )
                     + "</li>"
@@ -666,7 +666,7 @@ def get_tnc(**kwargs):
             "<li><strong> Facility tenure </strong>: <strong>12 months</strong> (renewable at lender’s discretion, as detailed in the T&C);</li>"
         )
         tnc_ul.append(
-            "<li><strong> Repayment through </strong>: Cash flows /Sale of securities/Other investments maturing;</li>"
+            "<li><strong> Repayment through </strong>: Cash flows/Sale of securities/Other investments maturing;</li>"
         )
         tnc_ul.append(
             "<li><strong> Mode of communication</strong> of changes in interest rates and others : Website and Mobile App notification, SMS, email, letters, notices at branches, communication through statement of accounts of the borrower, or any other mode of communication;</li>"
