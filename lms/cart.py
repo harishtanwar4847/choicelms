@@ -627,11 +627,11 @@ def get_tnc(**kwargs):
                 tnc_ul.append(
                     "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
                         lms.round_down_amount_to_nearest_thousand(
-                        (cart.total_collateral_value + loan.total_collateral_value)
-                        * cart.allowable_ltv
-                        / 100
+                            (cart.total_collateral_value + loan.total_collateral_value)
+                            * cart.allowable_ltv
+                            / 100
+                        )
                     )
-                )
                     + "</li>"
                 )
             # tnc_ul.append(
@@ -675,9 +675,7 @@ def get_tnc(**kwargs):
         tnc_ul.append(
             "<li><strong> Mode of communication</strong> of changes in interest rates and others : Website and Mobile App notification, SMS, email, letters, notices at branches, communication through statement of accounts of the borrower, or any other mode of communication;</li>"
         )
-        tnc_ul.append(
-            "<li><strong> EMI payable </strong>: Not applicable;</li>"
-        )
+        tnc_ul.append("<li><strong> EMI payable </strong>: Not applicable;</li>")
         tnc_ul.append(
             "<li><strong> Penal interest rate / Penal charges </strong>: In case of occurrence of Event of Default (EOD), penal interest shall be charged <strong>upto 4.00% per month</strong> over and above applicable interest rate;</li>"
         )
@@ -700,7 +698,9 @@ def get_tnc(**kwargs):
             + "</li>"
         )
         tnc_ul.append(
-            "<li><strong> Stamp duty & other statutory charges : Rs. {}/-;</li></strong>".format(int(lender.lender_stamp_duty_minimum_amount))
+            "<li><strong> Stamp duty & other statutory charges : Rs. {}/-;</li></strong>".format(
+                int(lender.lender_stamp_duty_minimum_amount)
+            )
         )
         tnc_ul.append(
             "<li><strong> Pre-payment charges </strong>: <strong>NIL;</strong></li>"

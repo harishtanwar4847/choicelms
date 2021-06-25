@@ -214,7 +214,9 @@ class TopupApplication(Document):
             # "stamp_duty_charges": (lender.stamp_duty / 100)
             # * self.sanctioned_limit,  # CR loan agreement changes
             "processing_fee": lender.lender_processing_fees,
-            "transaction_charges_per_request": int(lender.transaction_charges_per_request),
+            "transaction_charges_per_request": int(
+                lender.transaction_charges_per_request
+            ),
             "security_selling_share": lender.security_selling_share,
             "cic_charges": int(lender.cic_charges),
             "total_pages": lender.total_pages,

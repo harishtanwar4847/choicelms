@@ -193,7 +193,9 @@ class Cart(Document):
             "documentation_charges": int(lender.lender_documentation_minimum_amount),
             "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
             "processing_fee": lender.lender_processing_fees,
-            "transaction_charges_per_request": int(lender.transaction_charges_per_request),
+            "transaction_charges_per_request": int(
+                lender.transaction_charges_per_request
+            ),
             "security_selling_share": lender.security_selling_share,
             "cic_charges": int(lender.cic_charges),
             "total_pages": lender.total_pages,
