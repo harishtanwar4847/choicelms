@@ -188,6 +188,7 @@ class Cart(Document):
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,
+            "rebait_threshold": lender.rebait_threshold,
             "account_renewal_charges": lender.account_renewal_charges,
             "documentation_charges": int(lender.lender_documentation_minimum_amount),
             "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
