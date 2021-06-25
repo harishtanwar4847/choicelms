@@ -432,6 +432,15 @@ class Loan(Document):
                         mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
                             self.name
                         )
+                        doc = frappe.get_doc(
+                            "User KYC", self.get_customer().choice_kyc
+                        ).as_dict()
+                        doc["loan_margin_shortfall"] = {
+                            "loan": self.name
+                        }
+                        frappe.enqueue_doc(
+                            "Notification", "Sale Triggered Cross Deadline", method="send", doc=doc
+                        )
                         frappe.enqueue(
                             method=send_sms,
                             receiver_list=[self.get_customer().phone],
