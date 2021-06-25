@@ -625,9 +625,13 @@ def get_tnc(**kwargs):
                 )
             elif data.get("cart_name") and cart.loan and not cart.loan_margin_shortfall:
                 tnc_ul.append(
-                    "<li><strong> Increased loan amount </strong>: <strong>Rs. {}</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
-                        cart.eligible_loan
+                    "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
+                        lms.round_down_amount_to_nearest_thousand(
+                        (cart.total_collateral_value + loan.total_collateral_value)
+                        * cart.allowable_ltv
+                        / 100
                     )
+                )
                     + "</li>"
                 )
             # tnc_ul.append(
@@ -644,8 +648,8 @@ def get_tnc(**kwargs):
             #     "<li><strong> Previous Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong>;".format(loan.drawing_power)+ "</li>")
         else:
             tnc_ul.append(
-                "<li><strong> Top up amount </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
-                    data.get("topup_amount")
+                "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
+                    data.get("topup_amount") + loan.sanctioned_limit
                 )
                 + "</li>"
             )
