@@ -54,15 +54,20 @@
       src="/assets/js/bootstrap-4-web.min.js"
     ></script>
   </head>
+
   <body>
-    <div class="fw">
+    <div class="fw mobnav">
       <div class="fw mobileheader dx_jcsbalctr">
         <a href="/" class="logo"
           ><img src="/assets/lms/images/logo.svg" height="30"
         /></a>
         <div class="right dx_jcsbalctr">
           <p>
-            <a href="javascript:void(0);" class="applybtn"
+            <a
+              href="javascript:void(0);"
+              class="applybtn"
+              data-toggle="modal"
+              data-target="#apply-now-pop"
               ><span>Apply Now</span><span>&nbsp;</span></a
             >
           </p>
@@ -77,14 +82,14 @@
       <div class="container">
         <div class="row">
           <div class="col dx_jcsbalctr">
-            <a href="index.html" class="logo"
+            <a href="/" class="logo"
               ><img src="/assets/lms/images/logo.svg"
             /></a>
             <div class="menu">
-              <a href="products.html">Products</a>
-              <a href="demo-videos.html">Demo Videos</a>
-              <a href="comingsoon.html">Loan Calculator</a>
-              <a href="contact.html" class="active">Contact</a>
+              <a href="/products">Products</a>
+              <a href="/comingsoon">Demo Videos</a>
+              <a href="/comingsoon">Loan Calculator</a>
+              <a href="/contact">Contact</a>
               <a
                 href="javascript:void(0);"
                 class="applybtn"
@@ -174,8 +179,8 @@
                   <label>
                     <h6>Type of Loan</h6>
                     <select class="required" name="loantype">
-                      <option selected value="Loan Against Share">
-                        Loan Against Share
+                      <option selected value="Loan Against Shares">
+                        Loan Against Shares
                       </option>
                     </select>
                   </label>
@@ -272,7 +277,7 @@
         </div>
       </div>
     </section>
-
+    {% include 'templates/modal.html' %}
     <footer class="fw">
       <div class="container">
         <div class="row">

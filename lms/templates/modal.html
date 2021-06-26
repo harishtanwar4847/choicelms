@@ -27,7 +27,7 @@
             <div class="form_control">
               <label>
                 <span>First Name</span>
-                <input type="text" name="firstname" class="required" />
+                <input type="text" name="first_name" class="required" />
               </label>
             </div>
           </div>
@@ -35,7 +35,7 @@
             <div class="form_control">
               <label>
                 <span>Last Name</span>
-                <input type="text" name="lastname" class="required" />
+                <input type="text" name="last_name" class="required" />
               </label>
             </div>
           </div>
@@ -43,7 +43,7 @@
             <div class="form_control">
               <label>
                 <span>Email <a href="#" class="optionalBtn"> Optional</a></span>
-                <input type="email" name="email" class="required" />
+                <input type="email" name="emailss" class="required" />
               </label>
             </div>
           </div>
@@ -51,17 +51,25 @@
             <div class="form_control">
               <label>
                 <span>Mobile</span>
-                <input type="tel" name="mobile" class="required" />
+                <input
+                  type="tel"
+                  minlength="10"
+                  maxlength="10"
+                  name="mobiles"
+                  class="required number"
+                />
               </label>
             </div>
           </div>
           <div class="fw text-center mt-5">
             <button
               type="button"
-              onclick="applyNow()"
-              class="applybtn btn-send"
+              name="button"
+              value="Submit"
+              onclick="applyNow1()"
+              class="applybtn"
             >
-              <span>Submit</span><span>&nbsp;</span>
+              Submit
             </button>
           </div>
         </form>
@@ -568,3 +576,33 @@
     </div>
   </div>
 </div>
+
+<script>
+  function applyNow1() {
+    console.log("inside myFunction");
+    var first_name = $('[name="first_name"]').val();
+    var last_name = $('[name="last_name"]').val();
+    var emails = $('[name="emailss"]').val();
+    var mobile = $('[name="mobiles"]').val();
+    if (
+      !(first_name == "") &&
+      !(last_name == "") &&
+      !(emails == "") &&
+      !(mobile == "")
+    ) {
+      $.get(
+        "/api/method/lms.www.home.applyNow",
+        {
+          first_name: first_name,
+          last_name: last_name,
+          emails: emails,
+          mobile: mobile,
+        },
+        alert("{{ _('Thank you!! we will get back to you soon.') }}")
+      );
+    } else {
+      alert("Please Provide Valid Data");
+    }
+    $(":input").val("");
+  }
+</script>

@@ -1,116 +1,347 @@
-{% extends 'templates/lmsbase.html' %} {% block body_content %} {% block
-head_content %}
-<title>Our Financial Products - SparkLoans</title>
-<meta
-  name="description"
-  content="Visit SparkLoans web portal to know more about financial products."
-/>
-{% endblock %}
-<section class="fw">
-  <div class="container">
-    <div class="row">
-      <div class="col titlesec maintitle">
-        <h5 style="margin-bottom: 0px">Products</h5>
-      </div>
-    </div>
-  </div>
-</section>
-<section class="fw proBox">
-  <div class="container container2 pr">
-    <div class="row dx_jcsbalctr">
-      <div class="col-md-5 d-block d-sm-none txc">
-        <img src="/assets/lms/images/pro1.svg" width="90%" />
-      </div>
-      <div class="col col-md-5">
-        <div class="fw banner">
-          <h3>Loan against shares</h3>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Our Financial Products - SparkLoans</title>
+    <meta
+      name="description"
+      content="Visit SparkLoans web portal to know more about financial products."
+    />
+    <link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/assets/lms/css/bootstrap.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/assets/lms/css/owl.carousel.min.css"
+    />
+    <link rel="stylesheet" type="text/css" href="/assets/lms/css/animate.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/assets/lms/css/selectbox.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/assets/lms/css/jquery.fileuploader.css"
+    />
+    <link rel="stylesheet" type="text/css" href="/assets/lms/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/lms/css/media.css" />
+    <script>
+      window.frappe = {};
+      frappe.ready_events = [];
+      frappe.ready = function (fn) {
+        frappe.ready_events.push(fn);
+      }
+      window.dev_server = {{ dev_server }};
+      window.socketio_port = {{ frappe.socketio_port or 'null' }};
+      frappe.csrf_token = "{{ frappe.session.csrf_token }}";
+    </script>
+
+    <script
+      type="text/javascript"
+      src="/assets/frappe/js/lib/jquery/jquery.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/frappe/js/frappe-web.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/frappe/js/bootstrap-4-web.min.js"
+    ></script>
+  </head>
+
+  <body>
+    {% if "webview" in frappe.form_dict %}
+    <style>
+      @media (max-width: 1366px) {
+        .fw.mobnav,
+        footer,
+        .appdownloadbg,
+        header {
+          display: none !important;
+        }
+
+        .maintitle h5 {
+          margin-top: 2% !important;
+        }
+
+        .privacy {
+          padding-bottom: 0px;
+        }
+
+        .titlesec {
+          display: none !important;
+        }
+      }
+    </style>
+    {% endif %}
+    <div class="fw mobnav">
+      <div class="fw mobileheader dx_jcsbalctr">
+        <a href="/" class="logo"
+          ><img src="/assets/lms/images/logo.svg" height="30"
+        /></a>
+        <div class="right dx_jcsbalctr">
           <p>
-            Avail loan against equity shares without losing the upside gain on
-            the shares.
+            <a
+              href="javascript:void(0);"
+              class="applybtn"
+              data-toggle="modal"
+              data-target="#apply-now-pop"
+              ><span>Apply Now</span><span>&nbsp;</span></a
+            >
           </p>
-          <a href="#" class="proLink" data-toggle="modal" data-target="#schemes"
-            >Check Schemes</a
-          >
-        </div>
-      </div>
-      <div class="col col-md-5 d-none d-sm-block">
-        <img src="/assets/lms/images/pro1.svg" class="fw" />
-      </div>
-    </div>
-  </div>
-</section>
-<section class="fw proBox proBox2">
-  <div class="container container2 pr">
-    <div class="row dx_jcsbalctr">
-      <div class="col-md-5 d-block txc">
-        <img src="/assets/lms/images/pro2.svg" class="fw" />
-      </div>
-      <div class="col col-md-5">
-        <div class="fw banner">
-          <h3>Loan against Mutual Funds & other securities</h3>
-          <p>
-            Avail loan against Mutual Fund units, Bonds, Debentures and other
-            securities in demat form.
-          </p>
-          <a
-            href="#"
-            class="proLink"
-            data-toggle="modal"
-            data-target="#comingsoon"
-            >Check Schemes</a
-          >
-        </div>
-      </div>
-      <div class="col col-md-1 d-none d-sm-block">&nbsp;</div>
-    </div>
-  </div>
-</section>
-<section class="fw appdownload">
-  <div class="container">
-    <div class="row">
-      <div class="fw appdownloadbg">
-        <img
-          src="/assets/lms/images/home/Download_App.svg"
-          class="fw d-none d-sm-block"
-        />
-        <img
-          src="/assets/lms/images/home/appdownload_02.jpg"
-          class="fw d-block d-sm-none"
-        />
-        <div class="titlesec">
-          <h5>Download App</h5>
-          <p>We strongly believe that being the best is being unique.</p>
-          <div class="fw apps">
-            <a href="/comingsoon"
-              ><img src="/assets/lms/images/home/play-store.svg" class="fw"
-            /></a>
-            <a href="/comingsoon"
-              ><img src="/assets/lms/images/home/app-store.svg" class="fw"
-            /></a>
+          <div class="menuic">
+            <span>&nbsp;</span> <span>&nbsp;</span> <span>&nbsp;</span>
+            <span>&nbsp;</span>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
 
-{% include 'templates/modal.html' %}
+    <header class="fw dx_ctr bg">
+      <div class="container">
+        <div class="row">
+          <div class="col dx_jcsbalctr">
+            <a href="/" class="logo"
+              ><img src="/assets/lms/images/logo.svg"
+            /></a>
+            <div class="menu">
+              <a href="/products">Products</a>
+              <a href="/comingsoon">Demo Videos</a>
+              <a href="/comingsoon">Loan Calculator</a>
+              <a href="/contact">Contact</a>
+              <a
+                href="javascript:void(0);"
+                class="applybtn"
+                data-toggle="modal"
+                data-target="#apply-now-pop"
+                ><span>Apply Now</span><span>&nbsp;</span></a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
 
-<script>
-  $(function () {
-    $("#switch-id").change(function () {
-      if ($(this).is(":checked")) {
-        $(".applyemail").show();
-        $(".applymobile").hide();
-      } else {
-        $(".applyemail").hide();
-        $(".applymobile").show();
-      }
-    });
-  });
+    <section class="fw">
+      <div class="container">
+        <div class="row">
+          <div class="col titlesec maintitle">
+            <h5 style="margin-bottom: 0px">Products</h5>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="fw proBox">
+      <div class="container container2 pr">
+        <div class="row dx_jcsbalctr">
+          <div class="col-md-5 d-block d-sm-none txc">
+            <img src="/assets/lms/images/pro1.svg" width="90%" />
+          </div>
+          <div class="col col-md-5">
+            <div class="fw banner">
+              <h3>Loan against shares</h3>
+              <p>
+                Avail loan against equity shares without losing the upside gain
+                on the shares.
+              </p>
+              <a
+                href="#"
+                class="proLink"
+                data-toggle="modal"
+                data-target="#schemes"
+                >Check Schemes</a
+              >
+            </div>
+          </div>
+          <div class="col col-md-5 d-none d-sm-block">
+            <img src="/assets/lms/images/pro1.svg" class="fw" />
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="fw proBox proBox2">
+      <div class="container container2 pr">
+        <div class="row dx_jcsbalctr">
+          <div class="col-md-5 d-block txc">
+            <img src="/assets/lms/images/pro2.svg" class="fw" />
+          </div>
+          <div class="col col-md-5">
+            <div class="fw banner">
+              <h3>Loan against Mutual Funds & other securities</h3>
+              <p>
+                Avail loan against Mutual Fund units, Bonds, Debentures and
+                other securities in demat form.
+              </p>
+              <a
+                href="#"
+                class="proLink"
+                data-toggle="modal"
+                data-target="#comingsoon"
+                >Check Schemes</a
+              >
+            </div>
+          </div>
+          <div class="col col-md-1 d-none d-sm-block">&nbsp;</div>
+        </div>
+      </div>
+    </section>
+    <section class="fw appdownload">
+      <div class="container">
+        <div class="row">
+          <div class="fw appdownloadbg">
+            <img
+              src="/assets/lms/images/home/Download_App.svg"
+              class="fw d-none d-sm-block"
+            />
+            <img
+              src="/assets/lms/images/home/appdownload_02.jpg"
+              class="fw d-block d-sm-none"
+            />
+            <div class="titlesec">
+              <h5>Download App</h5>
+              <p>We strongly believe that being the best is being unique.</p>
+              <div class="fw apps">
+                <a href="/comingsoon"
+                  ><img src="/assets/lms/images/home/play-store.svg" class="fw"
+                /></a>
+                <a href="/comingsoon"
+                  ><img src="/assets/lms/images/home/app-store.svg" class="fw"
+                /></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  $(function () {
-    $('[data-toggle="tooltip"]').tooltip();
-  });
-</script>
-{% endblock %}
+    {% include 'templates/modal.html' %}
+    <footer class="fw">
+      <div class="container">
+        <div class="row">
+          <div class="fw dx footerinside">
+            <span class="bor">&nbsp;</span>
+            <div class="col-4">
+              <img src="/assets/lms/images/logo.svg" width="140" />
+              <div class="desc">
+                <p>
+                  A 8, Narayan Plaza, 26A Chandivali RD, Sakinaka Kurla, Near
+                  Chandivali Studio, Mumbai 400072
+                </p>
+                <a href="/comingsoon" class="download_app"
+                  >Download Spark Loans App</a
+                >
+                <div class="fw social dx">
+                  <a href="javascript:void(0);"
+                    ><i class="fab fa-linkedin-in"></i
+                  ></a>
+                  <a href="javascript:void(0);"
+                    ><i class="fab fa-twitter"></i
+                  ></a>
+                  <a href="javascript:void(0);"
+                    ><i class="fab fa-instagram"></i
+                  ></a>
+                  <a href="javascript:void(0);"
+                    ><i class="fab fa-facebook-f"></i
+                  ></a>
+                </div>
+              </div>
+            </div>
+            <div class="col dx_jcsb" id="footerlink">
+              <ul>
+                <li>
+                  <p class="mainlink">Quick Links</p>
+                </li>
+                <li><a href="/aboutus">About Us</a></li>
+                <li><a href="/aboutus#team">Team</a></li>
+                <li><a href="/comingsoon">Partner With Us</a></li>
+                <li><a href="/help">Help / FAQs</a></li>
+                <li><a href="/comingsoon">Career</a></li>
+              </ul>
+              <ul>
+                <li>
+                  <p class="mainlink">Resources</p>
+                </li>
+                <li><a href="/comingsoon">Loan Tips</a></li>
+                <li><a href="/comingsoon">News and Blogs</a></li>
+                <li><a href="/privacypolicy">Privacy Policy</a></li>
+                <li><a href="/termsofuse">Terms of Use</a></li>
+              </ul>
+              <ul>
+                <li>
+                  <p class="mainlink">Contact</p>
+                </li>
+                <li><a href="/contact">Contact</a></li>
+                <li><a href="tel:+919307242424">93072 42424</a></li>
+                <li><a href="tel:+919199242424">91992 42424</a></li>
+                <li>
+                  <a href="mailto:reception@spark.loans"
+                    >reception@spark.loans</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <div class="fw copyright">
+      <div class="container">
+        <div class="row">
+          <div class="fw dx footer_bottom">
+            <div class="col" style="display: flex; justify-content: center">
+              <p>&copy; Spark Financial Technologies Private Limited 2021</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      $(function () {
+        $("#switch-id").change(function () {
+          if ($(this).is(":checked")) {
+            $(".applyemail").show();
+            $(".applymobile").hide();
+          } else {
+            $(".applyemail").hide();
+            $(".applymobile").show();
+          }
+        });
+      });
+
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+      });
+    </script>
+    <script
+      type="text/javascript"
+      src="/assets/lms/js/jquery-3.6.0.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/lms/js/bootstrap.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/lms/js/jquery.validate.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/lms/js/owl.carousel.min.js"
+    ></script>
+    <script type="text/javascript" src="/assets/lms/js/wow.min.js"></script>
+    <script type="text/javascript" src="/assets/lms/js/main.js"></script>
+  </body>
+</html>

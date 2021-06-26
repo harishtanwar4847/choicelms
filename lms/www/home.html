@@ -111,18 +111,16 @@
         </div>
       </div>
     </header>
-    <div class="cookies">
-      <p>
-        This website uses cookies.&nbsp;
-        <a href="javascript:void(0);" class="learnmore">Learn more</a>.
-        <a href="javascript:void(0);" class="close_cookie">&nbsp;</a>
-      </p>
-      <div class="fw dx">
-        <a href="javascript:void(0);" class="acceptbtn applybtn"
-          ><span>Accept</span><span>&nbsp;</span></a
-        >
-      </div>
+    <!-- <div class="cookies">
+    <p>
+      This website uses cookies.&nbsp;
+      <a href="javascript:void(0);" class="learnmore">Learn more</a>.
+      <a href="javascript:void(0);" class="close_cookie">&nbsp;</a>
+    </p>
+    <div class="fw dx">
+      <a href="javascript:void(0);" class="acceptbtn applybtn"><span>Accept</span><span>&nbsp;</span></a>
     </div>
+  </div> -->
     <section class="fw landing">
       <!-- <div class="fw landing_bg">&nbsp;</div> -->
       <div
@@ -632,87 +630,7 @@
       </div>
     </section>
 
-    <!-- The Modal -->
-    <div
-      class="modal fade common-modal"
-      id="apply-now-pop"
-      tabindex="-1"
-      role="dialog"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <h5 class="modal-title">Apply Now</h5>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal"
-            aria-label="Close"
-          >
-            <img src="/assets/lms/images/close-bt.png" />
-          </button>
-          <div class="modal-body">
-            <form
-              class="fw placeholder_txt"
-              name="apply-now-forum"
-              id="apply-now-forum"
-            >
-              <div class="form_group">
-                <div class="form_control">
-                  <label>
-                    <span>First Name</span>
-                    <input type="text" name="first_name" class="required" />
-                  </label>
-                </div>
-              </div>
-              <div class="form_group">
-                <div class="form_control">
-                  <label>
-                    <span>Last Name</span>
-                    <input type="text" name="last_name" class="required" />
-                  </label>
-                </div>
-              </div>
-              <div class="form_group">
-                <div class="form_control">
-                  <label>
-                    <span
-                      >Email <a href="#" class="optionalBtn"> Optional</a></span
-                    >
-                    <input type="email" name="emails" class="required" />
-                  </label>
-                </div>
-              </div>
-              <div class="form_group">
-                <div class="form_control">
-                  <label>
-                    <span>Mobile</span>
-                    <input
-                      type="tel"
-                      minlength="10"
-                      maxlength="10"
-                      name="mobile"
-                      class="required number"
-                    />
-                  </label>
-                </div>
-              </div>
-              <div class="fw text-center mt-5">
-                <button
-                  type="button"
-                  name="button"
-                  value="Submit"
-                  onclick="applyNow1()"
-                  class="applybtn"
-                >
-                  Submit
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
+    {% include 'templates/modal.html' %}
 
     <footer class="fw">
       <div class="container">
@@ -796,34 +714,6 @@
     </div>
 
     <script>
-      function applyNow1() {
-        console.log("inside myFunction");
-        var first_name = $('[name="first_name"]').val();
-        var last_name = $('[name="last_name"]').val();
-        var email = $('[name="emails"]').val();
-        var mobile = $('[name="mobile"]').val();
-        if (
-          !(first_name == "") &&
-          !(last_name == "") &&
-          !(email == "") &&
-          !(mobile == "")
-        ) {
-          $.get(
-            "/api/method/lms.www.home.applyNow",
-            {
-              first_name: first_name,
-              last_name: last_name,
-              email: email,
-              mobile: mobile,
-            },
-            alert("{{ _('Thank you!! we will get back to you soon.') }}")
-          );
-        } else {
-          console.log("Please Provide Valid Data");
-        }
-        $(":input").val("");
-      }
-
       function subscribe() {
         console.log("inside myFunction");
         var number = $('[name="number"]').val();
@@ -838,6 +728,7 @@
         $(":input").val("");
       }
     </script>
+
     <script
       type="text/javascript"
       src="assets/lms/js/jquery-3.6.0.min.js"
