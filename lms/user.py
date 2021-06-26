@@ -1229,9 +1229,7 @@ def weekly_pledged_security_dashboard(**kwargs):
                 }
             )
             counter += 1
-        weekly_security_amount.sort(
-            key=lambda item: (item["week"]), reverse=True
-        )
+        weekly_security_amount.sort(key=lambda item: (item["week"]), reverse=True)
         return utils.respondWithSuccess(data=weekly_security_amount)
 
     except utils.exceptions.APIException as e:

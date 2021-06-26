@@ -24,7 +24,9 @@ def execute():
     except frappe.DuplicateEntryError:
         pass
 
+    # frappe.db.sql("TRUNCATE `tabEmail Account`", auto_commit=1)
+
     path = frappe.get_app_path("lms", "patches", "imports", "email_account.csv")
     frappe.core.doctype.data_import.data_import.import_file(
-        "Email Account", path, "Update", console=True
+        "Email Account", path, "Insert", console=True
     )
