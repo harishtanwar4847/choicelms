@@ -1176,7 +1176,7 @@ def weekly_pledged_security_dashboard(**kwargs):
             )
 
         sec = []
-        counter = 52
+        counter = 1
         weekly_security_amount = []
         yesterday = datetime.strptime(
             frappe.utils.today(), "%Y-%m-%d"
@@ -1195,7 +1195,7 @@ def weekly_pledged_security_dashboard(**kwargs):
         )
         all_isin_list = [i.isin for i in all_loan_items]
         # all_isin_dict = {i.isin: i.total_pledged_qty for i in all_loan_items}
-        while counter >= 1:
+        while counter <= 52:
             sec.append({"yesterday": yesterday, "last_friday": last_friday})
             security_price_list = frappe.db.sql(
                 """select security, price, time
@@ -1205,7 +1205,7 @@ def weekly_pledged_security_dashboard(**kwargs):
                 group by security
 				order by modified desc)""".format(
                     lms.convert_list_to_tuple_string(all_isin_list),
-                    yesterday if counter == 52 else last_friday,
+                    yesterday if counter == 1 else last_friday,
                 ),
                 as_dict=1,
             )
@@ -1219,7 +1219,7 @@ def weekly_pledged_security_dashboard(**kwargs):
                 ]
             )
 
-            if counter != 52:
+            if counter != 1:
                 last_friday += timedelta(days=-7)
 
             weekly_security_amount.append(
@@ -1228,7 +1228,8 @@ def weekly_pledged_security_dashboard(**kwargs):
                     "weekly_amount_for_all_loans": round(total, 2) if total else 0.0,
                 }
             )
-            counter -= 1
+            counter += 1
+        weekly_security_amount.sort(key=lambda item: (item["week"]), reverse=True)
         return utils.respondWithSuccess(data=weekly_security_amount)
 
     except utils.exceptions.APIException as e:
