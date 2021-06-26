@@ -1833,10 +1833,12 @@ def loan_statement(**kwargs):
                         "select message from `tabNotification` where name='Loan Statement PDF';"
                     )[0][0]
                 else:
+                    with open(loan_statement_excel_file_path, "rb") as fileobj:
+                        filedata = fileobj.read()
                     attachments = [
                         {
                             "fname": loan_statement_excel_file,
-                            "fcontent": df.to_csv(index=False),
+                            "fcontent": filedata,
                         },
                     ]
                     loan_statement_notification = frappe.db.sql(
