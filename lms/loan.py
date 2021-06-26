@@ -51,7 +51,7 @@ def esign_old(**kwargs):
             )
 
             if not res.ok:
-                raise utils.APIException(res.text)
+                raise utils.exceptions.APIException(res.text)
 
             data = res.json()
 
@@ -64,8 +64,8 @@ def esign_old(**kwargs):
                 data={"esign_url": url, "file_id": data.get("id")},
             )
         except requests.RequestException as e:
-            raise utils.APIException(str(e))
-    except utils.APIException as e:
+            raise utils.exceptions.APIException(str(e))
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -139,7 +139,7 @@ def esign(**kwargs):
             )
 
             if not res.ok:
-                raise utils.APIException(res.text)
+                raise utils.exceptions.APIException(res.text)
 
             data = res.json()
 
@@ -152,8 +152,8 @@ def esign(**kwargs):
                 data={"esign_url": url, "file_id": data.get("id")},
             )
         except requests.RequestException as e:
-            raise utils.APIException(str(e))
-    except utils.APIException as e:
+            raise utils.exceptions.APIException(str(e))
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -301,8 +301,8 @@ def esign_done(**kwargs):
 
             return utils.respondWithSuccess()
         except requests.RequestException as e:
-            raise utils.APIException(str(e))
-    except utils.APIException as e:
+            raise utils.exceptions.APIException(str(e))
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -780,7 +780,7 @@ def create_topup(**kwargs):
             #     frappe.db.commit()
 
         return utils.respondWithSuccess(data=data)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1152,7 +1152,7 @@ def loan_withdraw_details(**kwargs):
             data["banks"] = lms.__banks()
 
         return utils.respondWithSuccess(data=data)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1171,7 +1171,7 @@ def request_loan_withdraw_otp():
         )
         frappe.db.commit()
         return utils.respondWithSuccess(message="Withdraw OTP sent")
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1308,7 +1308,7 @@ def loan_withdraw_request(**kwargs):
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         return utils.respondWithSuccess(message=message, data=data)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1325,6 +1325,7 @@ def loan_payment(**kwargs):
                 "transaction_id": "required",
                 "loan_margin_shortfall_name": "",
                 "is_for_interest": "decimal|between:0,1",
+                "is_failed": ""
             },
         )
         reg = lms.regex_special_characters(
@@ -1356,7 +1357,33 @@ def loan_payment(**kwargs):
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
 
-        if data.get("loan_margin_shortfall_name", None):
+        if data.get("is_failed"):
+            if isinstance(data.get("is_failed"), str):
+                data["is_failed"] = dict(data.get("is_failed"))
+
+            payment_failure = frappe.get_doc(
+                {
+                    "doctype": "Loan Payment Log",
+                    "customer": customer.name,
+                    "customer_name": customer.full_name,
+                    "loan": data.get("loan_name"),
+                    "loan_margin_shortfall": data.get("loan_margin_shortfall_name") if data.get("loan_margin_shortfall_name") else None,
+                    "is_for_interest": 1 if data.get("is_for_interest") else 0,
+                    "code": data.get("is_failed").get("code"),
+                    "description": data.get("is_failed").get("description"),
+                    "source": data.get("is_failed").get("source"),
+                    "step": data.get("is_failed").get("step"),
+                    "reason": data.get("is_failed").get("reason")
+                }
+            )
+            payment_failure.insert(ignore_permissions=True)
+            payment_failure.docstatus = 1
+            payment_failure.save(ignore_permissions=True)
+            frappe.db.commit()
+            return utils.respondWithSuccess(message = "Check Loan Payment Log.")
+
+        msg = ""
+        if data.get("loan_margin_shortfall_name", None) and not data.get("is_failed"):
             try:
                 loan_margin_shortfall = frappe.get_doc(
                     "Loan Margin Shortfall", data.get("loan_margin_shortfall_name")
@@ -1402,41 +1429,41 @@ def loan_payment(**kwargs):
                 "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
             )
             msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
+            # receiver_list = list(
+            #     set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+            # )
+            # from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+            # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+        if not data.get("is_failed"):
+            frappe.db.begin()
+            loan.create_loan_transaction(
+                transaction_type="Payment",
+                amount=data.get("amount"),
+                transaction_id=data.get("transaction_id"),
+                loan_margin_shortfall_name=data.get("loan_margin_shortfall_name", None),
+                is_for_interest=data.get("is_for_interest", None),
+            )
+            frappe.db.commit()
+
+            if not data.get("loan_margin_shortfall_name"):
+                doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+                doc["payment"] = {"amount": data.get("amount"), "loan": loan.name}
+                frappe.enqueue_doc(
+                    "Notification", "Payment Request", method="send", doc=doc
+                )
+        #     msg = """Dear Customer,\nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within some time .-Spark Loans""".format(data.get("amount"),loan.name)
+
+        if msg:
             receiver_list = list(
                 set([str(customer.phone), str(customer.get_kyc().mobile_number)])
             )
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-
-        frappe.db.begin()
-        loan.create_loan_transaction(
-            transaction_type="Payment",
-            amount=data.get("amount"),
-            transaction_id=data.get("transaction_id"),
-            loan_margin_shortfall_name=data.get("loan_margin_shortfall_name", None),
-            is_for_interest=data.get("is_for_interest", None),
-        )
-        frappe.db.commit()
-
-        if not data.get("loan_margin_shortfall_name"):
-            doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-            doc["payment"] = {"amount": data.get("amount"), "loan": loan.name}
-            frappe.enqueue_doc(
-                "Notification", "Payment Request", method="send", doc=doc
-            )
-        #     msg = """Dear Customer,\nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within some time .-Spark Loans""".format(data.get("amount"),loan.name)
-
-        ## if msg:
-        #     receiver_list = list(
-        #         set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-        #     )
-        #     from frappe.core.doctype.sms_settings.sms_settings import send_sms
-
-        #     frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-
         return utils.respondWithSuccess()
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1797,10 +1824,12 @@ def loan_statement(**kwargs):
                         "select message from `tabNotification` where name='Loan Statement PDF';"
                     )[0][0]
                 else:
+                    with open(loan_statement_excel_file_path, "rb") as fileobj:
+                        filedata = fileobj.read()
                     attachments = [
                         {
                             "fname": loan_statement_excel_file,
-                            "fcontent": df.to_csv(index=False),
+                            "fcontent": filedata,
                         },
                     ]
                     loan_statement_notification = frappe.db.sql(
@@ -1824,7 +1853,7 @@ def loan_statement(**kwargs):
                 )
 
         return utils.respondWithSuccess(data=res)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1844,7 +1873,7 @@ def request_unpledge_otp():
         )
         frappe.db.commit()
         return utils.respondWithSuccess(message="Unpledge OTP sent")
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1896,7 +1925,7 @@ def loan_unpledge_details(**kwargs):
         # data = {"loan": loan, "unpledge": unpledge}
 
         return utils.respondWithSuccess(data=res)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -2093,7 +2122,7 @@ def loan_unpledge_request(**kwargs):
         frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         return utils.respondWithSuccess(data=unpledge_application)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -2112,7 +2141,7 @@ def request_sell_collateral_otp():
         )
         frappe.db.commit()
         return utils.respondWithSuccess(message="Sell Collateral OTP sent")
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -2246,6 +2275,10 @@ def sell_collateral_request(**kwargs):
         frappe.db.commit()
         if not data.get("loan_margin_shortfall_name"):
             msg = "Dear Customer,\nYour sell collateral request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. - Spark Loans"
+        doc = customer.get_kyc().as_dict()
+        frappe.enqueue_doc(
+            "Notification", "Sell Collateral Request", method="send", doc=doc
+        )
 
         if msg:
             receiver_list = list(
@@ -2256,7 +2289,7 @@ def sell_collateral_request(**kwargs):
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         return utils.respondWithSuccess(data=sell_collateral_application)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 

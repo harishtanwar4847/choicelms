@@ -50,7 +50,7 @@ def set_pin(**kwargs):
         frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
 
         return utils.respondWithSuccess(message=frappe._("User PIN has been set"))
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         frappe.db.rollback()
         return e.respond()
 
@@ -137,7 +137,7 @@ def kyc(**kwargs):
         data = {"user_kyc": user_kyc}
 
         return utils.respondWithSuccess(data=data)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         frappe.db.rollback()
         return e.respond()
 
@@ -164,7 +164,7 @@ def get_choice_kyc(pan_no, birth_date):
 
         if not res.ok or "errorCode" in data:
             raise UserKYCNotFoundException
-            raise utils.APIException(res.text)
+            raise utils.exceptions.APIException(res.text)
 
         user_kyc = lms.__user_kyc(pan_no=pan_no, throw=False)
         user_kyc.kyc_type = "CHOICE"
@@ -213,11 +213,11 @@ def get_choice_kyc(pan_no, birth_date):
         }
 
     except requests.RequestException as e:
-        raise utils.APIException(str(e))
+        raise utils.exceptions.APIException(str(e))
     except UserKYCNotFoundException:
         raise
     except Exception as e:
-        raise utils.APIException(str(e))
+        raise utils.exceptions.APIException(str(e))
 
 
 @frappe.whitelist()
@@ -255,11 +255,11 @@ def securities(**kwargs):
                 headers={"Accept": "application/json"},
             )
             if not res.ok:
-                raise utils.APIException(res.text)
+                raise utils.exceptions.APIException(res.text)
 
             res_json = res.json()
             if res_json["Status"] != "Success":
-                raise utils.APIException(res.text)
+                raise utils.exceptions.APIException(res.text)
 
             # setting eligibility
             # securities_list = res_json["Response"]
@@ -281,8 +281,8 @@ def securities(**kwargs):
 
             return utils.respondWithSuccess(data=securities_list)
         except requests.RequestException as e:
-            raise utils.APIException(str(e))
-    except utils.APIException as e:
+            raise utils.exceptions.APIException(str(e))
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -502,7 +502,7 @@ def approved_securities(**kwargs):
 
         return utils.respondWithSuccess(data=res)
 
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1316,7 +1316,7 @@ def get_profile_set_alerts(**kwargs):
         }
 
         return utils.respondWithSuccess(data=res)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1420,7 +1420,7 @@ def update_profile_pic_and_pin(**kwargs):
                 status=417, message=frappe._("Please Enter old pin and new pin.")
             )
 
-    except utils.APIException:
+    except utils.exceptions.APIException:
         frappe.db.rollback()
 
 
