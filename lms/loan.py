@@ -1325,6 +1325,7 @@ def loan_payment(**kwargs):
                 "transaction_id": "required",
                 "loan_margin_shortfall_name": "",
                 "is_for_interest": "decimal|between:0,1",
+                "is_failed": ""
             },
         )
         reg = lms.regex_special_characters(
@@ -1356,7 +1357,42 @@ def loan_payment(**kwargs):
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
 
-        if data.get("loan_margin_shortfall_name", None):
+        if data.get("is_failed"):
+            if isinstance(data.get("is_failed"), str):
+                data["is_failed"] = dict(data.get("is_failed"))
+
+            payment_failure = frappe.get_doc(
+                {
+                    "doctype": "Loan Payment Log",
+                    "customer": customer.name,
+                    "customer_name": customer.full_name,
+                    "loan": data.get("loan_name"),
+                    "payment_id": data.get("is_failed").get("id"),
+                    "entity": data.get("is_failed").get("entity"),
+                    "amount": data.get("is_failed").get("amount"),
+                    "currency": data.get("is_failed").get("currency"),
+                    "status": data.get("is_failed").get("status"),
+                    "order_id": data.get("is_failed").get("order_id"),
+                    "method": data.get("is_failed").get("method"),
+                    "description": data.get("is_failed").get("description"),
+                    "email": data.get("is_failed").get("email"),
+                    "contact": data.get("is_failed").get("contact"),
+                    "error_code": data.get("is_failed").get("error_code"),
+                    "error_description": data.get("is_failed").get("error_description"),
+                    "error_source": data.get("is_failed").get("error_source"),
+                    "error_step": data.get("is_failed").get("error_step"),
+                    "error_reason": data.get("is_failed").get("error_reason"),
+                    "created_at": datetime.fromtimestamp(data.get("is_failed").get("created_at") / 1e3)
+                }
+            )
+            payment_failure.insert(ignore_permissions=True)
+            payment_failure.docstatus = 1
+            payment_failure.save(ignore_permissions=True)
+            frappe.db.commit()
+            return utils.respondWithSuccess(message = "Check Loan Payment Log.")
+
+        msg = ""
+        if data.get("loan_margin_shortfall_name", None) and not data.get("is_failed"):
             try:
                 loan_margin_shortfall = frappe.get_doc(
                     "Loan Margin Shortfall", data.get("loan_margin_shortfall_name")
@@ -1402,39 +1438,39 @@ def loan_payment(**kwargs):
                 "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
             )
             msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
+            # receiver_list = list(
+            #     set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+            # )
+            # from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+            # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+        if not data.get("is_failed"):
+            frappe.db.begin()
+            loan.create_loan_transaction(
+                transaction_type="Payment",
+                amount=data.get("amount"),
+                transaction_id=data.get("transaction_id"),
+                loan_margin_shortfall_name=data.get("loan_margin_shortfall_name", None),
+                is_for_interest=data.get("is_for_interest", None),
+            )
+            frappe.db.commit()
+
+            if not data.get("loan_margin_shortfall_name"):
+                doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+                doc["payment"] = {"amount": data.get("amount"), "loan": loan.name}
+                frappe.enqueue_doc(
+                    "Notification", "Payment Request", method="send", doc=doc
+                )
+        #     msg = """Dear Customer,\nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within some time .-Spark Loans""".format(data.get("amount"),loan.name)
+
+        if msg:
             receiver_list = list(
                 set([str(customer.phone), str(customer.get_kyc().mobile_number)])
             )
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-
-        frappe.db.begin()
-        loan.create_loan_transaction(
-            transaction_type="Payment",
-            amount=data.get("amount"),
-            transaction_id=data.get("transaction_id"),
-            loan_margin_shortfall_name=data.get("loan_margin_shortfall_name", None),
-            is_for_interest=data.get("is_for_interest", None),
-        )
-        frappe.db.commit()
-
-        if not data.get("loan_margin_shortfall_name"):
-            doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-            doc["payment"] = {"amount": data.get("amount"), "loan": loan.name}
-            frappe.enqueue_doc(
-                "Notification", "Payment Request", method="send", doc=doc
-            )
-        #     msg = """Dear Customer,\nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within some time .-Spark Loans""".format(data.get("amount"),loan.name)
-
-        ## if msg:
-        #     receiver_list = list(
-        #         set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-        #     )
-        #     from frappe.core.doctype.sms_settings.sms_settings import send_sms
-
-        #     frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-
         return utils.respondWithSuccess()
     except utils.APIException as e:
         return e.respond()
