@@ -1367,22 +1367,13 @@ def loan_payment(**kwargs):
                     "customer": customer.name,
                     "customer_name": customer.full_name,
                     "loan": data.get("loan_name"),
-                    "payment_id": data.get("is_failed").get("id"),
-                    "entity": data.get("is_failed").get("entity"),
-                    "amount": data.get("is_failed").get("amount"),
-                    "currency": data.get("is_failed").get("currency"),
-                    "status": data.get("is_failed").get("status"),
-                    "order_id": data.get("is_failed").get("order_id"),
-                    "method": data.get("is_failed").get("method"),
+                    "loan_margin_shortfall": data.get("loan_margin_shortfall_name") if data.get("loan_margin_shortfall_name") else None,
+                    "is_for_interest": 1 if data.get("is_for_interest") else 0,
+                    "code": data.get("is_failed").get("code"),
                     "description": data.get("is_failed").get("description"),
-                    "email": data.get("is_failed").get("email"),
-                    "contact": data.get("is_failed").get("contact"),
-                    "error_code": data.get("is_failed").get("error_code"),
-                    "error_description": data.get("is_failed").get("error_description"),
-                    "error_source": data.get("is_failed").get("error_source"),
-                    "error_step": data.get("is_failed").get("error_step"),
-                    "error_reason": data.get("is_failed").get("error_reason"),
-                    "created_at": datetime.fromtimestamp(data.get("is_failed").get("created_at") / 1e3)
+                    "source": data.get("is_failed").get("source"),
+                    "step": data.get("is_failed").get("step"),
+                    "reason": data.get("is_failed").get("reason")
                 }
             )
             payment_failure.insert(ignore_permissions=True)
