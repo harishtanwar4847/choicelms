@@ -2282,6 +2282,10 @@ def sell_collateral_request(**kwargs):
         frappe.db.commit()
         if not data.get("loan_margin_shortfall_name"):
             msg = "Dear Customer,\nYour sell collateral request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. - Spark Loans"
+        doc = customer.get_kyc().as_dict()
+        frappe.enqueue_doc(
+            "Notification", "Sell Collateral Request", method="send", doc=doc
+        )
 
         if msg:
             receiver_list = list(
