@@ -51,7 +51,7 @@ def esign_old(**kwargs):
             )
 
             if not res.ok:
-                raise utils.APIException(res.text)
+                raise utils.exceptions.APIException(res.text)
 
             data = res.json()
 
@@ -64,8 +64,8 @@ def esign_old(**kwargs):
                 data={"esign_url": url, "file_id": data.get("id")},
             )
         except requests.RequestException as e:
-            raise utils.APIException(str(e))
-    except utils.APIException as e:
+            raise utils.exceptions.APIException(str(e))
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -139,7 +139,7 @@ def esign(**kwargs):
             )
 
             if not res.ok:
-                raise utils.APIException(res.text)
+                raise utils.exceptions.APIException(res.text)
 
             data = res.json()
 
@@ -152,8 +152,8 @@ def esign(**kwargs):
                 data={"esign_url": url, "file_id": data.get("id")},
             )
         except requests.RequestException as e:
-            raise utils.APIException(str(e))
-    except utils.APIException as e:
+            raise utils.exceptions.APIException(str(e))
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -301,8 +301,8 @@ def esign_done(**kwargs):
 
             return utils.respondWithSuccess()
         except requests.RequestException as e:
-            raise utils.APIException(str(e))
-    except utils.APIException as e:
+            raise utils.exceptions.APIException(str(e))
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -780,7 +780,7 @@ def create_topup(**kwargs):
             #     frappe.db.commit()
 
         return utils.respondWithSuccess(data=data)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1152,7 +1152,7 @@ def loan_withdraw_details(**kwargs):
             data["banks"] = lms.__banks()
 
         return utils.respondWithSuccess(data=data)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1171,7 +1171,7 @@ def request_loan_withdraw_otp():
         )
         frappe.db.commit()
         return utils.respondWithSuccess(message="Withdraw OTP sent")
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1308,7 +1308,7 @@ def loan_withdraw_request(**kwargs):
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         return utils.respondWithSuccess(message=message, data=data)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1472,7 +1472,7 @@ def loan_payment(**kwargs):
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
         return utils.respondWithSuccess()
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1860,7 +1860,7 @@ def loan_statement(**kwargs):
                 )
 
         return utils.respondWithSuccess(data=res)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1880,7 +1880,7 @@ def request_unpledge_otp():
         )
         frappe.db.commit()
         return utils.respondWithSuccess(message="Unpledge OTP sent")
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1932,7 +1932,7 @@ def loan_unpledge_details(**kwargs):
         # data = {"loan": loan, "unpledge": unpledge}
 
         return utils.respondWithSuccess(data=res)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -2129,7 +2129,7 @@ def loan_unpledge_request(**kwargs):
         frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         return utils.respondWithSuccess(data=unpledge_application)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -2148,7 +2148,7 @@ def request_sell_collateral_otp():
         )
         frappe.db.commit()
         return utils.respondWithSuccess(message="Sell Collateral OTP sent")
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -2292,7 +2292,7 @@ def sell_collateral_request(**kwargs):
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         return utils.respondWithSuccess(data=sell_collateral_application)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 

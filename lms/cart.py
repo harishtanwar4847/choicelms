@@ -209,7 +209,7 @@ def upsert(**kwargs):
 
         frappe.db.commit()
         return utils.respondWithSuccess(data=res)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         frappe.db.rollback()
         return e.respond()
 
@@ -308,8 +308,8 @@ def process_old(**kwargs):
 
             return utils.respondWithSuccess(data=loan_application)
         except requests.RequestException as e:
-            raise utils.APIException(str(e))
-    except utils.APIException as e:
+            raise utils.exceptions.APIException(str(e))
+    except utils.exceptions.APIException as e:
         frappe.db.rollback()
         return e.respond()
 
@@ -361,7 +361,7 @@ def process(**kwargs):
         frappe.db.commit()
 
         return utils.respondWithSuccess(data=loan_application)
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         frappe.db.rollback()
         return e.respond()
 
@@ -471,7 +471,7 @@ def request_pledge_otp():
         )
         frappe.db.commit()
         return utils.respondWithSuccess(message="Pledge OTP sent")
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         frappe.db.rollback()
         return e.respond()
 
@@ -787,5 +787,5 @@ def get_tnc(**kwargs):
 
         return utils.respondWithSuccess(data=res)
 
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()

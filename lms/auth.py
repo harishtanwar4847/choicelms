@@ -105,7 +105,7 @@ def login(**kwargs):
         )
         frappe.db.commit()
         return utils.respondWithSuccess(message=frappe._("OTP Sent"))
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         frappe.db.rollback()
         return e.respond()
 
@@ -438,7 +438,7 @@ def request_forgot_pin_otp(**kwargs):
         )
         frappe.db.commit()
         return utils.respondWithSuccess(message="Forgot Pin OTP sent")
-    except utils.APIException as e:
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -505,7 +505,7 @@ def verify_forgot_pin_otp(**kwargs):
             )
         lms.token_mark_as_used(token)
 
-    except utils.APIException:
+    except utils.exceptions.APIException:
         frappe.db.rollback()
 
 
