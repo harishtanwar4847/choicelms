@@ -35,7 +35,32 @@
     <link rel="stylesheet" type="text/css" href="assets/lms/css/common.css" />
     <link rel="stylesheet" type="text/css" href="assets/lms/css/media.css" />
     <style type="text/css"></style>
+    <script src="/assets/frappe/js/lib/socket.io.min.js"></script>
+    <script>
+      window.frappe = {};
+      frappe.ready_events = [];
+      frappe.ready = function (fn) {
+        frappe.ready_events.push(fn);
+      }
+      window.dev_server = {{ dev_server }};
+      window.socketio_port = {{ frappe.socketio_port or 'null' }};
+      frappe.csrf_token = "{{ frappe.session.csrf_token }}";
+    </script>
+
+    <script
+      type="text/javascript"
+      src="/assets/frappe/js/lib/jquery/jquery.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/frappe/js/frappe-web.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/frappe/js/bootstrap-4-web.min.js"
+    ></script>
   </head>
+
   <body>
     <div class="fw d-block d-sm-none">
       <div class="fw mobileheader dx_jcsbalctr">
@@ -44,7 +69,12 @@
         /></a>
         <div class="right dx_jcsbalctr">
           <p>
-            <a href="javascript:void(0);" class="applybtn"
+            <a
+              href="javascript:void(0);"
+              href="javascript:void(0);"
+              class="applybtn"
+              data-toggle="modal"
+              data-target="#apply-now-pop"
               ><span>Apply Now</span><span>&nbsp;</span></a
             >
           </p>
@@ -69,7 +99,11 @@
               <a href="/comingsoon">Demo Videos</a>
               <a href="/comingsoon">Loan Calculator</a>
               <a href="/contact">Contact</a>
-              <a href="/comingsoon" class="applybtn"
+              <a
+                href="javascript:void(0);"
+                class="applybtn"
+                data-toggle="modal"
+                data-target="#apply-now-pop"
                 ><span>Apply Now</span><span>&nbsp;</span></a
               >
             </div>
@@ -114,7 +148,11 @@
                 fund units, Bonds, etc. can be used as a security for obtaining
                 overdraft limit through the SPARK platform.
               </p>
-              <a href="/comingsoon" class="applybtn"
+              <a
+                href="javascript:void(0);"
+                class="applybtn"
+                data-toggle="modal"
+                data-target="#apply-now-pop"
                 ><span>Apply Now</span><span>&nbsp;</span></a
               >
             </div>
@@ -525,8 +563,10 @@
                       <label>
                         <span>Mobile</span>
                         <input
-                          type="text"
+                          type="tel"
                           name="number"
+                          minlength="10"
+                          maxlength="10"
                           class="required number"
                         />
                       </label>
@@ -545,10 +585,15 @@
                       <span class="arrow_parent"
                         ><span class="arrow">&nbsp;</span></span
                       >
-                      <!-- <input href="/comingsoon" type="submit" name="button" value="Subscribe"> -->
-                      <a href="/comingsoon" class="applybtn" value="Subscribe"
-                        >Subscribe
-                      </a>
+                      <button
+                        type="button"
+                        name="button"
+                        value="Subscribe"
+                        onclick="subscribe()"
+                        class="applybtn"
+                      >
+                        Subscribe
+                      </button>
                     </div>
                   </div>
                 </form>
@@ -586,6 +631,89 @@
         </div>
       </div>
     </section>
+
+    <!-- The Modal -->
+    <div
+      class="modal fade common-modal"
+      id="apply-now-pop"
+      tabindex="-1"
+      role="dialog"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <h5 class="modal-title">Apply Now</h5>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <img src="/assets/lms/images/close-bt.png" />
+          </button>
+          <div class="modal-body">
+            <form
+              class="fw placeholder_txt"
+              name="apply-now-forum"
+              id="apply-now-forum"
+            >
+              <div class="form_group">
+                <div class="form_control">
+                  <label>
+                    <span>First Name</span>
+                    <input type="text" name="first_name" class="required" />
+                  </label>
+                </div>
+              </div>
+              <div class="form_group">
+                <div class="form_control">
+                  <label>
+                    <span>Last Name</span>
+                    <input type="text" name="last_name" class="required" />
+                  </label>
+                </div>
+              </div>
+              <div class="form_group">
+                <div class="form_control">
+                  <label>
+                    <span
+                      >Email <a href="#" class="optionalBtn"> Optional</a></span
+                    >
+                    <input type="email" name="emails" class="required" />
+                  </label>
+                </div>
+              </div>
+              <div class="form_group">
+                <div class="form_control">
+                  <label>
+                    <span>Mobile</span>
+                    <input
+                      type="tel"
+                      minlength="10"
+                      maxlength="10"
+                      name="mobile"
+                      class="required number"
+                    />
+                  </label>
+                </div>
+              </div>
+              <div class="fw text-center mt-5">
+                <button
+                  type="button"
+                  name="button"
+                  value="Submit"
+                  onclick="applyNow1()"
+                  class="applybtn"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <footer class="fw">
       <div class="container">
         <div class="row">
@@ -666,6 +794,50 @@
         </div>
       </div>
     </div>
+
+    <script>
+      function applyNow1() {
+        console.log("inside myFunction");
+        var first_name = $('[name="first_name"]').val();
+        var last_name = $('[name="last_name"]').val();
+        var email = $('[name="emails"]').val();
+        var mobile = $('[name="mobile"]').val();
+        if (
+          !(first_name == "") &&
+          !(last_name == "") &&
+          !(email == "") &&
+          !(mobile == "")
+        ) {
+          $.get(
+            "/api/method/lms.www.home.applyNow",
+            {
+              first_name: first_name,
+              last_name: last_name,
+              email: email,
+              mobile: mobile,
+            },
+            alert("{{ _('Thank you!! we will get back to you soon.') }}")
+          );
+        } else {
+          console.log("Please Provide Valid Data");
+        }
+        $(":input").val("");
+      }
+
+      function subscribe() {
+        console.log("inside myFunction");
+        var number = $('[name="number"]').val();
+        var email = $('[name="email"]').val();
+        if (!(number == "") && !(email == "")) {
+          $.get(
+            "/api/method/lms.www.home.subscribeUpdates",
+            { number: number, email: email },
+            alert("{{ _('Thank you!!') }}")
+          );
+        }
+        $(":input").val("");
+      }
+    </script>
     <script
       type="text/javascript"
       src="assets/lms/js/jquery-3.6.0.min.js"

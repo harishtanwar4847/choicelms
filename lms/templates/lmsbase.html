@@ -52,6 +52,7 @@
         .privacy {
           padding-bottom: 0px;
         }
+
         .titlesec {
           display: none !important;
         }
@@ -65,11 +66,18 @@
           ><img src="/assets/lms/images/logo.svg" height="30"
         /></a>
         <div class="right dx_jcsbalctr">
-          <!-- <p><a href="javascript:void(0);" class="applybtn"><span>Apply Now</span><span>&nbsp;</span></a></p> -->
           <p>
-            <a href="/comingsoon" class="applybtn"
+            <a
+              href="javascript:void(0);"
+              href="javascript:void(0);"
+              data-toggle="modal"
+              data-target="#apply-now-pop"
+              class="applybtn"
               ><span>Apply Now</span><span>&nbsp;</span></a
             >
+          </p>
+          <p>
+            <!-- <a href="/comingsoon" class="applybtn"><span>Apply Now</span><span>&nbsp;</span></a> -->
           </p>
           <div class="menuic">
             <span>&nbsp;</span> <span>&nbsp;</span> <span>&nbsp;</span>
@@ -91,10 +99,14 @@
               <a href="/comingsoon">Demo Videos</a>
               <a href="/comingsoon">Loan Calculator</a>
               <a href="/contact">Contact</a>
-              <!-- <a href="javascript:void(0);" class="applybtn" data-toggle="modal" data-target="#apply-now-pop"><span>Apply Now</span><span>&nbsp;</span></a>   -->
-              <a href="/comingsoon" class="applybtn"
+              <a
+                href="javascript:void(0);"
+                class="applybtn"
+                data-toggle="modal"
+                data-target="#apply-now-pop"
                 ><span>Apply Now</span><span>&nbsp;</span></a
               >
+              <!-- <a href="/comingsoon" class="applybtn"><span>Apply Now</span><span>&nbsp;</span></a> -->
             </div>
           </div>
         </div>
@@ -184,234 +196,7 @@
       </div>
     </div>
 
-    <!-- The Modal -->
-    <div
-      class="modal fade common-modal"
-      id="apply-now-pop"
-      tabindex="-1"
-      role="dialog"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <h5 class="modal-title">Apply Now</h5>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal"
-            aria-label="Close"
-          >
-            <img src="/assets/lms/images/close-bt.png" />
-          </button>
-          <div class="modal-body">
-            <form
-              class="fw placeholder_txt"
-              name="apply-now-forum"
-              id="apply-now-forum"
-            >
-              <div class="form_group">
-                <div class="form_control">
-                  <label>
-                    <span>First Name</span>
-                    <input
-                      type="text"
-                      name="firstname"
-                      class="required number"
-                    />
-                  </label>
-                </div>
-              </div>
-              <div class="form_group">
-                <div class="form_control">
-                  <label>
-                    <span>Last Name</span>
-                    <input type="email" name="lastname" class="required" />
-                  </label>
-                </div>
-              </div>
-              <div class="form_group">
-                <div class="form_control">
-                  <label>
-                    <span
-                      >Email <a href="#" class="optionalBtn"> Optional</a></span
-                    >
-                    <input type="email" name="email" class="required" />
-                  </label>
-                </div>
-              </div>
-              <div class="form_group">
-                <div class="form_control">
-                  <label>
-                    <span>Mobile</span>
-                    <input type="tel" name="mobile" class="required" />
-                  </label>
-                </div>
-              </div>
-              <div class="fw text-center mt-5">
-                <button type="submit" class="applybtn">
-                  <span>Submit</span><span>&nbsp;</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- The Modal -->
-    <div
-      class="modal fade common-modal"
-      id="apply-now-pop"
-      tabindex="-1"
-      role="dialog"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <h5 class="modal-title">Apply Now</h5>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal"
-            aria-label="Close"
-          >
-            <img src="assets/lms/images/close-bt.png" />
-          </button>
-          <div class="modal-body">
-            <form
-              class="fw placeholder_txt"
-              name="apply-now-forum"
-              id="apply-now-forum"
-            >
-              <div class="form_group">
-                <div class="form_control">
-                  <label>
-                    <span>First Name</span>
-                    <input
-                      type="text"
-                      name="firstname"
-                      class="required number"
-                    />
-                  </label>
-                </div>
-              </div>
-              <div class="form_group">
-                <div class="form_control">
-                  <label>
-                    <span>Last Name</span>
-                    <input type="email" name="lastname" class="required" />
-                  </label>
-                </div>
-              </div>
-              <div class="form_group">
-                <div class="form_control">
-                  <label>
-                    <span
-                      >Email <a href="#" class="optionalBtn"> Optional</a></span
-                    >
-                    <input type="email" name="email" class="required" />
-                  </label>
-                </div>
-              </div>
-              <div class="form_group">
-                <div class="form_control">
-                  <label>
-                    <span>Mobile</span>
-                    <input type="tel" name="mobile" class="required" />
-                  </label>
-                </div>
-              </div>
-              <div class="fw text-center mt-5">
-                <button type="submit" class="applybtn">
-                  <span>Submit</span><span>&nbsp;</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- >Apply for position -->
-    <div
-      class="modal fade common-modal"
-      id="Apply-position-pop"
-      tabindex="-1"
-      role="dialog"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <h5 class="modal-title">Apply for position</h5>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal"
-            aria-label="Close"
-          >
-            <img src="assets/lms/images/close-bt.png" />
-          </button>
-          <div class="modal-body">
-            <form
-              class="fw placeholder_txt"
-              name="apply-now-forum"
-              id="apply-now-forum"
-            >
-              <div class="form_group">
-                <div class="form_control">
-                  <label>
-                    <span>First Name</span>
-                    <input
-                      type="text"
-                      name="firstname"
-                      class="required number"
-                    />
-                  </label>
-                </div>
-              </div>
-              <div class="form_group">
-                <div class="form_control">
-                  <label>
-                    <span>Last Name</span>
-                    <input type="email" name="lastname" class="required" />
-                  </label>
-                </div>
-              </div>
-              <div class="form_group">
-                <div class="form_control">
-                  <label>
-                    <span
-                      >Email <a href="#" class="optionalBtn"> Optional</a></span
-                    >
-                    <input type="email" name="email" class="required" />
-                  </label>
-                </div>
-              </div>
-              <div class="form_group">
-                <div class="form_control">
-                  <label>
-                    <span>Mobile</span>
-                    <input type="tel" name="mobile" class="required" />
-                  </label>
-                </div>
-              </div>
-              <div class="fw text-center mt-5">
-                <button
-                  type="button"
-                  class="applybtn"
-                  data-toggle="modal"
-                  data-target="#apply-now-pop"
-                  data-dismiss="modal"
-                >
-                  <span>Submit</span><span>&nbsp;</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
+    {% include 'templates/modal.html' %}
     <script
       type="text/javascript"
       href="/assets/lms/js/jquery-3.6.0.min.js"
