@@ -868,14 +868,19 @@ def dashboard(**kwargs):
                     "Loan Application", loan_application.name
                 )
 
-                mess = "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly, the increase in the sanctioned limit is Rs. {drawing_power}. Please e-sign the loan agreement to avail the increased sanctioned limit now.".format(
-                    current_total_collateral_value=loan_application_doc.total_collateral_value,
-                    requested_total_collateral_value=loan_application_doc.pledged_total_collateral_value,
-                    drawing_power=loan_application_doc.drawing_power,
-                ) if loan_application_doc.loan and not loan_application_doc.loan_margin_shortfall else "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly the final Sanctioned Limit is Rs. {drawing_power}. Please e-sign the loan agreement to avail the loan now.".format(
-                    current_total_collateral_value=loan_application_doc.total_collateral_value,
-                    requested_total_collateral_value=loan_application_doc.pledged_total_collateral_value,
-                    drawing_power=loan_application_doc.drawing_power,
+                mess = (
+                    "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly, the increase in the sanctioned limit is Rs. {drawing_power}. Please e-sign the loan agreement to avail the increased sanctioned limit now.".format(
+                        current_total_collateral_value=loan_application_doc.total_collateral_value,
+                        requested_total_collateral_value=loan_application_doc.pledged_total_collateral_value,
+                        drawing_power=loan_application_doc.drawing_power,
+                    )
+                    if loan_application_doc.loan
+                    and not loan_application_doc.loan_margin_shortfall
+                    else "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly the final Sanctioned Limit is Rs. {drawing_power}. Please e-sign the loan agreement to avail the loan now.".format(
+                        current_total_collateral_value=loan_application_doc.total_collateral_value,
+                        requested_total_collateral_value=loan_application_doc.pledged_total_collateral_value,
+                        drawing_power=loan_application_doc.drawing_power,
+                    )
                 )
                 if (
                     loan_application_doc.loan
@@ -935,7 +940,9 @@ def dashboard(**kwargs):
                 topup_pending_esigns.append(
                     {
                         "topup_application_doc": topup_application_doc,
-                        "mess": "Congratulations! Your application is being considered favourably by our lending partner. Accordingly, the increase in the sanctioned limit is Rs. {}. Please e-sign the loan agreement to avail the increased sanctioned limit now.".format(topup_application_doc.top_up_amount)
+                        "mess": "Congratulations! Your application is being considered favourably by our lending partner. Accordingly, the increase in the sanctioned limit is Rs. {}. Please e-sign the loan agreement to avail the increased sanctioned limit now.".format(
+                            topup_application_doc.top_up_amount
+                        )
                         # "is_topup_tnc_done": 1 if topup_tnc else 0,
                     }
                 )
