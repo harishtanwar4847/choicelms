@@ -33,15 +33,23 @@
       href="assets/lms/css/selectbox.css"
     />
     <link rel="stylesheet" type="text/css" href="assets/lms/css/media.css" />
+    <style>
+      @media (max-width: 1023.99px) {
+        .titlesec1 {
+          padding: 0 20px;
+        }
+      }
+    </style>
   </head>
 
   <body>
     {% if "webview" in frappe.form_dict %}
     <style>
-      @media (max-width: 768px) {
+      @media (max-width: 1366px) {
         .fw.mobnav,
         footer,
-        .appdownloadbg {
+        .appdownloadbg,
+        header {
           display: none !important;
         }
 

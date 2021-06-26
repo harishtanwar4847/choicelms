@@ -432,6 +432,16 @@ class Loan(Document):
                         mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
                             self.name
                         )
+                        doc = frappe.get_doc(
+                            "User KYC", self.get_customer().choice_kyc
+                        ).as_dict()
+                        doc["loan_margin_shortfall"] = {"loan": self.name}
+                        frappe.enqueue_doc(
+                            "Notification",
+                            "Sale Triggered Cross Deadline",
+                            method="send",
+                            doc=doc,
+                        )
                         frappe.enqueue(
                             method=send_sms,
                             receiver_list=[self.get_customer().phone],
@@ -1145,16 +1155,19 @@ class Loan(Document):
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,
+            "rebait_threshold": lender.rebait_threshold,
             "account_renewal_charges": lender.account_renewal_charges,
-            "documentation_charges": lender.lender_documentation_minimum_amount,
-            "stamp_duty_charges": lender.lender_stamp_duty_minimum_amount,
+            "documentation_charges": int(lender.lender_documentation_minimum_amount),
+            "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
             # "documentation_charges": lender.documentation_charges,
             # "stamp_duty_charges": (lender.stamp_duty / 100)
             # * self.sanctioned_limit,  # CR loan agreement changes
             "processing_fee": lender.lender_processing_fees,
-            "transaction_charges_per_request": lender.transaction_charges_per_request,
+            "transaction_charges_per_request": int(
+                lender.transaction_charges_per_request
+            ),
             "security_selling_share": lender.security_selling_share,
-            "cic_charges": lender.cic_charges,
+            "cic_charges": int(lender.cic_charges),
             "total_pages": lender.total_pages,
         }
 

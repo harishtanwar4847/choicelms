@@ -12,3 +12,5 @@ lms.patches.create_consents
 lms.patches.update_las_settings
 lms.patches.import_interest_configuration
 lms.patches.import_workflows
+lms.patches.set_hostname_config
+lms.patches.update_email_account

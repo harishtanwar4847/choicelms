@@ -598,34 +598,34 @@ def get_tnc(**kwargs):
 
         tnc_ul = ["<ul>"]
         tnc_ul.append(
-            "<li><strong> Name Of Borrower : {} </strong>".format(
+            "<li><strong> Name of borrower : {} </strong>".format(
                 user_kyc.investor_name
             )
             + "</li>"
         )
         tnc_ul.append(
-            "<li><strong> Address Of Borrower </strong> : {}".format(
+            "<li><strong> Address of borrower </strong> : {}".format(
                 user_kyc.address or ""
             )
             + "</li>"
         )
         tnc_ul.append(
-            "<li><strong> Nature of facility sanctioned : Loan Against Securities - Overdraft facility;</strong></li>"
+            "<li><strong> Nature of facility sanctioned :</strong> Loan Against Securities - Overdraft facility;</li>"
         )
         tnc_ul.append(
-            "<li><strong> Purpose </strong>: General Purpose. The facility shall not be used for anti-social or illegal purposes;</li>"
+            "<li><strong> Purpose </strong>: General purpose.<br />Note:-The facility shall not be used for anti-social or illegal purposes;</li>"
         )
         if data.get("cart_name"):
-            if cart.loan_margin_shortfall:
+            if not cart.loan:
                 tnc_ul.append(
-                    "<li><strong> Sanctioned Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
+                    "<li><strong> Sanctioned credit limit / Drawing power </strong>: <strong>Rs. {}</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
                         cart.eligible_loan
                     )
                     + "</li>"
                 )
             elif data.get("cart_name") and cart.loan and not cart.loan_margin_shortfall:
                 tnc_ul.append(
-                    "<li><strong> Sanctioned Credit Limit </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
+                    "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
                         lms.round_down_amount_to_nearest_thousand(
                             (cart.total_collateral_value + loan.total_collateral_value)
                             * cart.allowable_ltv
@@ -648,78 +648,78 @@ def get_tnc(**kwargs):
             #     "<li><strong> Previous Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong>;".format(loan.drawing_power)+ "</li>")
         else:
             tnc_ul.append(
-                "<li><strong> Top up Amount </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
+                "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
                     data.get("topup_amount") + loan.sanctioned_limit
                 )
                 + "</li>"
             )
         tnc_ul.append("<li><strong> Interest type </strong>: Floating</li>")
         tnc_ul.append(
-            "<li><strong> Rate of Interest </strong>: <strong>{}%  per month</strong> after rebate, if paid within <strong>7 days</strong> of due date. Otherwise Rebate of <strong>0.20%</strong> will not be applicable and higher interest rate will be applicable [Interest rate is subject to change based on management discretion from time to time];".format(
-                lender.rate_of_interest
+            "<li><strong> Rate of interest </strong>: <strong>{}%  per month</strong> after rebate, if paid within <strong>{} days</strong> of due date. Otherwise rebate of <strong>0.20%</strong> will not be applicable and higher interest rate will be applicable [Interest rate is subject to change based on the Management discretion from time to time];".format(
+                lender.rate_of_interest, lender.rebait_threshold
             )
             + "</li>"
         )
         tnc_ul.append(
-            "<li><strong> Details of security / Collateral obtained </strong>: Shares and other securities as will be pledged from time to time to maintain the required security coverage;</li>"
+            "<li><strong> Details of security / collateral obtained </strong>: Shares and other securities as will be pledged from time to time to maintain the required security coverage;</li>"
         )
         tnc_ul.append(
-            "<li><strong> Security Coverage </strong>: Shares & Equity oriented Mutual Funds - <strong>Minimum 200%</strong>, Other Securities - As per rules applicable from time to time;</li>"
+            "<li><strong> Security coverage </strong>: Shares & Equity oriented Mutual Funds - <strong>Minimum 200%</strong><br />Other securities - As per rules applicable from time to time;</li>"
         )
         tnc_ul.append(
-            "<li><strong> Facility Tenure </strong>: <strong>12 Months</strong> (Renewable at Lender’s discretion, as detailed in the T&C);</li>"
+            "<li><strong> Facility tenure </strong>: <strong>12 months</strong> (renewable at lender’s discretion, as detailed in the T&C);</li>"
         )
         tnc_ul.append(
-            "<li><strong> Repayment Through </strong>: Cash Flows /Sale of Securities/Other Investments Maturing;</li>"
+            "<li><strong> Repayment through </strong>: Cash flows/Sale of securities/Other investments maturing;</li>"
         )
         tnc_ul.append(
-            "<li><strong> Mode of communication</strong> of changes in interest rates and others : Website and Mobile App notification, SMS, Email, Letters, Notices at branches, communication through statement of accounts of the borrower, or any other mode of communication;</li>"
+            "<li><strong> Mode of communication</strong> of changes in interest rates and others : Website and Mobile App notification, SMS, email, letters, notices at branches, communication through statement of accounts of the borrower, or any other mode of communication;</li>"
+        )
+        tnc_ul.append("<li><strong> EMI payable </strong>: Not applicable;</li>")
+        tnc_ul.append(
+            "<li><strong> Penal interest rate / Penal charges </strong>: In case of occurrence of Event of Default (EOD), penal interest shall be charged <strong>upto 4.00% per month</strong> over and above applicable interest rate;</li>"
         )
         tnc_ul.append(
-            "<li><strong> EMI Payable </strong>: <strong>Not Applicable;</strong></li>"
-        )
-        tnc_ul.append(
-            "<li><strong> Penal Interest rate / Penal Charges </strong>: In case of occurrence of Event of Default (EOD), Penal Interest shall be charged <strong>upto 4.00% per month</strong> over and above applicable Interest Rate;</li>"
-        )
-        tnc_ul.append(
-            "<li><strong> Processing Fee </strong>: <strong>{}%</strong> of the sanctioned amount, subject to minimum amount of <strong>Rs. 1500/-;</strong>".format(
+            "<li><strong> Processing fees </strong>: <strong>{}%</strong> of the sanctioned amount".format(
                 lender.lender_processing_fees
             )
             + "</li>"
         )
         tnc_ul.append(
-            "<li><strong> Account Renewal charges </strong>: <strong>{}%</strong> of the renewal amount (Facility valid for a period of 12 months from the date of sanction; account renewal charges shall be debited at the end of 12 months), subject to minimum amount of <strong>Rs. 750/-;</strong>".format(
+            "<li><strong> Account renewal charges </strong>: <strong>{}%</strong> of the renewal amount (Facility valid for a period of 12 months from the date of sanction; account renewal charges shall be debited at the end of 12 months)".format(
                 lender.account_renewal_charges
             )
             + "</li>"
         )
         tnc_ul.append(
             "<li><strong> Documentation charges </strong>: <strong>Rs. {}/-;</strong>".format(
-                lender.documentation_charges
+                int(lender.lender_documentation_minimum_amount)
             )
             + "</li>"
         )
         tnc_ul.append(
-            "<li><strong> Stamp duty & other statutory charges </strong>: At actuals;</li>"
+            "<li><strong> Stamp duty & other statutory charges : Rs. {}/-;</li></strong>".format(
+                int(lender.lender_stamp_duty_minimum_amount)
+            )
         )
         tnc_ul.append(
             "<li><strong> Pre-payment charges </strong>: <strong>NIL;</strong></li>"
         )
         tnc_ul.append(
-            "<li><strong> Transaction Charges per Request (per variation in the composition of the Demat securities pledged) </strong>: <strong>Upto Rs. {}/-</strong> per request;".format(
-                lender.transaction_charges_per_request
+            "<li><strong> Transaction charges per ISIN (per variation in the composition of the Demat securities pledged) </strong>: <strong>Upto Rs. {}/-</strong> per ISIN;".format(
+                int(lender.transaction_charges_per_request)
             )
             + "</li>"
         )
         tnc_ul.append(
-            "<li><strong> Collection Charges on Sale of security in the event of default or otherwise </strong>: <strong>{}%</strong> of the sale amount plus all brokerage, incidental transaction charges, costs and expenses and other levies as per actuals;".format(
+            "<li><strong> Collection Charges on Sale of security in the event of default or otherwise </strong>: <strong>{}%</strong> of the sale amount plus all brokerage.<br />Note: The above includes incidental transaction charges, taxes, and other levies as per actuals;".format(
                 lender.security_selling_share
             )
             + "</li>"
         )
         tnc_ul.append(
-            "<li><strong> Credit Information Companies'(CICs) Charges </strong>: <strong>Upto Rs {}/-</strong> per instance (For individuals);".format(
-                lender.cic_charges
+            "<li><strong> Credit Information Companies'(CICs) Charges </strong>: <strong>Upto Rs {}/-</strong> per instance (for individuals);".format(
+                int(lender.cic_charges)
             )
             + "</li>"
         )
