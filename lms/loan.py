@@ -1325,7 +1325,7 @@ def loan_payment(**kwargs):
                 "transaction_id": "required",
                 "loan_margin_shortfall_name": "",
                 "is_for_interest": "decimal|between:0,1",
-                "is_failed": ""
+                "is_failed": "",
             },
         )
         reg = lms.regex_special_characters(
@@ -1367,20 +1367,22 @@ def loan_payment(**kwargs):
                     "customer": customer.name,
                     "customer_name": customer.full_name,
                     "loan": data.get("loan_name"),
-                    "loan_margin_shortfall": data.get("loan_margin_shortfall_name") if data.get("loan_margin_shortfall_name") else None,
+                    "loan_margin_shortfall": data.get("loan_margin_shortfall_name")
+                    if data.get("loan_margin_shortfall_name")
+                    else None,
                     "is_for_interest": 1 if data.get("is_for_interest") else 0,
                     "code": data.get("is_failed").get("code"),
                     "description": data.get("is_failed").get("description"),
                     "source": data.get("is_failed").get("source"),
                     "step": data.get("is_failed").get("step"),
-                    "reason": data.get("is_failed").get("reason")
+                    "reason": data.get("is_failed").get("reason"),
                 }
             )
             payment_failure.insert(ignore_permissions=True)
             payment_failure.docstatus = 1
             payment_failure.save(ignore_permissions=True)
             frappe.db.commit()
-            return utils.respondWithSuccess(message = "Check Loan Payment Log.")
+            return utils.respondWithSuccess(message="Check Loan Payment Log.")
 
         msg = ""
         if data.get("loan_margin_shortfall_name", None) and not data.get("is_failed"):

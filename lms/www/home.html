@@ -71,7 +71,6 @@
           <p>
             <a
               href="javascript:void(0);"
-              href="javascript:void(0);"
               class="applybtn"
               data-toggle="modal"
               data-target="#apply-now-pop"
@@ -564,6 +563,7 @@
                           type="tel"
                           name="number"
                           minlength="10"
+                          id="subsnum"
                           maxlength="10"
                           class="required number"
                         />
@@ -670,7 +670,7 @@
                 </li>
                 <li><a href="/aboutus">About Us</a></li>
                 <li><a href="/aboutus#team">Team</a></li>
-                <li><a href="/comingsoon">Partner With Us</a></li>
+                <li><a href="/partnerwithus">Partner With Us</a></li>
                 <li><a href="/help">Help / FAQs</a></li>
                 <li><a href="/comingsoon">Career</a></li>
               </ul>
@@ -719,13 +719,18 @@
         var number = $('[name="number"]').val();
         var email = $('[name="email"]').val();
         if (!(number == "") && !(email == "")) {
-          $.get(
-            "/api/method/lms.www.home.subscribeUpdates",
-            { number: number, email: email },
-            alert("{{ _('Thank you!!') }}")
-          );
+          console.log("Data verfied");
+          if (!isNaN(number) && !(number.length < 10)) {
+            $.get(
+              "/api/method/lms.www.home.subscribeUpdates",
+              { number: number, email: email },
+              alert("{{ _('Thank you!!') }}")
+            );
+            $(":input").val("");
+          }
+        } else {
+          alert("Please provide required details.");
         }
-        $(":input").val("");
       }
     </script>
 

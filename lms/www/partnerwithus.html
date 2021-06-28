@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
-    {% block head_content %} {% endblock %}
+    <title>Sparkloans</title>
     <link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
       type="text/css"
-      href="assets/lms/css/bootstrap.css"
+      href="/assets/lms/css/bootstrap.css"
     />
     <link
       rel="stylesheet"
@@ -18,28 +18,16 @@
     <link
       rel="stylesheet"
       type="text/css"
-      href="assets/lms/css/owl.carousel.min.css"
+      href="/assets/lms/css/owl.carousel.min.css"
     />
-    <link rel="stylesheet" type="text/css" href="assets/lms/css/animate.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/lms/css/animate.css" />
     <link
       rel="stylesheet"
       type="text/css"
-      href="assets/lms/css/selectbox.css"
+      href="/assets/lms/css/selectbox.css"
     />
-    <link rel="stylesheet" type="text/css" href="assets/lms/css/common.css" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="assets/lms/css/selectbox.css"
-    />
-    <link rel="stylesheet" type="text/css" href="assets/lms/css/media.css" />
-    <style>
-      @media (max-width: 1023.99px) {
-        .titlesec1 {
-          padding: 0 20px;
-        }
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" href="/assets/lms/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/lms/css/media.css" />
   </head>
 
   <body>
@@ -67,7 +55,6 @@
       }
     </style>
     {% endif %}
-
     <div class="fw mobnav">
       <div class="fw mobileheader dx_jcsbalctr">
         <a href="/" class="logo"
@@ -77,15 +64,11 @@
           <p>
             <a
               href="javascript:void(0);"
-              href="javascript:void(0);"
+              class="applybtn"
               data-toggle="modal"
               data-target="#apply-now-pop"
-              class="applybtn"
               ><span>Apply Now</span><span>&nbsp;</span></a
             >
-          </p>
-          <p>
-            <!-- <a href="/comingsoon" class="applybtn"><span>Apply Now</span><span>&nbsp;</span></a> -->
           </p>
           <div class="menuic">
             <span>&nbsp;</span> <span>&nbsp;</span> <span>&nbsp;</span>
@@ -114,15 +97,80 @@
                 data-target="#apply-now-pop"
                 ><span>Apply Now</span><span>&nbsp;</span></a
               >
-              <!-- <a href="/comingsoon" class="applybtn"><span>Apply Now</span><span>&nbsp;</span></a> -->
             </div>
           </div>
         </div>
       </div>
     </header>
-
-    {% block body_content %} {% endblock %}
-
+    <section class="fw">
+      <div class="container">
+        <div class="row">
+          <div class="col titlesec maintitle">
+            <h5 style="margin-bottom: 0px">Partner With Us</h5>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="fw landing content-banner">
+      <div class="container container2 pr">
+        <div class="row dx_jcsbalctr">
+          <div class="col d-block d-sm-none txc">
+            <img src="/assets/lms/images/partner-banner.png" width="90%" />
+          </div>
+          <div class="col col-md-5">
+            <div class="fw banner">
+              <h3>
+                As leaders and innovators in the Indian Loan Against Securities
+                business
+              </h3>
+              <p>
+                We are always looking to build successful partnerships with
+                interested associates
+              </p>
+              <a
+                href="javascript:void(0);"
+                class="applybtn"
+                data-toggle="modal"
+                data-target="#panter-apply"
+                ><span>Apply Now</span><span>&nbsp;</span></a
+              >
+            </div>
+          </div>
+          <div class="col col-md-6 d-none d-sm-block">
+            <img src="/assets/lms/images/partner-banner.png" class="fw" />
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="fw appdownload">
+      <div class="container">
+        <div class="row">
+          <div class="fw appdownloadbg">
+            <img
+              src="/assets/lms/images/home/Download_App.svg"
+              class="fw d-none d-sm-block"
+            />
+            <img
+              src="/assets/lms/images/home/appdownload_02.jpg"
+              class="fw d-block d-sm-none"
+            />
+            <div class="titlesec">
+              <h5>Download App</h5>
+              <p>We strongly believe that being the best is being unique.</p>
+              <div class="fw apps">
+                <a href="comingsoon"
+                  ><img src="/assets/lms/images/home/play-store.svg" class="fw"
+                /></a>
+                <a href="comingsoon"
+                  ><img src="/assets/lms/images/home/app-store.svg" class="fw"
+                /></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    {% include 'templates/modal.html' %}
     <footer class="fw">
       <div class="container">
         <div class="row">
@@ -161,7 +209,7 @@
                 </li>
                 <li><a href="/aboutus">About Us</a></li>
                 <li><a href="/aboutus#team">Team</a></li>
-                <li><a href="/comingsoon">Partner With Us</a></li>
+                <li><a href="/partnerwithus">Partner With Us</a></li>
                 <li><a href="/help">Help / FAQs</a></li>
                 <li><a href="/comingsoon">Career</a></li>
               </ul>
@@ -204,46 +252,23 @@
       </div>
     </div>
 
-    {% include 'templates/modal.html' %}
     <script
       type="text/javascript"
-      href="/assets/lms/js/jquery-3.6.0.min.js"
+      src="/assets/lms/js/jquery-3.6.0.min.js"
     ></script>
     <script
       type="text/javascript"
-      href="/assets/lms/js/bootstrap.min.js"
+      src="/assets/lms/js/bootstrap.min.js"
     ></script>
     <script
       type="text/javascript"
-      href="/assets/lms/js/jquery.validate.min.js"
+      src="/assets/lms/js/jquery.validate.min.js"
     ></script>
     <script
       type="text/javascript"
-      href="/assets/lms/js/owl.carousel.min.js"
+      src="/assets/lms/js/owl.carousel.min.js"
     ></script>
-    <script type="text/javascript" href="/assets/lms/js/wow.min.js"></script>
-    <script type="text/javascript" href="/assets/lms/js/main.js"></script>
-    <script
-      type="text/javascript"
-      src="assets/lms/js/jquery-3.6.0.min.js"
-    ></script>
-    <script src="assets/lms/js/bootstrap.min.js"></script>
-    <script
-      type="text/javascript"
-      src="assets/lms/js/greensock/TweenMax.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="assets/lms/js/greensock/ScrollMagic.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="assets/lms/js/greensock/animation.gsap.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="assets/lms/js/greensock/debug.addIndicators.js"
-    ></script>
-    <script type="text/javascript" src="assets/lms/js/skrollr.min.js"></script>
+    <script type="text/javascript" src="/assets/lms/js/wow.min.js"></script>
+    <script type="text/javascript" src="/assets/lms/js/main.js"></script>
   </body>
 </html>

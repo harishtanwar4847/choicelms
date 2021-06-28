@@ -7,5 +7,5 @@ from __future__ import unicode_literals
 import unittest
 
 
-class TestLoanPaymentLog(unittest.TestCase):
+class TestPartnerwithUs(unittest.TestCase):
     pass
