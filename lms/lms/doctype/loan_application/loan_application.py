@@ -431,8 +431,9 @@ class LoanApplication(Document):
         loan.save(ignore_permissions=True)
 
         # customer = frappe.db.get_value("Loan Customer", {"name": self.customer}, "user")
-        doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc)
-        frappe.enqueue_doc("Notification", "Loan Sanction", method="send", doc=doc)
+        """changes as per latest email notification list-sent by vinayak - email verification final 2.0"""
+        # doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc)
+        # frappe.enqueue_doc("Notification", "Loan Sanction", method="send", doc=doc)
 
         # mobile = frappe.db.get_value("Loan Customer", {"name": self.customer}, "phone")
         # mess = _(
