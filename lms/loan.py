@@ -1842,21 +1842,26 @@ def loan_statement(**kwargs):
                     "investor_name", user_kyc.investor_name
                 )
                 loan_statement_notification = loan_statement_notification.replace(
-                    "logo_file", frappe.utils.get_url('/assets/lms/mail_images/logo.png')
+                    "logo_file",
+                    frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
                 )
                 loan_statement_notification = loan_statement_notification.replace(
-                    "fb_icon", frappe.utils.get_url('/assets/lms/mail_images/fb-icon.png')
+                    "fb_icon",
+                    frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
                 )
                 loan_statement_notification = loan_statement_notification.replace(
-                    "tw_icon", frappe.utils.get_url('/assets/lms/mail_images/tw-icon.png')
+                    "tw_icon",
+                    frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),
                 )
                 loan_statement_notification = loan_statement_notification.replace(
-                    "inst_icon", frappe.utils.get_url('/assets/lms/mail_images/inst-icon.png')
+                    "inst_icon",
+                    frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
                 )
                 loan_statement_notification = loan_statement_notification.replace(
-                    "lin_icon", frappe.utils.get_url('/assets/lms/mail_images/lin-icon.png')
+                    "lin_icon",
+                    frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
                 )
-                
+
                 res["is_mail_sent"] = 1
                 frappe.enqueue(
                     method=frappe.sendmail,
