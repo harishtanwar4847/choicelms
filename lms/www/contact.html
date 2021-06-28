@@ -200,7 +200,7 @@
                     <span
                       >Email <a href="#" class="optionalBtn"> Optional</a></span
                     >
-                    <input type="email" name="email" class="required" />
+                    <input type="email" name="email" class="required email" />
                   </label>
                 </div>
               </div>
@@ -208,7 +208,13 @@
                 <div class="form_control">
                   <label>
                     <span>Mobile</span>
-                    <input type="tel" name="mobile" class="required" />
+                    <input
+                      type="tel"
+                      minlength="10"
+                      maxlength="10"
+                      name="cmobile"
+                      class="required number"
+                    />
                   </label>
                 </div>
               </div>
@@ -316,7 +322,7 @@
                 </li>
                 <li><a href="/aboutus">About Us</a></li>
                 <li><a href="/aboutus#team">Team</a></li>
-                <li><a href="/comingsoon">Partner With Us</a></li>
+                <li><a href="/partnerwithus">Partner With Us</a></li>
                 <li><a href="/help">Help / FAQs</a></li>
                 <li><a href="/comingsoon">Career</a></li>
               </ul>
@@ -365,28 +371,33 @@
         var loantype = $('[name="loantype"]').val();
         var firstname = $('[name="firstname"]').val();
         var email = $('[name="email"]').val();
-        var mobile = $('[name="mobile"]').val();
+        var cmobile = $('[name="cmobile"]').val();
         var message = $('[name="messages"]').val();
         if (
           !(loantype == "") &&
           !(firstname == "") &&
           !(email == "") &&
-          !(mobile == "") &&
+          !(cmobile == "") &&
           !(message == "")
         ) {
-          $.get(
-            "/api/method/lms.www.contact.servercallmethod",
-            {
-              loantype: loantype,
-              firstname: firstname,
-              email: email,
-              mobile: mobile,
-              message: message,
-            },
-            alert("{{ _('Thank you!! we will get back to you soon.') }}")
-          );
+          console.log("Data verfied");
+          if (!isNaN(cmobile) && !(cmobile.length < 10)) {
+            $.get(
+              "/api/method/lms.www.contact.servercallmethod",
+              {
+                loantype: loantype,
+                firstname: firstname,
+                email: email,
+                cmobile: cmobile,
+                message: message,
+              },
+              alert("{{ _('Thank you!! we will get back to you soon.') }}")
+            );
+            $(":input").val("");
+          } else {
+            alert("Please provide required details.");
+          }
         }
-        $(":input").val("");
       }
     </script>
 
