@@ -1371,6 +1371,7 @@ def loan_payment(**kwargs):
                     if data.get("loan_margin_shortfall_name")
                     else None,
                     "is_for_interest": 1 if data.get("is_for_interest") else 0,
+                    "order_id": data.get("is_failed").get("order_id"),
                     "code": data.get("is_failed").get("code"),
                     "description": data.get("is_failed").get("description"),
                     "source": data.get("is_failed").get("source"),
