@@ -174,16 +174,14 @@ class LoanTransaction(Document):
                 "balance": loan.balance,
                 "date_time": datetime.strptime(
                     self.time, "%Y-%m-%d %H:%M:%S.%f"
-                ).strftime("%d-%m-%Y %H:%M"),
+                ).strftime("%d-%m-%Y %H:%M") if type(self.time) == str else (self.time).strftime("%d-%m-%Y %H:%M"),
             }
             frappe.enqueue_doc("Notification", "Payment", method="send", doc=doc)
             msg = "Dear Customer,\nYou loan account {}  has been credited by payment of Rs. {} . Your loan balance is Rs. {}. {} Spark Loans".format(
                 self.loan,
                 self.amount,
                 loan.balance,
-                datetime.strptime(self.time, "%Y-%m-%d %H:%M:%S.%f").strftime(
-                    "%d-%m-%Y %H:%M"
-                ),
+                datetime.strptime(self.time, "%Y-%m-%d %H:%M:%S.%f").strftime("%d-%m-%Y %H:%M") if type(self.time) == str else (self.time).strftime("%d-%m-%Y %H:%M"),
             )
 
             if msg:
@@ -210,7 +208,7 @@ class LoanTransaction(Document):
                 "balance": loan.balance,
                 "date_time": datetime.strptime(
                     self.time, "%Y-%m-%d %H:%M:%S.%f"
-                ).strftime("%d-%m-%Y %H:%M"),
+                ).strftime("%d-%m-%Y %H:%M") if type(self.time) == str else (self.time).strftime("%d-%m-%Y %H:%M"),
             }
             frappe.enqueue_doc("Notification", "Withdrawal", method="send", doc=doc)
             if self.requested == self.disbursed:
@@ -218,9 +216,9 @@ class LoanTransaction(Document):
                     amount=self.amount,
                     disbursed=self.disbursed,
                     balance=loan.balance,
-                    date_time=datetime.strptime(
-                        self.time, "%Y-%m-%d %H:%M:%S.%f"
-                    ).strftime("%d-%m-%Y %H:%M"),
+                    date_time= datetime.strptime(
+                    self.time, "%Y-%m-%d %H:%M:%S.%f"
+                ).strftime("%d-%m-%Y %H:%M") if type(self.time) == str else (self.time).strftime("%d-%m-%Y %H:%M"),
                 )
             elif self.disbursed < self.requested:
                 mess = "Dear Customer,\nYour withdrawal request for Rs. {requested}  has been partially executed and Rs. {disbursed}  transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(
