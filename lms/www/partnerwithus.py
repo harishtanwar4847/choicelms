@@ -1,7 +1,7 @@
 import frappe
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def applyNowPartner(pfirstname, plastname, pemail, pmobile, pmessage):
     print(
         f"\n\n\n\n\n\n==============>>>>>>>>>>>>>Hello world<<<<<<<<<<<<<<=============\n\n\n\n\n\n"

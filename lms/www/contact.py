@@ -1,11 +1,8 @@
 import frappe
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def servercallmethod(loantype, firstname, email, cmobile, message):
-    print(
-        f"\n\n\n\n\n\n==============>>>>>>>>>>>>>Hello world<<<<<<<<<<<<<<=============\n\n\n\n\n\n"
-    )
     doc = frappe.new_doc("Contact Us Website")
     doc.loantype = loantype
     doc.firstname = firstname
@@ -15,4 +12,4 @@ def servercallmethod(loantype, firstname, email, cmobile, message):
     doc.insert(ignore_permissions=True)
     doc.save()
     frappe.db.commit()
-    return "Apply Request successfully Submitted."
+    return "Contact request submitted successfully."

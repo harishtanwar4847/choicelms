@@ -367,12 +367,13 @@
 
     <script>
       function submitContact() {
-        console.log("inside myFunction");
         var loantype = $('[name="loantype"]').val();
         var firstname = $('[name="firstname"]').val();
         var email = $('[name="email"]').val();
         var cmobile = $('[name="cmobile"]').val();
         var message = $('[name="messages"]').val();
+        var regEx = /^[A-Za-z0-9][A-Za-z0-9._%+-]{0,63}@(?:[A-Za-z0-9-]{1,63}\.){1,125}[A-Za-z]{2,63}$/;
+        var validEmail = regEx.test(email);
         if (
           !(loantype == "") &&
           !(firstname == "") &&
@@ -380,8 +381,7 @@
           !(cmobile == "") &&
           !(message == "")
         ) {
-          console.log("Data verfied");
-          if (!isNaN(cmobile) && !(cmobile.length < 10)) {
+          if (!isNaN(cmobile) && !(cmobile.length < 10) && validEmail) {
             $.get(
               "/api/method/lms.www.contact.servercallmethod",
               {
