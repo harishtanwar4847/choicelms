@@ -665,19 +665,19 @@
 
 <script>
   function applyNow1() {
-    console.log("inside myFunction");
     var first_name = $('[name="first_name"]').val();
     var last_name = $('[name="last_name"]').val();
     var emails = $('[name="emailss"]').val();
     var mobile = $('[name="mobiles"]').val();
+    var regEx = /^[A-Za-z0-9][A-Za-z0-9._%+-]{0,63}@(?:[A-Za-z0-9-]{1,63}\.){1,125}[A-Za-z]{2,63}$/;
+    var validEmail = regEx.test(emails);
     if (
       !(first_name == "") &&
       !(last_name == "") &&
       !(emails == "") &&
       !(mobile == "")
     ) {
-      console.log("Data verfied");
-      if (!isNaN(mobile) && !(mobile.length < 10)) {
+      if (!isNaN(mobile) && !(mobile.length < 10) && validEmail) {
         $.get(
           "/api/method/lms.www.home.applyNow",
           {
@@ -694,18 +694,19 @@
         $(".modal-backdrop").remove();
         $("body").removeClass("modal-open");
         $(":input").val("");
+      } else {
+        alert("Please provide required details.");
       }
-    } else {
-      alert("Please provide required details.");
     }
   }
   function applyNowPartner() {
-    console.log("inside myFunction");
     var pfirstname = $('[name="pfirstname"]').val();
     var plastname = $('[name="plastname"]').val();
     var pemail = $('[name="pemail"]').val();
     var pmobile = $('[name="pmobile"]').val();
     var pmessage = $('[name="pmessage"]').val();
+    var regEx = /^[A-Za-z0-9][A-Za-z0-9._%+-]{0,63}@(?:[A-Za-z0-9-]{1,63}\.){1,125}[A-Za-z]{2,63}$/;
+    var validEmail = regEx.test(pemail);
     if (
       !(pfirstname == "") &&
       !(plastname == "") &&
@@ -713,8 +714,7 @@
       !(pmobile == "") &&
       !(pmessage == "")
     ) {
-      console.log("Data verfied");
-      if (!isNaN(pmobile) && !(pmobile.length < 10)) {
+      if (!isNaN(pmobile) && !(pmobile.length < 10) && validEmail) {
         $.get(
           "/api/method/lms.www.partnerwithus.applyNowPartner",
           {
@@ -732,9 +732,9 @@
         $(".modal-backdrop").remove();
         $("body").removeClass("modal-open");
         $(":input").val("");
+      } else {
+        alert("Please provide required details.");
       }
-    } else {
-      alert("Please provide required details.");
     }
   }
 </script>

@@ -565,7 +565,8 @@
                           minlength="10"
                           id="subsnum"
                           maxlength="10"
-                          class="required number"
+                          class="required"
+                          required
                         />
                       </label>
                     </div>
@@ -574,7 +575,12 @@
                     <div class="form_control">
                       <label>
                         <span>Email</span>
-                        <input type="email" name="email" class="required" />
+                        <input
+                          type="email"
+                          name="email"
+                          class="required"
+                          required
+                        />
                       </label>
                     </div>
                   </div>
@@ -715,21 +721,21 @@
 
     <script>
       function subscribe() {
-        console.log("inside myFunction");
         var number = $('[name="number"]').val();
         var email = $('[name="email"]').val();
+        var regEx = /^[A-Za-z0-9][A-Za-z0-9._%+-]{0,63}@(?:[A-Za-z0-9-]{1,63}\.){1,125}[A-Za-z]{2,63}$/;
+        var validEmail = regEx.test(email);
         if (!(number == "") && !(email == "")) {
-          console.log("Data verfied");
-          if (!isNaN(number) && !(number.length < 10)) {
+          if (!isNaN(number) && !(number.length < 10) && validEmail) {
             $.get(
               "/api/method/lms.www.home.subscribeUpdates",
               { number: number, email: email },
               alert("{{ _('Thank you!!') }}")
             );
             $(":input").val("");
+          } else {
+            alert("Please provide required details.");
           }
-        } else {
-          alert("Please provide required details.");
         }
       }
     </script>

@@ -1,11 +1,8 @@
 import frappe
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def applyNow(first_name, last_name, emails, mobile):
-    print(
-        f"\n\n\n\n\n\n==============>>>>>>>>>>>>>Hello world<<<<<<<<<<<<<<=============\n\n\n\n\n\n"
-    )
     doc = frappe.new_doc("Apply Request")
     doc.first_name = first_name
     doc.last_name = last_name
@@ -14,18 +11,15 @@ def applyNow(first_name, last_name, emails, mobile):
     doc.insert(ignore_permissions=True)
     doc.save()
     frappe.db.commit()
-    return "Apply Request successfully Submitted."
+    return "Apply request successfully submitted."
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def subscribeUpdates(number, email):
-    print(
-        f"\n\n\n\n\n\n==============>>>>>>>>>>>>>Hello world<<<<<<<<<<<<<<=============\n\n\n\n\n\n"
-    )
     doc = frappe.new_doc("Subscribed for Update")
     doc.number = number
     doc.email = email
     doc.insert(ignore_permissions=True)
     doc.save()
     frappe.db.commit()
-    return "Apply Request successfully Submitted."
+    return "Subscribed successfully."
