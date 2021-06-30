@@ -107,9 +107,13 @@ class Loan(Document):
         lender = self.get_lender()
 
         # Processing fees
+        import calendar
+        date = frappe.utils.now_datetime()
+        days_in_year = 366 if calendar.isleap(date.year) else 365
         processing_fees = lender.lender_processing_fees
         if lender.lender_processing_fees_type == "Percentage":
-            amount = (processing_fees / 100) * self.sanctioned_limit
+            days_left_to_expiry = days_in_year
+            amount = (processing_fees / 100) * self.sanctioned_limit / days_in_year * days_left_to_expiry
             processing_fees = self.validate_loan_charges_amount(
                 lender,
                 amount,

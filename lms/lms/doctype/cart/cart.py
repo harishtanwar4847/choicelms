@@ -62,7 +62,7 @@ class Cart(Document):
 
         current = frappe.utils.now_datetime()
         # expiry = current.replace(year=current.year + 1)
-        expiry = frappe.utils.add_years(current, 1)
+        expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
 
         items = []
         for item in self.items:
