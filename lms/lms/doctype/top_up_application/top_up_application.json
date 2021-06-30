@@ -11,6 +11,7 @@
   "column_break_6",
   "time",
   "status",
+  "expiry_date",
   "column_break_9",
   "customer",
   "column_break_8",
@@ -110,10 +111,16 @@
    "fieldtype": "Currency",
    "label": "Sanctioned Limit",
    "read_only": 1
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Expiry Date",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
- "modified": "2021-04-19 16:20:15.640225",
+ "modified": "2021-06-30 16:44:54.007889",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Top up Application",

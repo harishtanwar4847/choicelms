@@ -590,6 +590,8 @@ def create_topup(**kwargs):
                 message="Top up amount can not be more than Rs. {}".format(topup_amt),
             )
         elif 0.0 < data.get("topup_amount") <= topup_amt:
+            current = frappe.utils.now_datetime()
+            expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
 
             frappe.db.begin()
             topup_application = frappe.get_doc(
@@ -602,6 +604,7 @@ def create_topup(**kwargs):
                     "status": "Pending",
                     "customer": customer.name,
                     "customer_name": customer.full_name,
+                    "expiry_date": expiry
                 }
             )
             topup_application.save(ignore_permissions=True)
