@@ -797,6 +797,7 @@ class LoanApplication(Document):
         doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
         doc["loan_application"] = {
             "status": self.status,
+            "pledge_status": self.pledge_status,
             "current_total_collateral_value": self.total_collateral_value_str,
             "requested_total_collateral_value": self.pledged_total_collateral_value_str,
             "drawing_power": self.drawing_power_str,
@@ -805,7 +806,6 @@ class LoanApplication(Document):
             "Pledge Failure",
             "Pledge accepted by Lender",
             "Approved",
-            "Esign Done",
             "Rejected",
         ]:
             if self.loan and not self.loan_margin_shortfall:
@@ -846,13 +846,10 @@ class LoanApplication(Document):
                 else "Dear Customer,\nSorry! Your loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
             )
 
-        elif doc.get("loan_application").get("status") == "Esign Done":
+        elif doc.get("loan_application").get("status") == "Esign Done" and self.lender_esigned_document == None:
             msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan approval. Thank you for your patience. - Spark Loans"
 
-        if (
-            self.pledge_status == "Partial Success"
-            and doc.get("loan_application").get("status") == "Pledge accepted by Lender"
-        ):
+        if ((self.pledge_status == "Partial Success") or (self.total_collateral_value < self.pledged_total_collateral_value)) and doc.get("loan_application").get("status") == "Pledge accepted by Lender":
             msg = "Dear Customer,\nCongratulations! Your pledge request was successfully considered and was partially accepted for Rs. {} due to technical reasons. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. -Spark Loans".format(
                 self.total_collateral_value_str
             )

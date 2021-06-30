@@ -44,10 +44,10 @@ def set_pin(**kwargs):
         #     + doc.full_name
         #     + ", You have successfully updated your Finger Print / PIN registration at Spark.Loans!."
         # )
-        mess = frappe._(
-            "You have successfully updated your Finger Print / PIN registration at Spark.Loans!."
-        )
-        frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
+        # mess = frappe._(
+        #     "You have successfully updated your Finger Print / PIN registration at Spark.Loans!."
+        # )
+        # frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
 
         return utils.respondWithSuccess(message=frappe._("User PIN has been set"))
     except utils.exceptions.APIException as e:

@@ -386,8 +386,8 @@ def verify_user(token, user):
     #     + customer.first_name
     #     + ",\nYour registration at Spark.Loans was successfull!\nWelcome aboard."
     # )
-    mess = frappe._("Welcome aboard. Your registration at Spark.Loans was successfull!")
-    frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
+    # mess = frappe._("Welcome aboard. Your registration at Spark.Loans was successfull!")
+    # frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
 
     frappe.respond_as_web_page(
         frappe._("Success"),
