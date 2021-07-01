@@ -270,6 +270,10 @@ def esign_done(**kwargs):
                 loan_application.customer_esigned_document = esigned_file.file_url
                 loan_application.save(ignore_permissions=True)
                 frappe.db.commit()
+                doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+                frappe.enqueue_doc(
+                    "Notification", "Loan Application Esign Done", method="send", doc=doc
+                )
             else:
                 esigned_file = frappe.get_doc(
                     {
@@ -590,6 +594,8 @@ def create_topup(**kwargs):
                 message="Top up amount can not be more than Rs. {}".format(topup_amt),
             )
         elif 0.0 < data.get("topup_amount") <= topup_amt:
+            current = frappe.utils.now_datetime()
+            expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
 
             frappe.db.begin()
             topup_application = frappe.get_doc(
@@ -602,6 +608,7 @@ def create_topup(**kwargs):
                     "status": "Pending",
                     "customer": customer.name,
                     "customer_name": customer.full_name,
+                    "expiry_date": expiry
                 }
             )
             topup_application.save(ignore_permissions=True)
@@ -1357,6 +1364,7 @@ def loan_payment(**kwargs):
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
 
+        msg = ""
         if data.get("is_failed"):
             if isinstance(data.get("is_failed"), str):
                 data["is_failed"] = dict(data.get("is_failed"))
@@ -1383,9 +1391,20 @@ def loan_payment(**kwargs):
             payment_failure.docstatus = 1
             payment_failure.save(ignore_permissions=True)
             frappe.db.commit()
+            msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(data.get("amount"),loan.name)
+            doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+            doc["payment"] = {"amount": data.get("amount"), "loan": loan.name, "is_failed": 1}
+            frappe.enqueue_doc(
+                "Notification", "Payment Request", method="send", doc=doc
+            )
+            receiver_list = list(
+                set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+            )
+            from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
             return utils.respondWithSuccess(message="Check Loan Payment Log.")
 
-        msg = ""
         if data.get("loan_margin_shortfall_name", None) and not data.get("is_failed"):
             try:
                 loan_margin_shortfall = frappe.get_doc(
@@ -1452,11 +1471,11 @@ def loan_payment(**kwargs):
 
             if not data.get("loan_margin_shortfall_name"):
                 doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-                doc["payment"] = {"amount": data.get("amount"), "loan": loan.name}
+                doc["payment"] = {"amount": data.get("amount"), "loan": loan.name, "is_failed": 0}
                 frappe.enqueue_doc(
                     "Notification", "Payment Request", method="send", doc=doc
                 )
-        #     msg = """Dear Customer,\nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within some time .-Spark Loans""".format(data.get("amount"),loan.name)
+            msg = """Dear Customer,\nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within 24 hours .-Spark Loans""".format(data.get("amount"),loan.name)
 
         if msg:
             receiver_list = list(

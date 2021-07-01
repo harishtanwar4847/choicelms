@@ -39,24 +39,14 @@
         <tr>
             <td>
                 <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
-                  {% if doc.get("payment").get("is_failed") == 0 %}
-                    Congratulations! You payment of Rs. {{doc.get("payment").get("amount")}}  has been successfully received against loan account  {{doc.get("payment").get("loan")}}.<br />
+                    Your E-sign process is completed, you shall soon receive a confirmation of loan approval.<br />
                     <br />
-                    It shall be reflected in your account within 24 hours .<br />
-                    <br />
-                    You can reach to us through 'Contact Us' on the app.<br />
-                    We look forward to serve you soon.<br />
-                    <br />
-                  {% endif %}
-                  {% if doc.get("payment").get("is_failed") == 1 %}
-                    Sorry! Your payment of Rs. {{doc.get("payment").get("amount")}} was unsuccessful against loan account {{doc.get("payment").get("loan")}}.<br />
-                    <br />
-                    Please check with your bank for details.<br />
+                    Thank you for your patience<br />
                     <br />
                     You can reach to us through 'Contact Us' on the app.<br />
+                    <br />
                     We look forward to serve you soon.<br />
                     <br />
-                  {% endif %}
                 </span>
             </td>
         </tr>

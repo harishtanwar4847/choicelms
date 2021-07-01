@@ -566,9 +566,14 @@ class LoanApplication(Document):
         lender = loan.get_lender()
 
         # renewal charges
+        import calendar
+        date = frappe.utils.now_datetime()
+        days_in_year = 366 if calendar.isleap(date.year) else 365
         renewal_charges = lender.renewal_charges
         if lender.renewal_charge_type == "Percentage":
-            amount = (renewal_charges / 100) * loan.sanctioned_limit
+            la_expiry_date = (datetime.strptime(self.expiry_date,"%Y-%m-%d")).date() if type(self.expiry_date) == str else self.expiry_date
+            days_left_to_expiry = (la_expiry_date - loan.expiry_date).days + 1
+            amount = (renewal_charges / 100) * loan.sanctioned_limit / days_in_year * days_left_to_expiry
             renewal_charges = loan.validate_loan_charges_amount(
                 lender, amount, "renewal_minimum_amount", "renewal_maximum_amount"
             )
@@ -581,7 +586,8 @@ class LoanApplication(Document):
         # Processing fees
         processing_fees = lender.lender_processing_fees
         if lender.lender_processing_fees_type == "Percentage":
-            amount = (processing_fees / 100) * self.drawing_power
+            days_left_to_expiry = days_in_year
+            amount = (processing_fees / 100) * self.drawing_power / days_in_year * days_left_to_expiry
             processing_fees = loan.validate_loan_charges_amount(
                 lender,
                 amount,
@@ -791,6 +797,7 @@ class LoanApplication(Document):
         doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
         doc["loan_application"] = {
             "status": self.status,
+            "pledge_status": self.pledge_status,
             "current_total_collateral_value": self.total_collateral_value_str,
             "requested_total_collateral_value": self.pledged_total_collateral_value_str,
             "drawing_power": self.drawing_power_str,
@@ -799,7 +806,6 @@ class LoanApplication(Document):
             "Pledge Failure",
             "Pledge accepted by Lender",
             "Approved",
-            "Esign Done",
             "Rejected",
         ]:
             if self.loan and not self.loan_margin_shortfall:
@@ -840,13 +846,10 @@ class LoanApplication(Document):
                 else "Dear Customer,\nSorry! Your loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
             )
 
-        elif doc.get("loan_application").get("status") == "Esign Done":
+        elif doc.get("loan_application").get("status") == "Esign Done" and self.lender_esigned_document == None:
             msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan approval. Thank you for your patience. - Spark Loans"
 
-        if (
-            self.pledge_status == "Partial Success"
-            and doc.get("loan_application").get("status") == "Pledge accepted by Lender"
-        ):
+        if ((self.pledge_status == "Partial Success") or (self.total_collateral_value < self.pledged_total_collateral_value)) and doc.get("loan_application").get("status") == "Pledge accepted by Lender":
             msg = "Dear Customer,\nCongratulations! Your pledge request was successfully considered and was partially accepted for Rs. {} due to technical reasons. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. -Spark Loans".format(
                 self.total_collateral_value_str
             )
