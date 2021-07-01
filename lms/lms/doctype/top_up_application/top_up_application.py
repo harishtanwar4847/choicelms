@@ -126,8 +126,8 @@ class TopupApplication(Document):
             )
 
     def on_update(self):
-        # if self.status == "Esign Done":
-        #     return
+        if self.status == "Esign Done" and self.lender_esigned_document != None:
+            return
         self.notify_customer()
 
     def before_submit(self):
