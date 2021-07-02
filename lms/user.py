@@ -425,7 +425,7 @@ def approved_securities(**kwargs):
                     "isin",
                     "security_name",
                     "security_category",
-                    # "eligible_percentage",
+                    "eligible_percentage",
                 ],
             )
             approved_security_list.sort(
@@ -441,6 +441,7 @@ def approved_securities(**kwargs):
                 lt_list.append(list.values())
             df = pd.DataFrame(lt_list)
             df.columns = approved_security_list[0].keys()
+            df.drop('eligible_percentage', inplace=True, axis=1)
             df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
             df.index += 1
             approved_security_pdf_file = "{}-approved-securities.pdf".format(
@@ -1150,10 +1151,10 @@ def dashboard(**kwargs):
         ) or number_of_user_login[0].status_count <= 10:
             show_feedback_popup = 0
 
-        youtube_ids = []
-        youtube_id_list = frappe.get_list("Youtube Id", fields="youtube_id")
-        if youtube_id_list:
-            youtube_ids = [f['youtube_id'] for f in youtube_id_list]
+        # youtube_ids = []
+        # youtube_id_list = frappe.get_list("Youtube Id", fields="youtube_id")
+        # if youtube_id_list:
+        #     youtube_ids = [f['youtube_id'] for f in youtube_id_list]
 
         res = {
             "customer": customer,
@@ -1169,7 +1170,7 @@ def dashboard(**kwargs):
             # "increase_loan_list": increase_loan_list,
             # "unpledge_application_list": unpledge_application_list,
             "show_feedback_popup": show_feedback_popup,
-            "youtube_video_ids": youtube_ids
+            # "youtube_video_ids": youtube_ids
         }
 
         return utils.respondWithSuccess(data=res)
