@@ -10,10 +10,10 @@
   {
    "fieldname": "youtube_id",
    "fieldtype": "Data",
-   "label": "Youtube ID"
+   "label": "Youtube Video ID"
   }
  ],
- "modified": "2021-07-02 12:30:46.345379",
+ "modified": "2021-07-02 15:20:41.301093",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Youtube Id",
@@ -30,6 +30,10 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Loan Customer"
   }
  ],
  "quick_entry": 1,
