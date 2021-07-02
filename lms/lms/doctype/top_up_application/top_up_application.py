@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import frappe
 from frappe.model.document import Document
@@ -49,7 +49,8 @@ class TopupApplication(Document):
                 if type(self.expiry_date) == str
                 else self.expiry_date
             )
-            days_left_to_expiry = (la_expiry_date - loan.expiry_date).days + 1
+            loan_expiry_date = loan.expiry_date + timedelta(days=1)
+            days_left_to_expiry = (la_expiry_date - loan_expiry_date).days + 1
             amount = (
                 (renewal_charges / 100)
                 * loan.sanctioned_limit
