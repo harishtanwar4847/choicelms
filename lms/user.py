@@ -1153,7 +1153,7 @@ def dashboard(**kwargs):
             # "increase_loan_list": increase_loan_list,
             # "unpledge_application_list": unpledge_application_list,
             "show_feedback_popup": show_feedback_popup,
-            "youtube_ids": youtube_ids
+            "youtube_video_ids": youtube_ids
         }
 
         return utils.respondWithSuccess(data=res)

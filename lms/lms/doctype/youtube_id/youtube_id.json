@@ -10,10 +10,10 @@
   {
    "fieldname": "youtube_id",
    "fieldtype": "Data",
-   "label": "Youtube ID"
+   "label": "Youtube Video ID"
   }
  ],
- "modified": "2021-07-02 12:30:46.345379",
+ "modified": "2021-07-02 15:05:32.199274",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Youtube Id",
