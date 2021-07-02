@@ -425,7 +425,7 @@ def approved_securities(**kwargs):
                     "isin",
                     "security_name",
                     "security_category",
-                    "eligible_percentage",
+                    # "eligible_percentage",
                 ],
             )
             approved_security_list.sort(
@@ -447,24 +447,39 @@ def approved_securities(**kwargs):
                 data.get("lender")
             ).replace(" ", "-")
 
+            curr_date = (frappe.utils.now_datetime()).strftime("%d %b, %Y")
+
             approved_security_pdf_file_path = frappe.utils.get_files_path(
                 approved_security_pdf_file
             )
 
+            lender = frappe.get_doc("Lender", data["lender"])
+            approved_securities_template = lender.get_approved_securities_template()
+            doc = {
+                "column_name": df.columns,
+                "rows": df.iterrows(),
+                "date": curr_date
+            }
+            agreement = frappe.render_template(
+                approved_securities_template.get_content(), {"doc": doc}
+            )
+
             pdf_file = open(approved_security_pdf_file_path, "wb")
-            a = df.to_html()
-            style = """<style>
-				tr {
-				page-break-inside: avoid;
-				}
-				th {text-align: center;}
-				</style>
-				"""
-            html_with_style = style + a
+            # a = df.to_html()
+            # a = a.replace("<th></th>","<th>Sr.No.</th>")
+            # style = """<style>
+			# 	tr {
+			# 	page-break-inside: avoid;
+			# 	}
+			# 	</style>
+			# 	"""
+			# 	# th {text-align: center;}
+            # html_with_style = style + a
 
             from frappe.utils.pdf import get_pdf
 
-            pdf = get_pdf(html_with_style)
+            # pdf = get_pdf(html_with_style)
+            pdf = get_pdf(agreement,options={"margin-right": "1mm","margin-left": "1mm","page-size":"A4"})
             pdf_file.write(pdf)
             pdf_file.close()
 
