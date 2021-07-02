@@ -1488,7 +1488,7 @@ def loan_payment(**kwargs):
                 frappe.enqueue_doc(
                     "Notification", "Payment Request", method="send", doc=doc
                 )
-            msg = """Dear Customer,\nCongratulations! You payment of Rs. {} has been successfully received against loan account {}. It shall be reflected in your account within 24 hours .-Spark Loans""".format(
+            msg = """Dear Customer,\nCongratulations! You payment of Rs. {}  has been successfully received against loan account  {}. It shall be reflected in your account within  24 hours . Spark Loans""".format(
                 data.get("amount"), loan.name
             )
 
