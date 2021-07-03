@@ -1154,10 +1154,10 @@ def dashboard(**kwargs):
         ) or number_of_user_login[0].status_count <= 10:
             show_feedback_popup = 0
 
-        # youtube_ids = []
-        # youtube_id_list = frappe.get_list("Youtube Id", fields="youtube_id")
-        # if youtube_id_list:
-        #     youtube_ids = [f['youtube_id'] for f in youtube_id_list]
+        youtube_ids = []
+        youtube_id_list = frappe.get_list("Youtube Id", fields="youtube_id")
+        if youtube_id_list:
+            youtube_ids = [f["youtube_id"] for f in youtube_id_list]
 
         res = {
             "customer": customer,
@@ -1173,7 +1173,7 @@ def dashboard(**kwargs):
             # "increase_loan_list": increase_loan_list,
             # "unpledge_application_list": unpledge_application_list,
             "show_feedback_popup": show_feedback_popup,
-            # "youtube_video_ids": youtube_ids
+            "youtube_video_ids": youtube_ids,
         }
 
         return utils.respondWithSuccess(data=res)
