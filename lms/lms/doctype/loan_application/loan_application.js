@@ -64,14 +64,20 @@ frappe.ui.form.on("Loan Application", {
         function () {
           let selected = frm.get_selected();
           if (Object.keys(selected).length > 0) {
-            cur_frm.doc.items.forEach((x) => {
+            frm.doc.items.forEach((x) => {
               if (x.pledge_status != "Failure") {
                 if (selected.items.includes(x.name)) {
-                  x.lender_approval_status = "Approved";
+                  // x.lender_approval_status = "Approved";
+                  frappe.model.set_value(
+                    "Loan Application Item",
+                    x.name,
+                    "lender_approval_status",
+                    "Approved"
+                  );
                 }
               }
             });
-            cur_frm.refresh_fields();
+            frm.refresh_fields();
 
             frappe.call({
               method:
@@ -107,14 +113,20 @@ frappe.ui.form.on("Loan Application", {
         function () {
           let selected = frm.get_selected();
           if (Object.keys(selected).length > 0) {
-            cur_frm.doc.items.forEach((x) => {
+            frm.doc.items.forEach((x) => {
               if (x.pledge_status != "Failure") {
                 if (selected.items.includes(x.name)) {
-                  x.lender_approval_status = "Rejected";
+                  // x.lender_approval_status = "Rejected";
+                  frappe.model.set_value(
+                    "Loan Application Item",
+                    x.name,
+                    "lender_approval_status",
+                    "Rejected"
+                  );
                 }
               }
             });
-            cur_frm.refresh_fields();
+            frm.refresh_fields();
 
             frappe.call({
               method:

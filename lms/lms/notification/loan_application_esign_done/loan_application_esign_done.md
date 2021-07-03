@@ -21,7 +21,7 @@
   <tr>
     <td bgcolor="#e7e7e8" height="138"><table class="table1" width="700" border="0" align="center" cellpadding="0" cellspacing="0" style="width:95% !important">
         <tr>
-          <td><a href="#"><img src="logo_file" style="border:0;height:138px"/></a></td>
+          <td><a href="#"><img src="{{ frappe.utils.get_url('/assets/lms/mail_images/logo.png') }}" style="border:0;height:138px"/></a></td>
         </tr>
       </table></td>
   </tr>
@@ -31,7 +31,7 @@
           <td height="25">&nbsp;</td>
         </tr>
         <tr>
-          <td><strong><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#2c2a2b">Dear investor_name,</span></strong></td>
+          <td><strong><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#2c2a2b">Dear {{ doc.investor_name or "" }},</span></strong></td>
         </tr>
         <tr>
           <td>&nbsp;</td>
@@ -39,9 +39,12 @@
         <tr>
             <td>
                 <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
-                    Your loan account(s) details are available at your fingertips. You can view them online whenever required. For your convenience, please find attached your e-statement.<br />
+                    Your E-sign process is completed, you shall soon receive a confirmation of loan approval.<br />
+                    <br />
+                    Thank you for your patience<br />
                     <br />
                     You can reach to us through 'Contact Us' on the app.<br />
+                    <br />
                     We look forward to serve you soon.<br />
                     <br />
                 </span>
@@ -66,7 +69,7 @@
           <td class="column" style="padding-bottom:10px"><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#fff;width: 100% !important; display: block !important; text-align:center">© 2021 Spark Financial Technologies Private Limited</span></td>
           </tr>
           <tr>
-          <td class="column" align="right" style="width: 100% !important; display: block !important; text-align:center"><a href="#"><img src="fb_icon" width="36" height="35" style="border:0"/></a>&nbsp; <a href="#"><img src="tw_icon" width="36" height="35" style="border:0"/></a>&nbsp; <a href="#"><img src="inst_icon" width="36" height="35" style="border:0"/></a>&nbsp; <a href="#"><img src="lin_icon" width="36" height="35" style="border:0"/></a></td>
+          <td class="column" align="right" style="width: 100% !important; display: block !important; text-align:center"><a href="#"><img src="{{ frappe.utils.get_url('/assets/lms/mail_images/fb-icon.png') }}" width="36" height="35" style="border:0"/></a>&nbsp; <a href="#"><img src="{{ frappe.utils.get_url('/assets/lms/mail_images/tw-icon.png') }}" width="36" height="35" style="border:0"/></a>&nbsp; <a href="#"><img src="{{ frappe.utils.get_url('/assets/lms/mail_images/inst-icon.png') }}" width="36" height="35" style="border:0"/></a>&nbsp; <a href="#"><img src="{{ frappe.utils.get_url('/assets/lms/mail_images/lin-icon.png') }}" width="36" height="35" style="border:0"/></a></td>
         </tr>
       </table></td>
   </tr>

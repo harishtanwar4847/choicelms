@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import frappe
 from frappe.model.document import Document
@@ -27,6 +27,7 @@ class TopupApplication(Document):
 
         loan.drawing_power += self.top_up_amount
         loan.sanctioned_limit += self.top_up_amount
+        loan.expiry_date = self.expiry_date
         loan.save(ignore_permissions=True)
         frappe.db.commit()
 
@@ -37,9 +38,25 @@ class TopupApplication(Document):
         lender = loan.get_lender()
 
         # renewal charges
+        import calendar
+
+        date = frappe.utils.now_datetime()
+        days_in_year = 366 if calendar.isleap(date.year) else 365
         renewal_charges = lender.renewal_charges
         if lender.renewal_charge_type == "Percentage":
-            amount = (renewal_charges / 100) * loan.sanctioned_limit
+            la_expiry_date = (
+                (datetime.strptime(self.expiry_date, "%Y-%m-%d")).date()
+                if type(self.expiry_date) == str
+                else self.expiry_date
+            )
+            loan_expiry_date = loan.expiry_date + timedelta(days=1)
+            days_left_to_expiry = (la_expiry_date - loan_expiry_date).days + 1
+            amount = (
+                (renewal_charges / 100)
+                * loan.sanctioned_limit
+                / days_in_year
+                * days_left_to_expiry
+            )
             renewal_charges = loan.validate_loan_charges_amount(
                 lender, amount, "renewal_minimum_amount", "renewal_maximum_amount"
             )
@@ -52,7 +69,13 @@ class TopupApplication(Document):
         # Processing fees
         processing_fees = lender.lender_processing_fees
         if lender.lender_processing_fees_type == "Percentage":
-            amount = (processing_fees / 100) * self.top_up_amount
+            days_left_to_expiry = days_in_year
+            amount = (
+                (processing_fees / 100)
+                * self.top_up_amount
+                / days_in_year
+                * days_left_to_expiry
+            )
             processing_fees = loan.validate_loan_charges_amount(
                 lender,
                 amount,
@@ -104,8 +127,8 @@ class TopupApplication(Document):
             )
 
     def on_update(self):
-        # if self.status == "Esign Done":
-        #     return
+        if self.status == "Esign Done" and self.lender_esigned_document != None:
+            return
         self.notify_customer()
 
     def before_submit(self):

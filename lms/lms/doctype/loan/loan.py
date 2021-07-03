@@ -107,9 +107,19 @@ class Loan(Document):
         lender = self.get_lender()
 
         # Processing fees
+        import calendar
+
+        date = frappe.utils.now_datetime()
+        days_in_year = 366 if calendar.isleap(date.year) else 365
         processing_fees = lender.lender_processing_fees
         if lender.lender_processing_fees_type == "Percentage":
-            amount = (processing_fees / 100) * self.sanctioned_limit
+            days_left_to_expiry = days_in_year
+            amount = (
+                (processing_fees / 100)
+                * self.sanctioned_limit
+                / days_in_year
+                * days_left_to_expiry
+            )
             processing_fees = self.validate_loan_charges_amount(
                 lender,
                 amount,
@@ -409,14 +419,14 @@ class Loan(Document):
                         if frappe.utils.now_datetime() > loan_margin_shortfall.deadline:
                             loan_margin_shortfall.status = "Sell Triggered"
                             loan_margin_shortfall.save(ignore_permissions=True)
-                            mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
-                                self.name
-                            )
-                            frappe.enqueue(
-                                method=send_sms,
-                                receiver_list=[self.get_customer().phone],
-                                msg=mess,
-                            )
+                            # mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
+                            #     self.name
+                            # )
+                            # frappe.enqueue(
+                            #     method=send_sms,
+                            #     receiver_list=[self.get_customer().phone],
+                            #     msg=mess,
+                            # )
                 else:
                     # if not loan_margin_shortfall.margin_shortfall_action:
                     if loan_margin_shortfall.status == "Pending":
