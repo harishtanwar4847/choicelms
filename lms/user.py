@@ -441,30 +441,46 @@ def approved_securities(**kwargs):
                 lt_list.append(list.values())
             df = pd.DataFrame(lt_list)
             df.columns = approved_security_list[0].keys()
+            df.drop('eligible_percentage', inplace=True, axis=1)
             df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
             df.index += 1
             approved_security_pdf_file = "{}-approved-securities.pdf".format(
                 data.get("lender")
             ).replace(" ", "-")
 
+            curr_date = (frappe.utils.now_datetime()).strftime("%d %b, %Y")
+
             approved_security_pdf_file_path = frappe.utils.get_files_path(
                 approved_security_pdf_file
             )
 
+            lender = frappe.get_doc("Lender", data["lender"])
+            approved_securities_template = lender.get_approved_securities_template()
+            doc = {
+                "column_name": df.columns,
+                "rows": df.iterrows(),
+                "date": curr_date
+            }
+            agreement = frappe.render_template(
+                approved_securities_template.get_content(), {"doc": doc}
+            )
+
             pdf_file = open(approved_security_pdf_file_path, "wb")
-            a = df.to_html()
-            style = """<style>
-				tr {
-				page-break-inside: avoid;
-				}
-				th {text-align: center;}
-				</style>
-				"""
-            html_with_style = style + a
+            # a = df.to_html()
+            # a = a.replace("<th></th>","<th>Sr.No.</th>")
+            # style = """<style>
+			# 	tr {
+			# 	page-break-inside: avoid;
+			# 	}
+			# 	</style>
+			# 	"""
+			# 	# th {text-align: center;}
+            # html_with_style = style + a
 
             from frappe.utils.pdf import get_pdf
 
-            pdf = get_pdf(html_with_style)
+            # pdf = get_pdf(html_with_style)
+            pdf = get_pdf(agreement,options={"margin-right": "1mm","margin-left": "1mm","page-size":"A4"})
             pdf_file.write(pdf)
             pdf_file.close()
 
@@ -1135,9 +1151,10 @@ def dashboard(**kwargs):
         ) or number_of_user_login[0].status_count <= 10:
             show_feedback_popup = 0
 
-        youtube_ids = []
-        youtube_id_list = frappe.get_list("Youtube Id", fields="youtube_id")
-        youtube_ids = [f['youtube_id'] for f in youtube_id_list]
+        # youtube_ids = []
+        # youtube_id_list = frappe.get_list("Youtube Id", fields="youtube_id")
+        # if youtube_id_list:
+        #     youtube_ids = [f['youtube_id'] for f in youtube_id_list]
 
         res = {
             "customer": customer,
@@ -1153,7 +1170,7 @@ def dashboard(**kwargs):
             # "increase_loan_list": increase_loan_list,
             # "unpledge_application_list": unpledge_application_list,
             "show_feedback_popup": show_feedback_popup,
-            "youtube_video_ids": youtube_ids
+            # "youtube_video_ids": youtube_ids
         }
 
         return utils.respondWithSuccess(data=res)

@@ -78,7 +78,12 @@
   "lender_processing_fees_sharing",
   "stamp_duty_sharing",
   "documentation_charges_sharing",
-  "mortgage_charges_sharing"
+  "mortgage_charges_sharing",
+  "html_template_for_documents_section",
+  "approved_securities_template",
+  "loan_account_statement_template",
+  "column_break_78",
+  "pledged_security_statement_template"
  ],
  "fields": [
   {
@@ -484,9 +489,33 @@
    "fieldname": "dp_reimburse_sell_maximum_amount",
    "fieldtype": "Float",
    "label": "Maximum Amount"
+  },
+  {
+   "fieldname": "html_template_for_documents_section",
+   "fieldtype": "Section Break",
+   "label": "Html Template for Documents"
+  },
+  {
+   "fieldname": "approved_securities_template",
+   "fieldtype": "Attach",
+   "label": "Approved Securities Template"
+  },
+  {
+   "fieldname": "loan_account_statement_template",
+   "fieldtype": "Attach",
+   "label": "Loan Account Statement Template"
+  },
+  {
+   "fieldname": "pledged_security_statement_template",
+   "fieldtype": "Attach",
+   "label": "Pledged Security Statement Template"
+  },
+  {
+   "fieldname": "column_break_78",
+   "fieldtype": "Column Break"
   }
  ],
- "modified": "2021-06-17 16:58:09.999306",
+ "modified": "2021-07-02 13:20:09.600926",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
