@@ -1,0 +1,128 @@
+{
+ "autoname": "Blog-.####",
+ "creation": "2021-07-02 09:49:07.256500",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "banner_images_section",
+  "for_home_view",
+  "column_break_4",
+  "for_blog_view",
+  "column_break_6",
+  "for_banner_view",
+  "section_break_8",
+  "author",
+  "publishing_date",
+  "short_description",
+  "description",
+  "tags_section",
+  "blog_tags",
+  "section_break_15",
+  "is_latest"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title"
+  },
+  {
+   "fieldname": "banner_images_section",
+   "fieldtype": "Section Break",
+   "label": "Banner Images"
+  },
+  {
+   "fieldname": "for_home_view",
+   "fieldtype": "Attach Image",
+   "label": "For Home View"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "for_blog_view",
+   "fieldtype": "Attach Image",
+   "label": "For Blog View"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "for_banner_view",
+   "fieldtype": "Attach Image",
+   "label": "For Banner View"
+  },
+  {
+   "fieldname": "section_break_8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "author",
+   "fieldtype": "Data",
+   "label": "Author"
+  },
+  {
+   "fieldname": "publishing_date",
+   "fieldtype": "Date",
+   "label": "Publishing Date"
+  },
+  {
+   "fieldname": "short_description",
+   "fieldtype": "Long Text",
+   "label": "Short Description"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description"
+  },
+  {
+   "fieldname": "tags_section",
+   "fieldtype": "Section Break",
+   "label": "Tags"
+  },
+  {
+   "fieldname": "section_break_15",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_latest",
+   "fieldtype": "Check",
+   "label": "is_latest"
+  },
+  {
+   "fieldname": "blog_tags",
+   "fieldtype": "Table",
+   "label": "Blog Tags",
+   "options": "Blog Tags"
+  }
+ ],
+ "modified": "2021-07-02 16:57:24.766578",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "News and Blog",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

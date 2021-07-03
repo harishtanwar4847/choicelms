@@ -534,79 +534,7 @@
             </div>
          </div>
       </section> -->
-    <section class="fw">
-      <div class="container">
-        <div class="fw contact_bg">
-          <div class="row contact_bg_mo">
-            <div class="col-6 fluid dx_airt">
-              <img
-                src="assets/lms/images/home/Subscribe-for-updates.svg"
-                class="fw"
-              />
-            </div>
-            <div class="offset-1 col-4 fluid">
-              <div class="fw">
-                <div class="titlesec">
-                  <h5>Subscribe for updates</h5>
-                  <p>Via SMS, WhatsApp, Email</p>
-                </div>
-                <form
-                  class="fw placeholder_txt"
-                  name="contactForm"
-                  id="contactForm"
-                >
-                  <div class="form_group">
-                    <div class="form_control">
-                      <label>
-                        <span>Mobile</span>
-                        <input
-                          type="tel"
-                          name="number"
-                          minlength="10"
-                          id="subsnum"
-                          maxlength="10"
-                          class="required"
-                          required
-                        />
-                      </label>
-                    </div>
-                  </div>
-                  <div class="form_group">
-                    <div class="form_control">
-                      <label>
-                        <span>Email</span>
-                        <input
-                          type="email"
-                          name="email"
-                          class="required"
-                          required
-                        />
-                      </label>
-                    </div>
-                  </div>
-                  <div class="fw">
-                    <div class="form_sumbit">
-                      <span class="arrow_parent"
-                        ><span class="arrow">&nbsp;</span></span
-                      >
-                      <button
-                        type="button"
-                        name="button"
-                        value="Subscribe"
-                        onclick="subscribe()"
-                        class="applybtn"
-                      >
-                        Subscribe
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+
     <section class="fw appdownload">
       <div class="container">
         <div class="row">
@@ -685,7 +613,7 @@
                   <p class="mainlink">Resources</p>
                 </li>
                 <li><a href="/comingsoon">Loan Tips</a></li>
-                <li><a href="/comingsoon">News and Blogs</a></li>
+                <li><a href="/newsblogs">News and Blogs</a></li>
                 <li><a href="/privacypolicy">Privacy Policy</a></li>
                 <li><a href="/termsofuse">Terms of Use</a></li>
               </ul>
@@ -718,27 +646,6 @@
         </div>
       </div>
     </div>
-
-    <script>
-      function subscribe() {
-        var number = $('[name="number"]').val();
-        var email = $('[name="email"]').val();
-        var regEx = /^[A-Za-z0-9][A-Za-z0-9._%+-]{0,63}@(?:[A-Za-z0-9-]{1,63}\.){1,125}[A-Za-z]{2,63}$/;
-        var validEmail = regEx.test(email);
-        if (!(number == "") && !(email == "")) {
-          if (!isNaN(number) && !(number.length < 10) && validEmail) {
-            $.get(
-              "/api/method/lms.www.home.subscribeUpdates",
-              { number: number, email: email },
-              alert("{{ _('Thank you!!') }}")
-            );
-            $(":input").val("");
-          } else {
-            alert("Please provide required details.");
-          }
-        }
-      }
-    </script>
 
     <script
       type="text/javascript"
