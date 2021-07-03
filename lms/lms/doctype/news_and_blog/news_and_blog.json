@@ -26,6 +26,7 @@
   {
    "fieldname": "title",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Title"
   },
   {
@@ -102,7 +103,7 @@
    "options": "Blog Tags"
   }
  ],
- "modified": "2021-07-02 16:57:24.766578",
+ "modified": "2021-07-03 15:28:39.163112",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "News and Blog",

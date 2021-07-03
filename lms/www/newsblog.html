@@ -121,20 +121,20 @@
         <div class="fw">
           <h4>Related articles</h4>
           <div class="row">
-            <div class="col-md-9">
+            <div class="col-md-9" id="related_article_div">
               <div class="row">
-                {% for blog in blogs %}
+                {% for article in related_articles %}
                 <div class="col-md-4">
                   <div class="news_card articles">
-                    <img src="{{blog.for_banner_view}}" class="fw" />
+                    <img src="{{article.for_banner_view}}" class="fw" />
                     <p>
                       <a href="#">
-                        {% for tag in blog['website_tags'].split(',') %} {{tag}}
-                        {% endfor %}
+                        {% for tag in article['website_tags'].split(',') %}
+                        {{tag}} {% endfor %}
                       </a>
                     </p>
-                    <h5>{{blog.title}}</h5>
-                    <p class="date">{{blog.publishing_date}}</p>
+                    <h5>{{article.title}}</h5>
+                    <p class="date">{{article.publishing_date}}</p>
                   </div>
                 </div>
                 {% endfor %}
@@ -155,7 +155,9 @@
               </div> -->
                 <div class="col-md-12">
                   <h5 class="viewMore">
-                    <a href="#" class="viewMores"> View All</a>
+                    {% if frappe.form_dict.blog_name %}
+                    <a href="#" class="viewMores" id="viewMore"> View All</a>
+                    {% endif %}
                   </h5>
                 </div>
               </div>
@@ -318,19 +320,44 @@
 
     <script type="text/javascript">
       $(document).ready(function () {
-        $(document).on("click", ".viewMores", function () {
-          var ID = $(this).attr("id");
-          $(".viewMores").hide();
-          $.ajax({
-            type: "POST",
-            url: "/api/method/lms.www.newsblog.get_context",
-            data: "pkBlogId=" + ID,
-            success: function (html) {
-              $("#show_more_container" + ID).remove();
-              $(".blog_list").append(html);
-            },
+        var page_no = 1;
+        const urlParams = new URLSearchParams(location.search);
+        alert(urlParams.has("blog_name"));
+        // blog_name =
+        if (urlParams.has("blog_name")) {
+          $(document).on("click", "#viewMore", function () {
+            alert($(this).attr("id"));
+            $.ajax({
+              url: "/api/method/lms.www.newsblog.fetch_related_articles",
+              type: "GET",
+              data: {
+                blog_name: urlParams.get("blog_name"),
+                page_no: page_no,
+              },
+              dataType: "json",
+              success: function (res) {
+                alert(res.data);
+                if (res.related_articles.length > 0) {
+                  var html = '<div class="row">';
+
+                  $.each(res.related_articles, function (index, val) {
+                    html +=
+                      '<div class="col-md-4">' +
+                      '<div class="news_card articles"> <img src="images/articles1.png" class="fw">' +
+                      '<p><a href="#"> Resources </a></p>' +
+                      "<h5>How to invest in gold for international trade</h5>" +
+                      '<p class="date">08 June, 2020</p>' +
+                      "</div>" +
+                      "</div>";
+                  });
+
+                  html += "</div>";
+                  $().append(html);
+                }
+              },
+            });
           });
-        });
+        }
       });
     </script>
   </body>
