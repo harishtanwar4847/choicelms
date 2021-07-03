@@ -81,5 +81,7 @@ class Lender(Document):
             )
 
     def get_approved_securities_template(self):
-        file_name = frappe.db.get_value("File", {"file_url": self.approved_securities_template})
+        file_name = frappe.db.get_value(
+            "File", {"file_url": self.approved_securities_template}
+        )
         return frappe.get_doc("File", file_name)
