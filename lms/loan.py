@@ -847,7 +847,8 @@ def loan_details(**kwargs):
             loan_transactions_list = list(
                 map(
                     lambda item: dict(
-                        item, amount=lms.amount_formatter(item["amount"])
+                        item, amount=frappe.utils.fmt_money(item["amount"])
+                        # item, amount=lms.amount_formatter(item["amount"])
                     ),
                     loan_transactions_list,
                 )
@@ -863,6 +864,7 @@ def loan_details(**kwargs):
             loan_margin_shortfall["action_taken_msg"] = None
             loan_margin_shortfall["linked_application"] = None
             loan_margin_shortfall["deadline_in_hrs"] = None
+            loan_margin_shortfall["shortfall_c_str"] = lms.amount_formatter(loan_margin_shortfall.shortfall_c)
 
             if loan_margin_shortfall.status == "Request Pending":
                 pledged_paid_shortfall = 0
@@ -1606,6 +1608,7 @@ def loan_statement(**kwargs):
                     message=frappe._("From date cannot be greater than To date")
                 )
 
+            statement_period = from_date.strftime("%d-%B-%Y") + " to " + to_date.strftime("%d-%B-%Y")
             if data.get("type") == "Account Statement":
                 filter["time"] = ["between", (from_date, to_date)]
             elif data.get("type") == "Pledged Securities Transactions":
@@ -1656,18 +1659,24 @@ def loan_statement(**kwargs):
             duration_date = None
             if data.get("duration") == "curr_month":
                 duration_date = curr_month
+                statement_period = "Current Month"
             elif data.get("duration") == "prev_1":
                 duration_date = prev_1_month
+                statement_period = "Previous 1 Month"
             elif data.get("duration") == "prev_3":
                 duration_date = prev_3_month
+                statement_period = "Previous 3 Months"
             elif data.get("duration") == "prev_6":
                 duration_date = prev_6_month
+                statement_period = "Previous 6 Months"
             elif data.get("duration") == "current_year":
                 duration_date = current_year
+                statement_period = "Current Year"
             else:
                 duration_date = datetime.strptime(
                     frappe.utils.today(), "%Y-%m-%d"
                 ).date()
+                statement_period = "Today"
 
             if data.get("type") == "Account Statement":
                 filter["time"] = [">=", datetime.strftime(duration_date, "%Y-%m-%d")]
@@ -1686,6 +1695,22 @@ def loan_statement(**kwargs):
         res = {"loan": loan}
 
         lt_list = []
+        #common data for jinja templating
+        lender = frappe.get_doc("Lender", loan.lender)
+        curr_date = (frappe.utils.now_datetime()).strftime("%d-%B-%Y")
+        doc = {
+            "username": user_kyc.investor_name,
+            "loan_name": loan.name,
+            "email": user_kyc.user,
+            "customer_id": customer.name,
+            "phone": user_kyc.mobile_number,
+            "address": user_kyc.address,
+            "account_opening_date": (loan.creation).strftime("%d-%B-%Y"),
+            "overdraft_limit": loan.sanctioned_limit,
+            "drawing_power": loan.drawing_power,
+            "drawing_power_datetime": (frappe.utils.now_datetime()).strftime("%d-%B-%Y %H:%M:%S"),
+            "curr_date": curr_date,
+        }
         if data.get("type") == "Account Statement":
             page_length = (
                 15
@@ -1715,13 +1740,32 @@ def loan_statement(**kwargs):
                 return utils.respondNotFound(message=_("No Record Found"))
 
             for list in loan_transaction_list:
-                list["amount"] = lms.amount_formatter(list["amount"])
+                list["amount"] = frappe.utils.fmt_money(list["amount"])
+                # list["amount"] = lms.amount_formatter(list["amount"])
                 list["time"] = list["time"].strftime("%Y-%m-%d %H:%M")
                 lt_list.append(list.values())
             # lt_list = [lst.values() for lst in loan_transaction_list]
             res["loan_transaction_list"] = loan_transaction_list
             df = pd.DataFrame(lt_list)
             df.columns = loan_transaction_list[0].keys()
+            df.drop('status', inplace=True, axis=1)
+            df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
+
+            # credit_debit_details = loan.get_transaction_summary()
+            loan_account_statement_template = lender.get_loan_account_statement_template()
+            # print(sum(df["Amount"].apply(lambda x: float(x))))
+            df["Amount"] = (df["Amount"].str.replace(',', '')).apply(lambda x: float(x))
+            doc["statement_period"] = statement_period
+            doc["summary"] = {
+                "debit_count": len(df[df["Record Type"] == "DR"]),
+                "credit_count": len(df[df["Record Type"] == "CR"]),
+                "total_debit": df.loc[df["Record Type"] == "DR", "Amount"].sum(),
+                "total_credit": df.loc[df["Record Type"] == "CR", "Amount"].sum(),
+                "closing_balance": loan.balance
+            }
+            doc["column_name"] = df.columns
+            doc["rows"] = df.iterrows()
+
             loan_statement_pdf_file = "{}-loan-statement.pdf".format(
                 data.get("loan_name")
             )
@@ -1764,6 +1808,12 @@ def loan_statement(**kwargs):
                 lt_list.append(list.values())
             df = pd.DataFrame(lt_list)
             df.columns = pledged_securities_transactions[0].keys()
+            df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
+            loan_account_statement_template = lender.get_pledged_security_statement_template()
+            doc["statement_period"] = statement_period
+            doc["column_name"] = df.columns
+            doc["rows"] = df.iterrows()
+
             loan_statement_pdf_file = "{}-pledged-securities-transactions.pdf".format(
                 data.get("loan_name")
             )
@@ -1776,32 +1826,35 @@ def loan_statement(**kwargs):
 
             if data.get("file_format") == "pdf":
                 # PDF
+                agreement = frappe.render_template(
+                    loan_account_statement_template.get_content(), {"doc": doc}
+                )
                 loan_statement_pdf_file_path = frappe.utils.get_files_path(
                     loan_statement_pdf_file
                 )
 
                 pdf_file = open(loan_statement_pdf_file_path, "wb")
                 df.index += 1
-                a = df.to_html()
-                a.replace("dataframe", "center")
-                style = """<style>
-				tr {
-				page-break-inside: avoid;
-				}
-				th {text-align: center;}
-				</style>
-				"""
+                # a = df.to_html()
+                # a.replace("dataframe", "center")
+                # style = """<style>
+				# tr {
+				# page-break-inside: avoid;
+				# }
+				# th {text-align: center;}
+				# </style>
+				# """
 
-                html_with_style = style + a
+                # html_with_style = style + a
 
                 from frappe.utils.pdf import get_pdf
 
                 if data.get("is_email"):
                     # password content for password protected pdf
                     pwd = user_kyc.pan_no[:4] + str(user_kyc.date_of_birth.year)
-                    pdf = get_pdf(html_with_style, options={"password": pwd})
+                    pdf = get_pdf(agreement, options={"password": pwd,"margin-right": "1mm","margin-left": "1mm","page-size":"A4"})
                 else:
-                    pdf = get_pdf(html_with_style)
+                    pdf = get_pdf(agreement,options={"margin-right": "1mm","margin-left": "1mm","page-size":"A4"})
 
                 pdf_file.write(pdf)
                 pdf_file.close()

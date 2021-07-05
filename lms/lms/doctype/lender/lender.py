@@ -83,3 +83,11 @@ class Lender(Document):
     def get_approved_securities_template(self):
         file_name = frappe.db.get_value("File", {"file_url": self.approved_securities_template})
         return frappe.get_doc("File", file_name)
+
+    def get_loan_account_statement_template(self):
+        file_name = frappe.db.get_value("File", {"file_url": self.loan_account_statement_template})
+        return frappe.get_doc("File", file_name)
+
+    def get_pledged_security_statement_template(self):
+        file_name = frappe.db.get_value("File", {"file_url": self.pledged_security_statement_template})
+        return frappe.get_doc("File", file_name)

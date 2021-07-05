@@ -448,7 +448,11 @@ def approved_securities(**kwargs):
                 data.get("lender")
             ).replace(" ", "-")
 
-            curr_date = (frappe.utils.now_datetime()).strftime("%d %b, %Y")
+            date_ = (frappe.utils.now_datetime())
+            # formatting of date as 1 => 1st, 11 => 11th, 21 => 21st
+            formatted_date = lms.date_str_format(date=date_.day)
+
+            curr_date = formatted_date + date_.strftime(" %B, %Y")
 
             approved_security_pdf_file_path = frappe.utils.get_files_path(
                 approved_security_pdf_file
