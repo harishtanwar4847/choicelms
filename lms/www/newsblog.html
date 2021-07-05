@@ -34,6 +34,11 @@
         max-width: 910px !important;
       }
 
+      #viewMore {
+        color: #eb5e50;
+        cursor: pointer;
+      }
+
       @media screen and (max-width: 768px) {
         .pdescr img {
           width: 100% !important;
@@ -71,7 +76,7 @@
                   By {{project.author}}
                   <span>
                     <img src="/assets/lms/images/dot.svg" />
-                    {{project.publishing_date}}
+                    {{frappe.format_date(project.publishing_date)}}
                   </span>
                 </p>
                 <img src="{{project.for_blog_view}}" class="fw" /> <br />
@@ -121,45 +126,32 @@
         <div class="fw">
           <h4>Related articles</h4>
           <div class="row">
-            <div class="col-md-9" id="related_article_div">
-              <div class="row">
+            <div class="col-md-9">
+              <div class="row" id="related_article_div">
                 {% for article in related_articles %}
                 <div class="col-md-4">
                   <div class="news_card articles">
                     <img src="{{article.for_banner_view}}" class="fw" />
                     <p>
-                      <a href="#">
-                        {% for tag in article['website_tags'].split(',') %}
-                        {{tag}} {% endfor %}
-                      </a>
+                      {% for tag in article['website_tags'].split(',') %}
+                      <a href="#">{{tag}}</a>
+                      {% endfor %}
                     </p>
                     <h5>{{article.title}}</h5>
-                    <p class="date">{{article.publishing_date}}</p>
+
+                    <p class="date">
+                      {{ frappe.format_date(article.publishing_date) }}
+                    </p>
                   </div>
                 </div>
                 {% endfor %}
-
-                <!-- <div class="col-md-4">
-                <div class="news_card articles"> <img src="/assets/lms/images/articles2.png" class="fw">
-                  <p><a href="#"> Resources </a> <a href="#"> Investment </a> </p>
-                  <h5>Stop holding money in pocket start investing now</h5>
-                  <p class="date">08 June, 2020</p>
-                </div>
               </div>
-              <div class="col-md-4">
-                <div class="news_card articles"> <img src="/assets/lms/images/articles3.png" class="fw">
-                  <p><a href="#"> Resources </a> <a href="#"> Business </a> <a href="#"> Growth </a></p>
-                  <h5>It's not about business at all collaboration is next big thing</h5>
-                  <p class="date">08 June, 2020</p>
-                </div>
-              </div> -->
-                <div class="col-md-12">
-                  <h5 class="viewMore">
-                    {% if frappe.form_dict.blog_name %}
-                    <a href="#" class="viewMores" id="viewMore"> View All</a>
-                    {% endif %}
-                  </h5>
-                </div>
+              <div class="col-md-12">
+                <h5 class="viewMore">
+                  {% if frappe.form_dict.blog_name %}
+                  <a class="viewMores" id="viewMore"> View All</a>
+                  {% endif %}
+                </h5>
               </div>
             </div>
             <div class="col-md-3">
@@ -317,16 +309,16 @@
     ></script>
     <script type="text/javascript" src="/assets/lms/js/wow.min.js"></script>
     <script type="text/javascript" src="/assets/lms/js/main.js"></script>
-
+    <script type="text/javascript" src="/assets/lms/js/dateformat.js"></script>
     <script type="text/javascript">
       $(document).ready(function () {
-        var page_no = 1;
+        var page_no = 2;
         const urlParams = new URLSearchParams(location.search);
-        alert(urlParams.has("blog_name"));
+        // alert(urlParams.has("blog_name"));
         // blog_name =
         if (urlParams.has("blog_name")) {
           $(document).on("click", "#viewMore", function () {
-            alert($(this).attr("id"));
+            // alert($(this).attr("id"));
             $.ajax({
               url: "/api/method/lms.www.newsblog.fetch_related_articles",
               type: "GET",
@@ -336,23 +328,37 @@
               },
               dataType: "json",
               success: function (res) {
-                alert(res.data);
-                if (res.related_articles.length > 0) {
-                  var html = '<div class="row">';
+                // alert(res.data);
+                if (res.data.related_articles.length > 0) {
+                  var html = "";
 
-                  $.each(res.related_articles, function (index, val) {
+                  $.each(res.data.related_articles, function (index, val) {
+                    const arr = val.website_tags.split(",");
+                    var tags = "";
+                    $.each(arr, (index, tag) => {
+                      tags += "<a href=#>" + tag + "</a>";
+                    });
+                    var nowDate = new Date(val.publishing_date);
+                    var formattedDate = formatDate(nowDate);
                     html +=
                       '<div class="col-md-4">' +
-                      '<div class="news_card articles"> <img src="images/articles1.png" class="fw">' +
-                      '<p><a href="#"> Resources </a></p>' +
-                      "<h5>How to invest in gold for international trade</h5>" +
-                      '<p class="date">08 June, 2020</p>' +
+                      '<div class="news_card articles"><img src="' +
+                      val.for_banner_view +
+                      '" class="fw">' +
+                      "<p>" +
+                      tags +
+                      "</p>" +
+                      "<h5>" +
+                      val.title +
+                      "</h5>" +
+                      '<p class="date">' +
+                      formattedDate +
+                      "</p>" +
                       "</div>" +
                       "</div>";
                   });
-
-                  html += "</div>";
-                  $().append(html);
+                  $("#related_article_div").append(html);
+                  page_no += 1;
                 }
               },
             });

@@ -35,10 +35,10 @@ def fetch_related_articles(blog_name, page_no):
     tags_list = [i.website_tags for i in blog_details.blog_tags]
 
     limit = 3
-    offset = (page_no - 1) * limit
+    offset = (int(page_no) - 1) * limit
 
     related_articles = frappe.db.sql(
-        "select nb.title, nb.publishing_date, GROUP_CONCAT(bt.website_tags) as website_tags, nb.for_banner_view from `tabNews and Blog` as nb left join `tabBlog Tags` bt on (bt.parent = nb.name) where nb.name in (Select nb.name from `tabNews and Blog` nb, `tabBlog Tags` bt where bt.parent=nb.name AND nb.name <> '{}' AND bt.website_tags in {} group by nb.name) group by nb.name order by nb.creation desc limit {}, 3;".format(
+        "select nb.name, nb.title, nb.publishing_date, GROUP_CONCAT(bt.website_tags) as website_tags, nb.for_banner_view from `tabNews and Blog` as nb left join `tabBlog Tags` bt on (bt.parent = nb.name) where nb.name in (Select nb.name from `tabNews and Blog` nb, `tabBlog Tags` bt where bt.parent=nb.name AND nb.name <> '{}' AND bt.website_tags in {} group by nb.name) group by nb.name order by nb.creation desc limit {}, 3;".format(
             blog_name, lms.convert_list_to_tuple_string(tags_list), offset
         ),
         as_dict=True,

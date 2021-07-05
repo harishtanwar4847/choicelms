@@ -24,6 +24,7 @@
  ],
  "fields": [
   {
+   "default": " ",
    "fieldname": "title",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -62,6 +63,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "default": " ",
    "fieldname": "author",
    "fieldtype": "Data",
    "label": "Author"
@@ -72,16 +74,19 @@
    "label": "Publishing Date"
   },
   {
+   "default": " ",
    "fieldname": "short_description",
    "fieldtype": "Long Text",
    "label": "Short Description"
   },
   {
+   "default": " ",
    "fieldname": "description",
    "fieldtype": "Text Editor",
    "label": "Description"
   },
   {
+   "default": " ",
    "fieldname": "tags_section",
    "fieldtype": "Section Break",
    "label": "Tags"
@@ -97,13 +102,14 @@
    "label": "is_latest"
   },
   {
+   "default": " ",
    "fieldname": "blog_tags",
    "fieldtype": "Table",
    "label": "Blog Tags",
    "options": "Blog Tags"
   }
  ],
- "modified": "2021-07-03 15:28:39.163112",
+ "modified": "2021-07-05 13:20:33.594440",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "News and Blog",

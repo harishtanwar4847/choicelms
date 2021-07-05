@@ -28,6 +28,12 @@
     />
     <link rel="stylesheet" type="text/css" href="/assets/lms/css/common.css" />
     <link rel="stylesheet" type="text/css" href="/assets/lms/css/media.css" />
+    <style>
+      #viewMore {
+        color: #eb5e50;
+        cursor: pointer;
+      }
+    </style>
   </head>
 
   <body>
@@ -115,7 +121,7 @@
       <div class="container container3 pr">
         <div class="owl-carousel blogslider">
           {% set blogs = frappe.get_all('News and Blog', fields=['*']) %} {% for
-          blog in blogs %}
+          blog in blogs %} {% if blog %}
           <div class="row dx_jcsbalctr">
             <div class="col col-md-7">
               <a href="newsblog?blog_name={{ blog.name }}">
@@ -126,13 +132,13 @@
               <div class="fw blog-text">
                 <!-- <p class="resources">Resources</p> -->
                 <h3>{{ blog.title }}</h3>
-                <p class="date">{{ blog.publishing_date }}</p>
+                <p class="date">{{frappe.format_date(blog.publishing_date)}}</p>
                 <p class="text">{{ blog.author }}</p>
                 <p class="text">{{ blog.short_description }}</p>
               </div>
             </div>
           </div>
-          {% endfor %}
+          {% endif %} {% endfor %}
         </div>
       </div>
     </section>
@@ -148,7 +154,12 @@
                 <div class="form_group">
                   <div class="form_control">
                     <label>
-                      <input type="text" name="search" placeholder="Search" />
+                      <input
+                        type="text"
+                        id="search"
+                        name="search"
+                        placeholder="Search"
+                      />
                     </label>
                   </div>
                 </div>
@@ -166,86 +177,11 @@
               </div>
             </div>
           </div>
-          <ul class="row" id="ourStories">
-            <li class="col-md-4 col-sm-6 item Latest">
-              <a href="#">
-                <div class="news_card">
-                  <img src="/assets/lms/images/news-img1.png" class="fw" />
-                  <p><a href="#"> Resources </a></p>
-                  <h5>How to invest in gold for international trade</h5>
-                  <p class="date">08 June, 2020</p>
-                </div>
-              </a>
-            </li>
-            <li class="col-md-4 col-sm-6 item Latest">
-              <a href="#">
-                <div class="news_card">
-                  <img src="/assets/lms/images/news-img2.png" class="fw" />
-                  <p>
-                    <a href="#"> Resources </a> <a href="#"> Investment </a>
-                  </p>
-                  <h5>Stop holding money in pocket start investing now</h5>
-                  <p class="date">08 June, 2020</p>
-                </div>
-              </a>
-            </li>
-            <li class="col-md-4 col-sm-6 item Trading">
-              <a href="#">
-                <div class="news_card">
-                  <img src="/assets/lms/images/news-img3.png" class="fw" />
-                  <p>
-                    <a href="#"> Resources </a> <a href="#"> Business </a>
-                    <a href="#"> Growth </a>
-                  </p>
-                  <h5>
-                    It's not about business at all collaboration is next big
-                    thing
-                  </h5>
-                  <p class="date">08 June, 2020</p>
-                </div>
-              </a>
-            </li>
-            <li class="col-md-4 col-sm-6 item Trading">
-              <a href="#">
-                <div class="news_card">
-                  <img src="/assets/lms/images/news-img4.png" class="fw" />
-                  <p><a href="#"> Resources </a></p>
-                  <h5>How to invest in gold for international trade</h5>
-                  <p class="date">08 June, 2020</p>
-                </div>
-              </a>
-            </li>
-            <li class="col-md-4 col-sm-6 item Trading">
-              <a href="#">
-                <div class="news_card">
-                  <img src="/assets/lms/images/news-img5.png" class="fw" />
-                  <p>
-                    <a href="#"> Resources </a> <a href="#"> Investment </a>
-                  </p>
-                  <h5>Stop holding money in pocket start investing now</h5>
-                  <p class="date">08 June, 2020</p>
-                </div>
-              </a>
-            </li>
-            <li class="col-md-4 col-sm-6 item Trading">
-              <a href="#">
-                <div class="news_card">
-                  <img src="/assets/lms/images/news-img6.png" class="fw" />
-                  <p>
-                    <a href="#"> Resources </a> <a href="#"> Business </a>
-                    <a href="#"> Growth </a>
-                  </p>
-                  <h5>
-                    It's not about business at all collaboration is next big
-                    thing
-                  </h5>
-                  <p class="date">08 June, 2020</p>
-                </div>
-              </a>
-            </li>
-          </ul>
+          <ul class="row" id="ourStories"></ul>
           <div>
-            <h5 class="viewMore"><a href="#"> View More</a></h5>
+            <h5 class="viewMore">
+              <a class="viewMores" id="viewMore"> View More</a>
+            </h5>
           </div>
         </div>
       </div>
@@ -409,5 +345,207 @@
     ></script>
     <script type="text/javascript" src="/assets/lms/js/wow.min.js"></script>
     <script type="text/javascript" src="/assets/lms/js/main.js"></script>
+    <script type="text/javascript" src="/assets/lms/js/dateformat.js"></script>
+    <!-- <script type="text/javascript">
+    $(document).ready(function () {
+      var page_no = 1;
+      $.ajax({
+        url: "/api/method/lms.www.newsblogs.fetch_blogs_all",
+        type: "GET",
+        data: {
+          page_no: page_no,
+        },
+        dataType: "json",
+        success: function (res) {
+          // alert(res.data);
+          // console.log(res.data.blogs_all);
+          if (res.data.blogs_all.length > 0) {
+            var html = '';
+            $.each(res.data.blogs_all, function (index, val) {
+              const arr = val.website_tags.split(',');
+              var tags = '';
+              $.each(arr, (index, tag) => {
+                tags += '<a href=#>' + tag + '</a>'
+              });
+              var nowDate = new Date(val.publishing_date);
+              var formattedDate = formatDate(nowDate);
+
+              html +=
+                '<li class="col-md-4 col-sm-6 item">' +
+                '<a href="newsblog?blog_name=' + val.name + '">' +
+                '<div class="news_card"> <img src="' + val.for_banner_view + '" class="fw">' +
+                '<p>' + tags + '</p>' +
+                '<h5>' + val.title + '</h5>' +
+                '<p class="date">' + formattedDate + '</p>' +
+                '</div>' +
+                '</a>' +
+                '</li>';
+            });
+            $('#ourStories').append(html);
+            page_no += 1;
+          }
+        },
+      });
+
+      const urlParams = new URLSearchParams(location.search);
+      $(document).on("click", "#viewMore", function () {
+        // alert($(this).attr("id"));
+        $.ajax({
+          url: "/api/method/lms.www.newsblogs.fetch_blogs_all",
+          type: "GET",
+          data: {
+            page_no: page_no,
+          },
+          dataType: "json",
+          success: function (res) {
+            // alert(res.data);
+            // console.log(res.data.blogs_all);
+            if (res.data.blogs_all.length > 0) {
+              var html = '';
+
+              $.each(res.data.blogs_all, function (index, val) {
+                const arr = val.website_tags.split(',');
+                var tags = '';
+                $.each(arr, (index, tag) => {
+                  tags += '<a href=#>' + tag + '</a>'
+                });
+                var nowDate = new Date(val.publishing_date);
+                var formattedDate = formatDate(nowDate);
+                html +=
+                  '<li class="col-md-4 col-sm-6 item">' +
+                  '<a href="newsblog?blog_name=' + val.name + '">' +
+                  '<div class="news_card"> <img src="' + val.for_banner_view + '" class="fw">' +
+                  '<p>' + tags + '</p>' +
+                  '<h5>' + val.title + '</h5>' +
+                  '<p class="date">' + formattedDate + '</p>' +
+                  '</div>' +
+                  '</a>' +
+                  '</li>';
+              });
+              $('#ourStories').append(html);
+              page_no += 1;
+            }
+          },
+        });
+      });
+    });
+  </script> -->
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $("#search").keyup(function () {
+          var search = $(this).val();
+          if (search != "") {
+            loadData(search);
+          } else {
+            loadData();
+          }
+        });
+        function loadData(search_content) {
+          var page_no = 1;
+          const urlParams = new URLSearchParams(location.search);
+          $.ajax({
+            url: "/api/method/lms.www.newsblogs.search_blog",
+            type: "GET",
+            data: {
+              page_no: page_no,
+              search_content: search_content,
+            },
+            dataType: "json",
+            success: function (res) {
+              // alert(res.data);
+              // console.log(res.data.blogs_all);
+              if (res.data.blogs_all.length > 0) {
+                var html = "";
+                $.each(res.data.blogs_all, function (index, val) {
+                  const arr = val.website_tags.split(",");
+                  var tags = "";
+                  $.each(arr, (index, tag) => {
+                    tags += "<a href=#>" + tag + "</a>";
+                  });
+                  var nowDate = new Date(val.publishing_date);
+                  var formattedDate = formatDate(nowDate);
+
+                  html +=
+                    '<li class="col-md-4 col-sm-6 item">' +
+                    '<a href="newsblog?blog_name=' +
+                    val.name +
+                    '">' +
+                    '<div class="news_card"> <img src="' +
+                    val.for_banner_view +
+                    '" class="fw">' +
+                    "<p>" +
+                    tags +
+                    "</p>" +
+                    "<h5>" +
+                    val.title +
+                    "</h5>" +
+                    '<p class="date">' +
+                    formattedDate +
+                    "</p>" +
+                    "</div>" +
+                    "</a>" +
+                    "</li>";
+                });
+                $("#ourStories").append(html);
+                page_no += 1;
+              }
+            },
+          });
+
+          $(document).on("click", "#viewMore", function () {
+            // alert($(this).attr("id"));
+            $.ajax({
+              url: "/api/method/lms.www.newsblogs.search_blog",
+              type: "GET",
+              data: {
+                page_no: page_no,
+                search_content,
+                search_content,
+              },
+              dataType: "json",
+              success: function (res) {
+                // alert(res.data);
+                // console.log(res.data.blogs_all);
+                if (res.data.blogs_all.length > 0) {
+                  var html = "";
+
+                  $.each(res.data.blogs_all, function (index, val) {
+                    const arr = val.website_tags.split(",");
+                    var tags = "";
+                    $.each(arr, (index, tag) => {
+                      tags += "<a href=#>" + tag + "</a>";
+                    });
+                    var nowDate = new Date(val.publishing_date);
+                    var formattedDate = formatDate(nowDate);
+                    html +=
+                      '<li class="col-md-4 col-sm-6 item">' +
+                      '<a href="newsblog?blog_name=' +
+                      val.name +
+                      '">' +
+                      '<div class="news_card"> <img src="' +
+                      val.for_banner_view +
+                      '" class="fw">' +
+                      "<p>" +
+                      tags +
+                      "</p>" +
+                      "<h5>" +
+                      val.title +
+                      "</h5>" +
+                      '<p class="date">' +
+                      formattedDate +
+                      "</p>" +
+                      "</div>" +
+                      "</a>" +
+                      "</li>";
+                  });
+                  $("#ourStories").append(html);
+                  page_no += 1;
+                }
+              },
+            });
+          });
+        }
+      });
+    </script>
   </body>
 </html>
