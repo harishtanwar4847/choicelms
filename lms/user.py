@@ -486,7 +486,6 @@ def approved_securities(**kwargs):
                     "margin-right": "1mm",
                     "margin-left": "1mm",
                     "page-size": "A4",
-                    "dpi": 400
                 },
             )
             pdf_file.write(pdf)

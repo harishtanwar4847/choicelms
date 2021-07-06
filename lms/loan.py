@@ -1852,9 +1852,9 @@ def loan_statement(**kwargs):
                 if data.get("is_email"):
                     # password content for password protected pdf
                     pwd = user_kyc.pan_no[:4] + str(user_kyc.date_of_birth.year)
-                    pdf = get_pdf(agreement, options={"password": pwd,"margin-right": "1mm","margin-left": "1mm","page-size":"A4", "dpi": 400})
+                    pdf = get_pdf(agreement, options={"password": pwd,"margin-right": "1mm","margin-left": "1mm","page-size":"A4"})
                 else:
-                    pdf = get_pdf(agreement,options={"margin-right": "1mm","margin-left": "1mm","page-size":"A4", "dpi": 400})
+                    pdf = get_pdf(agreement,options={"margin-right": "1mm","margin-left": "1mm","page-size":"A4"})
 
                 pdf_file.write(pdf)
                 pdf_file.close()
