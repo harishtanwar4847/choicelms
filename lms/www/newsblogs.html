@@ -326,6 +326,7 @@
         </div>
       </div>
     </div>
+    <input type="hidden" name="page_no" id="page_no" value="1" />
 
     <script
       type="text/javascript"
@@ -348,115 +349,28 @@
     <script type="text/javascript" src="/assets/lms/js/dateformat.js"></script>
     <script type="text/javascript">
       $(document).ready(function () {
-        var page_no = 1;
-        $.ajax({
-          url: "/api/method/lms.www.newsblogs.fetch_blogs_all",
-          type: "GET",
-          data: {
-            page_no: page_no,
-          },
-          dataType: "json",
-          success: function (res) {
-            // console.log(res.data)
-            if (res.data.blogs_all.length > 0) {
-              var html = "";
-              $.each(res.data.blogs_all, function (index, val) {
-                const arr = val.website_tags.split(",");
-                var tags = "";
-                $.each(arr, (index, tag) => {
-                  tags += "<a href=#>" + tag + "</a>";
-                });
-                var nowDate = new Date(val.publishing_date);
-                var formattedDate = formatDate(nowDate);
-                html +=
-                  '<li class="col-md-4 col-sm-6 item">' +
-                  '<a href="newsblog?blog_name=' +
-                  val.name +
-                  '">' +
-                  '<div class="news_card"> <img src="' +
-                  val.for_banner_view +
-                  '" class="fw">' +
-                  "<p>" +
-                  tags +
-                  "</p>" +
-                  "<h5>" +
-                  val.title +
-                  "</h5>" +
-                  '<p class="date">' +
-                  formattedDate +
-                  "</p>" +
-                  "</div>" +
-                  "</a>" +
-                  "</li>";
-              });
-              $("#ourStories").append(html);
-              page_no += 1;
-            }
-          },
+        // on page load fetch all blogs
+        var page_no = $("#page_no").val();
+        console.log("page_no : " + page_no);
+        loadData(page_no);
+
+        // on view more click, with and without search
+        $(document).on("click", "#viewMore", function () {
+          var page_no = $("#page_no").val();
+          var search_key = $("#search").val();
+          loadData(page_no, search_key);
         });
 
-        $(document).on("click", "#viewMore", function () {
+        // function for fetch blogs, view more, search
+        function loadData(pg_number, search_key = "") {
+          // var page_no = pg_number;
+
           $.ajax({
-            url: "/api/method/lms.www.newsblogs.fetch_blogs_all",
+            url: "/api/method/lms.www.newsblogs.fetch_blogs",
             type: "GET",
             data: {
-              page_no: page_no,
-            },
-            dataType: "json",
-            success: function (res) {
-              if (res.data.blogs_all.length > 0) {
-                var html = "";
-                $.each(res.data.blogs_all, function (index, val) {
-                  const arr = val.website_tags.split(",");
-                  var tags = "";
-                  $.each(arr, (index, tag) => {
-                    tags += "<a href=#>" + tag + "</a>";
-                  });
-                  var nowDate = new Date(val.publishing_date);
-                  var formattedDate = formatDate(nowDate);
-                  html +=
-                    '<li class="col-md-4 col-sm-6 item">' +
-                    '<a href="newsblog?blog_name=' +
-                    val.name +
-                    '">' +
-                    '<div class="news_card"> <img src="' +
-                    val.for_banner_view +
-                    '" class="fw">' +
-                    "<p>" +
-                    tags +
-                    "</p>" +
-                    "<h5>" +
-                    val.title +
-                    "</h5>" +
-                    '<p class="date">' +
-                    formattedDate +
-                    "</p>" +
-                    "</div>" +
-                    "</a>" +
-                    "</li>";
-                });
-                $("#ourStories").append(html);
-                page_no += 1;
-              }
-            },
-          });
-        });
-        // ==========> SEARCH QUERY <=========
-        $("#search").keyup(function () {
-          var search = $(this).val();
-          if (search != "") {
-            loadData(search);
-          } else {
-            loadData();
-          }
-        });
-        function loadDate() {
-          var page_no = 1;
-          $.ajax({
-            url: "/api/method/lms.www.newsblogs.fetch_blogs_all",
-            type: "GET",
-            data: {
-              page_no: page_no,
+              page_no: pg_number,
+              search_key: search_key,
             },
             dataType: "json",
             success: function (res) {
@@ -492,157 +406,36 @@
                     "</a>" +
                     "</li>";
                 });
-                $("#ourStories").append(html);
-                page_no += 1;
+                if (parseInt(res.data.page_no) > 1 || search_key == "") {
+                  $("#ourStories").append(html);
+                } else {
+                  $("#ourStories").html(html);
+                }
+                // if (page_no == res.data.page_no){
+                next_pg_number = parseInt(res.data.page_no) + 1;
+                console.log("next_pg_number : " + next_pg_number);
+                $("#page_no").val(next_pg_number);
+                // }
+                $("#viewMore").show();
+              } else if (pg_number == 1 && res.data.blogs_all.length <= 0) {
+                $("#ourStories").empty();
+                $("#viewMore").hide();
               }
             },
           });
-
-          $(document).on("click", "#viewMore", function () {
-            $.ajax({
-              url: "/api/method/lms.www.newsblogs.fetch_blogs_all",
-              type: "GET",
-              data: {
-                page_no: page_no,
-              },
-              dataType: "json",
-              success: function (res) {
-                if (res.data.blogs_all.length > 0) {
-                  var html = "";
-                  $.each(res.data.blogs_all, function (index, val) {
-                    const arr = val.website_tags.split(",");
-                    var tags = "";
-                    $.each(arr, (index, tag) => {
-                      tags += "<a href=#>" + tag + "</a>";
-                    });
-                    var nowDate = new Date(val.publishing_date);
-                    var formattedDate = formatDate(nowDate);
-                    html +=
-                      '<li class="col-md-4 col-sm-6 item">' +
-                      '<a href="newsblog?blog_name=' +
-                      val.name +
-                      '">' +
-                      '<div class="news_card"> <img src="' +
-                      val.for_banner_view +
-                      '" class="fw">' +
-                      "<p>" +
-                      tags +
-                      "</p>" +
-                      "<h5>" +
-                      val.title +
-                      "</h5>" +
-                      '<p class="date">' +
-                      formattedDate +
-                      "</p>" +
-                      "</div>" +
-                      "</a>" +
-                      "</li>";
-                  });
-                  $("#ourStories").append(html);
-                  page_no += 1;
-                }
-              },
-            });
-          });
         }
-        function loadData(search_content) {
-          var page_no = 1;
-          const urlParams = new URLSearchParams(location.search);
-          $.ajax({
-            url: "/api/method/lms.www.newsblogs.search_blog",
-            type: "GET",
-            data: {
-              page_no: page_no,
-              search_content: search_content,
-            },
-            dataType: "json",
-            success: function (res) {
-              console.log(res.data.searched_blogs);
-              if (res.data.searched_blogs.length > 0) {
-                var html = "";
-                $.each(res.data.searched_blogs, function (index, val) {
-                  const arr = val.website_tags.split(",");
-                  var tags = "";
-                  $.each(arr, (index, tag) => {
-                    tags += "<a href=#>" + tag + "</a>";
-                  });
-                  var nowDate = new Date(val.publishing_date);
-                  var formattedDate = formatDate(nowDate);
-                  html +=
-                    '<li class="col-md-4 col-sm-6 item">' +
-                    '<a href="newsblog?blog_name=' +
-                    val.name +
-                    '">' +
-                    '<div class="news_card"> <img src="' +
-                    val.for_banner_view +
-                    '" class="fw">' +
-                    "<p>" +
-                    tags +
-                    "</p>" +
-                    "<h5>" +
-                    val.title +
-                    "</h5>" +
-                    '<p class="date">' +
-                    formattedDate +
-                    "</p>" +
-                    "</div>" +
-                    "</a>" +
-                    "</li>";
-                });
-                $("#ourStories").html(html);
-                page_no += 1;
-              }
-            },
-          });
 
-          $(document).on("click", "#viewMore", function () {
-            $.ajax({
-              url: "/api/method/lms.www.newsblogs.search_blog",
-              type: "GET",
-              data: {
-                page_no: page_no,
-                search_content: search_content,
-              },
-              dataType: "json",
-              success: function (res) {
-                if (res.data.searched_blogs.length > 0) {
-                  var html = "";
-                  $.each(res.data.searched_blogs, function (index, val) {
-                    const arr = val.website_tags.split(",");
-                    var tags = "";
-                    $.each(arr, (index, tag) => {
-                      tags += "<a href=#>" + tag + "</a>";
-                    });
-                    var nowDate = new Date(val.publishing_date);
-                    var formattedDate = formatDate(nowDate);
-                    html +=
-                      '<li class="col-md-4 col-sm-6 item">' +
-                      '<a href="newsblog?blog_name=' +
-                      val.name +
-                      '">' +
-                      '<div class="news_card"> <img src="' +
-                      val.for_banner_view +
-                      '" class="fw">' +
-                      "<p>" +
-                      tags +
-                      "</p>" +
-                      "<h5>" +
-                      val.title +
-                      "</h5>" +
-                      '<p class="date">' +
-                      formattedDate +
-                      "</p>" +
-                      "</div>" +
-                      "</a>" +
-                      "</li>";
-                  });
-                  $("#ourStories").append(html);
-                  page_no += 1;
-                }
-              },
-            });
-          });
-        }
+        // ==========> SEARCH QUERY <=========
+        $("#search").keyup(function () {
+          $("#page_no").val(1);
+          var page_no = $("#page_no").val();
+          var search = $(this).val();
+          if (search != "") {
+            loadData(page_no, search);
+          } else {
+            loadData(page_no);
+          }
+        });
       });
     </script>
   </body>
