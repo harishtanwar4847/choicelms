@@ -24,8 +24,9 @@ def fetch_blogs_all(page_no):
 def search_blog(search_content, page_no):
     limit = 6
     offset = (int(page_no) - 1) * limit
-    if search_content:
+    if search_content != "":
         print(search_content)
+        print("first fucntion called")
         searched_blogs = frappe.db.sql(
             "select nb.*, Group_CONCAT(bt.website_tags) as website_tags from `tabNews and Blog` as nb left join `tabBlog Tags` bt on (bt.parent = nb.name) where nb.title LIKE %(txt)s  group by nb.name limit {},6".format(
                 offset
@@ -39,6 +40,7 @@ def search_blog(search_content, page_no):
 
         response = {"searched_blogs": searched_blogs, "page_no": page_no}
     else:
+        print("second fucntion called")
         searched_blogs = frappe.db.sql(
             "select nb.*, Group_CONCAT(bt.website_tags) as website_tags from `tabNews and Blog` as nb left join `tabBlog Tags` bt on (bt.parent = nb.name) group by nb.name limit {},6".format(
                 offset
