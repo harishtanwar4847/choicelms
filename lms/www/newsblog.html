@@ -31,7 +31,7 @@
 
     <style>
       .pdescr img {
-        max-width: 910px !important;
+        max-width: 100% !important;
       }
 
       #viewMore {
@@ -48,14 +48,12 @@
   </head>
 
   <body>
-    {% set project = frappe.get_doc('News and Blog', frappe.form_dict.blog_name)
-    %} {% set project_param = frappe.form_dict.blog_name %}
     <div class="fw fixed-top">
       <div class="container container3">
         <div class="col dx_jcsbalctr topnav">
           <h5>
             <a href="newsblogs"> <img src="/assets/lms/images/arrow1.png" /></a>
-            {{project.title}}
+            {{blog_details.title}}
           </h5>
           <!-- <a href="#"><img src="/assets/lms/images/share.png"> </a> -->
         </div>
@@ -68,21 +66,21 @@
             <div class="col">
               <div class="articlesdetails">
                 <p class="resources">
-                  {% for i in project.blog_tags %} {{i.website_tags}} {% endfor
-                  %}
+                  {% for i in blog_details.blog_tags %} {{i.website_tags}} {%
+                  endfor %}
                 </p>
-                <h4>{{project.title}}</h4>
+                <h4>{{blog_details.title}}</h4>
                 <p class="date">
-                  By {{project.author}}
+                  By {{blog_details.author}}
                   <span>
                     <img src="/assets/lms/images/dot.svg" />
-                    {{frappe.format_date(project.publishing_date)}}
+                    {{ blog_details.publishing_date }}
                   </span>
                 </p>
-                <img src="{{project.for_blog_view}}" class="fw" /> <br />
+                <img src="{{blog_details.for_blog_view}}" class="fw" /> <br />
                 <div style="font-size: 1.6rem" class="pdescr">
                   <br />
-                  {{project.description}}
+                  {{blog_details.description}}
                 </div>
               </div>
             </div>
@@ -138,10 +136,7 @@
                       {% endfor %}
                     </p>
                     <h5>{{article.title}}</h5>
-
-                    <p class="date">
-                      {{ frappe.format_date(article.publishing_date) }}
-                    </p>
+                    <p class="date">{{ article.publishing_date }}</p>
                   </div>
                 </div>
                 {% endfor %}
@@ -154,11 +149,16 @@
                 </h5>
               </div>
             </div>
+            {% set ads = frappe.get_all("Website Ads", fields=['*'],
+            order_by='creation desc', page_length=6 ) %} {% for ad in ads %}
             <div class="col-md-3">
               <div class="news_card ad">
-                <img src="/assets/lms/images/articles4.png" class="fw" />
+                <a href="https://{{ad.url}}" target="__blank">
+                  <img src="{{ad.image}}" class="fw" />
+                </a>
               </div>
             </div>
+            {% endfor %}
           </div>
         </div>
       </div>
@@ -284,9 +284,23 @@
         <div class="bottomnav">
           <div class="row">
             <div class="col dx_jcsbalctr blogdetailsArrows">
-              <a href="#"></a>
-              <p>5 Minutes Read</p>
-              <a href="#" class="blogdetailsArrowsRight"> </a>
+              <div class="col-sm-6">
+                {% if page_change['previous_name'] %}
+                <a
+                  href="/newsblog?blog_name={{page_change['previous_name']}}"
+                ></a>
+                {% endif %}
+              </div>
+              <div class="col-sm-6" style="text-align: right !important">
+                {% if page_change['next_name'] %}
+                <a
+                  href="/newsblog?blog_name={{page_change['next_name']}}"
+                  id="next"
+                  class="blogdetailsArrowsRight"
+                >
+                </a>
+                {% endif %}
+              </div>
             </div>
           </div>
         </div>
@@ -315,8 +329,8 @@
       $(document).ready(function () {
         var page_no = 2;
         const urlParams = new URLSearchParams(location.search);
-        // alert(urlParams.has("blog_name"));
-        // blog_name =
+        // $('#prevLast').style.w
+
         if (urlParams.has("blog_name")) {
           $(document).on("click", "#viewMore", function () {
             // alert($(this).attr("id"));
@@ -330,6 +344,7 @@
               dataType: "json",
               success: function (res) {
                 // alert(res.data);
+                console.log(res.data.related_articles.length);
                 if (res.data.related_articles.length > 0) {
                   var html = "";
 
@@ -339,8 +354,8 @@
                     $.each(arr, (index, tag) => {
                       tags += "<a href=#>" + tag + "</a>";
                     });
-                    var nowDate = new Date(val.publishing_date);
-                    var formattedDate = formatDate(nowDate);
+                    // var nowDate = new Date(val.publishing_date);
+                    // var formattedDate = formatDate(nowDate);
                     html +=
                       '<div class="col-md-4">' +
                       '<div class="news_card articles"><img src="' +
@@ -353,7 +368,7 @@
                       val.title +
                       "</h5>" +
                       '<p class="date">' +
-                      formattedDate +
+                      val.publishing_date +
                       "</p>" +
                       "</div>" +
                       "</div>";

@@ -3,7 +3,7 @@
     padding-left: 15px;
   }
 }
-@media (max-width: 768.99px) {
+@media (max-width: 992px) {
   .accordion {
     margin-top: 60px;
   }

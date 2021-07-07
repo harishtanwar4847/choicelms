@@ -120,9 +120,7 @@
     <section class="fw landing news-banner">
       <div class="container container3 pr">
         <div class="owl-carousel blogslider">
-          {% set blogs = frappe.get_all('News and Blog',
-          fields=['*'],page_length=6,order_by='creation desc') %} {% for blog in
-          blogs %} {% if blog %}
+          {% for blog in blogs %} {% if blog %}
           <div class="row dx_jcsbalctr">
             <div class="col col-md-7">
               <a href="newsblog?blog_name={{ blog.name }}">
@@ -133,7 +131,7 @@
               <div class="fw blog-text">
                 <!-- <p class="resources">Resources</p> -->
                 <h3>{{ blog.title }}</h3>
-                <p class="date">{{frappe.format_date(blog.publishing_date)}}</p>
+                <p class="date">{{ blog.publishing_date }}</p>
                 <p class="text">{{ blog.author }}</p>
                 <p class="text">{{ blog.short_description }}</p>
               </div>
@@ -177,7 +175,11 @@
                   <li>
                     <a href="#" class="Latest" id="latest_post"> Latest </a>
                   </li>
-                  <li><a href="#" class="Trending"> Trending </a></li>
+                  <li>
+                    <a href="#" class="Trending" id="trending_post">
+                      Trending
+                    </a>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -333,6 +335,7 @@
     </div>
     <input type="hidden" name="page_no" id="page_no" value="1" />
     <input type="hidden" name="post" id="latest_post_2" />
+    <input type="hidden" name="post1" id="trending_post_2" value="false" />
 
     <script
       type="text/javascript"
@@ -358,14 +361,30 @@
         // on page load fetch all blogs
         var page_no = $("#page_no").val();
         $("#latest_post_2").val("false");
+        $("#trending_post_2").val("false");
         loadData(page_no);
 
         $("#latest_post").click(function () {
           var page_no = 1;
           var search_key = $("#search").val();
           $("#latest_post_2").val("true");
+          $("#trending_post_2").val("false");
           var latest_post = "true";
-          loadData(page_no, latest_post, search_key);
+          loadData(page_no, latest_post, (trending_post = "false"), search_key);
+        });
+
+        $("#trending_post").click(function () {
+          var page_no = 1;
+          var search_key = $("#search").val();
+          $("#latest_post_2").val("false");
+          $("#trending_post_2").val("true");
+          var trending_post = "true";
+          loadData(
+            page_no,
+            (latest_post = "false"),
+            (trending_post = "true"),
+            search_key
+          );
         });
 
         $("#all_post").click(function () {
@@ -373,8 +392,10 @@
           var search_key = $("#search").val();
           $("#latest_post_2").val("false");
           var latest_post = "false";
+          $("#trending_post_2").val("false");
+          var trending_post = "false";
           var replace = true;
-          loadData(page_no, latest_post, search_key, replace);
+          loadData(page_no, latest_post, trending_post, search_key, replace);
         });
 
         // on view more click, with and without search
@@ -382,17 +403,18 @@
           var page_no = $("#page_no").val();
           var search_key = $("#search").val();
           var latest_post = $("#latest_post_2").val();
-          loadData(page_no, latest_post, search_key);
+          var trending_post = $("#trending_post_2").val();
+          loadData(page_no, latest_post, trending_post, search_key);
         });
 
         // function for fetch blogs, view more, search
         function loadData(
           pg_number,
           latest_post = "",
+          trending_post = "",
           search_key = "",
           replace = false
         ) {
-          // var page_no = pg_number;
           $.ajax({
             url: "/api/method/lms.www.newsblogs.fetch_blogs",
             type: "GET",
@@ -400,6 +422,7 @@
               page_no: pg_number,
               search_key: search_key,
               latest_post: latest_post,
+              trending_post: trending_post,
             },
             dataType: "json",
             success: function (res) {
@@ -411,8 +434,8 @@
                   $.each(arr, (index, tag) => {
                     tags += "<a href=#>" + tag + "</a>";
                   });
-                  var nowDate = new Date(val.publishing_date);
-                  var formattedDate = formatDate(nowDate);
+                  // var nowDate = new Date(val.publishing_date);
+                  // var formattedDate = formatDate(nowDate);
                   html +=
                     '<li class="col-md-4 col-sm-6 item">' +
                     '<a href="newsblog?blog_name=' +
@@ -428,7 +451,7 @@
                     val.title +
                     "</h5>" +
                     '<p class="date">' +
-                    formattedDate +
+                    val.publishing_date +
                     "</p>" +
                     "</div>" +
                     "</a>" +
@@ -436,17 +459,12 @@
                 });
                 if (replace == true) {
                   $("#ourStories").html(html);
-                }
-                // else if (parseInt(res.data.page_no) > 1 || search_key == "") {
-                //   $("#ourStories").append(html);}
-                else {
+                } else {
                   $("#ourStories").append(html);
                 }
-                // if (page_no == res.data.page_no){
                 next_pg_number = parseInt(res.data.page_no) + 1;
-                console.log("next_pg_number : " + next_pg_number);
+                // console.log("next_pg_number : " + next_pg_number);
                 $("#page_no").val(next_pg_number);
-                // }
                 $("#viewMore").show();
               } else if (pg_number == 1 && res.data.blogs_all.length <= 0) {
                 $("#ourStories").empty();
@@ -462,10 +480,23 @@
           var page_no = $("#page_no").val();
           var search = $(this).val();
           var latest_post = $("#latest_post_2").val();
+          var trending_post = $("#trending_post_2").val();
           if (search != "") {
-            loadData(page_no, latest_post, search, (replace = true));
+            loadData(
+              page_no,
+              latest_post,
+              trending_post,
+              search,
+              (replace = true)
+            );
           } else {
-            loadData(page_no, latest_post, (search = ""), (replace = true));
+            loadData(
+              page_no,
+              latest_post,
+              trending_post,
+              (search = ""),
+              (replace = true)
+            );
           }
         });
       });

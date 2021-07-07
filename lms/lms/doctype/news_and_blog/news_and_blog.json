@@ -1,5 +1,5 @@
 {
- "autoname": "Blog-.####",
+ "autoname": "Blog-.#",
  "creation": "2021-07-02 09:49:07.256500",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -20,7 +20,8 @@
   "tags_section",
   "blog_tags",
   "section_break_15",
-  "is_latest"
+  "is_latest",
+  "is_trending"
  ],
  "fields": [
   {
@@ -107,9 +108,15 @@
    "fieldtype": "Table",
    "label": "Blog Tags",
    "options": "Blog Tags"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_trending",
+   "fieldtype": "Check",
+   "label": "is_trending"
   }
  ],
- "modified": "2021-07-05 13:20:33.594440",
+ "modified": "2021-07-07 16:43:12.330509",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "News and Blog",
