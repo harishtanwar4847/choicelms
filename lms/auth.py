@@ -1,5 +1,6 @@
 import json
 import re
+import webbrowser
 from datetime import datetime, timedelta
 
 import frappe
@@ -11,7 +12,6 @@ from frappe.utils.password import (
     delete_login_failed_cache,
     update_password,
 )
-import webbrowser
 
 import lms
 
@@ -353,10 +353,10 @@ def verify_user(token, user):
         fields=["*"],
     )
 
-    url = frappe.utils.get_url("/everify?success=0")
+    url = frappe.utils.get_url("/everify")
     if token_document:
         if token_document[0].used == 0:
-            url = frappe.utils.get_url("/everify?success=1")
+            url = frappe.utils.get_url("/everify?success")
             frappe.db.set_value("User Token", token_document[0].name, "used", 1)
             customer = lms.get_customer(user)
             customer.is_email_verified = 1
@@ -364,9 +364,12 @@ def verify_user(token, user):
             frappe.db.commit()
 
         elif token_document[0].used == 1:
-            url = frappe.utils.get_url("/everify?success=2")
+            url = frappe.utils.get_url("/everify?already-verified")
 
-    webbrowser.open(url, new=1)
+    frappe.local.response["type"] = "redirect"
+    frappe.local.response["location"] = url
+
+    # webbrowser.open(url, new=1)
     # if len(token_document) == 0:
     #     return frappe.respond_as_web_page(
     #         frappe._("Something went wrong"),
