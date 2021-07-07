@@ -53,7 +53,7 @@ class Loan(Document):
 
         max_withdraw_amount = self.drawing_power - balance
         if max_withdraw_amount < 0:
-            max_withdraw_amount = 0
+            max_withdraw_amount = 0.0
 
         return round(max_withdraw_amount, 2)
 
