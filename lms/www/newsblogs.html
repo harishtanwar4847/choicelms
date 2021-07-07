@@ -120,8 +120,9 @@
     <section class="fw landing news-banner">
       <div class="container container3 pr">
         <div class="owl-carousel blogslider">
-          {% set blogs = frappe.get_all('News and Blog', fields=['*']) %} {% for
-          blog in blogs %} {% if blog %}
+          {% set blogs = frappe.get_all('News and Blog',
+          fields=['*'],page_length=6,order_by='creation desc') %} {% for blog in
+          blogs %} {% if blog %}
           <div class="row dx_jcsbalctr">
             <div class="col col-md-7">
               <a href="newsblog?blog_name={{ blog.name }}">
@@ -170,9 +171,13 @@
             <div class="row">
               <div class="col-md-12">
                 <ul id="filterOptions">
-                  <li class="active"><a class="all" href="#"> All </a></li>
-                  <li><a href="#" class="Latest"> Latest </a></li>
-                  <li><a href="#" class="Trading"> Trading </a></li>
+                  <li class="active">
+                    <a class="all" id="all_post" href="#"> All </a>
+                  </li>
+                  <li>
+                    <a href="#" class="Latest" id="latest_post"> Latest </a>
+                  </li>
+                  <li><a href="#" class="Trending"> Trending </a></li>
                 </ul>
               </div>
             </div>
@@ -327,6 +332,7 @@
       </div>
     </div>
     <input type="hidden" name="page_no" id="page_no" value="1" />
+    <input type="hidden" name="post" id="latest_post_2" />
 
     <script
       type="text/javascript"
@@ -351,30 +357,52 @@
       $(document).ready(function () {
         // on page load fetch all blogs
         var page_no = $("#page_no").val();
-        console.log("page_no : " + page_no);
+        $("#latest_post_2").val("false");
         loadData(page_no);
+
+        $("#latest_post").click(function () {
+          var page_no = 1;
+          var search_key = $("#search").val();
+          $("#latest_post_2").val("true");
+          var latest_post = "true";
+          loadData(page_no, latest_post, search_key);
+        });
+
+        $("#all_post").click(function () {
+          var page_no = 1;
+          var search_key = $("#search").val();
+          $("#latest_post_2").val("false");
+          var latest_post = "false";
+          var replace = true;
+          loadData(page_no, latest_post, search_key, replace);
+        });
 
         // on view more click, with and without search
         $(document).on("click", "#viewMore", function () {
           var page_no = $("#page_no").val();
           var search_key = $("#search").val();
-          loadData(page_no, search_key);
+          var latest_post = $("#latest_post_2").val();
+          loadData(page_no, latest_post, search_key);
         });
 
         // function for fetch blogs, view more, search
-        function loadData(pg_number, search_key = "") {
+        function loadData(
+          pg_number,
+          latest_post = "",
+          search_key = "",
+          replace = false
+        ) {
           // var page_no = pg_number;
-
           $.ajax({
             url: "/api/method/lms.www.newsblogs.fetch_blogs",
             type: "GET",
             data: {
               page_no: pg_number,
               search_key: search_key,
+              latest_post: latest_post,
             },
             dataType: "json",
             success: function (res) {
-              // console.log(res.data)
               if (res.data.blogs_all.length > 0) {
                 var html = "";
                 $.each(res.data.blogs_all, function (index, val) {
@@ -406,10 +434,13 @@
                     "</a>" +
                     "</li>";
                 });
-                if (parseInt(res.data.page_no) > 1 || search_key == "") {
-                  $("#ourStories").append(html);
-                } else {
+                if (replace == true) {
                   $("#ourStories").html(html);
+                }
+                // else if (parseInt(res.data.page_no) > 1 || search_key == "") {
+                //   $("#ourStories").append(html);}
+                else {
+                  $("#ourStories").append(html);
                 }
                 // if (page_no == res.data.page_no){
                 next_pg_number = parseInt(res.data.page_no) + 1;
@@ -430,10 +461,11 @@
           $("#page_no").val(1);
           var page_no = $("#page_no").val();
           var search = $(this).val();
+          var latest_post = $("#latest_post_2").val();
           if (search != "") {
-            loadData(page_no, search);
+            loadData(page_no, latest_post, search, (replace = true));
           } else {
-            loadData(page_no);
+            loadData(page_no, latest_post, (search = ""), (replace = true));
           }
         });
       });
