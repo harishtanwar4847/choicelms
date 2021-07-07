@@ -1,5 +1,6 @@
 import json
 import re
+import webbrowser
 from datetime import datetime, timedelta
 
 import frappe
@@ -347,17 +348,34 @@ def verify_user(token, user):
             "entity": user,
             "token_type": "Email Verification Token",
             "token": token,
-            "used": 0,
+            # "used": 0,
         },
         fields=["*"],
     )
 
-    if len(token_document) == 0:
-        return frappe.respond_as_web_page(
-            frappe._("Something went wrong"),
-            frappe._("Your token is invalid."),
-            indicator_color="red",
-        )
+    url = frappe.utils.get_url("/everify")
+    if token_document:
+        if token_document[0].used == 0:
+            url = frappe.utils.get_url("/everify?success")
+            frappe.db.set_value("User Token", token_document[0].name, "used", 1)
+            customer = lms.get_customer(user)
+            customer.is_email_verified = 1
+            customer.save(ignore_permissions=True)
+            frappe.db.commit()
+
+        elif token_document[0].used == 1:
+            url = frappe.utils.get_url("/everify?already-verified")
+
+    frappe.local.response["type"] = "redirect"
+    frappe.local.response["location"] = url
+
+    # webbrowser.open(url, new=1)
+    # if len(token_document) == 0:
+    #     return frappe.respond_as_web_page(
+    #         frappe._("Something went wrong"),
+    #         frappe._("Your token is invalid."),
+    #         indicator_color="red",
+    #     )
 
     # if (
     #     len(token_document) > 0
@@ -369,14 +387,14 @@ def verify_user(token, user):
     #         indicator_color="red",
     #     )
 
-    frappe.db.set_value("User Token", token_document[0].name, "used", 1)
-    customer = lms.get_customer(user)
-    customer.is_email_verified = 1
-    customer.save(ignore_permissions=True)
-    frappe.db.commit()
+    # frappe.db.set_value("User Token", token_document[0].name, "used", 1)
+    # customer = lms.get_customer(user)
+    # customer.is_email_verified = 1
+    # customer.save(ignore_permissions=True)
+    # frappe.db.commit()
 
     """changes as per latest email notification list-sent by vinayak - email verification final 2.0"""
-    doc = frappe.get_doc("User", user)
+    # doc = frappe.get_doc("User", user)
 
     # frappe.enqueue_doc("Notification", "User Welcome Email", method="send", doc=doc)
 
@@ -389,11 +407,11 @@ def verify_user(token, user):
     # mess = frappe._("Welcome aboard. Your registration at Spark.Loans was successfull!")
     # frappe.enqueue(method=send_sms, receiver_list=[doc.phone], msg=mess)
 
-    frappe.respond_as_web_page(
-        frappe._("Success"),
-        frappe._("Your email has been successfully verified."),
-        indicator_color="green",
-    )
+    # frappe.respond_as_web_page(
+    #     frappe._("Success"),
+    #     frappe._("Your email has been successfully verified."),
+    #     indicator_color="green",
+    # )
 
 
 @frappe.whitelist(allow_guest=True)
