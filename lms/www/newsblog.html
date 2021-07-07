@@ -127,9 +127,12 @@
             <div class="col-md-9">
               <div class="row" id="related_article_div">
                 {% for article in related_articles %}
+
                 <div class="col-md-4">
                   <div class="news_card articles">
-                    <img src="{{article.for_banner_view}}" class="fw" />
+                    <a href="newsblog?blog_name={{ article.name }}">
+                      <img src="{{article.for_banner_view}}" class="fw" />
+                    </a>
                     <p>
                       {% for tag in article['website_tags'].split(',') %}
                       <a href="#">{{tag}}</a>
@@ -139,6 +142,7 @@
                     <p class="date">{{ article.publishing_date }}</p>
                   </div>
                 </div>
+
                 {% endfor %}
               </div>
               <div class="col-md-12">
@@ -354,13 +358,14 @@
                     $.each(arr, (index, tag) => {
                       tags += "<a href=#>" + tag + "</a>";
                     });
-                    // var nowDate = new Date(val.publishing_date);
-                    // var formattedDate = formatDate(nowDate);
                     html +=
                       '<div class="col-md-4">' +
-                      '<div class="news_card articles"><img src="' +
+                      '<div class="news_card articles">' +
+                      '<a href="newsblog?blog_name=' +
+                      val.name +
+                      '"><img src="' +
                       val.for_banner_view +
-                      '" class="fw">' +
+                      '" class="fw"> </a>' +
                       "<p>" +
                       tags +
                       "</p>" +

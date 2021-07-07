@@ -857,7 +857,7 @@ def loan_details(**kwargs):
         if loan_margin_shortfall.get("__islocal", None):
             loan_margin_shortfall = None
 
-        payment_in_process = 0 
+        payment_in_process = 0
         if loan_margin_shortfall:
             loan_margin_shortfall = loan_margin_shortfall.as_dict()
             # loan_margin_shortfall = loan_margin_shortfall[0]
