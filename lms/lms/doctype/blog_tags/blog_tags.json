@@ -1,0 +1,30 @@
+{
+ "autoname": ".###",
+ "creation": "2021-07-02 11:57:16.210513",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "website_tags"
+ ],
+ "fields": [
+  {
+   "fieldname": "website_tags",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Website Tags",
+   "options": "Website tags"
+  }
+ ],
+ "istable": 1,
+ "modified": "2021-07-02 11:57:41.884130",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Blog Tags",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
