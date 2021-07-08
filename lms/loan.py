@@ -857,12 +857,14 @@ def loan_details(**kwargs):
         if loan_margin_shortfall.get("__islocal", None):
             loan_margin_shortfall = None
 
+        payment_in_process = 0
         if loan_margin_shortfall:
             loan_margin_shortfall = loan_margin_shortfall.as_dict()
             # loan_margin_shortfall = loan_margin_shortfall[0]
             loan_margin_shortfall["action_taken_msg"] = None
             loan_margin_shortfall["linked_application"] = None
             loan_margin_shortfall["deadline_in_hrs"] = None
+            loan_margin_shortfall["shortfall_c_str"] = lms.amount_formatter(loan_margin_shortfall.shortfall_c)
 
             if loan_margin_shortfall.status == "Request Pending":
                 pledged_paid_shortfall = 0
@@ -1013,6 +1015,17 @@ def loan_details(**kwargs):
                     else "00:00:00"
                 )
 
+            pending_loan_transaction = frappe.get_all(
+                "Loan Transaction",
+                filters={
+                    "loan": loan.name,
+                    "status": ["not IN", ["Approved", "Rejected"]],
+                    "loan_margin_shortfall": loan_margin_shortfall.name,
+                },
+            )
+            if pending_loan_transaction:
+                payment_in_process = 1
+
         # Interest Details
         interest_total = frappe.db.sql(
             """select sum(unpaid_interest) as total_amt from `tabLoan Transaction` where loan=%s and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and unpaid_interest > 0""",
@@ -1081,6 +1094,7 @@ def loan_details(**kwargs):
             "loan": loan,
             "transactions": loan_transactions_list,
             "margin_shortfall": loan_margin_shortfall,
+            "payment_already_in_process": payment_in_process,
             "interest": interest,
             "topup": topup if topup else None,
             "increase_loan": increase_loan,
@@ -1428,21 +1442,21 @@ def loan_payment(**kwargs):
                     message=_("Loan Margin Shortfall should be for the provided loan.")
                 )
 
-            pending_loan_transaction = frappe.get_all(
-                "Loan Transaction",
-                filters={
-                    "loan": loan.name,
-                    "status": ["not IN", ["Approved", "Rejected"]],
-                    "loan_margin_shortfall": loan_margin_shortfall.name,
-                },
-            )
-            if pending_loan_transaction:
-                return utils.respondWithFailure(
-                    status=417,
-                    message="Payment for Margin Shortfall of Loan {} is already in process.".format(
-                        loan.name
-                    ),
-                )
+            # pending_loan_transaction = frappe.get_all(
+            #     "Loan Transaction",
+            #     filters={
+            #         "loan": loan.name,
+            #         "status": ["not IN", ["Approved", "Rejected"]],
+            #         "loan_margin_shortfall": loan_margin_shortfall.name,
+            #     },
+            # )
+            # if pending_loan_transaction:
+            #     return utils.respondWithFailure(
+            #         status=417,
+            #         message="Payment for Margin Shortfall of Loan {} is already in process.".format(
+            #             loan.name
+            #         ),
+            #     )
 
             # if loan_margin_shortfall.status == "Request Pending":
             #     return utils.respondWithFailure(
