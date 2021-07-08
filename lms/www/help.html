@@ -696,23 +696,25 @@
                       loan balance, it results is Margin Shortfall.
                     </p>
                     <p>
-                      1) When the collateral's value falls by &lt;15%, 48 hours
-                      (excluding bank holidays) will be available to the
-                      customer to act on the shortfall. After this, sale will be
-                      triggered and lender will sell pledged securities as
+                      1) When the drawing power’s value falls below the loan
+                      amount (Less than 15%), 48 hours (Excluding bank holidays)
+                      will be available to the customer to mitigate the
+                      shortfall. Post 48 hours, sale will be triggered and
+                      lender will sell pledged securities as required.
+                    </p>
+                    <p>
+                      2) When the drawing power’s value falls below loan amount
+                      (greater than or equal to 15% but less than 25%), the
+                      customer will have time till end-of-day (hours up to 10:00
+                      PM EOD) to mitigate the shortfall. After this, sale will
+                      be triggered and lender will sell pledged securities as
                       required.
                     </p>
+
                     <p>
-                      2) When the collateral value falls by &gt;=15% but
-                      &lt;25%, the customer will have time till EOD (hours up to
-                      10:00 pm EOD) to settle the shortfall. After this, sale
-                      will be triggered and lender will sell pledged securities
-                      as required.
-                    </p>
-                    <p>
-                      3) If the collateral value falls by more than &gt;=25%,
-                      the system will immediately trigger sale and lender shall
-                      sell the pledged securities as required.
+                      3) When the drawing power’s value falls below loan amount
+                      (greater than 25%), the sale will be triggered and lender
+                      will sell pledged securities as required.
                     </p>
                     <table class="table">
                       <tbody>
@@ -1005,7 +1007,8 @@
             <div class="col-4">
               <img src="/assets/lms/images/logo.svg" width="140" />
               <div class="desc">
-                <p>
+                <p><strong>Corporate Office:</strong></p>
+                <p style="margin-top: 0px">
                   A 8, Narayan Plaza, 26A Chandivali RD, Sakinaka Kurla, Near
                   Chandivali Studio, Mumbai 400072
                 </p>
@@ -1053,13 +1056,13 @@
                   <p class="mainlink">Contact</p>
                 </li>
                 <li><a href="/contact">Contact</a></li>
-                <li><a href="tel:+919307242424">93072 42424</a></li>
+                <!-- <li><a href="tel:+919307242424">93072 42424</a></li>
                 <li><a href="tel:+919199242424">91992 42424</a></li>
                 <li>
                   <a href="mailto:reception@spark.loans"
                     >reception@spark.loans</a
                   >
-                </li>
+                </li> -->
               </ul>
             </div>
           </div>
