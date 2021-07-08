@@ -81,6 +81,7 @@ class LoanTransaction(Document):
         self.validate_withdrawal_amount()
         # set customer
         loan = self.get_loan()
+        self.opening_balance = loan.balance
         self.customer = loan.customer
         self.customer_name = loan.customer_name
         # check for user roles and permissions before adding transactions
@@ -164,6 +165,8 @@ class LoanTransaction(Document):
         elif self.transaction_type == "Penal Interest":
             loan.is_penalize = 1
         loan.update_loan_balance(check_for_shortfall=check_for_shortfall)
+        # self.closing_balance = loan.balance
+        frappe.db.set_value(self.doctype, self.name, "closing_balance", loan.balance, update_modified=False)
 
         if self.transaction_type == "Payment":
             doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
