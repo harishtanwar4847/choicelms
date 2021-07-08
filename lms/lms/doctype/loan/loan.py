@@ -1137,7 +1137,7 @@ class Loan(Document):
     # def validate(self):
     #     #remove row from items if pledge quantity is 0
     #     for i in self.items:
-    #         if i.pledged_quantity == 0:
+    #         if i.pledged_quantity <= 0:
     #             self.items.remove(i)
 
     def create_tnc_file(self, topup_amount):
