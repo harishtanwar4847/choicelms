@@ -864,6 +864,7 @@ def loan_details(**kwargs):
             loan_margin_shortfall["action_taken_msg"] = None
             loan_margin_shortfall["linked_application"] = None
             loan_margin_shortfall["deadline_in_hrs"] = None
+            loan_margin_shortfall["shortfall_c_str"] = lms.amount_formatter(loan_margin_shortfall.shortfall_c)
 
             if loan_margin_shortfall.status == "Request Pending":
                 pledged_paid_shortfall = 0
