@@ -17,6 +17,7 @@
     <link rel="stylesheet" type="text/css" href="css/common.css" />
     <link rel="stylesheet" type="text/css" href="css/media.css" />
   </head>
+
   <body>
     <div class="fw fixed-top">
       <div class="container container3">
@@ -353,34 +354,7 @@
         </div>
       </div>
     </section>
-    <section class="fw appdownload">
-      <div class="container">
-        <div class="row">
-          <div class="fw appdownloadbg">
-            <img
-              src="images/home/Download_App.svg"
-              class="fw d-none d-sm-block"
-            />
-            <img
-              src="images/home/appdownload_02.jpg"
-              class="fw d-block d-sm-none"
-            />
-            <div class="titlesec">
-              <h5>Download App</h5>
-              <p>We strongly believe that being the best is being unique.</p>
-              <div class="fw apps">
-                <a href="comingsoon.html"
-                  ><img src="images/home/play-store.svg" class="fw"
-                /></a>
-                <a href="comingsoon.html"
-                  ><img src="images/home/app-store.svg" class="fw"
-                /></a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    {% include 'templates/appdownload.html' %}
     <footer class="fw">
       <div class="container">
         <div class="row">
@@ -396,6 +370,7 @@
                 <a href="javascript:void(0);" class="download_app"
                   >Download Spark Loans App</a
                 >
+                <p></p>
                 <div class="fw social dx">
                   <a href="javascript:void(0);"
                     ><i class="fab fa-linkedin-in"></i

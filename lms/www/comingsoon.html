@@ -34,29 +34,6 @@
     />
     <link rel="stylesheet" type="text/css" href="/assets/lms/css/common.css" />
     <link rel="stylesheet" type="text/css" href="/assets/lms/css/media.css" />
-    <script>
-      window.frappe = {};
-      frappe.ready_events = [];
-      frappe.ready = function (fn) {
-        frappe.ready_events.push(fn);
-      }
-      window.dev_server = {{ dev_server }};
-      window.socketio_port = {{ frappe.socketio_port or 'null' }};
-      frappe.csrf_token = "{{ frappe.session.csrf_token }}";
-    </script>
-
-    <script
-      type="text/javascript"
-      src="/assets/frappe/js/lib/jquery/jquery.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/frappe/js/frappe-web.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/frappe/js/bootstrap-4-web.min.js"
-    ></script>
   </head>
 
   <body>
@@ -153,88 +130,7 @@
       </div>
     </section>
 
-    {% include 'templates/modal.html' %}
-    <footer class="fw">
-      <div class="container">
-        <div class="row">
-          <div class="fw dx footerinside">
-            <span class="bor">&nbsp;</span>
-            <div class="col-4">
-              <img src="/assets/lms/images/logo.svg" width="140" />
-              <div class="desc">
-                <p><strong>Corporate Office:</strong></p>
-                <p style="margin-top: 0px">
-                  A 8, Narayan Plaza, 26A Chandivali RD, Sakinaka Kurla, Near
-                  Chandivali Studio, Mumbai 400072
-                </p>
-                <a href="/comingsoon" class="download_app"
-                  >Download Spark Loans App</a
-                >
-                <div class="fw social dx">
-                  <a href="javascript:void(0);"
-                    ><i class="fab fa-linkedin-in"></i
-                  ></a>
-                  <a href="javascript:void(0);"
-                    ><i class="fab fa-twitter"></i
-                  ></a>
-                  <a href="javascript:void(0);"
-                    ><i class="fab fa-instagram"></i
-                  ></a>
-                  <a href="javascript:void(0);"
-                    ><i class="fab fa-facebook-f"></i
-                  ></a>
-                </div>
-              </div>
-            </div>
-            <div class="col dx_jcsb" id="footerlink">
-              <ul>
-                <li>
-                  <p class="mainlink">Quick Links</p>
-                </li>
-                <li><a href="/aboutus">About Us</a></li>
-                <li><a href="/aboutus#team">Team</a></li>
-                <li><a href="/partnerwithus">Partner With Us</a></li>
-                <li><a href="/help">Help / FAQs</a></li>
-                <li><a href="/comingsoon">Career</a></li>
-              </ul>
-              <ul>
-                <li>
-                  <p class="mainlink">Resources</p>
-                </li>
-                <li><a href="/comingsoon">Loan Tips</a></li>
-                <li><a href="/newsblogs">News and Blogs</a></li>
-                <li><a href="/privacypolicy">Privacy Policy</a></li>
-                <li><a href="/termsofuse">Terms of Use</a></li>
-              </ul>
-              <ul>
-                <li>
-                  <p class="mainlink">Contact</p>
-                </li>
-                <li><a href="/contact">Contact</a></li>
-                <!-- <li><a href="tel:+919307242424">93072 42424</a></li>
-                <li><a href="tel:+919199242424">91992 42424</a></li>
-                <li>
-                  <a href="mailto:reception@spark.loans"
-                    >reception@spark.loans</a
-                  >
-                </li> -->
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
-    <div class="fw copyright">
-      <div class="container">
-        <div class="row">
-          <div class="fw dx footer_bottom">
-            <div class="col" style="display: flex; justify-content: center">
-              <p>&copy; Spark Financial Technologies Private Limited 2021</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    {% include 'templates/modal.html' %} {% include 'templates/footer.html' %}
 
     <script
       type="text/javascript"

@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>Sparkloans</title>
+    <meta name="description" content="Sparkloans" />
     <link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -26,32 +27,13 @@
       type="text/css"
       href="/assets/lms/css/selectbox.css"
     />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/assets/lms/css/jquery.fileuploader.css"
+    />
     <link rel="stylesheet" type="text/css" href="/assets/lms/css/common.css" />
     <link rel="stylesheet" type="text/css" href="/assets/lms/css/media.css" />
-    <script src="/assets/frappe/js/lib/socket.io.min.js"></script>
-    <script>
-      window.frappe = {};
-      frappe.ready_events = [];
-      frappe.ready = function (fn) {
-        frappe.ready_events.push(fn);
-      }
-      window.dev_server = {{ dev_server }};
-      window.socketio_port = {{ frappe.socketio_port or 'null' }};
-      frappe.csrf_token = "{{ frappe.session.csrf_token }}";
-    </script>
-
-    <script
-      type="text/javascript"
-      src="/assets/frappe/js/lib/jquery/jquery.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/frappe/js/frappe-web.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/frappe/js/bootstrap-4-web.min.js"
-    ></script>
     <style>
       .proBox {
         padding: 100px 0;
@@ -66,14 +48,6 @@
       }
 
       .loader {
-        /* border: 16px solid #fff;
-  border-radius: 50%;
-  border-top: 16px solid #3498db;
-  width: 120px;
-  height: 120px;
-  -webkit-animation: spin 2s linear infinite; /* Safari
-  animation: spin 1.5s linear infinite; */
-
         border: 5px solid #fff;
         border-radius: 50%;
         border-top: 5px solid #3498db;
@@ -92,6 +66,7 @@
         0% {
           -webkit-transform: rotate(0deg);
         }
+
         100% {
           -webkit-transform: rotate(360deg);
         }
@@ -101,8 +76,14 @@
         0% {
           transform: rotate(0deg);
         }
+
         100% {
           transform: rotate(360deg);
+        }
+      }
+      @media screen and (max-width: 1366px) {
+        .everify {
+          margin-top: 50px;
         }
       }
     </style>
@@ -128,15 +109,44 @@
       });
     </script>
   </head>
+
   <body>
-    <div class="fw">
+    {% if "webview" in frappe.form_dict %}
+    <style>
+      @media (max-width: 1366px) {
+        .fw.mobnav,
+        footer,
+        .appdownloadbg,
+        header {
+          display: none !important;
+        }
+
+        .maintitle h5 {
+          margin-top: 2% !important;
+        }
+
+        .privacy {
+          padding-bottom: 0px;
+        }
+
+        .titlesec {
+          display: none !important;
+        }
+      }
+    </style>
+    {% endif %}
+    <div class="fw mobnav">
       <div class="fw mobileheader dx_jcsbalctr">
         <a href="/" class="logo"
           ><img src="/assets/lms/images/logo.svg" height="30"
         /></a>
         <div class="right dx_jcsbalctr">
           <p>
-            <a href="javascript:void(0);" class="applybtn"
+            <a
+              href="javascript:void(0);"
+              class="applybtn"
+              data-toggle="modal"
+              data-target="#apply-now-pop"
               ><span>Apply Now</span><span>&nbsp;</span></a
             >
           </p>
@@ -147,6 +157,7 @@
         </div>
       </div>
     </div>
+
     <header class="fw dx_ctr bg">
       <div class="container">
         <div class="row">
@@ -171,139 +182,67 @@
         </div>
       </div>
     </header>
-    <section class="fw">
-      <div class="container pr">
-        <div class="loader"></div>
-        <div class="addStock dynamic-content" id="email-verify-content">
-          <div class="row dx_jcsbalctr">
-            <div class="col-6 col-md-6">
-              <h3>Email Verification</h3>
+    <section class="fw"></section>
+    <section class="fw landing content-privacy everify">
+      <section class="fw">
+        <div class="container pr">
+          <div class="loader"></div>
+          <div class="addStock dynamic-content" id="email-verify-content">
+            <div class="row dx_jcsbalctr">
+              <div class="col-6 col-md-6">
+                <h3>Email Verification</h3>
+              </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col col-md-6 mt-5">
-              <div class="fw text-left">
-                <div id="fail" class="dynamic-content">
-                  <p>
-                    Oops,<br />Something went wrong, please contact
-                    Administrator.
-                  </p>
-                </div>
-                <div id="success" class="dynamic-content">
-                  <p>
-                    Hello,<br />Thank you, your email has been verified. Your
-                    account is now active.
-                  </p>
-                </div>
-                <div id="already-verified" class="dynamic-content">
-                  <p>Hello,<br />Your email verification is already done.</p>
+            <div class="row">
+              <div class="col col-md-6 mt-5">
+                <div class="fw text-left">
+                  <div id="fail" class="dynamic-content">
+                    <p>
+                      Oops,<br />Something went wrong, please contact
+                      Administrator.
+                    </p>
+                  </div>
+                  <div id="success" class="dynamic-content">
+                    <p>
+                      Hello,<br />Thank you, your email has been verified. Your
+                      account is now active.
+                    </p>
+                  </div>
+                  <div id="already-verified" class="dynamic-content">
+                    <p>Hello,<br />Your email verification is already done.</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+      </section>
+      <div class="container">
+        <div class="row">
+          <br />
         </div>
       </div>
     </section>
-    <div class="container">
-      <div class="row">
-        <br />
-      </div>
-    </div>
-    <footer class="fw">
-      <div class="container">
-        <div class="row">
-          <div class="fw dx footerinside">
-            <span class="bor">&nbsp;</span>
-            <div class="col-4">
-              <img src="/assets/lms/images/logo.svg" width="140" />
-              <div class="desc">
-                <p><strong>Corporate Office:</strong></p>
-                <p style="margin-top: 0px">
-                  A 8, Narayan Plaza, 26A Chandivali RD, Sakinaka Kurla, Near
-                  Chandivali Studio, Mumbai 400072
-                </p>
-                <a href="/comingsoon" class="download_app"
-                  >Download Spark Loans App</a
-                >
-                <div class="fw social dx">
-                  <a href="javascript:void(0);"
-                    ><i class="fab fa-linkedin-in"></i
-                  ></a>
-                  <a href="javascript:void(0);"
-                    ><i class="fab fa-twitter"></i
-                  ></a>
-                  <a href="javascript:void(0);"
-                    ><i class="fab fa-instagram"></i
-                  ></a>
-                  <a href="javascript:void(0);"
-                    ><i class="fab fa-facebook-f"></i
-                  ></a>
-                </div>
-              </div>
-            </div>
-            <div class="col dx_jcsb" id="footerlink">
-              <ul>
-                <li>
-                  <p class="mainlink">Quick Links</p>
-                </li>
-                <li><a href="/aboutus">About Us</a></li>
-                <li><a href="/aboutus#team">Team</a></li>
-                <li><a href="/partnerwithus">Partner With Us</a></li>
-                <li><a href="/help">Help / FAQs</a></li>
-                <li><a href="/comingsoon">Career</a></li>
-              </ul>
-              <ul>
-                <li>
-                  <p class="mainlink">Resources</p>
-                </li>
-                <li><a href="/comingsoon">Loan Tips</a></li>
-                <li><a href="/comingsoon">News and Blogs</a></li>
-                <li><a href="/termsofuse">Terms of Use</a></li>
-              </ul>
-              <ul>
-                <li>
-                  <p class="mainlink">Contact</p>
-                </li>
-                <li><a href="/contact">Contact</a></li>
-                <!-- <li><a href="tel:+919307242424">93072 42424</a></li>
-                <li><a href="tel:+919199242424">91992 42424</a></li>
-                <li>
-                  <a href="mailto:reception@spark.loans"
-                    >reception@spark.loans</a
-                  >
-                </li> -->
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
-    <div class="fw copyright">
-      <div class="container">
-        <div class="row">
-          <div class="fw dx footer_bottom">
-            <div class="col dx_jcsb">
-              <p>&copy; Spark Financial Technologies Private Limited 2021</p>
-              <p>
-                <a href="/privacypolicy">Privacy Policy</a>&nbsp;|&nbsp;
-                <a href="/cookiepolicy">Cookie Policy</a>&nbsp;|&nbsp;
-                <a href="/copyright">Copyright</a>
-              </p>
-              <p>
-                Designed & Developed by&nbsp;
-                <a href="https://leo9studio.com/" target="_blank">Leo9studio</a>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <script type="text/javascript" src="js/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript" src="js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="js/jquery.validate.min.js"></script>
-    <script type="text/javascript" src="js/owl.carousel.min.js"></script>
-    <script type="text/javascript" src="js/wow.min.js"></script>
-    <script type="text/javascript" src="js/main.js"></script>
+    {% include 'templates/modal.html' %} {% include 'templates/footer.html' %}
+
+    <script
+      type="text/javascript"
+      src="/assets/lms/js/jquery-3.6.0.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/lms/js/bootstrap.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/lms/js/jquery.validate.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/lms/js/owl.carousel.min.js"
+    ></script>
+    <script type="text/javascript" src="/assets/lms/js/wow.min.js"></script>
+    <script type="text/javascript" src="/assets/lms/js/main.js"></script>
   </body>
 </html>

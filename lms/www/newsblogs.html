@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Sparkloans</title>
+    <title>SparkLoans Knowledge Hub - Stay Updated with Us</title>
+    <meta
+      name="description"
+      content="Visit SparkLoans Blog to stay updated with latest updates from SparkLoans to team."
+    />
     <link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -222,118 +226,10 @@
         </div>
       </div>
     </section>
-    {% include 'templates/subscribe.html' %}
-    <section class="fw appdownload">
-      <div class="container">
-        <div class="row">
-          <div class="fw appdownloadbg">
-            <img
-              src="/assets/lms/images/home/Download_App.svg"
-              class="fw d-none d-sm-block"
-            />
-            <img
-              src="/assets/lms/images/home/appdownload_02.jpg"
-              class="fw d-block d-sm-none"
-            />
-            <div class="titlesec">
-              <h5>Download App</h5>
-              <p>We strongly believe that being the best is being unique.</p>
-              <div class="fw apps">
-                <a href="/comingsoon"
-                  ><img src="/assets/lms/images/home/play-store.svg" class="fw"
-                /></a>
-                <a href="/comingsoon"
-                  ><img src="/assets/lms/images/home/app-store.svg" class="fw"
-                /></a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    {% include 'templates/modal.html' %}
+    {% include 'templates/subscribe.html' %} {% include
+    'templates/appdownload.html' %} {% include 'templates/modal.html' %} {%
+    include 'templates/footer.html' %}
 
-    <footer class="fw">
-      <div class="container">
-        <div class="row">
-          <div class="fw dx footerinside">
-            <span class="bor">&nbsp;</span>
-            <div class="col-4">
-              <img src="/assets/lms/images/logo.svg" width="140" />
-              <div class="desc">
-                <p><strong>Corporate Office:</strong></p>
-                <p style="margin-top: 0px">
-                  A 8, Narayan Plaza, 26A Chandivali RD, Sakinaka Kurla, Near
-                  Chandivali Studio, Mumbai 400072
-                </p>
-                <a href="/comingsoon" class="download_app"
-                  >Download Spark Loans App</a
-                >
-                <div class="fw social dx">
-                  <a href="javascript:void(0);"
-                    ><i class="fab fa-linkedin-in"></i
-                  ></a>
-                  <a href="javascript:void(0);"
-                    ><i class="fab fa-twitter"></i
-                  ></a>
-                  <a href="javascript:void(0);"
-                    ><i class="fab fa-instagram"></i
-                  ></a>
-                  <a href="javascript:void(0);"
-                    ><i class="fab fa-facebook-f"></i
-                  ></a>
-                </div>
-              </div>
-            </div>
-            <div class="col dx_jcsb" id="footerlink">
-              <ul>
-                <li>
-                  <p class="mainlink">Quick Links</p>
-                </li>
-                <li><a href="/aboutus">About Us</a></li>
-                <li><a href="/aboutus#team">Team</a></li>
-                <li><a href="/partnerwithus">Partner With Us</a></li>
-                <li><a href="/help">Help / FAQs</a></li>
-                <li><a href="/comingsoon">Career</a></li>
-              </ul>
-              <ul>
-                <li>
-                  <p class="mainlink">Resources</p>
-                </li>
-                <li><a href="/comingsoon">Loan Tips</a></li>
-                <li><a href="/newsblogs">News and Blogs</a></li>
-                <li><a href="/privacypolicy">Privacy Policy</a></li>
-                <li><a href="/termsofuse">Terms of Use</a></li>
-              </ul>
-              <ul>
-                <li>
-                  <p class="mainlink">Contact</p>
-                </li>
-                <li><a href="/contact">Contact</a></li>
-                <!-- <li><a href="tel:+919307242424">93072 42424</a></li>
-                <li><a href="tel:+919199242424">91992 42424</a></li>
-                <li>
-                  <a href="mailto:reception@spark.loans"
-                    >reception@spark.loans</a
-                  >
-                </li> -->
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
-    <div class="fw copyright">
-      <div class="container">
-        <div class="row">
-          <div class="fw dx footer_bottom">
-            <div class="col" style="display: flex; justify-content: center">
-              <p>&copy; Spark Financial Technologies Private Limited 2021</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
     <input type="hidden" name="page_no" id="page_no" value="1" />
     <input type="hidden" name="post" id="latest_post_2" />
     <input type="hidden" name="post1" id="trending_post_2" value="false" />
@@ -356,7 +252,7 @@
     ></script>
     <script type="text/javascript" src="/assets/lms/js/wow.min.js"></script>
     <script type="text/javascript" src="/assets/lms/js/main.js"></script>
-    <script type="text/javascript" src="/assets/lms/js/dateformat.js"></script>
+
     <script type="text/javascript">
       $(document).ready(function () {
         // on page load fetch all blogs
@@ -435,8 +331,7 @@
                   $.each(arr, (index, tag) => {
                     tags += "<a href=#>" + tag + "</a>";
                   });
-                  // var nowDate = new Date(val.publishing_date);
-                  // var formattedDate = formatDate(nowDate);
+
                   html +=
                     '<li class="col-md-4 col-sm-6 item">' +
                     '<a href="newsblog?blog_name=' +
@@ -464,7 +359,6 @@
                   $("#ourStories").append(html);
                 }
                 next_pg_number = parseInt(res.data.page_no) + 1;
-                // console.log("next_pg_number : " + next_pg_number);
                 $("#page_no").val(next_pg_number);
                 $("#viewMore").show();
               } else if (pg_number == 1 && res.data.blogs_all.length <= 0) {
