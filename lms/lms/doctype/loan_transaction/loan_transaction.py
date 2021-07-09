@@ -81,6 +81,7 @@ class LoanTransaction(Document):
         self.validate_withdrawal_amount()
         # set customer
         loan = self.get_loan()
+        # update opening balance
         self.opening_balance = loan.balance
         self.customer = loan.customer
         self.customer_name = loan.customer_name
@@ -165,7 +166,7 @@ class LoanTransaction(Document):
         elif self.transaction_type == "Penal Interest":
             loan.is_penalize = 1
         loan.update_loan_balance(check_for_shortfall=check_for_shortfall)
-        # self.closing_balance = loan.balance
+        # update closing balance
         frappe.db.set_value(self.doctype, self.name, "closing_balance", loan.balance, update_modified=False)
 
         if self.transaction_type == "Payment":
@@ -441,6 +442,10 @@ class LoanTransaction(Document):
                     loan_margin_shortfall.status = "Pending"
                     loan_margin_shortfall.save(ignore_permissions=True)
                     frappe.db.commit()
+
+        # if rejected then opening balance = closing balance
+        if self.status == "Rejected":
+            frappe.db.set_value(self.doctype, self.name, "closing_balance", self.opening_balance, update_modified=False)
 
     def get_customer(self):
         return frappe.get_doc("Loan Customer", self.customer)
