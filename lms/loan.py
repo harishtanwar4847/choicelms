@@ -1710,6 +1710,7 @@ def loan_statement(**kwargs):
         res = {"loan": loan}
 
         lt_list = []
+        order_by_asc_desc = "asc" if data.get("file_format") == "pdf" or data.get("file_format") == "excel" else "desc"
         #common data for jinja templating
         lender = frappe.get_doc("Lender", loan.lender)
         curr_date = (frappe.utils.now_datetime()).strftime("%d-%B-%Y")
@@ -1739,7 +1740,7 @@ def loan_statement(**kwargs):
             loan_transaction_list = frappe.db.get_all(
                 "Loan Transaction",
                 filters=filter,
-                order_by="time desc",
+                order_by="time {}".format(order_by_asc_desc),
                 fields=[
                     "name",
                     "transaction_type",
@@ -1747,7 +1748,9 @@ def loan_statement(**kwargs):
                     "amount",
                     "time",
                     # "DATE_FORMAT(time, '%Y-%m-%d %H:%i') as time",
-                    "status",
+                    # "status",
+                    "opening_balance",
+                    "closing_balance",
                 ],
                 page_length=page_length,
             )
@@ -1763,7 +1766,6 @@ def loan_statement(**kwargs):
             res["loan_transaction_list"] = loan_transaction_list
             df = pd.DataFrame(lt_list)
             df.columns = loan_transaction_list[0].keys()
-            df.drop('status', inplace=True, axis=1)
             df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
 
             # credit_debit_details = loan.get_transaction_summary()
@@ -1776,7 +1778,8 @@ def loan_statement(**kwargs):
                 "credit_count": len(df[df["Record Type"] == "CR"]),
                 "total_debit": df.loc[df["Record Type"] == "DR", "Amount"].sum(),
                 "total_credit": df.loc[df["Record Type"] == "CR", "Amount"].sum(),
-                "closing_balance": loan.balance
+                "opening_balance": df.iloc[0]["Opening Balance"],
+                "closing_balance": df.iloc[-1]["Closing Balance"]
             }
             doc["column_name"] = df.columns
             doc["rows"] = df.iterrows()
@@ -1804,7 +1807,7 @@ def loan_statement(**kwargs):
             on `tabSecurity`.name = `tabCollateral Ledger`.isin
             where `tabCollateral Ledger`.loan = '{}'
             {}
-            order by creation desc
+            order by creation {}
             {}""".format(
                     data.get("loan_name"),
                     "and " + from_to_date
@@ -1812,6 +1815,7 @@ def loan_statement(**kwargs):
                     else "and " + duration_date
                     if data.get("duration")
                     else "",
+                    order_by_asc_desc,
                     "limit " + page_length + ";" if page_length else page_length + ";",
                 ),
                 as_dict=1,
@@ -1879,6 +1883,7 @@ def loan_statement(**kwargs):
                 loan_statement_excel_file_path = frappe.utils.get_files_path(
                     loan_statement_excel_file
                 )
+                df.drop('Opening Balance', inplace=True, axis=1)
                 df.to_excel(loan_statement_excel_file_path, index=False)
 
             loan_statement_pdf_file_url = ""

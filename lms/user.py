@@ -928,16 +928,17 @@ def dashboard(**kwargs):
                         + loan.total_collateral_value,
                     )
 
-                la_pending_esigns.append(
-                    {
-                        "loan_application": loan_application_doc,
-                        "message": mess,
-                        "increase_loan_message": increase_loan_mess
-                        if loan_application_doc.loan
-                        and not loan_application_doc.loan_margin_shortfall
-                        else None,
-                    }
-                )
+                if not loan_application_doc.loan_margin_shortfall:
+                    la_pending_esigns.append(
+                        {
+                            "loan_application": loan_application_doc,
+                            "message": mess,
+                            "increase_loan_message": increase_loan_mess
+                            if loan_application_doc.loan
+                            and not loan_application_doc.loan_margin_shortfall
+                            else None,
+                        }
+                    )
 
         pending_topup_applications = frappe.get_all(
             "Top up Application",
