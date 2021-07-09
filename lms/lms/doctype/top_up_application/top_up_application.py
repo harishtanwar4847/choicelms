@@ -352,3 +352,8 @@ class TopupApplication(Document):
         )
         # save loan sanction history
         loan.save_loan_sanction_history(loan_agreement_file.name, event)
+
+def only_pdf_upload(doc, method):
+    if doc.attached_to_doctype == "Top up Application":
+        if doc.file_name.split(".")[-1].lower() != "pdf":
+            frappe.throw("Kindly upload PDF files only.")
