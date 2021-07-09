@@ -448,7 +448,11 @@ def approved_securities(**kwargs):
                 data.get("lender")
             ).replace(" ", "-")
 
-            curr_date = (frappe.utils.now_datetime()).strftime("%d %b, %Y")
+            date_ = (frappe.utils.now_datetime())
+            # formatting of date as 1 => 1st, 11 => 11th, 21 => 21st
+            formatted_date = lms.date_str_format(date=date_.day)
+
+            curr_date = formatted_date + date_.strftime(" %B, %Y")
 
             approved_security_pdf_file_path = frappe.utils.get_files_path(
                 approved_security_pdf_file
@@ -924,16 +928,17 @@ def dashboard(**kwargs):
                         + loan.total_collateral_value,
                     )
 
-                la_pending_esigns.append(
-                    {
-                        "loan_application": loan_application_doc,
-                        "message": mess,
-                        "increase_loan_message": increase_loan_mess
-                        if loan_application_doc.loan
-                        and not loan_application_doc.loan_margin_shortfall
-                        else None,
-                    }
-                )
+                if not loan_application_doc.loan_margin_shortfall:
+                    la_pending_esigns.append(
+                        {
+                            "loan_application": loan_application_doc,
+                            "message": mess,
+                            "increase_loan_message": increase_loan_mess
+                            if loan_application_doc.loan
+                            and not loan_application_doc.loan_margin_shortfall
+                            else None,
+                        }
+                    )
 
         pending_topup_applications = frappe.get_all(
             "Top up Application",
