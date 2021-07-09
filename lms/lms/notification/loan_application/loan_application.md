@@ -39,7 +39,7 @@
         <tr>
             <td>
                 <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
-                    {% if doc.get("loan_application").get("status") == "Pledge accepted by Lender" %}
+                    {% if doc.get("loan_application").get("status") == "Pledge accepted by Lender" and not doc.get("loan_margin_shortfall") %}
                         <strong>Congratulations!!</strong><br />
                         <br />
                         Your loan application has been accepted.<br />
@@ -58,7 +58,7 @@
                         We look forward to serve you soon.<br />
                         <br />
                     {% endif %}
-                    {% if doc.get("loan_application").get("status") == "Approved" %}
+                    {% if doc.get("loan_application").get("status") == "Approved" and not doc.get("loan_margin_shortfall") %}
                         Your loan account is now open!<br />
                         <br />
                         You may now withdraw funds as per your convenience.<br />
@@ -67,7 +67,7 @@
                         We look forward to serve you soon.<br />
                         <br />
                     {% endif %}
-                    {% if doc.get("loan_application").get("status") == "Rejected" %}
+                    {% if doc.get("loan_application").get("status") == "Rejected" and not doc.get("loan_margin_shortfall") %}
                         Sorry! Your loan application was turned down due to technical reasons.<br />
                         <br />
                         We regret the inconvenience caused.<br />
@@ -76,7 +76,7 @@
                         We look forward to serve you soon.<br />
                         <br />
                     {% endif %}
-                    {% if ((doc.get("loan_application").get("pledge_status") == "Partial Success") or (doc.get("loan_application").get("current_total_collateral_value") < doc.get("loan_application").get("requested_total_collateral_value"))) and doc.get("loan_application").get("status") == "Pledge accepted by Lender" %}
+                    {% if ((doc.get("loan_application").get("pledge_status") == "Partial Success") or (doc.get("loan_application").get("current_total_collateral_value") < doc.get("loan_application").get("requested_total_collateral_value"))) and doc.get("loan_application").get("status") == "Pledge accepted by Lender" and not doc.get("loan_margin_shortfall") %}
                         Congratulations!<br />
                         <br />
                         Your pledge request was successfully considered and was partially accepted for Rs. {{doc.get("loan_application").get("current_total_collateral_value")}} due to
