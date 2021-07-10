@@ -167,7 +167,13 @@ class LoanTransaction(Document):
             loan.is_penalize = 1
         loan.update_loan_balance(check_for_shortfall=check_for_shortfall)
         # update closing balance
-        frappe.db.set_value(self.doctype, self.name, "closing_balance", loan.balance, update_modified=False)
+        frappe.db.set_value(
+            self.doctype,
+            self.name,
+            "closing_balance",
+            loan.balance,
+            update_modified=False,
+        )
 
         if self.transaction_type == "Payment":
             doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
@@ -445,7 +451,13 @@ class LoanTransaction(Document):
 
         # if rejected then opening balance = closing balance
         if self.status == "Rejected":
-            frappe.db.set_value(self.doctype, self.name, "closing_balance", self.opening_balance, update_modified=False)
+            frappe.db.set_value(
+                self.doctype,
+                self.name,
+                "closing_balance",
+                self.opening_balance,
+                update_modified=False,
+            )
 
     def get_customer(self):
         return frappe.get_doc("Loan Customer", self.customer)

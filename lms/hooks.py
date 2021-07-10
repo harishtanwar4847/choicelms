@@ -83,7 +83,10 @@ after_install = "lms.after_install"
 doc_events = {
     "User": {"on_trash": "lms.delete_user"},
     "File": {
-        "before_insert": ["lms.lms.doctype.loan_application.loan_application.only_pdf_upload", "lms.lms.doctype.top_up_application.top_up_application.only_pdf_upload"]
+        "before_insert": [
+            "lms.lms.doctype.loan_application.loan_application.only_pdf_upload",
+            "lms.lms.doctype.top_up_application.top_up_application.only_pdf_upload",
+        ]
     },
 }
 

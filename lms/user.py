@@ -448,7 +448,7 @@ def approved_securities(**kwargs):
                 data.get("lender")
             ).replace(" ", "-")
 
-            date_ = (frappe.utils.now_datetime())
+            date_ = frappe.utils.now_datetime()
             # formatting of date as 1 => 1st, 11 => 11th, 21 => 21st
             formatted_date = lms.date_str_format(date=date_.day)
 

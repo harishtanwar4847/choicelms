@@ -20,7 +20,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "1.0.0-beta.1.3.8"
+__version__ = "1.0.0-beta.1.3.9"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -562,6 +562,7 @@ def regex_special_characters(search, regex=None):
     else:
         return False
 
+
 def date_str_format(date=None):
     # date formatting in html to pdf
     # 1 => 1st, 11 => 11th, 21 => 21st
@@ -570,6 +571,6 @@ def date_str_format(date=None):
     # 4 => 4th, 14 => 14th, 24 => 24th
 
     if 10 <= date % 100 < 20:
-        return str(date) + 'th'
+        return str(date) + "th"
     else:
-        return str(date) + {1 : 'st', 2 : 'nd', 3 : 'rd'}.get(date % 10, "th")
+        return str(date) + {1: "st", 2: "nd", 3: "rd"}.get(date % 10, "th")

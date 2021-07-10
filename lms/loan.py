@@ -847,7 +847,8 @@ def loan_details(**kwargs):
             loan_transactions_list = list(
                 map(
                     lambda item: dict(
-                        item, amount=frappe.utils.fmt_money(item["amount"])
+                        item,
+                        amount=frappe.utils.fmt_money(item["amount"])
                         # item, amount=lms.amount_formatter(item["amount"])
                     ),
                     loan_transactions_list,
@@ -1623,7 +1624,9 @@ def loan_statement(**kwargs):
                     message=frappe._("From date cannot be greater than To date")
                 )
 
-            statement_period = from_date.strftime("%d-%B-%Y") + " to " + to_date.strftime("%d-%B-%Y")
+            statement_period = (
+                from_date.strftime("%d-%B-%Y") + " to " + to_date.strftime("%d-%B-%Y")
+            )
             if data.get("type") == "Account Statement":
                 filter["time"] = ["between", (from_date, to_date)]
             elif data.get("type") == "Pledged Securities Transactions":
@@ -1710,8 +1713,12 @@ def loan_statement(**kwargs):
         res = {"loan": loan}
 
         lt_list = []
-        order_by_asc_desc = "asc" if data.get("file_format") == "pdf" or data.get("file_format") == "excel" else "desc"
-        #common data for jinja templating
+        order_by_asc_desc = (
+            "asc"
+            if data.get("file_format") == "pdf" or data.get("file_format") == "excel"
+            else "desc"
+        )
+        # common data for jinja templating
         lender = frappe.get_doc("Lender", loan.lender)
         curr_date = (frappe.utils.now_datetime()).strftime("%d-%B-%Y")
         doc = {
@@ -1724,7 +1731,9 @@ def loan_statement(**kwargs):
             "account_opening_date": (loan.creation).strftime("%d-%B-%Y"),
             "overdraft_limit": loan.sanctioned_limit,
             "drawing_power": loan.drawing_power,
-            "drawing_power_datetime": (frappe.utils.now_datetime()).strftime("%d-%B-%Y %H:%M:%S"),
+            "drawing_power_datetime": (frappe.utils.now_datetime()).strftime(
+                "%d-%B-%Y %H:%M:%S"
+            ),
             "curr_date": curr_date,
         }
         if data.get("type") == "Account Statement":
@@ -1769,9 +1778,11 @@ def loan_statement(**kwargs):
             df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
 
             # credit_debit_details = loan.get_transaction_summary()
-            loan_account_statement_template = lender.get_loan_account_statement_template()
+            loan_account_statement_template = (
+                lender.get_loan_account_statement_template()
+            )
             # print(sum(df["Amount"].apply(lambda x: float(x))))
-            df["Amount"] = (df["Amount"].str.replace(',', '')).apply(lambda x: float(x))
+            df["Amount"] = (df["Amount"].str.replace(",", "")).apply(lambda x: float(x))
             doc["statement_period"] = statement_period
             doc["summary"] = {
                 "debit_count": len(df[df["Record Type"] == "DR"]),
@@ -1779,7 +1790,7 @@ def loan_statement(**kwargs):
                 "total_debit": df.loc[df["Record Type"] == "DR", "Amount"].sum(),
                 "total_credit": df.loc[df["Record Type"] == "CR", "Amount"].sum(),
                 "opening_balance": df.iloc[0]["Opening Balance"],
-                "closing_balance": df.iloc[-1]["Closing Balance"]
+                "closing_balance": df.iloc[-1]["Closing Balance"],
             }
             doc["column_name"] = df.columns
             doc["rows"] = df.iterrows()
@@ -1828,7 +1839,9 @@ def loan_statement(**kwargs):
             df = pd.DataFrame(lt_list)
             df.columns = pledged_securities_transactions[0].keys()
             df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
-            loan_account_statement_template = lender.get_pledged_security_statement_template()
+            loan_account_statement_template = (
+                lender.get_pledged_security_statement_template()
+            )
             doc["statement_period"] = statement_period
             doc["column_name"] = df.columns
             doc["rows"] = df.iterrows()
@@ -1857,12 +1870,12 @@ def loan_statement(**kwargs):
                 # a = df.to_html()
                 # a.replace("dataframe", "center")
                 # style = """<style>
-				# tr {
-				# page-break-inside: avoid;
-				# }
-				# th {text-align: center;}
-				# </style>
-				# """
+                # tr {
+                # page-break-inside: avoid;
+                # }
+                # th {text-align: center;}
+                # </style>
+                # """
 
                 # html_with_style = style + a
 
@@ -1871,9 +1884,24 @@ def loan_statement(**kwargs):
                 if data.get("is_email"):
                     # password content for password protected pdf
                     pwd = user_kyc.pan_no[:4] + str(user_kyc.date_of_birth.year)
-                    pdf = get_pdf(agreement, options={"password": pwd,"margin-right": "1mm","margin-left": "1mm","page-size":"A4"})
+                    pdf = get_pdf(
+                        agreement,
+                        options={
+                            "password": pwd,
+                            "margin-right": "1mm",
+                            "margin-left": "1mm",
+                            "page-size": "A4",
+                        },
+                    )
                 else:
-                    pdf = get_pdf(agreement,options={"margin-right": "1mm","margin-left": "1mm","page-size":"A4"})
+                    pdf = get_pdf(
+                        agreement,
+                        options={
+                            "margin-right": "1mm",
+                            "margin-left": "1mm",
+                            "page-size": "A4",
+                        },
+                    )
 
                 pdf_file.write(pdf)
                 pdf_file.close()
@@ -1883,7 +1911,7 @@ def loan_statement(**kwargs):
                 loan_statement_excel_file_path = frappe.utils.get_files_path(
                     loan_statement_excel_file
                 )
-                df.drop('Opening Balance', inplace=True, axis=1)
+                df.drop("Opening Balance", inplace=True, axis=1)
                 df.to_excel(loan_statement_excel_file_path, index=False)
 
             loan_statement_pdf_file_url = ""

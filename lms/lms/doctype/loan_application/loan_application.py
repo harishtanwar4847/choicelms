@@ -843,21 +843,30 @@ class LoanApplication(Document):
                 else "Dear Customer,\nSorry! Your loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
             )
 
-        elif doc.get("loan_application").get("status") == "Pledge accepted by Lender" and not self.loan_margin_shortfall:
+        elif (
+            doc.get("loan_application").get("status") == "Pledge accepted by Lender"
+            and not self.loan_margin_shortfall
+        ):
             msg = (
                 'Dear Customer,\nCongratulations! Your Increase loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans'
                 if self.loan and not self.loan_margin_shortfall
                 else 'Dear Customer,\nCongratulations! Your loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans'
             )
 
-        elif doc.get("loan_application").get("status") == "Approved" and not self.loan_margin_shortfall:
+        elif (
+            doc.get("loan_application").get("status") == "Approved"
+            and not self.loan_margin_shortfall
+        ):
             msg = (
                 "Dear Customer,\nCongratulations! Your loan limit has been successfully increased. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans"
                 if self.loan and not self.loan_margin_shortfall
                 else "Dear Customer,\nCongratulations! Your loan account is open. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans"
             )
 
-        elif doc.get("loan_application").get("status") == "Rejected" and not self.loan_margin_shortfall:
+        elif (
+            doc.get("loan_application").get("status") == "Rejected"
+            and not self.loan_margin_shortfall
+        ):
             msg = (
                 "Dear Customer,\nSorry! Your Increase loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
                 if self.loan and not self.loan_margin_shortfall
@@ -872,9 +881,13 @@ class LoanApplication(Document):
             msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan approval. Thank you for your patience. - Spark Loans"
 
         if (
-            (self.pledge_status == "Partial Success")
-            or (self.total_collateral_value < self.pledged_total_collateral_value)
-        ) and doc.get("loan_application").get("status") == "Pledge accepted by Lender" and not self.loan_margin_shortfall:
+            (
+                (self.pledge_status == "Partial Success")
+                or (self.total_collateral_value < self.pledged_total_collateral_value)
+            )
+            and doc.get("loan_application").get("status") == "Pledge accepted by Lender"
+            and not self.loan_margin_shortfall
+        ):
             msg = "Dear Customer,\nCongratulations! Your pledge request was successfully considered and was partially accepted for Rs. {} due to technical reasons. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. -Spark Loans".format(
                 self.total_collateral_value_str
             )
