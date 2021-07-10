@@ -1609,7 +1609,7 @@ def loan_statement(**kwargs):
                 message=frappe._("Please select PDF/Excel file format")
             )
 
-        statement_period = ""
+        statement_period = ""        
         if data.get("from_date") and data.get("to_date"):
             try:
                 from_date = datetime.strptime(data.get("from_date"), "%d-%m-%Y")
