@@ -12,6 +12,6 @@ def execute():
     sms_settings.append(
         "parameters", {"parameter": "apikey", "value": "3a48e2d603d37b69"}
     )
-    sms_settings.append("parameters", {"parameter": "unicode", "value": "yes"})
+    sms_settings.append("parameters", {"parameter": "unicode", "value": "no"})
     sms_settings.save()
     frappe.db.commit()
