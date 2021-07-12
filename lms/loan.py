@@ -352,8 +352,8 @@ def my_loans():
                 {
                     "customer": customer.name,
                     "status": ["not IN", ["Rejected", "Pledge Failure"]],
-                    "pledge_status": ["!=", "Failure"]
-                }
+                    "pledge_status": ["!=", "Failure"],
+                },
             )
             if not under_process_la:
                 data["user_can_pledge"] = 1
