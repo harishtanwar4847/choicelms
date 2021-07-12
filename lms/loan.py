@@ -345,6 +345,19 @@ def my_loans():
         )
 
         data = {"loans": loans}
+        data["user_can_pledge"] = 0
+        if not loans:
+            under_process_la = frappe.get_all(
+                "Loan Application",
+                {
+                    "customer": customer.name,
+                    "status": ["not IN", ["Rejected", "Pledge Failure"]],
+                    "pledge_status": ["!=", "Failure"]
+                }
+            )
+            if not under_process_la:
+                data["user_can_pledge"] = 1
+
         data["total_outstanding"] = float(sum([i.outstanding for i in loans]))
         data["total_sanctioned_limit"] = float(sum([i.sanctioned_limit for i in loans]))
         data["total_drawing_power"] = float(sum([i.drawing_power for i in loans]))
