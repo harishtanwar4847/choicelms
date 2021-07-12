@@ -1912,7 +1912,8 @@ def loan_statement(**kwargs):
                 loan_statement_excel_file_path = frappe.utils.get_files_path(
                     loan_statement_excel_file
                 )
-                df.drop("Opening Balance", inplace=True, axis=1)
+                if data.get("type") == "Account Statement":
+                    df.drop("Opening Balance", inplace=True, axis=1)
                 df.to_excel(loan_statement_excel_file_path, index=False)
 
             loan_statement_pdf_file_url = ""
