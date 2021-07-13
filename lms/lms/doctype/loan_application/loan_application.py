@@ -365,11 +365,12 @@ class LoanApplication(Document):
                     loan_margin_shortfall.save(ignore_permissions=True)
                     frappe.db.commit()
 
-        #     customer = self.get_customer()
-        #     if not customer.pledge_securities:
-        #         customer.pledge_securities = 0
-        #         customer.save(ignore_permissions=True)
-        # frappe.db.commit()
+            if not self.loan and not self.loan_margin_shortfall:
+                customer = self.get_customer()
+                if customer.pledge_securities:
+                    customer.pledge_securities = 0
+                    customer.save(ignore_permissions=True)
+                    frappe.db.commit()
 
         self.notify_customer()
 
