@@ -63,10 +63,10 @@
   <tr>
     <td height="138" bgcolor="#ff6565"><table width="700" border="0" align="center" cellpadding="0" cellspacing="0">
         <tr>
-          <td class="column" style="padding-bottom:10px"><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#fff;width: 100% !important; display: block !important; text-align:center">© 2021 Spark Financial Technologies Private Limited</span></td>
+          <td class="column" align="center" width="100%" style="padding-bottom:10px"><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#fff;width: 100% !important; display: block !important; text-align:center">© 2021 Spark Financial Technologies Private Limited</span></td>
           </tr>
           <tr>
-          <td class="column" align="right" style="width: 100% !important; display: block !important; text-align:center"><a href="#"><img src="fb_icon" width="36" height="35" style="border:0"/></a>&nbsp; <a href="#"><img src="tw_icon" width="36" height="35" style="border:0"/></a>&nbsp; <a href="#"><img src="inst_icon" width="36" height="35" style="border:0"/></a>&nbsp; <a href="#"><img src="lin_icon" width="36" height="35" style="border:0"/></a></td>
+          <td class="column" align="center" width="100%" style="width: 100% !important; display: block !important; text-align:center"><a href="#"><img src="fb_icon" width="36" height="35" style="border:0"/></a>&nbsp; <a href="#"><img src="tw_icon" width="36" height="35" style="border:0"/></a>&nbsp; <a href="#"><img src="inst_icon" width="36" height="35" style="border:0"/></a>&nbsp; <a href="#"><img src="lin_icon" width="36" height="35" style="border:0"/></a></td>
         </tr>
       </table></td>
   </tr>
