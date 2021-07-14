@@ -19,14 +19,14 @@ def validate_securities_for_cart(securities, lender):
     if not securities or (
         type(securities) is not dict and "list" not in securities.keys()
     ):
-        raise utils.ValidationException(
+        raise utils.exceptions.ValidationException(
             {"securities": {"required": frappe._("Securities required.")}}
         )
 
     securities = securities["list"]
 
     if len(securities) == 0:
-        raise utils.ValidationException(
+        raise utils.exceptions.ValidationException(
             {"securities": {"required": frappe._("Securities required.")}}
         )
 
@@ -76,7 +76,9 @@ def validate_securities_for_cart(securities, lender):
                 break
 
     if not securities_valid:
-        raise utils.ValidationException({"securities": {"required": message}})
+        raise utils.exceptions.ValidationException(
+            {"securities": {"required": message}}
+        )
 
     return securities
 
