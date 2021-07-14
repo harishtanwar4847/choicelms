@@ -220,7 +220,7 @@ def get_choice_kyc_old(pan_no, birth_date):
         raise utils.exceptions.APIException(str(e))
 
 
-""" Changes as per new kyc flow - confirmed with vinayak - 13/07/2021"""
+""" Changes as per new kyc flow - confirmed with vinayak - 14/07/2021"""
 
 
 @frappe.whitelist()
@@ -237,80 +237,117 @@ def get_choice_kyc(**kwargs):
             },
         )
 
-        las_settings = frappe.get_single("LAS Settings")
+        if not data.get("accept_terms"):
+            return utils.respondUnauthorized(
+                message=frappe._("Please accept Terms and Conditions.")
+            )
 
-        params = {
-            "PANNum": pan_no,
-            "dob": (datetime.strptime(birth_date, "%d-%m-%Y")).strftime("%Y-%m-%d"),
-        }
+        try:
+            datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
+        except ValueError:
+            return utils.respondWithFailure(
+                status=417,
+                message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
+            )
 
-        headers = {
-            "businessUnit": las_settings.choice_business_unit,
-            "userId": las_settings.choice_user_id,
-            "investorId": las_settings.choice_investor_id,
-            "ticket": las_settings.choice_ticket,
-        }
+        reg = lms.regex_special_characters(search=data.get("pan_no"))
+        if reg:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
 
-        res = requests.get(las_settings.choice_pan_api, params=params, headers=headers)
+        try:
+            user_kyc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
+        except UserKYCNotFoundException:
+            user_kyc = None
 
-        data = res.json()
+        if not user_kyc:
+            user_kyc = {}
+            try:
+                las_settings = frappe.get_single("LAS Settings")
 
-        if not res.ok or "errorCode" in data:
-            raise UserKYCNotFoundException
-            raise utils.exceptions.APIException(res.text)
+                params = {
+                    "PANNum": data.get("pan_no"),
+                    "dob": (
+                        datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
+                    ).strftime("%Y-%m-%d"),
+                }
 
-        user_kyc = lms.__user_kyc(pan_no=pan_no, throw=False)
-        user_kyc.kyc_type = "CHOICE"
-        user_kyc.investor_name = data["investorName"]
-        user_kyc.father_name = data["fatherName"]
-        user_kyc.mother_name = data["motherName"]
-        user_kyc.address = data["address"].replace("~", " ")
-        user_kyc.city = data["addressCity"]
-        user_kyc.state = data["addressState"]
-        user_kyc.pincode = data["addressPinCode"]
-        user_kyc.mobile_number = data["mobileNum"]
-        user_kyc.choice_client_id = data["clientId"]
-        user_kyc.pan_no = data["panNum"]
-        user_kyc.date_of_birth = datetime.strptime(
-            data["dateOfBirth"], "%Y-%m-%dT%H:%M:%S.%f%z"
-        ).strftime("%Y-%m-%d")
+                headers = {
+                    "businessUnit": las_settings.choice_business_unit,
+                    "userId": las_settings.choice_user_id,
+                    "investorId": las_settings.choice_investor_id,
+                    "ticket": las_settings.choice_ticket,
+                }
 
-        if data["banks"]:
-            user_kyc.bank_account = []
-
-            for bank in data["banks"]:
-                user_kyc.append(
-                    "bank_account",
-                    {
-                        "bank": bank["bank"],
-                        "bank_address": bank["bankAddress"],
-                        "branch": bank["branch"],
-                        "contact": bank["contact"],
-                        "account_type": bank["accountType"],
-                        "account_number": bank["accountNumber"],
-                        "ifsc": bank["ifsc"],
-                        "micr": bank["micr"],
-                        "bank_mode": bank["bankMode"],
-                        "bank_code": bank["bankcode"],
-                        "bank_zip_code": bank["bankZipCode"],
-                        "city": bank["city"],
-                        "district": bank["district"],
-                        "state": bank["state"],
-                        "is_default": bank["defaultBank"] == "Y",
-                    },
+                res = requests.get(
+                    las_settings.choice_pan_api, params=params, headers=headers
                 )
-        user_kyc.save(ignore_permissions=True)
 
-        return {
-            "user_kyc": user_kyc,
-        }
+                data = res.json()
 
-    except requests.RequestException as e:
-        raise utils.exceptions.APIException(str(e))
-    except UserKYCNotFoundException:
-        raise
-    except Exception as e:
-        raise utils.exceptions.APIException(str(e))
+                if not res.ok or "errorCode" in data:
+                    raise UserKYCNotFoundException
+                    raise utils.exceptions.APIException(res.text)
+
+                # user_kyc = lms.__user_kyc(pan_no=pan_no, throw=False)
+                user_kyc["kyc_type"] = "CHOICE"
+                user_kyc["investor_name"] = data["investorName"]
+                user_kyc["father_name"] = data["fatherName"]
+                user_kyc["mother_name"] = data["motherName"]
+                user_kyc["address"] = data["address"].replace("~", " ")
+                user_kyc["city"] = data["addressCity"]
+                user_kyc["state"] = data["addressState"]
+                user_kyc["pincode"] = data["addressPinCode"]
+                user_kyc["mobile_number"] = data["mobileNum"]
+                user_kyc["choice_client_id"] = data["clientId"]
+                user_kyc["pan_no"] = data["panNum"]
+                user_kyc["date_of_birth"] = datetime.strptime(
+                    data["dateOfBirth"], "%Y-%m-%dT%H:%M:%S.%f%z"
+                ).strftime("%Y-%m-%d")
+
+                if data["banks"]:
+                    user_kyc["bank_account"] = []
+
+                    for bank in data["banks"]:
+                        user_kyc["bank_account"].append(
+                            {
+                                "bank": bank["bank"],
+                                "bank_address": bank["bankAddress"],
+                                "branch": bank["branch"],
+                                "contact": bank["contact"],
+                                "account_type": bank["accountType"],
+                                "account_number": bank["accountNumber"],
+                                "ifsc": bank["ifsc"],
+                                "micr": bank["micr"],
+                                "bank_mode": bank["bankMode"],
+                                "bank_code": bank["bankcode"],
+                                "bank_zip_code": bank["bankZipCode"],
+                                "city": bank["city"],
+                                "district": bank["district"],
+                                "state": bank["state"],
+                                "is_default": bank["defaultBank"] == "Y",
+                            },
+                        )
+
+            except requests.RequestException as e:
+                raise utils.exceptions.APIException(str(e))
+            except UserKYCNotFoundException:
+                raise
+            except Exception as e:
+                raise utils.exceptions.APIException(str(e))
+
+        data = {"user_kyc": user_kyc}
+        return utils.respondWithSuccess(data=data)
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist()
+def kyc(**kwargs):
+    pass
 
 
 @frappe.whitelist()
