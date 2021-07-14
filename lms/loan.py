@@ -1693,24 +1693,24 @@ def loan_statement(**kwargs):
             duration_date = None
             if data.get("duration") == "curr_month":
                 duration_date = curr_month
-                statement_period = "Current Month"
+                statement_period = curr_month.strftime("%d-%B-%Y") + " to " + frappe.utils.now_datetime().strftime("%d-%B-%Y")
             elif data.get("duration") == "prev_1":
                 duration_date = prev_1_month
-                statement_period = "Previous 1 Month"
+                statement_period = prev_1_month.strftime("%d-%B-%Y") + " to " + frappe.utils.now_datetime().strftime("%d-%B-%Y")
             elif data.get("duration") == "prev_3":
                 duration_date = prev_3_month
-                statement_period = "Previous 3 Months"
+                statement_period = prev_3_month.strftime("%d-%B-%Y") + " to " + frappe.utils.now_datetime().strftime("%d-%B-%Y")
             elif data.get("duration") == "prev_6":
                 duration_date = prev_6_month
-                statement_period = "Previous 6 Months"
+                statement_period = prev_6_month.strftime("%d-%B-%Y") + " to " + frappe.utils.now_datetime().strftime("%d-%B-%Y")
             elif data.get("duration") == "current_year":
                 duration_date = current_year
-                statement_period = "Current Year"
+                statement_period = current_year.strftime("%d-%B-%Y") + " to " + (frappe.utils.add_years(current_year, 1) - timedelta(days=1)).strftime("%d-%B-%Y")
             else:
                 duration_date = datetime.strptime(
                     frappe.utils.today(), "%Y-%m-%d"
                 ).date()
-                statement_period = "Today"
+                statement_period = frappe.utils.now_datetime().strftime("%d-%B-%Y") + " to " + frappe.utils.now_datetime().strftime("%d-%B-%Y")
 
             if data.get("type") == "Account Statement":
                 filter["time"] = [">=", datetime.strftime(duration_date, "%Y-%m-%d")]
@@ -1767,11 +1767,11 @@ def loan_statement(**kwargs):
                 filters=filter,
                 order_by="time {}".format(order_by_asc_desc),
                 fields=[
-                    "name",
+                    "time",
                     "transaction_type",
+                    "name",
                     "record_type",
                     "amount",
-                    "time",
                     # "DATE_FORMAT(time, '%Y-%m-%d %H:%i') as time",
                     # "status",
                     "opening_balance",
@@ -1829,7 +1829,7 @@ def loan_statement(**kwargs):
                 else ""
             )
             pledged_securities_transactions = frappe.db.sql(
-                """select DATE_FORMAT(`tabCollateral Ledger`.creation, '%Y-%m-%d %H:%i') as creation, `tabSecurity`.security_name, `tabCollateral Ledger`.isin, `tabCollateral Ledger`.quantity, `tabCollateral Ledger`.request_type from `tabCollateral Ledger`
+                """select DATE_FORMAT(`tabCollateral Ledger`.creation, '%Y-%m-%d %H:%i') as creation, `tabCollateral Ledger`.isin, `tabSecurity`.security_name, `tabCollateral Ledger`.quantity, `tabCollateral Ledger`.request_type from `tabCollateral Ledger`
             left join `tabSecurity`
             on `tabSecurity`.name = `tabCollateral Ledger`.isin
             where `tabCollateral Ledger`.loan = '{}'
@@ -1928,7 +1928,20 @@ def loan_statement(**kwargs):
                     loan_statement_excel_file
                 )
                 if data.get("type") == "Account Statement":
+                    # to_numeric(s, downcast='float')
+                    df.columns = ["Date", "Transaction Type", "Ref .No.", "Record Type", "Amount", "Opening Balance", "Closing Balance(₹)"]
+                    # df["Amount"] = frappe.utils.fmt_money(df["Amount"].apply(lambda x: float(x)))
+                    df.loc[df['Record Type'] == "DR", 'Withdrawal (₹)'] = df["Amount"]
+                    df.loc[df['Record Type'] == "CR", 'Deposit (₹)'] = df["Amount"]
                     df.drop("Opening Balance", inplace=True, axis=1)
+                    df.drop("Record Type", inplace=True, axis=1)
+                    df.drop("Amount", inplace=True, axis=1)
+                    last_column = df.pop('Closing Balance(₹)')
+                    df['Closing Balance(₹)'] = last_column
+
+                if data.get("type") == "Pledged Securities Transactions":
+                    df.columns = ["Date", "ISIN", "Security Name", "Quantity", "Description"]
+
                 df.to_excel(loan_statement_excel_file_path, index=False)
 
             loan_statement_pdf_file_url = ""
