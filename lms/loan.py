@@ -1928,8 +1928,17 @@ def loan_statement(**kwargs):
                     loan_statement_excel_file
                 )
                 if data.get("type") == "Account Statement":
+                    # to_numeric(s, downcast='float')
                     df.columns = ["Date", "Transaction Type", "Ref .No.", "Record Type", "Amount", "Opening Balance", "Closing Balance(₹)"]
+                    # df["Amount"] = frappe.utils.fmt_money(df["Amount"].apply(lambda x: float(x)))
+                    df.loc[df['Record Type'] == "DR", 'Withdrawal (₹)'] = df["Amount"]
+                    df.loc[df['Record Type'] == "CR", 'Deposit (₹)'] = df["Amount"]
                     df.drop("Opening Balance", inplace=True, axis=1)
+                    df.drop("Record Type", inplace=True, axis=1)
+                    df.drop("Amount", inplace=True, axis=1)
+                    last_column = df.pop('Closing Balance(₹)')
+                    df['Closing Balance(₹)'] = last_column
+
                 if data.get("type") == "Pledged Securities Transactions":
                     df.columns = ["Date", "ISIN", "Security Name", "Quantity", "Description"]
 
