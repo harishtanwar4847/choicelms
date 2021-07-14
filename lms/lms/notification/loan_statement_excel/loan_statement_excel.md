@@ -21,7 +21,7 @@
   <tr>
     <td bgcolor="#e7e7e8" height="138"><table class="table1" width="700" border="0" align="center" cellpadding="0" cellspacing="0" style="width:95% !important">
         <tr>
-          <td><a href="#"><img src="logo_file" style="border:0;height:138px"/></a></td>
+          <td><a href="#"><img src="logo_file" width="138" height="138" style="border:0;height:138px"/></a></td>
         </tr>
       </table></td>
   </tr>
