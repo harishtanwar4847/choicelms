@@ -56,7 +56,7 @@ def set_pin(**kwargs):
 
 
 @frappe.whitelist()
-def kyc(**kwargs):
+def kyc_old(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
@@ -117,7 +117,7 @@ def kyc(**kwargs):
             customer.save(ignore_permissions=True)
             frappe.db.commit()
 
-            """changes as per latest email notification list-sent by vinayak - email verification final 2.0"""
+            # changes as per latest email notification list-sent by vinayak - email verification final 2.0
             # frappe.enqueue_doc("Notification", "User KYC", method="send", doc=user)
 
             # mess = frappe._(
@@ -142,8 +142,101 @@ def kyc(**kwargs):
         return e.respond()
 
 
-def get_choice_kyc(pan_no, birth_date):
+def get_choice_kyc_old(pan_no, birth_date):
     try:
+        las_settings = frappe.get_single("LAS Settings")
+
+        params = {
+            "PANNum": pan_no,
+            "dob": (datetime.strptime(birth_date, "%d-%m-%Y")).strftime("%Y-%m-%d"),
+        }
+
+        headers = {
+            "businessUnit": las_settings.choice_business_unit,
+            "userId": las_settings.choice_user_id,
+            "investorId": las_settings.choice_investor_id,
+            "ticket": las_settings.choice_ticket,
+        }
+
+        res = requests.get(las_settings.choice_pan_api, params=params, headers=headers)
+
+        data = res.json()
+
+        if not res.ok or "errorCode" in data:
+            raise UserKYCNotFoundException
+            raise utils.exceptions.APIException(res.text)
+
+        user_kyc = lms.__user_kyc(pan_no=pan_no, throw=False)
+        user_kyc.kyc_type = "CHOICE"
+        user_kyc.investor_name = data["investorName"]
+        user_kyc.father_name = data["fatherName"]
+        user_kyc.mother_name = data["motherName"]
+        user_kyc.address = data["address"].replace("~", " ")
+        user_kyc.city = data["addressCity"]
+        user_kyc.state = data["addressState"]
+        user_kyc.pincode = data["addressPinCode"]
+        user_kyc.mobile_number = data["mobileNum"]
+        user_kyc.choice_client_id = data["clientId"]
+        user_kyc.pan_no = data["panNum"]
+        user_kyc.date_of_birth = datetime.strptime(
+            data["dateOfBirth"], "%Y-%m-%dT%H:%M:%S.%f%z"
+        ).strftime("%Y-%m-%d")
+
+        if data["banks"]:
+            user_kyc.bank_account = []
+
+            for bank in data["banks"]:
+                user_kyc.append(
+                    "bank_account",
+                    {
+                        "bank": bank["bank"],
+                        "bank_address": bank["bankAddress"],
+                        "branch": bank["branch"],
+                        "contact": bank["contact"],
+                        "account_type": bank["accountType"],
+                        "account_number": bank["accountNumber"],
+                        "ifsc": bank["ifsc"],
+                        "micr": bank["micr"],
+                        "bank_mode": bank["bankMode"],
+                        "bank_code": bank["bankcode"],
+                        "bank_zip_code": bank["bankZipCode"],
+                        "city": bank["city"],
+                        "district": bank["district"],
+                        "state": bank["state"],
+                        "is_default": bank["defaultBank"] == "Y",
+                    },
+                )
+        user_kyc.save(ignore_permissions=True)
+
+        return {
+            "user_kyc": user_kyc,
+        }
+
+    except requests.RequestException as e:
+        raise utils.exceptions.APIException(str(e))
+    except UserKYCNotFoundException:
+        raise
+    except Exception as e:
+        raise utils.exceptions.APIException(str(e))
+
+
+""" Changes as per new kyc flow - confirmed with vinayak - 13/07/2021"""
+
+
+@frappe.whitelist()
+def get_choice_kyc(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "pan_no": "required",
+                "birth_date": "required",
+                "accept_terms": ["required", "between:0,1", "decimal"],
+            },
+        )
+
         las_settings = frappe.get_single("LAS Settings")
 
         params = {
