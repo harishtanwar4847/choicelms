@@ -546,11 +546,13 @@ class LoanApplication(Document):
             loan.sanctioned_limit = loan.drawing_power
             # TODO : manage expiry date
             loan.expiry_date = self.expiry_date
+            loan.save(ignore_permissions=True)
 
         if self.loan_margin_shortfall:
             if loan.drawing_power > loan.sanctioned_limit:
                 loan.drawing_power = loan.sanctioned_limit
-
+            
+            loan.save(ignore_permissions=True)
             loan_margin_shortfall = frappe.get_doc(
                 "Loan Margin Shortfall", self.loan_margin_shortfall
             )
@@ -561,7 +563,6 @@ class LoanApplication(Document):
                 loan_margin_shortfall.action_time = frappe.utils.now_datetime()
             loan_margin_shortfall.save(ignore_permissions=True)
 
-        loan.save(ignore_permissions=True)
         return loan
 
     def apply_renewal_charges(self, loan):
