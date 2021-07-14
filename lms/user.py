@@ -893,16 +893,28 @@ def dashboard(**kwargs):
 
                 mess = (
                     "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly, the increase in the sanctioned limit is Rs. {drawing_power}. Please e-sign the loan agreement to avail the increased sanctioned limit now.".format(
-                        current_total_collateral_value=frappe.utils.fmt_money(loan_application_doc.total_collateral_value),
-                        requested_total_collateral_value=frappe.utils.fmt_money(loan_application_doc.pledged_total_collateral_value),
-                        drawing_power=frappe.utils.fmt_money(loan_application_doc.drawing_power),
+                        current_total_collateral_value=frappe.utils.fmt_money(
+                            loan_application_doc.total_collateral_value
+                        ),
+                        requested_total_collateral_value=frappe.utils.fmt_money(
+                            loan_application_doc.pledged_total_collateral_value
+                        ),
+                        drawing_power=frappe.utils.fmt_money(
+                            loan_application_doc.drawing_power
+                        ),
                     )
                     if loan_application_doc.loan
                     and not loan_application_doc.loan_margin_shortfall
                     else "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly the final Sanctioned Limit is Rs. {drawing_power}. Please e-sign the loan agreement to avail the loan now.".format(
-                        current_total_collateral_value=frappe.utils.fmt_money(loan_application_doc.total_collateral_value),
-                        requested_total_collateral_value=frappe.utils.fmt_money(loan_application_doc.pledged_total_collateral_value),
-                        drawing_power=frappe.utils.fmt_money(loan_application_doc.drawing_power),
+                        current_total_collateral_value=frappe.utils.fmt_money(
+                            loan_application_doc.total_collateral_value
+                        ),
+                        requested_total_collateral_value=frappe.utils.fmt_money(
+                            loan_application_doc.pledged_total_collateral_value
+                        ),
+                        drawing_power=frappe.utils.fmt_money(
+                            loan_application_doc.drawing_power
+                        ),
                     )
                 )
                 if (

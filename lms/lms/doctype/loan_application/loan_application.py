@@ -551,7 +551,7 @@ class LoanApplication(Document):
         if self.loan_margin_shortfall:
             if loan.drawing_power > loan.sanctioned_limit:
                 loan.drawing_power = loan.sanctioned_limit
-            
+
             loan.save(ignore_permissions=True)
             loan_margin_shortfall = frappe.get_doc(
                 "Loan Margin Shortfall", self.loan_margin_shortfall
