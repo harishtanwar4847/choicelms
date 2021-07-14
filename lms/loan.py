@@ -1150,6 +1150,8 @@ def loan_details(**kwargs):
                 unpledge=loan.max_unpledge_amount(),
             )
 
+        res["amount_available_for_withdrawal"] = loan.maximum_withdrawable_amount()
+
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
         return e.respond()
