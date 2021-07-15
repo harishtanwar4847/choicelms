@@ -347,7 +347,172 @@ def get_choice_kyc(**kwargs):
 
 @frappe.whitelist()
 def kyc(**kwargs):
-    pass
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "user_kyc": "required",
+                "accept_terms": ["required", "between:0,1", "decimal"],
+            },
+        )
+
+        # validate user_kyc args
+        # validate_user_kyc = validate_user_kyc()
+        # TODO: user_kyc should be of type dict
+        # TODO: user_kyc all required keys should be present
+        # TODO: dob and pan no validation
+        # TODO: bank account should be of type list and also required keys validation
+        user_kyc = data.get("user_kyc", {})
+        if type(user_kyc) is not dict or len(user_kyc.keys()) == 0:
+            raise utils.exceptions.ValidationException(
+                {"user_kyc": {"required": frappe._("User KYC details required.")}}
+            )
+
+        elif not all(
+            key in user_kyc
+            for key in [
+                "kyc_type",
+                "investor_name",
+                "father_name",
+                "mother_name",
+                "city",
+                "state",
+                "pincode",
+                "mobile_number",
+                "choice_client_id",
+                "pan_no",
+                "date_of_birth",
+                "bank_account",
+            ]
+        ):
+            raise utils.exceptions.ValidationException(
+                {"user_kyc": {"required": frappe._("User KYC details required.")}}
+            )
+
+        # reg = lms.regex_special_characters(search=user_kyc.get("pan_no"), regex=re.compile("^[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}$"))
+        # if reg:
+        #     return utils.respondWithFailure(
+        #         status=422,
+        #         message=frappe._("Invalid PAN"),
+        #     )
+
+        special_char_reg = lms.regex_special_characters(search=user_kyc.get("pan_no"))
+        if special_char_reg:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Invalid PAN"),
+            )
+
+        try:
+            datetime.strptime(user_kyc.get("date_of_birth"), "%Y-%m-%d")
+        except ValueError:
+            return utils.respondWithFailure(
+                status=417,
+                message=frappe._("Incorrect date of birth format"),
+            )
+
+        try:
+            user_kyc_doc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
+        except UserKYCNotFoundException:
+            user_kyc_doc = None
+
+        if not user_kyc_doc:
+
+            if not data.get("accept_terms"):
+                return utils.respondUnauthorized(
+                    message=frappe._("Please accept Terms and Conditions.")
+                )
+
+            frappe.db.begin()
+
+            # res = get_choice_kyc(data.get("pan_no"), data.get("birth_date"))
+            # user_kyc = res["user_kyc"]
+            user_kyc_doc = lms.__user_kyc(pan_no=user_kyc.get("pan_no"), throw=False)
+            user_kyc_doc.kyc_type = "CHOICE"
+            user_kyc_doc.investor_name = user_kyc["investor_name"]
+            user_kyc_doc.father_name = user_kyc["father_name"]
+            user_kyc_doc.mother_name = user_kyc["mother_name"]
+            user_kyc_doc.address = user_kyc["address"]
+            user_kyc_doc.city = user_kyc["city"]
+            user_kyc_doc.state = user_kyc["state"]
+            user_kyc_doc.pincode = user_kyc["pincode"]
+            user_kyc_doc.mobile_number = user_kyc["mobile_number"]
+            user_kyc_doc.choice_client_id = user_kyc["choice_client_id"]
+            user_kyc_doc.pan_no = user_kyc["pan_no"]
+            user_kyc_doc.date_of_birth = datetime.strptime(
+                user_kyc["date_of_birth"], "%Y-%m-%d"
+            ).strftime("%Y-%m-%d")
+
+            if user_kyc["bank_account"]:
+                user_kyc_doc.bank_account = []
+
+                for bank in user_kyc["bank_account"]:
+                    user_kyc_doc.append(
+                        "bank_account",
+                        {
+                            "bank": bank["bank"],
+                            "bank_address": bank["bank_address"],
+                            "branch": bank["branch"],
+                            "contact": bank["contact"],
+                            "account_type": bank["account_type"],
+                            "account_number": bank["account_number"],
+                            "ifsc": bank["ifsc"],
+                            "micr": bank["micr"],
+                            "bank_mode": bank["bank_mode"],
+                            "bank_code": bank["bank_code"],
+                            "bank_zip_code": bank["bank_zip_code"],
+                            "city": bank["city"],
+                            "district": bank["district"],
+                            "state": bank["state"],
+                            "is_default": bank["is_default"],
+                        },
+                    )
+            user_kyc_doc.save(ignore_permissions=True)
+
+            customer = lms.__customer()
+            customer.kyc_update = 1
+            customer.choice_kyc = user_kyc_doc.name
+            customer.save(ignore_permissions=True)
+
+            # save user kyc consent
+            user = lms.__user()
+
+            kyc_consent_doc = frappe.get_doc(
+                {
+                    "doctype": "User Consent",
+                    "mobile": user.phone,
+                    "consent": "Kyc",
+                }
+            )
+            kyc_consent_doc.insert(ignore_permissions=True)
+
+            frappe.db.commit()
+
+            # changes as per latest email notification list-sent by vinayak - email verification final 2.0
+            # frappe.enqueue_doc("Notification", "User KYC", method="send", doc=user)
+
+            # mess = frappe._(
+            #     "Dear "
+            #     + user.full_name
+            #     + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
+            # )
+            # mess = frappe._(
+            #     "Congratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
+            # )
+            mess = frappe._(
+                # "Dear Customer,\nCongratulations! Your KYC verification is completed. -Spark Loans"
+                "Dear Customer, \nCongratulations! \nYour KYC verification is completed.  -Spark Loans"
+            )
+            frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
+
+        data = {"user_kyc": user_kyc_doc}
+
+        return utils.respondWithSuccess(data=data)
+    except utils.exceptions.APIException as e:
+        frappe.db.rollback()
+        return e.respond()
 
 
 @frappe.whitelist()
