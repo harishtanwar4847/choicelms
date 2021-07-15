@@ -2631,12 +2631,17 @@ def validate_securities_for_sell_collateral(securities, loan_name):
 
 def multiple_dfs(df_list, sheets, file_name, spaces):
     # Handle multiple dataframe and merging them together in a sheet
-    row = 0
-    writer = pd.ExcelWriter(file_name, engine='xlsxwriter')
+    row = 5
+    writer = pd.ExcelWriter(file_name)
 
     for dataframe in df_list:
         dataframe.to_excel(writer, sheet_name=sheets, startrow=row, startcol=0, index=False, header=False)
         row = row + len(dataframe.index) + spaces
+
+    workbook = writer.book
+    worksheet = workbook.get_worksheet_by_name(sheets)
+    worksheet.insert_image('A1', frappe.utils.get_url('/assets/lms/pdf_images/choice-logo1.png'))
+    worksheet.insert_image('E1', frappe.utils.get_url('/assets/lms/pdf_images/logo.png'))
 
     writer.save()
 
@@ -2652,7 +2657,7 @@ def create_df(html_table_rows):
 
         list_data.append(row)
 
-    df = pd.DataFrame (list_data)
+    df = pd.DataFrame(list_data)
 
     return df
 
