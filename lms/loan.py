@@ -2632,6 +2632,7 @@ def validate_securities_for_sell_collateral(securities, loan_name):
 def multiple_dfs(df_list, sheets, file_name, spaces):
     # Handle multiple dataframe and merging them together in a sheet
     row = 5
+
     writer = pd.ExcelWriter(file_name)
 
     for dataframe in df_list:
