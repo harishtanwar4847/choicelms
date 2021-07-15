@@ -7,7 +7,9 @@ import frappe
 import pandas as pd
 import requests
 import utils
+from bs4 import BeautifulSoup
 from frappe import _
+from lxml import etree
 from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms
@@ -15,10 +17,6 @@ from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions
     ApprovedTermsandConditions,
 )
 from lms.user import convert_sec_to_hh_mm_ss, holiday_list
-
-from bs4 import BeautifulSoup
-from lxml import etree
-import pandas as pd
 
 
 @frappe.whitelist()
@@ -1959,36 +1957,50 @@ def loan_statement(**kwargs):
                     loan_statement_excel_file
                 )
 
-                soup = BeautifulSoup(agreement, 'lxml')
+                soup = BeautifulSoup(agreement, "lxml")
 
                 # Statement date details
-                statement_date_soup = soup.find('span', attrs={"style": "font-family:Arial, Helvetica, sans-serif; font-size:14px"})
+                statement_date_soup = soup.find(
+                    "span",
+                    attrs={
+                        "style": "font-family:Arial, Helvetica, sans-serif; font-size:14px"
+                    },
+                )
                 statement_date_text = statement_date_soup.text
                 statement_date_table = pd.Series([statement_date_text])
-                
+
                 # Customer Info table details
-                cust_info_soup = soup.find('table', attrs={"style": "margin-top: 20px;"})
-                cust_info_table=cust_info_soup.find_all('tr')
+                cust_info_soup = soup.find(
+                    "table", attrs={"style": "margin-top: 20px;"}
+                )
+                cust_info_table = cust_info_soup.find_all("tr")
                 cust_df = create_df(cust_info_table)
 
                 # Loan transactions/ Pledged securities transactions table details
-                data_soup = soup.find('table', attrs={"style": "background:#fff"})
-                data_table = data_soup.find_all('tr')
+                data_soup = soup.find("table", attrs={"style": "background:#fff"})
+                data_table = data_soup.find_all("tr")
                 data_df = create_df(data_table)
 
                 dfs = [statement_date_table, cust_df, data_df]
 
                 if data.get("type") == "Account Statement":
                     # Statement summary title
-                    summary_title_soup = soup.find_all('span', attrs={"style": "font-family:Arial, Helvetica, sans-serif; font-size:14px"})
-                    
+                    summary_title_soup = soup.find_all(
+                        "span",
+                        attrs={
+                            "style": "font-family:Arial, Helvetica, sans-serif; font-size:14px"
+                        },
+                    )
+
                     text = summary_title_soup[1].text
                     summary_title_table = pd.Series([text])
                     dfs.append(summary_title_table)
-                    
+
                     # Statement summary details
-                    summary_soup = soup.find('div', attrs={"style": "margin-top: 10px;"})
-                    summary_table = summary_soup.find_all('tr')
+                    summary_soup = soup.find(
+                        "div", attrs={"style": "margin-top: 10px;"}
+                    )
+                    summary_table = summary_soup.find_all("tr")
                     summary_df = create_df(summary_table)
                     dfs.append(summary_df)
                     Sheet_name = "Account Statement"
@@ -1997,17 +2009,25 @@ def loan_statement(**kwargs):
                     Sheet_name = "Pledged Security Statement"
 
                 # Footer details
-                email_soup = soup.find_all('td', attrs={"style": "font-family:Arial, Helvetica, sans-serif; font-size:14px;"})
-                e_soup = soup.find_all('a', attrs={"style": "color:#fff;font-family:Arial, Helvetica, sans-serif; font-size:14px; text-decoration:none"})
+                email_soup = soup.find_all(
+                    "td",
+                    attrs={
+                        "style": "font-family:Arial, Helvetica, sans-serif; font-size:14px;"
+                    },
+                )
+                e_soup = soup.find_all(
+                    "a",
+                    attrs={
+                        "style": "color:#fff;font-family:Arial, Helvetica, sans-serif; font-size:14px; text-decoration:none"
+                    },
+                )
 
                 e_text = e_soup[0].text
                 email_df = pd.Series([last_txt.text for last_txt in email_soup])
                 e_df = pd.Series([e_text])
-                dfs.extend([email_df,e_df])
+                dfs.extend([email_df, e_df])
 
-                
                 multiple_dfs(dfs, Sheet_name, loan_statement_excel_file_path, 1)
-
 
                 # if data.get("type") == "Account Statement":
                 #     # to_numeric(s, downcast='float')
@@ -2636,7 +2656,14 @@ def multiple_dfs(df_list, sheets, file_name, spaces):
     writer = pd.ExcelWriter(file_name)
 
     for dataframe in df_list:
-        dataframe.to_excel(writer, sheet_name=sheets, startrow=row, startcol=0, index=False, header=False)
+        dataframe.to_excel(
+            writer,
+            sheet_name=sheets,
+            startrow=row,
+            startcol=0,
+            index=False,
+            header=False,
+        )
         row = row + len(dataframe.index) + spaces
 
     # workbook = writer.book
@@ -2646,13 +2673,14 @@ def multiple_dfs(df_list, sheets, file_name, spaces):
 
     writer.save()
 
+
 def create_df(html_table_rows):
     # To create dataframe from html content
-    list_data= []
+    list_data = []
 
     for tr in html_table_rows:
 
-        td = tr.find_all('td')
+        td = tr.find_all("td")
 
         row = [tr.text for tr in td]
 
@@ -2661,4 +2689,3 @@ def create_df(html_table_rows):
     df = pd.DataFrame(list_data)
 
     return df
-

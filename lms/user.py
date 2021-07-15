@@ -1172,7 +1172,9 @@ def dashboard(**kwargs):
             show_feedback_popup = 0
 
         youtube_ids = []
-        youtube_id_list = frappe.get_list("Youtube Id", fields="youtube_id", order_by="creation desc")
+        youtube_id_list = frappe.get_list(
+            "Youtube Id", fields="youtube_id", order_by="creation desc"
+        )
         if youtube_id_list:
             youtube_ids = [f["youtube_id"] for f in youtube_id_list]
 
