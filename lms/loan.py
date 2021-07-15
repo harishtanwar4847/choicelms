@@ -1697,24 +1697,50 @@ def loan_statement(**kwargs):
             duration_date = None
             if data.get("duration") == "curr_month":
                 duration_date = curr_month
-                statement_period = curr_month.strftime("%d-%B-%Y") + " to " + frappe.utils.now_datetime().strftime("%d-%B-%Y")
+                statement_period = (
+                    curr_month.strftime("%d-%B-%Y")
+                    + " to "
+                    + frappe.utils.now_datetime().strftime("%d-%B-%Y")
+                )
             elif data.get("duration") == "prev_1":
                 duration_date = prev_1_month
-                statement_period = prev_1_month.strftime("%d-%B-%Y") + " to " + frappe.utils.now_datetime().strftime("%d-%B-%Y")
+                statement_period = (
+                    prev_1_month.strftime("%d-%B-%Y")
+                    + " to "
+                    + frappe.utils.now_datetime().strftime("%d-%B-%Y")
+                )
             elif data.get("duration") == "prev_3":
                 duration_date = prev_3_month
-                statement_period = prev_3_month.strftime("%d-%B-%Y") + " to " + frappe.utils.now_datetime().strftime("%d-%B-%Y")
+                statement_period = (
+                    prev_3_month.strftime("%d-%B-%Y")
+                    + " to "
+                    + frappe.utils.now_datetime().strftime("%d-%B-%Y")
+                )
             elif data.get("duration") == "prev_6":
                 duration_date = prev_6_month
-                statement_period = prev_6_month.strftime("%d-%B-%Y") + " to " + frappe.utils.now_datetime().strftime("%d-%B-%Y")
+                statement_period = (
+                    prev_6_month.strftime("%d-%B-%Y")
+                    + " to "
+                    + frappe.utils.now_datetime().strftime("%d-%B-%Y")
+                )
             elif data.get("duration") == "current_year":
                 duration_date = current_year
-                statement_period = current_year.strftime("%d-%B-%Y") + " to " + (frappe.utils.add_years(current_year, 1) - timedelta(days=1)).strftime("%d-%B-%Y")
+                statement_period = (
+                    current_year.strftime("%d-%B-%Y")
+                    + " to "
+                    + (
+                        frappe.utils.add_years(current_year, 1) - timedelta(days=1)
+                    ).strftime("%d-%B-%Y")
+                )
             else:
                 duration_date = datetime.strptime(
                     frappe.utils.today(), "%Y-%m-%d"
                 ).date()
-                statement_period = frappe.utils.now_datetime().strftime("%d-%B-%Y") + " to " + frappe.utils.now_datetime().strftime("%d-%B-%Y")
+                statement_period = (
+                    frappe.utils.now_datetime().strftime("%d-%B-%Y")
+                    + " to "
+                    + frappe.utils.now_datetime().strftime("%d-%B-%Y")
+                )
 
             if data.get("type") == "Account Statement":
                 filter["time"] = [">=", datetime.strftime(duration_date, "%Y-%m-%d")]
