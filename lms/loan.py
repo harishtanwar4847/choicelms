@@ -1935,6 +1935,11 @@ def loan_statement(**kwargs):
 
                 soup = BeautifulSoup(agreement, 'lxml')
 
+                # Statement date details
+                statement_date_soup = soup.find('span', attrs={"style": "font-family:Arial, Helvetica, sans-serif; font-size:14px"})
+                statement_date_text = statement_date_soup.text
+                statement_date_table = pd.Series([statement_date_text])
+                
                 # Customer Info table details
                 cust_info_soup = soup.find('table', attrs={"style": "margin-top: 20px;"})
                 cust_info_table=cust_info_soup.find_all('tr')
@@ -1945,7 +1950,7 @@ def loan_statement(**kwargs):
                 data_table = data_soup.find_all('tr')
                 data_df = create_df(data_table)
 
-                dfs = [cust_df,data_df]
+                dfs = [statement_date_table, cust_df, data_df]
 
                 if data.get("type") == "Account Statement":
                     # Statement summary title
