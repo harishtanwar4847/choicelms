@@ -2639,10 +2639,10 @@ def multiple_dfs(df_list, sheets, file_name, spaces):
         dataframe.to_excel(writer, sheet_name=sheets, startrow=row, startcol=0, index=False, header=False)
         row = row + len(dataframe.index) + spaces
 
-    workbook = writer.book
-    worksheet = workbook.get_worksheet_by_name(sheets)
-    worksheet.insert_image('A1', frappe.utils.get_url('/assets/lms/pdf_images/choice-logo1.png'))
-    worksheet.insert_image('E1', frappe.utils.get_url('/assets/lms/pdf_images/logo.png'))
+    # workbook = writer.book
+    # worksheet = workbook.get_worksheet_by_name(sheets)
+    # worksheet.insert_image('A1', frappe.utils.get_url('/assets/lms/pdf_images/choice-logo1.png'))
+    # worksheet.insert_image('E1', frappe.utils.get_url('/assets/lms/pdf_images/logo.png'))
 
     writer.save()
 
