@@ -754,8 +754,10 @@ def approved_securities(**kwargs):
             )
 
             lender = frappe.get_doc("Lender", data["lender"])
+            logo_file_path_1 = lender.get_logo_file_1()
+            logo_file_path_2 = lender.get_logo_file_2()
             approved_securities_template = lender.get_approved_securities_template()
-            doc = {"column_name": df.columns, "rows": df.iterrows(), "date": curr_date}
+            doc = {"column_name": df.columns, "rows": df.iterrows(), "date": curr_date, "logo_file_path_1": logo_file_path_1.file_url if logo_file_path_1 else "", "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else ""}
             agreement = frappe.render_template(
                 approved_securities_template.get_content(), {"doc": doc}
             )

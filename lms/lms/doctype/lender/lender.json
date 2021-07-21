@@ -83,7 +83,11 @@
   "approved_securities_template",
   "loan_account_statement_template",
   "column_break_78",
-  "pledged_security_statement_template"
+  "pledged_security_statement_template",
+  "image_section_section",
+  "logo_file_1",
+  "column_break_82",
+  "logo_file_2"
  ],
  "fields": [
   {
@@ -513,9 +517,28 @@
   {
    "fieldname": "column_break_78",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "image_section_section",
+   "fieldtype": "Section Break",
+   "label": "Image Section"
+  },
+  {
+   "fieldname": "logo_file_1",
+   "fieldtype": "Attach",
+   "label": "Logo File 1"
+  },
+  {
+   "fieldname": "logo_file_2",
+   "fieldtype": "Attach",
+   "label": "Logo File 2"
+  },
+  {
+   "fieldname": "column_break_82",
+   "fieldtype": "Column Break"
   }
  ],
- "modified": "2021-07-02 13:20:09.600926",
+ "modified": "2021-07-21 19:50:37.368505",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
