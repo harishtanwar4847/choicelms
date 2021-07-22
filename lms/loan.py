@@ -1764,6 +1764,8 @@ def loan_statement(**kwargs):
         )
         # common data for jinja templating
         lender = frappe.get_doc("Lender", loan.lender)
+        logo_file_path_1 = lender.get_logo_file_1()
+        logo_file_path_2 = lender.get_logo_file_2()
         curr_date = (frappe.utils.now_datetime()).strftime("%d-%B-%Y")
         doc = {
             "username": user_kyc.investor_name,
@@ -1780,6 +1782,8 @@ def loan_statement(**kwargs):
                 "%d-%B-%Y %H:%M:%S"
             ),
             "curr_date": curr_date,
+            "logo_file_path_1": logo_file_path_1.file_url if logo_file_path_1 else "",
+            "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else ""
         }
         if data.get("type") == "Account Statement":
             page_length = (
@@ -1956,7 +1960,7 @@ def loan_statement(**kwargs):
                 loan_statement_excel_file_path = frappe.utils.get_files_path(
                     loan_statement_excel_file
                 )
-
+                # getting data from html template using BeautifulSoup
                 soup = BeautifulSoup(agreement, "lxml")
 
                 # Statement date details
@@ -2027,7 +2031,7 @@ def loan_statement(**kwargs):
                 e_df = pd.Series([e_text])
                 dfs.extend([email_df, e_df])
 
-                multiple_dfs(dfs, Sheet_name, loan_statement_excel_file_path, 1)
+                multiple_dfs(dfs, Sheet_name, loan_statement_excel_file_path, 1, lender)
 
                 # if data.get("type") == "Account Statement":
                 #     # to_numeric(s, downcast='float')
@@ -2649,9 +2653,9 @@ def validate_securities_for_sell_collateral(securities, loan_name):
     return securities
 
 
-def multiple_dfs(df_list, sheets, file_name, spaces):
+def multiple_dfs(df_list, sheets, file_name, spaces, lender):
     # Handle multiple dataframe and merging them together in a sheet
-    row = 5
+    row = 4
 
     writer = pd.ExcelWriter(file_name)
 
@@ -2666,10 +2670,16 @@ def multiple_dfs(df_list, sheets, file_name, spaces):
         )
         row = row + len(dataframe.index) + spaces
 
-    # workbook = writer.book
-    # worksheet = workbook.get_worksheet_by_name(sheets)
-    # worksheet.insert_image('A1', frappe.utils.get_url('/assets/lms/pdf_images/choice-logo1.png'))
-    # worksheet.insert_image('E1', frappe.utils.get_url('/assets/lms/pdf_images/logo.png'))
+    workbook = writer.book
+    worksheet = workbook.get_worksheet_by_name(sheets)
+
+    logo_file_path_1 = lender.get_logo_file_1()
+    logo_file_path_2 = lender.get_logo_file_2()
+
+    if logo_file_path_1:
+        worksheet.insert_image(0, 0, frappe.utils.get_files_path(logo_file_path_1.file_name))
+    if logo_file_path_2:
+        worksheet.insert_image(0, 6, frappe.utils.get_files_path(logo_file_path_2.file_name))
 
     writer.save()
 
