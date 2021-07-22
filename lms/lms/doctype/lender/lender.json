@@ -519,6 +519,7 @@
    "fieldtype": "Column Break"
   },
   {
+   "description": "All attachments should be Public",
    "fieldname": "image_section_section",
    "fieldtype": "Section Break",
    "label": "Image Section"
@@ -538,7 +539,7 @@
    "fieldtype": "Column Break"
   }
  ],
- "modified": "2021-07-21 19:50:37.368505",
+ "modified": "2021-07-22 15:31:46.058064",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
