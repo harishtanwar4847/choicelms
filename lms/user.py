@@ -1702,7 +1702,8 @@ def update_profile_pic_and_pin(**kwargs):
             data["is_for_profile_pic"] = int(data.get("is_for_profile_pic"))
 
         if isinstance(data.get("image"), str):
-            data["image"] = bytes(data.get("image")[1:-1], encoding="utf8")
+            # data["image"] = bytes(data.get("image")[1:-1], encoding="utf8")
+            data["image"] = bytes(data.get("image"), encoding="utf8")
 
         if isinstance(data.get("is_for_update_pin"), str):
             data["is_for_update_pin"] = int(data.get("is_for_update_pin"))
@@ -1784,8 +1785,9 @@ def update_profile_pic_and_pin(**kwargs):
                 status=417, message=frappe._("Please Enter old pin and new pin.")
             )
 
-    except utils.exceptions.APIException:
+    except utils.exceptions.APIException as e:
         frappe.db.rollback()
+        return e.respond()
 
 
 @frappe.whitelist(allow_guest=True)
