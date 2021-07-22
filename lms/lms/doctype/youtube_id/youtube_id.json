@@ -4,16 +4,29 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "youtube_id"
+  "video_title",
+  "youtube_id",
+  "video_description"
  ],
  "fields": [
   {
    "fieldname": "youtube_id",
    "fieldtype": "Data",
    "label": "Youtube Video ID"
+  },
+  {
+   "fieldname": "video_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Video Title"
+  },
+  {
+   "fieldname": "video_description",
+   "fieldtype": "Text",
+   "label": "Video Description"
   }
  ],
- "modified": "2021-07-02 15:20:41.301093",
+ "modified": "2021-07-19 16:30:06.772076",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Youtube Id",
