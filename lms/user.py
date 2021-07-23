@@ -1,5 +1,6 @@
 import base64
 import json
+import os
 import re
 import time
 from datetime import MINYEAR, date, datetime, timedelta
@@ -14,7 +15,6 @@ from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.utils.password import check_password, update_password
 
 import lms
-import os
 
 # from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
@@ -758,7 +758,17 @@ def approved_securities(**kwargs):
             logo_file_path_1 = lender.get_logo_file_1()
             logo_file_path_2 = lender.get_logo_file_2()
             approved_securities_template = lender.get_approved_securities_template()
-            doc = {"column_name": df.columns, "rows": df.iterrows(), "date": curr_date, "logo_file_path_1": logo_file_path_1.file_url if logo_file_path_1 else "", "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else ""}
+            doc = {
+                "column_name": df.columns,
+                "rows": df.iterrows(),
+                "date": curr_date,
+                "logo_file_path_1": logo_file_path_1.file_url
+                if logo_file_path_1
+                else "",
+                "logo_file_path_2": logo_file_path_2.file_url
+                if logo_file_path_2
+                else "",
+            }
             agreement = frappe.render_template(
                 approved_securities_template.get_content(), {"doc": doc}
             )
@@ -1480,10 +1490,16 @@ def dashboard(**kwargs):
 
         #  Profile picture URL
         profile_picture_file_url = None
-        profile_picture_file_path = frappe.utils.get_files_path("profile_pic/{}-profile-picture.jpeg".format(user.full_name).replace(" ", "-"))
+        profile_picture_file_path = frappe.utils.get_files_path(
+            "profile_pic/{}-profile-picture.jpeg".format(customer.name).replace(
+                " ", "-"
+            )
+        )
         if os.path.exists(profile_picture_file_path):
             profile_picture_file_url = frappe.utils.get_url(
-                "files/profile_pic/{}-profile-picture.jpeg".format(user.full_name).replace(" ", "-")
+                "files/profile_pic/{}-profile-picture.jpeg".format(
+                    customer.name
+                ).replace(" ", "-")
             )
 
         res = {
@@ -1501,7 +1517,7 @@ def dashboard(**kwargs):
             # "unpledge_application_list": unpledge_application_list,
             "show_feedback_popup": show_feedback_popup,
             "youtube_video_ids": youtube_ids,
-            "profile_picture_file_url": profile_picture_file_url
+            "profile_picture_file_url": profile_picture_file_url,
         }
 
         return utils.respondWithSuccess(data=res)
@@ -1627,10 +1643,16 @@ def get_profile_set_alerts(**kwargs):
 
         #  Profile picture URL
         profile_picture_file_url = None
-        profile_picture_file_path = frappe.utils.get_files_path("profile_pic/{}-profile-picture.jpeg".format(user.full_name).replace(" ", "-"))
+        profile_picture_file_path = frappe.utils.get_files_path(
+            "profile_pic/{}-profile-picture.jpeg".format(customer.name).replace(
+                " ", "-"
+            )
+        )
         if os.path.exists(profile_picture_file_path):
             profile_picture_file_url = frappe.utils.get_url(
-                "files/profile_pic/{}-profile-picture.jpeg".format(user.full_name).replace(" ", "-")
+                "files/profile_pic/{}-profile-picture.jpeg".format(
+                    customer.name
+                ).replace(" ", "-")
             )
 
         # alerts percentage and amount save in doctype
@@ -1674,7 +1696,7 @@ def get_profile_set_alerts(**kwargs):
             "customer_details": customer,
             "user_kyc": user_kyc,
             "last_login": last_login_time,
-            "profile_picture_file_url": profile_picture_file_url
+            "profile_picture_file_url": profile_picture_file_url,
         }
 
         return utils.respondWithSuccess(data=res)
@@ -1688,6 +1710,7 @@ def update_profile_pic_and_pin(**kwargs):
         # validation
         utils.validator.validate_http_method("POST")
         user = lms.__user()
+        customer = lms.__customer(user.name)
 
         data = utils.validator.validate(
             kwargs,
@@ -1718,7 +1741,7 @@ def update_profile_pic_and_pin(**kwargs):
                 os.mkdir(tnc_dir_path)
 
             profile_picture_file = "profile_pic/{}-profile-picture.jpeg".format(
-                user.full_name
+                customer.name
             ).replace(" ", "-")
 
             profile_picture_file_path = frappe.utils.get_files_path(
@@ -1729,7 +1752,9 @@ def update_profile_pic_and_pin(**kwargs):
             image_file = open(profile_picture_file_path, "wb").write(image_decode)
 
             profile_picture_file_url = frappe.utils.get_url(
-                "files/profile_pic/{}-profile-picture.jpeg".format(user.full_name).replace(" ", "-")
+                "files/profile_pic/{}-profile-picture.jpeg".format(
+                    customer.name
+                ).replace(" ", "-")
             )
             # user.user_image = 0
             # user.user_image = profile_picture_file_url

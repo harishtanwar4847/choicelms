@@ -1783,7 +1783,7 @@ def loan_statement(**kwargs):
             ),
             "curr_date": curr_date,
             "logo_file_path_1": logo_file_path_1.file_url if logo_file_path_1 else "",
-            "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else ""
+            "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else "",
         }
         if data.get("type") == "Account Statement":
             page_length = (
@@ -2677,9 +2677,13 @@ def multiple_dfs(df_list, sheets, file_name, spaces, lender):
     logo_file_path_2 = lender.get_logo_file_2()
 
     if logo_file_path_1:
-        worksheet.insert_image(0, 0, frappe.utils.get_files_path(logo_file_path_1.file_name))
+        worksheet.insert_image(
+            0, 0, frappe.utils.get_files_path(logo_file_path_1.file_name)
+        )
     if logo_file_path_2:
-        worksheet.insert_image(0, 6, frappe.utils.get_files_path(logo_file_path_2.file_name))
+        worksheet.insert_image(
+            0, 6, frappe.utils.get_files_path(logo_file_path_2.file_name)
+        )
 
     writer.save()
 
