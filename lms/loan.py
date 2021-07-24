@@ -1783,7 +1783,7 @@ def loan_statement(**kwargs):
             ),
             "curr_date": curr_date,
             "logo_file_path_1": logo_file_path_1.file_url if logo_file_path_1 else "",
-            "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else ""
+            "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else "",
         }
         if data.get("type") == "Account Statement":
             page_length = (
@@ -2026,10 +2026,13 @@ def loan_statement(**kwargs):
                     },
                 )
 
-                e_text = e_soup[0].text
-                email_df = pd.Series([last_txt.text for last_txt in email_soup])
-                e_df = pd.Series([e_text])
-                dfs.extend([email_df, e_df])
+                e_text = " " + e_soup[0].text
+                footer_lines = [last_txt.text for last_txt in email_soup]
+                footer_lines[-1] += e_text
+                email_df = pd.Series(footer_lines)
+                # email_df = pd.Series([last_txt.text for last_txt in email_soup])
+                # e_df = pd.Series([e_text])
+                dfs.extend([email_df])
 
                 multiple_dfs(dfs, Sheet_name, loan_statement_excel_file_path, 1, lender)
 
@@ -2677,9 +2680,13 @@ def multiple_dfs(df_list, sheets, file_name, spaces, lender):
     logo_file_path_2 = lender.get_logo_file_2()
 
     if logo_file_path_1:
-        worksheet.insert_image(0, 0, frappe.utils.get_files_path(logo_file_path_1.file_name))
+        worksheet.insert_image(
+            0, 0, frappe.utils.get_files_path(logo_file_path_1.file_name)
+        )
     if logo_file_path_2:
-        worksheet.insert_image(0, 6, frappe.utils.get_files_path(logo_file_path_2.file_name))
+        worksheet.insert_image(
+            0, 9, frappe.utils.get_files_path(logo_file_path_2.file_name)
+        )
 
     writer.save()
 

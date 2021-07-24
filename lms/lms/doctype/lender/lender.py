@@ -99,13 +99,9 @@ class Lender(Document):
         return frappe.get_doc("File", file_name)
 
     def get_logo_file_1(self):
-        file_name = frappe.db.get_value(
-            "File", {"file_url": self.logo_file_1}
-        )
+        file_name = frappe.db.get_value("File", {"file_url": self.logo_file_1})
         return frappe.get_doc("File", file_name) if file_name else None
 
     def get_logo_file_2(self):
-        file_name = frappe.db.get_value(
-            "File", {"file_url": self.logo_file_2}
-        )
+        file_name = frappe.db.get_value("File", {"file_url": self.logo_file_2})
         return frappe.get_doc("File", file_name) if file_name else None
