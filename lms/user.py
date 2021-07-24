@@ -1744,6 +1744,14 @@ def update_profile_pic_and_pin(**kwargs):
                 customer.name
             ).replace(" ", "-")
 
+            image_path = frappe.utils.get_files_path(profile_picture_file)
+            if os.path.exists(image_path):
+                os.remove(image_path)
+
+            profile_picture_file = "profile_pic/{}-profile-picture.jpeg".format(
+                customer.name
+            ).replace(" ", "-")
+
             profile_picture_file_path = frappe.utils.get_files_path(
                 profile_picture_file
             )
