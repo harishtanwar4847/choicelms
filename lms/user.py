@@ -760,8 +760,9 @@ def approved_securities(**kwargs):
             )
 
             lender = frappe.get_doc("Lender", data["lender"])
-            logo_file_path_1 = lender.get_logo_file_1()
-            logo_file_path_2 = lender.get_logo_file_2()
+            las_settings = frappe.get_single("LAS Settings")
+            logo_file_path_1 = lender.get_lender_logo_file()
+            logo_file_path_2 = las_settings.get_spark_logo_file()
             approved_securities_template = lender.get_approved_securities_template()
             doc = {
                 "column_name": df.columns,
