@@ -2026,9 +2026,9 @@ def loan_statement(**kwargs):
                     },
                 )
 
-                e_text = e_soup[0].text
+                e_text = " " + e_soup[0].text
                 footer_lines = [last_txt.text for last_txt in email_soup]
-                footer_lines = footer_lines[-1] + " " + e_text
+                footer_lines[-1] += e_text
                 email_df = pd.Series(footer_lines)
                 # email_df = pd.Series([last_txt.text for last_txt in email_soup])
                 # e_df = pd.Series([e_text])
@@ -2685,7 +2685,7 @@ def multiple_dfs(df_list, sheets, file_name, spaces, lender):
         )
     if logo_file_path_2:
         worksheet.insert_image(
-            0, 10, frappe.utils.get_files_path(logo_file_path_2.file_name)
+            0, 9, frappe.utils.get_files_path(logo_file_path_2.file_name)
         )
 
     writer.save()
