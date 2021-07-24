@@ -250,11 +250,14 @@ def get_choice_kyc(**kwargs):
                 message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
             )
 
-        reg = lms.regex_special_characters(search=data.get("pan_no"))
-        if reg:
+        reg = lms.regex_special_characters(
+            search=data.get("pan_no"), regex=re.compile("[A-Z]{5}[0-9]{4}[A-Z]{1}")
+        )
+
+        if not reg or len(data.get("pan_no")) != 10:
             return utils.respondWithFailure(
                 status=422,
-                message=frappe._("Special Characters not allowed."),
+                message=frappe._("Invalid PAN"),
             )
 
         try:
@@ -398,8 +401,11 @@ def kyc(**kwargs):
         #         message=frappe._("Invalid PAN"),
         #     )
 
-        special_char_reg = lms.regex_special_characters(search=user_kyc.get("pan_no"))
-        if special_char_reg:
+        reg = lms.regex_special_characters(
+            search=user_kyc.get("pan_no"), regex=re.compile("[A-Z]{5}[0-9]{4}[A-Z]{1}")
+        )
+
+        if not reg or len(user_kyc.get("pan_no")) != 10:
             return utils.respondWithFailure(
                 status=422,
                 message=frappe._("Invalid PAN"),
@@ -754,10 +760,21 @@ def approved_securities(**kwargs):
             )
 
             lender = frappe.get_doc("Lender", data["lender"])
-            logo_file_path_1 = lender.get_logo_file_1()
-            logo_file_path_2 = lender.get_logo_file_2()
+            las_settings = frappe.get_single("LAS Settings")
+            logo_file_path_1 = lender.get_lender_logo_file()
+            logo_file_path_2 = las_settings.get_spark_logo_file()
             approved_securities_template = lender.get_approved_securities_template()
-            doc = {"column_name": df.columns, "rows": df.iterrows(), "date": curr_date, "logo_file_path_1": logo_file_path_1.file_url if logo_file_path_1 else "", "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else ""}
+            doc = {
+                "column_name": df.columns,
+                "rows": df.iterrows(),
+                "date": curr_date,
+                "logo_file_path_1": logo_file_path_1.file_url
+                if logo_file_path_1
+                else "",
+                "logo_file_path_2": logo_file_path_2.file_url
+                if logo_file_path_2
+                else "",
+            }
             agreement = frappe.render_template(
                 approved_securities_template.get_content(), {"doc": doc}
             )
