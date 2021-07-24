@@ -17,3 +17,7 @@ class LASSettings(Document):
             "UserID": self.cdsl_user_id,
             "Password": self.cdsl_password,
         }
+
+    def get_spark_logo_file(self):
+        file_name = frappe.db.get_value("File", {"file_url": self.spark_logo})
+        return frappe.get_doc("File", file_name) if file_name else None

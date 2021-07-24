@@ -85,9 +85,7 @@
   "column_break_78",
   "pledged_security_statement_template",
   "image_section_section",
-  "logo_file_1",
-  "column_break_82",
-  "logo_file_2"
+  "logo_file_1"
  ],
  "fields": [
   {
@@ -527,19 +525,10 @@
   {
    "fieldname": "logo_file_1",
    "fieldtype": "Attach",
-   "label": "Logo File 1"
-  },
-  {
-   "fieldname": "logo_file_2",
-   "fieldtype": "Attach",
-   "label": "Logo File 2"
-  },
-  {
-   "fieldname": "column_break_82",
-   "fieldtype": "Column Break"
+   "label": "Lender Logo"
   }
  ],
- "modified": "2021-07-22 15:31:46.058064",
+ "modified": "2021-07-24 19:38:26.437293",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",

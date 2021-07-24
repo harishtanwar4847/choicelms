@@ -40,7 +40,9 @@
   "terms_of_use_privacy_policy_section_break",
   "terms_of_use_document",
   "tnc_column_break",
-  "privacy_policy_document"
+  "privacy_policy_document",
+  "image_section_section",
+  "spark_logo"
  ],
  "fields": [
   {
@@ -227,10 +229,21 @@
   {
    "fieldname": "column_break_35",
    "fieldtype": "Column Break"
+  },
+  {
+   "description": "All attachments should be Public",
+   "fieldname": "image_section_section",
+   "fieldtype": "Section Break",
+   "label": "Image Section"
+  },
+  {
+   "fieldname": "spark_logo",
+   "fieldtype": "Attach",
+   "label": "Spark Logo"
   }
  ],
  "issingle": 1,
- "modified": "2021-04-23 18:45:48.240971",
+ "modified": "2021-07-24 19:37:24.150073",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

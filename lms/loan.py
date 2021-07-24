@@ -1764,8 +1764,9 @@ def loan_statement(**kwargs):
         )
         # common data for jinja templating
         lender = frappe.get_doc("Lender", loan.lender)
-        logo_file_path_1 = lender.get_logo_file_1()
-        logo_file_path_2 = lender.get_logo_file_2()
+        las_settings = frappe.get_single("LAS Settings")
+        logo_file_path_1 = lender.get_lender_logo_file()
+        logo_file_path_2 = las_settings.get_spark_logo_file()
         curr_date = (frappe.utils.now_datetime()).strftime("%d-%B-%Y")
         doc = {
             "username": user_kyc.investor_name,
@@ -2034,7 +2035,14 @@ def loan_statement(**kwargs):
                 # e_df = pd.Series([e_text])
                 dfs.extend([email_df])
 
-                multiple_dfs(dfs, Sheet_name, loan_statement_excel_file_path, 1, lender)
+                multiple_dfs(
+                    dfs,
+                    Sheet_name,
+                    loan_statement_excel_file_path,
+                    1,
+                    lender,
+                    las_settings,
+                )
 
                 # if data.get("type") == "Account Statement":
                 #     # to_numeric(s, downcast='float')
@@ -2656,7 +2664,7 @@ def validate_securities_for_sell_collateral(securities, loan_name):
     return securities
 
 
-def multiple_dfs(df_list, sheets, file_name, spaces, lender):
+def multiple_dfs(df_list, sheets, file_name, spaces, lender, las_settings):
     # Handle multiple dataframe and merging them together in a sheet
     row = 4
 
@@ -2676,8 +2684,8 @@ def multiple_dfs(df_list, sheets, file_name, spaces, lender):
     workbook = writer.book
     worksheet = workbook.get_worksheet_by_name(sheets)
 
-    logo_file_path_1 = lender.get_logo_file_1()
-    logo_file_path_2 = lender.get_logo_file_2()
+    logo_file_path_1 = lender.get_lender_logo_file()
+    logo_file_path_2 = las_settings.get_spark_logo_file()
 
     if logo_file_path_1:
         worksheet.insert_image(
