@@ -14,5 +14,6 @@ def applyNowPartner(pfirstname, plastname, pemail, pmobile, pmessage):
     doc.insert(ignore_permissions=True)
     doc.save()
     frappe.db.commit()
-    lms.web_mail("Partner with Us", doc.pfirstname, doc.pemail, "Partner with Us")
+    full_name = doc.pfirstname + " " + doc.plastname
+    lms.web_mail("Partner with Us", full_name, doc.pemail, "Partner with Us")
     return "Partner with Us Request successfully Submitted."

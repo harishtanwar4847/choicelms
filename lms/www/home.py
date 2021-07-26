@@ -13,7 +13,8 @@ def applyNow(first_name, last_name, emails, mobile):
     doc.insert(ignore_permissions=True)
     doc.save()
     frappe.db.commit()
-    lms.web_mail("Apply Now", doc.first_name, doc.email, "Apply Now")
+    full_name = doc.first_name + " " + doc.last_name
+    lms.web_mail("Apply Now", full_name, doc.email, "Apply Now")
     return "Apply request successfully submitted."
 
 
@@ -25,5 +26,7 @@ def subscribeUpdates(number, email):
     doc.insert(ignore_permissions=True)
     doc.save()
     frappe.db.commit()
-    lms.web_mail("Subscribe for Updates", "", doc.email, "Subscribe for updates")
+    lms.web_mail(
+        "Subscribe for Updates", "Subscriber", doc.email, "Subscribe for updates"
+    )
     return "Subscribed successfully."
