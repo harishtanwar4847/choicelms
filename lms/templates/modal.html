@@ -1,3 +1,7 @@
+<script
+  type="text/javascript"
+  src="/assets/lms/js/jquery-3.6.0.min.js"
+></script>
 <!-- The Modal -->
 <div
   class="modal fade common-modal"
@@ -360,7 +364,7 @@
                           <span class="after"> After 7 days </span>
                         </td>
                         <td data-title="Rebate">Nil</td>
-                        <td data-title="Monthly Rate">1.54%</td>
+                        <td data-title="Monthly Rate">1.44%</td>
                         <td data-title="Monthly Rate" style="display: none">
                           <div class="tooltipmob">
                             <a href="#">
@@ -380,7 +384,7 @@
                           <span class="within"> Within 7 days </span>
                         </td>
                         <td data-title="Rebate">0.20%</td>
-                        <td data-title="Monthly Rate" class="green">1.34%</td>
+                        <td data-title="Monthly Rate" class="green">1.24%</td>
                         <td
                           data-title="Monthly Rate"
                           style="display: none"
@@ -514,7 +518,7 @@
                           <span class="after"> After 7 days </span>
                         </td>
                         <td data-title="Rebate">Nil</td>
-                        <td data-title="Monthly Rate">1.54%</td>
+                        <td data-title="Monthly Rate">1.44%</td>
                         <td data-title="Monthly Rate">
                           <div class="tooltipmob">
                             <a href="#">
@@ -534,7 +538,7 @@
                           <span class="within"> Within 7 days </span>
                         </td>
                         <td data-title="Rebate">0.20%</td>
-                        <td data-title="Monthly Rate" class="green">1.34%</td>
+                        <td data-title="Monthly Rate" class="green">1.24%</td>
                         <td data-title="Monthly Rate" class="green">
                           <div class="tooltipmob">
                             <a href="#">
@@ -737,4 +741,19 @@
       }
     }
   }
+  $(function () {
+    $("#switch-id").change(function () {
+      if ($(this).is(":checked")) {
+        $(".applyemail").show();
+        $(".applymobile").hide();
+      } else {
+        $(".applyemail").hide();
+        $(".applymobile").show();
+      }
+    });
+  });
+
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip();
+  });
 </script>
