@@ -130,6 +130,10 @@ class UnpledgeApplication(Document):
     def on_submit(self):
         for i in self.unpledge_items:
             if i.unpledge_quantity > 0:
+                collateral_ledger_data = {
+                    "pledgor_boid": i.pledgor_boid,
+                    "pledgee_boid": i.pledgee_boid,
+                }
                 collateral_ledger_input = {
                     "doctype": "Unpledge Application",
                     "docname": self.name,
@@ -139,6 +143,7 @@ class UnpledgeApplication(Document):
                     "psn": i.get("psn"),
                     "loan_name": self.loan,
                     "lender_approval_status": "Approved",
+                    "data": collateral_ledger_data,
                 }
                 CollateralLedger.create_entry(**collateral_ledger_input)
 
