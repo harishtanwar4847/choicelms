@@ -41,10 +41,10 @@
                 <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
                     Ready for a seamless "Loan against securities" experience? Click on the link below to download Spark loans mobile app<br />
                     <br />
-                    <a href="https://spark.loans/">Link for Play store</a><br />
+                    <a href="https://play.google.com/store/apps/details?id=com.sparktechnologies.sparkloans">Link for Play store</a><br />
                     <br />
-                    <a href="https://spark.loans/">Link for App Store.</a><br />
-                    <br />
+                    <!-- <a href="https://spark.loans/">Link for App Store.</a><br />
+                    <br /> -->
                     You can reach us through 'Contact Us' on the app.<br />
                     <br />
                 </span>
