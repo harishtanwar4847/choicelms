@@ -522,6 +522,75 @@ def kyc(**kwargs):
 
 
 @frappe.whitelist()
+def securities_old(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "lender": "",
+            },
+        )
+        reg = lms.regex_special_characters(search=data.get("lender"))
+        if reg:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
+
+        if not data.get("lender", None):
+            data["lender"] = frappe.get_last_doc("Lender").name
+
+        user_kyc = lms.__user_kyc()
+
+        las_settings = frappe.get_single("LAS Settings")
+
+        # get securities list from choice
+        payload = {"UserID": las_settings.choice_user_id, "ClientID": user_kyc.pan_no}
+
+        try:
+            res = requests.post(
+                las_settings.choice_securities_list_api,
+                json=payload,
+                headers={"Accept": "application/json"},
+            )
+            if not res.ok:
+                raise utils.exceptions.APIException(res.text)
+
+            res_json = res.json()
+            if res_json["Status"] != "Success":
+                raise utils.exceptions.APIException(res.text)
+
+            # setting eligibility
+            # securities_list = res_json["Response"]
+            securities_list = [i for i in res_json["Response"] if i.get("Price") > 0]
+            securities_list_ = [i["ISIN"] for i in securities_list]
+            securities_category_map = lms.get_allowed_securities(
+                securities_list_, data.get("lender")
+            )
+
+            for i in securities_list:
+                try:
+                    i["Category"] = securities_category_map[i["ISIN"]].get(
+                        "security_category"
+                    )
+                    i["Is_Eligible"] = True
+                except KeyError:
+                    i["Is_Eligible"] = False
+                    i["Category"] = None
+
+            return utils.respondWithSuccess(data=securities_list)
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+
+""" CR - Client Holding management - 27-07-2021 """
+
+
+@frappe.whitelist()
 def securities(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
@@ -532,6 +601,15 @@ def securities(**kwargs):
                 "lender": "",
             },
         )
+
+        # TODO : check if today's client holding present or not
+        # TODO : if no, call jiffy api
+        # TODO : clear holding of pan(old records)
+        # TODO : check if user
+        # TODO : call jiffy API for latest response
+        # TODO : save jiffy response in client holding
+        # TODO :
+
         reg = lms.regex_special_characters(search=data.get("lender"))
         if reg:
             return utils.respondWithFailure(
