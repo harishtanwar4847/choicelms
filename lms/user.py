@@ -252,7 +252,8 @@ def get_choice_kyc(**kwargs):
             )
 
         reg = lms.regex_special_characters(
-            search=data.get("pan_no"), regex=re.compile("[A-Z]{5}[0-9]{4}[A-Z]{1}")
+            search=data.get("pan_no"),
+            regex=re.compile("[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"),
         )
 
         if not reg or len(data.get("pan_no")) != 10:
@@ -403,7 +404,8 @@ def kyc(**kwargs):
         #     )
 
         reg = lms.regex_special_characters(
-            search=user_kyc.get("pan_no"), regex=re.compile("[A-Z]{5}[0-9]{4}[A-Z]{1}")
+            search=user_kyc.get("pan_no"),
+            regex=re.compile("[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"),
         )
 
         if not reg or len(user_kyc.get("pan_no")) != 10:
