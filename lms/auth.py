@@ -292,11 +292,15 @@ def register(**kwargs):
                 message=frappe._("Special Characters not allowed."),
             )
 
+        tester = frappe.get_all("Spark Tester", fields=["email_id"])
+        emails = [e["email_id"] for e in tester if tester]
+
         user_data = {
             "first_name": data.get("first_name"),
             "last_name": data.get("last_name"),
             "mobile": data.get("mobile"),
             "email": data.get("email"),
+            "tester": True if data.get("email") in emails else False,
         }
         frappe.db.begin()
         user = lms.create_user(**user_data)
