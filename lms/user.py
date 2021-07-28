@@ -2397,22 +2397,26 @@ def otp_for_testing(**kwargs):
                 message=frappe._("Incorrect OTP type."),
             )
 
-        user = lms.__user()
-        user_kyc = lms.__user_kyc()
+        customer = lms.__customer()
 
         if data.get("otp_type") in ["OTP", "Withdraw OTP", "Sell Collateral OTP"]:
-            entity = user.username
+            entity = customer.phone
         elif data.get("otp_type") == "Forgot Pin OTP":
-            entity = user.email
+            entity = customer.user
         else:
-            entity = user_kyc.mobile_number
+            entity = lms.__user_kyc().mobile_number
 
         tester = frappe.db.sql(
-            "select u.email,u.first_name from `tabUser` as u left join `tabHas Role` as r on u.email=r.parent where role='Spark Tester' and r.parent='{}'".format(
-                user.email
+            "select c.user,c.full_name from `tabLoan Customer` as c left join `tabHas Role` as r on c.user=r.parent where role='Spark Tester' and r.parent='{}'".format(
+                customer.user
             ),
             as_dict=1,
         )
+
+        if not tester:
+            # Unauthorized user
+            return utils.respondUnauthorized(message="Unauthorized User")
+
         if tester:
             # Mark old token as Used
             frappe.db.begin()
@@ -2443,13 +2447,14 @@ def otp_for_testing(**kwargs):
                 filters={
                     "entity": entity,
                     "token_type": "{}".format(data.get("otp_type")),
+                    "used": 0,
                 },
                 order_by="creation desc",
                 fields=["token as OTP"],
+                page_length=1,
             )
+
             return utils.respondWithSuccess(data=token[0] if token else None)
-        else:
-            # Unauthorized user
-            return utils.respondUnauthorized()
+
     except utils.exceptions.APIException as e:
         return e.respond()
