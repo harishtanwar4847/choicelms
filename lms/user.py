@@ -1799,7 +1799,7 @@ def update_profile_pic_and_pin(**kwargs):
                 )
             except frappe.AuthenticationError:
                 return utils.respondWithFailure(
-                    status=417, message=frappe._("Incorrect User or Password.")
+                    status=417, message=frappe._("Invalid Current Pin")
                 )
 
             if old_pass_check:
