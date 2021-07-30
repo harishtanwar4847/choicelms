@@ -39,12 +39,12 @@ class CollateralLedger(Document):
         if loan_name:
             collateral_ledger.loan = loan_name
 
+        data = frappe._dict(data)
+        collateral_ledger.pledgor_boid = data.pledgor_boid
+        collateral_ledger.pledgee_boid = data.pledgee_boid
         if request_type == "Pledge":
-            data = frappe._dict(data)
             collateral_ledger.prf = data.prf
             collateral_ledger.expiry = data.expiry
-            collateral_ledger.pledgor_boid = data.pledgor_boid
-            collateral_ledger.pledgee_boid = data.pledgee_boid
 
         if lender_approval_status:
             collateral_ledger.lender_approval_status = lender_approval_status

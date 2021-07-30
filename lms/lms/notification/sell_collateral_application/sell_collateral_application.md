@@ -63,7 +63,7 @@
         <tr>
           <td><span style="font-family:Arial, Helvetica, sans-serif; font-size:14px;">Thanks,<br />
             <br />
-            The Spark Team</span></td>
+            The Spark.Loans Team</span></td>
         </tr>
         <tr>
           <td height="25">&nbsp;</td>

@@ -1,5 +1,7 @@
 import frappe
 
+import lms
+
 
 @frappe.whitelist(allow_guest=True)
 def servercallmethod(loantype, firstname, email, cmobile, message):
@@ -12,4 +14,5 @@ def servercallmethod(loantype, firstname, email, cmobile, message):
     doc.insert(ignore_permissions=True)
     doc.save()
     frappe.db.commit()
+    lms.web_mail("Contact us", doc.firstname, doc.email, "Contact Us")
     return "Contact request submitted successfully."
