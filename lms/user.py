@@ -262,6 +262,12 @@ def get_choice_kyc(**kwargs):
                 message=frappe._("Invalid PAN"),
             )
 
+        if (data.get("pan_no")[3]).lower() != "p":
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Invalid PAN"),
+            )
+
         try:
             user_kyc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
         except UserKYCNotFoundException:
@@ -307,7 +313,7 @@ def get_choice_kyc(**kwargs):
                 user_kyc["pincode"] = data["addressPinCode"]
                 user_kyc["mobile_number"] = data["mobileNum"]
                 user_kyc["choice_client_id"] = data["clientId"]
-                user_kyc["pan_no"] = data["panNum"].replace(str(list(data["panNum"])[3]),"P")
+                user_kyc["pan_no"] = data["panNum"]
                 user_kyc["date_of_birth"] = datetime.strptime(
                     data["dateOfBirth"], "%Y-%m-%dT%H:%M:%S.%f%z"
                 ).strftime("%Y-%m-%d")
