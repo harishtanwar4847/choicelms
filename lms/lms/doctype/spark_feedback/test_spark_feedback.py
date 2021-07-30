@@ -7,5 +7,5 @@ from __future__ import unicode_literals
 import unittest
 
 
-class TestFeedback(unittest.TestCase):
+class TestSparkFeedback(unittest.TestCase):
     pass

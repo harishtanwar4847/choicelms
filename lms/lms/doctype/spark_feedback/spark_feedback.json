@@ -1,5 +1,5 @@
 {
- "creation": "2021-07-30 11:46:44.552130",
+ "creation": "2021-07-29 15:36:20.384137",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -91,10 +91,10 @@
    "reqd": 1
   }
  ],
- "modified": "2021-07-30 11:46:44.552130",
+ "modified": "2021-07-29 15:36:20.384137",
  "modified_by": "Administrator",
  "module": "Lms",
- "name": "Feedback",
+ "name": "Spark Feedback",
  "owner": "Administrator",
  "permissions": [
   {

@@ -2061,7 +2061,7 @@ def feedback(**kwargs):
         elif number_of_user_login[0].status_count > 10 or data.get("from_more_menu"):
             feedback_doc = frappe.get_doc(
                 {
-                    "doctype": "Feedback",
+                    "doctype": "Spark Feedback",
                     "customer": customer.name,
                     "sparkloans_have_hit_the_bulls_eye": data.get("bulls_eye"),
                     "sparkloans_can_do_better": data.get("can_do_better"),
