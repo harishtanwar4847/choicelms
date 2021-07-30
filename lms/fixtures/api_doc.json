@@ -4675,5 +4675,88 @@
    }
   ],
   "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2021-07-28 16:51:02.930048",
+  "name": "33fb664fec",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "OTP",
+    "field": "otp_type",
+    "group": null,
+    "optional": 0,
+    "parent": "33fb664fec",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": "",
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\"otp_type\": \"OTP\"}",
+    "parent": "33fb664fec",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.otp_for_testing",
+  "success": [],
+  "success_example": [
+   {
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"OTP\": \"4956\"\n  }\n}",
+    "parent": "33fb664fec",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success"
+   }
+  ],
+  "title": "OTP For Testing",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "33fb664fec",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "33fb664fec",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "33fb664fec",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "33fb664fec",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
  }
 ]
