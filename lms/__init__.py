@@ -579,3 +579,43 @@ def date_str_format(date=None):
         return str(date) + "th"
     else:
         return str(date) + {1: "st", 2: "nd", 3: "rd"}.get(date % 10, "th")
+
+
+def web_mail(notification_name, name, recepient, subject):
+    mail_content = frappe.db.sql(
+        "select message from `tabNotification` where name='{}';".format(
+            notification_name
+        )
+    )[0][0]
+    mail_content = mail_content.replace(
+        "user_name",
+        "{}".format(name),
+    )
+    mail_content = mail_content.replace(
+        "logo_file",
+        frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
+    )
+    mail_content = mail_content.replace(
+        "fb_icon",
+        frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
+    )
+    mail_content = mail_content.replace(
+        "tw_icon",
+        frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),
+    )
+    mail_content = mail_content.replace(
+        "inst_icon",
+        frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
+    )
+    mail_content = (
+        mail_content.replace(
+            "lin_icon", frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png")
+        ),
+    )
+    frappe.enqueue(
+        method=frappe.sendmail,
+        recipients=["{}".format(recepient)],
+        sender=None,
+        subject="{}".format(subject),
+        message=mail_content[0],
+    )
