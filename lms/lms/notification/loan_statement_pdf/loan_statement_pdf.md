@@ -55,7 +55,7 @@
         <tr>
           <td><span style="font-family:Arial, Helvetica, sans-serif; font-size:14px;">Thanks,<br />
             <br />
-            The Spark Team<br />
+            The Spark.Loans Team<br />
             <br /><i>** Please note: You will need Adobe Acrobat to open the attachment.</i><br />
             <br /></span></td>
         </tr>

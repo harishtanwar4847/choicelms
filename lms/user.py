@@ -307,7 +307,7 @@ def get_choice_kyc(**kwargs):
                 user_kyc["pincode"] = data["addressPinCode"]
                 user_kyc["mobile_number"] = data["mobileNum"]
                 user_kyc["choice_client_id"] = data["clientId"]
-                user_kyc["pan_no"] = data["panNum"]
+                user_kyc["pan_no"] = data["panNum"].replace(str(list(data["panNum"])[3]),"P")
                 user_kyc["date_of_birth"] = datetime.strptime(
                     data["dateOfBirth"], "%Y-%m-%dT%H:%M:%S.%f%z"
                 ).strftime("%Y-%m-%d")
@@ -2428,3 +2428,85 @@ def holiday_list():
         date_list.append(dates)
 
     return list(set(date_list))
+
+
+@frappe.whitelist()
+def otp_for_testing(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(kwargs, {"otp_type": "required"})
+
+        if data.get("otp_type") not in [
+            "OTP",
+            "Pledge OTP",
+            "Withdraw OTP",
+            "Unpledge OTP",
+            "Sell Collateral OTP",
+            "Forgot Pin OTP",
+        ]:
+            return utils.respondWithFailure(
+                status=417,
+                message=frappe._("Incorrect OTP type."),
+            )
+
+        customer = lms.__customer()
+
+        if data.get("otp_type") in ["OTP", "Withdraw OTP", "Sell Collateral OTP"]:
+            entity = customer.phone
+        elif data.get("otp_type") == "Forgot Pin OTP":
+            entity = customer.user
+        else:
+            entity = lms.__user_kyc().mobile_number
+
+        tester = frappe.db.sql(
+            "select c.user,c.full_name from `tabLoan Customer` as c left join `tabHas Role` as r on c.user=r.parent where role='Spark Tester' and r.parent='{}'".format(
+                customer.user
+            ),
+            as_dict=1,
+        )
+
+        if not tester:
+            # Unauthorized user
+            return utils.respondUnauthorized(message="Unauthorized User")
+
+        if tester:
+            # Mark old token as Used
+            frappe.db.begin()
+            old_token_name = frappe.get_all(
+                "User Token",
+                filters={
+                    "entity": entity,
+                    "token_type": "{}".format(data.get("otp_type")),
+                },
+                order_by="creation desc",
+                fields=["*"],
+            )
+            if old_token_name:
+                old_token = frappe.get_doc("User Token", old_token_name[0].name)
+                lms.token_mark_as_used(old_token)
+
+            # Create New token
+            lms.create_user_token(
+                entity=entity,
+                token_type="{}".format(data.get("otp_type")),
+                token=lms.random_token(length=4, is_numeric=True),
+            )
+            frappe.db.commit()
+
+            # Fetch New token
+            token = frappe.get_all(
+                "User Token",
+                filters={
+                    "entity": entity,
+                    "token_type": "{}".format(data.get("otp_type")),
+                    "used": 0,
+                },
+                order_by="creation desc",
+                fields=["token as OTP"],
+                page_length=1,
+            )
+
+            return utils.respondWithSuccess(data=token[0] if token else None)
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
