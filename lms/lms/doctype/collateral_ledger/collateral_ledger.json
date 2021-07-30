@@ -43,7 +43,6 @@
    "reqd": 1
   },
   {
-   "depends_on": "eval:doc.request_type=='Pledge'",
    "fieldname": "pledgor_boid",
    "fieldtype": "Data",
    "label": "Pledgor BOID",
@@ -67,7 +66,6 @@
    "reqd": 1
   },
   {
-   "depends_on": "eval:doc.request_type=='Pledge'",
    "fieldname": "pledgee_boid",
    "fieldtype": "Data",
    "label": "Pledgee BOID",
@@ -134,7 +132,7 @@
    "reqd": 1
   }
  ],
- "modified": "2021-04-06 12:19:51.890021",
+ "modified": "2021-07-26 13:27:26.228170",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Collateral Ledger",

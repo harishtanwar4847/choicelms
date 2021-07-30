@@ -320,7 +320,7 @@ class Loan(Document):
         # sauce: https://stackoverflow.com/a/23827026/9403680
         sql = """
 			SELECT
-				cl.loan, cl.isin, cl.psn,
+				cl.loan, cl.isin, cl.psn, cl.pledgor_boid, cl.pledgee_boid,
 				s.price, s.security_name,
 				als.security_category
 				, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))

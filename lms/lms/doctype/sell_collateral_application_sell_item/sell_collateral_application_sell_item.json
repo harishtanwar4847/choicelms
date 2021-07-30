@@ -8,7 +8,9 @@
   "security_name",
   "psn",
   "quantity",
-  "sell_quantity"
+  "sell_quantity",
+  "pledgor_boid",
+  "pledgee_boid"
  ],
  "fields": [
   {
@@ -46,10 +48,22 @@
    "in_list_view": 1,
    "label": "Sell Quantity",
    "reqd": 1
+  },
+  {
+   "fieldname": "pledgor_boid",
+   "fieldtype": "Data",
+   "label": "Pledgor BOID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pledgee_boid",
+   "fieldtype": "Data",
+   "label": "Pledgee BOID",
+   "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2021-04-06 16:47:25.346761",
+ "modified": "2021-07-26 13:20:12.857289",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application Sell Item",
