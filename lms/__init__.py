@@ -219,7 +219,7 @@ def generate_user_token(user_name):
     return "token {}:{}".format(api_key, secret_key)
 
 
-def create_user(first_name, last_name, mobile, email):
+def create_user(first_name, last_name, mobile, email, tester):
     try:
         user = frappe.get_doc(
             {
@@ -232,7 +232,12 @@ def create_user(first_name, last_name, mobile, email):
                 "mobile_no": mobile,
                 "send_welcome_email": 0,
                 "new_password": frappe.mock("password"),
-                "roles": [{"doctype": "Has Role", "role": "Loan Customer"}],
+                "roles": [
+                    {"doctype": "Has Role", "role": "Loan Customer"},
+                    {"doctype": "Has Role", "role": "Spark Tester"},
+                ]
+                if tester
+                else [{"doctype": "Has Role", "role": "Loan Customer"}],
             }
         ).insert(ignore_permissions=True)
 
