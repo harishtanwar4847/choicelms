@@ -8,6 +8,9 @@ frappe.ui.form.on("Sell Collateral Application", {
     if (frm.doc.status != "Pending") {
       frm.set_df_property("items", "read_only", 1);
     }
+    if (frm.doc.owner != frappe.session.user) {
+      frm.set_df_property("loan_margin_shortfall", "read_only", 1);
+    }
   },
 });
 
