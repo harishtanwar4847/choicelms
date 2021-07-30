@@ -97,3 +97,7 @@ class Lender(Document):
             "File", {"file_url": self.pledged_security_statement_template}
         )
         return frappe.get_doc("File", file_name)
+
+    def get_lender_logo_file(self):
+        file_name = frappe.db.get_value("File", {"file_url": self.logo_file_1})
+        return frappe.get_doc("File", file_name) if file_name else None

@@ -83,7 +83,9 @@
   "approved_securities_template",
   "loan_account_statement_template",
   "column_break_78",
-  "pledged_security_statement_template"
+  "pledged_security_statement_template",
+  "image_section_section",
+  "logo_file_1"
  ],
  "fields": [
   {
@@ -513,9 +515,20 @@
   {
    "fieldname": "column_break_78",
    "fieldtype": "Column Break"
+  },
+  {
+   "description": "All attachments should be Public",
+   "fieldname": "image_section_section",
+   "fieldtype": "Section Break",
+   "label": "Image Section"
+  },
+  {
+   "fieldname": "logo_file_1",
+   "fieldtype": "Attach",
+   "label": "Lender Logo"
   }
  ],
- "modified": "2021-07-02 13:20:09.600926",
+ "modified": "2021-07-24 19:38:26.437293",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
