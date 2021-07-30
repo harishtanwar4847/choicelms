@@ -605,10 +605,11 @@ def securities(**kwargs):
         # TODO : check if today's client holding present or not
         # TODO : if no, call jiffy api
         # TODO : clear holding of pan(old records)
-        # TODO : check if user
+        # TODO : check if user kyc exist or not, if not throw exception
         # TODO : call jiffy API for latest response
         # TODO : save jiffy response in client holding
-        # TODO :
+        # TODO : process actual free qty
+        # TODO : send json response
 
         reg = lms.regex_special_characters(search=data.get("lender"))
         if reg:
@@ -622,45 +623,163 @@ def securities(**kwargs):
 
         user_kyc = lms.__user_kyc()
 
-        las_settings = frappe.get_single("LAS Settings")
+        from_date = frappe.utils.now_datetime().replace(hour=00, minute=00, second=00)
+        to_date = frappe.utils.now_datetime().replace(hour=23, minute=59, second=59)
+        # todays_client_holding = frappe.db.count("Client Holding", filters={"creation" : ("between", (from_date, to_date))}, debug=True)
+        securities_list = frappe.db.get_all(
+            "Client Holding",
+            fields=[
+                "pan PAN",
+                "isin ISIN",
+                "branch Branch",
+                "client_code Client_Code",
+                "client_name Client_Name",
+                "scrip_name Scrip_Name",
+                "depository Depository",
+                "stock_at Stock_At",
+                "quantity Quantity",
+                "price Price",
+                "scrip_value Scrip_Value",
+                "holding_as_on Holding_As_On",
+            ],
+            filters={
+                "creation": ["between", (from_date, to_date)],
+                "pan": user_kyc.pan_no,
+            },
+        )
 
-        # get securities list from choice
-        payload = {"UserID": las_settings.choice_user_id, "ClientID": user_kyc.pan_no}
+        if len(securities_list) == 0:
+            las_settings = frappe.get_single("LAS Settings")
 
-        try:
-            res = requests.post(
-                las_settings.choice_securities_list_api,
-                json=payload,
-                headers={"Accept": "application/json"},
-            )
-            if not res.ok:
-                raise utils.exceptions.APIException(res.text)
+            # get securities list from choice
+            payload = {
+                "UserID": las_settings.choice_user_id,
+                "ClientID": user_kyc.pan_no,
+            }
 
-            res_json = res.json()
-            if res_json["Status"] != "Success":
-                raise utils.exceptions.APIException(res.text)
+            try:
+                res = requests.post(
+                    las_settings.choice_securities_list_api,
+                    json=payload,
+                    headers={"Accept": "application/json"},
+                )
+                if not res.ok:
+                    raise utils.exceptions.APIException(res.text)
 
-            # setting eligibility
-            # securities_list = res_json["Response"]
-            securities_list = [i for i in res_json["Response"] if i.get("Price") > 0]
-            securities_list_ = [i["ISIN"] for i in securities_list]
-            securities_category_map = lms.get_allowed_securities(
-                securities_list_, data.get("lender")
-            )
+                res_json = res.json()
+                frappe.logger().info(res_json)
+                if res_json["Status"] != "Success":
+                    raise utils.exceptions.APIException(res.text)
 
-            for i in securities_list:
-                try:
-                    i["Category"] = securities_category_map[i["ISIN"]].get(
-                        "security_category"
+                # setting eligibility
+                # securities_list = res_json["Response"]
+                securities_list = [
+                    i for i in res_json["Response"] if i.get("Price") > 0
+                ]
+                # securities_list_ = [i["ISIN"] for i in securities_list]
+                # securities_category_map = lms.get_allowed_securities(
+                #     securities_list_, data.get("lender")
+                # )
+
+                # TODO : bulk insert fields
+                fields = [
+                    "name",
+                    "pan",
+                    "isin",
+                    "branch",
+                    "client_code",
+                    "client_name",
+                    "scrip_name",
+                    "depository",
+                    "stock_at",
+                    "quantity",
+                    "price",
+                    "scrip_value",
+                    "holding_as_on",
+                    "creation",
+                    "modified",
+                    "owner",
+                    "modified_by",
+                ]
+
+                # TODO : bulk insert values
+                values = []
+                for i in securities_list:
+                    Holding_As_On = datetime.strptime(
+                        i["Holding_As_On"], "%Y-%m-%dT%H:%M:%S"
                     )
-                    i["Is_Eligible"] = True
-                except KeyError:
-                    i["Is_Eligible"] = False
-                    i["Category"] = None
+                    values.append(
+                        [
+                            user_kyc.pan_no + "-" + i["ISIN"],
+                            user_kyc.pan_no,
+                            i["ISIN"],
+                            i["Branch"],
+                            i["Client_Code"],
+                            i["Client_Name"],
+                            i["Scrip_Name"],
+                            i["Depository"],
+                            i["Stock_At"],
+                            i["Quantity"],
+                            i["Price"],
+                            i["Scrip_Value"],
+                            Holding_As_On,
+                            frappe.utils.now(),
+                            frappe.utils.now(),
+                            frappe.session.user,
+                            frappe.session.user,
+                        ]
+                    )
 
-            return utils.respondWithSuccess(data=securities_list)
-        except requests.RequestException as e:
-            raise utils.exceptions.APIException(str(e))
+                # values.append([])
+
+                # TODO : delete existng records
+                frappe.db.delete("Client Holding", {"pan": user_kyc.pan_no})
+
+                # TODO : bulk insert
+                frappe.db.bulk_insert(
+                    "Client Holding",
+                    fields=fields,
+                    values=values,
+                    ignore_duplicates=True,
+                )
+
+            except requests.RequestException as e:
+                raise utils.exceptions.APIException(str(e))
+
+        securities_list_ = [i["ISIN"] for i in securities_list]
+        securities_category_map = lms.get_allowed_securities(
+            securities_list_, data.get("lender")
+        )
+
+        pledge_waiting_sql = """
+            SELECT ch.pan, ch.stock_at, ch.isin, ch.quantity, ch.price, ch.scrip_value,
+            la.name,
+            lai.name,
+            ch.quantity - lai.pledged_quantity as free_qty
+            FROM `tabClient Holding` ch
+            LEFT JOIN `tabLoan Application` as la ON la.pledgor_boid = ch.stock_at
+            LEFT JOIN `tabLoan Application Item` lai ON lai.parent = la.name
+            where ch.pan = '{}' AND la.lender = '{}'
+            group by ch.isin
+        """.format(
+            user_kyc.pan_no, data["lender"]
+        )
+        print(pledge_waiting_sql)
+
+        for i in securities_list:
+            # process actual qty
+
+            try:
+                i["Category"] = securities_category_map[i["ISIN"]].get(
+                    "security_category"
+                )
+                i["Is_Eligible"] = True
+            except KeyError:
+                i["Is_Eligible"] = False
+                i["Category"] = None
+
+        return utils.respondWithSuccess(data=securities_list)
+
     except utils.exceptions.APIException as e:
         return e.respond()
 
