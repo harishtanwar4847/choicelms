@@ -470,13 +470,15 @@
         <h5>Our Lending Partners</h5>
       </div>
       <div class="fw dx_jcc">
-        <p class="txc Gilroy_Bold">
+        {% for lender in lenders %}
+        <p class="txc Gilroy_Bold mx-3">
           <img
-            src="assets/lms/images/home/partners/choice.svg"
-            alt="Choice"
+            src="{{lender.image}}"
+            alt="{{lender.alt}}"
             width="180"
-          /><br />Choice Finserv Pvt. Ltd.
+          /><br />{{lender.title}}
         </p>
+        {% endfor %}
       </div>
     </section>
     <!-- <section class="videos">

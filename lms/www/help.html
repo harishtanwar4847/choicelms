@@ -337,9 +337,11 @@
                         <u>Processing Fees</u> &ndash; Users would be charged
                         one time processing fees on the amount of loan
                         (overdraft limit) sanctioned by our lending partner(s).
-                        The processing fee would be 1.0% of the limit
+                        The processing fee would be
+                        {{lenderCharges.lender_processing_fees}}% of the limit
                         sanctioned. The fee is valid for a period of 12 month.
-                        Renewal Fees is 0.5% of the limit renewed.
+                        Renewal Fees is {{lenderCharges.renewal_charges}}% of
+                        the limit renewed.
                       </li>
                       <li>
                         <u>Mortgage charges</u> &ndash; Users would be charged
@@ -350,25 +352,31 @@
                       <li>
                         <u>Documentation and Stamp duty charges </u>&ndash; User
                         will be charged one time documentation charges of Rs.
-                        200/- and stamp duty at actuals.
+                        {{lenderCharges.stamp_duty_sharing|int +
+                        lenderCharges.documentation_charges_sharing|int}}/- and
+                        stamp duty at actuals.
                       </li>
                       <li>
                         <u
                           >Collection Charges on Sale of Securities in the event
                           of default or otherwise </u
-                        >- 0.5% of the sale amount plus all brokerage,
-                        incidental transaction charges, costs and expenses and
-                        other levies as per actuals.
+                        >- {{lenderCharges.security_selling_share}}% of the sale
+                        amount plus all brokerage, incidental transaction
+                        charges, costs and expenses and other levies as per
+                        actuals.
                       </li>
                       <li>
                         <u
                           >Transaction Charges per Request (per variation in the
                           composition of the Demat securities pledged) </u
-                        >- Upto Rs.100/- per request
+                        >- Upto
+                        Rs.{{lenderCharges.transaction_charges_per_request|int}}/-
+                        per request
                       </li>
                       <li>
                         <u>Credit Information Companies'(CICs) Charges</u>- Upto
-                        Rs 100/- per instance (For Individuals)
+                        Rs {{lenderCharges.cic_charges|int}}/- per instance (For
+                        Individuals)
                       </li>
                       <li>
                         <u>Legal &amp; incidental charges - </u>As per actuals
@@ -520,7 +528,9 @@
                             <p>Nil</p>
                           </td>
                           <td width="136">
-                            <p>1.54%</p>
+                            <p>
+                              {{"%.2f"|format(intrupto5.rebait_interest+intrupto5.base_interest|float)}}%
+                            </p>
                           </td>
                         </tr>
                         <tr>
@@ -529,10 +539,15 @@
                             <p>Within 7 days</p>
                           </td>
                           <td width="91">
-                            <p>0.20%</p>
+                            <p>
+                              {{
+                              "%.2f"|format(intrupto5.rebait_interest|float)}}%
+                            </p>
                           </td>
                           <td width="136">
-                            <p>1.34%</p>
+                            <p>
+                              {{"%.2f"|format(intrupto5.base_interest|float)}}%
+                            </p>
                           </td>
                         </tr>
                         <!--
@@ -674,24 +689,28 @@
                     </p>
                     <p>
                       1) When the drawing power’s value falls below the loan
-                      amount (Less than 15%), 48 hours (Excluding bank holidays)
-                      will be available to the customer to mitigate the
-                      shortfall. Post 48 hours, sale will be triggered and
-                      lender will sell pledged securities as required.
+                      amount (Less than {{ marginmin.max_threshold }}%), {{
+                      marginmin.sell_off_after_hours }} hours (Excluding bank
+                      holidays) will be available to the customer to mitigate
+                      the shortfall. Post {{ marginmin.sell_off_after_hours }}
+                      hours, sale will be triggered and lender will sell pledged
+                      securities as required.
                     </p>
                     <p>
                       2) When the drawing power’s value falls below loan amount
-                      (greater than or equal to 15% but less than 25%), the
-                      customer will have time till end-of-day (hours up to 10:00
-                      PM EOD) to mitigate the shortfall. After this, sale will
-                      be triggered and lender will sell pledged securities as
-                      required.
+                      (greater than or equal to {{ marginmin.max_threshold }}%
+                      but less than {{ marginmax.max_threshold }}%), the
+                      customer will have time till end-of-day (hours up to
+                      {{marginmax.sell_off_deadline_eod}} EOD) to mitigate the
+                      shortfall. After this, sale will be triggered and lender
+                      will sell pledged securities as required.
                     </p>
 
                     <p>
                       3) When the drawing power’s value falls below loan amount
-                      (greater than 25%), the sale will be triggered and lender
-                      will sell pledged securities as required.
+                      (greater than {{ marginmax.max_threshold }}%), the sale
+                      will be triggered and lender will sell pledged securities
+                      as required.
                     </p>
                     <table class="table">
                       <tbody>
@@ -705,23 +724,26 @@
                         </tr>
                         <tr>
                           <td width="213">
-                            <p>&lt;15%</p>
+                            <p>&lt;{{ marginmin.max_threshold }}%</p>
                           </td>
                           <td width="213">
-                            <p>48 hours</p>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td width="213">
-                            <p>&gt;=15% to &lt;25%</p>
-                          </td>
-                          <td width="213">
-                            <p>EOD (10:00 pm)</p>
+                            <p>{{ marginmin.sell_off_after_hours }} hours</p>
                           </td>
                         </tr>
                         <tr>
                           <td width="213">
-                            <p>&gt;=25% and above</p>
+                            <p>
+                              &gt;={{ marginmin.max_threshold }}% to &lt;{{
+                              marginmax.max_threshold }}%
+                            </p>
+                          </td>
+                          <td width="213">
+                            <p>EOD ({{marginmax.sell_off_deadline_eod}})</p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td width="213">
+                            <p>&gt;={{ marginmax.max_threshold }}% and above</p>
                           </td>
                           <td width="213">
                             <p>Immediate</p>
