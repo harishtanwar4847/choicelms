@@ -5,7 +5,9 @@ from datetime import datetime, timedelta
 
 import frappe
 import utils
-from frappe.auth import LoginManager, get_login_failed_count
+
+# from frappe.auth import LoginManager, get_login_failed_count
+from frappe.auth import LoginAttemptTracker, get_login_attempt_tracker
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.utils.password import (
     check_password,
@@ -62,11 +64,13 @@ def login(**kwargs):
                 return utils.respondUnauthorized(message=str(e))
             except frappe.AuthenticationError as e:
                 message = frappe._("Incorrect PIN.")
-                invalid_login_attempts = get_login_failed_count(user.name)
-                if invalid_login_attempts > 0:
+                invalid_login_attempts = get_login_attempt_tracker(user.name)
+                if invalid_login_attempts.login_failed_count > 0:
                     message += " {} invalid {}.".format(
-                        invalid_login_attempts,
-                        "attempt" if invalid_login_attempts == 1 else "attempts",
+                        invalid_login_attempts.login_failed_count,
+                        "attempt"
+                        if invalid_login_attempts.login_failed_count == 1
+                        else "attempts",
                     )
                 return utils.respondUnauthorized(message=message)
             customer = lms.__customer(user.name)
@@ -109,6 +113,9 @@ def login(**kwargs):
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
         return e.respond()
+    except frappe.SecurityException as e:
+        frappe.db.rollback()
+        return utils.respondUnauthorized(message=str(e))
 
 
 @frappe.whitelist()
@@ -193,17 +200,22 @@ def verify_otp(**kwargs):
         if not token:
             message = frappe._("Invalid OTP.")
             if user:
-                frappe.local.login_manager.update_invalid_login(user.name)
-                try:
-                    frappe.local.login_manager.check_if_enabled(user.name)
-                except frappe.SecurityException as e:
-                    return utils.respondUnauthorized(message=str(e))
+                # frappe.local.login_manager.update_invalid_login(user.name)
+                # try:
+                #     frappe.local.login_manager.check_if_enabled(user.name)
+                # except frappe.SecurityException as e:
+                #     return utils.respondUnauthorized(message=str(e))
+                LoginAttemptTracker(user_name=user.name).add_failure_attempt()
+                if not user.enabled:
+                    return utils.respondUnauthorized(message="User disabled or missing")
 
-                invalid_login_attempts = get_login_failed_count(user.name)
-                if invalid_login_attempts > 0:
+                invalid_login_attempts = get_login_attempt_tracker(user.name)
+                if invalid_login_attempts.login_failed_count > 0:
                     message += " {} invalid {}.".format(
-                        invalid_login_attempts,
-                        "attempt" if invalid_login_attempts == 1 else "attempts",
+                        invalid_login_attempts.login_failed_count,
+                        "attempt"
+                        if invalid_login_attempts.login_failed_count == 1
+                        else "attempts",
                     )
 
             return utils.respondUnauthorized(message=message)
@@ -241,6 +253,9 @@ def verify_otp(**kwargs):
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
         return e.respond()
+    except frappe.SecurityException as e:
+        frappe.db.rollback()
+        return utils.respondUnauthorized(message=str(e))
 
 
 @frappe.whitelist(allow_guest=True)
