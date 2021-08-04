@@ -13,7 +13,6 @@ def get_context(context):
     context.marginmax.sell_off_deadline_eod = datetime.strptime(
         "{}".format(context.marginmax.sell_off_deadline_eod), "%H"
     ).strftime("%I:%M %p")
-    print(context.marginmax.sell_off_deadline_eod)
 
     context.marginmin = frappe.get_all(
         "Margin Shortfall Action",

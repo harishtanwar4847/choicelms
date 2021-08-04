@@ -1,0 +1,45 @@
+<link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
+<link rel="stylesheet" type="text/css" href="/assets/lms/css/bootstrap.css" />
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+/>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="/assets/lms/css/owl.carousel.min.css"
+/>
+<link rel="stylesheet" type="text/css" href="/assets/lms/css/animate.css" />
+<link rel="stylesheet" type="text/css" href="/assets/lms/css/selectbox.css" />
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="/assets/lms/css/jquery.fileuploader.css"
+/>
+<link rel="stylesheet" type="text/css" href="/assets/lms/css/common.css" />
+<link rel="stylesheet" type="text/css" href="/assets/lms/css/media.css" />
+{% if "webview" in frappe.form_dict %}
+<style>
+  @media (max-width: 1366px) {
+    .fw.mobnav,
+    footer,
+    .appdownloadbg,
+    header {
+      display: none !important;
+    }
+
+    .maintitle h5 {
+      margin-top: 2% !important;
+    }
+
+    .privacy {
+      padding-bottom: 0px;
+    }
+
+    .titlesec {
+      display: none !important;
+    }
+  }
+</style>
+{% endif %}
