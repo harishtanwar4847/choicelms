@@ -135,19 +135,57 @@ fixtures = [
     "API Doc",
 ]
 
+# scheduler_events = {
+#     "hourly": [
+#         "lms.lms.doctype.security_price.security_price.update_all_security_prices"
+#     ],
+#     "daily": [
+#         "lms.lms.doctype.loan.loan.add_all_loans_virtual_interest",
+#         "lms.lms.doctype.loan.loan.check_for_all_loans_additional_interest",
+#         "lms.lms.doctype.loan.loan.add_all_loans_penal_interest",
+#     ],
+#     "monthly": ["lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"],
+#     "cron": {
+#         "*/5 * * * *": [
+#             "lms.lms.doctype.loan_application.loan_application.process_pledge"
+#         ]
+#     },
+# }
+
+
 scheduler_events = {
     "hourly": [
         "lms.lms.doctype.security_price.security_price.update_all_security_prices"
     ],
-    "daily": [
-        "lms.lms.doctype.loan.loan.add_all_loans_virtual_interest",
-        "lms.lms.doctype.loan.loan.check_for_all_loans_additional_interest",
-        "lms.lms.doctype.loan.loan.add_all_loans_penal_interest",
-    ],
-    "monthly": ["lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"],
-    "cron": {
+    # "daily": [
+    #     "lms.lms.doctype.loan.loan.add_all_loans_virtual_interest",
+    #     "lms.lms.doctype.loan.loan.check_for_all_loans_additional_interest",
+    #     "lms.lms.doctype.loan.loan.add_all_loans_penal_interest",
+    # ],
+    # "monthly": ["lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"],
+    "pledge_cron": {
         "*/5 * * * *": [
             "lms.lms.doctype.loan_application.loan_application.process_pledge"
+        ]
+    },
+    # At 02:15 AM daily
+    "virtual_interest_cron": {
+        "15 2 * * *": ["lms.lms.doctype.loan.loan.add_all_loans_virtual_interest"]
+    },
+    # At 03:15 AM daily
+    "additional_interest_cron": {
+        "15 3 * * *": [
+            "lms.lms.doctype.loan.loan.check_for_all_loans_additional_interest"
+        ]
+    },
+    # At 04:15 AM daily
+    "penal_interest_cron": {
+        "15 4 * * *": ["lms.lms.doctype.loan.loan.add_all_loans_penal_interest"]
+    },
+    # At 05:15 AM on 1st day-of-every-month(monthly)
+    "book_interest_cron": {
+        "15 5 1 * *": [
+            "lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"
         ]
     },
 }
