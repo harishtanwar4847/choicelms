@@ -9,7 +9,7 @@ frappe.ui.form.on("Loan", {
       .get_field("loan_agreement")
       .$input_wrapper.find("[data-action=clear_attachment]")
       .hide();
-    if (false == false) {
+    if (false == true) {
       frm.add_custom_button(__("Daily Cron Job"), function () {
         frappe.prompt(
           {
