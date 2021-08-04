@@ -362,10 +362,10 @@ few days. {% endblock description %} {% block body %}
     {% for lender in lenders %}
     <p class="txc Gilroy_Bold mx-3">
       <img
-        src="{{lender.image}}"
-        alt="{{lender.alt}}"
+        src="{{lender.logo_file_1}}"
+        alt="{{lender.name}}"
         width="180"
-      /><br />{{lender.title}}
+      /><br />{{lender.name}}
     </p>
     {% endfor %}
   </div>
