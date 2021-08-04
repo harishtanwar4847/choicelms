@@ -1805,7 +1805,7 @@ def update_profile_pic_and_pin(**kwargs):
                 )
             except frappe.AuthenticationError:
                 return utils.respondWithFailure(
-                    status=417, message=frappe._("Incorrect User or Password.")
+                    status=417, message=frappe._("Invalid current pin")
                 )
 
             if old_pass_check:
@@ -1818,15 +1818,16 @@ def update_profile_pic_and_pin(**kwargs):
                 elif data.get("old_pin") == data.get("new_pin"):
                     return utils.respondWithFailure(
                         status=417,
-                        message=frappe._("Dont put new pin same as old pin."),
+                        message=frappe._("New pin cannot be same as old pin"),
                     )
                 else:
                     return utils.respondWithFailure(
-                        status=417, message=frappe._("Please retype correct pin.")
+                        status=417,
+                        message=frappe._("Retyped pin does not match with new pin"),
                     )
 
             return utils.respondWithSuccess(
-                message=frappe._("User PIN has been updated.")
+                message=frappe._("Your pin has been changed successfully!")
             )
 
         elif data.get("is_for_update_pin") and (
