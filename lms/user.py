@@ -262,6 +262,12 @@ def get_choice_kyc(**kwargs):
                 message=frappe._("Invalid PAN"),
             )
 
+        if (data.get("pan_no")[3]).lower() != "p":
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Invalid PAN"),
+            )
+
         try:
             user_kyc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
         except UserKYCNotFoundException:
