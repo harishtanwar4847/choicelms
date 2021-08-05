@@ -228,10 +228,12 @@ def verify_otp(**kwargs):
             if not user:
                 return utils.respondNotFound(message=frappe._("User not found."))
 
-            try:
-                frappe.local.login_manager.check_if_enabled(user.name)
-            except frappe.SecurityException as e:
-                return utils.respondUnauthorized(message=str(e))
+            # try:
+            #     frappe.local.login_manager.check_if_enabled(user.name)
+            # except frappe.SecurityException as e:
+            #     return utils.respondUnauthorized(message=str(e))
+            if not user.enabled:
+                return utils.respondUnauthorized(message="User disabled or missing")
             customer = lms.__customer(user.name)
             try:
                 user_kyc = lms.__user_kyc(user.name)
