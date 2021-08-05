@@ -9,25 +9,18 @@
   "customer_name",
   "total_collateral_value",
   "total_collateral_value_str",
-  "approved_total_collateral_value",
-  "approved_total_collateral_value_str",
   "pledgor_boid",
-  "prf_number",
   "allowable_ltv",
   "loan_margin_shortfall",
   "column_break_2",
   "lender",
   "eligible_loan",
   "eligible_loan_str",
-  "approved_eligible_loan",
-  "approved_eligible_loan_str",
   "pledgee_boid",
-  "expiry",
   "loan",
   "section_break_9",
   "is_processed",
   "column_break_11",
-  "status",
   "section_break_4",
   "items"
  ],
@@ -81,7 +74,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Customer",
-   "options": "Customer",
+   "options": "Loan Customer",
    "reqd": 1,
    "set_only_once": 1
   },
@@ -115,41 +108,9 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "label": "Status",
-   "options": "Not Processed\nSuccess\nPartial Success\nFailure"
-  },
-  {
    "fieldname": "pledgee_boid",
    "fieldtype": "Data",
    "label": "Pledgee BOID",
-   "read_only": 1
-  },
-  {
-   "fieldname": "prf_number",
-   "fieldtype": "Data",
-   "label": "PRF Number",
-   "read_only": 1
-  },
-  {
-   "fieldname": "expiry",
-   "fieldtype": "Date",
-   "label": "Expiry",
-   "read_only": 1
-  },
-  {
-   "depends_on": "eval:doc.is_processed",
-   "fieldname": "approved_total_collateral_value",
-   "fieldtype": "Currency",
-   "label": "Approved Total Collateral Value",
-   "read_only": 1
-  },
-  {
-   "depends_on": "eval:doc.is_processed",
-   "fieldname": "approved_eligible_loan",
-   "fieldtype": "Currency",
-   "label": "Approved Eligible Loan",
    "read_only": 1
   },
   {
@@ -166,21 +127,9 @@
    "read_only": 1
   },
   {
-   "fieldname": "approved_total_collateral_value_str",
-   "fieldtype": "Data",
-   "label": "Approved Total Collateral Value Str",
-   "read_only": 1
-  },
-  {
    "fieldname": "eligible_loan_str",
    "fieldtype": "Data",
    "label": "Eligible Loan  Str",
-   "read_only": 1
-  },
-  {
-   "fieldname": "approved_eligible_loan_str",
-   "fieldtype": "Data",
-   "label": "Approved Eligible Loan Str",
    "read_only": 1
   },
   {
@@ -191,7 +140,7 @@
    "label": "Customer Name"
   }
  ],
- "modified": "2021-01-11 14:45:15.552789",
+ "modified": "2021-02-09 18:08:07.045858",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart",

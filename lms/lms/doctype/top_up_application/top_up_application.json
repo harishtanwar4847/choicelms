@@ -1,0 +1,159 @@
+{
+ "autoname": "TOPUP.######",
+ "creation": "2021-02-27 14:42:50.930164",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "loan",
+  "top_up_amount",
+  "sanctioned_limit",
+  "column_break_6",
+  "time",
+  "status",
+  "expiry_date",
+  "column_break_9",
+  "customer",
+  "column_break_8",
+  "customer_name",
+  "section_break_10",
+  "customer_esigned_document",
+  "column_break_12",
+  "lender_esigned_document",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "loan",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Loan",
+   "options": "Loan",
+   "read_only": 1
+  },
+  {
+   "fieldname": "top_up_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Top up Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Time",
+   "read_only": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nEsign Done\nApproved\nRejected",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Loan Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "label": "Customer Name"
+  },
+  {
+   "fieldname": "customer_esigned_document",
+   "fieldtype": "Attach",
+   "label": "Customer Esigned Document"
+  },
+  {
+   "fieldname": "lender_esigned_document",
+   "fieldtype": "Attach",
+   "label": "Lender Esigned Document"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_10",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_12",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Top up Application",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Sanctioned Limit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Expiry Date",
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 1,
+ "modified": "2021-06-30 16:44:54.007889",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Top up Application",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Lender",
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Loan Customer",
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

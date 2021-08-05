@@ -1,0 +1,185 @@
+select {
+  width: 100% !important;
+}
+
+.selectBox {
+  width: 100% !important;
+  height: 46px !important;
+}
+.selectBox-options LI:first-child {
+  display: none;
+}
+
+/* Dropdown control */
+.selectBox-dropdown {
+  width: 100% !important;
+  /*padding: 5px 40px 6px 15px !important;*/
+  padding: 10px 40px 5px 15px !important;
+  position: relative;
+  border: 0;
+  text-decoration: none;
+  text-align: left;
+  color: #000;
+  outline: none;
+  vertical-align: middle;
+  display: inline-block;
+  cursor: default;
+  cursor: pointer;
+  border: 0px !important;
+  height: auto;
+  background: transparent;
+  font-family: "Gilroy_Light";
+}
+
+.selectBox-dropdown .selectBox-label {
+  width: 100% !important;
+  padding: 0px;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 16px;
+  border: 0px;
+  color: #162d27 !important;
+  font-family: "Gilroy_Light";
+  line-height: 46px;
+  padding: 0 5px;
+  border-bottom: 1px solid #162d27;
+  background: transparent !important;
+}
+.selectBox-arrow {
+  display: inline-block !important;
+  content: "" !important;
+  box-sizing: border-box !important;
+  height: 12px !important;
+  width: 12px !important;
+  border-style: solid !important;
+  border-color: #162d27 !important;
+  border-width: 0px 2px 2px 0px !important;
+  display: block !important;
+  position: absolute !important;
+  left: auto !important;
+  right: 12px !important;
+  top: 40% !important;
+  transform: translateY(-50%) rotate(45deg) !important;
+  transition-duration: 0.5s !important;
+}
+
+.selectBox-dropdown.selectBox-menuShowing .selectBox-arrow {
+  top: 56% !important;
+  transform: translateY(-50%) rotate(-135deg) !important;
+}
+
+/* Dropdown menu */
+.selectBox-dropdown-menu {
+  position: absolute;
+  z-index: 99999;
+  max-height: 220px;
+  min-height: 1em;
+  padding-top: 0px !important;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #fff;
+  margin: 0 0px !important;
+  background: #fff;
+  border: 1px solid #f7f7f7;
+}
+
+/* Inline control */
+.selectBox-inline {
+  min-width: 150px;
+  outline: none;
+  border: solid 1px #bbb;
+  background: #fff;
+  display: inline-block;
+  overflow: auto;
+}
+
+.selectBox-inline:focus {
+  border-color: #666;
+}
+
+/* Options */
+.selectBox-options,
+.selectBox-options LI,
+.selectBox-options LI A {
+  list-style: none;
+  display: block;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+.selectBox-options LI A {
+  line-height: 1.5;
+  padding: 6px 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  font-family: "Gilroy_Light";
+  font-weight: normal;
+  font-size: 15px;
+  color: #162d27 !important;
+  background: #fff;
+}
+.selectBox-dropdown-menu li:first-child {
+  display: none !important;
+}
+
+.selectBox-options LI.selectBox-selected a,
+.selectBox-options LI:hover a {
+  color: #162d27 !important;
+  background: #e8d7ca !important;
+}
+
+.selectBox-options LI.selectBox-disabled A {
+  color: #888;
+  background-color: transparent;
+}
+
+.selectBox-options .selectBox-optgroup {
+  color: #666;
+  background: #eee;
+  font-weight: bold;
+  line-height: 1.5;
+  padding: 0 0.3em;
+  white-space: nowrap;
+}
+
+/* Disabled state */
+.selectBox.selectBox-disabled {
+  color: #888 !important;
+}
+
+.selectBox-dropdown.selectBox-disabled .selectBox-arrow {
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+  border-color: #666;
+}
+
+.selectBox-inline.selectBox-disabled {
+  color: #888 !important;
+}
+
+.selectBox-inline.selectBox-disabled .selectBox-options A {
+  background-color: transparent !important;
+}
+
+@media only screen and (max-width: 768px) {
+  .selectBox-dropdown .selectBox-label {
+    font-size: 13px;
+  }
+  .selectBox-dropdown .selectBox-label:after {
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    top: 3px;
+    right: 3px;
+  }
+  .selectBox-dropdown .selectBox-arrow {
+    padding: 3px;
+    right: 15px;
+    top: 17px;
+  }
+  .selectBox-options LI A {
+    font-size: 13px;
+  }
+}

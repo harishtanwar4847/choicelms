@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sparkloans</title>
+    <meta name="description" content="Sparkloans" />
+    <link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/assets/lms/css/bootstrap.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/assets/lms/css/owl.carousel.min.css"
+    />
+    <link rel="stylesheet" type="text/css" href="/assets/lms/css/animate.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/assets/lms/css/selectbox.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/assets/lms/css/jquery.fileuploader.css"
+    />
+    <link rel="stylesheet" type="text/css" href="/assets/lms/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/lms/css/media.css" />
+    <script
+      type="text/javascript"
+      src="/assets/frappe/js/lib/jquery/jquery.min.js"
+    ></script>
+    <style>
+      .proBox {
+        padding: 100px 0;
+        padding-top: 50px;
+        padding-right: 0px;
+        padding-bottom: 50px;
+        padding-left: 0px;
+      }
+
+      .dynamic-content {
+        display: none;
+      }
+
+      .loader {
+        border: 5px solid #fff;
+        border-radius: 50%;
+        border-top: 5px solid #3498db;
+        width: 80px;
+        height: 80px;
+        -webkit-animation: spin 2s linear infinite;
+        animation: spin 1.5s linear infinite;
+        margin-top: 85px;
+        margin-bottom: 85px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      /* Safari */
+      @-webkit-keyframes spin {
+        0% {
+          -webkit-transform: rotate(0deg);
+        }
+
+        100% {
+          -webkit-transform: rotate(360deg);
+        }
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media screen and (max-width: 1366px) {
+        .everify {
+          margin-top: 50px;
+        }
+      }
+    </style>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        // $("#spinner-div").show()
+        $("#email-verify-content").hide();
+        const urlParams = new URLSearchParams(location.search);
+        const success = urlParams.get("success");
+        if (urlParams.has("success")) {
+          $("#email-verify-content").show();
+          $(".loader").hide();
+          $("#success").show();
+        } else if (urlParams.has("already-verified")) {
+          $("#email-verify-content").show();
+          $(".loader").hide();
+          $("#already-verified").show();
+        } else {
+          $("#email-verify-content").show();
+          $(".loader").hide();
+          $("#fail").show();
+        }
+      });
+    </script>
+  </head>
+
+  <body>
+    {% if "webview" in frappe.form_dict %}
+    <style>
+      @media (max-width: 1366px) {
+        .fw.mobnav,
+        footer,
+        .appdownloadbg,
+        header {
+          display: none !important;
+        }
+
+        .maintitle h5 {
+          margin-top: 2% !important;
+        }
+
+        .privacy {
+          padding-bottom: 0px;
+        }
+
+        .titlesec {
+          display: none !important;
+        }
+      }
+    </style>
+    {% endif %}
+    <div class="fw mobnav">
+      <div class="fw mobileheader dx_jcsbalctr">
+        <a href="/" class="logo"
+          ><img src="/assets/lms/images/logo.svg" height="30"
+        /></a>
+        <div class="right dx_jcsbalctr">
+          <p>
+            <a
+              href="javascript:void(0);"
+              class="applybtn"
+              data-toggle="modal"
+              data-target="#apply-now-pop"
+              ><span>Apply Now</span><span>&nbsp;</span></a
+            >
+          </p>
+          <div class="menuic">
+            <span>&nbsp;</span> <span>&nbsp;</span> <span>&nbsp;</span>
+            <span>&nbsp;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <header class="fw dx_ctr bg">
+      <div class="container">
+        <div class="row">
+          <div class="col dx_jcsbalctr">
+            <a href="/" class="logo"
+              ><img src="/assets/lms/images/logo.svg"
+            /></a>
+            <div class="menu">
+              <a href="/products">Products</a>
+              <a href="/comingsoon">Demo Videos</a>
+              <a href="/comingsoon">Loan Calculator</a>
+              <a href="/contact">Contact</a>
+              <a
+                href="javascript:void(0);"
+                class="applybtn"
+                data-toggle="modal"
+                data-target="#apply-now-pop"
+                ><span>Apply Now</span><span>&nbsp;</span></a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <section class="fw"></section>
+    <section class="fw landing content-privacy everify">
+      <section class="fw">
+        <div class="container pr">
+          <div class="loader"></div>
+          <div class="addStock dynamic-content" id="email-verify-content">
+            <div class="row dx_jcsbalctr">
+              <div class="col-6 col-md-6">
+                <h3>Email Verification</h3>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col col-md-6 mt-5">
+                <div class="fw text-left">
+                  <div id="fail" class="dynamic-content">
+                    <p>
+                      Oops,<br />Something went wrong, please contact
+                      Administrator.
+                    </p>
+                  </div>
+                  <div id="success" class="dynamic-content">
+                    <p>
+                      Hello,<br />Thank you, your email has been verified. Your
+                      account is now active.
+                    </p>
+                  </div>
+                  <div id="already-verified" class="dynamic-content">
+                    <p>Hello,<br />Your email verification is already done.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="container">
+        <div class="row">
+          <br />
+        </div>
+      </div>
+    </section>
+
+    {% include 'templates/modal.html' %} {% include 'templates/footer.html' %}
+
+    <script
+      type="text/javascript"
+      src="/assets/lms/js/jquery-3.6.0.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/lms/js/bootstrap.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/lms/js/jquery.validate.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/lms/js/owl.carousel.min.js"
+    ></script>
+    <script type="text/javascript" src="/assets/lms/js/wow.min.js"></script>
+    <script type="text/javascript" src="/assets/lms/js/main.js"></script>
+  </body>
+</html>

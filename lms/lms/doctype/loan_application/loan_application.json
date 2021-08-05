@@ -23,6 +23,8 @@
   "loan",
   "lender_esigned_document",
   "pledge_status",
+  "pledgor_boid",
+  "pledgee_boid",
   "items_section",
   "items"
  ],
@@ -50,11 +52,11 @@
    "reqd": 1
   },
   {
-   "default": "Pending",
+   "default": "Waiting to be pledged",
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Pending\nEsign Done\nReady for Approval\nApproved\nRejected",
+   "options": "Waiting to be pledged\nExecuting pledge\nPledge executed\nPledge accepted by Lender\nEsign Done\nReady for Approval\nApproved\nRejected\nPledge Failure",
    "read_only": 1
   },
   {
@@ -77,7 +79,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Customer",
-   "options": "Customer",
+   "options": "Loan Customer",
    "reqd": 1,
    "set_only_once": 1
   },
@@ -120,10 +122,11 @@
    "read_only": 1
   },
   {
+   "default": "Pending",
    "fieldname": "pledge_status",
    "fieldtype": "Select",
    "label": "Pledge Status",
-   "options": "Success\nPartial Success",
+   "options": "Pending\nSuccess\nPartial Success\nFailure",
    "read_only": 1
   },
   {
@@ -156,9 +159,21 @@
    "fieldtype": "Read Only",
    "in_list_view": 1,
    "label": "Customer Name"
+  },
+  {
+   "fieldname": "pledgor_boid",
+   "fieldtype": "Data",
+   "label": "Pledgor BOID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pledgee_boid",
+   "fieldtype": "Data",
+   "label": "Pledgee BOID",
+   "read_only": 1
   }
  ],
- "modified": "2021-01-11 14:39:43.244432",
+ "modified": "2021-02-16 12:24:24.048235",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

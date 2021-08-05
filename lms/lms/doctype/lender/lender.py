@@ -17,6 +17,12 @@ class Lender(Document):
         file_name = frappe.db.get_value("File", {"file_url": self.agreement_template})
         return frappe.get_doc("File", file_name)
 
+    def get_loan_enhancement_agreement_template(self):
+        file_name = frappe.db.get_value(
+            "File", {"file_url": self.enhancement_agreement_template}
+        )
+        return frappe.get_doc("File", file_name)
+
     def validate(self):
         if cint(self.interest_percentage_sharing) > 100:
             frappe.throw(
@@ -73,3 +79,25 @@ class Lender(Document):
             frappe.throw(
                 _("Mortgage Charges Sharing value should not greater than 100.")
             )
+
+    def get_approved_securities_template(self):
+        file_name = frappe.db.get_value(
+            "File", {"file_url": self.approved_securities_template}
+        )
+        return frappe.get_doc("File", file_name)
+
+    def get_loan_account_statement_template(self):
+        file_name = frappe.db.get_value(
+            "File", {"file_url": self.loan_account_statement_template}
+        )
+        return frappe.get_doc("File", file_name)
+
+    def get_pledged_security_statement_template(self):
+        file_name = frappe.db.get_value(
+            "File", {"file_url": self.pledged_security_statement_template}
+        )
+        return frappe.get_doc("File", file_name)
+
+    def get_lender_logo_file(self):
+        file_name = frappe.db.get_value("File", {"file_url": self.logo_file_1})
+        return frappe.get_doc("File", file_name) if file_name else None

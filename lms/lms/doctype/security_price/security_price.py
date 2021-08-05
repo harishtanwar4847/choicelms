@@ -56,7 +56,11 @@ def update_security_prices(securities_dict, session_id):
                 )
                 isin = isin_tuple[0]
                 security_name = isin_tuple[1]
-                time = datetime.strptime(security.get("LUT"), "%d-%m-%Y %H:%M:%S")
+                time = (
+                    datetime.strptime(security.get("LUT"), "%d-%m-%Y %H:%M:%S")
+                    if security.get("LUT")
+                    else frappe.utils.now_datetime()
+                )
                 price = float(security.get("LTP")) / security.get("PriceDivisor")
                 values["{}-{}".format(isin, time)] = (
                     "{}-{}".format(isin, time),
@@ -75,6 +79,20 @@ def update_security_prices(securities_dict, session_id):
             frappe.db.bulk_insert(
                 "Security Price", fields=fields, values=values_, ignore_duplicates=True
             )
+
+            # Sauce: https://tableplus.com/blog/2018/11/how-to-update-multiple-rows-at-once-in-mysql.html pt. 3
+            # code to update price in security with price received in this api
+            data = [str((i[1], i[4])) for i in values.values()]
+            query = """
+                INSERT INTO `tabSecurity`(name, price)
+                VALUES {values}
+                ON DUPLICATE KEY UPDATE
+                price = VALUES(price);
+            """.format(
+                values=",".join(data)
+            )
+            frappe.db.sql(query)
+
     except (RequestException, Exception) as e:
         frappe.log_error()
 

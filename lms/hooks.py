@@ -36,7 +36,7 @@ app_license = "MIT"
 # ----------
 
 # application home page (will override Website Settings)
-# home_page = "login"
+home_page = "home"
 
 # website user home page (by Role)
 # role_home_page = {
@@ -83,7 +83,10 @@ after_install = "lms.after_install"
 doc_events = {
     "User": {"on_trash": "lms.delete_user"},
     "File": {
-        "before_insert": "lms.lms.doctype.loan_application.loan_application.only_pdf_upload"
+        "before_insert": [
+            "lms.lms.doctype.loan_application.loan_application.only_pdf_upload",
+            "lms.lms.doctype.top_up_application.top_up_application.only_pdf_upload",
+        ]
     },
 }
 
@@ -123,37 +126,13 @@ doc_events = {
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
-# override_doctype_dashboards = {
-# 	"Task": "lms.task.get_dashboard_data"
-# }
+override_doctype_dashboards = {
+    # "Task": "lms.task.get_dashboard_data"
+    "User": "lms.user_dashboard"
+}
 
 fixtures = [
-    {
-        "doctype": "Role",
-        "filters": [
-            [
-                "name",
-                "in",
-                ["Loan Customer", "Lender", "Spark Manager"],
-            ]
-        ],
-    },
-    {"doctype": "Notification", "filters": [["document_type", "in", ["User"]]]},
-    "Security",
-    "Allowed Security",
-    "Security Category",
-    "Concentration Rule",
-    "Terms and Conditions",
-    "Margin Shortfall Action",
-    "Lender",
-    "SMS Settings",
     "API Doc",
-    "LAS Settings",
-    "Workflow State",
-    "Workflow Action Master",
-    "Workflow",
-    "Interest Configuration",
-    "Consent",
 ]
 
 scheduler_events = {
@@ -166,4 +145,9 @@ scheduler_events = {
         "lms.lms.doctype.loan.loan.add_all_loans_penal_interest",
     ],
     "monthly": ["lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"],
+    "cron": {
+        "*/5 * * * *": [
+            "lms.lms.doctype.loan_application.loan_application.process_pledge"
+        ]
+    },
 }

@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 
 # from frappe.core.doctype.sms_settings.sms_settings import send_sms
@@ -13,18 +14,36 @@ import lms
 
 class UserToken(Document):
     def after_insert(self):
-        if self.token_type in ["OTP", "Pledge OTP", "Withdraw OTP"]:
+        if self.token_type in [
+            "OTP",
+            "Pledge OTP",
+            "Withdraw OTP",
+            "Unpledge OTP",
+            "Sell Collateral OTP",
+        ]:
             # las_settings = frappe.get_single("LAS Settings")
-            # app_hash_string=las_settings.app_identification_hash_string,
+            # app_hash_string = (las_settings.app_identification_hash_string,)
             # "Your {token_type} for LMS is {token}. Do not share your {token_type} with anyone.{app_hash_string}"
             expiry_in_minutes = lms.user_token_expiry_map.get(self.token_type, None)
+            # mess = frappe._(
+            #     """Dear Customer,
+            #     Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone.{app_hash_string} Your OTP is valid for {expiry_in_minutes} minutes.
+            #     -Spark Loans""").format(
+            #     token_type=self.token_type.replace(" ",""),
+            #     token=self.token,
+            #     app_hash_string=app_hash_string,
+            #     expiry_in_minutes=expiry_in_minutes,
+            # )
             mess = frappe._(
-                "Your {token_type} for LMS is {token}. Do not share your {token_type} with anyone. Your OTP is valid for {expiry_in_minutes} minutes."
+                # "Dear Customer,\nYour {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
+                "Dear Customer,\nYour {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
             ).format(
-                token_type=self.token_type,
+                token_type=self.token_type.replace(" ", ""),
                 token=self.token,
-                expiry_in_minutes=expiry_in_minutes,
+                # expiry_in_minutes=expiry_in_minutes,
             )
+            from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
             frappe.enqueue(method=send_sms, receiver_list=[self.entity], msg=mess)
         elif self.token_type == "Email Verification Token":
             doc = frappe.get_doc("User", self.entity).as_dict()
@@ -37,9 +56,57 @@ class UserToken(Document):
                 "Notification",
                 "User Email Verification",
                 method="send",
-                now=True,
+                # now=True,
                 doc=doc,
             )
+        elif self.token_type == "Forgot Pin OTP":
+            customer = frappe.get_all(
+                "Loan Customer", filters={"user": self.entity}, fields=["*"]
+            )[0]
+            expiry_in_minutes = lms.user_token_expiry_map.get(self.token_type, None)
+
+            if customer.choice_kyc:
+                doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+            else:
+                doc = frappe.get_doc("User", self.entity).as_dict()
+            doc["otp_info"] = {
+                "token_type": self.token_type,
+                "token": self.token,
+                "expiry_in_minutes": expiry_in_minutes,
+            }
+
+            """changes as per latest email notification list-sent by vinayak - email verification final 2.0"""
+            # mess = _(
+            #     """<html><body><h3>Dear Customer,<h3><br>
+            # Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone.<br>
+            # Your OTP is valid for {expiry_in_minutes} minutes<br>
+            # -Spark Loans</body></html>"""
+            # ).format(
+            #     token_type=doc.get("otp_info").get("token_type").replace(" ", ""),
+            #     token=doc.get("otp_info").get("token"),
+            #     expiry_in_minutes=doc.get("otp_info").get("expiry_in_minutes"),
+            # )
+
+            # frappe.enqueue(
+            #     method=frappe.sendmail,
+            #     recipients=[doc.email if doc.email else doc.user],
+            #     sender=None,
+            #     subject="Forgot Pin Notification",
+            #     message=mess,
+            # )
+            msg = frappe._(
+                # "Dear Customer,\nYour {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes. -Spark Loans"
+                "Dear Customer,\nYour {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
+            ).format(
+                token_type=self.token_type.replace(" ", ""),
+                token=self.token,
+                # expiry_in_minutes=expiry_in_minutes,
+            )
+            if msg:
+                receiver_list = list(set([str(customer.phone), str(doc.mobile_number)]))
+                from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
 
 # putting these here for the logs
