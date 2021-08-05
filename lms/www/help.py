@@ -39,6 +39,7 @@ def approved_securities():
     approved_security_pdf_file = "{}-approved-securities.pdf".format(
         "Choice Finserv"
     ).replace(" ", "-")
+
     date_ = frappe.utils.now_datetime()
     formatted_date = lms.date_str_format(date=date_.day)
     curr_date = formatted_date + date_.strftime(" %B, %Y")
@@ -77,6 +78,58 @@ def approved_securities():
     return approved_security_pdf_file_url
 
 
+@frappe.whitelist(allow_guest=True)
+def lenders():
+    lender_list = []
+    lender_pdf_file_url = ""
+    lender_list = frappe.db.get_all(
+        "Lender",
+        order_by="creation asc",
+        fields=[
+            "full_name",
+            "logo_file_1",
+        ],
+    )
+    lt_list = []
+    for list in lender_list:
+        lt_list.append(list.values())
+    df = pd.DataFrame(lt_list)
+    df.columns = lender_list[0].keys()
+    df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
+    df.index += 1
+    lender_pdf_file = "Lender.pdf"
+    date_ = frappe.utils.now_datetime()
+    formatted_date = lms.date_str_format(date=date_.day)
+    curr_date = formatted_date + date_.strftime(" %B, %Y")
+    lender_pdf_file_path = frappe.utils.get_files_path(lender_pdf_file)
+
+    lender = frappe.get_doc("LAS Settings")
+    las_settings = frappe.get_single("LAS Settings")
+    logo_file_path_2 = las_settings.get_spark_logo_file()
+    lender_template = lender.get_lender_template()
+    doc1 = {
+        "column_name": df.columns,
+        "rows": df.iterrows(),
+        "date": curr_date,
+        "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else "",
+    }
+    agreement = frappe.render_template(lender_template.get_content(), {"doc": doc1})
+
+    pdf_file = open(lender_pdf_file_path, "wb")
+    pdf = get_pdf(
+        agreement,
+        options={
+            "margin-right": "0mm",
+            "margin-left": "0mm",
+            "page-size": "A4",
+        },
+    )
+    pdf_file.write(pdf)
+    pdf_file.close()
+    lender_pdf_file_url = frappe.utils.get_url("files/Lender.pdf")
+    return lender_pdf_file_url
+
+
 def get_context(context):
     context.marginmax = frappe.get_all(
         "Margin Shortfall Action",
@@ -105,3 +158,5 @@ def get_context(context):
     context.lenderCharges = frappe.get_last_doc("Lender")
 
     context.approved_pdf = approved_securities()
+
+    context.lender_pdf = lenders()
