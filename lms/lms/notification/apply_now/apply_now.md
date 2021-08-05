@@ -17,7 +17,7 @@
 </head>
 
 <body>
-<table width="800" border="0" align="center" cellpadding="0" cellspacing="0" style="background:#fff">
+<table style="width:95%" border="0" align="center" cellpadding="0" cellspacing="0" style="background:#fff">
   <tr>
     <td bgcolor="#e7e7e8" height="138"><table class="table1" width="700" border="0" align="center" cellpadding="0" cellspacing="0" style="width:95% !important">
         <tr>
@@ -26,7 +26,7 @@
       </table></td>
   </tr>
   <tr>
-    <td><table class="table1" width="700" border="0" align="center" cellpadding="0" cellspacing="0" style="width:95% !important">
+    <td><table class="table1" style="width:95%" border="0" align="center" cellpadding="0" cellspacing="0" style="width:95% !important">
         <tr>
           <td height="25">&nbsp;</td>
         </tr>
