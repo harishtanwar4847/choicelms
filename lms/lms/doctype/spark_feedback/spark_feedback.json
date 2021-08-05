@@ -1,0 +1,127 @@
+{
+ "creation": "2021-07-29 15:36:20.384137",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "customer",
+  "column_break_2",
+  "sparkloans_have_hit_the_bulls_eye",
+  "sparkloans_can_do_better",
+  "section_break_2",
+  "related_to_user_experience",
+  "column_break_6",
+  "related_to_functionality",
+  "column_break_8",
+  "others",
+  "section_break_11",
+  "comment"
+ ],
+ "fields": [
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Loan Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "sparkloans_have_hit_the_bulls_eye",
+   "fieldtype": "Check",
+   "label": "Spark.loans have hit the bull's eye with the product",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "sparkloans_can_do_better",
+   "fieldtype": "Check",
+   "label": "Spark.loans can do better",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.sparkloans_can_do_better == 1",
+   "fieldname": "section_break_2",
+   "fieldtype": "Section Break",
+   "label": "You can help us hit the bull's eye!!"
+  },
+  {
+   "default": "0",
+   "fieldname": "related_to_user_experience",
+   "fieldtype": "Check",
+   "label": "Related to User Experience",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "related_to_functionality",
+   "fieldtype": "Check",
+   "label": "Related to Functionality",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "others",
+   "fieldtype": "Check",
+   "label": "Others",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_11",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "comment",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Comment",
+   "read_only": 1,
+   "reqd": 1
+  }
+ ],
+ "modified": "2021-07-29 15:36:20.384137",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Spark Feedback",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Loan Customer",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

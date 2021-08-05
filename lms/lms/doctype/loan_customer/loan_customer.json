@@ -1,0 +1,239 @@
+{
+ "autoname": "format:CUST-{MM}-{YYYY}-{####}",
+ "creation": "2021-01-26 14:35:53.972740",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "registeration",
+  "is_email_verified",
+  "kyc_update",
+  "column_break_65",
+  "credit_check",
+  "pledge_securities",
+  "loan_open",
+  "customer_feedback_section",
+  "feedback_submitted",
+  "feedback_column_break",
+  "feedback_do_not_show_popup",
+  "kyc_status_section",
+  "choice_kyc",
+  "column_break_21",
+  "ckcy",
+  "column_break_4",
+  "kra",
+  "user_profile_section",
+  "first_name",
+  "phone",
+  "column_break_7",
+  "middle_name",
+  "full_name",
+  "column_break_20",
+  "last_name",
+  "user",
+  "alerts_section_section",
+  "alerts_based_on_percentage",
+  "column_break_26",
+  "alerts_based_on_amount"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "registeration",
+   "fieldtype": "Check",
+   "label": "Registration"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_email_verified",
+   "fieldtype": "Check",
+   "label": "Email Verified?"
+  },
+  {
+   "default": "0",
+   "fieldname": "kyc_update",
+   "fieldtype": "Check",
+   "label": "KYC Update"
+  },
+  {
+   "fieldname": "column_break_65",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "credit_check",
+   "fieldtype": "Check",
+   "label": "Credit Check"
+  },
+  {
+   "default": "0",
+   "fieldname": "pledge_securities",
+   "fieldtype": "Check",
+   "label": "Pledge Securities"
+  },
+  {
+   "default": "0",
+   "fieldname": "loan_open",
+   "fieldtype": "Check",
+   "label": "Loan Open"
+  },
+  {
+   "fieldname": "kyc_status_section",
+   "fieldtype": "Section Break",
+   "label": "KYC status"
+  },
+  {
+   "fieldname": "choice_kyc",
+   "fieldtype": "Link",
+   "label": "Choice KYC",
+   "options": "User KYC"
+  },
+  {
+   "fieldname": "column_break_21",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ckcy",
+   "fieldtype": "Select",
+   "label": "CKCY",
+   "options": "\nYes\nNo\nNot Available"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "kra",
+   "fieldtype": "Select",
+   "label": "KRA",
+   "options": "\nYes\nNo\nNot Available"
+  },
+  {
+   "fieldname": "user_profile_section",
+   "fieldtype": "Section Break",
+   "label": "User Profile"
+  },
+  {
+   "fieldname": "first_name",
+   "fieldtype": "Data",
+   "label": "First Name"
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Phone"
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "middle_name",
+   "fieldtype": "Data",
+   "label": "Middle Name"
+  },
+  {
+   "fieldname": "full_name",
+   "fieldtype": "Read Only",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Full Name"
+  },
+  {
+   "fieldname": "column_break_20",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_name",
+   "fieldtype": "Data",
+   "label": "Last Name"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User"
+  },
+  {
+   "fieldname": "alerts_section_section",
+   "fieldtype": "Section Break",
+   "label": "Alerts Section"
+  },
+  {
+   "fieldname": "alerts_based_on_percentage",
+   "fieldtype": "Percent",
+   "label": "Alerts Based On Percentage (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_26",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "alerts_based_on_amount",
+   "fieldtype": "Currency",
+   "label": "Alerts Based On Amount (INR)",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "feedback_submitted",
+   "fieldtype": "Check",
+   "label": "Feedback Submitted",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "feedback_do_not_show_popup",
+   "fieldtype": "Check",
+   "label": "Feedback Do Not Show Popup",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_feedback_section",
+   "fieldtype": "Section Break",
+   "label": "Feedback"
+  },
+  {
+   "fieldname": "feedback_column_break",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "modified": "2021-04-29 21:30:07.522047",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Loan Customer",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "if_owner": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Loan Customer",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

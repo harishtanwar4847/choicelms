@@ -9,48 +9,61 @@ frappe.ui.form.on("Loan", {
       .get_field("loan_agreement")
       .$input_wrapper.find("[data-action=clear_attachment]")
       .hide();
-    frm.add_custom_button(__("Daily Cron Job"), function () {
-      frappe.prompt(
-        {
-          label: "Date",
-          fieldname: "date",
-          fieldtype: "Date",
-          reqd: true,
-        },
-        (values) => {
-          frappe.call({
-            method: "lms.lms.doctype.loan.loan.daily_cron_job",
-            freeze: true,
-            args: {
-              loan_name: frm.doc.name,
-              input_date: values.date,
-            },
-          });
-        }
-      );
-    });
+    if (false == false) {
+      frm.add_custom_button(__("Daily Cron Job"), function () {
+        frappe.prompt(
+          {
+            label: "Date",
+            fieldname: "date",
+            fieldtype: "Date",
+            reqd: true,
+          },
+          (values) => {
+            frappe.call({
+              method: "lms.lms.doctype.loan.loan.daily_cron_job",
+              freeze: true,
+              args: {
+                loan_name: frm.doc.name,
+                input_date: values.date,
+              },
+            });
+          }
+        );
+      });
 
-    frm.add_custom_button(__("Monthly Cron Job"), function () {
-      // frappe.msgprint("hii,  whatsup");
-      frappe.prompt(
-        {
-          label: "Date",
-          fieldname: "date",
-          fieldtype: "Date",
-          reqd: true,
-        },
-        (values) => {
-          frappe.call({
-            method: "lms.lms.doctype.loan.loan.book_virtual_interest_for_month",
-            freeze: true,
-            args: {
-              loan_name: frm.doc.name,
-              input_date: values.date,
-            },
-          });
-        }
-      );
-    });
+      frm.add_custom_button(__("Monthly Cron Job"), function () {
+        // frappe.msgprint("hii,  whatsup");
+        frappe.prompt(
+          {
+            label: "Date",
+            fieldname: "date",
+            fieldtype: "Date",
+            reqd: true,
+          },
+          (values) => {
+            frappe.call({
+              method:
+                "lms.lms.doctype.loan.loan.book_virtual_interest_for_month",
+              freeze: true,
+              args: {
+                loan_name: frm.doc.name,
+                input_date: values.date,
+              },
+            });
+          }
+        );
+      });
+
+      //   frm.add_custom_button(__("Check for shortfall"), function () {
+      //     frappe.call({
+      //       method: "lms.lms.doctype.loan.loan.check_single_loan_for_shortfall",
+      //       freeze: true,
+      //       args: {
+      //         loan_name: frm.doc.name,
+      //       },
+      //     });
+      //   });
+    }
 
     // frm.add_custom_button(__('Check Additional Interest'), function(){
     // 	// frappe.msgprint("hii,  whatsup");
@@ -71,5 +84,14 @@ frappe.ui.form.on("Loan", {
     // 		})
     // 	})
     // });
+
+    // hiding loan item if pledged quantity is zero (0)
+    cur_frm.doc.items.forEach((x) => {
+      if (x.pledged_quantity <= 0) {
+        $("[data-idx='" + x.idx + "']").hide();
+      } else {
+        $("[data-idx='" + x.idx + "']").show();
+      }
+    });
   },
 });

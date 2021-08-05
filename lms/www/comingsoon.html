@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Coming Soon</title>
+    <meta name="description" content="Coming Soon. " />
+    <link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/assets/lms/css/bootstrap.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/assets/lms/css/owl.carousel.min.css"
+    />
+    <link rel="stylesheet" type="text/css" href="/assets/lms/css/animate.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/assets/lms/css/selectbox.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/assets/lms/css/jquery.fileuploader.css"
+    />
+    <link rel="stylesheet" type="text/css" href="/assets/lms/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/lms/css/media.css" />
+  </head>
+
+  <body>
+    {% if "webview" in frappe.form_dict %}
+    <style>
+      @media (max-width: 1366px) {
+        .fw.mobnav,
+        footer,
+        .appdownloadbg,
+        header {
+          display: none !important;
+        }
+
+        .maintitle h5 {
+          margin-top: 2% !important;
+        }
+
+        .privacy {
+          padding-bottom: 0px;
+        }
+
+        .titlesec {
+          display: none !important;
+        }
+      }
+    </style>
+    {% endif %}
+    <div class="fw mobnav">
+      <div class="fw mobileheader dx_jcsbalctr">
+        <a href="/" class="logo"
+          ><img src="/assets/lms/images/logo.svg" height="30"
+        /></a>
+        <div class="right dx_jcsbalctr">
+          <p>
+            <a
+              href="javascript:void(0);"
+              class="applybtn"
+              data-toggle="modal"
+              data-target="#apply-now-pop"
+              ><span>Apply Now</span><span>&nbsp;</span></a
+            >
+          </p>
+          <div class="menuic">
+            <span>&nbsp;</span> <span>&nbsp;</span> <span>&nbsp;</span>
+            <span>&nbsp;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <header class="fw dx_ctr bg">
+      <div class="container">
+        <div class="row">
+          <div class="col dx_jcsbalctr">
+            <a href="/" class="logo"
+              ><img src="/assets/lms/images/logo.svg"
+            /></a>
+            <div class="menu">
+              <a href="/products">Products</a>
+              <a href="/comingsoon">Demo Videos</a>
+              <a href="/comingsoon">Loan Calculator</a>
+              <a href="/contact">Contact</a>
+              <a
+                href="javascript:void(0);"
+                class="applybtn"
+                data-toggle="modal"
+                data-target="#apply-now-pop"
+                ><span>Apply Now</span><span>&nbsp;</span></a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- <section class="fw">
+  <div class="container">
+    <div class="row">
+      <div class="col titlesec maintitle">
+        <h5 style="margin-bottom: 0px;">Loan Calculator</h5>
+      </div>
+    </div>
+  </div>
+</section> -->
+    <section class="fw landing content-privacy">
+      <div class="container container3 pr">
+        <div
+          class="comingsoon comingsoon2 d-flex justify-content-center align-items-center"
+        >
+          <div class="text-center">
+            <img src="assets/lms/images/chronometer.svg" />
+            <h4>Coming Soon...</h4>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {% include 'templates/modal.html' %} {% include 'templates/footer.html' %}
+
+    <script
+      type="text/javascript"
+      src="/assets/lms/js/jquery-3.6.0.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/lms/js/bootstrap.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/lms/js/jquery.validate.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="/assets/lms/js/owl.carousel.min.js"
+    ></script>
+    <script type="text/javascript" src="/assets/lms/js/wow.min.js"></script>
+    <script type="text/javascript" src="/assets/lms/js/main.js"></script>
+  </body>
+</html>

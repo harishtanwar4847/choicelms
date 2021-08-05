@@ -1,0 +1,759 @@
+<script
+  type="text/javascript"
+  src="/assets/lms/js/jquery-3.6.0.min.js"
+></script>
+<!-- The Modal -->
+<div
+  class="modal fade common-modal"
+  id="apply-now-pop"
+  tabindex="-1"
+  role="dialog"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <h5 class="modal-title">Apply Now</h5>
+      <button
+        type="button"
+        class="close"
+        data-dismiss="modal"
+        aria-label="Close"
+      >
+        <img src="/assets/lms/images/close-bt.png" />
+      </button>
+      <div class="modal-body">
+        <form
+          class="fw placeholder_txt"
+          name="apply-now-forum"
+          id="apply-now-forum"
+        >
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>First Name</span>
+                <input type="text" name="first_name" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Last Name</span>
+                <input type="text" name="last_name" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Email <a href="#" class="optionalBtn"> Optional</a></span>
+                <input type="email" name="emailss" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Mobile</span>
+                <input
+                  type="tel"
+                  minlength="10"
+                  maxlength="10"
+                  name="mobiles"
+                  class="required number"
+                  id="numloc"
+                />
+              </label>
+            </div>
+          </div>
+          <div class="fw text-center mt-5">
+            <button
+              type="button"
+              name="button"
+              value="Submit"
+              onclick="applyNow1()"
+              class="applybtn"
+            >
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- >Apply for position -->
+<div
+  class="modal fade common-modal"
+  id="Apply-position-pop"
+  tabindex="-1"
+  role="dialog"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <h5 class="modal-title">Apply for position</h5>
+      <button
+        type="button"
+        class="close"
+        data-dismiss="modal"
+        aria-label="Close"
+      >
+        <img src="assets/lms/images/close-bt.png" />
+      </button>
+      <div class="modal-body">
+        <form
+          class="fw placeholder_txt"
+          name="apply-now-forum"
+          id="apply-now-forum"
+        >
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>First Name</span>
+                <input type="text" name="firstname" class="required number" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Last Name</span>
+                <input type="email" name="lastname" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Email <a href="#" class="optionalBtn"> Optional</a></span>
+                <input type="email" name="email" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Mobile</span>
+                <input type="tel" name="mobile" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="fw text-center mt-5">
+            <button
+              type="button"
+              class="applybtn"
+              data-toggle="modal"
+              data-target="#apply-now-pop"
+              data-dismiss="modal"
+            >
+              <span>Submit</span><span>&nbsp;</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Panter apply Modal -->
+<div
+  class="modal fade common-modal"
+  id="panter-apply"
+  tabindex="-1"
+  role="dialog"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <h5 class="modal-title">Become a Partner</h5>
+      <button
+        type="button"
+        class="close"
+        data-dismiss="modal"
+        aria-label="Close"
+      >
+        <img src="/assets/lms/images/close-bt.png" />
+      </button>
+      <div class="modal-body">
+        <form class="fw placeholder_txt" name="panterApply" id="panterApply">
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>First Name</span>
+                <input type="text" name="pfirstname" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Last Name</span>
+                <input type="text" name="plastname" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Email <a href="#" class="optionalBtn"> Optional</a></span>
+                <input type="email" name="pemail" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Mobile</span>
+                <input
+                  type="tel"
+                  minlength="10"
+                  maxlength="10"
+                  name="pmobile"
+                  class="required number"
+                />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Message</span>
+                <textarea type="text" name="pmessage" class="required">
+                </textarea>
+              </label>
+            </div>
+          </div>
+          <div class="fw text-center mt-5">
+            <button
+              type="button"
+              name="button"
+              value="Submit"
+              onclick="applyNowPartner()"
+              class="applybtn"
+            >
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- schemes Modal-->
+<div
+  class="modal modalright fade"
+  id="schemes"
+  tabindex="-1"
+  role="dialog"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <button
+        type="button"
+        class="close"
+        data-dismiss="modal"
+        aria-label="Close"
+      >
+        <img src="/assets/lms/images/close-bt.png" />
+      </button>
+      <div class="modal-body schemesContent">
+        <div class="d-flex justify-content-between">
+          <h3>Schemes</h3>
+          <div class="Schemeslogo">
+            <img
+              src="/assets/lms/images/home/partners/choice.svg"
+              width="120"
+            />
+          </div>
+        </div>
+        <div class="schemestab">
+          <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+              <a
+                class="nav-link active"
+                id="Loan-tab"
+                data-toggle="tab"
+                href="#Loan"
+                role="tab"
+                aria-controls="Loan"
+                aria-selected="true"
+              >
+                <span class="loantitle">Loan Amount</span>
+                <span class="amt"
+                  >Upto
+                  <img
+                    src="/assets/lms/images/rs.svg"
+                    class="rs2"
+                    width="12"
+                  />5 lakhs</span
+                >
+              </a>
+            </li>
+            <li class="nav-item" style="display: none">
+              <a
+                class="nav-link"
+                id="Loan2-tab"
+                data-toggle="tab"
+                href="#Loan2"
+                role="tab"
+                aria-controls="Loan2"
+                aria-selected="false"
+              >
+                <span class="loantitle">Loan Amount</span>
+                <span class="amt"
+                  >More than
+                  <img
+                    src="/assets/lms/images/rs.svg"
+                    class="rs2"
+                    width="12"
+                  />20 lakhs</span
+                >
+              </a>
+            </li>
+          </ul>
+          <div class="tab-content" id="myTabContent">
+            <div
+              class="tab-pane fade show active"
+              id="Loan"
+              role="tabpanel"
+              aria-labelledby="Loan-tab"
+            >
+              <div class="schemestext">
+                <div class="d-flex justify-content-between">
+                  <h5>Loan Amount</h5>
+                  <div class="amount">
+                    <h6>
+                      <img
+                        src="/assets/lms/images/rs-green.svg"
+                        class="rs2"
+                        width="12"
+                      />5,00,000
+                    </h6>
+                  </div>
+                </div>
+                <h5>Interest Payment Period</h5>
+                <div id="no-more-tables">
+                  <table
+                    class="table table-bordered table-condensed cf tablePayment"
+                  >
+                    <thead class="cf">
+                      <tr>
+                        <th>Days (Due date)</th>
+                        <th class="text-right">Rebate</th>
+                        <th class="text-right">Monthly Rate</th>
+                        <th class="text-right" style="display: none">
+                          Monthly Rate
+                          <a href="#">
+                            <img
+                              src="/assets/lms/images/i.svg"
+                              data-toggle="tooltip"
+                              data-placement="left"
+                              title="Portfolio containing D category and below"
+                            />
+                          </a>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="text-left" data-title="Days (Due date)">
+                          <span class="after"> After 7 days </span>
+                        </td>
+                        <td data-title="Rebate">Nil</td>
+                        <td data-title="Monthly Rate">1.44%</td>
+                        <td data-title="Monthly Rate" style="display: none">
+                          <div class="tooltipmob">
+                            <a href="#">
+                              <img
+                                src="/assets/lms/images/i.svg"
+                                data-toggle="tooltip"
+                                data-placement="left"
+                                title="Portfolio containing D category and below"
+                              />
+                            </a>
+                          </div>
+                          1.64%
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="text-left" data-title=" Days (Due date)">
+                          <span class="within"> Within 7 days </span>
+                        </td>
+                        <td data-title="Rebate">0.20%</td>
+                        <td data-title="Monthly Rate" class="green">1.24%</td>
+                        <td
+                          data-title="Monthly Rate"
+                          style="display: none"
+                          class="green"
+                        >
+                          <div class="tooltipmob">
+                            <a href="#">
+                              <img
+                                src="/assets/lms/images/i.svg"
+                                data-toggle="tooltip"
+                                data-placement="left"
+                                title="Portfolio containing D category and below"
+                              />
+                            </a>
+                          </div>
+                          1.44%
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <h5 class="mt-4">Apply Now</h5>
+                <div class="switch">
+                  <label class="active" for="switch-id">Mobile</label>
+                  <input type="checkbox" class="switch" id="switch-id" />
+                  <label for="switch-id">Email</label>
+                </div>
+                <div class="applymobile">
+                  <form class="fw placeholder_txt" name=" " id="apply-mobile">
+                    <div class="row">
+                      <div class="col-12 col-md-6">
+                        <div class="form_group">
+                          <div class="form_control">
+                            <label>
+                              <span>Mobile</span>
+                              <input
+                                type="tel"
+                                name="mobile"
+                                class="required"
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <div class="fw text-right mt-4">
+                          <!-- <button type="submit" class="applybtn applybtn2"><span>Quick Apply</span><span>&nbsp;</span></button> -->
+                          <a href="/comingsoon" class="applybtn applybtn2"
+                            ><span>Quick Apply</span><span>&nbsp;</span></a
+                          >
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div class="applyemail">
+                  <form class="fw placeholder_txt" name=" " id="apply-Email">
+                    <div class="row">
+                      <div class="col-12 col-md-6">
+                        <div class="form_group">
+                          <div class="form_control">
+                            <label>
+                              <span>Email</span>
+                              <input
+                                type="email"
+                                name="email"
+                                class="required"
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <div class="fw text-right mt-4">
+                          <!-- <button type="submit" class="applybtn applybtn2"><span>Quick Apply</span><span>&nbsp;</span></button> -->
+                          <a href="/comingsoon" class="applybtn applybtn2"
+                            ><span>Quick Apply</span><span>&nbsp;</span></a
+                          >
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div
+              class="tab-pane fade"
+              id="Loan2"
+              role="tabpanel"
+              aria-labelledby="Loan2-tab"
+            >
+              <div class="schemestext">
+                <div class="d-flex justify-content-between">
+                  <h5>Loan Amount</h5>
+                  <div class="amount">
+                    <h6>
+                      <img
+                        src="/assets/lms/images/rs-green.svg"
+                        class="rs2"
+                        width="12"
+                      />80,00,000
+                    </h6>
+                  </div>
+                </div>
+                <h5>Interest Payment Period</h5>
+                <div id="no-more-tables">
+                  <table
+                    class="table table-bordered table-condensed cf tablePayment"
+                  >
+                    <thead class="cf">
+                      <tr>
+                        <th>Days (Due date)</th>
+                        <th class="text-right">Rebate</th>
+                        <th class="text-right">Monthly Rate</th>
+                        <th class="text-right">
+                          Monthly Rate
+                          <a href="#">
+                            <img
+                              src="/assets/lms/images/i.svg"
+                              data-toggle="tooltip"
+                              data-placement="left"
+                              title="Portfolio containing D category and below"
+                            />
+                          </a>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="text-left" data-title="Days (Due date)">
+                          <span class="after"> After 7 days </span>
+                        </td>
+                        <td data-title="Rebate">Nil</td>
+                        <td data-title="Monthly Rate">1.44%</td>
+                        <td data-title="Monthly Rate">
+                          <div class="tooltipmob">
+                            <a href="#">
+                              <img
+                                src="/assets/lms/images/i.svg"
+                                data-toggle="tooltip"
+                                data-placement="left"
+                                title="Portfolio containing D category and below"
+                              />
+                            </a>
+                          </div>
+                          1.64%
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="text-left" data-title=" Days (Due date)">
+                          <span class="within"> Within 7 days </span>
+                        </td>
+                        <td data-title="Rebate">0.20%</td>
+                        <td data-title="Monthly Rate" class="green">1.24%</td>
+                        <td data-title="Monthly Rate" class="green">
+                          <div class="tooltipmob">
+                            <a href="#">
+                              <img
+                                src="/assets/lms/images/i.svg"
+                                data-toggle="tooltip"
+                                data-placement="left"
+                                title="Portfolio containing D category and below"
+                              />
+                            </a>
+                          </div>
+                          1.44%
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <h5 class="mt-4">Apply Now</h5>
+                <div class="switch">
+                  <label class="active" for="switch-id">Mobile</label>
+                  <input type="checkbox" class="switch" id="switch-id" />
+                  <label for="switch-id">Email</label>
+                </div>
+                <div class="applymobile">
+                  <form class="fw placeholder_txt" name=" " id="apply-mobile">
+                    <div class="row">
+                      <div class="col-12 col-md-6">
+                        <div class="form_group">
+                          <div class="form_control">
+                            <label>
+                              <span>Mobile</span>
+                              <input
+                                type="tel"
+                                name="mobile"
+                                class="required"
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <div class="fw text-right mt-4">
+                          <button type="submit" class="applybtn applybtn2">
+                            <span>Quick Apply</span><span>&nbsp;</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div class="applyemail">
+                  <form class="fw placeholder_txt" name=" " id="apply-Email">
+                    <div class="row">
+                      <div class="col-12 col-md-6">
+                        <div class="form_group">
+                          <div class="form_control">
+                            <label>
+                              <span>Email</span>
+                              <input
+                                type="email"
+                                name="email"
+                                class="required"
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <div class="fw text-right mt-4">
+                          <button type="submit" class="applybtn applybtn2">
+                            <span>Quick Apply</span><span>&nbsp;</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal modalright fade"
+  id="comingsoon"
+  tabindex="-1"
+  role="dialog"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <button
+        type="button"
+        class="close"
+        data-dismiss="modal"
+        aria-label="Close"
+      >
+        <img src="/assets/lms/images/close-bt.png" />
+      </button>
+      <div class="modal-body schemesContent">
+        <div class="d-flex justify-content-between">
+          <h3>Schemes</h3>
+          <div class="Schemeslogo">
+            <img
+              src="/assets/lms/images/home/partners/choice.svg"
+              width="120"
+            />
+          </div>
+        </div>
+
+        <!-- 9 page screen hide-->
+        <div
+          class="comingsoon d-flex justify-content-center align-items-center"
+        >
+          <div class="text-center">
+            <img src="/assets/lms/images/chronometer.svg" />
+            <h4>Coming Soon...</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function applyNow1() {
+    var first_name = $('[name="first_name"]').val();
+    var last_name = $('[name="last_name"]').val();
+    var emails = $('[name="emailss"]').val();
+    var mobile = $('[name="mobiles"]').val();
+    var regEx = /^[A-Za-z0-9][A-Za-z0-9._%+-]{0,63}@(?:[A-Za-z0-9-]{1,63}\.){1,125}[A-Za-z]{2,63}$/;
+    var validEmail = regEx.test(emails);
+    if (
+      !(first_name == "") &&
+      !(last_name == "") &&
+      !(emails == "") &&
+      !(mobile == "")
+    ) {
+      if (!isNaN(mobile) && !(mobile.length < 10) && validEmail) {
+        $.get(
+          "/api/method/lms.www.home.applyNow",
+          {
+            first_name: first_name,
+            last_name: last_name,
+            emails: emails,
+            mobile: mobile,
+          },
+          alert("{{ _('Thank you!! we will get back to you soon.') }}")
+        );
+        $(".modal").removeClass("in");
+        $(".modal").attr("aria-hidden", "true");
+        $(".modal").css("display", "none");
+        $(".modal-backdrop").remove();
+        $("body").removeClass("modal-open");
+        $(":input").val("");
+      } else {
+        alert("Please provide required details.");
+      }
+    }
+  }
+  function applyNowPartner() {
+    var pfirstname = $('[name="pfirstname"]').val();
+    var plastname = $('[name="plastname"]').val();
+    var pemail = $('[name="pemail"]').val();
+    var pmobile = $('[name="pmobile"]').val();
+    var pmessage = $('[name="pmessage"]').val();
+    var regEx = /^[A-Za-z0-9][A-Za-z0-9._%+-]{0,63}@(?:[A-Za-z0-9-]{1,63}\.){1,125}[A-Za-z]{2,63}$/;
+    var validEmail = regEx.test(pemail);
+    if (
+      !(pfirstname == "") &&
+      !(plastname == "") &&
+      !(pemail == "") &&
+      !(pmobile == "") &&
+      !(pmessage == "")
+    ) {
+      if (!isNaN(pmobile) && !(pmobile.length < 10) && validEmail) {
+        $.get(
+          "/api/method/lms.www.partnerwithus.applyNowPartner",
+          {
+            pfirstname: pfirstname,
+            plastname: plastname,
+            pemail: pemail,
+            pmobile: pmobile,
+            pmessage: pmessage,
+          },
+          alert("{{ _('Thank you!! we will get back to you soon.') }}")
+        );
+        $(".modal").removeClass("in");
+        $(".modal").attr("aria-hidden", "true");
+        $(".modal").css("display", "none");
+        $(".modal-backdrop").remove();
+        $("body").removeClass("modal-open");
+        $(":input").val("");
+      } else {
+        alert("Please provide required details.");
+      }
+    }
+  }
+  $(function () {
+    $("#switch-id").change(function () {
+      if ($(this).is(":checked")) {
+        $(".applyemail").show();
+        $(".applymobile").hide();
+      } else {
+        $(".applyemail").hide();
+        $(".applymobile").show();
+      }
+    });
+  });
+
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip();
+  });
+</script>

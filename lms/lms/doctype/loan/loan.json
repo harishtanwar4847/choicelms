@@ -1,5 +1,5 @@
 {
- "autoname": "L.######",
+ "autoname": "SL.######",
  "creation": "2020-07-28 15:26:52.963305",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -70,7 +70,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Customer",
-   "options": "Customer",
+   "options": "Loan Customer",
    "reqd": 1,
    "set_only_once": 1
   },
@@ -159,7 +159,7 @@
    "label": "Customer Name"
   }
  ],
- "modified": "2021-01-11 14:48:20.105048",
+ "modified": "2021-02-05 14:12:49.965344",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
