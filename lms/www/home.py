@@ -34,5 +34,5 @@ def subscribeUpdates(number, email):
 
 def get_context(context):
     context.lenders = frappe.get_all(
-        "Lender", fields=["name", "logo_file_1"], order_by="creation"
+        "Lender", fields=["name", "logo_file_1", "lender_title"], order_by="creation"
     )
