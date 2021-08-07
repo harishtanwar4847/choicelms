@@ -8,9 +8,8 @@ Rate - SparkLoans {% endblock title %} {% block navbar %} {% include
 'templates/header.html' %} {% endblock navbar %} {% block favicon %}
 <link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
 {% endblock %} {%- block head_include -%} {% include
-'templates/head_content.html' %} {%- endblock -%} {% block head %}{% endblock %}
-{%- block style %}{%- endblock -%} {% block content %} {% include
-'templates/modal/applyNowModal.html' %}
+'templates/head_content.html' %} {%- endblock -%} {%- block style %}{%- endblock
+-%} {% block content %} {% include 'templates/modal/applyNowModal.html' %}
 <!-- <div class="cookies">
     <p>
       This website uses cookies.&nbsp;
@@ -425,10 +424,11 @@ Rate - SparkLoans {% endblock title %} {% block navbar %} {% include
          </div>
       </section> -->
 
-{% include 'templates/subscribe.html' %} {% include 'templates/appdownload.html'
-%} {% endblock %} {% block footer %} {% include 'templates/footer.html' %} {%
-endblock footer %} {% block base_scripts %} {% endblock footer %} {%- block
-body_include %}{% endblock -%} {%- for link in web_include_js %}
+{% include 'templates/subscribe.html' %} {% include
+'templates/appdownload.html'%} {% endblock %} {% block footer %} {% include
+'templates/footer.html' %} {%endblock footer %} {% block base_scripts %} {%
+endblock %} {%- block body_include %}{% endblock -%} {%- for link in
+web_include_js %}
 <script type="text/javascript" src="{{ link | abs_url }}"></script>
 {%- endfor -%} {% block script %}
 
