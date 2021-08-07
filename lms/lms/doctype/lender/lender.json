@@ -85,7 +85,9 @@
   "column_break_78",
   "pledged_security_statement_template",
   "image_section_section",
-  "logo_file_1"
+  "logo_file_1",
+  "website_section_section",
+  "lender_title"
  ],
  "fields": [
   {
@@ -526,9 +528,19 @@
    "fieldname": "logo_file_1",
    "fieldtype": "Attach",
    "label": "Lender Logo"
+  },
+  {
+   "fieldname": "website_section_section",
+   "fieldtype": "Section Break",
+   "label": "Website Section"
+  },
+  {
+   "fieldname": "lender_title",
+   "fieldtype": "Data",
+   "label": "Lender Title"
   }
  ],
- "modified": "2021-07-24 19:38:26.437293",
+ "modified": "2021-08-07 19:07:14.215439",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",

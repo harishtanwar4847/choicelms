@@ -19,6 +19,7 @@ def approved_securities():
             "security_name",
             "security_category",
             "eligible_percentage",
+            "lender",
         ],
     )
     approved_security_list.sort(key=lambda item: (item["security_name"]).title())
