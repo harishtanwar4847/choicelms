@@ -1,5 +1,5 @@
 {
- "creation": "2020-08-31 17:38:48.836316",
+ "creation": "2021-07-29 15:36:20.384137",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -19,18 +19,22 @@
  ],
  "fields": [
   {
-   "depends_on": "eval:doc.sparkloans_can_do_better == 1",
-   "fieldname": "section_break_2",
-   "fieldtype": "Section Break",
-   "label": "You can help us hit the bull's eye!!"
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Loan Customer",
+   "read_only": 1
   },
   {
-   "fieldname": "comment",
-   "fieldtype": "Small Text",
-   "in_list_view": 1,
-   "label": "Comment",
-   "read_only": 1,
-   "reqd": 1
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "sparkloans_have_hit_the_bulls_eye",
+   "fieldtype": "Check",
+   "label": "Spark.loans have hit the bull's eye with the product",
+   "read_only": 1
   },
   {
    "default": "0",
@@ -40,8 +44,10 @@
    "read_only": 1
   },
   {
-   "fieldname": "column_break_2",
-   "fieldtype": "Column Break"
+   "depends_on": "eval:doc.sparkloans_can_do_better == 1",
+   "fieldname": "section_break_2",
+   "fieldtype": "Section Break",
+   "label": "You can help us hit the bull's eye!!"
   },
   {
    "default": "0",
@@ -73,28 +79,22 @@
    "read_only": 1
   },
   {
-   "default": "0",
-   "fieldname": "sparkloans_have_hit_the_bulls_eye",
-   "fieldtype": "Check",
-   "label": "Spark.loans have hit the bull's eye with the product",
-   "read_only": 1
-  },
-  {
-   "fieldname": "customer",
-   "fieldtype": "Link",
-   "label": "Customer",
-   "options": "Loan Customer",
-   "read_only": 1
-  },
-  {
    "fieldname": "section_break_11",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "comment",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Comment",
+   "read_only": 1,
+   "reqd": 1
   }
  ],
- "modified": "2021-04-22 15:24:33.976555",
+ "modified": "2021-07-29 15:36:20.384137",
  "modified_by": "Administrator",
  "module": "Lms",
- "name": "Feedback",
+ "name": "Spark Feedback",
  "owner": "Administrator",
  "permissions": [
   {
