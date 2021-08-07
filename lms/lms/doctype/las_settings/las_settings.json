@@ -42,7 +42,11 @@
   "tnc_column_break",
   "privacy_policy_document",
   "image_section_section",
-  "spark_logo"
+  "spark_logo",
+  "lender_section_section",
+  "lender_template",
+  "column_break_42",
+  "approved_security_template"
  ],
  "fields": [
   {
@@ -240,10 +244,29 @@
    "fieldname": "spark_logo",
    "fieldtype": "Attach",
    "label": "Spark Logo"
+  },
+  {
+   "fieldname": "lender_section_section",
+   "fieldtype": "Section Break",
+   "label": "Website Section"
+  },
+  {
+   "fieldname": "lender_template",
+   "fieldtype": "Attach",
+   "label": "Lender Template"
+  },
+  {
+   "fieldname": "column_break_42",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approved_security_template",
+   "fieldtype": "Attach",
+   "label": "Approved Security Template"
   }
  ],
  "issingle": 1,
- "modified": "2021-07-24 19:37:24.150073",
+ "modified": "2021-08-07 13:46:01.043425",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

@@ -30,3 +30,9 @@ def subscribeUpdates(number, email):
         "Subscribe for Updates", "Subscriber", doc.email, "Subscribe for updates"
     )
     return "Subscribed successfully."
+
+
+def get_context(context):
+    context.lenders = frappe.get_all(
+        "Lender", fields=["name", "logo_file_1"], order_by="creation"
+    )
