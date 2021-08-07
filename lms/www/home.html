@@ -1,15 +1,8 @@
-{% extends base_template_path %} {% block meta_block %}
-<meta
-  name="description"
-  content="Looking for Loan Against Securities at low Interest Rate? SparkLoans offers you a best interest rate on Loan Against Securities in just few days."
-/>
-{% endblock %} {% block title %} Get Loan Against Securities at Best Interest
-Rate - SparkLoans {% endblock title %} {% block navbar %} {% include
-'templates/header.html' %} {% endblock navbar %} {% block favicon %}
-<link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
-{% endblock %} {%- block head_include -%} {% include
-'templates/head_content.html' %} {%- endblock -%} {%- block style %}{%- endblock
--%} {% block content %} {% include 'templates/modal/applyNowModal.html' %}
+{% extends 'templates/lmsbase.html' %} {% block title %} Get Loan Against
+Securities at Best Interest Rate - SparkLoans {% endblock title %} {% block
+description %} Looking for Loan Against Securities at low Interest Rate?
+SparkLoans offers you a best interest rate on Loan Against Securities in just
+few days. {% endblock %} {% block body %}
 <!-- <div class="cookies">
     <p>
       This website uses cookies.&nbsp;
@@ -370,7 +363,8 @@ Rate - SparkLoans {% endblock title %} {% block navbar %} {% include
       <img
         src="{{lender.logo_file_1}}"
         alt="{{lender.name}}"
-        width="180"
+        width="auto"
+        height="auto"
       /><br />{{lender.name}}
     </p>
     {% endfor %}
@@ -425,12 +419,7 @@ Rate - SparkLoans {% endblock title %} {% block navbar %} {% include
       </section> -->
 
 {% include 'templates/subscribe.html' %} {% include
-'templates/appdownload.html'%} {% endblock %} {% block footer %} {% include
-'templates/footer.html' %} {%endblock footer %} {% block base_scripts %} {%
-endblock %} {%- block body_include %}{% endblock -%} {%- for link in
-web_include_js %}
-<script type="text/javascript" src="{{ link | abs_url }}"></script>
-{%- endfor -%} {% block script %}
+'templates/appdownload.html'%} {% endblock %} {% block script %}
 
 <script
   type="text/javascript"

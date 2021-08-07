@@ -3,25 +3,14 @@
   name="description"
   content="{% block description %}{% endblock description %}"
 />
-{% endblock %} {%- block head_include -%} {% include
-'templates/head_content.html' %} {%- endblock -%} {% block head %}{% endblock %}
-{% block navbar %} {% include 'templates/header.html' %} {% endblock navbar %}
-{% block content %} {% include 'templates/modal/applyNowModal.html' %} {% block
-body %}{% endblock body %} {% endblock content %} {% block footer %} {% include
-'templates/footer.html' %} {% endblock footer %} {% block base_scripts %} {%
-include 'templates/body_script.html' %} {% endblock %} {% block script %}
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script
-  async
-  src="https://www.googletagmanager.com/gtag/js?id=UA-203468949-1"
-></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag() {
-    dataLayer.push(arguments);
-  }
-  gtag("js", new Date());
-
-  gtag("config", "UA-203468949-1");
-</script>
-{% endblock %}
+{% endblock %} {% block favicon %}
+<link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
+{% endblock %} {%- block head -%} {%- endblock -%} {%- block head_include -%} {%
+include 'templates/head_content.html' %} {%- endblock -%} {%- block style %}{%-
+endblock -%} {% block navbar %} {% include 'templates/header.html' %} {%
+endblock navbar %} {% block content %} {% include
+'templates/modal/applyNowModal.html' %} {% block body %}{% endblock body %} {%
+endblock content %} {% block footer %} {% include 'templates/footer.html' %} {%
+endblock footer %} {% block base_scripts %} {% include
+'templates/body_script.html' %} {% endblock %} {% block script %} {% endblock %}
+{% block body_include %}{% endblock %}

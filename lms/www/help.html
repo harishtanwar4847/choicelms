@@ -225,9 +225,14 @@ endblock description %} {% block head %}
                     <u>Processing Fees</u> &ndash; Users would be charged one
                     time processing fees on the amount of loan (overdraft limit)
                     sanctioned by our lending partner(s). The processing fee
-                    would be {{lenderCharges.lender_processing_fees}}% of the
-                    limit sanctioned. The fee is valid for a period of 12 month.
-                    Renewal Fees is {{lenderCharges.renewal_charges}}% of the
+                    would be {% if lenderCharges.lender_processing_fees_type ==
+                    "Percentage" %} {{lenderCharges.lender_processing_fees}}% {%
+                    else %} Rs. {{lenderCharges.lender_processing_fees|int}} {%
+                    endif %} of the limit sanctioned. The fee is valid for a
+                    period of 12 month. Renewal Fees is {% if
+                    lenderCharges.renewal_charge_type == "Percentage" %}
+                    {{lenderCharges.renewal_charges}}% {% else %} Rs.
+                    {{lenderCharges.renewal_charges|int}} {% endif %} of the
                     limit renewed.
                   </li>
                   <li>
@@ -239,9 +244,9 @@ endblock description %} {% block head %}
                   <li>
                     <u>Documentation and Stamp duty charges </u>&ndash; User
                     will be charged one time documentation charges of Rs.
-                    {{lenderCharges.stamp_duty_sharing|int +
-                    lenderCharges.documentation_charges_sharing|int}}/- and
-                    stamp duty at actuals.
+                    {{lenderCharges.lender_stamp_duty_minimum_amount|int +
+                    lenderCharges.lender_documentation_minimum_amount|int}}/-
+                    and stamp duty at actuals.
                   </li>
                   <li>
                     <u
@@ -411,7 +416,7 @@ endblock description %} {% block head %}
                       </td>
                       <td width="136">
                         <p>
-                          {{"%.2f"|format(intrupto5.rebait_interest+intrupto5.base_interest|float)}}%
+                          {{"%.2f"|format(interestupto5.rebait_interest+interestupto5.base_interest|float)}}%
                         </p>
                       </td>
                     </tr>
@@ -422,11 +427,14 @@ endblock description %} {% block head %}
                       </td>
                       <td width="91">
                         <p>
-                          {{ "%.2f"|format(intrupto5.rebait_interest|float)}}%
+                          {{
+                          "%.2f"|format(interestupto5.rebait_interest|float)}}%
                         </p>
                       </td>
                       <td width="136">
-                        <p>{{"%.2f"|format(intrupto5.base_interest|float)}}%</p>
+                        <p>
+                          {{"%.2f"|format(interestupto5.base_interest|float)}}%
+                        </p>
                       </td>
                     </tr>
                     <!--
@@ -464,8 +472,11 @@ endblock description %} {% block head %}
                             >Penal Interest rate / Penal Charges&nbsp; : </strong
                           >In case of occurrence of Event of Default (EOD),
                           Penal Interest shall be charged
-                          <strong>upto 4.00% per month </strong>over and above
-                          applicable Interest Rate.
+                          <strong
+                            >upto
+                            {{"%.2f"|format(lenderCharges.default_interest)}}%
+                            per month </strong
+                          >over and above applicable Interest Rate.
                         </p>
                       </td>
                     </tr>
