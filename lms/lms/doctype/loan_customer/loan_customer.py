@@ -47,7 +47,14 @@ class LoanCustomer(Document):
             fa.send_message(
                 title="Customer and KYC details",
                 body="Customer name: {}".format(self.full_name),
-                data={"customer": self.as_json(), "user_kyc": user_kyc},
+                data={
+                    "customer": self.as_json(),
+                    "user_kyc": user_kyc,
+                    "click_action": "FLUTTER_NOTIFICATION_CLICK",
+                    "message": "testing testing",
+                    "msg_id": "KYC123",
+                    "screen": "Loan",
+                },
                 tokens=lms.get_firebase_tokens(self.user),
             )
         except Exception:
