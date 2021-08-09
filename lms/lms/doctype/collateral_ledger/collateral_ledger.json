@@ -1,160 +1,158 @@
 {
-  "creation": "2020-10-25 23:38:24.445245",
-  "doctype": "DocType",
-  "editable_grid": 1,
-  "engine": "InnoDB",
-  "field_order": [
-    "cart",
-    "loan_application",
-    "lender",
-    "column_break_3",
-    "customer",
-    "loan",
-    "section_break_4",
-    "isin",
-    "pledgor_boid",
-    "request_identifier",
-    "psn",
-    "is_success",
-    "expiry",
-    "column_break_1",
-    "request_type",
-    "pledgee_boid",
-    "quantity",
-    "error_code",
-    "counter_no"
-  ],
-  "fields": [
-    {
-      "fieldname": "cart",
-      "fieldtype": "Link",
-      "label": "Cart",
-      "options": "Cart"
-    },
-    {
-      "fieldname": "loan_application",
-      "fieldtype": "Link",
-      "label": "Loan Application",
-      "options": "Loan Application"
-    },
-    {
-      "fieldname": "loan",
-      "fieldtype": "Link",
-      "in_list_view": 1,
-      "label": "Loan",
-      "options": "Loan"
-    },
-    {
-      "fieldname": "section_break_4",
-      "fieldtype": "Section Break"
-    },
-    {
-      "fieldname": "isin",
-      "fieldtype": "Link",
-      "in_list_view": 1,
-      "label": "ISIN",
-      "options": "Security",
-      "reqd": 1
-    },
-    {
-      "fieldname": "pledgor_boid",
-      "fieldtype": "Data",
-      "in_list_view": 1,
-      "label": "Pledgor BOID"
-    },
-    {
-      "fieldname": "request_identifier",
-      "fieldtype": "Data",
-      "label": "Request Identifier",
-      "reqd": 1
-    },
-    {
-      "fieldname": "psn",
-      "fieldtype": "Data",
-      "label": "PSN"
-    },
-    {
-      "fieldname": "counter_no",
-      "fieldtype": "Int",
-      "label": "Counter No"
-    },
-    {
-      "fieldname": "column_break_1",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "request_type",
-      "fieldtype": "Select",
-      "label": "Request Type",
-      "options": "Pledge\nUnpledge",
-      "reqd": 1
-    },
-    {
-      "fieldname": "pledgee_boid",
-      "fieldtype": "Data",
-      "label": "Pledgee BOID"
-    },
-    {
-      "fieldname": "quantity",
-      "fieldtype": "Int",
-      "in_list_view": 1,
-      "label": "Quantity",
-      "reqd": 1
-    },
-    {
-      "fieldname": "error_code",
-      "fieldtype": "Data",
-      "label": "Error Code"
-    },
-    {
-      "default": "0",
-      "fieldname": "is_success",
-      "fieldtype": "Check",
-      "label": "Success?"
-    },
-    {
-      "fieldname": "column_break_3",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "customer",
-      "fieldtype": "Link",
-      "label": "Customer",
-      "options": "Customer"
-    },
-    {
-      "fieldname": "expiry",
-      "fieldtype": "Date",
-      "label": "Expiry"
-    },
-    {
-      "fieldname": "lender",
-      "fieldtype": "Link",
-      "label": "Lender",
-      "options": "Lender"
-    }
-  ],
-  "modified": "2020-10-26 00:01:51.083304",
-  "modified_by": "Administrator",
-  "module": "Lms",
-  "name": "Collateral Ledger",
-  "owner": "Administrator",
-  "permissions": [
-    {
-      "create": 1,
-      "delete": 1,
-      "email": 1,
-      "export": 1,
-      "print": 1,
-      "read": 1,
-      "report": 1,
-      "role": "System Manager",
-      "share": 1,
-      "write": 1
-    }
-  ],
-  "quick_entry": 1,
-  "sort_field": "modified",
-  "sort_order": "DESC",
-  "track_changes": 1
+ "creation": "2020-10-25 23:38:24.445245",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "application_doctype",
+  "lender",
+  "column_break_3",
+  "application_name",
+  "customer",
+  "loan",
+  "section_break_4",
+  "isin",
+  "quantity",
+  "pledgor_boid",
+  "psn",
+  "expiry",
+  "column_break_1",
+  "request_type",
+  "prf",
+  "pledgee_boid",
+  "lender_approval_status"
+ ],
+ "fields": [
+  {
+   "fieldname": "loan",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Loan",
+   "options": "Loan"
+  },
+  {
+   "fieldname": "section_break_4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "isin",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "ISIN",
+   "options": "Security",
+   "reqd": 1
+  },
+  {
+   "fieldname": "pledgor_boid",
+   "fieldtype": "Data",
+   "label": "Pledgor BOID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "psn",
+   "fieldtype": "Data",
+   "label": "PSN",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "request_type",
+   "fieldtype": "Select",
+   "label": "Request Type",
+   "options": "Pledge\nUnpledge\nSell Collateral",
+   "reqd": 1
+  },
+  {
+   "fieldname": "pledgee_boid",
+   "fieldtype": "Data",
+   "label": "Pledgee BOID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Quantity",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Loan Customer",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.request_type=='Pledge'",
+   "fieldname": "expiry",
+   "fieldtype": "Date",
+   "label": "Expiry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender",
+   "reqd": 1
+  },
+  {
+   "fieldname": "lender_approval_status",
+   "fieldtype": "Select",
+   "label": "Lender Approval Status",
+   "options": "\nApproved\nRejected\nPledge Failure",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.request_type=='Pledge'",
+   "fieldname": "prf",
+   "fieldtype": "Data",
+   "label": "PRF",
+   "read_only": 1
+  },
+  {
+   "fieldname": "application_doctype",
+   "fieldtype": "Select",
+   "label": "Application Doctype",
+   "options": "Loan Application\nUnpledge Application\nSell Collateral Application",
+   "reqd": 1
+  },
+  {
+   "fieldname": "application_name",
+   "fieldtype": "Dynamic Link",
+   "label": "Application Name",
+   "options": "application_doctype",
+   "reqd": 1
+  }
+ ],
+ "modified": "2021-07-26 13:27:26.228170",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Collateral Ledger",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
 }

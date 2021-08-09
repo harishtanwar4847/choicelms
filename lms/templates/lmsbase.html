@@ -1,0 +1,15 @@
+{% extends base_template_path %} {% block meta_block %}
+<meta
+  name="description"
+  content="{% block description %}{% endblock description %}"
+/>
+{% endblock %} {% block favicon %}
+<link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
+{% endblock %} {%- block head_include -%} {% include
+'templates/head_content.html' %} {%- endblock -%} {%- block style %}{%- endblock
+-%} {% block navbar %} {% include 'templates/header.html' %} {% endblock navbar
+%} {% block content %} {% include 'templates/modal/applyNowModal.html' %} {%
+block body %}{% endblock body %} {% endblock content %} {% block footer %} {%
+include 'templates/footer.html' %} {% endblock footer %} {% block base_scripts
+%} {% include 'templates/body_script.html' %} {% endblock %} {% block script %}
+{% endblock %} {% block body_include %}{% endblock %}

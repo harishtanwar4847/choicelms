@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import re
 from datetime import datetime, timedelta
 from itertools import groupby
 from random import choice
@@ -13,13 +14,22 @@ from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
 from .exceptions import *
 
-__version__ = "1.0.0-beta.1.1"
+# from lms.exceptions.CustomerNotFoundException import CustomerNotFoundException
+# from lms.exceptions.InvalidUserTokenException import InvalidUserTokenException
+# from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
+
+# from lms.exceptions.UserNotFoundException import UserNotFoundException
+
+__version__ = "1.0.0"
 
 user_token_expiry_map = {
     "OTP": 10,
-    "Email Verification Token": 60,
+    # "Email Verification Token": 60,
     "Pledge OTP": 10,
     "Withdraw OTP": 10,
+    "Unpledge OTP": 10,
+    "Sell Collateral OTP": 10,
+    "Forgot Pin OTP": 10,
 }
 
 
@@ -138,7 +148,7 @@ def check_user_token(entity, token, token_type):
                 "token_type": token_type,
                 "token": token,
                 "used": 0,
-                "expiry": (">", datetime.now()),
+                "expiry": (">", frappe.utils.now_datetime()),
             },
         )
 
@@ -158,20 +168,13 @@ def get_firebase_tokens(entity):
     return [i.token for i in token_list]
 
 
-def random_token(length=10, is_numeric=False):
-    set_ = "0123456789"
-    if not is_numeric:
-        set_ = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    return "".join(choice(set_) for _ in range(length))
-
-
 def get_user(input, throw=False):
     user_data = frappe.db.sql(
         """select name from `tabUser` where email=%s or phone=%s""",
         (input, input),
         as_dict=1,
     )
-    print("get_user", frappe.as_json(user_data))
+    # print("get_user", frappe.as_json(user_data))
     if len(user_data) >= 1:
         return user_data[0].name
     else:
@@ -216,7 +219,7 @@ def generate_user_token(user_name):
     return "token {}:{}".format(api_key, secret_key)
 
 
-def create_user(first_name, last_name, mobile, email):
+def create_user(first_name, last_name, mobile, email, tester):
     try:
         user = frappe.get_doc(
             {
@@ -229,7 +232,12 @@ def create_user(first_name, last_name, mobile, email):
                 "mobile_no": mobile,
                 "send_welcome_email": 0,
                 "new_password": frappe.mock("password"),
-                "roles": [{"doctype": "Has Role", "role": "Loan Customer"}],
+                "roles": [
+                    {"doctype": "Has Role", "role": "Loan Customer"},
+                    {"doctype": "Has Role", "role": "Spark Tester"},
+                ]
+                if tester
+                else [{"doctype": "Has Role", "role": "Loan Customer"}],
             }
         ).insert(ignore_permissions=True)
 
@@ -241,7 +249,7 @@ def create_user(first_name, last_name, mobile, email):
 def create_customer(user):
     try:
         customer = frappe.get_doc(
-            {"doctype": "Customer", "username": user.email}
+            {"doctype": "Loan Customer", "user": user.email}
         ).insert(ignore_permissions=True)
 
         return customer
@@ -261,13 +269,15 @@ def add_user(first_name, last_name, phone, email):
                 phone=phone,
                 mobile_no=phone,
                 send_welcome_email=0,
-                new_password="{0}-{0}".format(datetime.now().strftime("%s")),
+                new_password="{0}-{0}".format(
+                    frappe.utils.now_datetime().strftime("%s")
+                ),
                 roles=[{"doctype": "Has Role", "role": "Loan Customer"}],
             )
         ).insert(ignore_permissions=True)
 
         customer = frappe.get_doc(
-            dict(doctype="Customer", username=user.email, owner=user.email)
+            dict(doctype="Loan Customer", user=user.email)
         ).insert(ignore_permissions=True)
 
         create_user_token(
@@ -295,7 +305,7 @@ def is_float_num_valid(num, length, precision):
 
 
 def get_cdsl_prf_no():
-    return "PF{}".format(datetime.now().strftime("%s"))
+    return "PF{}".format(frappe.utils.now_datetime().strftime("%s"))
 
 
 def convert_list_to_tuple_string(list_):
@@ -350,14 +360,11 @@ def get_security_categories(securities, lender):
 
 def get_allowed_securities(securities, lender):
     query = """select
-				allowed.isin, master.security_name, allowed.eligible_percentage,
-				master.category
-				from `tabAllowed Security` allowed
-				left join `tabSecurity` master
-				on allowed.isin = master.isin
+				isin, security_name, eligible_percentage, security_category
+				from `tabAllowed Security`
 				where
-				allowed.lender = '{}' and
-				allowed.isin in {}""".format(
+				lender = '{}' and
+				isin in {}""".format(
         lender, convert_list_to_tuple_string(securities)
     )
 
@@ -379,12 +386,12 @@ def chunk_doctype(doctype, limit=50):
 
 
 def __customer(entity=None):
-    res = frappe.get_all("Customer", filters={"username": __user(entity).name})
+    res = frappe.get_all("Loan Customer", filters={"user": __user(entity).name})
 
     if len(res) == 0:
         raise CustomerNotFoundException
 
-    return frappe.get_doc("Customer", res[0].name)
+    return frappe.get_doc("Loan Customer", res[0].name)
 
 
 def __user_kyc(entity=None, pan_no=None, throw=True):
@@ -421,13 +428,13 @@ def round_down_amount_to_nearest_thousand(amount):
 
 
 def get_customer(entity):
-    customer_list = frappe.get_all("Customer", filters={"username": get_user(entity)})
-    return frappe.get_doc("Customer", customer_list[0].name)
+    customer_list = frappe.get_all("Loan Customer", filters={"user": get_user(entity)})
+    return frappe.get_doc("Loan Customer", customer_list[0].name)
 
 
 def delete_user(doc, method):
     frappe.db.sql("delete from `tabUser KYC` where user = %s", doc.name)
-    frappe.db.sql("delete from `tabCustomer` where username = %s", doc.name)
+    frappe.db.sql("delete from `tabLoan Customer` where user = %s", doc.name)
     frappe.db.sql("delete from `tabWorkflow Action` where user = %s", doc.name)
     frappe.db.commit()
 
@@ -464,7 +471,9 @@ def create_user_token(entity, token, token_type="OTP"):
                 entity=entity, token_type=token_type
             )
         )
-        doc_data["expiry"] = datetime.now() + timedelta(minutes=expiry_in_minutes)
+        doc_data["expiry"] = frappe.utils.now_datetime() + timedelta(
+            minutes=expiry_in_minutes
+        )
 
     user_token = frappe.get_doc(doc_data)
     user_token.save(ignore_permissions=True)
@@ -512,3 +521,101 @@ def amount_formatter(amount):
     formatted_amount = formatted_amount[: formatted_amount.index(".") + 3]
 
     return "{} {}".format(formatted_amount, denominations.get(denomination))
+
+
+def random_token(length=10, is_numeric=False):
+    import random
+    import string
+
+    if is_numeric:
+        sample_str = "".join((random.choice(string.digits) for i in range(length)))
+    else:
+        letters_count = random.randrange(length)
+        digits_count = length - letters_count
+
+        sample_str = "".join(
+            (random.choice(string.ascii_letters) for i in range(letters_count))
+        )
+        sample_str += "".join(
+            (random.choice(string.digits) for i in range(digits_count))
+        )
+
+    # Convert string to list and shuffle it to mix letters and digits
+    sample_list = list(sample_str)
+    random.shuffle(sample_list)
+    final_string = "".join(sample_list)
+    return final_string
+
+
+def user_dashboard(data=None):
+    return {
+        "fieldname": "user",
+        "transactions": [
+            {"items": ["Loan Customer"]},
+        ],
+    }
+
+
+def regex_special_characters(search, regex=None):
+    if regex:
+        regex = regex
+    else:
+        regex = re.compile("[@_!#$%^&*()<>?/\|}{~:`]")
+
+    if regex.search(search) != None:
+        return True
+    else:
+        return False
+
+
+def date_str_format(date=None):
+    # date formatting in html to pdf
+    # 1 => 1st, 11 => 11th, 21 => 21st
+    # 2 => 2nd, 12 => 12th, 22 => 22nd
+    # 3 => 3rd, 13 => 13th, 23 => 23rd
+    # 4 => 4th, 14 => 14th, 24 => 24th
+
+    if 10 <= date % 100 < 20:
+        return str(date) + "th"
+    else:
+        return str(date) + {1: "st", 2: "nd", 3: "rd"}.get(date % 10, "th")
+
+
+def web_mail(notification_name, name, recepient, subject):
+    mail_content = frappe.db.sql(
+        "select message from `tabNotification` where name='{}';".format(
+            notification_name
+        )
+    )[0][0]
+    mail_content = mail_content.replace(
+        "user_name",
+        "{}".format(name),
+    )
+    mail_content = mail_content.replace(
+        "logo_file",
+        frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
+    )
+    mail_content = mail_content.replace(
+        "fb_icon",
+        frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
+    )
+    mail_content = mail_content.replace(
+        "tw_icon",
+        frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),
+    )
+    mail_content = mail_content.replace(
+        "inst_icon",
+        frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
+    )
+    mail_content = (
+        mail_content.replace(
+            "lin_icon", frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png")
+        ),
+    )
+    frappe.enqueue(
+        method=frappe.sendmail,
+        recipients=["{}".format(recepient)],
+        sender=None,
+        subject="{}".format(subject),
+        message=mail_content[0],
+    )

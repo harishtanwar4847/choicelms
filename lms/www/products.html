@@ -1,0 +1,83 @@
+{% extends 'templates/lmsbase.html' %} {% block title %} Our Financial Products
+- SparkLoans {% endblock title %} {% block description %} Visit SparkLoans web
+portal to know more about financial products. {% endblock description %} {%
+block body %}
+<section class="fw">
+  <div class="container">
+    <div class="row">
+      <div class="col titlesec maintitle">
+        <h5 style="margin-bottom: 0px">Products</h5>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="fw proBox">
+  <div class="container container2 pr">
+    <div class="row dx_jcsbalctr">
+      <div class="col-md-5 d-block d-sm-none txc">
+        <img src="/assets/lms/images/pro1.svg" width="90%" />
+      </div>
+      <div class="col col-md-5">
+        <div class="fw banner">
+          <h3>Loan against shares</h3>
+          <p>
+            Avail loan against equity shares without losing the upside gain on
+            the shares.
+          </p>
+          <a href="#" class="proLink" data-toggle="modal" data-target="#schemes"
+            >Check Schemes</a
+          >
+        </div>
+      </div>
+      <div class="col col-md-5 d-none d-sm-block">
+        <img src="/assets/lms/images/pro1.svg" class="fw" />
+      </div>
+    </div>
+  </div>
+</section>
+<section class="fw proBox proBox2">
+  <div class="container container2 pr">
+    <div class="row dx_jcsbalctr">
+      <div class="col-md-5 d-block txc">
+        <img src="/assets/lms/images/pro2.svg" class="fw" />
+      </div>
+      <div class="col col-md-5">
+        <div class="fw banner">
+          <h3>Loan against Mutual Funds & other securities</h3>
+          <p>
+            Avail loan against Mutual Fund units, Bonds, Debentures and other
+            securities in demat form.
+          </p>
+          <a
+            href="#"
+            class="proLink"
+            data-toggle="modal"
+            data-target="#comingsoon"
+            >Check Schemes</a
+          >
+        </div>
+      </div>
+      <div class="col col-md-1 d-none d-sm-block">&nbsp;</div>
+    </div>
+  </div>
+</section>
+{% include 'templates/modal/productSchemaModal.html' %} {% include
+'templates/appdownload.html' %} {% endblock %} {% block script %}
+<script>
+  $(function () {
+    $("#switch-id").change(function () {
+      if ($(this).is(":checked")) {
+        $(".applyemail").show();
+        $(".applymobile").hide();
+      } else {
+        $(".applyemail").hide();
+        $(".applymobile").show();
+      }
+    });
+  });
+
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip();
+  });
+</script>
+{% endblock script %}

@@ -27,16 +27,48 @@
   "column_break_18",
   "coordinates",
   "esign_page",
+  "enhancement_agreement_section",
+  "enhancement_agreement_template",
+  "enhancement_total_pages",
+  "column_break_26",
+  "enhancement_coordinates",
+  "enhancement_esign_page",
   "charges_details_section",
   "lender_processing_fees_type",
   "stamp_duty_type",
   "documentation_charge_type",
   "mortgage_charge_type",
+  "sell_collateral_charge_type",
+  "renewal_charge_type",
+  "dp_reimburse_unpledge_charge_type",
+  "dp_reimburse_sell_charge_type",
   "column_break_2",
   "lender_processing_fees",
   "stamp_duty",
   "documentation_charges",
   "mortgage_charges",
+  "sell_collateral_charges",
+  "renewal_charges",
+  "dp_reimburse_unpledge_charges",
+  "dp_reimburse_sell_charges",
+  "column_break_39",
+  "lender_processing_minimum_amount",
+  "lender_stamp_duty_minimum_amount",
+  "lender_documentation_minimum_amount",
+  "lender_mortgage_minimum_amount",
+  "sell_collateral_minimum_amount",
+  "renewal_minimum_amount",
+  "dp_reimburse_unpledge_minimum_amount",
+  "dp_reimburse_sell_minimum_amount",
+  "column_break_54",
+  "lender_processing_maximum_amount",
+  "lender_stamp_duty_maximum_amount",
+  "lender_documentation_maximum_amount",
+  "lender_mortgage_maximum_amount",
+  "sell_collateral_maximum_amount",
+  "renewal_maximum_amount",
+  "dp_reimburse_unpledge_maximum_amount",
+  "dp_reimburse_sell_maximum_amount",
   "charges_sharing_details_section",
   "lender_processing_fees_sharing_type",
   "stamp_duty_sharing_type",
@@ -46,7 +78,16 @@
   "lender_processing_fees_sharing",
   "stamp_duty_sharing",
   "documentation_charges_sharing",
-  "mortgage_charges_sharing"
+  "mortgage_charges_sharing",
+  "html_template_for_documents_section",
+  "approved_securities_template",
+  "loan_account_statement_template",
+  "column_break_78",
+  "pledged_security_statement_template",
+  "image_section_section",
+  "logo_file_1",
+  "website_section_section",
+  "lender_title"
  ],
  "fields": [
   {
@@ -183,10 +224,6 @@
    "options": "Fix\nPercentage"
   },
   {
-   "fieldname": "column_break_3",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "lender_processing_fees_sharing",
    "fieldtype": "Float",
    "label": "Lender Processing Fees Sharing",
@@ -259,7 +296,7 @@
   {
    "fieldname": "agreement_section",
    "fieldtype": "Section Break",
-   "label": "Agreement"
+   "label": "Loan Agreement"
   },
   {
    "fieldname": "total_pages",
@@ -291,9 +328,219 @@
    "fieldtype": "Data",
    "label": "Default Interest Threshold",
    "reqd": 1
+  },
+  {
+   "fieldname": "enhancement_agreement_section",
+   "fieldtype": "Section Break",
+   "label": "Loan Enhancement Agreement"
+  },
+  {
+   "fieldname": "enhancement_agreement_template",
+   "fieldtype": "Attach",
+   "label": "Enhancement Agreement Template"
+  },
+  {
+   "fieldname": "enhancement_total_pages",
+   "fieldtype": "Int",
+   "label": "Enhancement Total Pages"
+  },
+  {
+   "fieldname": "column_break_26",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "enhancement_coordinates",
+   "fieldtype": "Data",
+   "label": "Enhancement Coordinates (x,y)"
+  },
+  {
+   "fieldname": "enhancement_esign_page",
+   "fieldtype": "Int",
+   "label": "Enhancement Esign Page"
+  },
+  {
+   "fieldname": "column_break_39",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_54",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lender_processing_minimum_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "lender_processing_maximum_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Amount"
+  },
+  {
+   "fieldname": "lender_stamp_duty_maximum_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Amount"
+  },
+  {
+   "fieldname": "lender_documentation_maximum_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Amount"
+  },
+  {
+   "fieldname": "lender_mortgage_maximum_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Amount"
+  },
+  {
+   "fieldname": "lender_stamp_duty_minimum_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "lender_documentation_minimum_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "lender_mortgage_minimum_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "sell_collateral_minimum_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "sell_collateral_maximum_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Amount"
+  },
+  {
+   "fieldname": "sell_collateral_charge_type",
+   "fieldtype": "Select",
+   "label": "Sell Collateral Charge Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "sell_collateral_charges",
+   "fieldtype": "Float",
+   "label": "Sell Collateral Charges"
+  },
+  {
+   "fieldname": "renewal_charge_type",
+   "fieldtype": "Select",
+   "label": "Renewal Charge Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "renewal_charges",
+   "fieldtype": "Float",
+   "label": "Renewal Charges"
+  },
+  {
+   "fieldname": "renewal_minimum_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "renewal_maximum_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Amount"
+  },
+  {
+   "fieldname": "dp_reimburse_unpledge_charge_type",
+   "fieldtype": "Select",
+   "label": "DP Reimbursement(Unpledge) Charge Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "dp_reimburse_unpledge_charges",
+   "fieldtype": "Float",
+   "label": "DP Reimbursement(Unpledge) Charges"
+  },
+  {
+   "fieldname": "dp_reimburse_unpledge_minimum_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "dp_reimburse_unpledge_maximum_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Amount"
+  },
+  {
+   "fieldname": "dp_reimburse_sell_charge_type",
+   "fieldtype": "Select",
+   "label": "DP Reimbursement(Sell) Charge Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "dp_reimburse_sell_charges",
+   "fieldtype": "Float",
+   "label": "DP Reimbursement(Sell) Charges"
+  },
+  {
+   "fieldname": "dp_reimburse_sell_minimum_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "dp_reimburse_sell_maximum_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Amount"
+  },
+  {
+   "fieldname": "html_template_for_documents_section",
+   "fieldtype": "Section Break",
+   "label": "Html Template for Documents"
+  },
+  {
+   "fieldname": "approved_securities_template",
+   "fieldtype": "Attach",
+   "label": "Approved Securities Template"
+  },
+  {
+   "fieldname": "loan_account_statement_template",
+   "fieldtype": "Attach",
+   "label": "Loan Account Statement Template"
+  },
+  {
+   "fieldname": "pledged_security_statement_template",
+   "fieldtype": "Attach",
+   "label": "Pledged Security Statement Template"
+  },
+  {
+   "fieldname": "column_break_78",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "All attachments should be Public",
+   "fieldname": "image_section_section",
+   "fieldtype": "Section Break",
+   "label": "Image Section"
+  },
+  {
+   "fieldname": "logo_file_1",
+   "fieldtype": "Attach",
+   "label": "Lender Logo"
+  },
+  {
+   "fieldname": "website_section_section",
+   "fieldtype": "Section Break",
+   "label": "Website Section"
+  },
+  {
+   "fieldname": "lender_title",
+   "fieldtype": "Data",
+   "label": "Lender Title"
   }
  ],
- "modified": "2021-01-07 18:44:24.064634",
+ "modified": "2021-08-07 19:07:14.215439",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",

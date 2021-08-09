@@ -1,0 +1,130 @@
+<script
+  type="text/javascript"
+  src="/assets/lms/js/jquery-3.6.0.min.js"
+></script>
+
+<!-- Panter apply Modal -->
+<div
+  class="modal fade common-modal"
+  id="panter-apply"
+  tabindex="-1"
+  role="dialog"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <h5 class="modal-title">Become a Partner</h5>
+      <button
+        type="button"
+        class="close"
+        data-dismiss="modal"
+        aria-label="Close"
+      >
+        <img src="/assets/lms/images/close-bt.png" />
+      </button>
+      <div class="modal-body">
+        <form class="fw placeholder_txt" name="panterApply" id="panterApply">
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>First Name</span>
+                <input type="text" name="pfirstname" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Last Name</span>
+                <input type="text" name="plastname" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Email <a href="#" class="optionalBtn"> Optional</a></span>
+                <input type="email" name="pemail" class="required" />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Mobile</span>
+                <input
+                  type="tel"
+                  minlength="10"
+                  maxlength="10"
+                  name="pmobile"
+                  class="required number"
+                />
+              </label>
+            </div>
+          </div>
+          <div class="form_group">
+            <div class="form_control">
+              <label>
+                <span>Message</span>
+                <textarea type="text" name="pmessage" class="required">
+                </textarea>
+              </label>
+            </div>
+          </div>
+          <div class="fw text-center mt-5">
+            <button
+              type="button"
+              name="button"
+              value="Submit"
+              onclick="applyNowPartner()"
+              class="applybtn"
+            >
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function applyNowPartner() {
+    var pfirstname = $('[name="pfirstname"]').val();
+    var plastname = $('[name="plastname"]').val();
+    var pemail = $('[name="pemail"]').val();
+    var pmobile = $('[name="pmobile"]').val();
+    var pmessage = $('[name="pmessage"]').val();
+    var regEx = /^[A-Za-z0-9][A-Za-z0-9._%+-]{0,63}@(?:[A-Za-z0-9-]{1,63}\.){1,125}[A-Za-z]{2,63}$/;
+    var validEmail = regEx.test(pemail);
+    if (
+      !(pfirstname == "") &&
+      !(plastname == "") &&
+      !(pemail == "") &&
+      !(pmobile == "") &&
+      !(pmessage == "")
+    ) {
+      if (!isNaN(pmobile) && !(pmobile.length < 10) && validEmail) {
+        $.get(
+          "/api/method/lms.www.partnerwithus.applyNowPartner",
+          {
+            pfirstname: pfirstname,
+            plastname: plastname,
+            pemail: pemail,
+            pmobile: pmobile,
+            pmessage: pmessage,
+          },
+          alert("{{ _('Thank you!! we will get back to you soon.') }}")
+        );
+        $(".modal").removeClass("in");
+        $(".modal").attr("aria-hidden", "true");
+        $(".modal").css("display", "none");
+        $(".modal-backdrop").remove();
+        $("body").removeClass("modal-open");
+        $(":input").val("");
+      } else {
+        alert("Please provide required details.");
+      }
+    }
+  }
+</script>

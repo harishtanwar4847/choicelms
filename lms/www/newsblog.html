@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SparkLoans</title>
+    <meta name="description" content="SparkLoans" />
+    {% include 'templates/head_content.html' %}
+    <style>
+      .pdescr img {
+        max-width: 100% !important;
+      }
+
+      #viewMore {
+        color: #eb5e50;
+        cursor: pointer;
+      }
+
+      @media screen and (max-width: 768px) {
+        .pdescr img {
+          width: 100% !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="fw fixed-top">
+      <div class="container container3">
+        <div class="col dx_jcsbalctr topnav">
+          <h5>
+            <a href="newsblogs"> <img src="/assets/lms/images/arrow1.png" /></a>
+            {{blog_details.title}}
+          </h5>
+          <!-- <a href="#"><img src="/assets/lms/images/share.png"> </a> -->
+        </div>
+      </div>
+    </div>
+    <section class="fw blogdetails">
+      <div class="container container3">
+        <div class="fw">
+          <div class="row">
+            <div class="col">
+              <div class="articlesdetails">
+                <p class="resources">
+                  {% for i in blog_details.blog_tags %} {{i.website_tags}} {%
+                  endfor %}
+                </p>
+                <h4>{{blog_details.title}}</h4>
+                <p class="date">
+                  By {{blog_details.author}}
+                  <span>
+                    <img src="/assets/lms/images/dot.svg" />
+                    {{ blog_details.publishing_date }}
+                  </span>
+                </p>
+                <img src="{{blog_details.for_blog_view}}" class="fw" /> <br />
+                <div style="font-size: 1.6rem" class="pdescr">
+                  <br />
+                  {{blog_details.description}}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="fw readyGet">
+      <div class="container container3">
+        <div class="fw contact_bg readyGet_bg">
+          <div class="row contact_bg_mo">
+            <div class="col-5 fluid dx_airt">
+              <img src="/assets/lms/images/ready.svg" class="fw" />
+            </div>
+            <div class="col-md-6">
+              <div class="fw">
+                <div class="titlesec">
+                  <h5>Ready? Get started.</h5>
+                  <p>Get instant loans today in less than 5 minutes.</p>
+                  <div class="fw mt-4">
+                    <button
+                      type="submit"
+                      class="applybtn applybtn2"
+                      data-toggle="modal"
+                      data-target="#apply-now-pop"
+                    >
+                      <span>Apply Now</span><span>&nbsp;</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="fw related-blog">
+      <div class="container container3">
+        <div class="fw">
+          <h4>Related articles</h4>
+          <div class="row">
+            <div class="col-md-9">
+              <div class="row" id="related_article_div">
+                {% for article in related_articles %}
+
+                <div class="col-md-4">
+                  <div class="news_card articles">
+                    <a href="newsblog?blog_name={{ article.name }}">
+                      <img src="{{article.for_banner_view}}" class="fw" />
+                    </a>
+                    <p>
+                      {% for tag in article['website_tags'].split(',') %}
+                      <a href="#">{{tag}}</a>
+                      {% endfor %}
+                    </p>
+                    <h5>{{article.title}}</h5>
+                    <p class="date">{{ article.publishing_date }}</p>
+                  </div>
+                </div>
+
+                {% endfor %}
+              </div>
+              <div class="col-md-12">
+                <h5 class="viewMore">
+                  {% if frappe.form_dict.blog_name %}
+                  <a class="viewMores" id="viewMore"> View All</a>
+                  {% endif %}
+                </h5>
+              </div>
+            </div>
+            {% set ads = frappe.get_all("Website Ads", fields=['*'],
+            order_by='creation desc', page_length=6 ) %} {% for ad in ads %}
+            <div class="col-md-3">
+              <div class="news_card ad">
+                <a href="https://{{ad.url}}" target="__blank">
+                  <img src="{{ad.image}}" class="fw" />
+                </a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </section>
+    <input type="hidden" />
+
+    {% include 'templates/subscribe.html' %} {% include
+    'templates/appdownload.html' %} {% include
+    'templates/modal/applyNowModal.html' %} {% include 'templates/footer.html'
+    %}
+    <div class="fw bottomfix">
+      <div class="container container3">
+        <div class="bottomnav">
+          <div class="row">
+            <div class="col dx_jcsbalctr blogdetailsArrows">
+              <div class="col-sm-6">
+                {% if page_change['previous_name'] %}
+                <a
+                  href="/newsblog?blog_name={{page_change['previous_name']}}"
+                ></a>
+                {% endif %}
+              </div>
+              <div class="col-sm-6" style="text-align: right !important">
+                {% if page_change['next_name'] %}
+                <a
+                  href="/newsblog?blog_name={{page_change['next_name']}}"
+                  id="next"
+                  class="blogdetailsArrowsRight"
+                >
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% include 'templates/body_script.html' %}
+    <script type="text/javascript">
+      $(document).ready(function () {
+        var page_no = 2;
+        const urlParams = new URLSearchParams(location.search);
+
+        if (urlParams.has("blog_name")) {
+          $(document).on("click", "#viewMore", function () {
+            // alert($(this).attr("id"));
+            $.ajax({
+              url: "/api/method/lms.www.newsblog.fetch_related_articles",
+              type: "GET",
+              data: {
+                blog_name: urlParams.get("blog_name"),
+                page_no: page_no,
+              },
+              dataType: "json",
+              success: function (res) {
+                console.log(res.data.related_articles.length);
+                if (res.data.related_articles.length > 0) {
+                  var html = "";
+
+                  $.each(res.data.related_articles, function (index, val) {
+                    const arr = val.website_tags.split(",");
+                    var tags = "";
+                    $.each(arr, (index, tag) => {
+                      tags += "<a href=#>" + tag + "</a>";
+                    });
+                    html +=
+                      '<div class="col-md-4">' +
+                      '<div class="news_card articles">' +
+                      '<a href="newsblog?blog_name=' +
+                      val.name +
+                      '"><img src="' +
+                      val.for_banner_view +
+                      '" class="fw"> </a>' +
+                      "<p>" +
+                      tags +
+                      "</p>" +
+                      "<h5>" +
+                      val.title +
+                      "</h5>" +
+                      '<p class="date">' +
+                      val.publishing_date +
+                      "</p>" +
+                      "</div>" +
+                      "</div>";
+                  });
+                  $("#related_article_div").append(html);
+                  page_no += 1;
+                }
+              },
+            });
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

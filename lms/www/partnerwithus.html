@@ -1,0 +1,47 @@
+{% extends 'templates/lmsbase.html' %} {% block title %} Partner with Us -
+Become a SparkLoans Business Partner {% endblock title %} {% block description
+%} Interested to Become a Partner with us? Join now to become a SparkLoans
+authorised business partner today. {% endblock description %} {% block body %}
+
+<section class="fw">
+  <div class="container">
+    <div class="row">
+      <div class="col titlesec maintitle">
+        <h5 style="margin-bottom: 0px">Partner With Us</h5>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="fw landing content-banner">
+  <div class="container container2 pr">
+    <div class="row dx_jcsbalctr">
+      <div class="col d-block d-sm-none txc">
+        <img src="/assets/lms/images/partner-banner.png" width="90%" />
+      </div>
+      <div class="col col-md-5">
+        <div class="fw banner">
+          <h3>
+            As leaders and innovators in the Indian Loan Against Securities
+            business
+          </h3>
+          <p>
+            We are always looking to build successful partnerships with
+            interested associates
+          </p>
+          <a
+            href="javascript:void(0);"
+            class="applybtn"
+            data-toggle="modal"
+            data-target="#panter-apply"
+            ><span>Apply Now</span><span>&nbsp;</span></a
+          >
+        </div>
+      </div>
+      <div class="col col-md-6 d-none d-sm-block">
+        <img src="/assets/lms/images/partner-banner.png" class="fw" />
+      </div>
+    </div>
+  </div>
+</section>
+{% include 'templates/appdownload.html' %} {% include
+'templates/modal/partnerWithUsModal.html' %} {% endblock %}

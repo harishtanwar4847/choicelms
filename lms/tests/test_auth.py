@@ -50,7 +50,7 @@ class VerifyOTP(utils.APITestCase):
         )
         from datetime import datetime, timedelta
 
-        otp.expiry = datetime.now() - timedelta(minutes=1)
+        otp.expiry = frappe.utils.now_datetime() - timedelta(minutes=1)
         otp.save(ignore_permissions=True)
         frappe.db.commit()
         res = self.client.post_api(

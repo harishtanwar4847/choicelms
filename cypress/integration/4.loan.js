@@ -237,6 +237,7 @@ context("Esign done", () => {
               Authorization: Cypress.config("token"),
             }
           ).then((res) => {
+            // expect(res.body).to.eq({});
             file_id = res.body.data.file_id;
             cy.api_call(
               "lms.loan.esign_done",
@@ -421,12 +422,12 @@ context("upload file and Approve loan application", () => {
     cy.get_open_dialog()
       .get("button.btn.btn-primary:contains('Upload')")
       .click();
-    // cy.wait(2000);
+    cy.wait(2000);
     cy.screenshot();
     cy.contains("Actions").click();
-    // cy.wait(3000);
+    cy.wait(3000);
     cy.contains("Approve").click();
-    // cy.wait(3000);
+    cy.wait(3000);
     cy.screenshot();
     cy.contains("Settings").click();
     cy.contains("Logout").click();
@@ -523,19 +524,19 @@ context.skip("upload file and Reject loan application", () => {
   });
 });
 
-context("Loan details", () => {
-  // before(() => {
-  //   cy.delete_user(Cypress.config("dummy_user").email);
-  //   cy.register_user(Cypress.config("dummy_user")).then((res) => {
-  //     Cypress.config("token", res.body.data.token);
-  //     cy.valid_user_kyc_hit(Cypress.config("token"));
-  //   });
-  //   cy.delete_extra_user(Cypress.config("extra_user").email);
-  //   cy.register_extra_user(Cypress.config("extra_user")).then((res) => {
-  //     Cypress.config("extra_token", res.body.data.token);
-  //     cy.valid_user_kyc_hit(Cypress.config("extra_token"));
-  //   });
-  // });
+context.skip("Loan details", () => {
+  before(() => {
+    cy.delete_user(Cypress.config("dummy_user").email);
+    cy.register_user(Cypress.config("dummy_user")).then((res) => {
+      Cypress.config("token", res.body.data.token);
+      cy.valid_user_kyc_hit(Cypress.config("token"));
+    });
+    cy.delete_extra_user(Cypress.config("extra_user").email);
+    cy.register_extra_user(Cypress.config("extra_user")).then((res) => {
+      Cypress.config("extra_token", res.body.data.token);
+      cy.valid_user_kyc_hit(Cypress.config("extra_token"));
+    });
+  });
 
   it("only get http method should be allowed", () => {
     cy.api_call("lms.loan.loan_details", {}, "POST", {
@@ -663,11 +664,6 @@ context("Loan details", () => {
               cy.wait(3000);
               cy.contains("Approve").click();
               cy.wait(3000);
-              cy.screenshot();
-              cy.contains("Actions").click();
-              // cy.wait(3000);
-              cy.contains("Approve").click();
-              // cy.wait(3000);
               cy.screenshot();
               cy.contains("Settings").click();
               cy.contains("Logout").click();
@@ -1066,11 +1062,6 @@ context("Loan withdraw Request", () => {
               cy.screenshot();
               cy.contains("Actions").click();
               cy.wait(3000);
-              cy.contains("Approve").click();
-              // cy.wait(3000);
-              cy.screenshot();
-              cy.contains("Actions").click();
-              // cy.wait(3000);
               cy.contains("Approve").click();
               // cy.wait(3000);
               cy.screenshot();
@@ -1540,7 +1531,7 @@ context("Loan withdraw details", () => {
   });
 });
 
-context("Request Loan withdraw OTP", () => {
+context("Loan Payment", () => {
   // before(() => {
   //   cy.delete_user(Cypress.config("dummy_user").email);
   //   cy.register_user(Cypress.config("dummy_user")).then((res) => {
@@ -1559,6 +1550,7 @@ context("Request Loan withdraw OTP", () => {
       Authorization: Cypress.config("token"),
     }).then((res) => {
       expect(res.status).to.eq(405);
+      // expect(res.body).to.eq({});
       expect(res.body).to.have.property("message", "Method not allowed");
       cy.screenshot();
     });
@@ -1567,6 +1559,103 @@ context("Request Loan withdraw OTP", () => {
   it("auth method", () => {
     cy.api_call("lms.loan.loan_payment", {}, "POST").then((res) => {
       expect(res.status).to.eq(403);
+      cy.screenshot();
+    });
+  });
+
+  it("Field empty loan name", () => {
+    cy.api_call(
+      "lms.loan.loan_payment",
+      { loan_name: "", amount: 10, transaction_id: "asdf" },
+      "POST",
+      {
+        Authorization: Cypress.config("token"),
+      }
+    ).then((res) => {
+      expect(res.status).to.eq(422);
+      // expect(res.body).to.eq({});
+      expect(res.body).to.have.property("message", "Validation Error");
+      cy.screenshot();
+    });
+  });
+
+  it("Field empty amount", () => {
+    cy.api_call(
+      "lms.loan.loan_payment",
+      { loan_name: loan_name, amount: "", transaction_id: "asdf" },
+      "POST",
+      {
+        Authorization: Cypress.config("token"),
+      }
+    ).then((res) => {
+      expect(res.status).to.eq(422);
+      // expect(res.body).to.eq({});
+      expect(res.body).to.have.property("message", "Validation Error");
+      cy.screenshot();
+    });
+  });
+
+  it("Field empty transaction id", () => {
+    cy.api_call(
+      "lms.loan.loan_payment",
+      { loan_name: loan_name, amount: 10, transaction_id: "" },
+      "POST",
+      {
+        Authorization: Cypress.config("token"),
+      }
+    ).then((res) => {
+      expect(res.status).to.eq(422);
+      // expect(res.body).to.eq({});
+      expect(res.body).to.have.property("message", "Validation Error");
+      cy.screenshot();
+    });
+  });
+
+  it("please fix the amount(amount is zero)", () => {
+    cy.api_call(
+      "lms.loan.loan_payment",
+      { loan_name: loan_name, amount: 0, transaction_id: "asdf" },
+      "POST",
+      {
+        Authorization: Cypress.config("token"),
+      }
+    ).then((res) => {
+      expect(res.status).to.eq(417);
+      // expect(res.body).to.eq({});
+      cy.screenshot();
+    });
+  });
+
+  it("amount should be decimal", () => {
+    cy.api_call(
+      "lms.loan.loan_payment",
+      { loan_name: loan_name, amount: "abcd", transaction_id: "asdf" },
+      "POST",
+      {
+        Authorization: Cypress.config("token"),
+      }
+    ).then((res) => {
+      expect(res.status).to.eq(422);
+      // expect(res.body).to.eq({});
+      cy.screenshot();
+    });
+  });
+
+  it("loan name not found", () => {
+    cy.api_call(
+      "lms.loan.loan_payment",
+      {
+        loan_name: "this_loan_doesnot_exist",
+        amount: 10,
+        transaction_id: "asdf",
+      },
+      "POST",
+      {
+        Authorization: Cypress.config("token"),
+      }
+    ).then((res) => {
+      expect(res.status).to.eq(404);
+      // expect(res.body).to.eq({});
       cy.screenshot();
     });
   });

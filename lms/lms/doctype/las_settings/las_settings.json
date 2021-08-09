@@ -13,13 +13,13 @@
   "choice_user_id",
   "choice_ticket",
   "cdsl_section_break",
+  "scheduler_from_time",
+  "scheduler_to_time",
   "cdsl_host",
   "pledge_setup_uri",
+  "cdsl_column_break",
   "cdsl_referrer",
   "cdsl_user_id",
-  "cdsl_column_break",
-  "unpledge_setup_uri",
-  "confiscate_setup_uri",
   "cdsl_dpid",
   "cdsl_password",
   "jiffy_section",
@@ -30,15 +30,23 @@
   "section_break_28",
   "esign_host",
   "esign_request_uri",
+  "enhancement_esign_download_signed_file_uri",
   "column_break_31",
   "esign_upload_file_uri",
   "esign_download_signed_file_uri",
   "section_break_33",
   "app_identification_hash_string",
+  "column_break_35",
   "terms_of_use_privacy_policy_section_break",
   "terms_of_use_document",
   "tnc_column_break",
-  "privacy_policy_document"
+  "privacy_policy_document",
+  "image_section_section",
+  "spark_logo",
+  "lender_section_section",
+  "lender_template",
+  "column_break_42",
+  "approved_security_template"
  ],
  "fields": [
   {
@@ -99,16 +107,6 @@
   {
    "fieldname": "cdsl_column_break",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "unpledge_setup_uri",
-   "fieldtype": "Data",
-   "label": "Unpledge Setup URI"
-  },
-  {
-   "fieldname": "confiscate_setup_uri",
-   "fieldtype": "Data",
-   "label": "Confiscate Setup URI"
   },
   {
    "fieldname": "cdsl_referrer",
@@ -212,10 +210,63 @@
    "fieldname": "esign_download_signed_file_uri",
    "fieldtype": "Data",
    "label": "Esign Download signed file URI"
+  },
+  {
+   "fieldname": "scheduler_from_time",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "From time (in hour)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "scheduler_to_time",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "To Time(in hour)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "enhancement_esign_download_signed_file_uri",
+   "fieldtype": "Data",
+   "label": "Enhancement Esign Download signed file URI"
+  },
+  {
+   "fieldname": "column_break_35",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "All attachments should be Public",
+   "fieldname": "image_section_section",
+   "fieldtype": "Section Break",
+   "label": "Image Section"
+  },
+  {
+   "fieldname": "spark_logo",
+   "fieldtype": "Attach",
+   "label": "Spark Logo"
+  },
+  {
+   "fieldname": "lender_section_section",
+   "fieldtype": "Section Break",
+   "label": "Website Section"
+  },
+  {
+   "fieldname": "lender_template",
+   "fieldtype": "Attach",
+   "label": "Lender Template"
+  },
+  {
+   "fieldname": "column_break_42",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approved_security_template",
+   "fieldtype": "Attach",
+   "label": "Approved Security Template"
   }
  ],
  "issingle": 1,
- "modified": "2021-01-07 20:08:56.130807",
+ "modified": "2021-08-07 13:46:01.043425",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
