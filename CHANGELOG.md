@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- [debug mode added in las settings to control buttons on loan application](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/343)
+
 ## [v1.0.0]
 
 ### Added
