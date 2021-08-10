@@ -53,7 +53,7 @@ class LoanCustomer(Document):
                     "click_action": "FLUTTER_NOTIFICATION_CLICK",
                     "message": "testing testing",
                     "msg_id": "KYC123",
-                    "screen": "Loan",
+                    "screen": "My Loans",
                 },
                 tokens=lms.get_firebase_tokens(self.user),
             )
