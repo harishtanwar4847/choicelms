@@ -276,7 +276,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2021-08-09 19:21:33.489856",
+ "modified": "2021-08-10 13:33:34.594364",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
@@ -289,6 +289,16 @@
    "print": 1,
    "read": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Spark Manager",
    "share": 1,
    "write": 1
   }
