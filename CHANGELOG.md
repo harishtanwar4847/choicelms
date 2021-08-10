@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-- [Fix: Add permissions to Lender and Spark Manager role profile in LAS settings](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/346)
+- [Fix: Perm Level changes in LAS settings](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/346)
 
 ## [v1.0.1]
 
