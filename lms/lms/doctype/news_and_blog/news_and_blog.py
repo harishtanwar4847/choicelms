@@ -4,9 +4,11 @@
 
 from __future__ import unicode_literals
 
-# import frappe
+import frappe
 from frappe.model.document import Document
 
 
 class NewsandBlog(Document):
-    pass
+    def before_save(self):
+        if not self.publishing_date:
+            self.publishing_date = frappe.utils.today()

@@ -1,7 +1,8 @@
 {% extends 'templates/lmsbase.html' %} {% block title %} Help or Frequently
 Asked Questions - SparkLoans {% endblock title %} {% block description %} Do You
 Have a Query? Get an instant answer for your quetions from SparkLoans team. {%
-endblock description %} {% block head %}
+endblock description %} {%- block head_include -%} {% include
+'templates/head_content.html' %}
 <style>
   .help .card-body li {
     padding: 0 0 20px 0;
@@ -30,7 +31,7 @@ endblock description %} {% block head %}
     padding: 0 20px;
   }
 </style>
-{% endblock head %} {% block body %}
+{%- endblock -%} {% block body %}
 <section class="fw">
   <div class="container">
     <div class="row">

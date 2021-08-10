@@ -1,14 +1,15 @@
 {% extends 'templates/lmsbase.html' %} {% block title %} SparkLoans Knowledge
 Hub - Stay Updated with Us {% endblock title %} {% block description %} Visit
 SparkLoans Blog to stay updated with latest updates from SparkLoans to team. {%
-endblock description %} {% block head %}
+endblock description %} {%- block head_include -%} {% include
+'templates/head_content.html' %}
 <style>
   #viewMore {
     color: #eb5e50;
     cursor: pointer;
   }
 </style>
-{% endblock head %} {% block body %}
+{%- endblock -%} {% block body %}
 <section class="fw">
   <div class="container">
     <div class="row">
