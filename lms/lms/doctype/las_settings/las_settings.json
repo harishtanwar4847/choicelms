@@ -276,7 +276,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2021-08-10 13:33:34.594364",
+ "modified": "2021-08-10 15:27:39.588223",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
@@ -301,6 +301,10 @@
    "role": "Spark Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Lender"
   }
  ],
  "quick_entry": 1,
