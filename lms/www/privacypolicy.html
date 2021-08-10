@@ -1,6 +1,7 @@
 {% extends 'templates/lmsbase.html' %} {% block title %} Privacy Policy -
 SparkLoans {% endblock title %} {% block description %} Read our privacy policy
-on SparkLoans web portal. {% endblock description %} {% block head %}
+on SparkLoans web portal. {% endblock description %} {%- block head_include -%}
+{% include 'templates/head_content.html' %}
 <style>
   @media (max-width: 768px) {
     li::marker {
@@ -57,7 +58,7 @@ on SparkLoans web portal. {% endblock description %} {% block head %}
     border: 2px solid black !important;
   }
 </style>
-{% endblock head %} {% block body %}
+{%- endblock -%} {% block body %}
 <section class="fw">
   <div class="container">
     <div class="row">
