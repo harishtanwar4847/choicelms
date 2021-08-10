@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "autoname": "Blog-.#",
  "creation": "2021-07-02 09:49:07.256500",
  "doctype": "DocType",
@@ -29,7 +30,8 @@
    "fieldname": "title",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Title"
+   "label": "Title",
+   "reqd": 1
   },
   {
    "fieldname": "banner_images_section",
@@ -39,7 +41,8 @@
   {
    "fieldname": "for_home_view",
    "fieldtype": "Attach Image",
-   "label": "For Home View"
+   "label": "For Home View",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_4",
@@ -48,7 +51,8 @@
   {
    "fieldname": "for_blog_view",
    "fieldtype": "Attach Image",
-   "label": "For Blog View"
+   "label": "For Blog View",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_6",
@@ -57,7 +61,8 @@
   {
    "fieldname": "for_banner_view",
    "fieldtype": "Attach Image",
-   "label": "For Banner View"
+   "label": "For Banner View",
+   "reqd": 1
   },
   {
    "fieldname": "section_break_8",
@@ -107,7 +112,8 @@
    "fieldname": "blog_tags",
    "fieldtype": "Table",
    "label": "Blog Tags",
-   "options": "Blog Tags"
+   "options": "Blog Tags",
+   "reqd": 1
   },
   {
    "default": "0",
@@ -116,7 +122,9 @@
    "label": "is_trending"
   }
  ],
- "modified": "2021-07-07 16:43:12.330509",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-08-10 17:59:29.308866",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "News and Blog",
