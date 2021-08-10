@@ -1,6 +1,7 @@
 {% extends 'templates/lmsbase.html' %} {% block title %} Terms of Use -
 SparkLoans {% endblock title %} {% block description %} Read our terms and
-conditions on SparkLoans web portal. {% endblock description %} {% block head %}
+conditions on SparkLoans web portal. {% endblock description %} {%- block
+head_include -%} {% include 'templates/head_content.html' %}
 <style>
   @media (max-width: 768px) {
     li::marker {
@@ -48,7 +49,7 @@ conditions on SparkLoans web portal. {% endblock description %} {% block head %}
     padding-bottom: 0px !important;
   }
 </style>
-{% endblock head %} {% block body %}
+{%- endblock -%} {% block body %}
 
 <section class="fw">
   <div class="container">
