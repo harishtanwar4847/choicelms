@@ -1043,6 +1043,8 @@ def check_for_pledge(loan_application_doc):
 def process_pledge(loan_application_name=""):
     from frappe import utils
 
+    frappe.logger().info("process {}".format(frappe.utils.now()))
+
     current_hour = int(utils.nowtime().split(":")[0])
     las_settings = frappe.get_single("LAS Settings")
 

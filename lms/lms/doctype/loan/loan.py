@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 from datetime import datetime, timedelta
+from logging import debug
 
 import frappe
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
@@ -654,54 +655,63 @@ class Loan(Document):
                     ["name", "base_interest", "rebait_interest"],
                     as_dict=1,
                 )
+
+                if interest_configuration:
+                    if input_date:
+                        input_date = datetime.strptime(
+                            input_date, "%Y-%m-%d"
+                        ) - timedelta(days=1)
+                    else:
+                        input_date = frappe.utils.now_datetime() - timedelta(days=1)
+
+                    # get no of days in month
+                    num_of_days_in_month = (
+                        (input_date.replace(day=1) + timedelta(days=32)).replace(day=1)
+                        - timedelta(days=1)
+                    ).day
+
+                    # calculate daily base interest
+                    base_interest_daily = 0
+                    if interest_configuration["base_interest"] > 0:
+                        base_interest_daily = (
+                            interest_configuration["base_interest"]
+                            / num_of_days_in_month
+                        )
+                    base_amount = self.balance * base_interest_daily / 100
+
+                    # calculate daily rebate interest
+                    rebate_interest_daily = 0
+                    if interest_configuration["rebait_interest"] > 0:
+                        rebate_interest_daily = (
+                            interest_configuration["rebait_interest"]
+                            / num_of_days_in_month
+                        )
+                    rebate_amount = self.balance * rebate_interest_daily / 100
+
+                    frappe.db.begin()
+                    virtual_interest_doc = frappe.get_doc(
+                        {
+                            "doctype": "Virtual Interest",
+                            "lender": self.lender,
+                            "loan": self.name,
+                            "time": input_date.replace(
+                                hour=23, minute=59, second=59, microsecond=999999
+                            ),
+                            "base_interest": interest_configuration["base_interest"],
+                            "rebate_interest": interest_configuration[
+                                "rebait_interest"
+                            ],
+                            "base_amount": base_amount,
+                            "rebate_amount": rebate_amount,
+                            "loan_balance": self.balance,
+                            "interest_configuration": interest_configuration["name"],
+                        }
+                    )
+                    virtual_interest_doc.save(ignore_permissions=True)
+                    frappe.db.commit()
+                    return virtual_interest_doc.as_dict()
             except:
                 pass
-
-            if input_date:
-                input_date = datetime.strptime(input_date, "%Y-%m-%d") - timedelta(
-                    days=1
-                )
-            else:
-                input_date = frappe.utils.now_datetime() - timedelta(days=1)
-
-            # get no of days in month
-            num_of_days_in_month = (
-                (input_date.replace(day=1) + timedelta(days=32)).replace(day=1)
-                - timedelta(days=1)
-            ).day
-
-            # calculate daily base interest
-            base_interest_daily = (
-                interest_configuration["base_interest"] / num_of_days_in_month
-            )
-            base_amount = self.balance * base_interest_daily / 100
-
-            # calculate daily rebate interest
-            rebate_interest_daily = (
-                interest_configuration["rebait_interest"] / num_of_days_in_month
-            )
-            rebate_amount = self.balance * rebate_interest_daily / 100
-
-            frappe.db.begin()
-            virtual_interest_doc = frappe.get_doc(
-                {
-                    "doctype": "Virtual Interest",
-                    "lender": self.lender,
-                    "loan": self.name,
-                    "time": input_date.replace(
-                        hour=23, minute=59, second=59, microsecond=999999
-                    ),
-                    "base_interest": interest_configuration["base_interest"],
-                    "rebate_interest": interest_configuration["rebait_interest"],
-                    "base_amount": base_amount,
-                    "rebate_amount": rebate_amount,
-                    "loan_balance": self.balance,
-                    "interest_configuration": interest_configuration["name"],
-                }
-            )
-            virtual_interest_doc.save(ignore_permissions=True)
-            frappe.db.commit()
-            return virtual_interest_doc.as_dict()
 
     def check_for_additional_interest(self, input_date=None):
         # daily scheduler - executes at start of day i.e 00:00
@@ -1249,6 +1259,7 @@ def add_loans_virtual_interest(loans):
 
 @frappe.whitelist()
 def add_all_loans_virtual_interest():
+    frappe.logger().info("add_all_loans_virtual_interest {}".format(frappe.utils.now()))
     chunks = lms.chunk_doctype(doctype="Loan", limit=10)
 
     for start in chunks.get("chunks"):
@@ -1271,6 +1282,9 @@ def check_for_loans_additional_interest(loans):
 
 @frappe.whitelist()
 def check_for_all_loans_additional_interest():
+    frappe.logger().info(
+        "check_for_all_loans_additional_interest {}".format(frappe.utils.now())
+    )
     chunks = lms.chunk_doctype(doctype="Loan", limit=10)
 
     for start in chunks.get("chunks"):
@@ -1293,6 +1307,7 @@ def add_loans_penal_interest(loans):
 
 @frappe.whitelist()
 def add_all_loans_penal_interest():
+    frappe.logger().info("add_all_loans_penal_interest {}".format(frappe.utils.now()))
     chunks = lms.chunk_doctype(doctype="Loan", limit=10)
 
     for start in chunks.get("chunks"):
@@ -1325,6 +1340,9 @@ def book_loans_virtual_interest_for_month(loans):
 
 @frappe.whitelist()
 def book_all_loans_virtual_interest_for_month():
+    frappe.logger().info(
+        "book_all_loans_virtual_interest_for_month {}".format(frappe.utils.now())
+    )
     chunks = lms.chunk_doctype(doctype="Loan", limit=10)
 
     for start in chunks.get("chunks"):
