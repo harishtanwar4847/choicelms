@@ -167,7 +167,7 @@ scheduler_events = {
         # “At 00:00.”
         "0 0 * * *": ["lms.lms.doctype.loan.loan.add_all_loans_virtual_interest"],
         # “At 02:00.”
-        "0 2 * * *": [
+        "0 2 1 * *": [
             "lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"
         ],
         # “At 04:00.”
