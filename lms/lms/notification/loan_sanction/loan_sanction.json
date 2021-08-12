@@ -10,16 +10,18 @@
   "event": "Custom",
   "idx": 0,
   "is_standard": 1,
-  "message": "<h3>Dear {{ doc.investor_name or \"\" }},</h3>\n\n<h2>Congratulations!!</h2>\n\n<p>Your loan amount has been credited in your account.</p>\n<p>Check your balance - <a href=\"{{ frappe.utils.get_url() }}\">Click Here</a> </p>\n<p>Get account details - <a href=\"{{ frappe.utils.get_url() }}\">Click Here</a></p>\n\n<p>If you need any assistance please drop an e-mail to <a>reception@spark.loans.</a></p>\n\n<p>We are happy to serve you.</p>\n\n<p>Thanks,</p>\n<p>The Spark Team\t</p>\n\n",
-  "modified": "2021-06-18 14:44:27.344876",
+  "message": "<h3>Dear {{ doc.investor_name or \"\" }},</h3>\n\n<h2>Congratulations!!</h2>\n\n<p>Your loan amount has been credited in your account.</p>\n<p>Check your balance - <a href=\"{{ frappe.utils.get_url() }}\">Click Here</a> </p>\n<p>Get account details - <a href=\"{{ frappe.utils.get_url() }}\">Click Here</a></p>\n\n<p>If you need any assistance please drop an e-mail to <a>reception@spark.loans.</a></p>\n\n<p>We are happy to serve you.</p>\n\n<p>Thanks,</p>\n<p>The Spark Team\t</p>\n",
+  "modified": "2021-08-11 21:01:36.605515",
   "modified_by": "Administrator",
   "module": "Lms",
   "name": "Loan Sanction",
   "owner": "Administrator",
   "recipients": [
     {
-      "email_by_document_field": "user"
+      "receiver_by_document_field": "user"
     }
   ],
+  "send_system_notification": 0,
+  "send_to_all_assignees": 0,
   "subject": "Loan Sanction"
 }

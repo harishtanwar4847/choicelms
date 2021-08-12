@@ -5,6 +5,7 @@
 ## [v1.0.2]
 
 ### Fixed
+
 - [Fix: Perm Level changes in LAS settings | Google analytics code added for help,newsblogs,privacypolicy,termsofuse html pages](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/346)
 
 ## [v1.0.1]
