@@ -2,18 +2,27 @@
 
 ## [Unreleased]
 
-## [v1.0.2]
+## [v1.0.3] - 2021-08-12
 
 ### Fixed
+
+- [Fix: Add receiver by document field in Notification docs](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/349)
+- [Fix: Website changes informed by vinayak over mail(2021-08-12)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/350)
+- [Fix: Added a Check if entry is present in case of Interest, Additional Interest, Penal Interest, Book monthly Interest](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/351)
+
+## [v1.0.2] - 2021-08-10
+
+### Fixed
+
 - [Fix: Perm Level changes in LAS settings | Google analytics code added for help,newsblogs,privacypolicy,termsofuse html pages](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/346)
 
-## [v1.0.1]
+## [v1.0.1] - 2021-08-09
 
 ### Added
 
 - [debug mode added in las settings to control buttons on loan application](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/343)
 
-## [v1.0.0]
+## [v1.0.0] - 2021-08-07
 
 ### Added
 
