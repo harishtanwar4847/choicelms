@@ -5,6 +5,7 @@
 ### Fixed
 
 - [Fix: Add receiver by document field in Notification docs](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/349)
+- [Fix: Website changes informed by vinayak over mail(2021-08-12)]()
 
 ## [v1.0.2] - 2021-08-10
 
