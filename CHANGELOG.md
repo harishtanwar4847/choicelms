@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- [Feat: sitemap.xml added | added functionality of routing index and home page to root page of website](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/354)
+
 ## [v1.0.3] - 2021-08-12
 
 ### Fixed
