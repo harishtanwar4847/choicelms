@@ -22,7 +22,9 @@ endblock description %} {%- block head_include -%} {% include
 <section class="fw landing news-banner">
   <div class="container container3 pr">
     <div class="owl-carousel blogslider">
-      {% for blog in blogs %} {% if blog %}
+      {% set blogs = frappe.get_all("News and Blog", fields=["*"],
+      page_length=6, order_by="creation desc") %} {% for blog in blogs %} {% if
+      blog %}
       <div class="row dx_jcsbalctr">
         <div class="col col-md-7">
           <a href="newsblog?blog_name={{ blog.name }}">
@@ -33,7 +35,7 @@ endblock description %} {%- block head_include -%} {% include
           <div class="fw blog-text">
             <!-- <p class="resources">Resources</p> -->
             <h3>{{ blog.title }}</h3>
-            <p class="date">{{ blog.publishing_date }}</p>
+            <p class="date">{{ blog.publishing_date.strftime("%d %B, %Y") }}</p>
             <p class="text">{{ blog.author }}</p>
             <p class="text">{{ blog.short_description }}</p>
           </div>
@@ -190,7 +192,7 @@ endblock description %} {%- block head_include -%} {% include
       replace = false
     ) {
       $.ajax({
-        url: "/api/method/lms.www.newsblogs.fetch_blogs",
+        url: "/api/method/lms.www.news-and-blogs.fetch_blogs",
         type: "GET",
         data: {
           page_no: pg_number,
