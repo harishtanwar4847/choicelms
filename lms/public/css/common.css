@@ -341,6 +341,12 @@ img,
 a:hover {
   text-decoration: none;
 }
+.home h1 {
+  font-family: "Gilroy_ExtraBold";
+  font-size: 4.2rem;
+  line-height: 5.1rem;
+  color: #1b2e6a;
+}
 h2 {
   font-family: "Gilroy_ExtraBold";
   font-size: 4.2rem;
