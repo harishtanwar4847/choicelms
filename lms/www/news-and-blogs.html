@@ -192,7 +192,7 @@ endblock description %} {%- block head_include -%} {% include
       replace = false
     ) {
       $.ajax({
-        url: "/api/method/lms.www.news-and-blogs.fetch_blogs",
+        url: "/api/method/lms.www.fetch_blogs",
         type: "GET",
         data: {
           page_no: pg_number,
