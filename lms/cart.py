@@ -621,18 +621,23 @@ def get_tnc(**kwargs):
         if data.get("cart_name"):
             if not cart.loan:
                 tnc_ul.append(
-                    "<li><strong> Sanctioned credit limit / Drawing power </strong>: <strong>Rs. {}</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
-                        cart.eligible_loan
+                    "<li><strong> Sanctioned credit limit / Drawing power </strong>: <strong>Rs. {}/-</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
+                        int(cart.eligible_loan)
                     )
                     + "</li>"
                 )
             elif data.get("cart_name") and cart.loan and not cart.loan_margin_shortfall:
                 tnc_ul.append(
-                    "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
-                        lms.round_down_amount_to_nearest_thousand(
-                            (cart.total_collateral_value + loan.total_collateral_value)
-                            * cart.allowable_ltv
-                            / 100
+                    "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}/-</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
+                        int(
+                            lms.round_down_amount_to_nearest_thousand(
+                                (
+                                    cart.total_collateral_value
+                                    + loan.total_collateral_value
+                                )
+                                * cart.allowable_ltv
+                                / 100
+                            )
                         )
                     )
                     + "</li>"
@@ -651,8 +656,8 @@ def get_tnc(**kwargs):
             #     "<li><strong> Previous Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong>;".format(loan.drawing_power)+ "</li>")
         else:
             tnc_ul.append(
-                "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
-                    data.get("topup_amount") + loan.sanctioned_limit
+                "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}/-</strong> (Rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
+                    int(data.get("topup_amount") + loan.sanctioned_limit)
                 )
                 + "</li>"
             )
@@ -707,9 +712,9 @@ def get_tnc(**kwargs):
         if lender.renewal_charge_type == "Percentage":
             tnc_ul.append(
                 "<li><strong> Account renewal charges </strong>: <strong>{percent_charge}%, {percent_charge_in_words} percent</strong> of the renewal amount (facility valid for a period of 12 months from the date of sanction; account renewal charges shall be debited at the end of 12 months) subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
-                    percent_charge=lender.account_renewal_charges,
+                    percent_charge=lender.renewal_charges,
                     percent_charge_in_words=num2words(
-                        lender.account_renewal_charges, lang="en_IN"
+                        lender.renewal_charges, lang="en_IN"
                     ).title(),
                     min_amt=int(lender.renewal_minimum_amount),
                     max_amt=int(lender.renewal_maximum_amount),
@@ -719,16 +724,16 @@ def get_tnc(**kwargs):
         elif lender.renewal_charge_type == "Fix":
             tnc_ul.append(
                 "<li><strong> Account renewal charges </strong>: <strong>Rs. {fix_charge}/-, Rupees {fix_charge_in_words} Only</strong>".format(
-                    fix_charge=int(lender.account_renewal_charges),
+                    fix_charge=int(lender.renewal_charges),
                     fix_charge_in_words=num2words(
-                        int(lender.account_renewal_charges), lang="en_IN"
+                        int(lender.renewal_charges), lang="en_IN"
                     ).title(),
                 )
                 + "</li>"
             )
         if lender.documentation_charge_type == "Percentage":
             tnc_ul.append(
-                "<li><strong> Documentation charges </strong>: <strong> {percent_charge}%, {percent_charge_in_words} percent </strong>of the sanctioned amount; subject to minimum amount of <strong>Rs. {min_amt}</strong>/- and maximum of <strong>Rs. {max_amt}</strong>/-".format(
+                "<li><strong> Documentation charges </strong>: <strong> {percent_charge}%, {percent_charge_in_words} percent </strong>of the sanctioned amount; subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
                     percent_charge=lender.documentation_charges,
                     percent_charge_in_words=num2words(
                         lender.documentation_charges, lang="en_IN"
@@ -748,10 +753,13 @@ def get_tnc(**kwargs):
                 )
                 + "</li>"
             )
+        # tnc_ul.append(
+        #     "<li><strong> Stamp duty & other statutory charges : Rs. {}/-;</li></strong>".format(
+        #         int(lender.lender_stamp_duty_minimum_amount)
+        #     )
+        # )
         tnc_ul.append(
-            "<li><strong> Stamp duty & other statutory charges : Rs. {}/-;</li></strong>".format(
-                int(lender.lender_stamp_duty_minimum_amount)
-            )
+            "<li><strong> Stamp duty & other statutory charges : At actuals;</li></strong>"
         )
         tnc_ul.append(
             "<li><strong> Pre-payment charges </strong>: <strong>NIL;</strong></li>"

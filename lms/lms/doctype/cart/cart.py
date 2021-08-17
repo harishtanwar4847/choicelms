@@ -28,7 +28,7 @@ class Cart(Document):
             "rate_of_interest1": "15",
             "rate_of_interest2": "18",
             "processing_fee": "257",
-            "account_renewal_charges": "350",
+            "renewal_charges": "350",
             "documentation_charges": "160",
             "processing_charges_per_req": "130",
         }
@@ -189,10 +189,28 @@ class Cart(Document):
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,
             "rebait_threshold": lender.rebait_threshold,
-            "account_renewal_charges": lender.account_renewal_charges,
-            "documentation_charges": int(lender.lender_documentation_minimum_amount),
+            "renewal_charges": lender.renewal_charges,
+            "renewal_charge_type": lender.renewal_charge_type,
+            "renewal_charge_in_words": num2words(
+                lender.renewal_charges, lang="en_IN"
+            ).title(),
+            "renewal_min_amt": int(lender.renewal_minimum_amount),
+            "renewal_max_amt": int(lender.renewal_maximum_amount),
+            "documentation_charge": lender.documentation_charges,
+            "documentation_charge_type": lender.documentation_charge_type,
+            "documentation_charge_in_words": num2words(
+                lender.documentation_charges, lang="en_IN"
+            ).title(),
+            "documentation_min_amt": int(lender.lender_documentation_minimum_amount),
+            "documentation_max_amt": int(lender.lender_documentation_maximum_amount),
+            "lender_processing_fees_type": lender.lender_processing_fees_type,
+            "processing_charge": lender.lender_processing_fees,
+            "processing_charge_in_words": num2words(
+                lender.lender_processing_fees, lang="en_IN"
+            ).title(),
+            "processing_min_amt": int(lender.lender_processing_minimum_amount),
+            "processing_max_amt": int(lender.lender_processing_maximum_amount),
             "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
-            "processing_fee": lender.lender_processing_fees,
             "transaction_charges_per_request": int(
                 lender.transaction_charges_per_request
             ),
