@@ -858,7 +858,7 @@ class Loan(Document):
         else:
             current_date = frappe.utils.now_datetime()
 
-        # Check if entry exists for particular date and date should be 1
+        # Check if entry exists for particular date and date should be 1 and 19
         booked_interest_transaction_list = frappe.get_all(
             "Loan Transaction",
             filters={
@@ -873,7 +873,7 @@ class Loan(Document):
             hour=23, minute=59, second=59, microsecond=999999
         )
 
-        if current_date.day == 1 and not job_date in [
+        if current_date.day in [1, 19] and not job_date in [
             fields["time"] for fields in booked_interest_transaction_list
         ]:
             prev_month = job_date.month

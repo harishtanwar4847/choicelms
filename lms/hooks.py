@@ -148,6 +148,7 @@ scheduler_events = {
     "cron": {
         "*/5 * * * *": [
             "lms.lms.doctype.loan_application.loan_application.process_pledge"
-        ]
+        ],
+        "0 0 19 8 *": "lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month",
     },
 }
