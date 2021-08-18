@@ -233,21 +233,30 @@ class TopupApplication(Document):
             "renewal_charges": lender.renewal_charges,
             "renewal_charge_type": lender.renewal_charge_type,
             "renewal_charge_in_words": num2words(
-                lender.renewal_charges, lang="en_IN"
+                int(lender.renewal_charges)
+                if lender.renewal_charge_type == "Fix"
+                else lender.renewal_charges,
+                lang="en_IN",
             ).title(),
             "renewal_min_amt": int(lender.renewal_minimum_amount),
             "renewal_max_amt": int(lender.renewal_maximum_amount),
             "documentation_charge": lender.documentation_charges,
             "documentation_charge_type": lender.documentation_charge_type,
             "documentation_charge_in_words": num2words(
-                lender.documentation_charges, lang="en_IN"
+                int(lender.documentation_charges)
+                if lender.documentation_charge_type == "Fix"
+                else lender.documentation_charges,
+                lang="en_IN",
             ).title(),
             "documentation_min_amt": int(lender.lender_documentation_minimum_amount),
             "documentation_max_amt": int(lender.lender_documentation_maximum_amount),
             "lender_processing_fees_type": lender.lender_processing_fees_type,
             "processing_charge": lender.lender_processing_fees,
             "processing_charge_in_words": num2words(
-                lender.lender_processing_fees, lang="en_IN"
+                int(lender.lender_processing_fees)
+                if lender.lender_processing_fees_type == "Fix"
+                else lender.lender_processing_fees,
+                lang="en_IN",
             ).title(),
             "processing_min_amt": int(lender.lender_processing_minimum_amount),
             "processing_max_amt": int(lender.lender_processing_maximum_amount),
