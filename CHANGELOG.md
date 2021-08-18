@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- [Feat: changes in tnc html template, loan agreement template, loan enhancement agreement template regarding lender charges](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/361)
+
 ## [v1.0.4] - 2021-08-13
 
 - [Feat: sitemap.xml added | added functionality of routing index and home page to root page of website](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/354)
