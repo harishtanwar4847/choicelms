@@ -169,13 +169,15 @@ class Cart(Document):
             "loan_application_number": " ",
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
-            "sanctioned_amount": lms.round_down_amount_to_nearest_thousand(
-                (self.total_collateral_value + loan.total_collateral_value)
-                * self.allowable_ltv
-                / 100
+            "sanctioned_amount": int(
+                lms.round_down_amount_to_nearest_thousand(
+                    (self.total_collateral_value + loan.total_collateral_value)
+                    * self.allowable_ltv
+                    / 100
+                )
             )
             if self.loan and not self.loan_margin_shortfall
-            else self.eligible_loan,
+            else int(self.eligible_loan),
             "sanctioned_amount_in_words": num2words(
                 lms.round_down_amount_to_nearest_thousand(
                     (self.total_collateral_value + loan.total_collateral_value)
@@ -210,7 +212,7 @@ class Cart(Document):
             ).title(),
             "processing_min_amt": int(lender.lender_processing_minimum_amount),
             "processing_max_amt": int(lender.lender_processing_maximum_amount),
-            "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
+            # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
             "transaction_charges_per_request": int(
                 lender.transaction_charges_per_request
             ),
@@ -221,7 +223,7 @@ class Cart(Document):
 
         if self.loan and not self.loan_margin_shortfall:
             loan = frappe.get_doc("Loan", self.loan)
-            doc["old_sanctioned_amount"] = loan.sanctioned_limit
+            doc["old_sanctioned_amount"] = int(loan.sanctioned_limit)
             doc["old_sanctioned_amount_in_words"] = num2words(
                 loan.sanctioned_limit, lang="en_IN"
             ).title()
