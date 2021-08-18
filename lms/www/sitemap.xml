@@ -20,6 +20,12 @@
   <priority>0.8</priority>
 </url>
 <url>
+  <loc>https://spark.loans/products/loan-against-shares</loc>
+  <lastmod>2021-08-06</lastmod>
+  <changefreq>Weekly</changefreq>
+  <priority>0.8</priority>
+</url>
+<url>
   <loc>https://spark.loans/comingsoon</loc>
   <lastmod>2021-08-06</lastmod>
   <changefreq>Weekly</changefreq>
@@ -32,13 +38,13 @@
   <priority>0.8</priority>
 </url>
 <url>
-  <loc>https://spark.loans/aboutus</loc>
+  <loc>https://spark.loans/about-us</loc>
   <lastmod>2021-08-06</lastmod>
   <changefreq>Weekly</changefreq>
   <priority>0.8</priority>
 </url>
 <url>
-  <loc>https://spark.loans/partnerwithus</loc>
+  <loc>https://spark.loans/partner-with-us</loc>
   <lastmod>2021-08-06</lastmod>
   <changefreq>Weekly</changefreq>
   <priority>0.8</priority>
@@ -50,19 +56,19 @@
   <priority>0.8</priority>
 </url>
 <url>
-  <loc>https://spark.loans/newsblogs</loc>
+  <loc>https://spark.loans/news-and-blogs</loc>
   <lastmod>2021-08-06</lastmod>
   <changefreq>Weekly</changefreq>
   <priority>0.8</priority>
 </url>
 <url>
-  <loc>https://spark.loans/privacypolicy</loc>
+  <loc>https://spark.loans/privacy-policy</loc>
   <lastmod>2021-08-06</lastmod>
   <changefreq>Weekly</changefreq>
   <priority>0.8</priority>
 </url>
 <url>
-  <loc>https://spark.loans/termsofuse</loc>
+  <loc>https://spark.loans/terms-of-use</loc>
   <lastmod>2021-08-06</lastmod>
   <changefreq>Weekly</changefreq>
   <priority>0.8</priority>
