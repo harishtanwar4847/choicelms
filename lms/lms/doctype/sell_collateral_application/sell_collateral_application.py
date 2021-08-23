@@ -8,6 +8,7 @@ import frappe
 from frappe.model.document import Document
 
 import lms
+from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
 
 
@@ -22,7 +23,12 @@ class SellCollateralApplication(Document):
         self.process_items()
         self.process_sell_items()
         if self.status == "Rejected":
-            self.notify_customer()
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", "Sell request rejected", fields=["*"]
+            )
+            self.notify_customer(
+                fcm_notification=fcm_notification, message=fcm_notification.message
+            )
 
     def process_items(self):
         self.total_collateral_value = 0
@@ -280,8 +286,16 @@ class SellCollateralApplication(Document):
             msg = "Dear Customer,\nSale of securities initiated by the lending partner for your loan account  {} is now completed .The sale proceeds have been credited to your loan account and collateral value updated. Please check the app for details. Spark Loans".format(
                 self.loan
             )
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", "Sale triggerred completed", fields=["*"]
+            )
+            message = fcm_notification.message.format(loan=self.loan)
         else:
             msg = "Dear Customer,\nCongratulations! Your sell collateral request has been successfully executed and sale proceeds credited to your loan account. Kindly check the app for details -Spark Loans"
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", "Sell request executed", fields=["*"]
+            )
+            message = fcm_notification.message
 
         if msg:
             receiver_list = list(
@@ -296,7 +310,7 @@ class SellCollateralApplication(Document):
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
         # loan.update_loan_balance()
-        self.notify_customer()
+        self.notify_customer(fcm_notification=fcm_notification, message=message)
 
     def validate(self):
         for i, item in enumerate(
@@ -310,12 +324,15 @@ class SellCollateralApplication(Document):
     def get_customer(self):
         return frappe.get_doc("Loan Customer", self.customer)
 
-    def notify_customer(self):
+    def notify_customer(self, fcm_notification={}, message=""):
         doc = self.get_customer().get_kyc().as_dict()
         doc["sell_collateral_application"] = {"status": self.status}
         frappe.enqueue_doc(
             "Notification", "Sell Collateral Application", method="send", doc=doc
         )
+
+        if fcm_notification:
+            pass
 
 
 @frappe.whitelist()

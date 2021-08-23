@@ -12,6 +12,8 @@ import utils
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
+from lms.firebase import FirebaseAdmin
+
 from .exceptions import *
 
 # from lms.exceptions.CustomerNotFoundException import CustomerNotFoundException
@@ -619,3 +621,60 @@ def web_mail(notification_name, name, recepient, subject):
         subject="{}".format(subject),
         message=mail_content[0],
     )
+
+
+def send_spark_push_notification(
+    fcm_notification={}, message="", loan="", customer=None
+):
+    if fcm_notification:
+        if message:
+            message = message
+        else:
+            message = fcm_notification.message
+
+        try:
+            fa = FirebaseAdmin()
+
+            data = {
+                "click_action": "FLUTTER_NOTIFICATION_CLICK",
+                "notification_id": (
+                    fcm_notification.title
+                    + "_"
+                    + frappe.utils.now_datetime().strftime("%Y-%m-%d %H:%M")
+                ).replace(" ", "_"),
+                "screen": fcm_notification.screen_to_open,
+                "loan_no": loan,
+                "title": fcm_notification.title,
+                "body": message,
+                "notification_type": fcm_notification.notification_type,
+                "time": frappe.utils.now_datetime().strftime("%Y-%m-%d %H:%M"),
+            }
+
+            fa.send_message(
+                title=fcm_notification.title,
+                body=message,
+                data=data,
+                tokens=get_firebase_tokens(customer.user),
+            )
+            # Save log for Spark Push Notification
+            frappe.get_doc(
+                {
+                    "doctype": "Spark Push Notification Log",
+                    "title": data["title"],
+                    "loan_customer": customer.name,
+                    "loan": data["loan_no"],
+                    "screen_to_open": data["screen"],
+                    "notification_id": data["notification_id"],
+                    "notification_type": data["notification_type"],
+                    "time": frappe.utils.now_datetime(),
+                    "click_action": data["click_action"],
+                    "message": data["body"],
+                    "is_cleared": 0,
+                    "is_read": 0,
+                }
+            ).insert(ignore_permissions=True)
+            frappe.db.commit()
+        except Exception:
+            pass
+        finally:
+            fa.delete_app()

@@ -272,10 +272,26 @@ class LoanMarginShortfall(Document):
                 mess = "Dear Customer,\nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {}% of portfolio value. Therefore sale has been triggered in your loan account {}.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
                     hrs_sell_off[0].max_threshold, self.loan
                 )
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification", "Sale triggerred immediate", fields=["*"]
+                )
+                message = fcm_notification.message.format(
+                    max_threshold=hrs_sell_off[0].max_threshold
+                )
             if margin_shortfall_action.sell_off_after_hours:
                 mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {}. Please check the app and take an appropriate action within {} hours; else sale will be triggered. Spark Loans".format(
                     self.loan, margin_shortfall_action.sell_off_after_hours
                 )
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification",
+                    "Margin shortfall – Action required after hours",
+                    fields=["*"],
+                )
+                message = fcm_notification.message.format(
+                    loan=self.loan,
+                    shortfall_action=margin_shortfall_action.sell_off_after_hours,
+                )
+
             elif margin_shortfall_action.sell_off_deadline_eod:
                 eod_sell_off = frappe.get_all(
                     "Margin Shortfall Action",
@@ -290,6 +306,19 @@ class LoanMarginShortfall(Document):
                         str(margin_shortfall_action.sell_off_deadline_eod), "%H"
                     ).strftime("%I:%M%P"),
                 )
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification",
+                    "Margin shortfall – Action required at eod",
+                    fields=["*"],
+                )
+                message = fcm_notification.message.format(
+                    loan=self.loan,
+                    max_threshold=eod_sell_off[0].max_threshold,
+                    eod_time=datetime.strptime(
+                        str(margin_shortfall_action.sell_off_deadline_eod), "%H"
+                    ).strftime("%I:%M%P"),
+                )
+
             if (
                 margin_shortfall_action.sell_off_after_hours
                 or margin_shortfall_action.sell_off_deadline_eod
@@ -311,6 +340,13 @@ class LoanMarginShortfall(Document):
                     receiver_list=[self.get_loan().get_customer().phone],
                     msg=mess,
                 )
+
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification,
+                message=message,
+                loan=self.loan,
+                customer=self.get_loan().get_customer(),
+            )
 
             self.save(ignore_permissions=True)
             frappe.db.commit()
@@ -450,4 +486,9 @@ class LoanMarginShortfall(Document):
                 minute=creation_datetime.minute,
                 second=creation_datetime.second,
                 microsecond=creation_datetime.microsecond,
+            )
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification",
+                "Margin shortfall – Action required after hours",
+                fields=["*"],
             )

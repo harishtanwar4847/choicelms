@@ -117,6 +117,16 @@ class Cart(Document):
                 "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
             )
             msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification",
+                "Margin shortfall – Action taken",
+                fields=["*"],
+            )
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification,
+                loan=self.loan,
+                customer=self.get_customer(),
+            )
             receiver_list = list(
                 set(
                     [

@@ -1,0 +1,112 @@
+{
+ "actions": [],
+ "creation": "2021-08-23 13:46:52.030074",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "loan_customer",
+  "loan",
+  "screen_to_open",
+  "notification_id",
+  "notification_type",
+  "click_action",
+  "column_break_3",
+  "time",
+  "message",
+  "is_cleared",
+  "is_read"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title"
+  },
+  {
+   "fieldname": "loan_customer",
+   "fieldtype": "Link",
+   "label": "Loan Customer",
+   "options": "Loan Customer"
+  },
+  {
+   "fieldname": "screen_to_open",
+   "fieldtype": "Data",
+   "label": "Screen to Open"
+  },
+  {
+   "fieldname": "notification_id",
+   "fieldtype": "Data",
+   "label": "Notification Id"
+  },
+  {
+   "fieldname": "click_action",
+   "fieldtype": "Data",
+   "label": "Click Action"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Success",
+   "fieldname": "notification_type",
+   "fieldtype": "Select",
+   "label": "Notification Type",
+   "options": "Success\nWarning"
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "Text",
+   "label": "Message"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_cleared",
+   "fieldtype": "Check",
+   "label": "Is Cleared"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_read",
+   "fieldtype": "Check",
+   "label": "Is Read"
+  },
+  {
+   "fieldname": "time",
+   "fieldtype": "Datetime",
+   "label": "Time"
+  },
+  {
+   "fieldname": "loan",
+   "fieldtype": "Link",
+   "label": "Loan",
+   "options": "Loan"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-08-23 16:14:08.327722",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Spark Push Notification Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
