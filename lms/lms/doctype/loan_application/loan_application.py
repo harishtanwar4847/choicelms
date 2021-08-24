@@ -980,11 +980,12 @@ class LoanApplication(Document):
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
-        lms.send_spark_push_notification(
-            fcm_notification=fcm_notification,
-            loan=self.loan,
-            customer=self.get_customer(),
-        )
+        if fcm_notification:
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification,
+                loan=self.loan,
+                customer=self.get_customer(),
+            )
 
     def validate(self):
         for i, item in enumerate(

@@ -341,12 +341,13 @@ class LoanMarginShortfall(Document):
                     msg=mess,
                 )
 
-            lms.send_spark_push_notification(
-                fcm_notification=fcm_notification,
-                message=message,
-                loan=self.loan,
-                customer=self.get_loan().get_customer(),
-            )
+            if fcm_notification:
+                lms.send_spark_push_notification(
+                    fcm_notification=fcm_notification,
+                    message=message,
+                    loan=self.loan,
+                    customer=self.get_loan().get_customer(),
+                )
 
             self.save(ignore_permissions=True)
             frappe.db.commit()
