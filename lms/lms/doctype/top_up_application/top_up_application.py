@@ -222,24 +222,51 @@ class TopupApplication(Document):
             # "sanctioned_amount_in_words": num2words(
             #     self.top_up_amount, lang="en_IN"
             # ).title(),
-            "sanctioned_amount": (self.top_up_amount + loan.sanctioned_limit),
+            "sanctioned_amount": int(self.top_up_amount + loan.sanctioned_limit),
             "sanctioned_amount_in_words": num2words(
                 (self.top_up_amount + loan.sanctioned_limit), lang="en_IN"
             ).title(),
-            "old_sanctioned_amount": loan.sanctioned_limit,
+            "old_sanctioned_amount": int(loan.sanctioned_limit),
             "old_sanctioned_amount_in_words": num2words(
                 loan.sanctioned_limit, lang="en_IN"
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,
             "rebait_threshold": lender.rebait_threshold,
-            "account_renewal_charges": lender.account_renewal_charges,
-            "documentation_charges": int(lender.lender_documentation_minimum_amount),
-            "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
+            "renewal_charges": lender.renewal_charges,
+            "renewal_charge_type": lender.renewal_charge_type,
+            "renewal_charge_in_words": num2words(
+                int(lender.renewal_charges)
+                if lender.renewal_charge_type == "Fix"
+                else lender.renewal_charges,
+                lang="en_IN",
+            ).title(),
+            "renewal_min_amt": int(lender.renewal_minimum_amount),
+            "renewal_max_amt": int(lender.renewal_maximum_amount),
+            "documentation_charge": lender.documentation_charges,
+            "documentation_charge_type": lender.documentation_charge_type,
+            "documentation_charge_in_words": num2words(
+                int(lender.documentation_charges)
+                if lender.documentation_charge_type == "Fix"
+                else lender.documentation_charges,
+                lang="en_IN",
+            ).title(),
+            "documentation_min_amt": int(lender.lender_documentation_minimum_amount),
+            "documentation_max_amt": int(lender.lender_documentation_maximum_amount),
+            "lender_processing_fees_type": lender.lender_processing_fees_type,
+            "processing_charge": lender.lender_processing_fees,
+            "processing_charge_in_words": num2words(
+                int(lender.lender_processing_fees)
+                if lender.lender_processing_fees_type == "Fix"
+                else lender.lender_processing_fees,
+                lang="en_IN",
+            ).title(),
+            "processing_min_amt": int(lender.lender_processing_minimum_amount),
+            "processing_max_amt": int(lender.lender_processing_maximum_amount),
+            # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
             # "documentation_charges": lender.documentation_charges,
             # "stamp_duty_charges": (lender.stamp_duty / 100)
             # * self.sanctioned_limit,  # CR loan agreement changes
-            "processing_fee": lender.lender_processing_fees,
             "transaction_charges_per_request": int(
                 lender.transaction_charges_per_request
             ),
