@@ -135,6 +135,9 @@ fixtures = [
     "API Doc",
 ]
 
+# Migration
+after_migrate = ["lms.patches.import_spark_push_notification_content.execute"]
+
 scheduler_events = {
     "hourly": [
         "lms.lms.doctype.security_price.security_price.update_all_security_prices"
