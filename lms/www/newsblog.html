@@ -3,33 +3,7 @@
   <head>
     <title>SparkLoans</title>
     <meta name="description" content="SparkLoans" />
-    <link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/bootstrap.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/owl.carousel.min.css"
-    />
-    <link rel="stylesheet" type="text/css" href="/assets/lms/css/animate.css" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/selectbox.css"
-    />
-    <link rel="stylesheet" type="text/css" href="/assets/lms/css/common.css" />
-    <link rel="stylesheet" type="text/css" href="/assets/lms/css/media.css" />
-
+    {% include 'templates/head_content.html' %}
     <style>
       .pdescr img {
         max-width: 100% !important;
@@ -169,10 +143,11 @@
       </div>
     </section>
     <input type="hidden" />
-    {% include 'templates/subscribe.html' %} {% include
-    'templates/appdownload.html' %} {% include 'templates/modal.html' %} {%
-    include 'templates/footer.html' %}
 
+    {% include 'templates/subscribe.html' %} {% include
+    'templates/appdownload.html' %} {% include
+    'templates/modal/applyNowModal.html' %} {% include 'templates/footer.html'
+    %}
     <div class="fw bottomfix">
       <div class="container container3">
         <div class="bottomnav">
@@ -200,24 +175,7 @@
         </div>
       </div>
     </div>
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/jquery-3.6.0.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/bootstrap.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/jquery.validate.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/owl.carousel.min.js"
-    ></script>
-    <script type="text/javascript" src="/assets/lms/js/wow.min.js"></script>
-    <script type="text/javascript" src="/assets/lms/js/main.js"></script>
+    {% include 'templates/body_script.html' %}
     <script type="text/javascript">
       $(document).ready(function () {
         var page_no = 2;

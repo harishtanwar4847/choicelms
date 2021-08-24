@@ -53,7 +53,7 @@
         <tr>
           <td><span style="font-family:Arial, Helvetica, sans-serif; font-size:14px;">Thanks,<br />
             <br />
-            The Spark Team</span></td>
+            The Spark.Loans Team</span></td>
         </tr>
         <tr>
           <td height="25">&nbsp;</td>
@@ -66,7 +66,7 @@
           <td class="column" align="center" width="100%" style="padding-bottom:10px"><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#fff;width: 100% !important; display: block !important; text-align:center">© 2021 Spark Financial Technologies Private Limited</span></td>
           </tr>
           <tr>
-          <td class="column" align="center" width="100%" style="width: 100% !important; display: block !important; text-align:center"><a href="#"><img src="fb_icon" width="36" height="35" style="border:0"/></a>&nbsp; <a href="#"><img src="tw_icon" width="36" height="35" style="border:0"/></a>&nbsp; <a href="#"><img src="inst_icon" width="36" height="35" style="border:0"/></a>&nbsp; <a href="#"><img src="lin_icon" width="36" height="35" style="border:0"/></a></td>
+          <td class="column" align="center" width="100%" style="width: 100% !important; display: block !important; text-align:center"><a href="https://www.facebook.com/Spark-Loans-102197685496313/"><img src="fb_icon" width="36" height="35" style="border:0"/></a>&nbsp;  <a href="https://www.instagram.com/spark.loans/"><img src="inst_icon" width="36" height="35" style="border:0"/></a>&nbsp; <a href="https://www.linkedin.com/company/74991731/"><img src="lin_icon" width="36" height="35" style="border:0"/></a></td>
         </tr>
       </table></td>
   </tr>

@@ -1,368 +1,176 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Videos Gallery - SparkLoans</title>
-    <meta
-      name="description"
-      content="Watch our video to understand our products and services in a detail at SparkLoans."
-    />
-    <link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/bootstrap.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/owl.carousel.min.css"
-    />
-    <link rel="stylesheet" type="text/css" href="/assets/lms/css/animate.css" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/selectbox.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/jquery.fileuploader.css"
-    />
-    <link rel="stylesheet" type="text/css" href="/assets/lms/css/common.css" />
-    <link rel="stylesheet" type="text/css" href="/assets/lms/css/media.css" />
-  </head>
-
-  <body>
-    {% if "webview" in frappe.form_dict %}
-    <style>
-      @media (max-width: 1366px) {
-        .fw.mobnav,
-        footer,
-        .appdownloadbg,
-        header {
-          display: none !important;
-        }
-
-        .maintitle h5 {
-          margin-top: 2% !important;
-        }
-
-        .privacy {
-          padding-bottom: 0px;
-        }
-
-        .titlesec {
-          display: none !important;
-        }
-      }
-    </style>
-    {% endif %}
-    <div class="fw mobnav">
-      <div class="fw mobileheader dx_jcsbalctr">
-        <a href="/" class="logo"
-          ><img src="/assets/lms/images/logo.svg" height="30"
-        /></a>
-        <div class="right dx_jcsbalctr">
-          <p>
-            <a
-              href="javascript:void(0);"
-              class="applybtn"
-              data-toggle="modal"
-              data-target="#apply-now-pop"
-              ><span>Apply Now</span><span>&nbsp;</span></a
-            >
-          </p>
-          <div class="menuic">
-            <span>&nbsp;</span> <span>&nbsp;</span> <span>&nbsp;</span>
-            <span>&nbsp;</span>
-          </div>
-        </div>
+{% extends 'templates/lmsbase.html' %} {% block title %} Videos Gallery -
+SparkLoans {% endblock title %} {% block description %} Watch our video to
+understand our products and services in a detail at SparkLoans. {% endblock
+description %} {% block body %}
+<section class="fw">
+  <div class="container">
+    <div class="row">
+      <div class="col titlesec maintitle">
+        <h5>Demo Videos</h5>
       </div>
     </div>
-
-    <header class="fw dx_ctr bg">
-      <div class="container">
-        <div class="row">
-          <div class="col dx_jcsbalctr">
-            <a href="/" class="logo"
-              ><img src="/assets/lms/images/logo.svg"
-            /></a>
-            <div class="menu">
-              <a href="/products">Products</a>
-              <a href="/comingsoon">Demo Videos</a>
-              <a href="/comingsoon">Loan Calculator</a>
-              <a href="/contact">Contact</a>
-              <a
-                href="javascript:void(0);"
-                class="applybtn"
-                data-toggle="modal"
-                data-target="#apply-now-pop"
-                ><span>Apply Now</span><span>&nbsp;</span></a
-              >
-            </div>
-          </div>
+  </div>
+</section>
+<section class="fw mt-5 pt-5">
+  <div class="container container3">
+    <div class="fw">
+      <div class="row">
+        <div class="col-md-9">
+          <h5 class="stories-title">All Stories</h5>
         </div>
-      </div>
-    </header>
-    <section class="fw">
-      <div class="container">
-        <div class="row">
-          <div class="col titlesec maintitle">
-            <h5>Demo Videos</h5>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="fw mt-5 pt-5">
-      <div class="container container3">
-        <div class="fw">
-          <div class="row">
-            <div class="col-md-9">
-              <h5 class="stories-title">All Stories</h5>
-            </div>
-            <div class="col-md-3">
-              <div class="search">
-                <div class="form_group">
-                  <div class="form_control">
-                    <label>
-                      <input type="text" name="search" placeholder="Search" />
-                    </label>
-                  </div>
-                </div>
+        <div class="col-md-3">
+          <div class="search">
+            <div class="form_group">
+              <div class="form_control">
+                <label>
+                  <input type="text" name="search" placeholder="Search" />
+                </label>
               </div>
             </div>
           </div>
-          <div class="filternav">
-            <div class="row">
-              <div class="col-md-12">
-                <ul id="filterOptions">
-                  <li class="active"><a class="all" href="#"> All </a></li>
-                  <li><a href="#" class="Latest"> Latest </a></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <ul
-            class="row videoboxes videosslider3 owl-carousel owl-theme"
-            id="ourStories"
-          >
-            <li class="col-md-4 col-sm-6 item Latest">
-              <a href="#">
-                <div class="fw videobox">
-                  <img src="assets/lms/images/home/videos/01.jpg" class="fw" />
-                  <div class="fw desc">
-                    <h6>
-                      <span
-                        >Digital Lending Platform Loans Against Securities</span
-                      ><img
-                        src="assets/lms/images/home/videos/ic_video.jpg"
-                        class="videoico"
-                      />
-                    </h6>
-                    <small
-                      >Loan against shares at SPARK is in form of an overdraft
-                      credit line which you can use at your ease.</small
-                    >
-                  </div>
-                </div>
-              </a>
-            </li>
-            <li class="col-md-4 col-sm-6 item Latest">
-              <a href="#">
-                <div class="fw videobox">
-                  <img src="assets/lms/images/home/videos/02.jpg" class="fw" />
-                  <div class="fw desc">
-                    <h6>
-                      <span
-                        >Digital Lending Platform Loans Against Securities</span
-                      ><img
-                        src="assets/lms/images/home/videos/ic_video.jpg"
-                        class="videoico"
-                      />
-                    </h6>
-                    <small
-                      >Loan against shares at SPARK is in form of an overdraft
-                      credit line which you can use at your ease.</small
-                    >
-                  </div>
-                </div>
-              </a>
-            </li>
-            <li class="col-md-4 col-sm-6 item">
-              <a href="#">
-                <div class="fw videobox">
-                  <img src="assets/lms/images/home/videos/01.jpg" class="fw" />
-                  <div class="fw desc">
-                    <h6>
-                      <span
-                        >Digital Lending Platform Loans Against Securities</span
-                      ><img
-                        src="assets/lms/images/home/videos/ic_video.jpg"
-                        class="videoico"
-                      />
-                    </h6>
-                    <small
-                      >Loan against shares at SPARK is in form of an overdraft
-                      credit line which you can use at your ease.</small
-                    >
-                  </div>
-                </div>
-              </a>
-            </li>
-            <li class="col-md-4 col-sm-6 item Latest">
-              <a href="#">
-                <div class="fw videobox">
-                  <img src="assets/lms/images/home/videos/01.jpg" class="fw" />
-                  <div class="fw desc">
-                    <h6>
-                      <span
-                        >Digital Lending Platform Loans Against Securities</span
-                      ><img
-                        src="assets/lms/images/home/videos/ic_video.jpg"
-                        class="videoico"
-                      />
-                    </h6>
-                    <small
-                      >Loan against shares at SPARK is in form of an overdraft
-                      credit line which you can use at your ease.</small
-                    >
-                  </div>
-                </div>
-              </a>
-            </li>
-            <li class="col-md-4 col-sm-6 item Latest">
-              <a href="#">
-                <div class="fw videobox">
-                  <img src="assets/lms/images/home/videos/02.jpg" class="fw" />
-                  <div class="fw desc">
-                    <h6>
-                      <span
-                        >Digital Lending Platform Loans Against Securities</span
-                      ><img
-                        src="assets/lms/images/home/videos/ic_video.jpg"
-                        class="videoico"
-                      />
-                    </h6>
-                    <small
-                      >Loan against shares at SPARK is in form of an overdraft
-                      credit line which you can use at your ease.</small
-                    >
-                  </div>
-                </div>
-              </a>
-            </li>
-            <li class="col-md-4 col-sm-6 item">
-              <a href="#">
-                <div class="fw videobox">
-                  <img src="assets/lms/images/home/videos/01.jpg" class="fw" />
-                  <div class="fw desc">
-                    <h6>
-                      <span
-                        >Digital Lending Platform Loans Against Securities</span
-                      ><img
-                        src="assets/lms/images/home/videos/ic_video.jpg"
-                        class="videoico"
-                      />
-                    </h6>
-                    <small
-                      >Loan against shares at SPARK is in form of an overdraft
-                      credit line which you can use at your ease.</small
-                    >
-                  </div>
-                </div>
-              </a>
-            </li>
-          </ul>
-
-          <div>
-            <h5 class="viewMore"><a href="#"> View More</a></h5>
+        </div>
+      </div>
+      <div class="filternav">
+        <div class="row">
+          <div class="col-md-12">
+            <ul id="filterOptions">
+              <li class="active"><a class="all" href="#"> All </a></li>
+              <li><a href="#" class="Latest"> Latest </a></li>
+            </ul>
           </div>
         </div>
       </div>
-    </section>
-    <section class="fw mt-5">
-      <div class="container">
-        <div class="fw contact_bg">
-          <div class="row contact_bg_mo">
-            <div class="col-6 fluid dx_airt">
-              <img
-                src="assets/lms/images/home/Subscribe-for-updates.svg"
-                class="fw"
-              />
-            </div>
-            <div class="offset-1 col-4 fluid">
-              <div class="fw">
-                <div class="titlesec">
-                  <h5>Subscribe for updates</h5>
-                  <p>Via SMS, WhatsApp, Email</p>
-                </div>
-                <form
-                  class="fw placeholder_txt"
-                  name="contactForm"
-                  id="contactForm"
+      <ul
+        class="row videoboxes videosslider3 owl-carousel owl-theme"
+        id="ourStories"
+      >
+        <li class="col-md-4 col-sm-6 item Latest">
+          <a href="#">
+            <div class="fw videobox">
+              <img src="assets/lms/images/home/videos/01.jpg" class="fw" />
+              <div class="fw desc">
+                <h6>
+                  <span>Digital Lending Platform Loans Against Securities</span
+                  ><img
+                    src="assets/lms/images/home/videos/ic_video.jpg"
+                    class="videoico"
+                  />
+                </h6>
+                <small
+                  >Loan against shares at SPARK is in form of an overdraft
+                  credit line which you can use at your ease.</small
                 >
-                  <div class="form_group">
-                    <div class="form_control">
-                      <label>
-                        <span>Mobile</span>
-                        <input
-                          type="text"
-                          name="number"
-                          class="required number"
-                        />
-                      </label>
-                    </div>
-                  </div>
-                  <div class="form_group">
-                    <div class="form_control">
-                      <label>
-                        <span>Email</span>
-                        <input type="email" name="email" class="required" />
-                      </label>
-                    </div>
-                  </div>
-                  <div class="fw">
-                    <div class="form_sumbit">
-                      <span class="arrow_parent"
-                        ><span class="arrow">&nbsp;</span></span
-                      >
-                      <input type="submit" name="button" value="Subscribe" />
-                    </div>
-                  </div>
-                </form>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    {% include 'templates/appdownload.html' %} {% include 'templates/modal.html'
-    %} {% include 'templates/footer.html' %}
+          </a>
+        </li>
+        <li class="col-md-4 col-sm-6 item Latest">
+          <a href="#">
+            <div class="fw videobox">
+              <img src="assets/lms/images/home/videos/02.jpg" class="fw" />
+              <div class="fw desc">
+                <h6>
+                  <span>Digital Lending Platform Loans Against Securities</span
+                  ><img
+                    src="assets/lms/images/home/videos/ic_video.jpg"
+                    class="videoico"
+                  />
+                </h6>
+                <small
+                  >Loan against shares at SPARK is in form of an overdraft
+                  credit line which you can use at your ease.</small
+                >
+              </div>
+            </div>
+          </a>
+        </li>
+        <li class="col-md-4 col-sm-6 item">
+          <a href="#">
+            <div class="fw videobox">
+              <img src="assets/lms/images/home/videos/01.jpg" class="fw" />
+              <div class="fw desc">
+                <h6>
+                  <span>Digital Lending Platform Loans Against Securities</span
+                  ><img
+                    src="assets/lms/images/home/videos/ic_video.jpg"
+                    class="videoico"
+                  />
+                </h6>
+                <small
+                  >Loan against shares at SPARK is in form of an overdraft
+                  credit line which you can use at your ease.</small
+                >
+              </div>
+            </div>
+          </a>
+        </li>
+        <li class="col-md-4 col-sm-6 item Latest">
+          <a href="#">
+            <div class="fw videobox">
+              <img src="assets/lms/images/home/videos/01.jpg" class="fw" />
+              <div class="fw desc">
+                <h6>
+                  <span>Digital Lending Platform Loans Against Securities</span
+                  ><img
+                    src="assets/lms/images/home/videos/ic_video.jpg"
+                    class="videoico"
+                  />
+                </h6>
+                <small
+                  >Loan against shares at SPARK is in form of an overdraft
+                  credit line which you can use at your ease.</small
+                >
+              </div>
+            </div>
+          </a>
+        </li>
+        <li class="col-md-4 col-sm-6 item Latest">
+          <a href="#">
+            <div class="fw videobox">
+              <img src="assets/lms/images/home/videos/02.jpg" class="fw" />
+              <div class="fw desc">
+                <h6>
+                  <span>Digital Lending Platform Loans Against Securities</span
+                  ><img
+                    src="assets/lms/images/home/videos/ic_video.jpg"
+                    class="videoico"
+                  />
+                </h6>
+                <small
+                  >Loan against shares at SPARK is in form of an overdraft
+                  credit line which you can use at your ease.</small
+                >
+              </div>
+            </div>
+          </a>
+        </li>
+        <li class="col-md-4 col-sm-6 item">
+          <a href="#">
+            <div class="fw videobox">
+              <img src="assets/lms/images/home/videos/01.jpg" class="fw" />
+              <div class="fw desc">
+                <h6>
+                  <span>Digital Lending Platform Loans Against Securities</span
+                  ><img
+                    src="assets/lms/images/home/videos/ic_video.jpg"
+                    class="videoico"
+                  />
+                </h6>
+                <small
+                  >Loan against shares at SPARK is in form of an overdraft
+                  credit line which you can use at your ease.</small
+                >
+              </div>
+            </div>
+          </a>
+        </li>
+      </ul>
 
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/jquery-3.6.0.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/bootstrap.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/jquery.validate.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/owl.carousel.min.js"
-    ></script>
-    <script type="text/javascript" src="/assets/lms/js/wow.min.js"></script>
-    <script type="text/javascript" src="/assets/lms/js/main.js"></script>
-  </body>
-</html>
+      <div>
+        <h5 class="viewMore"><a href="#"> View More</a></h5>
+      </div>
+    </div>
+  </div>
+</section>
+{% include 'templates/subscribe.html' %} {% include 'templates/appdownload.html'
+%} {% endblock %}

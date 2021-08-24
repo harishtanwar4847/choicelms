@@ -1,686 +1,538 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Privacy Policy - SparkLoans</title>
-    <meta
-      name="description"
-      content="Read our privacy policy on SparkLoans web portal."
-    />
-    <link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/bootstrap.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/owl.carousel.min.css"
-    />
-    <link rel="stylesheet" type="text/css" href="/assets/lms/css/animate.css" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/selectbox.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/jquery.fileuploader.css"
-    />
-    <link rel="stylesheet" type="text/css" href="/assets/lms/css/common.css" />
-    <link rel="stylesheet" type="text/css" href="/assets/lms/css/media.css" />
+{% extends 'templates/lmsbase.html' %} {% block title %} Privacy Policy -
+SparkLoans {% endblock title %} {% block description %} Read our privacy policy
+on SparkLoans web portal. {% endblock description %} {%- block head_include -%}
+{% include 'templates/head_content.html' %}
+<style>
+  @media (max-width: 768px) {
+    li::marker {
+      font-size: 1.4em !important;
+    }
 
-    <style>
-      @media (max-width: 768px) {
-        li::marker {
-          font-size: 1.4em !important;
-        }
+    ul li::marker {
+      font-size: 2em !important;
+    }
+  }
 
-        ul li::marker {
-          font-size: 2em !important;
-        }
-      }
+  @media (min-width: 768.1px) and (max-width: 1366) {
+    li::marker {
+      font-size: 1.6em !important;
+    }
 
-      @media (min-width: 768.1px) and (max-width: 1366) {
-        li::marker {
-          font-size: 1.6em !important;
-        }
+    ul li::marker {
+      font-size: 2em !important;
+    }
+  }
 
-        ul li::marker {
-          font-size: 2em !important;
-        }
-      }
+  li::marker {
+    font-size: 1.8em;
+  }
 
-      li::marker {
-        font-size: 1.8em;
-      }
+  ul li::marker {
+    font-size: 2.5em;
+  }
 
-      ul li::marker {
-        font-size: 2.5em;
-      }
+  .privacy ul li {
+    margin-left: 40px !important;
+  }
 
-      .privacy ul li {
-        margin-left: 40px !important;
-      }
+  .privacy h4 {
+    font-size: 2.3em !important;
+    padding-bottom: 12px !important;
+    padding-top: 10px !important;
+  }
 
-      .privacy h4 {
-        font-size: 2.3em !important;
-        padding-bottom: 12px !important;
-        padding-top: 10px !important;
-      }
+  p {
+    padding-bottom: 10px !important;
+  }
 
-      p {
-        padding-bottom: 10px !important;
-      }
+  .some p {
+    padding-bottom: 0px !important;
+  }
 
-      .some p {
-        padding-bottom: 0px !important;
-      }
+  td {
+    padding: 10px 20px;
+    border: 2px solid black !important;
+  }
 
-      td {
-        padding: 10px 20px;
-        border: 2px solid black !important;
-      }
-
-      tr {
-        border: 2px solid black !important;
-      }
-    </style>
-  </head>
-
-  <body>
-    {% if "webview" in frappe.form_dict %}
-    <style>
-      @media (max-width: 1366px) {
-        .fw.mobnav,
-        footer,
-        .appdownloadbg,
-        header {
-          display: none !important;
-        }
-
-        .maintitle h5 {
-          margin-top: 2% !important;
-        }
-
-        .privacy {
-          padding-bottom: 0px;
-        }
-
-        .titlesec {
-          display: none !important;
-        }
-      }
-    </style>
-    {% endif %}
-    <div class="fw mobnav">
-      <div class="fw mobileheader dx_jcsbalctr">
-        <a href="/" class="logo"
-          ><img src="/assets/lms/images/logo.svg" height="30"
-        /></a>
-        <div class="right dx_jcsbalctr">
+  tr {
+    border: 2px solid black !important;
+  }
+</style>
+{%- endblock -%} {% block body %}
+<section class="fw">
+  <div class="container">
+    <div class="row">
+      <div class="col titlesec maintitle">
+        <h5 style="margin-bottom: 0px">Privacy Policy</h5>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="fw landing content-privacy">
+  <div class="container container3 pr">
+    <div class="row">
+      <div class="col">
+        <div class="fw privacy">
           <p>
-            <a
-              href="javascript:void(0);"
-              class="applybtn"
-              data-toggle="modal"
-              data-target="#apply-now-pop"
-              ><span>Apply Now</span><span>&nbsp;</span></a
-            >
+            Spark Financial Technologies Private Limited and its third-party
+            service providers engaged to render certain services on the App (if
+            applicable) (“<strong>Spark.loans</strong>”) are committed to
+            upholding the privacy and security of the information supplied by
+            every person (“<strong>User”/“You</strong>”) accessing and using any
+            version of the Spark.loans application (“<strong>App</strong>”) on a
+            compatible device. This privacy policy (“<strong
+              >Privacy Policy</strong
+            >”) briefly explains the manner in which Spark.loans collect, use,
+            disclose and safeguard users information. Spark.loans store and
+            process your information including any sensitive financial
+            information collected as defined under the Information Technology
+            Act, 2000 and Rules there under.
           </p>
-          <div class="menuic">
-            <span>&nbsp;</span> <span>&nbsp;</span> <span>&nbsp;</span>
-            <span>&nbsp;</span>
-          </div>
+          <p>
+            By accessing or using the App, you signify that you have read,
+            understood and agree to be bound by this Privacy Policy. Spark.loans
+            reserves the right to update or modify this Privacy Policy at any
+            time without prior notice and such changes shall be effective
+            immediately upon posting the updated or modified Privacy Policy on
+            the Spark.loans website (www.spark.loans) and we shall not be bound
+            to inform you of any modifications hereof. You will be deemed to
+            have been made aware of, will be subject to, and will be deemed to
+            have accepted the changes in any revised Privacy Policy by your
+            continued use of the Website or the App after the date such revised
+            Privacy Policy is updated or modified. For this reason, Spark.loans
+            encourages you to review this Privacy Policy each time you access
+            and use the App. Your use of the App and any disputes arising
+            therefrom, is subject to this Privacy Policy as well as the Terms of
+            Use.
+          </p>
+          <p>
+            Please read the Terms of Use on our website in order to obtain
+            information on the terms governing the use of our App and our
+            services.
+          </p>
+          <h5>I. Information Collected:</h5>
+          <p>
+            Spark.loans will collect personal information of the user. While
+            some user information has to be mandatorily provided, others are
+            optional and certain portions of the information will remain private
+            and some will be displayed to other users; Spark.loans shall always
+            obtain prior information from User of the information which is being
+            provided to other users or shared with any third party user in the
+            good faith that such disclosure is reasonably necessary for
+            compliance of a legal obligation : enforce our Terms or Privacy
+            Policy; respond to claims that an advertisement, posting or other
+            content violates the rights of a third party; or protect the rights,
+            property or personal safety of our users or the general public.
+          </p>
+          <p>
+            Additional information may be gathered during subsequent use of the
+            App by the User, whenever the User chooses to provide it.
+          </p>
+          <ul style="list-style-type: disc">
+            <li>
+              <p>
+                Certain mandatory information will be collected at the time of
+                registration on the App which is required to enable the User to
+                login to the App and for Spark.loans to: (i) verify the User’s
+                identity; (ii) determine the User’s eligibility for taking loans
+                using, inter alia, our proprietary technology and such
+                additional rules that may be determined by: (a) Us ; (b) our
+                banking partners; or (c) both (a) and (b); and (iii) safeguard
+                against illegal activities like fraud, cheating,
+                misappropriation, etc.
+              </p>
+            </li>
+            <li>
+              <p>
+                In order to use the facilities and services available on the
+                App, the User may be required, from time to time, to provide
+                certain additional personal information after registration on
+                the App, which information shall be collected only upon
+                receiving the User’s express consent.
+              </p>
+            </li>
+            <li>
+              <p>
+                Spark.loans may also automatically receive and collect certain
+                anonymous information in standard usage logs through the web
+                server, including mobile-identification information obtained
+                from the equivalent of “<strong>cookies</strong>” sent to the
+                App, including mobile network information, standard web log
+                information, traffic to and from our App, tracking inside the
+                App and any other available information, from:
+              </p>
+              <ul style="list-style-type: circle" class="some">
+                <li>
+                  <p>an IP address, assigned to the device used by the User;</p>
+                </li>
+                <li>
+                  <p>
+                    the domain server through which the User accesses the App
+                    and the functions and features therein; and
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    The type of device used by the User
+                    (“<strong>Device</strong>”).
+                  </p>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <p>
+                The User may choose to provide Spark.loans with access to
+                certain personal information stored by third parties like social
+                networking sites (e.g. Facebook and Twitter). Spark.loans will
+                have access to such information to the extent allowed by the
+                User’s privacy settings on that site and the User’s specific
+                authorization. In the event the User associates a User account
+                managed by Spark.loans with an account maintained with any third
+                party to enable Spark.loans to access certain information
+                maintained in such third party managed accounts, the User agrees
+                that Spark.loans may collect, store and use such information in
+                accordance with this Privacy Policy.
+              </p>
+            </li>
+            <li>
+              <p>
+                After obtaining the User’s specific consent to allow the App to
+                access the User’s SMS inbox, we may collect relevant information
+                from text messages (SMS) received by the Users from providers of
+                services and/or products (including but not limited to retail
+                outlets, financial institutions, mobile carriers and utility
+                companies), that will enable us to provide better access to
+                financial services and products to the Users. Spark.loans will
+                only access business messages that originate from alphanumeric
+                senders.
+              </p>
+            </li>
+            <li>
+              <p>
+                In order to enhance our ability to provide valuable services and
+                experiences to the User, Spark.loans may: (i) automatically
+                receive, collect and analyse your location information which may
+                be accessed through a variety of methods including, inter alia,
+                GPS, IP address, and cell tower location; and (ii) collect
+                information pertaining to your Device and your usage thereof,
+                including, inter alia, the names of the other applications on
+                your mobile Device and how you use them, information about your
+                Device, and information about your use of features or functions
+                on your Device.
+              </p>
+            </li>
+            <li>
+              <p>
+                Spark.loans may collect information with your consent from your
+                mobile device like device location, device information
+                (including storage, model, installed apps, WiFi, mobile network)
+                transactional and promotional SMS, communication information
+                including contacts to provide customized offerings.
+              </p>
+            </li>
+            <li>
+              <p>
+                Spark.loans may request access or permission to certain features
+                from your mobile device, including your mobile device’s
+                [Bluetooth, calendar, camera, contacts, microphone, reminders,
+                sensors, SMS messages, social media accounts, storage,] and
+                other features. If you wish to change our access or permissions,
+                you may do so in your device’s settings.
+              </p>
+            </li>
+            <li>
+              <p>
+                Spark.loans may request to send you push notifications regarding
+                your account or the Application. If you wish to opt-out from
+                receiving these types of communications, you may turn them off
+                in your device’s settings.
+              </p>
+            </li>
+          </ul>
+          <h5>II. Method and manner of use of User information</h5>
+          <ul style="list-style-type: disc">
+            <li>
+              <p>
+                When the User registers with the App, Spark.loans collects the
+                accurate information about you which permits us to provide you
+                with a smooth, efficient, and customized experience. We will use
+                the information supplied by the User to pull a credit report
+                from a credit bureaus and identity verification services to
+                facilitate banks and other financial institutions to evaluate
+                the User’s loan request in the context of the User’s complete
+                financial situation.
+              </p>
+            </li>
+            <li>
+              <p>
+                Spark.loans will also use the User information to enable
+                activities and transactions that need to occur during the
+                process of lending, such as:
+              </p>
+              <ul style="list-style-type: circle" class="some">
+                <li>
+                  <p>Generating and maintaining User profiles on the App;</p>
+                </li>
+                <li>
+                  <p>Provide personalized features;</p>
+                </li>
+                <li>
+                  <p>
+                    Aiding financial services organizations to provide better
+                    services;
+                  </p>
+                </li>
+                <li>
+                  <p>Facilitating collection activities as needed;</p>
+                </li>
+                <li>
+                  <p>
+                    Maintaining regular communications with the User concerning
+                    transactions the User initiates, such as requesting
+                    information or assistance, submitting a loan request, making
+                    payments, transferring funds, etc.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    Modifying the App from time to time to cater to the User’s
+                    interests;
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    Providing the App and the functions and features therein,
+                    efficiently ;
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    Preserve social history as governed by existing law or
+                    policy;
+                  </p>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <p>
+                You acknowledge that you are licensing Spark.loans to use,
+                modify, display, distribute and create new material from the
+                information you provide through the App to render certain
+                services on the App. By providing such information, you
+                automatically agree, or promise that the owner of such
+                information has expressly agreed to allow or license, as the
+                case may be, Spark.loans to use the information in the manner
+                set out in this Privacy Policy, without the payment of any fees.
+                Spark.loans may, to the extent permitted by law, also use,
+                license, reproduce, distribute disclose, and aggregate,
+                non-personally identifiable information that is derived through
+                your use of the App and you hereby provide consent for the same.
+              </p>
+            </li>
+          </ul>
+          <h5>III. Sharing Of Information</h5>
+          <p>
+            Spark.loans will not use User information for any purpose other than
+            in connection with the App. Spark.loans will not rent, sell or share
+            User information and will not disclose any of the User’s personally
+            identifiable information to third parties, unless:
+          </p>
+          <ul style="list-style-type: disc">
+            <li>
+              <p>it is pursuant to obtaining the User’s permission;</p>
+            </li>
+            <li>
+              <p>
+                it is in connection with disclosure to financial institutions
+                and banks, in which case, the User hereby gives his express
+                permission;
+              </p>
+            </li>
+            <li>
+              <p>
+                it is in connection with the services being rendered through the
+                App;
+              </p>
+            </li>
+            <li>
+              <p>
+                it is to help investigate, prevent or take action regarding
+                unlawful and illegal activities; suspected fraud, potential
+                threat to the safety or security of any person, violations of
+                Spark.loans’s Terms & Conditions, or as defence against legal
+                claims;
+              </p>
+            </li>
+            <li>
+              <p>
+                it is a case of special circumstances such as compliance with
+                court orders, requests/order, notices from legal authorities or
+                law enforcement agencies compel us to make such disclosure; and
+              </p>
+            </li>
+            <li>
+              <p>
+                It forms part of the information Spark.loans shares with
+                advertisers on an aggregate basis.
+              </p>
+            </li>
+            <li>
+              <p>
+                it violates the rights of a third party; or in the interest of
+                protecting the rights, property or personal safety of our users
+                or the general public
+              </p>
+            </li>
+          </ul>
+          <h5>IV. Information security</h5>
+          <ul style="list-style-type: disc">
+            <li>
+              <p>
+                Spark.loans uses administrative, technical, and physical
+                security measures to help protect your personal information.
+                While we have taken reasonable steps to secure the personal
+                information you provide us, please be aware that despite our
+                efforts, no security measures are perfect or impenetrable, and
+                no method of data transmission can be guaranteed against any
+                interception or other type of misuse.
+              </p>
+            </li>
+            <li>
+              <p>
+                The information provided by the User is stored in access
+                controlled facilities with restricted access. User Information
+                transmitted over the internet is protected through the use of
+                encryption, using the Secure Socket Layer (SSL) or equivalent
+                protocols.
+              </p>
+            </li>
+            <li>
+              <p>
+                If a password is used to help protect User accounts and account
+                information, it is the responsibility of the User to keep the
+                password confidential. You have to ensure that you always log
+                out, before sharing the device with a third party and it is
+                advised that the User utilize a service to protect access to the
+                User’s Device.
+              </p>
+            </li>
+            <li>
+              <p>
+                Spark.loans shall use generally accepted industry standards to
+                protect the User information submitted to us, both during
+                transmission and upon receipt. However, please be advised that,
+                no method of transmission over the Internet, or method of
+                electronic storage, is 100% secure. Therefore, even though
+                Spark.loans strives to use commercially acceptable means to
+                protect User information, Spark.loans cannot guarantee its
+                absolute security and your use of the App is at your sole risk
+                and discretion. Spark.loans also cannot warrant that such User
+                information may not be misused in the event our safeguards and
+                protocols are breached by a malicious third-party. Further,
+                Spark.loans is not liable to nor can we fully control the
+                actions of other users with whom you may choose to share your
+                information.
+              </p>
+            </li>
+            <li>
+              <p>
+                The collection, usage, and sharing of User information by
+                Spark.loans shall be in compliance with the Information
+                Technology (Reasonable Security Practices and Procedures and
+                Sensitive Personal Data or Information) Rules, 2011 and other
+                applicable laws.
+              </p>
+            </li>
+          </ul>
+          <h5>V. Procedure For Removing User Name from the Records</h5>
+          <ul style="list-style-type: disc">
+            <li>
+              <p>
+                If and when a User is desirous of having his/her name and other
+                details removed from the records of Spark.loans, immediately
+                upon receiving the User’s written request to that effect
+                Spark.loans shall, subject to the terms hereof, remove
+                and/delete all such information.
+              </p>
+            </li>
+            <li>
+              <p>
+                If the User no longer wishes to receive notifications about
+                Spark.loans services, The User may change his/her notification
+                preferences by contacting Spark.loans on ‘Contact us’ page of
+                the app. Spark.loans reserves the right to close the User
+                account if the User opts out of receiving certain crucial
+                notices that are required to perform the Spark.loans services
+                through its App. The User may not opt-out of receiving
+                notifications about due or past due amounts that the User owes
+                Spark.loans or any other collections efforts.
+              </p>
+            </li>
+          </ul>
+          <h5>VI. Procedure For Correcting Inaccuracies In The Information</h5>
+          <p>
+            The User may correct or update any information online. In the event
+            of loss of access details the User may retrieve the same or receive
+            new access details by sending us a message on ‘Contact us’ page of
+            the app.
+          </p>
+          <h5>VII. Indemnity:</h5>
+          <p>
+            You shall indemnify and hold harmless Application, its owner,
+            licensee, affiliates, subsidiaries, group companies (as applicable)
+            and their respective officers, directors, agents, and employees,
+            from any claim or demand, or actions including reasonable attorneys'
+            fees, made by any third party or penalty imposed due to or arising
+            out of your breach of this privacy Policy and other terms of use, or
+            Your violation of any law, rules or regulations or the rights of a
+            third party.
+          </p>
+          <h5>VIII. Grievance Officer</h5>
+          <ul style="list-style-type: disc">
+            <li>
+              <p>
+                In accordance with Information Technology Act, 2000 and rules
+                made there under, the name and contact details of our Grievance
+                Officer are provided below:
+              </p>
+            </li>
+          </ul>
+          <table>
+            <tr>
+              <td>
+                <p><strong>Name:</strong></p>
+              </td>
+              <td>
+                <p>Ankit Jain</p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><strong>Address:</strong></p>
+              </td>
+              <td>
+                <p>
+                  A 8, Narayan Plaza, 26A chandivali RD, Sakinaka Kurla, near
+                  chandivali studio, Mumbai-400072.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p><strong>Email:</strong></p>
+              </td>
+              <td>
+                <p>
+                  <a href="mailto:grievance@spark.loans"
+                    >grievance@spark.loans</a
+                  >
+                </p>
+              </td>
+            </tr>
+          </table>
         </div>
       </div>
     </div>
-
-    <header class="fw dx_ctr bg">
-      <div class="container">
-        <div class="row">
-          <div class="col dx_jcsbalctr">
-            <a href="/" class="logo"
-              ><img src="/assets/lms/images/logo.svg"
-            /></a>
-            <div class="menu">
-              <a href="/products">Products</a>
-              <a href="/comingsoon">Demo Videos</a>
-              <a href="/comingsoon">Loan Calculator</a>
-              <a href="/contact">Contact</a>
-              <a
-                href="javascript:void(0);"
-                class="applybtn"
-                data-toggle="modal"
-                data-target="#apply-now-pop"
-                ><span>Apply Now</span><span>&nbsp;</span></a
-              >
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <section class="fw">
-      <div class="container">
-        <div class="row">
-          <div class="col titlesec maintitle">
-            <h5 style="margin-bottom: 0px">Privacy Policy</h5>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="fw landing content-privacy">
-      <div class="container container3 pr">
-        <div class="row">
-          <div class="col">
-            <div class="fw privacy">
-              <p>
-                Spark Financial Technologies Private Limited and its third-party
-                service providers engaged to render certain services on the App
-                (if applicable) (“<strong>Spark.loans</strong>”) are committed
-                to upholding the privacy and security of the information
-                supplied by every person (“<strong>User”/“You</strong>”)
-                accessing and using any version of the Spark.loans application
-                (“<strong>App</strong>”) on a compatible device. This privacy
-                policy (“<strong>Privacy Policy</strong>”) briefly explains the
-                manner in which Spark.loans collect, use, disclose and safeguard
-                users information. Spark.loans store and process your
-                information including any sensitive financial information
-                collected as defined under the Information Technology Act, 2000
-                and Rules there under.
-              </p>
-              <p>
-                By accessing or using the App, you signify that you have read,
-                understood and agree to be bound by this Privacy Policy.
-                Spark.loans reserves the right to update or modify this Privacy
-                Policy at any time without prior notice and such changes shall
-                be effective immediately upon posting the updated or modified
-                Privacy Policy on the Spark.loans website (www.spark.loans) and
-                we shall not be bound to inform you of any modifications hereof.
-                You will be deemed to have been made aware of, will be subject
-                to, and will be deemed to have accepted the changes in any
-                revised Privacy Policy by your continued use of the Website or
-                the App after the date such revised Privacy Policy is updated or
-                modified. For this reason, Spark.loans encourages you to review
-                this Privacy Policy each time you access and use the App. Your
-                use of the App and any disputes arising therefrom, is subject to
-                this Privacy Policy as well as the Terms of Use.
-              </p>
-              <p>
-                Please read the Terms of Use on our website in order to obtain
-                information on the terms governing the use of our App and our
-                services.
-              </p>
-              <h5>I. Information Collected:</h5>
-              <p>
-                Spark.loans will collect personal information of the user. While
-                some user information has to be mandatorily provided, others are
-                optional and certain portions of the information will remain
-                private and some will be displayed to other users; Spark.loans
-                shall always obtain prior information from User of the
-                information which is being provided to other users or shared
-                with any third party user in the good faith that such disclosure
-                is reasonably necessary for compliance of a legal obligation :
-                enforce our Terms or Privacy Policy; respond to claims that an
-                advertisement, posting or other content violates the rights of a
-                third party; or protect the rights, property or personal safety
-                of our users or the general public.
-              </p>
-              <p>
-                Additional information may be gathered during subsequent use of
-                the App by the User, whenever the User chooses to provide it.
-              </p>
-              <ul style="list-style-type: disc">
-                <li>
-                  <p>
-                    Certain mandatory information will be collected at the time
-                    of registration on the App which is required to enable the
-                    User to login to the App and for Spark.loans to: (i) verify
-                    the User’s identity; (ii) determine the User’s eligibility
-                    for taking loans using, inter alia, our proprietary
-                    technology and such additional rules that may be determined
-                    by: (a) Us ; (b) our banking partners; or (c) both (a) and
-                    (b); and (iii) safeguard against illegal activities like
-                    fraud, cheating, misappropriation, etc.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    In order to use the facilities and services available on the
-                    App, the User may be required, from time to time, to provide
-                    certain additional personal information after registration
-                    on the App, which information shall be collected only upon
-                    receiving the User’s express consent.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    Spark.loans may also automatically receive and collect
-                    certain anonymous information in standard usage logs through
-                    the web server, including mobile-identification information
-                    obtained from the equivalent of “<strong>cookies</strong>”
-                    sent to the App, including mobile network information,
-                    standard web log information, traffic to and from our App,
-                    tracking inside the App and any other available information,
-                    from:
-                  </p>
-                  <ul style="list-style-type: circle" class="some">
-                    <li>
-                      <p>
-                        an IP address, assigned to the device used by the User;
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        the domain server through which the User accesses the
-                        App and the functions and features therein; and
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        The type of device used by the User
-                        (“<strong>Device</strong>”).
-                      </p>
-                    </li>
-                  </ul>
-                </li>
-                <li>
-                  <p>
-                    The User may choose to provide Spark.loans with access to
-                    certain personal information stored by third parties like
-                    social networking sites (e.g. Facebook and Twitter).
-                    Spark.loans will have access to such information to the
-                    extent allowed by the User’s privacy settings on that site
-                    and the User’s specific authorization. In the event the User
-                    associates a User account managed by Spark.loans with an
-                    account maintained with any third party to enable
-                    Spark.loans to access certain information maintained in such
-                    third party managed accounts, the User agrees that
-                    Spark.loans may collect, store and use such information in
-                    accordance with this Privacy Policy.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    After obtaining the User’s specific consent to allow the App
-                    to access the User’s SMS inbox, we may collect relevant
-                    information from text messages (SMS) received by the Users
-                    from providers of services and/or products (including but
-                    not limited to retail outlets, financial institutions,
-                    mobile carriers and utility companies), that will enable us
-                    to provide better access to financial services and products
-                    to the Users. Spark.loans will only access business messages
-                    that originate from alphanumeric senders.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    In order to enhance our ability to provide valuable services
-                    and experiences to the User, Spark.loans may: (i)
-                    automatically receive, collect and analyse your location
-                    information which may be accessed through a variety of
-                    methods including, inter alia, GPS, IP address, and cell
-                    tower location; and (ii) collect information pertaining to
-                    your Device and your usage thereof, including, inter alia,
-                    the names of the other applications on your mobile Device
-                    and how you use them, information about your Device, and
-                    information about your use of features or functions on your
-                    Device.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    Spark.loans may collect information with your consent from
-                    your mobile device like device location, device information
-                    (including storage, model, installed apps, WiFi, mobile
-                    network) transactional and promotional SMS, communication
-                    information including contacts to provide customized
-                    offerings.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    Spark.loans may request access or permission to certain
-                    features from your mobile device, including your mobile
-                    device’s [Bluetooth, calendar, camera, contacts, microphone,
-                    reminders, sensors, SMS messages, social media accounts,
-                    storage,] and other features. If you wish to change our
-                    access or permissions, you may do so in your device’s
-                    settings.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    Spark.loans may request to send you push notifications
-                    regarding your account or the Application. If you wish to
-                    opt-out from receiving these types of communications, you
-                    may turn them off in your device’s settings.
-                  </p>
-                </li>
-              </ul>
-              <h5>II. Method and manner of use of User information</h5>
-              <ul style="list-style-type: disc">
-                <li>
-                  <p>
-                    When the User registers with the App, Spark.loans collects
-                    the accurate information about you which permits us to
-                    provide you with a smooth, efficient, and customized
-                    experience. We will use the information supplied by the User
-                    to pull a credit report from a credit bureaus and identity
-                    verification services to facilitate banks and other
-                    financial institutions to evaluate the User’s loan request
-                    in the context of the User’s complete financial situation.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    Spark.loans will also use the User information to enable
-                    activities and transactions that need to occur during the
-                    process of lending, such as:
-                  </p>
-                  <ul style="list-style-type: circle" class="some">
-                    <li>
-                      <p>
-                        Generating and maintaining User profiles on the App;
-                      </p>
-                    </li>
-                    <li>
-                      <p>Provide personalized features;</p>
-                    </li>
-                    <li>
-                      <p>
-                        Aiding financial services organizations to provide
-                        better services;
-                      </p>
-                    </li>
-                    <li>
-                      <p>Facilitating collection activities as needed;</p>
-                    </li>
-                    <li>
-                      <p>
-                        Maintaining regular communications with the User
-                        concerning transactions the User initiates, such as
-                        requesting information or assistance, submitting a loan
-                        request, making payments, transferring funds, etc.
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        Modifying the App from time to time to cater to the
-                        User’s interests;
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        Providing the App and the functions and features
-                        therein, efficiently ;
-                      </p>
-                    </li>
-                    <li>
-                      <p>
-                        Preserve social history as governed by existing law or
-                        policy;
-                      </p>
-                    </li>
-                  </ul>
-                </li>
-                <li>
-                  <p>
-                    You acknowledge that you are licensing Spark.loans to use,
-                    modify, display, distribute and create new material from the
-                    information you provide through the App to render certain
-                    services on the App. By providing such information, you
-                    automatically agree, or promise that the owner of such
-                    information has expressly agreed to allow or license, as the
-                    case may be, Spark.loans to use the information in the
-                    manner set out in this Privacy Policy, without the payment
-                    of any fees. Spark.loans may, to the extent permitted by
-                    law, also use, license, reproduce, distribute disclose, and
-                    aggregate, non-personally identifiable information that is
-                    derived through your use of the App and you hereby provide
-                    consent for the same.
-                  </p>
-                </li>
-              </ul>
-              <h5>III. Sharing Of Information</h5>
-              <p>
-                Spark.loans will not use User information for any purpose other
-                than in connection with the App. Spark.loans will not rent, sell
-                or share User information and will not disclose any of the
-                User’s personally identifiable information to third parties,
-                unless:
-              </p>
-              <ul style="list-style-type: disc">
-                <li>
-                  <p>it is pursuant to obtaining the User’s permission;</p>
-                </li>
-                <li>
-                  <p>
-                    it is in connection with disclosure to financial
-                    institutions and banks, in which case, the User hereby gives
-                    his express permission;
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    it is in connection with the services being rendered through
-                    the App;
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    it is to help investigate, prevent or take action regarding
-                    unlawful and illegal activities; suspected fraud, potential
-                    threat to the safety or security of any person, violations
-                    of Spark.loans’s Terms & Conditions, or as defence against
-                    legal claims;
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    it is a case of special circumstances such as compliance
-                    with court orders, requests/order, notices from legal
-                    authorities or law enforcement agencies compel us to make
-                    such disclosure; and
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    It forms part of the information Spark.loans shares with
-                    advertisers on an aggregate basis.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    it violates the rights of a third party; or in the interest
-                    of protecting the rights, property or personal safety of our
-                    users or the general public
-                  </p>
-                </li>
-              </ul>
-              <h5>IV. Information security</h5>
-              <ul style="list-style-type: disc">
-                <li>
-                  <p>
-                    Spark.loans uses administrative, technical, and physical
-                    security measures to help protect your personal information.
-                    While we have taken reasonable steps to secure the personal
-                    information you provide us, please be aware that despite our
-                    efforts, no security measures are perfect or impenetrable,
-                    and no method of data transmission can be guaranteed against
-                    any interception or other type of misuse.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    The information provided by the User is stored in access
-                    controlled facilities with restricted access. User
-                    Information transmitted over the internet is protected
-                    through the use of encryption, using the Secure Socket Layer
-                    (SSL) or equivalent protocols.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    If a password is used to help protect User accounts and
-                    account information, it is the responsibility of the User to
-                    keep the password confidential. You have to ensure that you
-                    always log out, before sharing the device with a third party
-                    and it is advised that the User utilize a service to protect
-                    access to the User’s Device.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    Spark.loans shall use generally accepted industry standards
-                    to protect the User information submitted to us, both during
-                    transmission and upon receipt. However, please be advised
-                    that, no method of transmission over the Internet, or method
-                    of electronic storage, is 100% secure. Therefore, even
-                    though Spark.loans strives to use commercially acceptable
-                    means to protect User information, Spark.loans cannot
-                    guarantee its absolute security and your use of the App is
-                    at your sole risk and discretion. Spark.loans also cannot
-                    warrant that such User information may not be misused in the
-                    event our safeguards and protocols are breached by a
-                    malicious third-party. Further, Spark.loans is not liable to
-                    nor can we fully control the actions of other users with
-                    whom you may choose to share your information.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    The collection, usage, and sharing of User information by
-                    Spark.loans shall be in compliance with the Information
-                    Technology (Reasonable Security Practices and Procedures and
-                    Sensitive Personal Data or Information) Rules, 2011 and
-                    other applicable laws.
-                  </p>
-                </li>
-              </ul>
-              <h5>V. Procedure For Removing User Name from the Records</h5>
-              <ul style="list-style-type: disc">
-                <li>
-                  <p>
-                    If and when a User is desirous of having his/her name and
-                    other details removed from the records of Spark.loans,
-                    immediately upon receiving the User’s written request to
-                    that effect Spark.loans shall, subject to the terms hereof,
-                    remove and/delete all such information.
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    If the User no longer wishes to receive notifications about
-                    Spark.loans services, The User may change his/her
-                    notification preferences by contacting Spark.loans on
-                    ‘Contact us’ page of the app. Spark.loans reserves the right
-                    to close the User account if the User opts out of receiving
-                    certain crucial notices that are required to perform the
-                    Spark.loans services through its App. The User may not
-                    opt-out of receiving notifications about due or past due
-                    amounts that the User owes Spark.loans or any other
-                    collections efforts.
-                  </p>
-                </li>
-              </ul>
-              <h5>
-                VI. Procedure For Correcting Inaccuracies In The Information
-              </h5>
-              <p>
-                The User may correct or update any information online. In the
-                event of loss of access details the User may retrieve the same
-                or receive new access details by sending us a message on
-                ‘Contact us’ page of the app.
-              </p>
-              <h5>VII. Indemnity:</h5>
-              <p>
-                You shall indemnify and hold harmless Application, its owner,
-                licensee, affiliates, subsidiaries, group companies (as
-                applicable) and their respective officers, directors, agents,
-                and employees, from any claim or demand, or actions including
-                reasonable attorneys' fees, made by any third party or penalty
-                imposed due to or arising out of your breach of this privacy
-                Policy and other terms of use, or Your violation of any law,
-                rules or regulations or the rights of a third party.
-              </p>
-              <h5>VIII. Grievance Officer</h5>
-              <ul style="list-style-type: disc">
-                <li>
-                  <p>
-                    In accordance with Information Technology Act, 2000 and
-                    rules made there under, the name and contact details of our
-                    Grievance Officer are provided below:
-                  </p>
-                </li>
-              </ul>
-              <table>
-                <tr>
-                  <td>
-                    <p><strong>Name:</strong></p>
-                  </td>
-                  <td>
-                    <p>Ankit Jain</p>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <p><strong>Address:</strong></p>
-                  </td>
-                  <td>
-                    <p>
-                      A 8, Narayan Plaza, 26A chandivali RD, Sakinaka Kurla,
-                      near chandivali studio, Mumbai-400072.
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <p><strong>Email:</strong></p>
-                  </td>
-                  <td>
-                    <p>
-                      <a href="mailto:grievance@spark.loans"
-                        >grievance@spark.loans</a
-                      >
-                    </p>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    {% include 'templates/modal.html' %} {% include 'templates/footer.html' %}
-
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/jquery-3.6.0.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/bootstrap.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/jquery.validate.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/owl.carousel.min.js"
-    ></script>
-    <script type="text/javascript" src="/assets/lms/js/wow.min.js"></script>
-    <script type="text/javascript" src="/assets/lms/js/main.js"></script>
-  </body>
-</html>
+  </div>
+</section>
+{% endblock %}

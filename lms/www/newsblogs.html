@@ -1,400 +1,270 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>SparkLoans Knowledge Hub - Stay Updated with Us</title>
-    <meta
-      name="description"
-      content="Visit SparkLoans Blog to stay updated with latest updates from SparkLoans to team."
-    />
-    <link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/bootstrap.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/owl.carousel.min.css"
-    />
-    <link rel="stylesheet" type="text/css" href="/assets/lms/css/animate.css" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/selectbox.css"
-    />
-    <link rel="stylesheet" type="text/css" href="/assets/lms/css/common.css" />
-    <link rel="stylesheet" type="text/css" href="/assets/lms/css/media.css" />
-    <style>
-      #viewMore {
-        color: #eb5e50;
-        cursor: pointer;
-      }
-    </style>
-  </head>
-
-  <body>
-    {% if "webview" in frappe.form_dict %}
-    <style>
-      @media (max-width: 1366px) {
-        .fw.mobnav,
-        footer,
-        .appdownloadbg,
-        header {
-          display: none !important;
-        }
-
-        .maintitle h5 {
-          margin-top: 2% !important;
-        }
-
-        .privacy {
-          padding-bottom: 0px;
-        }
-
-        .titlesec {
-          display: none !important;
-        }
-      }
-    </style>
-    {% endif %}
-    <div class="fw mobnav">
-      <div class="fw mobileheader dx_jcsbalctr">
-        <a href="/" class="logo"
-          ><img src="/assets/lms/images/logo.svg" height="30"
-        /></a>
-        <div class="right dx_jcsbalctr">
-          <p>
-            <a
-              href="javascript:void(0);"
-              class="applybtn"
-              data-toggle="modal"
-              data-target="#apply-now-pop"
-              ><span>Apply Now</span><span>&nbsp;</span></a
-            >
-          </p>
-          <div class="menuic">
-            <span>&nbsp;</span> <span>&nbsp;</span> <span>&nbsp;</span>
-            <span>&nbsp;</span>
+{% extends 'templates/lmsbase.html' %} {% block title %} SparkLoans Knowledge
+Hub - Stay Updated with Us {% endblock title %} {% block description %} Visit
+SparkLoans Blog to stay updated with latest updates from SparkLoans to team. {%
+endblock description %} {%- block head_include -%} {% include
+'templates/head_content.html' %}
+<style>
+  #viewMore {
+    color: #eb5e50;
+    cursor: pointer;
+  }
+</style>
+{%- endblock -%} {% block body %}
+<section class="fw">
+  <div class="container">
+    <div class="row">
+      <div class="col titlesec maintitle">
+        <h5 style="margin-bottom: 0px">News & Blog</h5>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="fw landing news-banner">
+  <div class="container container3 pr">
+    <div class="owl-carousel blogslider">
+      {% for blog in blogs %} {% if blog %}
+      <div class="row dx_jcsbalctr">
+        <div class="col col-md-7">
+          <a href="newsblog?blog_name={{ blog.name }}">
+            <img src="{{ blog.for_home_view }}" class="fw"
+          /></a>
+        </div>
+        <div class="col col-md-5">
+          <div class="fw blog-text">
+            <!-- <p class="resources">Resources</p> -->
+            <h3>{{ blog.title }}</h3>
+            <p class="date">{{ blog.publishing_date }}</p>
+            <p class="text">{{ blog.author }}</p>
+            <p class="text">{{ blog.short_description }}</p>
+          </div>
+        </div>
+      </div>
+      {% endif %} {% endfor %}
+    </div>
+  </div>
+</section>
+<section class="fw">
+  <div class="container container3">
+    <div class="fw">
+      <div class="row">
+        <div class="col-md-9">
+          <h5 class="stories-title">All Stories</h5>
+        </div>
+        <div class="col-md-3">
+          <div class="search">
+            <div class="form_group">
+              <div class="form_control">
+                <label>
+                  <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    placeholder="Search"
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="filternav">
+        <div class="row">
+          <div class="col-md-12">
+            <ul id="filterOptions">
+              <li class="active">
+                <a class="all" id="all_post" href="#"> All </a>
+              </li>
+              <li>
+                <a href="#" class="Latest" id="latest_post"> Latest </a>
+              </li>
+              <li>
+                <a href="#" class="Trending" id="trending_post"> Trending </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <ul class="row" id="ourStories"></ul>
+      <div>
+        <h5 class="viewMore">
+          <a class="viewMores" id="viewMore"> View More</a>
+        </h5>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="fw readyGet">
+  <div class="container container3">
+    <div class="fw contact_bg readyGet_bg">
+      <div class="row contact_bg_mo">
+        <div class="col-5 fluid dx_airt">
+          <img src="/assets/lms/images/ready.svg" class="fw" />
+        </div>
+        <div class="col-md-6">
+          <div class="fw">
+            <div class="titlesec">
+              <h5>Ready? Get started.</h5>
+              <p>Get instant loans today in less than 5 minutes.</p>
+              <div class="fw mt-4">
+                <button
+                  type="submit"
+                  class="applybtn applybtn2"
+                  data-toggle="modal"
+                  data-target="#apply-now-pop"
+                >
+                  <span>Apply Now</span><span>&nbsp;</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
+</section>
+{% include 'templates/subscribe.html' %} {% include 'templates/appdownload.html'
+%}
 
-    <header class="fw dx_ctr bg">
-      <div class="container">
-        <div class="row">
-          <div class="col dx_jcsbalctr">
-            <a href="/" class="logo"
-              ><img src="/assets/lms/images/logo.svg"
-            /></a>
-            <div class="menu">
-              <a href="/products">Products</a>
-              <a href="/comingsoon">Demo Videos</a>
-              <a href="/comingsoon">Loan Calculator</a>
-              <a href="/contact">Contact</a>
-              <a
-                href="javascript:void(0);"
-                class="applybtn"
-                data-toggle="modal"
-                data-target="#apply-now-pop"
-                ><span>Apply Now</span><span>&nbsp;</span></a
-              >
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
-    <section class="fw">
-      <div class="container">
-        <div class="row">
-          <div class="col titlesec maintitle">
-            <h5 style="margin-bottom: 0px">News & Blog</h5>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="fw landing news-banner">
-      <div class="container container3 pr">
-        <div class="owl-carousel blogslider">
-          {% for blog in blogs %} {% if blog %}
-          <div class="row dx_jcsbalctr">
-            <div class="col col-md-7">
-              <a href="newsblog?blog_name={{ blog.name }}">
-                <img src="{{ blog.for_home_view }}" class="fw"
-              /></a>
-            </div>
-            <div class="col col-md-5">
-              <div class="fw blog-text">
-                <!-- <p class="resources">Resources</p> -->
-                <h3>{{ blog.title }}</h3>
-                <p class="date">{{ blog.publishing_date }}</p>
-                <p class="text">{{ blog.author }}</p>
-                <p class="text">{{ blog.short_description }}</p>
-              </div>
-            </div>
-          </div>
-          {% endif %} {% endfor %}
-        </div>
-      </div>
-    </section>
-    <section class="fw">
-      <div class="container container3">
-        <div class="fw">
-          <div class="row">
-            <div class="col-md-9">
-              <h5 class="stories-title">All Stories</h5>
-            </div>
-            <div class="col-md-3">
-              <div class="search">
-                <div class="form_group">
-                  <div class="form_control">
-                    <label>
-                      <input
-                        type="text"
-                        id="search"
-                        name="search"
-                        placeholder="Search"
-                      />
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="filternav">
-            <div class="row">
-              <div class="col-md-12">
-                <ul id="filterOptions">
-                  <li class="active">
-                    <a class="all" id="all_post" href="#"> All </a>
-                  </li>
-                  <li>
-                    <a href="#" class="Latest" id="latest_post"> Latest </a>
-                  </li>
-                  <li>
-                    <a href="#" class="Trending" id="trending_post">
-                      Trending
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <ul class="row" id="ourStories"></ul>
-          <div>
-            <h5 class="viewMore">
-              <a class="viewMores" id="viewMore"> View More</a>
-            </h5>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="fw readyGet">
-      <div class="container container3">
-        <div class="fw contact_bg readyGet_bg">
-          <div class="row contact_bg_mo">
-            <div class="col-5 fluid dx_airt">
-              <img src="/assets/lms/images/ready.svg" class="fw" />
-            </div>
-            <div class="col-md-6">
-              <div class="fw">
-                <div class="titlesec">
-                  <h5>Ready? Get started.</h5>
-                  <p>Get instant loans today in less than 5 minutes.</p>
-                  <div class="fw mt-4">
-                    <button
-                      type="submit"
-                      class="applybtn applybtn2"
-                      data-toggle="modal"
-                      data-target="#apply-now-pop"
-                    >
-                      <span>Apply Now</span><span>&nbsp;</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    {% include 'templates/subscribe.html' %} {% include
-    'templates/appdownload.html' %} {% include 'templates/modal.html' %} {%
-    include 'templates/footer.html' %}
+<input type="hidden" name="page_no" id="page_no" value="1" />
+<input type="hidden" name="post" id="latest_post_2" />
+<input type="hidden" name="post1" id="trending_post_2" value="false" />
+{% endblock %} {% block script %}
 
-    <input type="hidden" name="page_no" id="page_no" value="1" />
-    <input type="hidden" name="post" id="latest_post_2" />
-    <input type="hidden" name="post1" id="trending_post_2" value="false" />
+<script type="text/javascript">
+  $(document).ready(function () {
+    // on page load fetch all blogs
+    var page_no = $("#page_no").val();
+    $("#latest_post_2").val("false");
+    $("#trending_post_2").val("false");
+    loadData(page_no);
 
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/jquery-3.6.0.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/bootstrap.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/jquery.validate.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/owl.carousel.min.js"
-    ></script>
-    <script type="text/javascript" src="/assets/lms/js/wow.min.js"></script>
-    <script type="text/javascript" src="/assets/lms/js/main.js"></script>
+    $("#latest_post").click(function () {
+      var page_no = 1;
+      var search_key = $("#search").val();
+      $("#latest_post_2").val("true");
+      $("#trending_post_2").val("false");
+      var latest_post = "true";
+      loadData(page_no, latest_post, (trending_post = "false"), search_key);
+    });
 
-    <script type="text/javascript">
-      $(document).ready(function () {
-        // on page load fetch all blogs
-        var page_no = $("#page_no").val();
-        $("#latest_post_2").val("false");
-        $("#trending_post_2").val("false");
-        loadData(page_no);
+    $("#trending_post").click(function () {
+      var page_no = 1;
+      var search_key = $("#search").val();
+      $("#latest_post_2").val("false");
+      $("#trending_post_2").val("true");
+      var trending_post = "true";
+      loadData(
+        page_no,
+        (latest_post = "false"),
+        (trending_post = "true"),
+        search_key
+      );
+    });
 
-        $("#latest_post").click(function () {
-          var page_no = 1;
-          var search_key = $("#search").val();
-          $("#latest_post_2").val("true");
-          $("#trending_post_2").val("false");
-          var latest_post = "true";
-          loadData(page_no, latest_post, (trending_post = "false"), search_key);
-        });
+    $("#all_post").click(function () {
+      var page_no = 1;
+      var search_key = $("#search").val();
+      $("#latest_post_2").val("false");
+      var latest_post = "false";
+      $("#trending_post_2").val("false");
+      var trending_post = "false";
+      var replace = true;
+      loadData(page_no, latest_post, trending_post, search_key, replace);
+    });
 
-        $("#trending_post").click(function () {
-          var page_no = 1;
-          var search_key = $("#search").val();
-          $("#latest_post_2").val("false");
-          $("#trending_post_2").val("true");
-          var trending_post = "true";
-          loadData(
-            page_no,
-            (latest_post = "false"),
-            (trending_post = "true"),
-            search_key
-          );
-        });
+    // on view more click, with and without search
+    $(document).on("click", "#viewMore", function () {
+      var page_no = $("#page_no").val();
+      var search_key = $("#search").val();
+      var latest_post = $("#latest_post_2").val();
+      var trending_post = $("#trending_post_2").val();
+      loadData(page_no, latest_post, trending_post, search_key);
+    });
 
-        $("#all_post").click(function () {
-          var page_no = 1;
-          var search_key = $("#search").val();
-          $("#latest_post_2").val("false");
-          var latest_post = "false";
-          $("#trending_post_2").val("false");
-          var trending_post = "false";
-          var replace = true;
-          loadData(page_no, latest_post, trending_post, search_key, replace);
-        });
+    // function for fetch blogs, view more, search
+    function loadData(
+      pg_number,
+      latest_post = "",
+      trending_post = "",
+      search_key = "",
+      replace = false
+    ) {
+      $.ajax({
+        url: "/api/method/lms.www.newsblogs.fetch_blogs",
+        type: "GET",
+        data: {
+          page_no: pg_number,
+          search_key: search_key,
+          latest_post: latest_post,
+          trending_post: trending_post,
+        },
+        dataType: "json",
+        success: function (res) {
+          if (res.data.blogs_all.length > 0) {
+            var html = "";
+            $.each(res.data.blogs_all, function (index, val) {
+              const arr = val.website_tags.split(",");
+              var tags = "";
+              $.each(arr, (index, tag) => {
+                tags += "<a href=#>" + tag + "</a>";
+              });
 
-        // on view more click, with and without search
-        $(document).on("click", "#viewMore", function () {
-          var page_no = $("#page_no").val();
-          var search_key = $("#search").val();
-          var latest_post = $("#latest_post_2").val();
-          var trending_post = $("#trending_post_2").val();
-          loadData(page_no, latest_post, trending_post, search_key);
-        });
-
-        // function for fetch blogs, view more, search
-        function loadData(
-          pg_number,
-          latest_post = "",
-          trending_post = "",
-          search_key = "",
-          replace = false
-        ) {
-          $.ajax({
-            url: "/api/method/lms.www.newsblogs.fetch_blogs",
-            type: "GET",
-            data: {
-              page_no: pg_number,
-              search_key: search_key,
-              latest_post: latest_post,
-              trending_post: trending_post,
-            },
-            dataType: "json",
-            success: function (res) {
-              if (res.data.blogs_all.length > 0) {
-                var html = "";
-                $.each(res.data.blogs_all, function (index, val) {
-                  const arr = val.website_tags.split(",");
-                  var tags = "";
-                  $.each(arr, (index, tag) => {
-                    tags += "<a href=#>" + tag + "</a>";
-                  });
-
-                  html +=
-                    '<li class="col-md-4 col-sm-6 item">' +
-                    '<a href="newsblog?blog_name=' +
-                    val.name +
-                    '">' +
-                    '<div class="news_card"> <img src="' +
-                    val.for_banner_view +
-                    '" class="fw">' +
-                    "<p>" +
-                    tags +
-                    "</p>" +
-                    "<h5>" +
-                    val.title +
-                    "</h5>" +
-                    '<p class="date">' +
-                    val.publishing_date +
-                    "</p>" +
-                    "</div>" +
-                    "</a>" +
-                    "</li>";
-                });
-                if (replace == true) {
-                  $("#ourStories").html(html);
-                } else {
-                  $("#ourStories").append(html);
-                }
-                next_pg_number = parseInt(res.data.page_no) + 1;
-                $("#page_no").val(next_pg_number);
-                $("#viewMore").show();
-              } else if (pg_number == 1 && res.data.blogs_all.length <= 0) {
-                $("#ourStories").empty();
-                $("#viewMore").hide();
-              }
-            },
-          });
-        }
-
-        // ==========> SEARCH QUERY <=========
-        $("#search").keyup(function () {
-          $("#page_no").val(1);
-          var page_no = $("#page_no").val();
-          var search = $(this).val();
-          var latest_post = $("#latest_post_2").val();
-          var trending_post = $("#trending_post_2").val();
-          if (search != "") {
-            loadData(
-              page_no,
-              latest_post,
-              trending_post,
-              search,
-              (replace = true)
-            );
-          } else {
-            loadData(
-              page_no,
-              latest_post,
-              trending_post,
-              (search = ""),
-              (replace = true)
-            );
+              html +=
+                '<li class="col-md-4 col-sm-6 item">' +
+                '<a href="newsblog?blog_name=' +
+                val.name +
+                '">' +
+                '<div class="news_card"> <img src="' +
+                val.for_banner_view +
+                '" class="fw">' +
+                "<p>" +
+                tags +
+                "</p>" +
+                "<h5>" +
+                val.title +
+                "</h5>" +
+                '<p class="date">' +
+                val.publishing_date +
+                "</p>" +
+                "</div>" +
+                "</a>" +
+                "</li>";
+            });
+            if (replace == true) {
+              $("#ourStories").html(html);
+            } else {
+              $("#ourStories").append(html);
+            }
+            next_pg_number = parseInt(res.data.page_no) + 1;
+            $("#page_no").val(next_pg_number);
+            $("#viewMore").show();
+          } else if (pg_number == 1 && res.data.blogs_all.length <= 0) {
+            $("#ourStories").empty();
+            $("#viewMore").hide();
           }
-        });
+        },
       });
-    </script>
-  </body>
-</html>
+    }
+
+    // ==========> SEARCH QUERY <=========
+    $("#search").keyup(function () {
+      $("#page_no").val(1);
+      var page_no = $("#page_no").val();
+      var search = $(this).val();
+      var latest_post = $("#latest_post_2").val();
+      var trending_post = $("#trending_post_2").val();
+      if (search != "") {
+        loadData(page_no, latest_post, trending_post, search, (replace = true));
+      } else {
+        loadData(
+          page_no,
+          latest_post,
+          trending_post,
+          (search = ""),
+          (replace = true)
+        );
+      }
+    });
+  });
+</script>
+{% endblock script %}

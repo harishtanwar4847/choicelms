@@ -1,541 +1,449 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Help or Frequently Asked Questions - SparkLoans</title>
-    <meta
-      name="description"
-      content="Do You Have a Query? Get an instant answer for your quetions from SparkLoans team."
-    />
-    <link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/bootstrap.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/owl.carousel.min.css"
-    />
-    <link rel="stylesheet" type="text/css" href="/assets/lms/css/animate.css" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/selectbox.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/assets/lms/css/jquery.fileuploader.css"
-    />
-    <link rel="stylesheet" type="text/css" href="/assets/lms/css/common.css" />
-    <link rel="stylesheet" type="text/css" href="/assets/lms/css/media.css" />
+{% extends 'templates/lmsbase.html' %} {% block title %} Help or Frequently
+Asked Questions - SparkLoans {% endblock title %} {% block description %} Do You
+Have a Query? Get an instant answer for your quetions from SparkLoans team. {%
+endblock description %} {%- block head_include -%} {% include
+'templates/head_content.html' %}
+<style>
+  .help .card-body li {
+    padding: 0 0 20px 0;
+    font-size: 1.4rem;
+    color: #595e68;
+    line-height: 2.4rem;
+    font-family: "Gilroy_Medium";
+  }
 
-    <style>
-      .help .card-body li {
-        padding: 0 0 20px 0;
-        font-size: 1.4rem;
-        color: #595e68;
-        line-height: 2.4rem;
-        font-family: "Gilroy_Medium";
-      }
+  .help .card-body ul {
+    margin-left: 25px;
+  }
 
-      .help .card-body ul {
-        margin-left: 25px;
-      }
+  table {
+    border-collapse: collapse;
+  }
 
-      table {
-        border-collapse: collapse;
-      }
+  td,
+  th {
+    border: 1px solid #999;
+    padding: 0.5rem;
+    text-align: left;
+  }
 
-      td,
-      th {
-        border: 1px solid #999;
-        padding: 0.5rem;
-        text-align: left;
-      }
-
-      .titlesec1 {
-        padding: 0 20px;
-      }
-    </style>
-  </head>
-
-  <body>
-    {% if "webview" in frappe.form_dict %}
-    <style>
-      @media (max-width: 1366px) {
-        .fw.mobnav,
-        footer,
-        .appdownloadbg,
-        header {
-          display: none !important;
-        }
-
-        .maintitle h5 {
-          margin-top: 2% !important;
-        }
-
-        .privacy {
-          padding-bottom: 0px;
-        }
-
-        .titlesec {
-          display: none !important;
-        }
-      }
-    </style>
-    {% endif %}
-    <div class="fw mobnav">
-      <div class="fw mobileheader dx_jcsbalctr">
-        <a href="/" class="logo"
-          ><img src="/assets/lms/images/logo.svg" height="30"
-        /></a>
-        <div class="right dx_jcsbalctr">
-          <p>
-            <a
-              href="javascript:void(0);"
-              class="applybtn"
-              data-toggle="modal"
-              data-target="#apply-now-pop"
-              ><span>Apply Now</span><span>&nbsp;</span></a
-            >
-          </p>
-          <div class="menuic">
-            <span>&nbsp;</span> <span>&nbsp;</span> <span>&nbsp;</span>
-            <span>&nbsp;</span>
-          </div>
-        </div>
+  .titlesec1 {
+    padding: 0 20px;
+  }
+</style>
+{%- endblock -%} {% block body %}
+<section class="fw">
+  <div class="container">
+    <div class="row">
+      <div class="col titlesec maintitle">
+        <h5 style="margin-bottom: 0px">Help / FAQs</h5>
       </div>
     </div>
-
-    <header class="fw dx_ctr bg">
-      <div class="container">
-        <div class="row">
-          <div class="col dx_jcsbalctr">
-            <a href="/" class="logo"
-              ><img src="/assets/lms/images/logo.svg"
-            /></a>
-            <div class="menu">
-              <a href="/products">Products</a>
-              <a href="/comingsoon">Demo Videos</a>
-              <a href="/comingsoon">Loan Calculator</a>
-              <a href="/contact">Contact</a>
-              <a
-                href="javascript:void(0);"
-                class="applybtn"
-                data-toggle="modal"
-                data-target="#apply-now-pop"
-                ><span>Apply Now</span><span>&nbsp;</span></a
-              >
+  </div>
+</section>
+<section class="fw">
+  <div class="container container3">
+    <div class="row">
+      <div class="fw titlesec1">
+        <div class="accordion positions help" id="accordionHelp">
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingOne"
+              data-toggle="collapse"
+              data-target="#collapseOne"
+            >
+              <h6>What is Spark.Loans? <i class="fa fa-plus"></i></h6>
+            </div>
+            <div
+              id="collapseOne"
+              class="collapse show"
+              aria-labelledby="headingOne"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <p>
+                  The spark.loans is a digital lending platform that offers
+                  loans against securities.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </header>
-    <section class="fw">
-      <div class="container">
-        <div class="row">
-          <div class="col titlesec maintitle">
-            <h5 style="margin-bottom: 0px">Help / FAQs</h5>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingTwo"
+              data-toggle="collapse"
+              data-target="#collapseTwo"
+            >
+              <h6>
+                What kind of securities can I get a loan against?
+                <i class="fa fa-plus"></i>
+              </h6>
+            </div>
+            <div
+              id="collapseTwo"
+              class="collapse"
+              aria-labelledby="headingTwo"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <p>
+                  Currently, loan can be availed against listed equity shares.
+                  <a href="{{approved_pdf}}" target="__blank"
+                    >(<u>Check approved list</u></a
+                  >
+                  of
+                  <a href="{{lender_pdf}}" target="__blank"
+                    ><u>lender partners</u></a
+                  >)
+                  <br />
+                  <!-- (<a href="{{lender_pdf}}" target="__blank"
+                    >Check Lender Partner list</a
+                  >) -->
+                </p>
+                <p>
+                  Coming Soon: Customers will be able to avail loans against
+                  mutual fund units, bonds, national savings certificates, gold
+                  bonds, NCDs on spark.loans app.
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </section>
-    <section class="fw">
-      <div class="container container3">
-        <div class="row">
-          <div class="fw titlesec1">
-            <div class="accordion positions help" id="accordionHelp">
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingOne"
-                  data-toggle="collapse"
-                  data-target="#collapseOne"
-                >
-                  <h6>What is Spark.Loans? <i class="fa fa-plus"></i></h6>
-                </div>
-                <div
-                  id="collapseOne"
-                  class="collapse show"
-                  aria-labelledby="headingOne"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <p>
-                      The spark.loans is a digital lending platform that offers
-                      loans against securities.
-                    </p>
-                  </div>
-                </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingThree"
+              data-toggle="collapse"
+              data-target="#collapseThree"
+            >
+              <h6>
+                What are the pre-requisites for a loan?
+                <i class="fa fa-plus"></i>
+              </h6>
+            </div>
+            <div
+              id="collapseThree"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <ul style="list-style: circle">
+                  <li>A demat account with Choice Equity Broking (Jiffy)</li>
+                  <li>Approved securities in the demat account to pledge</li>
+                </ul>
               </div>
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingTwo"
-                  data-toggle="collapse"
-                  data-target="#collapseTwo"
-                >
-                  <h6>
-                    What kind of securities can I get a loan against?
-                    <i class="fa fa-plus"></i>
-                  </h6>
-                </div>
-                <div
-                  id="collapseTwo"
-                  class="collapse"
-                  aria-labelledby="headingTwo"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <p>
-                      Currently, loan can be availed against listed equity
-                      shares. (Check approved list of lender partners)
-                    </p>
-                    <p>
-                      Coming Soon: Customers will be able to avail loans against
-                      mutual fund units, bonds, national savings certificates,
-                      gold bonds, NCDs on spark.loans app.
-                    </p>
-                  </div>
-                </div>
+            </div>
+          </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingFour"
+              data-toggle="collapse"
+              data-target="#collapseFour"
+            >
+              <h6>
+                How to register with Spark.Loans? <i class="fa fa-plus"></i>
+              </h6>
+            </div>
+            <div
+              id="collapseFour"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <p>
+                  For registration on spark.loans, one needs to provide his
+                  mobile number. Once the mobile number is verified, user shall
+                  be asked to provide his/her PAN and date of birth to fetch KYC
+                  and other details from Choice database.
+                </p>
               </div>
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingThree"
-                  data-toggle="collapse"
-                  data-target="#collapseThree"
-                >
-                  <h6>
-                    What are the pre-requisites for a loan?
-                    <i class="fa fa-plus"></i>
-                  </h6>
-                </div>
-                <div
-                  id="collapseThree"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <ul style="list-style: circle">
-                      <li>
-                        A demat account with Choice Equity Broking (Jiffy)
-                      </li>
-                      <li>
-                        Approved securities in the demat account to pledge
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingFour"
-                  data-toggle="collapse"
-                  data-target="#collapseFour"
-                >
-                  <h6>
-                    How to register with Spark.Loans? <i class="fa fa-plus"></i>
-                  </h6>
-                </div>
-                <div
-                  id="collapseFour"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <p>
-                      For registration on spark.loans, one needs to provide his
-                      mobile number. Once the mobile number is verified, user
-                      shall be asked to provide his/her PAN and date of birth to
-                      fetch KYC and other details from Choice database.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingFive"
-                  data-toggle="collapse"
-                  data-target="#collapseFive"
-                >
-                  <h6>
-                    How to apply for a new loan/pledge securities?
-                    <i class="fa fa-plus"></i>
-                  </h6>
-                </div>
-                <div
-                  id="collapseFive"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <p>
-                      After completing KYC, user can avail loan by pledging the
-                      securities available in the demat account:
-                    </p>
+            </div>
+          </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingFive"
+              data-toggle="collapse"
+              data-target="#collapseFive"
+            >
+              <h6>
+                How to apply for a new loan/pledge securities?
+                <i class="fa fa-plus"></i>
+              </h6>
+            </div>
+            <div
+              id="collapseFive"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <p>
+                  After completing KYC, user can avail loan by pledging the
+                  securities available in the demat account:
+                </p>
 
-                    <ul style="list-style: circle">
-                      <li>
-                        Select &ldquo;New Loan&rdquo; option from the dashboard
-                      </li>
-                      <li>
-                        Select &ldquo;Shares&rdquo; [ &ldquo;Mutual Fund&rdquo;
-                        coming soon ]
-                      </li>
-                      <li>
-                        You will be able to view all the approved securities in
-                        your demat account
-                      </li>
-                      <li>
-                        Select and confirm the securities you want to pledge
-                      </li>
-                      <li>E-Sign the loan agreement (Aadhar based)</li>
-                      <li>Loan Limit gets approved</li>
-                    </ul>
-                  </div>
-                </div>
+                <ul style="list-style: circle">
+                  <li>
+                    Select &ldquo;New Loan&rdquo; option from the dashboard
+                  </li>
+                  <li>
+                    Select &ldquo;Shares&rdquo; [ &ldquo;Mutual Fund&rdquo;
+                    coming soon ]
+                  </li>
+                  <li>
+                    You will be able to view all the approved securities in your
+                    demat account
+                  </li>
+                  <li>Select and confirm the securities you want to pledge</li>
+                  <li>E-Sign the loan agreement (Aadhar based)</li>
+                  <li>Loan Limit gets approved</li>
+                </ul>
               </div>
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingSix"
-                  data-toggle="collapse"
-                  data-target="#collapseSix"
-                >
-                  <h6>
-                    What are the Fees and Charges? <i class="fa fa-plus"></i>
-                  </h6>
-                </div>
-                <div
-                  id="collapseSix"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <p>
-                      Following fees and charges are currently applicable by our
-                      lending partner, M/s Choice Finserv (P) Ltd on LAS –
-                    </p>
-                    <ul style="list-style: number">
-                      <li>
-                        <u>Processing Fees</u> &ndash; Users would be charged
-                        one time processing fees on the amount of loan
-                        (overdraft limit) sanctioned by our lending partner(s).
-                        The processing fee would be 1.0% of the limit
-                        sanctioned. The fee is valid for a period of 12 month.
-                        Renewal Fees is 0.5% of the limit renewed.
-                      </li>
-                      <li>
-                        <u>Mortgage charges</u> &ndash; Users would be charged
-                        one time mortgage charges on the amount of loan
-                        (overdraft limit) sanctioned by our lending partner(s).
-                        The mortgage charges are presently NIL.
-                      </li>
-                      <li>
-                        <u>Documentation and Stamp duty charges </u>&ndash; User
-                        will be charged one time documentation charges of Rs.
-                        200/- and stamp duty at actuals.
-                      </li>
-                      <li>
-                        <u
-                          >Collection Charges on Sale of Securities in the event
-                          of default or otherwise </u
-                        >- 0.5% of the sale amount plus all brokerage,
-                        incidental transaction charges, costs and expenses and
-                        other levies as per actuals.
-                      </li>
-                      <li>
-                        <u
-                          >Transaction Charges per Request (per variation in the
-                          composition of the Demat securities pledged) </u
-                        >- Upto Rs.100/- per request
-                      </li>
-                      <li>
-                        <u>Credit Information Companies'(CICs) Charges</u>- Upto
-                        Rs 100/- per instance (For Individuals)
-                      </li>
-                      <li>
-                        <u>Legal &amp; incidental charges - </u>As per actuals
-                      </li>
-                    </ul>
-                    <p>
-                      GST and other government levies would be charged
-                      additionally as applicable. The above fees/charges are
-                      standard rates. Above fees/charges are subject to change
-                      from time to time as per Lender's policy and are
-                      non-refundable.
-                    </p>
-                  </div>
-                </div>
+            </div>
+          </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingSix"
+              data-toggle="collapse"
+              data-target="#collapseSix"
+            >
+              <h6>What are the Fees and Charges? <i class="fa fa-plus"></i></h6>
+            </div>
+            <div
+              id="collapseSix"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <p>
+                  Following fees and charges are currently applicable by our
+                  lending partner, M/s Choice Finserv (P) Ltd on LAS –
+                </p>
+                <ul style="list-style: number">
+                  <li>
+                    <u>Processing Fees</u> &ndash; Users would be charged one
+                    time processing fees on the amount of loan (overdraft limit)
+                    sanctioned by our lending partner(s). The processing fee
+                    would be {% if lenderCharges.lender_processing_fees_type ==
+                    "Percentage" %} {{lenderCharges.lender_processing_fees}}% {%
+                    else %} Rs. {{lenderCharges.lender_processing_fees|int}} {%
+                    endif %} of the limit sanctioned. The fee is valid for a
+                    period of 12 month. Renewal Fees is {% if
+                    lenderCharges.renewal_charge_type == "Percentage" %}
+                    {{lenderCharges.renewal_charges}}% {% else %} Rs.
+                    {{lenderCharges.renewal_charges|int}} {% endif %} of the
+                    limit renewed.
+                  </li>
+                  <li>
+                    <u>Mortgage charges</u> &ndash; Users would be charged one
+                    time mortgage charges on the amount of loan (overdraft
+                    limit) sanctioned by our lending partner(s). The mortgage
+                    charges are presently NIL.
+                  </li>
+                  <li>
+                    <u>Documentation and Stamp duty charges </u>&ndash; User
+                    will be charged one time documentation charges of Rs.
+                    {{lenderCharges.lender_stamp_duty_minimum_amount|int +
+                    lenderCharges.lender_documentation_minimum_amount|int}}/-
+                    and stamp duty at actuals.
+                  </li>
+                  <li>
+                    <u
+                      >Collection Charges on Sale of Securities in the event of
+                      default or otherwise </u
+                    >- {{lenderCharges.security_selling_share}}% of the sale
+                    amount plus all brokerage, incidental transaction charges,
+                    costs and expenses and other levies as per actuals.
+                  </li>
+                  <li>
+                    <u
+                      >Transaction Charges per Request (per variation in the
+                      composition of the Demat securities pledged) </u
+                    >- Upto
+                    Rs.{{lenderCharges.transaction_charges_per_request|int}}/-
+                    per request
+                  </li>
+                  <li>
+                    <u>Credit Information Companies'(CICs) Charges</u>- Upto Rs
+                    {{lenderCharges.cic_charges|int}}/- per instance (For
+                    Individuals)
+                  </li>
+                  <li>
+                    <u>Legal &amp; incidental charges - </u>As per actuals
+                  </li>
+                </ul>
+                <p>
+                  GST and other government levies would be charged additionally
+                  as applicable. The above fees/charges are standard rates.
+                  Above fees/charges are subject to change from time to time as
+                  per Lender's policy and are non-refundable.
+                </p>
               </div>
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingSeven"
-                  data-toggle="collapse"
-                  data-target="#collapseSeven"
-                >
-                  <h6>
-                    Do I have to pay interest on the loan amount not utilized?
-                    <i class="fa fa-plus"></i>
-                  </h6>
-                </div>
-                <div
-                  id="collapseSeven"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <p>
-                      No, you have to pay interest only on the loan amount
-                      utilized/withdrawn.
-                    </p>
-                  </div>
-                </div>
+            </div>
+          </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingSeven"
+              data-toggle="collapse"
+              data-target="#collapseSeven"
+            >
+              <h6>
+                Do I have to pay interest on the loan amount not utilized?
+                <i class="fa fa-plus"></i>
+              </h6>
+            </div>
+            <div
+              id="collapseSeven"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <p>
+                  No, you have to pay interest only on the loan amount
+                  utilized/withdrawn.
+                </p>
               </div>
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingEight"
-                  data-toggle="collapse"
-                  data-target="#collapseEight"
-                >
-                  <h6>
-                    Where can I use the loan money? <i class="fa fa-plus"></i>
-                  </h6>
-                </div>
-                <div
-                  id="collapseEight"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <p>
-                      There are no restrictions on the usage of the loan amount
-                      – you can use it for sponsoring a trip to your dream
-                      destination, you can use it for your own or your closed
-                      ones’ wedding and the applications are endless. You can
-                      also use the funds for your business needs. You cannot use
-                      the money for speculative and illegal activities like
-                      gambling, betting, any other activity prohibited by the
-                      government.
-                    </p>
-                  </div>
-                </div>
+            </div>
+          </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingEight"
+              data-toggle="collapse"
+              data-target="#collapseEight"
+            >
+              <h6>
+                Where can I use the loan money? <i class="fa fa-plus"></i>
+              </h6>
+            </div>
+            <div
+              id="collapseEight"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <p>
+                  There are no restrictions on the usage of the loan amount –
+                  you can use it for sponsoring a trip to your dream
+                  destination, you can use it for your own or your closed ones’
+                  wedding and the applications are endless. You can also use the
+                  funds for your business needs. You cannot use the money for
+                  speculative and illegal activities like gambling, betting, any
+                  other activity prohibited by the government.
+                </p>
               </div>
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingTen"
-                  data-toggle="collapse"
-                  data-target="#collapseTen"
-                >
-                  <h6>
-                    What if I don’t need the funds right now?<i
-                      class="fa fa-plus"
-                    ></i>
-                  </h6>
-                </div>
-                <div
-                  id="collapseTen"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <p>
-                      You are approved with a drawing limit i.e. you have to pay
-                      interest only on the amount utilized, so if you don’t need
-                      the funds right now, you will be charged with nothing.
-                    </p>
-                  </div>
-                </div>
+            </div>
+          </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingTen"
+              data-toggle="collapse"
+              data-target="#collapseTen"
+            >
+              <h6>
+                What if I don’t need the funds right now?<i
+                  class="fa fa-plus"
+                ></i>
+              </h6>
+            </div>
+            <div
+              id="collapseTen"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <p>
+                  You are approved with a drawing limit i.e. you have to pay
+                  interest only on the amount utilized, so if you don’t need the
+                  funds right now, you will be charged with nothing.
+                </p>
               </div>
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingTen1"
-                  data-toggle="collapse"
-                  data-target="#collapseTen1"
-                >
-                  <h6>
-                    What are the interest rates?<i class="fa fa-plus"></i>
-                  </h6>
-                </div>
-                <div
-                  id="collapseTen1"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <p>
-                      <strong><u>For Shares</u></strong>
-                    </p>
-                    <p>
-                      <strong><u>Lender : Choice Finserv (P) Ltd.</u></strong>
-                    </p>
-                    <table width="588" class="table">
-                      <tbody>
-                        <tr>
-                          <td width="168">
-                            <p><strong>Drawing Power</strong></p>
-                          </td>
-                          <td width="193">
-                            <p><strong>Interest Payment period</strong></p>
-                          </td>
-                          <td width="91">
-                            <p><strong>Rebate</strong></p>
-                          </td>
-                          <td width="136">
-                            <p><strong>Monthly Rate</strong></p>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td width="168">
-                            <p><strong>Upto 5 lakhs</strong></p>
-                          </td>
-                          <td width="193">
-                            <p>After 7 days</p>
-                          </td>
-                          <td width="91">
-                            <p>Nil</p>
-                          </td>
-                          <td width="136">
-                            <p>1.54%</p>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td width="168">&nbsp;</td>
-                          <td width="193">
-                            <p>Within 7 days</p>
-                          </td>
-                          <td width="91">
-                            <p>0.20%</p>
-                          </td>
-                          <td width="136">
-                            <p>1.34%</p>
-                          </td>
-                        </tr>
-                        <!--
+            </div>
+          </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingTen1"
+              data-toggle="collapse"
+              data-target="#collapseTen1"
+            >
+              <h6>What are the interest rates?<i class="fa fa-plus"></i></h6>
+            </div>
+            <div
+              id="collapseTen1"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <p>
+                  <strong><u>For Shares</u></strong>
+                </p>
+                <p>
+                  <strong><u>Lender : Choice Finserv (P) Ltd.</u></strong>
+                </p>
+                <table width="588" class="table">
+                  <tbody>
+                    <tr>
+                      <td width="168">
+                        <p><strong>Drawing Power</strong></p>
+                      </td>
+                      <td width="193">
+                        <p><strong>Interest Payment period</strong></p>
+                      </td>
+                      <td width="91">
+                        <p><strong>Rebate</strong></p>
+                      </td>
+                      <td width="136">
+                        <p><strong>Monthly Rate</strong></p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td width="168">
+                        <p><strong>Upto 5 lakhs</strong></p>
+                      </td>
+                      <td width="193">
+                        <p>After 7 days</p>
+                      </td>
+                      <td width="91">
+                        <p>Nil</p>
+                      </td>
+                      <td width="136">
+                        <p>
+                          {{"%.2f"|format(interestupto5.rebait_interest+interestupto5.base_interest|float)}}%
+                        </p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td width="168">&nbsp;</td>
+                      <td width="193">
+                        <p>Within 7 days</p>
+                      </td>
+                      <td width="91">
+                        <p>
+                          {{
+                          "%.2f"|format(interestupto5.rebait_interest|float)}}%
+                        </p>
+                      </td>
+                      <td width="136">
+                        <p>
+                          {{"%.2f"|format(interestupto5.base_interest|float)}}%
+                        </p>
+                      </td>
+                    </tr>
+                    <!--
 <tr>
 <td width="168">
 <p><strong>More than 20 lakhs</strong></p>
@@ -563,439 +471,424 @@
 </td>
 </tr>
 -->
-                        <tr>
-                          <td colspan="4" width="588">
-                            <p>
-                              <strong
-                                >Penal Interest rate / Penal Charges&nbsp; : </strong
-                              >In case of occurrence of Event of Default (EOD),
-                              Penal Interest shall be charged
-                              <strong>upto 4.00% per month </strong>over and
-                              above applicable Interest Rate.
-                            </p>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td colspan="4" width="588">
-                            <p>
-                              <strong>&ldquo;Event of Default&rdquo; </strong>as
-                              mentioned in the loan agreement.
-                            </p>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                    <p>
-                      <strong><u>For Mutual Funds – Coming soon</u></strong>
-                    </p>
-                  </div>
-                </div>
+                    <tr>
+                      <td colspan="4" width="588">
+                        <p>
+                          <strong
+                            >Penal Interest rate / Penal Charges&nbsp; : </strong
+                          >In case of occurrence of Event of Default (EOD),
+                          Penal Interest shall be charged
+                          <strong
+                            >upto
+                            {{"%.2f"|format(lenderCharges.default_interest)}}%
+                            per month </strong
+                          >over and above applicable Interest Rate.
+                        </p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colspan="4" width="588">
+                        <p>
+                          <strong>&ldquo;Event of Default&rdquo; </strong>as
+                          mentioned in the loan agreement.
+                        </p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p>
+                  <strong><u>For Mutual Funds – Coming soon</u></strong>
+                </p>
               </div>
+            </div>
+          </div>
 
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingTen2"
-                  data-toggle="collapse"
-                  data-target="#collapseTen2"
-                >
-                  <h6>
-                    Where can I access my loan statement?
-                    <i class="fa fa-plus"></i>
-                  </h6>
-                </div>
-                <div
-                  id="collapseTen2"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <p>
-                      User can view all the recent transactions and can even get
-                      the sanctioned limit, drawing power, loan balance,
-                      interest due, collateral value, etc on ‘My Loans’ tab.
-                      Users can download or email their loan statements of the
-                      required period upon clicking “view statement” – download
-                      /email options.
-                    </p>
-                  </div>
-                </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingTen2"
+              data-toggle="collapse"
+              data-target="#collapseTen2"
+            >
+              <h6>
+                Where can I access my loan statement?
+                <i class="fa fa-plus"></i>
+              </h6>
+            </div>
+            <div
+              id="collapseTen2"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <p>
+                  User can view all the recent transactions and can even get the
+                  sanctioned limit, drawing power, loan balance, interest due,
+                  collateral value, etc on ‘My Loans’ tab. Users can download or
+                  email their loan statements of the required period upon
+                  clicking “view statement” – download /email options.
+                </p>
               </div>
+            </div>
+          </div>
 
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingTen3"
-                  data-toggle="collapse"
-                  data-target="#collapseTen3"
-                >
-                  <h6>
-                    Can we pay interest and loan outstanding via the app?<i
-                      class="fa fa-plus"
-                    ></i>
-                  </h6>
-                </div>
-                <div
-                  id="collapseTen3"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <p>
-                      User can easily pay loan and interest due from Spark.loans
-                      app only.
-                    </p>
-                  </div>
-                </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingTen3"
+              data-toggle="collapse"
+              data-target="#collapseTen3"
+            >
+              <h6>
+                Can we pay interest and loan outstanding via the app?<i
+                  class="fa fa-plus"
+                ></i>
+              </h6>
+            </div>
+            <div
+              id="collapseTen3"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <p>
+                  User can easily pay loan and interest due from Spark.loans app
+                  only.
+                </p>
               </div>
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingTen4"
-                  data-toggle="collapse"
-                  data-target="#collapseTen4"
-                >
-                  <h6>What is Margin Shortfall?<i class="fa fa-plus"></i></h6>
-                </div>
-                <div
-                  id="collapseTen4"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <p>
-                      The collateral value may fall due to reduction in prices
-                      of underlying securities. This will reduce the drawing
-                      power of the loan. If the drawing power falls below the
-                      loan balance, it results is Margin Shortfall.
-                    </p>
-                    <p>
-                      1) When the drawing power’s value falls below the loan
-                      amount (Less than 15%), 48 hours (Excluding bank holidays)
-                      will be available to the customer to mitigate the
-                      shortfall. Post 48 hours, sale will be triggered and
-                      lender will sell pledged securities as required.
-                    </p>
-                    <p>
-                      2) When the drawing power’s value falls below loan amount
-                      (greater than or equal to 15% but less than 25%), the
-                      customer will have time till end-of-day (hours up to 10:00
-                      PM EOD) to mitigate the shortfall. After this, sale will
-                      be triggered and lender will sell pledged securities as
-                      required.
-                    </p>
+            </div>
+          </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingTen4"
+              data-toggle="collapse"
+              data-target="#collapseTen4"
+            >
+              <h6>What is Margin Shortfall?<i class="fa fa-plus"></i></h6>
+            </div>
+            <div
+              id="collapseTen4"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <p>
+                  The collateral value may fall due to reduction in prices of
+                  underlying securities. This will reduce the drawing power of
+                  the loan. If the drawing power falls below the loan balance,
+                  it results is Margin Shortfall.
+                </p>
+                <p>
+                  1) When the drawing power’s value falls below the loan amount
+                  (Less than {{ marginmin.max_threshold }}%), {{
+                  marginmin.sell_off_after_hours }} hours (Excluding bank
+                  holidays) will be available to the customer to mitigate the
+                  shortfall. Post {{ marginmin.sell_off_after_hours }} hours,
+                  sale will be triggered and lender will sell pledged securities
+                  as required.
+                </p>
+                <p>
+                  2) When the drawing power’s value falls below loan amount
+                  (greater than or equal to {{ marginmin.max_threshold }}% but
+                  less than {{ marginmax.max_threshold }}%), the customer will
+                  have time till end-of-day (hours up to
+                  {{marginmax.sell_off_deadline_eod}} EOD) to mitigate the
+                  shortfall. After this, sale will be triggered and lender will
+                  sell pledged securities as required.
+                </p>
 
-                    <p>
-                      3) When the drawing power’s value falls below loan amount
-                      (greater than 25%), the sale will be triggered and lender
-                      will sell pledged securities as required.
-                    </p>
-                    <table class="table">
-                      <tbody>
-                        <tr>
-                          <td width="213">
-                            <p><strong>Fall in security value</strong></p>
-                          </td>
-                          <td width="213">
-                            <p><strong>Timeline</strong></p>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td width="213">
-                            <p>&lt;15%</p>
-                          </td>
-                          <td width="213">
-                            <p>48 hours</p>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td width="213">
-                            <p>&gt;=15% to &lt;25%</p>
-                          </td>
-                          <td width="213">
-                            <p>EOD (10:00 pm)</p>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td width="213">
-                            <p>&gt;=25% and above</p>
-                          </td>
-                          <td width="213">
-                            <p>Immediate</p>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                <p>
+                  3) When the drawing power’s value falls below loan amount
+                  (greater than {{ marginmax.max_threshold }}%), the sale will
+                  be triggered and lender will sell pledged securities as
+                  required.
+                </p>
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <td width="213">
+                        <p><strong>Fall in security value</strong></p>
+                      </td>
+                      <td width="213">
+                        <p><strong>Timeline</strong></p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td width="213">
+                        <p>&lt;{{ marginmin.max_threshold }}%</p>
+                      </td>
+                      <td width="213">
+                        <p>{{ marginmin.sell_off_after_hours }} hours</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td width="213">
+                        <p>
+                          &gt;={{ marginmin.max_threshold }}% to &lt;{{
+                          marginmax.max_threshold }}%
+                        </p>
+                      </td>
+                      <td width="213">
+                        <p>EOD ({{marginmax.sell_off_deadline_eod}})</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td width="213">
+                        <p>&gt;={{ marginmax.max_threshold }}% and above</p>
+                      </td>
+                      <td width="213">
+                        <p>Immediate</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
+            </div>
+          </div>
 
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingTen5"
-                  data-toggle="collapse"
-                  data-target="#collapseTen5"
-                >
-                  <h6>
-                    How to mitigate the margin shortfall?<i
-                      class="fa fa-plus"
-                    ></i>
-                  </h6>
-                </div>
-                <div
-                  id="collapseTen5"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <p>
-                      There are three ways one may mitigate the margin
-                      shortfall:
-                    </p>
-                    <ul style="list-style: circle">
-                      <li>Pledge additional securities</li>
-                      <li>Pay loan</li>
-                      <li>Sell collateral</li>
-                    </ul>
-                  </div>
-                </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingTen5"
+              data-toggle="collapse"
+              data-target="#collapseTen5"
+            >
+              <h6>
+                How to mitigate the margin shortfall?<i class="fa fa-plus"></i>
+              </h6>
+            </div>
+            <div
+              id="collapseTen5"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <p>
+                  There are three ways one may mitigate the margin shortfall:
+                </p>
+                <ul style="list-style: circle">
+                  <li>Pledge additional securities</li>
+                  <li>Pay loan</li>
+                  <li>Sell collateral</li>
+                </ul>
               </div>
+            </div>
+          </div>
 
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingTen6"
-                  data-toggle="collapse"
-                  data-target="#collapseTen6"
-                >
-                  <h6>How to Unpledge Securities?<i class="fa fa-plus"></i></h6>
-                </div>
-                <div
-                  id="collapseTen6"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <ul style="list-style: disc">
-                      <li>
-                        Go to &lsquo;More&rsquo; tab or Go to &lsquo;My
-                        Securities&rsquo; tab
-                      </li>
-                      <li>Click on &lsquo;Unpledge&rsquo;</li>
-                      <li>Select the securities you want to Unpledge</li>
-                      <li>
-                        Enter OTP sent on your registered mobile number to
-                        complete the process
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingTen6"
+              data-toggle="collapse"
+              data-target="#collapseTen6"
+            >
+              <h6>How to Unpledge Securities?<i class="fa fa-plus"></i></h6>
+            </div>
+            <div
+              id="collapseTen6"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <ul style="list-style: disc">
+                  <li>
+                    Go to &lsquo;More&rsquo; tab or Go to &lsquo;My
+                    Securities&rsquo; tab
+                  </li>
+                  <li>Click on &lsquo;Unpledge&rsquo;</li>
+                  <li>Select the securities you want to Unpledge</li>
+                  <li>
+                    Enter OTP sent on your registered mobile number to complete
+                    the process
+                  </li>
+                </ul>
               </div>
+            </div>
+          </div>
 
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingTen7"
-                  data-toggle="collapse"
-                  data-target="#collapseTen7"
-                >
-                  <h6>How to Sell Collateral?<i class="fa fa-plus"></i></h6>
-                </div>
-                <div
-                  id="collapseTen7"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <ul style="list-style: disc">
-                      <li>
-                        Go to &lsquo;More&rsquo; tab or Go to &lsquo;My
-                        Securities&rsquo; tab
-                      </li>
-                      <li>Click on &lsquo;Sell Collateral&rsquo;</li>
-                      <li>Select the securities you want to sell</li>
-                      <li>
-                        Complete the process by entering the OTP sent on your
-                        registered mobile number
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingTen7"
+              data-toggle="collapse"
+              data-target="#collapseTen7"
+            >
+              <h6>How to Sell Collateral?<i class="fa fa-plus"></i></h6>
+            </div>
+            <div
+              id="collapseTen7"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <ul style="list-style: disc">
+                  <li>
+                    Go to &lsquo;More&rsquo; tab or Go to &lsquo;My
+                    Securities&rsquo; tab
+                  </li>
+                  <li>Click on &lsquo;Sell Collateral&rsquo;</li>
+                  <li>Select the securities you want to sell</li>
+                  <li>
+                    Complete the process by entering the OTP sent on your
+                    registered mobile number
+                  </li>
+                </ul>
               </div>
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingTen8"
-                  data-toggle="collapse"
-                  data-target="#collapseTen8"
-                >
-                  <h6>
-                    How to I get my Loan Transaction / Security Transaction
-                    Statement?<i class="fa fa-plus"></i>
-                  </h6>
-                </div>
-                <div
-                  id="collapseTen8"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <p><u>Loan Transaction Statement:</u></p>
-                    <ul style="list-style: disc">
-                      <li>Go to &lsquo;My Loans&rsquo;</li>
-                      <li>Click on &ldquo;View Statement&rdquo;</li>
-                      <li>Go to &ldquo;Download&rdquo; tab</li>
-                      <li>
-                        Download or email the statement as per your requirements
-                      </li>
-                    </ul>
-                    <p><u>Securities Transaction Statement:</u></p>
-                    <ul style="list-style: disc">
-                      <li>Go to &ldquo;My Securities&rdquo;</li>
-                      <li>
-                        Click on &ldquo;View Pledged Securities
-                        Transactions&rdquo;
-                      </li>
-                      <li>Go to &ldquo;Download&rdquo; tab</li>
-                      <li>
-                        Download or email the statement as per your requirements
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+            </div>
+          </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingTen8"
+              data-toggle="collapse"
+              data-target="#collapseTen8"
+            >
+              <h6>
+                How to I get my Loan Transaction / Security Transaction
+                Statement?<i class="fa fa-plus"></i>
+              </h6>
+            </div>
+            <div
+              id="collapseTen8"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <p><u>Loan Transaction Statement:</u></p>
+                <ul style="list-style: disc">
+                  <li>Go to &lsquo;My Loans&rsquo;</li>
+                  <li>Click on &ldquo;View Statement&rdquo;</li>
+                  <li>Go to &ldquo;Download&rdquo; tab</li>
+                  <li>
+                    Download or email the statement as per your requirements
+                  </li>
+                </ul>
+                <p><u>Securities Transaction Statement:</u></p>
+                <ul style="list-style: disc">
+                  <li>Go to &ldquo;My Securities&rdquo;</li>
+                  <li>
+                    Click on &ldquo;View Pledged Securities Transactions&rdquo;
+                  </li>
+                  <li>Go to &ldquo;Download&rdquo; tab</li>
+                  <li>
+                    Download or email the statement as per your requirements
+                  </li>
+                </ul>
               </div>
+            </div>
+          </div>
 
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingTen9"
-                  data-toggle="collapse"
-                  data-target="#collapseTen9"
-                >
-                  <h6>How to increase loan?<i class="fa fa-plus"></i></h6>
-                </div>
-                <div
-                  id="collapseTen9"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <ul style="list-style: disc">
-                      <li>Go to &lsquo;More&rsquo; tab</li>
-                      <li>Click on &lsquo;Increase loan&rsquo;</li>
-                      <li>Mention the &lsquo;Required OD limit&rsquo;</li>
-                      <li>
-                        You will get an estimate for the value of securities you
-                        would have to pledge for the increased limit
-                      </li>
-                      <li>
-                        Select and confirm the additional securities you want to
-                        pledge
-                      </li>
-                      <li>E-Sign the loan agreement</li>
-                      <li>increased loan limit shall be approved</li>
-                    </ul>
-                  </div>
-                </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingTen9"
+              data-toggle="collapse"
+              data-target="#collapseTen9"
+            >
+              <h6>How to increase loan?<i class="fa fa-plus"></i></h6>
+            </div>
+            <div
+              id="collapseTen9"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <ul style="list-style: disc">
+                  <li>Go to &lsquo;More&rsquo; tab</li>
+                  <li>Click on &lsquo;Increase loan&rsquo;</li>
+                  <li>Mention the &lsquo;Required OD limit&rsquo;</li>
+                  <li>
+                    You will get an estimate for the value of securities you
+                    would have to pledge for the increased limit
+                  </li>
+                  <li>
+                    Select and confirm the additional securities you want to
+                    pledge
+                  </li>
+                  <li>E-Sign the loan agreement</li>
+                  <li>increased loan limit shall be approved</li>
+                </ul>
               </div>
-              <div class="card">
-                <div
-                  class="card-header collapsed"
-                  id="headingTen10"
-                  data-toggle="collapse"
-                  data-target="#collapseTen10"
-                >
-                  <h6>How to avail top-up?<i class="fa fa-plus"></i></h6>
-                </div>
-                <div
-                  id="collapseTen10"
-                  class="collapse"
-                  aria-labelledby="headingThree"
-                  data-parent="#accordionHelp"
-                >
-                  <div class="card-body">
-                    <p>
-                      Whenever the collateral security value increases by more
-                      than 10% of that required for the sanctioned limit, system
-                      will show a “Top Up” banner on Dashboard and under ‘My
-                      Loans’. To avail the Top Up -
-                    </p>
-                    <ul style="list-style: disc">
-                      <li>Click on &lsquo;Top Up&rsquo; banner</li>
-                      <li>
-                        Enter the Top Up amount you wish to avail (or click
-                        &lsquo;Full available amount&rsquo;)
-                      </li>
-                      <li>E-Sign the loan agreement</li>
-                      <li>lncreased loan limit shall be approved</li>
-                    </ul>
-                  </div>
-                </div>
+            </div>
+          </div>
+          <div class="card">
+            <div
+              class="card-header collapsed"
+              id="headingTen10"
+              data-toggle="collapse"
+              data-target="#collapseTen10"
+            >
+              <h6>How to avail top-up?<i class="fa fa-plus"></i></h6>
+            </div>
+            <div
+              id="collapseTen10"
+              class="collapse"
+              aria-labelledby="headingThree"
+              data-parent="#accordionHelp"
+            >
+              <div class="card-body">
+                <p>
+                  Whenever the collateral security value increases by more than
+                  10% of that required for the sanctioned limit, system will
+                  show a “Top Up” banner on Dashboard and under ‘My Loans’. To
+                  avail the Top Up -
+                </p>
+                <ul style="list-style: disc">
+                  <li>Click on &lsquo;Top Up&rsquo; banner</li>
+                  <li>
+                    Enter the Top Up amount you wish to avail (or click
+                    &lsquo;Full available amount&rsquo;)
+                  </li>
+                  <li>E-Sign the loan agreement</li>
+                  <li>lncreased loan limit shall be approved</li>
+                </ul>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </section>
-    {% include 'templates/appdownload.html' %} {% include 'templates/modal.html'
-    %} {% include 'templates/footer.html' %}
+    </div>
+  </div>
+</section>
 
-    <script>
-      $(document).ready(function () {
-        // Add minus icon for collapse element which is open by default
-        $(".collapse.show").each(function () {
-          $(this)
-            .prev(".card-header")
-            .find(".fa")
-            .addClass("fa-minus")
-            .removeClass("fa-plus");
-        });
+{% include 'templates/appdownload.html' %} {% endblock %} {% block script %}
 
-        // Toggle plus minus icon on show hide of collapse element
-        $(".collapse")
-          .on("show.bs.collapse", function () {
-            $(this)
-              .prev(".card-header")
-              .find(".fa")
-              .removeClass("fa-plus")
-              .addClass("fa-minus");
-          })
-          .on("hide.bs.collapse", function () {
-            $(this)
-              .prev(".card-header")
-              .find(".fa")
-              .removeClass("fa-minus")
-              .addClass("fa-plus");
-          });
+<script>
+  $(document).ready(function () {
+    // Add minus icon for collapse element which is open by default
+    $(".collapse.show").each(function () {
+      $(this)
+        .prev(".card-header")
+        .find(".fa")
+        .addClass("fa-minus")
+        .removeClass("fa-plus");
+    });
+
+    // Toggle plus minus icon on show hide of collapse element
+    $(".collapse")
+      .on("show.bs.collapse", function () {
+        $(this)
+          .prev(".card-header")
+          .find(".fa")
+          .removeClass("fa-plus")
+          .addClass("fa-minus");
+      })
+      .on("hide.bs.collapse", function () {
+        $(this)
+          .prev(".card-header")
+          .find(".fa")
+          .removeClass("fa-minus")
+          .addClass("fa-plus");
       });
-    </script>
-
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/jquery-3.6.0.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/bootstrap.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/jquery.validate.min.js"
-    ></script>
-    <script
-      type="text/javascript"
-      src="/assets/lms/js/owl.carousel.min.js"
-    ></script>
-    <script type="text/javascript" src="/assets/lms/js/wow.min.js"></script>
-    <script type="text/javascript" src="/assets/lms/js/main.js"></script>
-  </body>
-</html>
+  });
+</script>
+{% endblock script %}

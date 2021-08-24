@@ -11,15 +11,17 @@
   "idx": 0,
   "is_standard": 1,
   "message": "<h3>Dear {{ doc.full_name or \"\" }},</h3>\n<p>Your {{doc.get(\"otp_info\").get(\"token_type\")}} for Spark.Loans is {{doc.get(\"otp_info\").get(\"token\")}}. Do not share your {{doc.get(\"otp_info\").get(\"token_type\")}} with anyone.<p>\n<p>Thanks,</p>\n<p>The Spark Team\t</p>\n",
-  "modified": "2021-06-17 16:54:26.777148",
+  "modified": "2021-08-11 21:04:16.640422",
   "modified_by": "Administrator",
   "module": "Lms",
   "name": "Forgot Pin",
   "owner": "Administrator",
   "recipients": [
     {
-      "email_by_document_field": "email"
+      "receiver_by_document_field": "email"
     }
   ],
+  "send_system_notification": 0,
+  "send_to_all_assignees": 0,
   "subject": "Forgot Pin"
 }

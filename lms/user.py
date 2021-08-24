@@ -1,5 +1,6 @@
 import base64
 import json
+import os
 import re
 import time
 from datetime import MINYEAR, date, datetime, timedelta
@@ -251,7 +252,8 @@ def get_choice_kyc(**kwargs):
             )
 
         reg = lms.regex_special_characters(
-            search=data.get("pan_no"), regex=re.compile("[A-Z]{5}[0-9]{4}[A-Z]{1}")
+            search=data.get("pan_no"),
+            regex=re.compile("[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"),
         )
 
         if not reg or len(data.get("pan_no")) != 10:
@@ -402,7 +404,8 @@ def kyc(**kwargs):
         #     )
 
         reg = lms.regex_special_characters(
-            search=user_kyc.get("pan_no"), regex=re.compile("[A-Z]{5}[0-9]{4}[A-Z]{1}")
+            search=user_kyc.get("pan_no"),
+            regex=re.compile("[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"),
         )
 
         if not reg or len(user_kyc.get("pan_no")) != 10:
@@ -1178,6 +1181,7 @@ def dashboard(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
+        user = lms.__user()
         try:
             user_kyc = lms.__user_kyc()
         except UserKYCNotFoundException:
@@ -1690,6 +1694,20 @@ def dashboard(**kwargs):
         if youtube_id_list:
             youtube_ids = [f["youtube_id"] for f in youtube_id_list]
 
+        #  Profile picture URL
+        profile_picture_file_url = None
+        profile_picture_file_path = frappe.utils.get_files_path(
+            "profile_pic/{}-profile-picture.jpeg".format(customer.name).replace(
+                " ", "-"
+            )
+        )
+        if os.path.exists(profile_picture_file_path):
+            profile_picture_file_url = frappe.utils.get_url(
+                "files/profile_pic/{}-profile-picture.jpeg".format(
+                    customer.name
+                ).replace(" ", "-")
+            )
+
         res = {
             "customer": customer,
             "user_kyc": user_kyc,
@@ -1705,6 +1723,7 @@ def dashboard(**kwargs):
             # "unpledge_application_list": unpledge_application_list,
             "show_feedback_popup": show_feedback_popup,
             "youtube_video_ids": youtube_ids,
+            "profile_picture_file_url": profile_picture_file_url,
         }
 
         return utils.respondWithSuccess(data=res)
@@ -1828,6 +1847,20 @@ def get_profile_set_alerts(**kwargs):
         if len(last_login) > 1:
             last_login_time = (last_login[1].creation).strftime("%Y-%m-%d %H:%M:%S")
 
+        #  Profile picture URL
+        profile_picture_file_url = None
+        profile_picture_file_path = frappe.utils.get_files_path(
+            "profile_pic/{}-profile-picture.jpeg".format(customer.name).replace(
+                " ", "-"
+            )
+        )
+        if os.path.exists(profile_picture_file_path):
+            profile_picture_file_url = frappe.utils.get_url(
+                "files/profile_pic/{}-profile-picture.jpeg".format(
+                    customer.name
+                ).replace(" ", "-")
+            )
+
         # alerts percentage and amount save in doctype
         if (
             data.get("is_for_alerts")
@@ -1869,6 +1902,7 @@ def get_profile_set_alerts(**kwargs):
             "customer_details": customer,
             "user_kyc": user_kyc,
             "last_login": last_login_time,
+            "profile_picture_file_url": profile_picture_file_url,
         }
 
         return utils.respondWithSuccess(data=res)
@@ -1882,6 +1916,7 @@ def update_profile_pic_and_pin(**kwargs):
         # validation
         utils.validator.validate_http_method("POST")
         user = lms.__user()
+        customer = lms.__customer(user.name)
 
         data = utils.validator.validate(
             kwargs,
@@ -1899,14 +1934,28 @@ def update_profile_pic_and_pin(**kwargs):
             data["is_for_profile_pic"] = int(data.get("is_for_profile_pic"))
 
         if isinstance(data.get("image"), str):
-            data["image"] = bytes(data.get("image")[1:-1], encoding="utf8")
+            # data["image"] = bytes(data.get("image")[1:-1], encoding="utf8")
+            data["image"] = bytes(data.get("image"), encoding="utf8")
 
         if isinstance(data.get("is_for_update_pin"), str):
             data["is_for_update_pin"] = int(data.get("is_for_update_pin"))
 
         if data.get("is_for_profile_pic") and data.get("image"):
-            profile_picture_file = "{}-profile-picture.jpeg".format(
-                user.full_name
+            tnc_dir_path = frappe.utils.get_files_path("profile_pic")
+
+            if not os.path.exists(tnc_dir_path):
+                os.mkdir(tnc_dir_path)
+
+            profile_picture_file = "profile_pic/{}-profile-picture.jpeg".format(
+                customer.name
+            ).replace(" ", "-")
+
+            image_path = frappe.utils.get_files_path(profile_picture_file)
+            if os.path.exists(image_path):
+                os.remove(image_path)
+
+            profile_picture_file = "profile_pic/{}-profile-picture.jpeg".format(
+                customer.name
             ).replace(" ", "-")
 
             profile_picture_file_path = frappe.utils.get_files_path(
@@ -1917,7 +1966,9 @@ def update_profile_pic_and_pin(**kwargs):
             image_file = open(profile_picture_file_path, "wb").write(image_decode)
 
             profile_picture_file_url = frappe.utils.get_url(
-                "files/{}-profile-picture.jpeg".format(user.full_name).replace(" ", "-")
+                "files/profile_pic/{}-profile-picture.jpeg".format(
+                    customer.name
+                ).replace(" ", "-")
             )
             # user.user_image = 0
             # user.user_image = profile_picture_file_url
@@ -1945,7 +1996,7 @@ def update_profile_pic_and_pin(**kwargs):
                 )
             except frappe.AuthenticationError:
                 return utils.respondWithFailure(
-                    status=417, message=frappe._("Incorrect User or Password.")
+                    status=417, message=frappe._("Invalid current pin")
                 )
 
             if old_pass_check:
@@ -1958,15 +2009,16 @@ def update_profile_pic_and_pin(**kwargs):
                 elif data.get("old_pin") == data.get("new_pin"):
                     return utils.respondWithFailure(
                         status=417,
-                        message=frappe._("Dont put new pin same as old pin."),
+                        message=frappe._("New pin cannot be same as old pin"),
                     )
                 else:
                     return utils.respondWithFailure(
-                        status=417, message=frappe._("Please retype correct pin.")
+                        status=417,
+                        message=frappe._("Retyped pin does not match with new pin"),
                     )
 
             return utils.respondWithSuccess(
-                message=frappe._("User PIN has been updated.")
+                message=frappe._("Your pin has been changed successfully!")
             )
 
         elif data.get("is_for_update_pin") and (
@@ -1976,8 +2028,9 @@ def update_profile_pic_and_pin(**kwargs):
                 status=417, message=frappe._("Please Enter old pin and new pin.")
             )
 
-    except utils.exceptions.APIException:
+    except utils.exceptions.APIException as e:
         frappe.db.rollback()
+        return e.respond()
 
 
 @frappe.whitelist(allow_guest=True)
@@ -2206,7 +2259,7 @@ def feedback(**kwargs):
         elif number_of_user_login[0].status_count > 10 or data.get("from_more_menu"):
             feedback_doc = frappe.get_doc(
                 {
-                    "doctype": "Feedback",
+                    "doctype": "Spark Feedback",
                     "customer": customer.name,
                     "sparkloans_have_hit_the_bulls_eye": data.get("bulls_eye"),
                     "sparkloans_can_do_better": data.get("can_do_better"),
@@ -2573,3 +2626,85 @@ def holiday_list():
         date_list.append(dates)
 
     return list(set(date_list))
+
+
+@frappe.whitelist()
+def otp_for_testing(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(kwargs, {"otp_type": "required"})
+
+        if data.get("otp_type") not in [
+            "OTP",
+            "Pledge OTP",
+            "Withdraw OTP",
+            "Unpledge OTP",
+            "Sell Collateral OTP",
+            "Forgot Pin OTP",
+        ]:
+            return utils.respondWithFailure(
+                status=417,
+                message=frappe._("Incorrect OTP type."),
+            )
+
+        customer = lms.__customer()
+
+        if data.get("otp_type") in ["OTP", "Withdraw OTP", "Sell Collateral OTP"]:
+            entity = customer.phone
+        elif data.get("otp_type") == "Forgot Pin OTP":
+            entity = customer.user
+        else:
+            entity = lms.__user_kyc().mobile_number
+
+        tester = frappe.db.sql(
+            "select c.user,c.full_name from `tabLoan Customer` as c left join `tabHas Role` as r on c.user=r.parent where role='Spark Tester' and r.parent='{}'".format(
+                customer.user
+            ),
+            as_dict=1,
+        )
+
+        if not tester:
+            # Unauthorized user
+            return utils.respondUnauthorized(message="Unauthorized User")
+
+        if tester:
+            # Mark old token as Used
+            frappe.db.begin()
+            old_token_name = frappe.get_all(
+                "User Token",
+                filters={
+                    "entity": entity,
+                    "token_type": "{}".format(data.get("otp_type")),
+                },
+                order_by="creation desc",
+                fields=["*"],
+            )
+            if old_token_name:
+                old_token = frappe.get_doc("User Token", old_token_name[0].name)
+                lms.token_mark_as_used(old_token)
+
+            # Create New token
+            lms.create_user_token(
+                entity=entity,
+                token_type="{}".format(data.get("otp_type")),
+                token=lms.random_token(length=4, is_numeric=True),
+            )
+            frappe.db.commit()
+
+            # Fetch New token
+            token = frappe.get_all(
+                "User Token",
+                filters={
+                    "entity": entity,
+                    "token_type": "{}".format(data.get("otp_type")),
+                    "used": 0,
+                },
+                order_by="creation desc",
+                fields=["token as OTP"],
+                page_length=1,
+            )
+
+            return utils.respondWithSuccess(data=token[0] if token else None)
+
+    except utils.exceptions.APIException as e:
+        return e.respond()

@@ -1,5 +1,7 @@
 import frappe
 
+import lms
+
 
 @frappe.whitelist(allow_guest=True)
 def applyNow(first_name, last_name, emails, mobile):
@@ -11,6 +13,8 @@ def applyNow(first_name, last_name, emails, mobile):
     doc.insert(ignore_permissions=True)
     doc.save()
     frappe.db.commit()
+    full_name = doc.first_name + " " + doc.last_name
+    lms.web_mail("Apply Now", full_name, doc.email, "Apply Now")
     return "Apply request successfully submitted."
 
 
@@ -22,4 +26,13 @@ def subscribeUpdates(number, email):
     doc.insert(ignore_permissions=True)
     doc.save()
     frappe.db.commit()
+    lms.web_mail(
+        "Subscribe for Updates", "Subscriber", doc.email, "Subscribe for updates"
+    )
     return "Subscribed successfully."
+
+
+def get_context(context):
+    context.lenders = frappe.get_all(
+        "Lender", fields=["name", "logo_file_1", "lender_title"], order_by="creation"
+    )

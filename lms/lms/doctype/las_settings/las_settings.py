@@ -21,3 +21,13 @@ class LASSettings(Document):
     def get_spark_logo_file(self):
         file_name = frappe.db.get_value("File", {"file_url": self.spark_logo})
         return frappe.get_doc("File", file_name) if file_name else None
+
+    def get_lender_template(self):
+        file_name = frappe.db.get_value("File", {"file_url": self.lender_template})
+        return frappe.get_doc("File", file_name)
+
+    def get_approved_securities_template(self):
+        file_name = frappe.db.get_value(
+            "File", {"file_url": self.approved_security_template}
+        )
+        return frappe.get_doc("File", file_name)

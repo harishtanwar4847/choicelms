@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2020, Atrina Technologies Pvt. Ltd. and Contributors
+# Copyright (c) 2021, Atrina Technologies Pvt. Ltd. and Contributors
 # See license.txt
 from __future__ import unicode_literals
 
@@ -7,5 +7,5 @@ from __future__ import unicode_literals
 import unittest
 
 
-class TestFeedback(unittest.TestCase):
+class TestSparkTester(unittest.TestCase):
     pass
