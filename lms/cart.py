@@ -7,6 +7,7 @@ import requests
 import utils
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
+from num2words import num2words
 
 import lms
 from lms.exceptions import PledgeSetupFailureException
@@ -620,18 +621,23 @@ def get_tnc(**kwargs):
         if data.get("cart_name"):
             if not cart.loan:
                 tnc_ul.append(
-                    "<li><strong> Sanctioned credit limit / Drawing power </strong>: <strong>Rs. {}</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
-                        cart.eligible_loan
+                    "<li><strong> Sanctioned credit limit / Drawing power </strong>: <strong>Rs. {}/-</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
+                        int(cart.eligible_loan)
                     )
                     + "</li>"
                 )
             elif data.get("cart_name") and cart.loan and not cart.loan_margin_shortfall:
                 tnc_ul.append(
-                    "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
-                        lms.round_down_amount_to_nearest_thousand(
-                            (cart.total_collateral_value + loan.total_collateral_value)
-                            * cart.allowable_ltv
-                            / 100
+                    "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}/-</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
+                        int(
+                            lms.round_down_amount_to_nearest_thousand(
+                                (
+                                    cart.total_collateral_value
+                                    + loan.total_collateral_value
+                                )
+                                * cart.allowable_ltv
+                                / 100
+                            )
                         )
                     )
                     + "</li>"
@@ -650,8 +656,8 @@ def get_tnc(**kwargs):
             #     "<li><strong> Previous Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong>;".format(loan.drawing_power)+ "</li>")
         else:
             tnc_ul.append(
-                "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
-                    data.get("topup_amount") + loan.sanctioned_limit
+                "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}/-</strong> (Rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
+                    int(data.get("topup_amount") + loan.sanctioned_limit)
                 )
                 + "</li>"
             )
@@ -681,28 +687,79 @@ def get_tnc(**kwargs):
         tnc_ul.append(
             "<li><strong> Penal interest rate / Penal charges </strong>: In case of occurrence of Event of Default (EOD), penal interest shall be charged <strong>upto 4.00% per month</strong> over and above applicable interest rate;</li>"
         )
-        tnc_ul.append(
-            "<li><strong> Processing fees </strong>: <strong>{}%</strong> of the sanctioned amount".format(
-                lender.lender_processing_fees
+        if lender.lender_processing_fees_type == "Percentage":
+            tnc_ul.append(
+                "<li><strong> Processing fees </strong>: <strong>{percent_charge}%, {percent_charge_in_words} percent</strong> of the sanctioned amount; subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
+                    percent_charge=lender.lender_processing_fees,
+                    percent_charge_in_words=num2words(
+                        lender.lender_processing_fees, lang="en_IN"
+                    ).title(),
+                    min_amt=int(lender.lender_processing_minimum_amount),
+                    max_amt=int(lender.lender_processing_maximum_amount),
+                )
+                + "</li>"
             )
-            + "</li>"
-        )
-        tnc_ul.append(
-            "<li><strong> Account renewal charges </strong>: <strong>{}%</strong> of the renewal amount (Facility valid for a period of 12 months from the date of sanction; account renewal charges shall be debited at the end of 12 months)".format(
-                lender.account_renewal_charges
+        elif lender.lender_processing_fees_type == "Fix":
+            tnc_ul.append(
+                "<li><strong> Processing fees </strong>: <strong>Rs. {fix_charge}/-, Rupees {fix_charge_in_words} Only</strong>".format(
+                    fix_charge=int(lender.lender_processing_fees),
+                    fix_charge_in_words=num2words(
+                        int(lender.lender_processing_fees), lang="en_IN"
+                    ).title(),
+                )
+                + "</li>"
             )
-            + "</li>"
-        )
-        tnc_ul.append(
-            "<li><strong> Documentation charges </strong>: <strong>Rs. {}/-;</strong>".format(
-                int(lender.lender_documentation_minimum_amount)
+        if lender.renewal_charge_type == "Percentage":
+            tnc_ul.append(
+                "<li><strong> Account renewal charges </strong>: <strong>{percent_charge}%, {percent_charge_in_words} percent</strong> of the renewal amount (facility valid for a period of 12 months from the date of sanction; account renewal charges shall be debited at the end of 12 months) subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
+                    percent_charge=lender.renewal_charges,
+                    percent_charge_in_words=num2words(
+                        lender.renewal_charges, lang="en_IN"
+                    ).title(),
+                    min_amt=int(lender.renewal_minimum_amount),
+                    max_amt=int(lender.renewal_maximum_amount),
+                )
+                + "</li>"
             )
-            + "</li>"
-        )
-        tnc_ul.append(
-            "<li><strong> Stamp duty & other statutory charges : Rs. {}/-;</li></strong>".format(
-                int(lender.lender_stamp_duty_minimum_amount)
+        elif lender.renewal_charge_type == "Fix":
+            tnc_ul.append(
+                "<li><strong> Account renewal charges </strong>: <strong>Rs. {fix_charge}/-, Rupees {fix_charge_in_words} Only</strong>".format(
+                    fix_charge=int(lender.renewal_charges),
+                    fix_charge_in_words=num2words(
+                        int(lender.renewal_charges), lang="en_IN"
+                    ).title(),
+                )
+                + "</li>"
             )
+        if lender.documentation_charge_type == "Percentage":
+            tnc_ul.append(
+                "<li><strong> Documentation charges </strong>: <strong> {percent_charge}%, {percent_charge_in_words} percent </strong>of the sanctioned amount; subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
+                    percent_charge=lender.documentation_charges,
+                    percent_charge_in_words=num2words(
+                        lender.documentation_charges, lang="en_IN"
+                    ).title(),
+                    min_amt=int(lender.lender_documentation_minimum_amount),
+                    max_amt=int(lender.lender_documentation_maximum_amount),
+                )
+                + "</li>"
+            )
+        elif lender.documentation_charge_type == "Fix":
+            tnc_ul.append(
+                "<li><strong> Documentation charges </strong>: <strong>Rs. {fix_charge}/-, Rupees {fix_charge_in_words} Only</strong>".format(
+                    fix_charge=int(lender.documentation_charges),
+                    fix_charge_in_words=num2words(
+                        int(lender.documentation_charges), lang="en_IN"
+                    ).title(),
+                )
+                + "</li>"
+            )
+        # tnc_ul.append(
+        #     "<li><strong> Stamp duty & other statutory charges : Rs. {}/-;</li></strong>".format(
+        #         int(lender.lender_stamp_duty_minimum_amount)
+        #     )
+        # )
+        tnc_ul.append(
+            "<li><strong> Stamp duty & other statutory charges : At actuals;</li></strong>"
         )
         tnc_ul.append(
             "<li><strong> Pre-payment charges </strong>: <strong>NIL;</strong></li>"
