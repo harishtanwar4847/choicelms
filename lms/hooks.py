@@ -136,7 +136,7 @@ fixtures = [
 ]
 
 # Migration
-after_migrate = ["lms.patches.import_spark_push_notification_content"]
+after_migrate = ["lms.patches.import_spark_push_notification_content.execute"]
 
 scheduler_events = {
     "hourly": [
