@@ -2511,3 +2511,95 @@ def otp_for_testing(**kwargs):
 
     except utils.exceptions.APIException as e:
         return e.respond()
+
+
+@frappe.whitelist()
+def push_notification_list(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        customer = lms.__customer()
+        if not customer:
+            return utils.respondNotFound(message=frappe._("Customer not found."))
+
+        all_notifications = frappe.get_all(
+            "Spark Push Notification Log",
+            filters={"loan_customer": customer.name, "is_cleared": 0},
+            fields=["*"],
+            order_by="creation desc",
+        )
+        if not all_notifications:
+            return utils.respondWithSuccess(message="No notification found")
+
+        return utils.respondWithSuccess(data=all_notifications)
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist()
+def read_or_clear_notifications(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "is_for_read": "decimal|between:0,1",
+                "is_for_clear": "decimal|between:0,1",
+                "notification_name": "",
+            },
+        )
+
+        if isinstance(data.get("is_for_read"), str):
+            data["is_for_read"] = int(data.get("is_for_read"))
+
+        if isinstance(data.get("is_for_clear"), str):
+            data["is_for_clear"] = int(data.get("is_for_clear"))
+
+        customer = lms.__customer()
+        if not customer:
+            return utils.respondNotFound(message=frappe._("Customer not found."))
+
+        if data.get("is_for_read") and data.get("is_for_clear"):
+            return utils.respondForbidden(
+                message=_("Can not use both option at once, please use one.")
+            )
+
+        if data.get("is_for_read") and not data.get("notification_name"):
+            return utils.respondWithFailure(
+                status=417,
+                message=frappe._("Notification name field empty"),
+            )
+
+        if data.get("is_for_clear") and not data.get("notification_name"):
+            notification_name = frappe.get_all(
+                "Spark Push Notification Log",
+                filters={"loan_customer": customer.name, "is_cleared": 0},
+            )
+            for fcm in notification_name:
+                fcm_log = frappe.get_doc("Spark Push Notification Log", fcm["name"])
+                fcm_log.is_cleared = 1
+                fcm_log.save(ignore_permissions=True)
+                frappe.db.commit()
+
+        if data.get("notification_name"):
+            fcm_log = frappe.get_doc(
+                "Spark Push Notification Log", data.get("notification_name")
+            )
+            if fcm_log.loan_customer != customer.name:
+                return utils.respondForbidden(
+                    message=_("Notification doesnt belong to this customer")
+                )
+
+            if data.get("is_for_read"):
+                fcm_log.is_read = 1
+            if data.get("is_for_clear"):
+                fcm_log.is_cleared = 1
+            fcm_log.save(ignore_permissions=True)
+            frappe.db.commit()
+
+        return utils.respondWithSuccess()
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
