@@ -28,6 +28,8 @@ def execute():
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED"""
     )
 
+    frappe.db.sql("TRUNCATE `tabSpark Push Notification`")
+
     frappe.db.commit()
     path = frappe.get_app_path(
         "lms", "patches", "imports", "spark_push_notification.csv"
