@@ -2592,12 +2592,21 @@ def read_or_clear_notifications(**kwargs):
                     message=_("Notification doesnt belong to this customer")
                 )
 
-            if data.get("is_for_read"):
-                fcm_log.is_read = 1
             if data.get("is_for_clear"):
-                fcm_log.is_cleared = 1
-            fcm_log.save(ignore_permissions=True)
-            frappe.db.commit()
+                if fcm_log.is_cleared == 0:
+                    fcm_log.is_cleared = 1
+                    fcm_log.save(ignore_permissions=True)
+                    frappe.db.commit()
+                else:
+                    return utils.respondWithFailure(
+                        status=417,
+                        message=frappe._("Notification not found"),
+                    )
+            if data.get("is_for_read"):
+                if fcm_log.is_read == 0:
+                    fcm_log.is_read = 1
+                    fcm_log.save(ignore_permissions=True)
+                    frappe.db.commit()
 
         return utils.respondWithSuccess()
 
