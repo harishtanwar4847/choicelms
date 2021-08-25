@@ -1511,6 +1511,12 @@ def dashboard(**kwargs):
                 ).replace(" ", "-")
             )
 
+        # Count unread FCM notification
+        fcm_unread_count = frappe.db.count(
+            "Spark Push Notification Log",
+            filters={"loan_customer": customer.name, "is_read": 0},
+        )
+
         res = {
             "customer": customer,
             "user_kyc": user_kyc,
@@ -1527,6 +1533,7 @@ def dashboard(**kwargs):
             "show_feedback_popup": show_feedback_popup,
             "youtube_video_ids": youtube_ids,
             "profile_picture_file_url": profile_picture_file_url,
+            "fcm_unread_count": fcm_unread_count,
         }
 
         return utils.respondWithSuccess(data=res)
