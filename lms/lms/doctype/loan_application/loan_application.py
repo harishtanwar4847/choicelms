@@ -869,6 +869,7 @@ class LoanApplication(Document):
         msg = ""
         loan = ""
         fcm_notification = {}
+        fcm_message = ""
         if doc.get("loan_application").get("status") == "Pledge Failure":
             msg, fcm_title = (
                 (
@@ -971,6 +972,13 @@ class LoanApplication(Document):
                 else "Pledge partially accepted",
                 fields=["*"],
             )
+            fcm_message = (
+                fcm_notification.message.format(
+                    total_collateral_value_str=self.total_collateral_value_str
+                )
+                if self.loan
+                else ""
+            )
 
         if msg:
             receiver_list = list(
@@ -983,6 +991,7 @@ class LoanApplication(Document):
         if fcm_notification:
             lms.send_spark_push_notification(
                 fcm_notification=fcm_notification,
+                message=fcm_message,
                 loan=self.loan,
                 customer=self.get_customer(),
             )
