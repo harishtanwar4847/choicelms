@@ -3,7 +3,7 @@
 ## [Unreleased]
 
 - [Feat: changes in tnc html template, loan agreement template, loan enhancement agreement template regarding lender charges](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/361)
-- [Feat: changes in Rupees, percentage, Rupees in word format in Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/362)
+- [Feat: changes in Currency format (Rupees and Paisa), percentage, Rupees in word format in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/366)
 
 ## [v1.0.5] - 2021-08-18
 
