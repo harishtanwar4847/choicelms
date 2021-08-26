@@ -703,12 +703,19 @@ def number_to_word(number):
     crore = number // 10000000
     number = number % 10000000
     word = ""
-    if crore > 0:
-        word += get_all_word(crore)
-        word += " crore "
-    word += "Rupees " + get_all_word(number).strip()
-    if len(arr) > 1:
-        if len(arr[1]) == 1:
-            arr[1] += "0"
-        word += " and " + get_all_word(int(arr[1])) + " paise"
+    if number > 0:
+        if crore > 0:
+            word += get_all_word(crore)
+            word += " crore "
+        word += "Rupees " + get_all_word(number).strip()
+        if len(arr) > 1:
+            if len(arr[1]) == 1:
+                arr[1] += "0"
+            word += " and " + get_all_word(int(arr[1])) + " paise"
+    elif number == 0:
+        if len(arr) > 1:
+            if len(arr[1]) == 1:
+                arr[1] += "0"
+            # word +="Rupees "+ get_all_word(int(arr[1])) + " paise"
+            word += get_all_word(int(arr[1])) + " paise"
     return word
