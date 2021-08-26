@@ -2,12 +2,16 @@ import frappe
 
 
 def execute():
+    spark_push_notification = frappe.reload_doc(
+        "Lms", "DocType", "Spark Push Notification"
+    )
+
     doc_exists = frappe.db.sql(
         "SELECT EXISTS(SELECT 1 FROM `tabSpark Push Notification`) as OUTPUT;",
         as_dict=True,
     )
 
-    if not doc_exists[0].get("OUTPUT"):
+    if spark_push_notification and not doc_exists[0].get("OUTPUT"):
         path = frappe.get_app_path(
             "lms", "patches", "imports", "spark_push_notification.csv"
         )

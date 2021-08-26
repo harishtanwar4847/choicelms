@@ -28,7 +28,7 @@ Withdrawal successful,Withdrawal successful,My Loans,Success,Your withdrawal req
 Partial withdrawal successful,Partial withdrawal successful,My Loans,Success,Your withdrawal request for Rs. {requested} has been partially executed and Rs. {disbursed} transferred to your designated bank account.
 Withdrawal rejected,Withdrawal rejected,My Loans,Warning,Sorry! Your withdrawal request has been rejected by our lending partner for technical reasons.
 Payment credited to account,Payment credited to account,My Loans,Success,You loan account {loan} has been credited by payment of Rs. {amount} . Your loan balance is Rs. {loan_balance}. {datetime}
-Payments failed,Payments failed,My Loans,Warning,Sorry! Your payment of Rs. {amount} was unsuccessful against loan account {loan}. Please check with your bank for details.
+Payment failed,Payment failed,My Loans,Warning,Sorry! Your payment of Rs. {amount} was unsuccessful against loan account {loan}. Please check with your bank for details.
 Interest due,Interest due,My Loans,Warning,"An interest of Rs. {unpaid_interest} is due on your loan account {loan}.
 Please pay the interest due before the 7th of this month in order to continue to enjoy the rebate provided on the interest rate."
 Rebate reversed,Rebate reversed,My Loans,Warning,"Rebate of Rs. {unpaid_interest} was reversed in your loan account {loan}. This will appear as 'Addl Interest' in your loan account. 
