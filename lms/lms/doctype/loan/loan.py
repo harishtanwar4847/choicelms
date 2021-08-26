@@ -1214,56 +1214,69 @@ class Loan(Document):
             # "sanctioned_amount_in_words": num2words(
             #     topup_amount, lang="en_IN"
             # ).title(),
-            "sanctioned_amount": int(topup_amount + self.sanctioned_limit),
-            "sanctioned_amount_in_words": num2words(
-                (topup_amount + self.sanctioned_limit), lang="en_IN"
+            "sanctioned_amount": lms.validate_rupees(
+                (topup_amount + self.sanctioned_limit)
+            ),
+            "sanctioned_amount_in_words": lms.number_to_word(
+                (topup_amount + self.sanctioned_limit)
             ).title(),
-            "old_sanctioned_amount": int(self.sanctioned_limit),
-            "old_sanctioned_amount_in_words": num2words(
-                self.sanctioned_limit, lang="en_IN"
+            "old_sanctioned_amount": lms.validate_rupees(self.sanctioned_limit),
+            "old_sanctioned_amount_in_words": lms.number_to_word(
+                self.sanctioned_limit
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,
             "rebait_threshold": lender.rebait_threshold,
-            "renewal_charges": lender.renewal_charges,
+            "renewal_charges": lms.validate_rupees(lender.renewal_charges)
+            if lender.renewal_charge_type == "Fix"
+            else lms.validate_percent(lender.renewal_charges),
             "renewal_charge_type": lender.renewal_charge_type,
-            "renewal_charge_in_words": num2words(
-                int(lender.renewal_charges)
-                if lender.renewal_charge_type == "Fix"
-                else lender.renewal_charges,
-                lang="en_IN",
-            ).title(),
-            "renewal_min_amt": int(lender.renewal_minimum_amount),
-            "renewal_max_amt": int(lender.renewal_maximum_amount),
-            "documentation_charge": lender.documentation_charges,
+            "renewal_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.renewal_charges)
+            ).title()
+            if lender.renewal_charge_type == "Fix"
+            else "",
+            "renewal_min_amt": lms.validate_rupees(lender.renewal_minimum_amount),
+            "renewal_max_amt": lms.validate_rupees(lender.renewal_maximum_amount),
+            "documentation_charge": lms.validate_rupees(lender.documentation_charges)
+            if lender.documentation_charge_type == "Fix"
+            else lms.validate_percent(lender.documentation_charges),
             "documentation_charge_type": lender.documentation_charge_type,
-            "documentation_charge_in_words": num2words(
-                int(lender.documentation_charges)
-                if lender.documentation_charge_type == "Fix"
-                else lender.documentation_charges,
-                lang="en_IN",
-            ).title(),
-            "documentation_min_amt": int(lender.lender_documentation_minimum_amount),
-            "documentation_max_amt": int(lender.lender_documentation_maximum_amount),
+            "documentation_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.documentation_charges)
+            ).title()
+            if lender.documentation_charge_type == "Fix"
+            else "",
+            "documentation_min_amt": lms.validate_rupees(
+                lender.lender_documentation_minimum_amount
+            ),
+            "documentation_max_amt": lms.validate_rupees(
+                lender.lender_documentation_maximum_amount
+            ),
             "lender_processing_fees_type": lender.lender_processing_fees_type,
-            "processing_charge": lender.lender_processing_fees,
-            "processing_charge_in_words": num2words(
-                int(lender.lender_processing_fees)
-                if lender.lender_processing_fees_type == "Fix"
-                else lender.lender_processing_fees,
-                lang="en_IN",
-            ).title(),
-            "processing_min_amt": int(lender.lender_processing_minimum_amount),
-            "processing_max_amt": int(lender.lender_processing_maximum_amount),
+            "processing_charge": lms.validate_rupees(lender.lender_processing_fees)
+            if lender.lender_processing_fees_type == "Fix"
+            else lms.validate_percent(lender.lender_processing_fees),
+            "processing_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.lender_processing_fees)
+            ).title()
+            if lender.lender_processing_fees_type == "Fix"
+            else "",
+            "processing_min_amt": lms.validate_rupees(
+                lender.lender_processing_minimum_amount
+            ),
+            "processing_max_amt": lms.validate_rupees(
+                lender.lender_processing_maximum_amount
+            ),
             # "documentation_charges": lender.documentation_charges,
             # "stamp_duty_charges": (lender.stamp_duty / 100)
             # * self.sanctioned_limit,  # CR loan agreement changes
             # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
-            "transaction_charges_per_request": int(
+            "transaction_charges_per_request": lms.validate_rupees(
                 lender.transaction_charges_per_request
             ),
             "security_selling_share": lender.security_selling_share,
-            "cic_charges": int(lender.cic_charges),
+            "cic_charges": lms.validate_rupees(lender.cic_charges),
             "total_pages": lender.total_pages,
         }
 
