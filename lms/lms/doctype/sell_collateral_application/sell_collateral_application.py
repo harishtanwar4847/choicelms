@@ -332,7 +332,12 @@ class SellCollateralApplication(Document):
         )
 
         if fcm_notification:
-            pass
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification,
+                message=message,
+                loan=self.loan,
+                customer=self.get_customer(),
+            )
 
 
 @frappe.whitelist()

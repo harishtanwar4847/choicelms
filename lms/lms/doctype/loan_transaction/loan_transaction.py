@@ -278,12 +278,13 @@ class LoanTransaction(Document):
                     method=send_sms, receiver_list=[self.get_customer().phone], msg=mess
                 )
 
-            lms.send_spark_push_notification(
-                fcm_notification=fcm_notification,
-                message=message,
-                loan=self.loan,
-                customer=self.get_customer(),
-            )
+            if fcm_notification:
+                lms.send_spark_push_notification(
+                    fcm_notification=fcm_notification,
+                    message=message,
+                    loan=self.loan,
+                    customer=self.get_customer(),
+                )
 
         if self.loan_margin_shortfall:
             loan_margin_shortfall = frappe.get_doc(

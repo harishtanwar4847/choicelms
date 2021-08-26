@@ -320,7 +320,7 @@ class TopupApplication(Document):
         frappe.enqueue_doc("Notification", "Top up Application", method="send", doc=doc)
         mess = ""
         loan = ""
-        fcm_notification = ""
+        fcm_notification = {}
         if doc.get("top_up_application").get("status") == "Pending":
             # mess = "Your request has been successfully received. You will be notified when your new OD limit is approved by our banking partner."
             mess = 'Dear Customer,\nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans'
@@ -356,12 +356,13 @@ class TopupApplication(Document):
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
 
-        lms.send_spark_push_notification(
-            fcm_notification=fcm_notification,
-            message=fcm_notification.message,
-            loan=loan,
-            customer=self.get_customer(),
-        )
+        if fcm_notification:
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification,
+                message=fcm_notification.message,
+                loan=loan,
+                customer=self.get_customer(),
+            )
 
     def map_loan_agreement_file(self, loan):
         file_name = frappe.db.get_value(

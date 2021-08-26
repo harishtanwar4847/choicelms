@@ -643,7 +643,7 @@ def send_spark_push_notification(
                     + frappe.utils.now_datetime().strftime("%Y-%m-%d %H:%M")
                 ).replace(" ", "_"),
                 "screen": fcm_notification.screen_to_open,
-                "loan_no": loan,
+                "loan_no": loan if loan else "",
                 "title": fcm_notification.title,
                 "body": message,
                 "notification_type": fcm_notification.notification_type,
@@ -674,7 +674,7 @@ def send_spark_push_notification(
                 }
             ).insert(ignore_permissions=True)
             frappe.db.commit()
-        except Exception:
-            pass
+        except Exception as e:
+            return e
         finally:
             fa.delete_app()
