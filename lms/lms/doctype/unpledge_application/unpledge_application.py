@@ -221,7 +221,7 @@ class UnpledgeApplication(Document):
                 fcm_notification=fcm_notification,
                 message=fcm_notification.message,
                 loan=self.loan,
-                customer=self.get_customer(),
+                customer=customer,
             )
 
     def validate(self):

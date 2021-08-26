@@ -1511,6 +1511,12 @@ def dashboard(**kwargs):
                 ).replace(" ", "-")
             )
 
+        # Count unread FCM notification
+        fcm_unread_count = frappe.db.count(
+            "Spark Push Notification Log",
+            filters={"loan_customer": customer.name, "is_read": 0, "is_cleared": 0},
+        )
+
         res = {
             "customer": customer,
             "user_kyc": user_kyc,
@@ -1527,6 +1533,7 @@ def dashboard(**kwargs):
             "show_feedback_popup": show_feedback_popup,
             "youtube_video_ids": youtube_ids,
             "profile_picture_file_url": profile_picture_file_url,
+            "fcm_unread_count": fcm_unread_count,
         }
 
         return utils.respondWithSuccess(data=res)
@@ -2592,12 +2599,21 @@ def read_or_clear_notifications(**kwargs):
                     message=_("Notification doesnt belong to this customer")
                 )
 
-            if data.get("is_for_read"):
-                fcm_log.is_read = 1
             if data.get("is_for_clear"):
-                fcm_log.is_cleared = 1
-            fcm_log.save(ignore_permissions=True)
-            frappe.db.commit()
+                if fcm_log.is_cleared == 0:
+                    fcm_log.is_cleared = 1
+                    fcm_log.save(ignore_permissions=True)
+                    frappe.db.commit()
+                else:
+                    return utils.respondWithFailure(
+                        status=417,
+                        message=frappe._("Notification not found"),
+                    )
+            if data.get("is_for_read"):
+                if fcm_log.is_read == 0:
+                    fcm_log.is_read = 1
+                    fcm_log.save(ignore_permissions=True)
+                    frappe.db.commit()
 
         return utils.respondWithSuccess()
 
