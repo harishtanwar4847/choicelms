@@ -1459,7 +1459,7 @@ def loan_payment(**kwargs):
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
             fcm_notification = frappe.get_doc(
-                "Spark Push Notification", "Payments failed", fields=["*"]
+                "Spark Push Notification", "Payment failed", fields=["*"]
             )
             lms.send_spark_push_notification(
                 fcm_notification=fcm_notification,
