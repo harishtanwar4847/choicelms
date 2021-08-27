@@ -90,18 +90,39 @@ endblock description %} {%- block head_include -%} {% include
               <div class="card-body">
                 <p>
                   Currently, loan can be availed against listed equity shares.
-                  <a href="{{approved_pdf}}" target="__blank"
-                    >(<u>Check approved list</u></a
-                  >
+                  (<a href="{{approved_pdf}}" target="_blank">
+                    <u>Check approved list</u>
+                  </a>
                   of
-                  <a href="{{lender_pdf}}" target="__blank"
-                    ><u>lender partners</u></a
+                  <a href="{{lender_pdf}}" target="_blank">
+                    <u>lender partners</u> </a
                   >)
                   <br />
-                  <!-- (<a href="{{lender_pdf}}" target="__blank"
-                    >Check Lender Partner list</a
-                  >) -->
                 </p>
+                {% if "webview" in frappe.form_dict %}
+                <p>
+                  Currently, loan can be availed against listed equity shares.
+                  (<a href="{{approved_pdf}}" target="_self">
+                    <u>Check approved list</u>
+                  </a>
+                  of
+                  <a href="{{lender_pdf}}" target="_self">
+                    <u>lender partners</u> </a
+                  >)
+                  <br />
+                </p>
+                <p>
+                  Currently, loan can be availed against listed equity shares.
+                  (<a id="openapproved">
+                    <u>Check approved list</u>
+                  </a>
+                  of
+                  <a id="openlender">
+                    <u>lender partners</u> </a
+                  >)
+                  <br />
+                </p>
+                {% endif %}
                 <p>
                   Coming Soon: Customers will be able to avail loans against
                   mutual fund units, bonds, national savings certificates, gold
@@ -864,6 +885,13 @@ endblock description %} {%- block head_include -%} {% include
 
 <script>
   $(document).ready(function () {
+    $("#openapproved").click(function () {
+      window.open("{{approved_pdf}}", "_system");
+    });
+    $("#openlender").click(function () {
+      window.open("{{lender_pdf}}", "_system");
+    });
+
     // Add minus icon for collapse element which is open by default
     $(".collapse.show").each(function () {
       $(this)
