@@ -2529,12 +2529,19 @@ def push_notification_list(**kwargs):
         if not customer:
             return utils.respondNotFound(message=frappe._("Customer not found."))
 
-        all_notifications = frappe.get_all(
-            "Spark Push Notification Log",
-            filters={"loan_customer": customer.name, "is_cleared": 0},
-            fields=["*"],
-            order_by="creation desc",
+        # all_notifications = frappe.get_all(
+        #     "Spark Push Notification Log",
+        #     filters={"loan_customer": customer.name, "is_cleared": 0},
+        #     fields=["*"],
+        #     order_by="creation desc",
+        # )
+        all_notifications = frappe.db.sql(
+            "select name, title, loan_customer, loan, screen_to_open, notification_id, notification_type, click_action, DATE_FORMAT(time, '%d %b at %h:%i %p') as time, message, is_cleared, is_read from `tabSpark Push Notification Log` where loan_customer='{loan_customer}' and is_cleared=0 order by creation desc".format(
+                loan_customer=customer.name
+            ),
+            as_dict=True,
         )
+
         if not all_notifications:
             return utils.respondWithSuccess(message="No notification found")
 

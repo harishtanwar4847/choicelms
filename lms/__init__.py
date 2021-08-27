@@ -647,7 +647,7 @@ def send_spark_push_notification(
                 "title": fcm_notification.title,
                 "body": message,
                 "notification_type": fcm_notification.notification_type,
-                "time": frappe.utils.now_datetime().strftime("%d %b at %H:%M %P"),
+                "time": frappe.utils.now_datetime().strftime("%d %b at %H:%M %p"),
             }
 
             fa.send_message(
