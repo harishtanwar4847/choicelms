@@ -698,16 +698,26 @@ def number_to_word(number):
             w = w[:-3]
         return w
 
+    number1 = float(number)
     arr = str(number).split(".")
     number = int(arr[0])
     crore = number // 10000000
     number = number % 10000000
     word = ""
-    if number > 0:
+    if number1 > 1:
         if crore > 0:
             word += get_all_word(crore)
             word += " crore "
         word += "Rupees " + get_all_word(number).strip()
+        if len(arr) > 1:
+            if len(arr[1]) == 1:
+                arr[1] += "0"
+            word += " and " + get_all_word(int(arr[1])) + " paise"
+    elif number1 == 1:
+        if crore > 0:
+            word += get_all_word(crore)
+            word += " crore "
+        word += "Rupee " + get_all_word(number).strip()
         if len(arr) > 1:
             if len(arr[1]) == 1:
                 arr[1] += "0"
