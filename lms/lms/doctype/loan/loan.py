@@ -1218,11 +1218,11 @@ class Loan(Document):
                 (topup_amount + self.sanctioned_limit)
             ),
             "sanctioned_amount_in_words": lms.number_to_word(
-                (topup_amount + self.sanctioned_limit)
+                lms.validate_rupees((topup_amount + self.sanctioned_limit))
             ).title(),
             "old_sanctioned_amount": lms.validate_rupees(self.sanctioned_limit),
             "old_sanctioned_amount_in_words": lms.number_to_word(
-                self.sanctioned_limit
+                lms.validate_rupees(self.sanctioned_limit)
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,

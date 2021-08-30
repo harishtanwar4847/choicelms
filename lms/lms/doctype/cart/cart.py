@@ -179,13 +179,15 @@ class Cart(Document):
             if self.loan and not self.loan_margin_shortfall
             else int(self.eligible_loan),
             "sanctioned_amount_in_words": lms.number_to_word(
-                lms.round_down_amount_to_nearest_thousand(
-                    (self.total_collateral_value + loan.total_collateral_value)
-                    * self.allowable_ltv
-                    / 100
+                lms.validate_rupees(
+                    lms.round_down_amount_to_nearest_thousand(
+                        (self.total_collateral_value + loan.total_collateral_value)
+                        * self.allowable_ltv
+                        / 100
+                    )
+                    if self.loan and not self.loan_margin_shortfall
+                    else self.eligible_loan,
                 )
-                if self.loan and not self.loan_margin_shortfall
-                else self.eligible_loan,
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,

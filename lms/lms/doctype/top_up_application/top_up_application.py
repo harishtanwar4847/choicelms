@@ -229,7 +229,7 @@ class TopupApplication(Document):
             ).title(),
             "old_sanctioned_amount": lms.validate_rupees(loan.sanctioned_limit),
             "old_sanctioned_amount_in_words": lms.number_to_word(
-                loan.sanctioned_limit
+                lms.validate_rupees(loan.sanctioned_limit)
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,
