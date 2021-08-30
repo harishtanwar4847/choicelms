@@ -660,6 +660,7 @@ def send_spark_push_notification(
                     "doctype": "Spark Push Notification Log",
                     "title": data["title"],
                     "loan_customer": customer.name,
+                    "customer_name": customer.full_name,
                     "loan": data["loan_no"],
                     "screen_to_open": data["screen"],
                     "notification_id": data["notification_id"],
