@@ -54,13 +54,15 @@ class LoanApplication(Document):
             if self.loan and not self.loan_margin_shortfall
             else int(self.drawing_power),
             "sanctioned_amount_in_words": lms.number_to_word(
-                lms.round_down_amount_to_nearest_thousand(
-                    (self.total_collateral_value + loan.total_collateral_value)
-                    * self.allowable_ltv
-                    / 100
+                lms.validate_rupees(
+                    lms.round_down_amount_to_nearest_thousand(
+                        (self.total_collateral_value + loan.total_collateral_value)
+                        * self.allowable_ltv
+                        / 100
+                    )
+                    if self.loan and not self.loan_margin_shortfall
+                    else self.drawing_power,
                 )
-                if self.loan and not self.loan_margin_shortfall
-                else self.drawing_power,
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,
