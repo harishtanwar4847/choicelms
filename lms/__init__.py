@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import re
 from datetime import datetime, timedelta
 from itertools import groupby
-from random import choice
+from random import choice, randint
 from traceback import format_exc
 
 import frappe
@@ -634,14 +634,11 @@ def send_spark_push_notification(
 
         try:
             fa = FirebaseAdmin()
+            random_id = randint(1, 2147483646)
 
             data = {
                 "click_action": "FLUTTER_NOTIFICATION_CLICK",
-                "notification_id": (
-                    fcm_notification.title
-                    + "_"
-                    + frappe.utils.now_datetime().strftime("%Y-%m-%d %H:%M")
-                ).replace(" ", "_"),
+                "notification_id": str(random_id),
                 "screen": fcm_notification.screen_to_open,
                 "loan_no": loan if loan else "",
                 "title": fcm_notification.title,
@@ -650,11 +647,12 @@ def send_spark_push_notification(
                 "time": frappe.utils.now_datetime().strftime("%d %b at %H:%M %p"),
             }
 
-            fa.send_message(
+            fa.send_android_message(
                 title=fcm_notification.title,
                 body=message,
                 data=data,
                 tokens=get_firebase_tokens(customer.user),
+                priority="high",
             )
             # Save log for Spark Push Notification
             frappe.get_doc(

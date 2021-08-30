@@ -43,6 +43,21 @@ class FirebaseAdmin:
         except firebase_admin.exceptions.FirebaseError as e:
             raise lms.FirebaseError(str(e))
 
+    def send_android_message(
+        self, title, body, image=None, tokens=[], data=None, priority="normal"
+    ):
+        if not tokens:
+            raise lms.FirebaseTokensNotProvidedError("Firebase tokens not provided.")
+        notification = messaging.Notification(title, body, image)
+        android = messaging.AndroidConfig(priority)
+        multicast_message = messaging.MulticastMessage(
+            tokens, data, notification, android
+        )
+        try:
+            messaging.send_multicast(multicast_message)
+        except firebase_admin.exceptions.FirebaseError as e:
+            raise lms.FirebaseError(str(e))
+
     def delete_app(self):
         if self.app:
             firebase_admin.delete_app(self.app)
