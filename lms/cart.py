@@ -772,7 +772,7 @@ def get_tnc(**kwargs):
             + "</li>"
         )
         tnc_ul.append(
-            "<li><strong> Collection Charges on Sale of security in the event of default or otherwise </strong>: <strong>{}%</strong> of the sale amount plus all brokerage.<br />Note: The above includes incidental transaction charges, taxes, and other levies as per actuals;".format(
+            "<li><strong> Collection Charges on Sale of security in the event of default or otherwise </strong>: <strong>{}%</strong> of the sale amount plus brokerage and other charges.<br />Note: The above includes incidental transaction charges, taxes, and other levies as per actuals;".format(
                 lender.security_selling_share
             )
             + "</li>"
