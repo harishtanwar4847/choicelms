@@ -7,6 +7,7 @@
 - [Fix: PDF link in webview for Help/Faq](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/368)
 - [Feat: changes in Currency format as per confirmed by client in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/369)
 - [Feat: changes in Currency format in words in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/370)
+- [Feat: pledgor boid added in loan details response](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/371)
 
 ## [v1.0.5] - 2021-08-18
 
