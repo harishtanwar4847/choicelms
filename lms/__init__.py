@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+import os
 import re
 from datetime import datetime, timedelta
 from itertools import groupby
@@ -8,10 +10,12 @@ from random import choice, randint
 from traceback import format_exc
 
 import frappe
+import requests
 import utils
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
+from lms.config import lms
 from lms.firebase import FirebaseAdmin
 
 from .exceptions import *
@@ -623,6 +627,20 @@ def web_mail(notification_name, name, recepient, subject):
     )
 
 
+def create_log(log, file_name):
+    log_file = frappe.utils.get_files_path("{}.json".format(file_name))
+    logs = None
+    if os.path.exists(log_file):
+        with open(log_file, "r") as f:
+            logs = f.read()
+        f.close()
+    logs = json.loads(logs or "[]")
+    logs.append(log)
+    with open(log_file, "w") as f:
+        f.write(json.dumps(logs))
+    f.close()
+
+
 def send_spark_push_notification(
     fcm_notification={}, message="", loan="", customer=None
 ):
@@ -684,106 +702,30 @@ def validate_rupees(type_of_fees):
     process_charge = str(process_charge)
     arr = process_charge.split(".")
 
-    if arr[1] == "0":
-        return int(type_of_fees)
-    else:
-        return "{:.2f}".format(float(type_of_fees))
 
-
-def validate_percent(type_of_fees):
-    process_charge = type_of_fees
-    process_charge = str(process_charge)
-    arr = process_charge.split(".")
-
-    if arr[1] == "0":
-        return int(type_of_fees)
-    else:
-        return "{:.2f}".format(float(type_of_fees))
-
-
-def number_to_word(number):
-    def get_word(n):
-        words = {
-            0: "",
-            1: "One",
-            2: "Two",
-            3: "Three",
-            4: "Four",
-            5: "Five",
-            6: "Six",
-            7: "Seven",
-            8: "Eight",
-            9: "Nine",
-            10: "Ten",
-            11: "Eleven",
-            12: "Twelve",
-            13: "Thirteen",
-            14: "Fourteen",
-            15: "Fifteen",
-            16: "Sixteen",
-            17: "Seventeen",
-            18: "Eighteen",
-            19: "Nineteen",
-            20: "Twenty",
-            30: "Thirty",
-            40: "Forty",
-            50: "Fifty",
-            60: "Sixty",
-            70: "Seventy",
-            80: "Eighty",
-            90: "Ninty",
+@frappe.whitelist(allow_guest=True)
+def nsdl_success_callback(**kwargs):
+    try:
+        log = {
+            "request": frappe.local.form_dict,
+            "headers": {k: v for k, v in frappe.local.request.headers.items()},
         }
-        if n <= 20:
-            return words[n]
-        else:
-            ones = n % 10
-            tens = n - ones
-            return words[tens] + " " + words[ones]
+        create_log(log, "nsdl__success_log")
+        return log
 
-    def get_all_word(n):
-        d = [100, 10, 100, 100]
-        v = ["", "Hundred And", "Thousand", "lakh"]
-        w = []
-        for i, x in zip(d, v):
-            t = get_word(n % i)
-            if t != "":
-                t += " " + x
-            w.append(t.rstrip(" "))
-            n = n // i
-        w.reverse()
-        w = " ".join(w).strip()
-        if w.endswith("And"):
-            w = w[:-3]
-        return w
+    except utils.exceptions.APIException as e:
+        return e.respond()
 
-    number1 = float(number)
-    arr = str(number).split(".")
-    number = int(arr[0])
-    crore = number // 10000000
-    number = number % 10000000
-    word = ""
-    if number1 > 1:
-        if crore > 0:
-            word += get_all_word(crore)
-            word += " crore "
-        word += "Rupees " + get_all_word(number).strip()
-        if len(arr) > 1:
-            if len(arr[1]) == 1:
-                arr[1] += "0"
-            word += " and " + get_all_word(int(arr[1])) + " paise"
-    elif number1 == 1:
-        if crore > 0:
-            word += get_all_word(crore)
-            word += " crore "
-        word += "Rupee " + get_all_word(number).strip()
-        if len(arr) > 1:
-            if len(arr[1]) == 1:
-                arr[1] += "0"
-            word += " and " + get_all_word(int(arr[1])) + " paise"
-    elif number == 0:
-        if len(arr) > 1:
-            if len(arr[1]) == 1:
-                arr[1] += "0"
-            # word +="Rupees "+ get_all_word(int(arr[1])) + " paise"
-            word += get_all_word(int(arr[1])) + " paise"
-    return word
+
+@frappe.whitelist(allow_guest=True)
+def nsdl_failure_callback(**kwargs):
+    try:
+        log = {
+            "request": frappe.local.form_dict,
+            "headers": {k: v for k, v in frappe.local.request.headers.items()},
+        }
+        create_log(log, "nsdl__failure_log")
+        return log
+
+    except utils.exceptions.APIException as e:
+        return e.respond()

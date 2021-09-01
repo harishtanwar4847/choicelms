@@ -1,3 +1,5 @@
+import json
+import os
 import re
 from datetime import datetime, timedelta
 from itertools import groupby
@@ -268,7 +270,7 @@ def process_old(**kwargs):
             )
             data = res.json()
 
-            # Pledge LOG
+            # # Pledge LOG
             log = {
                 "url": pledge_request.get("url"),
                 "headers": pledge_request.get("headers"),
@@ -276,21 +278,20 @@ def process_old(**kwargs):
                 "response": data,
             }
 
-            import json
-            import os
-
-            pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
-            pledge_log = None
-            if os.path.exists(pledge_log_file):
-                with open(pledge_log_file, "r") as f:
-                    pledge_log = f.read()
-                f.close()
-            pledge_log = json.loads(pledge_log or "[]")
-            pledge_log.append(log)
-            with open(pledge_log_file, "w") as f:
-                f.write(json.dumps(pledge_log))
-            f.close()
+            # pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
+            # pledge_log = None
+            # if os.path.exists(pledge_log_file):
+            #     with open(pledge_log_file, "r") as f:
+            #         pledge_log = f.read()
+            #     f.close()
+            # pledge_log = json.loads(pledge_log or "[]")
+            # pledge_log.append(log)
+            # with open(pledge_log_file, "w") as f:
+            #     f.write(json.dumps(pledge_log))
+            # f.close()
             # Pledge LOG end
+
+            lms.create_log(log, "pledge_log")
 
             if not res.ok or not data.get("Success"):
                 cart.reload()
