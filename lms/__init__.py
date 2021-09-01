@@ -4,13 +4,15 @@ from __future__ import unicode_literals
 import re
 from datetime import datetime, timedelta
 from itertools import groupby
-from random import choice
+from random import choice, randint
 from traceback import format_exc
 
 import frappe
 import utils
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+from lms.firebase import FirebaseAdmin
 
 from .exceptions import *
 
@@ -20,7 +22,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "1.0.6"
+__version__ = "1.1.0"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -619,6 +621,62 @@ def web_mail(notification_name, name, recepient, subject):
         subject="{}".format(subject),
         message=mail_content[0],
     )
+
+
+def send_spark_push_notification(
+    fcm_notification={}, message="", loan="", customer=None
+):
+    if fcm_notification:
+        if message:
+            message = message
+        else:
+            message = fcm_notification.message
+
+        try:
+            fa = FirebaseAdmin()
+            random_id = randint(1, 2147483646)
+
+            data = {
+                "click_action": "FLUTTER_NOTIFICATION_CLICK",
+                "notification_id": str(random_id),
+                "screen": fcm_notification.screen_to_open,
+                "loan_no": loan if loan else "",
+                "title": fcm_notification.title,
+                "body": message,
+                "notification_type": fcm_notification.notification_type,
+                "time": frappe.utils.now_datetime().strftime("%d %b at %H:%M %p"),
+            }
+
+            fa.send_message(
+                title=fcm_notification.title,
+                body=message,
+                data=data,
+                tokens=get_firebase_tokens(customer.user),
+                # priority="high",
+            )
+            # Save log for Spark Push Notification
+            frappe.get_doc(
+                {
+                    "doctype": "Spark Push Notification Log",
+                    "title": data["title"],
+                    "loan_customer": customer.name,
+                    "customer_name": customer.full_name,
+                    "loan": data["loan_no"],
+                    "screen_to_open": data["screen"],
+                    "notification_id": data["notification_id"],
+                    "notification_type": data["notification_type"],
+                    "time": frappe.utils.now_datetime(),
+                    "click_action": data["click_action"],
+                    "message": data["body"],
+                    "is_cleared": 0,
+                    "is_read": 0,
+                }
+            ).insert(ignore_permissions=True)
+            frappe.db.commit()
+        except Exception as e:
+            return e
+        finally:
+            fa.delete_app()
 
 
 def validate_rupees(type_of_fees):

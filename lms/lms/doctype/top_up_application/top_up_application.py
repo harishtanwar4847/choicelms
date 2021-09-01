@@ -332,20 +332,35 @@ class TopupApplication(Document):
         # if self.status in ["Pending", "Approved", "Rejected"]:
         frappe.enqueue_doc("Notification", "Top up Application", method="send", doc=doc)
         mess = ""
+        loan = ""
+        fcm_notification = {}
         if doc.get("top_up_application").get("status") == "Pending":
             # mess = "Your request has been successfully received. You will be notified when your new OD limit is approved by our banking partner."
             mess = 'Dear Customer,\nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans'
 
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification",
+                "Application for top-up accepted",
+                fields=["*"],
+            )
+
         if doc.get("top_up_application").get("status") == "Approved":
             mess = "Dear Customer,\nCongratulations! Your loan account has been topped up. Please check the app for details. -Spark Loans"
-            # mess = "Congratulations! Your Top up application for Loan {} is Approved.".format(
-            #     doc.get("top_up_application").get("loan")
-            # )
+
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", "Loan account topped up", fields=["*"]
+            )
+            loan = self.loan
 
         if doc.get("top_up_application").get("status") == "Rejected":
             # mess = "Sorry! Your Top up application was turned down. We regret the inconvenience caused."
 
             mess = "Dear Customer,\nSorry! Your top up request could not be executed due to technical reasons. We regret the inconvenience caused.Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
+
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", "Top up rejected", fields=["*"]
+            )
+            loan = self.loan
 
         if mess:
             receiver_list = list(
@@ -353,6 +368,14 @@ class TopupApplication(Document):
             )
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
+
+        if fcm_notification:
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification,
+                message=fcm_notification.message,
+                loan=loan,
+                customer=self.get_customer(),
+            )
 
     def map_loan_agreement_file(self, loan):
         file_name = frappe.db.get_value(
