@@ -21,9 +21,10 @@
   },
   {
    "fieldname": "screen_to_open",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Screen to Open"
+   "label": "Screen to Open",
+   "options": "My Loans\nDashboard\nMargin Shortfall Action"
   },
   {
    "default": "Success",
@@ -46,7 +47,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-30 16:52:17.247139",
+ "modified": "2021-09-01 15:12:18.032169",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Push Notification",
