@@ -3,6 +3,10 @@
 ## [Unreleased]
 
 - [Feat: changes in tnc html template, loan agreement template, loan enhancement agreement template regarding lender charges](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/361)
+- [Feat: changes in Currency format (Rupees and Paisa), percentage, Rupees in word format in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/366)
+- [Fix: PDF link in webview for Help/Faq](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/368)
+- [Feat: changes in Currency format as per confirmed by client in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/369)
+- [Feat: changes in Currency format in words in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/370)
 - [Feat: Added FCM notification list , fcm notification log list, push_notification_list API, read_or_clear_notifications API and API doc]()
 
 ## [v1.0.5] - 2021-08-18

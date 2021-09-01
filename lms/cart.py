@@ -622,14 +622,14 @@ def get_tnc(**kwargs):
             if not cart.loan:
                 tnc_ul.append(
                     "<li><strong> Sanctioned credit limit / Drawing power </strong>: <strong>Rs. {}/-</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
-                        int(cart.eligible_loan)
+                        lms.validate_rupees(cart.eligible_loan)
                     )
                     + "</li>"
                 )
             elif data.get("cart_name") and cart.loan and not cart.loan_margin_shortfall:
                 tnc_ul.append(
                     "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}/-</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
-                        int(
+                        lms.validate_rupees(
                             lms.round_down_amount_to_nearest_thousand(
                                 (
                                     cart.total_collateral_value
@@ -657,7 +657,9 @@ def get_tnc(**kwargs):
         else:
             tnc_ul.append(
                 "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}/-</strong> (Rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
-                    int(data.get("topup_amount") + loan.sanctioned_limit)
+                    lms.validate_rupees(
+                        data.get("topup_amount") + loan.sanctioned_limit
+                    )
                 )
                 + "</li>"
             )
@@ -689,66 +691,65 @@ def get_tnc(**kwargs):
         )
         if lender.lender_processing_fees_type == "Percentage":
             tnc_ul.append(
-                "<li><strong> Processing fees </strong>: <strong>{percent_charge}%, {percent_charge_in_words} percent</strong> of the sanctioned amount; subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
-                    percent_charge=lender.lender_processing_fees,
-                    percent_charge_in_words=num2words(
-                        lender.lender_processing_fees, lang="en_IN"
-                    ).title(),
-                    min_amt=int(lender.lender_processing_minimum_amount),
-                    max_amt=int(lender.lender_processing_maximum_amount),
+                "<li><strong> Processing fees </strong>: <strong>{percent_charge}%</strong> of the sanctioned amount; subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
+                    percent_charge=lms.validate_percent(lender.lender_processing_fees),
+                    min_amt=lms.validate_rupees(
+                        lender.lender_processing_minimum_amount
+                    ),
+                    max_amt=lms.validate_rupees(
+                        lender.lender_processing_maximum_amount
+                    ),
                 )
                 + "</li>"
             )
         elif lender.lender_processing_fees_type == "Fix":
             tnc_ul.append(
-                "<li><strong> Processing fees </strong>: <strong>Rs. {fix_charge}/-, Rupees {fix_charge_in_words} Only</strong>".format(
-                    fix_charge=int(lender.lender_processing_fees),
-                    fix_charge_in_words=num2words(
-                        int(lender.lender_processing_fees), lang="en_IN"
+                "<li><strong> Processing fees </strong>: <strong>Rs. {fix_charge}/-, {fix_charge_in_words} Only</strong>".format(
+                    fix_charge=lms.validate_rupees(lender.lender_processing_fees),
+                    fix_charge_in_words=lms.number_to_word(
+                        lms.validate_rupees(lender.lender_processing_fees)
                     ).title(),
                 )
                 + "</li>"
             )
         if lender.renewal_charge_type == "Percentage":
             tnc_ul.append(
-                "<li><strong> Account renewal charges </strong>: <strong>{percent_charge}%, {percent_charge_in_words} percent</strong> of the renewal amount (facility valid for a period of 12 months from the date of sanction; account renewal charges shall be debited at the end of 12 months) subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
-                    percent_charge=lender.renewal_charges,
-                    percent_charge_in_words=num2words(
-                        lender.renewal_charges, lang="en_IN"
-                    ).title(),
-                    min_amt=int(lender.renewal_minimum_amount),
-                    max_amt=int(lender.renewal_maximum_amount),
+                "<li><strong> Account renewal charges </strong>: <strong>{percent_charge}%</strong> of the renewal amount (facility valid for a period of 12 months from the date of sanction; account renewal charges shall be debited at the end of 12 months) subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
+                    percent_charge=lms.validate_percent(lender.renewal_charges),
+                    min_amt=lms.validate_rupees(lender.renewal_minimum_amount),
+                    max_amt=lms.validate_rupees(lender.renewal_maximum_amount),
                 )
                 + "</li>"
             )
         elif lender.renewal_charge_type == "Fix":
             tnc_ul.append(
-                "<li><strong> Account renewal charges </strong>: <strong>Rs. {fix_charge}/-, Rupees {fix_charge_in_words} Only</strong>".format(
-                    fix_charge=int(lender.renewal_charges),
-                    fix_charge_in_words=num2words(
-                        int(lender.renewal_charges), lang="en_IN"
+                "<li><strong> Account renewal charges </strong>: <strong>Rs. {fix_charge}/-, {fix_charge_in_words} Only</strong>".format(
+                    fix_charge=lms.validate_rupees(lender.renewal_charges),
+                    fix_charge_in_words=lms.number_to_word(
+                        lms.validate_rupees(lender.renewal_charges)
                     ).title(),
                 )
                 + "</li>"
             )
         if lender.documentation_charge_type == "Percentage":
             tnc_ul.append(
-                "<li><strong> Documentation charges </strong>: <strong> {percent_charge}%, {percent_charge_in_words} percent </strong>of the sanctioned amount; subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
-                    percent_charge=lender.documentation_charges,
-                    percent_charge_in_words=num2words(
-                        lender.documentation_charges, lang="en_IN"
-                    ).title(),
-                    min_amt=int(lender.lender_documentation_minimum_amount),
-                    max_amt=int(lender.lender_documentation_maximum_amount),
+                "<li><strong> Documentation charges </strong>: <strong> {percent_charge}%</strong> of the sanctioned amount; subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
+                    percent_charge=lms.validate_percent(lender.documentation_charges),
+                    min_amt=lms.validate_rupees(
+                        lender.lender_documentation_minimum_amount
+                    ),
+                    max_amt=lms.validate_rupees(
+                        lender.lender_documentation_maximum_amount
+                    ),
                 )
                 + "</li>"
             )
         elif lender.documentation_charge_type == "Fix":
             tnc_ul.append(
-                "<li><strong> Documentation charges </strong>: <strong>Rs. {fix_charge}/-, Rupees {fix_charge_in_words} Only</strong>".format(
-                    fix_charge=int(lender.documentation_charges),
-                    fix_charge_in_words=num2words(
-                        int(lender.documentation_charges), lang="en_IN"
+                "<li><strong> Documentation charges </strong>: <strong>Rs. {fix_charge}/-, {fix_charge_in_words} Only</strong>".format(
+                    fix_charge=lms.validate_rupees(lender.documentation_charges),
+                    fix_charge_in_words=lms.number_to_word(
+                        lms.validate_rupees(lender.documentation_charges)
                     ).title(),
                 )
                 + "</li>"
@@ -766,19 +767,19 @@ def get_tnc(**kwargs):
         )
         tnc_ul.append(
             "<li><strong> Transaction charges per ISIN (per variation in the composition of the Demat securities pledged) </strong>: <strong>Upto Rs. {}/-</strong> per ISIN;".format(
-                int(lender.transaction_charges_per_request)
+                lms.validate_rupees(lender.transaction_charges_per_request)
             )
             + "</li>"
         )
         tnc_ul.append(
-            "<li><strong> Collection Charges on Sale of security in the event of default or otherwise </strong>: <strong>{}%</strong> of the sale amount plus all brokerage.<br />Note: The above includes incidental transaction charges, taxes, and other levies as per actuals;".format(
+            "<li><strong> Collection Charges on Sale of security in the event of default or otherwise </strong>: <strong>{}%</strong> of the sale amount plus brokerage and other charges.<br />Note: The above includes incidental transaction charges, taxes, and other levies as per actuals;".format(
                 lender.security_selling_share
             )
             + "</li>"
         )
         tnc_ul.append(
             "<li><strong> Credit Information Companies'(CICs) Charges </strong>: <strong>Upto Rs {}/-</strong> per instance (for individuals);".format(
-                int(lender.cic_charges)
+                lms.validate_rupees(lender.cic_charges)
             )
             + "</li>"
         )

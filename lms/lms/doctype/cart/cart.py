@@ -179,7 +179,7 @@ class Cart(Document):
             "loan_application_number": " ",
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
-            "sanctioned_amount": int(
+            "sanctioned_amount": lms.validate_rupees(
                 lms.round_down_amount_to_nearest_thousand(
                     (self.total_collateral_value + loan.total_collateral_value)
                     * self.allowable_ltv
@@ -188,63 +188,76 @@ class Cart(Document):
             )
             if self.loan and not self.loan_margin_shortfall
             else int(self.eligible_loan),
-            "sanctioned_amount_in_words": num2words(
-                lms.round_down_amount_to_nearest_thousand(
-                    (self.total_collateral_value + loan.total_collateral_value)
-                    * self.allowable_ltv
-                    / 100
+            "sanctioned_amount_in_words": lms.number_to_word(
+                lms.validate_rupees(
+                    lms.round_down_amount_to_nearest_thousand(
+                        (self.total_collateral_value + loan.total_collateral_value)
+                        * self.allowable_ltv
+                        / 100
+                    )
+                    if self.loan and not self.loan_margin_shortfall
+                    else self.eligible_loan,
                 )
-                if self.loan and not self.loan_margin_shortfall
-                else self.eligible_loan,
-                lang="en_IN",
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,
             "rebait_threshold": lender.rebait_threshold,
-            "renewal_charges": lender.renewal_charges,
+            "renewal_charges": lms.validate_rupees(lender.renewal_charges)
+            if lender.renewal_charge_type == "Fix"
+            else lms.validate_percent(lender.renewal_charges),
             "renewal_charge_type": lender.renewal_charge_type,
-            "renewal_charge_in_words": num2words(
-                int(lender.renewal_charges)
-                if lender.renewal_charge_type == "Fix"
-                else lender.renewal_charges,
-                lang="en_IN",
-            ).title(),
-            "renewal_min_amt": int(lender.renewal_minimum_amount),
-            "renewal_max_amt": int(lender.renewal_maximum_amount),
-            "documentation_charge": lender.documentation_charges,
+            "renewal_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.renewal_charges)
+            ).title()
+            if lender.renewal_charge_type == "Fix"
+            else "",
+            # else num2words(lender.renewal_charges).title(),
+            "renewal_min_amt": lms.validate_rupees(lender.renewal_minimum_amount),
+            "renewal_max_amt": lms.validate_rupees(lender.renewal_maximum_amount),
+            "documentation_charge": lms.validate_rupees(lender.documentation_charges)
+            if lender.documentation_charge_type == "Fix"
+            else lms.validate_percent(lender.documentation_charges),
             "documentation_charge_type": lender.documentation_charge_type,
-            "documentation_charge_in_words": num2words(
-                int(lender.documentation_charges)
-                if lender.documentation_charge_type == "Fix"
-                else lender.documentation_charges,
-                lang="en_IN",
-            ).title(),
-            "documentation_min_amt": int(lender.lender_documentation_minimum_amount),
-            "documentation_max_amt": int(lender.lender_documentation_maximum_amount),
+            "documentation_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.documentation_charges)
+            ).title()
+            if lender.documentation_charge_type == "Fix"
+            else "",
+            "documentation_min_amt": lms.validate_rupees(
+                lender.lender_documentation_minimum_amount
+            ),
+            "documentation_max_amt": lms.validate_rupees(
+                lender.lender_documentation_maximum_amount
+            ),
             "lender_processing_fees_type": lender.lender_processing_fees_type,
-            "processing_charge": lender.lender_processing_fees,
-            "processing_charge_in_words": num2words(
-                int(lender.lender_processing_fees)
-                if lender.lender_processing_fees_type == "Fix"
-                else lender.lender_processing_fees,
-                lang="en_IN",
-            ).title(),
-            "processing_min_amt": int(lender.lender_processing_minimum_amount),
-            "processing_max_amt": int(lender.lender_processing_maximum_amount),
-            # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
-            "transaction_charges_per_request": int(
+            "processing_charge": lms.validate_rupees(lender.lender_processing_fees)
+            if lender.lender_processing_fees_type == "Fix"
+            else lms.validate_percent(lender.lender_processing_fees),
+            "processing_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.lender_processing_fees)
+            ).title()
+            if lender.lender_processing_fees_type == "Fix"
+            else "",
+            "processing_min_amt": lms.validate_rupees(
+                lender.lender_processing_minimum_amount
+            ),
+            "processing_max_amt": lms.validate_rupees(
+                lender.lender_processing_maximum_amount
+            ),
+            # "stamp_duty_charges": lms.validate_rupees(lender.lender_stamp_duty_minimum_amount),
+            "transaction_charges_per_request": lms.validate_rupees(
                 lender.transaction_charges_per_request
             ),
             "security_selling_share": lender.security_selling_share,
-            "cic_charges": int(lender.cic_charges),
+            "cic_charges": lms.validate_rupees(lender.cic_charges),
             "total_pages": lender.total_pages,
         }
 
         if self.loan and not self.loan_margin_shortfall:
             loan = frappe.get_doc("Loan", self.loan)
-            doc["old_sanctioned_amount"] = int(loan.sanctioned_limit)
-            doc["old_sanctioned_amount_in_words"] = num2words(
-                loan.sanctioned_limit, lang="en_IN"
+            doc["old_sanctioned_amount"] = lms.validate_rupees(loan.sanctioned_limit)
+            doc["old_sanctioned_amount_in_words"] = lms.number_to_word(
+                lms.validate_rupees(loan.sanctioned_limit)
             ).title()
             agreement_template = lender.get_loan_enhancement_agreement_template()
         else:
