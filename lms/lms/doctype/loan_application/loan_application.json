@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "autoname": "LA.######",
  "creation": "2020-07-28 10:26:29.613712",
  "doctype": "DocType",
@@ -78,7 +79,7 @@
    "fieldname": "customer",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Customer",
+   "label": "Customer ID",
    "options": "Loan Customer",
    "reqd": 1,
    "set_only_once": 1
@@ -93,7 +94,7 @@
   {
    "fieldname": "drawing_power",
    "fieldtype": "Currency",
-   "label": "Drawing Power",
+   "label": "Sanctioned Limit",
    "read_only": 1,
    "reqd": 1
   },
@@ -118,7 +119,7 @@
   {
    "fieldname": "pledged_total_collateral_value",
    "fieldtype": "Currency",
-   "label": "Pledged Total Collateral Value",
+   "label": "Pledged Request Value",
    "read_only": 1
   },
   {
@@ -145,13 +146,13 @@
   {
    "fieldname": "drawing_power_str",
    "fieldtype": "Data",
-   "label": "Drawing Power Str",
+   "label": "Sanctioned Limit Str",
    "read_only": 1
   },
   {
    "fieldname": "pledged_total_collateral_value_str",
    "fieldtype": "Data",
-   "label": "Pledged Total Collateral Value Str",
+   "label": "Pledged Request Value Str",
    "read_only": 1
   },
   {
@@ -173,7 +174,8 @@
    "read_only": 1
   }
  ],
- "modified": "2021-02-16 12:24:24.048235",
+ "links": [],
+ "modified": "2021-08-31 17:29:47.046072",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

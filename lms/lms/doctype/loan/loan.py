@@ -695,7 +695,7 @@ class Loan(Document):
                     interest_configuration["rebait_interest"] / num_of_days_in_month
                 )
                 rebate_amount = self.balance * rebate_interest_daily / 100
-
+                customer = lms.__customer()
                 frappe.db.begin()
                 virtual_interest_doc = frappe.get_doc(
                     {
@@ -709,6 +709,7 @@ class Loan(Document):
                         "rebate_amount": rebate_amount,
                         "loan_balance": self.balance,
                         "interest_configuration": interest_configuration["name"],
+                        "customer_name": customer.full_name,
                     }
                 )
                 virtual_interest_doc.save(ignore_permissions=True)

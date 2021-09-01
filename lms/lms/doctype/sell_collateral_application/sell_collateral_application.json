@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "creation": "2021-04-05 13:44:25.652240",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -11,6 +12,7 @@
   "current_shortfall_amount",
   "column_break_2",
   "customer",
+  "customer_name",
   "selling_collateral_value",
   "loan_margin_shortfall",
   "lender_selling_amount",
@@ -24,7 +26,7 @@
   {
    "fieldname": "loan",
    "fieldtype": "Link",
-   "label": "Loan",
+   "label": "Loan Account Number",
    "options": "Loan"
   },
   {
@@ -85,7 +87,7 @@
   {
    "fieldname": "selling_collateral_value",
    "fieldtype": "Currency",
-   "label": "Selling Collateral Value"
+   "label": "Sell Request Amount"
   },
   {
    "fieldname": "loan_margin_shortfall",
@@ -109,10 +111,16 @@
    "fieldname": "lender_selling_amount",
    "fieldtype": "Currency",
    "label": "Lender Selling Amount"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Read Only",
+   "label": "Customer Name"
   }
  ],
  "is_submittable": 1,
- "modified": "2021-06-11 16:31:38.649738",
+ "links": [],
+ "modified": "2021-08-31 17:21:22.015258",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",
