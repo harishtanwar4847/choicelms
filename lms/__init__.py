@@ -22,7 +22,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "1.0.6"
+__version__ = "1.1.0"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -647,12 +647,12 @@ def send_spark_push_notification(
                 "time": frappe.utils.now_datetime().strftime("%d %b at %H:%M %p"),
             }
 
-            fa.send_android_message(
+            fa.send_message(
                 title=fcm_notification.title,
                 body=message,
                 data=data,
                 tokens=get_firebase_tokens(customer.user),
-                priority="high",
+                # priority="high",
             )
             # Save log for Spark Push Notification
             frappe.get_doc(
