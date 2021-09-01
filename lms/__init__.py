@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+import os
 import re
 from datetime import datetime, timedelta
 from itertools import groupby
@@ -8,9 +10,12 @@ from random import choice
 from traceback import format_exc
 
 import frappe
+import requests
 import utils
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+from lms.config import lms
 
 from .exceptions import *
 
@@ -619,3 +624,45 @@ def web_mail(notification_name, name, recepient, subject):
         subject="{}".format(subject),
         message=mail_content[0],
     )
+
+
+def create_log(log, file_name):
+    log_file = frappe.utils.get_files_path("{}.json".format(file_name))
+    logs = None
+    if os.path.exists(log_file):
+        with open(log_file, "r") as f:
+            logs = f.read()
+        f.close()
+    logs = json.loads(logs or "[]")
+    logs.append(log)
+    with open(log_file, "w") as f:
+        f.write(json.dumps(logs))
+    f.close()
+
+
+@frappe.whitelist(allow_guest=True)
+def nsdl_success_callback(**kwargs):
+    try:
+        log = {
+            "request": frappe.local.form_dict,
+            "headers": {k: v for k, v in frappe.local.request.headers.items()},
+        }
+        create_log(log, "nsdl__success_log")
+        return log
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist(allow_guest=True)
+def nsdl_failure_callback(**kwargs):
+    try:
+        log = {
+            "request": frappe.local.form_dict,
+            "headers": {k: v for k, v in frappe.local.request.headers.items()},
+        }
+        create_log(log, "nsdl__failure_log")
+        return log
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
