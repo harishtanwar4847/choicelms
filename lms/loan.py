@@ -13,6 +13,7 @@ from lxml import etree
 from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms
+from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions import (
     ApprovedTermsandConditions,
 )
@@ -307,6 +308,15 @@ def esign_done(**kwargs):
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification",
+                    "Topup E-signing was successful",
+                    fields=["*"],
+                )
+                lms.send_spark_push_notification(
+                    fcm_notification=fcm_notification, customer=customer
+                )
 
             return utils.respondWithSuccess()
         except requests.RequestException as e:
@@ -1154,6 +1164,11 @@ def loan_details(**kwargs):
 
         res["amount_available_for_withdrawal"] = loan.maximum_withdrawable_amount()
 
+        # Pledgor boid of particular loan
+        res["pledgor_boid"] = frappe.db.get_value(
+            "Collateral Ledger", {"loan": loan.name}, "pledgor_boid"
+        )
+
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
         return e.respond()
@@ -1447,6 +1462,18 @@ def loan_payment(**kwargs):
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", "Payment failed", fields=["*"]
+            )
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification,
+                message=fcm_notification.message.format(
+                    amount=data.get("amount"), loan=loan.name
+                ),
+                loan=loan.name,
+                customer=customer,
+            )
             return utils.respondWithSuccess(message="Check Loan Payment Log.")
 
         if data.get("loan_margin_shortfall_name", None) and not data.get("is_failed"):
@@ -1495,6 +1522,14 @@ def loan_payment(**kwargs):
                 "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
             )
             msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification",
+                "Margin shortfall – Action taken",
+                fields=["*"],
+            )
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification, loan=loan.name, customer=customer
+            )
             # receiver_list = list(
             #     set([str(customer.phone), str(customer.get_kyc().mobile_number)])
             # )
@@ -2572,6 +2607,14 @@ def sell_collateral_request(**kwargs):
                 "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
             )
             msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification",
+                "Margin shortfall – Action taken",
+                fields=["*"],
+            )
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification, loan=loan.name, customer=customer
+            )
 
         sell_collateral_application.insert(ignore_permissions=True)
 

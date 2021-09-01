@@ -54,13 +54,15 @@ class LoanApplication(Document):
             if self.loan and not self.loan_margin_shortfall
             else int(self.drawing_power),
             "sanctioned_amount_in_words": lms.number_to_word(
-                lms.round_down_amount_to_nearest_thousand(
-                    (self.total_collateral_value + loan.total_collateral_value)
-                    * self.allowable_ltv
-                    / 100
+                lms.validate_rupees(
+                    lms.round_down_amount_to_nearest_thousand(
+                        (self.total_collateral_value + loan.total_collateral_value)
+                        * self.allowable_ltv
+                        / 100
+                    )
+                    if self.loan and not self.loan_margin_shortfall
+                    else self.drawing_power,
                 )
-                if self.loan and not self.loan_margin_shortfall
-                else self.drawing_power,
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,
@@ -877,41 +879,80 @@ class LoanApplication(Document):
                 )
 
         msg = ""
+        loan = ""
+        fcm_notification = {}
+        fcm_message = ""
         if doc.get("loan_application").get("status") == "Pledge Failure":
-            msg = (
-                "Dear Customer,\nSorry! Your Increase loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app -Spark Loans"
+            msg, fcm_title = (
+                (
+                    "Dear Customer,\nSorry! Your Increase loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app -Spark Loans",
+                    "Increase loan application rejected",
+                )
                 if self.loan and not self.loan_margin_shortfall
-                else "Dear Customer,\nSorry! Your loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
+                else (
+                    "Dear Customer,\nSorry! Your loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans",
+                    "Pledge rejected",
+                )
+            )
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", fcm_title, fields=["*"]
             )
 
         elif (
             doc.get("loan_application").get("status") == "Pledge accepted by Lender"
             and not self.loan_margin_shortfall
         ):
-            msg = (
-                'Dear Customer,\nCongratulations! Your Increase loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans'
+            msg, fcm_title = (
+                (
+                    'Dear Customer,\nCongratulations! Your Increase loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans',
+                    "Increase loan application accepted",
+                )
                 if self.loan and not self.loan_margin_shortfall
-                else 'Dear Customer,\nCongratulations! Your loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans'
+                else (
+                    'Dear Customer,\nCongratulations! Your loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans',
+                    "Pledge accepted",
+                )
+            )
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", fcm_title, fields=["*"]
             )
 
         elif (
             doc.get("loan_application").get("status") == "Approved"
             and not self.loan_margin_shortfall
         ):
-            msg = (
-                "Dear Customer,\nCongratulations! Your loan limit has been successfully increased. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans"
+            msg, fcm_title = (
+                (
+                    "Dear Customer,\nCongratulations! Your loan limit has been successfully increased. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
+                    "Increase loan application approved",
+                )
                 if self.loan and not self.loan_margin_shortfall
-                else "Dear Customer,\nCongratulations! Your loan account is open. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans"
+                else (
+                    "Dear Customer,\nCongratulations! Your loan account is open. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
+                    "Loan approved",
+                )
+            )
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", fcm_title, fields=["*"]
             )
 
         elif (
             doc.get("loan_application").get("status") == "Rejected"
             and not self.loan_margin_shortfall
         ):
-            msg = (
-                "Dear Customer,\nSorry! Your Increase loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
+            msg, fcm_title = (
+                (
+                    "Dear Customer,\nSorry! Your Increase loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans",
+                    "Increase loan application turned down",
+                )
                 if self.loan and not self.loan_margin_shortfall
-                else "Dear Customer,\nSorry! Your loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
+                else (
+                    "Dear Customer,\nSorry! Your loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans",
+                    "Loan rejected",
+                )
+            )
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", fcm_title, fields=["*"]
             )
 
         elif (
@@ -920,6 +961,10 @@ class LoanApplication(Document):
             and not self.loan_margin_shortfall
         ):
             msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan approval. Thank you for your patience. - Spark Loans"
+
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", "E-signing was successful", fields=["*"]
+            )
 
         if (
             (
@@ -932,6 +977,20 @@ class LoanApplication(Document):
             msg = "Dear Customer,\nCongratulations! Your pledge request was successfully considered and was partially accepted for Rs. {} due to technical reasons. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. -Spark Loans".format(
                 self.total_collateral_value_str
             )
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification",
+                "Increase loan application partially accepted"
+                if self.loan
+                else "Pledge partially accepted",
+                fields=["*"],
+            )
+            fcm_message = (
+                fcm_notification.message.format(
+                    total_collateral_value_str=self.total_collateral_value_str
+                )
+                if self.loan
+                else ""
+            )
 
         if msg:
             receiver_list = list(
@@ -940,6 +999,14 @@ class LoanApplication(Document):
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+        if fcm_notification:
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification,
+                message=fcm_message,
+                loan=self.loan,
+                customer=self.get_customer(),
+            )
 
     def validate(self):
         for i, item in enumerate(
