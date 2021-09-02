@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "autoname": "SL.######",
  "creation": "2020-07-28 15:26:52.963305",
  "doctype": "DocType",
@@ -77,12 +78,14 @@
   {
    "fieldname": "sanctioned_limit",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Sanctioned Limit",
    "read_only": 1
   },
   {
    "fieldname": "drawing_power",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Drawing Power",
    "read_only": 1,
    "reqd": 1
@@ -90,6 +93,7 @@
   {
    "fieldname": "lender",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Lender",
    "options": "Lender",
    "reqd": 1,
@@ -103,6 +107,7 @@
   {
    "fieldname": "balance",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Balance",
    "read_only": 1
   },
@@ -159,7 +164,9 @@
    "label": "Customer Name"
   }
  ],
- "modified": "2021-02-05 14:12:49.965344",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-09-02 14:28:12.121360",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

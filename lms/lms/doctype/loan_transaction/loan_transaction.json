@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "autoname": "format:{loan}-{#####}",
  "creation": "2020-08-30 14:54:50.838458",
  "doctype": "DocType",
@@ -39,7 +40,7 @@
    "fieldname": "loan",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Loan",
+   "label": "Loan Account Number",
    "options": "Loan",
    "reqd": 1,
    "set_only_once": 1
@@ -79,6 +80,7 @@
   {
    "fieldname": "transaction_type",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Transaction Type",
    "options": "Withdrawal\nPayment\nDebit Note\nCredit Note\nProcessing Fees\nStamp Duty\nDocumentation Charges\nMortgage Charges\nSell Collateral\nInvoke Pledge\nInterest\nAdditional Interest\nPenal Interest\nOther Charges\nLegal Charges\nRenewal Charges\nDP Reimbursement(Sell)\nDP Reimbursement(Unpledge)\nSell Collateral Charges",
    "reqd": 1
@@ -115,6 +117,7 @@
   {
    "fieldname": "status",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Status",
    "options": "Pending\nApproved\nRejected",
    "read_only": 1
@@ -183,6 +186,7 @@
   {
    "fieldname": "customer_name",
    "fieldtype": "Read Only",
+   "in_list_view": 1,
    "label": "Customer Name"
   },
   {
@@ -213,8 +217,10 @@
    "read_only": 1
   }
  ],
+ "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "modified": "2021-07-08 15:19:46.381198",
+ "links": [],
+ "modified": "2021-09-02 13:16:53.981180",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
