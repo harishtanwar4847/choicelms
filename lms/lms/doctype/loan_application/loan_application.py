@@ -571,6 +571,18 @@ class LoanApplication(Document):
         # renewal charges
         import calendar
 
+        # new sanctioned_limit > old sanctioned_limit
+        # -> apply processing fee on (new - old)
+        # -> apply renewal on loan sanctioned
+
+        # new sanctioned_limit < old sanctioned_limit
+        # -> no processing fee
+        # -> renewal on new sanctioned
+
+        # new sanctioned_limit = old sanctioned_limit
+        # -> no processing fee
+        # -> renewal on new sanctioned
+
         date = frappe.utils.now_datetime()
         days_in_year = 366 if calendar.isleap(date.year) else 365
         renewal_charges = lender.renewal_charges
@@ -582,9 +594,11 @@ class LoanApplication(Document):
             )
             loan_expiry_date = loan.expiry_date + timedelta(days=1)
             days_left_to_expiry = (la_expiry_date - loan_expiry_date).days + 1
+            renewal_sanctioned_limit = 0
+            # renewal_sanctioned_limit, processing_sanctioned_limit  = loan.sanctioned_limit,(self.sanctioned_limit - loan.sanctioned_limit) if self.sanctioned_limit > loan.sanctioned_limit else self.sanctioned_limit, 0
             amount = (
                 (renewal_charges / 100)
-                * loan.sanctioned_limit
+                * renewal_sanctioned_limit
                 / days_in_year
                 * days_left_to_expiry
             )
@@ -601,9 +615,10 @@ class LoanApplication(Document):
         processing_fees = lender.lender_processing_fees
         if lender.lender_processing_fees_type == "Percentage":
             days_left_to_expiry = days_in_year
+            processing_sanctioned_limit = 0
             amount = (
                 (processing_fees / 100)
-                * self.drawing_power
+                * processing_sanctioned_limit
                 / days_in_year
                 * days_left_to_expiry
             )
