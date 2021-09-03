@@ -167,7 +167,7 @@ def check_user_token(entity, token, token_type):
 def get_firebase_tokens(entity):
     token_list = frappe.db.get_all(
         "User Token",
-        filters={"entity": entity, "token_type": "Firebase Token"},
+        filters={"entity": entity, "token_type": "Firebase Token", "used": 0},
         fields=["token"],
     )
 
@@ -448,6 +448,18 @@ def delete_user(doc, method):
 def add_firebase_token(firebase_token, user=None):
     if not user:
         user = frappe.session.user
+
+    old_token_name = frappe.get_all(
+        "User Token",
+        filters={"entity": user, "token_type": "Firebase Token"},
+        order_by="creation desc",
+        fields=["*"],
+        page_length=1,
+    )
+    if old_token_name:
+        old_token = frappe.get_doc("User Token", old_token_name[0].name)
+        token_mark_as_used(old_token)
+
     get_user_token = frappe.db.get_value(
         "User Token",
         {"token_type": "Firebase Token", "token": firebase_token, "entity": user},
@@ -665,12 +677,12 @@ def send_spark_push_notification(
                 "time": frappe.utils.now_datetime().strftime("%d %b at %H:%M %p"),
             }
 
-            fa.send_message(
+            fa.send_android_message(
                 title=fcm_notification.title,
                 body=message,
                 data=data,
                 tokens=get_firebase_tokens(customer.user),
-                # priority="high",
+                priority="high",
             )
             # Save log for Spark Push Notification
             frappe.get_doc(
