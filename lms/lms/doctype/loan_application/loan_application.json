@@ -56,6 +56,7 @@
    "default": "Waiting to be pledged",
    "fieldname": "status",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Status",
    "options": "Waiting to be pledged\nExecuting pledge\nPledge executed\nPledge accepted by Lender\nEsign Done\nReady for Approval\nApproved\nRejected\nPledge Failure",
    "read_only": 1
@@ -94,6 +95,7 @@
   {
    "fieldname": "drawing_power",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Sanctioned Limit",
    "read_only": 1,
    "reqd": 1
@@ -119,6 +121,7 @@
   {
    "fieldname": "pledged_total_collateral_value",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Pledged Request Value",
    "read_only": 1
   },
@@ -175,7 +178,7 @@
   }
  ],
  "links": [],
- "modified": "2021-08-31 17:29:47.046072",
+ "modified": "2021-09-03 22:42:18.361258",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

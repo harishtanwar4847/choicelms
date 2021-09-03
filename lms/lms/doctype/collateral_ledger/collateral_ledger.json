@@ -17,15 +17,12 @@
   "pledgor_boid",
   "psn",
   "expiry",
-  "category",
-  "price",
   "column_break_1",
   "request_type",
   "prf",
   "pledgee_boid",
   "lender_approval_status",
-  "security_name",
-  "value"
+  "security_name"
  ],
  "fields": [
   {
@@ -141,29 +138,11 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Security Name"
-  },
-  {
-   "fieldname": "price",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Price"
-  },
-  {
-   "fieldname": "value",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Value"
-  },
-  {
-   "fieldname": "category",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Category"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-31 18:45:32.111824",
+ "modified": "2021-09-03 22:51:42.134116",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Collateral Ledger",

@@ -26,6 +26,7 @@
   {
    "fieldname": "loan",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Loan Account Number",
    "options": "Loan"
   },
@@ -36,6 +37,7 @@
   {
    "fieldname": "total_collateral_value",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Total Collateral Value"
   },
   {
@@ -61,6 +63,7 @@
   {
    "fieldname": "lender",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Lender",
    "options": "Lender",
    "read_only": 1
@@ -75,6 +78,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "hidden": 1,
+   "in_list_view": 1,
    "label": "Status",
    "options": "Pending\nApproved\nRejected"
   },
@@ -87,11 +91,13 @@
   {
    "fieldname": "selling_collateral_value",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Sell Request Amount"
   },
   {
    "fieldname": "loan_margin_shortfall",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Loan Margin Shortfall",
    "options": "Loan Margin Shortfall"
   },
@@ -115,12 +121,13 @@
   {
    "fieldname": "customer_name",
    "fieldtype": "Read Only",
+   "in_list_view": 1,
    "label": "Customer Name"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-08-31 17:21:22.015258",
+ "modified": "2021-09-03 22:34:11.696212",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",

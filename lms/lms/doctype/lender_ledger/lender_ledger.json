@@ -20,7 +20,7 @@
    "fieldname": "loan",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Loan",
+   "label": "Loan Account Numner",
    "options": "Loan",
    "reqd": 1
   },
@@ -59,18 +59,20 @@
   {
    "fieldname": "spark_share",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Spark Share",
    "reqd": 1
   },
   {
    "fieldname": "transaction_type",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Transaction Type"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-31 19:06:52.589618",
+ "modified": "2021-09-03 22:54:25.456599",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender Ledger",

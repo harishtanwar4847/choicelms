@@ -199,12 +199,13 @@
   {
    "fieldname": "customer_name",
    "fieldtype": "Read Only",
+   "in_list_view": 1,
    "label": "Customer Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-03 11:48:48.283462",
+ "modified": "2021-09-03 22:57:48.602919",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Margin Shortfall",
