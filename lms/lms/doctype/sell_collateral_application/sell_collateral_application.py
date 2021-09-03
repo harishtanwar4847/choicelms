@@ -215,8 +215,6 @@ class SellCollateralApplication(Document):
                     "isin": i.get("isin"),
                     "quantity": i.get("sell_quantity"),
                     "security_name": i.get("security_name"),
-                    # "category" : i.get("category"),
-                    "price": i.get("price"),
                     "psn": i.get("psn"),
                     "loan_name": self.loan,
                     "lender_approval_status": "Approved",

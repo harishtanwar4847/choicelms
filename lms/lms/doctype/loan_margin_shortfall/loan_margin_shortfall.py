@@ -23,11 +23,10 @@ class LoanMarginShortfall(Document):
 
     def fill_items(self):
         loan = frappe.get_doc("Loan", self.loan)
-
         self.total_collateral_value = loan.total_collateral_value
         self.allowable_ltv = loan.allowable_ltv
         self.drawing_power = loan.drawing_power
-
+        self.customer_name = loan.customer_name
         self.loan_balance = loan.balance
         # self.ltv = (self.loan_balance / self.total_collateral_value) * 100
         # Zero division error - handling

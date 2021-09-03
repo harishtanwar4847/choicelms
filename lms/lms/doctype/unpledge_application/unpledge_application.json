@@ -10,8 +10,8 @@
   "lender",
   "column_break_1",
   "customer",
-  "customer_name",
   "unpledge_collateral_value",
+  "max_allowable_value",
   "section_braek_1",
   "items",
   "unpledge_items",
@@ -23,7 +23,7 @@
    "fieldname": "loan",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Loan Account Number",
+   "label": "Loan",
    "options": "Loan"
   },
   {
@@ -51,7 +51,7 @@
   {
    "fieldname": "unpledge_collateral_value",
    "fieldtype": "Currency",
-   "label": "Unpledge Request Value"
+   "label": "Unpledge Collateral Value"
   },
   {
    "fieldname": "status",
@@ -85,15 +85,14 @@
    "options": "Unpledge Application Unpledged Item"
   },
   {
-   "fieldname": "customer_name",
+   "fieldname": "max_allowable_value",
    "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Customer Name"
+   "label": "Max Allowable Value"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-08-31 17:04:34.750173",
+ "modified": "2021-09-03 14:18:14.313774",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Unpledge Application",
