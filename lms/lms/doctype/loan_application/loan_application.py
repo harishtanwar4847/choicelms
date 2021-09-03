@@ -581,11 +581,16 @@ class LoanApplication(Document):
         # -> no processing fee
         # -> renewal on new sanctioned
         # new sanctioned limit = lms.round_down_amount_to_nearest_thousand((new total coll + old total coll) / 2)
+        new_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+            (self.total_collateral_value + loan.total_collateral_value)
+            * self.allowable_ltv
+            / 100
+        )
 
         renewal_sanctioned_limit, processing_sanctioned_limit = (
-            (loan.sanctioned_limit, (self.drawing_power - loan.sanctioned_limit))
-            if self.drawing_power > loan.sanctioned_limit
-            else (self.drawing_power, 0)
+            (loan.sanctioned_limit, (new_sanctioned_limit - loan.sanctioned_limit))
+            if new_sanctioned_limit > loan.sanctioned_limit
+            else (new_sanctioned_limit, 0)
         )
 
         date = frappe.utils.now_datetime()
