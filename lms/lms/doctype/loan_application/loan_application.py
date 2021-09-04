@@ -44,42 +44,83 @@ class LoanApplication(Document):
             "loan_application_number": self.name,
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
-            "sanctioned_amount": lms.round_down_amount_to_nearest_thousand(
-                (self.total_collateral_value + loan.total_collateral_value)
-                * self.allowable_ltv
-                / 100
-            )
-            if self.loan and not self.loan_margin_shortfall
-            else self.drawing_power,
-            "sanctioned_amount_in_words": num2words(
+            "sanctioned_amount": lms.validate_rupees(
                 lms.round_down_amount_to_nearest_thousand(
                     (self.total_collateral_value + loan.total_collateral_value)
                     * self.allowable_ltv
                     / 100
                 )
-                if self.loan and not self.loan_margin_shortfall
-                else self.drawing_power,
-                lang="en_IN",
+            )
+            if self.loan and not self.loan_margin_shortfall
+            else int(self.drawing_power),
+            "sanctioned_amount_in_words": lms.number_to_word(
+                lms.validate_rupees(
+                    lms.round_down_amount_to_nearest_thousand(
+                        (self.total_collateral_value + loan.total_collateral_value)
+                        * self.allowable_ltv
+                        / 100
+                    )
+                    if self.loan and not self.loan_margin_shortfall
+                    else self.drawing_power,
+                )
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,
             "rebait_threshold": lender.rebait_threshold,
-            "account_renewal_charges": lender.account_renewal_charges,
-            "documentation_charges": int(lender.lender_documentation_minimum_amount),
-            "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
-            "processing_fee": lender.lender_processing_fees,
-            "transaction_charges_per_request": int(
+            "renewal_charges": lms.validate_rupees(lender.renewal_charges)
+            if lender.renewal_charge_type == "Fix"
+            else lms.validate_percent(lender.renewal_charges),
+            "renewal_charge_type": lender.renewal_charge_type,
+            "renewal_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.renewal_charges)
+            ).title()
+            if lender.renewal_charge_type == "Fix"
+            else "",
+            "renewal_min_amt": lms.validate_rupees(lender.renewal_minimum_amount),
+            "renewal_max_amt": lms.validate_rupees(lender.renewal_maximum_amount),
+            "documentation_charge": lms.validate_rupees(lender.documentation_charges)
+            if lender.documentation_charge_type == "Fix"
+            else lms.validate_percent(lender.documentation_charges),
+            "documentation_charge_type": lender.documentation_charge_type,
+            "documentation_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.documentation_charges)
+            ).title()
+            if lender.documentation_charge_type == "Fix"
+            else "",
+            "documentation_min_amt": lms.validate_rupees(
+                lender.lender_documentation_minimum_amount
+            ),
+            "documentation_max_amt": lms.validate_rupees(
+                lender.lender_documentation_maximum_amount
+            ),
+            "lender_processing_fees_type": lender.lender_processing_fees_type,
+            "processing_charge": lms.validate_rupees(lender.lender_processing_fees)
+            if lender.lender_processing_fees_type == "Fix"
+            else lms.validate_percent(lender.lender_processing_fees),
+            "processing_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.lender_processing_fees)
+            ).title()
+            if lender.lender_processing_fees_type == "Fix"
+            else "",
+            "processing_min_amt": lms.validate_rupees(
+                lender.lender_processing_minimum_amount
+            ),
+            "processing_max_amt": lms.validate_rupees(
+                lender.lender_processing_maximum_amount
+            ),
+            # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
+            "transaction_charges_per_request": lms.validate_rupees(
                 lender.transaction_charges_per_request
             ),
             "security_selling_share": lender.security_selling_share,
-            "cic_charges": int(lender.cic_charges),
+            "cic_charges": lms.validate_rupees(lender.cic_charges),
             "total_pages": lender.total_pages,
         }
 
         if increase_loan:
-            doc["old_sanctioned_amount"] = loan.sanctioned_limit
-            doc["old_sanctioned_amount_in_words"] = num2words(
-                loan.sanctioned_limit, lang="en_IN"
+            doc["old_sanctioned_amount"] = lms.validate_rupees(loan.sanctioned_limit)
+            doc["old_sanctioned_amount_in_words"] = lms.number_to_word(
+                lms.validate_rupees(loan.sanctioned_limit)
             ).title()
             agreement_template = lender.get_loan_enhancement_agreement_template()
             loan_agreement_file = "loan-enhancement-aggrement.pdf"
@@ -839,41 +880,80 @@ class LoanApplication(Document):
                 )
 
         msg = ""
+        loan = ""
+        fcm_notification = {}
+        fcm_message = ""
         if doc.get("loan_application").get("status") == "Pledge Failure":
-            msg = (
-                "Dear Customer,\nSorry! Your Increase loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app -Spark Loans"
+            msg, fcm_title = (
+                (
+                    "Dear Customer,\nSorry! Your Increase loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app -Spark Loans",
+                    "Increase loan application rejected",
+                )
                 if self.loan and not self.loan_margin_shortfall
-                else "Dear Customer,\nSorry! Your loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
+                else (
+                    "Dear Customer,\nSorry! Your loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans",
+                    "Pledge rejected",
+                )
+            )
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", fcm_title, fields=["*"]
             )
 
         elif (
             doc.get("loan_application").get("status") == "Pledge accepted by Lender"
             and not self.loan_margin_shortfall
         ):
-            msg = (
-                'Dear Customer,\nCongratulations! Your Increase loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans'
+            msg, fcm_title = (
+                (
+                    'Dear Customer,\nCongratulations! Your Increase loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans',
+                    "Increase loan application accepted",
+                )
                 if self.loan and not self.loan_margin_shortfall
-                else 'Dear Customer,\nCongratulations! Your loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans'
+                else (
+                    'Dear Customer,\nCongratulations! Your loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans',
+                    "Pledge accepted",
+                )
+            )
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", fcm_title, fields=["*"]
             )
 
         elif (
             doc.get("loan_application").get("status") == "Approved"
             and not self.loan_margin_shortfall
         ):
-            msg = (
-                "Dear Customer,\nCongratulations! Your loan limit has been successfully increased. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans"
+            msg, fcm_title = (
+                (
+                    "Dear Customer,\nCongratulations! Your loan limit has been successfully increased. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
+                    "Increase loan application approved",
+                )
                 if self.loan and not self.loan_margin_shortfall
-                else "Dear Customer,\nCongratulations! Your loan account is open. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans"
+                else (
+                    "Dear Customer,\nCongratulations! Your loan account is open. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
+                    "Loan approved",
+                )
+            )
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", fcm_title, fields=["*"]
             )
 
         elif (
             doc.get("loan_application").get("status") == "Rejected"
             and not self.loan_margin_shortfall
         ):
-            msg = (
-                "Dear Customer,\nSorry! Your Increase loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
+            msg, fcm_title = (
+                (
+                    "Dear Customer,\nSorry! Your Increase loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans",
+                    "Increase loan application turned down",
+                )
                 if self.loan and not self.loan_margin_shortfall
-                else "Dear Customer,\nSorry! Your loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
+                else (
+                    "Dear Customer,\nSorry! Your loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans",
+                    "Loan rejected",
+                )
+            )
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", fcm_title, fields=["*"]
             )
 
         elif (
@@ -882,6 +962,10 @@ class LoanApplication(Document):
             and not self.loan_margin_shortfall
         ):
             msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan approval. Thank you for your patience. - Spark Loans"
+
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", "E-signing was successful", fields=["*"]
+            )
 
         if (
             (
@@ -894,6 +978,20 @@ class LoanApplication(Document):
             msg = "Dear Customer,\nCongratulations! Your pledge request was successfully considered and was partially accepted for Rs. {} due to technical reasons. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. -Spark Loans".format(
                 self.total_collateral_value_str
             )
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification",
+                "Increase loan application partially accepted"
+                if self.loan
+                else "Pledge partially accepted",
+                fields=["*"],
+            )
+            fcm_message = (
+                fcm_notification.message.format(
+                    total_collateral_value_str=self.total_collateral_value_str
+                )
+                if self.loan
+                else ""
+            )
 
         if msg:
             receiver_list = list(
@@ -902,6 +1000,14 @@ class LoanApplication(Document):
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+        if fcm_notification:
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification,
+                message=fcm_message,
+                loan=self.loan,
+                customer=self.get_customer(),
+            )
 
     def validate(self):
         for i, item in enumerate(
@@ -965,28 +1071,27 @@ def check_for_pledge(loan_application_doc):
                 )
                 data = res.json()
 
-                # Pledge LOG
+                #     # Pledge LOG
                 log = {
                     "url": pledge_request.get("url"),
                     "headers": pledge_request.get("headers"),
                     "request": pledge_request.get("payload"),
                     "response": data,
                 }
-                import json
-                import os
+                #     pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
+                #     pledge_log = None
+                #     if os.path.exists(pledge_log_file):
+                #         with open(pledge_log_file, "r") as f:
+                #             pledge_log = f.read()
+                #         f.close()
+                #     pledge_log = json.loads(pledge_log or "[]")
+                #     pledge_log.append(log)
+                #     with open(pledge_log_file, "w") as f:
+                #         f.write(json.dumps(pledge_log))
+                #     f.close()
+                #     # Pledge LOG end
 
-                pledge_log_file = frappe.utils.get_files_path("pledge_log.json")
-                pledge_log = None
-                if os.path.exists(pledge_log_file):
-                    with open(pledge_log_file, "r") as f:
-                        pledge_log = f.read()
-                    f.close()
-                pledge_log = json.loads(pledge_log or "[]")
-                pledge_log.append(log)
-                with open(pledge_log_file, "w") as f:
-                    f.write(json.dumps(pledge_log))
-                f.close()
-                # Pledge LOG end
+                lms.create_log(log, "pledge_log")
 
             except requests.RequestException as e:
                 pass

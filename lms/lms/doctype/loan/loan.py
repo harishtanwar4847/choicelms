@@ -442,6 +442,12 @@ class Loan(Document):
                         mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
                             self.name
                         )
+                        fcm_notification = frappe.get_doc(
+                            "Spark Push Notification",
+                            "Sale triggerred inaction",
+                            fields=["*"],
+                        )
+                        message = fcm_notification.message.format(loan=self.name)
                         doc = frappe.get_doc(
                             "User KYC", self.get_customer().choice_kyc
                         ).as_dict()
@@ -457,6 +463,13 @@ class Loan(Document):
                             receiver_list=[self.get_customer().phone],
                             msg=mess,
                         )
+                        lms.send_spark_push_notification(
+                            fcm_notification=fcm_notification,
+                            message=message,
+                            loan=self.loan,
+                            customer=self.get_customer(),
+                        )
+
                     loan_margin_shortfall.save(ignore_permissions=True)
 
             # alerts comparison with percentage and amount
@@ -836,6 +849,15 @@ class Loan(Document):
                         round(additional_interest_transaction.unpaid_interest, 2),
                         self.name,
                     )
+                    fcm_notification = frappe.get_doc(
+                        "Spark Push Notification", "Rebate reversed", fields=["*"]
+                    )
+                    message = fcm_notification.message.format(
+                        unpaid_interest=round(
+                            additional_interest_transaction.unpaid_interest, 2
+                        ),
+                        loan=self.name,
+                    )
 
                     if msg:
                         receiver_list = list(
@@ -851,6 +873,12 @@ class Loan(Document):
                             method=send_sms, receiver_list=receiver_list, msg=msg
                         )
 
+                    lms.send_spark_push_notification(
+                        fcm_notification=fcm_notification,
+                        message=message,
+                        loan=self.name,
+                        customer=self.get_customer(),
+                    )
                     return additional_interest_transaction.as_dict()
 
     def book_virtual_interest_for_month(self, input_date=None):
@@ -939,6 +967,14 @@ class Loan(Document):
                 msg = "Dear Customer,\nAn interest of Rs.  {} is due on your loan account {}.\nPlease pay the interest due before the 7th of this month in order to continue to enjoy the rebate provided on the interest rate. Kindly check the app for details. - Spark Loans".format(
                     round(loan_transaction.unpaid_interest, 2), self.name
                 )
+
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification", "Interest due", fields=["*"]
+                )
+                message = fcm_notification.message.format(
+                    unpaid_interest=round(loan_transaction.unpaid_interest, 2),
+                    loan=self.name,
+                )
                 if msg:
                     receiver_list = list(
                         set([str(self.get_customer().phone), str(doc.mobile_number)])
@@ -948,6 +984,13 @@ class Loan(Document):
                     frappe.enqueue(
                         method=send_sms, receiver_list=receiver_list, msg=msg
                     )
+
+                lms.send_spark_push_notification(
+                    fcm_notification=fcm_notification,
+                    message=message,
+                    loan=self.name,
+                    customer=self.get_customer(),
+                )
 
     def add_penal_interest(self, input_date=None):
         # daily scheduler - executes at start of day i.e 00:00
@@ -1055,6 +1098,17 @@ class Loan(Document):
                             round(penal_interest_transaction.unpaid_interest, 2),
                             self.name,
                         )
+                        fcm_notification = frappe.get_doc(
+                            "Spark Push Notification",
+                            "Penal interest charged",
+                            fields=["*"],
+                        )
+                        message = fcm_notification.message.format(
+                            unpaid_interest=round(
+                                penal_interest_transaction.unpaid_interest, 2
+                            ),
+                            loan=self.name,
+                        )
 
                         if msg:
                             receiver_list = list(
@@ -1072,6 +1126,13 @@ class Loan(Document):
                             frappe.enqueue(
                                 method=send_sms, receiver_list=receiver_list, msg=msg
                             )
+
+                        lms.send_spark_push_notification(
+                            fcm_notification=fcm_notification,
+                            message=message,
+                            loan=self.name,
+                            customer=self.get_customer(),
+                        )
 
                         return penal_interest_transaction.as_dict()
 
@@ -1215,29 +1276,69 @@ class Loan(Document):
             # "sanctioned_amount_in_words": num2words(
             #     topup_amount, lang="en_IN"
             # ).title(),
-            "sanctioned_amount": (topup_amount + self.sanctioned_limit),
-            "sanctioned_amount_in_words": num2words(
-                (topup_amount + self.sanctioned_limit), lang="en_IN"
+            "sanctioned_amount": lms.validate_rupees(
+                (topup_amount + self.sanctioned_limit)
+            ),
+            "sanctioned_amount_in_words": lms.number_to_word(
+                lms.validate_rupees((topup_amount + self.sanctioned_limit))
             ).title(),
-            "old_sanctioned_amount": self.sanctioned_limit,
-            "old_sanctioned_amount_in_words": num2words(
-                self.sanctioned_limit, lang="en_IN"
+            "old_sanctioned_amount": lms.validate_rupees(self.sanctioned_limit),
+            "old_sanctioned_amount_in_words": lms.number_to_word(
+                lms.validate_rupees(self.sanctioned_limit)
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
             "default_interest": lender.default_interest,
             "rebait_threshold": lender.rebait_threshold,
-            "account_renewal_charges": lender.account_renewal_charges,
-            "documentation_charges": int(lender.lender_documentation_minimum_amount),
-            "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
+            "renewal_charges": lms.validate_rupees(lender.renewal_charges)
+            if lender.renewal_charge_type == "Fix"
+            else lms.validate_percent(lender.renewal_charges),
+            "renewal_charge_type": lender.renewal_charge_type,
+            "renewal_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.renewal_charges)
+            ).title()
+            if lender.renewal_charge_type == "Fix"
+            else "",
+            "renewal_min_amt": lms.validate_rupees(lender.renewal_minimum_amount),
+            "renewal_max_amt": lms.validate_rupees(lender.renewal_maximum_amount),
+            "documentation_charge": lms.validate_rupees(lender.documentation_charges)
+            if lender.documentation_charge_type == "Fix"
+            else lms.validate_percent(lender.documentation_charges),
+            "documentation_charge_type": lender.documentation_charge_type,
+            "documentation_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.documentation_charges)
+            ).title()
+            if lender.documentation_charge_type == "Fix"
+            else "",
+            "documentation_min_amt": lms.validate_rupees(
+                lender.lender_documentation_minimum_amount
+            ),
+            "documentation_max_amt": lms.validate_rupees(
+                lender.lender_documentation_maximum_amount
+            ),
+            "lender_processing_fees_type": lender.lender_processing_fees_type,
+            "processing_charge": lms.validate_rupees(lender.lender_processing_fees)
+            if lender.lender_processing_fees_type == "Fix"
+            else lms.validate_percent(lender.lender_processing_fees),
+            "processing_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.lender_processing_fees)
+            ).title()
+            if lender.lender_processing_fees_type == "Fix"
+            else "",
+            "processing_min_amt": lms.validate_rupees(
+                lender.lender_processing_minimum_amount
+            ),
+            "processing_max_amt": lms.validate_rupees(
+                lender.lender_processing_maximum_amount
+            ),
             # "documentation_charges": lender.documentation_charges,
             # "stamp_duty_charges": (lender.stamp_duty / 100)
             # * self.sanctioned_limit,  # CR loan agreement changes
-            "processing_fee": lender.lender_processing_fees,
-            "transaction_charges_per_request": int(
+            # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
+            "transaction_charges_per_request": lms.validate_rupees(
                 lender.transaction_charges_per_request
             ),
             "security_selling_share": lender.security_selling_share,
-            "cic_charges": int(lender.cic_charges),
+            "cic_charges": lms.validate_rupees(lender.cic_charges),
             "total_pages": lender.total_pages,
         }
 

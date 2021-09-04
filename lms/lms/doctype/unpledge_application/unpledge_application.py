@@ -8,6 +8,7 @@ import frappe
 from frappe.model.document import Document
 
 import lms
+from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
 
 
@@ -176,6 +177,7 @@ class UnpledgeApplication(Document):
 
     def notify_customer(self, check=None):
         msg = ""
+        fcm_notification = {}
         if self.status in ["Approved", "Rejected"]:
             customer = self.get_loan().get_customer()
             user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
@@ -184,9 +186,13 @@ class UnpledgeApplication(Document):
             frappe.enqueue_doc(
                 "Notification", "Unpledge Application", method="send", doc=doc
             )
-
             if self.status == "Approved":
                 msg = "Dear Customer,\nCongratulations! Your unpledge request has been successfully executed. Kindly check the app now. -Spark Loans"
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification",
+                    "Unpledge application accepted",
+                    fields=["*"],
+                )
             elif self.status == "Rejected":
                 if check == True:
                     # msg = """Dear {},
@@ -200,6 +206,11 @@ class UnpledgeApplication(Document):
                     )
                 else:
                     msg = "Dear Customer,\nSorry! Your unpledge application was turned down due to technical reasons. Please try again after sometime or reach us through 'Contact Us' on the app  -Spark Loans"
+                    fcm_notification = frappe.get_doc(
+                        "Spark Push Notification",
+                        "Unpledge application rejected",
+                        fields=["*"],
+                    )
 
             receiver_list = list(
                 set([str(customer.phone), str(user_kyc.mobile_number)])
@@ -207,6 +218,14 @@ class UnpledgeApplication(Document):
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+        if fcm_notification:
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification,
+                message=fcm_notification.message,
+                loan=self.loan,
+                customer=customer,
+            )
 
     def validate(self):
         for i, item in enumerate(

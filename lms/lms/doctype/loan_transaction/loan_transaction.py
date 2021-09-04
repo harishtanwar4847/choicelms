@@ -12,6 +12,7 @@ from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
 
 import lms
+from lms.firebase import FirebaseAdmin
 
 
 class LoanTransaction(Document):
@@ -202,6 +203,24 @@ class LoanTransaction(Document):
                 if type(self.time) == str
                 else (self.time).strftime("%d-%m-%Y %H:%M"),
             )
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", "Payment credited to account", fields=["*"]
+            )
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification,
+                message=fcm_notification.message.format(
+                    loan=self.loan,
+                    amount=self.amount,
+                    loan_balance=loan.balance,
+                    datetime=datetime.strptime(
+                        self.time, "%Y-%m-%d %H:%M:%S.%f"
+                    ).strftime("%d-%m-%Y %H:%M")
+                    if type(self.time) == str
+                    else (self.time).strftime("%d-%m-%Y %H:%M"),
+                ),
+                loan=self.loan,
+                customer=self.get_customer(),
+            )
 
             if msg:
                 receiver_list = list(
@@ -243,15 +262,39 @@ class LoanTransaction(Document):
                     if type(self.time) == str
                     else (self.time).strftime("%d-%m-%Y %H:%M"),
                 )
+
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification", "Withdrawal successful", fields=["*"]
+                )
+                message = fcm_notification.message.format(amount=self.amount)
+
             elif self.disbursed < self.requested:
                 mess = "Dear Customer,\nYour withdrawal request for Rs. {requested}  has been partially executed and Rs. {disbursed}  transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(
                     requested=self.requested, disbursed=self.disbursed
                 )
+
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification",
+                    "Partial withdrawal successful",
+                    fields=["*"],
+                )
+                message = fcm_notification.message.format(
+                    requested=self.requested, disbursed=self.disbursed
+                )
+
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             if mess:
                 frappe.enqueue(
                     method=send_sms, receiver_list=[self.get_customer().phone], msg=mess
+                )
+
+            if fcm_notification:
+                lms.send_spark_push_notification(
+                    fcm_notification=fcm_notification,
+                    message=message,
+                    loan=self.loan,
+                    customer=self.get_customer(),
                 )
 
         if self.loan_margin_shortfall:
@@ -421,6 +464,12 @@ class LoanTransaction(Document):
                 frappe.enqueue_doc("Notification", "Withdrawal", method="send", doc=doc)
                 frappe.enqueue(
                     method=send_sms, receiver_list=[customer.phone], msg=mess
+                )
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification", "Withdrawal rejected", fields=["*"]
+                )
+                lms.send_spark_push_notification(
+                    fcm_notification=fcm_notification, loan=self.loan, customer=customer
                 )
 
         if self.loan_margin_shortfall:
