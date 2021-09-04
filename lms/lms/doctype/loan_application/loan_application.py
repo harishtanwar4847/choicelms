@@ -679,7 +679,7 @@ class LoanApplication(Document):
                 "lender_processing_maximum_amount",
             )
 
-        if processing_fees > 0:
+        if processing_fees > 0 and processing_sanctioned_limit > 0:
             loan.create_loan_transaction(
                 "Processing Fees",
                 processing_fees,
