@@ -13,14 +13,15 @@
   "column_break_1",
   "lender",
   "amount",
-  "spark_share"
+  "spark_share",
+  "customer_name"
  ],
  "fields": [
   {
    "fieldname": "loan",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Loan Account Numner",
+   "label": "Loan Account No.",
    "options": "Loan",
    "reqd": 1
   },
@@ -68,11 +69,16 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Transaction Type"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Read Only",
+   "label": "Customer Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-03 22:54:25.456599",
+ "modified": "2021-09-04 12:24:36.529735",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender Ledger",

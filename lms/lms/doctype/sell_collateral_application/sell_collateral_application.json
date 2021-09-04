@@ -27,7 +27,7 @@
    "fieldname": "loan",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Loan Account Number",
+   "label": "Loan Account No.",
    "options": "Loan"
   },
   {
@@ -127,7 +127,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-03 22:34:11.696212",
+ "modified": "2021-09-04 12:16:06.406741",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",

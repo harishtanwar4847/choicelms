@@ -40,7 +40,7 @@
    "fieldname": "loan",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Loan Account Number",
+   "label": "Loan Account No.",
    "options": "Loan",
    "read_only": 1,
    "reqd": 1
@@ -205,7 +205,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-03 22:57:48.602919",
+ "modified": "2021-09-04 12:11:58.709825",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Margin Shortfall",

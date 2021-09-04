@@ -9,7 +9,6 @@ from frappe.model.document import Document
 
 import lms
 from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
-from lms.lms.doctype.loan.loan import Loan
 
 
 class UnpledgeApplication(Document):
@@ -37,7 +36,7 @@ class UnpledgeApplication(Document):
         self.lender = loan.lender
         self.customer = loan.customer
         allowable_value = loan.max_unpledge_amount()
-        self.max_allowable_value = allowable_value["maximum_unpledge_amount"]
+        self.max_unpledge_amount = allowable_value["maximum_unpledge_amount"]
 
         securities_list = [i.isin for i in self.items]
 

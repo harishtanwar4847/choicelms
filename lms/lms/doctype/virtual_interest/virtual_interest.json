@@ -43,7 +43,7 @@
    "fieldname": "loan",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Loan Account Number",
+   "label": "Loan Account No.",
    "options": "Loan",
    "reqd": 1
   },
@@ -102,7 +102,7 @@
   }
  ],
  "links": [],
- "modified": "2021-08-31 17:38:38.915756",
+ "modified": "2021-09-04 12:14:02.884027",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Virtual Interest",
