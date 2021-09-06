@@ -157,13 +157,14 @@ class LoanTransaction(Document):
             if sharing_type == "Percentage":
                 lender_sharing_amount = (lender_sharing_amount / 100) * self.amount
             spark_sharing_amount = self.amount - lender_sharing_amount
+
             loan = self.get_loan()
-            customer_name = loan.customer_name.full_name
+            customer_name = loan.customer_name
             self.create_lender_ledger(
                 self.name,
                 customer_name,
-                lender_sharing_amount,
                 loan_transaction_type,
+                lender_sharing_amount,
                 spark_sharing_amount,
             )
 
@@ -413,8 +414,8 @@ class LoanTransaction(Document):
 
     def create_lender_ledger(
         self,
-        customer_name,
         loan_transaction_name,
+        customer_name,
         loan_transaction_type,
         lender_share,
         spark_share,
