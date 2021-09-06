@@ -394,18 +394,19 @@ class Loan(Document):
                 lender = frappe.db.sql(
                     "select u.email,u.first_name from `tabUser` as u left join `tabHas Role` as r on u.email=r.parent where role='Lender'",
                     as_dict=1,
-                )[0]
-                msg = "Hello {}, Sell is Triggered for Margin Shortfall of Loan {}. Please take Action.".format(
-                    lender.get("first_name"), self.name
                 )
+                if lender:
+                    msg = "Hello {}, Sell is Triggered for Margin Shortfall of Loan {}. Please take Action.".format(
+                        lender[0].get("first_name"), self.name
+                    )
 
-                frappe.enqueue(
-                    method=frappe.sendmail,
-                    recipients=[lender.get("email")],
-                    sender=None,
-                    subject="Sell Triggered Notification",
-                    message=msg,
-                )
+                    frappe.enqueue(
+                        method=frappe.sendmail,
+                        recipients=[lender[0].get("email")],
+                        sender=None,
+                        subject="Sell Triggered Notification",
+                        message=msg,
+                    )
             elif loan_margin_shortfall.status != "Sell Triggered":
                 old_shortfall_action = loan_margin_shortfall.margin_shortfall_action
                 loan_margin_shortfall.fill_items()
