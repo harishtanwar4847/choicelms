@@ -35,6 +35,15 @@ class SellCollateralApplication(Document):
         loan = self.get_loan()
         self.lender = loan.lender
         self.customer = loan.customer
+
+        pending_unpledge_request_id = frappe.db.get_value(
+            "Unpledge Application", {"loan": loan.name, "status": "Pending"}, "name"
+        )
+        if pending_unpledge_request_id:
+            self.pending_unpledge_request_id = pending_unpledge_request_id
+        else:
+            self.pending_unpledge_request_id = ""
+
         triggered_margin_shortfall = frappe.get_all(
             "Loan Margin Shortfall",
             filters={"loan": self.loan, "status": "Sell Triggered"},
@@ -220,6 +229,8 @@ class SellCollateralApplication(Document):
                     "request_type": "Sell Collateral",
                     "isin": i.get("isin"),
                     "quantity": i.get("sell_quantity"),
+                    "category": i.get("category"),
+                    "price": i.get("price"),
                     "security_name": i.get("security_name"),
                     "psn": i.get("psn"),
                     "loan_name": self.loan,

@@ -22,7 +22,9 @@
   "prf",
   "pledgee_boid",
   "lender_approval_status",
-  "security_name"
+  "security_name",
+  "price",
+  "value"
  ],
  "fields": [
   {
@@ -138,11 +140,21 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Security Name"
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Data",
+   "label": "price"
+  },
+  {
+   "fieldname": "value",
+   "fieldtype": "Data",
+   "label": "value"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-04 12:13:14.624483",
+ "modified": "2021-09-06 18:27:57.141868",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Collateral Ledger",

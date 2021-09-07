@@ -8,16 +8,14 @@ frappe.listview_settings["Loan Margin Shortfall"] = {
     shortfall_percentage(val) {
       if (val <= 15) {
         return (
-          '<span style= "color: #FFB740;"><strong>' + val + "</strong></span>"
+          '<span style= "color: yellow;"><strong>' + val + "</strong></span>"
         );
       } else if (15 < val && val <= 25) {
         return (
-          '<span style= "color: #DF711B;"> <strong>' + val + "</strong></span>"
+          '<span style= "color: orange;"> <strong>' + val + "</strong></span>"
         );
       } else if (val > 25) {
-        return (
-          '<span style= "color: #DF2E2E;"><strong>' + val + "</strong></span>"
-        );
+        return '<span style= "color: red;"><strong>' + val + "</strong></span>";
       }
     },
   },

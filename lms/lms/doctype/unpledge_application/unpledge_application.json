@@ -8,6 +8,7 @@
   "loan",
   "total_collateral_value",
   "lender",
+  "pending_sell_request_id",
   "column_break_1",
   "customer",
   "customer_name",
@@ -100,11 +101,18 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Max Allowable Value"
+  },
+  {
+   "fieldname": "pending_sell_request_id",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Pending Sell Request Id",
+   "options": "Sell Collateral Application"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-04 12:22:47.277213",
+ "modified": "2021-09-07 16:45:33.177345",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Unpledge Application",
