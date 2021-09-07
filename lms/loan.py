@@ -2424,7 +2424,7 @@ def loan_unpledge_request(**kwargs):
         )
 
         if token.expiry <= frappe.utils.now_datetime():
-            return utils.respondUnauthorized(message=frappe._("Pledge OTP Expired."))
+            return utils.respondUnauthorized(message=frappe._("Unpledge OTP Expired."))
 
         frappe.db.begin()
 
