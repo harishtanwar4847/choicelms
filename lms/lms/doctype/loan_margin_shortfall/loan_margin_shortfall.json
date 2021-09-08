@@ -31,6 +31,7 @@
   "advisable_cash_amount",
   "section_break_20",
   "status",
+  "time_remaining",
   "column_break_22",
   "action_time",
   "deadline"
@@ -201,11 +202,17 @@
    "fieldtype": "Read Only",
    "in_list_view": 1,
    "label": "Customer Name"
+  },
+  {
+   "fieldname": "time_remaining",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Time Remaining"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-04 12:11:58.709825",
+ "modified": "2021-09-08 11:03:47.201615",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Margin Shortfall",

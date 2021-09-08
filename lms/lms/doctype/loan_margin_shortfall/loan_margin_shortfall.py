@@ -28,6 +28,7 @@ class LoanMarginShortfall(Document):
         self.drawing_power = loan.drawing_power
         self.customer_name = loan.customer_name
         self.loan_balance = loan.balance
+        self.time_remaining = "00:00:00"
         # self.ltv = (self.loan_balance / self.total_collateral_value) * 100
         # Zero division error - handling
         self.ltv = (
