@@ -877,6 +877,7 @@ def securities(**kwargs):
                     "security_category"
                 )
                 i["Is_Eligible"] = True
+                i["Total_Qty"] = i["Quantity"]
                 i["waiting_to_be_pledged_qty"] = float(
                     securities_category_map[i["ISIN"]].get(
                         "waiting_to_be_pledged_qty", 0
@@ -890,7 +891,7 @@ def securities(**kwargs):
                 i["unpledged_quantity"] = float(
                     securities_category_map[i["ISIN"]].get("unpledged_quantity", 0)
                 )
-                i["Avail_Quantity"] = (
+                i["Quantity"] = (
                     i["Quantity"]
                     - (
                         float(

@@ -1,0 +1,108 @@
+{
+ "actions": [],
+ "creation": "2021-09-08 15:56:52.249527",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "pan",
+  "isin",
+  "branch",
+  "client_code",
+  "client_name",
+  "scrip_name",
+  "depository",
+  "stock_at",
+  "quantity",
+  "price",
+  "scrip_value",
+  "holding_as_on"
+ ],
+ "fields": [
+  {
+   "fieldname": "pan",
+   "fieldtype": "Data",
+   "label": "PAN"
+  },
+  {
+   "fieldname": "isin",
+   "fieldtype": "Link",
+   "label": "ISIN",
+   "options": "Security"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Data",
+   "label": "Branch"
+  },
+  {
+   "fieldname": "client_code",
+   "fieldtype": "Data",
+   "label": "Client Code"
+  },
+  {
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "label": "Client Name"
+  },
+  {
+   "fieldname": "scrip_name",
+   "fieldtype": "Data",
+   "label": "Scrip Name"
+  },
+  {
+   "fieldname": "depository",
+   "fieldtype": "Data",
+   "label": "Depository"
+  },
+  {
+   "fieldname": "stock_at",
+   "fieldtype": "Data",
+   "label": "Stock At"
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "label": "Quantity"
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Currency",
+   "label": "Price"
+  },
+  {
+   "fieldname": "scrip_value",
+   "fieldtype": "Currency",
+   "label": "Scrip Value"
+  },
+  {
+   "fieldname": "holding_as_on",
+   "fieldtype": "Datetime",
+   "label": "Holding As On"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-09-08 15:59:53.227528",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Client Holding",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
