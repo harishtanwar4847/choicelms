@@ -43,6 +43,63 @@ class FirebaseAdmin:
         except firebase_admin.exceptions.FirebaseError as e:
             raise lms.FirebaseError(str(e))
 
+    def send_android_message(
+        self,
+        title,
+        body,
+        image=None,
+        tokens=[],
+        data=None,
+        priority="normal",
+        collapse_key="com.sparktechnologies.sparkloans",
+        channel_id="channel_ID_1",
+    ):
+        if not tokens:
+            raise lms.FirebaseTokensNotProvidedError("Firebase tokens not provided.")
+
+        notification = messaging.Notification(title, body, image)
+
+        android_notification = messaging.AndroidNotification(
+            title=title,
+            body=body,
+            channel_id=channel_id,
+            priority=priority,
+            icon=None,
+            color=None,
+            sound=None,
+            tag=None,
+            click_action=None,
+            body_loc_key=None,
+            body_loc_args=None,
+            title_loc_key=None,
+            title_loc_args=None,
+            image=None,
+            ticker=None,
+            sticky=None,
+            event_timestamp=None,
+            local_only=None,
+            vibrate_timings_millis=None,
+            default_vibrate_timings=None,
+            default_sound=None,
+            light_settings=None,
+            default_light_settings=None,
+            visibility=None,
+            notification_count=None,
+        )
+
+        android = messaging.AndroidConfig(
+            collapse_key=collapse_key,
+            priority=priority,
+            notification=android_notification,
+        )
+        multicast_message = messaging.MulticastMessage(
+            tokens, data, notification, android
+        )
+        try:
+            messaging.send_multicast(multicast_message)
+        except firebase_admin.exceptions.FirebaseError as e:
+            raise lms.FirebaseError(str(e))
+
     def delete_app(self):
         if self.app:
             firebase_admin.delete_app(self.app)
