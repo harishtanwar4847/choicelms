@@ -724,23 +724,27 @@ def securities(**kwargs):
                 # TODO : bulk insert values
                 values = []
                 for i in securities_list:
-                    Holding_As_On = datetime.strptime(
-                        i["Holding_As_On"], "%Y-%m-%dT%H:%M:%S"
-                    )
+                    if i.get("Holding_As_On", None):
+                        Holding_As_On = datetime.strptime(
+                            i["Holding_As_On"], "%Y-%m-%dT%H:%M:%S"
+                        )
+                    else:
+                        Holding_As_On = frappe.utils.now_datetime()
+
                     values.append(
                         [
-                            user_kyc.pan_no + "-" + i["ISIN"],
+                            i["Stock_At"] + "-" + i["ISIN"],
                             user_kyc.pan_no,
                             i["ISIN"],
-                            i["Branch"],
-                            i["Client_Code"],
-                            i["Client_Name"],
+                            i["Branch"] if i.get("Branch", None) else "",
+                            i["Client_Code"] if i.get("Client_Code", None) else "",
+                            i["Client_Name"] if i.get("Client_Name", None) else "",
                             i["Scrip_Name"],
-                            i["Depository"],
+                            i["Depository"] if i.get("Depository", None) else "",
                             i["Stock_At"],
                             i["Quantity"],
                             i["Price"],
-                            i["Scrip_Value"],
+                            i["Scrip_Value"] if i.get("Scrip_Value", None) else "",
                             Holding_As_On,
                             frappe.utils.now(),
                             frappe.utils.now(),
@@ -868,9 +872,10 @@ def securities(**kwargs):
         for i in securities_list:
             # process actual qty
             # print(i["Holding_As_On"], type(i["Holding_As_On"]))
+            print(i.keys())
             if i.get("Holding_As_On", None) and not isinstance(i["Holding_As_On"], str):
                 i["Holding_As_On"] = i["Holding_As_On"].strftime("%Y-%m-%dT%H:%M:%S")
-                # print(i["Holding_As_On"], type(i["Holding_As_On"]))
+                print(i["Holding_As_On"], type(i["Holding_As_On"]))
 
             try:
                 i["Category"] = securities_category_map[i["ISIN"]].get(
