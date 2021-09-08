@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [v1.0.5] - 2021-08-18
+
+### Added
+
+- [Feat: 404 webpage added and sitemap.xml updated](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/358)
+- [Feat: url changed as per informed by vinayak - 16/08/2021 | meta tags - title, description, keywords, home page title Tag changed as per informed by vinayak - 16/08/2021](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/359)
+
 ## [v1.0.4] - 2021-08-13
 
 - [Feat: sitemap.xml added | added functionality of routing index and home page to root page of website](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/354)
