@@ -625,6 +625,7 @@ def securities(**kwargs):
         if not data.get("lender", None):
             data["lender"] = frappe.get_last_doc("Lender").name
 
+        customer = lms.__customer()
         user_kyc = lms.__user_kyc()
 
         # from_date = frappe.utils.now_datetime().replace(day=29, month=7, hour=00, minute=00, second=00, microsecond=000000)
@@ -785,12 +786,16 @@ def securities(**kwargs):
             where la.status='Waiting to be pledged'
             AND ch.pan = '{}'
             AND lai.isin in {}
+            AND la.customer = '{}'
             group by ch.stock_at, lai.isin
             order by la.pledgor_boid, lai.isin
         """.format(
-                user_kyc.pan_no, lms.convert_list_to_tuple_string(securities_list_)
+                user_kyc.pan_no,
+                lms.convert_list_to_tuple_string(securities_list_),
+                customer.name,
             ),
             as_dict=True,
+            debug=True,
         )
         # ch.quantity - sum(lai.pledged_quantity) as available_quantity
         # group by ch.isin
@@ -817,12 +822,14 @@ def securities(**kwargs):
             AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
             AND ch.pan = '{}'
             AND cl.isin in {}
+            AND cl.customer = '{}'
             group by ch.stock_at, cl.isin
             order by cl.pledgor_boid, cl.isin;
         """.format(
                 datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
                 user_kyc.pan_no,
                 lms.convert_list_to_tuple_string(securities_list_),
+                customer.name,
             ),
             as_dict=True,
         )
@@ -850,12 +857,14 @@ def securities(**kwargs):
             AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
             AND ch.pan = '{}'
             AND cl.isin in {}
+            AND cl.customer = '{}'
             group by ch.stock_at, cl.isin
             order by cl.pledgor_boid, cl.isin;
         """.format(
                 datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
                 user_kyc.pan_no,
                 lms.convert_list_to_tuple_string(securities_list_),
+                customer.name,
             ),
             as_dict=True,
         )
