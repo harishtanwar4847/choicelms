@@ -867,10 +867,10 @@ def securities(**kwargs):
 
         for i in securities_list:
             # process actual qty
-            print(i["Holding_As_On"], type(i["Holding_As_On"]))
-            if not isinstance(i["Holding_As_On"], str):
+            # print(i["Holding_As_On"], type(i["Holding_As_On"]))
+            if not i.get("Holding_As_On") and not isinstance(i["Holding_As_On"], str):
                 i["Holding_As_On"] = i["Holding_As_On"].strftime("%Y-%m-%dT%H:%M:%S")
-                print(i["Holding_As_On"], type(i["Holding_As_On"]))
+                # print(i["Holding_As_On"], type(i["Holding_As_On"]))
 
             try:
                 i["Category"] = securities_category_map[i["ISIN"]].get(
