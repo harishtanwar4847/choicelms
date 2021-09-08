@@ -4,6 +4,7 @@ import os
 import re
 import time
 from datetime import MINYEAR, date, datetime, timedelta
+from logging import debug
 from time import gmtime
 
 import frappe
@@ -626,29 +627,44 @@ def securities(**kwargs):
 
         user_kyc = lms.__user_kyc()
 
-        from_date = frappe.utils.now_datetime().replace(hour=00, minute=00, second=00)
-        to_date = frappe.utils.now_datetime().replace(hour=23, minute=59, second=59)
+        # from_date = frappe.utils.now_datetime().replace(day=29, month=7, hour=00, minute=00, second=00, microsecond=000000)
+        # to_date = frappe.utils.now_datetime().replace(day=29, month=7, hour=23, minute=59, second=59, microsecond=999999)
         # todays_client_holding = frappe.db.count("Client Holding", filters={"creation" : ("between", (from_date, to_date))}, debug=True)
-        securities_list = frappe.db.get_all(
-            "Client Holding",
-            fields=[
-                "pan PAN",
-                "isin ISIN",
-                "branch Branch",
-                "client_code Client_Code",
-                "client_name Client_Name",
-                "scrip_name Scrip_Name",
-                "depository Depository",
-                "stock_at Stock_At",
-                "quantity Quantity",
-                "price Price",
-                "scrip_value Scrip_Value",
-                "holding_as_on Holding_As_On",
-            ],
-            filters={
-                "creation": ["between", (from_date, to_date)],
-                "pan": user_kyc.pan_no,
-            },
+        # securities_list = frappe.db.get_all(
+        #     "Client Holding",
+        #     fields=[
+        #         "pan as PAN",
+        #         "isin as ISIN",
+        #         "branch as Branch",
+        #         "client_code as Client_Code",
+        #         "client_name as Client_Name",
+        #         "scrip_name as Scrip_Name",
+        #         "depository as Depository",
+        #         "stock_at as Stock_At",
+        #         "quantity as Quantity",
+        #         "price as Price",
+        #         "scrip_value as Scrip_Value",
+        #         "holding_as_on as Holding_As_On",
+        #     ],
+        #     filters={
+        #         "creation": ["between", (from_date, to_date)],
+        #         "pan": user_kyc.pan_no,
+        #     },
+        #     debug=True
+        # )
+        # return securities_list
+
+        securities_list = frappe.db.sql(
+            """
+        SELECT `pan` as PAN, `isin` as ISIN, `branch` as Branch, `client_code` as Client_Code, `client_name` as Client_Name, `scrip_name` as Scrip_Name, `depository` as Depository, `stock_at` as Stock_At, `quantity` as Quantity, `price` as Price, `scrip_value` as Scrip_Value, `holding_as_on` as Holding_As_On
+        FROM `tabClient Holding` as ch
+        WHERE DATE_FORMAT(ch.creation, '%Y-%m-%d') = '{}'
+        AND ch.pan = '{}'
+        order by ch.`modified` DESC""".format(
+                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
+                user_kyc.pan_no,
+            ),
+            as_dict=True,
         )
 
         if len(securities_list) == 0:
@@ -754,29 +770,145 @@ def securities(**kwargs):
             securities_list_, data.get("lender")
         )
 
-        pledge_waiting_sql = """
-            SELECT ch.pan, ch.stock_at, ch.isin, ch.quantity, ch.price, ch.scrip_value,
-            la.name,
-            lai.name,
-            ch.quantity - lai.pledged_quantity as free_qty
-            FROM `tabClient Holding` ch
-            LEFT JOIN `tabLoan Application` as la ON la.pledgor_boid = ch.stock_at
+        pledge_waiting_securitites = frappe.db.sql(
+            """
+            SELECT GROUP_CONCAT(la.name) as loan_application, la.pledgor_boid,
+            lai.isin, sum(lai.pledged_quantity) as pledged_quantity,
+            ch.name
+            FROM `tabLoan Application` as la
             LEFT JOIN `tabLoan Application Item` lai ON lai.parent = la.name
-            where ch.pan = '{}' AND la.lender = '{}'
-            group by ch.isin
+            LEFT JOIN `tabClient Holding` ch ON ch.isin = lai.isin and ch.stock_at = la.pledgor_boid
+            where la.status='Waiting to be pledged'
+            AND ch.pan = '{}'
+            AND lai.isin in {}
+            group by ch.stock_at, lai.isin
+            order by la.pledgor_boid, lai.isin
         """.format(
-            user_kyc.pan_no, data["lender"]
+                user_kyc.pan_no, lms.convert_list_to_tuple_string(securities_list_)
+            ),
+            as_dict=True,
         )
-        print(pledge_waiting_sql)
+        # ch.quantity - sum(lai.pledged_quantity) as available_quantity
+        # group by ch.isin
+        # (la.status='Pledge executed' AND DATE_FORMAT(la.creation, '%Y-%m-%d') = '{}'))
+
+        if len(pledge_waiting_securitites) > 0:
+            for i in pledge_waiting_securitites:
+                try:
+                    securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"] = i[
+                        "pledged_quantity"
+                    ]
+                except KeyError:
+                    continue
+
+        waiting_for_lender_approval_securities = frappe.db.sql(
+            """
+            SELECT GROUP_CONCAT(cl.application_name) as loan_application, GROUP_CONCAT(cl.loan) as loan,
+            cl.pledgor_boid, cl.isin, sum(cl.quantity) as pledged_quantity,
+            ch.name
+            FROM `tabCollateral Ledger` as cl
+            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
+            WHERE (cl.lender_approval_status='' OR cl.lender_approval_status='Approved')
+            AND cl.request_type = 'Pledge'
+            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
+            AND ch.pan = '{}'
+            AND cl.isin in {}
+            group by ch.stock_at, cl.isin
+            order by cl.pledgor_boid, cl.isin;
+        """.format(
+                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
+                user_kyc.pan_no,
+                lms.convert_list_to_tuple_string(securities_list_),
+            ),
+            as_dict=True,
+        )
+        # ch.quantity - sum(cl.quantity) as available_quantity
+        # print(waiting_for_lender_approval_securities_)
+
+        if len(waiting_for_lender_approval_securities) > 0:
+            for i in waiting_for_lender_approval_securities:
+                try:
+                    securities_category_map[i["isin"]][
+                        "waiting_for_approval_pledged_qty"
+                    ] = i["pledged_quantity"]
+                except KeyError:
+                    continue
+
+        unpledge_approved_securities = frappe.db.sql(
+            """
+            SELECT GROUP_CONCAT(cl.loan) as loan,
+            cl.pledgor_boid, cl.isin, sum(cl.quantity) as unpledged_quantity,
+            ch.name
+            FROM `tabCollateral Ledger` as cl
+            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
+            WHERE cl.lender_approval_status='Approved'
+            AND cl.request_type = 'Unpledge'
+            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
+            AND ch.pan = '{}'
+            AND cl.isin in {}
+            group by ch.stock_at, cl.isin
+            order by cl.pledgor_boid, cl.isin;
+        """.format(
+                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
+                user_kyc.pan_no,
+                lms.convert_list_to_tuple_string(securities_list_),
+            ),
+            as_dict=True,
+        )
+
+        if len(unpledge_approved_securities) > 0:
+            for i in unpledge_approved_securities:
+                try:
+                    securities_category_map[i["isin"]]["unpledged_quantity"] = i[
+                        "unpledged_quantity"
+                    ]
+                except KeyError:
+                    continue
 
         for i in securities_list:
             # process actual qty
+            print(i["Holding_As_On"], type(i["Holding_As_On"]))
+            if not isinstance(i["Holding_As_On"], str):
+                i["Holding_As_On"] = i["Holding_As_On"].strftime("%Y-%m-%dT%H:%M:%S")
+                print(i["Holding_As_On"], type(i["Holding_As_On"]))
 
             try:
                 i["Category"] = securities_category_map[i["ISIN"]].get(
                     "security_category"
                 )
                 i["Is_Eligible"] = True
+                i["waiting_to_be_pledged_qty"] = float(
+                    securities_category_map[i["ISIN"]].get(
+                        "waiting_to_be_pledged_qty", 0
+                    )
+                )
+                i["waiting_for_approval_pledged_qty"] = float(
+                    securities_category_map[i["ISIN"]].get(
+                        "waiting_for_approval_pledged_qty", 0
+                    )
+                )
+                i["unpledged_quantity"] = float(
+                    securities_category_map[i["ISIN"]].get("unpledged_quantity", 0)
+                )
+                i["Avail_Quantity"] = (
+                    i["Quantity"]
+                    - (
+                        float(
+                            securities_category_map[i["ISIN"]].get(
+                                "waiting_to_be_pledged_qty", 0
+                            )
+                        )
+                        + float(
+                            securities_category_map[i["ISIN"]].get(
+                                "waiting_for_approval_pledged_qty", 0
+                            )
+                        )
+                    )
+                ) + (
+                    float(
+                        securities_category_map[i["ISIN"]].get("unpledged_quantity", 0)
+                    )
+                )
             except KeyError:
                 i["Is_Eligible"] = False
                 i["Category"] = None

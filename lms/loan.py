@@ -2238,14 +2238,14 @@ def validate_securities_for_unpledge(securities, loan):
     if not securities or (
         type(securities) is not dict and "list" not in securities.keys()
     ):
-        raise utils.ValidationException(
+        raise utils.exceptions.ValidationException(
             {"securities": {"required": frappe._("Securities required.")}}
         )
 
     securities = securities["list"]
 
     if len(securities) == 0:
-        raise utils.ValidationException(
+        raise utils.exceptions.ValidationException(
             {"securities": {"required": frappe._("Securities required.")}}
         )
 
@@ -2322,7 +2322,9 @@ def validate_securities_for_unpledge(securities, loan):
                 break
 
     if not securities_valid:
-        raise utils.ValidationException({"securities": {"required": message}})
+        raise utils.exceptions.ValidationException(
+            {"securities": {"required": message}}
+        )
 
     return securities
 
@@ -2602,14 +2604,14 @@ def validate_securities_for_sell_collateral(securities, loan_name):
     if not securities or (
         type(securities) is not dict and "list" not in securities.keys()
     ):
-        raise utils.ValidationException(
+        raise utils.exceptions.ValidationException(
             {"securities": {"required": frappe._("Securities required.")}}
         )
 
     securities = securities["list"]
 
     if len(securities) == 0:
-        raise utils.ValidationException(
+        raise utils.exceptions.ValidationException(
             {"securities": {"required": frappe._("Securities required.")}}
         )
 
@@ -2659,7 +2661,9 @@ def validate_securities_for_sell_collateral(securities, loan_name):
                 break
 
     if not securities_valid:
-        raise utils.ValidationException({"securities": {"required": message}})
+        raise utils.exceptions.ValidationException(
+            {"securities": {"required": message}}
+        )
 
     return securities
 
