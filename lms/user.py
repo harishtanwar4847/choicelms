@@ -904,7 +904,7 @@ def securities(**kwargs):
                 i["unpledged_quantity"] = float(
                     securities_category_map[i["ISIN"]].get("unpledged_quantity", 0)
                 )
-                i["Quantity"] = (
+                available_quantity = (
                     i["Quantity"]
                     - (
                         float(
@@ -923,6 +923,7 @@ def securities(**kwargs):
                         securities_category_map[i["ISIN"]].get("unpledged_quantity", 0)
                     )
                 )
+                i["Quantity"] = available_quantity if available_quantity > 0 else 0
             except KeyError:
                 i["Is_Eligible"] = False
                 i["Category"] = None
