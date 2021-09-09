@@ -21,6 +21,9 @@
   "allowable_ltv",
   "expiry_date",
   "loan_agreement",
+  "rebate_interest_amount",
+  "base_interest_amount",
+  "margin_shortfall_amount",
   "items_section",
   "items",
   "loan_status_section",
@@ -162,11 +165,26 @@
    "fieldtype": "Read Only",
    "in_list_view": 1,
    "label": "Customer Name"
+  },
+  {
+   "fieldname": "base_interest_amount",
+   "fieldtype": "Data",
+   "label": "Base interest amount"
+  },
+  {
+   "fieldname": "rebate_interest_amount",
+   "fieldtype": "Data",
+   "label": "Rebate interest amount"
+  },
+  {
+   "fieldname": "margin_shortfall_amount",
+   "fieldtype": "Data",
+   "label": "Margin Shortfall Amount"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-02 14:28:12.121360",
+ "modified": "2021-09-08 14:50:22.205461",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
