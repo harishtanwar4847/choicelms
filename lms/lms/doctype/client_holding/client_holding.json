@@ -27,6 +27,7 @@
   {
    "fieldname": "isin",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "ISIN",
    "options": "Security"
   },
@@ -48,6 +49,7 @@
   {
    "fieldname": "scrip_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Scrip Name"
   },
   {
@@ -58,21 +60,25 @@
   {
    "fieldname": "stock_at",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Stock At"
   },
   {
    "fieldname": "quantity",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Quantity"
   },
   {
    "fieldname": "price",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Price"
   },
   {
    "fieldname": "scrip_value",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Scrip Value"
   },
   {
@@ -83,7 +89,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-08 15:59:53.227528",
+ "modified": "2021-09-09 10:12:10.233407",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Client Holding",
