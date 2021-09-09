@@ -4,6 +4,7 @@ import os
 import re
 import time
 from datetime import MINYEAR, date, datetime, timedelta
+from logging import debug
 from time import gmtime
 
 import frappe
@@ -525,7 +526,7 @@ def kyc(**kwargs):
 
 
 @frappe.whitelist()
-def securities(**kwargs):
+def securities_old(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
@@ -586,6 +587,301 @@ def securities(**kwargs):
             return utils.respondWithSuccess(data=securities_list)
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+
+""" CR - Client Holding management - 27-07-2021 """
+
+
+@frappe.whitelist()
+def securities(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "lender": "",
+            },
+        )
+
+        reg = lms.regex_special_characters(search=data.get("lender"))
+        if reg:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
+
+        if not data.get("lender", None):
+            data["lender"] = frappe.get_last_doc("Lender").name
+
+        customer = lms.__customer()
+        user_kyc = lms.__user_kyc()
+
+        securities_list = frappe.db.sql(
+            """
+        SELECT `pan` as PAN, `isin` as ISIN, `branch` as Branch, `client_code` as Client_Code, `client_name` as Client_Name, `scrip_name` as Scrip_Name, `depository` as Depository, `stock_at` as Stock_At, `quantity` as Quantity, `price` as Price, `scrip_value` as Scrip_Value, `holding_as_on` as Holding_As_On
+        FROM `tabClient Holding` as ch
+        WHERE DATE_FORMAT(ch.creation, '%Y-%m-%d') = '{}'
+        AND ch.pan = '{}'
+        order by ch.`modified` DESC""".format(
+                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
+                user_kyc.pan_no,
+            ),
+            as_dict=True,
+        )
+
+        if len(securities_list) == 0:
+            las_settings = frappe.get_single("LAS Settings")
+
+            # get securities list from choice
+            payload = {
+                "UserID": las_settings.choice_user_id,
+                "ClientID": user_kyc.pan_no,
+            }
+
+            try:
+                res = requests.post(
+                    las_settings.choice_securities_list_api,
+                    json=payload,
+                    headers={"Accept": "application/json"},
+                )
+                if not res.ok:
+                    raise utils.exceptions.APIException(res.text)
+
+                res_json = res.json()
+                frappe.logger().info(res_json)
+                if res_json["Status"] != "Success":
+                    raise utils.exceptions.APIException(res.text)
+
+                # setting eligibility
+                securities_list = [
+                    i for i in res_json["Response"] if i.get("Price") > 0
+                ]
+
+                # bulk insert fields
+                fields = [
+                    "name",
+                    "pan",
+                    "isin",
+                    "branch",
+                    "client_code",
+                    "client_name",
+                    "scrip_name",
+                    "depository",
+                    "stock_at",
+                    "quantity",
+                    "price",
+                    "scrip_value",
+                    "holding_as_on",
+                    "creation",
+                    "modified",
+                    "owner",
+                    "modified_by",
+                ]
+
+                # bulk insert values
+                values = []
+                for i in securities_list:
+                    if i.get("Holding_As_On", None):
+                        Holding_As_On = datetime.strptime(
+                            i["Holding_As_On"], "%Y-%m-%dT%H:%M:%S"
+                        )
+                    else:
+                        Holding_As_On = frappe.utils.now_datetime()
+
+                    values.append(
+                        [
+                            i["Stock_At"] + "-" + i["ISIN"],
+                            user_kyc.pan_no,
+                            i["ISIN"],
+                            i["Branch"] if i.get("Branch", None) else "",
+                            i["Client_Code"] if i.get("Client_Code", None) else "",
+                            i["Client_Name"] if i.get("Client_Name", None) else "",
+                            i["Scrip_Name"],
+                            i["Depository"] if i.get("Depository", None) else "",
+                            i["Stock_At"],
+                            i["Quantity"],
+                            i["Price"],
+                            i["Scrip_Value"] if i.get("Scrip_Value", None) else "",
+                            Holding_As_On,
+                            frappe.utils.now(),
+                            frappe.utils.now(),
+                            frappe.session.user,
+                            frappe.session.user,
+                        ]
+                    )
+
+                # delete existng records
+                frappe.db.delete("Client Holding", {"pan": user_kyc.pan_no})
+
+                # bulk insert
+                frappe.db.bulk_insert(
+                    "Client Holding",
+                    fields=fields,
+                    values=values,
+                    ignore_duplicates=True,
+                )
+
+            except requests.RequestException as e:
+                raise utils.exceptions.APIException(str(e))
+
+        securities_list_ = [i["ISIN"] for i in securities_list]
+        securities_category_map = lms.get_allowed_securities(
+            securities_list_, data.get("lender")
+        )
+
+        pledge_waiting_securitites = frappe.db.sql(
+            """
+            SELECT GROUP_CONCAT(la.name) as loan_application, la.pledgor_boid,
+            lai.isin, sum(lai.pledged_quantity) as pledged_quantity,
+            ch.name
+            FROM `tabLoan Application` as la
+            LEFT JOIN `tabLoan Application Item` lai ON lai.parent = la.name
+            LEFT JOIN `tabClient Holding` ch ON ch.isin = lai.isin and ch.stock_at = la.pledgor_boid
+            where la.status='Waiting to be pledged'
+            AND ch.pan = '{}'
+            AND lai.isin in {}
+            AND la.customer = '{}'
+            group by ch.stock_at, lai.isin
+            order by la.pledgor_boid, lai.isin
+        """.format(
+                user_kyc.pan_no,
+                lms.convert_list_to_tuple_string(securities_list_),
+                customer.name,
+            ),
+            as_dict=True,
+            debug=True,
+        )
+
+        if len(pledge_waiting_securitites) > 0:
+            for i in pledge_waiting_securitites:
+                try:
+                    securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"] = i[
+                        "pledged_quantity"
+                    ]
+                except KeyError:
+                    continue
+
+        waiting_for_lender_approval_securities = frappe.db.sql(
+            """
+            SELECT GROUP_CONCAT(cl.application_name) as loan_application, GROUP_CONCAT(cl.loan) as loan,
+            cl.pledgor_boid, cl.isin, sum(cl.quantity) as pledged_quantity,
+            ch.name
+            FROM `tabCollateral Ledger` as cl
+            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
+            WHERE (cl.lender_approval_status='' OR cl.lender_approval_status='Approved')
+            AND cl.request_type = 'Pledge'
+            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
+            AND ch.pan = '{}'
+            AND cl.isin in {}
+            AND cl.customer = '{}'
+            group by ch.stock_at, cl.isin
+            order by cl.pledgor_boid, cl.isin;
+        """.format(
+                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
+                user_kyc.pan_no,
+                lms.convert_list_to_tuple_string(securities_list_),
+                customer.name,
+            ),
+            as_dict=True,
+        )
+
+        if len(waiting_for_lender_approval_securities) > 0:
+            for i in waiting_for_lender_approval_securities:
+                try:
+                    securities_category_map[i["isin"]][
+                        "waiting_for_approval_pledged_qty"
+                    ] = i["pledged_quantity"]
+                except KeyError:
+                    continue
+
+        unpledge_approved_securities = frappe.db.sql(
+            """
+            SELECT GROUP_CONCAT(cl.loan) as loan,
+            cl.pledgor_boid, cl.isin, sum(cl.quantity) as unpledged_quantity,
+            ch.name
+            FROM `tabCollateral Ledger` as cl
+            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
+            WHERE cl.lender_approval_status='Approved'
+            AND cl.request_type = 'Unpledge'
+            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
+            AND ch.pan = '{}'
+            AND cl.isin in {}
+            AND cl.customer = '{}'
+            group by ch.stock_at, cl.isin
+            order by cl.pledgor_boid, cl.isin;
+        """.format(
+                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
+                user_kyc.pan_no,
+                lms.convert_list_to_tuple_string(securities_list_),
+                customer.name,
+            ),
+            as_dict=True,
+        )
+
+        if len(unpledge_approved_securities) > 0:
+            for i in unpledge_approved_securities:
+                try:
+                    securities_category_map[i["isin"]]["unpledged_quantity"] = i[
+                        "unpledged_quantity"
+                    ]
+                except KeyError:
+                    continue
+
+        for i in securities_list:
+            # process actual qty
+            if i.get("Holding_As_On", None) and not isinstance(i["Holding_As_On"], str):
+                i["Holding_As_On"] = i["Holding_As_On"].strftime("%Y-%m-%dT%H:%M:%S")
+
+            try:
+                i["Category"] = securities_category_map[i["ISIN"]].get(
+                    "security_category"
+                )
+                i["Is_Eligible"] = True
+                i["Total_Qty"] = i["Quantity"]
+                i["waiting_to_be_pledged_qty"] = float(
+                    securities_category_map[i["ISIN"]].get(
+                        "waiting_to_be_pledged_qty", 0
+                    )
+                )
+                i["waiting_for_approval_pledged_qty"] = float(
+                    securities_category_map[i["ISIN"]].get(
+                        "waiting_for_approval_pledged_qty", 0
+                    )
+                )
+                i["unpledged_quantity"] = float(
+                    securities_category_map[i["ISIN"]].get("unpledged_quantity", 0)
+                )
+                available_quantity = (
+                    i["Quantity"]
+                    - (
+                        float(
+                            securities_category_map[i["ISIN"]].get(
+                                "waiting_to_be_pledged_qty", 0
+                            )
+                        )
+                        + float(
+                            securities_category_map[i["ISIN"]].get(
+                                "waiting_for_approval_pledged_qty", 0
+                            )
+                        )
+                    )
+                ) + (
+                    float(
+                        securities_category_map[i["ISIN"]].get("unpledged_quantity", 0)
+                    )
+                )
+                i["Quantity"] = (
+                    available_quantity if available_quantity > 0 else float(0)
+                )
+            except KeyError:
+                i["Is_Eligible"] = False
+                i["Category"] = None
+
+        return utils.respondWithSuccess(data=securities_list)
+
     except utils.exceptions.APIException as e:
         return e.respond()
 
