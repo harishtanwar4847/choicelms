@@ -606,15 +606,6 @@ def securities(**kwargs):
             },
         )
 
-        # TODO : check if today's client holding present or not
-        # TODO : if no, call jiffy api
-        # TODO : clear holding of pan(old records)
-        # TODO : check if user kyc exist or not, if not throw exception
-        # TODO : call jiffy API for latest response
-        # TODO : save jiffy response in client holding
-        # TODO : process actual free qty
-        # TODO : send json response
-
         reg = lms.regex_special_characters(search=data.get("lender"))
         if reg:
             return utils.respondWithFailure(
@@ -627,33 +618,6 @@ def securities(**kwargs):
 
         customer = lms.__customer()
         user_kyc = lms.__user_kyc()
-
-        # from_date = frappe.utils.now_datetime().replace(day=29, month=7, hour=00, minute=00, second=00, microsecond=000000)
-        # to_date = frappe.utils.now_datetime().replace(day=29, month=7, hour=23, minute=59, second=59, microsecond=999999)
-        # todays_client_holding = frappe.db.count("Client Holding", filters={"creation" : ("between", (from_date, to_date))}, debug=True)
-        # securities_list = frappe.db.get_all(
-        #     "Client Holding",
-        #     fields=[
-        #         "pan as PAN",
-        #         "isin as ISIN",
-        #         "branch as Branch",
-        #         "client_code as Client_Code",
-        #         "client_name as Client_Name",
-        #         "scrip_name as Scrip_Name",
-        #         "depository as Depository",
-        #         "stock_at as Stock_At",
-        #         "quantity as Quantity",
-        #         "price as Price",
-        #         "scrip_value as Scrip_Value",
-        #         "holding_as_on as Holding_As_On",
-        #     ],
-        #     filters={
-        #         "creation": ["between", (from_date, to_date)],
-        #         "pan": user_kyc.pan_no,
-        #     },
-        #     debug=True
-        # )
-        # return securities_list
 
         securities_list = frappe.db.sql(
             """
@@ -692,16 +656,11 @@ def securities(**kwargs):
                     raise utils.exceptions.APIException(res.text)
 
                 # setting eligibility
-                # securities_list = res_json["Response"]
                 securities_list = [
                     i for i in res_json["Response"] if i.get("Price") > 0
                 ]
-                # securities_list_ = [i["ISIN"] for i in securities_list]
-                # securities_category_map = lms.get_allowed_securities(
-                #     securities_list_, data.get("lender")
-                # )
 
-                # TODO : bulk insert fields
+                # bulk insert fields
                 fields = [
                     "name",
                     "pan",
@@ -722,7 +681,7 @@ def securities(**kwargs):
                     "modified_by",
                 ]
 
-                # TODO : bulk insert values
+                # bulk insert values
                 values = []
                 for i in securities_list:
                     if i.get("Holding_As_On", None):
@@ -754,12 +713,10 @@ def securities(**kwargs):
                         ]
                     )
 
-                # values.append([])
-
-                # TODO : delete existng records
+                # delete existng records
                 frappe.db.delete("Client Holding", {"pan": user_kyc.pan_no})
 
-                # TODO : bulk insert
+                # bulk insert
                 frappe.db.bulk_insert(
                     "Client Holding",
                     fields=fields,
@@ -797,9 +754,6 @@ def securities(**kwargs):
             as_dict=True,
             debug=True,
         )
-        # ch.quantity - sum(lai.pledged_quantity) as available_quantity
-        # group by ch.isin
-        # (la.status='Pledge executed' AND DATE_FORMAT(la.creation, '%Y-%m-%d') = '{}'))
 
         if len(pledge_waiting_securitites) > 0:
             for i in pledge_waiting_securitites:
@@ -833,8 +787,6 @@ def securities(**kwargs):
             ),
             as_dict=True,
         )
-        # ch.quantity - sum(cl.quantity) as available_quantity
-        # print(waiting_for_lender_approval_securities_)
 
         if len(waiting_for_lender_approval_securities) > 0:
             for i in waiting_for_lender_approval_securities:
@@ -880,10 +832,8 @@ def securities(**kwargs):
 
         for i in securities_list:
             # process actual qty
-            # print(i["Holding_As_On"], type(i["Holding_As_On"]))
             if i.get("Holding_As_On", None) and not isinstance(i["Holding_As_On"], str):
                 i["Holding_As_On"] = i["Holding_As_On"].strftime("%Y-%m-%dT%H:%M:%S")
-                # print(i["Holding_As_On"], type(i["Holding_As_On"]))
 
             try:
                 i["Category"] = securities_category_map[i["ISIN"]].get(
