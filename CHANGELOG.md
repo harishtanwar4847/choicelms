@@ -12,6 +12,7 @@
 - [Feat: NSDL Success and Failure callback URL handling](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/373)
 - [Feat: Send recent firebase token of user in fcm notification and collapse key changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/378)
 - [Feat: increase loan sanctioned limit charges scenarios](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/381)
+- [Feat: Client Holding](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/385)
 - [Feat: Backend screen restructring and rearrange]()
 
 ## [v1.0.5] - 2021-08-18
