@@ -168,23 +168,23 @@
   },
   {
    "fieldname": "base_interest_amount",
-   "fieldtype": "Data",
+   "fieldtype": "Read Only",
    "label": "Base interest amount"
   },
   {
    "fieldname": "rebate_interest_amount",
-   "fieldtype": "Data",
+   "fieldtype": "Read Only",
    "label": "Rebate interest amount"
   },
   {
    "fieldname": "margin_shortfall_amount",
-   "fieldtype": "Data",
+   "fieldtype": "Read Only",
    "label": "Margin Shortfall Amount"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-08 14:50:22.205461",
+ "modified": "2021-09-09 18:49:10.937440",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
