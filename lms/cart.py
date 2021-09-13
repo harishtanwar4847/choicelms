@@ -142,6 +142,11 @@ def upsert(**kwargs):
                     return utils.respondNotFound(
                         message=frappe._("Loan Margin Shortfall not found.")
                     )
+                if loan_margin_shortfall.status == "Sell Triggered":
+                    return utils.respondWithFailure(
+                        status=417,
+                        message=frappe._("Sale is Triggered"),
+                    )
                 if loan.name != loan_margin_shortfall.loan:
                     return utils.respondForbidden(
                         message=frappe._(
