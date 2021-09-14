@@ -14,6 +14,7 @@
 - [Feat: increase loan sanctioned limit charges scenarios](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/381)
 - [Feat: Client Holding](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/385)
 - [Fix: Payment, Pledge more, Sell collateral scenatio for margin shortfall Sell Triggered status and Unpledge otp expire message change](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/386)
+- [Feat: Razorpay callback](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/390)
 
 ## [v1.0.5] - 2021-08-18
 
