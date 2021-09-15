@@ -1234,6 +1234,11 @@ def my_pledge_securities(**kwargs):
         if len(sell_collateral_application_exist):
             res["sell_collateral"] = None
 
+        res["is_sell_triggered"] = 0
+        if loan_margin_shortfall:
+            if loan_margin_shortfall.status == "Sell Triggered":
+                res["is_sell_triggered"] = 1
+
         # Increase Loan
         existing_loan_application = frappe.get_all(
             "Loan Application",
@@ -2535,18 +2540,25 @@ def loan_summary_dashboard(**kwargs):
                     }
                 )
             # else:
+            loan_margin_shortfall = loan.get_margin_shortfall()
+            if loan_margin_shortfall.get("__islocal", None):
+                loan_margin_shortfall = None
+
+            is_sell_triggered = 0
+            if loan_margin_shortfall:
+                if loan_margin_shortfall.status == "Sell Triggered":
+                    is_sell_triggered = 1
+
             sell_collateral_list.append(
                 {
                     "loan_name": loan.name,
                     "sell_collateral_available": sell_collateral_application_exist[0]
                     if sell_collateral_application_exist
                     else None,
+                    "is_sell_triggered": is_sell_triggered,
                 }
             )
 
-            loan_margin_shortfall = loan.get_margin_shortfall()
-            if loan_margin_shortfall.get("__islocal", None):
-                loan_margin_shortfall = None
             unpledge_application_exist = frappe.get_all(
                 "Unpledge Application",
                 filters={"loan": loan.name, "status": "Pending"},
