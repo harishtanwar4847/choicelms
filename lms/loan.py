@@ -1143,6 +1143,12 @@ def loan_details(**kwargs):
         loan_margin_shortfall = loan.get_margin_shortfall()
         if loan_margin_shortfall.get("__islocal", None):
             loan_margin_shortfall = None
+
+        res["is_sell_triggered"] = 0
+        if loan_margin_shortfall:
+            if loan_margin_shortfall.status == "Sell Triggered":
+                res["is_sell_triggered"] = 1
+
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",
             filters={"loan": loan.name, "status": "Pending"},
