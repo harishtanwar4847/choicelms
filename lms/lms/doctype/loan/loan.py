@@ -467,7 +467,7 @@ class Loan(Document):
                         lms.send_spark_push_notification(
                             fcm_notification=fcm_notification,
                             message=message,
-                            loan=self.loan,
+                            loan=self.name,
                             customer=self.get_customer(),
                         )
 
