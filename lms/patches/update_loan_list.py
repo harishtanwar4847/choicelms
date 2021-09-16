@@ -20,7 +20,7 @@ def execute():
             )
         )
         frappe.db.sql(
-            "update `tabLoan` set margin_shortfall_amount = (select shortfall_c from `tabLoan Margin Shortfall` where loan = '{}' and status in ('Pending', 'Request Pending','Sell Triggered')) where name = '{}'".format(
+            "update `tabLoan` set margin_shortfall_amount = IFNULL((select shortfall_c from `tabLoan Margin Shortfall` where loan = '{}' and status in ('Pending', 'Request Pending','Sell Triggered')),0.0) where name = '{}'".format(
                 loan.name, loan.name
             )
         )

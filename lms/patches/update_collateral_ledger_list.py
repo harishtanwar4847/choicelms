@@ -2,6 +2,7 @@ import frappe
 
 
 def execute():
+    frappe.reload_doc("Lms", "DocType", "Collateral Ledger")
     collateral_ledgers = frappe.get_all("Collateral Ledger", fields=["*"])
     for collateral_ledger in collateral_ledgers:
         frappe.db.sql(
