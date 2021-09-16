@@ -103,6 +103,7 @@ class SellCollateralApplication(Document):
                     )
                 )
             sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
+            i.price = price_map.get(i.isin)
             self.selling_collateral_value += i.sell_quantity * price_map.get(i.isin)
 
         for i in self.items:
@@ -229,7 +230,6 @@ class SellCollateralApplication(Document):
                     "request_type": "Sell Collateral",
                     "isin": i.get("isin"),
                     "quantity": i.get("sell_quantity"),
-                    "category": i.get("category"),
                     "price": i.get("price"),
                     "security_name": i.get("security_name"),
                     "psn": i.get("psn"),

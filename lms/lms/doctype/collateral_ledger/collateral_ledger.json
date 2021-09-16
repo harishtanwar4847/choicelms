@@ -143,18 +143,18 @@
   },
   {
    "fieldname": "price",
-   "fieldtype": "Data",
+   "fieldtype": "Currency",
    "label": "price"
   },
   {
    "fieldname": "value",
-   "fieldtype": "Data",
+   "fieldtype": "Currency",
    "label": "value"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-06 18:27:57.141868",
+ "modified": "2021-09-16 10:51:57.367516",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Collateral Ledger",

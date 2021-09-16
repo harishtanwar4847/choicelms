@@ -90,6 +90,7 @@ class UnpledgeApplication(Document):
             unpledge_quantity_map[i.isin] = (
                 unpledge_quantity_map[i.isin] + i.unpledge_quantity
             )
+            i.price = price_map.get(i.isin)
             self.unpledge_collateral_value += i.unpledge_quantity * price_map.get(
                 i.isin
             )
@@ -153,7 +154,6 @@ class UnpledgeApplication(Document):
                     "request_type": "Unpledge",
                     "isin": i.get("isin"),
                     "quantity": i.get("unpledge_quantity"),
-                    "category": i.get("category"),
                     "price": i.get("price"),
                     "security_name": i.get("security_name"),
                     "psn": i.get("psn"),

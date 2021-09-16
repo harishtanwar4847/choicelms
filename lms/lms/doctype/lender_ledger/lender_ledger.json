@@ -66,9 +66,10 @@
   },
   {
    "fieldname": "transaction_type",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Transaction Type"
+   "label": "Transaction Type",
+   "options": "Withdrawal\nPayment\nDebit Note\nCredit Note\nProcessing Fees\nStamp Duty\nDocumentation Charges\nMortgage Charges\nSell Collateral\nInvoke Pledge\nInterest\nAdditional Interest\nPenal Interest\nOther Charges\nLegal Charges\nRenewal Charges\nDP Reimbursement(Sell)\nDP Reimbursement(Unpledge)\nSell Collateral Charges"
   },
   {
    "fieldname": "customer_name",
@@ -78,7 +79,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-04 12:24:36.529735",
+ "modified": "2021-09-16 11:11:30.089253",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender Ledger",

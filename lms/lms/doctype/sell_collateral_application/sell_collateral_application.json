@@ -129,13 +129,13 @@
    "fieldname": "pending_unpledge_request_id",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Pending Unpledge Request ID",
+   "label": "Pending Unpledge Request Id",
    "options": "Unpledge Application"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-07 16:45:22.368237",
+ "modified": "2021-09-16 11:28:04.582563",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",

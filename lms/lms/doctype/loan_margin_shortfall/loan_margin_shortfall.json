@@ -152,8 +152,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "Pending\nPaid Cash\nPledged Securities\nSell Off\nResolved\nSell Triggered\nRequest Pending",
-   "read_only": 1
+   "options": "Pending\nPaid Cash\nPledged Securities\nSell Off\nResolved\nSell Triggered\nRequest Pending"
   },
   {
    "fieldname": "drawing_power",
@@ -212,7 +211,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-08 11:03:47.201615",
+ "modified": "2021-09-16 11:05:41.132938",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Margin Shortfall",

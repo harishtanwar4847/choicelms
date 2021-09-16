@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "creation": "2021-04-06 15:10:11.670046",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -9,6 +10,7 @@
   "psn",
   "quantity",
   "sell_quantity",
+  "price",
   "pledgor_boid",
   "pledgee_boid"
  ],
@@ -60,10 +62,17 @@
    "fieldtype": "Data",
    "label": "Pledgee BOID",
    "read_only": 1
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Currency",
+   "label": "Price",
+   "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2021-07-26 13:20:12.857289",
+ "links": [],
+ "modified": "2021-09-16 12:30:02.728591",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application Sell Item",
