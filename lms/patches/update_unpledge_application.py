@@ -9,7 +9,9 @@ def execute():
         # """.format(unpledge_application.loan))
         frappe.db.sql(
             """
-            update `tabUnpledge Application` set pending_sell_request_id = (select name from `tabSell Collateral Application` where status = "Pending" and loan = '{}')
-            """.format(unpledge_application.loan)
+            update `tabUnpledge Application` set pending_sell_request_id = (select name from `tabSell Collateral Application` where status = "Pending" and loan = '{}') where name = '{}'
+            """.format(
+                unpledge_application.loan, unpledge_application.name
+            )
         )
-    frappe.db.commit()
+        frappe.db.commit()

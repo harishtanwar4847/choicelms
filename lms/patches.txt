@@ -22,3 +22,6 @@ lms.patches.update_lender_ledger_list
 lms.patches.update_loan_margin_shortfall_list
 lms.patches.update_virtual_interest
 lms.patches.update_collateral_ledger_list
+lms.patches.update_loan_list
+lms.patches.update_sell_collateral_application
+lms.patches.update_unpledge_application
