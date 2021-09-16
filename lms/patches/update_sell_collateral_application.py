@@ -7,10 +7,11 @@ def execute():
         "Sell Collateral Application", fields=["*"]
     )
     for sell_collateral_application in sell_collateral_applications:
-        cust_name = frappe.get_doc(
-            "Loan Customer", sell_collateral_application.customer
-        )
-        if cust_name:
+        try:
+            cust_name = frappe.get_doc(
+                "Loan Customer", sell_collateral_application.customer
+            )
+
             frappe.db.sql(
                 """
                 update `tabSell Collateral Application` set pending_unpledge_request_id = (select name from `tabUnpledge Application` where status = "Pending" and loan = '{}'), customer_name = '{}'  where name = '{}'
@@ -21,3 +22,5 @@ def execute():
                 )
             )
             frappe.db.commit()
+        except:
+            pass
