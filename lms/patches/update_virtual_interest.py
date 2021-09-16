@@ -2,6 +2,7 @@ import frappe
 
 
 def execute():
+    frappe.reload_doc("Lms", "DocType", "Virtual Interest")
     virtual_interests = frappe.get_all("Virtual Interest", fields=["*"])
     for virtual_interest in virtual_interests:
         frappe.db.sql(
