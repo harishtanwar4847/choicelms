@@ -854,6 +854,8 @@ class LoanApplication(Document):
                             "request_type": "Pledge",
                             "isin": i.get("isin"),
                             "quantity": i.get("pledged_quantity"),
+                            "price": i.get("price"),
+                            "security_name": i.get("security_name"),
                             "data": collateral_ledger_data,
                             "psn": cur.get("PSN"),
                         }

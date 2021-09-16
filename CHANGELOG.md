@@ -11,6 +11,7 @@
 - [Feat: Added FCM notification list , fcm notification log list, push_notification_list API, read_or_clear_notifications API and API doc](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/372)
 - [Feat: NSDL Success and Failure callback URL handling](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/373)
 - [Feat: Send recent firebase token of user in fcm notification and collapse key changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/378)
+- [Feat: Backend screen restructring and rearrange](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/380)
 - [Feat: increase loan sanctioned limit charges scenarios](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/381)
 - [Feat: Client Holding](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/385)
 - [Fix: Payment, Pledge more, Sell collateral scenario for margin shortfall Sell Triggered status and Unpledge otp expire message change](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/386)

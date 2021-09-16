@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "creation": "2021-04-15 17:56:01.213654",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -9,6 +10,7 @@
   "psn",
   "quantity",
   "unpledge_quantity",
+  "price",
   "pledgor_boid",
   "pledgee_boid"
  ],
@@ -60,10 +62,17 @@
    "fieldtype": "Data",
    "label": "Pledgee BOID",
    "read_only": 1
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Currency",
+   "label": "Price",
+   "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2021-07-26 13:19:59.230236",
+ "links": [],
+ "modified": "2021-09-16 12:41:27.530731",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Unpledge Application Unpledged Item",

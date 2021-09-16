@@ -138,22 +138,34 @@ class LoanTransaction(Document):
             if self.transaction_type == "Processing Fees":
                 sharing_amount = lender.lender_processing_fees_sharing
                 sharing_type = lender.lender_processing_fees_sharing_type
+                transaction_type = "Processing Fees"
             elif self.transaction_type == "Stamp Duty":
                 sharing_amount = lender.stamp_duty_sharing
                 sharing_type = lender.stamp_duty_sharing_type
+                transaction_type = "Stamp Duty"
             elif self.transaction_type == "Documentation Charges":
                 sharing_amount = lender.documentation_charges_sharing
                 sharing_type = lender.documentation_charge_sharing_type
+                transaction_type = "Documentation Charges"
             elif self.transaction_type == "Mortgage Charges":
                 sharing_amount = lender.mortgage_charges_sharing
                 sharing_type = lender.mortgage_charge_sharing_type
+                transaction_type = "Mortgage Charges"
 
             lender_sharing_amount = sharing_amount
+            loan_transaction_type = transaction_type
             if sharing_type == "Percentage":
                 lender_sharing_amount = (lender_sharing_amount / 100) * self.amount
             spark_sharing_amount = self.amount - lender_sharing_amount
+
+            loan = self.get_loan()
+            customer_name = loan.customer_name
             self.create_lender_ledger(
-                self.name, lender_sharing_amount, spark_sharing_amount
+                self.name,
+                customer_name,
+                loan_transaction_type,
+                lender_sharing_amount,
+                spark_sharing_amount,
             )
 
         # elif self.transaction_type in ["Sell Collateral"]:
@@ -400,13 +412,22 @@ class LoanTransaction(Document):
             update_modified=False,
         )
 
-    def create_lender_ledger(self, loan_transaction_name, lender_share, spark_share):
+    def create_lender_ledger(
+        self,
+        loan_transaction_name,
+        customer_name,
+        loan_transaction_type,
+        lender_share,
+        spark_share,
+    ):
         frappe.get_doc(
             {
                 "doctype": "Lender Ledger",
                 "loan": self.loan,
+                "customer_name": customer_name,
                 "loan_transaction": self.name,
                 "lender": self.lender,
+                "transaction_type": loan_transaction_type,
                 "amount": self.amount,
                 "lender_share": lender_share,
                 "spark_share": spark_share,

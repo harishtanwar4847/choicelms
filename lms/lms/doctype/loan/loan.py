@@ -387,9 +387,10 @@ class Loan(Document):
 
         if check:
             self.fill_items()
+            loan_margin_shortfall = self.get_margin_shortfall()
+            self.margin_shortfall_amount = loan_margin_shortfall.shortfall_c
             self.save(ignore_permissions=True)
 
-            loan_margin_shortfall = self.get_margin_shortfall()
             if loan_margin_shortfall.status == "Sell Triggered":
                 lender = frappe.db.sql(
                     "select u.email,u.first_name from `tabUser` as u left join `tabHas Role` as r on u.email=r.parent where role='Lender'",
@@ -470,9 +471,7 @@ class Loan(Document):
                             loan=self.name,
                             customer=self.get_customer(),
                         )
-
                     loan_margin_shortfall.save(ignore_permissions=True)
-
             # alerts comparison with percentage and amount
             if customer.alerts_based_on_percentage:
                 if self.total_collateral_value > (
@@ -709,7 +708,7 @@ class Loan(Document):
                     interest_configuration["rebait_interest"] / num_of_days_in_month
                 )
                 rebate_amount = self.balance * rebate_interest_daily / 100
-
+                customer = self.get_customer()
                 frappe.db.begin()
                 virtual_interest_doc = frappe.get_doc(
                     {
@@ -723,10 +722,24 @@ class Loan(Document):
                         "rebate_amount": rebate_amount,
                         "loan_balance": self.balance,
                         "interest_configuration": interest_configuration["name"],
+                        "customer_name": customer.full_name,
                     }
                 )
                 virtual_interest_doc.save(ignore_permissions=True)
                 frappe.db.commit()
+                self.base_interest_amount = frappe.db.sql(
+                    "select sum(base_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_base = 0".format(
+                        self.name
+                    ),
+                    as_dict=1,
+                )[0]["amount"]
+                self.rebate_interest_amount = frappe.db.sql(
+                    "select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_rebate = 0".format(
+                        self.name
+                    ),
+                    as_dict=1,
+                )[0]["amount"]
+                self.save(ignore_permissions=True)
                 return virtual_interest_doc.as_dict()
 
     def check_for_additional_interest(self, input_date=None):
