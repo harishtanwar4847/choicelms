@@ -5,8 +5,8 @@ def execute():
     frappe.reload_doc("Lms", "DocType", "Unpledge Application")
     unpledge_applications = frappe.get_all("Unpledge Application", fields=["*"])
     for unpledge_application in unpledge_applications:
-        cust_name = frappe.get_doc("Loan Customer", unpledge_application.customer)
-        if cust_name:
+        try:
+            cust_name = frappe.get_doc("Loan Customer", unpledge_application.customer)
             loan = frappe.get_doc("Loan", unpledge_application.loan)
             allowable_value = loan.max_unpledge_amount()
             frappe.db.sql(
@@ -20,3 +20,5 @@ def execute():
                 )
             )
             frappe.db.commit()
+        except:
+            pass
