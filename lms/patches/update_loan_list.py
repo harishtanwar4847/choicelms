@@ -4,6 +4,7 @@ import frappe
 
 
 def execute():
+    frappe.reload_doc("Lms", "DocType", "Lender Ledger")
     loans = frappe.get_all("Loan")
     curr_year = datetime.now().year
     curr_month = datetime.now().month

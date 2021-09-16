@@ -2,6 +2,7 @@ import frappe
 
 
 def execute():
+    frappe.reload_doc("Lms", "DocType", "Lender Ledger")
     unpledge_applications = frappe.get_all("Unpledge Application", fields=["*"])
     for unpledge_application in unpledge_applications:
         cust_name = frappe.get_doc("Loan Customer", unpledge_application.customer)
