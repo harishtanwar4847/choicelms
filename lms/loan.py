@@ -1143,6 +1143,12 @@ def loan_details(**kwargs):
         loan_margin_shortfall = loan.get_margin_shortfall()
         if loan_margin_shortfall.get("__islocal", None):
             loan_margin_shortfall = None
+
+        res["is_sell_triggered"] = 0
+        if loan_margin_shortfall:
+            if loan_margin_shortfall.status == "Sell Triggered":
+                res["is_sell_triggered"] = 1
+
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",
             filters={"loan": loan.name, "status": "Pending"},
@@ -1513,6 +1519,11 @@ def loan_payment(**kwargs):
             #             loan.name
             #         ),
             #     )
+            if loan_margin_shortfall.status == "Sell Triggered":
+                return utils.respondWithFailure(
+                    status=417,
+                    message=frappe._("Sale is Triggered"),
+                )
             if loan_margin_shortfall.status == "Pending":
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
@@ -2426,7 +2437,7 @@ def loan_unpledge_request(**kwargs):
         )
 
         if token.expiry <= frappe.utils.now_datetime():
-            return utils.respondUnauthorized(message=frappe._("Pledge OTP Expired."))
+            return utils.respondUnauthorized(message=frappe._("Unpledge OTP Expired."))
 
         frappe.db.begin()
 
@@ -2580,6 +2591,11 @@ def sell_collateral_request(**kwargs):
             loan_margin_shortfall = frappe.get_doc(
                 "Loan Margin Shortfall", data.get("loan_margin_shortfall_name")
             )
+            if loan_margin_shortfall.status == "Sell Triggered":
+                return utils.respondWithFailure(
+                    status=417,
+                    message=frappe._("Sale is Triggered"),
+                )
             pending_sell_collateral_application = frappe.get_all(
                 "Sell Collateral Application",
                 filters={

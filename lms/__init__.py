@@ -845,3 +845,17 @@ def nsdl_failure_callback(**kwargs):
 
     except utils.exceptions.APIException as e:
         return e.respond()
+
+
+@frappe.whitelist(allow_guest=True)
+def razorpay_callback(**kwargs):
+    try:
+        log = {
+            "request": frappe.local.form_dict,
+            "headers": {k: v for k, v in frappe.local.request.headers.items()},
+        }
+        create_log(log, "razorpay_callback_log")
+        return log
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
