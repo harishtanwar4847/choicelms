@@ -18,6 +18,7 @@
 - [Feat: Razorpay callback](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/390)
 - [Fix: is_sell_triggered flag added in loan_summary_dashboard, my_pledge_securities, loan_details api](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/392)
 - [Refactor: handle customer not found error in patches](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/394)
+- [Refactor: get margin shortfall amount in loan doctype](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/397)
 
 ## [v1.0.5] - 2021-08-18
 
