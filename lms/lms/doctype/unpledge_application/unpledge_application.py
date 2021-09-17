@@ -36,6 +36,8 @@ class UnpledgeApplication(Document):
         loan = self.get_loan()
         self.lender = loan.lender
         self.customer = loan.customer
+        if not self.customer_name:
+            self.customer_name = loan.customer_name
         allowable_value = loan.max_unpledge_amount()
         self.max_unpledge_amount = allowable_value["maximum_unpledge_amount"]
 

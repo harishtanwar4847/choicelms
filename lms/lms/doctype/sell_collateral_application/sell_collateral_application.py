@@ -35,6 +35,8 @@ class SellCollateralApplication(Document):
         loan = self.get_loan()
         self.lender = loan.lender
         self.customer = loan.customer
+        if not self.customer_name:
+            self.customer_name = loan.customer_name
 
         pending_unpledge_request_id = frappe.db.get_value(
             "Unpledge Application", {"loan": loan.name, "status": "Pending"}, "name"
