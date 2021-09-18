@@ -95,8 +95,7 @@
     var pemail = $('[name="pemail"]').val();
     var pmobile = $('[name="pmobile"]').val();
     var pmessage = $('[name="pmessage"]').val();
-    var regEx =
-      /^[A-Za-z0-9][A-Za-z0-9._%+-]{0,63}@(?:[A-Za-z0-9-]{1,63}\.){1,125}[A-Za-z]{2,63}$/;
+    var regEx = /^[A-Za-z0-9][A-Za-z0-9._%+-]{0,63}@(?:[A-Za-z0-9-]{1,63}\.){1,125}[A-Za-z]{2,63}$/;
     var validEmail = regEx.test(pemail);
     if (
       !(pfirstname == "") &&
