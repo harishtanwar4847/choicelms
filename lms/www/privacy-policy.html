@@ -1,7 +1,11 @@
-{% extends 'templates/lmsbase.html' %} {% block title %} Privacy Policy -
-SparkLoans {% endblock title %} {% block description %} Read our privacy policy
-on SparkLoans web portal. {% endblock description %} {%- block head_include -%}
-{% include 'templates/head_content.html' %}
+{% extends 'templates/lmsbase.html' %} {% block ogtag %}
+<meta property="og:url" content="https://www.spark.loans/privacy-policy" />
+{% endblock %} {% block title %} Privacy Policy - SparkLoans {% endblock title
+%} {% block description %} Read our privacy policy on SparkLoans web portal. {%
+endblock description %} {% block ogtitle %} Privacy Policy - spark.loans {%
+endblock %} {% block ogdescription %} Read our privacy policy on spark.loans web
+portal.{% endblock %} {%- block head_include -%} {% include
+'templates/head_content.html' %}
 <style>
   @media (max-width: 768px) {
     li::marker {
@@ -59,15 +63,6 @@ on SparkLoans web portal. {% endblock description %} {%- block head_include -%}
   }
 </style>
 {%- endblock -%} {% block body %}
-
-<meta property="og:type" content="website" />
-<meta property="og:site_name" content="spark.loans" />
-<meta property="og:url" content="https://www.spark.loans/privacy-policy" />
-<meta name="og:title" content="Privacy Policy – spark.loans" />
-<meta
-  name="og:description"
-  content="Read our privacy policy on spark.loans web portal."
-/>
 
 <section class="fw">
   <div class="container">
