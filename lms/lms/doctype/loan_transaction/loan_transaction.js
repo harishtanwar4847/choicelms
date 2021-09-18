@@ -107,8 +107,7 @@ frappe.ui.form.on("Loan Transaction", {
       ("</table>");
       frm.set_intro(data);
     });
-    document.getElementsByClassName("form-message")[0].style.background =
-      "#f9fafa";
+    document.getElementsByClassName("form-message")[0].style.background ="#f9fafa";
     document.getElementsByClassName("form-message")[0].style.padding = "0px";
   },
 });

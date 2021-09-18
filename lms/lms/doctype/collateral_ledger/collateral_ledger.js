@@ -104,18 +104,7 @@ frappe.ui.form.on("Collateral Ledger", {
       ("</table>");
       frm.set_intro(data);
     });
-  },
-  onload: function (frm) {
-    var form_message_elements = document.getElementsByClassName("form-message");
-    form_message_elements.style.background = "#f9fafa";
-    form_message_elements.style.padding = "0px";
-
-    // var form_message_element;
-    // console.log(form_message_elements)
-    // for (form_message_element in form_message_elements)
-    // {
-    //   // form_message_elements[form_message_element].style.background = '#f9fafa';
-    //   // form_message_elements[form_message_element].style.padding = '0px';
-    // }
+    document.getElementsByClassName("form-message")[0].style.background = "#f9fafa";
+    document.getElementsByClassName("form-message")[0].style.padding = "0px";
   },
 });

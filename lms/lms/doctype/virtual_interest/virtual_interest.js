@@ -3,7 +3,7 @@
 
 frappe.ui.form.on("Virtual Interest", {
   refresh: function (frm) {
-    frappe.db.get_doc("Loan", frm.doc.loan).then((doc) => {
+    frappe.db.get_doc('Loan', frm.doc.loan).then((doc) => {
       var data = "";
       data +=
         "<style>" +
@@ -104,8 +104,6 @@ frappe.ui.form.on("Virtual Interest", {
       ("</table>");
       frm.set_intro(data);
     });
-  },
-  onload: function (frm) {
     document.getElementsByClassName("form-message")[0].style.background =
       "#f9fafa";
     document.getElementsByClassName("form-message")[0].style.padding = "0px";
