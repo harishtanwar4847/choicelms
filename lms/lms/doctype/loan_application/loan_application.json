@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "autoname": "LA.######",
  "creation": "2020-07-28 10:26:29.613712",
  "doctype": "DocType",
@@ -26,7 +27,8 @@
   "pledgor_boid",
   "pledgee_boid",
   "items_section",
-  "items"
+  "items",
+  "application_type"
  ],
  "fields": [
   {
@@ -171,9 +173,16 @@
    "fieldtype": "Data",
    "label": "Pledgee BOID",
    "read_only": 1
+  },
+  {
+   "fieldname": "application_type",
+   "fieldtype": "Select",
+   "label": "Application Type",
+   "options": "New Loan\nIncrease Loan\nPledge More\nMargin Shortfall"
   }
  ],
- "modified": "2021-02-16 12:24:24.048235",
+ "links": [],
+ "modified": "2021-09-20 14:26:40.247117",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

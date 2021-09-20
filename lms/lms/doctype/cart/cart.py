@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 from datetime import datetime, timedelta
+from itertools import filterfalse
 
 import frappe
 from frappe.model.document import Document
@@ -64,6 +65,20 @@ class Cart(Document):
         # expiry = current.replace(year=current.year + 1)
         expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
 
+        # Set application type
+        approved_tnc = frappe.db.count(
+            "Approved Terms and Conditions",
+            filters={"application_doctype": "Cart", "application_name": self.name},
+        )
+
+        application_type = "New Loan"
+        if self.loan and not self.loan_margin_shortfall:
+            application_type = "Increase Loan"
+        elif self.loan and self.loan_margin_shortfall:
+            application_type = "Margin Shortfall"
+        if not approved_tnc and self.loan and not self.loan_margin_shortfall:
+            application_type = "Pledge More"
+
         items = []
         for item in self.items:
             item = frappe.get_doc(
@@ -96,6 +111,7 @@ class Cart(Document):
                 "loan": self.loan,
                 "workflow_state": "Waiting to be pledged",
                 "items": items,
+                "application_type": application_type,
             }
         )
         loan_application.insert(ignore_permissions=True)
