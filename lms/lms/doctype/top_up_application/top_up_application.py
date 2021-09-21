@@ -142,6 +142,11 @@ class TopupApplication(Document):
         if self.top_up_amount <= 0:
             frappe.throw("Top up can not be approved with Amount Rs. 0")
 
+        if (self.top_up_amount + self.sanctioned_limit) > self.maximum_sanctioned_limit:
+            frappe.throw(
+                "Can not Approve this Top up Application as Sanctioned limit will cross Maximum Sanctioned limit Cap"
+            )
+
     def get_lender(self):
         return frappe.get_doc("Lender", self.get_loan().lender)
 
@@ -352,6 +357,13 @@ class TopupApplication(Document):
         )
         # save loan sanction history
         loan.save_loan_sanction_history(loan_agreement_file.name, event)
+
+    def before_save(self):
+        self.lender = self.get_loan().lender
+        self.sanctioned_limit = self.get_loan().sanctioned_limit
+        lender = frappe.get_doc("Lender", self.lender)
+        self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
+        self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
 
 
 def only_pdf_upload(doc, method):

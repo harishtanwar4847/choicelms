@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "autoname": "TOPUP.######",
  "creation": "2021-02-27 14:42:50.930164",
  "doctype": "DocType",
@@ -20,7 +21,12 @@
   "customer_esigned_document",
   "column_break_12",
   "lender_esigned_document",
-  "amended_from"
+  "amended_from",
+  "section_break_17",
+  "minimum_sanctioned_limit",
+  "lender",
+  "column_break_20",
+  "maximum_sanctioned_limit"
  ],
  "fields": [
   {
@@ -117,10 +123,35 @@
    "fieldtype": "Date",
    "label": "Expiry Date",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_17",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender"
+  },
+  {
+   "fieldname": "minimum_sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Minimum Sanctioned Limit"
+  },
+  {
+   "fieldname": "column_break_20",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "maximum_sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Maximum Sanctioned Limit"
   }
  ],
  "is_submittable": 1,
- "modified": "2021-06-30 16:44:54.007889",
+ "links": [],
+ "modified": "2021-09-21 14:40:21.554111",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Top up Application",
