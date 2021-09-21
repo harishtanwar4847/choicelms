@@ -28,7 +28,11 @@
   "pledgee_boid",
   "items_section",
   "items",
-  "application_type"
+  "section_break_23",
+  "minimum_sanctioned_limit",
+  "application_type",
+  "column_break_25",
+  "maximum_sanctioned_limit"
  ],
  "fields": [
   {
@@ -178,11 +182,32 @@
    "fieldname": "application_type",
    "fieldtype": "Select",
    "label": "Application Type",
-   "options": "New Loan\nIncrease Loan\nPledge More\nMargin Shortfall"
+   "options": "New Loan\nIncrease Loan\nPledge More\nMargin Shortfall",
+   "read_only": 1
+  },
+  {
+   "fieldname": "minimum_sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Minimum Sanctioned Limit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_25",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "maximum_sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Maximum Sanctioned Limit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_23",
+   "fieldtype": "Section Break"
   }
  ],
  "links": [],
- "modified": "2021-09-20 14:26:40.247117",
+ "modified": "2021-09-21 16:46:10.778329",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

@@ -132,12 +132,14 @@
    "fieldname": "lender",
    "fieldtype": "Link",
    "label": "Lender",
-   "options": "Lender"
+   "options": "Lender",
+   "read_only": 1
   },
   {
    "fieldname": "minimum_sanctioned_limit",
    "fieldtype": "Currency",
-   "label": "Minimum Sanctioned Limit"
+   "label": "Minimum Sanctioned Limit",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_20",
@@ -146,12 +148,13 @@
   {
    "fieldname": "maximum_sanctioned_limit",
    "fieldtype": "Currency",
-   "label": "Maximum Sanctioned Limit"
+   "label": "Maximum Sanctioned Limit",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-21 14:40:21.554111",
+ "modified": "2021-09-21 16:42:39.215899",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Top up Application",

@@ -120,6 +120,10 @@ class LoanApplication(Document):
         }
 
     def before_save(self):
+        lender = self.get_lender()
+        self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
+        self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
+
         if (
             self.status == "Approved"
             and not self.lender_esigned_document
