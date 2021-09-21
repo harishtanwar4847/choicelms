@@ -1837,7 +1837,7 @@ def update_profile_pic_and_pin(**kwargs):
 
 
 @frappe.whitelist(allow_guest=True)
-def contact_us(**kwargs):
+def contact_us_old(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
@@ -2509,5 +2509,54 @@ def otp_for_testing(**kwargs):
 
             return utils.respondWithSuccess(data=token[0] if token else None)
 
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist(allow_guest=True)
+def contact_us(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs, {"subject": "", "sender": "required", "message": "required"}
+        )
+
+        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        if re.search(email_regex, data.get("sender")) is None:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Expected a Mail, Got: {}".format(data.get("sender"))),
+            )
+
+        if not data.get("message") or data.get("message").isspace():
+            return utils.respondWithFailure(
+                message=frappe._("Please write your query to us.")
+            )
+
+        try:
+            user = frappe.get_doc("User", data.get("sender"))
+        except frappe.DoesNotExistError:
+            return utils.respondNotFound(
+                message=frappe._("Please use registered email.")
+            )
+
+        if data.get("sender") and data.get("message"):
+            recipients = frappe.get_single("Contact Us Settings").forward_to_email
+            message = "From {name} ({email}),<br><br>{mess}".format(
+                name=user.full_name,
+                email=data.get("sender"),
+                mess=data.get("message").strip(),
+            )
+
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=[recipients],
+                sender=None,
+                subject=data.get("subject"),
+                message=message,
+            )
+
+        return utils.respondWithSuccess()
     except utils.exceptions.APIException as e:
         return e.respond()
