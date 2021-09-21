@@ -2519,7 +2519,7 @@ def contact_us(**kwargs):
         utils.validator.validate_http_method("POST")
 
         data = utils.validator.validate(
-            kwargs, {"subject": "", "sender": "required", "message": "required"}
+            kwargs, {"sender": "required", "message": "required"}
         )
 
         email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
@@ -2543,17 +2543,34 @@ def contact_us(**kwargs):
 
         if data.get("sender") and data.get("message"):
             recipients = frappe.get_single("Contact Us Settings").forward_to_email
-            message = "From {name} ({email}),<br><br>{mess}".format(
+            from frappe.model.naming import getseries
+
+            subject = "Contact us Request –" + getseries("Contact us Request –", 3)
+            frappe.db.commit()
+
+            message = "From {name},<br>Email id - {email},<br>Customer id - {cust},<br><br>{mess}".format(
                 name=user.full_name,
                 email=data.get("sender"),
+                cust=lms.__customer().name,
                 mess=data.get("message").strip(),
             )
+
+            frappe.get_doc(
+                dict(
+                    doctype="Communication",
+                    sender=data.get("sender"),
+                    subject=_("New Message from Website Contact Page"),
+                    sent_or_received="Received",
+                    content=message,
+                    status="Open",
+                )
+            ).insert(ignore_permissions=True)
 
             frappe.enqueue(
                 method=frappe.sendmail,
                 recipients=[recipients],
                 sender=None,
-                subject=data.get("subject"),
+                subject=subject,
                 message=message,
             )
 
