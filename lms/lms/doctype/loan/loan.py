@@ -1542,3 +1542,13 @@ def job_dates_for_penal(loan_name):
     while current_date_ <= last_date:
         loan.add_penal_interest(current_date_.strftime("%Y-%m-%d"))
         current_date_ += timedelta(days=1)
+
+
+@frappe.whitelist()
+def interest_booked_till_date(loan_name):
+    frappe.db.sql(
+        "select sum(unpaid_interest) as amount from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest')".format(
+            loan_name
+        ),
+        as_dict=1,
+    )[0]["amount"]

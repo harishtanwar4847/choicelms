@@ -1,5 +1,3 @@
 {
-    "js/doctype.js": [
-        "/assets/lms/js/doctype.js"
-    ]
+  "js/doctype.js": ["/assets/lms/js/doctype.js"]
 }

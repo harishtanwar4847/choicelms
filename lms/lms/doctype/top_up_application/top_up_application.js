@@ -18,6 +18,5 @@ frappe.ui.form.on("Top up Application", {
           .hide();
       }
     }
-    
   },
 });
