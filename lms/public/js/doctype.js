@@ -17,12 +17,12 @@ $(document).on("app_ready", function () {
             column_data += "<th> Virtual Interest Booked Till Date </th>";
 
             frappe.call({
-              type: "POST",
+              type: "GET",
               method: "lms.lms.doctype.loan.loan.interest_booked_till_date",
               args: { loan_name: frm.doc.loan },
-              success: (res) => {
-                console.log(res.message);
-                //row_data += "<td>res.</td>";
+              callback: (res) => {
+                // console.log(res.message);
+                row_data += "<td>" +res.message +"</td>";
               },
             });
           }
