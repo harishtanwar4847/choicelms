@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [v1.0.6] - 2021-09-22
+
 ## Added
 
 - [Feat: Loan against shares html page added (products/loan-against-shares.html)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/398)
