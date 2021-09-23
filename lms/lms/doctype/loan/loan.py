@@ -1546,11 +1546,10 @@ def job_dates_for_penal(loan_name):
 
 @frappe.whitelist()
 def interest_booked_till_date(loan_name):
-    interest_booked =  frappe.db.sql(
-        "select sum(unpaid_interest) as amount from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest')".format(
+    interest_booked = frappe.db.sql(
+        "select sum(amount) as total_amount from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest')".format(
             loan_name
         ),
         as_dict=1,
-    )[0]["amount"]
-    # print(interest_booked)
+    )[0]["total_amount"]
     return 0.0 if interest_booked == None else interest_booked

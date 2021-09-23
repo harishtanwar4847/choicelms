@@ -15,17 +15,18 @@ $(document).on("app_ready", function () {
 
           if (doctype == "Virtual Interest") {
             column_data += "<th> Virtual Interest Booked Till Date </th>";
-
+            var result = [];
             frappe.call({
               type: "GET",
               method: "lms.lms.doctype.loan.loan.interest_booked_till_date",
               args: { loan_name: frm.doc.loan },
               callback: (res) => {
-                // console.log(res.message);
-                row_data += "<td>" +res.message +"</td>";
+                result.push(res.message);
               },
             });
+            row_data += "<td>" + result.length + "</td>";
           }
+
           var data = "";
           data +=
             "<style>" +
