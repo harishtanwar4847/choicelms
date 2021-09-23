@@ -2545,7 +2545,7 @@ def contact_us(**kwargs):
             recipients = frappe.get_single("Contact Us Settings").forward_to_email
             from frappe.model.naming import getseries
 
-            subject = "Contact us Request –" + getseries("Contact us Request –", 3)
+            subject = "Contact us Request – " + getseries("Contact us Request –", 3)
             frappe.db.commit()
 
             message = "From {name},<br>Email id - {email},<br>Customer id - {cust},<br><br>{mess}".format(

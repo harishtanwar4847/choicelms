@@ -3640,22 +3640,9 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-09-20 18:12:14.116107",
+  "modified": "2021-09-23 10:26:33.660599",
   "name": "07eef5b3e8",
   "parameters": [
-   {
-    "allowed_values": null,
-    "default_value": null,
-    "description": "",
-    "field": "subject",
-    "group": null,
-    "optional": 0,
-    "parent": "07eef5b3e8",
-    "parentfield": "parameters",
-    "parenttype": "API Doc",
-    "size": null,
-    "type": "String"
-   },
    {
     "allowed_values": null,
     "default_value": "0",
@@ -3685,7 +3672,7 @@
   ],
   "parameters_example": [
    {
-    "example": "{\n\t\"subject\": \"\",\n\t\"sender\": \"example@gmail.com\",\n\t\"message\": \"Please help me\"\n}",
+    "example": "{\n\t\"sender\": \"example@gmail.com\",\n\t\"message\": \"Please help me\"\n}",
     "parent": "07eef5b3e8",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
