@@ -11,20 +11,16 @@ $(document).on("app_ready", function () {
       frappe.ui.form.on(doctype, "refresh", function (frm) {
         frappe.db.get_doc("Loan", frm.doc.loan).then((doc) => {
           var column_data = "";
-          var row_data = "";
-
           if (doctype == "Virtual Interest") {
             column_data += "<th> Virtual Interest Booked Till Date </th>";
-            var result = [];
             frappe.call({
               type: "GET",
               method: "lms.lms.doctype.loan.loan.interest_booked_till_date",
               args: { loan_name: frm.doc.loan },
               callback: (res) => {
-                result.push(res.message);
+                $(".row_data").append(res.message);
               },
             });
-            row_data += "<td>" + result.length + "</td>";
           }
 
           var data = "";
@@ -96,7 +92,7 @@ $(document).on("app_ready", function () {
             "<td>" +
             doc.total_collateral_value +
             "</td>" +
-            row_data +
+            "<td class='row_data'></td>"+
             "</tr>";
           ("</table>");
           frm.set_intro(data);
