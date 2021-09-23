@@ -10,9 +10,12 @@ $(document).on("app_ready", function () {
     function (i, doctype) {
       frappe.ui.form.on(doctype, "refresh", function (frm) {
         frappe.db.get_doc("Loan", frm.doc.loan).then((doc) => {
-          var column_data = "";
+          var interest_booked_till_date_th = "";
+          var interest_booked_till_date_td = "";
           if (doctype == "Virtual Interest") {
-            column_data += "<th> Virtual Interest Booked Till Date </th>";
+            interest_booked_till_date_th +=
+              "<th> Virtual Interest Booked Till Date </th>";
+            interest_booked_till_date_td += "<td class='row_data'></td>";
             frappe.call({
               type: "GET",
               method: "lms.lms.doctype.loan.loan.interest_booked_till_date",
@@ -53,7 +56,7 @@ $(document).on("app_ready", function () {
             "<th> Interest overdue </th>" +
             "<th> DPD(days past due) </th>" +
             "<th> Collateral value </th>" +
-            column_data +
+            interest_booked_till_date_th +
             "</tr>" +
             "<tr>" +
             "<td>" +
@@ -92,7 +95,7 @@ $(document).on("app_ready", function () {
             "<td>" +
             doc.total_collateral_value +
             "</td>" +
-            "<td class='row_data'></td>"+
+            interest_booked_till_date_td +
             "</tr>";
           ("</table>");
           frm.set_intro(data);
