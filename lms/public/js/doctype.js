@@ -18,7 +18,7 @@ $(document).on("app_ready", function () {
               method: "lms.lms.doctype.loan.loan.interest_booked_till_date",
               args: { loan_name: frm.doc.loan },
               callback: (res) => {
-                $(".row_data").append(res.message);
+                $(".row_data").html(res.message);
               },
             });
           }
