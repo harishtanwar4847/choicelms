@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- [Feat: Contact Us module implementation as per New Requirement)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/399)
+
 ## [v1.0.6] - 2021-09-22
 
 ## Added
