@@ -2513,21 +2513,21 @@ def otp_for_testing(**kwargs):
         return e.respond()
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def contact_us(**kwargs):
     try:
         utils.validator.validate_http_method("POST")
 
         data = utils.validator.validate(
-            kwargs, {"sender": "required", "message": "required"}
+            kwargs, {"message": "required"}
         )
 
-        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
-        if re.search(email_regex, data.get("sender")) is None:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Expected a Mail, Got: {}".format(data.get("sender"))),
-            )
+        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        # if re.search(email_regex, data.get("sender")) is None:
+        #     return utils.respondWithFailure(
+        #         status=422,
+        #         message=frappe._("Expected a Mail, Got: {}".format(data.get("sender"))),
+        #     )
 
         if not data.get("message") or data.get("message").isspace():
             return utils.respondWithFailure(
@@ -2535,13 +2535,18 @@ def contact_us(**kwargs):
             )
 
         try:
-            user = frappe.get_doc("User", data.get("sender"))
-        except frappe.DoesNotExistError:
-            return utils.respondNotFound(
-                message=frappe._("Please use registered email.")
-            )
+            user = lms.__user()
+        except UserNotFoundException:
+            user = None
+            
+        # try:
+            # user = frappe.get_doc("User", data.get("sender"))
+        # except frappe.DoesNotExistError:
+        #     return utils.respondNotFound(
+        #         message=frappe._("Please use registered email.")
+        #     )
 
-        if data.get("sender") and data.get("message"):
+        if user and data.get("message"):
             recipients = frappe.get_single("Contact Us Settings").forward_to_email
             from frappe.model.naming import getseries
 
@@ -2550,7 +2555,7 @@ def contact_us(**kwargs):
 
             message = "From {name},<br>Email id - {email},<br>Customer id - {cust},<br><br>{mess}".format(
                 name=user.full_name,
-                email=data.get("sender"),
+                email=user.email,
                 cust=lms.__customer().name,
                 mess=data.get("message").strip(),
             )
@@ -2558,7 +2563,7 @@ def contact_us(**kwargs):
             frappe.get_doc(
                 dict(
                     doctype="Communication",
-                    sender=data.get("sender"),
+                    sender=user.email,
                     subject=_("New Message from Website Contact Page"),
                     sent_or_received="Received",
                     content=message,
