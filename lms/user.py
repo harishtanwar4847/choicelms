@@ -758,9 +758,18 @@ def securities(**kwargs):
         if len(pledge_waiting_securitites) > 0:
             for i in pledge_waiting_securitites:
                 try:
-                    securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"] = i[
-                        "pledged_quantity"
-                    ]
+                    if not securities_category_map[i["isin"]].get(
+                        "waiting_to_be_pledged_qty", None
+                    ):
+                        securities_category_map[i["isin"]][
+                            "waiting_to_be_pledged_qty"
+                        ] = {}
+                        # if not securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"].get(i['pledgor_boid'], None):
+                        #     securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][i['pledgor_boid']] = 0
+
+                    securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][
+                        i["pledgor_boid"]
+                    ] = i["pledged_quantity"]
                 except KeyError:
                     continue
 
@@ -791,9 +800,18 @@ def securities(**kwargs):
         if len(waiting_for_lender_approval_securities) > 0:
             for i in waiting_for_lender_approval_securities:
                 try:
+                    if not securities_category_map[i["isin"]].get(
+                        "waiting_for_approval_pledged_qty", None
+                    ):
+                        securities_category_map[i["isin"]][
+                            "waiting_for_approval_pledged_qty"
+                        ] = {}
+                        # if not securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"].get(i['pledgor_boid'], None):
+                        #     securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"][i['pledgor_boid']] = 0
+
                     securities_category_map[i["isin"]][
                         "waiting_for_approval_pledged_qty"
-                    ] = i["pledged_quantity"]
+                    ][i["pledgor_boid"]] = i["pledged_quantity"]
                 except KeyError:
                     continue
 
@@ -824,9 +842,17 @@ def securities(**kwargs):
         if len(unpledge_approved_securities) > 0:
             for i in unpledge_approved_securities:
                 try:
-                    securities_category_map[i["isin"]]["unpledged_quantity"] = i[
-                        "unpledged_quantity"
-                    ]
+                    if not securities_category_map[i["isin"]].get(
+                        "unpledged_quantity", None
+                    ):
+                        securities_category_map[i["isin"]]["unpledged_quantity"] = {}
+                    # securities_category_map[i["isin"]]["unpledged_quantity"] = i[
+                    #     "unpledged_quantity"
+                    # ]
+
+                    securities_category_map[i["isin"]]["unpledged_quantity"][
+                        i["pledgor_boid"]
+                    ] = i["unpledged_quantity"]
                 except KeyError:
                     continue
 
@@ -841,41 +867,67 @@ def securities(**kwargs):
                 )
                 i["Is_Eligible"] = True
                 i["Total_Qty"] = i["Quantity"]
-                i["waiting_to_be_pledged_qty"] = float(
-                    securities_category_map[i["ISIN"]].get(
-                        "waiting_to_be_pledged_qty", 0
-                    )
-                )
-                i["waiting_for_approval_pledged_qty"] = float(
-                    securities_category_map[i["ISIN"]].get(
-                        "waiting_for_approval_pledged_qty", 0
-                    )
-                )
-                i["unpledged_quantity"] = float(
-                    securities_category_map[i["ISIN"]].get("unpledged_quantity", 0)
-                )
-                available_quantity = (
-                    i["Quantity"]
-                    - (
-                        float(
-                            securities_category_map[i["ISIN"]].get(
-                                "waiting_to_be_pledged_qty", 0
-                            )
+
+                if not i.get("waiting_to_be_pledged_qty", None):
+                    i["waiting_to_be_pledged_qty"] = 0
+
+                if securities_category_map[i["ISIN"]].get(
+                    "waiting_to_be_pledged_qty", None
+                ):
+                    if (
+                        i["Stock_At"]
+                        in securities_category_map[i["ISIN"]][
+                            "waiting_to_be_pledged_qty"
+                        ].keys()
+                    ):
+                        i["waiting_to_be_pledged_qty"] += float(
+                            securities_category_map[i["ISIN"]][
+                                "waiting_to_be_pledged_qty"
+                            ][i["Stock_At"]]
                         )
-                        + float(
-                            securities_category_map[i["ISIN"]].get(
-                                "waiting_for_approval_pledged_qty", 0
-                            )
+
+                if not i.get("waiting_for_approval_pledged_qty", None):
+                    i["waiting_for_approval_pledged_qty"] = 0
+
+                if securities_category_map[i["ISIN"]].get(
+                    "waiting_for_approval_pledged_qty", None
+                ):
+                    if (
+                        i["Stock_At"]
+                        in securities_category_map[i["ISIN"]][
+                            "waiting_for_approval_pledged_qty"
+                        ].keys()
+                    ):
+                        i["waiting_for_approval_pledged_qty"] += float(
+                            securities_category_map[i["ISIN"]][
+                                "waiting_for_approval_pledged_qty"
+                            ][i["Stock_At"]]
                         )
-                    )
-                ) + (
-                    float(
-                        securities_category_map[i["ISIN"]].get("unpledged_quantity", 0)
-                    )
+
+                if not i.get("unpledged_quantity", None):
+                    i["unpledged_quantity"] = 0
+
+                if securities_category_map[i["ISIN"]].get("unpledged_quantity", None):
+                    if (
+                        i["Stock_At"]
+                        in securities_category_map[i["ISIN"]][
+                            "unpledged_quantity"
+                        ].keys()
+                    ):
+                        i["unpledged_quantity"] += float(
+                            securities_category_map[i["ISIN"]]["unpledged_quantity"][
+                                i["Stock_At"]
+                            ]
+                        )
+
+                available_quantity = (i["Quantity"] + i["unpledged_quantity"]) - (
+                    i["waiting_to_be_pledged_qty"]
+                    + i["waiting_for_approval_pledged_qty"]
                 )
                 i["Quantity"] = (
                     available_quantity if available_quantity > 0 else float(0)
                 )
+
             except KeyError:
                 i["Is_Eligible"] = False
                 i["Category"] = None
