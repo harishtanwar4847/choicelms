@@ -2987,14 +2987,13 @@ def read_or_clear_notifications(**kwargs):
     except utils.exceptions.APIException as e:
         return e.respond()
 
+
 @frappe.whitelist()
 def contact_us(**kwargs):
     try:
         utils.validator.validate_http_method("POST")
 
-        data = utils.validator.validate(
-            kwargs, {"message": "required"}
-        )
+        data = utils.validator.validate(kwargs, {"message": "required"})
 
         # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
         # if re.search(email_regex, data.get("sender")) is None:
@@ -3012,9 +3011,9 @@ def contact_us(**kwargs):
             user = lms.__user()
         except UserNotFoundException:
             user = None
-            
+
         # try:
-            # user = frappe.get_doc("User", data.get("sender"))
+        # user = frappe.get_doc("User", data.get("sender"))
         # except frappe.DoesNotExistError:
         #     return utils.respondNotFound(
         #         message=frappe._("Please use registered email.")
