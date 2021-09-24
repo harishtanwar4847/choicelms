@@ -76,8 +76,7 @@
   function subscribe() {
     var number = $('[name="number"]').val();
     var email = $('[name="email"]').val();
-    var regEx =
-      /^[A-Za-z0-9][A-Za-z0-9._%+-]{0,63}@(?:[A-Za-z0-9-]{1,63}\.){1,125}[A-Za-z]{2,63}$/;
+    var regEx = /^[A-Za-z0-9][A-Za-z0-9._%+-]{0,63}@(?:[A-Za-z0-9-]{1,63}\.){1,125}[A-Za-z]{2,63}$/;
     var validEmail = regEx.test(email);
     if (!(number == "") && !(email == "")) {
       if (!isNaN(number) && !(number.length < 10) && validEmail) {

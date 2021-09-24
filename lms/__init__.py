@@ -639,7 +639,6 @@ def web_mail(notification_name, name, recepient, subject):
     )
 
 
-  
 def create_log(log, file_name):
     log_file = frappe.utils.get_files_path("{}.json".format(file_name))
     logs = None
@@ -929,5 +928,3 @@ def rupees_to_words(num):
             + ("" if num % pivot == 0 else " " + rupees_to_words(num % pivot))
         )
     return amt_str
-
-  
