@@ -26,7 +26,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "1.1.0"
+__version__ = "1.0.6"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -639,6 +639,7 @@ def web_mail(notification_name, name, recepient, subject):
     )
 
 
+  
 def create_log(log, file_name):
     log_file = frappe.utils.get_files_path("{}.json".format(file_name))
     logs = None
@@ -859,3 +860,74 @@ def razorpay_callback(**kwargs):
 
     except utils.exceptions.APIException as e:
         return e.respond()
+
+
+def rupees_to_words(num):
+    under_20 = [
+        "Zero",
+        "One",
+        "Two",
+        "Three",
+        "Four",
+        "Five",
+        "Six",
+        "Seven",
+        "Eight",
+        "Nine",
+        "Ten",
+        "Eleven",
+        "Twelve",
+        "Thirteen",
+        "Fourteen",
+        "Fifteen",
+        "Sixteen",
+        "Seventeen",
+        "Eighteen",
+        "Nineteen",
+    ]
+    tens = [
+        "Twenty",
+        "Thirty",
+        "Forty",
+        "Fifty",
+        "Sixty",
+        "Seventy",
+        "Eighty",
+        "Ninety",
+    ]
+    above_100 = {
+        100: "hundred",
+        1000: "thousand",
+        100000: "lakh",
+        10000000: "crore",
+        1000000000: "billion",
+    }
+
+    if num < 20:
+        return under_20[(int)(num)]
+
+    if num < 100:
+        return tens[(int)(num / 10) - 2] + (
+            "" if num % 10 == 0 else " " + under_20[(int)(num % 10)]
+        )
+
+    # find the appropriate pivot - 'Million' in 3,603,550, or 'Thousand' in 603,550
+    pivot = max([key for key in above_100.keys() if key <= num])
+    if ((int)(num / pivot)) == 1:
+        amt_str = (
+            str((int)(num / pivot))
+            + " "
+            + above_100[pivot]
+            + ("" if num % pivot == 0 else " " + rupees_to_words(num % pivot))
+        )
+    else:
+        amt_str = (
+            str((int)(num / pivot))
+            + " "
+            + above_100[pivot]
+            + "s"
+            + ("" if num % pivot == 0 else " " + rupees_to_words(num % pivot))
+        )
+    return amt_str
+
+  
