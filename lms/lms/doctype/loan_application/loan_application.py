@@ -248,6 +248,11 @@ class LoanApplication(Document):
                     #         2,
                     #     )
 
+        # On loan application rejection mark lender approvel status as rejected in loan application items
+        if self.status == "Rejected":
+            for i in self.items:
+                i.lender_approval_status = "Rejected"
+
         self.total_collateral_value_str = lms.amount_formatter(
             self.total_collateral_value
         )
