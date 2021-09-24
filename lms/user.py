@@ -2145,7 +2145,7 @@ def update_profile_pic_and_pin(**kwargs):
 
 
 @frappe.whitelist(allow_guest=True)
-def contact_us(**kwargs):
+def contact_us_old(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
@@ -2932,5 +2932,75 @@ def read_or_clear_notifications(**kwargs):
 
         return utils.respondWithSuccess()
 
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+@frappe.whitelist()
+def contact_us(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs, {"message": "required"}
+        )
+
+        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        # if re.search(email_regex, data.get("sender")) is None:
+        #     return utils.respondWithFailure(
+        #         status=422,
+        #         message=frappe._("Expected a Mail, Got: {}".format(data.get("sender"))),
+        #     )
+
+        if not data.get("message") or data.get("message").isspace():
+            return utils.respondWithFailure(
+                message=frappe._("Please write your query to us.")
+            )
+
+        try:
+            user = lms.__user()
+        except UserNotFoundException:
+            user = None
+            
+        # try:
+            # user = frappe.get_doc("User", data.get("sender"))
+        # except frappe.DoesNotExistError:
+        #     return utils.respondNotFound(
+        #         message=frappe._("Please use registered email.")
+        #     )
+
+        if user and data.get("message"):
+            recipients = frappe.get_single("Contact Us Settings").forward_to_email
+            from frappe.model.naming import getseries
+
+            subject = "Contact us Request – " + getseries("Contact us Request –", 3)
+            frappe.db.commit()
+
+            message = "From {name},<br>Email id - {email},<br>Customer id - {cust},<br><br>{mess}".format(
+                name=user.full_name,
+                email=user.email,
+                cust=lms.__customer().name,
+                mess=data.get("message").strip(),
+            )
+
+            frappe.get_doc(
+                dict(
+                    doctype="Communication",
+                    sender=user.email,
+                    subject=_("New Message from Website Contact Page"),
+                    sent_or_received="Received",
+                    content=message,
+                    status="Open",
+                )
+            ).insert(ignore_permissions=True)
+
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=[recipients],
+                sender=None,
+                subject=subject,
+                message=message,
+            )
+
+        return utils.respondWithSuccess()
     except utils.exceptions.APIException as e:
         return e.respond()

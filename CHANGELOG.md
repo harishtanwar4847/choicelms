@@ -16,6 +16,13 @@
 - [Fix: Payment, Pledge more, Sell collateral scenario for margin shortfall Sell Triggered status and Unpledge otp expire message change](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/386)
 - [Feat: Razorpay callback](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/390)
 - [Fix: is_sell_triggered flag added in loan_summary_dashboard, my_pledge_securities, loan_details api](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/392)
+- [Feat: Contact Us module implementation as per New Requirement)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/399)
+
+## [v1.0.6] - 2021-09-22
+
+## Added
+
+- [Feat: Loan against shares html page added (products/loan-against-shares.html)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/398)
 
 ## [v1.0.5] - 2021-08-18
 
