@@ -1096,24 +1096,27 @@ class Loan(Document):
         loan_sanction_history.save(ignore_permissions=True)
 
     def max_topup_amount(self):
+        lender = self.get_lender()
         max_topup_amount = (
             self.total_collateral_value * (self.allowable_ltv / 100)
         ) - self.sanctioned_limit
 
         # show available top up amount only if topup amount is greater than 10% of sanctioned limit
-        if (
+        if self.sanctioned_limit > lender.maximum_sanctioned_limit:
+            max_topup_amount = 0
+        elif (
             max_topup_amount > (self.sanctioned_limit * 0.1)
             and max_topup_amount >= 1000
         ):
             max_topup_amount = lms.round_down_amount_to_nearest_thousand(
                 max_topup_amount
             )
-            # if max_topup_amount > 1000:
-            #     max_topup_amount = lms.round_down_amount_to_nearest_thousand(
-            #         max_topup_amount
-            #     )
-            # else:
-            #     max_topup_amount = round(max_topup_amount, 1)
+            if (
+                max_topup_amount + self.sanctioned_limit
+            ) > lender.maximum_sanctioned_limit:
+                max_topup_amount = (
+                    lender.maximum_sanctioned_limit - self.sanctioned_limit
+                )
         else:
             max_topup_amount = 0
 

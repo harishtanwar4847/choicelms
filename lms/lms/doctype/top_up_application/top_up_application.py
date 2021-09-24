@@ -148,7 +148,7 @@ class TopupApplication(Document):
             )
 
     def get_lender(self):
-        return frappe.get_doc("Lender", self.get_loan().lender)
+        return frappe.get_doc("Lender", self.lender)
 
     # def create_tnc_file(self):
     #     lender = self.get_lender()

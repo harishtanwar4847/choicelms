@@ -177,6 +177,16 @@ class Cart(Document):
         user_kyc = customer.get_kyc()
         if self.loan:
             loan = frappe.get_doc("Loan", self.loan)
+            increase_loan_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+                (self.total_collateral_value + loan.total_collateral_value)
+                * self.allowable_ltv
+                / 100
+            )
+            max_sanctioned_limit = (
+                increase_loan_sanctioned_limit
+                if increase_loan_sanctioned_limit < lender.maximum_sanctioned_limit
+                else lender.maximum_sanctioned_limit
+            )
 
         from num2words import num2words
 
@@ -185,19 +195,11 @@ class Cart(Document):
             "loan_application_number": " ",
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
-            "sanctioned_amount": lms.round_down_amount_to_nearest_thousand(
-                (self.total_collateral_value + loan.total_collateral_value)
-                * self.allowable_ltv
-                / 100
-            )
+            "sanctioned_amount": max_sanctioned_limit
             if self.loan and not self.loan_margin_shortfall
             else self.eligible_loan,
             "sanctioned_amount_in_words": num2words(
-                lms.round_down_amount_to_nearest_thousand(
-                    (self.total_collateral_value + loan.total_collateral_value)
-                    * self.allowable_ltv
-                    / 100
-                )
+                max_sanctioned_limit
                 if self.loan and not self.loan_margin_shortfall
                 else self.eligible_loan,
                 lang="en_IN",
@@ -273,6 +275,7 @@ class Cart(Document):
 
     def process_cart(self):
         if not self.is_processed:
+            lender = self.get_lender()
             self.total_collateral_value = 0
             self.allowable_ltv = 0
             for item in self.items:
@@ -281,11 +284,16 @@ class Cart(Document):
 
             self.total_collateral_value = round(self.total_collateral_value, 2)
             self.allowable_ltv = float(self.allowable_ltv) / len(self.items)
-            self.eligible_loan = round(
+            eligible_loan = round(
                 lms.round_down_amount_to_nearest_thousand(
                     (self.allowable_ltv / 100) * self.total_collateral_value
                 ),
                 2,
+            )
+            self.eligible_loan = (
+                eligible_loan
+                if eligible_loan < lender.maximum_sanctioned_limit
+                else lender.maximum_sanctioned_limit
             )
 
     def process_bre(self):

@@ -120,6 +120,28 @@ def upsert(**kwargs):
             data.get("securities", {}), data.get("lender")
         )
 
+        # Min max sanctioned_limit
+        isin = [i["isin"] for i in securities]
+        allowed_securities = lms.get_allowed_securities(isin, data.get("lender"))
+        total_ltv = sum([i["eligible_percentage"] for i in allowed_securities.values()])
+        price_map = lms.get_security_prices(isin)
+
+        total_amt = 0
+        for i in securities:
+            security_price = price_map.get(i["isin"], 0)
+            total_amt += i["quantity"] * security_price
+
+        allowable_ltv = float(total_ltv) / len(securities)
+        lender = frappe.get_doc("Lender", data.get("lender"))
+
+        # If New Loan
+        sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+            (allowable_ltv / 100) * total_amt
+        )
+
+        min_sanctioned_limit = lender.minimum_sanctioned_limit
+        max_sanctioned_limit = lender.maximum_sanctioned_limit
+
         customer = lms.__customer()
         if data.get("loan_name", None):
             try:
@@ -130,6 +152,12 @@ def upsert(**kwargs):
                 return utils.respondForbidden(
                     message=frappe._("Please use your own loan.")
                 )
+
+            # If pledge more/margin shortfall/increase Loan
+            sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+                loan.total_collateral_value * loan.allowable_ltv / 100
+            )
+
             if data.get("loan_margin_shortfall_name", None):
                 try:
                     loan_margin_shortfall = frappe.get_doc(
@@ -195,6 +223,8 @@ def upsert(**kwargs):
                     "pledged_quantity": i["quantity"],
                 },
             )
+        if sanctioned_limit > max_sanctioned_limit:
+            cart.eligible_loan = max_sanctioned_limit
         cart.save(ignore_permissions=True)
 
         res = {"cart": cart}
@@ -208,6 +238,20 @@ def upsert(**kwargs):
 
             if not loan_margin_shortfall.get("__islocal", 0):
                 res["loan_margin_shortfall_obj"] = loan_margin_shortfall
+
+            if sanctioned_limit < min_sanctioned_limit and not data.get(
+                "loan_margin_shortfall_name"
+            ):
+                min_sanctioned_limit = min_sanctioned_limit - sanctioned_limit
+            else:
+                min_sanctioned_limit = 0.0
+
+        res["min_sanctioned_limit"] = (
+            min_sanctioned_limit if not data.get("loan_margin_shortfall_name") else 0.0
+        )
+        res["max_sanctioned_limit"] = (
+            max_sanctioned_limit if not data.get("loan_margin_shortfall_name") else 0.0
+        )
 
         frappe.db.commit()
         return utils.respondWithSuccess(data=res)

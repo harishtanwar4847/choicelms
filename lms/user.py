@@ -1223,6 +1223,7 @@ def dashboard(**kwargs):
                     )
                     if loan_application_doc.loan
                     and not loan_application_doc.loan_margin_shortfall
+                    and not loan_application_doc.application_type == "Pledge More"
                     else "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly the final Sanctioned Limit is Rs. {drawing_power}. Please e-sign the loan agreement to avail the loan now.".format(
                         current_total_collateral_value=frappe.utils.fmt_money(
                             loan_application_doc.total_collateral_value
@@ -1238,6 +1239,7 @@ def dashboard(**kwargs):
                 if (
                     loan_application_doc.loan
                     and not loan_application_doc.loan_margin_shortfall
+                    and not loan_application_doc.application_type == "Pledge More"
                 ):
                     loan = frappe.get_doc("Loan", loan_application_doc.loan)
 
@@ -1258,7 +1260,10 @@ def dashboard(**kwargs):
                         + loan.total_collateral_value,
                     )
 
-                if not loan_application_doc.loan_margin_shortfall:
+                if (
+                    not loan_application_doc.loan_margin_shortfall
+                    and not loan_application_doc.application_type == "Pledge More"
+                ):
                     la_pending_esigns.append(
                         {
                             "loan_application": loan_application_doc,
