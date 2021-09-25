@@ -32,7 +32,8 @@
   "minimum_sanctioned_limit",
   "application_type",
   "column_break_25",
-  "maximum_sanctioned_limit"
+  "maximum_sanctioned_limit",
+  "increased_sanctioned_limit"
  ],
  "fields": [
   {
@@ -204,10 +205,17 @@
   {
    "fieldname": "section_break_23",
    "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:doc.application_type == \"Increase Loan\"",
+   "fieldname": "increased_sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Increased Sanctioned Limit",
+   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2021-09-21 16:46:10.778329",
+ "modified": "2021-09-25 12:14:19.172227",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

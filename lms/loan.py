@@ -627,6 +627,7 @@ def create_topup(**kwargs):
                     "customer": customer.name,
                     "customer_name": customer.full_name,
                     "expiry_date": expiry,
+                    "lender": loan.lender,
                 }
             )
             topup_application.save(ignore_permissions=True)

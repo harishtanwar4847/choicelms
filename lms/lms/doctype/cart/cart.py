@@ -112,6 +112,7 @@ class Cart(Document):
                 "workflow_state": "Waiting to be pledged",
                 "items": items,
                 "application_type": application_type,
+                "increased_sanctioned_limit": self.increased_sanctioned_limit,
             }
         )
         loan_application.insert(ignore_permissions=True)
@@ -177,16 +178,17 @@ class Cart(Document):
         user_kyc = customer.get_kyc()
         if self.loan:
             loan = frappe.get_doc("Loan", self.loan)
-            increase_loan_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+            increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
                 (self.total_collateral_value + loan.total_collateral_value)
                 * self.allowable_ltv
                 / 100
             )
-            max_sanctioned_limit = (
-                increase_loan_sanctioned_limit
-                if increase_loan_sanctioned_limit < lender.maximum_sanctioned_limit
+            self.increased_sanctioned_limit = (
+                increased_sanctioned_limit
+                if increased_sanctioned_limit < lender.maximum_sanctioned_limit
                 else lender.maximum_sanctioned_limit
             )
+            self.save(ignore_permissions=True)
 
         from num2words import num2words
 
@@ -195,11 +197,11 @@ class Cart(Document):
             "loan_application_number": " ",
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
-            "sanctioned_amount": max_sanctioned_limit
+            "sanctioned_amount": self.increased_sanctioned_limit
             if self.loan and not self.loan_margin_shortfall
             else self.eligible_loan,
             "sanctioned_amount_in_words": num2words(
-                max_sanctioned_limit
+                self.increased_sanctioned_limit
                 if self.loan and not self.loan_margin_shortfall
                 else self.eligible_loan,
                 lang="en_IN",

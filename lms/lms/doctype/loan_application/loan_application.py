@@ -38,27 +38,17 @@ class LoanApplication(Document):
         lender = self.get_lender()
         if self.loan:
             loan = self.get_loan()
-            increase_loan_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                (self.total_collateral_value + loan.total_collateral_value)
-                * self.allowable_ltv
-                / 100
-            )
-            max_sanctioned_limit = (
-                increase_loan_sanctioned_limit
-                if increase_loan_sanctioned_limit < self.maximum_sanctioned_limit
-                else self.maximum_sanctioned_limit
-            )
 
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_application_number": self.name,
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
-            "sanctioned_amount": max_sanctioned_limit
+            "sanctioned_amount": self.increased_sanctioned_limit
             if self.loan and not self.loan_margin_shortfall
             else self.drawing_power,
             "sanctioned_amount_in_words": num2words(
-                max_sanctioned_limit
+                self.increased_sanctioned_limit
                 if self.loan and not self.loan_margin_shortfall
                 else self.drawing_power,
                 lang="en_IN",
@@ -580,14 +570,14 @@ class LoanApplication(Document):
         # loan.drawing_power += self.drawing_power
 
         if self.application_type == "Increase Loan":
-            drawing_power = round(
-                lms.round_down_amount_to_nearest_thousand(loan.drawing_power), 2
-            )
+            # drawing_power = round(
+            #     lms.round_down_amount_to_nearest_thousand(loan.drawing_power), 2
+            # )
             # loan.sanctioned_limit = loan.drawing_power
             loan.sanctioned_limit = loan.drawing_power = (
                 self.maximum_sanctioned_limit
-                if drawing_power > self.maximum_sanctioned_limit
-                else drawing_power
+                if self.increased_sanctioned_limit > self.maximum_sanctioned_limit
+                else self.increased_sanctioned_limit
             )
 
             # TODO : manage expiry date
@@ -617,6 +607,8 @@ class LoanApplication(Document):
 
         # renewal charges
         import calendar
+
+        new_sanctioned_limit = self.increased_sanctioned_limit
 
         date = frappe.utils.now_datetime()
         days_in_year = 366 if calendar.isleap(date.year) else 365

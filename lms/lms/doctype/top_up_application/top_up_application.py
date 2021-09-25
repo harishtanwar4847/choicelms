@@ -359,9 +359,8 @@ class TopupApplication(Document):
         loan.save_loan_sanction_history(loan_agreement_file.name, event)
 
     def before_save(self):
-        self.lender = self.get_loan().lender
         self.sanctioned_limit = self.get_loan().sanctioned_limit
-        lender = frappe.get_doc("Lender", self.lender)
+        lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
 

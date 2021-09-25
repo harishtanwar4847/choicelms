@@ -4,6 +4,7 @@ import lms
 
 
 def execute():
+    # frappe.db.sql("""UPDATE `tabLoan Application` SET application_type = IF(loan = NULL, 'New Loan', IF(loan AND loan_margin_shortfall, 'Margin Shortfall', 'Increase Loan'));""")
     all_loan_applications = frappe.get_all("Loan Application")
     for la in all_loan_applications:
         try:
@@ -18,3 +19,6 @@ def execute():
             frappe.db.commit()
         except:
             pass
+
+    frappe.db.sql("Update `tabTop up Application` SET lender='Choice Finserv'")
+    frappe.db.commit()
