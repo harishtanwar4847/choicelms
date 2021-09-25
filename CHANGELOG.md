@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+- [Feat: changes in tnc html template, loan agreement template, loan enhancement agreement template regarding lender charges](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/361)
+- [Feat: changes in Currency format (Rupees and Paisa), percentage, Rupees in word format in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/366)
+- [Fix: PDF link in webview for Help/Faq](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/368)
+- [Feat: changes in Currency format as per confirmed by client in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/369)
+- [Feat: changes in Currency format in words in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/370)
+- [Feat: pledgor boid added in loan details response](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/371)
+- [Feat: Added FCM notification list , fcm notification log list, push_notification_list API, read_or_clear_notifications API and API doc](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/372)
+- [Feat: NSDL Success and Failure callback URL handling](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/373)
+- [Feat: Send recent firebase token of user in fcm notification and collapse key changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/378)
+- [Feat: increase loan sanctioned limit charges scenarios](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/381)
+- [Feat: Client Holding](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/385)
+- [Fix: Payment, Pledge more, Sell collateral scenario for margin shortfall Sell Triggered status and Unpledge otp expire message change](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/386)
+- [Feat: Razorpay callback](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/390)
+- [Fix: is_sell_triggered flag added in loan_summary_dashboard, my_pledge_securities, loan_details api](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/392)
+- [Feat: Contact Us module implementation as per New Requirement)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/399)
+- [Fix: Client holding fixes,on loan application rejection related changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/400)
+
 ## [v1.0.6] - 2021-09-22
 
 ## Added
