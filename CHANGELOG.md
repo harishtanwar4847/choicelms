@@ -2,9 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
 - [Feat: changes in tnc html template, loan agreement template, loan enhancement agreement template regarding lender charges](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/361)
 - [Feat: changes in Currency format (Rupees and Paisa), percentage, Rupees in word format in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/366)
-- [Fix: PDF link in webview for Help/Faq](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/368)
 - [Feat: changes in Currency format as per confirmed by client in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/369)
 - [Feat: changes in Currency format in words in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/370)
 - [Feat: pledgor boid added in loan details response](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/371)
@@ -13,6 +14,11 @@
 - [Feat: Send recent firebase token of user in fcm notification and collapse key changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/378)
 - [Feat: increase loan sanctioned limit charges scenarios](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/381)
 - [Feat: Client Holding](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/385)
+- [Feat: open graph tags added]()
+
+### Fixed
+
+- [Fix: PDF link in webview for Help/Faq](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/368)
 - [Fix: Payment, Pledge more, Sell collateral scenario for margin shortfall Sell Triggered status and Unpledge otp expire message change](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/386)
 
 ## [v1.0.6] - 2021-09-22
@@ -29,6 +35,8 @@
 - [Feat: url changed as per informed by vinayak - 16/08/2021 | meta tags - title, description, keywords, home page title Tag changed as per informed by vinayak - 16/08/2021](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/359)
 
 ## [v1.0.4] - 2021-08-13
+
+### Added
 
 - [Feat: sitemap.xml added | added functionality of routing index and home page to root page of website](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/354)
 
