@@ -5,7 +5,137 @@ India’s first platform dedicated towards loans against equity shares and other
 securities. {% endblock description %} {% block keywords %}Loan Against Shares,
 Loan on Shares, Loan Against Equity Shares, Loan Against Shares Eligibility,
 Loan Against Shares Interest Rates, Loan on Equity Shares, Loan Against Demat
-Shares {% endblock keywords %} {% block body %}<br />
+Shares {% endblock keywords %} {% block head %}
+<style>
+  .about-textInn {
+    margin: 0 20px 0 20px;
+  }
+
+  .about-text p {
+    font-size: 1.6rem;
+    line-height: 2.4rem;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 95% !important;
+  }
+
+  td,
+  th {
+    border: 1px solid #999;
+    padding: 0.5rem;
+    text-align: center;
+  }
+
+  .about-text td > p {
+    padding: 10px 0px 10px 0px;
+  }
+
+  .h1cls {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .h2cls {
+    font-size: 17px;
+    font-weight: bold;
+    font-family: Gilroy_Regular;
+    color: rgb(33, 37, 41);
+  }
+
+  .schemestab-products-page {
+    margin-top: 15px;
+  }
+
+  .schemestab-products-page .nav-tabs .nav-link.active {
+    border: none;
+    border-radius: 20px 20px 0px 0px;
+  }
+
+  .schemestab-products-page .nav-tabs {
+    border-bottom: 1px solid #fff;
+  }
+
+  .schemestab-products-page .nav-tabs .nav-item {
+    width: unset;
+    margin-bottom: -2px;
+  }
+
+  .schemestab-products-page .nav-tabs .nav-link.active .amt {
+    border-bottom: 2px solid #eb5e50;
+  }
+
+  .schemestab-products-page .amt {
+    font-family: "Gilroy_Bold";
+    font-size: 1.8rem;
+    line-height: 3rem;
+    margin: 0px 15px 5px 15px;
+    padding-bottom: 10px;
+    color: #1b2e6a;
+  }
+
+  .schemestab-products-page .nav-tabs .nav-link {
+    border: 1px solid transparent;
+    border: none;
+    padding-bottom: 20px;
+  }
+
+  .schemestab-products-page .nav-tabs .nav-link:hover {
+    border: none;
+  }
+
+  .schemestab-products-page li {
+    font-family: "Gilroy_Regular";
+    font-size: 1.6rem;
+    color: #333;
+    line-height: 2.4rem;
+    padding: 0px 0px 10px 0px;
+  }
+
+  ol {
+    margin-right: 20px;
+    margin-left: 20px;
+  }
+
+  .proBox {
+    padding-top: 50px;
+  }
+
+  .btnapl {
+    float: left;
+    padding: 10px 20px;
+    margin-left: 20px;
+    font-family: "Gilroy_Bold";
+
+    color: #1b2e6a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .bann {
+    top: 50%;
+    position: absolute;
+    margin-left: 50px;
+    font-family: "Gilroy_Bold";
+    font-size: 3rem;
+    color: #1b2e6a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  @media only screen and (max-width: 566px) {
+    .bann {
+      top: 0%;
+      position: unset;
+      margin-left: 0;
+      text-align: center;
+    }
+  }
+</style>
+{% endblock head %} {% block body %}<br />
 <br />
 <br />
 <br />
@@ -81,7 +211,7 @@ Shares {% endblock keywords %} {% block body %}<br />
             <!--<div class=" d-flex justify-content-between">
                  <div class="Schemeslogo "> <img src="../images/home/partners/choice.svg" width="120" > </div>
       </div>-->
-            <div class="schemestab">
+            <div class="schemestab-products-page">
               <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item">
                   <a
