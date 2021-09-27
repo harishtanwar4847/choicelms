@@ -4,7 +4,7 @@ import lms
 
 
 def execute():
-    # frappe.db.sql("""UPDATE `tabLoan Application` SET application_type = IF(loan = NULL, 'New Loan', IF(loan AND loan_margin_shortfall, 'Margin Shortfall', 'Increase Loan'));""")
+    # frappe.db.sql("""UPDATE `tabLoan Application` SET application_type = IF(loan IS NULL, 'New Loan', IF(loan IS NOT NULL AND loan_margin_shortfall IS NOT NULL, 'Margin Shortfall', 'Increase Loan'));""")
     all_loan_applications = frappe.get_all("Loan Application")
     for la in all_loan_applications:
         try:

@@ -601,11 +601,12 @@ class LoanApplication(Document):
         # apply renewal charges on existing loan sanctioned limit
         if self.application_type == "Increase Loan":
             self.apply_renewal_charges(loan)
-
-        loan.reload()
-        loan.update_items()
-        loan.fill_items()
-        # loan.check_for_shortfall()
+            loan.reload()
+            loan.check_for_shortfall()
+        else:
+            loan.reload()
+            loan.update_items()
+            loan.fill_items()
 
         # for item in self.items:
         #     if item.lender_approval_status == "Approved":
