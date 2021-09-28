@@ -18,7 +18,7 @@
 - [Fix: is_sell_triggered flag added in loan_summary_dashboard, my_pledge_securities, loan_details api](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/392)
 - [Feat: Contact Us module implementation as per New Requirement)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/399)
 - [Fix: Client holding fixes,on loan application rejection related changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/400)
-- [Fix: hide esign button while loan application is for margin shortfall pledge more]()
+- [Fix: hide esign button while loan application is for margin shortfall pledge more](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/402)
 
 ## [v1.0.6] - 2021-09-22
 
