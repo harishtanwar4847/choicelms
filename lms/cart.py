@@ -124,23 +124,7 @@ def upsert(**kwargs):
         )
 
         # Min max sanctioned_limit
-        isin = [i["isin"] for i in securities]
-        allowed_securities = lms.get_allowed_securities(isin, data.get("lender"))
-        total_ltv = sum([i["eligible_percentage"] for i in allowed_securities.values()])
-        price_map = lms.get_security_prices(isin)
-
-        total_amt = 0
-        for i in securities:
-            security_price = price_map.get(i["isin"], 0)
-            total_amt += i["quantity"] * security_price
-
-        allowable_ltv = float(total_ltv) / len(securities)
         lender = frappe.get_doc("Lender", data.get("lender"))
-
-        # If New Loan
-        sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-            (allowable_ltv / 100) * total_amt
-        )
 
         min_sanctioned_limit = lender.minimum_sanctioned_limit
         max_sanctioned_limit = lender.maximum_sanctioned_limit
@@ -231,8 +215,6 @@ def upsert(**kwargs):
                     "pledged_quantity": i["quantity"],
                 },
             )
-        if sanctioned_limit > max_sanctioned_limit:
-            cart.eligible_loan = max_sanctioned_limit
         cart.save(ignore_permissions=True)
 
         res = {"cart": cart}
@@ -677,17 +659,18 @@ def get_tnc(**kwargs):
                     + "</li>"
                 )
             elif data.get("cart_name") and cart.loan and not cart.loan_margin_shortfall:
+                increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+                    (cart.total_collateral_value + loan.total_collateral_value)
+                    * cart.allowable_ltv
+                    / 100
+                )
                 tnc_ul.append(
                     "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}/-</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
                         lms.validate_rupees(
-                            lms.round_down_amount_to_nearest_thousand(
-                                (
-                                    cart.total_collateral_value
-                                    + loan.total_collateral_value
-                                )
-                                * cart.allowable_ltv
-                                / 100
-                            )
+                            increased_sanctioned_limit
+                            if increased_sanctioned_limit
+                            < lender.maximum_sanctioned_limit
+                            else lender.maximum_sanctioned_limit
                         )
                     )
                     + "</li>"
