@@ -139,15 +139,14 @@ class TopupApplication(Document):
 
         loan = self.get_loan()
         updated_top_up_amt = loan.max_topup_amount()
-        if updated_top_up_amt < (loan.sanctioned_limit * 0.1):
-            frappe.throw("Top up not available")
-        if self.top_up_amount <= 0:
-            frappe.throw("Top up can not be approved with Amount Rs. 0")
-
         if (self.top_up_amount + loan.sanctioned_limit) > self.maximum_sanctioned_limit:
             frappe.throw(
                 "Can not Approve this Top up Application as Sanctioned limit will cross Maximum Sanctioned limit Cap"
             )
+        if updated_top_up_amt < (loan.sanctioned_limit * 0.1):
+            frappe.throw("Top up not available")
+        if self.top_up_amount <= 0:
+            frappe.throw("Top up can not be approved with Amount Rs. 0")
 
     def get_lender(self):
         return frappe.get_doc("Lender", self.lender)
