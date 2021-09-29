@@ -1,8 +1,13 @@
-{% extends 'templates/lmsbase.html' %} {% block title %} Help or Frequently
-Asked Questions - SparkLoans {% endblock title %} {% block description %} Do You
-Have a Query? Get an instant answer for your quetions from SparkLoans team. {%
-endblock description %} {%- block head_include -%} {% include
-'templates/head_content.html' %}
+{% extends 'templates/lmsbase.html' %} {% block ogtag %}
+<meta property="og:url" content="https://spark.loans/help" />
+{% endblock %} {% block title %} Help or Frequently Asked Questions - SparkLoans
+{% endblock title %} {% block description %} Do You Have a Query? Get an instant
+answer for your quetions from SparkLoans team. {% endblock description %} {%
+block ogtitle %} Help or Frequently Asked Questions - spark.loans {% endblock %}
+{% block ogdescription %} Do You Have a Query? Get an instant answer for your
+questions from spark.loans team {% endblock %} {%- block head_include -%} {%
+include 'templates/head_content.html' %}
+
 <style>
   .help .card-body li {
     padding: 0 0 20px 0;
