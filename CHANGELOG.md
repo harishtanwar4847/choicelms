@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## Added
+
+- [Feat: Open graph code added for (non www)spark.loans](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/404)
+
 ## [v1.0.6] - 2021-09-22
 
 ## Added
