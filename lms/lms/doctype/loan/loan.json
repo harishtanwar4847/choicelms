@@ -24,6 +24,7 @@
   "rebate_interest_amount",
   "base_interest_amount",
   "margin_shortfall_amount",
+  "total_interest_incl_penal_due",
   "items_section",
   "items",
   "loan_status_section",
@@ -183,11 +184,17 @@
    "fieldtype": "Currency",
    "label": "Margin Shortfall Amount",
    "read_only": 1
+  },
+  {
+   "fieldname": "total_interest_incl_penal_due",
+   "fieldtype": "Currency",
+   "label": "Total Interest (incl penal) due",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-16 11:56:41.482372",
+ "modified": "2021-09-28 16:07:38.443710",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
