@@ -143,7 +143,6 @@ scheduler_events = {
         "lms.lms.doctype.loan.loan.add_all_loans_virtual_interest",
         "lms.lms.doctype.loan.loan.check_for_all_loans_additional_interest",
         "lms.lms.doctype.loan.loan.add_all_loans_penal_interest",
-        "lms.lms.doctype.loan.loan.add_all_loans_interest",
     ],
     "monthly": ["lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"],
     "cron": {
@@ -151,4 +150,9 @@ scheduler_events = {
             "lms.lms.doctype.loan_application.loan_application.process_pledge"
         ]
     },
+    "dpd_cron":{
+        "0 5 * * *": [
+            "lms.lms.doctype.loan.loan.update_all_loans_dpd"
+        ]
+    }
 }

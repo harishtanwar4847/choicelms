@@ -21,16 +21,22 @@
   "allowable_ltv",
   "expiry_date",
   "loan_agreement",
-  "rebate_interest_amount",
-  "base_interest_amount",
   "margin_shortfall_amount",
-  "total_interest_incl_penal_due",
   "items_section",
   "items",
   "loan_status_section",
   "is_eligible_for_interest",
   "is_irregular",
-  "is_penalize"
+  "is_penalize",
+  "interest_details_section",
+  "base_interest_amount",
+  "interest_due",
+  "penal_interest_charges",
+  "total_interest_incl_penal_due",
+  "column_break_28",
+  "rebate_interest_amount",
+  "interest_overdue",
+  "day_past_due"
  ],
  "fields": [
   {
@@ -188,13 +194,41 @@
   {
    "fieldname": "total_interest_incl_penal_due",
    "fieldtype": "Currency",
-   "label": "Total Interest (incl penal) due",
-   "read_only": 1
+   "label": "Total Interest (incl penal) due"
+  },
+  {
+   "fieldname": "interest_details_section",
+   "fieldtype": "Section Break",
+   "label": "Interest Details"
+  },
+  {
+   "fieldname": "interest_due",
+   "fieldtype": "Currency",
+   "label": "Interest Due"
+  },
+  {
+   "fieldname": "penal_interest_charges",
+   "fieldtype": "Currency",
+   "label": "Penal Interest Charges"
+  },
+  {
+   "fieldname": "column_break_28",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "interest_overdue",
+   "fieldtype": "Currency",
+   "label": "Interest Overdue"
+  },
+  {
+   "fieldname": "day_past_due",
+   "fieldtype": "Int",
+   "label": "DPD (days past due)"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-28 16:07:38.443710",
+ "modified": "2021-09-30 12:04:22.362283",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
