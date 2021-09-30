@@ -19,10 +19,11 @@
 - [Feat: Contact Us module implementation as per New Requirement)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/399)
 - [Fix: Client holding fixes,on loan application rejection related changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/400)
 - [Fix: hide esign button while loan application is for margin shortfall pledge more](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/402)
+- [Feat: added mobile number and changes format in mail content in Contact Us module](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/403)
 
 ## [v1.0.6] - 2021-09-22
 
-## Added
+### Added
 
 - [Feat: Loan against shares html page added (products/loan-against-shares.html)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/398)
 
@@ -34,6 +35,8 @@
 - [Feat: url changed as per informed by vinayak - 16/08/2021 | meta tags - title, description, keywords, home page title Tag changed as per informed by vinayak - 16/08/2021](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/359)
 
 ## [v1.0.4] - 2021-08-13
+
+### Added
 
 - [Feat: sitemap.xml added | added functionality of routing index and home page to root page of website](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/354)
 
