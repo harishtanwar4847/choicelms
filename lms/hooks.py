@@ -150,9 +150,4 @@ scheduler_events = {
             "lms.lms.doctype.loan_application.loan_application.process_pledge"
         ]
     },
-    "dpd_cron":{
-        "0 5 * * *": [
-            "lms.lms.doctype.loan.loan.update_all_loans_dpd"
-        ]
-    }
 }

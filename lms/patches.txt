@@ -25,3 +25,4 @@ lms.patches.update_collateral_ledger_list
 lms.patches.update_loan_list
 lms.patches.update_sell_collateral_application
 lms.patches.update_unpledge_application
+lms.patches.update_day_past_due

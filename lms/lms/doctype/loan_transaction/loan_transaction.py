@@ -404,7 +404,6 @@ class LoanTransaction(Document):
                         break
 
         if self.transaction_type in ['Interest', 'Additional Interest', 'Penal Interest', 'Payment']:
-            frappe.logger().info("in interest function")
             loan.reload()
             self.update_interest_summary_values(loan)
             
@@ -542,28 +541,20 @@ class LoanTransaction(Document):
     def update_interest_summary_values(self, loan):
         total_interest_incl_penal_due = frappe.db.sql(
                 "select sum(unpaid_interest) as total_amount from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and unpaid_interest >0 ".format(self.loan), as_dict=1,)[0]["total_amount"]
-        frappe.logger().info("in total_interest_incl_penal_due")
         loan.total_interest_incl_penal_due = total_interest_incl_penal_due if total_interest_incl_penal_due else 0.0
-        # if total_interest_incl_penal_due:
-        #     frappe.logger().info("in day_past_due")
-        #     loan.day_past_due += 1
-        # else:
-        #     frappe.logger().info("in day_past_due")
-        #     loan.day_past_due = 0
+        if total_interest_incl_penal_due == None:
+            loan.day_past_due = 0
         if self.transaction_type in ['Penal Interest', 'Payment']:
             penal_interest_charges = frappe.db.sql(
                 "select sum(unpaid_interest) as unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Penal Interest' and unpaid_interest >0 ".format(self.loan), as_dict=1,)[0]["unpaid_interest"]
-            frappe.logger().info("in penal_interest_charges")
             loan.penal_interest_charges = penal_interest_charges if penal_interest_charges else 0.0
         if self.transaction_type in ['Interest', 'Payment']:
             interest_due = frappe.db.sql(
                 "select sum(unpaid_interest) as unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 ".format(self.loan), as_dict=1,)[0]["unpaid_interest"]
-            frappe.logger().info("in interest_due")
             loan.interest_due = interest_due if interest_due else 0.0
         if self.transaction_type in ['Additional Interest', 'Payment']:
             interest_overdue = frappe.db.sql(
                 "select sum(unpaid_interest) as unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest') and unpaid_interest >0 ".format(self.loan), as_dict=1,)[0]["unpaid_interest"]
-            frappe.logger().info("in interest_overdue")
             loan.interest_overdue = interest_overdue if interest_overdue else 0.0
             if interest_overdue:
                 loan.interest_due = 0.0

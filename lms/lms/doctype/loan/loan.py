@@ -1410,14 +1410,6 @@ class Loan(Document):
             f.write(agreement_pdf)
         f.close()
 
-    def update_dpd(self):
-        total_interest = frappe.db.sql(
-                "select sum(unpaid_interest) as total_amount from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and unpaid_interest >0 ".format(self.name), as_dict=1,)[0]["total_amount"]
-        if total_interest > 0:
-            self.day_past_due +=1
-        else:
-            self.day_past_due = 0
-        self.save(ignore_permissions=True)
 
 
 def check_loans_for_shortfall(loans):
@@ -1576,35 +1568,3 @@ def interest_booked_till_date(loan_name):
         as_dict=1,
     )[0]["total_amount"]
     return 0.0 if interest_booked == None else interest_booked
-
-
-
-def update_loans_dpd(loans):
-    frappe.logger().info("in update_loans_dpd")
-    for loan in loans:
-        loan = frappe.get_doc("Loan", loan)
-        loan.update_dpd()
-
-
-@frappe.whitelist()
-def update_all_loans_dpd():
-    frappe.logger().info("in update_all_loans_dpd")
-    chunks = lms.chunk_doctype(doctype="Loan", limit=10)
-
-    for start in chunks.get("chunks"):
-        all_loans = frappe.db.get_all(
-            "Loan", limit_page_length=chunks.get("limit"), limit_start=start
-        )
-        frappe.enqueue(
-            method="lms.lms.doctype.loan.loan.update_loans_dpd",
-            loans=[loan for loan in all_loans],
-            queue="long",
-        )
-
-@frappe.whitelist()
-def daily_dpd_job(loan_name):
-    frappe.enqueue_doc(
-        "Loan",
-        loan_name,
-        method="update_dpd",
-    )

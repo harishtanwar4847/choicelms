@@ -31,15 +31,6 @@ frappe.ui.form.on("Loan", {
             }
           );
         });
-        frm.add_custom_button(__("Daily DPD Job"), function () {
-              frappe.call({
-                method: "lms.lms.doctype.loan.loan.daily_dpd_job",
-                freeze: true,
-                args: {
-                  loan_name: frm.doc.name,
-                },
-              });
-        });
 
         frm.add_custom_button(__("Monthly Cron Job"), function () {
           // frappe.msgprint("hii,  whatsup");
