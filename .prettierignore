@@ -1,2 +1,9 @@
 **/fixtures
 **/doctype/**/*.json
+lms/public/js/greensock/TweenMax.min.js
+lms/public/js/*.js
+lms/templates/modal/*.html
+lms/templates/subscribe.html
+lms/www/404.html
+lms/www/comingsoon.html
+lms/www/contact.html

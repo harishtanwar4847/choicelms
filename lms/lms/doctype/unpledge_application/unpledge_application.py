@@ -158,6 +158,7 @@ class UnpledgeApplication(Document):
                     "quantity": i.get("unpledge_quantity"),
                     "price": i.get("price"),
                     "security_name": i.get("security_name"),
+                    "security_category": i.get("security_category"),
                     "psn": i.get("psn"),
                     "loan_name": self.loan,
                     "lender_approval_status": "Approved",

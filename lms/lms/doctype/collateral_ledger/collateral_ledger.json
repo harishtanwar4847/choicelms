@@ -16,6 +16,7 @@
   "quantity",
   "pledgor_boid",
   "psn",
+  "security_category",
   "expiry",
   "column_break_1",
   "request_type",
@@ -150,11 +151,17 @@
    "fieldname": "value",
    "fieldtype": "Currency",
    "label": "value"
+  },
+  {
+   "fieldname": "security_category",
+   "fieldtype": "Data",
+   "label": "Security Category",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-16 10:51:57.367516",
+ "modified": "2021-10-01 12:23:39.995316",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Collateral Ledger",
