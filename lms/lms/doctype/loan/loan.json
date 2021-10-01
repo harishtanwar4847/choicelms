@@ -194,7 +194,8 @@
   {
    "fieldname": "total_interest_incl_penal_due",
    "fieldtype": "Currency",
-   "label": "Total Interest (incl penal) due"
+   "label": "Total Interest (incl penal) due",
+   "read_only": 1
   },
   {
    "fieldname": "interest_details_section",
@@ -204,12 +205,14 @@
   {
    "fieldname": "interest_due",
    "fieldtype": "Currency",
-   "label": "Interest Due"
+   "label": "Interest Due",
+   "read_only": 1
   },
   {
    "fieldname": "penal_interest_charges",
    "fieldtype": "Currency",
-   "label": "Penal Interest Charges"
+   "label": "Penal Interest Charges",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_28",
@@ -218,17 +221,19 @@
   {
    "fieldname": "interest_overdue",
    "fieldtype": "Currency",
-   "label": "Interest Overdue"
+   "label": "Interest Overdue",
+   "read_only": 1
   },
   {
    "fieldname": "day_past_due",
    "fieldtype": "Int",
-   "label": "DPD (days past due)"
+   "label": "DPD (days past due)",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-30 12:04:22.362283",
+ "modified": "2021-10-01 11:36:23.755105",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

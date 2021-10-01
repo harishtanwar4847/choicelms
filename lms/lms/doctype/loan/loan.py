@@ -260,8 +260,7 @@ class Loan(Document):
         #     update_modified=False,
         # )
         self.balance = round(summary.get("outstanding"), 2)
-        self.balance_str = lms.amount_formatter(
-            round(summary.get("outstanding"), 2))
+        self.balance_str = lms.amount_formatter(round(summary.get("outstanding"), 2))
         self.save(ignore_permissions=True)
         if check_for_shortfall:
             self.check_for_shortfall()
@@ -383,8 +382,7 @@ class Loan(Document):
         customer = self.get_customer()
         old_total_collateral_value = self.total_collateral_value
 
-        securities_price_map = lms.get_security_prices(
-            [i.isin for i in self.items])
+        securities_price_map = lms.get_security_prices([i.isin for i in self.items])
         check = self.update_items()
 
         if check:
@@ -450,8 +448,7 @@ class Loan(Document):
                             "Sale triggerred inaction",
                             fields=["*"],
                         )
-                        message = fcm_notification.message.format(
-                            loan=self.name)
+                        message = fcm_notification.message.format(loan=self.name)
                         doc = frappe.get_doc(
                             "User KYC", self.get_customer().choice_kyc
                         ).as_dict()
@@ -602,8 +599,7 @@ class Loan(Document):
         )
         margin_shortfall_name = frappe.db.get_value(
             "Loan Margin Shortfall",
-            {"loan": self.name, "status": [
-                "in", ["Pending", "Request Pending"]]},
+            {"loan": self.name, "status": ["in", ["Pending", "Request Pending"]]},
             "name",
         )
         if not margin_shortfall_name and not sell_triggered_shortfall_name:
@@ -722,15 +718,13 @@ class Loan(Document):
 
                 # calculate daily base interest
                 base_interest_daily = (
-                    interest_configuration["base_interest"] /
-                    num_of_days_in_month
+                    interest_configuration["base_interest"] / num_of_days_in_month
                 )
                 base_amount = self.balance * base_interest_daily / 100
 
                 # calculate daily rebate interest
                 rebate_interest_daily = (
-                    interest_configuration["rebait_interest"] /
-                    num_of_days_in_month
+                    interest_configuration["rebait_interest"] / num_of_days_in_month
                 )
                 rebate_amount = self.balance * rebate_interest_daily / 100
                 customer = self.get_customer()
@@ -838,16 +832,14 @@ class Loan(Document):
                             ),
                         }
                     )
-                    additional_interest_transaction.insert(
-                        ignore_permissions=True)
+                    additional_interest_transaction.insert(ignore_permissions=True)
                     additional_interest_transaction.transaction_id = (
                         additional_interest_transaction.name
                     )
                     additional_interest_transaction.status = "Approved"
                     additional_interest_transaction.workflow_state = "Approved"
                     additional_interest_transaction.docstatus = 1
-                    additional_interest_transaction.save(
-                        ignore_permissions=True)
+                    additional_interest_transaction.save(ignore_permissions=True)
 
                     # Update booked interest entry
                     booked_interest_transaction_doc = frappe.get_doc(
@@ -902,8 +894,7 @@ class Loan(Document):
                     if msg:
                         receiver_list = list(
                             set(
-                                [str(self.get_customer().phone),
-                                 str(doc.mobile_number)]
+                                [str(self.get_customer().phone), str(doc.mobile_number)]
                             )
                         )
                         from frappe.core.doctype.sms_settings.sms_settings import (
@@ -999,8 +990,7 @@ class Loan(Document):
                 ).as_dict()
                 doc["loan_name"] = self.name
                 doc["transaction_type"] = loan_transaction.transaction_type
-                doc["unpaid_interest"] = round(
-                    loan_transaction.unpaid_interest, 2)
+                doc["unpaid_interest"] = round(loan_transaction.unpaid_interest, 2)
 
                 frappe.enqueue_doc(
                     "Notification", "Interest Due", method="send", doc=doc
@@ -1055,8 +1045,7 @@ class Loan(Document):
         # current_date = (current_date - timedelta(days=1)).replace(
         #     hour=23, minute=59, second=59, microsecond=999999
         # )
-        last_day_of_prev_month = current_date.replace(
-            day=1) - timedelta(days=1)
+        last_day_of_prev_month = current_date.replace(day=1) - timedelta(days=1)
         # num_of_days_in_prev_month = last_day_of_prev_month.day
         prev_month = last_day_of_prev_month.month
         prev_month_year = last_day_of_prev_month.year
@@ -1108,16 +1097,14 @@ class Loan(Document):
                                 "time": current_date,
                             }
                         )
-                        penal_interest_transaction.insert(
-                            ignore_permissions=True)
+                        penal_interest_transaction.insert(ignore_permissions=True)
                         penal_interest_transaction.transaction_id = (
                             penal_interest_transaction.name
                         )
                         penal_interest_transaction.status = "Approved"
                         penal_interest_transaction.workflow_state = "Approved"
                         penal_interest_transaction.docstatus = 1
-                        penal_interest_transaction.save(
-                            ignore_permissions=True)
+                        penal_interest_transaction.save(ignore_permissions=True)
 
                         # Mark loan as 'is_penalize'
                         # self.is_penalize = 1
@@ -1291,8 +1278,7 @@ class Loan(Document):
 
     def get_unpledge_application(self):
         unpledge_application_name = frappe.db.get_value(
-            "Unpledge Application", {
-                "loan": self.name, "status": "Pending"}, "name"
+            "Unpledge Application", {"loan": self.name, "status": "Pending"}, "name"
         )
 
         return (
@@ -1411,7 +1397,6 @@ class Loan(Document):
         f.close()
 
 
-
 def check_loans_for_shortfall(loans):
     for loan_name in loans:
         frappe.enqueue_doc("Loan", loan_name, method="check_for_shortfall")
@@ -1447,7 +1432,7 @@ def daily_cron_job(loan_name, input_date=None):
         method="calculate_virtual_and_additional_interest",
         input_date=input_date,
     )
-    
+
 
 def add_loans_virtual_interest(loans):
     for loan in loans:
