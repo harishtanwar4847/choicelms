@@ -1,7 +1,12 @@
-{% extends 'templates/lmsbase.html' %} {% block title %} Privacy Policy -
-SparkLoans {% endblock title %} {% block description %} Read our privacy policy
-on SparkLoans web portal. {% endblock description %} {%- block head_include -%}
-{% include 'templates/head_content.html' %}
+{% extends 'templates/lmsbase.html' %} {% block ogtag %}
+<meta property="og:url" content="https://spark.loans/privacy-policy" />
+{% endblock %} {% block title %} Privacy Policy - SparkLoans {% endblock title
+%} {% block description %} Read our privacy policy on SparkLoans web portal. {%
+endblock description %} {% block ogtitle %} Privacy Policy - spark.loans {%
+endblock %} {% block ogdescription %} Read our privacy policy on spark.loans web
+portal.{% endblock %} {%- block head_include -%} {% include
+'templates/head_content.html' %}
+
 <style>
   @media (max-width: 768px) {
     li::marker {
