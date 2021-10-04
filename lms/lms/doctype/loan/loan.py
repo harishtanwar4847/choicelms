@@ -1432,6 +1432,15 @@ def daily_cron_job(loan_name, input_date=None):
         method="calculate_virtual_and_additional_interest",
         input_date=input_date,
     )
+    
+@frappe.whitelist()
+def daily_penal_job(loan_name, input_date=None):
+    frappe.enqueue_doc(
+        "Loan",
+        loan_name,
+        method="add_penal_interest",
+        input_date=input_date,
+    )
 
 
 def add_loans_virtual_interest(loans):

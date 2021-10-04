@@ -31,6 +31,26 @@ frappe.ui.form.on("Loan", {
             }
           );
         });
+        frm.add_custom_button(__("Daily Penal Job"), function () {
+          frappe.prompt(
+            {
+              label: "Date",
+              fieldname: "date",
+              fieldtype: "Date",
+              reqd: true,
+            },
+            (values) => {
+              frappe.call({
+                method: "lms.lms.doctype.loan.loan.daily_penal_job",
+                freeze: true,
+                args: {
+                  loan_name: frm.doc.name,
+                  input_date: values.date,
+                },
+              });
+            }
+          );
+        });
 
         frm.add_custom_button(__("Monthly Cron Job"), function () {
           // frappe.msgprint("hii,  whatsup");
