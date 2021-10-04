@@ -4,7 +4,7 @@
 
 ## Added
 
-- [Feat: Open graph code added for (non www)spark.loans](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/404)
+- [Feat: Open graph code added for (non www)spark.loans](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/406)
 - [Feat: Open Graph Code to be enabled on PROD Environment only](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/405)
 
 ## [v1.0.6] - 2021-09-22
