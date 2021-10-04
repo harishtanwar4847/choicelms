@@ -1073,6 +1073,13 @@ def dashboard(**kwargs):
                         - timedelta(days=(len(holidays) if holidays else 0))
                     )
 
+                remaining_time = (
+                    frappe.utils.now_datetime().replace(
+                        hour=23, minute=59, second=59, microsecond=999999
+                    )
+                    - frappe.utils.now_datetime()
+                )
+                print(remaining_time, "remaining_time")
                 mgloan.append(
                     {
                         "name": dictionary["name"],
@@ -1081,6 +1088,14 @@ def dashboard(**kwargs):
                         )
                         if mg_shortfall_doc.deadline > frappe.utils.now_datetime()
                         else "00:00:00",
+                        "timer_start_at": convert_sec_to_hh_mm_ss(
+                            abs(remaining_time).total_seconds()
+                        )
+                        if mg_shortfall_doc.deadline > frappe.utils.now_datetime()
+                        else None,
+                        "timer_stop_at": ""
+                        if mg_shortfall_doc.deadline > frappe.utils.now_datetime()
+                        else None,
                         "status": dictionary["status"],
                     }
                 )
@@ -2424,7 +2439,9 @@ def convert_sec_to_hh_mm_ss(seconds):
 
 def holiday_list():
     date_list = []
-    holiday_list = frappe.get_all("Bank Holiday", "date", order_by="date asc")
+    holiday_list = frappe.get_all(
+        "Bank Holiday", filters={"active": 1}, fields="date", order_by="date asc"
+    )
     for i, dates in enumerate(d["date"] for d in holiday_list):
         date_list.append(dates)
 
