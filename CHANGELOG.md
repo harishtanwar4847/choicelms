@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v1.0.8] - 2021-10-05
+
+## Added
+
+- [Feat: Product (Loan Against Shares) Page]()
+
 ## [v1.0.7] - 2021-10-05
 
 ## Fixed
