@@ -2,8 +2,6 @@
 
 ## [Unreleased]
 
-- [Feat: contact us email content formatted](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/408)
-
 ## Added
 
 - [Feat: changes in tnc html template, loan agreement template, loan enhancement agreement template regarding lender charges](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/361)
@@ -26,6 +24,7 @@
 - [Feat: added mobile number and changes format in mail content in Contact Us module](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/403)
 - [Feat: Open Graph Code to be enabled on PROD Environment only](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/405)
 - [Feat: Open graph code added for (non www)spark.loans](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/406)
+- [Feat: contact us email content formatted](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/408)
 
 ## [v1.0.6] - 2021-09-22
 
