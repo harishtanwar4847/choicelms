@@ -25,6 +25,7 @@
 - [Feat: Open Graph Code to be enabled on PROD Environment only](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/405)
 - [Feat: Open graph code added for (non www)spark.loans](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/406)
 - [Feat: contact us email content formatted](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/408)
+- [Feat: contact us email content changes for new line](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/409)
 
 ## [v1.0.6] - 2021-09-22
 
