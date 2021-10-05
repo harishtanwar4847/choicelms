@@ -3026,7 +3026,7 @@ def contact_us(**kwargs):
             subject = "Contact us Request – " + getseries("Contact us Request –", 3)
             frappe.db.commit()
 
-            message = "{mess}<br><br>From {name},<br>Email id - {email},<br>Mobile number - {phone},<br>Customer id - {cust}".format(
+            message = "{mess}<br><br>From - {name},<br>Email id - {email},<br>Mobile number - {phone},<br>Customer id - {cust}".format(
                 mess=data.get("message").strip(),
                 name=user.full_name,
                 email=user.email,
