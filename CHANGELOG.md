@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- [Feat: Update request/response of API document for all APIs]()
+
 ## [v1.0.6] - 2021-09-22
 
 ## Added
