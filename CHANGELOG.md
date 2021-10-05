@@ -2,7 +2,11 @@
 
 ## [Unreleased]
 
-- [Feat: Datatype of Bank address and Users address in User kyc doctype changed to Long text](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/407)
+## [v1.0.7] - 2021-10-05
+
+## Fixed
+
+- [Fix: Datatype of Bank address and Users address in User kyc doctype changed to Long text](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/407)
 
 ## [v1.0.6] - 2021-09-22
 
