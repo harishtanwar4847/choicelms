@@ -6,7 +6,7 @@
 
 ## Added
 
-- [Feat: Product (Loan Against Shares) Page]()
+- [Feat: Product (Loan Against Shares) Page](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/410)
 
 ## [v1.0.7] - 2021-10-05
 
