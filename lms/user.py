@@ -3050,7 +3050,7 @@ def contact_us(**kwargs):
                 recipients=[recipients],
                 sender=None,
                 subject=subject,
-                message=message,
+                message=message.replace("\n", "<br>"),
             )
 
         return utils.respondWithSuccess()
