@@ -1073,13 +1073,18 @@ def dashboard(**kwargs):
                         - timedelta(days=(len(holidays) if holidays else 0))
                     )
 
-                remaining_time = (
-                    frappe.utils.now_datetime().replace(
-                        hour=23, minute=59, second=59, microsecond=999999
+                    today = frappe.utils.now_datetime().date()
+                    tomorrow = today + timedelta(days=1)
+
+                    remaining_time = convert_sec_to_hh_mm_ss(
+                        abs(
+                            frappe.utils.now_datetime().replace(
+                                hour=23, minute=59, second=59, microsecond=999999
+                            )
+                            - mg_shortfall_doc.deadline
+                        ).total_seconds()
                     )
-                    - frappe.utils.now_datetime()
-                )
-                print(remaining_time, "remaining_time")
+
                 mgloan.append(
                     {
                         "name": dictionary["name"],
@@ -1088,13 +1093,17 @@ def dashboard(**kwargs):
                         )
                         if mg_shortfall_doc.deadline > frappe.utils.now_datetime()
                         else "00:00:00",
-                        "timer_start_at": convert_sec_to_hh_mm_ss(
-                            abs(remaining_time).total_seconds()
+                        "timer_stop_at": remaining_time
+                        if (
+                            mg_shortfall_doc.deadline > frappe.utils.now_datetime()
+                            and tomorrow in holidays
                         )
-                        if mg_shortfall_doc.deadline > frappe.utils.now_datetime()
                         else None,
-                        "timer_stop_at": ""
-                        if mg_shortfall_doc.deadline > frappe.utils.now_datetime()
+                        "timer_start_at": remaining_time
+                        if (
+                            mg_shortfall_doc.deadline > frappe.utils.now_datetime()
+                            and (today in holidays and tomorrow not in holidays)
+                        )
                         else None,
                         "status": dictionary["status"],
                     }
