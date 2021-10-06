@@ -9,7 +9,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-05 08:55:07.709464",
+  "modified": "2021-10-06 14:51:14.582659",
   "name": "4621dd797d",
   "parameters": [],
   "parameters_example": [
@@ -49,12 +49,22 @@
    {
     "default_value": null,
     "description": null,
+    "field": "user_kyc",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
     "field": "margin_shortfall_card",
     "group": null,
     "parent": "4621dd797d",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "List"
+    "type": "Object"
    },
    {
     "default_value": null,
@@ -64,37 +74,7 @@
     "parent": "4621dd797d",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "List"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "under_process_la",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "List"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "actionable_loans",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "List"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "active_loans",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "List"
+    "type": "Object"
    },
    {
     "default_value": null,
@@ -108,48 +88,38 @@
    },
    {
     "default_value": null,
-    "description": "pending esign of Loan applcation",
-    "field": "la_pending_esigns",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "List"
-   },
-   {
-    "default_value": null,
     "description": null,
-    "field": "topup_pending_esigns",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "List"
-   },
-   {
-    "default_value": null,
-    "description": "list of all loans with topup available",
-    "field": "top_up",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "List"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "number_of_user_login",
+    "field": "show_feedback_popup",
     "group": null,
     "parent": "4621dd797d",
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "youtube_video_ids",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "List"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "profile_picture_file_url",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
    }
   ],
   "success_example": [
    {
-    "example": "\n{\n  \"message\": \"Success\",\n  \"data\": {\n    \"customer\": {\n      \"name\": \"CUST-1234\",\n      \"owner\": \"Guest\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"Administrator\",\n      \"idx\": 1,\n      \"docstatus\": 0,\n      \"registeration\": 1,\n      \"is_email_verified\": 0,\n      \"kyc_update\": 1,\n      \"credit_check\": 0,\n      \"pledge_securities\": 1,\n      \"loan_open\": 1,\n      \"feedback_submitted\": 0,\n      \"feedback_do_not_show_popup\": 0,\n      \"choice_kyc\": \"USR-KYC-1234\",\n      \"ckcy\": \"\",\n      \"kra\": \"\",\n      \"first_name\": \"John\",\n      \"phone\": \"9876543210\",\n      \"full_name\": \"John Doe\",\n      \"last_name\": \"Doe\",\n      \"user\": \"john@gmail.com\",\n      \"alerts_based_on_percentage\": 0.0,\n      \"alerts_based_on_amount\": 0.0,\n      \"doctype\": \"Loan Customer\"\n    },\n    \"user_kyc\": {\n      \"name\": \"USR-KYC-1234\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"user\": \"john@gmail.com\",\n      \"kyc_type\": \"kyc_type\",\n      \"investor_name\": \"John Doe\",\n      \"pan_no\": \"ABCDE1234F\",\n      \"mobile_number\": \"9876543210\",\n      \"date_of_birth\": \"1970-01-01\",\n      \"address\": \"user's full address\",\n      \"city\": \"user's city\",\n      \"doctype\": \"User KYC\",\n      \"bank_account\": [\n        {\n          \"name\": \"bank entry name\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"USR-KYC-1234\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"bank\": \"bank's name\",\n          \"branch\": \"bank's branch\",\n          \"account_number\": \"bank\u2019s account number\",\n          \"ifsc\": \"bank\u2019s ifsc code\",\n          \"bank_code\": \"bank's code\",\n          \"city\": \"city name\",\n          \"state\": \"state name\",\n          \"is_default\": 0,\n          \"bank_address\": \"bank's full address\",\n          \"contact\": \"9876543210\",\n          \"account_type\": \"account_type\",\n          \"micr\": \"bank's micr code\",\n          \"bank_mode\": \"bank_mode\",\n          \"bank_zip_code\": \"bank_zip_code\",\n          \"district\": \"district name\",\n          \"doctype\": \"User Bank Account\"\n        }\n\n      ]\n    },\n    \"margin_shortfall_card\": {},\n    \"total_interest_all_loans_card\": {},\n    \"pending_esigns_list\": {\n      \"la_pending_esigns\": [],\n      \"topup_pending_esigns\": []\n    },\n    \"show_feedback_popup\": 1,\n    \"youtube_video_ids\": [],\n    \"profile_picture_file_url\": null\n  }\n}\n",
+    "example": "\n{\n  \"message\": \"Success\",\n  \"data\": {\n    \"customer\": {\n      \"name\": \"CUST-1234\",\n      \"owner\": \"Guest\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"Administrator\",\n      \"idx\": 1,\n      \"docstatus\": 0,\n      \"registeration\": 1,\n      \"is_email_verified\": 0,\n      \"kyc_update\": 1,\n      \"credit_check\": 0,\n      \"pledge_securities\": 1,\n      \"loan_open\": 1,\n      \"feedback_submitted\": 0,\n      \"feedback_do_not_show_popup\": 0,\n      \"choice_kyc\": \"USR-KYC-1234\",\n      \"ckcy\": \"\",\n      \"kra\": \"\",\n      \"first_name\": \"John\",\n      \"phone\": \"9876543210\",\n      \"full_name\": \"John Doe\",\n      \"last_name\": \"Doe\",\n      \"user\": \"john@gmail.com\",\n      \"alerts_based_on_percentage\": 0.0,\n      \"alerts_based_on_amount\": 0.0,\n      \"doctype\": \"Loan Customer\"\n    },\n    \"user_kyc\": {\n      \"name\": \"USR-KYC-1234\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"user\": \"john@gmail.com\",\n      \"kyc_type\": \"kyc_type\",\n      \"investor_name\": \"John Doe\",\n      \"pan_no\": \"ABCDE1234F\",\n      \"mobile_number\": \"9876543210\",\n      \"date_of_birth\": \"1970-01-01\",\n      \"address\": \"user's full address\",\n      \"city\": \"user's city\",\n      \"doctype\": \"User KYC\",\n      \"bank_account\": [\n        {\n          \"name\": \"bank entry name\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"USR-KYC-1234\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"bank\": \"bank's name\",\n          \"branch\": \"bank's branch\",\n          \"account_number\": \"bank\u2019s account number\",\n          \"ifsc\": \"bank\u2019s ifsc code\",\n          \"bank_code\": \"bank's code\",\n          \"city\": \"city name\",\n          \"state\": \"state name\",\n          \"is_default\": 0,\n          \"bank_address\": \"bank's full address\",\n          \"contact\": \"9876543210\",\n          \"account_type\": \"account_type\",\n          \"micr\": \"bank's micr code\",\n          \"bank_mode\": \"bank_mode\",\n          \"bank_zip_code\": \"bank_zip_code\",\n          \"district\": \"district name\",\n          \"doctype\": \"User Bank Account\"\n        }\n\n      ]\n    },\n    \"margin_shortfall_card\": {\n\"earliest_deadline\": \"00:00:00\",\n      \"loan_with_margin_shortfall_list\": [\n        {\n          \"name\": \"SL000042\",\n          \"deadline\": \"00:00:00\",\n          \"status\": \"Sell Triggered\"\n        }\n]\n}\n},\n    \"total_interest_all_loans_card\": {\n\"total_interest_amount\": \"4.22\",\n      \"loans_interest_due_date\": {\n        \"due_date\": \"07.10.2021\",\n        \"due_date_txt\": \"Pay By\"\n      },\n      \"interest_loan_list\": [\n        {\n          \"loan_name\": \"SL000042\",\n          \"interest_amount\": 1.54\n        }\n]\n}\n},\n    \"pending_esigns_list\": {\n      \"la_pending_esigns\": [\n{\n\"loan_application_\": {loan application doc},\n\"message\":\"Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. 3,318.60 against the request value of Rs. 3,318.60. Accordingly, the increase in the sanctioned limit is Rs. 1,000.00. Please e-sign the loan agreement to avail the increased sanctioned limit now.\",\n\"increase_loan_message\": {\n            \"existing_limit\": 14000.0,\n            \"existing_collateral_value\": 18998.1,\n            \"new_limit\": 11000.0,\n            \"new_collateral_value\": 22316.699999999997\n          }\n        }\n],\n      \"topup_pending_esigns\": [\n{\n\"topup_application_doc\": {topup application doc},\n\"mess\": \"Congratulations! Your application is being considered favourably by our lending partner. Accordingly, the increase in the sanctioned limit is Rs. 1,000.00. Please e-sign the loan agreement to avail the increased sanctioned limit now.\"\n}\n]\n    },\n    \"show_feedback_popup\": 1,\n    \"youtube_video_ids\": [],\n    \"profile_picture_file_url\": null\n  }\n}\n",
     "parent": "4621dd797d",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -199,7 +169,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-05 17:15:22.120336",
+  "modified": "2021-10-06 13:25:14.851089",
   "name": "b5e26f3219",
   "parameters": [
    {
@@ -338,7 +308,7 @@
   ],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"security_category_list\": [\n      \"Cat A\",\n      \"Cat B\",\n      \"Cat C\",\n      \"Super Cat A\"\n    ],\n    \"approved_securities_list\": [\n      {\n        \"isin\": \"isin\",\n        \"security_name\": \"security_name\",\n        \"security_category\": \"security_category\",\n        \"eligible_percentage\":  eligible_percentage\n      }\n ],\n    \"pdf_file_url\": \"pdf_file_url\"\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"security_category_list\": [\n      \"Cat A\",\n      \"Cat B\",\n      \"Cat C\",\n      \"Super Cat A\"\n    ],\n    \"approved_securities_list\": [\n      {\n        \"isin\": \"isin\",\n        \"security_name\": \"Bajaj\",\n        \"security_category\": \"Cat B\",\n        \"eligible_percentage\":  50\n      }\n ],\n    \"pdf_file_url\": \"pdf_file_url\"\n  }\n}",
     "parent": "b5e26f3219",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -388,7 +358,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-05 17:02:50.679736",
+  "modified": "2021-10-06 13:41:51.598782",
   "name": "a0d287dd95",
   "parameters": [
    {
@@ -463,7 +433,21 @@
     "parent": "a0d287dd95",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
-    "title": "Request Example"
+    "title": "Request Example for interest"
+   },
+   {
+    "example": "{\n\t\"loan_name\": \"SL000001\",\n\t\"amount\": 10,\n\t\"transaction_id\": \"asdf\",\n\t\"loan_margin_shortfall_name\": \"abcd1234\",\n\t\"is_for_interest\": 0\n}",
+    "parent": "a0d287dd95",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example for margin shortfall"
+   },
+   {
+    "example": "{\n\t\"loan_name\": \"SL000001\",\n\t\"amount\": 10,\n\t\"transaction_id\": \"asdf\",\n\t\"loan_margin_shortfall_name\": \"\",\n\t\"is_for_interest\": 0\n}",
+    "parent": "a0d287dd95",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example normal payment"
    }
   ],
   "parent": null,
@@ -523,7 +507,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-05 08:18:41.419547",
+  "modified": "2021-10-06 13:39:33.480305",
   "name": "0986702424",
   "parameters": [
    {
@@ -555,11 +539,18 @@
   ],
   "parameters_example": [
    {
-    "example": "{\"loan_application_name\":\"LA000001\",\"topup_application_name\": \"TOPUP000001\"}",
+    "example": "{\"loan_application_name\":\"LA000001\",\"topup_application_name\": \"\"}",
     "parent": "0986702424",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
-    "title": "Request Example"
+    "title": "Request Example loan application"
+   },
+   {
+    "example": "{\"loan_application_name\":\"\",\"topup_application_name\": \"TOPUP000001\"}",
+    "parent": "0986702424",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example topup application"
    }
   ],
   "parent": null,
@@ -569,7 +560,7 @@
   "success": [],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Esign URL.\",\n  \"data\": {\n    \"esign_url\": \"esign_url\",\n    \"file_id\": null\n  }\n}",
+    "example": "{\n  \"message\": \"Esign URL.\",\n  \"data\": {\n    \"esign_url\": \"esign_url\",\n    \"file_id\": \"asdf\"\n  }\n}",
     "parent": "0986702424",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -619,7 +610,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-05 17:28:40.570965",
+  "modified": "2021-10-06 13:36:54.002314",
   "name": "20b2c24baa",
   "parameters": [
    {
@@ -742,11 +733,25 @@
   ],
   "parameters_example": [
    {
-    "example": "{\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"isin\",\n\t\t\t\t\"quantity\":10\n\t\t\t}\n\t\t]\n\t},\n\t\"pledgor_boid\": \"123456789\",\n\t\"cart_name\": \"\",\n\t\"loan_name\": \"SL000004\",\n\t\"loan_margin_shortfall_name\": \"\",\n\t\"lender\": \"\"\n}",
+    "example": "{\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"isin\",\n\t\t\t\t\"quantity\":10\n\t\t\t}\n\t\t]\n\t},\n\t\"pledgor_boid\": \"123456789\",\n\t\"cart_name\": \"\",\n\t\"loan_name\": \"\",\n\t\"loan_margin_shortfall_name\": \"\",\n\t\"lender\": \"\"\n}",
     "parent": "20b2c24baa",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
     "title": "Request Example"
+   },
+   {
+    "example": "{\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"isin\",\n\t\t\t\t\"quantity\":10\n\t\t\t}\n\t\t]\n\t},\n\t\"pledgor_boid\": \"123456789\",\n\t\"cart_name\": \"\",\n\t\"loan_name\": \"SL000001\",\n\t\"loan_margin_shortfall_name\": \"\",\n\t\"lender\": \"\"\n}",
+    "parent": "20b2c24baa",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example (Increase Loan)"
+   },
+   {
+    "example": "{\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"isin\",\n\t\t\t\t\"quantity\":10\n\t\t\t}\n\t\t]\n\t},\n\t\"pledgor_boid\": \"123456789\",\n\t\"cart_name\": \"\",\n\t\"loan_name\": \"SL000001\",\n\t\"loan_margin_shortfall_name\": \"abcd1234\",\n\t\"lender\": \"\"\n}",
+    "parent": "20b2c24baa",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example (Margin shortfall pledge more)"
    }
   ],
   "parent": null,
@@ -756,11 +761,25 @@
   "success": [],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"cart\": {\n      \"name\": \"cart name\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"total_collateral_value\": total_collateral_value,\n      \"total_collateral_value_str\": total_collateral_value_in_string_format,\n      \"pledgor_boid\": \"pledgor_boid\",\n      \"allowable_ltv\": allowable_ltv,\n      \"lender\": \"lender's name\",\n      \"eligible_loan\": eligible_loan,\n      \"eligible_loan_str\": eligible_loan_in_string_format,\n      \"pledgee_boid\": \"pledgee_boid\",\n      \"is_processed\": 0,\n      \"doctype\": \"Cart\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"cart name\",\n          \"parentfield\": \"parentfield\",\n          \"parenttype\": \"parenttype\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": isin,\n          \"security_name\": \"security_name\",\n          \"security_category\": \"security_category\",\n          \"pledged_quantity\": pledged_quantity,\n          \"price\": price,\n          \"amount\": amount,\n          \"eligible_percentage\": eligible_percentage_in_decimal_format,\n          \"doctype\": \"Cart Item\",\n          \"__unsaved\": 1\n        }\n      ]\n    }\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"cart\": {\n      \"name\": \"C000001\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"total_collateral_value\": 20000,\n      \"total_collateral_value_str\": \"20,000\",\n      \"pledgor_boid\": \"123456\",\n      \"allowable_ltv\": 50,\n      \"lender\": \"lender's name\",\n      \"eligible_loan\": 10000,\n      \"eligible_loan_str\": \"10,000\",\n      \"pledgee_boid\": \"654321\",\n      \"is_processed\": 0,\n      \"doctype\": \"Cart\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"C000001\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Cart\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": isin,\n          \"security_name\": \"Bajaj\",\n          \"security_category\": \"Cat B\",\n          \"pledged_quantity\": 10,\n          \"price\": 2000,\n          \"amount\": 20000,\n          \"eligible_percentage\": 50.0,\n          \"doctype\": \"Cart Item\",\n          \"__unsaved\": 1\n        }\n      ]\n    }\n  }\n}",
     "parent": "20b2c24baa",
     "parentfield": "success_example",
     "parenttype": "API Doc",
     "title": "Success"
+   },
+   {
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"cart\": {\n      \"name\": \"C000001\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"total_collateral_value\": 20000,\n      \"total_collateral_value_str\": \"20,000\",\n      \"pledgor_boid\": \"123456\",\n      \"allowable_ltv\": 50,\n      \"lender\": \"lender's name\",\n      \"eligible_loan\": 10000,\n      \"eligible_loan_str\": \"10,000\",\n      \"pledgee_boid\": \"654321\",\n      \"loan_name\": \"SL000001\",\n      \"is_processed\": 0,\n      \"doctype\": \"Cart\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"C000001\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Cart\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": isin,\n          \"security_name\": \"Bajaj\",\n          \"security_category\": \"Cat B\",\n          \"pledged_quantity\": 10,\n          \"price\": 2000,\n          \"amount\": 20000,\n          \"eligible_percentage\": 50.0,\n          \"doctype\": \"Cart Item\",\n          \"__unsaved\": 1\n        }\n      ]\n    }\n  }\n}",
+    "parent": "20b2c24baa",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success Increase loan"
+   },
+   {
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"cart\": {\n      \"name\": \"C000001\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"total_collateral_value\": 20000,\n      \"total_collateral_value_str\": \"20,000\",\n      \"pledgor_boid\": \"123456\",\n      \"allowable_ltv\": 50,\n      \"lender\": \"lender's name\",\n      \"eligible_loan\": 10000,\n      \"eligible_loan_str\": \"10,000\",\n      \"pledgee_boid\": \"654321\",\n      \"loan_name\": \"SL000001\",\n      \"loan_margin_shortfall_name\": \"abcd1234\",\n      \"is_processed\": 0,\n      \"doctype\": \"Cart\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"C000001\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Cart\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": isin,\n          \"security_name\": \"Bajaj\",\n          \"security_category\": \"Cat B\",\n          \"pledged_quantity\": 10,\n          \"price\": 2000,\n          \"amount\": 20000,\n          \"eligible_percentage\": 50.0,\n          \"doctype\": \"Cart Item\",\n          \"__unsaved\": 1\n        }\n      ]\n    }\n  }\n}",
+    "parent": "20b2c24baa",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success Margin shortfall pledge more"
    }
   ],
   "title": "Upsert Cart",
@@ -806,7 +825,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-05 17:24:39.176235",
+  "modified": "2021-10-06 13:17:11.557554",
   "name": "945ae148f4",
   "parameters": [
    {
@@ -838,7 +857,7 @@
   ],
   "parameters_example": [
    {
-    "example": "{\"cart_name\":\"CART0001\",\"otp\":\"1234\"}",
+    "example": "{\"cart_name\":\"C000001\",\"otp\":\"1234\"}",
     "parent": "945ae148f4",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -852,7 +871,7 @@
   "success": [],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"name\": \"loan application name\",\n    \"owner\": \"john@gmail.com\",\n    \"creation\": \"datetime\",\n    \"modified\": \"datetime\",\n    \"modified_by\": \"john@gmail.com\",\n    \"idx\": 0,\n    \"docstatus\": 0,\n    \"workflow_state\": \"Waiting to be pledged\",\n    \"total_collateral_value\": total_collateral_value,\n    total_collateral_value_str: total_collateral_value_in_string_format,\n    \"drawing_power\": drawing_power,\n    \"drawing_power_str\": drawing_power_in_string_format,\n    \"lender\": \"lender name\",\n    \"status\": \"Waiting to be pledged\",\n    \"pledged_total_collateral_value\": pledged_total_collateral_value,\n    \"pledged_total_collateral_value_str\": pledged_total_collateral_value_in_string_format,\n    \"customer\": \"CUST-1234\",\n    \"customer_name\": \"John Doe\",\n    \"allowable_ltv\": allowable_ltv,\n    \"expiry_date\": \"expiry_date_with_time\",\n    \"pledge_status\": \"Pending\",\n    \"pledgor_boid\": \"pledgor_boid\",\n    \"pledgee_boid\": \"pledgee_boid\",\n    \"doctype\": \"Loan Application\",\n    \"items\": [\n      {\n        \"name\": \"isin item entry name\",\n        \"owner\": \"john@gmail.com\",\n        \"creation\": \"datetime\",\n        \"modified\": \"datetime\",\n        \"modified_by\": \"john@gmail.com\",\n        \"parent\": \"loan application name\",\n        \"parentfield\": \"items\",\n        \"parenttype\": \"Loan Application\",\n        \"idx\": 1,\n        \"docstatus\": 0,\n        \"lender_approval_status\": \"\",\n        \"isin\": \"isin\",\n        \"security_name\": \"security_name\",\n        \"security_category\": \"security_category\",\n        \"pledged_quantity\": pledged_quantity,\n        \"price\": price,\n        \"amount\": amount,\n        \"pledge_status\": \"\",\n        \"pledge_executed\": 0,\n        \"doctype\": \"Loan Application Item\",\n        \"__unsaved\": 1\n      }\n    ]\n  }\n}\n",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"name\": \"LA000001\",\n    \"owner\": \"john@gmail.com\",\n    \"creation\": \"datetime\",\n    \"modified\": \"datetime\",\n    \"modified_by\": \"john@gmail.com\",\n    \"idx\": 0,\n    \"docstatus\": 0,\n    \"workflow_state\": \"Waiting to be pledged\",\n    \"total_collateral_value\": 20000,\n    total_collateral_value_str: \"20,000\",\n    \"drawing_power\": 10000,\n    \"drawing_power_str\": \"10,000\",\n    \"lender\": \"lender name\",\n    \"status\": \"Waiting to be pledged\",\n    \"pledged_total_collateral_value\": 20000,\n    \"pledged_total_collateral_value_str\": \"20,000\",\n    \"customer\": \"CUST-1234\",\n    \"customer_name\": \"John Doe\",\n    \"allowable_ltv\": 50,\n    \"expiry_date\": \"expiry_date_with_time\",\n    \"pledge_status\": \"Pending\",\n    \"pledgor_boid\": \"pledgor_boid\",\n    \"pledgee_boid\": \"pledgee_boid\",\n    \"doctype\": \"Loan Application\",\n    \"items\": [\n      {\n        \"name\": \"isin item entry name\",\n        \"owner\": \"john@gmail.com\",\n        \"creation\": \"datetime\",\n        \"modified\": \"datetime\",\n        \"modified_by\": \"john@gmail.com\",\n        \"parent\": \"loan application name\",\n        \"parentfield\": \"items\",\n        \"parenttype\": \"Loan Application\",\n        \"idx\": 1,\n        \"docstatus\": 0,\n        \"lender_approval_status\": \"\",\n        \"isin\": \"isin\",\n        \"security_name\": \"security_name\",\n        \"security_category\": \"Cat b\",\n        \"pledged_quantity\": 10,\n        \"price\": 2000,\n        \"amount\": 20000,\n        \"pledge_status\": \"\",\n        \"pledge_executed\": 0,\n        \"doctype\": \"Loan Application Item\",\n        \"__unsaved\": 1\n      }\n    ]\n  }\n}\n",
     "parent": "945ae148f4",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -971,7 +990,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-05 08:19:44.157425",
+  "modified": "2021-10-06 13:38:47.011790",
   "name": "a9f5a81b01",
   "parameters": [
    {
@@ -1016,11 +1035,18 @@
   ],
   "parameters_example": [
    {
-    "example": "{\"loan_application_name\":\"LA00001\",\"topup_application_name\": \"TOPUP000001\",\"file_id\":\"asdf\"}",
+    "example": "{\"loan_application_name\":\"LA00001\",\"topup_application_name\": \"\",\"file_id\":\"asdf\"}",
     "parent": "a9f5a81b01",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
-    "title": "Request Example"
+    "title": "Request Example loan application"
+   },
+   {
+    "example": "{\"loan_application_name\":\"\",\"topup_application_name\": \"TOPUP000001\",\"file_id\":\"asdf\"}",
+    "parent": "a9f5a81b01",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example topup application"
    }
   ],
   "parent": null,
@@ -1080,7 +1106,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-05 17:23:09.668320",
+  "modified": "2021-10-06 13:22:38.932770",
   "name": "424822d68b",
   "parameters": [
    {
@@ -1200,7 +1226,7 @@
   ],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"loan\": {\n      \"name\": \"loan name\",\n      \"owner\": \"Administrator\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"Administrator\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"total_collateral_value\": total_collateral_value,\n      \"total_collateral_value_str\": total_collateral_value_in_string_format,\n      \"drawing_power\": drawing_power,\n      \"drawing_power_str\": drawing_power_in_string_format,\n      \"lender\": \"lender's name\",\n      \"sanctioned_limit\": sanctioned_limit,\n      \"sanctioned_limit_str\":sanctioned_limit_in_string_format,\n      \"balance\": balance,\n      \"balance_str\": balance_in_string_format,\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"allowable_ltv\": allowable_ltv,\n      \"expiry_date\": \"expiry_date\",\n      \"loan_agreement\": \"loan_agreement_pdf_file_path\",\n      \"interest_due\": interest_due,\n      \"interest_overdue\": interest_overdue,\n      \"penal_interest_charges\": penal_interest_charges,\n      \"rebate_interest_amount\": rebate_interest_amount,\n      \"base_interest_amount\": base_interest_amount,\n      \"margin_shortfall_amount\": margin_shortfall_amount,\n      \"is_eligible_for_interest\": 1,\n      \"is_irregular\": 0,\n      \"is_penalize\": 0,\n      \"doctype\": \"Loan\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"Administrator\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"Administrator\",\n          \"parent\": \"loan name\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Loan\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": \"isin\",\n          \"security_name\": \"security_name\",\n          \"security_category\": \"security_category\",\n          \"pledged_quantity\": pledged_quantity,\n          \"price\": price,\n          \"amount\": amount,\n          \"doctype\": \"Loan Item\"\n        }\n      ]\n    },\n    \"transactions\": [\n      {\n        \"transaction_type\": \"transaction_type\",\n        \"record_type\": \"record_type\",\n        \"amount\": \"amount\",\n        \"time\": \"date_with_time\"\n      }\n    ],\n    \"margin_shortfall\": null,\n    \"payment_already_in_process\": 0,\n    \"interest\": null,\n    \"topup\": null,\n    \"increase_loan\": 1,\n    \"sell_collateral\": 1,\n    \"unpledge\": {\n      \"unpledge_msg_while_margin_shortfall\": null,\n      \"unpledge\": {\n        \"minimum_collateral_value\": minimum_collateral_value,\n        \"maximum_unpledge_amount\": maximum_unpledge_amount\n      }\n    },\n    \"amount_available_for_withdrawal\": amount_available_for_withdrawal\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"loan\": {\n      \"name\": \"SL000001\",\n      \"owner\": \"Administrator\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"Administrator\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"total_collateral_value\": 20000,\n      \"total_collateral_value_str\": \"20,000\",\n      \"drawing_power\": 10000,\n      \"drawing_power_str\": \"10,000\",\n      \"lender\": \"lender's name\",\n      \"sanctioned_limit\": 10000,\n      \"sanctioned_limit_str\":\"10,000\",\n      \"balance\": 101,\n      \"balance_str\": \"101\",\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"allowable_ltv\": 50,\n      \"expiry_date\": \"expiry_date\",\n      \"loan_agreement\": \"loan_agreement_pdf_file_path\",\n      \"interest_due\": 0.0,\n      \"interest_overdue\": 1.2,\n      \"penal_interest_charges\": 2.0,\n      \"rebate_interest_amount\": 1.3,\n      \"base_interest_amount\": 0.2,\n      \"margin_shortfall_amount\": 23.8,\n      \"is_eligible_for_interest\": 1,\n      \"is_irregular\": 0,\n      \"is_penalize\": 0,\n      \"doctype\": \"Loan\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"Administrator\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"Administrator\",\n          \"parent\": \"loan name\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Loan\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": \"isin\",\n          \"security_name\": \"security_name\",\n          \"security_category\": \"Cat B\",\n          \"pledged_quantity\": 10,\n          \"price\": 2000,\n          \"amount\": 20000,\n          \"doctype\": \"Loan Item\"\n        }\n      ]\n    },\n    \"transactions\": [\n      {\n        \"transaction_type\": \"Payment\",\n        \"record_type\": \"CR\",\n        \"amount\": 1000,\n        \"time\": \"date_with_time\"\n      }\n    ],\n    \"margin_shortfall\": null,\n    \"payment_already_in_process\": 0,\n    \"interest\": null,\n    \"topup\": null,\n    \"increase_loan\": 1,\n    \"sell_collateral\": 1,\n    \"unpledge\": {\n      \"unpledge_msg_while_margin_shortfall\": null,\n      \"unpledge\": {\n        \"minimum_collateral_value\": 2000,\n        \"maximum_unpledge_amount\": 1000\n      }\n    },\n    \"amount_available_for_withdrawal\": 9000\n  }\n}",
     "parent": "424822d68b",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -1250,7 +1276,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-05 17:20:29.187584",
+  "modified": "2021-10-06 13:23:57.959989",
   "name": "092e2404a2",
   "parameters": [
    {
@@ -1283,7 +1309,7 @@
   "success": [],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"loan\": {\n      \"name\": \"loan name\",\n      \"owner\": \"Administrator\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"Administrator\",\n      \"parent\": null,\n      \"parentfield\": null,\n      \"parenttype\": null,\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"total_collateral_value\": total_collateral_value,\n      \"total_collateral_value_str\": total_collateral_value_in_string_format,\n      \"drawing_power\": drawing_power,\n      \"drawing_power_str\": drawing_power_in_string_format,\n      \"lender\": \"lender's name\",\n      \"sanctioned_limit\": sanctioned_limit,\n      \"sanctioned_limit_str\": sanctioned_limit_in_string_format,\n      \"balance\": balance,\n      \"balance_str\": balance_in_string_format,\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"allowable_ltv\": allowable_ltv,\n      \"expiry_date\": \"expiry_date\",\n      \"loan_agreement\": \"loan_agreement_pdf_file_path\",\n      \"interest_due\": interest_due,\n      \"interest_overdue\": interest_overdue,\n      \"penal_interest_charges\": penal_interest_charges,\n      \"rebate_interest_amount\": rebate_interest_amount,\n      \"base_interest_amount\": base_interest_amount,\n      \"margin_shortfall_amount\": margin_shortfall_amount,\n      \"is_eligible_for_interest\": 1,\n      \"is_irregular\": 0,\n      \"is_penalize\": 0,\n      \"doctype\": \"Loan\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"Administrator\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"Administrator\",\n          \"parent\": \"loan name\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Loan\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": \"isin\",\n          \"security_name\": \"security_name\",\n          \"security_category\": \"security_category\",\n          \"pledged_quantity\": pledged_quantity,\n          \"price\": price,\n          \"amount\": amount,\n          \"doctype\": \"Loan Item\"\n        }\n      ],\n      \"amount_available_for_withdrawal\": amount_available_for_withdrawal\n    },\n    \"banks\": [\n      {\n        \"name\": \"bank entry name\",\n        \"creation\": \"datetime\",\n        \"modified\": \"datetime\",\n        \"modified_by\": \"john@gmail.com\",\n        \"owner\": \"john@gmail.com\",\n        \"docstatus\": 0,\n        \"parent\": \"USR-KYC-1234\",\n        \"parentfield\": \"bank_account\",\n        \"parenttype\": \"User KYC\",\n        \"idx\": 1,\n        \"bank\": \"BANK'S NAME\",\n        \"branch\": \"BANK'S BRANCH\",\n        \"account_number\": \"BANK'S ACCOUNT NUMBER\",\n        \"ifsc\": \"BANK'S IFSC CODE\",\n        \"bank_code\": \"BANK'S CODE\",\n        \"city\": \"CITY NAME\",\n        \"state\": \"STATE NAME\",\n        \"is_default\": 0,\n        \"is_spark_default\": null,\n        \"bank_address\": \"BANK'S FULL ADDRESS\",\n        \"contact\": \"9876543210\",\n        \"account_type\": \"account_type\",\n        \"micr\": \"BANK'S MICR CODE\",\n        \"bank_mode\": \"bank_mode\",\n        \"bank_zip_code\": \"bank_zip_code\",\n        \"district\": \"district_name\"\n      }\n    ]\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"loan\": {\n      \"name\": \"SL000001\",\n      \"owner\": \"Administrator\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"Administrator\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"total_collateral_value\": 20000,\n      \"total_collateral_value_str\": \"20,000\",\n      \"drawing_power\": 10000,\n      \"drawing_power_str\": \"10,000\",\n      \"lender\": \"lender's name\",\n      \"sanctioned_limit\": 10000,\n      \"sanctioned_limit_str\":\"10,000\",\n      \"balance\": 101,\n      \"balance_str\": \"101\",\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"allowable_ltv\": 50,\n      \"expiry_date\": \"expiry_date\",\n      \"loan_agreement\": \"loan_agreement_pdf_file_path\",\n      \"interest_due\": 0.0,\n      \"interest_overdue\": 1.2,\n      \"penal_interest_charges\": 2.0,\n      \"rebate_interest_amount\": 1.3,\n      \"base_interest_amount\": 0.2,\n      \"margin_shortfall_amount\": 23.8,\n      \"is_eligible_for_interest\": 1,\n      \"is_irregular\": 0,\n      \"is_penalize\": 0,\n      \"doctype\": \"Loan\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"Administrator\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"Administrator\",\n          \"parent\": \"loan name\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Loan\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": \"isin\",\n          \"security_name\": \"security_name\",\n          \"security_category\": \"Cat B\",\n          \"pledged_quantity\": 10,\n          \"price\": 2000,\n          \"amount\": 20000,\n          \"doctype\": \"Loan Item\"\n        }\n      ]\n    },\n      \"amount_available_for_withdrawal\": 9000\n    },\n    \"banks\": [\n      {\n        \"name\": \"bank entry name\",\n        \"creation\": \"datetime\",\n        \"modified\": \"datetime\",\n        \"modified_by\": \"john@gmail.com\",\n        \"owner\": \"john@gmail.com\",\n        \"docstatus\": 0,\n        \"parent\": \"USR-KYC-1234\",\n        \"parentfield\": \"bank_account\",\n        \"parenttype\": \"User KYC\",\n        \"idx\": 1,\n        \"bank\": \"BANK'S NAME\",\n        \"branch\": \"BANK'S BRANCH\",\n        \"account_number\": \"BANK'S ACCOUNT NUMBER\",\n        \"ifsc\": \"BANK'S IFSC CODE\",\n        \"bank_code\": \"BANK'S CODE\",\n        \"city\": \"CITY NAME\",\n        \"state\": \"STATE NAME\",\n        \"is_default\": 0,\n        \"is_spark_default\": null,\n        \"bank_address\": \"BANK'S FULL ADDRESS\",\n        \"contact\": \"9876543210\",\n        \"account_type\": \"account_type\",\n        \"micr\": \"BANK'S MICR CODE\",\n        \"bank_mode\": \"bank_mode\",\n        \"bank_zip_code\": \"bank_zip_code\",\n        \"district\": \"district_name\"\n      }\n    ]\n  }\n}",
     "parent": "092e2404a2",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -1524,7 +1550,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-04-05 16:37:13.454970",
+  "modified": "2021-10-06 13:07:30.000726",
   "name": "3755fd67c8",
   "parameters": [
    {
@@ -1587,6 +1613,13 @@
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
     "title": "Request Example"
+   },
+   {
+    "example": "{\n\t\"mobile\": \"9876543210\",\n\t\"accept_terms\": true,\n\t\"pin\": \"1234\",\n\t\"firebase_token\": \"asdf\"\n}",
+    "parent": "3755fd67c8",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
    }
   ],
   "parent": null,
@@ -1601,6 +1634,13 @@
     "parentfield": "success_example",
     "parenttype": "API Doc",
     "title": "OTP Sent"
+   },
+   {
+    "example": "{\n  \"message\": \"Logged in Successfully\",\n  \"data\": {\n    \"token\": \"token abcd:abcd\",\n    \"customer\": {\n      \"name\": \"CUST-1234\",\n      \"owner\": \"Guest\",\n      \"creation\": \"2021-08-31 11:36:53.766299\",\n      \"modified\": \"2021-09-06 11:56:41.413408\",\n      \"modified_by\": \"Administrator\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"registeration\": 1,\n      \"is_email_verified\": 1,\n      \"kyc_update\": 1,\n      \"credit_check\": 0,\n      \"pledge_securities\": 1,\n      \"loan_open\": 1,\n      \"feedback_submitted\": 0,\n      \"feedback_do_not_show_popup\": 0,\n      \"choice_kyc\": \"USR-KYC-1234\",\n      \"ckcy\": \"\",\n      \"kra\": \"\",\n      \"first_name\": \"John\",\n      \"phone\": \"9876543210\",\n      \"full_name\": \"John Doe\",\n      \"last_name\": \"Doe\",\n      \"user\": \"John@gmail.com\",\n      \"alerts_based_on_percentage\": 0.0,\n      \"alerts_based_on_amount\": 0.0,\n      \"doctype\": \"Loan Customer\"\n    },\n    \"user_kyc\": {\n      \"name\": \"USR-KYC-1234\",\n      \"owner\": \"John@gmail.com\",\n      \"creation\": \"2021-08-31 11:37:14.531370\",\n      \"modified\": \"2021-08-31 11:54:21.267546\",\n      \"modified_by\": \"Administrator\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"user\": \"John@gmail.com\",\n      \"kyc_type\": \"CHOICE\",\n      \"investor_name\": \"Amit Trivedi\",\n      \"pan_no\": \"ABCDE1234F\",\n      \"mobile_number\": \"9307241234\",\n      \"date_of_birth\": \"1900-01-01\",\n      \"address\": \"Dadar W\",\n      \"city\": \"Mumbai\",\n      \"doctype\": \"User KYC\",\n      \"bank_account\": [\n        {\n          \"name\": \"bank details entry name\",\n          \"owner\": \"omkar@gmail.com\",\n          \"creation\": \"2021-08-31 11:37:14.531370\",\n          \"modified\": \"2021-08-31 11:37:14.531370\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"USR-KYC-1234\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 2,\n          \"docstatus\": 0,\n          \"bank\": \"ABCD BANK\",\n          \"branch\": \"Malad W\",\n          \"account_number\": \"1234567\",\n          \"ifsc\": \"ABCD0000786\",\n          \"bank_code\": \"ABC\",\n          \"city\": \"Mumbai\",\n          \"state\": \"Maharashtra\",\n          \"is_default\": 1,\n          \"bank_address\": \"Malad station\",\n          \"contact\": \"9988773333\",\n          \"account_type\": \"C\",\n          \"micr\": \"1234567\",\n          \"bank_mode\": \"NODAL\",\n          \"bank_zip_code\": \"400000\",\n          \"district\": \"Malad\",\n          \"doctype\": \"User Bank Account\"\n        }\n      ]\n    }\n  }\n}",
+    "parent": "3755fd67c8",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success example"
    }
   ],
   "title": "Login",
@@ -2058,7 +2098,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-05 18:27:53.443770",
+  "modified": "2021-10-06 13:09:18.244730",
   "name": "6ea2575637",
   "parameters": [
    {
@@ -2104,7 +2144,7 @@
   "success": [],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"user_kyc\": {\n      \"name\": \"USR-KYC-1234\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"user\": \"john@gmail.com\",\n      \"kyc_type\": \"KYC TYPE NAME\",\n      \"investor_name\": \"JOHN DOE\",\n      \"pan_no\": \"ABCDE1234F\",\n      \"mobile_number\": \"9876543210\",\n      \"date_of_birth\": \"1970-01-01\",\n      \"address\": \"USER'S FULL ADDRESS\",\n      \"city\": \"USER'S CITY\",\n      \"doctype\": \"User KYC\",\n      \"bank_account\": [\n        {\n          \"name\": \"BANK ENTRY NAME\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"USR-KYC-1234\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"bank\": \"BANK NAME\",\n          \"branch\": \"BANK BRANCH\",\n          \"account_number\": \"USER'S ACCOUNT NUMBER\",\n          \"ifsc\": \"BANK'S IFSC CODE\",\n          \"bank_code\": \"BANK'S CODE\",\n          \"city\": \"CITY NAME\",\n          \"state\": \"STATE NAME\",\n          \"is_default\": 0,\n          \"bank_address\": \"BANK FULL ADDRESS\",\n          \"contact\": \"9876543210\",\n          \"account_type\": \"account_type\",\n          \"micr\": \"BANK'S MICR CODE\",\n          \"bank_mode\": \"bank_mode\",\n          \"bank_zip_code\": \"BANK'S ZIP CODE\",\n          \"district\": \"DISTRICT NAME\",\n          \"doctype\": \"User Bank Account\"\n        }\n\n      ]\n    }\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"user_kyc\": {\n      \"name\": \"USR-KYC-1234\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"user\": \"john@gmail.com\",\n      \"kyc_type\": \"KYC TYPE NAME\",\n      \"investor_name\": \"JOHN DOE\",\n      \"pan_no\": \"ABCDE1234F\",\n      \"mobile_number\": \"9876543210\",\n      \"date_of_birth\": \"1900-01-01\",\n      \"address\": \"USER'S FULL ADDRESS\",\n      \"city\": \"USER'S CITY\",\n      \"doctype\": \"User KYC\",\n      \"bank_account\": [\n        {\n          \"name\": \"BANK ENTRY NAME\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"USR-KYC-1234\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"bank\": \"BANK NAME\",\n          \"branch\": \"BANK BRANCH\",\n          \"account_number\": \"USER'S ACCOUNT NUMBER\",\n          \"ifsc\": \"BANK'S IFSC CODE\",\n          \"bank_code\": \"BANK'S CODE\",\n          \"city\": \"CITY NAME\",\n          \"state\": \"STATE NAME\",\n          \"is_default\": 0,\n          \"bank_address\": \"BANK FULL ADDRESS\",\n          \"contact\": \"9876543210\",\n          \"account_type\": \"account_type\",\n          \"micr\": \"BANK'S MICR CODE\",\n          \"bank_mode\": \"bank_mode\",\n          \"bank_zip_code\": \"BANK'S ZIP CODE\",\n          \"district\": \"DISTRICT NAME\",\n          \"doctype\": \"User Bank Account\"\n        }\n      ]\n    }\n  }\n}",
     "parent": "6ea2575637",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -2154,7 +2194,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-04 13:30:03.217960",
+  "modified": "2021-10-06 15:09:11.925021",
   "name": "cbf6ce11f2",
   "parameters": [
    {
@@ -2187,7 +2227,7 @@
   "success": [],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": [\n    {\n      \"Scrip_Name\": \"Housing Development Finance Corporation Ltd.\",\n      \"ISIN\": \"INE001A01036\",\n      \"Stock_At\": \"1206690000000050-INE001A01036\",\n      \"Quantity\": 0.0,\n      \"Price\": 2812.35,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"SJVN Ltd.\",\n      \"ISIN\": \"INE002L01015\",\n      \"Stock_At\": \"1206690000000050-INE002L01015\",\n      \"Quantity\": 0.0,\n      \"Price\": 27.55,\n      \"Category\": \"Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Siemens Ltd.\",\n      \"ISIN\": \"INE003A01024\",\n      \"Stock_At\": \"1206690000000050-INE003A01024\",\n      \"Quantity\": 0.0,\n      \"Price\": 2199.6,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"REC Ltd.\",\n      \"ISIN\": \"INE020B01018\",\n      \"Stock_At\": \"1206690000000050-INE020B01018\",\n      \"Quantity\": 0.0,\n      \"Price\": 156.3,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Asian Paints Ltd.\",\n      \"ISIN\": \"INE021A01026\",\n      \"Stock_At\": \"1206690000000050-INE021A01026\",\n      \"Quantity\": 0.0,\n      \"Price\": 3342.1,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Gujarat State Fertilizers & Chemicals Ltd.\",\n      \"ISIN\": \"INE026A01025\",\n      \"Stock_At\": \"1206690000000050-INE026A01025\",\n      \"Quantity\": 0.0,\n      \"Price\": 110.4,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Bharat Petroleum Corporation Ltd.\",\n      \"ISIN\": \"INE029A01011\",\n      \"Stock_At\": \"1206690000000050-INE029A01011\",\n      \"Quantity\": 0.0,\n      \"Price\": 439.05,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Bombay Dyeing & Manufacturing Company Ltd.\",\n      \"ISIN\": \"INE032A01023\",\n      \"Stock_At\": \"1206690000000050-INE032A01023\",\n      \"Quantity\": 0.0,\n      \"Price\": 96.2,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Arvind Ltd.\",\n      \"ISIN\": \"INE034A01011\",\n      \"Stock_At\": \"1206690000000050-INE034A01011\",\n      \"Quantity\": 0.0,\n      \"Price\": 94.4,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"The Indian Hotels Company Ltd.\",\n      \"ISIN\": \"INE053A01029\",\n      \"Stock_At\": \"1206690000000050-INE053A01029\",\n      \"Quantity\": 0.0,\n      \"Price\": 155.05,\n      \"Category\": \"Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"VIP Industries Ltd.\",\n      \"ISIN\": \"INE054A01027\",\n      \"Stock_At\": \"1206690000000050-INE054A01027\",\n      \"Quantity\": 0.0,\n      \"Price\": 493.2,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Tata Steel Ltd.\",\n      \"ISIN\": \"INE081A01012\",\n      \"Stock_At\": \"1206690000000050-INE081A01012\",\n      \"Quantity\": 0.0,\n      \"Price\": 1436.75,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Hindustan Petroleum Corporation Ltd.\",\n      \"ISIN\": \"INE094A01015\",\n      \"Stock_At\": \"1206690000000050-INE094A01015\",\n      \"Quantity\": 0.0,\n      \"Price\": 282.5,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Delta Corp Ltd.\",\n      \"ISIN\": \"INE124G01033\",\n      \"Stock_At\": \"1206690000000050-INE124G01033\",\n      \"Quantity\": 0.0,\n      \"Price\": 237.65,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Gujarat Mineral Development  Corporation Ltd.\",\n      \"ISIN\": \"INE131A01031\",\n      \"Stock_At\": \"1206690000000050-INE131A01031\",\n      \"Quantity\": 0.0,\n      \"Price\": 70.35,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"National Aluminium Company Ltd.\",\n      \"ISIN\": \"INE139A01034\",\n      \"Stock_At\": \"1206690000000050-INE139A01034\",\n      \"Quantity\": 0.0,\n      \"Price\": 96.4,\n      \"Category\": \"Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Piramal Enterprises Ltd.\",\n      \"ISIN\": \"INE140A01024\",\n      \"Stock_At\": \"1206690000000050-INE140A01024\",\n      \"Quantity\": 0.0,\n      \"Price\": 2648.65,\n      \"Category\": \"Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Take Solutions Ltd.\",\n      \"ISIN\": \"INE142I01023\",\n      \"Stock_At\": \"1206690000000050-INE142I01023\",\n      \"Quantity\": 0.0,\n      \"Price\": 53.35,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Tata Motors Ltd.\",\n      \"ISIN\": \"INE155A01022\",\n      \"Stock_At\": \"1206690000000050-INE155A01022\",\n      \"Quantity\": 0.0,\n      \"Price\": 311.65,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"NIIT Ltd.\",\n      \"ISIN\": \"INE161A01038\",\n      \"Stock_At\": \"1206690000000050-INE161A01038\",\n      \"Quantity\": 0.0,\n      \"Price\": 324.75,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Castrol India Ltd.\",\n      \"ISIN\": \"INE172A01027\",\n      \"Stock_At\": \"1206690000000050-INE172A01027\",\n      \"Quantity\": 0.0,\n      \"Price\": 141.65,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Welspun Corp Ltd.\",\n      \"ISIN\": \"INE191B01025\",\n      \"Stock_At\": \"1206690000000050-INE191B01025\",\n      \"Quantity\": 0.0,\n      \"Price\": 123.9,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"GE T&D India Ltd.\",\n      \"ISIN\": \"INE200A01026\",\n      \"Stock_At\": \"1206690000000050-INE200A01026\",\n      \"Quantity\": 0.0,\n      \"Price\": 133.5,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Voltas Ltd.\",\n      \"ISIN\": \"INE226A01021\",\n      \"Stock_At\": \"1206690000000050-INE226A01021\",\n      \"Quantity\": 0.0,\n      \"Price\": 1248.0,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Novartis India Ltd.\",\n      \"ISIN\": \"INE234A01025\",\n      \"Stock_At\": \"1206690000000050-INE234A01025\",\n      \"Quantity\": 0.0,\n      \"Price\": 837.0,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Bharat Heavy Electricals Ltd.\",\n      \"ISIN\": \"INE257A01026\",\n      \"Stock_At\": \"1206690000000050-INE257A01026\",\n      \"Quantity\": 0.0,\n      \"Price\": 58.2,\n      \"Category\": \"Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Colgate-Palmolive (India) Ltd.\",\n      \"ISIN\": \"INE259A01022\",\n      \"Stock_At\": \"1206690000000050-INE259A01022\",\n      \"Quantity\": 0.0,\n      \"Price\": 1716.5,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Sonata Software Ltd.\",\n      \"ISIN\": \"INE269A01021\",\n      \"Stock_At\": \"1206690000000050-INE269A01021\",\n      \"Quantity\": 0.0,\n      \"Price\": 861.85,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"DLF Ltd.\",\n      \"ISIN\": \"INE271C01023\",\n      \"Stock_At\": \"1206690000000050-INE271C01023\",\n      \"Quantity\": 0.0,\n      \"Price\": 342.4,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Titan Company Ltd.\",\n      \"ISIN\": \"INE280A01028\",\n      \"Stock_At\": \"1206690000000050-INE280A01028\",\n      \"Quantity\": 0.0,\n      \"Price\": 2108.7,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Raymond Ltd.\",\n      \"ISIN\": \"INE301A01014\",\n      \"Stock_At\": \"1206690000000050-INE301A01014\",\n      \"Quantity\": 0.0,\n      \"Price\": 426.0,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Exide Industries Ltd.\",\n      \"ISIN\": \"INE302A01020\",\n      \"Stock_At\": \"1206690000000050-INE302A01020\",\n      \"Quantity\": 0.0,\n      \"Price\": 182.85,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Inox Leisure Ltd.\",\n      \"ISIN\": \"INE312H01016\",\n      \"Stock_At\": \"1206690000000050-INE312H01016\",\n      \"Quantity\": 0.0,\n      \"Price\": 304.1,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"L.g.Balkrishnan & Bros. Ltd.\",\n      \"ISIN\": \"INE337A01034\",\n      \"Stock_At\": \"1206690000000050-INE337A01034\",\n      \"Quantity\": 0.0,\n      \"Price\": 418.5,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Hindustan Oil Exploration Company Ltd.\",\n      \"ISIN\": \"INE345A01011\",\n      \"Stock_At\": \"1206690000000050-INE345A01011\",\n      \"Quantity\": 0.0,\n      \"Price\": 206.5,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Graphite India Ltd.\",\n      \"ISIN\": \"INE371A01025\",\n      \"Stock_At\": \"1206690000000050-INE371A01025\",\n      \"Quantity\": 0.0,\n      \"Price\": 632.35,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Amber Enterprises India Ltd.\",\n      \"ISIN\": \"INE371P01015\",\n      \"Stock_At\": \"1206690000000050-INE371P01015\",\n      \"Quantity\": 0.0,\n      \"Price\": 3165.55,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Bharti Airtel Ltd.\",\n      \"ISIN\": \"INE397D01024\",\n      \"Stock_At\": \"1206690000000050-INE397D01024\",\n      \"Quantity\": 0.0,\n      \"Price\": 718.6,\n      \"Category\": \"Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"CCL Products (India) Ltd.\",\n      \"ISIN\": \"INE421D01022\",\n      \"Stock_At\": \"1206690000000050-INE421D01022\",\n      \"Quantity\": 0.0,\n      \"Price\": 402.05,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Tinplate Company Of India Ltd.\",\n      \"ISIN\": \"INE422C01014\",\n      \"Stock_At\": \"1206690000000050-INE422C01014\",\n      \"Quantity\": 0.0,\n      \"Price\": 285.8,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Ashoka Buildcon Ltd.\",\n      \"ISIN\": \"INE442H01029\",\n      \"Stock_At\": \"1206690000000050-INE442H01029\",\n      \"Quantity\": 0.0,\n      \"Price\": 100.9,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Bharat Forge Ltd.\",\n      \"ISIN\": \"INE465A01025\",\n      \"Stock_At\": \"1206690000000050-INE465A01025\",\n      \"Quantity\": 0.0,\n      \"Price\": 778.45,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Ceat Ltd.\",\n      \"ISIN\": \"INE482A01020\",\n      \"Stock_At\": \"1206690000000050-INE482A01020\",\n      \"Quantity\": 0.0,\n      \"Price\": 1340.4,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Godrej Properties Ltd.\",\n      \"ISIN\": \"INE484J01027\",\n      \"Stock_At\": \"1206690000000050-INE484J01027\",\n      \"Quantity\": 0.0,\n      \"Price\": 1640.45,\n      \"Category\": \"Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"L&T Finance Holdings Ltd.\",\n      \"ISIN\": \"INE498L01015\",\n      \"Stock_At\": \"1206690000000050-INE498L01015\",\n      \"Quantity\": 0.0,\n      \"Price\": 87.7,\n      \"Category\": \"Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Manappuram Finance Ltd.\",\n      \"ISIN\": \"INE522D01027\",\n      \"Stock_At\": \"1206690000000050-INE522D01027\",\n      \"Quantity\": 0.0,\n      \"Price\": 168.05,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Coal India Ltd.\",\n      \"ISIN\": \"INE522F01014\",\n      \"Stock_At\": \"1206690000000050-INE522F01014\",\n      \"Quantity\": 0.0,\n      \"Price\": 162.3,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Gabriel India Ltd.\",\n      \"ISIN\": \"INE524A01029\",\n      \"Stock_At\": \"1206690000000050-INE524A01029\",\n      \"Quantity\": 0.0,\n      \"Price\": 147.05,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Hindustan Copper Ltd.\",\n      \"ISIN\": \"INE531E01026\",\n      \"Stock_At\": \"1206690000000050-INE531E01026\",\n      \"Quantity\": 0.0,\n      \"Price\": 116.95,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Edelweiss Financial Services Ltd.\",\n      \"ISIN\": \"INE532F01054\",\n      \"Stock_At\": \"1206690000000050-INE532F01054\",\n      \"Quantity\": 0.0,\n      \"Price\": 81.3,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"NMDC Ltd.\",\n      \"ISIN\": \"INE584A01023\",\n      \"Stock_At\": \"1206690000000050-INE584A01023\",\n      \"Quantity\": 0.0,\n      \"Price\": 152.1,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"PI Industries Ltd.\",\n      \"ISIN\": \"INE603J01030\",\n      \"Stock_At\": \"1206690000000050-INE603J01030\",\n      \"Quantity\": 0.0,\n      \"Price\": 3453.95,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Aditya Birla Fashion and Retail Ltd.\",\n      \"ISIN\": \"INE647O01011\",\n      \"Stock_At\": \"1206690000000050-INE647O01011\",\n      \"Quantity\": 0.0,\n      \"Price\": 217.7,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Firstsource Solutions Ltd.\",\n      \"ISIN\": \"INE684F01012\",\n      \"Stock_At\": \"1206690000000050-INE684F01012\",\n      \"Quantity\": 0.0,\n      \"Price\": 202.4,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"United Breweries Ltd.\",\n      \"ISIN\": \"INE686F01025\",\n      \"Stock_At\": \"1206690000000050-INE686F01025\",\n      \"Quantity\": 0.0,\n      \"Price\": 1601.95,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Transport Corporation Of India Ltd.\",\n      \"ISIN\": \"INE688A01022\",\n      \"Stock_At\": \"1206690000000050-INE688A01022\",\n      \"Quantity\": 0.0,\n      \"Price\": 428.0,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Union Bank Of India\",\n      \"ISIN\": \"INE692A01016\",\n      \"Stock_At\": \"1206690000000050-INE692A01016\",\n      \"Quantity\": 0.0,\n      \"Price\": 36.7,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Jubilant Life Sciences Ltd.\",\n      \"ISIN\": \"INE700A01033\",\n      \"Stock_At\": \"1206690000000050-INE700A01033\",\n      \"Quantity\": 0.0,\n      \"Price\": 626.55,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Shriram Transport Finance Company Ltd.\",\n      \"ISIN\": \"INE721A01013\",\n      \"Stock_At\": \"1206690000000050-INE721A01013\",\n      \"Quantity\": 0.0,\n      \"Price\": 1406.5,\n      \"Category\": \"Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Multi Commodity Exchange Of India Ltd.\",\n      \"ISIN\": \"INE745G01035\",\n      \"Stock_At\": \"1206690000000050-INE745G01035\",\n      \"Quantity\": 0.0,\n      \"Price\": 1640.25,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Care Ratings Ltd.\",\n      \"ISIN\": \"INE752H01013\",\n      \"Stock_At\": \"1206690000000050-INE752H01013\",\n      \"Quantity\": 0.0,\n      \"Price\": 726.75,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Motherson Sumi Systems Ltd.\",\n      \"ISIN\": \"INE775A01035\",\n      \"Stock_At\": \"1206690000000050-INE775A01035\",\n      \"Quantity\": 0.0,\n      \"Price\": 224.3,\n      \"Category\": \"Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"JM Financial Ltd.\",\n      \"ISIN\": \"INE780C01023\",\n      \"Stock_At\": \"1206690000000050-INE780C01023\",\n      \"Quantity\": 0.0,\n      \"Price\": 91.4,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Torrent Power Ltd.\",\n      \"ISIN\": \"INE813H01021\",\n      \"Stock_At\": \"1206690000000050-INE813H01021\",\n      \"Quantity\": 0.0,\n      \"Price\": 495.0,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Adani Power Ltd.\",\n      \"ISIN\": \"INE814H01011\",\n      \"Stock_At\": \"1206690000000050-INE814H01011\",\n      \"Quantity\": 0.0,\n      \"Price\": 98.75,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Vardhman Textiles Ltd.\",\n      \"ISIN\": \"INE825A01012\",\n      \"Stock_At\": \"1206690000000050-INE825A01012\",\n      \"Quantity\": 0.0,\n      \"Price\": 1868.8,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"NCC Ltd.\",\n      \"ISIN\": \"INE868B01028\",\n      \"Stock_At\": \"1206690000000050-INE868B01028\",\n      \"Quantity\": 0.0,\n      \"Price\": 82.9,\n      \"Category\": \"Cat C\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"PTC India Ltd.\",\n      \"ISIN\": \"INE877F01012\",\n      \"Stock_At\": \"1206690000000050-INE877F01012\",\n      \"Quantity\": 0.0,\n      \"Price\": 100.25,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"KEI Industries Ltd.\",\n      \"ISIN\": \"INE878B01027\",\n      \"Stock_At\": \"1206690000000050-INE878B01027\",\n      \"Quantity\": 0.0,\n      \"Price\": 835.45,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Glenmark Pharmaceuticals Ltd.\",\n      \"ISIN\": \"INE935A01035\",\n      \"Stock_At\": \"1206690000000050-INE935A01035\",\n      \"Quantity\": 0.0,\n      \"Price\": 535.4,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true\n    },\n    {\n      \"Scrip_Name\": \"Radico Khaitan Ltd.\",\n      \"ISIN\": \"INE944F01028\",\n      \"Stock_At\": \"1206690000000050-INE944F01028\",\n      \"Quantity\": 0.0,\n      \"Price\": 907.2,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true\n    }\n  ]\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": [\n    {\n      \"Scrip_Name\": \"Housing Development Finance Corporation Ltd.\",\n      \"ISIN\": \"INE001A01036\",\n      \"Stock_At\": \"1206690000000050-INE001A01036\",\n      \"Quantity\": 0.0,\n      \"Price\": 2739.85,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 0.0,\n      \"waiting_to_be_pledged_qty\": 0.0,\n      \"waiting_for_approval_pledged_qty\": 0.0,\n      \"unpledged_quantity\": 0.0\n    },\n    {\n      \"Scrip_Name\": \"SJVN Ltd.\",\n      \"ISIN\": \"INE002L01015\",\n      \"Stock_At\": \"1206690000000050-INE002L01015\",\n      \"Quantity\": 0.0,\n      \"Price\": 27.4,\n      \"Category\": \"Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 0.0,\n      \"waiting_to_be_pledged_qty\": 0.0,\n      \"waiting_for_approval_pledged_qty\": 0.0,\n      \"unpledged_quantity\": 0.0\n    },\n    {\n      \"Scrip_Name\": \"Siemens Ltd.\",\n      \"ISIN\": \"INE003A01024\",\n      \"Stock_At\": \"1206690000000050-INE003A01024\",\n      \"Quantity\": 0.0,\n      \"Price\": 2154.3,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 0.0,\n      \"waiting_to_be_pledged_qty\": 0.0,\n      \"waiting_for_approval_pledged_qty\": 0.0,\n      \"unpledged_quantity\": 0.0\n    },\n    {\n      \"Scrip_Name\": \"REC Ltd.\",\n      \"ISIN\": \"INE020B01018\",\n      \"Stock_At\": \"1206690000000050-INE020B01018\",\n      \"Quantity\": 0.0,\n      \"Price\": 151.75,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 0.0,\n      \"waiting_to_be_pledged_qty\": 0.0,\n      \"waiting_for_approval_pledged_qty\": 0.0,\n      \"unpledged_quantity\": 0.0\n    },\n    {\n      \"Scrip_Name\": \"Asian Paints Ltd.\",\n      \"ISIN\": \"INE021A01026\",\n      \"Stock_At\": \"1206690000000050-INE021A01026\",\n      \"Quantity\": 0.0,\n      \"Price\": 3273.15,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 0.0,\n      \"waiting_to_be_pledged_qty\": 0.0,\n      \"waiting_for_approval_pledged_qty\": 0.0,\n      \"unpledged_quantity\": 0.0\n    },\n    {\n      \"Scrip_Name\": \"Gujarat State Fertilizers & Chemicals Ltd.\",\n      \"ISIN\": \"INE026A01025\",\n      \"Stock_At\": \"1206690000000050-INE026A01025\",\n      \"Quantity\": 0.0,\n      \"Price\": 112.0,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 0.0,\n      \"waiting_to_be_pledged_qty\": 0.0,\n      \"waiting_for_approval_pledged_qty\": 0.0,\n      \"unpledged_quantity\": 0.0\n    },\n    {\n      \"Scrip_Name\": \"Bharat Petroleum Corporation Ltd.\",\n      \"ISIN\": \"INE029A01011\",\n      \"Stock_At\": \"1206690000000050-INE029A01011\",\n      \"Quantity\": 0.0,\n      \"Price\": 421.5,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 0.0,\n      \"waiting_to_be_pledged_qty\": 0.0,\n      \"waiting_for_approval_pledged_qty\": 0.0,\n      \"unpledged_quantity\": 0.0\n    }\n]\n}",
     "parent": "cbf6ce11f2",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -2237,7 +2277,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-04 19:31:14.614860",
+  "modified": "2021-10-06 13:33:03.555580",
   "name": "2a23f121e5",
   "parameters": [
    {
@@ -2282,7 +2322,14 @@
   ],
   "parameters_example": [
    {
-    "example": "{\"cart_name\" : \"C000007\",\"loan_name\": \"TOPUP000001\", \"topup_amount\": 1.0}",
+    "example": "{\"cart_name\" : \"C000001\",\"loan_name\": \"\", \"topup_amount\": 0.0}",
+    "parent": "2a23f121e5",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   },
+   {
+    "example": "{\"cart_name\" : \"\",\"loan_name\": \"SL000001\", \"topup_amount\": 1000.0}",
     "parent": "2a23f121e5",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -2504,7 +2551,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-05 09:23:58.991183",
+  "modified": "2021-10-06 14:30:12.885813",
   "name": "948e28352e",
   "parameters": [
    {
@@ -2618,7 +2665,14 @@
     "parent": "948e28352e",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
-    "title": "Request Example"
+    "title": "Request Example Account Statement"
+   },
+   {
+    "example": "{\n\t\"loan_name\": \"SL000001\",\n\t\"type\": \"Pledged Securities Transactions\",\n\t\"duration\": \"prev_1\",\n\t\"from_date\": \"\",\n\t\"to_date\": \"\",\n\t\"file_format\": \"excel\",\n\t\"is_download\":0,\n\t\"is_email\":1\n}",
+    "parent": "948e28352e",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example Pledged Securities Transactions"
    }
   ],
   "parent": null,
@@ -2699,11 +2753,18 @@
   ],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"loan\": {\n      \"name\": \"loan name\",\n      \"owner\": \"Administrator\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"Administrator\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"total_collateral_value\": total_collateral_value,\n      \"total_collateral_value_str\": total_collateral_value_in_string_format,\n      \"drawing_power\": drawing_power,\n      \"drawing_power_str\": drawing_power_in_string_format,\n      \"lender\": \"lender name\",\n      \"sanctioned_limit\": sanctioned_limit,\n      \"sanctioned_limit_str\": sanctioned_limit_in_string_format,\n      \"balance\": balance,\n      \"balance_str\": balance_in_string_format,\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"allowable_ltv\": allowable_ltv,\n      \"expiry_date\": \"expiry_date\",\n      \"loan_agreement\": \"loan agreement pdf file path\",\n      \"interest_due\": interest_due,\n      \"interest_overdue\": interest_overdue,\n      \"penal_interest_charges\": penal_interest_charges,\n      \"rebate_interest_amount\": rebate_interest_amount,\n      \"base_interest_amount\": base_interest_amount,\n      \"margin_shortfall_amount\": margin_shortfall_amount,\n      \"is_eligible_for_interest\": 1,\n      \"is_irregular\": 0,\n      \"is_penalize\": 0,\n      \"doctype\": \"Loan\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"Administrator\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"Administrator\",\n          \"parent\": \"loan name\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Loan\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": \"isin\",\n          \"security_name\": \"security_name\",\n          \"security_category\": \"security_category\",\n          \"pledged_quantity\": pledged_quantity,\n          \"price\": price,\n          \"amount\": amount,\n          \"doctype\": \"Loan Item\"\n        }\n      ]\n    },\n    \"loan_transaction_list\": [\n      {\n        \"time\": \"date with time\",\n        \"transaction_type\": \"Processing Fees\",\n        \"name\": \"loan name-00001\",\n        \"record_type\": \"record_type\",\n        \"amount\": \"amount\",\n        \"opening_balance\": opening_balance,\n        \"closing_balance\": closing_balance\n      }\n\n    ],\n    \"pdf_file_url\": \"pdf_file_url\",\n    \"excel_file_url\": \"\"\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"loan\": {\n      \"name\": \"SL000001\",\n      \"owner\": \"Administrator\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"Administrator\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"total_collateral_value\": 20000,\n      \"total_collateral_value_str\": \"20,000\",\n      \"drawing_power\": 10000,\n      \"drawing_power_str\": \"10,000\",\n      \"lender\": \"lender's name\",\n      \"sanctioned_limit\": 10000,\n      \"sanctioned_limit_str\":\"10,000\",\n      \"balance\": 101,\n      \"balance_str\": \"101\",\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"allowable_ltv\": 50,\n      \"expiry_date\": \"expiry_date\",\n      \"loan_agreement\": \"loan_agreement_pdf_file_path\",\n      \"interest_due\": 0.0,\n      \"interest_overdue\": 1.2,\n      \"penal_interest_charges\": 2.0,\n      \"rebate_interest_amount\": 1.3,\n      \"base_interest_amount\": 0.2,\n      \"margin_shortfall_amount\": 23.8,\n      \"is_eligible_for_interest\": 1,\n      \"is_irregular\": 0,\n      \"is_penalize\": 0,\n      \"doctype\": \"Loan\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"Administrator\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"Administrator\",\n          \"parent\": \"loan name\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Loan\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": \"isin\",\n          \"security_name\": \"security_name\",\n          \"security_category\": \"Cat B\",\n          \"pledged_quantity\": 10,\n          \"price\": 2000,\n          \"amount\": 20000,\n          \"doctype\": \"Loan Item\"\n        }\n      ]\n    },\n    \"loan_transaction_list\": [\n      {\n        \"time\": \"date with time\",\n        \"transaction_type\": \"Processing Fees\",\n        \"name\": \"loan name-00001\",\n        \"record_type\": \"DR\",\n        \"amount\": \"amount\",\n        \"opening_balance\": 1,\n        \"closing_balance\": 1\n      }\n\n    ],\n    \"pdf_file_url\": \"pdf_file_url\",\n    \"excel_file_url\": \"\"\n  }\n}",
     "parent": "948e28352e",
     "parentfield": "success_example",
     "parenttype": "API Doc",
-    "title": "Success "
+    "title": "Success Account Statement"
+   },
+   {
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"loan\": {\n      \"name\": \"SL000001\",\n      \"owner\": \"Administrator\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"Administrator\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"total_collateral_value\": 20000,\n      \"total_collateral_value_str\": \"20,000\",\n      \"drawing_power\": 10000,\n      \"drawing_power_str\": \"10,000\",\n      \"lender\": \"lender's name\",\n      \"sanctioned_limit\": 10000,\n      \"sanctioned_limit_str\":\"10,000\",\n      \"balance\": 101,\n      \"balance_str\": \"101\",\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"allowable_ltv\": 50,\n      \"expiry_date\": \"expiry_date\",\n      \"loan_agreement\": \"loan_agreement_pdf_file_path\",\n      \"interest_due\": 0.0,\n      \"interest_overdue\": 1.2,\n      \"penal_interest_charges\": 2.0,\n      \"rebate_interest_amount\": 1.3,\n      \"base_interest_amount\": 0.2,\n      \"margin_shortfall_amount\": 23.8,\n      \"is_eligible_for_interest\": 1,\n      \"is_irregular\": 0,\n      \"is_penalize\": 0,\n      \"doctype\": \"Loan\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"Administrator\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"Administrator\",\n          \"parent\": \"loan name\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Loan\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": \"isin\",\n          \"security_name\": \"security_name\",\n          \"security_category\": \"Cat B\",\n          \"pledged_quantity\": 10,\n          \"price\": 2000,\n          \"amount\": 20000,\n          \"doctype\": \"Loan Item\"\n        }\n      ]\n    },\n \"pledged_securities_transactions\": [\n      {\n        \"creation\": \"2021-09-28 11:55\",\n        \"isin\": \"isin name\",\n        \"security_name\": \"Bajaj.\",\n        \"quantity\": 2,\n        \"request_type\": \"Pledge\"\n      }\n    ]\n \"is_mail_sent\": 1\n  }\n}",
+    "parent": "948e28352e",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success Pledge security Statement"
    }
   ],
   "title": "Loan Statement",
@@ -2749,7 +2810,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-04 15:59:19.918436",
+  "modified": "2021-10-06 15:03:55.179441",
   "name": "023a7ca67c",
   "parameters": [
    {
@@ -2843,7 +2904,7 @@
   ],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"loan_name\": \"loan_name\",\n    \"total_value\": total_value,\n    \"drawing_power\": drawing_power,\n    \"balance\": balance,\n    \"number_of_scrips\": number_of_scrips,\n    \"all_pledged_securities\": [\n      {\n        \"isin\": \"isin\",\n        \"security_name\": \"security_name\",\n        \"pledged_quantity\": pledged_quantity,\n        \"security_category\": \"security_category\",\n        \"price\": price,\n        \"amount\": amount\n      }\n    ],\n    \"sell_collateral\": 1,\n    \"increase_loan\": 1,\n    \"unpledge\": {\n      \"unpledge_msg_while_margin_shortfall\": null,\n      \"unpledge\": {\n        \"minimum_collateral_value\": minimum_collateral_value,\n        \"maximum_unpledge_amount\": maximum_unpledge_amount\n      }\n    }\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"loan_name\": \"SL000001\",\n    \"total_value\": 20000,\n    \"drawing_power\": 10000,\n    \"balance\": 102,\n    \"number_of_scrips\": 1,\n    \"all_pledged_securities\": [\n      {\n        \"isin\": \"isin\",\n        \"security_name\": \"Bajaj\",\n        \"pledged_quantity\": 10,\n        \"security_category\": \"Cat B\",\n        \"price\": 2000,\n        \"amount\": 20000\n      }\n    ],\n    \"sell_collateral\": 1,\n    \"increase_loan\": 1,\n    \"unpledge\": {\n      \"unpledge_msg_while_margin_shortfall\": null,\n      \"unpledge\": {\n        \"minimum_collateral_value\": 1000,\n        \"maximum_unpledge_amount\": 2000\n      }\n    }\n  }\n}",
     "parent": "023a7ca67c",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -2893,7 +2954,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-05 10:14:35.233747",
+  "modified": "2021-10-06 14:33:01.310555",
   "name": "3e50455910",
   "parameters": [
    {
@@ -2957,7 +3018,7 @@
   ],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"loan\": {\n      \"name\": \"loan name\",\n      \"owner\": \"Administrator\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"Administrator\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"total_collateral_value\": total_collateral_value,\n      \"total_collateral_value_str\": total_collateral_value_in_string_format,\n      \"drawing_power\": drawing_power,\n      \"drawing_power_str\": drawing_power_in_string_format,\n      \"lender\": \"lender's name\",\n      \"sanctioned_limit\": sanctioned_limit,\n      \"sanctioned_limit_str\": sanctioned_limit_in_string_format,\n      \"balance\": balance,\n      \"balance_str\": balance_in_string_format,\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"allowable_ltv\": allowable_ltv,\n      \"expiry_date\": \"expiry_date\",\n      \"loan_agreement\": \"loan_agreement_pdf_file_path\",\n      \"interest_due\": interest_due,\n      \"interest_overdue\": interest_overdue,\n      \"penal_interest_charges\": penal_interest_charges,\n      \"rebate_interest_amount\": rebate_interest_amount,\n      \"base_interest_amount\": base_interest_amount,\n      \"margin_shortfall_amount\": margin_shortfall_amount,\n      \"is_eligible_for_interest\": 1,\n      \"is_irregular\": 0,\n      \"is_penalize\": 0,\n      \"doctype\": \"Loan\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"Administrator\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"Administrator\",\n          \"parent\": \"loan name\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Loan\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": \"isin\",\n          \"security_name\": \"security_name\",\n          \"security_category\": \"security_category\",\n          \"pledged_quantity\": pledged_quantity,\n          \"price\": price,\n          \"amount\": amount,\n          \"doctype\": \"Loan Item\"\n        }\n      ]\n    },\n    \"unpledge\": {\n      \"unpledge_msg_while_margin_shortfall\": null,\n      \"unpledge\": {\n        \"minimum_collateral_value\": minimum_collateral_value,\n        \"maximum_unpledge_amount\": maximum_unpledge_amount\n      }\n    }\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"loan\": {\n       \"name\": \"SL000001\",\n      \"owner\": \"Administrator\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"Administrator\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"total_collateral_value\": 20000,\n      \"total_collateral_value_str\": \"20,000\",\n      \"drawing_power\": 10000,\n      \"drawing_power_str\": \"10,000\",\n      \"lender\": \"lender's name\",\n      \"sanctioned_limit\": 10000,\n      \"sanctioned_limit_str\":\"10,000\",\n      \"balance\": 101,\n      \"balance_str\": \"101\",\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"allowable_ltv\": 50,\n      \"expiry_date\": \"expiry_date\",\n      \"loan_agreement\": \"loan_agreement_pdf_file_path\",\n      \"interest_due\": 0.0,\n      \"interest_overdue\": 1.2,\n      \"penal_interest_charges\": 2.0,\n      \"rebate_interest_amount\": 1.3,\n      \"base_interest_amount\": 0.2,\n      \"margin_shortfall_amount\": 23.8,\n      \"is_eligible_for_interest\": 1,\n      \"is_irregular\": 0,\n      \"is_penalize\": 0,\n      \"doctype\": \"Loan\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"Administrator\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"Administrator\",\n          \"parent\": \"loan name\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Loan\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": \"isin\",\n          \"security_name\": \"security_name\",\n          \"security_category\": \"Cat B\",\n          \"pledged_quantity\": 10,\n          \"price\": 2000,\n          \"amount\": 20000,\n          \"doctype\": \"Loan Item\"\n        }\n      ]\n    },\n    \"unpledge\": {\n      \"unpledge_msg_while_margin_shortfall\": null,\n      \"unpledge\": {\n        \"minimum_collateral_value\": 1000,\n        \"maximum_unpledge_amount\": 2000\n      }\n    }\n  }\n}",
     "parent": "3e50455910",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -3076,7 +3137,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-04 18:52:33.030917",
+  "modified": "2021-10-06 14:36:54.696175",
   "name": "f856d53778",
   "parameters": [
    {
@@ -3173,7 +3234,7 @@
   ],
   "parameters_example": [
    {
-    "example": "{\n\t\"loan_name\": \"SL000051\",\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"INE721A01013\",\n\t\t\t\t\"quantity\": 1\n\t\t\t}\n\t\t]\n\t},\n\t\"loan_margin_shortfall_name\": \"02d7ad6bd7\",\n\t\"otp\": \"3606\"\n}",
+    "example": "{\n\t\"loan_name\": \"SL000001\",\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"IN111A11111\",\n\t\t\t\t\"quantity\": 5\n\t\t\t}\n\t\t]\n\t},\n\t\"otp\": \"1234\",\n\t\"loan_margin_shortfall_name\": \"02d7ad6bd7\",\n}\n",
     "parent": "f856d53778",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -3187,7 +3248,7 @@
   "success": [],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"name\": \"sell collateral application entry name\",\n    \"owner\": \"john@gmail.com\",\n    \"creation\": \"datetime\",\n    \"modified\": \"datetime\",\n    \"modified_by\": \"john@gmail.com\",\n    \"idx\": 0,\n    \"docstatus\": 0,\n    \"workflow_state\": \"Pending\",\n    \"loan\": \"loan name\",\n    \"total_collateral_value\": total_collateral_value,\n    \"lender\": \"lender's name\",\n    \"initial_shortfall_amount\": initial_shortfall_amount,\n    \"current_shortfall_amount\": current_shortfall_amount,\n    \"customer\": \"CUST-09-2021-0001\",\n    \"selling_collateral_value\": 0.0,\n    \"lender_selling_amount\": 0.0,\n    \"status\": \"Pending\",\n    \"doctype\": \"Sell Collateral Application\",\n    \"items\": [\n      {\n        \"name\": \"isin entry name\",\n        \"owner\": \"john@gmail.com\",\n        \"creation\": \"datetime\",\n        \"modified\": \"datetime\",\n        \"modified_by\": \"john@gmail.com\",\n        \"parent\": \"sell collateral application entry name\",\n        \"parentfield\": \"items\",\n        \"parenttype\": \"Sell Collateral Application\",\n        \"idx\": 1,\n        \"docstatus\": 0,\n        \"isin\": \"isin\",\n        \"security_name\": \"security_name\",\n        \"quantity\": quantity,\n        \"price\": price,\n        \"amount\": amount,\n        \"doctype\": \"Sell Collateral Application Item\",\n        \"__unsaved\": 1\n      }\n    ],\n    \"sell_items\": []\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"name\": \"sell collateral application entry name\",\n    \"owner\": \"john@gmail.com\",\n    \"creation\": \"datetime\",\n    \"modified\": \"datetime\",\n    \"modified_by\": \"john@gmail.com\",\n    \"idx\": 0,\n    \"docstatus\": 0,\n    \"workflow_state\": \"Pending\",\n    \"loan\": \"loan name\",\n    \"total_collateral_value\": 20000,\n    \"lender\": \"lender's name\",\n    \"initial_shortfall_amount\": 250,\n    \"current_shortfall_amount\": 150,\n    \"customer\": \"CUST-09-2021-0001\",\n    \"selling_collateral_value\": 0.0,\n    \"lender_selling_amount\": 0.0,\n    \"status\": \"Pending\",\n    \"doctype\": \"Sell Collateral Application\",\n    \"items\": [\n      {\n        \"name\": \"isin entry name\",\n        \"owner\": \"john@gmail.com\",\n        \"creation\": \"datetime\",\n        \"modified\": \"datetime\",\n        \"modified_by\": \"john@gmail.com\",\n        \"parent\": \"sell collateral application entry name\",\n        \"parentfield\": \"items\",\n        \"parenttype\": \"Sell Collateral Application\",\n        \"idx\": 1,\n        \"docstatus\": 0,\n        \"isin\": \"isin\",\n        \"security_name\": \"security_name\",\n        \"quantity\": quantity,\n        \"price\": price,\n        \"amount\": amount,\n        \"doctype\": \"Sell Collateral Application Item\",\n        \"__unsaved\": 1\n      }\n    ],\n    \"sell_items\": []\n  }\n}",
     "parent": "f856d53778",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -3386,7 +3447,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-04 15:47:52.573324",
+  "modified": "2021-10-06 15:16:23.051654",
   "name": "a1511a00eb",
   "parameters": [],
   "parameters_example": [
@@ -3416,7 +3477,7 @@
   ],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": [\n    {\n      \"week\": 52,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 51,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 50,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 49,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 48,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 47,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 46,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 45,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 44,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 43,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 42,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 41,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 40,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 39,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 38,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 37,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 36,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 35,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 34,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 33,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 32,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 31,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 30,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 29,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 28,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 27,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 26,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 25,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 24,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 23,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 22,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 21,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 20,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 19,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 18,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 17,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 16,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 15,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 14,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 13,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 12,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 11,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 10,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 9,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 8,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 7,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 6,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 5,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 4,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 3,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 2,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    },\n    {\n      \"week\": 1,\n      \"weekly_amount_for_all_loans\": weekly_amount_for_all_loans\n    }\n  ]\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": [\n    {\n      \"week\": 52,\n      \"weekly_amount_for_all_loans\": 32300.20\n    },\n    {\n      \"week\": 51,\n      \"weekly_amount_for_all_loans\": 32400.20\n    },\n    {\n      \"week\": 50,\n      \"weekly_amount_for_all_loans\": 32700.20\n    },\n    {\n      \"week\": 49,\n      \"weekly_amount_for_all_loans\": 33700.20\n    },\n    {\n      \"week\": 48,\n      \"weekly_amount_for_all_loans\": 39700.20\n    },\n    {\n      \"week\": 47,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 46,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 45,\n      \"weekly_amount_for_all_loans\": 32700.20\n    },\n    {\n      \"week\": 44,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 43,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 42,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 41,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 40,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 39,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 38,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 37,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 36,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 35,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 34,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 33,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 32,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 31,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 30,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 29,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 28,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 27,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 26,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 25,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 24,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 23,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 22,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 21,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 20,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 19,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 18,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 17,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 16,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 15,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 14,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 13,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 12,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 11,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 10,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 9,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 8,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 7,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 6,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 5,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 4,\n      \"weekly_amount_for_all_loans\": 37700.20\n    },\n    {\n      \"week\": 3,\n      \"weekly_amount_for_all_loans\": 37601.25\n    },\n    {\n      \"week\": 2,\n      \"weekly_amount_for_all_loans\": 36508.35\n    },\n    {\n      \"week\": 1,\n      \"weekly_amount_for_all_loans\": 36744.15\n    }\n  ]\n}",
     "parent": "a1511a00eb",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -3466,7 +3527,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-04 16:07:15.597218",
+  "modified": "2021-10-06 15:14:04.491781",
   "name": "5b86bb8a43",
   "parameters": [
    {
@@ -3550,11 +3611,18 @@
   ],
   "parameters_example": [
    {
-    "example": "{\n\t\"is_for_update_pin\": \"\",\n\t\"old_pin\": \"\",\n\t\"new_pin\": \"\",\n        \"retype_pin\" : \"\",\n        \"is_for_profile_pic\": \"\",\n\t\"image\": \"\",\n}",
+    "example": "{\n\t\"is_for_profile_pic\": 0,\n\t\"image\": \"\",\n\t\"is_for_update_pin\": 1,\n\t\"old_pin\": \"1111\",\n\t\"new_pin\": \"1234\",\n\t\"retype_pin\": \"1234\"\n}",
     "parent": "5b86bb8a43",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
-    "title": "Request Example"
+    "title": "Request Example for change pin"
+   },
+   {
+    "example": "{\n\t\"is_for_profile_pic\": 1,\n\t\"image\": \"byte data\",\n\t\"is_for_update_pin\": 0,\n\t\"old_pin\": \"\",\n\t\"new_pin\": \"\",\n\t\"retype_pin\": \"\"\n}",
+    "parent": "5b86bb8a43",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example for change profile pic"
    }
   ],
   "parent": null,
@@ -3589,7 +3657,14 @@
     "parent": "5b86bb8a43",
     "parentfield": "success_example",
     "parenttype": "API Doc",
-    "title": "success"
+    "title": "success for profile pic"
+   },
+   {
+    "example": "{\n  \"message\": \"Your pin has been changed successfully!\"\n}",
+    "parent": "5b86bb8a43",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "success for change pin"
    }
   ],
   "title": "Update Profile Picture and Pin",
@@ -3939,7 +4014,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-04 18:56:54.271159",
+  "modified": "2021-10-06 14:35:33.186709",
   "name": "1141858dda",
   "parameters": [
    {
@@ -4023,7 +4098,7 @@
   ],
   "parameters_example": [
    {
-    "example": "{\n\t\"loan_name\": \"SL000047\",\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"INE169A01031\",\n\t\t\t\t\"quantity\": 5\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"isin\": \"INE021A01026\",\n\t\t\t\t\"quantity\": 5\n\t\t\t}\n\t\t]\n\t},\n\t\"otp\": \"5310\"\n}",
+    "example": "{\n\t\"loan_name\": \"SL000001\",\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"IN111A11111\",\n\t\t\t\t\"quantity\": 5\n\t\t\t}\n\t\t]\n\t},\n\t\"otp\": \"1234\"\n}",
     "parent": "1141858dda",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -4037,7 +4112,7 @@
   "success": [],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"name\": \"unpledge application entry name\",\n    \"owner\": \"john@gmail.com\",\n    \"creation\": \"datetime\",\n    \"modified\": \"datetime\",\n    \"modified_by\": \"john@gmail.com\",\n    \"idx\": 0,\n    \"docstatus\": 0,\n    \"workflow_state\": \"Pending\",\n    \"loan\": \"loan name\",\n    \"total_collateral_value\": total_collateral_value,\n    \"lender\": \"lender's name\",\n    \"customer\": \"CUST-1234\",\n    \"unpledge_collateral_value\": unpledge_collateral_value,\n    \"max_unpledge_amount\": max_unpledge_amount,\n    \"status\": \"Pending\",\n    \"doctype\": \"Unpledge Application\",\n    \"items\": [\n      {\n        \"name\": \"isin entry name\",\n        \"owner\": \"john@gmail.com\",\n        \"creation\": \"datetime\",\n        \"modified\": \"datetime\",\n        \"modified_by\": \"john@gmail.com\",\n        \"parent\": \"unpledge application entry name\",\n        \"parentfield\": \"items\",\n        \"parenttype\": \"Unpledge Application\",\n        \"idx\": 1,\n        \"docstatus\": 0,\n        \"isin\": \"isin\",\n        \"security_name\": \"security_name\",\n        \"quantity\": quantity,\n        \"price\": price,\n        \"amount\": amount,\n        \"doctype\": \"Unpledge Application Item\",\n        \"__unsaved\": 1\n      }\n    ],\n    \"unpledge_items\": []\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"name\": \"unpledge application entry name\",\n    \"owner\": \"john@gmail.com\",\n    \"creation\": \"datetime\",\n    \"modified\": \"datetime\",\n    \"modified_by\": \"john@gmail.com\",\n    \"idx\": 0,\n    \"docstatus\": 0,\n    \"workflow_state\": \"Pending\",\n    \"loan\": \"loan name\",\n    \"total_collateral_value\": 20000,\n    \"lender\": \"lender's name\",\n    \"customer\": \"CUST-1234\",\n    \"unpledge_collateral_value\": 1000,\n    \"max_unpledge_amount\": 1000,\n    \"status\": \"Pending\",\n    \"doctype\": \"Unpledge Application\",\n    \"items\": [\n      {\n        \"name\": \"isin entry name\",\n        \"owner\": \"john@gmail.com\",\n        \"creation\": \"datetime\",\n        \"modified\": \"datetime\",\n        \"modified_by\": \"john@gmail.com\",\n        \"parent\": \"unpledge application entry name\",\n        \"parentfield\": \"items\",\n        \"parenttype\": \"Unpledge Application\",\n        \"idx\": 1,\n        \"docstatus\": 0,\n        \"isin\": \"isin\",\n        \"security_name\": \"security_name\",\n        \"quantity\": quantity,\n        \"price\": price,\n        \"amount\": amount,\n        \"doctype\": \"Unpledge Application Item\",\n        \"__unsaved\": 1\n      }\n    ],\n    \"unpledge_items\": []\n  }\n}",
     "parent": "1141858dda",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -4196,7 +4271,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-04 15:51:35.167992",
+  "modified": "2021-10-06 15:00:45.505786",
   "name": "48990067b4",
   "parameters": [
    {
@@ -4306,7 +4381,7 @@
   ],
   "parameters_example": [
    {
-    "example": "{\n\t\"do_not_show_again\": 0,\n\t\"bulls_eye\": 0,\n\t\"can_do_better\": 1,\n\t\"related_to_user_experience\": 0,\n\t\"related_to_functionality\": 1,\n\t\"others\": 0,\n\t\"comment\": \"asdawefwefewfef\",\n\t\"from_more_menu\": 1\n}",
+    "example": "{\n\t\"do_not_show_again\": 0,\n\t\"bulls_eye\": 0,\n\t\"can_do_better\": 1,\n\t\"related_to_user_experience\": 0,\n\t\"related_to_functionality\": 1,\n\t\"others\": 0,\n\t\"comment\": \"nice work\",\n\t\"from_more_menu\": 1\n}",
     "parent": "48990067b4",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -4830,7 +4905,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-05 08:58:29.921090",
+  "modified": "2021-10-06 14:59:26.904133",
   "name": "17aa761a09",
   "parameters": [],
   "parameters_example": [
@@ -4849,7 +4924,7 @@
   "success": [],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"sell_collateral_topup_and_unpledge_list\": [],\n    \"actionable_loan\": [],\n    \"under_process_la\": [],\n    \"active_loans\": [\n      {\n        \"name\": \"loan name\",\n        \"drawing_power\": drawing_power,\n        \"drawing_power_str\": drawing_power_in_string_format,\n        \"balance\": balance,\n        \"balance_str\": balance_in_string_format,\n        \"creation\": \"datetime\"\n      }\n     \n    ],\n    \"sell_collateral_list\": [\n      {\n        \"loan_name\": \"loan_name\",\n        \"sell_collateral_available\": null\n      }\n      \n    ],\n    \"unpledge_list\": [\n      {\n        \"loan_name\": \"loan_name\",\n        \"unpledge_application_available\": null,\n        \"unpledge_msg_while_margin_shortfall\": null,\n        \"unpledge\": {\n          \"minimum_collateral_value\": minimum_collateral_value,\n          \"maximum_unpledge_amount\": maximum_unpledge_amount\n        }\n      }\n    ],\n    \"topup_list\": [],\n    \"increase_loan_list\": [\n      {\n        \"loan_name\": \"loan_name\",\n        \"increase_loan_available\": 1\n      }\n      \n    ]\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"sell_collateral_topup_and_unpledge_list\": [\n{\n\"loan_name\": \"SL000001\",\n\"creation\": \"2021-09-23 16:41:20.433312\",\n\"top_up_amount\": 0.0,\n\"existing_topup_application\": {\"topup application doc\"},\n\"unpledge_application_available\": null,\n\"unpledge_msg_while_margin_shortfall\": null,\n\"unpledge\": null,\n\"sell_collateral_available\": null\n}\n],\n    \"actionable_loan\": [\n{\n        \"name\": \"SL000001\",\n        \"drawing_power\": 3000.0,\n        \"drawing_power_str\": \"3,000.00\",\n        \"balance\": 1138.0,\n        \"balance_str\": \"1,138.00\",\n        \"creation\": \"2021-09-27 10:30:15.330495\"\n      }\n],\n    \"under_process_la\": [\n{\n        \"name\": \"LA000051\",\n        \"status\": \"Pledge executed\",\n        \"creation\": \"2021-09-28 16:19:45.005691\"\n      }\n],\n    \"active_loans\": [\n      {\n        \"name\": \"SL000001\",\n        \"drawing_power\": 1000,\n        \"drawing_power_str\": \"1,000\",\n        \"balance\": 11,\n        \"balance_str\": \"11\",\n        \"creation\": \"datetime\"\n      }\n     \n    ],\n    \"sell_collateral_list\": [\n      {\n        \"loan_name\": \"SL000001\",\n        \"sell_collateral_available\": 0\n      },\n {\n        \"loan_name\": \"SL000002\",\n        \"sell_collateral_available\": 1\n      }\n      \n    ],\n    \"unpledge_list\": [\n      {\n        \"loan_name\": \"SL000001\",\n        \"unpledge_application_available\": null,\n        \"unpledge_msg_while_margin_shortfall\": null,\n        \"unpledge\": {\n          \"minimum_collateral_value\": 712.0,\n          \"maximum_unpledge_amount\": 49661.0\n        }\n      },\n{\n        \"loan_name\": \"SL000038\",\n        \"unpledge_application_available\": null,\n        \"unpledge_msg_while_margin_shortfall\": \"OOPS! Dear Omkar, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall\",\n        \"unpledge\": null\n      }\n    ],\n    \"topup_list\": [\n{\n        \"loan_name\": \"SL000038\",\n        \"top_up_amount\": 3000.0\n      }\n],\n    \"increase_loan_list\": [\n     {\n        \"loan_name\": \"SL000039\",\n        \"increase_loan_available\": 1\n      }\n      \n    ]\n  }\n}",
     "parent": "17aa761a09",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -4982,7 +5057,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-05 15:29:57.149607",
+  "modified": "2021-10-06 15:06:03.145253",
   "name": "79bfd60d58",
   "parameters": [
    {
@@ -5031,7 +5106,21 @@
     "parent": "79bfd60d58",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
-    "title": "Request Example"
+    "title": "Request Example read notification"
+   },
+   {
+    "example": "{\n\t\"is_for_read\": 0,\n\t\"is_for_clear\": 1,\n\t\"notification_name\": \"87b7e22cc8\"\n}",
+    "parent": "79bfd60d58",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example delete notification"
+   },
+   {
+    "example": "{\n\t\"is_for_read\": 0,\n\t\"is_for_clear\": 1,\n\t\"notification_name\": \"\"\n}",
+    "parent": "79bfd60d58",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example clear all notification"
    }
   ],
   "parent": null,
