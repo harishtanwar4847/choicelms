@@ -4,19 +4,19 @@
 
 ## [v1.0.8] - 2021-10-07
 
-## Fixed
+### Fixed
 
 - [Feat: Added missing div tag in loan against share page](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/412)
 
 ## [v1.0.8] - 2021-10-06
 
-## Added
+### Added
 
 - [Feat: Product (Loan Against Shares) Page](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/410)
 
 ## [v1.0.7] - 2021-10-05
 
-## Fixed
+### Fixed
 
 - [Fix: Datatype of Bank address and Users address in User kyc doctype changed to Long text](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/407)
 
