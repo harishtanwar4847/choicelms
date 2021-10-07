@@ -429,8 +429,8 @@ class Loan(Document):
                             # )
                 else:
                     # if not loan_margin_shortfall.margin_shortfall_action:
-                    if loan_margin_shortfall.status == "Pending":
-                        loan_margin_shortfall.timer_start_stop_fcm()
+                    # if loan_margin_shortfall.status == "Pending":
+                    #     loan_margin_shortfall.timer_start_stop_fcm()
                     if loan_margin_shortfall.shortfall_percentage == 0:
                         loan_margin_shortfall.status = "Resolved"
                         loan_margin_shortfall.action_time = frappe.utils.now_datetime()

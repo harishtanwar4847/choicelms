@@ -78,27 +78,27 @@ class LoanMarginShortfall(Document):
     def after_insert(self):
         if self.status == "Pending":
             self.set_deadline()
-            loan = self.get_loan()
+            # loan = self.get_loan()
             # self.notify_customer()
 
-            creation = datetime.strptime(self.creation, "%Y-%m-%d %H:%M:%S.%f")
-            deadline = self.deadline
-            hrs_difference = deadline - frappe.utils.now_datetime()
-            margin_shortfall_action = self.get_shortfall_action()
-            if margin_shortfall_action.sell_off_after_hours:
-                date_array = set(
-                    creation.date() + timedelta(days=x)
-                    for x in range(
-                        0,
-                        (deadline.date() - creation.date()).days + 1,
-                    )
-                )
-                holidays = date_array.intersection(set(holiday_list()))
-                hrs_difference = (
-                    deadline
-                    - frappe.utils.now_datetime()
-                    - timedelta(days=(len(holidays) if holidays else 0))
-                )
+            # creation = datetime.strptime(self.creation, "%Y-%m-%d %H:%M:%S.%f")
+            # deadline = self.deadline
+            # hrs_difference = deadline - frappe.utils.now_datetime()
+            # margin_shortfall_action = self.get_shortfall_action()
+            # if margin_shortfall_action.sell_off_after_hours:
+            #     date_array = set(
+            #         creation.date() + timedelta(days=x)
+            #         for x in range(
+            #             0,
+            #             (deadline.date() - creation.date()).days + 1,
+            #         )
+            #     )
+            #     holidays = date_array.intersection(set(holiday_list()))
+            #     hrs_difference = (
+            #         deadline
+            #         - frappe.utils.now_datetime()
+            #         - timedelta(days=(len(holidays) if holidays else 0))
+            #     )
 
             # try:
             #     fa = FirebaseAdmin()
