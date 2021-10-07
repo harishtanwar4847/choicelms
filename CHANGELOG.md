@@ -6,7 +6,7 @@
 
 ## Fixed
 
-- [Feat: Added missing div tag in loan against share page]()
+- [Feat: Added missing div tag in loan against share page](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/412)
 
 ## [v1.0.8] - 2021-10-06
 
@@ -22,7 +22,7 @@
 
 ## [v1.0.6] - 2021-09-22
 
-## Added
+### Added
 
 - [Feat: Loan against shares html page added (products/loan-against-shares.html)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/398)
 
