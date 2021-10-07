@@ -9,7 +9,6 @@
   "day",
   "date",
   "holiday",
-  "year",
   "active"
  ],
  "fields": [
@@ -33,11 +32,6 @@
    "label": "HOLIDAY"
   },
   {
-   "fieldname": "year",
-   "fieldtype": "Data",
-   "label": "Year"
-  },
-  {
    "default": "1",
    "fieldname": "active",
    "fieldtype": "Check",
@@ -45,7 +39,7 @@
   }
  ],
  "links": [],
- "modified": "2021-10-04 13:15:32.492899",
+ "modified": "2021-10-07 14:35:57.377021",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Bank Holiday",
@@ -60,6 +54,18 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Spark Manager",
    "share": 1,
    "write": 1
   }

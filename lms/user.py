@@ -1053,6 +1053,7 @@ def dashboard(**kwargs):
                 "Margin Shortfall Action", mg_shortfall_doc.margin_shortfall_action
             )
             if mg_shortfall_doc:
+                is_today_holiday = 0
                 hrs_difference = mg_shortfall_doc.deadline - frappe.utils.now_datetime()
                 if mg_shortfall_action.sell_off_after_hours:
                     date_array = set(
@@ -1073,39 +1074,33 @@ def dashboard(**kwargs):
                         - timedelta(days=(len(holidays) if holidays else 0))
                     )
 
-                    today = frappe.utils.now_datetime().date()
-                    tomorrow = today + timedelta(days=1)
+                    is_today_holiday = (
+                        1 if frappe.utils.now_datetime().date() in holidays else 0
+                    )
 
                     remaining_time = convert_sec_to_hh_mm_ss(
                         abs(
-                            frappe.utils.now_datetime().replace(
+                            mg_shortfall_doc.deadline
+                            - frappe.utils.now_datetime().replace(
                                 hour=23, minute=59, second=59, microsecond=999999
                             )
-                            - mg_shortfall_doc.deadline
+                            - timedelta(days=(len(holidays) if holidays else 0))
                         ).total_seconds()
                     )
 
                 mgloan.append(
                     {
                         "name": dictionary["name"],
+                        "status": dictionary["status"],
                         "deadline": convert_sec_to_hh_mm_ss(
                             abs(hrs_difference).total_seconds()
                         )
                         if mg_shortfall_doc.deadline > frappe.utils.now_datetime()
                         else "00:00:00",
-                        "timer_stop_at": remaining_time
-                        if (
-                            mg_shortfall_doc.deadline > frappe.utils.now_datetime()
-                            and tomorrow in holidays
-                        )
+                        "timer_start_stop_at": remaining_time
+                        if mg_shortfall_doc.deadline > frappe.utils.now_datetime()
                         else None,
-                        "timer_start_at": remaining_time
-                        if (
-                            mg_shortfall_doc.deadline > frappe.utils.now_datetime()
-                            and (today in holidays and tomorrow not in holidays)
-                        )
-                        else None,
-                        "status": dictionary["status"],
+                        "is_today_holiday": is_today_holiday,
                     }
                 )
 
