@@ -11,69 +11,105 @@ frappe.ui.form.on("Loan", {
       .hide();
     frappe.db.get_single_value("LAS Settings", "debug_mode").then((res) => {
       if (res) {
-        frm.add_custom_button(__("Daily Cron Job"), function () {
-          frappe.prompt(
-            {
-              label: "Date",
-              fieldname: "date",
-              fieldtype: "Date",
-              reqd: true,
-            },
-            (values) => {
-              frappe.call({
-                method: "lms.lms.doctype.loan.loan.daily_cron_job",
-                freeze: true,
-                args: {
-                  loan_name: frm.doc.name,
-                  input_date: values.date,
-                },
-              });
-            }
-          );
-        });
-        frm.add_custom_button(__("Daily Penal Job"), function () {
-          frappe.prompt(
-            {
-              label: "Date",
-              fieldname: "date",
-              fieldtype: "Date",
-              reqd: true,
-            },
-            (values) => {
-              frappe.call({
-                method: "lms.lms.doctype.loan.loan.daily_penal_job",
-                freeze: true,
-                args: {
-                  loan_name: frm.doc.name,
-                  input_date: values.date,
-                },
-              });
-            }
-          );
-        });
+        frm.add_custom_button(
+          __("Virtual Interest"),
+          function () {
+            frappe.prompt(
+              {
+                label: "Date",
+                fieldname: "date",
+                fieldtype: "Date",
+                reqd: true,
+              },
+              (values) => {
+                frappe.call({
+                  method: "lms.lms.doctype.loan.loan.daily_virtual_job",
+                  freeze: true,
+                  args: {
+                    loan_name: frm.doc.name,
+                    input_date: values.date,
+                  },
+                });
+              }
+            );
+          },
+          __("Interest Jobs")
+        );
+        frm.add_custom_button(
+          __("Penal Interest"),
+          function () {
+            frappe.prompt(
+              {
+                label: "Date",
+                fieldname: "date",
+                fieldtype: "Date",
+                reqd: true,
+              },
+              (values) => {
+                frappe.call({
+                  method: "lms.lms.doctype.loan.loan.daily_penal_job",
+                  freeze: true,
+                  args: {
+                    loan_name: frm.doc.name,
+                    input_date: values.date,
+                  },
+                });
+              }
+            );
+          },
+          __("Interest Jobs")
+        );
+        frm.add_custom_button(
+          __("Additional Interest"),
+          function () {
+            frappe.prompt(
+              {
+                label: "Date",
+                fieldname: "date",
+                fieldtype: "Date",
+                reqd: true,
+              },
+              (values) => {
+                frappe.call({
+                  method: "lms.lms.doctype.loan.loan.additional_interest_job",
+                  freeze: true,
+                  args: {
+                    loan_name: frm.doc.name,
+                    input_date: values.date,
+                  },
+                });
+              }
+            );
+          },
+          __("Interest Jobs")
+        );
 
-        frm.add_custom_button(__("Monthly Cron Job"), function () {
-          // frappe.msgprint("hii,  whatsup");
-          frappe.prompt(
-            {
-              label: "Date",
-              fieldname: "date",
-              fieldtype: "Date",
-              reqd: true,
-            },
-            (values) => {
-              frappe.call({
-                method:
-                  "lms.lms.doctype.loan.loan.book_virtual_interest_for_month",
-                freeze: true,
-                args: {
-                  loan_name: frm.doc.name,
-                  input_date: values.date,
-                },
-              });
-            }
-          );
-        });
+        frm.add_custom_button(
+          __("Book Interest"),
+          function () {
+            // frappe.msgprint("hii,  whatsup");
+            frappe.prompt(
+              {
+                label: "Date",
+                fieldname: "date",
+                fieldtype: "Date",
+                reqd: true,
+              },
+              (values) => {
+                frappe.call({
+                  method:
+                    "lms.lms.doctype.loan.loan.book_virtual_interest_for_month",
+                  freeze: true,
+                  args: {
+                    loan_name: frm.doc.name,
+                    input_date: values.date,
+                  },
+                });
+              }
+            );
+          },
+          __("Interest Jobs")
+        );
 
         //   frm.add_custom_button(__("Check for shortfall"), function () {
         //     frappe.call({

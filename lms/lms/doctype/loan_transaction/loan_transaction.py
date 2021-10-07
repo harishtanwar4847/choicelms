@@ -402,8 +402,8 @@ class LoanTransaction(Document):
 
                     if total_interest_amt_paid <= 0:
                         break
-        
-        # Update Interest Details fields in loan Doctype                 
+
+        # Update Interest Details fields in loan Doctype
         if self.transaction_type in [
             "Interest",
             "Additional Interest",
@@ -585,13 +585,18 @@ class LoanTransaction(Document):
             # )[0]["unpaid_interest"]
 
             current_date = frappe.utils.now_datetime()
-            job_date = (current_date - timedelta(days=1)).replace(hour=23, minute=59, second=59, microsecond=999999)
+            job_date = (current_date - timedelta(days=1)).replace(
+                hour=23, minute=59, second=59, microsecond=999999
+            )
             prev_month = job_date.month
             prev_month_year = job_date.year
 
             interest_due = frappe.db.sql(
                 "select sum(unpaid_interest) as unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
-                    self.loan, prev_month_year, prev_month),as_dict=1,)[0]["unpaid_interest"]
+                    self.loan, prev_month_year, prev_month
+                ),
+                as_dict=1,
+            )[0]["unpaid_interest"]
 
             loan.interest_due = interest_due if interest_due else 0.0
 

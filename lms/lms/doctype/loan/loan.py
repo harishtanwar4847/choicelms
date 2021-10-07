@@ -1432,13 +1432,44 @@ def daily_cron_job(loan_name, input_date=None):
         method="calculate_virtual_and_additional_interest",
         input_date=input_date,
     )
-    
+
+
+@frappe.whitelist()
+def daily_virtual_job(loan_name, input_date=None):
+    frappe.enqueue_doc(
+        "Loan",
+        loan_name,
+        method="add_virtual_interest",
+        input_date=input_date,
+    )
+
+
+@frappe.whitelist()
+def daily_cron_job(loan_name, input_date=None):
+    frappe.enqueue_doc(
+        "Loan",
+        loan_name,
+        method="calculate_virtual_and_additional_interest",
+        input_date=input_date,
+    )
+
+
 @frappe.whitelist()
 def daily_penal_job(loan_name, input_date=None):
     frappe.enqueue_doc(
         "Loan",
         loan_name,
         method="add_penal_interest",
+        input_date=input_date,
+    )
+
+
+@frappe.whitelist()
+def additional_interest_job(loan_name, input_date=None):
+    frappe.enqueue_doc(
+        "Loan",
+        loan_name,
+        method="check_for_additional_interest",
         input_date=input_date,
     )
 
