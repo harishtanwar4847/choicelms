@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v1.0.8] - 2021-10-07
+
+## Fixed
+
+- [Feat: Added missing div tag in loan against share page]()
+
 ## [v1.0.8] - 2021-10-06
 
 ## Added
