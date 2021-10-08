@@ -4,7 +4,14 @@
   content="{% block description %}{% endblock description %}"
 />
 <meta name="keywords" content="{% block keywords %}{% endblock keywords %}" />
-{% endblock %} {% block favicon %}
+
+{% set og_code_enabled = frappe.db.get_single_value("LAS Settings",
+"og_code_enabled") %} {% if og_code_enabled %}
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="spark.loans" />
+<meta name="og:title" content="{% block ogtitle %}{% endblock %}" />
+<meta name="og:description" content="{% block ogdescription %}{% endblock %}" />
+{% block ogtag %} {% endblock %} {% endif %} {% endblock %} {% block favicon %}
 <link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
 {% endblock %} {%- block head_include -%} {% include
 'templates/head_content.html' %} {%- endblock -%} {%- block style %}{%- endblock
