@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "allow_import": 1,
  "creation": "2020-05-08 17:48:43.472417",
  "doctype": "DocType",
@@ -7,8 +8,8 @@
  "field_order": [
   "isin",
   "lender",
-  "eligible_percentage",
   "column_break_5",
+  "eligible_percentage",
   "security_name",
   "security_category"
  ],
@@ -52,7 +53,8 @@
    "reqd": 1
   }
  ],
- "modified": "2021-06-09 14:57:23.432553",
+ "links": [],
+ "modified": "2021-10-08 12:29:50.676507",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",
