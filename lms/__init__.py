@@ -704,7 +704,12 @@ def send_spark_push_notification(
             ).insert(ignore_permissions=True)
             frappe.db.commit()
         except Exception as e:
-            return e
+            # return e
+            # To log fcm notification exception errors into Frappe Error Log
+            frappe.log_error(
+                frappe.get_traceback() + "\nNotification Info:\n" + json.dumps(data),
+                e.args,
+            )
         finally:
             fa.delete_app()
 
