@@ -2,11 +2,11 @@
 
 ## [Unreleased]
 
-## [v1.0.8] - 2021-10-07
+## [v1.0.8] - 2021-10-08
 
 ### Fixed
 
-- [Feat: Added missing div tag in loan against share page](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/412)
+- [Fix: Added missing div tag in loan against share page](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/412)
 
 ## [v1.0.8] - 2021-10-06
 
