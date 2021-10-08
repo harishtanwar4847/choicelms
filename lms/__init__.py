@@ -26,7 +26,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "1.0.7"
+__version__ = "1.1.0"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -704,7 +704,12 @@ def send_spark_push_notification(
             ).insert(ignore_permissions=True)
             frappe.db.commit()
         except Exception as e:
-            return e
+            # return e
+            # To log fcm notification exception errors into Frappe Error Log
+            frappe.log_error(
+                frappe.get_traceback() + "\nNotification Info:\n" + json.dumps(data),
+                e.args,
+            )
         finally:
             fa.delete_app()
 

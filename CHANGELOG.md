@@ -2,9 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
 - [Feat: changes in tnc html template, loan agreement template, loan enhancement agreement template regarding lender charges](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/361)
 - [Feat: changes in Currency format (Rupees and Paisa), percentage, Rupees in word format in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/366)
-- [Fix: PDF link in webview for Help/Faq](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/368)
 - [Feat: changes in Currency format as per confirmed by client in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/369)
 - [Feat: changes in Currency format in words in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/370)
 - [Feat: pledgor boid added in loan details response](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/371)
@@ -13,13 +14,39 @@
 - [Feat: Send recent firebase token of user in fcm notification and collapse key changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/378)
 - [Feat: increase loan sanctioned limit charges scenarios](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/381)
 - [Feat: Client Holding](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/385)
-- [Fix: Payment, Pledge more, Sell collateral scenario for margin shortfall Sell Triggered status and Unpledge otp expire message change](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/386)
 - [Feat: Razorpay callback](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/390)
-- [Fix: is_sell_triggered flag added in loan_summary_dashboard, my_pledge_securities, loan_details api](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/392)
 - [Feat: Contact Us module implementation as per New Requirement)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/399)
+- [Feat: added mobile number and changes format in mail content in Contact Us module](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/403)
+- [Feat: Open Graph Code to be enabled on PROD Environment only](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/405)
+- [Feat: Open graph code added for (non www)spark.loans](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/406)
+- [Feat: contact us email content formatted](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/408)
+- [Feat: contact us email content changes for new line](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/409)
+
+### Fixed
+
+- [Fix: PDF link in webview for Help/Faq](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/368)
+- [Fix: Payment, Pledge more, Sell collateral scenario for margin shortfall Sell Triggered status and Unpledge otp expire message change](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/386)
+- [Fix: is_sell_triggered flag added in loan_summary_dashboard, my_pledge_securities, loan_details api](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/392)
 - [Fix: Client holding fixes,on loan application rejection related changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/400)
 - [Fix: hide esign button while loan application is for margin shortfall pledge more](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/402)
-- [Feat: added mobile number and changes format in mail content in Contact Us module](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/403)
+
+## [v1.0.9] - 2021-10-08
+
+### Fixed
+
+- [Fix: Added missing div tag in loan against share page](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/412)
+
+## [v1.0.8] - 2021-10-06
+
+### Added
+
+- [Feat: Product (Loan Against Shares) Page](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/410)
+
+## [v1.0.7] - 2021-10-05
+
+### Fixed
+
+- [Fix: Datatype of Bank address and Users address in User kyc doctype changed to Long text](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/407)
 
 ## [v1.0.6] - 2021-09-22
 
