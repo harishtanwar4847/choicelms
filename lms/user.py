@@ -1068,24 +1068,34 @@ def dashboard(**kwargs):
                         )
                     )
                     holidays = date_array.intersection(set(holiday_list()))
+
+                    if frappe.utils.now_datetime().date() in holidays:
+                        is_today_holiday = 1
+
+                    previous_holidays = 0
+                    for days in list(holidays):
+                        if (
+                            days > mg_shortfall_doc.creation.date()
+                            and days < frappe.utils.now_datetime().date()
+                        ):
+                            previous_holidays += 1
                     hrs_difference = (
                         mg_shortfall_doc.deadline
                         - frappe.utils.now_datetime()
                         - timedelta(days=(len(holidays) if holidays else 0))
-                    )
-
-                    is_today_holiday = (
-                        1 if frappe.utils.now_datetime().date() in holidays else 0
-                    )
-
-                    remaining_time = convert_sec_to_hh_mm_ss(
-                        abs(
-                            mg_shortfall_doc.deadline
+                        + (
+                            frappe.utils.now_datetime()
                             - frappe.utils.now_datetime().replace(
-                                hour=23, minute=59, second=59, microsecond=999999
+                                hour=0, minute=0, second=0, microsecond=0
                             )
-                            - timedelta(days=(len(holidays) if holidays else 0))
-                        ).total_seconds()
+                        )
+                        if frappe.utils.now_datetime().date() in holidays
+                        else timedelta(
+                            days=0
+                        )  # if_today_holiday then add those hours in timer
+                        + timedelta(
+                            days=previous_holidays
+                        )  # if_prev_days_in_holidays then add those days in timer
                     )
 
                 mgloan.append(
@@ -1097,9 +1107,6 @@ def dashboard(**kwargs):
                         )
                         if mg_shortfall_doc.deadline > frappe.utils.now_datetime()
                         else "00:00:00",
-                        "timer_start_stop_at": remaining_time
-                        if mg_shortfall_doc.deadline > frappe.utils.now_datetime()
-                        else None,
                         "is_today_holiday": is_today_holiday,
                     }
                 )
