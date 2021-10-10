@@ -894,6 +894,7 @@ def loan_details(**kwargs):
             loan_margin_shortfall["shortfall_c_str"] = lms.amount_formatter(
                 loan_margin_shortfall.shortfall_c
             )
+            loan_margin_shortfall["is_today_holiday"] = 0
 
             if loan_margin_shortfall.status == "Request Pending":
                 pledged_paid_shortfall = 0
@@ -1032,11 +1033,33 @@ def loan_details(**kwargs):
                         )
                     )
                     holidays = date_array.intersection(set(holiday_list()))
+
+                    previous_holidays = 0
+                    for days in list(holidays):
+                        if (
+                            days > loan_margin_shortfall.creation.date()
+                            and days < frappe.utils.now_datetime().date()
+                        ):
+                            previous_holidays += 1
+
                     hrs_difference = (
                         loan_margin_shortfall.deadline
                         - frappe.utils.now_datetime()
                         - timedelta(days=(len(holidays) if holidays else 0))
+                        + timedelta(
+                            days=previous_holidays
+                        )  # if_prev_days_in_holidays then add those days in timer
                     )
+
+                    if frappe.utils.now_datetime().date() in holidays:
+                        # if_today_holiday then add those hours in timer
+                        loan_margin_shortfall["is_today_holiday"] = 1
+                        hrs_difference += (
+                            frappe.utils.now_datetime()
+                            - frappe.utils.now_datetime().replace(
+                                hour=0, minute=0, second=0, microsecond=0
+                            )
+                        )
 
                 loan_margin_shortfall["deadline_in_hrs"] = (
                     convert_sec_to_hh_mm_ss(abs(hrs_difference).total_seconds())
