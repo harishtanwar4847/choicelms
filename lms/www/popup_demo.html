@@ -32,38 +32,25 @@
           </h1>
           <p class="text-center mt-5">
             <a
-              href="#headerPopup"
-              id="headerVideoLink"
-              target="_blank"
-              class="btn btn-outline-danger popup-modal"
-              ><img
-                src="assets/lms/images/home/videos/ic_video.jpg"
-                class="videoico"
-            /></a>
+              class="popup-youtube"
+              href="http://www.youtube.com/watch?v=0O2aH4XLbto"
+              >Open YouTube video</a
+            >
           </p>
-          <div
-            id="headerPopup"
-            class="mfp-hide embed-responsive embed-responsive-21by9"
-          >
-            <iframe
-              class="embed-responsive-item"
-              width="854"
-              height="480"
-              src="https://www.youtube.com/embed/qN3OueBm9F4?autoplay=1"
-              frameborder="0"
-              allow="autoplay; encrypted-media"
-              allowfullscreen
-            ></iframe>
-          </div>
         </div>
       </div>
     </div>
   </body>
   <script>
     $(document).ready(function () {
-      $("#headerVideoLink").magnificPopup({
-        type: "inline",
-        midClick: true,
+      $(".popup-youtube").magnificPopup({
+        disableOn: 700,
+        type: "iframe",
+        mainClass: "mfp-fade",
+        removalDelay: 160,
+        preloader: false,
+
+        fixedContentPos: false,
       });
     });
   </script>
