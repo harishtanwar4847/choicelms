@@ -13,11 +13,11 @@ from lxml import etree
 from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms
+from lms import convert_sec_to_hh_mm_ss, holiday_list
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions import (
     ApprovedTermsandConditions,
 )
-from lms.user import convert_sec_to_hh_mm_ss, holiday_list
 
 
 @frappe.whitelist()

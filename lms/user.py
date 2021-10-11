@@ -16,6 +16,7 @@ from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.utils.password import check_password, update_password
 
 import lms
+from lms import convert_sec_to_hh_mm_ss, holiday_list
 
 # from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
@@ -2805,23 +2806,6 @@ def margin_shortfall_and_interest_loans(customer):
     )
 
     return all_mgloans, all_interest_loans
-
-
-def convert_sec_to_hh_mm_ss(seconds):
-    min, sec = divmod(seconds, 60)
-    hour, min = divmod(min, 60)
-    return "%d:%02d:%02d" % (hour, min, sec)
-
-
-def holiday_list():
-    date_list = []
-    holiday_list = frappe.get_all(
-        "Bank Holiday", filters={"active": 1}, fields="date", order_by="date asc"
-    )
-    for i, dates in enumerate(d["date"] for d in holiday_list):
-        date_list.append(dates)
-
-    return list(set(date_list))
 
 
 @frappe.whitelist()

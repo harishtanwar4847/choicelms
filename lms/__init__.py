@@ -933,3 +933,20 @@ def rupees_to_words(num):
             + ("" if num % pivot == 0 else " " + rupees_to_words(num % pivot))
         )
     return amt_str
+
+
+def convert_sec_to_hh_mm_ss(seconds):
+    min, sec = divmod(seconds, 60)
+    hour, min = divmod(min, 60)
+    return "%d:%02d:%02d" % (hour, min, sec)
+
+
+def holiday_list():
+    date_list = []
+    holiday_list = frappe.get_all(
+        "Bank Holiday", filters={"active": 1}, fields="date", order_by="date asc"
+    )
+    for i, dates in enumerate(d["date"] for d in holiday_list):
+        date_list.append(dates)
+
+    return list(set(date_list))

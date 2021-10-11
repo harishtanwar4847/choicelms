@@ -13,8 +13,8 @@ from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
 
 import lms
+from lms import convert_sec_to_hh_mm_ss, holiday_list
 from lms.firebase import FirebaseAdmin
-from lms.user import convert_sec_to_hh_mm_ss, holiday_list
 
 
 class LoanMarginShortfall(Document):
@@ -78,64 +78,6 @@ class LoanMarginShortfall(Document):
     def after_insert(self):
         if self.status == "Pending":
             self.set_deadline()
-            # loan = self.get_loan()
-            # self.notify_customer()
-
-            # creation = datetime.strptime(self.creation, "%Y-%m-%d %H:%M:%S.%f")
-            # deadline = self.deadline
-            # hrs_difference = deadline - frappe.utils.now_datetime()
-            # margin_shortfall_action = self.get_shortfall_action()
-            # if margin_shortfall_action.sell_off_after_hours:
-            #     date_array = set(
-            #         creation.date() + timedelta(days=x)
-            #         for x in range(
-            #             0,
-            #             (deadline.date() - creation.date()).days + 1,
-            #         )
-            #     )
-            #     holidays = date_array.intersection(set(holiday_list()))
-            #     hrs_difference = (
-            #         deadline
-            #         - frappe.utils.now_datetime()
-            #         - timedelta(days=(len(holidays) if holidays else 0))
-            #     )
-
-            # try:
-            #     fa = FirebaseAdmin()
-            #     fa.send_data(
-            #         data={
-            #             "event": "timer start",
-            #             "condition": "after insert",
-            #             "time": convert_sec_to_hh_mm_ss(
-            #                 abs(hrs_difference).total_seconds()
-            #             ),
-            #             "loan_name": loan.name,
-            #             "margin_shortfall_doc": self.as_json(),
-            #         },
-            #         tokens=lms.get_firebase_tokens(loan.get_customer().user),
-            #     )
-            # except Exception:
-            #     pass
-            # finally:
-            #     fa.delete_app()
-            # try:
-            #     fa = FirebaseAdmin()
-            #     fa.send_data(
-            #         data={
-            #             "event": "timer stop",
-            #             "condition": "after insert",
-            #             "time": "00:00:00",
-            #             "loan_name": loan.name,
-            #             "margin_shortfall_doc": self.as_json(),
-            #         },
-            #         tokens=lms.get_firebase_tokens(loan.get_customer().user),
-            #     )
-            # except Exception:
-            #     pass
-            # finally:
-            #     fa.delete_app()
-
-        # TODO: notify customer even if not set margin shortfall action
 
     def get_loan(self):
         return frappe.get_doc("Loan", self.loan)
@@ -294,81 +236,6 @@ class LoanMarginShortfall(Document):
 
             self.save(ignore_permissions=True)
             frappe.db.commit()
-
-    # def timer_start_stop_fcm(self):
-    #     loan = self.get_loan()
-    #     now = frappe.utils.now_datetime()
-    #     tomorrow = datetime.strptime(
-    #         frappe.utils.today(), "%Y-%m-%d"
-    #     ).date() + timedelta(days=1)
-
-    #     if (
-    #         now.hour == 23
-    #         and now.minute >= 00
-    #         and now.second >= 00
-    #         and now.microsecond >= 0
-    #     ):
-    #         if tomorrow in holiday_list() and (self.deadline).date() >= tomorrow:
-    #             try:
-    #                 fa = FirebaseAdmin()
-    #                 fa.send_data(
-    #                     data={
-    #                         "event": "timer stop",
-    #                         "condition": "if tomorrow bank holiday",
-    #                         "time": convert_sec_to_hh_mm_ss(
-    #                             abs(
-    #                                 self.deadline
-    #                                 - frappe.utils.now_datetime().replace(
-    #                                     hour=23,
-    #                                     minute=59,
-    #                                     second=59,
-    #                                     microsecond=999999,
-    #                                 )
-    #                                 - timedelta(days=1)
-    #                             ).total_seconds()
-    #                         ),
-    #                         "loan_name": loan.name,
-    #                         "margin_shortfall_doc": self.as_json(),
-    #                     },
-    #                     tokens=lms.get_firebase_tokens(loan.get_customer().user),
-    #                 )
-    #             except Exception:
-    #                 pass
-    #             finally:
-    #                 fa.delete_app()
-
-    #         if (
-    #             datetime.strptime(frappe.utils.today(), "%Y-%m-%d").date()
-    #             in holiday_list()
-    #             and tomorrow not in holiday_list()
-    #         ):
-    #             try:
-    #                 fa = FirebaseAdmin()
-    #                 fa.send_data(
-    #                     data={
-    #                         "event": "timer start",
-    #                         "condition": "if tomorrow no bank holiday",
-    #                         "time": convert_sec_to_hh_mm_ss(
-    #                             abs(
-    #                                 self.deadline
-    #                                 - frappe.utils.now_datetime().replace(
-    #                                     hour=23,
-    #                                     minute=59,
-    #                                     second=59,
-    #                                     microsecond=999999,
-    #                                 )
-    #                                 - timedelta(days=1)
-    #                             ).total_seconds()
-    #                         ),
-    #                         "loan_name": loan.name,
-    #                         "margin_shortfall_doc": self.as_json(),
-    #                     },
-    #                     tokens=lms.get_firebase_tokens(loan.get_customer().user),
-    #                 )
-    #             except Exception:
-    #                 pass
-    #             finally:
-    #                 fa.delete_app()
 
     def update_deadline_based_on_holidays(self, input_datetime=None):
         margin_shortfall_action = self.get_shortfall_action()
