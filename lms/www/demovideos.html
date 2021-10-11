@@ -108,6 +108,21 @@ description %} {% block body %}
         loadData(page_no, latest_video, search_key, replace);
       });
 
+      // magnificPopup creation
+      $("#VideoLink").click(function () {
+        console.log("AAAAAAA");
+        $("#VideoLink").magnificPopup({
+          disableOn: 700,
+          type: "iframe",
+          mainClass: "mfp-fade",
+          removalDelay: 160,
+          preloader: false,
+
+          fixedContentPos: false,
+        });
+        console.log("BBBBBBB");
+      });
+
       function loadData(
         page_no,
         latest_video = "",
@@ -161,24 +176,15 @@ description %} {% block body %}
               page_no == 1 &&
               res.data.videos_list_response.length <= 0
             ) {
-              $("#ourStories").empty();
+              html = "";
+              html += "<h3>No videos found.</h3>";
+              $("#ourStories").append(html);
               $("#viewMore").hide();
             }
           },
         });
       }
-      // magnificPopup creation
-      $(".videoico").click(function () {
-        $("#VideoLink").magnificPopup({
-          disableOn: 700,
-          type: "iframe",
-          mainClass: "mfp-fade",
-          removalDelay: 160,
-          preloader: false,
 
-          fixedContentPos: false,
-        });
-      });
       // Search video
       $("#search").keyup(function () {
         $("#page_no").val(1);
