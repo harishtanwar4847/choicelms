@@ -758,9 +758,18 @@ def securities(**kwargs):
         if len(pledge_waiting_securitites) > 0:
             for i in pledge_waiting_securitites:
                 try:
-                    securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"] = i[
-                        "pledged_quantity"
-                    ]
+                    if not securities_category_map[i["isin"]].get(
+                        "waiting_to_be_pledged_qty", None
+                    ):
+                        securities_category_map[i["isin"]][
+                            "waiting_to_be_pledged_qty"
+                        ] = {}
+                        # if not securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"].get(i['pledgor_boid'], None):
+                        #     securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][i['pledgor_boid']] = 0
+
+                    securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][
+                        i["pledgor_boid"]
+                    ] = i["pledged_quantity"]
                 except KeyError:
                     continue
 
@@ -791,9 +800,18 @@ def securities(**kwargs):
         if len(waiting_for_lender_approval_securities) > 0:
             for i in waiting_for_lender_approval_securities:
                 try:
+                    if not securities_category_map[i["isin"]].get(
+                        "waiting_for_approval_pledged_qty", None
+                    ):
+                        securities_category_map[i["isin"]][
+                            "waiting_for_approval_pledged_qty"
+                        ] = {}
+                        # if not securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"].get(i['pledgor_boid'], None):
+                        #     securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"][i['pledgor_boid']] = 0
+
                     securities_category_map[i["isin"]][
                         "waiting_for_approval_pledged_qty"
-                    ] = i["pledged_quantity"]
+                    ][i["pledgor_boid"]] = i["pledged_quantity"]
                 except KeyError:
                     continue
 
@@ -824,9 +842,17 @@ def securities(**kwargs):
         if len(unpledge_approved_securities) > 0:
             for i in unpledge_approved_securities:
                 try:
-                    securities_category_map[i["isin"]]["unpledged_quantity"] = i[
-                        "unpledged_quantity"
-                    ]
+                    if not securities_category_map[i["isin"]].get(
+                        "unpledged_quantity", None
+                    ):
+                        securities_category_map[i["isin"]]["unpledged_quantity"] = {}
+                    # securities_category_map[i["isin"]]["unpledged_quantity"] = i[
+                    #     "unpledged_quantity"
+                    # ]
+
+                    securities_category_map[i["isin"]]["unpledged_quantity"][
+                        i["pledgor_boid"]
+                    ] = i["unpledged_quantity"]
                 except KeyError:
                     continue
 
@@ -841,41 +867,67 @@ def securities(**kwargs):
                 )
                 i["Is_Eligible"] = True
                 i["Total_Qty"] = i["Quantity"]
-                i["waiting_to_be_pledged_qty"] = float(
-                    securities_category_map[i["ISIN"]].get(
-                        "waiting_to_be_pledged_qty", 0
-                    )
-                )
-                i["waiting_for_approval_pledged_qty"] = float(
-                    securities_category_map[i["ISIN"]].get(
-                        "waiting_for_approval_pledged_qty", 0
-                    )
-                )
-                i["unpledged_quantity"] = float(
-                    securities_category_map[i["ISIN"]].get("unpledged_quantity", 0)
-                )
-                available_quantity = (
-                    i["Quantity"]
-                    - (
-                        float(
-                            securities_category_map[i["ISIN"]].get(
-                                "waiting_to_be_pledged_qty", 0
-                            )
+
+                if not i.get("waiting_to_be_pledged_qty", None):
+                    i["waiting_to_be_pledged_qty"] = 0
+
+                if securities_category_map[i["ISIN"]].get(
+                    "waiting_to_be_pledged_qty", None
+                ):
+                    if (
+                        i["Stock_At"]
+                        in securities_category_map[i["ISIN"]][
+                            "waiting_to_be_pledged_qty"
+                        ].keys()
+                    ):
+                        i["waiting_to_be_pledged_qty"] += float(
+                            securities_category_map[i["ISIN"]][
+                                "waiting_to_be_pledged_qty"
+                            ][i["Stock_At"]]
                         )
-                        + float(
-                            securities_category_map[i["ISIN"]].get(
-                                "waiting_for_approval_pledged_qty", 0
-                            )
+
+                if not i.get("waiting_for_approval_pledged_qty", None):
+                    i["waiting_for_approval_pledged_qty"] = 0
+
+                if securities_category_map[i["ISIN"]].get(
+                    "waiting_for_approval_pledged_qty", None
+                ):
+                    if (
+                        i["Stock_At"]
+                        in securities_category_map[i["ISIN"]][
+                            "waiting_for_approval_pledged_qty"
+                        ].keys()
+                    ):
+                        i["waiting_for_approval_pledged_qty"] += float(
+                            securities_category_map[i["ISIN"]][
+                                "waiting_for_approval_pledged_qty"
+                            ][i["Stock_At"]]
                         )
-                    )
-                ) + (
-                    float(
-                        securities_category_map[i["ISIN"]].get("unpledged_quantity", 0)
-                    )
+
+                if not i.get("unpledged_quantity", None):
+                    i["unpledged_quantity"] = 0
+
+                if securities_category_map[i["ISIN"]].get("unpledged_quantity", None):
+                    if (
+                        i["Stock_At"]
+                        in securities_category_map[i["ISIN"]][
+                            "unpledged_quantity"
+                        ].keys()
+                    ):
+                        i["unpledged_quantity"] += float(
+                            securities_category_map[i["ISIN"]]["unpledged_quantity"][
+                                i["Stock_At"]
+                            ]
+                        )
+
+                available_quantity = (i["Quantity"] + i["unpledged_quantity"]) - (
+                    i["waiting_to_be_pledged_qty"]
+                    + i["waiting_for_approval_pledged_qty"]
                 )
                 i["Quantity"] = (
                     available_quantity if available_quantity > 0 else float(0)
                 )
+
             except KeyError:
                 i["Is_Eligible"] = False
                 i["Category"] = None
@@ -2145,7 +2197,7 @@ def update_profile_pic_and_pin(**kwargs):
 
 
 @frappe.whitelist(allow_guest=True)
-def contact_us(**kwargs):
+def contact_us_old(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
@@ -2932,5 +2984,75 @@ def read_or_clear_notifications(**kwargs):
 
         return utils.respondWithSuccess()
 
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist()
+def contact_us(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(kwargs, {"message": "required"})
+
+        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        # if re.search(email_regex, data.get("sender")) is None:
+        #     return utils.respondWithFailure(
+        #         status=422,
+        #         message=frappe._("Expected a Mail, Got: {}".format(data.get("sender"))),
+        #     )
+
+        if not data.get("message") or data.get("message").isspace():
+            return utils.respondWithFailure(
+                message=frappe._("Please write your query to us.")
+            )
+
+        try:
+            user = lms.__user()
+        except UserNotFoundException:
+            user = None
+
+        # try:
+        # user = frappe.get_doc("User", data.get("sender"))
+        # except frappe.DoesNotExistError:
+        #     return utils.respondNotFound(
+        #         message=frappe._("Please use registered email.")
+        #     )
+
+        if user and data.get("message"):
+            recipients = frappe.get_single("Contact Us Settings").forward_to_email
+            from frappe.model.naming import getseries
+
+            subject = "Contact us Request – " + getseries("Contact us Request –", 3)
+            frappe.db.commit()
+
+            message = "{mess}<br><br>From - {name},<br>Email id - {email},<br>Mobile number - {phone},<br>Customer id - {cust}".format(
+                mess=data.get("message").strip(),
+                name=user.full_name,
+                email=user.email,
+                phone=lms.__customer().phone,
+                cust=lms.__customer().name,
+            )
+
+            frappe.get_doc(
+                dict(
+                    doctype="Communication",
+                    sender=user.email,
+                    subject=_("New Message from Website Contact Page"),
+                    sent_or_received="Received",
+                    content=message,
+                    status="Open",
+                )
+            ).insert(ignore_permissions=True)
+
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=[recipients],
+                sender=None,
+                subject=subject,
+                message=message.replace("\n", "<br>"),
+            )
+
+        return utils.respondWithSuccess()
     except utils.exceptions.APIException as e:
         return e.respond()

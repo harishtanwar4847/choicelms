@@ -1,9 +1,13 @@
-{% extends 'templates/lmsbase.html' %} {% block title %} Financial Products |
-spark.loans {% endblock title %} {% block description %} We offer loans against
-multiple financial securities for your convenience. To check plans, visit our
-website. {% endblock description %} {% block keywords %}Financial Products, Loan
-Against Securities, Loan Against Shares, Loan on Shares {% endblock keywords %}
-{% block body %}
+{% extends 'templates/lmsbase.html' %} {% block ogtag %}
+<meta property="og:url" content="https://spark.loans/products" />
+{% endblock %} {% block title %} Financial Products | spark.loans {% endblock
+title %} {% block description %} We offer loans against multiple financial
+securities for your convenience. To check plans, visit our website. {% endblock
+description %} {% block ogtitle %} Financial Products | spark.loans {% endblock
+%} {% block ogdescription %} We offer loans against multiple financial
+securities for your convenience.To check plans, visit our website. {% endblock
+%} {% block keywords %}Financial Products, Loan Against Securities, Loan Against
+Shares, Loan on Shares {% endblock keywords %} {% block body %}
 <section class="fw">
   <div class="container">
     <div class="row">
@@ -26,9 +30,7 @@ Against Securities, Loan Against Shares, Loan on Shares {% endblock keywords %}
             Avail loan against equity shares without losing the upside gain on
             the shares.
           </p>
-          <a href="#" class="proLink" data-toggle="modal" data-target="#schemes"
-            >Check Schemes</a
-          >
+          <a href="/products/loan-against-shares" class="proLink">View More</a>
         </div>
       </div>
       <div class="col col-md-5 d-none d-sm-block">

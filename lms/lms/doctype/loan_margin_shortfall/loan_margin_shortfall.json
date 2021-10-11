@@ -209,9 +209,8 @@
    "label": "Time Remaining"
   }
  ],
- "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-16 11:05:41.132938",
+ "modified": "2021-09-28 14:51:30.359432",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Margin Shortfall",
@@ -228,6 +227,22 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Spark Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Lender"
   }
  ],
  "quick_entry": 1,

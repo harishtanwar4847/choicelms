@@ -1,7 +1,12 @@
-{% extends 'templates/lmsbase.html' %} {% block title %} Terms of Use -
-SparkLoans {% endblock title %} {% block description %} Read our terms and
-conditions on SparkLoans web portal. {% endblock description %} {%- block
-head_include -%} {% include 'templates/head_content.html' %}
+{% extends 'templates/lmsbase.html' %} {% block ogtag %}
+<meta property="og:url" content="https://spark.loans/terms-of-use" />
+{% endblock %} {% block title %} Terms of Use - SparkLoans {% endblock title %}
+{% block description %} Read our terms and conditions on SparkLoans web portal.
+{% endblock description %} {% block ogtitle %} Terms of Use - spark.loans {%
+endblock %} {% block ogdescription %} Read our terms and conditions on
+spark.loans web portal{% endblock %} {%- block head_include -%} {% include
+'templates/head_content.html' %}
+
 <style>
   @media (max-width: 768px) {
     li::marker {

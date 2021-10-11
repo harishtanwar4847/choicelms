@@ -248,6 +248,11 @@ class LoanApplication(Document):
                     #         2,
                     #     )
 
+        # On loan application rejection mark lender approvel status as rejected in loan application items
+        if self.status == "Rejected":
+            for i in self.items:
+                i.lender_approval_status = "Rejected"
+
         self.total_collateral_value_str = lms.amount_formatter(
             self.total_collateral_value
         )
@@ -413,6 +418,16 @@ class LoanApplication(Document):
                     customer.save(ignore_permissions=True)
                     frappe.db.commit()
 
+            # On loan application rejection mark lender approvel status as rejected in collateral ledger as well 23-09-2021 Poonam
+            loan_application_isin_list = [i.isin for i in self.items]
+
+            self.update_collateral_ledger(
+                {"lender_approval_status": "Rejected"},
+                "application_doctype = 'Loan Application' and application_name = '{}' and isin IN {}".format(
+                    self.name,
+                    lms.convert_list_to_tuple_string(loan_application_isin_list),
+                ),
+            )
         self.notify_customer()
 
     def create_loan(self):
