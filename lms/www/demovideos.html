@@ -2,6 +2,25 @@
 SparkLoans {% endblock title %} {% block description %} Watch our video to
 understand our products and services in a detail at SparkLoans. {% endblock
 description %} {% block body %}
+<style>
+  #viewMore {
+    color: #eb5e50;
+    cursor: pointer;
+  }
+  #headerPopup {
+    width: 50%;
+    margin: 0 auto;
+  }
+
+  #headerPopup iframe {
+    width: 100%;
+    margin: 0 auto;
+  }
+</style>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.css"
+/>
 <section class="fw">
   <div class="container">
     <div class="row">
@@ -23,7 +42,12 @@ description %} {% block body %}
             <div class="form_group">
               <div class="form_control">
                 <label>
-                  <input type="text" name="search" placeholder="Search" />
+                  <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    placeholder="Search"
+                  />
                 </label>
               </div>
             </div>
@@ -34,8 +58,12 @@ description %} {% block body %}
         <div class="row">
           <div class="col-md-12">
             <ul id="filterOptions">
-              <li class="active"><a class="all" href="#"> All </a></li>
-              <li><a href="#" class="Latest"> Latest </a></li>
+              <li class="active">
+                <a class="all" id="all_videos" href="#"> All </a>
+              </li>
+              <li>
+                <a href="#" class="Latest" id="latest_video"> Latest </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -43,134 +71,149 @@ description %} {% block body %}
       <ul
         class="row videoboxes videosslider3 owl-carousel owl-theme"
         id="ourStories"
-      >
-        <li class="col-md-4 col-sm-6 item Latest">
-          <a href="#">
-            <div class="fw videobox">
-              <img src="assets/lms/images/home/videos/01.jpg" class="fw" />
-              <div class="fw desc">
-                <h6>
-                  <span>Digital Lending Platform Loans Against Securities</span
-                  ><img
-                    src="assets/lms/images/home/videos/ic_video.jpg"
-                    class="videoico"
-                  />
-                </h6>
-                <small
-                  >Loan against shares at SPARK is in form of an overdraft
-                  credit line which you can use at your ease.</small
-                >
-              </div>
-            </div>
-          </a>
-        </li>
-        <li class="col-md-4 col-sm-6 item Latest">
-          <a href="#">
-            <div class="fw videobox">
-              <img src="assets/lms/images/home/videos/02.jpg" class="fw" />
-              <div class="fw desc">
-                <h6>
-                  <span>Digital Lending Platform Loans Against Securities</span
-                  ><img
-                    src="assets/lms/images/home/videos/ic_video.jpg"
-                    class="videoico"
-                  />
-                </h6>
-                <small
-                  >Loan against shares at SPARK is in form of an overdraft
-                  credit line which you can use at your ease.</small
-                >
-              </div>
-            </div>
-          </a>
-        </li>
-        <li class="col-md-4 col-sm-6 item">
-          <a href="#">
-            <div class="fw videobox">
-              <img src="assets/lms/images/home/videos/01.jpg" class="fw" />
-              <div class="fw desc">
-                <h6>
-                  <span>Digital Lending Platform Loans Against Securities</span
-                  ><img
-                    src="assets/lms/images/home/videos/ic_video.jpg"
-                    class="videoico"
-                  />
-                </h6>
-                <small
-                  >Loan against shares at SPARK is in form of an overdraft
-                  credit line which you can use at your ease.</small
-                >
-              </div>
-            </div>
-          </a>
-        </li>
-        <li class="col-md-4 col-sm-6 item Latest">
-          <a href="#">
-            <div class="fw videobox">
-              <img src="assets/lms/images/home/videos/01.jpg" class="fw" />
-              <div class="fw desc">
-                <h6>
-                  <span>Digital Lending Platform Loans Against Securities</span
-                  ><img
-                    src="assets/lms/images/home/videos/ic_video.jpg"
-                    class="videoico"
-                  />
-                </h6>
-                <small
-                  >Loan against shares at SPARK is in form of an overdraft
-                  credit line which you can use at your ease.</small
-                >
-              </div>
-            </div>
-          </a>
-        </li>
-        <li class="col-md-4 col-sm-6 item Latest">
-          <a href="#">
-            <div class="fw videobox">
-              <img src="assets/lms/images/home/videos/02.jpg" class="fw" />
-              <div class="fw desc">
-                <h6>
-                  <span>Digital Lending Platform Loans Against Securities</span
-                  ><img
-                    src="assets/lms/images/home/videos/ic_video.jpg"
-                    class="videoico"
-                  />
-                </h6>
-                <small
-                  >Loan against shares at SPARK is in form of an overdraft
-                  credit line which you can use at your ease.</small
-                >
-              </div>
-            </div>
-          </a>
-        </li>
-        <li class="col-md-4 col-sm-6 item">
-          <a href="#">
-            <div class="fw videobox">
-              <img src="assets/lms/images/home/videos/01.jpg" class="fw" />
-              <div class="fw desc">
-                <h6>
-                  <span>Digital Lending Platform Loans Against Securities</span
-                  ><img
-                    src="assets/lms/images/home/videos/ic_video.jpg"
-                    class="videoico"
-                  />
-                </h6>
-                <small
-                  >Loan against shares at SPARK is in form of an overdraft
-                  credit line which you can use at your ease.</small
-                >
-              </div>
-            </div>
-          </a>
-        </li>
-      </ul>
-
+      ></ul>
       <div>
-        <h5 class="viewMore"><a href="#"> View More</a></h5>
+        <h5 class="viewMore">
+          <a class="viewMores" id="viewMore"> View More</a>
+        </h5>
       </div>
     </div>
   </div>
+  <input type="hidden" name="page_no" id="page_no" value="1" />
+  <input type="hidden" name="post" id="latest_post_2" />
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $("#viewMore").show();
+      var page_no = $("#page_no").val();
+      $("#latest_post_2").val("false");
+      console.log("page_no : " + page_no);
+      loadData(page_no);
+
+      $("#all_videos").click(function () {
+        console.log("all videos");
+        $("#viewMore").show();
+        var page_no = 1;
+        var search_key = $("#search").val();
+        $("#latest_post_2").val("false");
+        var latest_video = "false";
+        var replace = true;
+        loadData(page_no, latest_video, search_key, replace);
+      });
+
+      $(document).on("click", "#viewMore", function () {
+        var page_no = $("#page_no").val();
+        var latest_video = $("#latest_post_2").val();
+        var search_key = $("#search").val();
+        loadData(page_no, latest_video, search_key);
+      });
+
+      $("#latest_video").click(function () {
+        $("#viewMore").hide();
+        var page_no = 1;
+        var search_key = $("#search").val();
+        $("#latest_post_2").val("true");
+        var latest_video = "true";
+        var replace = true;
+        loadData(page_no, latest_video, search_key, replace);
+      });
+
+      function loadData(
+        page_no,
+        latest_video = "",
+        search_key = "",
+        replace = false
+      ) {
+        console.log("AAAAAAA : " + page_no);
+        console.log("BBBBBBB : " + search_key);
+
+        $.ajax({
+          url: "/api/method/lms.www.demovideos.get_videos_list",
+          type: "GET",
+          data: {
+            page_no: page_no,
+            latest_video: latest_video,
+            search_key: search_key,
+          },
+          dataType: "json",
+          success: function (res) {
+            console.log(res);
+            if (res.data.videos_list_response.length > 0) {
+              console.log("H1111111111111");
+              var html = "";
+              $.each(res.data.videos_list_response, function (id, value) {
+                html +=
+                  '<li class="col-md-4 col-sm-6 item Latest" >' +
+                  '<a href="#">' +
+                  '<div class="fw videobox" id="play_videos">' +
+                  '<img src="assets/lms/images/home/videos/01.jpg" class="fw" />' +
+                  '<div class="fw desc">' +
+                  "<h6>" +
+                  "<span>" +
+                  value.video_title +
+                  "</span>" +
+                  '<a href="#headerPopup" id="headerVideoLink" target="_blank">' +
+                  '<img src="assets/lms/images/home/videos/ic_video.jpg" class="videoico"/>' +
+                  "</a>" +
+                  '<div id="headerPopup" class="mfp-hide embed-responsive embed-responsive-21by9">' +
+                  '<iframe class="embed-responsive-item" width="854" height="480" src=' +
+                  value.youtube_id +
+                  'frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>' +
+                  "</iframe>" +
+                  "</div>" +
+                  "</h6>" +
+                  "<small>" +
+                  value.video_description +
+                  "</small>" +
+                  "</div>" +
+                  "</div>" +
+                  "</a>" +
+                  "</li>";
+              });
+              if (replace == true) {
+                $("#ourStories").html(html);
+              } else {
+                $("#ourStories").append(html);
+              }
+              next_page_number = parseInt(res.data.page_no) + 1;
+              $("#page_no").val(next_page_number);
+            } else {
+              console.log("HIIIIIIIII");
+              $("#viewMore").hide();
+            }
+            if (page_no == 1 && res.data.videos_list_response.length <= 0) {
+              html = "";
+              html += "<h3>No videos found.</h3>";
+              $("#ourStories").append(html);
+              console.log("H222222222222");
+            }
+          },
+        });
+      }
+      // ==========> SEARCH QUERY <=========
+      $("#search").keyup(function () {
+        $("#page_no").val(1);
+        var page_no = $("#page_no").val();
+        console.log("search_key : ");
+        var search = $(this).val();
+        console.log(search);
+        var latest_post = $("#latest_post_2").val();
+        if (search != "") {
+          loadData(page_no, latest_post, search, (replace = true));
+        } else {
+          loadData(page_no, latest_post, (search = ""), (replace = true));
+        }
+      });
+    });
+
+    // open magnificPopup
+    $(document).ready(function () {
+      $("#headerVideoLink").magnificPopup({
+        type: "iframe",
+        midClick: true,
+      });
+    });
+  </script>
 </section>
 {% include 'templates/subscribe.html' %} {% include 'templates/appdownload.html'
 %} {% endblock %}

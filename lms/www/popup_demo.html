@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      #headerPopup {
+        width: 50%;
+        margin: 0 auto;
+      }
+
+      #headerPopup iframe {
+        width: 100%;
+        margin: 0 auto;
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <h1 class="text-center display-4 mt-5">
+            Solodev Web Design & Content Management Software
+          </h1>
+          <p class="text-center mt-5">
+            <a
+              href="#headerPopup"
+              id="headerVideoLink"
+              target="_blank"
+              class="btn btn-outline-danger popup-modal"
+              ><img
+                src="assets/lms/images/home/videos/ic_video.jpg"
+                class="videoico"
+            /></a>
+          </p>
+          <div
+            id="headerPopup"
+            class="mfp-hide embed-responsive embed-responsive-21by9"
+          >
+            <iframe
+              class="embed-responsive-item"
+              width="854"
+              height="480"
+              src="https://www.youtube.com/embed/qN3OueBm9F4?autoplay=1"
+              frameborder="0"
+              allow="autoplay; encrypted-media"
+              allowfullscreen
+            ></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    $(document).ready(function () {
+      $("#headerVideoLink").magnificPopup({
+        type: "inline",
+        midClick: true,
+      });
+    });
+  </script>
+</html>
