@@ -5,7 +5,6 @@
 from __future__ import unicode_literals
 
 from datetime import datetime, timedelta
-from itertools import filterfalse
 
 import frappe
 from frappe.model.document import Document
