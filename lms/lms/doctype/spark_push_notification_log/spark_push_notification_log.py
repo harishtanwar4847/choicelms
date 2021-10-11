@@ -7,6 +7,7 @@ from frappe.model.document import Document
 
 class SparkPushNotificationLog(Document):
     def autoname(self):
-        self.name = "SPNL-{}-{}".format(
-            self.notification_id, str(self.time).replace(" ", "-")
+        self.name = "{}-{}".format(
+            self.loan_customer,
+            str(self.time.strftime("%d %b at %H:%M %p")).replace(" ", "-"),
         )

@@ -12,6 +12,7 @@ from traceback import format_exc
 import frappe
 import requests
 import utils
+from firebase_admin.messaging import Notification
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
@@ -665,9 +666,15 @@ def send_spark_push_notification(
         try:
             fa = FirebaseAdmin()
             random_id = randint(1, 2147483646)
+            notification_name = (
+                customer.name
+                + " "
+                + frappe.utils.now_datetime().strftime("%d %b at %H:%M %p")
+            ).replace(" ", "-")
 
             data = {
                 "click_action": "FLUTTER_NOTIFICATION_CLICK",
+                "name": notification_name,
                 "notification_id": str(random_id),
                 "screen": fcm_notification.screen_to_open,
                 "loan_no": loan if loan else "",
@@ -688,6 +695,7 @@ def send_spark_push_notification(
             frappe.get_doc(
                 {
                     "doctype": "Spark Push Notification Log",
+                    "name": data["name"],
                     "title": data["title"],
                     "loan_customer": customer.name,
                     "customer_name": customer.full_name,
