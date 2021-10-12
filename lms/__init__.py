@@ -12,7 +12,6 @@ from traceback import format_exc
 import frappe
 import requests
 import utils
-from firebase_admin.messaging import Notification
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
@@ -666,11 +665,10 @@ def send_spark_push_notification(
         try:
             fa = FirebaseAdmin()
             random_id = randint(1, 2147483646)
-            notification_name = (
-                customer.name
-                + " "
-                + frappe.utils.now_datetime().strftime("%d %b at %H:%M %p")
-            ).replace(" ", "-")
+            current_time = frappe.utils.now_datetime()
+            notification_name = (str(random_id) + " " + str(current_time)).replace(
+                " ", "-"
+            )
 
             data = {
                 "click_action": "FLUTTER_NOTIFICATION_CLICK",
@@ -681,7 +679,7 @@ def send_spark_push_notification(
                 "title": fcm_notification.title,
                 "body": message,
                 "notification_type": fcm_notification.notification_type,
-                "time": frappe.utils.now_datetime().strftime("%d %b at %H:%M %p"),
+                "time": current_time.strftime("%d %b at %H:%M %p"),
             }
 
             fa.send_android_message(
@@ -695,7 +693,7 @@ def send_spark_push_notification(
             frappe.get_doc(
                 {
                     "doctype": "Spark Push Notification Log",
-                    "name": data["name"],
+                    "name": notification_name,
                     "title": data["title"],
                     "loan_customer": customer.name,
                     "customer_name": customer.full_name,
@@ -703,7 +701,7 @@ def send_spark_push_notification(
                     "screen_to_open": data["screen"],
                     "notification_id": data["notification_id"],
                     "notification_type": data["notification_type"],
-                    "time": frappe.utils.now_datetime(),
+                    "time": current_time,
                     "click_action": data["click_action"],
                     "message": data["body"],
                     "is_cleared": 0,
