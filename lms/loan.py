@@ -1020,7 +1020,12 @@ def loan_details(**kwargs):
                 hrs_difference = (
                     loan_margin_shortfall.deadline - frappe.utils.now_datetime()
                 )
-                if mg_shortfall_action.sell_off_after_hours:
+                # if mg_shortfall_action.sell_off_after_hours:
+                if mg_shortfall_action.sell_off_after_hours or (
+                    mg_shortfall_action.sell_off_deadline_eod
+                    and loan_margin_shortfall.creation.date()
+                    in holiday_list(is_bank_holiday=1)
+                ):
                     date_array = set(
                         loan_margin_shortfall.creation.date() + timedelta(days=x)
                         for x in range(
@@ -1032,7 +1037,9 @@ def loan_details(**kwargs):
                             + 1,
                         )
                     )
-                    holidays = date_array.intersection(set(holiday_list()))
+                    holidays = date_array.intersection(
+                        set(holiday_list(is_bank_holiday=1))
+                    )
 
                     previous_holidays = 0
                     for days in list(holidays):
@@ -1051,15 +1058,33 @@ def loan_details(**kwargs):
                         )  # if_prev_days_in_holidays then add those days in timer
                     )
 
+                    if (
+                        loan_margin_shortfall.creation.date()
+                        < frappe.utils.now_datetime().date()
+                        and loan_margin_shortfall.creation.date() in holidays
+                    ):
+                        hrs_difference += (
+                            loan_margin_shortfall.creation.replace(
+                                hour=23, minute=59, second=59, microsecond=999999
+                            )
+                            - loan_margin_shortfall.creation
+                        )
+
                     if frappe.utils.now_datetime().date() in holidays:
                         # if_today_holiday then add those hours in timer
-                        loan_margin_shortfall["is_today_holiday"] = 1
-                        hrs_difference += (
-                            frappe.utils.now_datetime()
-                            - frappe.utils.now_datetime().replace(
+                        start_time = (
+                            loan_margin_shortfall.creation
+                            if (
+                                frappe.utils.now_datetime().date()
+                                == loan_margin_shortfall.creation.date()
+                            )
+                            and mg_shortfall_action.sell_off_after_hours
+                            else frappe.utils.now_datetime().replace(
                                 hour=0, minute=0, second=0, microsecond=0
                             )
                         )
+                        is_today_holiday = 1
+                        hrs_difference += frappe.utils.now_datetime() - start_time
 
                 loan_margin_shortfall["deadline_in_hrs"] = (
                     convert_sec_to_hh_mm_ss(abs(hrs_difference).total_seconds())

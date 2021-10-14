@@ -941,10 +941,16 @@ def convert_sec_to_hh_mm_ss(seconds):
     return "%d:%02d:%02d" % (hour, min, sec)
 
 
-def holiday_list():
+def holiday_list(is_bank_holiday=0, is_market_holiday=0):
     date_list = []
+    filters = {}
+    if is_bank_holiday:
+        filters["is_bank_holiday"] = 1
+    elif is_market_holiday:
+        filters["is_market_holiday"] = 1
+
     holiday_list = frappe.get_all(
-        "Bank Holiday", filters={"active": 1}, fields="date", order_by="date asc"
+        "Spark Holiday", filters=filters, fields="date", order_by="date asc"
     )
     for i, dates in enumerate(d["date"] for d in holiday_list):
         date_list.append(dates)

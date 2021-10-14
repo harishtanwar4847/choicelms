@@ -35,6 +35,10 @@
   "column_break_31",
   "esign_upload_file_uri",
   "esign_download_signed_file_uri",
+  "market_hours_section",
+  "market_start_time",
+  "column_break_33",
+  "market_end_time",
   "section_break_33",
   "app_identification_hash_string",
   "column_break_35",
@@ -287,11 +291,34 @@
    "fieldname": "og_code_enabled",
    "fieldtype": "Check",
    "label": "OG Code Enabled"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "market_hours_section",
+   "fieldtype": "Section Break",
+   "label": "Market Hours",
+   "permlevel": 1
+  },
+  {
+   "default": "9",
+   "fieldname": "market_start_time",
+   "fieldtype": "Int",
+   "label": "Market Start Time (in hour)"
+  },
+  {
+   "fieldname": "column_break_33",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "16",
+   "fieldname": "market_end_time",
+   "fieldtype": "Int",
+   "label": "Market End Time (in hour)"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2021-09-30 15:23:49.087867",
+ "modified": "2021-10-12 15:15:42.267092",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

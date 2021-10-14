@@ -62,17 +62,18 @@ def update_security_prices(securities_dict, session_id):
                     else frappe.utils.now_datetime()
                 )
                 price = float(security.get("LTP")) / security.get("PriceDivisor")
-                values["{}-{}".format(isin, time)] = (
-                    "{}-{}".format(isin, time),
-                    isin,
-                    security_name,
-                    time,
-                    price,
-                    time,
-                    time,
-                    "Administrator",
-                    "Administrator",
-                )
+                if price:
+                    values["{}-{}".format(isin, time)] = (
+                        "{}-{}".format(isin, time),
+                        isin,
+                        security_name,
+                        time,
+                        price,
+                        time,
+                        time,
+                        "Administrator",
+                        "Administrator",
+                    )
 
             values_ = list(values.values())
             values_.append(())
@@ -99,42 +100,58 @@ def update_security_prices(securities_dict, session_id):
 
 @frappe.whitelist()
 def update_all_security_prices():
-    try:
-        chunks = lms.chunk_doctype(doctype="Security", limit=50)
-        las_settings = frappe.get_single("LAS Settings")
-        session_id_generator_url = "{}{}".format(
-            las_settings.jiffy_host, las_settings.jiffy_session_generator_uri
-        )
+    current_hour = int(frappe.utils.nowtime().split(":")[0])
+    las_settings = frappe.get_single("LAS Settings")
 
-        response = requests.get(session_id_generator_url)
-        response_json = response.json()
+    if frappe.utils.now_datetime().date() not in lms.holiday_list(
+        is_market_holiday=1
+    ) and (
+        las_settings.market_start_time <= current_hour < las_settings.market_end_time
+    ):
+        try:
+            chunks = lms.chunk_doctype(doctype="Security", limit=50)
+            las_settings = frappe.get_single("LAS Settings")
+            session_id_generator_url = "{}{}".format(
+                las_settings.jiffy_host, las_settings.jiffy_session_generator_uri
+            )
 
-        if response.ok and response_json.get("Status") == "Success":
-            for start in chunks.get("chunks"):
-                security_list = frappe.db.get_all(
-                    "Security",
-                    fields=["name", "security_name", "segment", "token_id"],
-                    limit_page_length=chunks.get("limit"),
-                    limit_start=start,
-                )
+            response = requests.get(session_id_generator_url)
+            response_json = response.json()
 
-                securities_dict = {}
-                for i in security_list:
-                    securities_dict["{}@{}".format(i.segment, i.token_id)] = (
-                        i.name,
-                        i.security_name,
+            if response.ok and response_json.get("Status") == "Success":
+                for start in chunks.get("chunks"):
+                    security_list = frappe.db.get_all(
+                        "Security",
+                        fields=["name", "security_name", "segment", "token_id"],
+                        limit_page_length=chunks.get("limit"),
+                        limit_start=start,
+                    )
+
+                    securities_dict = {}
+                    for i in security_list:
+                        securities_dict["{}@{}".format(i.segment, i.token_id)] = (
+                            i.name,
+                            i.security_name,
+                        )
+
+                    frappe.enqueue(
+                        method="lms.lms.doctype.security_price.security_price.update_security_prices",
+                        securities_dict=securities_dict,
+                        session_id=response_json.get("Response"),
+                        queue="long",
                     )
 
                 frappe.enqueue(
-                    method="lms.lms.doctype.security_price.security_price.update_security_prices",
-                    securities_dict=securities_dict,
-                    session_id=response_json.get("Response"),
+                    method="lms.lms.doctype.loan.loan.check_all_loans_for_shortfall",
                     queue="long",
                 )
-
+        except (RequestException, Exception) as e:
+            frappe.log_error()
+    else:
+        try:
             frappe.enqueue(
                 method="lms.lms.doctype.loan.loan.check_all_loans_for_shortfall",
                 queue="long",
             )
-    except (RequestException, Exception) as e:
-        frappe.log_error()
+        except Exception as e:
+            frappe.log_error()

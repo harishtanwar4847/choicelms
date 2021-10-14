@@ -104,9 +104,6 @@ class LoanMarginShortfall(Document):
             """suppose mg shortfall deadline was after 72 hours and suddenly more shortfall happens the deadline will be
             EOD and before EOD security values increased and margin shortfall percentage gone below 20% then deadline should be 72 hrs which was started at initial stage"""
             if old_shortfall_action and margin_shortfall_action.sell_off_after_hours:
-                # self.deadline = self.creation + timedelta(
-                #     hours=margin_shortfall_action.sell_off_after_hours
-                # )
                 self.update_deadline_based_on_holidays()
 
             elif (
@@ -114,9 +111,6 @@ class LoanMarginShortfall(Document):
                 and not margin_shortfall_action.sell_off_deadline_eod
             ):
                 # sell off after 72 hours
-                # self.deadline = frappe.utils.now_datetime() + timedelta(
-                #     hours=margin_shortfall_action.sell_off_after_hours
-                # )
                 self.update_deadline_based_on_holidays(frappe.utils.now_datetime())
 
             elif (
@@ -124,12 +118,17 @@ class LoanMarginShortfall(Document):
                 and margin_shortfall_action.sell_off_deadline_eod
             ):
                 # sell off at EOD
-                self.deadline = frappe.utils.now_datetime().replace(
-                    hour=margin_shortfall_action.sell_off_deadline_eod,
-                    minute=0,
-                    second=0,
-                    microsecond=0,
-                )
+                if frappe.utils.now_datetime().date() in holiday_list(
+                    is_bank_holiday=1
+                ):
+                    self.update_deadline_based_on_holidays()
+                else:
+                    self.deadline = frappe.utils.now_datetime().replace(
+                        hour=margin_shortfall_action.sell_off_deadline_eod,
+                        minute=0,
+                        second=0,
+                        microsecond=0,
+                    )
 
             elif (
                 not margin_shortfall_action.sell_off_after_hours
@@ -150,7 +149,6 @@ class LoanMarginShortfall(Document):
                     "margin_shortfall_action": margin_shortfall_action,
                     "hrs_sell_off": hrs_sell_off[0].max_threshold,
                 }
-                # if self.status in ["Pending", "Approved", "Rejected"]:
                 frappe.enqueue_doc(
                     "Notification", "Sale Triggered", method="send", doc=doc
                 )
@@ -256,13 +254,15 @@ class LoanMarginShortfall(Document):
             counter = 1
             max_days = int(margin_shortfall_action.sell_off_after_hours / 24)
             while counter <= max_days:
-                if creation_date not in holiday_list():
+                if creation_date not in holiday_list(is_bank_holiday=1):
                     total_hrs.append(creation_date)
                     creation_date += timedelta(hours=24)
                     counter += 1
                 else:
                     creation_date += timedelta(hours=24)
 
+            if creation_datetime.date() in holiday_list(is_bank_holiday=1):
+                total_hrs[-1] += timedelta(days=1)
             date_of_deadline = datetime.strptime(
                 total_hrs[-1].strftime("%Y-%m-%d %H:%M:%S.%f"), "%Y-%m-%d %H:%M:%S.%f"
             )
@@ -272,8 +272,25 @@ class LoanMarginShortfall(Document):
                 second=creation_datetime.second,
                 microsecond=creation_datetime.microsecond,
             )
-            fcm_notification = frappe.get_doc(
-                "Spark Push Notification",
-                "Margin shortfall – Action required after hours",
-                fields=["*"],
+
+        else:
+            total_hrs = []
+            creation_date = frappe.utils.now_datetime().date()
+
+            while len(total_hrs) < 1:
+                if creation_date not in holiday_list(is_bank_holiday=1):
+                    total_hrs.append(creation_date)
+                    creation_date += timedelta(hours=24)
+
+                else:
+                    creation_date += timedelta(hours=24)
+
+            date_of_deadline = datetime.strptime(
+                total_hrs[-1].strftime("%Y-%m-%d %H:%M:%S.%f"), "%Y-%m-%d %H:%M:%S.%f"
+            )
+            self.deadline = date_of_deadline.replace(
+                hour=margin_shortfall_action.sell_off_deadline_eod,
+                minute=00,
+                second=00,
+                microsecond=000000,
             )

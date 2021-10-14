@@ -1,0 +1,89 @@
+{
+ "actions": [],
+ "autoname": "YYYY",
+ "creation": "2021-10-12 14:45:36.582637",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "day",
+  "date",
+  "holiday",
+  "is_market_holiday",
+  "is_bank_holiday"
+ ],
+ "fields": [
+  {
+   "fieldname": "day",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "DAY"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "label": "DATE",
+   "reqd": 1
+  },
+  {
+   "fieldname": "holiday",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "HOLIDAY"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_market_holiday",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Is Market Holiday"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_bank_holiday",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Is Bank Holiday"
+  }
+ ],
+ "links": [],
+ "modified": "2021-10-13 17:39:12.648017",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Spark Holiday",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Spark Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

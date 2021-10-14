@@ -1409,7 +1409,12 @@ def dashboard(**kwargs):
             if mg_shortfall_doc:
                 is_today_holiday = 0
                 hrs_difference = mg_shortfall_doc.deadline - frappe.utils.now_datetime()
-                if mg_shortfall_action.sell_off_after_hours:
+                # if mg_shortfall_action.sell_off_after_hours:
+                if mg_shortfall_action.sell_off_after_hours or (
+                    mg_shortfall_action.sell_off_deadline_eod
+                    and mg_shortfall_doc.creation.date()
+                    in holiday_list(is_bank_holiday=1)
+                ):
                     date_array = set(
                         mg_shortfall_doc.creation.date() + timedelta(days=x)
                         for x in range(
@@ -1421,7 +1426,9 @@ def dashboard(**kwargs):
                             + 1,
                         )
                     )
-                    holidays = date_array.intersection(set(holiday_list()))
+                    holidays = date_array.intersection(
+                        set(holiday_list(is_bank_holiday=1))
+                    )
 
                     previous_holidays = 0
                     for days in list(holidays):
@@ -1440,15 +1447,33 @@ def dashboard(**kwargs):
                         )  # if_prev_days_in_holidays then add those days in timer
                     )
 
+                    if (
+                        mg_shortfall_doc.creation.date()
+                        < frappe.utils.now_datetime().date()
+                        and mg_shortfall_doc.creation.date() in holidays
+                    ):
+                        hrs_difference += (
+                            mg_shortfall_doc.creation.replace(
+                                hour=23, minute=59, second=59, microsecond=999999
+                            )
+                            - mg_shortfall_doc.creation
+                        )
+
                     if frappe.utils.now_datetime().date() in holidays:
                         # if_today_holiday then add those hours in timer
-                        is_today_holiday = 1
-                        hrs_difference += (
-                            frappe.utils.now_datetime()
-                            - frappe.utils.now_datetime().replace(
+                        start_time = (
+                            mg_shortfall_doc.creation
+                            if (
+                                frappe.utils.now_datetime().date()
+                                == mg_shortfall_doc.creation.date()
+                            )
+                            and mg_shortfall_action.sell_off_after_hours
+                            else frappe.utils.now_datetime().replace(
                                 hour=0, minute=0, second=0, microsecond=0
                             )
                         )
+                        is_today_holiday = 1
+                        hrs_difference += frappe.utils.now_datetime() - start_time
 
                 mgloan.append(
                     {
