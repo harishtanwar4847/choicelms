@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- [Feat: Sitemap.xml file updated]()
+
 ## [v1.0.9] - 2021-10-08
 
 ### Fixed
