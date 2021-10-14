@@ -4,7 +4,7 @@
 
 ### Added
 
-- [Feat: Sitemap.xml file updated]()
+- [Feat: Sitemap.xml file updated](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/416)
 
 ## [v1.0.9] - 2021-10-08
 
