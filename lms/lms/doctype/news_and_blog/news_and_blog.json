@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "Blog-.#",
+ "autoname": "Prompt",
  "creation": "2021-07-02 09:49:07.256500",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -69,7 +69,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "default": " ",
    "fieldname": "author",
    "fieldtype": "Data",
    "label": "Author"
@@ -124,7 +123,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-10 17:59:29.308866",
+ "modified": "2021-10-14 11:27:26.532745",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "News and Blog",

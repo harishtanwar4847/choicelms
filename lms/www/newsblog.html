@@ -48,11 +48,17 @@
                 </p>
                 <h4>{{blog_details.title}}</h4>
                 <p class="date">
-                  By {{blog_details.author}}
+                  {% if blog_details.author %} By {{blog_details.author}}
                   <span>
                     <img src="/assets/lms/images/dot.svg" />
                     {{ blog_details.publishing_date }}
                   </span>
+                  {% else %}
+                  <span style="margin-left: 0px !important">
+                    <img src="/assets/lms/images/dot.svg" />
+                    {{ blog_details.publishing_date }}
+                  </span>
+                  {% endif %}
                 </p>
                 <img src="{{blog_details.for_blog_view}}" class="fw" /> <br />
                 <div style="font-size: 1.6rem" class="pdescr">
@@ -104,7 +110,6 @@
             <div class="col-md-9">
               <div class="row" id="related_article_div">
                 {% for article in related_articles %}
-
                 <div class="col-md-4">
                   <div class="news_card articles">
                     <a href="newsblog?blog_name={{ article.name }}">
@@ -115,11 +120,12 @@
                       <a href="#">{{tag}}</a>
                       {% endfor %}
                     </p>
-                    <h5>{{article.title}}</h5>
+                    <a href="newsblog?blog_name={{ article.name }}">
+                      <h5>{{article.title}}</h5>
+                    </a>
                     <p class="date">{{ article.publishing_date }}</p>
                   </div>
                 </div>
-
                 {% endfor %}
               </div>
               <div class="col-md-12">
@@ -216,9 +222,11 @@
                       "<p>" +
                       tags +
                       "</p>" +
-                      "<h5>" +
+                      '<a href="newsblog?blog_name=' +
+                      val.name +
+                      '"><h5>' +
                       val.title +
-                      "</h5>" +
+                      "</h5></a>" +
                       '<p class="date">' +
                       val.publishing_date +
                       "</p>" +
