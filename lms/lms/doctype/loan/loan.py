@@ -472,21 +472,21 @@ class Loan(Document):
 
                     loan_margin_shortfall.save(ignore_permissions=True)
 
-        if between_market_hours or (not between_market_hours and on_approval):
-            # 1st scenario - after market hours but not with cron
-            # 2nd scenario - between market hours with cron and approval also
+            if between_market_hours or (not between_market_hours and on_approval):
+                # 1st scenario - after market hours but not with cron
+                # 2nd scenario - between market hours with cron and approval also
 
-            # alerts comparison with percentage and amount
-            self.send_alerts_to_customer(old_total_collateral_value)
-            # update pending withdraw allowable for this loan
-            self.update_pending_withdraw_requests()
-            # update pending topup requests for this loan
-            # self.update_pending_topup_amount()
-            # update pending sell collateral application for this loan
-            self.update_pending_sell_collateral_amount()
-            unpledge_application = self.get_unpledge_application()
-            if unpledge_application:
-                unpledge_application.unpledge_with_margin_shortfall()
+                # alerts comparison with percentage and amount
+                self.send_alerts_to_customer(old_total_collateral_value)
+                # update pending withdraw allowable for this loan
+                self.update_pending_withdraw_requests()
+                # update pending topup requests for this loan
+                # self.update_pending_topup_amount()
+                # update pending sell collateral application for this loan
+                self.update_pending_sell_collateral_amount()
+                unpledge_application = self.get_unpledge_application()
+                if unpledge_application:
+                    unpledge_application.unpledge_with_margin_shortfall()
             frappe.db.commit()
 
     def send_alerts_to_customer(self, old_total_collateral_value):
