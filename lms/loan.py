@@ -1083,7 +1083,8 @@ def loan_details(**kwargs):
                                 hour=0, minute=0, second=0, microsecond=0
                             )
                         )
-                        is_today_holiday = 1
+                        loan_margin_shortfall["is_today_holiday"] = 1
+
                         hrs_difference += frappe.utils.now_datetime() - start_time
 
                 loan_margin_shortfall["deadline_in_hrs"] = (
