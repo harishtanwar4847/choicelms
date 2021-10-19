@@ -9,6 +9,270 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
+  "modified": "2021-10-19 16:10:14.804257",
+  "name": "cbf6ce11f2",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "lender",
+    "group": null,
+    "optional": 1,
+    "parent": "cbf6ce11f2",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\"lender\":\"Choice Finserv\"}",
+    "parent": "cbf6ce11f2",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.securities",
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "PAN",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "ISIN",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "Branch",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "Client_Code",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "Client_Name",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "Scrip_Name",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "Depository",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "Stock_At",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "Quantity",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "Price",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "Scrip_Value",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "Holding_As_On",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "Category",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "Is_Eligible",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Boolean"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "Total_Qty",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "waiting_to_be_pledged_qty",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "waiting_for_approval_pledged_qty",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "unpledged_quantity",
+    "group": null,
+    "parent": "cbf6ce11f2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "[\n  [\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE481G01011\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"ULTRATECH CEMENT LIMITED \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 6,\n      \"Price\": 7483.55,\n      \"Scrip_Value\": 44901.3,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 6,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE280A01028\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"TITAN COMPANY LIMITED\",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 5,\n      \"Price\": 2589,\n      \"Scrip_Value\": 12945,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 5,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE669C01036\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"TECH MAHINDRA LIMITED    \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 105,\n      \"Price\": 1479.65,\n      \"Scrip_Value\": 155363.25,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 105,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE155A01022\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"TATA MOTORS LIMITED      \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 56,\n      \"Price\": 509.6,\n      \"Scrip_Value\": 28537.6,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 56,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE081A01012\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"TATA IRON AND STEEL CO LT\",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 140,\n      \"Price\": 1411.1,\n      \"Scrip_Value\": 197554,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 140,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE192A01025\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"TATA CONSUMER PRODUCT LTD\",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 25,\n      \"Price\": 844.25,\n      \"Scrip_Value\": 21106.25,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 25,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE467B01029\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"TATA CONSULTANCY SERV LT \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 20,\n      \"Price\": 3730.2,\n      \"Scrip_Value\": 74604,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 20,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE092A01019\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"TATA CHEMICALS LTD       \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 24,\n      \"Price\": 1094.4,\n      \"Scrip_Value\": 26265.6,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 24,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE062A01020\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"STATE BANK OF INDIA\",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 198,\n      \"Price\": 497.95,\n      \"Scrip_Value\": 98594.1,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 198,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE018E01016\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"SBI CARDS & PAY SER LTD  \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 20,\n      \"Price\": 1141.55,\n      \"Scrip_Value\": 22831,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Is_Eligible\": false,\n      \"Category\": null\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE318A01026\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"PIDILITE INDUSTRIES LTD  \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 17,\n      \"Price\": 2501.8,\n      \"Scrip_Value\": 42530.6,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 17,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE196A01026\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"MARICO LIMITED           \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 20,\n      \"Price\": 579.25,\n      \"Scrip_Value\": 11585,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 20,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE101A01026\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"MAHINDRA & MAHINDRA LTD  \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 158,\n      \"Price\": 910.95,\n      \"Scrip_Value\": 143930.1,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 158,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE018A01030\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"LARSEN & TOUBRO LTD.\",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 56,\n      \"Price\": 1788.45,\n      \"Scrip_Value\": 100153.2,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 56,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE214T01019\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"L&T INFOTECH LIMITED     \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 7,\n      \"Price\": 5907,\n      \"Scrip_Value\": 41349,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 7,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE237A01028\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"KOTAK MAHINDRA BANK LTD  \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 25,\n      \"Price\": 2013.1,\n      \"Scrip_Value\": 50327.5,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 25,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE668F01031\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"JYOTHY LABS LIMITED\",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 201,\n      \"Price\": 163.05,\n      \"Scrip_Value\": 32773.05,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 201,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE154A01025\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"ITC LTD                  \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 120,\n      \"Price\": 262.55,\n      \"Scrip_Value\": 31506,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 120,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE009A01021\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"INFOSYS LIMITED          \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 20,\n      \"Price\": 1792.15,\n      \"Scrip_Value\": 35843,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 20,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE095A01012\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"INDUSIND BANK LIMITED    \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 20,\n      \"Price\": 1220.55,\n      \"Scrip_Value\": 24411,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 20,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE090A01021\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"ICICI BANK LTD.\",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 55,\n      \"Price\": 745.45,\n      \"Scrip_Value\": 40999.75,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 55,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE030A01027\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"Hindustan Lever Ltd.\",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 28,\n      \"Price\": 2704.05,\n      \"Scrip_Value\": 75713.4,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 28,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE158A01026\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"Hero Honda Motors Limited\",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 14,\n      \"Price\": 2905.45,\n      \"Scrip_Value\": 40676.3,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 14,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE040A01034\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"HDFC BANK LTD            \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 11,\n      \"Price\": 1670.3,\n      \"Scrip_Value\": 18373.3,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 11,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE860A01027\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"HCL TECHNOLOGIES LTD     \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 86,\n      \"Price\": 1273.75,\n      \"Scrip_Value\": 109542.5,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 86,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE047A01021\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"GRASIM INDUSTRIES LTD    \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 62,\n      \"Price\": 1755.55,\n      \"Scrip_Value\": 108844.1,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 62,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE066A01021\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"EICHER MOTORS LTD        \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 15,\n      \"Price\": 2826.35,\n      \"Scrip_Value\": 42395.25,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Is_Eligible\": false,\n      \"Category\": null\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE169A01031\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"COROMANDEL INTERNATIONAL LTD.\",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 122,\n      \"Price\": 859.6,\n      \"Scrip_Value\": 104871.2,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 122,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE216A08027\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"Britannia-5.5%-03-06-2024-NCD\",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 16,\n      \"Price\": 29.52,\n      \"Scrip_Value\": 472.32,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Is_Eligible\": false,\n      \"Category\": null\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE216A01030\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"BRITANNIA INDUSTRIES LTD \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 1,\n      \"Price\": 3921.1,\n      \"Scrip_Value\": 3921.1,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 1,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE296A01024\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"BAJAJ FINANCE LIMITED\",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 4,\n      \"Price\": 7865.55,\n      \"Scrip_Value\": 31462.2,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 4,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE917I01010\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"BAJAJ AUTO LIMITED       \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 12,\n      \"Price\": 3916.4,\n      \"Scrip_Value\": 46996.8,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 12,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE132H01018\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"AURIONPRO SOLN LTD       \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 1000,\n      \"Price\": 218.8,\n      \"Scrip_Value\": 218800,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Is_Eligible\": false,\n      \"Category\": null\n    },\n    {\n      \"PAN\": \"AAKHR7426K\",\n      \"ISIN\": \"INE021A01026\",\n      \"Branch\": \"KOLKATA\",\n      \"Client_Code\": \"M09764\",\n      \"Client_Name\": \"RATIRAJ TIBREWAL HUF\",\n      \"Scrip_Name\": \"ASIAN PAINTS LIMITED     \",\n      \"Depository\": \"CDSL\",\n      \"Stock_At\": \"1206690000760267\",\n      \"Quantity\": 8,\n      \"Price\": 3242.2,\n      \"Scrip_Value\": 25937.6,\n      \"Holding_As_On\": \"2021-10-18T00:00:00\",\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 8,\n      \"waiting_to_be_pledged_qty\": 0,\n      \"waiting_for_approval_pledged_qty\": 0,\n      \"unpledged_quantity\": 0\n    }\n  ]\n]",
+    "parent": "cbf6ce11f2",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "success"
+   }
+  ],
+  "title": "Securities",
+  "use_api_define": [
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "cbf6ce11f2",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "cbf6ce11f2",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "cbf6ce11f2",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "cbf6ce11f2",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
   "modified": "2021-10-06 14:51:14.582659",
   "name": "4621dd797d",
   "parameters": [],
@@ -2190,89 +2454,6 @@
   "doctype": "API Doc",
   "error": [],
   "error_example": [],
-  "group": "User",
-  "headers": [],
-  "headers_example": [],
-  "method": "GET",
-  "modified": "2021-10-06 15:09:11.925021",
-  "name": "cbf6ce11f2",
-  "parameters": [
-   {
-    "allowed_values": null,
-    "default_value": null,
-    "description": null,
-    "field": "lender",
-    "group": null,
-    "optional": 1,
-    "parent": "cbf6ce11f2",
-    "parentfield": "parameters",
-    "parenttype": "API Doc",
-    "size": null,
-    "type": "String"
-   }
-  ],
-  "parameters_example": [
-   {
-    "example": "{\"lender\":\"Choice Finserv\"}",
-    "parent": "cbf6ce11f2",
-    "parentfield": "parameters_example",
-    "parenttype": "API Doc",
-    "title": "Request Example"
-   }
-  ],
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "path": "/api/method/lms.user.securities",
-  "success": [],
-  "success_example": [
-   {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": [\n    {\n      \"Scrip_Name\": \"Housing Development Finance Corporation Ltd.\",\n      \"ISIN\": \"INE001A01036\",\n      \"Stock_At\": \"1206690000000050-INE001A01036\",\n      \"Quantity\": 0.0,\n      \"Price\": 2739.85,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 0.0,\n      \"waiting_to_be_pledged_qty\": 0.0,\n      \"waiting_for_approval_pledged_qty\": 0.0,\n      \"unpledged_quantity\": 0.0\n    },\n    {\n      \"Scrip_Name\": \"SJVN Ltd.\",\n      \"ISIN\": \"INE002L01015\",\n      \"Stock_At\": \"1206690000000050-INE002L01015\",\n      \"Quantity\": 0.0,\n      \"Price\": 27.4,\n      \"Category\": \"Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 0.0,\n      \"waiting_to_be_pledged_qty\": 0.0,\n      \"waiting_for_approval_pledged_qty\": 0.0,\n      \"unpledged_quantity\": 0.0\n    },\n    {\n      \"Scrip_Name\": \"Siemens Ltd.\",\n      \"ISIN\": \"INE003A01024\",\n      \"Stock_At\": \"1206690000000050-INE003A01024\",\n      \"Quantity\": 0.0,\n      \"Price\": 2154.3,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 0.0,\n      \"waiting_to_be_pledged_qty\": 0.0,\n      \"waiting_for_approval_pledged_qty\": 0.0,\n      \"unpledged_quantity\": 0.0\n    },\n    {\n      \"Scrip_Name\": \"REC Ltd.\",\n      \"ISIN\": \"INE020B01018\",\n      \"Stock_At\": \"1206690000000050-INE020B01018\",\n      \"Quantity\": 0.0,\n      \"Price\": 151.75,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 0.0,\n      \"waiting_to_be_pledged_qty\": 0.0,\n      \"waiting_for_approval_pledged_qty\": 0.0,\n      \"unpledged_quantity\": 0.0\n    },\n    {\n      \"Scrip_Name\": \"Asian Paints Ltd.\",\n      \"ISIN\": \"INE021A01026\",\n      \"Stock_At\": \"1206690000000050-INE021A01026\",\n      \"Quantity\": 0.0,\n      \"Price\": 3273.15,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 0.0,\n      \"waiting_to_be_pledged_qty\": 0.0,\n      \"waiting_for_approval_pledged_qty\": 0.0,\n      \"unpledged_quantity\": 0.0\n    },\n    {\n      \"Scrip_Name\": \"Gujarat State Fertilizers & Chemicals Ltd.\",\n      \"ISIN\": \"INE026A01025\",\n      \"Stock_At\": \"1206690000000050-INE026A01025\",\n      \"Quantity\": 0.0,\n      \"Price\": 112.0,\n      \"Category\": \"Cat B\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 0.0,\n      \"waiting_to_be_pledged_qty\": 0.0,\n      \"waiting_for_approval_pledged_qty\": 0.0,\n      \"unpledged_quantity\": 0.0\n    },\n    {\n      \"Scrip_Name\": \"Bharat Petroleum Corporation Ltd.\",\n      \"ISIN\": \"INE029A01011\",\n      \"Stock_At\": \"1206690000000050-INE029A01011\",\n      \"Quantity\": 0.0,\n      \"Price\": 421.5,\n      \"Category\": \"Super Cat A\",\n      \"Is_Eligible\": true,\n      \"Total_Qty\": 0.0,\n      \"waiting_to_be_pledged_qty\": 0.0,\n      \"waiting_for_approval_pledged_qty\": 0.0,\n      \"unpledged_quantity\": 0.0\n    }\n]\n}",
-    "parent": "cbf6ce11f2",
-    "parentfield": "success_example",
-    "parenttype": "API Doc",
-    "title": "Success"
-   }
-  ],
-  "title": "Securities",
-  "use_api_define": [
-   {
-    "api_doc": "70b8cb66dd",
-    "api_doc_title": "AcceptJsonHeader",
-    "parent": "cbf6ce11f2",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "2c99d6bf6d",
-    "api_doc_title": "DataValidationErrorResponse",
-    "parent": "cbf6ce11f2",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "81c55fbdcc",
-    "api_doc_title": "UserAuthorizationRequestandResponse",
-    "parent": "cbf6ce11f2",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   },
-   {
-    "api_doc": "5a72ab8655",
-    "api_doc_title": "APIResponse",
-    "parent": "cbf6ce11f2",
-    "parentfield": "use_api_define",
-    "parenttype": "API Doc"
-   }
-  ],
-  "version": "1.0.0"
- },
- {
-  "api_define": 0,
-  "docstatus": 0,
-  "doctype": "API Doc",
-  "error": [],
-  "error_example": [],
   "group": "Cart",
   "headers": [],
   "headers_example": [],
@@ -2810,7 +2991,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-06 15:03:55.179441",
+  "modified": "2021-10-19 16:26:41.523195",
   "name": "023a7ca67c",
   "parameters": [
    {
@@ -2844,6 +3025,16 @@
    {
     "default_value": null,
     "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "023a7ca67c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
     "field": "data",
     "group": null,
     "parent": "023a7ca67c",
@@ -2854,7 +3045,7 @@
    {
     "default_value": null,
     "description": null,
-    "field": "loan_name",
+    "field": "data.loan_name",
     "group": null,
     "parent": "023a7ca67c",
     "parentfield": "success",
@@ -2864,7 +3055,7 @@
    {
     "default_value": null,
     "description": null,
-    "field": "total_value",
+    "field": "data.total_value",
     "group": null,
     "parent": "023a7ca67c",
     "parentfield": "success",
@@ -2874,7 +3065,7 @@
    {
     "default_value": null,
     "description": null,
-    "field": "drawing_power",
+    "field": "data.drawing_power",
     "group": null,
     "parent": "023a7ca67c",
     "parentfield": "success",
@@ -2884,7 +3075,7 @@
    {
     "default_value": null,
     "description": null,
-    "field": "number_of_scrips",
+    "field": "data.number_of_scrips",
     "group": null,
     "parent": "023a7ca67c",
     "parentfield": "success",
@@ -2894,12 +3085,142 @@
    {
     "default_value": null,
     "description": null,
-    "field": "all_pledged_securities",
+    "field": "data.all_pledged_securities",
     "group": null,
     "parent": "023a7ca67c",
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.all_pledged_securities.isin",
+    "group": null,
+    "parent": "023a7ca67c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.all_pledged_securities.security_name",
+    "group": null,
+    "parent": "023a7ca67c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.all_pledged_securities.pledged_quantity",
+    "group": null,
+    "parent": "023a7ca67c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Decimal"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.all_pledged_securities.security_category",
+    "group": null,
+    "parent": "023a7ca67c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.all_pledged_securities.price",
+    "group": null,
+    "parent": "023a7ca67c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.all_pledged_securities.amount",
+    "group": null,
+    "parent": "023a7ca67c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.sell_collateral",
+    "group": null,
+    "parent": "023a7ca67c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.is_sell_triggered",
+    "group": null,
+    "parent": "023a7ca67c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.unpledge",
+    "group": null,
+    "parent": "023a7ca67c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.unpledge.unpledge_msg_while_margin_shortfall",
+    "group": null,
+    "parent": "023a7ca67c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.unpledge.unpledge",
+    "group": null,
+    "parent": "023a7ca67c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.unpledge.unpledge.minimum_collateral_value",
+    "group": null,
+    "parent": "023a7ca67c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.unpledge.unpledge.maximum_unpledge_amount",
+    "group": null,
+    "parent": "023a7ca67c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
    }
   ],
   "success_example": [
@@ -5057,7 +5378,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-06 15:06:03.145253",
+  "modified": "2021-10-19 15:18:01.774510",
   "name": "79bfd60d58",
   "parameters": [
    {
@@ -5127,7 +5448,18 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.user.read_or_clear_notifications",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "79bfd60d58",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Success\"\n}",
