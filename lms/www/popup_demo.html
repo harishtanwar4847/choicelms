@@ -1,56 +1,262 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <style>
-      #headerPopup {
-        width: 50%;
-        margin: 0 auto;
-      }
+{% extends 'templates/lmsbase.html' %} {% block title %} Videos Gallery -
+SparkLoans {% endblock title %} {% block description %} Watch our video to
+understand our products and services in a detail at SparkLoans. {% endblock
+description %} {% block body %}
+<style>
+  #viewMore {
+    color: #eb5e50;
+    cursor: pointer;
+  }
 
-      #headerPopup iframe {
-        width: 100%;
-        margin: 0 auto;
-      }
-    </style>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.css"
-    />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"></script>
-  </head>
-  <body>
-    <div class="container">
-      <div class="row">
-        <div class="col-sm-12">
-          <h1 class="text-center display-4 mt-5">
-            Solodev Web Design & Content Management Software
-          </h1>
-          <p class="text-center mt-5">
-            <a
-              class="popup-youtube"
-              href="http://www.youtube.com/watch?v=0O2aH4XLbto"
-              >Open YouTube video</a
-            >
-          </p>
-        </div>
+  #showIframe {
+    background-color: transparent;
+  }
+
+  .popUp {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  .popUp .iframe {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    top: 110px;
+  }
+
+  .popUp .closeBtn {
+    position: absolute;
+    top: 90px;
+    right: 2%;
+  }
+
+  .popUp iframe {
+    position: relative;
+    width: 75vw;
+    height: 80vh;
+  }
+
+  @media screen and (max-width: 768px) {
+    .popUp .iframe {
+      top: 25%;
+    }
+
+    .popUp iframe {
+      position: relative;
+      width: 90vw;
+      height: 50vh;
+    }
+  }
+</style>
+<section class="fw">
+  <div class="container">
+    <div class="row">
+      <div class="col titlesec maintitle">
+        <h5>Demo Videos</h5>
       </div>
     </div>
-  </body>
-  <script>
+  </div>
+</section>
+<section class="fw mt-5 pt-5">
+  <div class="container container3">
+    <div class="fw">
+      <div class="row">
+        <div class="col-md-9">
+          <h5 class="stories-title">All Stories</h5>
+        </div>
+        <div class="col-md-3">
+          <div class="search">
+            <div class="form_group">
+              <div class="form_control">
+                <label>
+                  <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    placeholder="Search"
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="filternav">
+        <div class="row">
+          <div class="col-md-12">
+            <ul id="filterOptions">
+              <li class="active">
+                <a class="all" id="all_videos" href="#"> All </a>
+              </li>
+              <li>
+                <a href="#" class="Latest" id="latest_video"> Latest </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <ul
+        class="row videoboxes videosslider3 owl-carousel owl-theme"
+        id="ourStories"
+      ></ul>
+      <div>
+        <h5 class="viewMore">
+          <a class="viewMores" id="viewMore"> View More</a>
+        </h5>
+      </div>
+    </div>
+  </div>
+  <input type="hidden" name="page_no" id="page_no" value="1" />
+  <input type="hidden" name="post" id="latest_post_2" />
+  <script type="text/javascript">
+    function closePop() {
+      $(".popUp").fadeOut(100);
+    }
+    function openPop(id) {
+      var i = 0;
+      console.log(i);
+      i++;
+      $("." + id).show();
+    }
+    // if ($(".popUp").css('display') != 'none') {
+    //   $('body').click(function () {
+    //   // console.log("inside first if")
+    //   if (!$(this.target).is('.popUp')) {
+    //     // console.log("inside second if")
+    //     $(".popUp").hide();
+    //   }
+    //   });
+    // }
     $(document).ready(function () {
-      $(".popup-youtube").magnificPopup({
-        disableOn: 700,
-        type: "iframe",
-        mainClass: "mfp-fade",
-        removalDelay: 160,
-        preloader: false,
+      $("#viewMore").show();
+      var page_no = $("#page_no").val();
+      $("#latest_post_2").val("false");
+      loadData(page_no);
 
-        fixedContentPos: false,
+      $("#all_videos").click(function () {
+        $("#viewMore").show();
+        var page_no = 1;
+        var search_key = $("#search").val();
+        $("#latest_post_2").val("false");
+        var latest_video = "false";
+        var replace = true;
+        loadData(page_no, latest_video, search_key, replace);
+      });
+
+      $(document).on("click", "#viewMore", function () {
+        var page_no = $("#page_no").val();
+        var latest_video = $("#latest_post_2").val();
+        var search_key = $("#search").val();
+        loadData(page_no, latest_video, search_key);
+      });
+
+      $("#latest_video").click(function () {
+        var page_no = 1;
+        var search_key = $("#search").val();
+        $("#latest_post_2").val("true");
+        var latest_video = "true";
+        var replace = true;
+        loadData(page_no, latest_video, search_key, replace);
+        $("#viewMore").remove();
+      });
+
+      function loadData(
+        page_no,
+        latest_video = "",
+        search_key = "",
+        replace = false
+      ) {
+        $.ajax({
+          url: "/api/method/lms.www.demovideos.get_videos_list",
+          type: "GET",
+          data: {
+            page_no: page_no,
+            latest_video: latest_video,
+            search_key: search_key,
+          },
+          dataType: "json",
+          success: function (res) {
+            if (res.data.videos_list_response.length > 0) {
+              var html = "";
+              $.each(res.data.videos_list_response, function (id, value) {
+                html +=
+                  '<li class="col-md-4 col-sm-6 item Latest" style="z-index: 0">' +
+                  // '<a>' +
+                  '<div class="fw videobox" id="play_videos">' +
+                  '<img src="assets/lms/images/home/videos/01.jpg" class="fw" />' +
+                  '<div class="fw desc">' +
+                  "<h6>" +
+                  "<span>" +
+                  value.video_title +
+                  "</span>" +
+                  '<button id="showIframe" onclick="openPop(' +
+                  "'" +
+                  value.youtube_id +
+                  "'" +
+                  ')"><img src="assets/lms/images/home/videos/ic_video.jpg" class="videoico"/></button>' +
+                  "</h6>" +
+                  "<small>" +
+                  value.video_description +
+                  "</small>" +
+                  "</div>" +
+                  "</div>" +
+                  // "</a>" +
+                  "</li>" +
+                  '<div class="popUp ' +
+                  value.youtube_id +
+                  '"  onclick="hidePopup()" style="display:none;z-index:10 !important;">' +
+                  '<div class="closeBtn">' +
+                  '<a style="background-color: transparent; color: white; font-weight: 900; font-size:1.55rem; cursor: pointer;" onclick="closePop()" id="closePop"><strong>X</strong></a>' +
+                  "</div>" +
+                  '<div class="iframe">' +
+                  '<iframe  id="DemoVideo" width="1080" height="720" src="https://www.youtube.com/embed/' +
+                  value.youtube_id +
+                  '" frameborder="0" allowfullscreen></iframe>' +
+                  "</div>" +
+                  "</div>";
+              });
+              if (replace == true) {
+                $("#ourStories").html(html);
+              } else {
+                $("#ourStories").append(html);
+              }
+              next_page_number = parseInt(res.data.page_no) + 1;
+              $("#page_no").val(next_page_number);
+              $("#viewMore").show();
+            } else if (
+              page_no == 1 &&
+              res.data.videos_list_response.length <= 0
+            ) {
+              html = "";
+              html += "<h3>No videos found.</h3>";
+              $("#ourStories").html(html);
+              $("#viewMore").hide();
+            }
+          },
+        });
+      }
+
+      // Search video
+      $("#search").keyup(function () {
+        $("#page_no").val(1);
+        var page_no = $("#page_no").val();
+        console.log("search_key : ");
+        var search = $(this).val();
+        console.log(search);
+        var latest_post = $("#latest_post_2").val();
+        if (search != "") {
+          loadData(page_no, latest_post, search, (replace = true));
+        } else {
+          loadData(page_no, latest_post, (search = ""), (replace = true));
+        }
       });
     });
   </script>
-</html>
+</section>
+{% include 'templates/subscribe.html' %} {% include 'templates/appdownload.html'
+%} {% endblock %}

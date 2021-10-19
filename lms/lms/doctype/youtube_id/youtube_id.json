@@ -7,7 +7,8 @@
  "field_order": [
   "video_title",
   "youtube_id",
-  "video_description"
+  "video_description",
+  "youtube_image"
  ],
  "fields": [
   {
@@ -25,10 +26,15 @@
    "fieldname": "video_description",
    "fieldtype": "Text",
    "label": "Video Description"
+  },
+  {
+   "fieldname": "youtube_image",
+   "fieldtype": "Attach Image",
+   "label": "Youtube Thumbnail"
   }
  ],
  "links": [],
- "modified": "2021-10-08 16:54:31.762712",
+ "modified": "2021-10-19 11:21:00.556346",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Youtube Id",

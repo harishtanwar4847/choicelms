@@ -7,11 +7,75 @@ description %} {% block body %}
     color: #eb5e50;
     cursor: pointer;
   }
+
+  #showIframe {
+    background-color: transparent;
+  }
+
+  .popUp.open {
+    display: block;
+  }
+
+  .popUp {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    display: none;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  .popUp .iframe {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    top: 110px;
+  }
+
+  .popUp .closeBtn {
+    position: absolute;
+    top: 90px;
+    right: 2%;
+  }
+
+  .popUp iframe {
+    position: relative;
+    width: 75vw;
+    height: 80vh;
+  }
+
+  @media screen and (max-width: 768px) {
+    .popUp .iframe {
+      top: 17%;
+    }
+
+    .popUp .closeBtn {
+      position: absolute;
+      top: 65px;
+      right: 2%;
+    }
+
+    .popUp iframe {
+      position: relative;
+      width: 90vw;
+      height: 80vh;
+    }
+  }
+
+  @media screen and (min-width: 768.1px) and (max-width: 998px) {
+    .popUp .iframe {
+      top: 15%;
+    }
+
+    .popUp iframe {
+      position: relative;
+      width: 80vw;
+      height: 80vh;
+    }
+  }
 </style>
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.css"
-/>
 <section class="fw">
   <div class="container">
     <div class="row">
@@ -63,7 +127,7 @@ description %} {% block body %}
         class="row videoboxes videosslider3 owl-carousel owl-theme"
         id="ourStories"
       ></ul>
-      <div>
+      <div style="padding-bottom: 20px">
         <h5 class="viewMore">
           <a class="viewMores" id="viewMore"> View More</a>
         </h5>
@@ -72,17 +136,21 @@ description %} {% block body %}
   </div>
   <input type="hidden" name="page_no" id="page_no" value="1" />
   <input type="hidden" name="post" id="latest_post_2" />
-
   <script type="text/javascript">
+    function closePop() {
+      $(".popUp").removeClass("open");
+    }
+    function openPop(id) {
+      $("." + id).addClass("open");
+    }
     $(document).ready(function () {
-      $("#viewMore").show();
+      // $("#viewMore").show();
       var page_no = $("#page_no").val();
       $("#latest_post_2").val("false");
       loadData(page_no);
 
       $("#all_videos").click(function () {
-        console.log("all videos");
-        $("#viewMore").show();
+        // $("#viewMore").show();
         var page_no = 1;
         var search_key = $("#search").val();
         $("#latest_post_2").val("false");
@@ -99,28 +167,12 @@ description %} {% block body %}
       });
 
       $("#latest_video").click(function () {
-        $("#viewMore").hide();
         var page_no = 1;
         var search_key = $("#search").val();
         $("#latest_post_2").val("true");
         var latest_video = "true";
         var replace = true;
         loadData(page_no, latest_video, search_key, replace);
-      });
-
-      // magnificPopup creation
-      $("#VideoLink").click(function () {
-        console.log("AAAAAAA");
-        $("#VideoLink").magnificPopup({
-          disableOn: 700,
-          type: "iframe",
-          mainClass: "mfp-fade",
-          removalDelay: 160,
-          preloader: false,
-
-          fixedContentPos: false,
-        });
-        console.log("BBBBBBB");
       });
 
       function loadData(
@@ -143,26 +195,44 @@ description %} {% block body %}
               var html = "";
               $.each(res.data.videos_list_response, function (id, value) {
                 html +=
-                  '<li class="col-md-4 col-sm-6 item Latest" >' +
-                  '<a href="#">' +
-                  '<div class="fw videobox" id="play_videos">' +
-                  '<img src="assets/lms/images/home/videos/01.jpg" class="fw" />' +
+                  '<li class="col-md-4 col-sm-6 item Latest" style="z-index: 0;">' +
+                  '<div class="fw videobox" style="cursor:pointer" onclick="openPop(' +
+                  "'" +
+                  value.youtube_id +
+                  "'" +
+                  ')" id="play_videos">' +
+                  '<img src="' +
+                  value.youtube_image +
+                  '" class="fw" />' +
                   '<div class="fw desc">' +
                   "<h6>" +
-                  "<span>" +
+                  "<span style='font-size: 1.4rem'>" +
                   value.video_title +
                   "</span>" +
-                  "<a href=" +
+                  '<button id="showIframe" onclick="openPop(' +
+                  "'" +
                   value.youtube_id +
-                  ' id="VideoLink" class="VideoLink"><img src="assets/lms/images/home/videos/ic_video.jpg" class="videoico"/></a>' +
+                  "'" +
+                  ')"><img src="assets/lms/images/home/videos/ic_video.jpg" class="videoico"/></button>' +
                   "</h6>" +
                   "<small>" +
                   value.video_description +
                   "</small>" +
                   "</div>" +
                   "</div>" +
-                  "</a>" +
-                  "</li>";
+                  "</li>" +
+                  '<div class="popUp ' +
+                  value.youtube_id +
+                  '"  onclick="closePop()" style="z-index:10 !important;">' +
+                  '<div class="closeBtn">' +
+                  '<a style="background-color: transparent; color: white; font-weight: 900; font-size:1.55rem; cursor: pointer;" onclick="closePop()" id="closePop"><strong>X</strong></a>' +
+                  "</div>" +
+                  '<div class="iframe">' +
+                  '<iframe  id="DemoVideo" width="1920" height="1080" src="https://www.youtube.com/embed/' +
+                  value.youtube_id +
+                  '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>' +
+                  "</div>" +
+                  "</div>";
               });
               if (replace == true) {
                 $("#ourStories").html(html);
@@ -171,14 +241,18 @@ description %} {% block body %}
               }
               next_page_number = parseInt(res.data.page_no) + 1;
               $("#page_no").val(next_page_number);
-              $("#viewMore").show();
+              if (latest_video == "true") {
+                $("#viewMore").hide();
+              } else {
+                $("#viewMore").show();
+              }
             } else if (
               page_no == 1 &&
               res.data.videos_list_response.length <= 0
             ) {
               html = "";
               html += "<h3>No videos found.</h3>";
-              $("#ourStories").append(html);
+              $("#ourStories").html(html);
               $("#viewMore").hide();
             }
           },
