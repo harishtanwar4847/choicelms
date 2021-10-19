@@ -31,6 +31,12 @@
 - [Fix: Client holding fixes,on loan application rejection related changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/400)
 - [Fix: hide esign button while loan application is for margin shortfall pledge more](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/402)
 
+## [v1.1.0] - 2021-10-14
+
+### Added
+
+- [Feat: Sitemap.xml file updated](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/416)
+
 ## [v1.0.9] - 2021-10-08
 
 ### Fixed
