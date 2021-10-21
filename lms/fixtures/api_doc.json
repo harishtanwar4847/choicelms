@@ -1842,7 +1842,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-06 13:41:51.598782",
+  "modified": "2021-10-21 12:37:21.850755",
   "name": "a0d287dd95",
   "parameters": [
    {
@@ -1909,11 +1909,89 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "Number"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "is_failed",
+    "group": null,
+    "optional": 1,
+    "parent": "a0d287dd95",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Object"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "is_failed.code",
+    "group": null,
+    "optional": 0,
+    "parent": "a0d287dd95",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "is_failed.description",
+    "group": null,
+    "optional": 0,
+    "parent": "a0d287dd95",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "is_failed.source",
+    "group": null,
+    "optional": 0,
+    "parent": "a0d287dd95",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "is_failed.step",
+    "group": null,
+    "optional": 0,
+    "parent": "a0d287dd95",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "is_failed.reason",
+    "group": null,
+    "optional": 0,
+    "parent": "a0d287dd95",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
    }
   ],
   "parameters_example": [
    {
-    "example": "{\n\t\"loan_name\": \"SL000001\",\n\t\"amount\": 1.0,\n\t\"transaction_id\": \"asdf\",\n\t\"loan_margin_shortfall_name\": \"\",\n\t\"is_for_interest\": 1\n}",
+    "example": "{\n\t\"loan_name\": \"loan name\",\n\t\"amount\": 1.0,\n\t\"transaction_id\": \"asdf\",\n\t\"loan_margin_shortfall_name\": \"\",\n\t\"is_for_interest\": 1\n}",
     "parent": "a0d287dd95",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -1932,16 +2010,34 @@
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
     "title": "Request Example normal payment"
+   },
+   {
+    "example": "{\n\t\"loan_name\": \"loan name\",\n\t\"amount\": 1.0,\n\t\"transaction_id\": \"asdf\",\n\t\"loan_margin_shortfall_name\": \"\",\n\t\"is_for_interest\": 0,\n\t\"is_failed\": {\n\t\t\"code\": \"BAD_REQUEST_ERROR\",\n\t\t\"description\": \"Payment processing cancelled by user\",\n\t\t\"source\": \"customer\",\n\t\t\"step\": \"payment_authentication\",\n\t\t\"reason\": \"payment_cancelled\"\n\t}\n}",
+    "parent": "a0d287dd95",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example for failed payment"
    }
   ],
   "parent": null,
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.loan.loan_payment ",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "a0d287dd95",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\"\n}",
+    "example": "{\n  \"message\": \"Check Loan Payment Log.\"\n}",
     "parent": "a0d287dd95",
     "parentfield": "success_example",
     "parenttype": "API Doc",
