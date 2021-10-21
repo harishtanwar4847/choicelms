@@ -273,7 +273,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-20 14:33:48.943529",
+  "modified": "2021-10-21 10:58:17.992389",
   "name": "4621dd797d",
   "parameters": [],
   "parameters_example": [
@@ -339,56 +339,6 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.customer.creation",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.customer.modified",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.customer.modified_by",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.customer.idx",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "Integer"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.customer.docstatus",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "Integer"
    },
    {
     "default_value": null,
@@ -603,66 +553,6 @@
    {
     "default_value": null,
     "description": null,
-    "field": "data.user_kyc.owner",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.user_kyc.creation",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.user_kyc.modified",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.user_kyc.modified_by",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.user_kyc.idx",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "Integer"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.user_kyc.docstatus",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "Integer"
-   },
-   {
-    "default_value": null,
-    "description": null,
     "field": "data.user_kyc.user",
     "group": null,
     "parent": "4621dd797d",
@@ -773,46 +663,6 @@
    {
     "default_value": null,
     "description": null,
-    "field": "data.user_kyc.bank_account.owner",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.user_kyc.bank_account.creation",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.user_kyc.bank_account.modified",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.user_kyc.bank_account.modified_by",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
     "field": "data.user_kyc.bank_account.parent",
     "group": null,
     "parent": "4621dd797d",
@@ -839,26 +689,6 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.user_kyc.bank_account.idx",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "Integer"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.user_kyc.bank_account.docstatus",
-    "group": null,
-    "parent": "4621dd797d",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "Integer"
    },
    {
     "default_value": null,
@@ -1032,6 +862,56 @@
    },
    {
     "default_value": null,
+    "description": "Time remaining of Loan whose margin shortfall is in sell triggered or going to be in sell triggered.",
+    "field": "data.margin_shortfall_card.earliest_deadline",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.margin_shortfall_card.loan_with_margin_shortfall_list",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.margin_shortfall_card.loan_with_margin_shortfall_list.name",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.margin_shortfall_card.loan_with_margin_shortfall_list.deadline",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.margin_shortfall_card.loan_with_margin_shortfall_list.status",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
     "description": null,
     "field": "data.total_interest_all_loans_card",
     "group": null,
@@ -1039,6 +919,76 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.total_interest_all_loans_card.total_interest_amount",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.total_interest_all_loans_card.loans_interest_due_date",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.total_interest_all_loans_card.loans_interest_due_date.due_date",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.total_interest_all_loans_card.loans_interest_due_date.due_date_txt",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.total_interest_all_loans_card.interest_loan_list",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.total_interest_all_loans_card.interest_loan_list.loan_name",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.total_interest_all_loans_card.interest_loan_list.interest_amount",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
    },
    {
     "default_value": null,
@@ -1063,12 +1013,542 @@
    {
     "default_value": null,
     "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.name",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.workflow_state",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.total_collateral_value",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.total_collateral_value_str",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.drawing_power",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.drawing_power_str",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.lender",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.status",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.pledged_total_collateral_value",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.pledged_total_collateral_value_str",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.customer",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.customer_name",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.allowable_ltv",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.expiry_date",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.pledge_status",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.pledgor_boid",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.pledgee_boid",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.doctype",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.items",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.items.name",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.items.parent",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.items.parentfield",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.items.parenttype",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.items.lender_approval_status",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.items.isin",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.items.security_name",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.items.security_category",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.items.pledged_quantity",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.items.price",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.items.amount",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.items.prf_number",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.items.pledge_status",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.items.pledge_executed",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.loan_application.items.doctype",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.message",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "null",
+    "description": null,
+    "field": "data.pending_esigns_list.la_pending_esigns.increase_loan_message",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
     "field": "data.pending_esigns_list.topup_pending_esigns",
     "group": null,
     "parent": "4621dd797d",
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.topup_pending_esigns.topup_application_doc",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.topup_pending_esigns.topup_application_doc.name",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.topup_pending_esigns.topup_application_doc.workflow_state",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.topup_pending_esigns.topup_application_doc.loan",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.topup_pending_esigns.topup_application_doc.top_up_amount",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.topup_pending_esigns.topup_application_doc.sanctioned_limit",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.topup_pending_esigns.topup_application_doc.time",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.topup_pending_esigns.topup_application_doc.status",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.topup_pending_esigns.topup_application_doc.expiry_date",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.topup_pending_esigns.topup_application_doc.customer",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.topup_pending_esigns.topup_application_doc.customer_name",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "null",
+    "description": null,
+    "field": "data.pending_esigns_list.topup_pending_esigns.topup_application_doc.customer_esigned_document",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "null",
+    "description": null,
+    "field": "data.pending_esigns_list.topup_pending_esigns.topup_application_doc.lender_esigned_document",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "null",
+    "description": null,
+    "field": "data.pending_esigns_list.topup_pending_esigns.topup_application_doc.amended_from",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.topup_pending_esigns.topup_application_doc.doctype",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_esigns_list.topup_pending_esigns.mess",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
    },
    {
     "default_value": null,
@@ -1113,7 +1593,7 @@
   ],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"customer\": {\n      \"name\": \"CUST-07-2021-0913\",\n      \"owner\": \"Guest\",\n      \"creation\": \"2021-07-16 12:08:17.047711\",\n      \"modified\": \"2021-07-16 12:19:53.851280\",\n      \"modified_by\": \"Guest\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"registeration\": 1,\n      \"is_email_verified\": 1,\n      \"kyc_update\": 1,\n      \"credit_check\": 0,\n      \"pledge_securities\": 0,\n      \"loan_open\": 0,\n      \"feedback_submitted\": 0,\n      \"feedback_do_not_show_popup\": 0,\n      \"choice_kyc\": \"USR-KYC-07-2021-00914\",\n      \"ckcy\": \"\",\n      \"kra\": \"\",\n      \"first_name\": \"John\",\n      \"phone\": \"9304389521\",\n      \"full_name\": \"John Doe\",\n      \"last_name\": \"Doe\",\n      \"user\": \"testing@test.com\",\n      \"alerts_based_on_percentage\": 0.0,\n      \"alerts_based_on_amount\": 0.0,\n      \"doctype\": \"Loan Customer\"\n    },\n    \"user_kyc\": {\n      \"name\": \"USR-KYC-07-2021-00914\",\n      \"owner\": \"testing@test.com\",\n      \"creation\": \"2021-07-16 12:09:34.356264\",\n      \"modified\": \"2021-07-16 12:09:34.356264\",\n      \"modified_by\": \"testing@test.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"user\": \"testing@test.com\",\n      \"kyc_type\": \"CHOICE\",\n      \"investor_name\": \"RATIRAJ TIBREWAL HUF\",\n      \"pan_no\": \"ABCDE1234E\",\n      \"mobile_number\": \"1234567890\",\n      \"date_of_birth\": \"1970-01-01\",\n      \"address\": \"ABC-1, LOREM IPSUM, LOREM (Lorem) 123456\",\n      \"city\": \"Lorem\",\n      \"doctype\": \"User KYC\",\n      \"bank_account\": [\n        {\n          \"name\": \"d29f72bea3\",\n          \"owner\": \"testing@test.com\",\n          \"creation\": \"2021-07-16 12:09:34.356264\",\n          \"modified\": \"2021-07-16 12:09:34.356264\",\n          \"modified_by\": \"testing@test.com\",\n          \"parent\": \"USR-KYC-07-2021-00914\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"bank\": \"HDFC BANK\",\n          \"branch\": \"CHOUDHURY COMPLEX\",\n          \"account_number\": \"03621000042135\",\n          \"ifsc\": \"HDFC0000362\",\n          \"bank_code\": \"HDF\",\n          \"city\": \"ROURKELA\",\n          \"state\": \"ORISSA\",\n          \"is_default\": 0,\n          \"bank_address\": \"CHOUDHURY COMPLEX PANPOSH  ROAD\",\n          \"contact\": \"9937903333\",\n          \"account_type\": \"S\",\n          \"micr\": \"769240003\",\n          \"bank_mode\": \"NODAL\",\n          \"bank_zip_code\": \"769004\",\n          \"district\": \"SUNDERGARH\",\n          \"doctype\": \"User Bank Account\"\n        },\n        {\n          \"name\": \"f6af585ddc\",\n          \"owner\": \"testing@test.com\",\n          \"creation\": \"2021-07-16 12:09:34.356264\",\n          \"modified\": \"2021-07-16 12:09:34.356264\",\n          \"modified_by\": \"testing@test.com\",\n          \"parent\": \"USR-KYC-07-2021-00914\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 2,\n          \"docstatus\": 0,\n          \"bank\": \"ABC BANK\",\n          \"branch\": \"ABCSD COMPLEX\",\n          \"account_number\": \"12345678915215\",\n          \"ifsc\": \"ABCD0000001\",\n          \"bank_code\": \"ABC\",\n          \"city\": \"ROURKELA\",\n          \"state\": \"ORISSA\",\n          \"is_default\": 1,\n          \"bank_address\": \"CHOUDHURY COMPLEX PANPOSH  ROAD\",\n          \"contact\": \"1234568825\",\n          \"account_type\": \"C\",\n          \"micr\": \"769240003\",\n          \"bank_mode\": \"NODAL\",\n          \"bank_zip_code\": \"769004\",\n          \"district\": \"SUNDERGARH\",\n          \"doctype\": \"User Bank Account\"\n        }\n      ]\n    },\n    \"margin_shortfall_card\": {},\n    \"total_interest_all_loans_card\": {},\n    \"pending_esigns_list\": {\n      \"la_pending_esigns\": [],\n      \"topup_pending_esigns\": []\n    },\n    \"show_feedback_popup\": 0,\n    \"youtube_video_ids\": [\n      \"hSQOfS4I7Hc\",\n      \"A45rpr3KLe8\"\n    ],\n    \"profile_picture_file_url\": null,\n    \"fcm_unread_count\": 0\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"customer\": {\n      \"name\": \"CUST-07-2021-0913\",\n      \"owner\": \"Guest\",\n      \"creation\": \"2021-07-16 12:08:17.047711\",\n      \"modified\": \"2021-07-16 12:19:53.851280\",\n      \"modified_by\": \"Guest\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"registeration\": 1,\n      \"is_email_verified\": 1,\n      \"kyc_update\": 1,\n      \"credit_check\": 0,\n      \"pledge_securities\": 0,\n      \"loan_open\": 0,\n      \"feedback_submitted\": 0,\n      \"feedback_do_not_show_popup\": 0,\n      \"choice_kyc\": \"USR-KYC-07-2021-00914\",\n      \"ckcy\": \"\",\n      \"kra\": \"\",\n      \"first_name\": \"John\",\n      \"phone\": \"9304389521\",\n      \"full_name\": \"John Doe\",\n      \"last_name\": \"Doe\",\n      \"user\": \"testing@test.com\",\n      \"alerts_based_on_percentage\": 0.0,\n      \"alerts_based_on_amount\": 0.0,\n      \"doctype\": \"Loan Customer\"\n    },\n    \"user_kyc\": {\n      \"name\": \"USR-KYC-07-2021-00914\",\n      \"owner\": \"testing@test.com\",\n      \"creation\": \"2021-07-16 12:09:34.356264\",\n      \"modified\": \"2021-07-16 12:09:34.356264\",\n      \"modified_by\": \"testing@test.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"user\": \"testing@test.com\",\n      \"kyc_type\": \"CHOICE\",\n      \"investor_name\": \"RATIRAJ TIBREWAL HUF\",\n      \"pan_no\": \"ABCDE1234E\",\n      \"mobile_number\": \"1234567890\",\n      \"date_of_birth\": \"1970-01-01\",\n      \"address\": \"ABC-1, LOREM IPSUM, LOREM (Lorem) 123456\",\n      \"city\": \"Lorem\",\n      \"doctype\": \"User KYC\",\n      \"bank_account\": [\n        {\n          \"name\": \"d29f72bea3\",\n          \"owner\": \"testing@test.com\",\n          \"creation\": \"2021-07-16 12:09:34.356264\",\n          \"modified\": \"2021-07-16 12:09:34.356264\",\n          \"modified_by\": \"testing@test.com\",\n          \"parent\": \"USR-KYC-07-2021-00914\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"bank\": \"HDFC BANK\",\n          \"branch\": \"CHOUDHURY COMPLEX\",\n          \"account_number\": \"03621000042135\",\n          \"ifsc\": \"HDFC0000362\",\n          \"bank_code\": \"HDF\",\n          \"city\": \"ROURKELA\",\n          \"state\": \"ORISSA\",\n          \"is_default\": 0,\n          \"bank_address\": \"CHOUDHURY COMPLEX PANPOSH  ROAD\",\n          \"contact\": \"9937903333\",\n          \"account_type\": \"S\",\n          \"micr\": \"769240003\",\n          \"bank_mode\": \"NODAL\",\n          \"bank_zip_code\": \"769004\",\n          \"district\": \"SUNDERGARH\",\n          \"doctype\": \"User Bank Account\"\n        },\n        {\n          \"name\": \"f6af585ddc\",\n          \"owner\": \"testing@test.com\",\n          \"creation\": \"2021-07-16 12:09:34.356264\",\n          \"modified\": \"2021-07-16 12:09:34.356264\",\n          \"modified_by\": \"testing@test.com\",\n          \"parent\": \"USR-KYC-07-2021-00914\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 2,\n          \"docstatus\": 0,\n          \"bank\": \"ABC BANK\",\n          \"branch\": \"ABCSD COMPLEX\",\n          \"account_number\": \"12345678915215\",\n          \"ifsc\": \"ABCD0000001\",\n          \"bank_code\": \"ABC\",\n          \"city\": \"ROURKELA\",\n          \"state\": \"ORISSA\",\n          \"is_default\": 1,\n          \"bank_address\": \"CHOUDHURY COMPLEX PANPOSH  ROAD\",\n          \"contact\": \"1234568825\",\n          \"account_type\": \"C\",\n          \"micr\": \"769240003\",\n          \"bank_mode\": \"NODAL\",\n          \"bank_zip_code\": \"769004\",\n          \"district\": \"SUNDERGARH\",\n          \"doctype\": \"User Bank Account\"\n        }\n      ]\n    },\n    \"margin_shortfall_card\": {\n        \"earliest_deadline\": \"00:00:00\",\n        \"loan_with_margin_shortfall_list\": [\n        {\n          \"name\": \"SL000007\",\n          \"deadline\": \"00:00:00\",\n          \"status\": \"Sell Triggered\"\n        },\n        {\n          \"name\": \"SL000006\",\n          \"deadline\": \"00:00:00\",\n          \"status\": \"Sell Triggered\"\n        }\n        ]\n    },\n    \"total_interest_all_loans_card\": {},\n    \"pending_esigns_list\": {\n      \"la_pending_esigns\": [\n            {\n            \"loan_application\": {\n            \"name\": \"LA000016\",\n            \"owner\": \"dpcg7125601@gmail.com\",\n            \"creation\": \"2021-09-25 17:42:52.739247\",\n            \"modified\": \"2021-09-25 17:51:44.868424\",\n            \"modified_by\": \"Administrator\",\n            \"idx\": 0,\n            \"docstatus\": 0,\n            \"workflow_state\": \"Pledge accepted by Lender\",\n            \"total_collateral_value\": 0.0,\n            \"total_collateral_value_str\": \"0.00\",\n            \"drawing_power\": 0.0,\n            \"drawing_power_str\": \"0.00\",\n            \"lender\": \"Choice Finserv\",\n            \"status\": \"Pledge accepted by Lender\",\n            \"pledged_total_collateral_value\": 0.0,\n            \"pledged_total_collateral_value_str\": \"0.00\",\n            \"customer\": \"CUST-09-2021-0001\",\n            \"customer_name\": \"Deep Chirag\",\n            \"allowable_ltv\": 50.0,\n            \"expiry_date\": \"2022-09-24\",\n            \"pledge_status\": \"Success\",\n            \"pledgor_boid\": \"1206690000000050\",\n            \"pledgee_boid\": \"1206690000284106\",\n            \"doctype\": \"Loan Application\",\n            \"items\": [\n              {\n                \"name\": \"93724e147c\",\n                \"owner\": \"dpcg7125601@gmail.com\",\n                \"creation\": \"2021-09-25 17:42:52.739247\",\n                \"modified\": \"2021-09-25 17:51:44.868424\",\n                \"modified_by\": \"Administrator\",\n                \"parent\": \"LA000016\",\n                \"parentfield\": \"items\",\n                \"parenttype\": \"Loan Application\",\n                \"idx\": 1,\n                \"docstatus\": 0,\n                \"lender_approval_status\": \"Approved\",\n                \"isin\": \"INE736A01011\",\n                \"security_name\": \"Central Depository Services (India) Ltd.\",\n                \"security_category\": \"Cat B\",\n                \"pledged_quantity\": 5,\n                \"price\": 0.0,\n                \"amount\": 0.0,\n                \"prf_number\": \"yIrounxxAo1f\",\n                \"pledge_status\": \"Success\",\n                \"pledge_executed\": 1,\n                \"doctype\": \"Loan Application Item\"\n              }\n            ]\n          },\n          \"message\": \"Congratulations! Your application is being considered favorably by our lending partner and finally accepted at Rs. 0.00 against the request value of Rs. 0.00. Accordingly, the final Sanctioned Limit is Rs. 0.00. Please e-sign the loan agreement to avail the loan now.\",\n          \"increase_loan_message\": null\n        }\n        ],\n      \"topup_pending_esigns\": []\n    },\n    \"show_feedback_popup\": 0,\n    \"youtube_video_ids\": [\n      \"hSQOfS4I7Hc\",\n      \"A45rpr3KLe8\"\n    ],\n    \"profile_picture_file_url\": null,\n    \"fcm_unread_count\": 0\n  }\n}",
     "parent": "4621dd797d",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -1163,7 +1643,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-06 13:25:14.851089",
+  "modified": "2021-10-20 17:41:18.409509",
   "name": "b5e26f3219",
   "parameters": [
    {
@@ -1262,6 +1742,16 @@
    {
     "default_value": null,
     "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "b5e26f3219",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
     "field": "data",
     "group": null,
     "parent": "b5e26f3219",
@@ -1272,27 +1762,27 @@
    {
     "default_value": null,
     "description": null,
-    "field": "security_category_list",
+    "field": "data.security_category_list",
     "group": null,
     "parent": "b5e26f3219",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "List"
+    "type": "Array"
    },
    {
     "default_value": null,
     "description": null,
-    "field": "approved_securities_list",
+    "field": "data.approved_securities_list",
     "group": null,
     "parent": "b5e26f3219",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "List"
+    "type": "Array"
    },
    {
     "default_value": null,
     "description": null,
-    "field": "pdf_file_url",
+    "field": "data.pdf_file_url",
     "group": null,
     "parent": "b5e26f3219",
     "parentfield": "success",
@@ -1501,7 +1991,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-06 13:39:33.480305",
+  "modified": "2021-10-20 18:01:24.777230",
   "name": "0986702424",
   "parameters": [
    {
@@ -1510,7 +2000,7 @@
     "description": null,
     "field": "loan_application_name",
     "group": null,
-    "optional": 0,
+    "optional": 1,
     "parent": "0986702424",
     "parentfield": "parameters",
     "parenttype": "API Doc",
@@ -1523,7 +2013,7 @@
     "description": null,
     "field": "topup_application_name",
     "group": null,
-    "optional": 0,
+    "optional": 1,
     "parent": "0986702424",
     "parentfield": "parameters",
     "parenttype": "API Doc",
@@ -1551,7 +2041,48 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.loan.esign",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "0986702424",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "0986702424",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.esign_url",
+    "group": null,
+    "parent": "0986702424",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.file_id",
+    "group": null,
+    "parent": "0986702424",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Esign URL.\",\n  \"data\": {\n    \"esign_url\": \"esign_url\",\n    \"file_id\": \"asdf\"\n  }\n}",
@@ -1915,7 +2446,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-04 14:51:46.572359",
+  "modified": "2021-10-20 17:17:38.013102",
   "name": "6758aefe27",
   "parameters": [],
   "parameters_example": [
@@ -1931,7 +2462,18 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.cart.request_pledge_otp",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "6758aefe27",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Pledge OTP sent\"\n}",
@@ -1984,7 +2526,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-06 13:38:47.011790",
+  "modified": "2021-10-20 18:02:09.543479",
   "name": "a9f5a81b01",
   "parameters": [
    {
@@ -1993,7 +2535,7 @@
     "description": null,
     "field": "loan_application_name",
     "group": null,
-    "optional": 0,
+    "optional": 1,
     "parent": "a9f5a81b01",
     "parentfield": "parameters",
     "parenttype": "API Doc",
@@ -2006,7 +2548,7 @@
     "description": null,
     "field": "topup_application_name",
     "group": null,
-    "optional": 0,
+    "optional": 1,
     "parent": "a9f5a81b01",
     "parentfield": "parameters",
     "parenttype": "API Doc",
@@ -2047,7 +2589,18 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.loan.esign_done",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "a9f5a81b01",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Success\"\n}",
@@ -2353,7 +2906,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-04 17:46:35.994889",
+  "modified": "2021-10-20 17:22:05.474814",
   "name": "4d05fac618",
   "parameters": [],
   "parameters_example": [
@@ -2369,7 +2922,18 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.loan.request_loan_withdraw_otp",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "4d05fac618",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Withdraw OTP sent\"\n}",
@@ -2667,7 +3231,18 @@
   "api_define": 0,
   "docstatus": 0,
   "doctype": "API Doc",
-  "error": [],
+  "error": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "1692eb7604",
+    "parentfield": "error",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "error_example": [
    {
     "example": "{\"message\":\"Invalid OTP.\"}",
@@ -2695,7 +3270,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-04 20:08:20.482339",
+  "modified": "2021-10-20 17:12:49.011348",
   "name": "1692eb7604",
   "parameters": [
    {
@@ -2785,7 +3360,7 @@
   ],
   "success_example": [
    {
-    "example": "{\"message\": \"Success\",\"data\":{\"token\":\"token asdf:asdf\",\"customer\": {\n      \"name\": \"CUST-1234\",\n      \"owner\": \"Guest\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"Administrator\",\n      \"idx\": 1,\n      \"docstatus\": 0,\n      \"registeration\": 1,\n      \"is_email_verified\": 0,\n      \"kyc_update\": 1,\n      \"credit_check\": 0,\n      \"pledge_securities\": 1,\n      \"loan_open\": 1,\n      \"feedback_submitted\": 0,\n      \"feedback_do_not_show_popup\": 0,\n      \"choice_kyc\": \"USR-KYC-1234\",\n      \"ckcy\": \"\",\n      \"kra\": \"\",\n      \"first_name\": \"John\",\n      \"phone\": \"9876543210\",\n      \"full_name\": \"John Doe\",\n      \"last_name\": \"Doe\",\n      \"user\": \"john@gmail.com\",\n      \"alerts_based_on_percentage\": 0.0,\n      \"alerts_based_on_amount\": 0.0,\n      \"doctype\": \"Loan Customer\"\n    },\n    \"user_kyc\": {\n      \"name\": \"USR-KYC-1234\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"user\": \"john@gmail.com\",\n      \"kyc_type\": \"kyc_type\",\n      \"investor_name\": \"John Doe\",\n      \"pan_no\": \"ABCDE1234F\",\n      \"mobile_number\": \"9876543210\",\n      \"date_of_birth\": \"1700-01-01\",\n      \"address\": \"USER'S FULL ADDRESS\",\n      \"city\": \"USER'S CITY\",\n      \"doctype\": \"User KYC\",\n      \"bank_account\": [\n        {\n          \"name\": \"bank entry name\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"USR-KYC-1234\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"bank\": \"BANK'S NAME\",\n          \"branch\": \"BANK'S BRANCH\",\n          \"account_number\": \"bank_account_number\",\n          \"ifsc\": \"bank's ifsc code\",\n          \"bank_code\": \"bank's code\",\n          \"city\": \"city name\",\n          \"state\": \"state name\",\n          \"is_default\": 0,\n          \"bank_address\": \"BANK FULL ADDRESS\",\n          \"contact\": \"9876543210\",\n          \"account_type\": \"account_type\",\n          \"micr\": \"bank's micr code\",\n          \"bank_mode\": \"bank_mode\",\n          \"bank_zip_code\": \"bank_zip_code\",\n          \"district\": \"DISTRICT NAME\",\n          \"doctype\": \"User Bank Account\"\n        }\n      ]\n    }}}",
+    "example": "{\n\"message\": \"Success\",\n\"data\": {\n      \"token\":\"token asdf:asdf\",\n      \"customer\": {\n      \"name\": \"CUST-1234\",\n      \"owner\": \"Guest\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"Administrator\",\n      \"idx\": 1,\n      \"docstatus\": 0,\n      \"registeration\": 1,\n      \"is_email_verified\": 0,\n      \"kyc_update\": 1,\n      \"credit_check\": 0,\n      \"pledge_securities\": 1,\n      \"loan_open\": 1,\n      \"feedback_submitted\": 0,\n      \"feedback_do_not_show_popup\": 0,\n      \"choice_kyc\": \"USR-KYC-1234\",\n      \"ckcy\": \"\",\n      \"kra\": \"\",\n      \"first_name\": \"John\",\n      \"phone\": \"9876543210\",\n      \"full_name\": \"John Doe\",\n      \"last_name\": \"Doe\",\n      \"user\": \"john@gmail.com\",\n      \"alerts_based_on_percentage\": 0.0,\n      \"alerts_based_on_amount\": 0.0,\n      \"doctype\": \"Loan Customer\"\n    },\n    \"user_kyc\": {\n      \"name\": \"USR-KYC-1234\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"user\": \"john@gmail.com\",\n      \"kyc_type\": \"kyc_type\",\n      \"investor_name\": \"John Doe\",\n      \"pan_no\": \"ABCDE1234F\",\n      \"mobile_number\": \"9876543210\",\n      \"date_of_birth\": \"1700-01-01\",\n      \"address\": \"USER'S FULL ADDRESS\",\n      \"city\": \"USER'S CITY\",\n      \"doctype\": \"User KYC\",\n      \"bank_account\": [\n        {\n          \"name\": \"bank entry name\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"USR-KYC-1234\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"bank\": \"BANK'S NAME\",\n          \"branch\": \"BANK'S BRANCH\",\n          \"account_number\": \"bank_account_number\",\n          \"ifsc\": \"bank's ifsc code\",\n          \"bank_code\": \"bank's code\",\n          \"city\": \"city name\",\n          \"state\": \"state name\",\n          \"is_default\": 0,\n          \"bank_address\": \"BANK FULL ADDRESS\",\n          \"contact\": \"9876543210\",\n          \"account_type\": \"account_type\",\n          \"micr\": \"bank's micr code\",\n          \"bank_mode\": \"bank_mode\",\n          \"bank_zip_code\": \"bank_zip_code\",\n          \"district\": \"DISTRICT NAME\",\n          \"doctype\": \"User Bank Account\"\n        }\n      ]\n    }}}",
     "parent": "1692eb7604",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -3188,7 +3763,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-06 13:33:03.555580",
+  "modified": "2021-10-20 17:15:51.285393",
   "name": "2a23f121e5",
   "parameters": [
    {
@@ -3197,7 +3772,7 @@
     "description": null,
     "field": "cart_name",
     "group": null,
-    "optional": 0,
+    "optional": 1,
     "parent": "2a23f121e5",
     "parentfield": "parameters",
     "parenttype": "API Doc",
@@ -3210,7 +3785,7 @@
     "description": null,
     "field": "loan_name",
     "group": null,
-    "optional": 0,
+    "optional": 1,
     "parent": "2a23f121e5",
     "parentfield": "parameters",
     "parenttype": "API Doc",
@@ -3251,7 +3826,78 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.cart.get_tnc",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "2a23f121e5",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "2a23f121e5",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.tnc_file",
+    "group": null,
+    "parent": "2a23f121e5",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.tnc_html",
+    "group": null,
+    "parent": "2a23f121e5",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.tnc_header",
+    "group": null,
+    "parent": "2a23f121e5",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.tnc_footer",
+    "group": null,
+    "parent": "2a23f121e5",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.tnc_checkboxes",
+    "group": null,
+    "parent": "2a23f121e5",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"tnc_file\": \"tnc_file_link\",\n    \"tnc_html\": \"<ul><li><strong> Name of borrower : BORROWER\u2019S NAME</strong></li><li><strong> Address of borrower </strong> : BORROWER\u2019S ADDRESS</li><li><strong> Nature of facility sanctioned :</strong> Loan Against Securities - Overdraft facility;</li><li><strong> Purpose </strong>: General purpose.<br />Note:-The facility shall not be used for anti-social or illegal purposes;</li><li><strong> Sanctioned credit limit / Drawing power in Rupees</strong>: <strong>Drawing power</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);</li><li><strong> Interest type </strong>: Floating</li><li><strong> Rate of interest </strong>: <strong>1.25%  per month</strong> after rebate, if paid within <strong>7 days</strong> of due date. Otherwise rebate of <strong>0.20%</strong> will not be applicable and higher interest rate will be applicable [Interest rate is subject to change based on the Management discretion from time to time];</li><li><strong> Details of security / collateral obtained </strong>: Shares and other securities as will be pledged from time to time to maintain the required security coverage;</li><li><strong> Security coverage </strong>: Shares & Equity oriented Mutual Funds - <strong>Minimum 200%</strong><br />Other securities - As per rules applicable from time to time;</li><li><strong> Facility tenure </strong>: <strong>12 months</strong> (renewable at lender\u2019s discretion, as detailed in the T&C);</li><li><strong> Repayment through </strong>: Cash flows/Sale of securities/Other investments maturing;</li><li><strong> Mode of communication</strong> of changes in interest rates and others : Website and Mobile App notification, SMS, email, letters, notices at branches, communication through statement of accounts of the borrower, or any other mode of communication;</li><li><strong> EMI payable </strong>: Not applicable;</li><li><strong> Penal interest rate / Penal charges </strong>: In case of occurrence of Event of Default (EOD), penal interest shall be charged <strong>upto 4.00% per month</strong> over and above applicable interest rate;</li><li><strong> Processing fees </strong>: <strong>1.0%</strong> of the sanctioned amount</li><li><strong> Account renewal charges </strong>: <strong>0.5%</strong> of the renewal amount (Facility valid for a period of 12 months from the date of sanction; account renewal charges shall be debited at the end of 12 months)</li><li><strong> Documentation charges </strong>: <strong>Rs. 0/-;</strong></li><li><strong> Stamp duty & other statutory charges : Rs. 0/-;</li></strong><li><strong> Pre-payment charges </strong>: <strong>NIL;</strong></li><li><strong> Transaction charges per ISIN (per variation in the composition of the Demat securities pledged) </strong>: <strong>Upto Rs. 100/-</strong> per ISIN;</li><li><strong> Collection Charges on Sale of security in the event of default or otherwise </strong>: <strong>0.5%</strong> of the sale amount plus all brokerage.<br />Note: The above includes incidental transaction charges, taxes, and other levies as per actuals;</li><li><strong> Credit Information Companies'(CICs) Charges </strong>: <strong>Upto Rs 100/-</strong> per instance (for individuals);</li><li><strong> Solvency Certificate </strong>: Not Applicable;</li><li><strong> No Due Certificate / No Objection Certificate (NOC) </strong>: <strong>NIL;</strong></li><li><strong> Legal & incidental charges </strong>: As per actuals;</li></ul>\",\n    \"tnc_header\": \"Please refer to the <a LOAN AGREEMENT LINK>Terms & Conditions</a> for LAS facility, for detailed terms.\",\n    \"tnc_footer\": \"You shall be required to authenticate (in token of you having fully read and irrevocably and unconditionally accepted and authenticated) the above application for loan including the pledge request and the Terms and Conditions (which can be opened by clicking on the links) and entire contents thereof, by entering the OTP that will be sent to you next on your registered mobile number with CDSL.\",\n    \"tnc_checkboxes\": [\n      \"I hereby irrevocably and unconditionally authorise Spark.loans, its lending partner and my DP to notify NSDL/ CDSL/ CAMS through a system to system  communication the aforesaid securities for NSDL/ CDSL/ CAMS to forthwith thereupon pledge / mark lien on the securities requested for pledge / marking lien in favour of the lender(s) for securing the LAS facility.\",\n      \"I agree to consent to call for marketing and promotional activities\",\n      \"I Confirm the above application for Loan Against Securities (LAS) Facility.\"\n    ]\n  }\n}",
@@ -3366,7 +4012,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-05 15:38:07.237340",
+  "modified": "2021-10-21 11:26:00.850079",
   "name": "950a3a862d",
   "parameters": [
    {
@@ -3409,7 +4055,38 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.loan.create_topup",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "950a3a862d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "950a3a862d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.topup_application_name",
+    "group": null,
+    "parent": "950a3a862d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"topup_application_name\": \"TOPUP000001\"\n  }\n}",
@@ -3721,7 +4398,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-19 16:26:41.523195",
+  "modified": "2021-10-20 14:46:32.168415",
   "name": "023a7ca67c",
   "parameters": [
    {
@@ -3790,7 +4467,7 @@
     "parent": "023a7ca67c",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Decimal"
+    "type": "Float"
    },
    {
     "default_value": null,
@@ -3800,7 +4477,17 @@
     "parent": "023a7ca67c",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Decimal"
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.balance",
+    "group": null,
+    "parent": "023a7ca67c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
    },
    {
     "default_value": null,
@@ -3850,7 +4537,7 @@
     "parent": "023a7ca67c",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Decimal"
+    "type": "Float"
    },
    {
     "default_value": null,
@@ -3955,7 +4642,7 @@
   ],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"loan_name\": \"SL000001\",\n    \"total_value\": 20000,\n    \"drawing_power\": 10000,\n    \"balance\": 102,\n    \"number_of_scrips\": 1,\n    \"all_pledged_securities\": [\n      {\n        \"isin\": \"isin\",\n        \"security_name\": \"Bajaj\",\n        \"pledged_quantity\": 10,\n        \"security_category\": \"Cat B\",\n        \"price\": 2000,\n        \"amount\": 20000\n      }\n    ],\n    \"sell_collateral\": 1,\n    \"increase_loan\": 1,\n    \"unpledge\": {\n      \"unpledge_msg_while_margin_shortfall\": null,\n      \"unpledge\": {\n        \"minimum_collateral_value\": 1000,\n        \"maximum_unpledge_amount\": 2000\n      }\n    }\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"loan_name\": \"SL000001\",\n    \"total_value\": 2891.4,\n    \"drawing_power\": 0.0,\n    \"balance\": 10.07,\n    \"number_of_scrips\": 1,\n    \"all_pledged_securities\": [\n      {\n        \"isin\": \"INE155A01022\",\n        \"security_name\": \"Tata Motors Ltd.\",\n        \"pledged_quantity\": 6.0,\n        \"security_category\": \"Super Cat A\",\n        \"price\": 481.9,\n        \"amount\": 2891.4\n      }\n    ],\n    \"sell_collateral\": 1,\n    \"is_sell_triggered\": 1,\n    \"increase_loan\": 1,\n    \"unpledge\": {\n      \"unpledge_msg_while_margin_shortfall\": \"OOPS! Dear Deep, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall\",\n      \"unpledge\": {\n        \"minimum_collateral_value\": 20.14,\n        \"maximum_unpledge_amount\": 2871.26\n      }\n    }\n  }\n}",
     "parent": "023a7ca67c",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -4119,7 +4806,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-04 18:01:51.993679",
+  "modified": "2021-10-20 17:18:50.262145",
   "name": "862ecb45a8",
   "parameters": [],
   "parameters_example": [
@@ -4135,7 +4822,18 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.loan.request_unpledge_otp",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "862ecb45a8",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Unpledge OTP sent\"\n}",
@@ -4188,7 +4886,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-06 14:36:54.696175",
+  "modified": "2021-10-20 16:02:01.498043",
   "name": "f856d53778",
   "parameters": [
    {
@@ -4247,7 +4945,7 @@
     "allowed_values": null,
     "default_value": null,
     "description": null,
-    "field": "isin",
+    "field": "securities.list.isin",
     "group": "Security",
     "optional": 0,
     "parent": "f856d53778",
@@ -4260,7 +4958,7 @@
     "allowed_values": null,
     "default_value": null,
     "description": null,
-    "field": "quantity",
+    "field": "securities.list.quantity",
     "group": "Security",
     "optional": 0,
     "parent": "f856d53778",
@@ -4296,10 +4994,431 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.loan.sell_collateral_request",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.name",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.owner",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.creation",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.modified",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.modified_by",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.idx",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.docstatus",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.workflow_state",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.total_collateral_value",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.lender",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.initial_shortfall_amount",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.current_shortfall_amount",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pending_unpledge_request_id",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_name",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.selling_collateral_value",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan_margin_shortfall",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.lender_selling_amount",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.status",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.doctype",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.name",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.owner",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.creation",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.modified",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.modified_by",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.parent",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.parentfield",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.parenttype",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.idx",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.docstatus",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.isin",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.security_name",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.quantity",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.price",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.amount",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.doctype",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.__unsaved",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.sell_items",
+    "group": null,
+    "parent": "f856d53778",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   }
+  ],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"name\": \"sell collateral application entry name\",\n    \"owner\": \"john@gmail.com\",\n    \"creation\": \"datetime\",\n    \"modified\": \"datetime\",\n    \"modified_by\": \"john@gmail.com\",\n    \"idx\": 0,\n    \"docstatus\": 0,\n    \"workflow_state\": \"Pending\",\n    \"loan\": \"loan name\",\n    \"total_collateral_value\": 20000,\n    \"lender\": \"lender's name\",\n    \"initial_shortfall_amount\": 250,\n    \"current_shortfall_amount\": 150,\n    \"customer\": \"CUST-09-2021-0001\",\n    \"selling_collateral_value\": 0.0,\n    \"lender_selling_amount\": 0.0,\n    \"status\": \"Pending\",\n    \"doctype\": \"Sell Collateral Application\",\n    \"items\": [\n      {\n        \"name\": \"isin entry name\",\n        \"owner\": \"john@gmail.com\",\n        \"creation\": \"datetime\",\n        \"modified\": \"datetime\",\n        \"modified_by\": \"john@gmail.com\",\n        \"parent\": \"sell collateral application entry name\",\n        \"parentfield\": \"items\",\n        \"parenttype\": \"Sell Collateral Application\",\n        \"idx\": 1,\n        \"docstatus\": 0,\n        \"isin\": \"isin\",\n        \"security_name\": \"security_name\",\n        \"quantity\": quantity,\n        \"price\": price,\n        \"amount\": amount,\n        \"doctype\": \"Sell Collateral Application Item\",\n        \"__unsaved\": 1\n      }\n    ],\n    \"sell_items\": []\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"name\": \"sell collateral application entry name\",\n    \"owner\": \"john@gmail.com\",\n    \"creation\": \"datetime\",\n    \"modified\": \"datetime\",\n    \"modified_by\": \"john@gmail.com\",\n    \"idx\": 0,\n    \"docstatus\": 0,\n    \"workflow_state\": \"Pending\",\n    \"loan\": \"loan name\",\n    \"total_collateral_value\": 20000,\n    \"lender\": \"lender's name\",\n    \"initial_shortfall_amount\": 250,\n    \"current_shortfall_amount\": 150,\n    \"pending_unpledge_request_id\": \"\",\n    \"customer\": \"CUST-09-2021-0001\",\n    \"customer_name\": \"Deep Chirag\",\n    \"selling_collateral_value\": 0.0,\n    \"loan_margin_shortfall\": \"0cda2a0ece\",\n    \"lender_selling_amount\": 0.0,\n    \"status\": \"Pending\",\n    \"doctype\": \"Sell Collateral Application\",\n    \"items\": [\n      {\n        \"name\": \"isin entry name\",\n        \"owner\": \"john@gmail.com\",\n        \"creation\": \"datetime\",\n        \"modified\": \"datetime\",\n        \"modified_by\": \"john@gmail.com\",\n        \"parent\": \"sell collateral application entry name\",\n        \"parentfield\": \"items\",\n        \"parenttype\": \"Sell Collateral Application\",\n        \"idx\": 1,\n        \"docstatus\": 0,\n        \"isin\": \"isin\",\n        \"security_name\": \"security_name\",\n        \"quantity\": quantity,\n        \"price\": price,\n        \"amount\": amount,\n        \"doctype\": \"Sell Collateral Application Item\",\n        \"__unsaved\": 1\n      }\n    ],\n    \"sell_items\": []\n  }\n}",
     "parent": "f856d53778",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -4349,7 +5468,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-04 18:29:01.174539",
+  "modified": "2021-10-20 17:21:37.817560",
   "name": "a990097a0c",
   "parameters": [],
   "parameters_example": [
@@ -4365,7 +5484,18 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.loan.request_sell_collateral_otp",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "a990097a0c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Sell Collateral OTP sent\"\n}",
@@ -4418,7 +5548,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-05 12:06:05.605727",
+  "modified": "2021-10-20 17:38:52.000995",
   "name": "0a23d8c2e9",
   "parameters": [],
   "parameters_example": [
@@ -4438,12 +5568,32 @@
    {
     "default_value": null,
     "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "0a23d8c2e9",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
     "field": "data",
     "group": null,
     "parent": "0a23d8c2e9",
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.name",
+    "group": null,
+    "parent": "0a23d8c2e9",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
    }
   ],
   "success_example": [
@@ -4801,7 +5951,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-05 15:45:05.763441",
+  "modified": "2021-10-21 11:31:06.236090",
   "name": "07eef5b3e8",
   "parameters": [
    {
@@ -4864,6 +6014,46 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.name",
+    "group": null,
+    "parent": "07eef5b3e8",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.topic",
+    "group": null,
+    "parent": "07eef5b3e8",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.description",
+    "group": null,
+    "parent": "07eef5b3e8",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.resolution",
+    "group": null,
+    "parent": "07eef5b3e8",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
    }
   ],
   "success_example": [
@@ -4918,7 +6108,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-05 12:06:51.484954",
+  "modified": "2021-10-20 17:37:55.232877",
   "name": "6e3c48529e",
   "parameters": [],
   "parameters_example": [
@@ -4938,12 +6128,32 @@
    {
     "default_value": null,
     "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "6e3c48529e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
     "field": "data",
     "group": null,
     "parent": "6e3c48529e",
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.name",
+    "group": null,
+    "parent": "6e3c48529e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
    }
   ],
   "success_example": [
@@ -4998,7 +6208,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-05 17:09:16.004654",
+  "modified": "2021-10-20 17:55:27.075277",
   "name": "c4921d34b1",
   "parameters": [
    {
@@ -5045,12 +6255,82 @@
    {
     "default_value": null,
     "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "c4921d34b1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
     "field": "data",
     "group": null,
     "parent": "c4921d34b1",
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.Scrip_Name",
+    "group": null,
+    "parent": "c4921d34b1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.eligible_percentage",
+    "group": null,
+    "parent": "c4921d34b1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.lender",
+    "group": null,
+    "parent": "c4921d34b1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.Category",
+    "group": null,
+    "parent": "c4921d34b1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.Price",
+    "group": null,
+    "parent": "c4921d34b1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.Is_Eligible",
+    "group": null,
+    "parent": "c4921d34b1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Boolean"
    }
   ],
   "success_example": [
@@ -5105,7 +6385,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-06 14:35:33.186709",
+  "modified": "2021-10-20 16:12:13.415090",
   "name": "1141858dda",
   "parameters": [
    {
@@ -5164,7 +6444,7 @@
     "allowed_values": null,
     "default_value": null,
     "description": null,
-    "field": "isin",
+    "field": "securities.list.isin",
     "group": "Security",
     "optional": 0,
     "parent": "1141858dda",
@@ -5177,7 +6457,7 @@
     "allowed_values": null,
     "default_value": null,
     "description": null,
-    "field": "quantity",
+    "field": "securities.list.quantity",
     "group": "Security",
     "optional": 0,
     "parent": "1141858dda",
@@ -5203,7 +6483,7 @@
   "success": [],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"name\": \"unpledge application entry name\",\n    \"owner\": \"john@gmail.com\",\n    \"creation\": \"datetime\",\n    \"modified\": \"datetime\",\n    \"modified_by\": \"john@gmail.com\",\n    \"idx\": 0,\n    \"docstatus\": 0,\n    \"workflow_state\": \"Pending\",\n    \"loan\": \"loan name\",\n    \"total_collateral_value\": 20000,\n    \"lender\": \"lender's name\",\n    \"customer\": \"CUST-1234\",\n    \"unpledge_collateral_value\": 1000,\n    \"max_unpledge_amount\": 1000,\n    \"status\": \"Pending\",\n    \"doctype\": \"Unpledge Application\",\n    \"items\": [\n      {\n        \"name\": \"isin entry name\",\n        \"owner\": \"john@gmail.com\",\n        \"creation\": \"datetime\",\n        \"modified\": \"datetime\",\n        \"modified_by\": \"john@gmail.com\",\n        \"parent\": \"unpledge application entry name\",\n        \"parentfield\": \"items\",\n        \"parenttype\": \"Unpledge Application\",\n        \"idx\": 1,\n        \"docstatus\": 0,\n        \"isin\": \"isin\",\n        \"security_name\": \"security_name\",\n        \"quantity\": quantity,\n        \"price\": price,\n        \"amount\": amount,\n        \"doctype\": \"Unpledge Application Item\",\n        \"__unsaved\": 1\n      }\n    ],\n    \"unpledge_items\": []\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"name\": \"unpledge application entry name\",\n    \"owner\": \"john@gmail.com\",\n    \"creation\": \"datetime\",\n    \"modified\": \"datetime\",\n    \"modified_by\": \"john@gmail.com\",\n    \"idx\": 0,\n    \"docstatus\": 0,\n    \"workflow_state\": \"Pending\",\n    \"loan\": \"loan name\",\n    \"total_collateral_value\": 20000,\n    \"lender\": \"lender's name\",\n    \"customer\": \"CUST-1234\",\n    \"customer_name\": \"Deep Chirag\",\n    \"unpledge_collateral_value\": 1000,\n    \"max_unpledge_amount\": 1000,\n    \"status\": \"Pending\",\n    \"doctype\": \"Unpledge Application\",\n    \"items\": [\n      {\n        \"name\": \"isin entry name\",\n        \"owner\": \"john@gmail.com\",\n        \"creation\": \"datetime\",\n        \"modified\": \"datetime\",\n        \"modified_by\": \"john@gmail.com\",\n        \"parent\": \"unpledge application entry name\",\n        \"parentfield\": \"items\",\n        \"parenttype\": \"Unpledge Application\",\n        \"idx\": 1,\n        \"docstatus\": 0,\n        \"isin\": \"isin\",\n        \"security_name\": \"security_name\",\n        \"quantity\": quantity,\n        \"price\": price,\n        \"amount\": amount,\n        \"doctype\": \"Unpledge Application Item\",\n        \"__unsaved\": 1\n      }\n    ],\n    \"unpledge_items\": []\n  }\n}",
     "parent": "1141858dda",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -5253,7 +6533,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-05 12:04:19.206043",
+  "modified": "2021-10-21 12:00:12.000932",
   "name": "227ef993a2",
   "parameters": [
    {
@@ -5309,7 +6589,578 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.user.get_profile_set_alerts",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.name",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.registeration",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.is_email_verified",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.kyc_update",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.credit_check",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.pledge_securities",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.loan_open",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.feedback_submitted",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.feedback_do_not_show_popup",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.choice_kyc",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.ckcy",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.kra",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.first_name",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.phone",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.full_name",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.last_name",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.user",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.alerts_based_on_percentage",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.alerts_based_on_amount",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_details.doctype",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.name",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.user",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.kyc_type",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.investor_name",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.pan_no",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.mobile_number",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.date_of_birth",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.address",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.city",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.doctype",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.name",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.parent",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.parentfield",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.parenttype",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.bank",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.branch",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.account_number",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.ifsc",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.bank_code",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.city",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.state",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.is_default",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.bank_address",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.contact",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.account_type",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.micr",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.bank_mode",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.bank_zip_code",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.district",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.doctype",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.last_login",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "null",
+    "description": null,
+    "field": "data.profile_picture_file_url",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"customer_details\": {\n      \"name\": \"CUST-1234\",\n      \"owner\": \"Guest\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 20,\n      \"docstatus\": 0,\n      \"registeration\": 1,\n      \"is_email_verified\": 0,\n      \"kyc_update\": 1,\n      \"credit_check\": 0,\n      \"pledge_securities\": 1,\n      \"loan_open\": 1,\n      \"feedback_submitted\": 0,\n      \"feedback_do_not_show_popup\": 0,\n      \"choice_kyc\": \"USR-KYC-09-2021-00002\",\n      \"ckcy\": \"\",\n      \"kra\": \"\",\n      \"first_name\": \"John\",\n      \"phone\": \"9876543210\",\n      \"full_name\": \"John Doe\",\n      \"last_name\": \"Doe\",\n      \"user\": \"john@gmail.com\",\n      \"alerts_based_on_percentage\": 10.0,\n      \"alerts_based_on_amount\": 0.0,\n      \"doctype\": \"Loan Customer\"\n    },\n    \"user_kyc\": {\n      \"name\": \"USR-KYC-1234\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com \",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"user\": \"john@gmail.com\",\n      \"kyc_type\": \"kyc_type\",\n      \"investor_name\": \"John Doe\",\n      \"pan_no\": \"ABCDE1234F\",\n      \"mobile_number\": \"9876543210\",\n      \"date_of_birth\": \"1970-01-01\",\n      \"address\": \"user full address\",\n      \"city\": \"city name\",\n      \"doctype\": \"User KYC\",\n      \"bank_account\": [\n        {\n          \"name\": \"bank entry name\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime \",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"USR-KYC-1234\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"bank\": \"BANK\u2019S NAME\",\n          \"branch\": \"BANK\u2019S BRANCH\",\n          \"account_number\": \"BANK\u2019S ACCOUNT NUMBER\",\n          \"ifsc\": \"BANK\u2019S IFSC CODE\",\n          \"bank_code\": \"BANK\u2019S CODE\",\n          \"city\": \"CITY NAME\",\n          \"state\": \"STATE NAME\",\n          \"is_default\": 0,\n          \"is_spark_default\": \"1\",\n          \"bank_address\": \"BANK\u2019S FULL ADDRESS\",\n          \"contact\": \"9876543210\",\n          \"account_type\": \"account_type\",\n          \"micr\": \"BANK\u2019S MICR CODE\",\n          \"bank_mode\": \"BANK\u2019S MODE\",\n          \"bank_zip_code\": \"BANK\u2019S ZIP CODE  \",\n          \"district\": \"DISTRICT NAME\",\n          \"doctype\": \"User Bank Account\"\n        }\n        \n      ]\n    },\n    \"last_login\": \"last login date with time\",\n    \"profile_picture_file_url\": null\n  }\n}\n",
@@ -5547,7 +7398,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-04 15:03:39.774893",
+  "modified": "2021-10-20 17:20:36.733287",
   "name": "21ada9247a",
   "parameters": [
    {
@@ -5577,7 +7428,18 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.auth.request_forgot_pin_otp",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "21ada9247a",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Forgot Pin OTP sent\"\n}",
@@ -5623,7 +7485,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-04 15:05:52.209641",
+  "modified": "2021-10-20 17:21:04.461927",
   "name": "e220f1fc4c",
   "parameters": [
    {
@@ -5692,7 +7554,18 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.auth.verify_forgot_pin_otp",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "e220f1fc4c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"User PIN has been updated.\"\n}",
@@ -6007,7 +7880,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-20 13:01:03.742311",
+  "modified": "2021-10-21 12:14:45.137899",
   "name": "17aa761a09",
   "parameters": [],
   "parameters_example": [
@@ -6067,7 +7940,17 @@
    {
     "default_value": null,
     "description": null,
-    "field": "data.sell_collateral_topup_and_unpledge_list.creation",
+    "field": "data.sell_collateral_topup_and_unpledge_list.top_up_amount",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available",
     "group": null,
     "parent": "17aa761a09",
     "parentfield": "success",
@@ -6076,6 +7959,166 @@
    },
    {
     "default_value": null,
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application.name",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application.loan",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application.top_up_amount",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application.sanctioned_limit",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application.time",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application.status",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application.expiry_date",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application.customer",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application.customer_name",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "null",
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application.customer_esigned_document",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "null",
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application.lender_esigned_document",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "",
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application.workflow_state",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "",
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application.minimum_sanctioned_limit",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": "",
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application.lender",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "",
+    "description": null,
+    "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application.maximum_sanctioned_limit",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": "",
     "description": null,
     "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available",
     "group": null,
@@ -6093,96 +8136,6 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available.creation",
-    "group": null,
-    "parent": "17aa761a09",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available.modified",
-    "group": null,
-    "parent": "17aa761a09",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available.modified_by",
-    "group": null,
-    "parent": "17aa761a09",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available.owner",
-    "group": null,
-    "parent": "17aa761a09",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available.docstatus",
-    "group": null,
-    "parent": "17aa761a09",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "Integer"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available.parent",
-    "group": null,
-    "parent": "17aa761a09",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available.parentfield",
-    "group": null,
-    "parent": "17aa761a09",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available.parenttype",
-    "group": null,
-    "parent": "17aa761a09",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available.idx",
-    "group": null,
-    "parent": "17aa761a09",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "Integer"
    },
    {
     "default_value": null,
@@ -6235,7 +8188,7 @@
     "type": "Float"
    },
    {
-    "default_value": null,
+    "default_value": "null",
     "description": null,
     "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available.amended_from",
     "group": null,
@@ -6283,56 +8236,6 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available.items.creation",
-    "group": null,
-    "parent": "17aa761a09",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available.items.modified",
-    "group": null,
-    "parent": "17aa761a09",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available.items.modified_by",
-    "group": null,
-    "parent": "17aa761a09",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available.items.owner",
-    "group": null,
-    "parent": "17aa761a09",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_application_available.items.docstatus",
-    "group": null,
-    "parent": "17aa761a09",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "Integer"
    },
    {
     "default_value": null,
@@ -6425,7 +8328,7 @@
     "type": "Float"
    },
    {
-    "default_value": null,
+    "default_value": "null",
     "description": null,
     "field": "data.sell_collateral_topup_and_unpledge_list.unpledge_msg_while_margin_shortfall",
     "group": null,
@@ -6435,8 +8338,8 @@
     "type": "String"
    },
    {
-    "default_value": null,
-    "description": null,
+    "default_value": "null",
+    "description": "",
     "field": "data.sell_collateral_topup_and_unpledge_list.unpledge",
     "group": null,
     "parent": "17aa761a09",
@@ -6445,7 +8348,7 @@
     "type": "String"
    },
    {
-    "default_value": null,
+    "default_value": "null",
     "description": null,
     "field": "data.sell_collateral_topup_and_unpledge_list.sell_collateral_available",
     "group": null,
@@ -6465,7 +8368,7 @@
     "type": "Float"
    },
    {
-    "default_value": null,
+    "default_value": "null",
     "description": null,
     "field": "data.sell_collateral_topup_and_unpledge_list.existing_topup_application",
     "group": null,
@@ -7227,7 +9130,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-05 15:31:08.302620",
+  "modified": "2021-10-20 17:22:39.876982",
   "name": "33fb664fec",
   "parameters": [
    {
@@ -7257,7 +9160,18 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.user.otp_for_testing",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "33fb664fec",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"OTP\": \"7168\"\n  }\n}",
@@ -7513,7 +9427,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-05 15:49:16.436957",
+  "modified": "2021-10-20 17:56:36.208156",
   "name": "5ca8571cef",
   "parameters": [
    {
@@ -7552,7 +9466,7 @@
     "parent": "5ca8571cef",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Object"
+    "type": "String"
    }
   ],
   "success_example": [
@@ -7607,7 +9521,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-05 18:45:59.757205",
+  "modified": "2021-10-20 18:18:05.583218",
   "name": "7ae969e318",
   "parameters": [
    {
@@ -7663,10 +9577,321 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.user.get_choice_kyc",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.kyc_type",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.investor_name",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "null",
+    "description": null,
+    "field": "data.user_kyc.father_name",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "null",
+    "description": null,
+    "field": "data.user_kyc.mother_name",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.address",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.city",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.state",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.pincode",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.mobile_number",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.choice_client_id",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.pan_no",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.date_of_birth",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.bank",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.bank_address",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.branch",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.contact",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.account_type",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.account_number",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.ifsc",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.micr",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.bank_mode",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.bank_code",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.bank_zip_code",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.city",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.district",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.state",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.is_default",
+    "group": null,
+    "parent": "7ae969e318",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Boolean"
+   }
+  ],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"user_kyc\": {\n      \"kyc_type\": \"CHOICE\",\n      \"investor_name\": \"John Doe\",\n      \"father_name\": null,\n      \"mother_name\": null,\n      \"address\": \"User Address\",\n      \"city\": \"city name\",\n      \"state\": \"state name\",\n      \"pincode\": \"123456\",\n      \"mobile_number\": \"9999999999\",\n      \"choice_client_id\": \"M09764\",\n      \"pan_no\": \"ABCDE1234K\",\n      \"date_of_birth\": \"1800-01-01\",\n      \"bank_account\": [\n        {\n          \"bank\": \"BANK NAME\",\n          \"bank_address\": \"BANK ADDRESS\",\n          \"branch\": \"BANK BRANCH\",\n          \"contact\": \"9999999999\",\n          \"account_type\": \"S\",\n          \"account_number\": \"BANK ACCOUNT NUMBER\",\n          \"ifsc\": \"BANK IFSC CODE\",\n          \"micr\": \"BANK MICR CODE\",\n          \"bank_mode\": \"NODAL\",\n          \"bank_code\": \"BANK CODE\",\n          \"bank_zip_code\": \"123456\",\n          \"city\": \"BANK CITY\",\n          \"district\": \"BANK DISTRICT\",\n          \"state\": \"BANK STATE\",\n          \"is_default\": true\n        }\n      \n      ]\n    }\n  }\n}\n\n",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"user_kyc\": {\n      \"kyc_type\": \"CHOICE\",\n      \"investor_name\": \"John Doe\",\n      \"father_name\": null,\n      \"mother_name\": null,\n      \"address\": \"User Address\",\n      \"city\": \"city name\",\n      \"state\": \"state name\",\n      \"pincode\": \"123456\",\n      \"mobile_number\": \"9999999999\",\n      \"choice_client_id\": \"M09764\",\n      \"pan_no\": \"ABCDE1234K\",\n      \"date_of_birth\": \"1800-01-01\",\n      \"bank_account\": [\n        {\n          \"bank\": \"BANK NAME\",\n          \"bank_address\": \"BANK ADDRESS\",\n          \"branch\": \"BANK BRANCH\",\n          \"contact\": \"9999999999\",\n          \"account_type\": \"S\",\n          \"account_number\": \"BANK ACCOUNT NUMBER\",\n          \"ifsc\": \"BANK IFSC CODE\",\n          \"micr\": \"BANK MICR CODE\",\n          \"bank_mode\": \"NODAL\",\n          \"bank_code\": \"BANK CODE\",\n          \"bank_zip_code\": \"123456\",\n          \"city\": \"BANK CITY\",\n          \"district\": \"BANK DISTRICT\",\n          \"state\": \"BANK STATE\",\n          \"is_default\": true\n        }\n      ]\n    }\n  }\n}\n\n",
     "parent": "7ae969e318",
     "parentfield": "success_example",
     "parenttype": "API Doc",
