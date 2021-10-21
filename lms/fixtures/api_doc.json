@@ -4103,7 +4103,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-04 13:01:29.667776",
+  "modified": "2021-10-22 02:11:12.532285",
   "name": "80b7e05080",
   "parameters": [
    {
@@ -4215,6 +4215,196 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.name",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.registeration",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.is_email_verified",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.kyc_update",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.credit_check",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.pledge_securities",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.loan_open",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.feedback_submitted",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.feedback_do_not_show_popup",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.ckyc",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.kra",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.first_name",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.phone",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.full_name",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.last_name",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.user",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.alerts_based_on_percentage",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.alerts_based_on_amount",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.customer.doctype",
+    "group": "Success 200",
+    "parent": "80b7e05080",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
    }
   ],
   "success_example": [
