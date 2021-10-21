@@ -2919,7 +2919,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-06 13:23:57.959989",
+  "modified": "2021-10-21 15:07:34.281753",
   "name": "092e2404a2",
   "parameters": [
    {
@@ -2949,7 +2949,558 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.loan.loan_withdraw_details",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.name",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.total_collateral_value",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.total_collateral_value_str",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.drawing_power",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.drawing_power_str",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.lender",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.sanctioned_limit",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.sanctioned_limit_str",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.balance",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.balance_str",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.customer",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.customer_name",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.allowable_ltv",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.expiry_date",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.loan_agreement",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.is_eligible_for_interest",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.is_irregular",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.is_penalize",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.doctype",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.items",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.items.name",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.items.parent",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.items.parentfield",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.items.parenttype",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.items.isin",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.items.security_name",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.items.pledged_quantity",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.items.price",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.items.amount",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.items.doctype",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan.amount_available_for_withdrawal",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.banks",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.banks.name",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.banks.parent",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.banks.parentfield",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.banks.parenttype",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.banks.bank",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.banks.branch",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.banks.account_number",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.banks.ifsc",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.banks.bank_code",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.banks.city",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.banks.state",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.banks.is_default",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": "null",
+    "description": null,
+    "field": "data.banks.is_spark_default",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": "",
+    "description": null,
+    "field": "data.banks.bank_address",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "",
+    "description": null,
+    "field": "data.banks.contact",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "",
+    "description": null,
+    "field": "data.banks.account_type",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "",
+    "description": null,
+    "field": "data.banks.micr",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "",
+    "description": null,
+    "field": "data.banks.bank_mode",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "",
+    "description": null,
+    "field": "data.banks.bank_zip_code",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "",
+    "description": null,
+    "field": "data.banks.district",
+    "group": null,
+    "parent": "092e2404a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"loan\": {\n      \"name\": \"SL000001\",\n      \"owner\": \"Administrator\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"Administrator\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"total_collateral_value\": 20000,\n      \"total_collateral_value_str\": \"20,000\",\n      \"drawing_power\": 10000,\n      \"drawing_power_str\": \"10,000\",\n      \"lender\": \"lender's name\",\n      \"sanctioned_limit\": 10000,\n      \"sanctioned_limit_str\":\"10,000\",\n      \"balance\": 101,\n      \"balance_str\": \"101\",\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"allowable_ltv\": 50,\n      \"expiry_date\": \"expiry_date\",\n      \"loan_agreement\": \"loan_agreement_pdf_file_path\",\n      \"interest_due\": 0.0,\n      \"interest_overdue\": 1.2,\n      \"penal_interest_charges\": 2.0,\n      \"rebate_interest_amount\": 1.3,\n      \"base_interest_amount\": 0.2,\n      \"margin_shortfall_amount\": 23.8,\n      \"is_eligible_for_interest\": 1,\n      \"is_irregular\": 0,\n      \"is_penalize\": 0,\n      \"doctype\": \"Loan\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"Administrator\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"Administrator\",\n          \"parent\": \"loan name\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Loan\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": \"isin\",\n          \"security_name\": \"security_name\",\n          \"security_category\": \"Cat B\",\n          \"pledged_quantity\": 10,\n          \"price\": 2000,\n          \"amount\": 20000,\n          \"doctype\": \"Loan Item\"\n        }\n      ]\n    },\n      \"amount_available_for_withdrawal\": 9000\n    },\n    \"banks\": [\n      {\n        \"name\": \"bank entry name\",\n        \"creation\": \"datetime\",\n        \"modified\": \"datetime\",\n        \"modified_by\": \"john@gmail.com\",\n        \"owner\": \"john@gmail.com\",\n        \"docstatus\": 0,\n        \"parent\": \"USR-KYC-1234\",\n        \"parentfield\": \"bank_account\",\n        \"parenttype\": \"User KYC\",\n        \"idx\": 1,\n        \"bank\": \"BANK'S NAME\",\n        \"branch\": \"BANK'S BRANCH\",\n        \"account_number\": \"BANK'S ACCOUNT NUMBER\",\n        \"ifsc\": \"BANK'S IFSC CODE\",\n        \"bank_code\": \"BANK'S CODE\",\n        \"city\": \"CITY NAME\",\n        \"state\": \"STATE NAME\",\n        \"is_default\": 0,\n        \"is_spark_default\": null,\n        \"bank_address\": \"BANK'S FULL ADDRESS\",\n        \"contact\": \"9876543210\",\n        \"account_type\": \"account_type\",\n        \"micr\": \"BANK'S MICR CODE\",\n        \"bank_mode\": \"bank_mode\",\n        \"bank_zip_code\": \"bank_zip_code\",\n        \"district\": \"district_name\"\n      }\n    ]\n  }\n}",
