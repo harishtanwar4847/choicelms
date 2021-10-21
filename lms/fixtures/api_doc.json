@@ -4057,7 +4057,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-04 13:27:11.705798",
+  "modified": "2021-10-21 13:10:14.144187",
   "name": "0bbcd2fef1",
   "parameters": [],
   "parameters_example": [
@@ -4073,7 +4073,48 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.auth.terms_of_use",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "0bbcd2fef1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "0bbcd2fef1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.terms_of_use_url",
+    "group": null,
+    "parent": "0bbcd2fef1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.privacy_policy_url",
+    "group": null,
+    "parent": "0bbcd2fef1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"success\",\n  \"data\": {\n    \"terms_of_use_url\": \"terms of use url\",\n    \"privacy_policy_url\": \"privacy policy url\"\n  }\n}",
@@ -5229,7 +5270,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-06 14:33:01.310555",
+  "modified": "2021-10-21 14:34:26.869187",
   "name": "3e50455910",
   "parameters": [
    {
@@ -5282,6 +5323,316 @@
    },
    {
     "default_value": null,
+    "description": "",
+    "field": "data.loan.name",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.total_collateral_value",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.total_collateral_value_str",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.drawing_power",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.drawing_power_str",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.lender",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.sanctioned_limit",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.sanctioned_limit_str",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.balance",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.balance_str",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.customer",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.customer_name",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.allowable_ltv",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.expiry_date",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.loan_agreement",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.is_eligible_for_interest",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.is_irregular",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.is_penalize",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.doctype",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.items",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.items.name",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.items.parent",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.items.parentfield",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.items.parenttype",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.items.isin",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.items.security_name",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.items.security_category",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.items.pledged_quantity",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.items.price",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.items.amount",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.loan.items.doctype",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
     "description": "Unpledge Details Object",
     "field": "data.unpledge",
     "group": null,
@@ -5289,6 +5640,46 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.unpledge.unpledge_msg_while_margin_shortfall",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.unpledge.unpledge",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.unpledge.unpledge.minimum_collateral_value",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "",
+    "field": "data.unpledge.unpledge.maximum_unpledge_amount",
+    "group": null,
+    "parent": "3e50455910",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
    }
   ],
   "success_example": [
