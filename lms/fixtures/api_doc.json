@@ -4246,7 +4246,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-06 14:30:12.885813",
+  "modified": "2021-10-21 13:00:49.973797",
   "name": "948e28352e",
   "parameters": [
    {
@@ -4397,13 +4397,373 @@
    },
    {
     "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.name",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.total_collateral_value",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.total_collateral_value_str",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.drawing_power",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.drawing_power_str",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.lender",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.sanctioned_limit",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.sanctioned_limit_str",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.balance",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.balance_str",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.customer",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.customer_name",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.allowable_ltv",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.expiry_date",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.loan_agreement",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.is_eligible_for_interest",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.is_irregular",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.is_penalize",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.doctype",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.items",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.items.name",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.items.parent",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.items.parentfield",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.items.parenttype",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.items.isin",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.items.security_name",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.items.security_category",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.items.pledged_quantity",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.items.price",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.items.amount",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Object",
+    "field": "data.loan.items.doctype",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
     "description": "Collateral Ledger List",
     "field": "data.collateral_ledger_list",
     "group": null,
     "parent": "948e28352e",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "List"
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "Collateral Ledger List",
+    "field": "data.collateral_ledger_list.creation",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Collateral Ledger List",
+    "field": "data.collateral_ledger_list.isin",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Collateral Ledger List",
+    "field": "data.collateral_ledger_list.security_name",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Collateral Ledger List",
+    "field": "data.collateral_ledger_list.quantity",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "Collateral Ledger List",
+    "field": "data.collateral_ledger_list.request_type",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
    },
    {
     "default_value": null,
@@ -4413,7 +4773,77 @@
     "parent": "948e28352e",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "List"
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Transaction List",
+    "field": "data.loan_transaction_list.time",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Transaction List",
+    "field": "data.loan_transaction_list.transaction_type",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Transaction List",
+    "field": "data.loan_transaction_list.name",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Transaction List",
+    "field": "data.loan_transaction_list.record_type",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Transaction List",
+    "field": "data.loan_transaction_list.amount",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Transaction List",
+    "field": "data.loan_transaction_list.opening_balance",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Transaction List",
+    "field": "data.loan_transaction_list.closing_balance",
+    "group": null,
+    "parent": "948e28352e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
    },
    {
     "default_value": null,
