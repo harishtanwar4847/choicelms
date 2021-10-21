@@ -3584,7 +3584,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-04 16:03:55.025565",
+  "modified": "2021-10-21 12:27:32.317540",
   "name": "8c95e9bb82",
   "parameters": [
    {
@@ -3614,7 +3614,18 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.user.set_pin",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "8c95e9bb82",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"User PIN has been set\"\n}",
