@@ -3633,7 +3633,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-05 12:43:16.208382",
+  "modified": "2021-10-21 15:12:51.721493",
   "name": "8a519f4a92",
   "parameters": [
    {
@@ -3702,7 +3702,38 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.loan.loan_withdraw_request",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "8a519f4a92",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "8a519f4a92",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan_transaction_name",
+    "group": null,
+    "parent": "8a519f4a92",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Great! Your request for withdrawal has been successfully received. The amount shall be credited to your bank account xxxxxxxxxx1234 within next 24 hours.\",\n  \"data\": {\n    \"loan_transaction_name\": \"loan name-00001\"\n  }\n}",
