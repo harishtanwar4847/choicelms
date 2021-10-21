@@ -11099,7 +11099,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-05 15:27:41.308539",
+  "modified": "2021-10-21 15:18:05.231880",
   "name": "d642845a6e",
   "parameters": [],
   "parameters_example": [
@@ -11115,7 +11115,148 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.user.push_notification_list",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "d642845a6e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "d642845a6e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.name",
+    "group": null,
+    "parent": "d642845a6e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.title",
+    "group": null,
+    "parent": "d642845a6e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan_customer",
+    "group": null,
+    "parent": "d642845a6e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.loan",
+    "group": null,
+    "parent": "d642845a6e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.screen_to_open",
+    "group": null,
+    "parent": "d642845a6e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.notification_id",
+    "group": null,
+    "parent": "d642845a6e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.notification_type",
+    "group": null,
+    "parent": "d642845a6e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.click_action",
+    "group": null,
+    "parent": "d642845a6e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.time",
+    "group": null,
+    "parent": "d642845a6e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.message",
+    "group": null,
+    "parent": "d642845a6e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.is_cleared",
+    "group": null,
+    "parent": "d642845a6e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.is_read",
+    "group": null,
+    "parent": "d642845a6e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n\t\"name\": \"push notification entry name\",\n\t\"title\": \"notification title\",\n\t\"loan_customer\": \"CUST-1234\",\n\t\"loan\": \"loan name\",\n\t\"screen_to_open\": \"My Loans\",\n\t\"notification_id\": \"1348528806\",\n\t\"notification_type\": \"Success/warning\",\n\t\"click_action\": \"FLUTTER_NOTIFICATION_CLICK\",\n\t\"time\": \"datetime\",\n\t\"message\": \"Congratulations! Your loan account is open. You may now withdraw funds as per your convenience.\",\n\t\"is_cleared\": 0,\n\t\"is_read\": 0\n}\n",
