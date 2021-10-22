@@ -2446,7 +2446,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-06 13:17:11.557554",
+  "modified": "2021-10-22 13:04:27.689092",
   "name": "945ae148f4",
   "parameters": [
    {
@@ -2489,7 +2489,368 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.cart.process",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.name",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.workflow_state",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.total_collateral_value",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.total_collateral_value_str",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.drawing_power",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.drawing_power_str",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.lender",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.status",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pledged_total_collateral_value",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pledged_total_collateral_value_str",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.customer_name",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.allowable_ltv",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.expiry_date",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pledge_status",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pledgor_boid",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.pledgee_boid",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.doctype",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.name",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.parent",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.parentfield",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.parenttype",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.lender_approval_status",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.isin",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.security_name",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.security_category",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.pledged_quantity",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.price",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.amount",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.pledge_status",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.pledge_executed",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.doctype",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.items.__unsaved",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"name\": \"LA000001\",\n    \"owner\": \"john@gmail.com\",\n    \"creation\": \"datetime\",\n    \"modified\": \"datetime\",\n    \"modified_by\": \"john@gmail.com\",\n    \"idx\": 0,\n    \"docstatus\": 0,\n    \"workflow_state\": \"Waiting to be pledged\",\n    \"total_collateral_value\": 20000,\n    total_collateral_value_str: \"20,000\",\n    \"drawing_power\": 10000,\n    \"drawing_power_str\": \"10,000\",\n    \"lender\": \"lender name\",\n    \"status\": \"Waiting to be pledged\",\n    \"pledged_total_collateral_value\": 20000,\n    \"pledged_total_collateral_value_str\": \"20,000\",\n    \"customer\": \"CUST-1234\",\n    \"customer_name\": \"John Doe\",\n    \"allowable_ltv\": 50,\n    \"expiry_date\": \"expiry_date_with_time\",\n    \"pledge_status\": \"Pending\",\n    \"pledgor_boid\": \"pledgor_boid\",\n    \"pledgee_boid\": \"pledgee_boid\",\n    \"doctype\": \"Loan Application\",\n    \"items\": [\n      {\n        \"name\": \"isin item entry name\",\n        \"owner\": \"john@gmail.com\",\n        \"creation\": \"datetime\",\n        \"modified\": \"datetime\",\n        \"modified_by\": \"john@gmail.com\",\n        \"parent\": \"loan application name\",\n        \"parentfield\": \"items\",\n        \"parenttype\": \"Loan Application\",\n        \"idx\": 1,\n        \"docstatus\": 0,\n        \"lender_approval_status\": \"\",\n        \"isin\": \"isin\",\n        \"security_name\": \"security_name\",\n        \"security_category\": \"Cat b\",\n        \"pledged_quantity\": 10,\n        \"price\": 2000,\n        \"amount\": 20000,\n        \"pledge_status\": \"\",\n        \"pledge_executed\": 0,\n        \"doctype\": \"Loan Application Item\",\n        \"__unsaved\": 1\n      }\n    ]\n  }\n}\n",
@@ -6147,7 +6508,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-22 11:36:29.336620",
+  "modified": "2021-10-22 12:20:50.485087",
   "name": "6ea2575637",
   "parameters": [
    {
@@ -6217,7 +6578,7 @@
    },
    {
     "allowed_values": null,
-    "default_value": "null",
+    "default_value": "",
     "description": null,
     "field": "user_kyc.address",
     "group": null,
@@ -6230,7 +6591,7 @@
    },
    {
     "allowed_values": null,
-    "default_value": "null",
+    "default_value": "",
     "description": null,
     "field": "user_kyc.city",
     "group": null,
@@ -6243,7 +6604,7 @@
    },
    {
     "allowed_values": null,
-    "default_value": "null",
+    "default_value": "",
     "description": null,
     "field": "user_kyc.state",
     "group": null,
@@ -6256,7 +6617,7 @@
    },
    {
     "allowed_values": null,
-    "default_value": "null",
+    "default_value": "",
     "description": null,
     "field": "user_kyc.pincode",
     "group": null,
@@ -6269,7 +6630,7 @@
    },
    {
     "allowed_values": null,
-    "default_value": "null",
+    "default_value": "",
     "description": null,
     "field": "user_kyc.mobile_number",
     "group": null,
@@ -6282,7 +6643,7 @@
    },
    {
     "allowed_values": null,
-    "default_value": "null",
+    "default_value": "",
     "description": null,
     "field": "user_kyc.choice_client_id",
     "group": null,
@@ -6295,7 +6656,7 @@
    },
    {
     "allowed_values": null,
-    "default_value": "null",
+    "default_value": "",
     "description": null,
     "field": "user_kyc.pan_no",
     "group": null,
@@ -6308,7 +6669,7 @@
    },
    {
     "allowed_values": null,
-    "default_value": "null",
+    "default_value": "",
     "description": null,
     "field": "user_kyc.date_of_birth",
     "group": null,
@@ -6321,7 +6682,7 @@
    },
    {
     "allowed_values": null,
-    "default_value": "null",
+    "default_value": "",
     "description": null,
     "field": "user_kyc.bank_account",
     "group": null,
@@ -6334,7 +6695,7 @@
    },
    {
     "allowed_values": null,
-    "default_value": "null",
+    "default_value": "",
     "description": null,
     "field": "user_kyc.bank_account.bank",
     "group": null,
@@ -6347,7 +6708,7 @@
    },
    {
     "allowed_values": null,
-    "default_value": "null",
+    "default_value": "",
     "description": null,
     "field": "user_kyc.bank_account.bank_address",
     "group": null,
@@ -6357,6 +6718,175 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "",
+    "description": null,
+    "field": "user_kyc.bank_account.branch",
+    "group": null,
+    "optional": 0,
+    "parent": "6ea2575637",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "",
+    "description": null,
+    "field": "user_kyc.bank_account.contact",
+    "group": null,
+    "optional": 0,
+    "parent": "6ea2575637",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "",
+    "description": null,
+    "field": "user_kyc.bank_account.account_type",
+    "group": null,
+    "optional": 0,
+    "parent": "6ea2575637",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "",
+    "description": null,
+    "field": "user_kyc.bank_account.account_number",
+    "group": null,
+    "optional": 0,
+    "parent": "6ea2575637",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "",
+    "description": null,
+    "field": "user_kyc.bank_account.ifsc",
+    "group": null,
+    "optional": 0,
+    "parent": "6ea2575637",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "",
+    "description": null,
+    "field": "user_kyc.bank_account.micr",
+    "group": null,
+    "optional": 0,
+    "parent": "6ea2575637",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "",
+    "description": null,
+    "field": "user_kyc.bank_account.bank_mode",
+    "group": null,
+    "optional": 0,
+    "parent": "6ea2575637",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "",
+    "description": null,
+    "field": "user_kyc.bank_account.bank_code",
+    "group": null,
+    "optional": 0,
+    "parent": "6ea2575637",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "",
+    "description": null,
+    "field": "user_kyc.bank_account.bank_zip_code",
+    "group": null,
+    "optional": 0,
+    "parent": "6ea2575637",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "",
+    "description": null,
+    "field": "user_kyc.bank_account.city",
+    "group": null,
+    "optional": 0,
+    "parent": "6ea2575637",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "",
+    "description": null,
+    "field": "user_kyc.bank_account.district",
+    "group": null,
+    "optional": 0,
+    "parent": "6ea2575637",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "",
+    "description": null,
+    "field": "user_kyc.bank_account.state",
+    "group": null,
+    "optional": 0,
+    "parent": "6ea2575637",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": "",
+    "description": null,
+    "field": "user_kyc.bank_account.is_default",
+    "group": null,
+    "optional": 0,
+    "parent": "6ea2575637",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Boolean"
    },
    {
     "allowed_values": null,
@@ -6385,7 +6915,368 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.user.kyc",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.name",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.user",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.kyc_type",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.investor_name",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.pan_no",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.mobile_number",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.date_of_birth",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.address",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.city",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.city",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.name",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.parent",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.parent",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.parentfield",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.parenttype",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.bank",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.branch",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.account_number",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.ifsc",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.bank_code",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.city",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.state",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.is_default",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.bank_address",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.contact",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.account_type",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.micr",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.bank_mode",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.bank_zip_code",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.district",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.doctype",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.user_kyc.bank_account.__unsaved",
+    "group": null,
+    "parent": "6ea2575637",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"user_kyc\": {\n      \"name\": \"USR-KYC-1234\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"user\": \"john@gmail.com\",\n      \"kyc_type\": \"KYC TYPE NAME\",\n      \"investor_name\": \"JOHN DOE\",\n      \"pan_no\": \"ABCDE1234F\",\n      \"mobile_number\": \"9876543210\",\n      \"date_of_birth\": \"1900-01-01\",\n      \"address\": \"USER'S FULL ADDRESS\",\n      \"city\": \"USER'S CITY\",\n      \"doctype\": \"User KYC\",\n      \"bank_account\": [\n        {\n          \"name\": \"BANK ENTRY NAME\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"USR-KYC-1234\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"bank\": \"BANK NAME\",\n          \"branch\": \"BANK BRANCH\",\n          \"account_number\": \"USER'S ACCOUNT NUMBER\",\n          \"ifsc\": \"BANK'S IFSC CODE\",\n          \"bank_code\": \"BANK'S CODE\",\n          \"city\": \"CITY NAME\",\n          \"state\": \"STATE NAME\",\n          \"is_default\": 0,\n          \"bank_address\": \"BANK FULL ADDRESS\",\n          \"contact\": \"9876543210\",\n          \"account_type\": \"account_type\",\n          \"micr\": \"BANK'S MICR CODE\",\n          \"bank_mode\": \"bank_mode\",\n          \"bank_zip_code\": \"BANK'S ZIP CODE\",\n          \"district\": \"DISTRICT NAME\",\n          \"doctype\": \"User Bank Account\"\n        }\n      ]\n    }\n  }\n}",
