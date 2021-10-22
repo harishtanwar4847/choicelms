@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- [Feat: Demo videos changes for website](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/417)
+
 ## [v1.1.0] - 2021-10-14
 
 ### Added
