@@ -9,7 +9,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-19 16:10:14.804257",
+  "modified": "2021-10-22 15:11:56.551426",
   "name": "cbf6ce11f2",
   "parameters": [
    {
@@ -42,7 +42,7 @@
   "success": [
    {
     "default_value": null,
-    "description": null,
+    "description": "Pan card number",
     "field": "PAN",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -52,7 +52,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "12-digit alphanumeric code that uniquely identifies a specific security",
     "field": "ISIN",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -62,7 +62,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Branch name",
     "field": "Branch",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -72,7 +72,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Clients code",
     "field": "Client_Code",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -82,7 +82,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Client name",
     "field": "Client_Name",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -92,7 +92,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Security name",
     "field": "Scrip_Name",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -102,7 +102,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Name of depository",
     "field": "Depository",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -112,7 +112,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "BOID number",
     "field": "Stock_At",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -122,7 +122,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "security quantity",
     "field": "Quantity",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -132,7 +132,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Price",
     "field": "Price",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -142,7 +142,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Price * Quantity",
     "field": "Scrip_Value",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -152,7 +152,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "last updated datetime of security details",
     "field": "Holding_As_On",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -162,7 +162,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Security category",
     "field": "Category",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -172,7 +172,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Is eligible or not",
     "field": "Is_Eligible",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -182,7 +182,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Total quantity after all operation done on security by users",
     "field": "Total_Qty",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -192,7 +192,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "quantity in Loan application with \"Waiting to be pledged\" status",
     "field": "waiting_to_be_pledged_qty",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -202,7 +202,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "quantity in Loan application waiting for approval",
     "field": "waiting_for_approval_pledged_qty",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -212,7 +212,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "quantity in unpledge application",
     "field": "unpledged_quantity",
     "group": null,
     "parent": "cbf6ce11f2",
@@ -2231,13 +2231,13 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-22 13:43:20.821910",
+  "modified": "2021-10-22 14:48:16.021054",
   "name": "20b2c24baa",
   "parameters": [
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "Borrower Beneficiary Owner's ID",
     "field": "pledgor_boid",
     "group": null,
     "optional": 0,
@@ -2263,7 +2263,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": "list of security object",
+    "description": "list of securities",
     "field": "securities.list",
     "group": null,
     "optional": 0,
@@ -2276,7 +2276,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "12-digit alphanumeric code that uniquely identifies a specific security",
     "field": "securities.list.isin",
     "group": "Security",
     "optional": 0,
@@ -2289,7 +2289,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "Quantity to be pledged",
     "field": "securities.list.quantity",
     "group": "Security",
     "optional": 0,
@@ -2302,7 +2302,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "Margin shortfall name if any",
     "field": "loan_margin_shortfall_name",
     "group": null,
     "optional": 1,
@@ -2315,7 +2315,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": "loan name if increase loan",
+    "description": "loan name if increase loan or margin shortfall",
     "field": "loan_name",
     "group": null,
     "optional": 1,
@@ -2328,7 +2328,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "Lenders name",
     "field": "lender",
     "group": null,
     "optional": 1,
@@ -2341,7 +2341,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "cart name",
     "field": "cart_name",
     "group": null,
     "optional": 1,
@@ -2382,7 +2382,7 @@
   "success": [
    {
     "default_value": null,
-    "description": null,
+    "description": "Success or Validation message",
     "field": "message",
     "group": null,
     "parent": "20b2c24baa",
@@ -2412,7 +2412,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Cart name",
     "field": "data.cart.name",
     "group": null,
     "parent": "20b2c24baa",
@@ -2422,7 +2422,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Customer id",
     "field": "data.cart.customer",
     "group": null,
     "parent": "20b2c24baa",
@@ -2432,7 +2432,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Customer name",
     "field": "data.cart.customer_name",
     "group": null,
     "parent": "20b2c24baa",
@@ -2442,7 +2442,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Total Collateral Value",
     "field": "data.cart.total_collateral_value",
     "group": null,
     "parent": "20b2c24baa",
@@ -2452,7 +2452,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Total Collateral Value in string format",
     "field": "data.cart.total_collateral_value_str",
     "group": null,
     "parent": "20b2c24baa",
@@ -2462,7 +2462,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Borrower Beneficiary Owner's ID",
     "field": "data.cart.pledgor_boid",
     "group": null,
     "parent": "20b2c24baa",
@@ -2472,7 +2472,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Allowable Loan to Value",
     "field": "data.cart.allowable_ltv",
     "group": null,
     "parent": "20b2c24baa",
@@ -2482,7 +2482,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Lender name",
     "field": "data.cart.lender",
     "group": null,
     "parent": "20b2c24baa",
@@ -2492,7 +2492,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Eligible loan based on allowable ltv",
     "field": "data.cart.eligible_loan",
     "group": null,
     "parent": "20b2c24baa",
@@ -2502,7 +2502,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Eligible loan based on allowable ltv in string format",
     "field": "data.cart.eligible_loan_str",
     "group": null,
     "parent": "20b2c24baa",
@@ -2512,7 +2512,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Lender Beneficiary Owner's ID",
     "field": "data.cart.pledgee_boid",
     "group": null,
     "parent": "20b2c24baa",
@@ -2522,7 +2522,7 @@
    },
    {
     "default_value": null,
-    "description": "In case of Increase Loan",
+    "description": "In case of Increase Loan or Margin shortfall",
     "field": "data.cart.loan_name",
     "group": null,
     "parent": "20b2c24baa",
@@ -2542,7 +2542,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Loan application is created or not against this cart",
     "field": "data.cart.is_processed",
     "group": null,
     "parent": "20b2c24baa",
@@ -2552,7 +2552,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Doctype name - Cart",
     "field": "data.cart.doctype",
     "group": null,
     "parent": "20b2c24baa",
@@ -2572,7 +2572,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "isin entry name",
     "field": "data.cart.items.name",
     "group": null,
     "parent": "20b2c24baa",
@@ -2582,7 +2582,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Cart name",
     "field": "data.cart.items.parent",
     "group": null,
     "parent": "20b2c24baa",
@@ -2592,7 +2592,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "items",
     "field": "data.cart.items.parentfield",
     "group": null,
     "parent": "20b2c24baa",
@@ -2602,7 +2602,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Cart",
     "field": "data.cart.items.parenttype",
     "group": null,
     "parent": "20b2c24baa",
@@ -2612,7 +2612,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "12-digit alphanumeric code that uniquely identifies a specific security",
     "field": "data.cart.items.isin",
     "group": null,
     "parent": "20b2c24baa",
@@ -2622,7 +2622,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Name of Security",
     "field": "data.cart.items.security_name",
     "group": null,
     "parent": "20b2c24baa",
@@ -2632,7 +2632,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Security Category",
     "field": "data.cart.items.security_category",
     "group": null,
     "parent": "20b2c24baa",
@@ -2642,7 +2642,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Quantities pledged",
     "field": "data.cart.items.pledged_quantity",
     "group": null,
     "parent": "20b2c24baa",
@@ -2652,7 +2652,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Price",
     "field": "data.cart.items.price",
     "group": null,
     "parent": "20b2c24baa",
@@ -2662,7 +2662,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Price * Pledged Quantity",
     "field": "data.cart.items.amount",
     "group": null,
     "parent": "20b2c24baa",
@@ -2672,7 +2672,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Eligible percentage of Security",
     "field": "data.cart.items.eligible_percentage",
     "group": null,
     "parent": "20b2c24baa",
@@ -2682,7 +2682,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Doctype name - Cart Item",
     "field": "data.cart.items.doctype",
     "group": null,
     "parent": "20b2c24baa",
@@ -8756,7 +8756,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-20 14:46:32.168415",
+  "modified": "2021-10-22 15:51:54.323539",
   "name": "023a7ca67c",
   "parameters": [
    {
@@ -8789,7 +8789,7 @@
   "success": [
    {
     "default_value": null,
-    "description": null,
+    "description": "Success or Validation message",
     "field": "message",
     "group": null,
     "parent": "023a7ca67c",
@@ -8809,7 +8809,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Loan name",
     "field": "data.loan_name",
     "group": null,
     "parent": "023a7ca67c",
@@ -8819,7 +8819,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Total collateral value",
     "field": "data.total_value",
     "group": null,
     "parent": "023a7ca67c",
@@ -8829,7 +8829,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Drawing power",
     "field": "data.drawing_power",
     "group": null,
     "parent": "023a7ca67c",
@@ -8839,7 +8839,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Loan balance",
     "field": "data.balance",
     "group": null,
     "parent": "023a7ca67c",
@@ -8849,7 +8849,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Total number of scripts pledged",
     "field": "data.number_of_scrips",
     "group": null,
     "parent": "023a7ca67c",
@@ -8859,7 +8859,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "security details",
     "field": "data.all_pledged_securities",
     "group": null,
     "parent": "023a7ca67c",
@@ -8869,7 +8869,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "12-digit alphanumeric code that uniquely identifies a specific security",
     "field": "data.all_pledged_securities.isin",
     "group": null,
     "parent": "023a7ca67c",
@@ -8879,7 +8879,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Security name",
     "field": "data.all_pledged_securities.security_name",
     "group": null,
     "parent": "023a7ca67c",
@@ -8889,7 +8889,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Pledged quantity",
     "field": "data.all_pledged_securities.pledged_quantity",
     "group": null,
     "parent": "023a7ca67c",
@@ -8899,7 +8899,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Security category",
     "field": "data.all_pledged_securities.security_category",
     "group": null,
     "parent": "023a7ca67c",
@@ -8909,7 +8909,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Price",
     "field": "data.all_pledged_securities.price",
     "group": null,
     "parent": "023a7ca67c",
@@ -8919,7 +8919,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Amount",
     "field": "data.all_pledged_securities.amount",
     "group": null,
     "parent": "023a7ca67c",
@@ -8929,7 +8929,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "1 If user can sell else 0",
     "field": "data.sell_collateral",
     "group": null,
     "parent": "023a7ca67c",
@@ -8939,7 +8939,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "1 If margin shortfall status in Sell Triggered else 0",
     "field": "data.is_sell_triggered",
     "group": null,
     "parent": "023a7ca67c",
@@ -8959,7 +8959,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Message if margin shortfall occurs while unpledging",
     "field": "data.unpledge.unpledge_msg_while_margin_shortfall",
     "group": null,
     "parent": "023a7ca67c",
@@ -8979,7 +8979,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Minimum collateral value of loan",
     "field": "data.unpledge.unpledge.minimum_collateral_value",
     "group": null,
     "parent": "023a7ca67c",
@@ -8989,7 +8989,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Max amount user can unpledge",
     "field": "data.unpledge.unpledge.maximum_unpledge_amount",
     "group": null,
     "parent": "023a7ca67c",
@@ -9594,13 +9594,13 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-20 16:02:01.498043",
+  "modified": "2021-10-22 16:15:42.431707",
   "name": "f856d53778",
   "parameters": [
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "Loan name",
     "field": "loan_name",
     "group": null,
     "optional": 0,
@@ -9613,7 +9613,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "OTP",
     "field": "otp",
     "group": null,
     "optional": 0,
@@ -9621,12 +9621,12 @@
     "parentfield": "parameters",
     "parenttype": "API Doc",
     "size": null,
-    "type": "Integer"
+    "type": "String"
    },
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "Security details",
     "field": "securities",
     "group": null,
     "optional": 0,
@@ -9652,7 +9652,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "12-digit alphanumeric code that uniquely identifies a specific security",
     "field": "securities.list.isin",
     "group": "Security",
     "optional": 0,
@@ -9665,7 +9665,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "Quantity",
     "field": "securities.list.quantity",
     "group": "Security",
     "optional": 0,
@@ -9725,7 +9725,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Sell collateral application name",
     "field": "data.name",
     "group": null,
     "parent": "f856d53778",
@@ -9735,7 +9735,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Created by",
     "field": "data.owner",
     "group": null,
     "parent": "f856d53778",
@@ -9745,7 +9745,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "creation datetime",
     "field": "data.creation",
     "group": null,
     "parent": "f856d53778",
@@ -9755,7 +9755,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Modification datetime",
     "field": "data.modified",
     "group": null,
     "parent": "f856d53778",
@@ -9765,7 +9765,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Modified by which user",
     "field": "data.modified_by",
     "group": null,
     "parent": "f856d53778",
@@ -9775,7 +9775,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "id of this entry",
     "field": "data.idx",
     "group": null,
     "parent": "f856d53778",
@@ -9785,7 +9785,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "is document submitted or not",
     "field": "data.docstatus",
     "group": null,
     "parent": "f856d53778",
@@ -9795,7 +9795,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Workflow state of document",
     "field": "data.workflow_state",
     "group": null,
     "parent": "f856d53778",
@@ -9805,7 +9805,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "loan name",
     "field": "data.loan",
     "group": null,
     "parent": "f856d53778",
@@ -9815,7 +9815,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Total collateral value",
     "field": "data.total_collateral_value",
     "group": null,
     "parent": "f856d53778",
@@ -9825,7 +9825,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "lender name",
     "field": "data.lender",
     "group": null,
     "parent": "f856d53778",
@@ -9835,7 +9835,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "initial shortfall amount in case of sell triggered margin shortfall",
     "field": "data.initial_shortfall_amount",
     "group": null,
     "parent": "f856d53778",
@@ -9845,7 +9845,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Current shortfall amount in case of sell triggered margin shortfall",
     "field": "data.current_shortfall_amount",
     "group": null,
     "parent": "f856d53778",
@@ -9855,7 +9855,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Unpledge application name if in pending state",
     "field": "data.pending_unpledge_request_id",
     "group": null,
     "parent": "f856d53778",
@@ -9865,7 +9865,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Customer id",
     "field": "data.customer",
     "group": null,
     "parent": "f856d53778",
@@ -9875,7 +9875,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Customer name",
     "field": "data.customer_name",
     "group": null,
     "parent": "f856d53778",
@@ -9885,7 +9885,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Selling collateral value",
     "field": "data.selling_collateral_value",
     "group": null,
     "parent": "f856d53778",
@@ -9895,7 +9895,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Loan margin shortfall name",
     "field": "data.loan_margin_shortfall",
     "group": null,
     "parent": "f856d53778",
@@ -9905,7 +9905,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Amount that will be finalize by lender for sell",
     "field": "data.lender_selling_amount",
     "group": null,
     "parent": "f856d53778",
@@ -9915,7 +9915,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "status of document",
     "field": "data.status",
     "group": null,
     "parent": "f856d53778",
@@ -9925,7 +9925,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Doctype name",
     "field": "data.doctype",
     "group": null,
     "parent": "f856d53778",
@@ -9945,7 +9945,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "security entry name",
     "field": "data.items.name",
     "group": null,
     "parent": "f856d53778",
@@ -9955,7 +9955,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "name of owner",
     "field": "data.items.owner",
     "group": null,
     "parent": "f856d53778",
@@ -9965,7 +9965,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "creation datetime",
     "field": "data.items.creation",
     "group": null,
     "parent": "f856d53778",
@@ -9975,7 +9975,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "modification datetime",
     "field": "data.items.modified",
     "group": null,
     "parent": "f856d53778",
@@ -9985,7 +9985,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "modified by which user",
     "field": "data.items.modified_by",
     "group": null,
     "parent": "f856d53778",
@@ -9995,7 +9995,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "sell collateral application name",
     "field": "data.items.parent",
     "group": null,
     "parent": "f856d53778",
@@ -10005,7 +10005,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "items",
     "field": "data.items.parentfield",
     "group": null,
     "parent": "f856d53778",
@@ -10015,7 +10015,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "sell collateral application",
     "field": "data.items.parenttype",
     "group": null,
     "parent": "f856d53778",
@@ -10025,7 +10025,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "id of document",
     "field": "data.items.idx",
     "group": null,
     "parent": "f856d53778",
@@ -10035,7 +10035,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "is document submitted or not",
     "field": "data.items.docstatus",
     "group": null,
     "parent": "f856d53778",
@@ -10045,7 +10045,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "12-digit alphanumeric code that uniquely identifies a specific security",
     "field": "data.items.isin",
     "group": null,
     "parent": "f856d53778",
@@ -10055,7 +10055,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "security name",
     "field": "data.items.security_name",
     "group": null,
     "parent": "f856d53778",
@@ -10065,7 +10065,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "pledged quantity",
     "field": "data.items.quantity",
     "group": null,
     "parent": "f856d53778",
@@ -10075,7 +10075,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "price",
     "field": "data.items.price",
     "group": null,
     "parent": "f856d53778",
@@ -10085,7 +10085,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "amount",
     "field": "data.items.amount",
     "group": null,
     "parent": "f856d53778",
@@ -10095,7 +10095,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "doctype name",
     "field": "data.items.doctype",
     "group": null,
     "parent": "f856d53778",
@@ -10115,7 +10115,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Final list of securities for sell",
     "field": "data.sell_items",
     "group": null,
     "parent": "f856d53778",
@@ -10356,7 +10356,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-20 10:48:02.178537",
+  "modified": "2021-10-22 15:12:57.761530",
   "name": "a1511a00eb",
   "parameters": [],
   "parameters_example": [
@@ -10375,7 +10375,7 @@
   "success": [
    {
     "default_value": null,
-    "description": null,
+    "description": "Success or Validation message",
     "field": "message",
     "group": null,
     "parent": "a1511a00eb",
@@ -10395,7 +10395,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Week count",
     "field": "data.week",
     "group": null,
     "parent": "a1511a00eb",
@@ -10405,7 +10405,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Portfolio amount per week",
     "field": "data.weekly_amount_for_all_loans",
     "group": null,
     "parent": "a1511a00eb",
@@ -10466,13 +10466,13 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-20 10:49:32.952656",
+  "modified": "2021-10-22 15:44:28.299167",
   "name": "5b86bb8a43",
   "parameters": [
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "1 if for updating pin else 0",
     "field": "is_for_update_pin",
     "group": null,
     "optional": 0,
@@ -10485,7 +10485,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "Old login pin of application",
     "field": "old_pin",
     "group": null,
     "optional": 0,
@@ -10498,7 +10498,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "New login pin for application",
     "field": "new_pin",
     "group": null,
     "optional": 0,
@@ -10511,7 +10511,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "Retype pin",
     "field": "retype_pin",
     "group": null,
     "optional": 0,
@@ -10524,7 +10524,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "1 if for updating profile picture else 0",
     "field": "is_for_profile_pic",
     "group": null,
     "optional": 0,
@@ -10537,7 +10537,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "image date in byte format",
     "field": "image",
     "group": null,
     "optional": 0,
@@ -10571,7 +10571,7 @@
   "success": [
    {
     "default_value": null,
-    "description": null,
+    "description": "Success or validation message ",
     "field": "message",
     "group": null,
     "parent": "5b86bb8a43",
@@ -10591,7 +10591,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Profile picture url",
     "field": "data.profile_picture_file_url",
     "group": null,
     "parent": "5b86bb8a43",
@@ -12152,13 +12152,13 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-20 10:50:29.774262",
+  "modified": "2021-10-22 15:45:16.829295",
   "name": "48990067b4",
   "parameters": [
    {
     "allowed_values": null,
     "default_value": "0",
-    "description": null,
+    "description": "1 or 0",
     "field": "do_not_show_again",
     "group": null,
     "optional": 0,
@@ -12171,7 +12171,7 @@
    {
     "allowed_values": null,
     "default_value": "0",
-    "description": null,
+    "description": "1 or 0",
     "field": "bulls_eye",
     "group": null,
     "optional": 0,
@@ -12184,7 +12184,7 @@
    {
     "allowed_values": null,
     "default_value": "0",
-    "description": null,
+    "description": "1 or 0",
     "field": "can_do_better",
     "group": null,
     "optional": 0,
@@ -12197,7 +12197,7 @@
    {
     "allowed_values": null,
     "default_value": "0",
-    "description": null,
+    "description": "1 or 0",
     "field": "related_to_user_experience",
     "group": null,
     "optional": 0,
@@ -12210,7 +12210,7 @@
    {
     "allowed_values": null,
     "default_value": "0",
-    "description": null,
+    "description": "1 or 0",
     "field": "related_to_functionality",
     "group": null,
     "optional": 0,
@@ -12223,7 +12223,7 @@
    {
     "allowed_values": null,
     "default_value": "0",
-    "description": null,
+    "description": "1 or 0",
     "field": "others",
     "group": null,
     "optional": 0,
@@ -12236,7 +12236,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "Feedback by user",
     "field": "comment",
     "group": null,
     "optional": 0,
@@ -12276,7 +12276,7 @@
   "success": [
    {
     "default_value": null,
-    "description": null,
+    "description": "Success or validation message",
     "field": "message",
     "group": null,
     "parent": "48990067b4",
@@ -14163,13 +14163,13 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-19 15:18:01.774510",
+  "modified": "2021-10-22 15:05:33.971086",
   "name": "79bfd60d58",
   "parameters": [
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "1 if mark as read the Notification else 0",
     "field": "is_for_read",
     "group": null,
     "optional": 0,
@@ -14182,7 +14182,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "1 if mark as clear the Notification else 0",
     "field": "is_for_clear",
     "group": null,
     "optional": 0,
@@ -14195,7 +14195,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": "",
+    "description": "if single notification should be cleared or read then put notification name",
     "field": "notification_name",
     "group": null,
     "optional": 1,
@@ -14236,7 +14236,7 @@
   "success": [
    {
     "default_value": null,
-    "description": null,
+    "description": "Success",
     "field": "message",
     "group": null,
     "parent": "79bfd60d58",
@@ -14601,13 +14601,13 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-22 11:11:56.098192",
+  "modified": "2021-10-22 15:03:11.793461",
   "name": "e928aff834",
   "parameters": [
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "Users Pan card number",
     "field": "pan_no",
     "group": null,
     "optional": 0,
@@ -14620,7 +14620,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "Users Birth date",
     "field": "birth_date",
     "group": null,
     "optional": 0,
@@ -14633,7 +14633,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": null,
+    "description": "If terms are accepted then 1 else 0",
     "field": "accept_terms",
     "group": null,
     "optional": 0,
@@ -14660,7 +14660,7 @@
   "success": [
    {
     "default_value": null,
-    "description": null,
+    "description": "Success or Validation message",
     "field": "message",
     "group": null,
     "parent": "e928aff834",
@@ -14690,7 +14690,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "CHOICE",
     "field": "data.user_kyc.kyc_type",
     "group": null,
     "parent": "e928aff834",
@@ -14700,7 +14700,7 @@
    },
    {
     "default_value": null,
-    "description": null,
+    "description": "Name of Pan card",
     "field": "data.user_kyc.investor_name",
     "group": null,
     "parent": "e928aff834",
@@ -14710,7 +14710,7 @@
    },
    {
     "default_value": "null",
-    "description": null,
+    "description": "Users father name",
     "field": "data.user_kyc.father_name",
     "group": null,
     "parent": "e928aff834",
@@ -14720,7 +14720,7 @@
    },
    {
     "default_value": "null",
-    "description": null,
+    "description": "Users mother name",
     "field": "data.user_kyc.mother_name",
     "group": null,
     "parent": "e928aff834",
@@ -14730,7 +14730,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Address",
     "field": "data.user_kyc.address",
     "group": null,
     "parent": "e928aff834",
@@ -14740,7 +14740,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "City name",
     "field": "data.user_kyc.city",
     "group": null,
     "parent": "e928aff834",
@@ -14750,7 +14750,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "State name",
     "field": "data.user_kyc.state",
     "group": null,
     "parent": "e928aff834",
@@ -14760,7 +14760,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Pincode",
     "field": "data.user_kyc.pincode",
     "group": null,
     "parent": "e928aff834",
@@ -14770,7 +14770,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Mobile number of user",
     "field": "data.user_kyc.mobile_number",
     "group": null,
     "parent": "e928aff834",
@@ -14780,7 +14780,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Choice client id",
     "field": "data.user_kyc.choice_client_id",
     "group": null,
     "parent": "e928aff834",
@@ -14790,7 +14790,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Pan card number",
     "field": "data.user_kyc.pan_no",
     "group": null,
     "parent": "e928aff834",
@@ -14800,7 +14800,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Users Date of birth ",
     "field": "data.user_kyc.date_of_birth",
     "group": null,
     "parent": "e928aff834",
@@ -14820,7 +14820,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Bank Name",
     "field": "data.user_kyc.bank_account.bank",
     "group": null,
     "parent": "e928aff834",
@@ -14830,7 +14830,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Bank Address",
     "field": "data.user_kyc.bank_account.bank_address",
     "group": null,
     "parent": "e928aff834",
@@ -14840,7 +14840,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Bank branch",
     "field": "data.user_kyc.bank_account.branch",
     "group": null,
     "parent": "e928aff834",
@@ -14850,7 +14850,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Bank contact",
     "field": "data.user_kyc.bank_account.contact",
     "group": null,
     "parent": "e928aff834",
@@ -14860,7 +14860,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Account type",
     "field": "data.user_kyc.bank_account.account_type",
     "group": null,
     "parent": "e928aff834",
@@ -14870,7 +14870,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "account number",
     "field": "data.user_kyc.bank_account.account_number",
     "group": null,
     "parent": "e928aff834",
@@ -14880,7 +14880,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "IFSC code",
     "field": "data.user_kyc.bank_account.ifsc",
     "group": null,
     "parent": "e928aff834",
@@ -14890,7 +14890,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Magnetic ink character recognition (MICR) is a technology used primarily to identify and process checks",
     "field": "data.user_kyc.bank_account.micr",
     "group": null,
     "parent": "e928aff834",
@@ -14900,7 +14900,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Bank mode",
     "field": "data.user_kyc.bank_account.bank_mode",
     "group": null,
     "parent": "e928aff834",
@@ -14910,7 +14910,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Bank code",
     "field": "data.user_kyc.bank_account.bank_code",
     "group": null,
     "parent": "e928aff834",
@@ -14920,7 +14920,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Bank zip code",
     "field": "data.user_kyc.bank_account.bank_zip_code",
     "group": null,
     "parent": "e928aff834",
@@ -14930,7 +14930,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Bank city",
     "field": "data.user_kyc.bank_account.city",
     "group": null,
     "parent": "e928aff834",
@@ -14940,7 +14940,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Bank district",
     "field": "data.user_kyc.bank_account.district",
     "group": null,
     "parent": "e928aff834",
@@ -14950,7 +14950,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "Bank state",
     "field": "data.user_kyc.bank_account.state",
     "group": null,
     "parent": "e928aff834",
@@ -14960,7 +14960,7 @@
    },
    {
     "default_value": "",
-    "description": null,
+    "description": "is bank account default",
     "field": "data.user_kyc.bank_account.is_default",
     "group": null,
     "parent": "e928aff834",
