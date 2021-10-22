@@ -138,14 +138,8 @@ description %} {% block body %}
   <input type="hidden" name="post" id="latest_post_2" />
   <script type="text/javascript">
     function closePop(id) {
-      let link = document.querySelector("." + id + " #DemoVideo");
-      let video_src = link.getAttribute("src");
-      $("." + id + " #DemoVideo")
-        .children("iframe")
-        .attr("src", "");
-      $("." + id + " #DemoVideo")
-        .children("iframe")
-        .attr("src", video_src);
+      var el_src = $("." + id + " #DemoVideo").attr("src");
+      $("." + id + " #DemoVideo").attr("src", el_src);
       $(".popUp").removeClass("open");
     }
     function openPop(id) {
