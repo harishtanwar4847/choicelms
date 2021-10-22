@@ -2231,7 +2231,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-06 13:36:54.002314",
+  "modified": "2021-10-22 13:43:20.821910",
   "name": "20b2c24baa",
   "parameters": [
    {
@@ -2277,7 +2277,7 @@
     "allowed_values": null,
     "default_value": null,
     "description": null,
-    "field": "isin",
+    "field": "securities.list.isin",
     "group": "Security",
     "optional": 0,
     "parent": "20b2c24baa",
@@ -2290,7 +2290,7 @@
     "allowed_values": null,
     "default_value": null,
     "description": null,
-    "field": "quantity",
+    "field": "securities.list.quantity",
     "group": "Security",
     "optional": 0,
     "parent": "20b2c24baa",
@@ -2379,7 +2379,328 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.cart.upsert",
-  "success": [],
+  "success": [
+   {
+    "default_value": null,
+    "description": null,
+    "field": "message",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.name",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.customer",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.customer_name",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.total_collateral_value",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.total_collateral_value_str",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.pledgor_boid",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.allowable_ltv",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.lender",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.eligible_loan",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.eligible_loan_str",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.pledgee_boid",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "In case of Increase Loan",
+    "field": "data.cart.loan_name",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "in case of Loan margin shortfall",
+    "field": "data.cart.loan_margin_shortfall_name",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.is_processed",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.doctype",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.items",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.items.name",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.items.parent",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.items.parentfield",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.items.parenttype",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.items.isin",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.items.security_name",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.items.security_category",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.items.pledged_quantity",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.items.price",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.items.amount",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.items.eligible_percentage",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.items.doctype",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data.cart.items.__unsaved",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   }
+  ],
   "success_example": [
    {
     "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"cart\": {\n      \"name\": \"C000001\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"total_collateral_value\": 20000,\n      \"total_collateral_value_str\": \"20,000\",\n      \"pledgor_boid\": \"123456\",\n      \"allowable_ltv\": 50,\n      \"lender\": \"lender's name\",\n      \"eligible_loan\": 10000,\n      \"eligible_loan_str\": \"10,000\",\n      \"pledgee_boid\": \"654321\",\n      \"is_processed\": 0,\n      \"doctype\": \"Cart\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"C000001\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Cart\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": isin,\n          \"security_name\": \"Bajaj\",\n          \"security_category\": \"Cat B\",\n          \"pledged_quantity\": 10,\n          \"price\": 2000,\n          \"amount\": 20000,\n          \"eligible_percentage\": 50.0,\n          \"doctype\": \"Cart Item\",\n          \"__unsaved\": 1\n        }\n      ]\n    }\n  }\n}",
