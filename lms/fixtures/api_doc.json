@@ -3224,7 +3224,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-20 17:17:38.013102",
+  "modified": "2021-10-22 16:26:50.878873",
   "name": "6758aefe27",
   "parameters": [],
   "parameters_example": [
@@ -3243,7 +3243,7 @@
   "success": [
    {
     "default_value": null,
-    "description": null,
+    "description": "Success message",
     "field": "message",
     "group": null,
     "parent": "6758aefe27",
@@ -7650,7 +7650,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-20 17:15:51.285393",
+  "modified": "2021-10-22 16:26:24.240931",
   "name": "2a23f121e5",
   "parameters": [
    {
@@ -7716,7 +7716,7 @@
   "success": [
    {
     "default_value": null,
-    "description": null,
+    "description": "Success or validation message",
     "field": "message",
     "group": null,
     "parent": "2a23f121e5",
@@ -9514,7 +9514,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-20 17:18:50.262145",
+  "modified": "2021-10-22 16:27:04.903137",
   "name": "862ecb45a8",
   "parameters": [],
   "parameters_example": [
@@ -9533,7 +9533,7 @@
   "success": [
    {
     "default_value": null,
-    "description": null,
+    "description": "Success message",
     "field": "message",
     "group": null,
     "parent": "862ecb45a8",
@@ -9594,7 +9594,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-22 16:15:42.431707",
+  "modified": "2021-10-22 16:25:23.325618",
   "name": "f856d53778",
   "parameters": [
    {
@@ -9705,7 +9705,7 @@
   "success": [
    {
     "default_value": null,
-    "description": null,
+    "description": "Success or validation message",
     "field": "message",
     "group": null,
     "parent": "f856d53778",
@@ -10466,7 +10466,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-22 15:44:28.299167",
+  "modified": "2021-10-22 16:28:44.045188",
   "name": "5b86bb8a43",
   "parameters": [
    {
@@ -10537,7 +10537,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": "image date in byte format",
+    "description": "image data in byte format",
     "field": "image",
     "group": null,
     "optional": 0,
@@ -12337,7 +12337,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-20 17:20:36.733287",
+  "modified": "2021-10-22 16:28:16.577085",
   "name": "21ada9247a",
   "parameters": [
    {
@@ -12370,7 +12370,7 @@
   "success": [
    {
     "default_value": null,
-    "description": null,
+    "description": "Success message",
     "field": "message",
     "group": null,
     "parent": "21ada9247a",
