@@ -232,6 +232,11 @@ endblock description %} {%- block head_include -%} {% include
                 "</a>" +
                 "</li>";
             });
+            if (res.data.blogs_all.length < 6) {
+              $("#viewMore").html("");
+            } else {
+              $("#viewMore").html("View More");
+            }
             if (replace == true) {
               $("#ourStories").html(html);
             } else {

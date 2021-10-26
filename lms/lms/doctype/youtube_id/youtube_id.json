@@ -25,16 +25,18 @@
   {
    "fieldname": "video_description",
    "fieldtype": "Text",
+   "in_list_view": 1,
    "label": "Video Description"
   },
   {
+   "description": "Please upload image in the ratio 1:1",
    "fieldname": "youtube_image",
    "fieldtype": "Attach Image",
    "label": "Youtube Thumbnail"
   }
  ],
  "links": [],
- "modified": "2021-10-19 11:21:00.556346",
+ "modified": "2021-10-26 15:53:14.162254",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Youtube Id",

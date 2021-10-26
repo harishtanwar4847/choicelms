@@ -11,7 +11,7 @@ def get_videos_list(page_no, latest_video="", search_key=""):
     else:
         limit = 6
     offset = (int(page_no) - 1) * limit
-
+    video_count = frappe.db.count("Youtube Id")
     if latest_video == "true":
         if len(search_key.strip()) > 0:
             videos_list = frappe.db.sql(
@@ -43,6 +43,10 @@ def get_videos_list(page_no, latest_video="", search_key=""):
                 as_dict=True,
             )
 
-    response = {"videos_list_response": videos_list, "page_no": page_no}
+    response = {
+        "videos_list_response": videos_list,
+        "page_no": page_no,
+        "video_count": video_count,
+    }
 
     return utils.respondWithSuccess(data=response)

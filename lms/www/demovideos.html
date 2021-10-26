@@ -146,13 +146,13 @@ description %} {% block body %}
       $("." + id).addClass("open");
     }
     $(document).ready(function () {
-      // $("#viewMore").show();
+      $("#viewMore").html("View More");
       var page_no = $("#page_no").val();
       $("#latest_post_2").val("false");
       loadData();
 
       $("#all_videos").click(function () {
-        // $("#viewMore").show();
+        $("#viewMore").html("View More");
         var page_no = 1;
         var search_key = $("#search").val();
         $("#latest_post_2").val("false");
@@ -216,7 +216,7 @@ description %} {% block body %}
                   ')" id="play_videos">' +
                   '<img src="' +
                   value.youtube_image +
-                  '" class="fw" />' +
+                  '" class="fw" style="height:273px; width:273px;"/>' +
                   '<div class="fw desc">' +
                   "<h6>" +
                   "<span style='font-size: 1.4rem'>" +
@@ -255,12 +255,24 @@ description %} {% block body %}
                   "</div>" +
                   "</div>";
               });
+              if (res.data.videos_list_response.length < 6) {
+                $("#viewMore").html("");
+              } else {
+                $("#viewMore").html("View More");
+              }
               if (replace == true) {
                 $("#ourStories").html(html);
               } else {
                 $("#ourStories").append(html);
               }
               next_page_number = parseInt(res.data.page_no) + 1;
+              // next_data = parseInt(res.data.videos_list_response.length) + 6;
+              // if (res.data.video_count != next_data){
+              //   $("#viewMore").html("");
+              // } else{
+              //     $("#viewMore").html("View More");
+              // }
+
               $("#page_no").val(next_page_number);
               if (latest_video == "true") {
                 $("#viewMore").hide();
@@ -275,6 +287,8 @@ description %} {% block body %}
               html += "<h3>No videos found.</h3>";
               $("#ourStories").html(html);
               $("#viewMore").hide();
+            } else if (res.data.videos_list_response.length == "") {
+              $("#viewMore").html("");
             }
           },
         });
