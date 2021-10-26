@@ -427,9 +427,9 @@ class Loan(Document):
                 if loan_margin_shortfall.is_new():
                     if loan_margin_shortfall.shortfall_percentage > 0:
                         loan_margin_shortfall.insert(ignore_permissions=True)
-                        if frappe.utils.now_datetime() > loan_margin_shortfall.deadline:
-                            loan_margin_shortfall.status = "Sell Triggered"
-                            loan_margin_shortfall.save(ignore_permissions=True)
+                        # if frappe.utils.now_datetime() > loan_margin_shortfall.deadline:
+                        #     loan_margin_shortfall.status = "Sell Triggered"
+                        #     loan_margin_shortfall.save(ignore_permissions=True)
                 else:
                     if loan_margin_shortfall.shortfall_percentage == 0:
                         loan_margin_shortfall.status = "Resolved"
@@ -472,6 +472,12 @@ class Loan(Document):
 
                     loan_margin_shortfall.save(ignore_permissions=True)
 
+            if (
+                loan_margin_shortfall.status in ["Pending", "Request Pending"]
+                and frappe.utils.now_datetime().hour == 0
+            ):
+                self.timer_start_stop_notification(loan_margin_shortfall)
+
             if between_market_hours or (not between_market_hours and on_approval):
                 # 1st scenario - after market hours but not with cron
                 # 2nd scenario - between market hours with cron and approval also
@@ -488,6 +494,103 @@ class Loan(Document):
                 if unpledge_application:
                     unpledge_application.unpledge_with_margin_shortfall()
             frappe.db.commit()
+
+    def timer_start_stop_notification(self, loan_margin_shortfall):
+        today = frappe.utils.now_datetime().date()
+        yesterday = today - timedelta(days=1)
+        fcm_notification = {}
+        message = ""
+        doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
+
+        if yesterday not in lms.holiday_list(
+            is_bank_holiday=1
+        ) and today in lms.holiday_list(is_bank_holiday=1):
+            date_array = set(
+                loan_margin_shortfall.creation.date() + timedelta(days=x)
+                for x in range(
+                    0,
+                    (
+                        loan_margin_shortfall.deadline.date()
+                        - loan_margin_shortfall.creation.date()
+                    ).days
+                    + 1,
+                )
+            )
+            holidays = sorted(
+                list(date_array.intersection(set(lms.holiday_list(is_bank_holiday=1))))
+            )
+
+            datetime_list = []
+            creation = loan_margin_shortfall.creation.date()
+            for days in holidays:
+                if days == creation and days >= frappe.utils.now_datetime().date():
+                    datetime_list.append(days)
+                    creation += timedelta(days=1)
+                    print(creation, "creation count")
+                else:
+                    break
+            print(datetime_list)
+
+            stop_time = str(
+                lms.date_str_format(date=datetime_list[0].day)
+            ) + datetime_list[0].strftime(" %B %I:%M:%S %p")
+            start_time = str(
+                lms.date_str_format(date=(datetime_list[-1] + timedelta(days=1)).day)
+            ) + datetime_list[-1].strftime(" %B %I:%M:%S %p")
+            print(stop_time, "stop_time")
+            print(start_time, "start_time")
+
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", "Margin shortfall timer paused", fields=["*"]
+            )
+            message = fcm_notification.message.format(
+                loan=self.name, stop_time=stop_time, start_time=start_time
+            )
+
+            doc["loan_margin_shortfall"] = {
+                "loan": self.name,
+                "stop_time": stop_time,
+                "start_time": start_time,
+            }
+            frappe.enqueue_doc(
+                "Notification",
+                "Margin shortfall - Timer Paused",
+                method="send",
+                doc=doc,
+            )
+            # message = "Dear Customer,\nDue to bank holiday the margin shortfall timer on your loan account {loan} has been paused on {stop_time} and will resume on {start_time}. Please check the app and take an appropriate action. -Spark Loans".format(loan=self.name,stop_time=stop_time,start_time=start_time)
+            print(message, "message")
+        elif yesterday in lms.holiday_list(
+            is_bank_holiday=1
+        ) and today not in lms.holiday_list(is_bank_holiday=1):
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification",
+                "Margin shortfall timer resumed",
+                fields=["*"],
+            )
+            message = fcm_notification.message.format(loan=self.name)
+            doc["loan_margin_shortfall"] = {"loan": self.name}
+            frappe.enqueue_doc(
+                "Notification",
+                "Margin shortfall - Timer Resumed",
+                method="send",
+                doc=doc,
+            )
+            # message = "Dear Customer,\nThe margin shortfall timer has been resumed on your loan account {loan} Please check the app and take appropriate action. -Spark Loans".format(loan=self.name)
+            print(message, "messs")
+
+        if fcm_notification and message:
+            frappe.enqueue(
+                method=send_sms,
+                receiver_list=[self.get_customer().phone],
+                msg=message,
+            )
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification,
+                message=message,
+                loan=self.name,
+                customer=self.get_customer(),
+            )
 
     def send_alerts_to_customer(self, old_total_collateral_value):
         try:

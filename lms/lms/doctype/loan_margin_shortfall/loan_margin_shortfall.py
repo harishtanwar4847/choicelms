@@ -135,6 +135,7 @@ class LoanMarginShortfall(Document):
             ):
                 # sell off immediately
                 self.deadline = frappe.utils.now_datetime()
+                self.status = "Sell Triggered"
 
             self.save(ignore_permissions=True)
             self.notify_customer(margin_shortfall_action)
