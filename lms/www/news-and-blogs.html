@@ -138,7 +138,7 @@ endblock description %} {%- block head_include -%} {% include
     var page_no = $("#page_no").val();
     $("#latest_post_2").val("false");
     $("#trending_post_2").val("false");
-    loadData(page_no);
+    loadData();
 
     $("#latest_post").click(function () {
       var page_no = 1;
@@ -185,7 +185,7 @@ endblock description %} {%- block head_include -%} {% include
 
     // function for fetch blogs, view more, search
     function loadData(
-      pg_number,
+      pg_number = 1,
       latest_post = "",
       trending_post = "",
       search_key = "",

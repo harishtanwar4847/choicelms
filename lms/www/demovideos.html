@@ -149,7 +149,7 @@ description %} {% block body %}
       // $("#viewMore").show();
       var page_no = $("#page_no").val();
       $("#latest_post_2").val("false");
-      loadData(page_no);
+      loadData();
 
       $("#all_videos").click(function () {
         // $("#viewMore").show();
@@ -178,7 +178,7 @@ description %} {% block body %}
       });
 
       function loadData(
-        page_no,
+        page_no = 1,
         latest_video = "",
         search_key = "",
         replace = false
