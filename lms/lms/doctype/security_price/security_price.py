@@ -100,7 +100,7 @@ def update_security_prices(securities_dict, session_id):
 
 @frappe.whitelist()
 def update_all_security_prices():
-    current_hour = int(frappe.utils.nowtime().split(":")[0])
+    current_hour = frappe.utils.now_datetime().hour
     las_settings = frappe.get_single("LAS Settings")
 
     if frappe.utils.now_datetime().date() not in lms.holiday_list(
