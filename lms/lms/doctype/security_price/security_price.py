@@ -62,18 +62,18 @@ def update_security_prices(securities_dict, session_id):
                     else frappe.utils.now_datetime()
                 )
                 price = float(security.get("LTP")) / security.get("PriceDivisor")
-                if price:
-                    values["{}-{}".format(isin, time)] = (
-                        "{}-{}".format(isin, time),
-                        isin,
-                        security_name,
-                        time,
-                        price,
-                        time,
-                        time,
-                        "Administrator",
-                        "Administrator",
-                    )
+                # if price:
+                values["{}-{}".format(isin, time)] = (
+                    "{}-{}".format(isin, time),
+                    isin,
+                    security_name,
+                    time,
+                    price,
+                    time,
+                    time,
+                    "Administrator",
+                    "Administrator",
+                )
 
             values_ = list(values.values())
             values_.append(())
