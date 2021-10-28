@@ -3,6 +3,16 @@ SparkLoans {% endblock title %} {% block description %} Watch our video to
 understand our products and services in a detail at SparkLoans. {% endblock
 description %} {% block body %}
 <style>
+  header.down {
+    z-index: 1 !important;
+  }
+  .mobileheader.down {
+    z-index: 1 !important;
+  }
+  .youtube_img {
+    height: 273px;
+    width: 273px;
+  }
   #viewMore {
     color: #eb5e50;
     cursor: pointer;
@@ -23,7 +33,7 @@ description %} {% block body %}
     height: 100%;
     position: fixed;
     display: none;
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.5);
   }
 
   .popUp .iframe {
@@ -31,12 +41,12 @@ description %} {% block body %}
     justify-content: center;
     align-items: center;
     position: relative;
-    top: 110px;
+    top: 70px;
   }
 
   .popUp .closeBtn {
     position: absolute;
-    top: 90px;
+    top: 20px;
     right: 2%;
   }
 
@@ -46,27 +56,35 @@ description %} {% block body %}
     height: 80vh;
   }
 
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 767.9px) {
     .popUp .iframe {
-      top: 17%;
+      top: 18%;
     }
 
     .popUp .closeBtn {
       position: absolute;
-      top: 65px;
-      right: 2%;
+      top: 3%;
+      right: 3%;
     }
 
     .popUp iframe {
       position: relative;
       width: 90vw;
-      height: 80vh;
+      height: 50vh;
+    }
+    .youtube_img {
+      height: 400px !important;
+      width: 400px !important;
     }
   }
 
-  @media screen and (min-width: 768.1px) and (max-width: 998px) {
+  @media screen and (min-width: 768px) and (max-width: 998px) {
+    .youtube_img {
+      height: 273px !important;
+      width: 273px !important;
+    }
     .popUp .iframe {
-      top: 15%;
+      top: 12%;
     }
 
     .popUp iframe {
@@ -141,9 +159,13 @@ description %} {% block body %}
       var el_src = $("." + id + " #DemoVideo").attr("src");
       $("." + id + " #DemoVideo").attr("src", el_src);
       $(".popUp").removeClass("open");
+      $("header").removeClass("down");
+      $(".mobileheader").removeClass("down");
     }
     function openPop(id) {
       $("." + id).addClass("open");
+      $("header").addClass("down");
+      $(".mobileheader").addClass("down");
     }
     $(document).ready(function () {
       $("#viewMore").html("View More");
@@ -216,10 +238,10 @@ description %} {% block body %}
                   ')" id="play_videos">' +
                   '<img src="' +
                   value.youtube_image +
-                  '" class="fw" style="height:273px; width:273px;"/>' +
+                  '" class="fw youtube_img"/>' +
                   '<div class="fw desc">' +
                   "<h6>" +
-                  "<span style='font-size: 1.4rem'>" +
+                  "<span>" +
                   video_title +
                   "</span>" +
                   '<button id="showIframe" onclick="openPop(' +

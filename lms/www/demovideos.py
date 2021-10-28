@@ -11,18 +11,17 @@ def get_videos_list(page_no, latest_video="", search_key=""):
     else:
         limit = 6
     offset = (int(page_no) - 1) * limit
-    video_count = frappe.db.count("Youtube Id")
     if latest_video == "true":
         if len(search_key.strip()) > 0:
             videos_list = frappe.db.sql(
-                "select * from `tabYoutube Id` where video_title LIKE '%{}%' or video_description LIKE '%{}%' order by modified desc limit {}".format(
+                "select * from `tabYoutube Id` where video_title LIKE '%{}%' or video_description LIKE '%{}%' order by creation desc limit {}".format(
                     search_key, search_key, limit
                 ),
                 as_dict=True,
             )
         else:
             videos_list = frappe.db.sql(
-                "select * from `tabYoutube Id` order by modified desc limit {}".format(
+                "select * from `tabYoutube Id` order by creation desc limit {}".format(
                     limit
                 ),
                 as_dict=True,
@@ -30,14 +29,14 @@ def get_videos_list(page_no, latest_video="", search_key=""):
     else:
         if len(search_key.strip()) > 0:
             videos_list = frappe.db.sql(
-                "select * from `tabYoutube Id` where video_title LIKE '%{}%' or video_description LIKE '%{}%' order by modified desc limit {},{}".format(
+                "select * from `tabYoutube Id` where video_title LIKE '%{}%' or video_description LIKE '%{}%' order by creation desc limit {},{}".format(
                     search_key, search_key, offset, limit
                 ),
                 as_dict=True,
             )
         else:
             videos_list = frappe.db.sql(
-                "select * from `tabYoutube Id` order by modified desc limit {},{}".format(
+                "select * from `tabYoutube Id` order by creation desc limit {},{}".format(
                     offset, limit
                 ),
                 as_dict=True,
@@ -46,7 +45,6 @@ def get_videos_list(page_no, latest_video="", search_key=""):
     response = {
         "videos_list_response": videos_list,
         "page_no": page_no,
-        "video_count": video_count,
     }
 
     return utils.respondWithSuccess(data=response)
