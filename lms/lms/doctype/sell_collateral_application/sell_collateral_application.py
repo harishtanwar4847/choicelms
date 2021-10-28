@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 
 import lms
@@ -35,25 +36,16 @@ class SellCollateralApplication(Document):
         loan = self.get_loan()
         self.lender = loan.lender
         self.customer = loan.customer
-        triggered_margin_shortfall = frappe.get_all(
-            "Loan Margin Shortfall",
-            filters={"loan": self.loan, "status": "Sell Triggered"},
-        )
         if self.loan_margin_shortfall:
             loan_margin_shortfall = frappe.get_doc(
                 "Loan Margin Shortfall", self.loan_margin_shortfall
             )
-            if loan_margin_shortfall.status in ["Request Pending"]:
+            if loan_margin_shortfall.status == "Request Pending":
                 self.current_shortfall_amount = loan_margin_shortfall.shortfall
-
-        if triggered_margin_shortfall:
-            self.loan_margin_shortfall = triggered_margin_shortfall[0].name
-            loan_margin_shortfall = frappe.get_doc(
-                "Loan Margin Shortfall", triggered_margin_shortfall[0].name
-            )
-            self.initial_shortfall_amount = loan_margin_shortfall.shortfall
-            loan_margin_shortfall.fill_items()
-            self.current_shortfall_amount = loan_margin_shortfall.shortfall
+            elif loan_margin_shortfall.status == "Sell Triggered":
+                self.initial_shortfall_amount = loan_margin_shortfall.shortfall
+                loan_margin_shortfall.fill_items()
+                self.current_shortfall_amount = loan_margin_shortfall.shortfall
 
         securities_list = [i.isin for i in self.items]
 
@@ -121,15 +113,15 @@ class SellCollateralApplication(Document):
         if self.lender_selling_amount <= 0:
             frappe.throw("Please fix the Lender Selling Amount.")
 
-        lender = self.get_lender()
-        dp_reimburse_sell_charges = lender.dp_reimburse_sell_charges
-        sell_charges = lender.sell_collateral_charges
-        if dp_reimburse_sell_charges <= 0:
-            frappe.throw(
-                "You need to check the amount of DP Reimbursement Charges for Sell Collateral"
-            )
-        elif sell_charges <= 0:
-            frappe.throw("You need to check the amount of Sell Collateral Charges")
+        # lender = self.get_lender()
+        # dp_reimburse_sell_charges = lender.dp_reimburse_sell_charges
+        # sell_charges = lender.sell_collateral_charges
+        # if dp_reimburse_sell_charges <= 0:
+        #     frappe.throw(
+        #         "You need to check the amount of DP Reimbursement Charges for Sell Collateral"
+        #     )
+        # elif sell_charges <= 0:
+        #     frappe.throw("You need to check the amount of Sell Collateral Charges")
 
         loan_items = frappe.get_all(
             "Loan Item", filters={"parent": self.loan}, fields=["*"]
@@ -264,19 +256,29 @@ class SellCollateralApplication(Document):
         )
         # DP Reimbursement(Sell)
         # Sell Collateral Charges
-        loan.create_loan_transaction(
-            transaction_type="DP Reimbursement(Sell)",
-            amount=total_dp_reimburse_sell_charges,
-            approve=True,
-            loan_margin_shortfall_name=self.loan_margin_shortfall,
+        if total_dp_reimburse_sell_charges:
+            loan.create_loan_transaction(
+                transaction_type="DP Reimbursement(Sell)",
+                amount=total_dp_reimburse_sell_charges,
+                approve=True,
+                loan_margin_shortfall_name=self.loan_margin_shortfall,
+            )
+        if sell_collateral_charges:
+            loan.create_loan_transaction(
+                transaction_type="Sell Collateral Charges",
+                amount=sell_collateral_charges,
+                approve=True,
+                loan_margin_shortfall_name=self.loan_margin_shortfall,
+            )
+
+        user_roles = frappe.db.get_values(
+            "Has Role", {"parent": self.owner, "parenttype": "User"}, ["role"]
         )
-        loan.create_loan_transaction(
-            transaction_type="Sell Collateral Charges",
-            amount=sell_collateral_charges,
-            approve=True,
-            loan_margin_shortfall_name=self.loan_margin_shortfall,
-        )
-        if self.owner == frappe.session.user and self.loan_margin_shortfall:
+        if not user_roles:
+            frappe.throw(_("Invalid User"))
+        user_roles = [role[0] for role in user_roles]
+
+        if "Loan customer" not in user_roles and self.loan_margin_shortfall:
             doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
             doc["sell_triggered_completion"] = {"loan": self.loan}
             # if self.status in ["Pending", "Approved", "Rejected"]:
