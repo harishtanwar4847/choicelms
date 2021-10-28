@@ -4,10 +4,6 @@
 
 ### Added
 
-- [Feat: Min max sanctioned limit](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/414)
-
-### Added
-
 - [Feat: changes in tnc html template, loan agreement template, loan enhancement agreement template regarding lender charges](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/361)
 - [Feat: changes in Currency format (Rupees and Paisa), percentage, Rupees in word format in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/366)
 - [Feat: changes in Currency format as per confirmed by client in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/369)
@@ -25,6 +21,7 @@
 - [Feat: Open graph code added for (non www)spark.loans](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/406)
 - [Feat: contact us email content formatted](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/408)
 - [Feat: contact us email content changes for new line](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/409)
+- [Feat: Min max sanctioned limit](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/414)
 
 ### Fixed
 
@@ -33,6 +30,12 @@
 - [Fix: is_sell_triggered flag added in loan_summary_dashboard, my_pledge_securities, loan_details api](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/392)
 - [Fix: Client holding fixes,on loan application rejection related changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/400)
 - [Fix: hide esign button while loan application is for margin shortfall pledge more](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/402)
+
+## [v1.1.0] - 2021-10-14
+
+### Added
+
+- [Feat: Sitemap.xml file updated](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/416)
 
 ## [v1.0.9] - 2021-10-08
 
