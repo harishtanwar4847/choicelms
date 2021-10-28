@@ -388,6 +388,11 @@ class LoanTransaction(Document):
             if self.amount > self.allowable:
                 frappe.throw("Amount should be less than or equal to allowable amount")
 
+            if self.allowable > self.requested:
+                frappe.throw(
+                    "Allowable amount could not be greater than requested amount"
+                )
+
     def on_update(self):
         if self.transaction_type == "Withdrawal":
             customer = self.get_loan().get_customer()

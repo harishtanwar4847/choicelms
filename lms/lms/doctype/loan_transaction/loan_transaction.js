@@ -5,16 +5,8 @@ frappe.ui.form.on("Loan Transaction", {
   refresh: function (frm) {
     let is_allowed = frappe.user_roles.includes("System Manager");
     frm.toggle_enable(["transaction_type", "amount"], is_allowed);
-    if (
-      frm.doc.status == "Ready for Approval" &&
-      frappe.user_roles.includes("Spark Transaction Approver")
-    ) {
-      console.log("in function");
-      frm.set_df_property("allowable", "read_only", 0);
+    if (frm.doc.status == "Ready for Approval") {
+      frm.set_df_property("allowable", "read_only", false);
     }
-    // else {
-    //   frm.set_df_property("allowable","read_only", 0);
-    // }
   },
 });
-// eval:frappe.user_roles.includes("[System Manager"])
