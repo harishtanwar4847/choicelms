@@ -193,9 +193,15 @@ def verify_otp(**kwargs):
                 )
 
         try:
-            token = lms.verify_user_token(
-                entity=data.get("mobile"), token=data.get("otp"), token_type="OTP"
-            )
+            is_dummy_account = lms.validate_spark_dummy_account(data.get("mobile"))
+            if not is_dummy_account:
+                token = lms.verify_user_token(
+                    entity=data.get("mobile"), token=data.get("otp"), token_type="OTP"
+                )
+            else:
+                token = lms.validate_spark_dummy_account_token(
+                    data.get("mobile"), data.get("otp")
+                )
         except InvalidUserTokenException:
             token = None
 
@@ -229,7 +235,7 @@ def verify_otp(**kwargs):
 
         if token:
             frappe.db.begin()
-            if token.expiry <= frappe.utils.now_datetime():
+            if (not is_dummy_account) and (token.expiry <= frappe.utils.now_datetime()):
                 return utils.respondUnauthorized(message=frappe._("OTP Expired."))
 
             if not user:
@@ -252,8 +258,11 @@ def verify_otp(**kwargs):
                 "customer": customer,
                 "user_kyc": user_kyc,
             }
-            token.used = 1
-            token.save(ignore_permissions=True)
+
+            if not is_dummy_account:
+                token.used = 1
+                token.save(ignore_permissions=True)
+
             lms.add_firebase_token(data.get("firebase_token"), user.name)
             lms.auth.login_activity(customer)
             frappe.db.commit()
