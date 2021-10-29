@@ -224,8 +224,8 @@ description %} {% block body %}
                   video_title = "";
                 }
                 if (value.video_description) {
-                  video_description =
-                    value.video_description.slice(0, 100) + " ...";
+                  // video_description = value.video_description.slice(0, 100) + " ...";
+                  video_description = value.video_description;
                 } else {
                   video_description = "";
                 }
