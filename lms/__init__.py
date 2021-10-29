@@ -688,3 +688,7 @@ def rupees_to_words(num):
             + ("" if num % pivot == 0 else " " + rupees_to_words(num % pivot))
         )
     return amt_str
+
+
+def validate_spark_dummy_account(mobile):
+    return frappe.db.exists({"doctype": "Spark Dummy Account", "mobile": mobile})

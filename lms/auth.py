@@ -105,9 +105,15 @@ def login(**kwargs):
             )
             login_consent_doc.insert(ignore_permissions=True)
 
-        lms.create_user_token(
-            entity=data.get("mobile"), token=lms.random_token(length=4, is_numeric=True)
-        )
+        # check if dummy account
+        is_dummy_account = lms.validate_spark_dummy_account(data.get("mobile"))
+
+        if not is_dummy_account:
+            lms.create_user_token(
+                entity=data.get("mobile"),
+                token=lms.random_token(length=4, is_numeric=True),
+            )
+
         frappe.db.commit()
         return utils.respondWithSuccess(message=frappe._("OTP Sent"))
     except utils.exceptions.APIException as e:
