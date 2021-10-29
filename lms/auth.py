@@ -153,6 +153,7 @@ def terms_of_use():
                 las_settings.privacy_policy_document
             )
             or "",
+            "dummy_accounts": frappe.get_list("Spark Dummy Account", pluck="mobile"),
         }
         return utils.respondWithSuccess(message=frappe._("success"), data=data)
 
