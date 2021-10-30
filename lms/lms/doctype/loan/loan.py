@@ -475,6 +475,9 @@ class Loan(Document):
             if (
                 loan_margin_shortfall.status in ["Pending", "Request Pending"]
                 and frappe.utils.now_datetime().hour == 0
+                and frappe.db.exists(
+                    "Loan Margin Shortfall", loan_margin_shortfall.name
+                )
             ):
                 self.timer_start_stop_notification(loan_margin_shortfall)
 
