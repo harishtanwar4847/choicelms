@@ -1207,14 +1207,17 @@ def request_loan_withdraw_otp():
         utils.validator.validate_http_method("POST")
 
         user = lms.__user()
-
-        frappe.db.begin()
-        lms.create_user_token(
-            entity=user.username,
-            token_type="Withdraw OTP",
-            token=lms.random_token(length=4, is_numeric=True),
+        is_dummy_account = lms.validate_spark_dummy_account(
+            user.username, user.name, check_valid=True
         )
-        frappe.db.commit()
+        if not is_dummy_account:
+            frappe.db.begin()
+            lms.create_user_token(
+                entity=user.username,
+                token_type="Withdraw OTP",
+                token=lms.random_token(length=4, is_numeric=True),
+            )
+            frappe.db.commit()
         return utils.respondWithSuccess(message="Withdraw OTP sent")
     except utils.exceptions.APIException as e:
         return e.respond()
@@ -1248,14 +1251,24 @@ def loan_withdraw_request(**kwargs):
         user = lms.__user()
         banks = lms.__banks()
 
-        token = lms.verify_user_token(
-            entity=user.username, token=data.get("otp"), token_type="Withdraw OTP"
+        is_dummy_account = lms.validate_spark_dummy_account(
+            user.username, user.name, check_valid=True
         )
+        if not is_dummy_account:
+            token = lms.verify_user_token(
+                entity=user.username, token=data.get("otp"), token_type="Withdraw OTP"
+            )
 
-        if token.expiry <= frappe.utils.now_datetime():
-            return utils.respondUnauthorized(message=frappe._("Withdraw OTP Expired."))
+            if token.expiry <= frappe.utils.now_datetime():
+                return utils.respondUnauthorized(
+                    message=frappe._("Withdraw OTP Expired.")
+                )
 
-        lms.token_mark_as_used(token)
+            lms.token_mark_as_used(token)
+        else:
+            token = lms.validate_spark_dummy_account_token(
+                user.username, data.get("otp"), token_type="Withdraw OTP"
+            )
 
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
