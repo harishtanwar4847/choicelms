@@ -690,8 +690,13 @@ def rupees_to_words(num):
     return amt_str
 
 
-def validate_spark_dummy_account(mobile):
-    return frappe.db.exists({"doctype": "Spark Dummy Account", "mobile": mobile})
+def validate_spark_dummy_account(mobile, email="", check_valid=False):
+    if check_valid and email:
+        return frappe.db.exists(
+            {"doctype": "Spark Dummy Account", "mobile": mobile, "email": email}
+        )
+    else:
+        return frappe.db.exists({"doctype": "Spark Dummy Account", "mobile": mobile})
 
 
 def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):

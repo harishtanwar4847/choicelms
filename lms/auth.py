@@ -79,13 +79,13 @@ def login(**kwargs):
             except UserKYCNotFoundException:
                 user_kyc = {}
 
-            lms.auth.login_activity(customer)
             token = dict(
                 token=utils.create_user_access_token(user.name),
                 customer=customer,
                 user_kyc=user_kyc,
             )
             lms.add_firebase_token(data.get("firebase_token"), user.name)
+            lms.auth.login_activity(customer)
             return utils.respondWithSuccess(
                 message=frappe._("Logged in Successfully"), data=token
             )
@@ -325,6 +325,15 @@ def register(**kwargs):
                 message=frappe._("Special Characters not allowed."),
             )
 
+        is_dummy_account = lms.validate_spark_dummy_account(
+            data.get("mobile"), email=data.get("email"), check_valid=True
+        )
+        if not is_dummy_account:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Invalid Mobile or Email."),
+            )
+
         tester = frappe.get_all("Spark Tester", fields=["email_id"])
         emails = [e["email_id"] for e in tester if tester]
 
@@ -338,11 +347,17 @@ def register(**kwargs):
         frappe.db.begin()
         user = lms.create_user(**user_data)
         customer = lms.create_customer(user)
-        lms.create_user_token(
-            entity=data.get("email"),
-            token=lms.random_token(),
-            token_type="Email Verification Token",
-        )
+
+        if not is_dummy_account:
+            lms.create_user_token(
+                entity=data.get("email"),
+                token=lms.random_token(),
+                token_type="Email Verification Token",
+            )
+        else:
+            customer.is_email_verified = 1
+            customer.save(ignore_permissions=True)
+
         lms.add_firebase_token(data.get("firebase_token"), user.name)
         data = {
             "token": utils.create_user_access_token(user.name),
