@@ -229,7 +229,7 @@ class SellCollateralApplication(Document):
                 len(self.items) * dp_reimburse_sell_charges / 100
             )
         if lender.sell_collateral_charge_type == "Fix":
-            sell_collateral_charges = self.lender_selling_amount * sell_charges
+            sell_collateral_charges = sell_charges
         elif lender.sell_collateral_charge_type == "Percentage":
             sell_collateral_charges = self.lender_selling_amount * sell_charges / 100
         # sell_collateral_charges = self.validate_loan_charges_amount(

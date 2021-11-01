@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "creation": "2021-07-02 12:29:22.810055",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -6,7 +7,8 @@
  "field_order": [
   "video_title",
   "youtube_id",
-  "video_description"
+  "video_description",
+  "youtube_image"
  ],
  "fields": [
   {
@@ -23,10 +25,18 @@
   {
    "fieldname": "video_description",
    "fieldtype": "Text",
+   "in_list_view": 1,
    "label": "Video Description"
+  },
+  {
+   "description": "Please upload image in the ratio 1:1",
+   "fieldname": "youtube_image",
+   "fieldtype": "Attach Image",
+   "label": "Youtube Thumbnail"
   }
  ],
- "modified": "2021-07-19 16:30:06.772076",
+ "links": [],
+ "modified": "2021-10-26 15:53:14.162254",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Youtube Id",
