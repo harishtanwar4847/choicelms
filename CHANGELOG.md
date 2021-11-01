@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v1.1.1] - 2021-11-01
+
+### Fixed
+
+- [Fix: 0 Validation removed from sell collateral and unpledge charges](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/419)
+
 ## [v1.1.0] - 2021-10-14
 
 ### Added
