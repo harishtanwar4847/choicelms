@@ -6,7 +6,7 @@
 
 ### Fixed
 
-- [Fix: Demo Video Pause on close popup action]()
+- [Fix: Demo Video Pause on close popup action](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/420)
 
 ## [v1.2.0] - 2021-11-01
 
