@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v1.2.0] - 2021-11-01
+
+### Added
+
+- [Feat: Demo videos changes for website and Make lender field visible in allowed security](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/417)
+
 ## [v1.1.1] - 2021-11-01
 
 ### Fixed
