@@ -113,16 +113,6 @@ class SellCollateralApplication(Document):
         if self.lender_selling_amount <= 0:
             frappe.throw("Please fix the Lender Selling Amount.")
 
-        # lender = self.get_lender()
-        # dp_reimburse_sell_charges = lender.dp_reimburse_sell_charges
-        # sell_charges = lender.sell_collateral_charges
-        # if dp_reimburse_sell_charges <= 0:
-        #     frappe.throw(
-        #         "You need to check the amount of DP Reimbursement Charges for Sell Collateral"
-        #     )
-        # elif sell_charges <= 0:
-        #     frappe.throw("You need to check the amount of Sell Collateral Charges")
-
         loan_items = frappe.get_all(
             "Loan Item", filters={"parent": self.loan}, fields=["*"]
         )
@@ -237,7 +227,7 @@ class SellCollateralApplication(Document):
                 len(self.items) * dp_reimburse_sell_charges / 100
             )
         if lender.sell_collateral_charge_type == "Fix":
-            sell_collateral_charges = self.lender_selling_amount * sell_charges
+            sell_collateral_charges = sell_charges
         elif lender.sell_collateral_charge_type == "Percentage":
             sell_collateral_charges = self.lender_selling_amount * sell_charges / 100
         # sell_collateral_charges = self.validate_loan_charges_amount(
