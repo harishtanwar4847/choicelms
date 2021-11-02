@@ -156,8 +156,8 @@ description %} {% block body %}
   <input type="hidden" name="post" id="latest_post_2" />
   <script type="text/javascript">
     function closePop(id) {
-      var el_src = $("." + id + " #DemoVideo").attr("src");
-      $("." + id + " #DemoVideo").attr("src", el_src);
+      var el_src = $("." + id + " iframe").attr("src");
+      $("." + id + " iframe").attr("src", el_src);
       $(".popUp").removeClass("open");
       $("header").removeClass("down");
       $(".mobileheader").removeClass("down");

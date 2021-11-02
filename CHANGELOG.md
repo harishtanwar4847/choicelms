@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v1.2.1] - 2021-11-02
+
+### Fixed
+
+- [Fix: Demo Video Pause on close popup action]()
+
 ## [v1.2.0] - 2021-11-01
 
 ### Added
