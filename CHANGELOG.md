@@ -30,6 +30,18 @@
 - [Fix: Client holding fixes,on loan application rejection related changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/400)
 - [Fix: hide esign button while loan application is for margin shortfall pledge more](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/402)
 
+## [v1.2.0] - 2021-11-01
+
+### Added
+
+- [Feat: Demo videos changes for website and Make lender field visible in allowed security](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/417)
+
+## [v1.1.1] - 2021-11-01
+
+### Fixed
+
+- [Fix: 0 Validation removed from sell collateral and unpledge charges](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/419)
+
 ## [v1.1.0] - 2021-10-14
 
 ### Added
