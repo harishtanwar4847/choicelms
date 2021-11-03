@@ -27,16 +27,22 @@ endblock description %} {%- block head_include -%} {% include
       blog %}
       <div class="row dx_jcsbalctr">
         <div class="col col-md-7">
-          <a href="newsblog?blog_name={{ blog.name }}">
+          <a href="news-and-blogs/{{ blog.route }}">
             <img src="{{ blog.for_home_view }}" class="fw"
           /></a>
         </div>
         <div class="col col-md-5">
           <div class="fw blog-text">
             <!-- <p class="resources">Resources</p> -->
-            <h3>{{ blog.title }}</h3>
+            <a href="news-and-blogs/{{ blog.route }}">
+              <h3>{{ blog.title }}</h3>
+            </a>
             <p class="date">{{ blog.publishing_date.strftime("%d %B, %Y") }}</p>
+            {% if blog.author %}
             <p class="text">{{ blog.author }}</p>
+            {% else %}
+            <p class="text"></p>
+            {% endif %}
             <p class="text">{{ blog.short_description }}</p>
           </div>
         </div>
@@ -213,8 +219,8 @@ endblock description %} {%- block head_include -%} {% include
 
               html +=
                 '<li class="col-md-4 col-sm-6 item">' +
-                '<a href="newsblog?blog_name=' +
-                val.name +
+                '<a href="news-and-blogs/' +
+                val.route +
                 '">' +
                 '<div class="news_card"> <img src="' +
                 val.for_banner_view +
@@ -222,9 +228,12 @@ endblock description %} {%- block head_include -%} {% include
                 "<p>" +
                 tags +
                 "</p>" +
+                '<a href="news-and-blogs/' +
+                val.route +
+                '">' +
                 "<h5>" +
                 val.title +
-                "</h5>" +
+                "</h5></a>" +
                 '<p class="date">' +
                 val.publishing_date +
                 "</p>" +
