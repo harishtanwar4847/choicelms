@@ -95,7 +95,7 @@
   {
    "default": " ",
    "fieldname": "description",
-   "fieldtype": "Text Editor",
+   "fieldtype": "HTML Editor",
    "label": "Description"
   },
   {
@@ -165,7 +165,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-11-03 16:55:45.982425",
+ "modified": "2021-11-03 17:10:51.132712",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "News and Blog",
