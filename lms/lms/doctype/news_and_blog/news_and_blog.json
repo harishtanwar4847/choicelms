@@ -1,12 +1,14 @@
 {
  "actions": [],
- "autoname": "Blog-.#",
+ "autoname": "Prompt",
  "creation": "2021-07-02 09:49:07.256500",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "title",
+  "column_break_2",
+  "route",
   "banner_images_section",
   "for_home_view",
   "column_break_4",
@@ -22,7 +24,12 @@
   "blog_tags",
   "section_break_15",
   "is_latest",
-  "is_trending"
+  "is_trending",
+  "meta_tags_section",
+  "meta_title",
+  "meta_image",
+  "column_break_21",
+  "meta_description"
  ],
  "fields": [
   {
@@ -120,11 +127,45 @@
    "fieldname": "is_trending",
    "fieldtype": "Check",
    "label": "is_trending"
+  },
+  {
+   "fieldname": "meta_tags_section",
+   "fieldtype": "Section Break",
+   "label": "Meta Tags"
+  },
+  {
+   "fieldname": "meta_title",
+   "fieldtype": "Data",
+   "label": "Title"
+  },
+  {
+   "fieldname": "meta_description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "meta_image",
+   "fieldtype": "Attach Image",
+   "label": "Image"
+  },
+  {
+   "fieldname": "route",
+   "fieldtype": "Data",
+   "label": "Route",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_21",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-08-10 17:59:29.308866",
+ "modified": "2021-11-03 16:55:45.982425",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "News and Blog",
