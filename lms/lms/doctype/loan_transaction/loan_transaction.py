@@ -388,23 +388,6 @@ class LoanTransaction(Document):
             if self.amount > self.allowable:
                 frappe.throw("Amount should be less than or equal to allowable amount")
 
-            user_roles = frappe.db.get_values(
-                "Has Role",
-                {"parent": frappe.session.user, "parenttype": "User"},
-                ["role"],
-            )
-            if not user_roles:
-                frappe.throw(_("Invalid User"))
-            user_roles = [role[0] for role in user_roles]
-
-            if (
-                "Spark Transaction Approver" in user_roles
-                and self.allowable > self.requested
-            ):
-                frappe.throw(
-                    "Allowable amount could not be greater than requested amount"
-                )
-
     def on_update(self):
         if self.transaction_type == "Withdrawal":
             customer = self.get_loan().get_customer()
@@ -479,3 +462,11 @@ class LoanTransaction(Document):
 
     def get_customer(self):
         return frappe.get_doc("Loan Customer", self.customer)
+
+    def before_save(self):
+        if (
+            self.transaction_type == "Withdrawal"
+            and self.allowable > self.requested
+            and self.status == "Ready for Approval"
+        ):
+            frappe.throw("Allowable amount could not be greater than requested amount")
