@@ -124,9 +124,12 @@
               </div>
               <div class="col-md-12">
                 <h5 class="viewMore">
-                  {% if frappe.form_dict.blog_name %}
+                  {% if frappe.form_dict.blog_name %} {% if
+                  related_articles|length <3 %}
+                  <a class="viewMores" id="viewMore"></a>
+                  {% else %}
                   <a class="viewMores" id="viewMore"> View All</a>
-                  {% endif %}
+                  {% endif %} {% endif %}
                 </h5>
               </div>
             </div>
@@ -185,7 +188,6 @@
 
         if (urlParams.has("blog_name")) {
           $(document).on("click", "#viewMore", function () {
-            // alert($(this).attr("id"));
             $.ajax({
               url: "/api/method/lms.www.newsblog.fetch_related_articles",
               type: "GET",
@@ -227,6 +229,11 @@
                   });
                   $("#related_article_div").append(html);
                   page_no += 1;
+                }
+                if (res.data.related_articles.length < 3) {
+                  $("#viewMore").html("");
+                } else {
+                  $("#viewMore").html("View More");
                 }
               },
             });

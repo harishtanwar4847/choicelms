@@ -106,13 +106,6 @@ class UnpledgeApplication(Document):
                     "You need to unpledge all {} of isin {}".format(i.quantity, i.isin)
                 )
 
-        lender = self.get_lender()
-        dp_reimburse_unpledge_charges = lender.dp_reimburse_unpledge_charges
-        if dp_reimburse_unpledge_charges <= 0:
-            frappe.throw(
-                "You need to check the amount of DP Reimbursement Charges for Unpledge"
-            )
-
         loan_items = frappe.get_all(
             "Loan Item", filters={"parent": self.loan}, fields=["*"]
         )
@@ -163,11 +156,12 @@ class UnpledgeApplication(Document):
                 len(self.items) * dp_reimburse_unpledge_charges / 100
             )
 
-        loan.create_loan_transaction(
-            transaction_type="DP Reimbursement(Unpledge)",
-            amount=total_dp_reimburse_unpledge_charges,
-            approve=True,
-        )
+        if total_dp_reimburse_unpledge_charges:
+            loan.create_loan_transaction(
+                transaction_type="DP Reimbursement(Unpledge)",
+                amount=total_dp_reimburse_unpledge_charges,
+                approve=True,
+            )
 
         self.notify_customer()
 
