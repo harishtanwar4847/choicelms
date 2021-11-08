@@ -9,6 +9,48 @@
 - [Feat: changes in Currency format in words in TNC template, Loan Agreement & Loan Enhance Agreement](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/370)
 - [Feat: pledgor boid added in loan details response](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/371)
 
+## [v1.2.0] - 2021-11-01
+
+### Added
+
+- [Feat: Demo videos changes for website and Make lender field visible in allowed security](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/417)
+
+## [v1.1.1] - 2021-11-01
+
+### Fixed
+
+- [Fix: 0 Validation removed from sell collateral and unpledge charges](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/419)
+
+## [v1.1.0] - 2021-10-14
+
+### Added
+
+- [Feat: Sitemap.xml file updated](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/416)
+
+## [v1.0.9] - 2021-10-08
+
+### Fixed
+
+- [Fix: Added missing div tag in loan against share page](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/412)
+
+## [v1.0.8] - 2021-10-06
+
+### Added
+
+- [Feat: Product (Loan Against Shares) Page](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/410)
+
+## [v1.0.7] - 2021-10-05
+
+### Fixed
+
+- [Fix: Datatype of Bank address and Users address in User kyc doctype changed to Long text](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/407)
+
+## [v1.0.6] - 2021-09-22
+
+### Added
+
+- [Feat: Loan against shares html page added (products/loan-against-shares.html)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/398)
+
 ## [v1.0.5] - 2021-08-18
 
 ### Added
