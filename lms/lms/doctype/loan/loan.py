@@ -352,7 +352,7 @@ class Loan(Document):
         for i in self.items:
             curr = collateral_list_map.get(i.isin)
             # print(check, i.price, curr.price, not check or i.price != curr.price)
-            if not check or i.price != curr.price:
+            if (not check or i.price != curr.price) and i.pledged_quantity > 0:
                 check = True
 
             i.price = curr.price
