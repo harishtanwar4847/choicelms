@@ -616,3 +616,11 @@ class LoanTransaction(Document):
                 loan.interest_due = 0.0
 
         loan.save(ignore_permissions=True)
+
+    def before_save(self):
+        if (
+            self.transaction_type == "Withdrawal"
+            and self.allowable > self.requested
+            and self.status == "Ready for Approval"
+        ):
+            frappe.throw("Allowable amount could not be greater than requested amount")

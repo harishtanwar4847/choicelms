@@ -31,6 +31,7 @@
   "loan_margin_shortfall",
   "unpaid_interest",
   "disbursed",
+  "remarks",
   "is_for_interest",
   "section_break_1",
   "items"
@@ -117,7 +118,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Pending\nApproved\nRejected",
+   "options": "Pending\nReady for Approval\nApproved\nRejected",
    "read_only": 1
   },
   {
@@ -214,11 +215,16 @@
    "in_list_view": 1,
    "label": "Closing Balance",
    "read_only": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-04 12:11:02.322958",
+ "modified": "2021-10-28 16:04:05.424523",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
@@ -250,6 +256,13 @@
    "create": 1,
    "read": 1,
    "role": "Lender",
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Spark Transaction Approver",
    "submit": 1,
    "write": 1
   },
