@@ -26,7 +26,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -939,3 +939,23 @@ def rupees_to_words(num):
             + ("" if num % pivot == 0 else " " + rupees_to_words(num % pivot))
         )
     return amt_str
+
+
+def validate_spark_dummy_account(mobile, email="", check_valid=False):
+    if check_valid and email:
+        return frappe.db.exists(
+            {"doctype": "Spark Dummy Account", "mobile": mobile, "email": email}
+        )
+    else:
+        return frappe.db.exists({"doctype": "Spark Dummy Account", "mobile": mobile})
+
+
+def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
+    filters = {"mobile": mobile, "otp": token}
+
+    dummy_account_name = frappe.db.get_value("Spark Dummy Account", filters, "name")
+
+    if not dummy_account_name:
+        raise InvalidUserTokenException("Invalid {}".format(token_type))
+
+    return frappe.get_doc("Spark Dummy Account", dummy_account_name)

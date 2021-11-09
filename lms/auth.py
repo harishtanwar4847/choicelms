@@ -79,13 +79,13 @@ def login(**kwargs):
             except UserKYCNotFoundException:
                 user_kyc = {}
 
-            lms.auth.login_activity(customer)
             token = dict(
                 token=utils.create_user_access_token(user.name),
                 customer=customer,
                 user_kyc=user_kyc,
             )
             lms.add_firebase_token(data.get("firebase_token"), user.name)
+            lms.auth.login_activity(customer)
             return utils.respondWithSuccess(
                 message=frappe._("Logged in Successfully"), data=token
             )
@@ -105,9 +105,15 @@ def login(**kwargs):
             )
             login_consent_doc.insert(ignore_permissions=True)
 
-        lms.create_user_token(
-            entity=data.get("mobile"), token=lms.random_token(length=4, is_numeric=True)
-        )
+        # check if dummy account
+        is_dummy_account = lms.validate_spark_dummy_account(data.get("mobile"))
+
+        if not is_dummy_account:
+            lms.create_user_token(
+                entity=data.get("mobile"),
+                token=lms.random_token(length=4, is_numeric=True),
+            )
+
         frappe.db.commit()
         return utils.respondWithSuccess(message=frappe._("OTP Sent"))
     except utils.exceptions.APIException as e:
@@ -153,6 +159,7 @@ def terms_of_use():
                 las_settings.privacy_policy_document
             )
             or "",
+            "dummy_accounts": frappe.get_list("Spark Dummy Account", pluck="mobile"),
         }
         return utils.respondWithSuccess(message=frappe._("success"), data=data)
 
@@ -186,9 +193,15 @@ def verify_otp(**kwargs):
                 )
 
         try:
-            token = lms.verify_user_token(
-                entity=data.get("mobile"), token=data.get("otp"), token_type="OTP"
-            )
+            is_dummy_account = lms.validate_spark_dummy_account(data.get("mobile"))
+            if not is_dummy_account:
+                token = lms.verify_user_token(
+                    entity=data.get("mobile"), token=data.get("otp"), token_type="OTP"
+                )
+            else:
+                token = lms.validate_spark_dummy_account_token(
+                    data.get("mobile"), data.get("otp")
+                )
         except InvalidUserTokenException:
             token = None
 
@@ -222,7 +235,7 @@ def verify_otp(**kwargs):
 
         if token:
             frappe.db.begin()
-            if token.expiry <= frappe.utils.now_datetime():
+            if (not is_dummy_account) and (token.expiry <= frappe.utils.now_datetime()):
                 return utils.respondUnauthorized(message=frappe._("OTP Expired."))
 
             if not user:
@@ -245,8 +258,11 @@ def verify_otp(**kwargs):
                 "customer": customer,
                 "user_kyc": user_kyc,
             }
-            token.used = 1
-            token.save(ignore_permissions=True)
+
+            if not is_dummy_account:
+                token.used = 1
+                token.save(ignore_permissions=True)
+
             lms.add_firebase_token(data.get("firebase_token"), user.name)
             lms.auth.login_activity(customer)
             frappe.db.commit()
@@ -309,6 +325,18 @@ def register(**kwargs):
                 message=frappe._("Special Characters not allowed."),
             )
 
+        is_dummy_account = lms.validate_spark_dummy_account(data.get("mobile"))
+        if is_dummy_account:
+            is_valid_dummy_account = lms.validate_spark_dummy_account(
+                data.get("mobile"), email=data.get("email"), check_valid=True
+            )
+
+            if not is_valid_dummy_account:
+                return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Invalid Mobile or Email."),
+                )
+
         tester = frappe.get_all("Spark Tester", fields=["email_id"])
         emails = [e["email_id"] for e in tester if tester]
 
@@ -322,11 +350,17 @@ def register(**kwargs):
         frappe.db.begin()
         user = lms.create_user(**user_data)
         customer = lms.create_customer(user)
-        lms.create_user_token(
-            entity=data.get("email"),
-            token=lms.random_token(),
-            token_type="Email Verification Token",
-        )
+
+        if not is_dummy_account:
+            lms.create_user_token(
+                entity=data.get("email"),
+                token=lms.random_token(),
+                token_type="Email Verification Token",
+            )
+        else:
+            customer.is_email_verified = 1
+            customer.save(ignore_permissions=True)
+
         lms.add_firebase_token(data.get("firebase_token"), user.name)
         data = {
             "token": utils.create_user_access_token(user.name),
@@ -454,28 +488,35 @@ def request_forgot_pin_otp(**kwargs):
 
         try:
             user = frappe.get_doc("User", data.get("email"))
-
         except frappe.DoesNotExistError:
             return utils.respondNotFound(
                 message=frappe._("Please use registered email.")
             )
-        old_token_name = frappe.get_all(
-            "User Token",
-            filters={"entity": user.email, "token_type": "Forgot Pin OTP"},
-            order_by="creation desc",
-            fields=["*"],
-        )
-        if old_token_name:
-            old_token = frappe.get_doc("User Token", old_token_name[0].name)
-            lms.token_mark_as_used(old_token)
 
-        frappe.db.begin()
-        lms.create_user_token(
-            entity=user.email,
-            token_type="Forgot Pin OTP",
-            token=lms.random_token(length=4, is_numeric=True),
+        if not user.enabled:
+            return utils.respondUnauthorized(message="User disabled or missing")
+
+        is_dummy_account = lms.validate_spark_dummy_account(
+            user.username, data.get("email"), check_valid=True
         )
-        frappe.db.commit()
+        if not is_dummy_account:
+            old_token_name = frappe.get_all(
+                "User Token",
+                filters={"entity": user.email, "token_type": "Forgot Pin OTP"},
+                order_by="creation desc",
+                fields=["*"],
+            )
+            if old_token_name:
+                old_token = frappe.get_doc("User Token", old_token_name[0].name)
+                lms.token_mark_as_used(old_token)
+
+            frappe.db.begin()
+            lms.create_user_token(
+                entity=user.email,
+                token_type="Forgot Pin OTP",
+                token=lms.random_token(length=4, is_numeric=True),
+            )
+            frappe.db.commit()
         return utils.respondWithSuccess(message="Forgot Pin OTP sent")
     except utils.exceptions.APIException as e:
         return e.respond()
@@ -508,17 +549,35 @@ def verify_forgot_pin_otp(**kwargs):
             )
 
         try:
-            token = lms.verify_user_token(
-                entity=data.get("email"),
-                token=data.get("otp"),
-                token_type="Forgot Pin OTP",
+            user = frappe.get_doc("User", data.get("email"))
+        except frappe.DoesNotExistError:
+            return utils.respondNotFound(
+                message=frappe._("Please use registered email.")
             )
+
+        if not user.enabled:
+            return utils.respondUnauthorized(message="User disabled or missing")
+
+        try:
+            is_dummy_account = lms.validate_spark_dummy_account(
+                user.username, data.get("email"), check_valid=True
+            )
+            if not is_dummy_account:
+                token = lms.verify_user_token(
+                    entity=data.get("email"),
+                    token=data.get("otp"),
+                    token_type="Forgot Pin OTP",
+                )
+            else:
+                token = lms.validate_spark_dummy_account_token(
+                    user.username, data.get("otp"), token_type="Forgot Pin OTP"
+                )
         except InvalidUserTokenException:
             return utils.respondForbidden(message=frappe._("Invalid Forgot Pin OTP."))
 
         frappe.db.begin()
 
-        if token:
+        if token and not is_dummy_account:
             if token.expiry <= frappe.utils.now_datetime():
                 return utils.respondUnauthorized(message=frappe._("OTP Expired."))
 
@@ -542,7 +601,9 @@ def verify_forgot_pin_otp(**kwargs):
                 status=417,
                 message=frappe._("Please Enter value for new pin and retype pin."),
             )
-        lms.token_mark_as_used(token)
+
+        if not is_dummy_account:
+            lms.token_mark_as_used(token)
 
     except utils.exceptions.APIException:
         frappe.db.rollback()
