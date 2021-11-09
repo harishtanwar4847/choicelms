@@ -2,11 +2,17 @@
 
 ## [Unreleased]
 
-## [v1.2.1] - 2021-11-02
+## [v1.3.1] - 2021-11-10
 
 ### Fixed
 
 - [Fix: Demo Video Pause on close popup action](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/420)
+
+## [v1.3.0] - 2021-11-09
+
+### Added
+
+- [Feat: Withdrawal Workflow Action changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/422)
 
 ## [v1.2.0] - 2021-11-01
 
