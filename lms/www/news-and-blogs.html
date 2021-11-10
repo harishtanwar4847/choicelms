@@ -136,6 +136,7 @@ endblock description %} {%- block head_include -%} {% include
 <input type="hidden" name="page_no" id="page_no" value="1" />
 <input type="hidden" name="post" id="latest_post_2" />
 <input type="hidden" name="post1" id="trending_post_2" value="false" />
+<input type="hidden" name="page_no" id="page_data" value="0" />
 {% endblock %} {% block script %}
 
 <script type="text/javascript">
@@ -149,6 +150,7 @@ endblock description %} {%- block head_include -%} {% include
     $("#latest_post").click(function () {
       var page_no = 1;
       var search_key = $("#search").val();
+      $("#page_data").val(0);
       $("#latest_post_2").val("true");
       $("#trending_post_2").val("false");
       var latest_post = "true";
@@ -157,6 +159,7 @@ endblock description %} {%- block head_include -%} {% include
 
     $("#trending_post").click(function () {
       var page_no = 1;
+      $("#page_data").val(0);
       var search_key = $("#search").val();
       $("#latest_post_2").val("false");
       $("#trending_post_2").val("true");
@@ -171,6 +174,7 @@ endblock description %} {%- block head_include -%} {% include
 
     $("#all_post").click(function () {
       var page_no = 1;
+      $("#page_data").val(0);
       var search_key = $("#search").val();
       $("#latest_post_2").val("false");
       var latest_post = "false";
@@ -241,19 +245,21 @@ endblock description %} {%- block head_include -%} {% include
                 "</a>" +
                 "</li>";
             });
-            if (res.data.blogs_all.length < 6) {
-              $("#viewMore").html("");
+            next_pg_number = parseInt(res.data.page_no) + 1;
+            $("#page_no").val(next_pg_number);
+            var page_data = $("#page_data").val();
+            cur_page_data = parseInt(page_data) + res.data.blogs_all.length;
+            $("#page_data").val(cur_page_data);
+            if (cur_page_data == res.data.count_all_blogs) {
+              $("#viewMore").hide();
             } else {
-              $("#viewMore").html("View More");
+              $("#viewMore").show();
             }
             if (replace == true) {
               $("#ourStories").html(html);
             } else {
               $("#ourStories").append(html);
             }
-            next_pg_number = parseInt(res.data.page_no) + 1;
-            $("#page_no").val(next_pg_number);
-            $("#viewMore").show();
           } else if (pg_number == 1 && res.data.blogs_all.length <= 0) {
             $("#ourStories").empty();
             $("#viewMore").hide();
