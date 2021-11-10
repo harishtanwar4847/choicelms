@@ -3,6 +3,14 @@
 
 frappe.listview_settings["Loan Margin Shortfall"] = {
   hide_name_column: true,
+  before_render() {
+    frappe.call({
+      type: "POST",
+      method:
+        "lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.set_timer",
+      args: { loan_margin_shortfall_name: "" },
+    });
+  },
 
   formatters: {
     shortfall_percentage(val) {
