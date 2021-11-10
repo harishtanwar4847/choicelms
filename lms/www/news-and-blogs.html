@@ -270,6 +270,7 @@ endblock description %} {%- block head_include -%} {% include
 
     // ==========> SEARCH QUERY <=========
     $("#search").keyup(function () {
+      $("#page_data").val(0);
       $("#page_no").val(1);
       var page_no = $("#page_no").val();
       var search = $(this).val();
