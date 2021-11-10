@@ -1,3 +1,4 @@
+from types import new_class
 from warnings import filters
 
 import frappe
@@ -8,19 +9,21 @@ def execute():
     las_settings = frappe.get_single("LAS Settings")
     news_blog_template = las_settings.get_news_blog_template()
     blogs = frappe.get_all("News and Blog", fields=["*"])
-
     for blog in blogs:
+        new_name = cleanup_page_name(blog.title).replace("_", "-")
+        blog_tag_name = frappe.db.get_value("Blog Tags", {"parent": blog.name}, "name")
+        frappe.db.set_value(
+            "Blog Tags", blog_tag_name, "parent", new_name, update_modified=False
+        )
         frappe.db.sql(
             """
         update `tabNews and Blog`
         set name = '{new_name}', route = '{new_name}'
         where name = '{name}'
         """.format(
-                new_name=cleanup_page_name(blog.title).replace("_", "-"), name=blog.name
+                new_name=new_name, name=blog.name
             )
         )
-        frappe.db.commit()
-
         blog_details = {
             "title": blog.title,
             "blog_tags": blog.blog_tags,
