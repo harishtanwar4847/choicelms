@@ -154,16 +154,17 @@ description %} {% block body %}
   </div>
   <input type="hidden" name="page_no" id="page_no" value="1" />
   <input type="hidden" name="post" id="latest_post_2" />
+  <input type="hidden" name="post" id="page_data_count" value="0" />
   <script type="text/javascript">
-    function closePop(id) {
-      var el_src = $("." + id + " iframe").attr("src");
-      $("." + id + " iframe").attr("src", el_src);
+    function closePop(name) {
+      var el_src = $("." + name + " iframe").attr("src");
+      $("." + name + " iframe").attr("src", el_src);
       $(".popUp").removeClass("open");
       $("header").removeClass("down");
       $(".mobileheader").removeClass("down");
     }
-    function openPop(id) {
-      $("." + id).addClass("open");
+    function openPop(name) {
+      $("." + name).addClass("open");
       $("header").addClass("down");
       $(".mobileheader").addClass("down");
     }
@@ -233,7 +234,7 @@ description %} {% block body %}
                   '<li class="col-md-4 col-sm-6 item Latest" style="z-index: 0;">' +
                   '<div class="fw videobox" style="cursor:pointer" onclick="openPop(' +
                   "'" +
-                  value.youtube_id +
+                  value.name +
                   "'" +
                   ')" id="play_videos">' +
                   '<img src="' +
@@ -246,7 +247,7 @@ description %} {% block body %}
                   "</span>" +
                   '<button id="showIframe" onclick="openPop(' +
                   "'" +
-                  value.youtube_id +
+                  value.name +
                   "'" +
                   ')"><img src="assets/lms/images/home/videos/ic_video.jpg" class="videoico"/></button>' +
                   "</h6>" +
@@ -257,16 +258,16 @@ description %} {% block body %}
                   "</div>" +
                   "</li>" +
                   '<div class="popUp ' +
-                  value.youtube_id +
+                  value.name +
                   '"  onclick="closePop(' +
                   "'" +
-                  value.youtube_id +
+                  value.name +
                   "'" +
                   ')" style="z-index:10 !important;">' +
                   '<div class="closeBtn">' +
                   '<a style="background-color: transparent; color: white; font-weight: 900; font-size:1.55rem; cursor: pointer;" onclick="closePop(' +
                   "'" +
-                  value.youtube_id +
+                  value.name +
                   "'" +
                   ')" id="closePop"><strong>X</strong></a>' +
                   "</div>" +
@@ -277,10 +278,14 @@ description %} {% block body %}
                   "</div>" +
                   "</div>";
               });
-              if (res.data.videos_list_response.length < 6) {
+
+              var page_data_count = $("#page_data_count").val();
+              var total_page_data =
+                parseInt(page_data_count) +
+                res.data.videos_list_response.length;
+              $("#page_data_count").val(total_page_data);
+              if (total_page_data == res.data.all_video_count) {
                 $("#viewMore").html("");
-              } else {
-                $("#viewMore").html("View More");
               }
               if (replace == true) {
                 $("#ourStories").html(html);
@@ -313,9 +318,7 @@ description %} {% block body %}
       $("#search").keyup(function () {
         $("#page_no").val(1);
         var page_no = $("#page_no").val();
-        console.log("search_key : ");
         var search = $(this).val();
-        console.log(search);
         var latest_post = $("#latest_post_2").val();
         if (search != "") {
           loadData(page_no, latest_post, search, (replace = true));
