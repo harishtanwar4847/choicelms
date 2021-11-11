@@ -153,8 +153,8 @@ description %} {% block body %}
     </div>
   </div>
   <input type="hidden" name="page_no" id="page_no" value="1" />
-  <input type="hidden" name="post" id="latest_post_2" />
-  <input type="hidden" name="post" id="page_data_count" value="0" />
+  <input type="hidden" name="latest_post_2" id="latest_post_2" />
+  <input type="hidden" name="page_data_count" id="page_data_count" value="0" />
   <script type="text/javascript">
     function closePop(name) {
       var el_src = $("." + name + " iframe").attr("src");
@@ -170,7 +170,7 @@ description %} {% block body %}
     }
     $(document).ready(function () {
       var page_no = $("#page_no").val();
-      $("#latest_post_2").val("false");
+      $("#latest_post_2").val(0);
       loadData();
 
       $("#all_videos").click(function () {
@@ -178,8 +178,8 @@ description %} {% block body %}
         $("#page_data_count").val(0);
         var page_no = 1;
         var search_key = $("#search").val();
-        $("#latest_post_2").val("false");
-        var latest_video = "false";
+        $("#latest_post_2").val(0);
+        var latest_video = 0;
         var replace = true;
         loadData(page_no, latest_video, search_key, replace);
       });
@@ -195,15 +195,15 @@ description %} {% block body %}
         var page_no = 1;
         $("#page_data_count").val(0);
         var search_key = $("#search").val();
-        $("#latest_post_2").val("true");
-        var latest_video = "true";
+        $("#latest_post_2").val(1);
+        var latest_video = 1;
         var replace = true;
         loadData(page_no, latest_video, search_key, replace);
       });
 
       function loadData(
         page_no = 1,
-        latest_video = "",
+        latest_video = 0,
         search_key = "",
         replace = false
       ) {
@@ -231,6 +231,7 @@ description %} {% block body %}
                 } else {
                   video_description = "";
                 }
+
                 html +=
                   '<li class="col-md-4 col-sm-6 item Latest" style="z-index: 0;">' +
                   '<div class="fw videobox" style="cursor:pointer" onclick="openPop(' +
@@ -279,32 +280,36 @@ description %} {% block body %}
                   "</div>" +
                   "</div>";
               });
+
               if (replace == true) {
                 $("#ourStories").html(html);
               } else {
                 $("#ourStories").append(html);
               }
-              if (latest_video == "true") {
-                $("#viewMore").html("");
-              } else {
-                $("#viewMore").html("View More");
-              }
+
+              // if (latest_video) {
+              //   $("#viewMore").hide();
+              // } else {
+              //   $("#viewMore").show();
+              // }
+
               var page_data_count = $("#page_data_count").val();
               var total_page_data =
                 parseInt(page_data_count) +
                 res.data.videos_list_response.length;
+
               $("#page_data_count").val(total_page_data);
               if (total_page_data == res.data.all_video_count) {
-                $("#viewMore").html("");
+                $("#viewMore").hide();
               } else {
                 $("#viewMore").show();
               }
-              if (res.data.videos_list_response.length < 6) {
-                $("#viewMore").html("");
-              }
+              // if (res.data.videos_list_response.length < 6) {
+              //   $("#viewMore").hide();
+              // }
               next_page_number = parseInt(res.data.page_no) + 1;
               $("#page_no").val(next_page_number);
-              $("#viewMore").show();
+              // $("#viewMore").show();
             } else if (
               page_no == 1 &&
               res.data.videos_list_response.length <= 0
@@ -322,14 +327,15 @@ description %} {% block body %}
       $("#search").keyup(function () {
         $("#page_no").val(1);
         $("#page_data_count").val(0);
-        var page_no = $("#page_no").val();
+        // var page_no = $("#page_no").val();
         var search = $(this).val();
         var latest_post = $("#latest_post_2").val();
-        if (search != "") {
-          loadData(page_no, latest_post, search, (replace = true));
-        } else {
-          loadData(page_no, latest_post, (search = ""), (replace = true));
-        }
+        loadData(1, latest_post, search, true);
+        // if (search != "") {
+        //   loadData(page_no, latest_post, search, (replace = true));
+        // } else {
+        //   loadData(page_no, latest_post, (search = ""), (replace = true));
+        // }
       });
     });
   </script>
