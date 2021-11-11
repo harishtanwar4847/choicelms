@@ -169,13 +169,13 @@ description %} {% block body %}
       $(".mobileheader").addClass("down");
     }
     $(document).ready(function () {
-      $("#viewMore").html("View More");
       var page_no = $("#page_no").val();
       $("#latest_post_2").val("false");
       loadData();
 
       $("#all_videos").click(function () {
         $("#viewMore").html("View More");
+        $("#page_data_count").val(0);
         var page_no = 1;
         var search_key = $("#search").val();
         $("#latest_post_2").val("false");
@@ -193,6 +193,7 @@ description %} {% block body %}
 
       $("#latest_video").click(function () {
         var page_no = 1;
+        $("#page_data_count").val(0);
         var search_key = $("#search").val();
         $("#latest_post_2").val("true");
         var latest_video = "true";
@@ -278,7 +279,16 @@ description %} {% block body %}
                   "</div>" +
                   "</div>";
               });
-
+              if (replace == true) {
+                $("#ourStories").html(html);
+              } else {
+                $("#ourStories").append(html);
+              }
+              if (latest_video == "true") {
+                $("#viewMore").html("");
+              } else {
+                $("#viewMore").html("View More");
+              }
               var page_data_count = $("#page_data_count").val();
               var total_page_data =
                 parseInt(page_data_count) +
@@ -286,19 +296,15 @@ description %} {% block body %}
               $("#page_data_count").val(total_page_data);
               if (total_page_data == res.data.all_video_count) {
                 $("#viewMore").html("");
-              }
-              if (replace == true) {
-                $("#ourStories").html(html);
-              } else {
-                $("#ourStories").append(html);
-              }
-              next_page_number = parseInt(res.data.page_no) + 1;
-              $("#page_no").val(next_page_number);
-              if (latest_video == "true") {
-                $("#viewMore").hide();
               } else {
                 $("#viewMore").show();
               }
+              if (res.data.videos_list_response.length < 6) {
+                $("#viewMore").html("");
+              }
+              next_page_number = parseInt(res.data.page_no) + 1;
+              $("#page_no").val(next_page_number);
+              $("#viewMore").show();
             } else if (
               page_no == 1 &&
               res.data.videos_list_response.length <= 0
@@ -307,8 +313,6 @@ description %} {% block body %}
               html += "<h3>No videos found.</h3>";
               $("#ourStories").html(html);
               $("#viewMore").hide();
-            } else if (res.data.videos_list_response.length == "") {
-              $("#viewMore").html("");
             }
           },
         });
@@ -317,6 +321,7 @@ description %} {% block body %}
       // Search video
       $("#search").keyup(function () {
         $("#page_no").val(1);
+        $("#page_data_count").val(0);
         var page_no = $("#page_no").val();
         var search = $(this).val();
         var latest_post = $("#latest_post_2").val();
