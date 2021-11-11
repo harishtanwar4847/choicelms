@@ -22,7 +22,7 @@
 - [Feat: Open graph code added for (non www)spark.loans](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/406)
 - [Feat: contact us email content formatted](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/408)
 - [Feat: contact us email content changes for new line](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/409)
-- [Feat: Backend Screen Customisation of Loan List and Collateral Ledger]()
+- [Feat: Backend screen restructuring on allowed security, collateral ledger, loan application, loan margin shortfall, loan transaction, security, sell collateral application, unpledge application](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/415)
 
 ### Fixed
 
