@@ -27,7 +27,7 @@ def execute():
         blog_details = {
             "title": blog.title,
             "blog_tags": blog.blog_tags,
-            "author": blog.author,
+            "author": blog.author.strip(),
             "publishing_date": blog.publishing_date,
             "for_blog_view": blog.for_blog_view,
             "description": blog.description,

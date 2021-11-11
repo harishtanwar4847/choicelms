@@ -26,7 +26,7 @@ class NewsandBlog(Document):
         blog_details = {
             "title": self.title,
             "blog_tags": self.blog_tags,
-            "author": self.author,
+            "author": self.author.strip(),
             "publishing_date": self.publishing_date,
             "for_blog_view": self.for_blog_view,
             "description": self.description,

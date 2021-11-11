@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>SparkLoans</title>
-    <meta name="description" content="SparkLoans" />
     {% include 'templates/head_content.html' %}
     <style>
       .pdescr img {
@@ -18,6 +16,14 @@
         .pdescr img {
           width: 100% !important;
         }
+      }
+
+      .web-footer {
+        display: none;
+      }
+
+      .navbar {
+        display: none;
       }
     </style>
   </head>
@@ -43,21 +49,31 @@
             <div class="col">
               <div class="articlesdetails">
                 <p class="resources">
-                  {% for i in blog_details.blog_tags %} {{i.website_tags}} {%
-                  endfor %}
+                  {% if blog_details.blog_tags %} {% for i in
+                  blog_details.blog_tags %} {{i.website_tags}}{% endfor %} {%
+                  endif %}
                 </p>
                 <h4>{{blog_details.title}}</h4>
                 <p class="date">
-                  By {{blog_details.author}}
-                  <span>
+                  {% if blog_details.author %} By {{blog_details.author}}
+                  <span style="margin-left: 0px !important">
                     <img src="/assets/lms/images/dot.svg" />
-                    {{ blog_details.publishing_date }}
+                    {{ blog_details.publishing_date }} {% else %}
                   </span>
+                  {% if blog_details.publishing_date %}
+                  <span style="margin-left: 0px !important">
+                    <img src="/assets/lms/images/dot.svg" />
+                    {{ blog_details.publishing_date }} {% else %} {% endif %}
+                  </span>
+                  {% endif %}
                 </p>
+                {% if blog_details.for_blog_view %}
                 <img src="{{blog_details.for_blog_view}}" class="fw" /> <br />
+                {% endif %}
                 <div style="font-size: 1.6rem" class="pdescr">
                   <br />
-                  {{blog_details.description}}
+                  {% if blog_details.description %} {{blog_details.description}}
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -102,47 +118,14 @@
           <h4>Related articles</h4>
           <div class="row">
             <div class="col-md-9">
-              <div class="row" id="related_article_div">
-                {% for article in related_articles %}
-
-                <div class="col-md-4">
-                  <div class="news_card articles">
-                    <a href="newsblog?blog_name={{ article.name }}">
-                      <img src="{{article.for_banner_view}}" class="fw" />
-                    </a>
-                    <p>
-                      {% for tag in article['website_tags'].split(',') %}
-                      <a href="#">{{tag}}</a>
-                      {% endfor %}
-                    </p>
-                    <h5>{{article.title}}</h5>
-                    <p class="date">{{ article.publishing_date }}</p>
-                  </div>
-                </div>
-
-                {% endfor %}
-              </div>
+              <div class="row" id="related_article_div"></div>
               <div class="col-md-12">
                 <h5 class="viewMore">
-                  {% if frappe.form_dict.blog_name %} {% if
-                  related_articles|length <3 %}
                   <a class="viewMores" id="viewMore"></a>
-                  {% else %}
-                  <a class="viewMores" id="viewMore"> View All</a>
-                  {% endif %} {% endif %}
                 </h5>
               </div>
             </div>
-            {% set ads = frappe.get_all("Website Ads", fields=['*'],
-            order_by='creation desc', page_length=6 ) %} {% for ad in ads %}
-            <div class="col-md-3">
-              <div class="news_card ad">
-                <a href="https://{{ad.url}}" target="__blank">
-                  <img src="{{ad.image}}" class="fw" />
-                </a>
-              </div>
-            </div>
-            {% endfor %}
+            <div class="col-md-3" id="news_card"></div>
           </div>
         </div>
       </div>
@@ -159,81 +142,167 @@
           <div class="row">
             <div class="col dx_jcsbalctr blogdetailsArrows">
               <div class="col-sm-6">
-                {% if page_change['previous_name'] %}
-                <a
-                  href="/newsblog?blog_name={{page_change['previous_name']}}"
-                ></a>
-                {% endif %}
+                <a id="prev" style="cursor: pointer"></a>
               </div>
               <div class="col-sm-6" style="text-align: right !important">
-                {% if page_change['next_name'] %}
                 <a
-                  href="/newsblog?blog_name={{page_change['next_name']}}"
                   id="next"
                   class="blogdetailsArrowsRight"
-                >
-                </a>
-                {% endif %}
+                  style="cursor: pointer"
+                ></a>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <input type="hidden" name="page_no" id="page_no" value="1" />
+    <input type="hidden" name="page_no" id="page_data" value="0" />
     {% include 'templates/body_script.html' %}
     <script type="text/javascript">
       $(document).ready(function () {
-        var page_no = 2;
-        const urlParams = new URLSearchParams(location.search);
+        var page_no = $("#page_no").val();
+        var urlParams = window.location.href;
+        lstUrlParms = urlParams.split("/");
+        route = lstUrlParms.slice(-1)[0];
 
-        if (urlParams.has("blog_name")) {
+        $.ajax({
+          url: "/api/method/lms.www.newsblog.website_ads",
+          type: "GET",
+          dataType: "json",
+          success: function (res) {
+            html =
+              '<div class="news_card ad" style="margin-bottom: 1.25rem;">' +
+              '<a href="https://' +
+              res.data.website_ads.url +
+              '" target="__blank">' +
+              '<img src="' +
+              res.data.website_ads.image +
+              '" class="fw" />' +
+              "</a>" +
+              "</div>";
+            $("#news_card").html(html);
+          },
+        });
+
+        $(".placeholder_txt .form_group span").click(function () {
+          $(this).parent().addClass("normal_txt");
+        });
+        $(".placeholder_txt .form_group input").blur(function (event) {
+          var inputValue = this.value;
+          if (inputValue) {
+            $(this).parent().addClass("normal_txt");
+          } else {
+            $(this).parent().removeClass("normal_txt");
+          }
+        });
+
+        loadData(route, (page_no = 1));
+
+        function loadData(route, page_no) {
+          $.ajax({
+            url: "/api/method/lms.www.newsblog.fetch_related_articles",
+            type: "GET",
+            data: {
+              blog_route: route,
+              page_no: page_no,
+            },
+            dataType: "json",
+            success: function (res) {
+              if (res.data.related_articles.length > 0) {
+                var html = "";
+                $.each(res.data.related_articles, function (index, val) {
+                  const arr = val.website_tags.split(",");
+                  var tags = "";
+                  $.each(arr, (index, tag) => {
+                    tags += "<a href=#>" + tag + "</a>";
+                  });
+                  html +=
+                    '<div class="col-md-4">' +
+                    '<div class="news_card articles">' +
+                    '<a href="/news-and-blogs/' +
+                    val.name +
+                    '"><img src="' +
+                    val.for_banner_view +
+                    '" class="fw"> </a>' +
+                    "<p>" +
+                    tags +
+                    "</p>" +
+                    '<a href="/news-and-blogs/' +
+                    val.name +
+                    '"><h5>' +
+                    val.title +
+                    "</h5></a>" +
+                    '<p class="date">' +
+                    val.publishing_date +
+                    "</p>" +
+                    "</div>" +
+                    "</div>";
+                });
+                $("#related_article_div").append(html);
+                $("#viewMore").html("View More");
+                next_pg_number = parseInt(res.data.page_no) + 1;
+                $("#page_no").val(next_pg_number);
+
+                var page_data = $("#page_data").val();
+                cur_page_data =
+                  parseInt(page_data) + res.data.related_articles.length;
+                $("#page_data").val(cur_page_data);
+                if (cur_page_data == res.data.all_blog) {
+                  $("#viewMore").hide();
+                }
+              }
+            },
+          });
+        }
+
+        if (route) {
           $(document).on("click", "#viewMore", function () {
+            var page_no = $("#page_no").val();
+            loadData(route, page_no);
+          });
+          $.ajax({
+            url: "/api/method/lms.www.newsblog.page_update",
+            type: "GET",
+            data: {
+              blog_route: route,
+            },
+            dataType: "json",
+            success: function (res) {
+              if (res.data.previous_page == null) {
+                $("#prev").hide();
+              }
+              if (res.data.next_page == null) {
+                $("#next").hide();
+              }
+            },
+          });
+          $(document).on("click", "#prev", function () {
             $.ajax({
-              url: "/api/method/lms.www.newsblog.fetch_related_articles",
+              url: "/api/method/lms.www.newsblog.page_update",
               type: "GET",
               data: {
-                blog_name: urlParams.get("blog_name"),
-                page_no: page_no,
+                blog_route: route,
               },
               dataType: "json",
               success: function (res) {
-                console.log(res.data.related_articles.length);
-                if (res.data.related_articles.length > 0) {
-                  var html = "";
-
-                  $.each(res.data.related_articles, function (index, val) {
-                    const arr = val.website_tags.split(",");
-                    var tags = "";
-                    $.each(arr, (index, tag) => {
-                      tags += "<a href=#>" + tag + "</a>";
-                    });
-                    html +=
-                      '<div class="col-md-4">' +
-                      '<div class="news_card articles">' +
-                      '<a href="newsblog?blog_name=' +
-                      val.name +
-                      '"><img src="' +
-                      val.for_banner_view +
-                      '" class="fw"> </a>' +
-                      "<p>" +
-                      tags +
-                      "</p>" +
-                      "<h5>" +
-                      val.title +
-                      "</h5>" +
-                      '<p class="date">' +
-                      val.publishing_date +
-                      "</p>" +
-                      "</div>" +
-                      "</div>";
-                  });
-                  $("#related_article_div").append(html);
-                  page_no += 1;
+                if (res.data.previous_page != null) {
+                  location.href = res.data.previous_page;
                 }
-                if (res.data.related_articles.length < 3) {
-                  $("#viewMore").html("");
-                } else {
-                  $("#viewMore").html("View More");
+              },
+            });
+          });
+          $(document).on("click", "#next", function () {
+            $.ajax({
+              url: "/api/method/lms.www.newsblog.page_update",
+              type: "GET",
+              data: {
+                blog_route: route,
+              },
+              dataType: "json",
+              success: function (res) {
+                if (res.data.next_page != null) {
+                  location.href = res.data.next_page;
                 }
               },
             });
