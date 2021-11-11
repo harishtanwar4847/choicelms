@@ -149,6 +149,7 @@
   },
   {
    "allow_on_submit": 1,
+   "depends_on": "eval: in_list([\"Penal Interest\", \"Additional Interest\", \"Interest\"], doc.transaction_type)",
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Interest Pay Log",
@@ -222,7 +223,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-10-28 16:04:05.424523",
+ "modified": "2021-11-11 15:57:55.216238",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
