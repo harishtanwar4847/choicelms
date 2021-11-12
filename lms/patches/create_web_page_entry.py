@@ -6,6 +6,7 @@ from frappe.website.utils import cleanup_page_name
 
 
 def execute():
+    frappe.reload_doc("Lms", "DocType", "LAS Settings")
     las_settings = frappe.get_single("LAS Settings")
     news_blog_template = las_settings.get_news_blog_template()
     blogs = frappe.get_all("News and Blog", fields=["*"])
