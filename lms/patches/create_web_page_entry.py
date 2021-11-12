@@ -24,10 +24,14 @@ def execute():
                 new_name=new_name, name=blog.name
             )
         )
+        if blog.author:
+            author = blog.author.strip()
+        else:
+            author = blog.author
         blog_details = {
             "title": blog.title,
             "blog_tags": blog.blog_tags,
-            "author": blog.author.strip(),
+            "author": author,
             "publishing_date": blog.publishing_date,
             "for_blog_view": blog.for_blog_view,
             "description": blog.description,
@@ -37,7 +41,7 @@ def execute():
         )
         web_page = frappe.new_doc("Web Page")
         web_page.title = blog.title
-        web_page.route = "news-and-blogs/" + blog.name
+        web_page.route = "news-and-blogs/" + new_name
         web_page.content_type = "HTML"
         web_page.dynamic_template = True
         web_page.main_section_html = html

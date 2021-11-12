@@ -23,10 +23,14 @@ class NewsandBlog(Document):
     def create_blog_entry(self, blog_name=None):
         las_settings = frappe.get_single("LAS Settings")
         news_blog_template = las_settings.get_news_blog_template()
+        if self.author:
+            author = self.author.strip()
+        else:
+            author = self.author
         blog_details = {
             "title": self.title,
             "blog_tags": self.blog_tags,
-            "author": self.author.strip(),
+            "author": author,
             "publishing_date": self.publishing_date,
             "for_blog_view": self.for_blog_view,
             "description": self.description,
