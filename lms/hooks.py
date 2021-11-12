@@ -152,14 +152,14 @@ scheduler_events = {
         "15 1 * * *": [
             "lms.lms.doctype.loan.loan.add_all_loans_virtual_interest"
         ],  # At 01:15 AM daily
-        "15 2 * * *": [
-            "lms.lms.doctype.loan.loan.check_for_all_loans_additional_interest"
-        ],  # At 02:15 AM daily
-        "15 3 * * *": [
-            "lms.lms.doctype.loan.loan.add_all_loans_penal_interest"
-        ],  # At 03:15 AM daily
-        "15 4 1 * *": [
+        "15 2 1 * *": [
             "lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"
-        ],  # At 04:15 AM on 1st day-of-every-month(monthly)
+        ],  # At 02:15 AM on 1st day-of-every-month(monthly)
+        "15 3 * * *": [
+            "lms.lms.doctype.loan.loan.check_for_all_loans_additional_interest"
+        ],  # At 03:15 AM daily
+        "15 4 * * *": [
+            "lms.lms.doctype.loan.loan.add_all_loans_penal_interest"
+        ],  # At 04:15 AM daily
     },
 }
