@@ -413,7 +413,10 @@ def __banks(user_kyc=None):
         user_kyc = __user_kyc().name
 
     res = frappe.get_all(
-        "User Bank Account", filters={"parent": user_kyc}, fields=["*"]
+        "User Bank Account",
+        filters={"parent": user_kyc},
+        fields=["*"],
+        order_by="is_default desc",
     )
 
     for i in res:
