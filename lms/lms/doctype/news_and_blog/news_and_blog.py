@@ -60,7 +60,10 @@ class NewsandBlog(Document):
         self.create_blog_entry()
 
     def on_update(self):
-        self.create_blog_entry(self.name)
+        if frappe.db.exists("Web Page", self.name):
+            self.create_blog_entry(self.name)
+        else:
+            self.create_blog_entry()
 
     def on_trash(self):
         web_page = frappe.get_doc("Web Page", self.name)
