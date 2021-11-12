@@ -26,7 +26,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "1.2.0"
+__version__ = "1.3.1"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -419,7 +419,10 @@ def __banks(user_kyc=None):
         user_kyc = __user_kyc().name
 
     res = frappe.get_all(
-        "User Bank Account", filters={"parent": user_kyc}, fields=["*"]
+        "User Bank Account",
+        filters={"parent": user_kyc},
+        fields=["*"],
+        order_by="is_default desc",
     )
 
     for i in res:
