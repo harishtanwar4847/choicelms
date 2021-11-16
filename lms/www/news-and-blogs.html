@@ -255,6 +255,9 @@ endblock description %} {%- block head_include -%} {% include
             } else {
               $("#viewMore").show();
             }
+            if (res.data.blogs_all.length < 6) {
+              $("#viewMore").hide();
+            }
             if (replace == true) {
               $("#ourStories").html(html);
             } else {
