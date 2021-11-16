@@ -173,7 +173,7 @@
           success: function (res) {
             html =
               '<div class="news_card ad" style="margin-bottom: 1.25rem;">' +
-              '<a href="https://' +
+              '<a href="' +
               res.data.website_ads.url +
               '" target="__blank">' +
               '<img src="' +
@@ -240,7 +240,7 @@
                     "</div>";
                 });
                 $("#related_article_div").append(html);
-                $("#viewMore").html("View More");
+                $("#viewMore").show();
                 next_pg_number = parseInt(res.data.page_no) + 1;
                 $("#page_no").val(next_pg_number);
 

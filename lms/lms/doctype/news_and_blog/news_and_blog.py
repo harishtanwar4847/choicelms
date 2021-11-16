@@ -4,6 +4,8 @@
 
 from __future__ import unicode_literals
 
+from datetime import datetime
+
 import frappe
 from frappe.model.document import Document
 from frappe.website.utils import cleanup_page_name
@@ -31,7 +33,9 @@ class NewsandBlog(Document):
             "title": self.title,
             "blog_tags": self.blog_tags,
             "author": author,
-            "publishing_date": self.publishing_date,
+            "publishing_date": datetime.strptime(
+                self.publishing_date, "%Y-%m-%d"
+            ).strftime("%d %B, %Y"),
             "for_blog_view": self.for_blog_view,
             "description": self.description,
         }
