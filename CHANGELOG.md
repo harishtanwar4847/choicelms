@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- [Feat: Play store Dummy Account changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/425)
+
 ## [v1.3.1] - 2021-11-12
 
 ### Fixed
