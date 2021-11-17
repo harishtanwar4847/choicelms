@@ -31,3 +31,9 @@ class LASSettings(Document):
             "File", {"file_url": self.approved_security_template}
         )
         return frappe.get_doc("File", file_name)
+
+    def get_news_blog_template(self):
+        file_name = frappe.db.get_value(
+            "File", {"file_url": self.news_and_blog_template}
+        )
+        return frappe.get_doc("File", file_name)
