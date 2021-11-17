@@ -7,6 +7,7 @@
 ### Added
 
 - [Feat: News and blog url changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/424)
+- [Feat: Website ads handling in related article section of news and blog](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/426)
 
 ## [v1.3.1] - 2021-11-12
 

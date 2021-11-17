@@ -60,6 +60,9 @@ def website_ads():
     website_ads = frappe.db.sql(
         """select * from `tabWebsite Ads` order by creation desc limit 1""",
         as_dict=True,
-    )[0]
-    response = {"website_ads": website_ads}
+    )
+    if len(website_ads) > 0:
+        response = {"website_ads": website_ads[0]}
+    else:
+        response = {"website_ads": {}}
     return utils.respondWithSuccess(data=response)
