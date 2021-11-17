@@ -316,7 +316,7 @@ def register(**kwargs):
         if re.search(email_regex, data.get("email")) is None:
             return utils.respondWithFailure(
                 status=422,
-                message=frappe._("Expected a Mail, Got: {}".format(data.get("email"))),
+                message=frappe._("Please enter valid email ID"),
             )
 
         if reg or firebase_reg:
@@ -483,7 +483,7 @@ def request_forgot_pin_otp(**kwargs):
         if re.search(email_regex, data.get("email")) is None:
             return utils.respondWithFailure(
                 status=422,
-                message=frappe._("Expected a Mail, Got: {}".format(data.get("email"))),
+                message=frappe._("Please enter valid email ID"),
             )
 
         try:
@@ -545,7 +545,7 @@ def verify_forgot_pin_otp(**kwargs):
         if re.search(email_regex, data.get("email")) is None:
             return utils.respondWithFailure(
                 status=422,
-                message=frappe._("Expected a Mail, Got: {}".format(data.get("email"))),
+                message=frappe._("Please enter valid email ID"),
             )
 
         try:
