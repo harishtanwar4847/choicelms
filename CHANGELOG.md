@@ -6,6 +6,13 @@
 
 - [Feat: Play store Dummy Account changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/425)
 
+## [v1.4.0] - 2021-11-17
+
+### Added
+
+- [Feat: News and blog url changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/424)
+- [Feat: Website ads handling in related article section of news and blog](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/426)
+
 ## [v1.3.1] - 2021-11-12
 
 ### Fixed
