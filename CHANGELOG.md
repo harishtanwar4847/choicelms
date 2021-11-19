@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v1.6.0] - 2021-11-19
+
+### Added
+
+- [Feat: Sitemap.xml file updated](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/416)
+
 ## [v1.5.0] - 2021-11-19
 
 ### Added
