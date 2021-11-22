@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v1.7.1] - 2021-11-22
+
+### Fixed
+
+- [Fix: og code modification](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/431)
+
 ## [v1.7.0] - 2021-11-22
 
 ### Added

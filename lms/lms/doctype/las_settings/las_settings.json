@@ -260,7 +260,7 @@
    "collapsible": 1,
    "fieldname": "lender_section_section",
    "fieldtype": "Section Break",
-   "label": "Website Section",
+   "label": "Website",
    "permlevel": 1
   },
   {
