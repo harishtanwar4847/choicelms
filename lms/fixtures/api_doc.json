@@ -8,6 +8,176 @@
   "group": "User",
   "headers": [],
   "headers_example": [],
+  "method": "POST",
+  "modified": "2021-08-24 15:29:36.090491",
+  "name": "79bfd60d58",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "is_for_read",
+    "group": null,
+    "optional": 0,
+    "parent": "79bfd60d58",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "is_for_clear",
+    "group": null,
+    "optional": 0,
+    "parent": "79bfd60d58",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "",
+    "field": "notification_name",
+    "group": null,
+    "optional": 1,
+    "parent": "79bfd60d58",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": "",
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"is_for_read\": 1,\n\t\"is_for_clear\": 0,\n\t\"notification_name\": \"87b7e22cc8\"\n}",
+    "parent": "79bfd60d58",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.read_or_clear_notifications",
+  "success": [],
+  "success_example": [
+   {
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"OTP\": \"4956\"\n  }\n}",
+    "parent": "79bfd60d58",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success"
+   }
+  ],
+  "title": "Read or Clear Notifications",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "79bfd60d58",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "79bfd60d58",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "79bfd60d58",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "79bfd60d58",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2021-08-24 15:30:18.295320",
+  "name": "d642845a6e",
+  "parameters": [],
+  "parameters_example": [
+   {
+    "example": "{}",
+    "parent": "d642845a6e",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.push_notification_list",
+  "success": [],
+  "success_example": [],
+  "title": "Push Notification List",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "d642845a6e",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "d642845a6e",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "d642845a6e",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "d642845a6e",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
   "method": "GET",
   "modified": "2021-04-27 14:49:27.893068",
   "name": "4621dd797d",
@@ -3469,15 +3639,15 @@
   "group": "User",
   "headers": [],
   "headers_example": [],
-  "method": "GET",
-  "modified": "2021-04-17 12:32:05.455766",
+  "method": "POST",
+  "modified": "2021-09-23 17:22:32.953251",
   "name": "07eef5b3e8",
   "parameters": [
    {
     "allowed_values": null,
     "default_value": null,
-    "description": "search for filter",
-    "field": "search",
+    "description": null,
+    "field": "message",
     "group": null,
     "optional": 0,
     "parent": "07eef5b3e8",
@@ -3485,24 +3655,11 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "String"
-   },
-   {
-    "allowed_values": null,
-    "default_value": "0",
-    "description": null,
-    "field": "view_more",
-    "group": null,
-    "optional": 0,
-    "parent": "07eef5b3e8",
-    "parentfield": "parameters",
-    "parenttype": "API Doc",
-    "size": null,
-    "type": "Integer"
    }
   ],
   "parameters_example": [
    {
-    "example": "{\n\t\"search\": \"\",\n\t\"view_more\": 0\n}",
+    "example": "{\n\t\"message\": \"Please help me\"\n}",
     "parent": "07eef5b3e8",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -3513,37 +3670,8 @@
   "parentfield": null,
   "parenttype": null,
   "path": "/api/method/lms.user.contact_us",
-  "success": [
-   {
-    "default_value": null,
-    "description": null,
-    "field": "Data",
-    "group": null,
-    "parent": "07eef5b3e8",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "Object"
-   },
-   {
-    "default_value": null,
-    "description": null,
-    "field": "data",
-    "group": null,
-    "parent": "07eef5b3e8",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "Array"
-   }
-  ],
-  "success_example": [
-   {
-    "example": "\"data\": [\n    {\n      faq details\n    },\n    {\n      faq details\n    }\n]",
-    "parent": "07eef5b3e8",
-    "parentfield": "success_example",
-    "parenttype": "API Doc",
-    "title": "success example"
-   }
-  ],
+  "success": [],
+  "success_example": [],
   "title": "Contact Us",
   "use_api_define": [
    {
@@ -4753,6 +4881,176 @@
     "api_doc": "81c55fbdcc",
     "api_doc_title": "UserAuthorizationRequestandResponse",
     "parent": "33fb664fec",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2021-08-24 15:29:36.090491",
+  "name": "79bfd60d58",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "is_for_read",
+    "group": null,
+    "optional": 0,
+    "parent": "79bfd60d58",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": null,
+    "field": "is_for_clear",
+    "group": null,
+    "optional": 0,
+    "parent": "79bfd60d58",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "",
+    "field": "notification_name",
+    "group": null,
+    "optional": 1,
+    "parent": "79bfd60d58",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": "",
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"is_for_read\": 1,\n\t\"is_for_clear\": 0,\n\t\"notification_name\": \"87b7e22cc8\"\n}",
+    "parent": "79bfd60d58",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.read_or_clear_notifications",
+  "success": [],
+  "success_example": [
+   {
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"OTP\": \"4956\"\n  }\n}",
+    "parent": "79bfd60d58",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success"
+   }
+  ],
+  "title": "Read or Clear Notifications",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "79bfd60d58",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "79bfd60d58",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "79bfd60d58",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "79bfd60d58",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2021-08-24 15:30:18.295320",
+  "name": "d642845a6e",
+  "parameters": [],
+  "parameters_example": [
+   {
+    "example": "{}",
+    "parent": "d642845a6e",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.push_notification_list",
+  "success": [],
+  "success_example": [],
+  "title": "Push Notification List",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "d642845a6e",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "d642845a6e",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "d642845a6e",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "d642845a6e",
     "parentfield": "use_api_define",
     "parenttype": "API Doc"
    }
