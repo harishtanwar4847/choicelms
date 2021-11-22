@@ -6,70 +6,118 @@
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 <!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
 
-
+{% set hostname = frappe.utils.get_url() %}
 <url>
-  <loc>https://spark.loans/</loc>
-  <lastmod>2021-08-06</lastmod>
+  <loc>{{hostname}}/</loc>
+  <lastmod>2021-11-18</lastmod>
   <changefreq>Weekly</changefreq>
   <priority>1.00</priority>
 </url>
 <url>
-  <loc>https://spark.loans/products</loc>
-  <lastmod>2021-08-06</lastmod>
+  <loc>{{hostname}}/products</loc>
+  <lastmod>2021-11-18</lastmod>
+  <changefreq>Weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>{{hostname}}/products/loan-against-shares</loc>
+  <lastmod>2021-11-18</lastmod>
+  <changefreq>Weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>{{hostname}}/products/loan-against-shares/process</loc>
+  <lastmod>2021-11-18</lastmod>
+  <changefreq>Weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>{{hostname}}/products/loan-against-shares/fees-and-charges</loc>
+  <lastmod>2021-11-18</lastmod>
+  <changefreq>Weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>{{hostname}}/products/loan-against-shares/eligibility-and-documents</loc>
+  <lastmod>2021-11-18</lastmod>
+  <changefreq>Weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>{{hostname}}/news-and-blogs</loc>
+  <lastmod>2021-11-18</lastmod>
+  <changefreq>Weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>{{hostname}}/news-and-blogs/how-you-can-use-las-to-become-financially-independent</loc>
+  <lastmod>2021-11-18</lastmod>
+  <changefreq>Weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>{{hostname}}/news-and-blogs/things-to-keep-in-mind-before-investing-in-shares</loc>
+  <lastmod>2021-11-18</lastmod>
+  <changefreq>Weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>{{hostname}}/news-and-blogs/how-can-i-get-a-loan-by-pledging-shares-and-other-securities</loc>
+  <lastmod>2021-11-18</lastmod>
+  <changefreq>Weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>{{hostname}}/news-and-blogs/should-you-go-for-festive-season-loan-offers</loc>
+  <lastmod>2021-11-18</lastmod>
+  <changefreq>Weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>{{hostname}}/news-and-blogs/a-simplified-understanding-of-loan-against-shares-and-its-offerings</loc>
+  <lastmod>2021-11-18</lastmod>
+  <changefreq>Weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>{{hostname}}/news-and-blogs/know-the-difference-las-v-s-conventional-loans</loc>
+  <lastmod>2021-11-18</lastmod>
+  <changefreq>Weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>{{hostname}}/contact</loc>
+  <lastmod>2021-11-18</lastmod>
   <changefreq>Weekly</changefreq>
   <priority>0.8</priority>
 </url>
 <url>
-  <loc>https://spark.loans/products/loan-against-shares</loc>
-  <lastmod>2021-08-06</lastmod>
+  <loc>{{hostname}}/about-us</loc>
+  <lastmod>2021-11-18</lastmod>
   <changefreq>Weekly</changefreq>
   <priority>0.8</priority>
 </url>
 <url>
-  <loc>https://spark.loans/comingsoon</loc>
-  <lastmod>2021-08-06</lastmod>
+  <loc>{{hostname}}/partner-with-us</loc>
+  <lastmod>2021-11-18</lastmod>
   <changefreq>Weekly</changefreq>
   <priority>0.8</priority>
 </url>
 <url>
-  <loc>https://spark.loans/contact</loc>
-  <lastmod>2021-08-06</lastmod>
+  <loc>{{hostname}}/help</loc>
+  <lastmod>2021-11-18</lastmod>
   <changefreq>Weekly</changefreq>
   <priority>0.8</priority>
 </url>
 <url>
-  <loc>https://spark.loans/about-us</loc>
-  <lastmod>2021-08-06</lastmod>
+  <loc>{{hostname}}/privacy-policy</loc>
+  <lastmod>2021-11-18</lastmod>
   <changefreq>Weekly</changefreq>
   <priority>0.8</priority>
 </url>
 <url>
-  <loc>https://spark.loans/partner-with-us</loc>
-  <lastmod>2021-08-06</lastmod>
-  <changefreq>Weekly</changefreq>
-  <priority>0.8</priority>
-</url>
-<url>
-  <loc>https://spark.loans/help</loc>
-  <lastmod>2021-08-06</lastmod>
-  <changefreq>Weekly</changefreq>
-  <priority>0.8</priority>
-</url>
-<url>
-  <loc>https://spark.loans/news-and-blogs</loc>
-  <lastmod>2021-08-06</lastmod>
-  <changefreq>Weekly</changefreq>
-  <priority>0.8</priority>
-</url>
-<url>
-  <loc>https://spark.loans/privacy-policy</loc>
-  <lastmod>2021-08-06</lastmod>
-  <changefreq>Weekly</changefreq>
-  <priority>0.8</priority>
-</url>
-<url>
-  <loc>https://spark.loans/terms-of-use</loc>
-  <lastmod>2021-08-06</lastmod>
+  <loc>{{hostname}}/terms-of-use</loc>
+  <lastmod>2021-11-18</lastmod>
   <changefreq>Weekly</changefreq>
   <priority>0.8</priority>
 </url>

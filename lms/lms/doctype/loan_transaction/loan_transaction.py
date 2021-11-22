@@ -511,3 +511,11 @@ class LoanTransaction(Document):
 
     def get_customer(self):
         return frappe.get_doc("Loan Customer", self.customer)
+
+    def before_save(self):
+        if (
+            self.transaction_type == "Withdrawal"
+            and self.allowable > self.requested
+            and self.status == "Ready for Approval"
+        ):
+            frappe.throw("Allowable amount could not be greater than requested amount")
