@@ -34,7 +34,7 @@ class Loan(Document):
 
         if req_time and withdraw_req_name:
             pending_withdraw_requests_amt = frappe.db.sql(
-                "select sum(amount) as amount from `tabLoan Transaction` where loan = '{}' and lender = '{}' and status = 'Pending' and transaction_type = 'Withdrawal' and creation < '{}' and name != '{}'".format(
+                "select sum(amount) as amount from `tabLoan Transaction` where loan = '{}' and lender = '{}' and status in ('Pending','Ready for Approval') and transaction_type = 'Withdrawal' and creation < '{}' and name != '{}'".format(
                     self.name, self.lender, req_time, withdraw_req_name
                 ),
                 as_dict=1,
@@ -43,7 +43,7 @@ class Loan(Document):
                 balance += pending_withdraw_requests_amt[0]["amount"]
         else:
             pending_withdraw_requests_amt = frappe.db.sql(
-                "select sum(amount) as amount from `tabLoan Transaction` where loan = '{}' and lender = '{}' and status = 'Pending' and transaction_type = 'Withdrawal'".format(
+                "select sum(amount) as amount from `tabLoan Transaction` where loan = '{}' and lender = '{}' and status in ('Pending','Ready for Approval') and transaction_type = 'Withdrawal'".format(
                     self.name, self.lender
                 ),
                 as_dict=1,

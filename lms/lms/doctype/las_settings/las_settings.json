@@ -51,6 +51,7 @@
   "lender_section_section",
   "lender_template",
   "debug_mode",
+  "news_and_blog_template",
   "column_break_42",
   "approved_security_template",
   "og_code_enabled"
@@ -284,6 +285,7 @@
    "default": "0",
    "fieldname": "debug_mode",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Debug Mode"
   },
   {
@@ -292,6 +294,11 @@
    "fieldtype": "Check",
    "label": "OG Code Enabled"
   },
+  {
+  "fieldname": "news_and_blog_template",
+  "fieldtype": "Attach",
+  "label": "News and Blog Template"
+   },
   {
    "collapsible": 1,
    "fieldname": "market_hours_section",
@@ -314,11 +321,11 @@
    "fieldname": "market_end_time",
    "fieldtype": "Int",
    "label": "Market End Time (in hour)"
-  }
+    }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2021-10-12 15:15:42.267092",
+ "modified": "2021-11-23 10:37:25.448852",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

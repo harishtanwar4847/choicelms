@@ -343,18 +343,30 @@ def process(**kwargs):
                 message=frappe._("Special Characters not allowed."),
             )
 
+        user = lms.__user()
         user_kyc = lms.__user_kyc()
 
-        token = lms.verify_user_token(
-            entity=user_kyc.mobile_number,
-            token=data.get("otp"),
-            token_type="Pledge OTP",
+        is_dummy_account = lms.validate_spark_dummy_account(
+            user.username, user.name, check_valid=True
         )
+        if not is_dummy_account:
+            token = lms.verify_user_token(
+                entity=user_kyc.mobile_number,
+                token=data.get("otp"),
+                token_type="Pledge OTP",
+            )
 
-        if token.expiry <= frappe.utils.now_datetime():
-            return utils.respondUnauthorized(message=frappe._("Pledge OTP Expired."))
+            if token.expiry <= frappe.utils.now_datetime():
+                return utils.respondUnauthorized(
+                    message=frappe._("Pledge OTP Expired.")
+                )
 
-        lms.token_mark_as_used(token)
+            lms.token_mark_as_used(token)
+        else:
+            token = lms.validate_spark_dummy_account_token(
+                user.username, data.get("otp"), token_type="Pledge OTP"
+            )
+
         customer = lms.__customer()
 
         cart = frappe.get_doc("Cart", data.get("cart_name"))
@@ -471,14 +483,18 @@ def request_pledge_otp():
         user = lms.__user()
         user_kyc = lms.__user_kyc()
 
-        frappe.db.begin()
-
-        lms.create_user_token(
-            entity=user_kyc.mobile_number,
-            token_type="Pledge OTP",
-            token=lms.random_token(length=4, is_numeric=True),
+        is_dummy_account = lms.validate_spark_dummy_account(
+            user.username, user.name, check_valid=True
         )
-        frappe.db.commit()
+        if not is_dummy_account:
+            frappe.db.begin()
+
+            lms.create_user_token(
+                entity=user_kyc.mobile_number,
+                token_type="Pledge OTP",
+                token=lms.random_token(length=4, is_numeric=True),
+            )
+            frappe.db.commit()
         return utils.respondWithSuccess(message="Pledge OTP sent")
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
