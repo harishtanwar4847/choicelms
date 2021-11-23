@@ -10,6 +10,7 @@ from random import choice, randint
 from traceback import format_exc
 
 import frappe
+import razorpay
 import requests
 import utils
 from frappe import _
@@ -962,3 +963,12 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
         raise InvalidUserTokenException("Invalid {}".format(token_type))
 
     return frappe.get_doc("Spark Dummy Account", dummy_account_name)
+
+
+@frappe.whitelist(allow_guest=True)
+def rzp_payment_webhook_callback(data):
+    try:
+        if data and len(data) > 0:
+            create_log(data.json(), "rzp_webhook_log")
+    except Exception as e:
+        frappe.log_error()
