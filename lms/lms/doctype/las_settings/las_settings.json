@@ -46,9 +46,11 @@
   "spark_logo",
   "lender_section_section",
   "lender_template",
+  "debug_mode",
+  "news_and_blog_template",
   "column_break_42",
   "approved_security_template",
-  "debug_mode"
+  "og_code_enabled"
  ],
  "fields": [
   {
@@ -255,9 +257,10 @@
    "label": "Spark Logo"
   },
   {
+   "collapsible": 1,
    "fieldname": "lender_section_section",
    "fieldtype": "Section Break",
-   "label": "Website Section",
+   "label": "Website",
    "permlevel": 1
   },
   {
@@ -280,11 +283,22 @@
    "fieldtype": "Check",
    "hidden": 1,
    "label": "Debug Mode"
+  },
+  {
+   "default": "0",
+   "fieldname": "og_code_enabled",
+   "fieldtype": "Check",
+   "label": "OG Code Enabled"
+  },
+  {
+   "fieldname": "news_and_blog_template",
+   "fieldtype": "Attach",
+   "label": "News and Blog Template"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2021-08-10 15:56:33.596272",
+ "modified": "2021-11-22 18:44:44.076557",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

@@ -13,6 +13,7 @@ from lxml import etree
 from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms
+from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions import (
     ApprovedTermsandConditions,
 )
@@ -307,6 +308,15 @@ def esign_done(**kwargs):
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification",
+                    "Topup E-signing was successful",
+                    fields=["*"],
+                )
+                lms.send_spark_push_notification(
+                    fcm_notification=fcm_notification, customer=customer
+                )
 
             return utils.respondWithSuccess()
         except requests.RequestException as e:
@@ -1133,6 +1143,12 @@ def loan_details(**kwargs):
         loan_margin_shortfall = loan.get_margin_shortfall()
         if loan_margin_shortfall.get("__islocal", None):
             loan_margin_shortfall = None
+
+        res["is_sell_triggered"] = 0
+        if loan_margin_shortfall:
+            if loan_margin_shortfall.status == "Sell Triggered":
+                res["is_sell_triggered"] = 1
+
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",
             filters={"loan": loan.name, "status": "Pending"},
@@ -1153,6 +1169,11 @@ def loan_details(**kwargs):
             )
 
         res["amount_available_for_withdrawal"] = loan.maximum_withdrawable_amount()
+
+        # Pledgor boid of particular loan
+        res["pledgor_boid"] = frappe.db.get_value(
+            "Collateral Ledger", {"loan": loan.name}, "pledgor_boid"
+        )
 
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
@@ -1207,14 +1228,17 @@ def request_loan_withdraw_otp():
         utils.validator.validate_http_method("POST")
 
         user = lms.__user()
-
-        frappe.db.begin()
-        lms.create_user_token(
-            entity=user.username,
-            token_type="Withdraw OTP",
-            token=lms.random_token(length=4, is_numeric=True),
+        is_dummy_account = lms.validate_spark_dummy_account(
+            user.username, user.name, check_valid=True
         )
-        frappe.db.commit()
+        if not is_dummy_account:
+            frappe.db.begin()
+            lms.create_user_token(
+                entity=user.username,
+                token_type="Withdraw OTP",
+                token=lms.random_token(length=4, is_numeric=True),
+            )
+            frappe.db.commit()
         return utils.respondWithSuccess(message="Withdraw OTP sent")
     except utils.exceptions.APIException as e:
         return e.respond()
@@ -1248,14 +1272,24 @@ def loan_withdraw_request(**kwargs):
         user = lms.__user()
         banks = lms.__banks()
 
-        token = lms.verify_user_token(
-            entity=user.username, token=data.get("otp"), token_type="Withdraw OTP"
+        is_dummy_account = lms.validate_spark_dummy_account(
+            user.username, user.name, check_valid=True
         )
+        if not is_dummy_account:
+            token = lms.verify_user_token(
+                entity=user.username, token=data.get("otp"), token_type="Withdraw OTP"
+            )
 
-        if token.expiry <= frappe.utils.now_datetime():
-            return utils.respondUnauthorized(message=frappe._("Withdraw OTP Expired."))
+            if token.expiry <= frappe.utils.now_datetime():
+                return utils.respondUnauthorized(
+                    message=frappe._("Withdraw OTP Expired.")
+                )
 
-        lms.token_mark_as_used(token)
+            lms.token_mark_as_used(token)
+        else:
+            token = lms.validate_spark_dummy_account_token(
+                user.username, data.get("otp"), token_type="Withdraw OTP"
+            )
 
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
@@ -1447,6 +1481,18 @@ def loan_payment(**kwargs):
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification", "Payment failed", fields=["*"]
+            )
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification,
+                message=fcm_notification.message.format(
+                    amount=data.get("amount"), loan=loan.name
+                ),
+                loan=loan.name,
+                customer=customer,
+            )
             return utils.respondWithSuccess(message="Check Loan Payment Log.")
 
         if data.get("loan_margin_shortfall_name", None) and not data.get("is_failed"):
@@ -1486,6 +1532,11 @@ def loan_payment(**kwargs):
             #             loan.name
             #         ),
             #     )
+            if loan_margin_shortfall.status == "Sell Triggered":
+                return utils.respondWithFailure(
+                    status=417,
+                    message=frappe._("Sale is Triggered"),
+                )
             if loan_margin_shortfall.status == "Pending":
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)
@@ -1495,6 +1546,14 @@ def loan_payment(**kwargs):
                 "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
             )
             msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification",
+                "Margin shortfall – Action taken",
+                fields=["*"],
+            )
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification, loan=loan.name, customer=customer
+            )
             # receiver_list = list(
             #     set([str(customer.phone), str(customer.get_kyc().mobile_number)])
             # )
@@ -2167,16 +2226,20 @@ def request_unpledge_otp():
     try:
         utils.validator.validate_http_method("POST")
 
-        # user = lms.__user()
+        user = lms.__user()
         user_kyc = lms.__user_kyc()
 
-        frappe.db.begin()
-        lms.create_user_token(
-            entity=user_kyc.mobile_number,
-            token_type="Unpledge OTP",
-            token=lms.random_token(length=4, is_numeric=True),
+        is_dummy_account = lms.validate_spark_dummy_account(
+            user.username, user.name, check_valid=True
         )
-        frappe.db.commit()
+        if not is_dummy_account:
+            frappe.db.begin()
+            lms.create_user_token(
+                entity=user_kyc.mobile_number,
+                token_type="Unpledge OTP",
+                token=lms.random_token(length=4, is_numeric=True),
+            )
+            frappe.db.commit()
         return utils.respondWithSuccess(message="Unpledge OTP sent")
     except utils.exceptions.APIException as e:
         return e.respond()
@@ -2238,14 +2301,14 @@ def validate_securities_for_unpledge(securities, loan):
     if not securities or (
         type(securities) is not dict and "list" not in securities.keys()
     ):
-        raise utils.ValidationException(
+        raise utils.exceptions.ValidationException(
             {"securities": {"required": frappe._("Securities required.")}}
         )
 
     securities = securities["list"]
 
     if len(securities) == 0:
-        raise utils.ValidationException(
+        raise utils.exceptions.ValidationException(
             {"securities": {"required": frappe._("Securities required.")}}
         )
 
@@ -2322,7 +2385,9 @@ def validate_securities_for_unpledge(securities, loan):
                 break
 
     if not securities_valid:
-        raise utils.ValidationException({"securities": {"required": message}})
+        raise utils.exceptions.ValidationException(
+            {"securities": {"required": message}}
+        )
 
     return securities
 
@@ -2382,18 +2447,29 @@ def loan_unpledge_request(**kwargs):
         securities = validate_securities_for_unpledge(data.get("securities", {}), loan)
 
         user_kyc = lms.__user_kyc()
-        token = lms.verify_user_token(
-            entity=user_kyc.mobile_number,
-            token=data.get("otp"),
-            token_type="Unpledge OTP",
-        )
-
-        if token.expiry <= frappe.utils.now_datetime():
-            return utils.respondUnauthorized(message=frappe._("Pledge OTP Expired."))
-
         frappe.db.begin()
 
-        lms.token_mark_as_used(token)
+        user = lms.__user()
+        is_dummy_account = lms.validate_spark_dummy_account(
+            user.username, user.name, check_valid=True
+        )
+        if not is_dummy_account:
+            token = lms.verify_user_token(
+                entity=user_kyc.mobile_number,
+                token=data.get("otp"),
+                token_type="Unpledge OTP",
+            )
+
+            if token.expiry <= frappe.utils.now_datetime():
+                return utils.respondUnauthorized(
+                    message=frappe._("Unpledge OTP Expired.")
+                )
+
+            lms.token_mark_as_used(token)
+        else:
+            token = lms.validate_spark_dummy_account_token(
+                user.username, data.get("otp"), token_type="Unpledge OTP"
+            )
 
         items = []
         for i in securities:
@@ -2437,14 +2513,17 @@ def request_sell_collateral_otp():
         utils.validator.validate_http_method("POST")
 
         user = lms.__user()
-
-        frappe.db.begin()
-        lms.create_user_token(
-            entity=user.username,
-            token_type="Sell Collateral OTP",
-            token=lms.random_token(length=4, is_numeric=True),
+        is_dummy_account = lms.validate_spark_dummy_account(
+            user.username, user.name, check_valid=True
         )
-        frappe.db.commit()
+        if not is_dummy_account:
+            frappe.db.begin()
+            lms.create_user_token(
+                entity=user.username,
+                token_type="Sell Collateral OTP",
+                token=lms.random_token(length=4, is_numeric=True),
+            )
+            frappe.db.commit()
         return utils.respondWithSuccess(message="Sell Collateral OTP sent")
     except utils.exceptions.APIException as e:
         return e.respond()
@@ -2501,15 +2580,23 @@ def sell_collateral_request(**kwargs):
             data.get("securities", {}), data.get("loan_name")
         )
 
-        token = lms.verify_user_token(
-            entity=user.username,
-            token=data.get("otp"),
-            token_type="Sell Collateral OTP",
+        is_dummy_account = lms.validate_spark_dummy_account(
+            user.username, user.name, check_valid=True
         )
+        if not is_dummy_account:
+            token = lms.verify_user_token(
+                entity=user.username,
+                token=data.get("otp"),
+                token_type="Sell Collateral OTP",
+            )
 
-        if token.expiry <= frappe.utils.now_datetime():
-            return utils.respondUnauthorized(
-                message=frappe._("Sell Collateral OTP Expired.")
+            if token.expiry <= frappe.utils.now_datetime():
+                return utils.respondUnauthorized(
+                    message=frappe._("Sell Collateral OTP Expired.")
+                )
+        else:
+            token = lms.validate_spark_dummy_account_token(
+                user.username, data.get("otp"), token_type="Sell Collateral OTP"
             )
 
         frappe.db.begin()
@@ -2541,6 +2628,11 @@ def sell_collateral_request(**kwargs):
             loan_margin_shortfall = frappe.get_doc(
                 "Loan Margin Shortfall", data.get("loan_margin_shortfall_name")
             )
+            if loan_margin_shortfall.status == "Sell Triggered":
+                return utils.respondWithFailure(
+                    status=417,
+                    message=frappe._("Sale is Triggered"),
+                )
             pending_sell_collateral_application = frappe.get_all(
                 "Sell Collateral Application",
                 filters={
@@ -2572,10 +2664,19 @@ def sell_collateral_request(**kwargs):
                 "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
             )
             msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
+            fcm_notification = frappe.get_doc(
+                "Spark Push Notification",
+                "Margin shortfall – Action taken",
+                fields=["*"],
+            )
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification, loan=loan.name, customer=customer
+            )
 
         sell_collateral_application.insert(ignore_permissions=True)
 
-        lms.token_mark_as_used(token)
+        if not is_dummy_account:
+            lms.token_mark_as_used(token)
 
         frappe.db.commit()
         if not data.get("loan_margin_shortfall_name"):
@@ -2602,14 +2703,14 @@ def validate_securities_for_sell_collateral(securities, loan_name):
     if not securities or (
         type(securities) is not dict and "list" not in securities.keys()
     ):
-        raise utils.ValidationException(
+        raise utils.exceptions.ValidationException(
             {"securities": {"required": frappe._("Securities required.")}}
         )
 
     securities = securities["list"]
 
     if len(securities) == 0:
-        raise utils.ValidationException(
+        raise utils.exceptions.ValidationException(
             {"securities": {"required": frappe._("Securities required.")}}
         )
 
@@ -2659,7 +2760,9 @@ def validate_securities_for_sell_collateral(securities, loan_name):
                 break
 
     if not securities_valid:
-        raise utils.ValidationException({"securities": {"required": message}})
+        raise utils.exceptions.ValidationException(
+            {"securities": {"required": message}}
+        )
 
     return securities
 

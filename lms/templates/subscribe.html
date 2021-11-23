@@ -4,7 +4,7 @@
       <div class="row contact_bg_mo">
         <div class="col-6 fluid dx_airt">
           <img
-            src="assets/lms/images/home/Subscribe-for-updates.svg"
+            src="/assets/lms/images/home/Subscribe-for-updates.svg"
             class="fw"
           />
         </div>
@@ -76,7 +76,8 @@
   function subscribe() {
     var number = $('[name="number"]').val();
     var email = $('[name="email"]').val();
-    var regEx = /^[A-Za-z0-9][A-Za-z0-9._%+-]{0,63}@(?:[A-Za-z0-9-]{1,63}\.){1,125}[A-Za-z]{2,63}$/;
+    var regEx =
+      /^[A-Za-z0-9][A-Za-z0-9._%+-]{0,63}@(?:[A-Za-z0-9-]{1,63}\.){1,125}[A-Za-z]{2,63}$/;
     var validEmail = regEx.test(email);
     if (!(number == "") && !(email == "")) {
       if (!isNaN(number) && !(number.length < 10) && validEmail) {
