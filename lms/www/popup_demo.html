@@ -3,16 +3,6 @@ SparkLoans {% endblock title %} {% block description %} Watch our video to
 understand our products and services in a detail at SparkLoans. {% endblock
 description %} {% block body %}
 <style>
-  header.down {
-    z-index: 1 !important;
-  }
-  .mobileheader.down {
-    z-index: 1 !important;
-  }
-  .youtube_img {
-    height: 273px;
-    width: 273px;
-  }
   #viewMore {
     color: #eb5e50;
     cursor: pointer;
@@ -22,18 +12,13 @@ description %} {% block body %}
     background-color: transparent;
   }
 
-  .popUp.open {
-    display: block;
-  }
-
   .popUp {
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     position: fixed;
-    display: none;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.3);
   }
 
   .popUp .iframe {
@@ -41,12 +26,12 @@ description %} {% block body %}
     justify-content: center;
     align-items: center;
     position: relative;
-    top: 70px;
+    top: 110px;
   }
 
   .popUp .closeBtn {
     position: absolute;
-    top: 20px;
+    top: 90px;
     right: 2%;
   }
 
@@ -56,41 +41,15 @@ description %} {% block body %}
     height: 80vh;
   }
 
-  @media screen and (max-width: 767.9px) {
+  @media screen and (max-width: 768px) {
     .popUp .iframe {
-      top: 18%;
-    }
-
-    .popUp .closeBtn {
-      position: absolute;
-      top: 3%;
-      right: 3%;
+      top: 25%;
     }
 
     .popUp iframe {
       position: relative;
       width: 90vw;
       height: 50vh;
-    }
-    .youtube_img {
-      height: 400px !important;
-      width: 400px !important;
-    }
-  }
-
-  @media screen and (min-width: 768px) and (max-width: 998px) {
-    .youtube_img {
-      height: 273px !important;
-      width: 273px !important;
-    }
-    .popUp .iframe {
-      top: 12%;
-    }
-
-    .popUp iframe {
-      position: relative;
-      width: 80vw;
-      height: 80vh;
     }
   }
 </style>
@@ -145,7 +104,7 @@ description %} {% block body %}
         class="row videoboxes videosslider3 owl-carousel owl-theme"
         id="ourStories"
       ></ul>
-      <div style="padding-bottom: 20px">
+      <div>
         <h5 class="viewMore">
           <a class="viewMores" id="viewMore"> View More</a>
         </h5>
@@ -153,33 +112,38 @@ description %} {% block body %}
     </div>
   </div>
   <input type="hidden" name="page_no" id="page_no" value="1" />
-  <input type="hidden" name="latest_post_2" id="latest_post_2" />
-  <input type="hidden" name="page_data_count" id="page_data_count" value="0" />
+  <input type="hidden" name="post" id="latest_post_2" />
   <script type="text/javascript">
-    function closePop(name) {
-      var el_src = $("." + name + " iframe").attr("src");
-      $("." + name + " iframe").attr("src", el_src);
-      $(".popUp").removeClass("open");
-      $("header").removeClass("down");
-      $(".mobileheader").removeClass("down");
+    function closePop() {
+      $(".popUp").fadeOut(100);
     }
-    function openPop(name) {
-      $("." + name).addClass("open");
-      $("header").addClass("down");
-      $(".mobileheader").addClass("down");
+    function openPop(id) {
+      var i = 0;
+      console.log(i);
+      i++;
+      $("." + id).show();
     }
+    // if ($(".popUp").css('display') != 'none') {
+    //   $('body').click(function () {
+    //   // console.log("inside first if")
+    //   if (!$(this.target).is('.popUp')) {
+    //     // console.log("inside second if")
+    //     $(".popUp").hide();
+    //   }
+    //   });
+    // }
     $(document).ready(function () {
+      $("#viewMore").show();
       var page_no = $("#page_no").val();
-      $("#latest_post_2").val(0);
-      loadData();
+      $("#latest_post_2").val("false");
+      loadData(page_no);
 
       $("#all_videos").click(function () {
-        $("#viewMore").html("View More");
-        $("#page_data_count").val(0);
+        $("#viewMore").show();
         var page_no = 1;
         var search_key = $("#search").val();
-        $("#latest_post_2").val(0);
-        var latest_video = 0;
+        $("#latest_post_2").val("false");
+        var latest_video = "false";
         var replace = true;
         loadData(page_no, latest_video, search_key, replace);
       });
@@ -193,17 +157,17 @@ description %} {% block body %}
 
       $("#latest_video").click(function () {
         var page_no = 1;
-        $("#page_data_count").val(0);
         var search_key = $("#search").val();
-        $("#latest_post_2").val(1);
-        var latest_video = 1;
+        $("#latest_post_2").val("true");
+        var latest_video = "true";
         var replace = true;
         loadData(page_no, latest_video, search_key, replace);
+        $("#viewMore").remove();
       });
 
       function loadData(
-        page_no = 1,
-        latest_video = 0,
+        page_no,
+        latest_video = "",
         search_key = "",
         replace = false
       ) {
@@ -220,91 +184,50 @@ description %} {% block body %}
             if (res.data.videos_list_response.length > 0) {
               var html = "";
               $.each(res.data.videos_list_response, function (id, value) {
-                if (value.video_title) {
-                  video_title = value.video_title;
-                } else {
-                  video_title = "";
-                }
-                if (value.video_description) {
-                  // video_description = value.video_description.slice(0, 100) + " ...";
-                  video_description = value.video_description;
-                } else {
-                  video_description = "";
-                }
-
                 html +=
-                  '<li class="col-md-4 col-sm-6 item Latest" style="z-index: 0;">' +
-                  '<div class="fw videobox" style="cursor:pointer" onclick="openPop(' +
-                  "'" +
-                  value.name +
-                  "'" +
-                  ')" id="play_videos">' +
-                  '<img src="' +
-                  value.youtube_image +
-                  '" class="fw youtube_img"/>' +
+                  '<li class="col-md-4 col-sm-6 item Latest" style="z-index: 0">' +
+                  // '<a>' +
+                  '<div class="fw videobox" id="play_videos">' +
+                  '<img src="assets/lms/images/home/videos/01.jpg" class="fw" />' +
                   '<div class="fw desc">' +
                   "<h6>" +
                   "<span>" +
-                  video_title +
+                  value.video_title +
                   "</span>" +
                   '<button id="showIframe" onclick="openPop(' +
                   "'" +
-                  value.name +
+                  value.youtube_id +
                   "'" +
                   ')"><img src="assets/lms/images/home/videos/ic_video.jpg" class="videoico"/></button>' +
                   "</h6>" +
                   "<small>" +
-                  video_description +
+                  value.video_description +
                   "</small>" +
                   "</div>" +
                   "</div>" +
+                  // "</a>" +
                   "</li>" +
                   '<div class="popUp ' +
-                  value.name +
-                  '"  onclick="closePop(' +
-                  "'" +
-                  value.name +
-                  "'" +
-                  ')" style="z-index:10 !important;">' +
+                  value.youtube_id +
+                  '"  onclick="hidePopup()" style="display:none;z-index:10 !important;">' +
                   '<div class="closeBtn">' +
-                  '<a style="background-color: transparent; color: white; font-weight: 900; font-size:1.55rem; cursor: pointer;" onclick="closePop(' +
-                  "'" +
-                  value.name +
-                  "'" +
-                  ')" id="closePop"><strong>X</strong></a>' +
+                  '<a style="background-color: transparent; color: white; font-weight: 900; font-size:1.55rem; cursor: pointer;" onclick="closePop()" id="closePop"><strong>X</strong></a>' +
                   "</div>" +
                   '<div class="iframe">' +
-                  '<iframe id="DemoVideo" width="1920" height="1080" src="https://www.youtube.com/embed/' +
+                  '<iframe  id="DemoVideo" width="1080" height="720" src="https://www.youtube.com/embed/' +
                   value.youtube_id +
-                  '?version=3&enablejsapi=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>' +
+                  '" frameborder="0" allowfullscreen></iframe>' +
                   "</div>" +
                   "</div>";
               });
-
               if (replace == true) {
                 $("#ourStories").html(html);
               } else {
                 $("#ourStories").append(html);
               }
-
-              var page_data_count = $("#page_data_count").val();
-              var total_page_data =
-                parseInt(page_data_count) +
-                res.data.videos_list_response.length;
-              $("#page_data_count").val(total_page_data);
-
-              if (total_page_data == res.data.all_video_count) {
-                $("#viewMore").hide();
-              } else {
-                $("#viewMore").show();
-              }
-
-              if (res.data.videos_list_response.length < 6) {
-                $("#viewMore").hide();
-              }
-
               next_page_number = parseInt(res.data.page_no) + 1;
               $("#page_no").val(next_page_number);
+              $("#viewMore").show();
             } else if (
               page_no == 1 &&
               res.data.videos_list_response.length <= 0
@@ -321,10 +244,16 @@ description %} {% block body %}
       // Search video
       $("#search").keyup(function () {
         $("#page_no").val(1);
-        $("#page_data_count").val(0);
+        var page_no = $("#page_no").val();
+        console.log("search_key : ");
         var search = $(this).val();
+        console.log(search);
         var latest_post = $("#latest_post_2").val();
-        loadData(1, latest_post, search, true);
+        if (search != "") {
+          loadData(page_no, latest_post, search, (replace = true));
+        } else {
+          loadData(page_no, latest_post, (search = ""), (replace = true));
+        }
       });
     });
   </script>

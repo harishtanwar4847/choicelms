@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [v1.7.1] - 2021-11-22
+
+### Fixed
+
+- [Fix: og code modification](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/431)
+
+## [v1.7.0] - 2021-11-22
+
 ### Added
 
 - [Feat: changes in tnc html template, loan agreement template, loan enhancement agreement template regarding lender charges](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/361)
@@ -30,6 +38,50 @@
 - [Fix: is_sell_triggered flag added in loan_summary_dashboard, my_pledge_securities, loan_details api](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/392)
 - [Fix: Client holding fixes,on loan application rejection related changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/400)
 - [Fix: hide esign button while loan application is for margin shortfall pledge more](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/402)
+- [Fix: mark as read notification after opening from notification tray of mobile](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/421)
+
+## [v1.6.0] - 2021-11-19
+
+### Added
+
+- [Feat: Sitemap.xml file updated 19-11-2021](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/427)
+
+## [v1.5.0] - 2021-11-19
+
+### Added
+
+- [Feat: Play store Dummy Account changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/425)
+
+## [v1.4.0] - 2021-11-17
+
+### Added
+
+- [Feat: News and blog url changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/424)
+- [Feat: Website ads handling in related article section of news and blog](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/426)
+
+## [v1.3.1] - 2021-11-12
+
+### Fixed
+
+- [Fix: Demo Video Pause on close popup action and show is_default bank account at zeroth position withdraw req and details api](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/420)
+
+## [v1.3.0] - 2021-11-09
+
+### Added
+
+- [Feat: Withdrawal Workflow Action changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/422)
+
+## [v1.2.0] - 2021-11-01
+
+### Added
+
+- [Feat: Demo videos changes for website and Make lender field visible in allowed security](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/417)
+
+## [v1.1.1] - 2021-11-01
+
+### Fixed
+
+- [Fix: 0 Validation removed from sell collateral and unpledge charges](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/419)
 
 ## [v1.1.0] - 2021-10-14
 
