@@ -970,5 +970,6 @@ def rzp_payment_webhook_callback(data):
     try:
         if data and len(data) > 0:
             create_log(data.json(), "rzp_webhook_log")
+            frappe.log_error(message=data.json(), title=_("Webhook"))
     except Exception as e:
-        frappe.log_error()
+        frappe.log_error(data.json())
