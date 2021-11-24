@@ -20,6 +20,7 @@
 - [Feat: Added FCM notification list , fcm notification log list, push_notification_list API, read_or_clear_notifications API and API doc](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/372)
 - [Feat: NSDL Success and Failure callback URL handling](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/373)
 - [Feat: Send recent firebase token of user in fcm notification and collapse key changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/378)
+- [Feat: Backend screen restructring and rearrange](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/380)
 - [Feat: increase loan sanctioned limit charges scenarios](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/381)
 - [Feat: Client Holding](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/385)
 - [Feat: Razorpay callback](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/390)
@@ -29,6 +30,7 @@
 - [Feat: Open graph code added for (non www)spark.loans](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/406)
 - [Feat: contact us email content formatted](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/408)
 - [Feat: contact us email content changes for new line](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/409)
+- [Feat: Backend screen restructuring on allowed security, collateral ledger, loan application, loan margin shortfall, loan transaction, security, sell collateral application, unpledge application](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/415)
 
 ### Fixed
 
@@ -111,6 +113,11 @@
 ### Added
 
 - [Feat: Loan against shares html page added (products/loan-against-shares.html)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/398)
+
+### Refactored
+
+- [Refactor: handle customer not found error in patches](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/394)
+- [Refactor: get margin shortfall amount in loan doctype](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/397)
 
 ## [v1.0.5] - 2021-08-18
 

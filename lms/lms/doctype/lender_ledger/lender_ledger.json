@@ -1,96 +1,114 @@
 {
-  "autoname": "format:{loan}-{loan_transaction}-{#####}",
-  "creation": "2020-10-02 17:09:47.527238",
-  "doctype": "DocType",
-  "editable_grid": 1,
-  "engine": "InnoDB",
-  "field_order": [
-    "loan",
-    "loan_transaction",
-    "lender_share",
-    "column_break_1",
-    "lender",
-    "amount",
-    "spark_share"
-  ],
-  "fields": [
-    {
-      "fieldname": "loan",
-      "fieldtype": "Link",
-      "in_list_view": 1,
-      "label": "Loan",
-      "options": "Loan",
-      "reqd": 1
-    },
-    {
-      "fieldname": "amount",
-      "fieldtype": "Currency",
-      "in_list_view": 1,
-      "label": "Amount",
-      "reqd": 1
-    },
-    {
-      "fieldname": "column_break_1",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "loan_transaction",
-      "fieldtype": "Link",
-      "in_list_view": 1,
-      "label": "Loan Transaction",
-      "options": "Loan Transaction",
-      "reqd": 1
-    },
-    {
-      "fieldname": "lender",
-      "fieldtype": "Link",
-      "label": "Lender",
-      "options": "Lender"
-    },
-    {
-      "fieldname": "lender_share",
-      "fieldtype": "Currency",
-      "in_list_view": 1,
-      "label": "Lender Share",
-      "reqd": 1
-    },
-    {
-      "fieldname": "spark_share",
-      "fieldtype": "Currency",
-      "label": "Spark Share",
-      "reqd": 1
-    }
-  ],
-  "modified": "2020-10-29 15:51:28.425008",
-  "modified_by": "Administrator",
-  "module": "Lms",
-  "name": "Lender Ledger",
-  "owner": "Administrator",
-  "permissions": [
-    {
-      "create": 1,
-      "delete": 1,
-      "email": 1,
-      "export": 1,
-      "print": 1,
-      "read": 1,
-      "report": 1,
-      "role": "System Manager",
-      "share": 1,
-      "write": 1
-    },
-    {
-      "email": 1,
-      "export": 1,
-      "print": 1,
-      "read": 1,
-      "report": 1,
-      "role": "Lender",
-      "share": 1
-    }
-  ],
-  "quick_entry": 1,
-  "sort_field": "modified",
-  "sort_order": "DESC",
-  "track_changes": 1
+ "actions": [],
+ "autoname": "format:{loan}-{loan_transaction}-{#####}",
+ "creation": "2020-10-02 17:09:47.527238",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "loan",
+  "loan_transaction",
+  "lender_share",
+  "transaction_type",
+  "column_break_1",
+  "lender",
+  "amount",
+  "spark_share",
+  "customer_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "loan",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Loan Account No.",
+   "options": "Loan",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "loan_transaction",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Loan Transaction",
+   "options": "Loan Transaction",
+   "reqd": 1
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender"
+  },
+  {
+   "fieldname": "lender_share",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Lender Share",
+   "reqd": 1
+  },
+  {
+   "fieldname": "spark_share",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Spark Share",
+   "reqd": 1
+  },
+  {
+   "fieldname": "transaction_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Transaction Type",
+   "options": "Withdrawal\nPayment\nDebit Note\nCredit Note\nProcessing Fees\nStamp Duty\nDocumentation Charges\nMortgage Charges\nSell Collateral\nInvoke Pledge\nInterest\nAdditional Interest\nPenal Interest\nOther Charges\nLegal Charges\nRenewal Charges\nDP Reimbursement(Sell)\nDP Reimbursement(Unpledge)\nSell Collateral Charges"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Read Only",
+   "label": "Customer Name"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-11-24 10:06:36.123779",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Lender Ledger",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lender",
+   "share": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
 }

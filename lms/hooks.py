@@ -18,6 +18,7 @@ app_license = "MIT"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/lms/css/lms.css"
 # app_include_js = "/assets/lms/js/lms.js"
+app_include_js = "/assets/lms/js/doctype.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/lms/css/lms.css"
@@ -25,7 +26,6 @@ app_license = "MIT"
 
 # include js in page
 # page_js = {"page" : "public/js/file.js"}
-
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}

@@ -470,10 +470,11 @@ class Loan(Document):
                             loan=self.name,
                             customer=self.get_customer(),
                         )
-
                     loan_margin_shortfall.save(ignore_permissions=True)
-
             # alerts comparison with percentage and amount
+            self.reload()
+            self.margin_shortfall_amount = self.get_margin_shortfall_amount()
+            self.save(ignore_permissions=True)
             if customer.alerts_based_on_percentage:
                 if self.total_collateral_value > (
                     old_total_collateral_value
@@ -613,6 +614,23 @@ class Loan(Document):
             else margin_shortfall_name,
         )
 
+    def get_margin_shortfall_amount(self):
+        margin_shortfall_name = frappe.db.get_value(
+            "Loan Margin Shortfall",
+            {
+                "loan": self.name,
+                "status": ["in", ["Pending", "Request Pending", "Sell Triggered"]],
+            },
+            "name",
+        )
+        if margin_shortfall_name:
+            loan_margin_shortfall = frappe.get_doc(
+                "Loan Margin Shortfall", margin_shortfall_name
+            )
+            return loan_margin_shortfall.shortfall_c
+        else:
+            return 0
+
     def get_updated_total_collateral_value(self):
         securities = [i.isin for i in self.items]
 
@@ -709,7 +727,7 @@ class Loan(Document):
                     interest_configuration["rebait_interest"] / num_of_days_in_month
                 )
                 rebate_amount = self.balance * rebate_interest_daily / 100
-
+                customer = self.get_customer()
                 frappe.db.begin()
                 virtual_interest_doc = frappe.get_doc(
                     {
@@ -723,10 +741,24 @@ class Loan(Document):
                         "rebate_amount": rebate_amount,
                         "loan_balance": self.balance,
                         "interest_configuration": interest_configuration["name"],
+                        "customer_name": customer.full_name,
                     }
                 )
                 virtual_interest_doc.save(ignore_permissions=True)
                 frappe.db.commit()
+                self.base_interest_amount = frappe.db.sql(
+                    "select sum(base_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_base = 0".format(
+                        self.name
+                    ),
+                    as_dict=1,
+                )[0]["amount"]
+                self.rebate_interest_amount = frappe.db.sql(
+                    "select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_rebate = 0".format(
+                        self.name
+                    ),
+                    as_dict=1,
+                )[0]["amount"]
+                self.save(ignore_permissions=True)
                 return virtual_interest_doc.as_dict()
 
     def check_for_additional_interest(self, input_date=None):
@@ -1402,6 +1434,46 @@ def daily_cron_job(loan_name, input_date=None):
     )
 
 
+@frappe.whitelist()
+def daily_virtual_job(loan_name, input_date=None):
+    frappe.enqueue_doc(
+        "Loan",
+        loan_name,
+        method="add_virtual_interest",
+        input_date=input_date,
+    )
+
+
+@frappe.whitelist()
+def daily_cron_job(loan_name, input_date=None):
+    frappe.enqueue_doc(
+        "Loan",
+        loan_name,
+        method="calculate_virtual_and_additional_interest",
+        input_date=input_date,
+    )
+
+
+@frappe.whitelist()
+def daily_penal_job(loan_name, input_date=None):
+    frappe.enqueue_doc(
+        "Loan",
+        loan_name,
+        method="add_penal_interest",
+        input_date=input_date,
+    )
+
+
+@frappe.whitelist()
+def additional_interest_job(loan_name, input_date=None):
+    frappe.enqueue_doc(
+        "Loan",
+        loan_name,
+        method="check_for_additional_interest",
+        input_date=input_date,
+    )
+
+
 def add_loans_virtual_interest(loans):
     for loan in loans:
         loan = frappe.get_doc("Loan", loan)
@@ -1510,3 +1582,14 @@ def job_dates_for_penal(loan_name):
     while current_date_ <= last_date:
         loan.add_penal_interest(current_date_.strftime("%Y-%m-%d"))
         current_date_ += timedelta(days=1)
+
+
+@frappe.whitelist()
+def interest_booked_till_date(loan_name):
+    interest_booked = frappe.db.sql(
+        "select sum(amount) as total_amount from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest')".format(
+            loan_name
+        ),
+        as_dict=1,
+    )[0]["total_amount"]
+    return 0.0 if interest_booked == None else interest_booked
