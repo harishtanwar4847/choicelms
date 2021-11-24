@@ -34,7 +34,21 @@
   "remarks",
   "is_for_interest",
   "section_break_1",
-  "items"
+  "items",
+  "razorpay_payment_webhook_section_section",
+  "razorpay_event",
+  "bank_details_section",
+  "bank_name",
+  "column_break_33",
+  "bank_transaction_id",
+  "upi_section",
+  "vpa",
+  "card_details_section",
+  "name_on_card",
+  "last_4_digits",
+  "column_break_40",
+  "card_id",
+  "network"
  ],
  "fields": [
   {
@@ -218,11 +232,84 @@
    "fieldname": "remarks",
    "fieldtype": "Data",
    "label": "Remarks"
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Payment'",
+   "fieldname": "razorpay_payment_webhook_section_section",
+   "fieldtype": "Section Break",
+   "label": "Razorpay Payment Webhook Section"
+  },
+  {
+   "depends_on": "eval:(doc.name_on_card == null && doc.vpa == null)",
+   "fieldname": "bank_details_section",
+   "fieldtype": "Section Break",
+   "label": "Bank Details"
+  },
+  {
+   "fieldname": "bank_name",
+   "fieldtype": "Data",
+   "label": "Bank Name"
+  },
+  {
+   "fieldname": "column_break_33",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bank_transaction_id",
+   "fieldtype": "Data",
+   "label": "Bank Transaction ID"
+  },
+  {
+   "depends_on": "eval:(doc.name_on_card == null && doc.bank_name == null)",
+   "fieldname": "upi_section",
+   "fieldtype": "Section Break",
+   "label": "UPI"
+  },
+  {
+   "fieldname": "vpa",
+   "fieldtype": "Data",
+   "label": "VPA"
+  },
+  {
+   "depends_on": "eval:(doc.vpa == null && doc.bank_name == null)",
+   "fieldname": "card_details_section",
+   "fieldtype": "Section Break",
+   "label": "Card Details"
+  },
+  {
+   "fieldname": "last_4_digits",
+   "fieldtype": "Data",
+   "label": "Last 4 Digits"
+  },
+  {
+   "fieldname": "column_break_40",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "card_id",
+   "fieldtype": "Data",
+   "label": "Card ID"
+  },
+  {
+   "fieldname": "network",
+   "fieldtype": "Data",
+   "label": "Network"
+  },
+  {
+   "fieldname": "name_on_card",
+   "fieldtype": "Data",
+   "label": "Name"
+  },
+  {
+   "fieldname": "razorpay_event",
+   "fieldtype": "Select",
+   "label": "Razorpay Event",
+   "options": "Authorized\nCaptured\nFailed"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-10-28 16:04:05.424523",
+ "modified": "2021-11-24 18:21:00.456201",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
