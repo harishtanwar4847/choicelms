@@ -94,8 +94,9 @@ class FirebaseAdmin:
             notification=android_notification,
         )
         # IOS notification
+        sound = messaging.CriticalSound(name="default")
         alert = messaging.ApsAlert(title=title, body=body)
-        aps = messaging.Aps(alert=alert, content_available=True)
+        aps = messaging.Aps(alert=alert, content_available=True, sound=sound)
         payload = messaging.APNSPayload(aps=aps)
         headers = {
             "apns-push-type": "background",
