@@ -87,13 +87,30 @@ class FirebaseAdmin:
             notification_count=None,
         )
 
+        # Android notification
         android = messaging.AndroidConfig(
             collapse_key=collapse_key,
             priority=priority,
             notification=android_notification,
         )
+        # IOS notification
+        alert = messaging.ApsAlert(title=title, body=body)
+        aps = messaging.Aps(alert=alert, content_available=True)
+        payload = messaging.APNSPayload(aps=aps)
+        headers = {
+            "apns-push-type": "background",
+            "apns-priority": "5",
+            "apns-topic": "io.flutter.plugins.firebase.messaging",
+        }
+        apns = messaging.APNSConfig(payload=payload, headers=headers, fcm_options=None)
         multicast_message = messaging.MulticastMessage(
-            tokens, data, notification, android
+            tokens=tokens,
+            data=data,
+            notification=notification,
+            android=android,
+            apns=apns,
+            webpush=None,
+            fcm_options=None,
         )
         try:
             messaging.send_multicast(multicast_message)
