@@ -1035,7 +1035,8 @@ def rzp_payment_webhook_callback(data):
                 loan_transaction.razorpay_event = "Authorized"
                 try:
                     loan_margin_shortfall = frappe.get_doc(
-                        "Loan Margin Shortfall", data.get("loan_margin_shortfall_name")
+                        "Loan Margin Shortfall",
+                        webhook_main_object["notes"]["loan_margin_shortfall_name"],
                     )
                 except frappe.DoesNotExistError:
                     frappe.log_error(
@@ -1075,7 +1076,7 @@ def rzp_payment_webhook_callback(data):
                 if not webhook_main_object["notes"]["loan_margin_shortfall_name"]:
                     doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
                     doc["payment"] = {
-                        "amount": data.get("amount"),
+                        "amount": webhook_main_object["notes"]["amount"],
                         "loan": loan.name,
                         "is_failed": 0,
                     }
@@ -1083,7 +1084,7 @@ def rzp_payment_webhook_callback(data):
                         "Notification", "Payment Request", method="send", doc=doc
                     )
                 msg = """Dear Customer,\nCongratulations! You payment of Rs. {}  has been successfully received against loan account  {}. It shall be reflected in your account within  24 hours . Spark Loans""".format(
-                    data.get("amount"), loan.name
+                    webhook_main_object["notes"]["amount"], loan.name
                 )
 
             elif data["entity"] == "event" and data["event"] == "payment.captured":
@@ -1092,11 +1093,11 @@ def rzp_payment_webhook_callback(data):
             elif data["entity"] == "event" and data["event"] == "payment.failed":
                 loan_transaction.razorpay_event = "Failed"
                 msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(
-                    data.get("amount"), loan.name
+                    webhook_main_object["notes"]["amount"], loan.name
                 )
                 doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
                 doc["payment"] = {
-                    "amount": data.get("amount"),
+                    "amount": webhook_main_object["notes"]["amount"],
                     "loan": loan.name,
                     "is_failed": 1,
                 }
@@ -1110,7 +1111,7 @@ def rzp_payment_webhook_callback(data):
                 lms.send_spark_push_notification(
                     fcm_notification=fcm_notification,
                     message=fcm_notification.message.format(
-                        amount=data.get("amount"), loan=loan.name
+                        amount=webhook_main_object["notes"]["amount"], loan=loan.name
                     ),
                     loan=loan.name,
                     customer=customer,
@@ -1123,8 +1124,10 @@ def rzp_payment_webhook_callback(data):
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-            frappe.log_error(message=json.dumps(data), title=_("Webhook testing"))
+
             loan_transaction.save(ignore_permissions=True)
             frappe.db.commit()
     except Exception as e:
-        frappe.log_error(frappe.get_traceback() + "\n" + str(data))
+        frappe.log_error(
+            frappe.get_traceback() + "\nWebhook details:\n" + str(data), e.args
+        )
