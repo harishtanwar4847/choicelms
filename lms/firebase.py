@@ -66,7 +66,7 @@ class FirebaseAdmin:
             priority=priority,
             icon=None,
             color=None,
-            sound=None,
+            sound="default",
             tag=None,
             click_action=None,
             body_loc_key=None,
