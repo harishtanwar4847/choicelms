@@ -53,11 +53,12 @@ class FirebaseAdmin:
         priority="normal",
         collapse_key="com.sparktechnologies.sparkloans",
         channel_id="channel_ID_1",
+        sound="default",
     ):
         if not tokens:
             raise lms.FirebaseTokensNotProvidedError("Firebase tokens not provided.")
 
-        notification = messaging.Notification(title, body, image)
+        notification = messaging.Notification(title, body, image, sound)
 
         android_notification = messaging.AndroidNotification(
             title=title,
@@ -94,7 +95,7 @@ class FirebaseAdmin:
             notification=android_notification,
         )
         # IOS notification
-        sound = messaging.CriticalSound(name="default")
+        sound = messaging.CriticalSound(name="default", volume=1.0)
         alert = messaging.ApsAlert(title=title, body=body)
         aps = messaging.Aps(alert=alert, content_available=True, sound=sound)
         payload = messaging.APNSPayload(aps=aps)
