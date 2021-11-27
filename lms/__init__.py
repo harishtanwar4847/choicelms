@@ -672,6 +672,19 @@ def send_spark_push_notification(
             notification_name = (str(random_id) + " " + str(current_time)).replace(
                 " ", "-"
             )
+            sound = "default"
+            priority = "high"
+
+            fcm_payload = {
+                "registration_ids": get_firebase_tokens(customer.user),
+                "priority": priority,
+            }
+
+            notification = {
+                "title": fcm_notification.title,
+                "body": message,
+                "sound": sound,
+            }
 
             data = {
                 "click_action": "FLUTTER_NOTIFICATION_CLICK",
@@ -684,14 +697,39 @@ def send_spark_push_notification(
                 "notification_type": fcm_notification.notification_type,
                 "time": current_time.strftime("%d %b at %H:%M %p"),
             }
+            android = {"priority": priority, "notification": {"sound": sound}}
+            apns = {
+                "payload": {"aps": {"sound": sound, "contentAvailable": True}},
+                "headers": {
+                    "apns-push-type": "background",
+                    "apns-priority": "5",
+                    "apns-topic": "io.flutter.plugins.firebase.messaging",
+                },
+            }
 
-            fa.send_android_message(
-                title=fcm_notification.title,
-                body=message,
-                data=data,
-                tokens=get_firebase_tokens(customer.user),
-                priority="high",
+            fcm_payload["notification"] = notification
+            fcm_payload["data"] = data
+            fcm_payload["android"] = android
+            fcm_payload["apns"] = apns
+
+            headers = {
+                "content-type": "application/json",
+                "Authorization": "key=AAAAennLf7s:APA91bEoQFxqyBP87PXSVS3nXYGhVwh0-5CXQyOzEW8vwKiRqYw-5y2yPXIFWvQ9-Mr0rHeS2NWdq43ogeH76esO3GJyZCEQs2mOgUk6RStxW-hgsioIAJaaiidov8xDg1-yyTn_JCYQ",
+            }
+            requests.post(
+                url="https://fcm.googleapis.com/fcm/send",
+                data=fcm_payload,
+                headers=headers,
             )
+
+            # fa.send_android_message(
+            #     title=fcm_notification.title,
+            #     body=message,
+            #     data=data,
+            #     tokens=get_firebase_tokens(customer.user),
+            #     priority="high",
+            # )
+
             # Save log for Spark Push Notification
             frappe.get_doc(
                 {
@@ -716,7 +754,9 @@ def send_spark_push_notification(
             # return e
             # To log fcm notification exception errors into Frappe Error Log
             frappe.log_error(
-                frappe.get_traceback() + "\nNotification Info:\n" + json.dumps(data),
+                frappe.get_traceback()
+                + "\nNotification Info:\n"
+                + json.dumps(fcm_payload),
                 e.args,
             )
         finally:

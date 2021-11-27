@@ -58,7 +58,7 @@ class FirebaseAdmin:
         if not tokens:
             raise lms.FirebaseTokensNotProvidedError("Firebase tokens not provided.")
 
-        notification = messaging.Notification(title, body, image, sound)
+        notification = messaging.Notification(title, body, image)
 
         android_notification = messaging.AndroidNotification(
             title=title,
@@ -67,7 +67,7 @@ class FirebaseAdmin:
             priority=priority,
             icon=None,
             color=None,
-            sound="default",
+            sound=sound,
             tag=None,
             click_action=None,
             body_loc_key=None,
@@ -95,7 +95,7 @@ class FirebaseAdmin:
             notification=android_notification,
         )
         # IOS notification
-        sound = messaging.CriticalSound(name="default", volume=1.0)
+        sound = messaging.CriticalSound(name=sound, volume=1.0)
         alert = messaging.ApsAlert(title=title, body=body)
         aps = messaging.Aps(alert=alert, content_available=True, sound=sound)
         payload = messaging.APNSPayload(aps=aps)
