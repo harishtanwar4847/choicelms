@@ -4,8 +4,10 @@ $(document).on("app_ready", function () {
       "Virtual Interest",
       "Loan Transaction",
       "Loan Margin Shortfall",
-      "Top up application",
+      "Top up Application",
       "Collateral Ledger",
+      "Sell Collateral Application",
+      "Unpledge Application"
     ],
     function (i, doctype) {
       frappe.ui.form.on(doctype, "refresh", function (frm) {
