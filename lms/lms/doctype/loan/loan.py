@@ -674,6 +674,15 @@ class Loan(Document):
         penal_intrst = self.add_penal_interest(input_date)
 
     def add_virtual_interest(self, input_date=None):
+        day_past_due = frappe.db.sql(
+            "select sum(unpaid_interest) as total_amount from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and unpaid_interest >0".format(
+                self.name
+            )
+        )
+        if day_past_due:
+            self.day_past_due += 1
+        else:
+            self.day_past_due = 0
         if self.balance > 0:
             try:
                 interest_configuration = frappe.db.get_value(
