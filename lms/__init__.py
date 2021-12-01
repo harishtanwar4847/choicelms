@@ -662,9 +662,7 @@ def send_spark_push_notification(
     try:
         fcm_payload = {}
         tokens = get_firebase_tokens(customer.user)
-        if not tokens:
-            raise FirebaseTokensNotProvidedError("Firebase tokens not provided.")
-        if fcm_notification:
+        if fcm_notification and tokens:
             if message:
                 message = message
             else:
