@@ -924,7 +924,7 @@ class Loan(Document):
                     ),
                     as_dict=1,
                 )
-                if virtual_interest_sum["amount"]:
+                if virtual_interest_sum[0]["amount"] != None:
 
                     frappe.db.begin()
                     loan_transaction = frappe.get_doc(
