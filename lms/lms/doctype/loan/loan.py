@@ -924,73 +924,80 @@ class Loan(Document):
                     ),
                     as_dict=1,
                 )
+                if virtual_interest_sum["amount"]:
 
-                frappe.db.begin()
-                loan_transaction = frappe.get_doc(
-                    {
-                        "doctype": "Loan Transaction",
-                        "loan": self.name,
-                        "lender": self.lender,
-                        "amount": round(virtual_interest_sum[0]["amount"], 2),
-                        "unpaid_interest": round(virtual_interest_sum[0]["amount"], 2),
-                        "transaction_type": "Interest",
-                        "record_type": "DR",
-                        "time": job_date,
-                    }
-                )
-                loan_transaction.insert(ignore_permissions=True)
-                loan_transaction.transaction_id = loan_transaction.name
-                loan_transaction.status = "Approved"
-                loan_transaction.workflow_state = "Approved"
-                loan_transaction.docstatus = 1
-                loan_transaction.save(ignore_permissions=True)
-
-                # Book Virtual Interest for previous month
-                frappe.db.sql(
-                    "update `tabVirtual Interest` set is_booked_for_base = 1 where loan = '{}' and is_booked_for_base = 0 and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
-                        self.name, prev_month_year, prev_month
+                    frappe.db.begin()
+                    loan_transaction = frappe.get_doc(
+                        {
+                            "doctype": "Loan Transaction",
+                            "loan": self.name,
+                            "lender": self.lender,
+                            "amount": round(virtual_interest_sum[0]["amount"], 2),
+                            "unpaid_interest": round(
+                                virtual_interest_sum[0]["amount"], 2
+                            ),
+                            "transaction_type": "Interest",
+                            "record_type": "DR",
+                            "time": job_date,
+                        }
                     )
-                )
-                frappe.db.commit()
+                    loan_transaction.insert(ignore_permissions=True)
+                    loan_transaction.transaction_id = loan_transaction.name
+                    loan_transaction.status = "Approved"
+                    loan_transaction.workflow_state = "Approved"
+                    loan_transaction.docstatus = 1
+                    loan_transaction.save(ignore_permissions=True)
 
-                doc = frappe.get_doc(
-                    "User KYC", self.get_customer().choice_kyc
-                ).as_dict()
-                doc["loan_name"] = self.name
-                doc["transaction_type"] = loan_transaction.transaction_type
-                doc["unpaid_interest"] = round(loan_transaction.unpaid_interest, 2)
-
-                frappe.enqueue_doc(
-                    "Notification", "Interest Due", method="send", doc=doc
-                )
-
-                msg = "Dear Customer,\nAn interest of Rs.  {} is due on your loan account {}.\nPlease pay the interest due before the 7th of this month in order to continue to enjoy the rebate provided on the interest rate. Kindly check the app for details. - Spark Loans".format(
-                    round(loan_transaction.unpaid_interest, 2), self.name
-                )
-
-                fcm_notification = frappe.get_doc(
-                    "Spark Push Notification", "Interest due", fields=["*"]
-                )
-                message = fcm_notification.message.format(
-                    unpaid_interest=round(loan_transaction.unpaid_interest, 2),
-                    loan=self.name,
-                )
-                if msg:
-                    receiver_list = list(
-                        set([str(self.get_customer().phone), str(doc.mobile_number)])
+                    # Book Virtual Interest for previous month
+                    frappe.db.sql(
+                        "update `tabVirtual Interest` set is_booked_for_base = 1 where loan = '{}' and is_booked_for_base = 0 and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
+                            self.name, prev_month_year, prev_month
+                        )
                     )
-                    from frappe.core.doctype.sms_settings.sms_settings import send_sms
+                    frappe.db.commit()
 
-                    frappe.enqueue(
-                        method=send_sms, receiver_list=receiver_list, msg=msg
+                    doc = frappe.get_doc(
+                        "User KYC", self.get_customer().choice_kyc
+                    ).as_dict()
+                    doc["loan_name"] = self.name
+                    doc["transaction_type"] = loan_transaction.transaction_type
+                    doc["unpaid_interest"] = round(loan_transaction.unpaid_interest, 2)
+
+                    frappe.enqueue_doc(
+                        "Notification", "Interest Due", method="send", doc=doc
                     )
 
-                lms.send_spark_push_notification(
-                    fcm_notification=fcm_notification,
-                    message=message,
-                    loan=self.name,
-                    customer=self.get_customer(),
-                )
+                    msg = "Dear Customer,\nAn interest of Rs.  {} is due on your loan account {}.\nPlease pay the interest due before the 7th of this month in order to continue to enjoy the rebate provided on the interest rate. Kindly check the app for details. - Spark Loans".format(
+                        round(loan_transaction.unpaid_interest, 2), self.name
+                    )
+
+                    fcm_notification = frappe.get_doc(
+                        "Spark Push Notification", "Interest due", fields=["*"]
+                    )
+                    message = fcm_notification.message.format(
+                        unpaid_interest=round(loan_transaction.unpaid_interest, 2),
+                        loan=self.name,
+                    )
+                    if msg:
+                        receiver_list = list(
+                            set(
+                                [str(self.get_customer().phone), str(doc.mobile_number)]
+                            )
+                        )
+                        from frappe.core.doctype.sms_settings.sms_settings import (
+                            send_sms,
+                        )
+
+                        frappe.enqueue(
+                            method=send_sms, receiver_list=receiver_list, msg=msg
+                        )
+
+                    lms.send_spark_push_notification(
+                        fcm_notification=fcm_notification,
+                        message=message,
+                        loan=self.name,
+                        customer=self.get_customer(),
+                    )
 
     def add_penal_interest(self, input_date=None):
         # daily scheduler - executes at start of day i.e 00:00
