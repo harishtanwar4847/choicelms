@@ -431,6 +431,11 @@ class LoanTransaction(Document):
             if self.amount > self.allowable:
                 frappe.throw("Amount should be less than or equal to allowable amount")
 
+        if self.transaction_type == "Payment" and self.razorpay_event == "Failed":
+            frappe.throw(
+                "Can not approve this Payment transaction as its Razorpay Event is Failed"
+            )
+
     def on_update(self):
         if self.transaction_type == "Withdrawal":
             customer = self.get_loan().get_customer()
