@@ -149,6 +149,7 @@
   },
   {
    "allow_on_submit": 1,
+   "depends_on": "eval: in_list([\"Penal Interest\", \"Additional Interest\", \"Interest\"], doc.transaction_type)",
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Interest Pay Log",
