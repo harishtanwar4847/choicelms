@@ -163,7 +163,10 @@ class LoanTransaction(Document):
             loan.is_irregular = 1
         elif self.transaction_type == "Penal Interest":
             loan.is_penalize = 1
+        negative_balance = loan.balance
         loan.update_loan_balance(check_for_shortfall=check_for_shortfall)
+        if self.record_type == "CR":
+            negative_balance = loan.balance
 
         if self.transaction_type == "Payment":
             doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
@@ -335,8 +338,8 @@ class LoanTransaction(Document):
                 loan_margin_shortfall.status = "Pending"
             loan_margin_shortfall.save(ignore_permissions=True)
 
-        if self.is_for_interest or loan.balance < 0:
-            self.pay_for_interest(loan)
+        if self.is_for_interest or negative_balance < 0:
+            self.pay_for_interest(negative_balance)
 
         # update closing balance
         frappe.db.set_value(
@@ -347,7 +350,7 @@ class LoanTransaction(Document):
             update_modified=False,
         )
 
-    def pay_for_interest(self, loan):
+    def pay_for_interest(self, negative_balance):
         # fetch all interest transaction which are not paid
         # sauce: https://stackoverflow.com/a/25433139/9403680
         not_paid_interests = frappe.db.sql(
@@ -357,8 +360,8 @@ class LoanTransaction(Document):
         )
 
         if not_paid_interests:
-            if loan.balance < 0:
-                total_interest_amt_paid = abs(loan.balance)
+            if negative_balance < 0:
+                total_interest_amt_paid = abs(negative_balance)
                 transaction_name = ""
             else:
                 total_interest_amt_paid = self.amount
