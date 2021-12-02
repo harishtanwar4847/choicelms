@@ -659,7 +659,8 @@ def create_log(log, file_name):
 def send_spark_push_notification(
     fcm_notification={}, message="", loan="", customer=None
 ):
-    if fcm_notification:
+    tokens = get_firebase_tokens(customer.user)
+    if fcm_notification and tokens:
         if message:
             message = message
         else:
@@ -689,7 +690,7 @@ def send_spark_push_notification(
                 title=fcm_notification.title,
                 body=message,
                 data=data,
-                tokens=get_firebase_tokens(customer.user),
+                tokens=tokens,
                 priority="high",
             )
             # Save log for Spark Push Notification
