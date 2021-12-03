@@ -360,7 +360,7 @@ class LoanTransaction(Document):
         )
 
         if not_paid_interests:
-            if negative_balance < 0:
+            if negative_balance < 0 and not self.is_for_interest:
                 total_interest_amt_paid = abs(negative_balance)
                 transaction_name = ""
             else:
