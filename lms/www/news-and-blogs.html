@@ -27,16 +27,22 @@ endblock description %} {%- block head_include -%} {% include
       blog %}
       <div class="row dx_jcsbalctr">
         <div class="col col-md-7">
-          <a href="newsblog?blog_name={{ blog.name }}">
+          <a href="news-and-blogs/{{ blog.route }}">
             <img src="{{ blog.for_home_view }}" class="fw"
           /></a>
         </div>
         <div class="col col-md-5">
           <div class="fw blog-text">
             <!-- <p class="resources">Resources</p> -->
-            <h3>{{ blog.title }}</h3>
+            <a href="news-and-blogs/{{ blog.route }}">
+              <h3>{{ blog.title }}</h3>
+            </a>
             <p class="date">{{ blog.publishing_date.strftime("%d %B, %Y") }}</p>
+            {% if blog.author %}
             <p class="text">{{ blog.author }}</p>
+            {% else %}
+            <p class="text"></p>
+            {% endif %}
             <p class="text">{{ blog.short_description }}</p>
           </div>
         </div>
@@ -130,6 +136,7 @@ endblock description %} {%- block head_include -%} {% include
 <input type="hidden" name="page_no" id="page_no" value="1" />
 <input type="hidden" name="post" id="latest_post_2" />
 <input type="hidden" name="post1" id="trending_post_2" value="false" />
+<input type="hidden" name="page_no" id="page_data" value="0" />
 {% endblock %} {% block script %}
 
 <script type="text/javascript">
@@ -138,11 +145,12 @@ endblock description %} {%- block head_include -%} {% include
     var page_no = $("#page_no").val();
     $("#latest_post_2").val("false");
     $("#trending_post_2").val("false");
-    loadData(page_no);
+    loadData();
 
     $("#latest_post").click(function () {
       var page_no = 1;
       var search_key = $("#search").val();
+      $("#page_data").val(0);
       $("#latest_post_2").val("true");
       $("#trending_post_2").val("false");
       var latest_post = "true";
@@ -151,6 +159,7 @@ endblock description %} {%- block head_include -%} {% include
 
     $("#trending_post").click(function () {
       var page_no = 1;
+      $("#page_data").val(0);
       var search_key = $("#search").val();
       $("#latest_post_2").val("false");
       $("#trending_post_2").val("true");
@@ -165,6 +174,7 @@ endblock description %} {%- block head_include -%} {% include
 
     $("#all_post").click(function () {
       var page_no = 1;
+      $("#page_data").val(0);
       var search_key = $("#search").val();
       $("#latest_post_2").val("false");
       var latest_post = "false";
@@ -185,7 +195,7 @@ endblock description %} {%- block head_include -%} {% include
 
     // function for fetch blogs, view more, search
     function loadData(
-      pg_number,
+      pg_number = 1,
       latest_post = "",
       trending_post = "",
       search_key = "",
@@ -213,8 +223,8 @@ endblock description %} {%- block head_include -%} {% include
 
               html +=
                 '<li class="col-md-4 col-sm-6 item">' +
-                '<a href="newsblog?blog_name=' +
-                val.name +
+                '<a href="news-and-blogs/' +
+                val.route +
                 '">' +
                 '<div class="news_card"> <img src="' +
                 val.for_banner_view +
@@ -222,9 +232,12 @@ endblock description %} {%- block head_include -%} {% include
                 "<p>" +
                 tags +
                 "</p>" +
+                '<a href="news-and-blogs/' +
+                val.route +
+                '">' +
                 "<h5>" +
                 val.title +
-                "</h5>" +
+                "</h5></a>" +
                 '<p class="date">' +
                 val.publishing_date +
                 "</p>" +
@@ -232,14 +245,24 @@ endblock description %} {%- block head_include -%} {% include
                 "</a>" +
                 "</li>";
             });
+            next_pg_number = parseInt(res.data.page_no) + 1;
+            $("#page_no").val(next_pg_number);
+            var page_data = $("#page_data").val();
+            cur_page_data = parseInt(page_data) + res.data.blogs_all.length;
+            $("#page_data").val(cur_page_data);
+            if (cur_page_data == res.data.count_all_blogs) {
+              $("#viewMore").hide();
+            } else {
+              $("#viewMore").show();
+            }
+            if (res.data.blogs_all.length < 6) {
+              $("#viewMore").hide();
+            }
             if (replace == true) {
               $("#ourStories").html(html);
             } else {
               $("#ourStories").append(html);
             }
-            next_pg_number = parseInt(res.data.page_no) + 1;
-            $("#page_no").val(next_pg_number);
-            $("#viewMore").show();
           } else if (pg_number == 1 && res.data.blogs_all.length <= 0) {
             $("#ourStories").empty();
             $("#viewMore").hide();
@@ -250,6 +273,7 @@ endblock description %} {%- block head_include -%} {% include
 
     // ==========> SEARCH QUERY <=========
     $("#search").keyup(function () {
+      $("#page_data").val(0);
       $("#page_no").val(1);
       var page_no = $("#page_no").val();
       var search = $(this).val();

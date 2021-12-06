@@ -26,7 +26,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "1.1.0"
+__version__ = "1.7.2"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -419,7 +419,10 @@ def __banks(user_kyc=None):
         user_kyc = __user_kyc().name
 
     res = frappe.get_all(
-        "User Bank Account", filters={"parent": user_kyc}, fields=["*"]
+        "User Bank Account",
+        filters={"parent": user_kyc},
+        fields=["*"],
+        order_by="is_default desc",
     )
 
     for i in res:
@@ -656,7 +659,8 @@ def create_log(log, file_name):
 def send_spark_push_notification(
     fcm_notification={}, message="", loan="", customer=None
 ):
-    if fcm_notification:
+    tokens = get_firebase_tokens(customer.user)
+    if fcm_notification and tokens:
         if message:
             message = message
         else:
@@ -665,29 +669,35 @@ def send_spark_push_notification(
         try:
             fa = FirebaseAdmin()
             random_id = randint(1, 2147483646)
+            current_time = frappe.utils.now_datetime()
+            notification_name = (str(random_id) + " " + str(current_time)).replace(
+                " ", "-"
+            )
 
             data = {
                 "click_action": "FLUTTER_NOTIFICATION_CLICK",
+                "name": notification_name,
                 "notification_id": str(random_id),
                 "screen": fcm_notification.screen_to_open,
                 "loan_no": loan if loan else "",
                 "title": fcm_notification.title,
                 "body": message,
                 "notification_type": fcm_notification.notification_type,
-                "time": frappe.utils.now_datetime().strftime("%d %b at %H:%M %p"),
+                "time": current_time.strftime("%d %b at %H:%M %p"),
             }
 
             fa.send_android_message(
                 title=fcm_notification.title,
                 body=message,
                 data=data,
-                tokens=get_firebase_tokens(customer.user),
+                tokens=tokens,
                 priority="high",
             )
             # Save log for Spark Push Notification
             frappe.get_doc(
                 {
                     "doctype": "Spark Push Notification Log",
+                    "name": notification_name,
                     "title": data["title"],
                     "loan_customer": customer.name,
                     "customer_name": customer.full_name,
@@ -695,7 +705,7 @@ def send_spark_push_notification(
                     "screen_to_open": data["screen"],
                     "notification_id": data["notification_id"],
                     "notification_type": data["notification_type"],
-                    "time": frappe.utils.now_datetime(),
+                    "time": current_time,
                     "click_action": data["click_action"],
                     "message": data["body"],
                     "is_cleared": 0,
@@ -933,3 +943,23 @@ def rupees_to_words(num):
             + ("" if num % pivot == 0 else " " + rupees_to_words(num % pivot))
         )
     return amt_str
+
+
+def validate_spark_dummy_account(mobile, email="", check_valid=False):
+    if check_valid and email:
+        return frappe.db.exists(
+            {"doctype": "Spark Dummy Account", "mobile": mobile, "email": email}
+        )
+    else:
+        return frappe.db.exists({"doctype": "Spark Dummy Account", "mobile": mobile})
+
+
+def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
+    filters = {"mobile": mobile, "otp": token}
+
+    dummy_account_name = frappe.db.get_value("Spark Dummy Account", filters, "name")
+
+    if not dummy_account_name:
+        raise InvalidUserTokenException("Invalid {}".format(token_type))
+
+    return frappe.get_doc("Spark Dummy Account", dummy_account_name)

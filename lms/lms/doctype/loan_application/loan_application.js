@@ -9,6 +9,7 @@ frappe.ui.form.on("Loan Application", {
       frm.get_field("items").grid.only_sortable();
       $(".grid-add-row").hide();
       $(".grid-remove-rows").hide();
+      $(".grid-remove-all-rows").hide();
     }
 
     // enable/disable file inputs
