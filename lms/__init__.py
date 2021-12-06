@@ -27,7 +27,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "1.7.1"
+__version__ = "1.7.2"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -660,7 +660,8 @@ def create_log(log, file_name):
 def send_spark_push_notification(
     fcm_notification={}, message="", loan="", customer=None
 ):
-    if fcm_notification:
+    tokens = get_firebase_tokens(customer.user)
+    if fcm_notification and tokens:
         if message:
             message = message
         else:
@@ -690,7 +691,7 @@ def send_spark_push_notification(
                 title=fcm_notification.title,
                 body=message,
                 data=data,
-                tokens=get_firebase_tokens(customer.user),
+                tokens=tokens,
                 priority="high",
             )
             # Save log for Spark Push Notification
