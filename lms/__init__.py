@@ -987,6 +987,7 @@ def rzp_payment_webhook_callback(data):
                 loan = None
 
             if loan:
+                msg = ""
                 customer = frappe.get_doc("Loan Customer", loan.customer)
 
                 payment_transaction_name = frappe.get_value(
@@ -1012,8 +1013,8 @@ def rzp_payment_webhook_callback(data):
                         loan_margin_shortfall_name=webhook_main_object["notes"].get(
                             "loan_margin_shortfall_name", None
                         ),
-                        is_for_interest=webhook_main_object["notes"].get(
-                            "is_for_interest", None
+                        is_for_interest=int(
+                            webhook_main_object["notes"].get("is_for_interest", None)
                         ),
                     )
 
@@ -1032,7 +1033,7 @@ def rzp_payment_webhook_callback(data):
                     loan_transaction.network = webhook_main_object["card"]["network"]
 
                 elif webhook_main_object["method"] == "upi":
-                    loan_transaction.vpa = webhook_main_object["vpa"]
+                    loan_transaction.vpa = webhook_main_object.get("vpa", None)
 
                 if data["event"] == "payment.authorized":
                     loan_transaction.razorpay_event = "Authorized"
@@ -1074,7 +1075,7 @@ def rzp_payment_webhook_callback(data):
                             "Margin shortfall – Action taken",
                             fields=["*"],
                         )
-                        lms.send_spark_push_notification(
+                        send_spark_push_notification(
                             fcm_notification=fcm_notification,
                             loan=loan.name,
                             customer=customer,
@@ -1114,7 +1115,7 @@ def rzp_payment_webhook_callback(data):
                     fcm_notification = frappe.get_doc(
                         "Spark Push Notification", "Payment failed", fields=["*"]
                     )
-                    lms.send_spark_push_notification(
+                    send_spark_push_notification(
                         fcm_notification=fcm_notification,
                         message=fcm_notification.message.format(
                             amount=webhook_main_object["notes"]["amount"],
