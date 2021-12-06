@@ -914,6 +914,7 @@ def loan_details(**kwargs):
                         "loan_margin_shortfall": loan_margin_shortfall.name,
                         "transaction_type": "Payment",
                         "status": ["not in", ["Approved", "Rejected"]],
+                        "razorpay_event": ["!=", "Failed"],
                     },
                     fields=["*"],
                 )
@@ -1048,7 +1049,8 @@ def loan_details(**kwargs):
                 "Loan Transaction",
                 filters={
                     "loan": loan.name,
-                    "status": ["not IN", ["Approved", "Rejected"]],
+                    "status": ["=", "Pending"],
+                    "razorpay_event": ["!=", "Failed"],
                     "loan_margin_shortfall": loan_margin_shortfall.name,
                 },
             )
