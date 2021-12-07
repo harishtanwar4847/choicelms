@@ -974,9 +974,6 @@ def rzp_payment_webhook_callback(data):
         if (
             data
             and len(data) > 0
-            and data["entity"] == "event"
-            and data["event"]
-            in ["payment.authorized", "payment.captured", "payment.failed"]
         ):
             frappe.log_error(json.dumps(data))
 
