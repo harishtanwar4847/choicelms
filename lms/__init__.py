@@ -991,6 +991,7 @@ def rzp_payment_webhook_callback(data):
                 loan = None
 
             if loan:
+                frappe.logger().info("inside loan")
                 msg = ""
                 customer = frappe.get_doc("Loan Customer", loan.customer)
 
