@@ -969,6 +969,8 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
 @frappe.whitelist(allow_guest=True)
 def rzp_payment_webhook_callback(data):
     try:
+        frappe.logger().info(type(data))
+        frappe.log_error(message=type(data))
         frappe.logger().info(json.dumps(data))
         frappe.log_error(json.dumps(data))
         if (
