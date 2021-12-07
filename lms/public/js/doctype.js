@@ -10,7 +10,7 @@ $(document).on("app_ready", function () {
       "Unpledge Application"
     ],
     function (i, doctype) {
-      frappe.ui.form.on(doctype, "refresh", function (frm) {
+      frappe.ui.form.on(doctype, "onload", function (frm) {
         if(frm.doc.loan){
           frappe.db.get_doc("Loan", frm.doc.loan).then((doc) => {
             var interest_booked_till_date_th = "";
@@ -32,6 +32,7 @@ $(document).on("app_ready", function () {
             var data = "";
             data +=
               "<style>" +
+              ".form-message.blue{padding: 5px; background-color: white;}"+
               "table {" +
               "border-collapse:separate;border:solid black 2px;border-radius:6px;-moz-border-radius:6px;background-color:white;width:100%" +
               "}" +
@@ -87,13 +88,13 @@ $(document).on("app_ready", function () {
               doc.margin_shortfall_amount +
               "</td>" +
               "<td>" +
-              "-" +
+              doc.interest_due +
               "</td>" +
               "<td>" +
-              "-" +
+              doc.interest_overdue +
               "</td>" +
               "<td>" +
-              "-" +
+              doc.day_past_due +
               "</td>" +
               "<td>" +
               doc.total_collateral_value +
