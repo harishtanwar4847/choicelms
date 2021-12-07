@@ -970,6 +970,7 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
 def rzp_payment_webhook_callback(data):
     try:
         print(type(data))
+        frappe.log_error(message="helo world")
         if (
             data
             and len(data) > 0
