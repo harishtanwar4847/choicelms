@@ -645,6 +645,8 @@ def web_mail(notification_name, name, recepient, subject):
 
 def create_log(log, file_name):
     log_file = frappe.utils.get_files_path("{}.json".format(file_name))
+    if log_file:
+        frappe.logger().info(log_file)
     logs = None
     if os.path.exists(log_file):
         with open(log_file, "r") as f:
