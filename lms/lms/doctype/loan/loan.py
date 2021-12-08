@@ -342,6 +342,15 @@ class Loan(Document):
 
         return frappe.db.sql(sql, as_dict=1)
 
+    def update_collateral_ledger(self, price, isin):
+        sql = """Update `tabCollateral Ledger`
+        set price = {}, value = ({}*quantity)
+        where loan = '{}' and isin = '{}' """.format(
+            price, price, self.name, isin
+        )
+
+        return frappe.db.sql(sql, as_dict=1)
+
     def update_items(self):
         check = False
 
@@ -354,6 +363,7 @@ class Loan(Document):
             # print(check, i.price, curr.price, not check or i.price != curr.price)
             if (not check or i.price != curr.price) and i.pledged_quantity > 0:
                 check = True
+                self.update_collateral_ledger(curr.price, curr.isin)
 
             i.price = curr.price
             i.pledged_quantity = curr.quantity
