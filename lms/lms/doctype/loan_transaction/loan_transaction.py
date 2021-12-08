@@ -116,11 +116,12 @@ class LoanTransaction(Document):
         ]
 
         if "System Manager" not in user_roles:
-            if self.transaction_type in loan_cust_transaction_list and (
-                "Loan Customer" not in user_roles
-            ):
-                frappe.throw(_("You are not permitted to perform this action"))
-            elif self.transaction_type in lender_team_transaction_list and (
+            # if self.transaction_type in loan_cust_transaction_list and (
+            #     "Loan Customer" not in user_roles
+            # ):
+            #     frappe.throw(_("You are not permitted to perform this action"))
+            # elif self.transaction_type in lender_team_transaction_list and (
+            if self.transaction_type in lender_team_transaction_list and (
                 "Lender" not in user_roles
             ):
                 frappe.throw(_("You are not permitted to perform this action"))
