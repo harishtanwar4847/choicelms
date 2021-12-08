@@ -421,7 +421,14 @@ class LoanTransaction(Document):
                 if total_interest_amt_paid <= 0:
                     break
 
-    def create_lender_ledger(self, loan_transaction_name, lender_share, spark_share):
+    def create_lender_ledger(
+        self,
+        customer_name,
+        loan_transaction_name,
+        loan_transaction_type,
+        lender_share,
+        spark_share,
+    ):
         frappe.get_doc(
             {
                 "doctype": "Lender Ledger",
