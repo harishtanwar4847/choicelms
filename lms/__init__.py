@@ -969,6 +969,9 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
 @frappe.whitelist(allow_guest=True)
 def rzp_payment_webhook_callback(data):
     try:
+        log = {"data":frappe.local.form_dict}
+        create_log(log, "rzp_payment_log")
+
         if (
             data
             and len(data) > 0
@@ -1140,6 +1143,6 @@ def rzp_payment_webhook_callback(data):
                 frappe.db.commit()
     except Exception as e:
         frappe.log_error(
-            message=frappe.get_traceback() + "\nWebhook details:\n" + str(data),
+            message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
             title=_("Payment Webhook Error"),
         )
