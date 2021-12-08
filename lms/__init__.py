@@ -979,7 +979,7 @@ def rzp_payment_webhook_callback(**kwargs):
         # log = {"data":data}
         create_log(log, "rzp_payment_log")
         data = frappe.local.form_dict
-        
+
         # if (
         #     data
         #     and len(data) > 0
