@@ -1026,7 +1026,7 @@ def rzp_payment_webhook_callback(**kwargs):
                             webhook_main_object["notes"].get("is_for_interest", None)
                         ),
                     )
-
+                loan_transaction.reload()
                 if webhook_main_object["method"] == "netbanking":
                     loan_transaction.bank_name = webhook_main_object["bank"]
                     loan_transaction.bank_transaction_id = webhook_main_object[
