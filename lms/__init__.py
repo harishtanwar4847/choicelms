@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import hmac
 
 import json
 import os
@@ -19,6 +20,7 @@ from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
 from lms.config import lms
 from lms.firebase import FirebaseAdmin
+from werkzeug.exceptions import SecurityError
 
 from .exceptions import *
 
@@ -986,19 +988,22 @@ def rzp_payment_webhook_callback(**kwargs):
 
         headers = {k: v for k, v in frappe.local.request.headers.items()}
         webhook_signature = headers.get("X-Razorpay-Signature")
-        # key = webhook_secret
-        # message = webhook_body
-        # received_signature = webhook_signature
-        verification = client.utility.verify_webhook_signature(json.dumps(webhook_body), webhook_signature, webhook_secret)
+        key = webhook_secret
+        message = webhook_body
+        received_signature = webhook_signature
+        # verification = client.utility.verify_webhook_signature(json.dumps(webhook_body), webhook_signature, webhook_secret)
 
-        # expected_signature = hmac('sha256', message, key)
+        expected_signature = hmac('sha256', json.dumps(webhook_body), webhook_secret)
         log = {
             "rzp_payment_webhook_response": webhook_body,
             "headers": headers,
-            "verification": verification
-        }        
+            "expected_signature": expected_signature
+            "received_signature": received_signature
+        }      
 
         create_log(log, "rzp_payment_webhook_log")
+        if expected_signature != received_signature:
+            raise SecurityError
         data = webhook_body
 
             # if (
