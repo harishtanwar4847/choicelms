@@ -989,7 +989,7 @@ def rzp_payment_webhook_callback(**kwargs):
         # key = webhook_secret
         # message = webhook_body
         # received_signature = webhook_signature
-        verification = client.utility.verify_webhook_signature(str(webhook_body, 'UTF-8'), webhook_signature, webhook_secret)
+        verification = client.utility.verify_webhook_signature(json.dumps(webhook_body), webhook_signature, webhook_secret)
 
         # expected_signature = hmac('sha256', message, key)
         log = {
