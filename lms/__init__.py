@@ -988,17 +988,18 @@ def rzp_payment_webhook_callback(**kwargs):
 
         headers = {k: v for k, v in frappe.local.request.headers.items()}
         webhook_signature = headers.get("X-Razorpay-Signature")
-        key = webhook_secret
-        message = webhook_body
+        # key = webhook_secret
+        # message = webhook_body
         received_signature = webhook_signature
-        # verification = client.utility.verify_webhook_signature(json.dumps(webhook_body), webhook_signature, webhook_secret)
+        verification = client.utility.verify_webhook_signature(json.dumps(frappe.local.request.data, separators=(',', ':')), webhook_signature, webhook_secret)
 
-        expected_signature = hmac('sha256', json.dumps(webhook_body), webhook_secret)
+        # expected_signature = hmac('sha256', json.dumps(webhook_body), webhook_secret)
         log = {
             "rzp_payment_webhook_response": webhook_body,
             "headers": headers,
-            "expected_signature": expected_signature,
-            "received_signature": received_signature
+            "verification":verification
+            # "expected_signature": expected_signature,
+            # "received_signature": received_signature
         }      
 
         create_log(log, "rzp_payment_webhook_log")
