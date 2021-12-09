@@ -981,7 +981,7 @@ def rzp_payment_webhook_callback(**kwargs):
         #     frappe.session.user = rzp_user[0]['name']
             
         log = {
-            "rzp_payment_webhook_response": {"%s == %s" %(key, value) for key, value in kwargs.items()},
+            "rzp_payment_webhook_response": {key, value for key, value in kwargs.items()},
         }        
 
         create_log(log, "rzp_payment_webhook_log")
