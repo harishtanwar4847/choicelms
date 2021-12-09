@@ -1022,7 +1022,7 @@ def rzp_payment_webhook_callback(**kwargs):
             # LoginManager().clear_active_sessions()
     except Exception as e:
         frappe.log_error(
-            message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(headers),
+            message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
             title=_("Payment Webhook Error"),
         )
         # pass
