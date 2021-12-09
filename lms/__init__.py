@@ -995,7 +995,7 @@ def rzp_payment_webhook_callback(**kwargs):
             log = {
                 "rzp_payment_webhook_response": webhook_body,
                 "headers": headers,
-                "request data json": json.dumps(frappe.local.request.json, separators = (',', ':')),
+                "request data json": json.dumps(frappe.local.request.data, separators = (',', ':')),
                 "request data str": str(frappe.local.request.data, 'utf-8'),
             }      
 
