@@ -11,6 +11,7 @@ from random import choice, randint
 from traceback import format_exc
 
 import frappe
+from frappe.api import get_request_form_data
 from frappe.sessions import Session
 import razorpay
 import requests
@@ -983,7 +984,8 @@ def rzp_payment_webhook_callback(**kwargs):
         #     frappe.session.user = rzp_user[0]['name']
         # razorpay test key id and key secret
         client = razorpay.Client(auth=("rzp_test_Y6V9MAUGbQlOrW", "vEnHHmtHpxZvYwDOEfDZmmPZ"))
-        webhook_body = frappe.local.form_dict
+        webhook_body = get_request_form_data()
+        # webhook_body = frappe.local.form_dict
         webhook_secret = "a0058d7ad033dac"
 
         headers = {k: v for k, v in frappe.local.request.headers.items()}
@@ -991,7 +993,7 @@ def rzp_payment_webhook_callback(**kwargs):
         # key = webhook_secret
         # message = webhook_body
         received_signature = webhook_signature
-        verification = client.utility.verify_webhook_signature(json.dumps(frappe.local.request.data), webhook_signature, webhook_secret)
+        verification = client.utility.verify_webhook_signature(webhook_body, webhook_signature, webhook_secret)
 
         # expected_signature = hmac('sha256', json.dumps(webhook_body), webhook_secret)
         log = {
