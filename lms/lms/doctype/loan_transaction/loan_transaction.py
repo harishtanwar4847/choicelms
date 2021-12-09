@@ -95,7 +95,7 @@ class LoanTransaction(Document):
         user_roles = [role[0] for role in user_roles]
 
         # loan_cust_transaction_list = ["Withdrawal", "Payment", "Sell Collateral"]
-        loan_cust_transaction_list = ["Withdrawal", "Payment"]
+        # loan_cust_transaction_list = ["Withdrawal", "Payment"]
         lender_team_transaction_list = [
             "Debit Note",
             "Credit Note",
@@ -116,12 +116,15 @@ class LoanTransaction(Document):
         ]
 
         if "System Manager" not in user_roles:
-            # if self.transaction_type in loan_cust_transaction_list and (
-            #     "Loan Customer" not in user_roles
-            # ):
-            #     frappe.throw(_("You are not permitted to perform this action"))
-            # elif self.transaction_type in lender_team_transaction_list and (
-            if self.transaction_type in lender_team_transaction_list and (
+            if self.transaction_type == "Payment" and (
+                "Razorpay User" not in user_roles
+            ):
+                frappe.throw(_("You are not permitted to perform this action"))
+            if self.transaction_type == "Withdrawal" and (
+                "Loan Customer" not in user_roles
+            ):
+                frappe.throw(_("You are not permitted to perform this action"))
+            elif self.transaction_type in lender_team_transaction_list and (
                 "Lender" not in user_roles
             ):
                 frappe.throw(_("You are not permitted to perform this action"))

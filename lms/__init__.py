@@ -10,6 +10,7 @@ from random import choice, randint
 from traceback import format_exc
 
 import frappe
+from frappe.sessions import Session
 import razorpay
 import requests
 import utils
@@ -971,30 +972,44 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
 @frappe.whitelist(allow_guest=True)
 def rzp_payment_webhook_callback(**kwargs):
     try:
+        # rzp_user = frappe.db.sql(
+        #             "select u.name from `tabUser` as u left join `tabHas Role` as r on u.email=r.parent where role='Razorpay User'",
+        #             as_dict=1,
+        #         )
+        # if rzp_user:
+            
+        #     frappe.session.user = rzp_user[0]['name']
+            
         log = {
-            "rzp_payment_webhook_response": frappe.local.form_dict,
+            "rzp_payment_webhook_response": {"%s == %s" %(key, value) for key, value in kwargs.items()},
         }        
 
         create_log(log, "rzp_payment_webhook_log")
         data = frappe.local.form_dict
 
-        if (
-            data
-            and len(data) > 0
-            and data["entity"] == "event"
-            and data["event"]
-            in ["payment.authorized", "payment.captured", "payment.failed"]
-        ):
-            
-            frappe.enqueue(
-                method="lms.create_rzp_payment_transaction",
-                data=data
-            )
+            # if (
+            #     data
+            #     and len(data) > 0
+            #     and data["entity"] == "event"
+            #     and data["event"]
+            #     in ["payment.authorized", "payment.captured", "payment.failed"]
+            # ):
+                
+            #     # frappe.enqueue(
+            #     #     method="lms.create_rzp_payment_transaction",
+            #     #     data=data
+            #     # )
+            #     print(frappe.session.user,"frappe.session.user")
+
+            #     create_rzp_payment_transaction(data)
+            # from frappe.auth import LoginManager
+            # LoginManager().clear_active_sessions()
     except Exception as e:
-        frappe.log_error(
-            message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
-            title=_("Payment Webhook Error"),
-        )
+        # frappe.log_error(
+        #     message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
+        #     title=_("Payment Webhook Error"),
+        # )
+        pass
 
 def create_rzp_payment_transaction(data):
     webhook_main_object = data["payload"]["payment"]["entity"]
