@@ -997,7 +997,7 @@ def rzp_payment_webhook_callback(**kwargs):
         log = {
             "rzp_payment_webhook_response": webhook_body,
             "headers": headers,
-            "expected_signature": expected_signature
+            "expected_signature": expected_signature,
             "received_signature": received_signature
         }      
 
