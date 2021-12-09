@@ -975,60 +975,54 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
 @frappe.whitelist(allow_guest=True)
 def rzp_payment_webhook_callback(**kwargs):
     try:
-        # rzp_user = frappe.db.sql(
-        #             "select u.name from `tabUser` as u left join `tabHas Role` as r on u.email=r.parent where role='Razorpay User'",
-        #             as_dict=1,
-        #         )
-        # if rzp_user:
+        rzp_user = frappe.db.sql(
+                    "select u.name from `tabUser` as u left join `tabHas Role` as r on u.email=r.parent where role='Razorpay User'",
+                    as_dict=1,
+                )
+        if rzp_user:
             
-        #     frappe.session.user = rzp_user[0]['name']
-        # razorpay test key id and key secret
-        client = razorpay.Client(auth=("rzp_test_Y6V9MAUGbQlOrW", "vEnHHmtHpxZvYwDOEfDZmmPZ"))
-        webhook_body = get_request_form_data()
-        # webhook_body = frappe.local.form_dict
-        webhook_secret = "a0058d7ad033dac"
+            frappe.session.user = rzp_user[0]['name']
+            # razorpay test key id and key secret
+            client = razorpay.Client(auth=("rzp_test_Y6V9MAUGbQlOrW", "vEnHHmtHpxZvYwDOEfDZmmPZ"))
+            webhook_body = str(frappe.local.request.data, 'utf-8')
+            data = frappe.local.form_dict
+            # webhook_body = frappe.local.form_dict
+            webhook_secret = "a0058d7ad033dac"
 
-        headers = {k: v for k, v in frappe.local.request.headers.items()}
-        webhook_signature = headers.get("X-Razorpay-Signature")
-        # key = webhook_secret
-        # message = webhook_body
-        received_signature = webhook_signature
-        verification = client.utility.verify_webhook_signature(str(frappe.local.request.data, 'utf-8'), webhook_signature, webhook_secret)
+            headers = {k: v for k, v in frappe.local.request.headers.items()}
+            webhook_signature = headers.get("X-Razorpay-Signature")
 
-        # expected_signature = hmac('sha256', json.dumps(webhook_body), webhook_secret)
-        log = {
-            "rzp_payment_webhook_response": webhook_body,
-            "headers": headers,
-            "verification":verification
-            # "expected_signature": expected_signature,
-            # "received_signature": received_signature
-        }      
+            if client.utility.verify_webhook_signature(webhook_body, webhook_signature, webhook_secret):
+                # expected_signature = hmac('sha256', json.dumps(webhook_body), webhook_secret)
+                log = {
+                    "rzp_payment_webhook_response": webhook_body,
+                    "headers": headers,
+                }      
 
-        create_log(log, "rzp_payment_webhook_log")
-        # if expected_signature != received_signature:
-        #     raise SecurityError
-        data = webhook_body
+                create_log(log, "rzp_payment_webhook_log")
+                # if expected_signature != received_signature:
+                #     raise SecurityError
 
-            # if (
-            #     data
-            #     and len(data) > 0
-            #     and data["entity"] == "event"
-            #     and data["event"]
-            #     in ["payment.authorized", "payment.captured", "payment.failed"]
-            # ):
-                
+                if (
+                    data
+                    and len(data) > 0
+                    and data["entity"] == "event"
+                    and data["event"]
+                    in ["payment.authorized", "payment.captured", "payment.failed"]
+                ):
+                    
             #     # frappe.enqueue(
             #     #     method="lms.create_rzp_payment_transaction",
             #     #     data=data
             #     # )
             #     print(frappe.session.user,"frappe.session.user")
 
-            #     create_rzp_payment_transaction(data)
+                    create_rzp_payment_transaction(data)
             # from frappe.auth import LoginManager
             # LoginManager().clear_active_sessions()
     except Exception as e:
         frappe.log_error(
-            message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(headers),
+            message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
             title=_("Payment Webhook Error"),
         )
         # pass
