@@ -1019,11 +1019,11 @@ def rzp_payment_webhook_callback(**kwargs):
             # from frappe.auth import LoginManager
             # LoginManager().clear_active_sessions()
     except Exception as e:
-        # frappe.log_error(
-        #     message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
-        #     title=_("Payment Webhook Error"),
-        # )
-        pass
+        frappe.log_error(
+            message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(headers),
+            title=_("Payment Webhook Error"),
+        )
+        # pass
 
 def create_rzp_payment_transaction(data):
     webhook_main_object = data["payload"]["payment"]["entity"]
