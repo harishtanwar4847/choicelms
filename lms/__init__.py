@@ -996,11 +996,11 @@ def rzp_payment_webhook_callback(**kwargs):
                 "rzp_payment_webhook_response": webhook_body,
                 "headers": headers,
                 # "request data json": json.dumps(frappe.local.request.data, separators = (',', ':')),
-                "request data str": str(frappe.local.request.data, 'utf-8'),
+                "request data str": str(frappe.local.request.body, 'utf-8'),
             }      
 
             create_log(log, "rzp_payment_webhook_log")
-            if client.utility.verify_webhook_signature(frappe.local.request.data, webhook_signature, webhook_secret):
+            if client.utility.verify_webhook_signature(str(frappe.local.request.body, 'utf-8'), webhook_signature, webhook_secret):
                 # expected_signature = hmac('sha256', json.dumps(webhook_body), webhook_secret)
                 # if expected_signature != received_signature:
                 #     raise SecurityError
