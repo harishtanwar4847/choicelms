@@ -360,8 +360,8 @@ class LoanTransaction(Document):
             "Penal Interest",
             "Payment",
         ]:
-            loan.reload()
             self.update_interest_summary_values(loan)
+            loan.reload()
 
         # update closing balance
         frappe.db.set_value(
@@ -584,9 +584,9 @@ class LoanTransaction(Document):
             # )[0]["unpaid_interest"]
 
             current_date = frappe.utils.now_datetime()
-            job_date = (current_date - timedelta(days=1)).replace(
-                hour=23, minute=59, second=59, microsecond=999999
-            )
+            job_date = (current_date).replace(
+                day=1, hour=23, minute=59, second=59, microsecond=999999
+            ) - timedelta(days=1)
             prev_month = job_date.month
             prev_month_year = job_date.year
 
@@ -596,7 +596,6 @@ class LoanTransaction(Document):
                 ),
                 as_dict=1,
             )[0]["unpaid_interest"]
-
             loan.interest_due = interest_due if interest_due else 0.0
 
         """

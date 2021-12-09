@@ -687,9 +687,10 @@ class Loan(Document):
         day_past_due = frappe.db.sql(
             "select sum(unpaid_interest) as total_amount from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and unpaid_interest >0".format(
                 self.name
-            )
+            ),
+            as_dict=True,
         )
-        if day_past_due:
+        if day_past_due[0]["total_amount"]:
             self.day_past_due += 1
         else:
             self.day_past_due = 0

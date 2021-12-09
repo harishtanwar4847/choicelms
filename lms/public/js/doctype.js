@@ -10,7 +10,7 @@ $(document).on("app_ready", function () {
       "Unpledge Application"
     ],
     function (i, doctype) {
-      frappe.ui.form.on(doctype, "onload", function (frm) {
+      frappe.ui.form.on(doctype, "refresh", function (frm) {
         if(frm.doc.loan){
           frappe.db.get_doc("Loan", frm.doc.loan).then((doc) => {
             var interest_booked_till_date_th = "";
