@@ -993,7 +993,7 @@ def rzp_payment_webhook_callback(**kwargs):
         # key = webhook_secret
         # message = webhook_body
         received_signature = webhook_signature
-        verification = client.utility.verify_webhook_signature(frappe.parse_json(frappe.local.form_dict.data), webhook_signature, webhook_secret)
+        verification = client.utility.verify_webhook_signature(json.dumps(frappe.local.request.data, separators=(',', ':')), webhook_signature, webhook_secret)
 
         # expected_signature = hmac('sha256', json.dumps(webhook_body), webhook_secret)
         log = {
