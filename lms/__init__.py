@@ -993,33 +993,34 @@ def rzp_payment_webhook_callback(**kwargs):
             webhook_signature = headers.get("X-Razorpay-Signature")
 
             log = {
-                "rzp_payment_webhook_response": webhook_body,
+                "rzp_payment_webhook_response": frappe.local.form_dict,
                 "headers": headers,
                 # "request data json": json.dumps(frappe.local.request.data, separators = (',', ':')),
                 "request data str": frappe.local.request.data.decode(),
             }      
 
             create_log(log, "rzp_payment_webhook_log")
-            if client.utility.verify_webhook_signature(frappe.local.request.data.decode(), webhook_signature, webhook_secret):
+            # if client.utility.verify_webhook_signature(frappe.local.request.data.decode(), webhook_signature, webhook_secret):
                 # expected_signature = hmac('sha256', json.dumps(webhook_body), webhook_secret)
                 # if expected_signature != received_signature:
                 #     raise SecurityError
 
-                if (
-                    data
-                    and len(data) > 0
-                    and data["entity"] == "event"
-                    and data["event"]
-                    in ["payment.authorized", "payment.captured", "payment.failed"]
-                ):
-                    
-            #     # frappe.enqueue(
-            #     #     method="lms.create_rzp_payment_transaction",
-            #     #     data=data
-            #     # )
+            if (
+                data
+                and len(data) > 0
+                and data["entity"] == "event"
+                and data["event"]
+                in ["payment.authorized", "payment.captured", "payment.failed"]
+            ):
+                
+                frappe.enqueue(
+                    method="lms.create_rzp_payment_transaction",
+                    data=data,
+                    now=True
+                )
             #     print(frappe.session.user,"frappe.session.user")
 
-                    create_rzp_payment_transaction(data)
+                    # create_rzp_payment_transaction(data)
             # from frappe.auth import LoginManager
             # LoginManager().clear_active_sessions()
     except Exception as e:
@@ -1088,7 +1089,7 @@ def create_rzp_payment_transaction(data):
         elif webhook_main_object["method"] == "upi":
             loan_transaction.vpa = webhook_main_object.get("vpa", None)
 
-        if data["event"] == "payment.authorized":
+        if data["event"] == "payment.authorized" and loan_transaction.razorpay_event != "Captured":
             loan_transaction.razorpay_event = "Authorized"
             if webhook_main_object["notes"]["loan_margin_shortfall_name"]:
                 try:
