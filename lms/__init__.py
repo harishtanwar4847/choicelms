@@ -1008,13 +1008,15 @@ def rzp_payment_webhook_callback(**kwargs):
                 # "json_dumps_separators":client.utility.verify_webhook_signature(frappe.local.request.data, webhook_signature, webhook_secret)
             }
 
-            frappe.logger().info(log)    
+            # frappe.logger().info(log)    
 
             # create_log(log, "rzp_payment_webhook_log")
             # if client.utility.verify_webhook_signature(frappe.local.request.data.decode(), webhook_signature, webhook_secret):
-                # expected_signature = hmac('sha256', json.dumps(webhook_body), webhook_secret)
-                # if expected_signature != received_signature:
-                #     raise SecurityError
+            expected_signature = hmac('sha256',frappe.local.request.data, webhook_secret)
+            frappe.logger().info(expected_signature == webhook_signature)    
+
+            if expected_signature != webhook_signature:
+                raise SecurityError
 
             if (
                 data
