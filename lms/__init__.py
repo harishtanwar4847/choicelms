@@ -997,19 +997,19 @@ def rzp_payment_webhook_callback(**kwargs):
                 "rzp_payment_webhook_response": frappe.local.form_dict,
                 "headers": headers,
                 # "request data json": json.dumps(frappe.local.request.data, separators = (',', ':')),
-                "request_data_str": frappe.local.request.data.decode(),
+                "request_data_str": type(frappe.local.request.data),
                 # "response": [k["docs"] for k in frappe.local.response],
                 # "type_of_form_dict": type(frappe.local.form_dict),
                 "form_dict": frappe.local.form_dict,
                 # "request": [r for r in frappe.local.request],
                 # "req_data_verification_str":client.utility.verify_webhook_signature(str(frappe.local.request.data), webhook_signature, webhook_secret),
-                "req_data_str_utf8":str(str(frappe.local.request.data).replace('',''),'utf-8'),
+                "req_data_str_utf8":str(frappe.local.request.data,'utf-8'),
                 # "json_dumps_separators":client.utility.verify_webhook_signature(json.dumps(frappe.local.request.data, separators=(",",":")), webhook_signature, webhook_secret)
             }
 
             frappe.logger().info(log)    
 
-            create_log(log, "rzp_payment_webhook_log")
+            # create_log(log, "rzp_payment_webhook_log")
             # if client.utility.verify_webhook_signature(frappe.local.request.data.decode(), webhook_signature, webhook_secret):
                 # expected_signature = hmac('sha256', json.dumps(webhook_body), webhook_secret)
                 # if expected_signature != received_signature:
