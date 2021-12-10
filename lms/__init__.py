@@ -996,7 +996,9 @@ def rzp_payment_webhook_callback(**kwargs):
                 "rzp_payment_webhook_response": frappe.local.form_dict,
                 "headers": headers,
                 # "request data json": json.dumps(frappe.local.request.data, separators = (',', ':')),
-                "request data str": frappe.local.request.data.decode(),
+                "request_data_str": frappe.local.request.data.decode(),
+                "type_of_form_dict": type(frappe.local.form_dict),
+                "verification":client.utility.verify_webhook_signature(str(frappe.local.form_dict), webhook_signature, webhook_secret)
             }      
 
             create_log(log, "rzp_payment_webhook_log")
@@ -1012,14 +1014,11 @@ def rzp_payment_webhook_callback(**kwargs):
                 and data["event"]
                 in ["payment.authorized", "payment.captured", "payment.failed"]
             ):
-                if data["event"] == "payment.captured":
-                    frappe.enqueue(
-                        method="lms.create_rzp_payment_transaction",
-                        data=data,
-                        # now=False if data["event"] == "payment.captured" else True
-                    )
-                else:
-                    create_rzp_payment_transaction(data)
+                frappe.enqueue(
+                    method="lms.create_rzp_payment_transaction",
+                    data=data,
+                    # now=False if data["event"] == "payment.captured" else True
+                )
     except Exception as e:
         frappe.log_error(
             message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
