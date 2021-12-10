@@ -1012,18 +1012,12 @@ def rzp_payment_webhook_callback(**kwargs):
                 and data["event"]
                 in ["payment.authorized", "payment.captured", "payment.failed"]
             ):
-                import time
-                time.sleep(10)
+
                 frappe.enqueue(
                     method="lms.create_rzp_payment_transaction",
                     data=data,
-                    now=True
+                    now=False if data["event"] == "payment.captured" else True
                 )
-            #     print(frappe.session.user,"frappe.session.user")
-
-                    # create_rzp_payment_transaction(data)
-            # from frappe.auth import LoginManager
-            # LoginManager().clear_active_sessions()
     except Exception as e:
         frappe.log_error(
             message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
