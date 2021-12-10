@@ -14,6 +14,7 @@ import frappe
 from frappe.api import get_request_form_data
 from frappe.sessions import Session
 import razorpay
+from razorpay.errors import SignatureVerificationError
 import requests
 import utils
 from frappe import _
@@ -1012,14 +1013,17 @@ def rzp_payment_webhook_callback(**kwargs):
 
             # create_log(log, "rzp_payment_webhook_log")
             # if client.utility.verify_webhook_signature(frappe.local.request.data.decode(), webhook_signature, webhook_secret):
-            from hmac import HMAC
-            expected_signature = HMAC(digestmod='sha256',msg=frappe.local.request.data, key=bytes(webhook_secret, 'utf-8'))
+            # from hmac import HMAC
+            expected_signature = hmac.new(digestmod='sha256',msg=frappe.local.request.data, key=bytes(webhook_secret, 'utf-8'))
+            generated_signature = expected_signature.hexdigest()
+            result = hmac.compare_digest(generated_signature, webhook_signature)
             frappe.logger().info(expected_signature)    
             frappe.logger().info(webhook_signature)    
             frappe.logger().info(expected_signature == webhook_signature)    
 
-            if expected_signature != webhook_signature:
-                raise SecurityError
+            if not result:
+                raise SignatureVerificationError(
+                    'Razorpay Signature Verification Failed')
 
             if (
                 data
