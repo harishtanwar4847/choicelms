@@ -998,7 +998,6 @@ def rzp_payment_webhook_callback(**kwargs):
                 "headers": headers,
                 # "request data json": json.dumps(frappe.local.request.data, separators = (',', ':')),
                 "request_data_str": frappe.local.request.data.decode(),
-                "raw": frappe.local.request.rawData,
                 # "type_of_form_dict": type(frappe.local.form_dict),
                 "form_dict": frappe.local.form_dict,
                 # "request": [r for r in frappe.local.request],
