@@ -1012,7 +1012,8 @@ def rzp_payment_webhook_callback(**kwargs):
                 and data["event"]
                 in ["payment.authorized", "payment.captured", "payment.failed"]
             ):
-                
+                import time
+                time.sleep(10)
                 frappe.enqueue(
                     method="lms.create_rzp_payment_transaction",
                     data=data,
@@ -1072,22 +1073,22 @@ def create_rzp_payment_transaction(data):
                     webhook_main_object["notes"].get("is_for_interest", None)
                 ),
             )
-        if webhook_main_object["method"] == "netbanking":
-            loan_transaction.bank_name = webhook_main_object["bank"]
-            loan_transaction.bank_transaction_id = webhook_main_object[
-                "acquirer_data"
-            ]["bank_transaction_id"]
+            if webhook_main_object["method"] == "netbanking":
+                loan_transaction.bank_name = webhook_main_object["bank"]
+                loan_transaction.bank_transaction_id = webhook_main_object[
+                    "acquirer_data"
+                ]["bank_transaction_id"]
 
-        elif webhook_main_object["method"] == "card":
-            loan_transaction.name_on_card = webhook_main_object["card"]["name"]
-            loan_transaction.last_4_digits = webhook_main_object["card"][
-                "last4"
-            ]
-            loan_transaction.card_id = webhook_main_object["card"]["id"]
-            loan_transaction.network = webhook_main_object["card"]["network"]
+            elif webhook_main_object["method"] == "card":
+                loan_transaction.name_on_card = webhook_main_object["card"]["name"]
+                loan_transaction.last_4_digits = webhook_main_object["card"][
+                    "last4"
+                ]
+                loan_transaction.card_id = webhook_main_object["card"]["id"]
+                loan_transaction.network = webhook_main_object["card"]["network"]
 
-        elif webhook_main_object["method"] == "upi":
-            loan_transaction.vpa = webhook_main_object.get("vpa", None)
+            elif webhook_main_object["method"] == "upi":
+                loan_transaction.vpa = webhook_main_object.get("vpa", None)
 
         if data["event"] == "payment.authorized" and loan_transaction.razorpay_event != "Captured":
             loan_transaction.razorpay_event = "Authorized"
