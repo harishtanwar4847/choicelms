@@ -1012,7 +1012,8 @@ def rzp_payment_webhook_callback(**kwargs):
 
             # create_log(log, "rzp_payment_webhook_log")
             # if client.utility.verify_webhook_signature(frappe.local.request.data.decode(), webhook_signature, webhook_secret):
-            expected_signature = hmac('sha256',frappe.local.request.data, webhook_secret)
+            from hmac import HMAC
+            expected_signature = HMAC('sha256',frappe.local.request.data, webhook_secret)
             frappe.logger().info(expected_signature)    
             frappe.logger().info(webhook_signature)    
             frappe.logger().info(expected_signature == webhook_signature)    
