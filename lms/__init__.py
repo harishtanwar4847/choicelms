@@ -980,48 +980,24 @@ def rzp_payment_webhook_callback(**kwargs):
                     "select u.name from `tabUser` as u left join `tabHas Role` as r on u.email=r.parent where role='Razorpay User'",
                     as_dict=1,
                 )
-        if rzp_user:
-            
+        data = frappe.local.form_dict
+        webhook_secret = "a0058d7ad033dac"
+
+        headers = {k: v for k, v in frappe.local.request.headers.items()}
+        webhook_signature = headers.get("X-Razorpay-Signature")
+        log = {
+            "rzp_payment_webhook_response": data,
+        }
+        create_log(log,"rzp_payment_webhook_log")
+
+        expected_signature = hmac.new(digestmod='sha256',msg=frappe.local.request.data, key=bytes(webhook_secret, 'utf-8'))
+        generated_signature = expected_signature.hexdigest()
+        result = hmac.compare_digest(generated_signature, webhook_signature)
+        if not result:
+            raise SignatureVerificationError(
+                'Razorpay Signature Verification Failed')
+        if rzp_user and result:
             frappe.session.user = rzp_user[0]['name']
-            # razorpay test key id and key secret
-            client = razorpay.Client(auth=("rzp_test_Y6V9MAUGbQlOrW", "vEnHHmtHpxZvYwDOEfDZmmPZ"))
-            webhook_body = str(frappe.local.request.data, 'utf-8')
-            data = frappe.local.form_dict
-            # webhook_body = frappe.local.form_dict
-            webhook_secret = "a0058d7ad033dac"
-
-            headers = {k: v for k, v in frappe.local.request.headers.items()}
-            webhook_signature = headers.get("X-Razorpay-Signature")
-
-
-            log = {
-                "rzp_payment_webhook_response": frappe.local.form_dict,
-                "headers": headers,
-                # "request data json": json.dumps(frappe.local.request.data, separators = (',', ':')),
-                # "request_data_str": type(frappe.local.request.data),
-                "response": frappe.response,
-                "request": frappe.request,
-                "form_dict": frappe.local.form_dict,
-                # "request": [r for r in frappe.local.request],
-                # "req_data_verification_str":client.utility.verify_webhook_signature(str(frappe.local.request.data), webhook_signature, webhook_secret),
-                "req_data_str_utf8":str(frappe.local.request.data,'utf-8'),
-                "type":type(frappe.local.request.data)
-                # "json_dumps_separators":client.utility.verify_webhook_signature(frappe.local.request.data, webhook_signature, webhook_secret)
-            }
-
-            # frappe.logger().info(log)    
-
-            # create_log(log, "rzp_payment_webhook_log")
-            # if client.utility.verify_webhook_signature(frappe.local.request.data.decode(), webhook_signature, webhook_secret):
-            # from hmac import HMAC
-            expected_signature = hmac.new(digestmod='sha256',msg=frappe.local.request.data, key=bytes(webhook_secret, 'utf-8'))
-            generated_signature = expected_signature.hexdigest()
-            result = hmac.compare_digest(generated_signature, webhook_signature)
-            frappe.logger().info(result)    
-
-            if not result:
-                raise SignatureVerificationError(
-                    'Razorpay Signature Verification Failed')
 
             if (
                 data
