@@ -1004,7 +1004,8 @@ def rzp_payment_webhook_callback(**kwargs):
                 # "request": [r for r in frappe.local.request],
                 # "req_data_verification_str":client.utility.verify_webhook_signature(str(frappe.local.request.data), webhook_signature, webhook_secret),
                 "req_data_str_utf8":str(frappe.local.request.data,'utf-8'),
-                "json_dumps_separators":client.utility.verify_webhook_signature(frappe.local.request.data, webhook_signature, webhook_secret)
+                "type":type(frappe.local.request.data)
+                # "json_dumps_separators":client.utility.verify_webhook_signature(frappe.local.request.data, webhook_signature, webhook_secret)
             }
 
             frappe.logger().info(log)    
