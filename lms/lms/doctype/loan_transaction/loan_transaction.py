@@ -582,17 +582,15 @@ class LoanTransaction(Document):
             #     ),
             #     as_dict=1,
             # )[0]["unpaid_interest"]
-
-            current_date = frappe.utils.now_datetime()
-            job_date = (current_date).replace(
-                day=1, hour=23, minute=59, second=59, microsecond=999999
-            ) - timedelta(days=1)
-            prev_month = job_date.month
-            prev_month_year = job_date.year
-
+            # input_date = frappe.utils.now_datetime()
+            # calculation_date = (input_date).replace(
+            #     day=1, hour=23, minute=59, second=59, microsecond=999999
+            # ) - timedelta(days=1)
+            # prev_month = calculation_date.month
+            # prev_month_year = calculation_date.year
             interest_due = frappe.db.sql(
-                "select sum(unpaid_interest) as unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
-                    self.loan, prev_month_year, prev_month
+                "select unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest > 0 order by time desc ".format(
+                    self.loan
                 ),
                 as_dict=1,
             )[0]["unpaid_interest"]
@@ -612,7 +610,6 @@ class LoanTransaction(Document):
             loan.interest_overdue = interest_overdue if interest_overdue else 0.0
             if interest_overdue:
                 loan.interest_due = 0.0
-
         loan.save(ignore_permissions=True)
 
     def before_save(self):
