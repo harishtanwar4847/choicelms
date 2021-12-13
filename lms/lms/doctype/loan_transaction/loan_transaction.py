@@ -532,9 +532,9 @@ class LoanTransaction(Document):
             frappe.throw("Allowable amount could not be greater than requested amount")
 
     def after_insert(self):
-        msg = ""
-        customer = self.get_customer()
         if self.transaction_type == "Payment":
+            msg = ""
+            customer = self.get_customer()
             if self.razorpay_event != "Failed":
                 if self.loan_margin_shortfall:
                     loan_margin_shortfall = frappe.get_doc(
