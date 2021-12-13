@@ -981,7 +981,9 @@ def rzp_payment_webhook_callback(**kwargs):
                     as_dict=1,
                 )
         data = frappe.local.form_dict
-        webhook_secret = "a0058d7ad033dac"
+
+        # Razorpay Signature Verification
+        webhook_secret = frappe.get_single("LAS Settings").razorpay_webhook_secret
 
         headers = {k: v for k, v in frappe.local.request.headers.items()}
         webhook_signature = headers.get("X-Razorpay-Signature")
@@ -1009,14 +1011,13 @@ def rzp_payment_webhook_callback(**kwargs):
                 frappe.enqueue(
                     method="lms.create_rzp_payment_transaction",
                     data=data,
-                    # now=False if data["event"] == "payment.captured" else True
                 )
     except Exception as e:
         frappe.log_error(
             message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
             title=_("Payment Webhook Error"),
         )
-        # pass
+
 
 def create_rzp_payment_transaction(data):
     webhook_main_object = data["payload"]["payment"]["entity"]
@@ -1030,8 +1031,12 @@ def create_rzp_payment_transaction(data):
         loan = None
 
     if loan:
-        msg = ""
-        customer = frappe.get_doc("Loan Customer", loan.customer)
+        if data["event"] == "payment.authorized":
+            razorpay_event = "Authorized"
+        if data["event"] == "payment.captured":
+            razorpay_event = "Captured"
+        if data["event"] == "payment.failed":
+            razorpay_event = "Failed"
 
         payment_transaction_name = frappe.get_value(
             "Loan Transaction",
@@ -1040,7 +1045,7 @@ def create_rzp_payment_transaction(data):
                 "transaction_id": webhook_main_object["id"],
                 "status": "Pending",
                 "loan": loan.name,
-                "razorpay_event": ["!=", "Failed"],
+                "razorpay_event": ["=", "Authorized"],
             },
             "name",
         )
@@ -1048,6 +1053,9 @@ def create_rzp_payment_transaction(data):
             loan_transaction = frappe.get_doc(
                 "Loan Transaction", payment_transaction_name
             )
+            if razorpay_event == "Captured":
+                loan_transaction.razorpay_event = razorpay_event
+
         else:
             loan_transaction = loan.create_loan_transaction(
                 transaction_type="Payment",
@@ -1059,6 +1067,7 @@ def create_rzp_payment_transaction(data):
                 is_for_interest=int(
                     webhook_main_object["notes"].get("is_for_interest", None)
                 ),
+                razorpay_event=razorpay_event
             )
             if webhook_main_object["method"] == "netbanking":
                 loan_transaction.bank_name = webhook_main_object["bank"]
@@ -1076,107 +1085,6 @@ def create_rzp_payment_transaction(data):
 
             elif webhook_main_object["method"] == "upi":
                 loan_transaction.vpa = webhook_main_object.get("vpa", None)
-
-        if data["event"] == "payment.authorized" and loan_transaction.razorpay_event != "Captured":
-            loan_transaction.razorpay_event = "Authorized"
-            if webhook_main_object["notes"]["loan_margin_shortfall_name"]:
-                try:
-                    loan_margin_shortfall = frappe.get_doc(
-                        "Loan Margin Shortfall",
-                        webhook_main_object["notes"][
-                            "loan_margin_shortfall_name"
-                        ],
-                    )
-                except frappe.DoesNotExistError:
-                    frappe.log_error(
-                        message=frappe.get_traceback() + json.dumps(data),
-                        title=_(
-                            "Payment Webhook Error - Loan Margin Shortfall DoesNotExistError"
-                        ),
-                    )
-                if loan.name != loan_margin_shortfall.loan:
-                    frappe.log_error(
-                        message=frappe.get_traceback() + json.dumps(data),
-                        title=_("Payment Webhook Error - Loan name missmatch"),
-                    )
-
-                if loan_margin_shortfall.status == "Pending":
-                    loan_margin_shortfall.status = "Request Pending"
-                    loan_margin_shortfall.save(ignore_permissions=True)
-                    frappe.db.commit()
-                doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-                frappe.enqueue_doc(
-                    "Notification",
-                    "Margin Shortfall Action Taken",
-                    method="send",
-                    doc=doc,
-                )
-                msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
-                fcm_notification = frappe.get_doc(
-                    "Spark Push Notification",
-                    "Margin shortfall – Action taken",
-                    fields=["*"],
-                )
-                send_spark_push_notification(
-                    fcm_notification=fcm_notification,
-                    loan=loan.name,
-                    customer=customer,
-                )
-            if not webhook_main_object["notes"]["loan_margin_shortfall_name"]:
-                doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-                doc["payment"] = {
-                    "amount": webhook_main_object["notes"]["amount"],
-                    "loan": loan.name,
-                    "is_failed": 0,
-                }
-                frappe.enqueue_doc(
-                    "Notification", "Payment Request", method="send", doc=doc
-                )
-            msg = """Dear Customer,\nCongratulations! You payment of Rs. {}  has been successfully received against loan account  {}. It shall be reflected in your account within  24 hours . Spark Loans""".format(
-                webhook_main_object["notes"]["amount"], loan.name
-            )
-
-        elif data["event"] == "payment.captured":
-            loan_transaction.razorpay_event = "Captured"
-
-        elif data["event"] == "payment.failed":
-            loan_transaction.razorpay_event = "Failed"
-            msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(
-                webhook_main_object["notes"]["amount"], loan.name
-            )
-            doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-            doc["payment"] = {
-                "amount": webhook_main_object["notes"]["amount"],
-                "loan": loan.name,
-                "is_failed": 1,
-            }
-            frappe.enqueue_doc(
-                "Notification", "Payment Request", method="send", doc=doc
-            )
-
-            fcm_notification = frappe.get_doc(
-                "Spark Push Notification", "Payment failed", fields=["*"]
-            )
-            send_spark_push_notification(
-                fcm_notification=fcm_notification,
-                message=fcm_notification.message.format(
-                    amount=webhook_main_object["notes"]["amount"],
-                    loan=loan.name,
-                ),
-                loan=loan.name,
-                customer=customer,
-            )
-
-        if msg:
-            receiver_list = list(
-                set(
-                    [str(customer.phone), str(customer.get_kyc().mobile_number)]
-                )
-            )
-
-            frappe.enqueue(
-                method=send_sms, receiver_list=receiver_list, msg=msg
-            )
 
         loan_transaction.save(ignore_permissions=True)
         frappe.db.commit()
