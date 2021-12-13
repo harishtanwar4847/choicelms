@@ -204,7 +204,7 @@ class Loan(Document):
         transaction_id=None,
         loan_margin_shortfall_name=None,
         is_for_interest=None,
-        razorpay_event=None
+        razorpay_event=None,
     ):
         loan_transaction = frappe.get_doc(
             {

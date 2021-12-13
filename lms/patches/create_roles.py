@@ -2,7 +2,13 @@ import frappe
 
 
 def execute():
-    roles = ["Loan Customer", "Lender", "Spark Manager", "Spark Transaction Approver", "Razorpay User"]
+    roles = [
+        "Loan Customer",
+        "Lender",
+        "Spark Manager",
+        "Spark Transaction Approver",
+        "Razorpay User",
+    ]
     for role in roles:
         if not frappe.db.exists("Role", role):
             frappe.get_doc({"doctype": "Role", "role_name": role}).insert()

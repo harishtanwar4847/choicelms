@@ -537,7 +537,9 @@ class LoanTransaction(Document):
         if self.transaction_type == "Payment":
             if self.razorpay_event != "Failed":
                 if self.loan_margin_shortfall:
-                    loan_margin_shortfall = frappe.get_doc("Loan Margin Shortfall", self.loan_margin_shortfall)
+                    loan_margin_shortfall = frappe.get_doc(
+                        "Loan Margin Shortfall", self.loan_margin_shortfall
+                    )
                     if loan_margin_shortfall.status == "Pending":
                         loan_margin_shortfall.status = "Request Pending"
                         loan_margin_shortfall.save(ignore_permissions=True)
@@ -601,11 +603,7 @@ class LoanTransaction(Document):
                 )
             if msg:
                 receiver_list = list(
-                    set(
-                        [str(customer.phone), str(customer.get_kyc().mobile_number)]
-                    )
+                    set([str(customer.phone), str(customer.get_kyc().mobile_number)])
                 )
 
-                frappe.enqueue(
-                    method=send_sms, receiver_list=receiver_list, msg=msg
-                )
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import hmac
 
+import hmac
 import json
 import os
 import re
@@ -11,18 +11,18 @@ from random import choice, randint
 from traceback import format_exc
 
 import frappe
-from frappe.api import get_request_form_data
-from frappe.sessions import Session
 import razorpay
-from razorpay.errors import SignatureVerificationError
 import requests
 import utils
 from frappe import _
+from frappe.api import get_request_form_data
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
+from frappe.sessions import Session
+from razorpay.errors import SignatureVerificationError
+from werkzeug.exceptions import SecurityError
 
 from lms.config import lms
 from lms.firebase import FirebaseAdmin
-from werkzeug.exceptions import SecurityError
 
 from .exceptions import *
 
@@ -977,9 +977,9 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
 def rzp_payment_webhook_callback(**kwargs):
     try:
         rzp_user = frappe.db.sql(
-                    "select u.name from `tabUser` as u left join `tabHas Role` as r on u.email=r.parent where role='Razorpay User'",
-                    as_dict=1,
-                )
+            "select u.name from `tabUser` as u left join `tabHas Role` as r on u.email=r.parent where role='Razorpay User'",
+            as_dict=1,
+        )
         data = frappe.local.form_dict
 
         # Razorpay Signature Verification
@@ -990,16 +990,19 @@ def rzp_payment_webhook_callback(**kwargs):
         log = {
             "rzp_payment_webhook_response": data,
         }
-        create_log(log,"rzp_payment_webhook_log")
+        create_log(log, "rzp_payment_webhook_log")
 
-        expected_signature = hmac.new(digestmod='sha256',msg=frappe.local.request.data, key=bytes(webhook_secret, 'utf-8'))
+        expected_signature = hmac.new(
+            digestmod="sha256",
+            msg=frappe.local.request.data,
+            key=bytes(webhook_secret, "utf-8"),
+        )
         generated_signature = expected_signature.hexdigest()
         result = hmac.compare_digest(generated_signature, webhook_signature)
         if not result:
-            raise SignatureVerificationError(
-                'Razorpay Signature Verification Failed')
+            raise SignatureVerificationError("Razorpay Signature Verification Failed")
         if rzp_user and result:
-            frappe.session.user = rzp_user[0]['name']
+            frappe.session.user = rzp_user[0]["name"]
 
             if (
                 data
@@ -1067,7 +1070,7 @@ def create_rzp_payment_transaction(data):
                 is_for_interest=int(
                     webhook_main_object["notes"].get("is_for_interest", None)
                 ),
-                razorpay_event=razorpay_event
+                razorpay_event=razorpay_event,
             )
             if webhook_main_object["method"] == "netbanking":
                 loan_transaction.bank_name = webhook_main_object["bank"]
@@ -1077,9 +1080,7 @@ def create_rzp_payment_transaction(data):
 
             elif webhook_main_object["method"] == "card":
                 loan_transaction.name_on_card = webhook_main_object["card"]["name"]
-                loan_transaction.last_4_digits = webhook_main_object["card"][
-                    "last4"
-                ]
+                loan_transaction.last_4_digits = webhook_main_object["card"]["last4"]
                 loan_transaction.card_id = webhook_main_object["card"]["id"]
                 loan_transaction.network = webhook_main_object["card"]["network"]
 
@@ -1088,4 +1089,3 @@ def create_rzp_payment_transaction(data):
 
         loan_transaction.save(ignore_permissions=True)
         frappe.db.commit()
-
