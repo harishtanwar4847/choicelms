@@ -15,40 +15,47 @@ def execute():
                 loan.name, curr_year, curr_month, loan.name
             )
         )
+
         frappe.db.sql(
             "update `tabLoan` set rebate_interest_amount = IFNULL((select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {} and is_booked_for_rebate = 0),0.0)  where name = '{}'".format(
                 loan.name, curr_year, curr_month, loan.name
             )
         )
+
         frappe.db.sql(
-            "update `tabLoan` set margin_shortfall_amount = IFNULL((select shortfall_c from `tabLoan Margin Shortfall` where loan = '{}' and status in ('Pending', 'Request Pending','Sell Triggered')),0.0) where name = '{}'".format(
+            "update `tabLoan` set margin_shortfall_amount = IFNULL((select shortfall_c from `tabLoan Margin Shortfall` where loan = '{}' and status in ('Pending', 'Request Pending','Sell Triggered') order by creation desc limit 1),0.0) where name = '{}'".format(
                 loan.name, loan.name
             )
         )
-        # select unpaid_interest from `tabLoan Transaction` where loan = 'SL000025' and transaction_type = 'Interest' and unpaid_interest > 0 and (select unpaid_interest from `tabLoan Transaction` where loan = "SL000025" and transaction_type = "Additional Interest" and DATE_FORMAT(time, '%Y') = "2021" and DATE_FORMAT(time, '%m') = "12") <=0 order by time desc;
+
         frappe.db.sql(
-            "update `tabLoan` set interest_due = IFNULL((select unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and transaction_type = (select ) and unpaid_interest > 0 order by time desc limit 1),0.0) where name = '{}'".format(
-                loan.name, loan.name
+            "update `tabLoan` set interest_due = IFNULL((select unpaid_interest from `tabLoan Transaction` where loan = '{loan}' and transaction_type = 'Interest' and unpaid_interest > 0 and NOT EXISTS(select name from `tabLoan Transaction` where loan = '{loan}' and transaction_type = 'Additional Interest' and DATE_FORMAT(time,'%m') = '{month}') order by time desc limit 1),0.0) where name = '{loan}'".format(
+                loan=loan.name, month=curr_month
             )
         )
+
         frappe.db.sql(
             "update `tabLoan` set interest_overdue = IFNULL((select sum(unpaid_interest) as unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest') and unpaid_interest >0),0.0) where name = '{}'".format(
                 loan.name, loan.name
             )
         )
+
         frappe.db.sql(
             "update `tabLoan` set penal_interest_charges = IFNULL((select sum(unpaid_interest) as unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Penal Interest' and unpaid_interest >0),0.0) where name = '{}'".format(
                 loan.name, loan.name
             )
         )
+
         frappe.db.sql(
             "update `tabLoan` set total_interest_incl_penal_due = IFNULL((select sum(unpaid_interest) as total_amount from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and unpaid_interest >0),0.0) where name = '{}'".format(
                 loan.name, loan.name
             )
         )
+
         frappe.db.sql(
-            "update `tabLoan` set day_past_due = IFNULL((select DATEDIFF('{}', time) as dpd from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 order by creation asc),0) where name = '{}'".format(
+            "update `tabLoan` set day_past_due = IFNULL((select DATEDIFF('{}', time) as dpd from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 order by creation asc limit 1),0) where name = '{}'".format(
                 curr_date, loan.name, loan.name
             )
         )
+
         frappe.db.commit()
