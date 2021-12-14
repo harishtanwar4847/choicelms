@@ -1047,7 +1047,6 @@ def update_rzp_payment_transaction(data):
             "amount": float(webhook_main_object["notes"].get("amount")),
             "status": "Pending",
             "loan": webhook_main_object["notes"]["loan_name"],
-            "razorpay_event": ["!=", "Failed"]
         },
         "name",
     )
@@ -1089,9 +1088,9 @@ def update_rzp_payment_transaction(data):
         loan_transaction.save(ignore_permissions=True)
         frappe.db.commit()
         if loan_transaction.razorpay_event == "Captured":
-            if loan.name_margin_shortfall:
+            if loan_transaction.loan_margin_shortfall:
                 loan_margin_shortfall = frappe.get_doc(
-                    "Loan Margin Shortfall", loan.name_margin_shortfall
+                    "Loan Margin Shortfall", loan_transaction.loan_margin_shortfall
                 )
                 if loan_margin_shortfall.status == "Pending":
                     loan_margin_shortfall.status = "Request Pending"
@@ -1110,12 +1109,12 @@ def update_rzp_payment_transaction(data):
                     "Margin shortfall – Action taken",
                     fields=["*"],
                 )
-                lms.send_spark_push_notification(
+                send_spark_push_notification(
                     fcm_notification=fcm_notification,
                     loan=loan.name,
                     customer=customer,
                 )
-            if not loan.name_margin_shortfall:
+            if not loan_transaction.loan_margin_shortfall:
                 doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
                 doc["payment"] = {
                     "amount": loan_transaction.amount,
@@ -1145,7 +1144,7 @@ def update_rzp_payment_transaction(data):
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Payment failed", fields=["*"]
             )
-            lms.send_spark_push_notification(
+            send_spark_push_notification(
                 fcm_notification=fcm_notification,
                 message=fcm_notification.message.format(
                     amount=loan_transaction.amount,
