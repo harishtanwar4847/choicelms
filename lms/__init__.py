@@ -989,7 +989,6 @@ def rzp_payment_webhook_callback(**kwargs):
         webhook_signature = headers.get("X-Razorpay-Signature")
         log = {
             "rzp_payment_webhook_response": data,
-            "time": frappe.utils.now_datetime(),
         }
         create_log(log, "rzp_payment_webhook_log")
 
@@ -1012,7 +1011,7 @@ def rzp_payment_webhook_callback(**kwargs):
                 and data["event"]
                 in ["payment.authorized", "payment.captured", "payment.failed"]
             ):
-                update_rzp_payment_transaction(data)
+                frappe.enqueue(method=lms.update_rzp_payment_transaction,data=data,job_name="Payment Webhook")
     except Exception as e:
         frappe.log_error(
             message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
