@@ -989,6 +989,7 @@ def rzp_payment_webhook_callback(**kwargs):
         webhook_signature = headers.get("X-Razorpay-Signature")
         log = {
             "rzp_payment_webhook_response": data,
+            "time": frappe.utils.now_datetime(),
         }
         create_log(log, "rzp_payment_webhook_log")
 

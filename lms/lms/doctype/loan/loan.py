@@ -230,12 +230,7 @@ class Loan(Document):
         if razorpay_event:
             loan_transaction.razorpay_event = razorpay_event
 
-        if frappe.db.exists("Loan Transaction",loan_transaction.name):
-            frappe.logger().info(loan_transaction.razorpay_event)
-            frappe.logger().info("aisa pehli baar hua hai")
-            loan_transaction.save(ignore_permissions=True)
-        else:
-            loan_transaction.insert(ignore_permissions=True)
+        loan_transaction.insert(ignore_permissions=True)
 
         if approve:
             if not transaction_id:
