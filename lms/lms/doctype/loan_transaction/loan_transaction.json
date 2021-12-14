@@ -9,6 +9,7 @@
   "loan",
   "amount",
   "transaction_id",
+  "order_id",
   "description",
   "customer",
   "customer_name",
@@ -37,6 +38,8 @@
   "items",
   "razorpay_payment_webhook_section_section",
   "razorpay_event",
+  "rzp_column",
+  "razorpay_payment_log",
   "bank_details_section",
   "bank_name",
   "column_break_33",
@@ -240,7 +243,7 @@
    "label": "Razorpay Payment Webhook Section"
   },
   {
-   "depends_on": "eval:(doc.name_on_card == null && doc.vpa == null)",
+   "depends_on": "eval:(doc.name_on_card == null && doc.vpa == null && doc.razorpay_event)",
    "fieldname": "bank_details_section",
    "fieldtype": "Section Break",
    "label": "Bank Details"
@@ -260,7 +263,7 @@
    "label": "Bank Transaction ID"
   },
   {
-   "depends_on": "eval:(doc.name_on_card == null && doc.bank_name == null)",
+   "depends_on": "eval:(doc.name_on_card == null && doc.bank_name == null && doc.razorpay_event)",
    "fieldname": "upi_section",
    "fieldtype": "Section Break",
    "label": "UPI"
@@ -271,7 +274,7 @@
    "label": "VPA"
   },
   {
-   "depends_on": "eval:(doc.vpa == null && doc.bank_name == null)",
+   "depends_on": "eval:(doc.vpa == null && doc.bank_name == null && doc.razorpay_event)",
    "fieldname": "card_details_section",
    "fieldtype": "Section Break",
    "label": "Card Details"
@@ -304,12 +307,28 @@
    "fieldname": "razorpay_event",
    "fieldtype": "Select",
    "label": "Razorpay Event",
-   "options": "Authorized\nCaptured\nFailed"
+   "options": "\nAuthorized\nCaptured\nFailed\nPayment Cancelled"
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Payment'",
+   "fieldname": "order_id",
+   "fieldtype": "Data",
+   "label": "Order Id"
+  },
+  {
+   "fieldname": "razorpay_payment_log",
+   "fieldtype": "Text",
+   "label": "Razorpay Payment Log",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rzp_column",
+   "fieldtype": "Column Break"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-11-24 18:21:00.456201",
+ "modified": "2021-12-14 19:12:53.379028",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",

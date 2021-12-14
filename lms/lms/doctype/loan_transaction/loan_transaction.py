@@ -95,7 +95,7 @@ class LoanTransaction(Document):
         user_roles = [role[0] for role in user_roles]
 
         # loan_cust_transaction_list = ["Withdrawal", "Payment", "Sell Collateral"]
-        # loan_cust_transaction_list = ["Withdrawal", "Payment"]
+        loan_cust_transaction_list = ["Withdrawal", "Payment"]
         lender_team_transaction_list = [
             "Debit Note",
             "Credit Note",
@@ -116,11 +116,7 @@ class LoanTransaction(Document):
         ]
 
         if "System Manager" not in user_roles:
-            if self.transaction_type == "Payment" and (
-                "Razorpay User" not in user_roles
-            ):
-                frappe.throw(_("You are not permitted to perform this action"))
-            if self.transaction_type == "Withdrawal" and (
+            if self.transaction_type in loan_cust_transaction_list and (
                 "Loan Customer" not in user_roles
             ):
                 frappe.throw(_("You are not permitted to perform this action"))
@@ -319,7 +315,7 @@ class LoanTransaction(Document):
                 filters={
                     "loan": self.loan,
                     "status": ["not IN", ["Approved", "Rejected"]],
-                    "razorpay_event": ["!=", "Failed"],
+                    "razorpay_event": ["not in", ["Failed","Payment Cancelled"]],
                     "loan_margin_shortfall": loan_margin_shortfall.name,
                 },
             )
@@ -436,9 +432,9 @@ class LoanTransaction(Document):
             if self.amount > self.allowable:
                 frappe.throw("Amount should be less than or equal to allowable amount")
 
-        if self.transaction_type == "Payment" and self.razorpay_event == "Failed":
+        if self.transaction_type == "Payment" and self.razorpay_event in ["Payment Cancelled", "Failed", ""]:
             frappe.throw(
-                "Can not approve this Payment transaction as its Razorpay Event is Failed"
+                "Can not approve this Payment transaction as its Razorpay Event is not Captured"
             )
 
     def on_update(self):
@@ -485,7 +481,7 @@ class LoanTransaction(Document):
                     filters={
                         "loan": self.loan,
                         "status": ["not IN", ["Approved", "Rejected"]],
-                        "razorpay_event": ["!=", "Failed"],
+                        "razorpay_event": ["not in", ["Failed","Payment Cancelled"]],
                         "loan_margin_shortfall": loan_margin_shortfall.name,
                     },
                 )
@@ -530,80 +526,3 @@ class LoanTransaction(Document):
             and self.status == "Ready for Approval"
         ):
             frappe.throw("Allowable amount could not be greater than requested amount")
-
-    def after_insert(self):
-        if self.transaction_type == "Payment":
-            msg = ""
-            customer = self.get_customer()
-            if self.razorpay_event != "Failed":
-                if self.loan_margin_shortfall:
-                    loan_margin_shortfall = frappe.get_doc(
-                        "Loan Margin Shortfall", self.loan_margin_shortfall
-                    )
-                    if loan_margin_shortfall.status == "Pending":
-                        loan_margin_shortfall.status = "Request Pending"
-                        loan_margin_shortfall.save(ignore_permissions=True)
-                        frappe.db.commit()
-                    doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-                    frappe.enqueue_doc(
-                        "Notification",
-                        "Margin Shortfall Action Taken",
-                        method="send",
-                        doc=doc,
-                    )
-                    msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
-                    fcm_notification = frappe.get_doc(
-                        "Spark Push Notification",
-                        "Margin shortfall - Action taken",
-                        fields=["*"],
-                    )
-                    lms.send_spark_push_notification(
-                        fcm_notification=fcm_notification,
-                        loan=self.loan,
-                        customer=customer,
-                    )
-                if not self.loan_margin_shortfall:
-                    doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-                    doc["payment"] = {
-                        "amount": self.amount,
-                        "loan": self.loan,
-                        "is_failed": 0,
-                    }
-                    frappe.enqueue_doc(
-                        "Notification", "Payment Request", method="send", doc=doc
-                    )
-                msg = """Dear Customer,\nCongratulations! You payment of Rs. {}  has been successfully received against loan account  {}. It shall be reflected in your account within  24 hours . Spark Loans""".format(
-                    self.amount, self.loan
-                )
-            else:
-                msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(
-                    self.amount, self.loan
-                )
-                doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-                doc["payment"] = {
-                    "amount": self.amount,
-                    "loan": self.loan,
-                    "is_failed": 1,
-                }
-                frappe.enqueue_doc(
-                    "Notification", "Payment Request", method="send", doc=doc
-                )
-
-                fcm_notification = frappe.get_doc(
-                    "Spark Push Notification", "Payment failed", fields=["*"]
-                )
-                lms.send_spark_push_notification(
-                    fcm_notification=fcm_notification,
-                    message=fcm_notification.message.format(
-                        amount=self.amount,
-                        loan=self.loan,
-                    ),
-                    loan=self.loan,
-                    customer=customer,
-                )
-            if msg:
-                receiver_list = list(
-                    set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-                )
-
-                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)

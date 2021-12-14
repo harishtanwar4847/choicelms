@@ -205,6 +205,7 @@ class Loan(Document):
         loan_margin_shortfall_name=None,
         is_for_interest=None,
         razorpay_event=None,
+        order_id=None
     ):
         loan_transaction = frappe.get_doc(
             {
@@ -229,6 +230,8 @@ class Loan(Document):
             loan_transaction.is_for_interest = is_for_interest
         if razorpay_event:
             loan_transaction.razorpay_event = razorpay_event
+        if order_id:
+            loan_transaction.order_id = order_id
 
         loan_transaction.insert(ignore_permissions=True)
 
