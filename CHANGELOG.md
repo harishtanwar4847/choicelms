@@ -4,7 +4,7 @@
 
 ## [v1.8.0]
 
-- [Feat: Razorpay payment webhook callback implementation](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/437)
+- [Feat: Razorpay Payment Webhook event implementation](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/438)
 
 ## [v1.7.2] - 2021-12-02
 

@@ -19,7 +19,6 @@ from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions
 )
 from lms.user import convert_sec_to_hh_mm_ss, holiday_list
 
-
 @frappe.whitelist()
 def esign_old(**kwargs):
     try:
@@ -1465,10 +1464,8 @@ def loan_payment(**kwargs):
             # payment_failure.insert(ignore_permissions=True)
             # payment_failure.docstatus = 1
             # payment_failure.save(ignore_permissions=True)
-            print("baher")
             loan_transaction = frappe.get_doc("Loan Transaction", data.get("loan_transaction_name"))
             if loan_transaction.razorpay_event != "Failed" and loan_transaction.status == "Pending":
-                print("aat")
                 loan_transaction.razorpay_event = "Payment Cancelled"
                 loan_transaction.razorpay_payment_log = "\n".join("<b>{}</b> : {}".format(*i) for i in data.get("is_failed").items())
                 loan_transaction.save(ignore_permissions=True)

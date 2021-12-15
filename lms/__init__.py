@@ -15,11 +15,8 @@ import razorpay
 import requests
 import utils
 from frappe import _
-from frappe.api import get_request_form_data
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
-from frappe.sessions import Session
 from razorpay.errors import SignatureVerificationError
-from werkzeug.exceptions import SecurityError
 
 from lms.config import lms
 from lms.firebase import FirebaseAdmin
@@ -650,8 +647,6 @@ def web_mail(notification_name, name, recepient, subject):
 
 def create_log(log, file_name):
     log_file = frappe.utils.get_files_path("{}.json".format(file_name))
-    if log_file:
-        frappe.logger().info(log_file)
     logs = None
     if os.path.exists(log_file):
         with open(log_file, "r") as f:
