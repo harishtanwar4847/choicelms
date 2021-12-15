@@ -1467,7 +1467,7 @@ def loan_payment(**kwargs):
             # payment_failure.save(ignore_permissions=True)
             loan_transaction = frappe.get_doc("Loan Transaction", data.get("loan_transaction_name"))
             loan_transaction.razorpay_event = "Payment Cancelled"
-            loan_transaction.razorpay_payment_log = json.dumps(data.get("is_failed"))
+            loan_transaction.razorpay_payment_log = "\n".join("<b>{}</b> : {}".format(*i) for i in data.get("is_failed").items())
             loan_transaction.save(ignore_permissions=True)
             frappe.db.commit()
             msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(
