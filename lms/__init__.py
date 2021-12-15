@@ -1012,6 +1012,11 @@ def rzp_payment_webhook_callback(**kwargs):
                 in ["payment.authorized", "payment.captured", "payment.failed"]
             ):
                 frappe.enqueue(method="lms.update_rzp_payment_transaction",data=data,job_name="Payment Webhook")
+        if not rzp_user:
+            frappe.log_error(
+                message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
+                title=_("Payment Webhook RZP User not found Error"),
+            )
     except Exception as e:
         frappe.log_error(
             message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
@@ -1064,19 +1069,6 @@ def update_rzp_payment_transaction(data):
             else:
                 loan_transaction.razorpay_payment_log = ""
 
-        # else:
-        #     loan_transaction = loan.create_loan_transaction(
-        #         transaction_type="Payment",
-        #         amount=float(webhook_main_object["notes"].get("amount")),
-        #         transaction_id=webhook_main_object["id"],
-        #         loan_margin_shortfall_name=webhook_main_object["notes"].get(
-        #             "loan_margin_shortfall_name", None
-        #         ),
-        #         is_for_interest=int(
-        #             webhook_main_object["notes"].get("is_for_interest", None)
-        #         ),
-        #         razorpay_event=razorpay_event,
-        #     )
             if webhook_main_object["method"] == "netbanking":
                 loan_transaction.bank_name = webhook_main_object["bank"]
                 loan_transaction.bank_transaction_id = webhook_main_object[
@@ -1094,7 +1086,7 @@ def update_rzp_payment_transaction(data):
 
             loan_transaction.save(ignore_permissions=True)
             frappe.db.commit()
-            if loan_transaction.razorpay_event == "Authorized":
+            if data["event"] == "payment.authorized":
                 if loan_transaction.loan_margin_shortfall:
                     loan_margin_shortfall = frappe.get_doc(
                         "Loan Margin Shortfall", loan_transaction.loan_margin_shortfall
@@ -1134,7 +1126,7 @@ def update_rzp_payment_transaction(data):
                 msg = """Dear Customer,\nCongratulations! You payment of Rs. {}  has been successfully received against loan account  {}. It shall be reflected in your account within  24 hours . Spark Loans""".format(
                     loan_transaction.amount, loan.name
                 )
-            if loan_transaction.razorpay_event == "Failed":
+            if data["event"] == "payment.failed":
                 msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(
                     loan_transaction.amount, loan.name
                 )
@@ -1166,6 +1158,11 @@ def update_rzp_payment_transaction(data):
                 )
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+        if not payment_transaction_name:
+            frappe.log_error(
+                message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
+                title=_("Payment Webhook Late Authorization Error"),
+            )
     except Exception as e:
         frappe.log_error(
             message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
