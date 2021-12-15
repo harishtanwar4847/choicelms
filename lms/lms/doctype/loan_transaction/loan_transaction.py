@@ -530,14 +530,22 @@ class LoanTransaction(Document):
 
 @frappe.whitelist()
 def process_blank_rzp_event_transaction():
-    blank_rzp_event_transaction = frappe.get_all("Loan Transaction",{"razorpay_event":"","status":"Pending"})
-    if blank_rzp_event_transaction:
-        for single_transaction in blank_rzp_event_transaction:
-            single_transaction = frappe.get_doc("Loan Transaction",single_transaction.name)
-            if single_transaction.creation < frappe.utils.now_datetime():
-                hours_difference = convert_sec_to_hh_mm_ss(abs(frappe.utils.now_datetime() - single_transaction.creation).total_seconds())
-                if hours_difference.split(':')[0] >= '24':
-                    single_transaction.workflow_state = "Rejected"
-                    single_transaction.status = "Rejected"
-                    single_transaction.save(ignore_permissions=True)
-                    frappe.db.commit()
+    data = ""
+    try:
+        blank_rzp_event_transaction = frappe.get_all("Loan Transaction",{"razorpay_event":"","status":"Pending"})
+        if blank_rzp_event_transaction:
+            for single_transaction in blank_rzp_event_transaction:
+                single_transaction = frappe.get_doc("Loan Transaction",single_transaction.name)
+                data = single_transaction.name
+                if single_transaction.creation < frappe.utils.now_datetime():
+                    hours_difference = convert_sec_to_hh_mm_ss(abs(frappe.utils.now_datetime() - single_transaction.creation).total_seconds())
+                    if hours_difference.split(':')[0] >= '24':
+                        single_transaction.workflow_state = "Rejected"
+                        single_transaction.status = "Rejected"
+                        single_transaction.save(ignore_permissions=True)
+                        frappe.db.commit()
+    except Exception as e:
+        frappe.log_error(
+            message=frappe.get_traceback() + "\nPayment details:\n" + data,
+            title=_("Blank Payment Reject Error"),
+        )
