@@ -1466,42 +1466,43 @@ def loan_payment(**kwargs):
             # payment_failure.docstatus = 1
             # payment_failure.save(ignore_permissions=True)
             loan_transaction = frappe.get_doc("Loan Transaction", data.get("loan_transaction_name"))
-            loan_transaction.razorpay_event = "Payment Cancelled"
-            loan_transaction.razorpay_payment_log = "\n".join("<b>{}</b> : {}".format(*i) for i in data.get("is_failed").items())
-            loan_transaction.save(ignore_permissions=True)
-            frappe.db.commit()
-            msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(
-                data.get("amount"), loan.name
-            )
-            doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-            doc["payment"] = {
-                "amount": data.get("amount"),
-                "loan": loan.name,
-                "is_failed": 1,
-            }
-            frappe.enqueue_doc(
-                "Notification", "Payment Request", method="send", doc=doc
-            )
-            receiver_list = list(
-                set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-            )
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
+            if loan_transaction.razorpay_event != "Failed":
+                loan_transaction.razorpay_event = "Payment Cancelled"
+                loan_transaction.razorpay_payment_log = "\n".join("<b>{}</b> : {}".format(*i) for i in data.get("is_failed").items())
+                loan_transaction.save(ignore_permissions=True)
+                frappe.db.commit()
+                msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(
+                    data.get("amount"), loan.name
+                )
+                doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+                doc["payment"] = {
+                    "amount": data.get("amount"),
+                    "loan": loan.name,
+                    "is_failed": 1,
+                }
+                frappe.enqueue_doc(
+                    "Notification", "Payment Request", method="send", doc=doc
+                )
+                receiver_list = list(
+                    set([str(customer.phone), str(customer.get_kyc().mobile_number)])
+                )
+                from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
-            fcm_notification = frappe.get_doc(
-                "Spark Push Notification", "Payment failed", fields=["*"]
-            )
-            lms.send_spark_push_notification(
-                fcm_notification=fcm_notification,
-                message=fcm_notification.message.format(
-                    amount=data.get("amount"), loan=loan.name
-                ),
-                loan=loan.name,
-                customer=customer,
-            )
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification", "Payment failed", fields=["*"]
+                )
+                lms.send_spark_push_notification(
+                    fcm_notification=fcm_notification,
+                    message=fcm_notification.message.format(
+                        amount=data.get("amount"), loan=loan.name
+                    ),
+                    loan=loan.name,
+                    customer=customer,
+                )
 
-            return utils.respondWithSuccess(message="Payment cancelled by user.")
+                return utils.respondWithSuccess(message="Payment cancelled by user.")
 
         loan_margin_shortfall = None
         if data.get("loan_margin_shortfall_name", None) and not data.get("is_failed"):

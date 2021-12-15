@@ -1059,7 +1059,7 @@ def update_rzp_payment_transaction(data):
             loan_transaction.transaction_id = webhook_main_object["id"]
             loan_transaction.razorpay_event = razorpay_event
             if loan_transaction.razorpay_event == "Failed":
-                fail_log = {"error_code":webhook_main_object["error_code"],"error_description":webhook_main_object["error_description"],"error_source":webhook_main_object["error_source"],"error_step":webhook_main_object["error_step"],"error_reason":webhook_main_object["error_reason"]}
+                fail_log = {"code":webhook_main_object["error_code"],"description":webhook_main_object["error_description"],"source":webhook_main_object["error_source"],"step":webhook_main_object["error_step"],"reason":webhook_main_object["error_reason"]}
                 loan_transaction.razorpay_payment_log = "\n".join("<b>{}</b> : {}".format(*i) for i in fail_log.items())
             else:
                 loan_transaction.razorpay_payment_log = ""
