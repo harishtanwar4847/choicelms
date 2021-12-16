@@ -4,7 +4,7 @@
 
 ## [v1.8.0] - 2021-12-16
 
-- [Feat: sitemap.xml file and Google Webmaster File added]()
+- [Feat: sitemap.xml file and Google Webmaster File added](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/439)
 
 ## [v1.7.2] - 2021-12-02
 
