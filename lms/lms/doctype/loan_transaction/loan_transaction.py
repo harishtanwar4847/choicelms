@@ -433,7 +433,7 @@ class LoanTransaction(Document):
             if self.amount > self.allowable:
                 frappe.throw("Amount should be less than or equal to allowable amount")
 
-        if self.transaction_type == "Payment" and self.razorpay_event in ["Payment Cancelled", "Failed", ""]:
+        if self.transaction_type == "Payment" and self.razorpay_event != "Captured":
             frappe.throw(
                 "Can not approve this Payment transaction as its Razorpay Event is not Captured"
             )
