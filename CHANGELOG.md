@@ -6,7 +6,7 @@
 
 ### Added
 
-- [Feat: Google Webmaster File added]()
+- [Feat: Google Webmaster File added](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/440)
 
 ## [v1.8.0] - 2021-12-17
 
