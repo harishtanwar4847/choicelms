@@ -971,10 +971,12 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
 @frappe.whitelist(allow_guest=True)
 def rzp_payment_webhook_callback(**kwargs):
     try:
+        # fetch RZP user
         rzp_user = frappe.db.sql(
             "select u.name from `tabUser` as u left join `tabHas Role` as r on u.email=r.parent where role='Razorpay User'",
             as_dict=1,
         )
+        # Webhook event payload
         data = frappe.local.form_dict
 
         # Razorpay Signature Verification
@@ -996,6 +998,8 @@ def rzp_payment_webhook_callback(**kwargs):
         result = hmac.compare_digest(generated_signature, webhook_signature)
         if not result:
             raise SignatureVerificationError("Razorpay Signature Verification Failed")
+
+        # Assign RZP user session for updating loan transaction
         if rzp_user and result:
             frappe.session.user = rzp_user[0]["name"]
 
@@ -1006,10 +1010,16 @@ def rzp_payment_webhook_callback(**kwargs):
                 and data["event"]
                 in ["payment.authorized", "payment.captured", "payment.failed"]
             ):
-                frappe.enqueue(method="lms.update_rzp_payment_transaction",data=data,job_name="Payment Webhook")
+                frappe.enqueue(
+                    method="lms.update_rzp_payment_transaction",
+                    data=data,
+                    job_name="Payment Webhook",
+                )
         if not rzp_user:
             frappe.log_error(
-                message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
+                message=frappe.get_traceback()
+                + "\nWebhook details:\n"
+                + json.dumps(data),
                 title=_("Payment Webhook RZP User not found Error"),
             )
     except Exception as e:
@@ -1050,6 +1060,7 @@ def update_rzp_payment_transaction(data):
             loan_transaction = frappe.get_doc(
                 "Loan Transaction", payment_transaction_name
             )
+            # Assign RZP event to loan transaction
             if data["event"] == "payment.authorized":
                 razorpay_event = "Authorized"
             if data["event"] == "payment.captured":
@@ -1059,12 +1070,22 @@ def update_rzp_payment_transaction(data):
             loan_transaction.transaction_id = webhook_main_object["id"]
             if loan_transaction.razorpay_event != "Captured":
                 loan_transaction.razorpay_event = razorpay_event
+            # If RZP event is failed then update the log
             if loan_transaction.razorpay_event == "Failed":
-                fail_log = {"code":webhook_main_object["error_code"],"description":webhook_main_object["error_description"],"source":webhook_main_object["error_source"],"step":webhook_main_object["error_step"],"reason":webhook_main_object["error_reason"]}
-                loan_transaction.razorpay_payment_log = "\n".join("<b>{}</b> : {}".format(*i) for i in fail_log.items())
+                fail_log = {
+                    "code": webhook_main_object["error_code"],
+                    "description": webhook_main_object["error_description"],
+                    "source": webhook_main_object["error_source"],
+                    "step": webhook_main_object["error_step"],
+                    "reason": webhook_main_object["error_reason"],
+                }
+                loan_transaction.razorpay_payment_log = "\n".join(
+                    "<b>{}</b> : {}".format(*i) for i in fail_log.items()
+                )
             else:
                 loan_transaction.razorpay_payment_log = ""
 
+            # Check user choosed which method to pay
             if webhook_main_object["method"] == "netbanking":
                 loan_transaction.bank_name = webhook_main_object["bank"]
                 loan_transaction.bank_transaction_id = webhook_main_object[
@@ -1102,7 +1123,9 @@ def update_rzp_payment_transaction(data):
 
             loan_transaction.save(ignore_permissions=True)
             frappe.db.commit()
+            # Send notification depended on events
             if data["event"] == "payment.authorized":
+                # send notification and change loan margin shortfall status to request pending
                 if loan_transaction.loan_margin_shortfall:
                     loan_margin_shortfall = frappe.get_doc(
                         "Loan Margin Shortfall", loan_transaction.loan_margin_shortfall
@@ -1129,6 +1152,7 @@ def update_rzp_payment_transaction(data):
                         loan=loan.name,
                         customer=customer,
                     )
+                # send notification if not loan margin shortfall
                 if not loan_transaction.loan_margin_shortfall:
                     doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
                     doc["payment"] = {
@@ -1142,6 +1166,7 @@ def update_rzp_payment_transaction(data):
                 msg = """Dear Customer,\nCongratulations! You payment of Rs. {}  has been successfully received against loan account  {}. It shall be reflected in your account within  24 hours . Spark Loans""".format(
                     loan_transaction.amount, loan.name
                 )
+            # send notification if rzp event is failed
             if data["event"] == "payment.failed":
                 msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(
                     loan_transaction.amount, loan.name
@@ -1176,7 +1201,9 @@ def update_rzp_payment_transaction(data):
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
         if not payment_transaction_name:
             frappe.log_error(
-                message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
+                message=frappe.get_traceback()
+                + "\nWebhook details:\n"
+                + json.dumps(data),
                 title=_("Payment Webhook Late Authorization Error"),
             )
     except Exception as e:

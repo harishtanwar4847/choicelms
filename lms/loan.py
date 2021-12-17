@@ -19,6 +19,7 @@ from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions
 )
 from lms.user import convert_sec_to_hh_mm_ss, holiday_list
 
+
 @frappe.whitelist()
 def esign_old(**kwargs):
     try:
@@ -913,7 +914,10 @@ def loan_details(**kwargs):
                         "loan_margin_shortfall": loan_margin_shortfall.name,
                         "transaction_type": "Payment",
                         "status": ["not in", ["Approved", "Rejected"]],
-                        "razorpay_event": ["not in", ["","Failed","Payment Cancelled"]],
+                        "razorpay_event": [
+                            "not in",
+                            ["", "Failed", "Payment Cancelled"],
+                        ],
                     },
                     fields=["*"],
                 )
@@ -1049,7 +1053,7 @@ def loan_details(**kwargs):
                 filters={
                     "loan": loan.name,
                     "status": ["=", "Pending"],
-                    "razorpay_event": ["not in", ["","Failed","Payment Cancelled"]],
+                    "razorpay_event": ["not in", ["", "Failed", "Payment Cancelled"]],
                     "loan_margin_shortfall": loan_margin_shortfall.name,
                 },
             )
@@ -1406,7 +1410,7 @@ def loan_payment(**kwargs):
                 "loan_margin_shortfall_name": "",
                 "is_for_interest": "decimal|between:0,1",
                 "is_failed": "",
-                "loan_transaction_name": ""
+                "loan_transaction_name": "",
             },
         )
         reg = lms.regex_special_characters(
@@ -1464,10 +1468,17 @@ def loan_payment(**kwargs):
             # payment_failure.insert(ignore_permissions=True)
             # payment_failure.docstatus = 1
             # payment_failure.save(ignore_permissions=True)
-            loan_transaction = frappe.get_doc("Loan Transaction", data.get("loan_transaction_name"))
-            if loan_transaction.razorpay_event != "Failed" and loan_transaction.status == "Pending":
+            loan_transaction = frappe.get_doc(
+                "Loan Transaction", data.get("loan_transaction_name")
+            )
+            if (
+                loan_transaction.razorpay_event != "Failed"
+                and loan_transaction.status == "Pending"
+            ):
                 loan_transaction.razorpay_event = "Payment Cancelled"
-                loan_transaction.razorpay_payment_log = "\n".join("<b>{}</b> : {}".format(*i) for i in data.get("is_failed").items())
+                loan_transaction.razorpay_payment_log = "\n".join(
+                    "<b>{}</b> : {}".format(*i) for i in data.get("is_failed").items()
+                )
                 loan_transaction.save(ignore_permissions=True)
                 frappe.db.commit()
                 msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(
@@ -1529,7 +1540,9 @@ def loan_payment(**kwargs):
                 transaction_type="Payment",
                 amount=data.get("amount"),
                 order_id=data.get("order_id"),
-                loan_margin_shortfall_name=loan_margin_shortfall.name if loan_margin_shortfall else None,
+                loan_margin_shortfall_name=loan_margin_shortfall.name
+                if loan_margin_shortfall
+                else None,
                 is_for_interest=data.get("is_for_interest", None),
             )
             frappe.db.commit()
@@ -1541,7 +1554,9 @@ def loan_payment(**kwargs):
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-        return utils.respondWithSuccess(data={"loan_transaction_name": loan_transaction.name})
+        return utils.respondWithSuccess(
+            data={"loan_transaction_name": loan_transaction.name}
+        )
     except utils.exceptions.APIException as e:
         return e.respond()
 

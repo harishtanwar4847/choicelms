@@ -149,6 +149,8 @@ scheduler_events = {
         "*/5 * * * *": [
             "lms.lms.doctype.loan_application.loan_application.process_pledge"
         ],
-        "30 12,00 * * *": ["lms.lms.doctype.loan_transaction.loan_transaction.process_blank_rzp_event_transaction"]
+        "30 12,00 * * *": [
+            "lms.lms.doctype.loan_transaction.loan_transaction.process_blank_rzp_event_transaction"
+        ],
     },
 }

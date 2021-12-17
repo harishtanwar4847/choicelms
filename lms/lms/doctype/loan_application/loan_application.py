@@ -303,7 +303,10 @@ class LoanApplication(Document):
                     filters={
                         "loan": self.loan,
                         "status": ["not IN", ["Approved", "Rejected"]],
-                        "razorpay_event": ["not in", ["","Failed","Payment Cancelled"]],
+                        "razorpay_event": [
+                            "not in",
+                            ["", "Failed", "Payment Cancelled"],
+                        ],
                         "loan_margin_shortfall": loan_margin_shortfall.name,
                     },
                 )
@@ -388,7 +391,10 @@ class LoanApplication(Document):
                     filters={
                         "loan": self.loan,
                         "status": ["not IN", ["Approved", "Rejected"]],
-                        "razorpay_event": ["not in", ["","Failed","Payment Cancelled"]],
+                        "razorpay_event": [
+                            "not in",
+                            ["", "Failed", "Payment Cancelled"],
+                        ],
                         "loan_margin_shortfall": loan_margin_shortfall.name,
                     },
                 )

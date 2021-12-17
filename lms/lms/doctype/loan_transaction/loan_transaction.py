@@ -316,7 +316,7 @@ class LoanTransaction(Document):
                 filters={
                     "loan": self.loan,
                     "status": ["not IN", ["Approved", "Rejected"]],
-                    "razorpay_event": ["not in", ["","Failed","Payment Cancelled"]],
+                    "razorpay_event": ["not in", ["", "Failed", "Payment Cancelled"]],
                     "loan_margin_shortfall": loan_margin_shortfall.name,
                 },
             )
@@ -482,7 +482,10 @@ class LoanTransaction(Document):
                     filters={
                         "loan": self.loan,
                         "status": ["not IN", ["Approved", "Rejected"]],
-                        "razorpay_event": ["not in", ["","Failed","Payment Cancelled"]],
+                        "razorpay_event": [
+                            "not in",
+                            ["", "Failed", "Payment Cancelled"],
+                        ],
                         "loan_margin_shortfall": loan_margin_shortfall.name,
                     },
                 )
@@ -528,18 +531,28 @@ class LoanTransaction(Document):
         ):
             frappe.throw("Allowable amount could not be greater than requested amount")
 
+
 @frappe.whitelist()
 def process_blank_rzp_event_transaction():
     data = ""
     try:
-        blank_rzp_event_transaction = frappe.get_all("Loan Transaction",{"razorpay_event": ["in",["","Payment Cancelled"]],"status":"Pending"})
+        blank_rzp_event_transaction = frappe.get_all(
+            "Loan Transaction",
+            {"razorpay_event": ["in", ["", "Payment Cancelled"]], "status": "Pending"},
+        )
         if blank_rzp_event_transaction:
             for single_transaction in blank_rzp_event_transaction:
-                single_transaction = frappe.get_doc("Loan Transaction",single_transaction.name)
+                single_transaction = frappe.get_doc(
+                    "Loan Transaction", single_transaction.name
+                )
                 data = single_transaction.name
                 if single_transaction.creation < frappe.utils.now_datetime():
-                    hours_difference = convert_sec_to_hh_mm_ss(abs(frappe.utils.now_datetime() - single_transaction.creation).total_seconds())
-                    if hours_difference.split(':')[0] >= '24':
+                    hours_difference = convert_sec_to_hh_mm_ss(
+                        abs(
+                            frappe.utils.now_datetime() - single_transaction.creation
+                        ).total_seconds()
+                    )
+                    if hours_difference.split(":")[0] >= "24":
                         single_transaction.workflow_state = "Rejected"
                         single_transaction.status = "Rejected"
                         single_transaction.save(ignore_permissions=True)
