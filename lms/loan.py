@@ -1002,7 +1002,7 @@ def loan_details(**kwargs):
                     "loan_application": frappe.get_doc("Loan Application",pledged_securities_for_mg_shortfall[0].name)
                     if pledged_securities_for_mg_shortfall
                     else None,
-                    "sell_collateral_application": sell_collateral_for_mg_shortfall[0]
+                    "sell_collateral_application": frappe.get_doc("Sell Collateral Application",sell_collateral_for_mg_shortfall[0].name)
                     if sell_collateral_for_mg_shortfall
                     else None,
                 }
