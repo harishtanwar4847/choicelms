@@ -1050,14 +1050,15 @@ def update_rzp_payment_transaction(data):
             loan_transaction = frappe.get_doc(
                 "Loan Transaction", payment_transaction_name
             )
-            if data["event"] == "payment.authorized" and loan_transaction.razorpay_event != "Captured":
+            if data["event"] == "payment.authorized":
                 razorpay_event = "Authorized"
             if data["event"] == "payment.captured":
                 razorpay_event = "Captured"
             if data["event"] == "payment.failed":
                 razorpay_event = "Failed"
             loan_transaction.transaction_id = webhook_main_object["id"]
-            loan_transaction.razorpay_event = razorpay_event
+            if loan_transaction.razorpay_event != "Captured":
+                loan_transaction.razorpay_event = razorpay_event
             if loan_transaction.razorpay_event == "Failed":
                 fail_log = {"code":webhook_main_object["error_code"],"description":webhook_main_object["error_description"],"source":webhook_main_object["error_source"],"step":webhook_main_object["error_step"],"reason":webhook_main_object["error_reason"]}
                 loan_transaction.razorpay_payment_log = "\n".join("<b>{}</b> : {}".format(*i) for i in fail_log.items())
@@ -1070,14 +1071,34 @@ def update_rzp_payment_transaction(data):
                     "acquirer_data"
                 ]["bank_transaction_id"]
 
+                loan_transaction.name_on_card = ""
+                loan_transaction.last_4_digits = ""
+                loan_transaction.card_id = ""
+                loan_transaction.network = ""
+
+                loan_transaction.vpa = ""
+
             elif webhook_main_object["method"] == "card":
                 loan_transaction.name_on_card = webhook_main_object["card"]["name"]
                 loan_transaction.last_4_digits = webhook_main_object["card"]["last4"]
                 loan_transaction.card_id = webhook_main_object["card"]["id"]
                 loan_transaction.network = webhook_main_object["card"]["network"]
 
+                loan_transaction.bank_name = ""
+                loan_transaction.bank_transaction_id = ""
+
+                loan_transaction.vpa = ""
+
             elif webhook_main_object["method"] == "upi":
                 loan_transaction.vpa = webhook_main_object.get("vpa", None)
+
+                loan_transaction.name_on_card = ""
+                loan_transaction.last_4_digits = ""
+                loan_transaction.card_id = ""
+                loan_transaction.network = ""
+
+                loan_transaction.bank_name = ""
+                loan_transaction.bank_transaction_id = ""
 
             loan_transaction.save(ignore_permissions=True)
             frappe.db.commit()

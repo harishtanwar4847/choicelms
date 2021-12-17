@@ -532,7 +532,7 @@ class LoanTransaction(Document):
 def process_blank_rzp_event_transaction():
     data = ""
     try:
-        blank_rzp_event_transaction = frappe.get_all("Loan Transaction",{"razorpay_event":"","status":"Pending"})
+        blank_rzp_event_transaction = frappe.get_all("Loan Transaction",{"razorpay_event": ["in",["","Payment Cancelled"]],"status":"Pending"})
         if blank_rzp_event_transaction:
             for single_transaction in blank_rzp_event_transaction:
                 single_transaction = frappe.get_doc("Loan Transaction",single_transaction.name)
