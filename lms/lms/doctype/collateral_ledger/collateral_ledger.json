@@ -143,13 +143,13 @@
    "label": "Security Name"
   },
   {
-   "fieldname": "price",
+   "fieldname": "Price",
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "price"
   },
   {
-   "fieldname": "value",
+   "fieldname": "Value",
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "value"
