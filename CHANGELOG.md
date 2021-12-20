@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 - [Fix: Manage my loans screen in case of pledge more and sell collateral of margin shortfall](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/441)
+- [Feat: Backend screen restructring](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/432)
 
 ## [v1.9.0] - 2021-12-17
 
@@ -40,7 +41,6 @@
 - [Feat: Added FCM notification list , fcm notification log list, push_notification_list API, read_or_clear_notifications API and API doc](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/372)
 - [Feat: NSDL Success and Failure callback URL handling](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/373)
 - [Feat: Send recent firebase token of user in fcm notification and collapse key changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/378)
-- [Feat: Backend screen restructring and rearrange](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/380)
 - [Feat: increase loan sanctioned limit charges scenarios](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/381)
 - [Feat: Client Holding](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/385)
 - [Feat: Razorpay callback](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/390)
@@ -50,7 +50,6 @@
 - [Feat: Open graph code added for (non www)spark.loans](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/406)
 - [Feat: contact us email content formatted](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/408)
 - [Feat: contact us email content changes for new line](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/409)
-- [Feat: Backend screen restructuring on allowed security, collateral ledger, loan application, loan margin shortfall, loan transaction, security, sell collateral application, unpledge application](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/415)
 
 ### Fixed
 
