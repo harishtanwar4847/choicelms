@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+## [v1.9.0] - 2021-12-17
+
+### Added
+
+- [Feat: Google Webmaster File added](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/440)
+
+## [v1.8.0] - 2021-12-17
+
+### Added
+
+- [Feat: sitemap.xml file and Google Webmaster File added](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/439)
+
+## [v1.7.2] - 2021-12-02
+
+### Fixed
+
+- [Fix: if firebase token not provided fcm notification wont be send](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/436)
+
 ## [v1.7.1] - 2021-11-22
 
 ### Fixed
