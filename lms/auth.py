@@ -377,18 +377,24 @@ def register(**kwargs):
 
 
 @frappe.whitelist()
-def request_verification_email():
+def request_verification_email(email=None):
     try:
         # validation
         lms.validate_http_method("POST")
+        if email:
+            lms.create_user_token(
+                entity=email,
+                token=lms.random_token(),
+                token_type="Email Verification Token",
+            )
+        else:
+            lms.create_user_token(
+                entity=frappe.session.user,
+                token=lms.random_token(),
+                token_type="Email Verification Token",
+            )
 
-        lms.create_user_token(
-            entity=frappe.session.user,
-            token=lms.random_token(),
-            token_type="Email Verification Token",
-        )
-
-        return lms.generateResponse(message=_("Verification email sent"))
+        return lms.generateResponse(message=("Verification email sent"))
     except (lms.ValidationError, lms.ServerError) as e:
         return lms.generateResponse(status=e.http_status_code, message=str(e))
     except Exception as e:
