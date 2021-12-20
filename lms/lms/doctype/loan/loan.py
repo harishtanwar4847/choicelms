@@ -343,6 +343,15 @@ class Loan(Document):
 
         return frappe.db.sql(sql, as_dict=1)
 
+    def update_collateral_ledger(self, price, isin):
+        sql = """Update `tabCollateral Ledger`
+        set price = {}, value = ({}*quantity)
+        where loan = '{}' and isin = '{}' """.format(
+            price, price, self.name, isin
+        )
+
+        return frappe.db.sql(sql, as_dict=1)
+
     def update_items(self):
         check = False
 
@@ -355,6 +364,7 @@ class Loan(Document):
             # print(check, i.price, curr.price, not check or i.price != curr.price)
             if (not check or i.price != curr.price) and i.pledged_quantity > 0:
                 check = True
+                self.update_collateral_ledger(curr.price, curr.isin)
 
             i.price = curr.price
             i.pledged_quantity = curr.quantity
@@ -471,10 +481,11 @@ class Loan(Document):
                             loan=self.name,
                             customer=self.get_customer(),
                         )
-
                     loan_margin_shortfall.save(ignore_permissions=True)
-
             # alerts comparison with percentage and amount
+            self.reload()
+            self.margin_shortfall_amount = self.get_margin_shortfall_amount()
+            self.save(ignore_permissions=True)
             if customer.alerts_based_on_percentage:
                 if self.total_collateral_value > (
                     old_total_collateral_value
@@ -614,6 +625,23 @@ class Loan(Document):
             else margin_shortfall_name,
         )
 
+    def get_margin_shortfall_amount(self):
+        margin_shortfall_name = frappe.db.get_value(
+            "Loan Margin Shortfall",
+            {
+                "loan": self.name,
+                "status": ["in", ["Pending", "Request Pending", "Sell Triggered"]],
+            },
+            "name",
+        )
+        if margin_shortfall_name:
+            loan_margin_shortfall = frappe.get_doc(
+                "Loan Margin Shortfall", margin_shortfall_name
+            )
+            return loan_margin_shortfall.shortfall_c
+        else:
+            return 0
+
     def get_updated_total_collateral_value(self):
         securities = [i.isin for i in self.items]
 
@@ -658,6 +686,22 @@ class Loan(Document):
 
     def add_virtual_interest(self, input_date=None):
         try:
+            if input_date:
+                input_date = input_date
+            else:
+                input_date = frappe.utils.now_datetime().isoformat()
+
+            day_past_due = frappe.db.sql(
+                "select sum(unpaid_interest) as total_amount, DATEDIFF('{}', time) as dpd from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 order by creation asc".format(
+                    input_date, self.name
+                ),
+                as_dict=True,
+            )
+            if day_past_due[0]["total_amount"]:
+                self.day_past_due = day_past_due[0]["dpd"] - 1
+            else:
+                self.day_past_due = 0
+
             if self.balance > 0:
                 interest_configuration = frappe.db.get_value(
                     "Interest Configuration",
@@ -1477,6 +1521,46 @@ def daily_cron_job(loan_name, input_date=None):
     )
 
 
+@frappe.whitelist()
+def daily_virtual_job(loan_name, input_date=None):
+    frappe.enqueue_doc(
+        "Loan",
+        loan_name,
+        method="add_virtual_interest",
+        input_date=input_date,
+    )
+
+
+@frappe.whitelist()
+def daily_cron_job(loan_name, input_date=None):
+    frappe.enqueue_doc(
+        "Loan",
+        loan_name,
+        method="calculate_virtual_and_additional_interest",
+        input_date=input_date,
+    )
+
+
+@frappe.whitelist()
+def daily_penal_job(loan_name, input_date=None):
+    frappe.enqueue_doc(
+        "Loan",
+        loan_name,
+        method="add_penal_interest",
+        input_date=input_date,
+    )
+
+
+@frappe.whitelist()
+def additional_interest_job(loan_name, input_date=None):
+    frappe.enqueue_doc(
+        "Loan",
+        loan_name,
+        method="check_for_additional_interest",
+        input_date=input_date,
+    )
+
+
 def add_loans_virtual_interest(loans):
     for loan in loans:
         loan = frappe.get_doc("Loan", loan)
@@ -1585,3 +1669,14 @@ def job_dates_for_penal(loan_name):
     while current_date_ <= last_date:
         loan.add_penal_interest(current_date_.strftime("%Y-%m-%d"))
         current_date_ += timedelta(days=1)
+
+
+@frappe.whitelist()
+def interest_booked_till_date(loan_name):
+    interest_booked = frappe.db.sql(
+        "select sum(amount) as total_amount from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest')".format(
+            loan_name
+        ),
+        as_dict=1,
+    )[0]["total_amount"]
+    return 0.0 if interest_booked == None else interest_booked

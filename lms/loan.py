@@ -2487,6 +2487,7 @@ def loan_unpledge_request(**kwargs):
                 "doctype": "Unpledge Application",
                 "loan": data.get("loan_name"),
                 "items": items,
+                "customer_name": customer.full_name,
             }
         )
         unpledge_application.insert(ignore_permissions=True)
@@ -2617,6 +2618,7 @@ def sell_collateral_request(**kwargs):
                 "doctype": "Sell Collateral Application",
                 "loan": data.get("loan_name"),
                 "items": items,
+                "customer_name": customer.full_name,
             }
         )
         msg = ""

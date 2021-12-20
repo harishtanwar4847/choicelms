@@ -14,4 +14,5 @@ frappe.listview_settings["Loan"] = {
       }
     });
   },
+  hide_name_column: true,
 };
