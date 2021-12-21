@@ -592,7 +592,7 @@ def reject_blank_transaction_and_settlement_recon_api():
                                 "status": "Pending",
                                 "order_id": settled_items["order_id"],
                                 "transaction_id": settled_items["entity_id"],
-                                "loan": settled_items["notes"]["loan_name"],
+                                "loan": json.loads(settled_items["notes"]["loan_name"]),
                                 "status": "Pending",
                                 "razorpay_event": "Captured",
                             },
