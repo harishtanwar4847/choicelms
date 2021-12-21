@@ -536,7 +536,7 @@ class LoanTransaction(Document):
 
 
 @frappe.whitelist()
-def process_blank_rzp_event_transaction():
+def reject_blank_transaction_and_settlement_recon_api():
     data = ""
     try:
         blank_rzp_event_transaction = frappe.get_all(
@@ -566,8 +566,6 @@ def process_blank_rzp_event_transaction():
             title=_("Blank Payment Reject Error"),
         )
 
-
-def settlement_api():
     try:
         res = {}
         razorpay_key_secret = frappe.get_single("LAS Settings").razorpay_key_secret
@@ -576,37 +574,39 @@ def settlement_api():
                 bytes(razorpay_key_secret, "utf-8")
             ).decode("ascii")
             today = frappe.utils.now_datetime().date()
-            params = {"year": today.year, "month": today.month, "day": today.day}
-            res = requests.get(
+            params = {"year": 2021, "month": 12, "day": 17}
+
+            raw_res = requests.get(
                 "https://api.razorpay.com/v1/settlements/recon/combined",
                 headers={"Authorization": razorpay_key_secret_auth},
                 params=params,
             )
-            if res.count and res.items:
-                for settled_items in res.items:
+            res = raw_res.json()
+            if res["count"] and res["items"]:
+                for settled_items in res["items"]:
                     try:
-                        if settled_items["settled"] == True:
-                            loan_transaction_name = frappe.get_value(
-                                "Loan Transaction",
-                                {
-                                    "status": "Pending",
-                                    "order_id": settled_items["order_id"],
-                                    "transaction_id": settled_items["entity_id"],
-                                    "loan": settled_items["notes"]["loan_name"],
-                                    "status": "Pending",
-                                    "razorpay_event": "Captured",
-                                },
-                                "name",
+                        loan_transaction_name = frappe.get_value(
+                            "Loan Transaction",
+                            {
+                                "status": "Pending",
+                                "order_id": settled_items["order_id"],
+                                "transaction_id": settled_items["entity_id"],
+                                "loan": settled_items["notes"]["loan_name"],
+                                "status": "Pending",
+                                "razorpay_event": "Captured",
+                            },
+                            "name",
+                        )
+                        if loan_transaction_name:
+                            loan_transaction = frappe.get_doc(
+                                "Loan Transaction", loan_transaction_name
                             )
-                            if loan_transaction_name:
-                                loan_transaction = frappe.get_doc(
-                                    "Loan Transaction", loan_transaction_name
-                                )
                     except Exception:
                         frappe.log_error(
                             message=frappe.get_traceback()
                             + "\nSettlement details:\n"
-                            + json.dumps(settled_items),
+                            + json.dumps(settled_items)
+                            + loan_transaction_name,
                             title=_("Payment Settlement Error"),
                         )
     except Exception:
