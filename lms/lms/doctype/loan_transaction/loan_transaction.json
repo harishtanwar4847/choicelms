@@ -38,8 +38,10 @@
   "items",
   "razorpay_payment_webhook_section_section",
   "razorpay_event",
-  "rzp_column",
   "razorpay_payment_log",
+  "rzp_column",
+  "settlement_status",
+  "settlement_id",
   "bank_details_section",
   "bank_name",
   "column_break_33",
@@ -324,11 +326,23 @@
   {
    "fieldname": "rzp_column",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "settlement_status",
+   "fieldtype": "Select",
+   "label": "Settlement Status",
+   "options": "\nCreated\nProcessed\nFailed"
+  },
+  {
+   "fieldname": "settlement_id",
+   "fieldtype": "Data",
+   "label": "Settlement Id",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-14 19:12:53.379028",
+ "modified": "2021-12-21 17:03:49.792552",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
