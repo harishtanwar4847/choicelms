@@ -566,8 +566,16 @@ def reject_blank_transaction_and_settlement_recon_api():
             message=frappe.get_traceback() + "\nPayment details:\n" + data,
             title=_("Blank Payment Reject Error"),
         )
+    settlement_recon_api()
 
+
+@frappe.whitelist()
+def settlement_recon_api(input_date=None):
     try:
+        if input_date:
+            input_date = datetime.strptime(input_date, "%Y-%m-%d")
+        else:
+            input_date = frappe.utils.now_datetime().date()
         res = {}
         loan_transaction_name = ""
         razorpay_key_secret = frappe.get_single("LAS Settings").razorpay_key_secret
@@ -577,8 +585,11 @@ def reject_blank_transaction_and_settlement_recon_api():
             razorpay_key_secret_auth = "Basic " + base64.b64encode(
                 bytes(razorpay_key_secret, "utf-8")
             ).decode("ascii")
-            today = frappe.utils.now_datetime().date()
-            params = {"year": 2021, "month": 12, "day": 17}
+            params = {
+                "year": input_date.year,
+                "month": input_date.month,
+                "day": input_date.day,
+            }
 
             raw_res = requests.get(
                 "https://api.razorpay.com/v1/settlements/recon/combined",
