@@ -568,6 +568,7 @@ def reject_blank_transaction_and_settlement_recon_api():
 
     try:
         res = {}
+        loan_transaction_name = ""
         razorpay_key_secret = frappe.get_single("LAS Settings").razorpay_key_secret
         if razorpay_key_secret:
             razorpay_key_secret_auth = "Basic " + base64.b64encode(
