@@ -620,7 +620,7 @@ def reject_blank_transaction_and_settlement_recon_api():
                             loan_transaction.settlement_id = settled_items[
                                 "settlement_id"
                             ]
-                            loan_transaction.save(ignore_permission=True)
+                            loan_transaction.save(ignore_permissions=True)
                             frappe.db.commit()
                     except Exception:
                         frappe.log_error(
