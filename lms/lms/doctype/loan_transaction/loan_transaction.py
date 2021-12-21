@@ -598,6 +598,7 @@ def reject_blank_transaction_and_settlement_recon_api():
                             "name",
                         )
                         if loan_transaction_name:
+                            frappe.logger().info(loan_transaction_name)
                             loan_transaction = frappe.get_doc(
                                 "Loan Transaction", loan_transaction_name
                             )
