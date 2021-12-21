@@ -772,6 +772,19 @@ class Loan(Document):
                     )
                     virtual_interest_doc.save(ignore_permissions=True)
                     frappe.db.commit()
+                    self.base_interest_amount = frappe.db.sql(
+                        "select sum(base_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_base = 0".format(
+                            self.name
+                        ),
+                        as_dict=1,
+                    )[0]["amount"]
+                    self.rebate_interest_amount = frappe.db.sql(
+                        "select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_rebate = 0".format(
+                            self.name
+                        ),
+                        as_dict=1,
+                    )[0]["amount"]
+                    self.save(ignore_permissions=True)
                     return virtual_interest_doc.as_dict()
         except Exception:
             frappe.log_error(

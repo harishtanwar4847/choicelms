@@ -143,28 +143,28 @@
    "label": "Security Name"
   },
   {
-   "fieldname": "Price",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "price"
-  },
-  {
-   "fieldname": "Value",
-   "fieldtype": "Currency",
-   "in_list_view": 1,
-   "label": "value"
-  },
-  {
    "fieldname": "security_category",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Security Category",
    "read_only": 1
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Price"
+  },
+  {
+   "fieldname": "value",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Value"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-11-29 14:32:37.682325",
+ "modified": "2021-12-21 12:51:43.958175",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Collateral Ledger",
