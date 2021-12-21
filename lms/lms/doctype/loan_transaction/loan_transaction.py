@@ -9,6 +9,7 @@ import json
 from datetime import datetime
 
 import frappe
+import razorpay
 import requests
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
@@ -571,6 +572,8 @@ def reject_blank_transaction_and_settlement_recon_api():
         loan_transaction_name = ""
         razorpay_key_secret = frappe.get_single("LAS Settings").razorpay_key_secret
         if razorpay_key_secret:
+            id, secret = razorpay_key_secret.split(":")
+            client = razorpay.Client(auth=(id, secret))
             razorpay_key_secret_auth = "Basic " + base64.b64encode(
                 bytes(razorpay_key_secret, "utf-8")
             ).decode("ascii")
@@ -599,10 +602,26 @@ def reject_blank_transaction_and_settlement_recon_api():
                             "name",
                         )
                         if loan_transaction_name:
+                            settle_res = client.settlement.fetch(
+                                settled_items["settlement_id"]
+                            )
                             frappe.logger().info(loan_transaction_name)
                             loan_transaction = frappe.get_doc(
                                 "Loan Transaction", loan_transaction_name
                             )
+                            if settle_res["status"] == "created":
+                                settlement_status = "Created"
+                            elif settle_res["status"] == "processed":
+                                settlement_status = "Processed"
+                            elif settle_res["status"] == "failed":
+                                settlement_status = "Failed"
+
+                            loan_transaction.settlement_status = settlement_status
+                            loan_transaction.settlement_id = settled_items[
+                                "settlement_id"
+                            ]
+                            loan_transaction.save(ignore_permission=True)
+                            frappe.db.commit()
                     except Exception:
                         frappe.log_error(
                             message=frappe.get_traceback()
