@@ -566,7 +566,8 @@ def reject_blank_transaction_and_settlement_recon_api():
             message=frappe.get_traceback() + "\nPayment details:\n" + data,
             title=_("Blank Payment Reject Error"),
         )
-    settlement_recon_api()
+    if frappe.utils.now_datetime().hour > 15:
+        settlement_recon_api()
 
 
 @frappe.whitelist()
@@ -616,7 +617,6 @@ def settlement_recon_api(input_date=None):
                             settle_res = client.settlement.fetch(
                                 settled_items["settlement_id"]
                             )
-                            frappe.logger().info(loan_transaction_name)
                             loan_transaction = frappe.get_doc(
                                 "Loan Transaction", loan_transaction_name
                             )
@@ -641,10 +641,8 @@ def settlement_recon_api(input_date=None):
                             + loan_transaction_name,
                             title=_("Payment Settlement Error"),
                         )
-    except Exception:
+    except Exception as e:
         frappe.log_error(
-            message=frappe.get_traceback()
-            + "\nSettlement details:\n"
-            + json.dumps(res),
+            message=frappe.get_traceback() + "\nSettlement details:\n" + str(e.args),
             title=_("Payment Settlement Error"),
         )
