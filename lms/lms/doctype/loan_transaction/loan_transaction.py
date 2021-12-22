@@ -595,6 +595,7 @@ class LoanTransaction(Document):
             loan.interest_due = (
                 interest_due[0]["unpaid_interest"] if interest_due else 0.0
             )
+            loan.base_interest_amount = 0.0
 
         """
         Sum of unpaid interest in loan transaction of transaction type Additional Interest till now and

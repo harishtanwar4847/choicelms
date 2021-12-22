@@ -903,6 +903,16 @@ class Loan(Document):
 
                         frappe.db.commit()
 
+                        rebate_interest_amount = frappe.db.sql(
+                            "select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_rebate = 0".format(
+                                self.name
+                            ),
+                            as_dict=1,
+                        )[0]["amount"]
+                        print("asasasa " + rebate_interest_amount)
+                        # self.save(ignore_permissions=True)
+                        # frappe.db.commit()
+
                         doc = frappe.get_doc(
                             "User KYC", self.get_customer().choice_kyc
                         ).as_dict()
