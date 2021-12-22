@@ -2,9 +2,19 @@
 
 ## [Unreleased]
 
-## [v1.9.0]
-
 - [Feat: Razorpay Payment Webhook event implementation](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/438)
+
+## [v2.0.0] - 2021-12-21
+
+### Added
+
+- [Feat: Google Webmaster File added](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/443)
+
+## [v1.9.0] - 2021-12-17
+
+### Added
+
+- [Feat: Google Webmaster File added](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/440)
 
 ## [v1.8.0] - 2021-12-17
 
