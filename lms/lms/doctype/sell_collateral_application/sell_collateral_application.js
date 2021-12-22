@@ -3,6 +3,7 @@
 
 frappe.ui.form.on("Sell Collateral Application", {
   refresh: function (frm) {
+    frm.reload_doc();
     show_fetch_items_button(frm);
     // if (frm.doc.status != "Pending" || frappe.session.user != frm.doc.owner) {
     if (frm.doc.status != "Pending") {
