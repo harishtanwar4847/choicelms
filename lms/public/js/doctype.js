@@ -11,7 +11,7 @@ $(document).on("app_ready", function () {
     ],
     function (i, doctype) {
       frappe.ui.form.on(doctype, "refresh", function (frm) {
-        if(frm.doc.loan){
+        if(frm.doc.loan && !frm.doc.__islocal){
           frappe.db.get_doc("Loan", frm.doc.loan).then((doc) => {
             var interest_booked_till_date_th = "";
             var interest_booked_till_date_td = "";
