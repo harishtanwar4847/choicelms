@@ -138,32 +138,30 @@ class LoanTransaction(Document):
             if self.transaction_type == "Processing Fees":
                 sharing_amount = lender.lender_processing_fees_sharing
                 sharing_type = lender.lender_processing_fees_sharing_type
-                transaction_type = "Processing Fees"
+                # transaction_type = "Processing Fees"
             elif self.transaction_type == "Stamp Duty":
                 sharing_amount = lender.stamp_duty_sharing
                 sharing_type = lender.stamp_duty_sharing_type
-                transaction_type = "Stamp Duty"
+                # transaction_type = "Stamp Duty"
             elif self.transaction_type == "Documentation Charges":
                 sharing_amount = lender.documentation_charges_sharing
                 sharing_type = lender.documentation_charge_sharing_type
-                transaction_type = "Documentation Charges"
+                # transaction_type = "Documentation Charges"
             elif self.transaction_type == "Mortgage Charges":
                 sharing_amount = lender.mortgage_charges_sharing
                 sharing_type = lender.mortgage_charge_sharing_type
-                transaction_type = "Mortgage Charges"
+                # transaction_type = "Mortgage Charges"
 
             lender_sharing_amount = sharing_amount
-            loan_transaction_type = transaction_type
+            # loan_transaction_type = transaction_type
             if sharing_type == "Percentage":
                 lender_sharing_amount = (lender_sharing_amount / 100) * self.amount
             spark_sharing_amount = self.amount - lender_sharing_amount
 
             loan = self.get_loan()
-            customer_name = loan.customer_name
+            # customer_name = loan.customer_name
             self.create_lender_ledger(
                 self.name,
-                customer_name,
-                loan_transaction_type,
                 lender_sharing_amount,
                 spark_sharing_amount,
             )
@@ -423,9 +421,6 @@ class LoanTransaction(Document):
 
     def create_lender_ledger(
         self,
-        customer_name,
-        loan_transaction_name,
-        loan_transaction_type,
         lender_share,
         spark_share,
     ):
@@ -433,10 +428,10 @@ class LoanTransaction(Document):
             {
                 "doctype": "Lender Ledger",
                 "loan": self.loan,
-                "customer_name": customer_name,
+                "customer_name": self.customer_name,
                 "loan_transaction": self.name,
                 "lender": self.lender,
-                "transaction_type": loan_transaction_type,
+                "transaction_type": self.transaction_type,
                 "amount": self.amount,
                 "lender_share": lender_share,
                 "spark_share": spark_share,
@@ -569,9 +564,11 @@ class LoanTransaction(Document):
                     self.loan
                 ),
                 as_dict=1,
-            )[0]["unpaid_interest"]
+            )
             loan.penal_interest_charges = (
-                penal_interest_charges if penal_interest_charges else 0.0
+                penal_interest_charges[0]["unpaid_interest"]
+                if penal_interest_charges
+                else 0.0
             )
 
         """Sum of unpaid interest in loan transaction of transaction type Interest of last month"""
@@ -593,8 +590,11 @@ class LoanTransaction(Document):
                     self.loan
                 ),
                 as_dict=1,
-            )[0]["unpaid_interest"]
-            loan.interest_due = interest_due if interest_due else 0.0
+            )
+            loan.interest_due = (
+                interest_due[0]["unpaid_interest"] if interest_due else 0.0
+            )
+            loan.base_interest_amount = 0.0
 
         """
         Sum of unpaid interest in loan transaction of transaction type Additional Interest till now and
@@ -606,8 +606,10 @@ class LoanTransaction(Document):
                     self.loan
                 ),
                 as_dict=1,
-            )[0]["unpaid_interest"]
-            loan.interest_overdue = interest_overdue if interest_overdue else 0.0
+            )
+            loan.interest_overdue = (
+                interest_overdue[0]["unpaid_interest"] if interest_overdue else 0.0
+            )
             if interest_overdue:
                 loan.interest_due = 0.0
         loan.save(ignore_permissions=True)

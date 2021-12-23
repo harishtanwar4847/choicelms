@@ -689,7 +689,7 @@ class Loan(Document):
             if input_date:
                 input_date = input_date
             else:
-                input_date = frappe.utils.now_datetime().isoformat()
+                input_date = frappe.utils.now_datetime()
 
             day_past_due = frappe.db.sql(
                 "select sum(unpaid_interest) as total_amount, DATEDIFF('{}', time) as dpd from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 order by creation asc".format(
@@ -714,12 +714,7 @@ class Loan(Document):
                     as_dict=1,
                 )
 
-                if input_date:
-                    input_date = datetime.strptime(input_date, "%Y-%m-%d") - timedelta(
-                        days=1
-                    )
-                else:
-                    input_date = frappe.utils.now_datetime() - timedelta(days=1)
+                input_date -= timedelta(days=1)
 
                 input_date = input_date.replace(
                     hour=23, minute=59, second=59, microsecond=999999
@@ -772,6 +767,19 @@ class Loan(Document):
                     )
                     virtual_interest_doc.save(ignore_permissions=True)
                     frappe.db.commit()
+                    self.base_interest_amount = frappe.db.sql(
+                        "select sum(base_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_base = 0".format(
+                            self.name
+                        ),
+                        as_dict=1,
+                    )[0]["amount"]
+                    self.rebate_interest_amount = frappe.db.sql(
+                        "select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_rebate = 0".format(
+                            self.name
+                        ),
+                        as_dict=1,
+                    )[0]["amount"]
+                    self.save(ignore_permissions=True)
                     return virtual_interest_doc.as_dict()
         except Exception:
             frappe.log_error(
@@ -888,6 +896,15 @@ class Loan(Document):
                         # self.is_irregular = 1
                         # self.save(ignore_permissions=True)
 
+                        frappe.db.commit()
+                        self.reload()
+                        self.rebate_interest_amount = frappe.db.sql(
+                            "select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_rebate = 0".format(
+                                self.name
+                            ),
+                            as_dict=1,
+                        )[0]["amount"]
+                        self.save(ignore_permissions=True)
                         frappe.db.commit()
 
                         doc = frappe.get_doc(
