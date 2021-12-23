@@ -421,7 +421,6 @@ class LoanTransaction(Document):
 
     def create_lender_ledger(
         self,
-        loan_transaction_name,
         lender_share,
         spark_share,
     ):
