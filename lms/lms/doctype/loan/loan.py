@@ -687,7 +687,7 @@ class Loan(Document):
     def add_virtual_interest(self, input_date=None):
         try:
             if input_date:
-                input_date = input_date
+                input_date = datetime.strptime(input_date, "%Y-%m-%d")
             else:
                 input_date = frappe.utils.now_datetime()
 

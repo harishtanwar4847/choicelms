@@ -10,8 +10,8 @@ $(document).on("app_ready", function () {
       "Unpledge Application"
     ],
     function (i, doctype) {
-      frappe.ui.form.on(doctype, "refresh", function (frm) {
-        if(frm.doc.loan && !frm.is_new()){
+      frappe.ui.form.on(doctype, ("refresh"), function (frm) {
+        if(!frm.is_new() && frm.doc.loan!=""){
           frappe.db.get_doc("Loan", frm.doc.loan).then((doc) => {
             var interest_booked_till_date_th = "";
             var interest_booked_till_date_td = "";
@@ -46,7 +46,7 @@ $(document).on("app_ready", function () {
               " border-left: none;" +
               "}" +
               "</style>" +
-              "<table>" +
+              "<table id='loan_summary'>" +
               "<tr>" +
               "<th> Loan Account No </th>" +
               "<th> Customer Name </th>" +
@@ -102,6 +102,13 @@ $(document).on("app_ready", function () {
               interest_booked_till_date_td +
               "</tr>";
             ("</table>");
+
+            if ($("#loan_summary").length > 0){
+              var $myDiv = $("#loan_summary");
+              $myDiv.closest("html").length;  // returns 1
+              $myDiv.remove();
+            }
+
             frm.set_intro(data);
             document.getElementsByClassName(
               "form-message blue"
