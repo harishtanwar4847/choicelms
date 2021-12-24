@@ -9,7 +9,4 @@ frappe.ui.form.on("Loan Transaction", {
       frm.set_df_property("allowable", "read_only", false);
     }
   },
-  on_submit: function (frm) {
-    frm.reload_doc();
-  },
 });
