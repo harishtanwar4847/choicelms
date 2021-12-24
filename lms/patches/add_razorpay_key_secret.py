@@ -2,16 +2,16 @@ import frappe
 
 
 def execute():
-    spark_push_notification = frappe.reload_doc("Lms", "DocType", "LAS Settings")
+    frappe.reload_doc("Lms", "DocType", "LAS Settings")
     user = frappe.get_doc(
         {
             "doctype": "User",
             "email": "support-spark@atriina.com",
             "first_name": "Razorpay",
             "last_name": "User",
-            "username": 1234567890,
-            "phone": 1234567890,
-            "mobile_no": 1234567890,
+            "username": "1234567890",
+            "phone": "1234567890",
+            "mobile_no": "1234567890",
             "send_welcome_email": 0,
             "new_password": "rzp@choice123",
             "roles": [{"doctype": "Has Role", "role": "Razorpay User"}],
