@@ -161,7 +161,6 @@ class LoanTransaction(Document):
             loan = self.get_loan()
             # customer_name = loan.customer_name
             self.create_lender_ledger(
-                self.name,
                 lender_sharing_amount,
                 spark_sharing_amount,
             )
