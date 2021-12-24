@@ -429,6 +429,10 @@ class LoanMarginShortfall(Document):
                     fa.delete_app()
 
     def on_update(self):
+        loan = self.get_loan()
+        loan.margin_shortfall_amount = self.shortfall_c
+        loan.save(ignore_permissions=True)
+        frappe.db.commit()
         self.notify_customer()
         # TODO : manage 'Sell Triggered' Notify Customer and Update Deadline Scenario - with scheduler/any
         """

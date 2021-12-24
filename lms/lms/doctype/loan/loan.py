@@ -483,9 +483,9 @@ class Loan(Document):
                         )
                     loan_margin_shortfall.save(ignore_permissions=True)
             # alerts comparison with percentage and amount
-            self.reload()
-            self.margin_shortfall_amount = self.get_margin_shortfall_amount()
-            self.save(ignore_permissions=True)
+            # self.reload()
+            # self.margin_shortfall_amount = self.get_margin_shortfall_amount()
+            # self.save(ignore_permissions=True)
             if customer.alerts_based_on_percentage:
                 if self.total_collateral_value > (
                     old_total_collateral_value
@@ -625,22 +625,22 @@ class Loan(Document):
             else margin_shortfall_name,
         )
 
-    def get_margin_shortfall_amount(self):
-        margin_shortfall_name = frappe.db.get_value(
-            "Loan Margin Shortfall",
-            {
-                "loan": self.name,
-                "status": ["in", ["Pending", "Request Pending", "Sell Triggered"]],
-            },
-            "name",
-        )
-        if margin_shortfall_name:
-            loan_margin_shortfall = frappe.get_doc(
-                "Loan Margin Shortfall", margin_shortfall_name
-            )
-            return loan_margin_shortfall.shortfall_c
-        else:
-            return 0
+    # def get_margin_shortfall_amount(self):
+    #     margin_shortfall_name = frappe.db.get_value(
+    #         "Loan Margin Shortfall",
+    #         {
+    #             "loan": self.name,
+    #             "status": ["in", ["Pending", "Request Pending", "Sell Triggered"]],
+    #         },
+    #         "name",
+    #     )
+    #     if margin_shortfall_name:
+    #         loan_margin_shortfall = frappe.get_doc(
+    #             "Loan Margin Shortfall", margin_shortfall_name
+    #         )
+    #         return loan_margin_shortfall.shortfall_c
+    #     else:
+    #         return 0
 
     def get_updated_total_collateral_value(self):
         securities = [i.isin for i in self.items]
