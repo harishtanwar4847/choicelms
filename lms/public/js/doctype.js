@@ -11,7 +11,7 @@ $(document).on("app_ready", function () {
     ],
     function (i, doctype) {
       frappe.ui.form.on(doctype, "refresh", function (frm) {
-        if(frm.doc.loan && !frm.doc.__islocal){
+        if(frm.doc.loan && !frm.is_new()){
           frappe.db.get_doc("Loan", frm.doc.loan).then((doc) => {
             var interest_booked_till_date_th = "";
             var interest_booked_till_date_td = "";
@@ -30,7 +30,7 @@ $(document).on("app_ready", function () {
             }
 
             var data = "";
-            data +=
+            data =
               "<style>" +
               ".form-message.blue{padding: 5px; background-color: white;}"+
               "table {" +
