@@ -8,7 +8,7 @@ frappe.ui.form.on("Loan Customer", {
         console.log(frm.doc.user);
         frappe.call({
           type: "POST",
-          method: "lms.auth.request_verification_email",
+          method: "lms.auth.resend_verification_email",
           args: { email: frm.doc.user },
         });
       });

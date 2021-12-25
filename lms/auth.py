@@ -377,28 +377,61 @@ def register(**kwargs):
 
 
 @frappe.whitelist()
-def request_verification_email(email=None):
+def request_verification_email():
     try:
         # validation
         lms.validate_http_method("POST")
-        if email:
-            lms.create_user_token(
-                entity=email,
-                token=lms.random_token(),
-                token_type="Email Verification Token",
-            )
-        else:
-            lms.create_user_token(
-                entity=frappe.session.user,
-                token=lms.random_token(),
-                token_type="Email Verification Token",
-            )
 
-        return lms.generateResponse(message=("Verification email sent"))
+        lms.create_user_token(
+            entity=frappe.session.user,
+            token=lms.random_token(),
+            token_type="Email Verification Token",
+        )
+
+        return lms.generateResponse(message=_("Verification email sent"))
     except (lms.ValidationError, lms.ServerError) as e:
         return lms.generateResponse(status=e.http_status_code, message=str(e))
     except Exception as e:
         return lms.generateResponse(is_success=False, error=e)
+
+
+@frappe.whitelist()
+def resend_verification_email(**kwargs):
+    try:
+        # validation
+        utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "email": "",
+            },
+        )
+        user_token = frappe.get_last_doc(
+            "User Token", filters={"entity": "dpcg761059459@gmail.com"}
+        )
+        if not user_token.used:
+            doc = frappe.get_doc("User", data.get("email")).as_dict()
+            doc["url"] = frappe.utils.get_url(
+                "/api/method/lms.auth.verify_user?token={}&user={}".format(
+                    user_token.token, data.get("email")
+                )
+            )
+            frappe.enqueue_doc(
+                "Notification",
+                "User Email Verification",
+                method="send",
+                doc=doc,
+            )
+            frappe.throw("Verification email resent to {}".format(data.get("email")))
+        else:
+            lms.create_user_token(
+                entity=data.get("email"),
+                token=lms.random_token(),
+                token_type="Email Verification Token",
+            )
+            frappe.throw("Verification email sent to {}".format(data.get("email")))
+    except:
+        pass
 
 
 @frappe.whitelist(allow_guest=True)
