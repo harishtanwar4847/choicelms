@@ -226,7 +226,7 @@ def get_choice_kyc_old(pan_no, birth_date):
 
 
 @frappe.whitelist()
-def get_choice_kyc(**kwargs):
+def get_choice_kyc_1(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
@@ -352,7 +352,7 @@ def get_choice_kyc(**kwargs):
 
 
 @frappe.whitelist()
-def kyc(**kwargs):
+def kyc_1(**kwargs):
     try:
         utils.validator.validate_http_method("POST")
 
@@ -522,6 +522,146 @@ def kyc(**kwargs):
         return utils.respondWithSuccess(data=data)
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
+        return e.respond()
+
+
+"""Changes as per new jiffy KYC API - related to bajaj lender - (CR-Dec21)"""
+
+
+def validate_pan(**kwargs):
+    pass
+
+
+@frappe.whitelist()
+def get_choice_kyc(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "pan_no": "required",
+                "birth_date": "required",
+                "accept_terms": ["required", "between:0,1", "decimal"],
+            },
+        )
+
+        if not data.get("accept_terms"):
+            return utils.respondUnauthorized(
+                message=frappe._("Please accept Terms and Conditions.")
+            )
+
+        try:
+            datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
+        except ValueError:
+            return utils.respondWithFailure(
+                status=417,
+                message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
+            )
+
+        reg = lms.regex_special_characters(
+            search=data.get("pan_no"),
+            regex=re.compile("[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"),
+        )
+
+        if not reg or len(data.get("pan_no")) != 10:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Invalid PAN"),
+            )
+
+        """Check for Prod environment only"""
+        debug_mode = frappe.db.get_single_value("LAS Settings", "debug_mode")
+        if not debug_mode:
+            if (data.get("pan_no")[3]).lower() != "p":
+                return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Invalid PAN"),
+                )
+
+        try:
+            user_kyc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
+        except UserKYCNotFoundException:
+            user_kyc = None
+
+        if not user_kyc:
+            user_kyc = {}
+            try:
+                las_settings = frappe.get_single("LAS Settings")
+
+                params = {"panNum": data.get("pan_no")}
+
+                headers = {
+                    "businessUnit": las_settings.choice_business_unit,
+                    "userId": las_settings.choice_user_id,
+                    "investorId": las_settings.choice_investor_id,
+                    "ticket": las_settings.choice_ticket,
+                }
+
+                res = requests.get(
+                    las_settings.choice_pan_api, params=params, headers=headers
+                )
+
+                data = res.json()
+
+                # log jiffy kyc api request and response
+                log = {
+                    "url": las_settings.choice_pan_api,
+                    "headers": headers,
+                    "request": params,
+                    "response": data,
+                }
+                lms.create_log(log, "jiffy_kyc_log")
+
+                if not res.ok or "errorCode" in data:
+                    raise UserKYCNotFoundException
+
+                user_kyc["investor_name"] = data["investorName"]
+                user_kyc["pan_no"] = data["panNum"]
+                user_kyc["address"] = "".join(
+                    [
+                        data["permanantAddress1"],
+                        data["permanantAddress2"],
+                        data["permanantAddress3"],
+                        data["perCity"],
+                        " ",
+                        data["perState"],
+                        " ",
+                        data["perPincode"],
+                    ]
+                )
+
+                if data["banks"]:
+                    user_kyc["bank_account"] = {}
+
+                    for bank in data["banks"]:
+                        if bank["defaultBank"] == "Y":
+                            user_kyc["bank_account"]["bank"] = bank["bank"]
+                            user_kyc["bank_account"]["account_number"] = bank[
+                                "accountNumber"
+                            ]
+                            user_kyc["bank_account"]["ifsc"] = bank["ifsc"]
+                            user_kyc["bank_account"]["is_default"] = (
+                                1 if bank["defaultBank"] == "Y" else 0
+                            )
+
+            except requests.RequestException as e:
+                raise utils.exceptions.APIException(str(e))
+            except UserKYCNotFoundException:
+                raise
+            except Exception as e:
+                raise utils.exceptions.APIException(str(e))
+
+        data = {"user_kyc": user_kyc}
+        return utils.respondWithSuccess(data=data)
+
+    except utils.exceptions.APIException as e:
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\nget_choice_kyc api details:\n"
+            + str(e.args),
+            title=_("User KYC Error"),
+        )
         return e.respond()
 
 
