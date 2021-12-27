@@ -396,24 +396,14 @@ def request_verification_email():
 
 
 @frappe.whitelist()
-def resend_verification_email(**kwargs):
+def resend_verification_email(email):
     try:
-        # validation
-        utils.validator.validate_http_method("POST")
-        data = utils.validator.validate(
-            kwargs,
-            {
-                "email": "",
-            },
-        )
-        user_token = frappe.get_last_doc(
-            "User Token", filters={"entity": "dpcg761059459@gmail.com"}
-        )
+        user_token = frappe.get_last_doc("User Token", filters={"entity": email})
         if not user_token.used:
-            doc = frappe.get_doc("User", data.get("email")).as_dict()
+            doc = frappe.get_doc("User", email).as_dict()
             doc["url"] = frappe.utils.get_url(
                 "/api/method/lms.auth.verify_user?token={}&user={}".format(
-                    user_token.token, data.get("email")
+                    user_token.token, email
                 )
             )
             frappe.enqueue_doc(
@@ -422,16 +412,27 @@ def resend_verification_email(**kwargs):
                 method="send",
                 doc=doc,
             )
-            frappe.throw("Verification email resent to {}".format(data.get("email")))
+            frappe.msgprint(
+                msg="Verification email resent to {}".format(email),
+                title="Email Verification",
+                indicator="green",
+            )
         else:
             lms.create_user_token(
-                entity=data.get("email"),
+                entity=email,
                 token=lms.random_token(),
                 token_type="Email Verification Token",
             )
-            frappe.throw("Verification email sent to {}".format(data.get("email")))
-    except:
-        pass
+            frappe.msgprint(
+                msg="Verification email resent to {}".format(email),
+                title="Email Verification",
+                indicator="green",
+            )
+    except Exception as e:
+        frappe.log_error(
+            frappe.get_traceback() + "\nResend Email Info:\n" + json.dumps(email),
+            e.args,
+        )
 
 
 @frappe.whitelist(allow_guest=True)
