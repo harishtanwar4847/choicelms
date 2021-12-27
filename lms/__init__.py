@@ -1031,30 +1031,29 @@ def rzp_payment_webhook_callback(**kwargs):
 
 def update_rzp_payment_transaction(data):
     try:
+        msg = ""
         webhook_main_object = data["payload"]["payment"]["entity"]
         try:
             loan = frappe.get_doc("Loan", webhook_main_object["notes"]["loan_name"])
+            customer = frappe.get_doc("Loan Customer", loan.customer)
+
+            payment_transaction_name = frappe.get_value(
+                "Loan Transaction",
+                {
+                    "transaction_type": "Payment",
+                    "order_id": webhook_main_object["order_id"],
+                    "amount": float(webhook_main_object["notes"].get("amount")),
+                    "status": "Pending",
+                    "loan": webhook_main_object["notes"]["loan_name"],
+                },
+                "name",
+            )
         except frappe.DoesNotExistError:
             frappe.log_error(
                 message=frappe.get_traceback() + json.dumps(data),
                 title=_("Payment Webhook Error - Loan DoesNotExistError"),
             )
             loan = None
-
-        msg = ""
-        customer = frappe.get_doc("Loan Customer", loan.customer)
-
-        payment_transaction_name = frappe.get_value(
-            "Loan Transaction",
-            {
-                "transaction_type": "Payment",
-                "order_id": webhook_main_object["order_id"],
-                "amount": float(webhook_main_object["notes"].get("amount")),
-                "status": "Pending",
-                "loan": webhook_main_object["notes"]["loan_name"],
-            },
-            "name",
-        )
 
         if payment_transaction_name and loan:
             loan_transaction = frappe.get_doc(
@@ -1072,15 +1071,21 @@ def update_rzp_payment_transaction(data):
                 loan_transaction.razorpay_event = razorpay_event
             # If RZP event is failed then update the log
             if loan_transaction.razorpay_event == "Failed":
-                fail_log = {
-                    "code": webhook_main_object["error_code"],
-                    "description": webhook_main_object["error_description"],
-                    "source": webhook_main_object["error_source"],
-                    "step": webhook_main_object["error_step"],
-                    "reason": webhook_main_object["error_reason"],
-                }
-                loan_transaction.razorpay_payment_log = "\n".join(
-                    "<b>{}</b> : {}".format(*i) for i in fail_log.items()
+                loan_transaction.razorpay_payment_log = (
+                    "<b>code</b> : "
+                    + webhook_main_object["error_code"]
+                    + "\n"
+                    + "<b>description</b> : "
+                    + webhook_main_object["error_description"]
+                    + "\n"
+                    + "<b>source</b> : "
+                    + webhook_main_object["error_source"]
+                    + "\n"
+                    + "<b>step</b> : "
+                    + webhook_main_object["error_step"]
+                    + "\n"
+                    + "<b>reason</b> : "
+                    + webhook_main_object["error_reason"]
                 )
             else:
                 loan_transaction.razorpay_payment_log = ""
@@ -1125,6 +1130,7 @@ def update_rzp_payment_transaction(data):
             frappe.db.commit()
             # Send notification depended on events
             if data["event"] == "payment.authorized":
+                # if data["event"] == "payment.authorized" or (loan_transaction.razorpay_event == "Captured" and data["event"] != "payment.authorized"):
                 # send notification and change loan margin shortfall status to request pending
                 if loan_transaction.loan_margin_shortfall:
                     loan_margin_shortfall = frappe.get_doc(

@@ -7,7 +7,6 @@ def execute():
         "Lender",
         "Spark Manager",
         "Spark Transaction Approver",
-        "Razorpay User",
     ]
     for role in roles:
         if not frappe.db.exists("Role", role):
