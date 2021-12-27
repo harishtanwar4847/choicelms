@@ -121,7 +121,7 @@
               <div class="row" id="related_article_div"></div>
               <div class="col-md-12">
                 <h5 class="viewMore">
-                  <a class="viewMores" id="viewMore"></a>
+                  <a class="viewMores" id="viewMore">View More</a>
                 </h5>
               </div>
             </div>
@@ -171,17 +171,19 @@
           type: "GET",
           dataType: "json",
           success: function (res) {
-            html =
-              '<div class="news_card ad" style="margin-bottom: 1.25rem;">' +
-              '<a href="' +
-              res.data.website_ads.url +
-              '" target="__blank">' +
-              '<img src="' +
-              res.data.website_ads.image +
-              '" class="fw" />' +
-              "</a>" +
-              "</div>";
-            $("#news_card").html(html);
+            if (res.data.website_ads.length > 0) {
+              html =
+                '<div class="news_card ad" style="margin-bottom: 1.25rem;">' +
+                '<a href="' +
+                res.data.website_ads.url +
+                '" target="__blank">' +
+                '<img src="' +
+                res.data.website_ads.image +
+                '" class="fw" />' +
+                "</a>" +
+                "</div>";
+              $("#news_card").html(html);
+            }
           },
         });
 
@@ -215,7 +217,7 @@
                   const arr = val.website_tags.split(",");
                   var tags = "";
                   $.each(arr, (index, tag) => {
-                    tags += "<a href=#>" + tag + "</a>";
+                    tags += tag + " ";
                   });
                   html +=
                     '<div class="col-md-4">' +
@@ -225,7 +227,7 @@
                     '"><img src="' +
                     val.for_banner_view +
                     '" class="fw"> </a>' +
-                    "<p>" +
+                    "<p class=''>" +
                     tags +
                     "</p>" +
                     '<a href="/news-and-blogs/' +
@@ -240,17 +242,25 @@
                     "</div>";
                 });
                 $("#related_article_div").append(html);
-                $("#viewMore").show();
-                next_pg_number = parseInt(res.data.page_no) + 1;
-                $("#page_no").val(next_pg_number);
-
                 var page_data = $("#page_data").val();
                 cur_page_data =
                   parseInt(page_data) + res.data.related_articles.length;
                 $("#page_data").val(cur_page_data);
                 if (cur_page_data == res.data.all_blog) {
                   $("#viewMore").hide();
+                } else {
+                  $("#viewMore").show();
                 }
+                if (res.data.related_articles.length < 3) {
+                  $("#viewMore").hide();
+                }
+                next_pg_number = parseInt(res.data.page_no) + 1;
+                $("#page_no").val(next_pg_number);
+              } else if (
+                page_no == 1 &&
+                res.data.related_articles.length <= 0
+              ) {
+                $("#viewMore").hide();
               }
             },
           });
