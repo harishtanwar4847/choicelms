@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import frappe
 from frappe import _
@@ -138,26 +138,32 @@ class LoanTransaction(Document):
             if self.transaction_type == "Processing Fees":
                 sharing_amount = lender.lender_processing_fees_sharing
                 sharing_type = lender.lender_processing_fees_sharing_type
+                # transaction_type = "Processing Fees"
             elif self.transaction_type == "Stamp Duty":
                 sharing_amount = lender.stamp_duty_sharing
                 sharing_type = lender.stamp_duty_sharing_type
+                # transaction_type = "Stamp Duty"
             elif self.transaction_type == "Documentation Charges":
                 sharing_amount = lender.documentation_charges_sharing
                 sharing_type = lender.documentation_charge_sharing_type
+                # transaction_type = "Documentation Charges"
             elif self.transaction_type == "Mortgage Charges":
                 sharing_amount = lender.mortgage_charges_sharing
                 sharing_type = lender.mortgage_charge_sharing_type
+                # transaction_type = "Mortgage Charges"
 
             lender_sharing_amount = sharing_amount
+            # loan_transaction_type = transaction_type
             if sharing_type == "Percentage":
                 lender_sharing_amount = (lender_sharing_amount / 100) * self.amount
             spark_sharing_amount = self.amount - lender_sharing_amount
-            self.create_lender_ledger(
-                self.name, lender_sharing_amount, spark_sharing_amount
-            )
 
-        # elif self.transaction_type in ["Sell Collateral"]:
-        #     check_for_shortfall = False
+            loan = self.get_loan()
+            # customer_name = loan.customer_name
+            self.create_lender_ledger(
+                lender_sharing_amount,
+                spark_sharing_amount,
+            )
 
         loan = self.get_loan()
 
@@ -166,7 +172,10 @@ class LoanTransaction(Document):
             loan.is_irregular = 1
         elif self.transaction_type == "Penal Interest":
             loan.is_penalize = 1
+        negative_balance = loan.balance
         loan.update_loan_balance(check_for_shortfall=check_for_shortfall)
+        if self.record_type == "CR":
+            negative_balance = loan.balance
 
         if self.transaction_type == "Payment":
             doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
@@ -336,60 +345,20 @@ class LoanTransaction(Document):
                 and loan_margin_shortfall.shortfall_percentage > 0
             ):
                 loan_margin_shortfall.status = "Pending"
-                # loan_margin_shortfall.save(ignore_permissions=True)
-                # frappe.db.commit()
-
-            # if (
-            #     loan_margin_shortfall.status == "Request Pending"
-            #     and loan_margin_shortfall.shortfall_percentage > 0
-            # ):
-            #     loan_margin_shortfall.status = "Pending"
-            #     # loan_margin_shortfall.save(ignore_permissions=True)
-            #     # frappe.db.commit()
             loan_margin_shortfall.save(ignore_permissions=True)
 
-        if self.is_for_interest:
-            # fetch all interest transaction which are not paid
-            # sauce: https://stackoverflow.com/a/25433139/9403680
-            not_paid_interests = frappe.db.sql(
-                """select name, amount, time, unpaid_interest, transaction_type from `tabLoan Transaction` where loan=%s and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and unpaid_interest > 0 order by field(transaction_type, "Penal Interest", "Additional Interest", "Interest")""",
-                self.loan,
-                as_dict=1,
-            )
+        if self.is_for_interest or negative_balance < 0:
+            self.pay_for_interest(negative_balance)
 
-            if not_paid_interests:
-                total_interest_amt_paid = self.amount
-                for interest in not_paid_interests:
-                    interest_pay_log_amt = unpaid_interest = 0
-
-                    if interest["unpaid_interest"] > total_interest_amt_paid:
-                        interest_pay_log_amt = total_interest_amt_paid
-                        unpaid_interest = (
-                            interest["unpaid_interest"] - total_interest_amt_paid
-                        )
-                        total_interest_amt_paid = 0
-
-                    if interest["unpaid_interest"] <= total_interest_amt_paid:
-                        interest_pay_log_amt = interest["unpaid_interest"]
-                        unpaid_interest = 0
-                        total_interest_amt_paid = (
-                            total_interest_amt_paid - interest["unpaid_interest"]
-                        )
-
-                    # Add 'Interest pay log' entry and also Update 'unpaid_interest'
-                    interest_doc = frappe.get_doc("Loan Transaction", interest["name"])
-                    interest_doc.append(
-                        "items",
-                        {
-                            "amount": interest_pay_log_amt,
-                            "payment_transaction": self.name,
-                        },
-                    )
-                    interest_doc.save(ignore_permissions=True)
-                    interest_doc.db_set("unpaid_interest", unpaid_interest)
-
-                    if total_interest_amt_paid <= 0:
-                        break
+        # Update Interest Details fields in loan Doctype
+        if self.transaction_type in [
+            "Interest",
+            "Additional Interest",
+            "Penal Interest",
+            "Payment",
+        ]:
+            self.update_interest_summary_values(loan)
+            loan.reload()
 
         # update closing balance
         frappe.db.set_value(
@@ -400,13 +369,68 @@ class LoanTransaction(Document):
             update_modified=False,
         )
 
-    def create_lender_ledger(self, loan_transaction_name, lender_share, spark_share):
+    def pay_for_interest(self, negative_balance):
+        # fetch all interest transaction which are not paid
+        # sauce: https://stackoverflow.com/a/25433139/9403680
+        not_paid_interests = frappe.db.sql(
+            """select name, amount, time, unpaid_interest, transaction_type from `tabLoan Transaction` where loan=%s and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and unpaid_interest > 0 order by field(transaction_type, "Penal Interest", "Additional Interest", "Interest")""",
+            self.loan,
+            as_dict=1,
+        )
+
+        if not_paid_interests:
+            if negative_balance < 0 and not self.is_for_interest:
+                total_interest_amt_paid = abs(negative_balance)
+                transaction_name = ""
+            else:
+                total_interest_amt_paid = self.amount
+                transaction_name = self.name
+
+            for interest in not_paid_interests:
+                interest_pay_log_amt = unpaid_interest = 0
+
+                if interest["unpaid_interest"] > total_interest_amt_paid:
+                    interest_pay_log_amt = total_interest_amt_paid
+                    unpaid_interest = (
+                        interest["unpaid_interest"] - total_interest_amt_paid
+                    )
+                    total_interest_amt_paid = 0
+
+                if interest["unpaid_interest"] <= total_interest_amt_paid:
+                    interest_pay_log_amt = interest["unpaid_interest"]
+                    unpaid_interest = 0
+                    total_interest_amt_paid = (
+                        total_interest_amt_paid - interest["unpaid_interest"]
+                    )
+
+                # Add 'Interest pay log' entry and also Update 'unpaid_interest'
+                interest_doc = frappe.get_doc("Loan Transaction", interest["name"])
+                interest_doc.append(
+                    "items",
+                    {
+                        "amount": interest_pay_log_amt,
+                        "payment_transaction": transaction_name,
+                    },
+                )
+                interest_doc.save(ignore_permissions=True)
+                interest_doc.db_set("unpaid_interest", unpaid_interest)
+
+                if total_interest_amt_paid <= 0:
+                    break
+
+    def create_lender_ledger(
+        self,
+        lender_share,
+        spark_share,
+    ):
         frappe.get_doc(
             {
                 "doctype": "Lender Ledger",
                 "loan": self.loan,
+                "customer_name": self.customer_name,
                 "loan_transaction": self.name,
                 "lender": self.lender,
+                "transaction_type": self.transaction_type,
                 "amount": self.amount,
                 "lender_share": lender_share,
                 "spark_share": spark_share,
@@ -511,6 +535,84 @@ class LoanTransaction(Document):
 
     def get_customer(self):
         return frappe.get_doc("Loan Customer", self.customer)
+
+    def update_interest_summary_values(self, loan):
+        """
+        total interest = interest + additional interest + penal interest
+        where unpaid interest > 0
+        """
+        total_interest_incl_penal_due = frappe.db.sql(
+            "select sum(unpaid_interest) as total_amount from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest') and unpaid_interest >0 ".format(
+                self.loan
+            ),
+            as_dict=1,
+        )[0]["total_amount"]
+
+        loan.total_interest_incl_penal_due = (
+            total_interest_incl_penal_due if total_interest_incl_penal_due else 0.0
+        )
+        """On Full Payment Done of Interest
+        day past due will reset to 0
+        """
+        if total_interest_incl_penal_due == None:
+            loan.day_past_due = 0
+        """Sum of unpaid interest in loan transaction of transaction type Penal Interest """
+        if self.transaction_type in ["Penal Interest", "Payment"]:
+            penal_interest_charges = frappe.db.sql(
+                "select sum(unpaid_interest) as unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Penal Interest' and unpaid_interest >0 ".format(
+                    self.loan
+                ),
+                as_dict=1,
+            )
+            loan.penal_interest_charges = (
+                penal_interest_charges[0]["unpaid_interest"]
+                if penal_interest_charges
+                else 0.0
+            )
+
+        """Sum of unpaid interest in loan transaction of transaction type Interest of last month"""
+        if self.transaction_type in ["Interest", "Payment"]:
+            # interest_due = frappe.db.sql(
+            #     "select sum(unpaid_interest) as unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 ".format(
+            #         self.loan
+            #     ),
+            #     as_dict=1,
+            # )[0]["unpaid_interest"]
+            # input_date = frappe.utils.now_datetime()
+            # calculation_date = (input_date).replace(
+            #     day=1, hour=23, minute=59, second=59, microsecond=999999
+            # ) - timedelta(days=1)
+            # prev_month = calculation_date.month
+            # prev_month_year = calculation_date.year
+            interest_due = frappe.db.sql(
+                "select unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest > 0 order by time desc ".format(
+                    self.loan
+                ),
+                as_dict=1,
+            )
+            loan.interest_due = (
+                interest_due[0]["unpaid_interest"] if interest_due else 0.0
+            )
+            if self.transaction_type == "Interest":
+                loan.base_interest_amount = 0.0
+
+        """
+        Sum of unpaid interest in loan transaction of transaction type Additional Interest till now and
+        set interest due to 0.0
+        """
+        if self.transaction_type in ["Additional Interest", "Payment"]:
+            interest_overdue = frappe.db.sql(
+                "select sum(unpaid_interest) as unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest') and unpaid_interest >0 ".format(
+                    self.loan
+                ),
+                as_dict=1,
+            )
+            loan.interest_overdue = (
+                interest_overdue[0]["unpaid_interest"] if interest_overdue else 0.0
+            )
+            if interest_overdue:
+                loan.interest_due = 0.0
+        loan.save(ignore_permissions=True)
 
     def before_save(self):
         if (
