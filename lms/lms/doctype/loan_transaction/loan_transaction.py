@@ -577,15 +577,21 @@ def settlement_recon_api(input_date=None):
             input_date = datetime.strptime(input_date, "%Y-%m-%d")
         else:
             input_date = frappe.utils.now_datetime().date()
-        res = {}
+
         loan_transaction_name = ""
+        # get rzp key secret from las settings
         razorpay_key_secret = frappe.get_single("LAS Settings").razorpay_key_secret
         if razorpay_key_secret:
+            # split rzp key secret and store in id and secret for auth of single settlement api
             id, secret = razorpay_key_secret.split(":")
             client = razorpay.Client(auth=(id, secret))
+
+            # Basic auth for settlement recon api
             razorpay_key_secret_auth = "Basic " + base64.b64encode(
                 bytes(razorpay_key_secret, "utf-8")
             ).decode("ascii")
+
+            # query parameters for settlement recon api
             params = {
                 "year": input_date.year,
                 "month": input_date.month,
@@ -597,10 +603,14 @@ def settlement_recon_api(input_date=None):
                 headers={"Authorization": razorpay_key_secret_auth},
                 params=params,
             )
+            # get json response from raw response
             res = raw_res.json()
+
+            # create log for settlement recon api
             lms.create_log(res, "settlement_recon_api_log")
 
             if res["count"] and res["items"]:
+                # iterate through all settled items
                 for settled_items in res["items"]:
                     try:
                         loan_transaction_name = frappe.get_value(
@@ -616,12 +626,14 @@ def settlement_recon_api(input_date=None):
                             "name",
                         )
                         if loan_transaction_name:
+                            # call settlement api with id
                             settle_res = client.settlement.fetch(
                                 settled_items["settlement_id"]
                             )
                             loan_transaction = frappe.get_doc(
                                 "Loan Transaction", loan_transaction_name
                             )
+                            # update settlement status in loan transaction
                             if settle_res["status"] == "created":
                                 settlement_status = "Created"
                             elif settle_res["status"] == "processed":
@@ -630,6 +642,8 @@ def settlement_recon_api(input_date=None):
                                 settlement_status = "Failed"
 
                             loan_transaction.settlement_status = settlement_status
+
+                            # update settlement id in loan transaction
                             loan_transaction.settlement_id = settled_items[
                                 "settlement_id"
                             ]
