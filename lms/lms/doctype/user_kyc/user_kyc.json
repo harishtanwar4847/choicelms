@@ -11,15 +11,40 @@
   "kyc_type",
   "basic_details_section_break",
   "investor_name",
+  "first_name",
+  "last_name",
   "father_name",
   "pan_no",
+  "choice_client_id",
   "basic_details_column_break",
   "mobile_number",
+  "middle_name",
+  "email_id",
   "mother_name",
   "date_of_birth",
   "address_section_break",
   "address",
+  "permanant_address1",
+  "permanant_address2",
+  "permanant_address3",
+  "per_city",
+  "per_state",
+  "per_pincode",
+  "address_proof_type",
+  "same_as_current_address",
+  "address_details_column_break",
+  "current_address1",
+  "current_address2",
+  "current_address3",
+  "curr_city",
+  "curr_state",
+  "curr_pincode",
+  "address_city",
+  "address_state",
+  "address_pincode",
   "city",
+  "state",
+  "pincode",
   "bank_account_section_break",
   "bank_account"
  ],
@@ -42,7 +67,7 @@
   {
    "fieldname": "address",
    "fieldtype": "Long Text",
-   "label": "Address"
+   "label": "Address Details"
   },
   {
    "fieldname": "city",
@@ -111,10 +136,136 @@
    "label": "Bank Account",
    "options": "User Bank Account",
    "reqd": 1
+  },
+  {
+   "fieldname": "first_name",
+   "fieldtype": "Data",
+   "label": "First Name"
+  },
+  {
+   "fieldname": "middle_name",
+   "fieldtype": "Data",
+   "label": "Middle Name"
+  },
+  {
+   "fieldname": "last_name",
+   "fieldtype": "Data",
+   "label": "Last Name"
+  },
+  {
+   "fieldname": "email_id",
+   "fieldtype": "Data",
+   "label": "Email Id"
+  },
+  {
+   "fieldname": "address_details_column_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "permanant_address1",
+   "fieldtype": "Data",
+   "label": "Permanant Address1"
+  },
+  {
+   "fieldname": "permanant_address2",
+   "fieldtype": "Data",
+   "label": "Permanant Address2"
+  },
+  {
+   "fieldname": "permanant_address3",
+   "fieldtype": "Data",
+   "label": "Permanant Address3"
+  },
+  {
+   "fieldname": "per_city",
+   "fieldtype": "Data",
+   "label": "Permanant City"
+  },
+  {
+   "fieldname": "per_state",
+   "fieldtype": "Data",
+   "label": "Permanant State"
+  },
+  {
+   "fieldname": "per_pincode",
+   "fieldtype": "Data",
+   "label": "Permanant Pincode"
+  },
+  {
+   "fieldname": "current_address1",
+   "fieldtype": "Data",
+   "label": "Current Address1"
+  },
+  {
+   "fieldname": "current_address2",
+   "fieldtype": "Data",
+   "label": "Current Address2"
+  },
+  {
+   "fieldname": "current_address3",
+   "fieldtype": "Data",
+   "label": "Current Address3"
+  },
+  {
+   "fieldname": "curr_city",
+   "fieldtype": "Data",
+   "label": "Current City"
+  },
+  {
+   "fieldname": "curr_state",
+   "fieldtype": "Data",
+   "label": "Current State"
+  },
+  {
+   "fieldname": "curr_pincode",
+   "fieldtype": "Data",
+   "label": "Current Pincode"
+  },
+  {
+   "fieldname": "address_city",
+   "fieldtype": "Data",
+   "label": "Address City"
+  },
+  {
+   "fieldname": "address_state",
+   "fieldtype": "Data",
+   "label": "Address State"
+  },
+  {
+   "fieldname": "address_pincode",
+   "fieldtype": "Data",
+   "label": "Address Pincode"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Data",
+   "label": "State"
+  },
+  {
+   "fieldname": "pincode",
+   "fieldtype": "Data",
+   "label": "Pincode"
+  },
+  {
+   "fieldname": "address_proof_type",
+   "fieldtype": "Select",
+   "label": "Address Proof Type",
+   "options": "Passport\nDriving License\nBank Passbook\nVoter ID\nRation Card\nElectricity Bill\nAadhaar Card\nOthers"
+  },
+  {
+   "default": "0",
+   "fieldname": "same_as_current_address",
+   "fieldtype": "Check",
+   "label": "Same As Current Address"
+  },
+  {
+   "fieldname": "choice_client_id",
+   "fieldtype": "Data",
+   "label": "Choice Client Id"
   }
  ],
  "links": [],
- "modified": "2021-10-05 10:31:12.822546",
+ "modified": "2021-12-28 15:42:37.089696",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
