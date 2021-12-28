@@ -413,7 +413,7 @@ def resend_verification_email(email):
                 doc=doc,
             )
             frappe.msgprint(
-                msg="Verification email resent to {}".format(email),
+                msg="Verification email resent Successfully",
                 title="Email Verification",
                 indicator="green",
             )
@@ -424,7 +424,7 @@ def resend_verification_email(email):
                 token_type="Email Verification Token",
             )
             frappe.msgprint(
-                msg="Verification email resent to {}".format(email),
+                msg="Verification email sent Successfully",
                 title="Email Verification",
                 indicator="green",
             )
