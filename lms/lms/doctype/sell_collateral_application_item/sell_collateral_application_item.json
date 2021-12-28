@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "creation": "2021-04-05 13:53:38.798242",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -48,7 +49,8 @@
   }
  ],
  "istable": 1,
- "modified": "2021-04-06 14:53:18.120553",
+ "links": [],
+ "modified": "2021-11-24 10:03:33.576724",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application Item",
