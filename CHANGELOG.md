@@ -2,8 +2,8 @@
 
 ## [Unreleased]
 
-- [Feat: Backend screen restructring](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/432)
 - [Fix: Manage my loans screen in case of pledge more and sell collateral of margin shortfall](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/441)
+- [Feat: Backend screen restructring](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/432)
 
 ## [v2.0.0] - 2021-12-21
 
