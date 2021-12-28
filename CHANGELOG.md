@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- [Feat: Backend screen restructring](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/432)
+- [Fix: Manage my loans screen in case of pledge more and sell collateral of margin shortfall](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/441)
+
 ## [v2.0.0] - 2021-12-21
 
 ### Added
@@ -135,6 +138,11 @@
 ### Added
 
 - [Feat: Loan against shares html page added (products/loan-against-shares.html)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/398)
+
+### Refactored
+
+- [Refactor: handle customer not found error in patches](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/394)
+- [Refactor: get margin shortfall amount in loan doctype](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/397)
 
 ## [v1.0.5] - 2021-08-18
 

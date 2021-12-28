@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 
+import json
 from datetime import datetime, timedelta
 
 import frappe
@@ -342,6 +343,15 @@ class Loan(Document):
 
         return frappe.db.sql(sql, as_dict=1)
 
+    def update_collateral_ledger(self, price, isin):
+        sql = """Update `tabCollateral Ledger`
+        set price = {}, value = ({}*quantity)
+        where loan = '{}' and isin = '{}' """.format(
+            price, price, self.name, isin
+        )
+
+        return frappe.db.sql(sql, as_dict=1)
+
     def update_items(self):
         check = False
 
@@ -354,6 +364,7 @@ class Loan(Document):
             # print(check, i.price, curr.price, not check or i.price != curr.price)
             if (not check or i.price != curr.price) and i.pledged_quantity > 0:
                 check = True
+                self.update_collateral_ledger(curr.price, curr.isin)
 
             i.price = curr.price
             i.pledged_quantity = curr.quantity
@@ -470,10 +481,11 @@ class Loan(Document):
                             loan=self.name,
                             customer=self.get_customer(),
                         )
-
                     loan_margin_shortfall.save(ignore_permissions=True)
-
             # alerts comparison with percentage and amount
+            # self.reload()
+            # self.margin_shortfall_amount = self.get_margin_shortfall_amount()
+            # self.save(ignore_permissions=True)
             if customer.alerts_based_on_percentage:
                 if self.total_collateral_value > (
                     old_total_collateral_value
@@ -613,6 +625,23 @@ class Loan(Document):
             else margin_shortfall_name,
         )
 
+    # def get_margin_shortfall_amount(self):
+    #     margin_shortfall_name = frappe.db.get_value(
+    #         "Loan Margin Shortfall",
+    #         {
+    #             "loan": self.name,
+    #             "status": ["in", ["Pending", "Request Pending", "Sell Triggered"]],
+    #         },
+    #         "name",
+    #     )
+    #     if margin_shortfall_name:
+    #         loan_margin_shortfall = frappe.get_doc(
+    #             "Loan Margin Shortfall", margin_shortfall_name
+    #         )
+    #         return loan_margin_shortfall.shortfall_c
+    #     else:
+    #         return 0
+
     def get_updated_total_collateral_value(self):
         securities = [i.isin for i in self.items]
 
@@ -656,8 +685,24 @@ class Loan(Document):
         penal_intrst = self.add_penal_interest(input_date)
 
     def add_virtual_interest(self, input_date=None):
-        if self.balance > 0:
-            try:
+        try:
+            if input_date:
+                input_date = datetime.strptime(input_date, "%Y-%m-%d")
+            else:
+                input_date = frappe.utils.now_datetime()
+
+            day_past_due = frappe.db.sql(
+                "select sum(unpaid_interest) as total_amount, DATEDIFF('{}', time) as dpd from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 order by creation asc".format(
+                    input_date, self.name
+                ),
+                as_dict=True,
+            )
+            if day_past_due[0]["total_amount"]:
+                self.day_past_due = day_past_due[0]["dpd"] - 1
+            else:
+                self.day_past_due = 0
+
+            if self.balance > 0:
                 interest_configuration = frappe.db.get_value(
                     "Interest Configuration",
                     {
@@ -668,416 +713,198 @@ class Loan(Document):
                     ["name", "base_interest", "rebait_interest"],
                     as_dict=1,
                 )
-            except:
-                pass
 
-            if input_date:
-                input_date = datetime.strptime(input_date, "%Y-%m-%d") - timedelta(
-                    days=1
+                input_date -= timedelta(days=1)
+
+                input_date = input_date.replace(
+                    hour=23, minute=59, second=59, microsecond=999999
                 )
-            else:
-                input_date = frappe.utils.now_datetime() - timedelta(days=1)
 
-            input_date = input_date.replace(
-                hour=23, minute=59, second=59, microsecond=999999
+                virtual_interest_doc_list = frappe.get_all(
+                    "Virtual Interest",
+                    filters={"loan": self.name, "lender": self.lender},
+                    fields=["time"],
+                )
+
+                # Check if entry exists for particular date
+                if not input_date in [
+                    fields["time"] for fields in virtual_interest_doc_list
+                ]:
+                    # get no of days in month
+                    num_of_days_in_month = (
+                        (input_date.replace(day=1) + timedelta(days=32)).replace(day=1)
+                        - timedelta(days=1)
+                    ).day
+
+                    # calculate daily base interest
+                    base_interest_daily = (
+                        interest_configuration["base_interest"] / num_of_days_in_month
+                    )
+                    base_amount = self.balance * base_interest_daily / 100
+
+                    # calculate daily rebate interest
+                    rebate_interest_daily = (
+                        interest_configuration["rebait_interest"] / num_of_days_in_month
+                    )
+                    rebate_amount = self.balance * rebate_interest_daily / 100
+
+                    frappe.db.begin()
+                    virtual_interest_doc = frappe.get_doc(
+                        {
+                            "doctype": "Virtual Interest",
+                            "lender": self.lender,
+                            "loan": self.name,
+                            "time": input_date,
+                            "base_interest": interest_configuration["base_interest"],
+                            "rebate_interest": interest_configuration[
+                                "rebait_interest"
+                            ],
+                            "base_amount": base_amount,
+                            "rebate_amount": rebate_amount,
+                            "loan_balance": self.balance,
+                            "interest_configuration": interest_configuration["name"],
+                        }
+                    )
+                    virtual_interest_doc.save(ignore_permissions=True)
+                    frappe.db.commit()
+                    self.base_interest_amount = frappe.db.sql(
+                        "select sum(base_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_base = 0".format(
+                            self.name
+                        ),
+                        as_dict=1,
+                    )[0]["amount"]
+                    self.rebate_interest_amount = frappe.db.sql(
+                        "select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_rebate = 0".format(
+                            self.name
+                        ),
+                        as_dict=1,
+                    )[0]["amount"]
+                    self.save(ignore_permissions=True)
+                    return virtual_interest_doc.as_dict()
+        except Exception:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\nVirtual Interest Details:\n"
+                + json.dumps(
+                    {
+                        "loan": self.name,
+                        "customer_id": self.customer,
+                        "customer_name": self.customer_name,
+                    }
+                ),
+                title=frappe._("Virtual Interest Error"),
             )
 
-            virtual_interest_doc_list = frappe.get_all(
-                "Virtual Interest",
-                filters={"loan": self.name, "lender": self.lender},
+    def check_for_additional_interest(self, input_date=None):
+        try:
+            # daily scheduler - executes at start of day i.e 00:00
+            if input_date:
+                current_date = datetime.strptime(input_date, "%Y-%m-%d")
+            else:
+                current_date = frappe.utils.now_datetime()
+
+            additional_interest_transaction_list = frappe.get_all(
+                "Loan Transaction",
+                filters={
+                    "loan": self.name,
+                    "lender": self.lender,
+                    "transaction_type": "Additional Interest",
+                },
                 fields=["time"],
             )
 
-            # Check if entry exists for particular date
-            if not input_date in [
-                fields["time"] for fields in virtual_interest_doc_list
-            ]:
-                # get no of days in month
-                num_of_days_in_month = (
-                    (input_date.replace(day=1) + timedelta(days=32)).replace(day=1)
-                    - timedelta(days=1)
-                ).day
+            job_date = (current_date - timedelta(days=1)).replace(
+                hour=23, minute=59, second=59, microsecond=999999
+            )
+            last_day_of_prev_month = job_date.replace(day=1) - timedelta(days=1)
+            prev_month = last_day_of_prev_month.month
+            prev_month_year = last_day_of_prev_month.year
 
-                # calculate daily base interest
-                base_interest_daily = (
-                    interest_configuration["base_interest"] / num_of_days_in_month
-                )
-                base_amount = self.balance * base_interest_daily / 100
-
-                # calculate daily rebate interest
-                rebate_interest_daily = (
-                    interest_configuration["rebait_interest"] / num_of_days_in_month
-                )
-                rebate_amount = self.balance * rebate_interest_daily / 100
-
-                frappe.db.begin()
-                virtual_interest_doc = frappe.get_doc(
-                    {
-                        "doctype": "Virtual Interest",
-                        "lender": self.lender,
-                        "loan": self.name,
-                        "time": input_date,
-                        "base_interest": interest_configuration["base_interest"],
-                        "rebate_interest": interest_configuration["rebait_interest"],
-                        "base_amount": base_amount,
-                        "rebate_amount": rebate_amount,
-                        "loan_balance": self.balance,
-                        "interest_configuration": interest_configuration["name"],
-                    }
-                )
-                virtual_interest_doc.save(ignore_permissions=True)
-                frappe.db.commit()
-                return virtual_interest_doc.as_dict()
-
-    def check_for_additional_interest(self, input_date=None):
-        # daily scheduler - executes at start of day i.e 00:00
-        if input_date:
-            current_date = datetime.strptime(input_date, "%Y-%m-%d")
-        else:
-            current_date = frappe.utils.now_datetime()
-
-        additional_interest_transaction_list = frappe.get_all(
-            "Loan Transaction",
-            filters={
-                "loan": self.name,
-                "lender": self.lender,
-                "transaction_type": "Additional Interest",
-            },
-            fields=["time"],
-        )
-
-        job_date = (current_date - timedelta(days=1)).replace(
-            hour=23, minute=59, second=59, microsecond=999999
-        )
-        last_day_of_prev_month = job_date.replace(day=1) - timedelta(days=1)
-        prev_month = last_day_of_prev_month.month
-        prev_month_year = last_day_of_prev_month.year
-
-        # check if any not paid booked interest transaction entry plus check if Is Additional Interest not applied
-        booked_interest = frappe.db.sql(
-            "select * from `tabLoan Transaction` where loan='{}' and lender='{}' and transaction_type='Interest' and unpaid_interest > 0 and additional_interest is null and DATE_FORMAT(time, '%m')={} and DATE_FORMAT(time, '%Y')={} order by time desc limit 1".format(
-                self.name, self.lender, prev_month, prev_month_year
-            ),
-            as_dict=1,
-        )
-
-        if booked_interest:
-            # check if days spent greater than rebate threshold
-            rebate_threshold = int(self.get_rebate_threshold())
-            if rebate_threshold:
-                transaction_time = booked_interest[0]["time"] + timedelta(
-                    days=rebate_threshold
-                )
-
-                if job_date > transaction_time and not transaction_time.replace(
-                    hour=23, minute=59, second=59, microsecond=999999
-                ) in [
-                    fields["time"] for fields in additional_interest_transaction_list
-                ]:
-                    # Sum of rebate amounts
-                    rebate_interest_sum = frappe.db.sql(
-                        "select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and lender = '{}' and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
-                            self.name, self.lender, prev_month_year, prev_month
-                        ),
-                        as_dict=1,
-                    )
-
-                    frappe.db.begin()
-                    # Additional Interest Entry
-                    additional_interest_transaction = frappe.get_doc(
-                        {
-                            "doctype": "Loan Transaction",
-                            "loan": self.name,
-                            "lender": self.lender,
-                            "transaction_type": "Additional Interest",
-                            "record_type": "DR",
-                            "amount": round(rebate_interest_sum[0]["amount"], 2),
-                            "unpaid_interest": round(
-                                rebate_interest_sum[0]["amount"], 2
-                            ),
-                            "time": transaction_time.replace(
-                                hour=23, minute=59, second=59, microsecond=999999
-                            ),
-                        }
-                    )
-                    additional_interest_transaction.insert(ignore_permissions=True)
-                    additional_interest_transaction.transaction_id = (
-                        additional_interest_transaction.name
-                    )
-                    additional_interest_transaction.status = "Approved"
-                    additional_interest_transaction.workflow_state = "Approved"
-                    additional_interest_transaction.docstatus = 1
-                    additional_interest_transaction.save(ignore_permissions=True)
-
-                    # Update booked interest entry
-                    booked_interest_transaction_doc = frappe.get_doc(
-                        "Loan Transaction", booked_interest[0]["name"]
-                    )
-                    booked_interest_transaction_doc.db_set(
-                        "additional_interest", additional_interest_transaction.name
-                    )
-
-                    # Mark as booked for rebate
-                    frappe.db.sql(
-                        "update `tabVirtual Interest` set is_booked_for_rebate = 1 where loan = '{}' and is_booked_for_rebate = 0 and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
-                            self.name, prev_month_year, prev_month
-                        )
-                    )
-
-                    # Mark loan as 'is_irregular'
-                    # self.is_irregular = 1
-                    # self.save(ignore_permissions=True)
-
-                    frappe.db.commit()
-
-                    doc = frappe.get_doc(
-                        "User KYC", self.get_customer().choice_kyc
-                    ).as_dict()
-                    doc["loan_name"] = self.name
-                    doc[
-                        "transaction_type"
-                    ] = additional_interest_transaction.transaction_type
-                    doc["unpaid_interest"] = round(
-                        additional_interest_transaction.unpaid_interest, 2
-                    )
-
-                    frappe.enqueue_doc(
-                        "Notification", "Interest Due", method="send", doc=doc
-                    )
-
-                    msg = "Dear Customer,\nRebate of Rs.  {}  was reversed in your loan account {}. This will appear as 'Addl Interest' in your loan account. \nPlease pay the interest due before the 15th of this month in order to avoid the penal interest/charges.Kindly check the app for details - Spark Loans".format(
-                        round(additional_interest_transaction.unpaid_interest, 2),
-                        self.name,
-                    )
-                    fcm_notification = frappe.get_doc(
-                        "Spark Push Notification", "Rebate reversed", fields=["*"]
-                    )
-                    message = fcm_notification.message.format(
-                        unpaid_interest=round(
-                            additional_interest_transaction.unpaid_interest, 2
-                        ),
-                        loan=self.name,
-                    )
-
-                    if msg:
-                        receiver_list = list(
-                            set(
-                                [str(self.get_customer().phone), str(doc.mobile_number)]
-                            )
-                        )
-                        from frappe.core.doctype.sms_settings.sms_settings import (
-                            send_sms,
-                        )
-
-                        frappe.enqueue(
-                            method=send_sms, receiver_list=receiver_list, msg=msg
-                        )
-
-                    lms.send_spark_push_notification(
-                        fcm_notification=fcm_notification,
-                        message=message,
-                        loan=self.name,
-                        customer=self.get_customer(),
-                    )
-                    return additional_interest_transaction.as_dict()
-
-    def book_virtual_interest_for_month(self, input_date=None):
-        if input_date:
-            current_date = datetime.strptime(input_date, "%Y-%m-%d")
-        else:
-            current_date = frappe.utils.now_datetime()
-
-        # Check if entry exists for particular date and date should be 1
-        booked_interest_transaction_list = frappe.get_all(
-            "Loan Transaction",
-            filters={
-                "loan": self.name,
-                "lender": self.lender,
-                "transaction_type": "Interest",
-            },
-            fields=["time"],
-        )
-
-        job_date = (current_date - timedelta(days=1)).replace(
-            hour=23, minute=59, second=59, microsecond=999999
-        )
-
-        if current_date.day == 1 and not job_date in [
-            fields["time"] for fields in booked_interest_transaction_list
-        ]:
-            prev_month = job_date.month
-            prev_month_year = job_date.year
-            # return [job_date, prev_month, prev_month_year]
-
-            check_if_exist = frappe.db.sql(
-                "select count(name) as total_count from `tabLoan Transaction` where loan = '{}' and lender = '{}' and transaction_type = 'Interest' and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
-                    self.name, self.lender, prev_month_year, prev_month
+            # check if any not paid booked interest transaction entry plus check if Is Additional Interest not applied
+            booked_interest = frappe.db.sql(
+                "select * from `tabLoan Transaction` where loan='{}' and lender='{}' and transaction_type='Interest' and unpaid_interest > 0 and additional_interest is null and DATE_FORMAT(time, '%m')={} and DATE_FORMAT(time, '%Y')={} order by time desc limit 1".format(
+                    self.name, self.lender, prev_month, prev_month_year
                 ),
                 as_dict=1,
             )
 
-            if check_if_exist[0]["total_count"] == 0:
-                # Add loan 'Interests' transaction Entry
-                virtual_interest_sum = frappe.db.sql(
-                    "select sum(base_amount) as amount from `tabVirtual Interest` where loan = '{}' and lender = '{}' and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
-                        self.name, self.lender, prev_month_year, prev_month
-                    ),
-                    as_dict=1,
-                )
-
-                frappe.db.begin()
-                loan_transaction = frappe.get_doc(
-                    {
-                        "doctype": "Loan Transaction",
-                        "loan": self.name,
-                        "lender": self.lender,
-                        "amount": round(virtual_interest_sum[0]["amount"], 2),
-                        "unpaid_interest": round(virtual_interest_sum[0]["amount"], 2),
-                        "transaction_type": "Interest",
-                        "record_type": "DR",
-                        "time": job_date,
-                    }
-                )
-                loan_transaction.insert(ignore_permissions=True)
-                loan_transaction.transaction_id = loan_transaction.name
-                loan_transaction.status = "Approved"
-                loan_transaction.workflow_state = "Approved"
-                loan_transaction.docstatus = 1
-                loan_transaction.save(ignore_permissions=True)
-
-                # Book Virtual Interest for previous month
-                frappe.db.sql(
-                    "update `tabVirtual Interest` set is_booked_for_base = 1 where loan = '{}' and is_booked_for_base = 0 and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
-                        self.name, prev_month_year, prev_month
-                    )
-                )
-                frappe.db.commit()
-
-                doc = frappe.get_doc(
-                    "User KYC", self.get_customer().choice_kyc
-                ).as_dict()
-                doc["loan_name"] = self.name
-                doc["transaction_type"] = loan_transaction.transaction_type
-                doc["unpaid_interest"] = round(loan_transaction.unpaid_interest, 2)
-
-                frappe.enqueue_doc(
-                    "Notification", "Interest Due", method="send", doc=doc
-                )
-
-                msg = "Dear Customer,\nAn interest of Rs.  {} is due on your loan account {}.\nPlease pay the interest due before the 7th of this month in order to continue to enjoy the rebate provided on the interest rate. Kindly check the app for details. - Spark Loans".format(
-                    round(loan_transaction.unpaid_interest, 2), self.name
-                )
-
-                fcm_notification = frappe.get_doc(
-                    "Spark Push Notification", "Interest due", fields=["*"]
-                )
-                message = fcm_notification.message.format(
-                    unpaid_interest=round(loan_transaction.unpaid_interest, 2),
-                    loan=self.name,
-                )
-                if msg:
-                    receiver_list = list(
-                        set([str(self.get_customer().phone), str(doc.mobile_number)])
-                    )
-                    from frappe.core.doctype.sms_settings.sms_settings import send_sms
-
-                    frappe.enqueue(
-                        method=send_sms, receiver_list=receiver_list, msg=msg
+            if booked_interest:
+                # check if days spent greater than rebate threshold
+                rebate_threshold = int(self.get_rebate_threshold())
+                if rebate_threshold:
+                    transaction_time = booked_interest[0]["time"] + timedelta(
+                        days=rebate_threshold
                     )
 
-                lms.send_spark_push_notification(
-                    fcm_notification=fcm_notification,
-                    message=message,
-                    loan=self.name,
-                    customer=self.get_customer(),
-                )
-
-    def add_penal_interest(self, input_date=None):
-        # daily scheduler - executes at start of day i.e 00:00
-        # get not paid booked interest
-        if input_date:
-            current_date = datetime.strptime(input_date, "%Y-%m-%d")
-        else:
-            current_date = frappe.utils.now_datetime()
-
-        penal_interest_transaction_list = frappe.get_all(
-            "Loan Transaction",
-            filters={
-                "loan": self.name,
-                "lender": self.lender,
-                "transaction_type": "Penal Interest",
-            },
-            fields=["time"],
-        )
-
-        # current_date = (current_date - timedelta(days=1)).replace(
-        #     hour=23, minute=59, second=59, microsecond=999999
-        # )
-        last_day_of_prev_month = current_date.replace(day=1) - timedelta(days=1)
-        # num_of_days_in_prev_month = last_day_of_prev_month.day
-        prev_month = last_day_of_prev_month.month
-        prev_month_year = last_day_of_prev_month.year
-
-        last_day_of_current_month = (
-            current_date.replace(day=1) + timedelta(days=32)
-        ).replace(day=1) - timedelta(days=1)
-        num_of_days_in_current_month = last_day_of_current_month.day
-
-        # check if any not paid booked interest exist
-        booked_interest = frappe.db.sql(
-            "select * from `tabLoan Transaction` where loan='{}' and lender='{}' and transaction_type='Interest' and unpaid_interest > 0 and DATE_FORMAT(time, '%m')={} and DATE_FORMAT(time, '%Y')={} order by time desc limit 1".format(
-                self.name, self.lender, prev_month, prev_month_year
-            ),
-            as_dict=1,
-        )
-
-        if booked_interest:
-            # get default threshold
-            default_threshold = int(self.get_default_threshold())
-            if default_threshold:
-                transaction_time = booked_interest[0]["time"] + timedelta(
-                    days=default_threshold
-                )
-                # check if interest booked time is more than default threshold
-                if current_date > transaction_time and not current_date in [
-                    fields["time"] for fields in penal_interest_transaction_list
-                ]:
-                    # if yes, apply penalty interest
-                    # calculate daily penalty interest
-                    default_interest = int(self.get_default_interest())
-                    if default_interest:
-                        default_interest_daily = (
-                            default_interest / num_of_days_in_current_month
+                    if job_date > transaction_time and not transaction_time.replace(
+                        hour=23, minute=59, second=59, microsecond=999999
+                    ) in [
+                        fields["time"]
+                        for fields in additional_interest_transaction_list
+                    ]:
+                        # Sum of rebate amounts
+                        rebate_interest_sum = frappe.db.sql(
+                            "select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and lender = '{}' and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
+                                self.name, self.lender, prev_month_year, prev_month
+                            ),
+                            as_dict=1,
                         )
-                        amount = self.balance * default_interest_daily / 100
 
                         frappe.db.begin()
-                        # Penal Interest Entry
-                        penal_interest_transaction = frappe.get_doc(
+                        # Additional Interest Entry
+                        additional_interest_transaction = frappe.get_doc(
                             {
                                 "doctype": "Loan Transaction",
                                 "loan": self.name,
                                 "lender": self.lender,
-                                "transaction_type": "Penal Interest",
+                                "transaction_type": "Additional Interest",
                                 "record_type": "DR",
-                                "amount": round(amount, 2),
-                                "unpaid_interest": round(amount, 2),
-                                "time": current_date,
+                                "amount": round(rebate_interest_sum[0]["amount"], 2),
+                                "unpaid_interest": round(
+                                    rebate_interest_sum[0]["amount"], 2
+                                ),
+                                "time": transaction_time.replace(
+                                    hour=23, minute=59, second=59, microsecond=999999
+                                ),
                             }
                         )
-                        penal_interest_transaction.insert(ignore_permissions=True)
-                        penal_interest_transaction.transaction_id = (
-                            penal_interest_transaction.name
+                        additional_interest_transaction.insert(ignore_permissions=True)
+                        additional_interest_transaction.transaction_id = (
+                            additional_interest_transaction.name
                         )
-                        penal_interest_transaction.status = "Approved"
-                        penal_interest_transaction.workflow_state = "Approved"
-                        penal_interest_transaction.docstatus = 1
-                        penal_interest_transaction.save(ignore_permissions=True)
+                        additional_interest_transaction.status = "Approved"
+                        additional_interest_transaction.workflow_state = "Approved"
+                        additional_interest_transaction.docstatus = 1
+                        additional_interest_transaction.save(ignore_permissions=True)
 
-                        # Mark loan as 'is_penalize'
-                        # self.is_penalize = 1
+                        # Update booked interest entry
+                        booked_interest_transaction_doc = frappe.get_doc(
+                            "Loan Transaction", booked_interest[0]["name"]
+                        )
+                        booked_interest_transaction_doc.db_set(
+                            "additional_interest", additional_interest_transaction.name
+                        )
+
+                        # Mark as booked for rebate
+                        frappe.db.sql(
+                            "update `tabVirtual Interest` set is_booked_for_rebate = 1 where loan = '{}' and is_booked_for_rebate = 0 and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
+                                self.name, prev_month_year, prev_month
+                            )
+                        )
+
+                        # Mark loan as 'is_irregular'
+                        # self.is_irregular = 1
                         # self.save(ignore_permissions=True)
 
+                        frappe.db.commit()
+                        self.reload()
+                        self.rebate_interest_amount = frappe.db.sql(
+                            "select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_rebate = 0".format(
+                                self.name
+                            ),
+                            as_dict=1,
+                        )[0]["amount"]
+                        self.save(ignore_permissions=True)
                         frappe.db.commit()
 
                         doc = frappe.get_doc(
@@ -1086,26 +913,25 @@ class Loan(Document):
                         doc["loan_name"] = self.name
                         doc[
                             "transaction_type"
-                        ] = penal_interest_transaction.transaction_type
+                        ] = additional_interest_transaction.transaction_type
                         doc["unpaid_interest"] = round(
-                            penal_interest_transaction.unpaid_interest, 2
+                            additional_interest_transaction.unpaid_interest, 2
                         )
 
                         frappe.enqueue_doc(
                             "Notification", "Interest Due", method="send", doc=doc
                         )
-                        msg = "Dear Customer,\nPenal interest of Rs.{}  has been debited to your loan account {} .\nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details - Spark Loans".format(
-                            round(penal_interest_transaction.unpaid_interest, 2),
+
+                        msg = "Dear Customer,\nRebate of Rs.  {}  was reversed in your loan account {}. This will appear as 'Addl Interest' in your loan account. \nPlease pay the interest due before the 15th of this month in order to avoid the penal interest/charges.Kindly check the app for details - Spark Loans".format(
+                            round(additional_interest_transaction.unpaid_interest, 2),
                             self.name,
                         )
                         fcm_notification = frappe.get_doc(
-                            "Spark Push Notification",
-                            "Penal interest charged",
-                            fields=["*"],
+                            "Spark Push Notification", "Rebate reversed", fields=["*"]
                         )
                         message = fcm_notification.message.format(
                             unpaid_interest=round(
-                                penal_interest_transaction.unpaid_interest, 2
+                                additional_interest_transaction.unpaid_interest, 2
                             ),
                             loan=self.name,
                         )
@@ -1133,8 +959,318 @@ class Loan(Document):
                             loan=self.name,
                             customer=self.get_customer(),
                         )
+                        return additional_interest_transaction.as_dict()
+        except Exception:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\nAdditional Interest Details:\n"
+                + json.dumps(
+                    {
+                        "loan": self.name,
+                        "customer_id": self.customer,
+                        "customer_name": self.customer_name,
+                    }
+                ),
+                title=frappe._("Additional Interest Error"),
+            )
 
-                        return penal_interest_transaction.as_dict()
+    def book_virtual_interest_for_month(self, input_date=None):
+        try:
+            if input_date:
+                current_date = datetime.strptime(input_date, "%Y-%m-%d")
+            else:
+                current_date = frappe.utils.now_datetime()
+
+            # Check if entry exists for particular date and date should be 1
+            booked_interest_transaction_list = frappe.get_all(
+                "Loan Transaction",
+                filters={
+                    "loan": self.name,
+                    "lender": self.lender,
+                    "transaction_type": "Interest",
+                },
+                fields=["time"],
+            )
+
+            job_date = (current_date - timedelta(days=1)).replace(
+                hour=23, minute=59, second=59, microsecond=999999
+            )
+
+            if current_date.day == 1 and not job_date in [
+                fields["time"] for fields in booked_interest_transaction_list
+            ]:
+                prev_month = job_date.month
+                prev_month_year = job_date.year
+                # return [job_date, prev_month, prev_month_year]
+
+                check_if_exist = frappe.db.sql(
+                    "select count(name) as total_count from `tabLoan Transaction` where loan = '{}' and lender = '{}' and transaction_type = 'Interest' and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
+                        self.name, self.lender, prev_month_year, prev_month
+                    ),
+                    as_dict=1,
+                )
+
+                if check_if_exist[0]["total_count"] == 0:
+                    # Add loan 'Interests' transaction Entry
+                    virtual_interest_sum = frappe.db.sql(
+                        "select sum(base_amount) as amount from `tabVirtual Interest` where loan = '{}' and lender = '{}' and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
+                            self.name, self.lender, prev_month_year, prev_month
+                        ),
+                        as_dict=1,
+                    )
+                    if virtual_interest_sum[0]["amount"] != None:
+
+                        frappe.db.begin()
+                        loan_transaction = frappe.get_doc(
+                            {
+                                "doctype": "Loan Transaction",
+                                "loan": self.name,
+                                "lender": self.lender,
+                                "amount": round(virtual_interest_sum[0]["amount"], 2),
+                                "unpaid_interest": round(
+                                    virtual_interest_sum[0]["amount"], 2
+                                ),
+                                "transaction_type": "Interest",
+                                "record_type": "DR",
+                                "time": job_date,
+                            }
+                        )
+                        loan_transaction.insert(ignore_permissions=True)
+                        loan_transaction.transaction_id = loan_transaction.name
+                        loan_transaction.status = "Approved"
+                        loan_transaction.workflow_state = "Approved"
+                        loan_transaction.docstatus = 1
+                        loan_transaction.save(ignore_permissions=True)
+
+                        # Book Virtual Interest for previous month
+                        frappe.db.sql(
+                            "update `tabVirtual Interest` set is_booked_for_base = 1 where loan = '{}' and is_booked_for_base = 0 and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
+                                self.name, prev_month_year, prev_month
+                            )
+                        )
+                        frappe.db.commit()
+
+                        doc = frappe.get_doc(
+                            "User KYC", self.get_customer().choice_kyc
+                        ).as_dict()
+                        doc["loan_name"] = self.name
+                        doc["transaction_type"] = loan_transaction.transaction_type
+                        doc["unpaid_interest"] = round(
+                            loan_transaction.unpaid_interest, 2
+                        )
+
+                        frappe.enqueue_doc(
+                            "Notification", "Interest Due", method="send", doc=doc
+                        )
+
+                        msg = "Dear Customer,\nAn interest of Rs.  {} is due on your loan account {}.\nPlease pay the interest due before the 7th of this month in order to continue to enjoy the rebate provided on the interest rate. Kindly check the app for details. - Spark Loans".format(
+                            round(loan_transaction.unpaid_interest, 2), self.name
+                        )
+
+                        fcm_notification = frappe.get_doc(
+                            "Spark Push Notification", "Interest due", fields=["*"]
+                        )
+                        message = fcm_notification.message.format(
+                            unpaid_interest=round(loan_transaction.unpaid_interest, 2),
+                            loan=self.name,
+                        )
+                        if msg:
+                            receiver_list = list(
+                                set(
+                                    [
+                                        str(self.get_customer().phone),
+                                        str(doc.mobile_number),
+                                    ]
+                                )
+                            )
+                            from frappe.core.doctype.sms_settings.sms_settings import (
+                                send_sms,
+                            )
+
+                            frappe.enqueue(
+                                method=send_sms, receiver_list=receiver_list, msg=msg
+                            )
+
+                        lms.send_spark_push_notification(
+                            fcm_notification=fcm_notification,
+                            message=message,
+                            loan=self.name,
+                            customer=self.get_customer(),
+                        )
+
+        except Exception:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\nBooked Interest Details:\n"
+                + json.dumps(
+                    {
+                        "loan": self.name,
+                        "customer_id": self.customer,
+                        "customer_name": self.customer_name,
+                    }
+                ),
+                title=frappe._("Booked Interest Error"),
+            )
+
+    def add_penal_interest(self, input_date=None):
+        try:
+            # daily scheduler - executes at start of day i.e 00:00
+            # get not paid booked interest
+            if input_date:
+                current_date = datetime.strptime(input_date, "%Y-%m-%d")
+            else:
+                current_date = frappe.utils.now_datetime()
+
+            penal_interest_transaction_list = frappe.get_all(
+                "Loan Transaction",
+                filters={
+                    "loan": self.name,
+                    "lender": self.lender,
+                    "transaction_type": "Penal Interest",
+                },
+                fields=["time"],
+            )
+
+            # current_date = (current_date - timedelta(days=1)).replace(
+            #     hour=23, minute=59, second=59, microsecond=999999
+            # )
+            last_day_of_prev_month = current_date.replace(day=1) - timedelta(days=1)
+            # num_of_days_in_prev_month = last_day_of_prev_month.day
+            prev_month = last_day_of_prev_month.month
+            prev_month_year = last_day_of_prev_month.year
+
+            last_day_of_current_month = (
+                current_date.replace(day=1) + timedelta(days=32)
+            ).replace(day=1) - timedelta(days=1)
+            num_of_days_in_current_month = last_day_of_current_month.day
+
+            # check if any not paid booked interest exist
+            booked_interest = frappe.db.sql(
+                "select * from `tabLoan Transaction` where loan='{}' and lender='{}' and transaction_type='Interest' and unpaid_interest > 0 and DATE_FORMAT(time, '%m')={} and DATE_FORMAT(time, '%Y')={} order by time desc limit 1".format(
+                    self.name, self.lender, prev_month, prev_month_year
+                ),
+                as_dict=1,
+            )
+
+            if booked_interest:
+                # get default threshold
+                default_threshold = int(self.get_default_threshold())
+                if default_threshold:
+                    transaction_time = booked_interest[0]["time"] + timedelta(
+                        days=default_threshold
+                    )
+                    # check if interest booked time is more than default threshold
+                    if current_date > transaction_time and not current_date in [
+                        fields["time"] for fields in penal_interest_transaction_list
+                    ]:
+                        # if yes, apply penalty interest
+                        # calculate daily penalty interest
+                        default_interest = int(self.get_default_interest())
+                        if default_interest:
+                            default_interest_daily = (
+                                default_interest / num_of_days_in_current_month
+                            )
+                            amount = self.balance * default_interest_daily / 100
+
+                            frappe.db.begin()
+                            # Penal Interest Entry
+                            penal_interest_transaction = frappe.get_doc(
+                                {
+                                    "doctype": "Loan Transaction",
+                                    "loan": self.name,
+                                    "lender": self.lender,
+                                    "transaction_type": "Penal Interest",
+                                    "record_type": "DR",
+                                    "amount": round(amount, 2),
+                                    "unpaid_interest": round(amount, 2),
+                                    "time": current_date,
+                                }
+                            )
+                            penal_interest_transaction.insert(ignore_permissions=True)
+                            penal_interest_transaction.transaction_id = (
+                                penal_interest_transaction.name
+                            )
+                            penal_interest_transaction.status = "Approved"
+                            penal_interest_transaction.workflow_state = "Approved"
+                            penal_interest_transaction.docstatus = 1
+                            penal_interest_transaction.save(ignore_permissions=True)
+
+                            # Mark loan as 'is_penalize'
+                            # self.is_penalize = 1
+                            # self.save(ignore_permissions=True)
+
+                            frappe.db.commit()
+
+                            doc = frappe.get_doc(
+                                "User KYC", self.get_customer().choice_kyc
+                            ).as_dict()
+                            doc["loan_name"] = self.name
+                            doc[
+                                "transaction_type"
+                            ] = penal_interest_transaction.transaction_type
+                            doc["unpaid_interest"] = round(
+                                penal_interest_transaction.unpaid_interest, 2
+                            )
+
+                            frappe.enqueue_doc(
+                                "Notification", "Interest Due", method="send", doc=doc
+                            )
+                            msg = "Dear Customer,\nPenal interest of Rs.{}  has been debited to your loan account {} .\nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details - Spark Loans".format(
+                                round(penal_interest_transaction.unpaid_interest, 2),
+                                self.name,
+                            )
+                            fcm_notification = frappe.get_doc(
+                                "Spark Push Notification",
+                                "Penal interest charged",
+                                fields=["*"],
+                            )
+                            message = fcm_notification.message.format(
+                                unpaid_interest=round(
+                                    penal_interest_transaction.unpaid_interest, 2
+                                ),
+                                loan=self.name,
+                            )
+
+                            if msg:
+                                receiver_list = list(
+                                    set(
+                                        [
+                                            str(self.get_customer().phone),
+                                            str(doc.mobile_number),
+                                        ]
+                                    )
+                                )
+                                from frappe.core.doctype.sms_settings.sms_settings import (
+                                    send_sms,
+                                )
+
+                                frappe.enqueue(
+                                    method=send_sms,
+                                    receiver_list=receiver_list,
+                                    msg=msg,
+                                )
+
+                            lms.send_spark_push_notification(
+                                fcm_notification=fcm_notification,
+                                message=message,
+                                loan=self.name,
+                                customer=self.get_customer(),
+                            )
+
+                            return penal_interest_transaction.as_dict()
+        except Exception:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\nPenal Interest Details:\n"
+                + json.dumps(
+                    {
+                        "loan": self.name,
+                        "customer_id": self.customer,
+                        "customer_name": self.customer_name,
+                    }
+                ),
+                title=frappe._("Penal Interest Error"),
+            )
 
     def before_save(self):
         self.total_collateral_value_str = lms.amount_formatter(
@@ -1402,6 +1538,46 @@ def daily_cron_job(loan_name, input_date=None):
     )
 
 
+@frappe.whitelist()
+def daily_virtual_job(loan_name, input_date=None):
+    frappe.enqueue_doc(
+        "Loan",
+        loan_name,
+        method="add_virtual_interest",
+        input_date=input_date,
+    )
+
+
+@frappe.whitelist()
+def daily_cron_job(loan_name, input_date=None):
+    frappe.enqueue_doc(
+        "Loan",
+        loan_name,
+        method="calculate_virtual_and_additional_interest",
+        input_date=input_date,
+    )
+
+
+@frappe.whitelist()
+def daily_penal_job(loan_name, input_date=None):
+    frappe.enqueue_doc(
+        "Loan",
+        loan_name,
+        method="add_penal_interest",
+        input_date=input_date,
+    )
+
+
+@frappe.whitelist()
+def additional_interest_job(loan_name, input_date=None):
+    frappe.enqueue_doc(
+        "Loan",
+        loan_name,
+        method="check_for_additional_interest",
+        input_date=input_date,
+    )
+
+
 def add_loans_virtual_interest(loans):
     for loan in loans:
         loan = frappe.get_doc("Loan", loan)
@@ -1510,3 +1686,14 @@ def job_dates_for_penal(loan_name):
     while current_date_ <= last_date:
         loan.add_penal_interest(current_date_.strftime("%Y-%m-%d"))
         current_date_ += timedelta(days=1)
+
+
+@frappe.whitelist()
+def interest_booked_till_date(loan_name):
+    interest_booked = frappe.db.sql(
+        "select sum(amount) as total_amount from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest', 'Penal Interest')".format(
+            loan_name
+        ),
+        as_dict=1,
+    )[0]["total_amount"]
+    return 0.0 if interest_booked == None else interest_booked

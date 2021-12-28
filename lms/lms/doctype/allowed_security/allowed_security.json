@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "allow_import": 1,
  "creation": "2020-05-08 17:48:43.472417",
  "doctype": "DocType",
@@ -40,6 +41,7 @@
   {
    "fieldname": "lender",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Lender",
    "options": "Lender",
    "reqd": 1
@@ -52,7 +54,9 @@
    "reqd": 1
   }
  ],
- "modified": "2021-06-09 14:57:23.432553",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-09-03 21:47:30.156905",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",
