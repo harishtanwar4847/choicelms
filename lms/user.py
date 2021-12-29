@@ -525,17 +525,18 @@ def kyc_1(**kwargs):
         return e.respond()
 
 
-"""Changes as per new jiffy KYC API - related to bajaj lender - (CR-Dec21)"""
+"""Changes as per new jiffy KYC API - related to bajaj lender - (CR-Dec21) - start"""
 
 
 def validate_kyc_request(data):
     try:
         datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
     except ValueError:
-        return utils.respondWithFailure(
-            status=417,
-            message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
-        )
+        return {
+            "is_valid": False,
+            "status": 417,
+            "message": "Incorrect date format, should be DD-MM-YYYY",
+        }
 
     reg = lms.regex_special_characters(
         search=data.get("pan_no"),
@@ -543,19 +544,56 @@ def validate_kyc_request(data):
     )
 
     if not reg or len(data.get("pan_no")) != 10:
-        return utils.respondWithFailure(
-            status=422,
-            message=frappe._("Invalid PAN"),
-        )
+        return {
+            "is_valid": False,
+            "status": 422,
+            "message": "Invalid PAN",
+        }
 
     """Check for Prod environment only"""
     debug_mode = frappe.db.get_single_value("LAS Settings", "debug_mode")
     if not debug_mode:
         if (data.get("pan_no")[3]).lower() != "p":
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Invalid PAN"),
-            )
+            return {
+                "is_valid": False,
+                "status": 422,
+                "message": "Invalid PAN",
+            }
+
+    return {"is_valid": True}
+
+
+def request_choice_kyc(data):
+    las_settings = frappe.get_single("LAS Settings")
+
+    params = {"panNum": data.get("pan_no")}
+
+    headers = {
+        "businessUnit": las_settings.choice_business_unit,
+        "userId": las_settings.choice_user_id,
+        "investorId": las_settings.choice_investor_id,
+        "ticket": las_settings.choice_ticket,
+    }
+
+    res = requests.get(las_settings.choice_pan_api, params=params, headers=headers)
+    frappe.logger().info(str(res))
+    res_json = res.json()
+
+    # log jiffy kyc api request and response
+    log = {}
+    log[datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d")] = {
+        "url": las_settings.choice_pan_api,
+        "headers": headers,
+        "request": params,
+        "response": res_json,
+    }
+
+    lms.create_log(log, "jiffy_kyc_log")
+
+    if not res.ok or "errorCode" in res_json:
+        raise UserKYCNotFoundException
+
+    return res_json
 
 
 @frappe.whitelist()
@@ -572,34 +610,13 @@ def get_choice_kyc(**kwargs):
             },
         )
 
-        # data = validate_kyc_request(data)
-        try:
-            datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
-        except ValueError:
+        validated_data = validate_kyc_request(data)
+
+        if not validated_data["is_valid"]:
             return utils.respondWithFailure(
-                status=417,
-                message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
+                status=validated_data["status"],
+                message=frappe._(validated_data["message"]),
             )
-
-        reg = lms.regex_special_characters(
-            search=data.get("pan_no"),
-            regex=re.compile("[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"),
-        )
-
-        if not reg or len(data.get("pan_no")) != 10:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Invalid PAN"),
-            )
-
-        """Check for Prod environment only"""
-        debug_mode = frappe.db.get_single_value("LAS Settings", "debug_mode")
-        if not debug_mode:
-            if (data.get("pan_no")[3]).lower() != "p":
-                return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Invalid PAN"),
-                )
 
         try:
             user_kyc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
@@ -615,54 +632,27 @@ def get_choice_kyc(**kwargs):
 
             user_kyc = {}
             try:
-                las_settings = frappe.get_single("LAS Settings")
+                res_json = request_choice_kyc(data)
 
-                params = {"panNum": data.get("pan_no")}
-
-                headers = {
-                    "businessUnit": las_settings.choice_business_unit,
-                    "userId": las_settings.choice_user_id,
-                    "investorId": las_settings.choice_investor_id,
-                    "ticket": las_settings.choice_ticket,
-                }
-
-                res = requests.get(
-                    las_settings.choice_pan_api, params=params, headers=headers
-                )
-
-                data = res.json()
-
-                # log jiffy kyc api request and response
-                log = {
-                    "url": las_settings.choice_pan_api,
-                    "headers": headers,
-                    "request": params,
-                    "response": data,
-                }
-                lms.create_log(log, "jiffy_kyc_log")
-
-                if not res.ok or "errorCode" in data:
-                    raise UserKYCNotFoundException
-
-                user_kyc["investor_name"] = data["investorName"]
-                user_kyc["pan_no"] = data["panNum"]
+                user_kyc["investor_name"] = res_json["investorName"]
+                user_kyc["pan_no"] = res_json["panNum"]
                 user_kyc["address"] = "".join(
                     [
-                        data["permanantAddress1"],
-                        data["permanantAddress2"],
-                        data["permanantAddress3"],
-                        data["perCity"],
+                        res_json["permanantAddress1"],
+                        res_json["permanantAddress2"],
+                        res_json["permanantAddress3"],
+                        res_json["perCity"],
                         " ",
-                        data["perState"],
+                        res_json["perState"],
                         " ",
-                        data["perPincode"],
+                        res_json["perPincode"],
                     ]
                 )
 
-                if data["banks"]:
+                if res_json["banks"]:
                     user_kyc["bank_account"] = {}
 
-                    for bank in data["banks"]:
+                    for bank in res_json["banks"]:
                         if bank["defaultBank"] == "Y":
                             user_kyc["bank_account"]["bank"] = bank["bank"]
                             user_kyc["bank_account"]["account_number"] = bank[
@@ -706,33 +696,13 @@ def kyc(**kwargs):
             },
         )
 
-        try:
-            datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
-        except ValueError:
+        validated_data = validate_kyc_request(data)
+
+        if not validated_data["is_valid"]:
             return utils.respondWithFailure(
-                status=417,
-                message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
+                status=validated_data["status"],
+                message=frappe._(validated_data["message"]),
             )
-
-        reg = lms.regex_special_characters(
-            search=data.get("pan_no"),
-            regex=re.compile("[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"),
-        )
-
-        if not reg or len(data.get("pan_no")) != 10:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Invalid PAN"),
-            )
-
-        """Check for Prod environment only"""
-        debug_mode = frappe.db.get_single_value("LAS Settings", "debug_mode")
-        if not debug_mode:
-            if (data.get("pan_no")[3]).lower() != "p":
-                return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Invalid PAN"),
-                )
 
         try:
             user_kyc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
@@ -746,41 +716,8 @@ def kyc(**kwargs):
                     message=frappe._("Please accept Terms and Conditions.")
                 )
 
-            if not data.get("accept_terms"):
-                return utils.respondUnauthorized(
-                    message=frappe._("Please accept Terms and Conditions.")
-                )
-
             try:
-                las_settings = frappe.get_single("LAS Settings")
-
-                params = {"panNum": data.get("pan_no")}
-
-                headers = {
-                    "businessUnit": las_settings.choice_business_unit,
-                    "userId": las_settings.choice_user_id,
-                    "investorId": las_settings.choice_investor_id,
-                    "ticket": las_settings.choice_ticket,
-                }
-
-                res = requests.get(
-                    las_settings.choice_pan_api, params=params, headers=headers
-                )
-
-                res_json = res.json()
-
-                # log jiffy kyc api request and response
-                log = {
-                    "url": las_settings.choice_pan_api,
-                    "headers": headers,
-                    "request": params,
-                    "response": res_json,
-                }
-                lms.create_log(log, "jiffy_kyc_log")
-
-                if not res.ok or "errorCode" in data:
-                    raise UserKYCNotFoundException
-
+                res_json = request_choice_kyc(data)
             except requests.RequestException as e:
                 raise utils.exceptions.APIException(str(e))
             except UserKYCNotFoundException:
@@ -788,8 +725,7 @@ def kyc(**kwargs):
             except Exception as e:
                 raise utils.exceptions.APIException(str(e))
 
-            # frappe.db.begin()
-
+            frappe.db.begin()
             user_kyc = lms.__user_kyc(pan_no=data.get("pan_no"), throw=False)
             user_kyc.kyc_type = "CHOICE"
             user_kyc.investor_name = res_json["investorName"]
@@ -912,7 +848,14 @@ def kyc(**kwargs):
         return utils.respondWithSuccess(data=data)
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
+        frappe.log_error(
+            message=frappe.get_traceback() + "\nkyc api details:\n" + str(e.args),
+            title=_("User KYC Error"),
+        )
         return e.respond()
+
+
+"""Changes as per new jiffy KYC API - related to bajaj lender - (CR-Dec21) - end"""
 
 
 @frappe.whitelist()
