@@ -398,7 +398,10 @@ def request_verification_email():
 @frappe.whitelist()
 def resend_verification_email(email):
     try:
-        user_token = frappe.get_last_doc("User Token", filters={"entity": email})
+        user_token = frappe.get_last_doc(
+            "User Token",
+            filters={"entity": email, "token_type": "Email Verification Token"},
+        )
         if not user_token.used:
             doc = frappe.get_doc("User", email).as_dict()
             doc["url"] = frappe.utils.get_url(
