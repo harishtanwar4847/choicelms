@@ -581,7 +581,7 @@ def request_choice_kyc(data):
 
     # log jiffy kyc api request and response
     log = {}
-    log[datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d")] = {
+    log[datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d %H:%M:%S")] = {
         "url": las_settings.choice_pan_api,
         "headers": headers,
         "request": params,

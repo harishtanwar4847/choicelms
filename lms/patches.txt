@@ -18,3 +18,4 @@ lms.patches.transfer_feedback_doctype
 lms.patches.redirect_to_root_page
 lms.patches.import_spark_push_notification_content
 lms.patches.update_favicon_in_website_settings #12.11.2021
+lms.patches.update_jiffy_kyc_details ###29.12.2021
