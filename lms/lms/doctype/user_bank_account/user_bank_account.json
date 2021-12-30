@@ -21,7 +21,9 @@
   "micr",
   "bank_mode",
   "bank_zip_code",
-  "district"
+  "district",
+  "address_state",
+  "cancel_cheque_file_name"
  ],
  "fields": [
   {
@@ -114,11 +116,21 @@
    "fieldname": "district",
    "fieldtype": "Data",
    "label": "District"
+  },
+  {
+   "fieldname": "address_state",
+   "fieldtype": "Data",
+   "label": "Address State"
+  },
+  {
+   "fieldname": "cancel_cheque_file_name",
+   "fieldtype": "Data",
+   "label": "Cancel Cheque File Name"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2021-10-05 10:25:39.742792",
+ "modified": "2021-12-30 12:25:13.308617",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User Bank Account",
