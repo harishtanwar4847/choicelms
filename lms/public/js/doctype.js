@@ -34,10 +34,13 @@ $(document).on("app_ready", function () {
               "<style>" +
               ".form-message.blue{padding: 5px; background-color: white;}"+
               "table {" +
-              "border-collapse:separate;border:solid black 2px;border-radius:6px;-moz-border-radius:6px;background-color:white;width:100%" +
+              "border-collapse:separate;border:solid black 1px;border-radius:6px;-moz-border-radius:6px;background-color:white;width:100%" +
               "}" +
               "td,th {" +
-              "border-left:solid black 2px;border-top:solid black 2px;text-align: center;color:black;padding:6px 4px;" +
+              "border-left:solid black 1px;border-top:solid black 1px;text-align: center;color:black;padding:6px 4px;" +
+              "}" +
+              "td{" +
+              "color:#333c44;" +
               "}" +
               "th {" +
               "border-top: none;" +
