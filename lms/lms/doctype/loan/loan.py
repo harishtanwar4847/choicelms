@@ -698,7 +698,7 @@ class Loan(Document):
                 as_dict=True,
             )
             if day_past_due[0]["total_amount"]:
-                self.day_past_due = day_past_due[0]["dpd"] - 1
+                self.day_past_due = day_past_due[0]["dpd"]
             else:
                 self.day_past_due = 0
 
