@@ -218,7 +218,7 @@ endblock description %} {%- block head_include -%} {% include
               const arr = val.website_tags.split(",");
               var tags = "";
               $.each(arr, (index, tag) => {
-                tags += "<a href=#>" + tag + "</a>";
+                tags += tag + " ";
               });
 
               html +=
