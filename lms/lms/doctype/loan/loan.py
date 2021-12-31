@@ -691,16 +691,18 @@ class Loan(Document):
             else:
                 input_date = frappe.utils.now_datetime()
 
-            day_past_due = frappe.db.sql(
-                "select sum(unpaid_interest) as total_amount, DATEDIFF('{}', time) as dpd from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 order by creation asc".format(
-                    input_date, self.name
-                ),
-                as_dict=True,
-            )
-            if day_past_due[0]["total_amount"]:
-                self.day_past_due = day_past_due[0]["dpd"]
-            else:
-                self.day_past_due = 0
+            self.day_past_due = self.calculate_day_past_due(input_date)
+
+            # day_past_due = frappe.db.sql(
+            #     "select sum(unpaid_interest) as total_amount, DATEDIFF('{}', time) as dpd from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 order by creation asc".format(
+            #         input_date, self.name
+            #     ),
+            #     as_dict=True,
+            # )
+            # if day_past_due[0]["total_amount"]:
+            #     self.day_past_due = day_past_due[0]["dpd"]
+            # else:
+            #     self.day_past_due = 0
 
             if self.balance > 0:
                 interest_configuration = frappe.db.get_value(
@@ -1048,18 +1050,20 @@ class Loan(Document):
                                 self.name, prev_month_year, prev_month
                             )
                         )
-                        frappe.db.commit()
+                        # frappe.db.commit()
                         self.reload()
-                        day_past_due = frappe.db.sql(
-                            "select sum(unpaid_interest) as total_amount, DATEDIFF('{}', time) as dpd from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 order by creation asc".format(
-                                current_date, self.name
-                            ),
-                            as_dict=True,
-                        )
-                        if day_past_due[0]["total_amount"]:
-                            self.day_past_due = day_past_due[0]["dpd"]
-                        else:
-                            self.day_past_due = 0
+
+                        self.day_past_due = self.calculate_day_past_due(input_date)
+                        # day_past_due = frappe.db.sql(
+                        #     "select sum(unpaid_interest) as total_amount, DATEDIFF('{}', time) as dpd from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 order by creation asc".format(
+                        #         current_date, self.name
+                        #     ),
+                        #     as_dict=True,
+                        # )
+                        # if day_past_due[0]["total_amount"]:
+                        #     self.day_past_due = day_past_due[0]["dpd"]
+                        # else:
+                        #     self.day_past_due = 0
                         self.save(ignore_permissions=True)
                         frappe.db.commit()
                         doc = frappe.get_doc(
@@ -1511,6 +1515,18 @@ class Loan(Document):
         with open(tnc_file_path, "wb") as f:
             f.write(agreement_pdf)
         f.close()
+
+    def calculate_day_past_due(self, input_date):
+        day_past_due = frappe.db.sql(
+            "select sum(unpaid_interest) as total_amount, DATEDIFF('{}', time) as dpd from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 order by creation asc".format(
+                input_date, self.name
+            ),
+            as_dict=True,
+        )
+        if day_past_due[0]["total_amount"]:
+            return day_past_due[0]["dpd"]
+        else:
+            return 0
 
 
 def check_loans_for_shortfall(loans):
