@@ -1049,7 +1049,19 @@ class Loan(Document):
                             )
                         )
                         frappe.db.commit()
-
+                        self.reload()
+                        day_past_due = frappe.db.sql(
+                            "select sum(unpaid_interest) as total_amount, DATEDIFF('{}', time) as dpd from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 order by creation asc".format(
+                                current_date, self.name
+                            ),
+                            as_dict=True,
+                        )
+                        if day_past_due[0]["total_amount"]:
+                            self.day_past_due = day_past_due[0]["dpd"]
+                        else:
+                            self.day_past_due = 0
+                        self.save(ignore_permissions=True)
+                        frappe.db.commit()
                         doc = frappe.get_doc(
                             "User KYC", self.get_customer().choice_kyc
                         ).as_dict()

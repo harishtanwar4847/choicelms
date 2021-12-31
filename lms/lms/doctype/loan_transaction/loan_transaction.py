@@ -547,7 +547,17 @@ class LoanTransaction(Document):
             ),
             as_dict=1,
         )[0]["total_amount"]
-
+        current_date = frappe.utils.now_datetime()
+        day_past_due = frappe.db.sql(
+            "select sum(unpaid_interest) as total_amount, DATEDIFF('{}', time) as dpd from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 order by creation asc".format(
+                current_date, self.loan
+            ),
+            as_dict=True,
+        )
+        if day_past_due[0]["total_amount"]:
+            loan.day_past_due = day_past_due[0]["dpd"]
+        else:
+            loan.day_past_due = 0
         loan.total_interest_incl_penal_due = (
             total_interest_incl_penal_due if total_interest_incl_penal_due else 0.0
         )
