@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-- [Feat: Razorpay Payment Webhook event implementation](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/438)
+- [Feat: Razorpay Payment Webhook event and Settlement API implementation](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/453)
 
 ## [v2.0.0] - 2021-12-21
 
