@@ -547,16 +547,7 @@ class LoanTransaction(Document):
             ),
             as_dict=1,
         )[0]["total_amount"]
-        # day_past_due = frappe.db.sql(
-        #     "select sum(unpaid_interest) as total_amount, DATEDIFF('{}', time) as dpd from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 order by creation asc".format(
-        #         current_date, self.loan
-        #     ),
-        #     as_dict=True,
-        # )
-        # if day_past_due[0]["total_amount"]:
-        #     loan.day_past_due = day_past_due[0]["dpd"]
-        # else:
-        #     loan.day_past_due = 0
+
         loan.total_interest_incl_penal_due = (
             total_interest_incl_penal_due if total_interest_incl_penal_due else 0.0
         )
@@ -581,18 +572,6 @@ class LoanTransaction(Document):
 
         """Sum of unpaid interest in loan transaction of transaction type Interest of last month"""
         if self.transaction_type in ["Interest", "Payment"]:
-            # interest_due = frappe.db.sql(
-            #     "select sum(unpaid_interest) as unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 ".format(
-            #         self.loan
-            #     ),
-            #     as_dict=1,
-            # )[0]["unpaid_interest"]
-            # input_date = frappe.utils.now_datetime()
-            # calculation_date = (input_date).replace(
-            #     day=1, hour=23, minute=59, second=59, microsecond=999999
-            # ) - timedelta(days=1)
-            # prev_month = calculation_date.month
-            # prev_month_year = calculation_date.year
             interest_due = frappe.db.sql(
                 "select unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest > 0 order by time desc ".format(
                     self.loan
@@ -611,8 +590,8 @@ class LoanTransaction(Document):
         """
         if self.transaction_type in ["Additional Interest", "Payment"]:
             interest_overdue = frappe.db.sql(
-                "select sum(unpaid_interest) as unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type in ('Interest', 'Additional Interest') and unpaid_interest >0 ".format(
-                    self.loan
+                "select sum(unpaid_interest) as unpaid_interest from `tabLoan Transaction` where exists(select name from `tabLoan Transaction` where loan = '{loan}' and transaction_type='Additional Interest' and status='Approved' and unpaid_interest>0) and loan = '{loan}' and transaction_type in ('Interest', 'Additional Interest') and unpaid_interest > 0".format(
+                    loan=self.loan
                 ),
                 as_dict=1,
             )
@@ -622,10 +601,8 @@ class LoanTransaction(Document):
             if interest_overdue:
                 loan.interest_due = 0.0
         if self.transaction_type == "Payment":
-            import lms.lms.doctype.loan.loan as Loan
-
             current_date = frappe.utils.now_datetime()
-            loan.day_past_due = Loan.Loan.calculate_day_past_due(loan, current_date)
+            loan.day_past_due = loan.calculate_day_past_due(current_date)
         loan.save(ignore_permissions=True)
 
     def before_save(self):
