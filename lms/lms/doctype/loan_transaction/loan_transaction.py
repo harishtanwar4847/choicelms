@@ -595,10 +595,9 @@ class LoanTransaction(Document):
                 ),
                 as_dict=1,
             )
-            loan.interest_overdue = (
-                interest_overdue[0]["unpaid_interest"] if interest_overdue else 0.0
-            )
-            if interest_overdue:
+            loan.interest_overdue = interest_overdue[0]["unpaid_interest"]
+
+            if loan.interest_overdue:
                 loan.interest_due = 0.0
         if self.transaction_type == "Payment":
             current_date = frappe.utils.now_datetime()
