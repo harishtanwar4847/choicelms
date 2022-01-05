@@ -601,12 +601,17 @@ class LoanTransaction(Document):
             )
 
             interest_overdue = frappe.db.sql(
-                "select sum(unpaid_interest) as unpaid_interest from `tabLoan Transaction` where loan = '{loan}' and transaction_type in ('Interest', 'Additional Interest') and (transaction_type = 'Interest' and additional_interest IS NOT NULL) and unpaid_interest > 0".format(
+                "select sum(unpaid_interest) as unpaid_interest from `tabLoan Transaction` where loan = '{loan}' and transaction_type in ('Interest', 'Additional Interest') and unpaid_interest > 0".format(
                     loan=self.loan
                 ),
                 as_dict=1,
             )
-            loan.interest_overdue = interest_overdue[0]["unpaid_interest"]
+            if interest_overdue[0]["unpaid_interest"]:
+                loan.interest_overdue = (
+                    interest_overdue[0]["unpaid_interest"] - loan.interest_due
+                )
+            else:
+                loan.interest_overdue = 0
 
         if self.transaction_type == "Payment":
             loan.day_past_due = loan.calculate_day_past_due(frappe.utils.now_datetime())
