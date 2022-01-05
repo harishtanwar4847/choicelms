@@ -591,7 +591,7 @@ class LoanTransaction(Document):
         if self.transaction_type in ["Additional Interest", "Payment"]:
             # Fresh interest entry for interest_due field i.e additional_interest field IS NULL
             interest_due = frappe.db.sql(
-                "select unpaid_interest from `tabLoan Transaction` where loan = '{}' and additional_interest IS NULL and transaction_type = 'Interest' and unpaid_interest > 0 order by time desc ".format(
+                "select unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and additional_interest IS NULL and unpaid_interest > 0 order by time desc ".format(
                     self.loan
                 ),
                 as_dict=1,

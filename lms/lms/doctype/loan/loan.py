@@ -874,11 +874,6 @@ class Loan(Document):
                         additional_interest_transaction.transaction_id = (
                             additional_interest_transaction.name
                         )
-                        additional_interest_transaction.status = "Approved"
-                        additional_interest_transaction.workflow_state = "Approved"
-                        additional_interest_transaction.docstatus = 1
-                        additional_interest_transaction.save(ignore_permissions=True)
-
                         # Update booked interest entry
                         booked_interest_transaction_doc = frappe.get_doc(
                             "Loan Transaction", booked_interest[0]["name"]
@@ -886,6 +881,18 @@ class Loan(Document):
                         booked_interest_transaction_doc.db_set(
                             "additional_interest", additional_interest_transaction.name
                         )
+                        additional_interest_transaction.status = "Approved"
+                        additional_interest_transaction.workflow_state = "Approved"
+                        additional_interest_transaction.docstatus = 1
+                        additional_interest_transaction.save(ignore_permissions=True)
+
+                        # # Update booked interest entry
+                        # booked_interest_transaction_doc = frappe.get_doc(
+                        #     "Loan Transaction", booked_interest[0]["name"]
+                        # )
+                        # booked_interest_transaction_doc.db_set(
+                        #     "additional_interest", additional_interest_transaction.name
+                        # )
 
                         # Mark as booked for rebate
                         frappe.db.sql(
