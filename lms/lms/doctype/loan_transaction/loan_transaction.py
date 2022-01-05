@@ -606,11 +606,7 @@ class LoanTransaction(Document):
                 ),
                 as_dict=1,
             )
-            loan.interest_overdue = (
-                interest_overdue[0]["unpaid_interest"]
-                if interest_overdue[0]["unpaid_interest"]
-                else 0
-            )
+            loan.interest_overdue = interest_overdue[0]["unpaid_interest"]
 
         if self.transaction_type == "Payment":
             loan.day_past_due = loan.calculate_day_past_due(frappe.utils.now_datetime())
