@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- [Feat: IOS notification payload added for FCM and T&C screen changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/433)
+
 ## [v2.0.0] - 2021-12-21
 
 ### Added
