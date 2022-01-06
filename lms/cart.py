@@ -815,7 +815,7 @@ def get_tnc(**kwargs):
             "<li><strong> Legal & incidental charges </strong>: As per actuals;</li>"
         )
         tnc_ul.append(
-            "<li><strong> Average percentage rate </strong>: is maximum of <strong>20%</strong> inclusive of the annual interest rate, processing fee, documentation charges, stamp duty charges, renewal charges (if any).</li></ul>"
+            "<li><strong>Average Percentage Rate</strong> is maximum of <strong>20%</strong> inclusive of the annual interest rate, processing fee, documentation charges, stamp duty charges, renewal charges (if any).</li></ul>"
         )
 
         if data.get("cart_name"):
