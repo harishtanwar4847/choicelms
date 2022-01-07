@@ -1028,7 +1028,13 @@ def ckyc_search_api(**kwargs):
     }
     # POST request
     response = requests.post(url, headers=headers, data=file)
-    return [r for r in response.content]
+    # if response
+    # decrypt the response, fetch details and send otp to KYC registered number
+    # show details to user
+    # then confirmation page
+    # if no response then return
+
+    return response
 
 
 def ckyc_request_xml(pid, sess_key):
