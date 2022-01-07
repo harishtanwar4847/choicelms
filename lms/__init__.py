@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import base64
 import json
 import os
 import re
@@ -14,6 +15,7 @@ import requests
 import utils
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
+from rsa.pkcs1 import encrypt
 
 from lms.config import lms
 from lms.firebase import FirebaseAdmin
@@ -963,3 +965,107 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
         raise InvalidUserTokenException("Invalid {}".format(token_type))
 
     return frappe.get_doc("Spark Dummy Account", dummy_account_name)
+
+
+def ckyc_search_api(**kwargs):
+    # request URL
+    url = "https://testbed.ckycindia.in/Search/ckycverificationservice/verify"
+
+    # 256 bit random session key
+    key = os.urandom(32)
+    iv = os.urandom(16)
+
+    date = datetime.strftime(frappe.utils.now_datetime(), "%d-%m-%Y %H:%M:%S")
+    id = "AAKHR7426K"
+    type = "C"
+
+    # structured XML - current length of data = 192 (CBC mode needs data in multiple of iv(16))
+    # if len of data changes then it should be in multiple of 16
+
+    data = """<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+    <PID_DATA> 
+    <DATE_TIME>{date}</DATE_TIME> 
+    <ID_TYPE>{type}</ID_TYPE> 
+    <ID_NO>{id}</ID_NO> 
+    </PID_DATA>""".format(
+        date=date, id=id, type=type
+    )
+
+    from Crypto.Cipher import AES
+
+    print(data)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    ct_bytes = cipher.encrypt(bytes(data, "utf-8"))
+
+    # Encoding
+    encoded_ct = base64.b64encode(ct_bytes).decode("ascii")
+
+    # temporary cersai public key uploaded to tnc field
+    # cersai_publickey.cer to be converted to .pem format and then upload in backend
+    import rsa
+    from Crypto.PublicKey import RSA
+
+    cersai = frappe.get_single("LAS Settings").cersai_public_keypem
+    file_name = frappe.get_value("File", {"file_url": cersai}, "file_name")
+
+    pub_key = open(frappe.utils.get_files_path(file_name), "r").read()
+    rsakey = RSA.importKey(pub_key)
+
+    encrypted_session_key = rsa.encrypt(key, rsakey)
+    encoded_session_key = base64.b64encode(encrypted_session_key).decode("ascii")
+
+    # encoded_ct + encoded_session_key in request.xml
+    # and sign entire request
+    file = ckyc_request_xml(pid=encoded_ct, sess_key=encoded_session_key)
+    # return encoded_ct,encrypted_session_key,encoded_session_key
+    import hmac
+
+    # signature = hmac.new("fi chi private key", data, digestmod='sha512')
+    # headers
+    headers = {
+        "Content-Type": "text/xml; charset=utf-8",
+        # 'Sign': signature.hexdigest()
+    }
+    # POST request
+    response = requests.post(url, headers=headers, data=file)
+    return [r for r in response.content]
+
+
+def ckyc_request_xml(pid, sess_key):
+    import xml.etree.ElementTree as ET
+
+    fi_code_text = "IN1895"
+    req_id_text = "2"
+    version_text = "1.2"
+
+    root = ET.Element("REQ_ROOT")
+
+    header = ET.Element("HEADER")
+    FI_CODE = ET.SubElement(header, "FI_CODE")
+    FI_CODE.text = fi_code_text
+    REQUEST_ID = ET.SubElement(header, "REQUEST_ID")
+    REQUEST_ID.text = req_id_text
+    VERSION = ET.SubElement(header, "VERSION")
+    VERSION.text = version_text
+
+    root.append(header)
+
+    CKYC_INQ = ET.Element("CKYC_INQ")
+    PID = ET.SubElement(CKYC_INQ, "PID")
+    PID.text = pid
+    SESSION_KEY = ET.SubElement(CKYC_INQ, "SESSION_KEY")
+    SESSION_KEY.text = sess_key
+
+    root.append(CKYC_INQ)
+
+    Signature = ET.Element("Signature")
+    Signature.text = "fi chi private key"
+    root.append(Signature)
+
+    tree = ET.ElementTree(root)
+    tree.write(
+        "request.xml", encoding="UTF-8", xml_declaration=True, short_empty_elements=True
+    )
+    file = open("request.xml", "r").read()
+
+    return file
