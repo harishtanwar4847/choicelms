@@ -356,6 +356,7 @@ class LoanTransaction(Document):
             "Additional Interest",
             "Penal Interest",
             "Payment",
+            "Sell Collateral",
         ]:
             self.update_interest_summary_values(loan)
             loan.reload()
@@ -557,7 +558,7 @@ class LoanTransaction(Document):
         if total_interest_incl_penal_due == None:
             loan.day_past_due = 0
         """Sum of unpaid interest in loan transaction of transaction type Penal Interest """
-        if self.transaction_type in ["Penal Interest", "Payment"]:
+        if self.transaction_type in ["Penal Interest", "Payment", "Sell Collateral"]:
             penal_interest_charges = frappe.db.sql(
                 "select sum(unpaid_interest) as unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Penal Interest' and unpaid_interest >0 ".format(
                     self.loan
@@ -571,7 +572,7 @@ class LoanTransaction(Document):
             )
 
         """Sum of unpaid interest in loan transaction of transaction type Interest of last month"""
-        if self.transaction_type in ["Interest", "Payment"]:
+        if self.transaction_type in ["Interest", "Payment", "Sell Collateral"]:
             interest_due = frappe.db.sql(
                 "select unpaid_interest from `tabLoan Transaction` where loan = '{}' and additional_interest IS NULL and transaction_type = 'Interest' and unpaid_interest > 0 order by time desc ".format(
                     self.loan
@@ -588,7 +589,11 @@ class LoanTransaction(Document):
         Sum of unpaid interest in loan transaction of transaction type Additional Interest till now and
         set interest due to 0.0
         """
-        if self.transaction_type in ["Additional Interest", "Payment"]:
+        if self.transaction_type in [
+            "Additional Interest",
+            "Payment",
+            "Sell Collateral",
+        ]:
             # Fresh interest entry for interest_due field i.e additional_interest field IS NULL
             interest_due = frappe.db.sql(
                 "select unpaid_interest from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and additional_interest IS NULL and unpaid_interest > 0 order by time desc ".format(
@@ -613,7 +618,7 @@ class LoanTransaction(Document):
             else:
                 loan.interest_overdue = 0
 
-        if self.transaction_type == "Payment":
+        if self.transaction_type in ["Payment", "Sell Collateral"]:
             loan.day_past_due = loan.calculate_day_past_due(frappe.utils.now_datetime())
         loan.save(ignore_permissions=True)
 
