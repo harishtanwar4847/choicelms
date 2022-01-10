@@ -4,6 +4,7 @@
 
 from __future__ import unicode_literals
 
+import json
 import math
 from datetime import date, datetime, timedelta
 
@@ -23,12 +24,12 @@ class LoanMarginShortfall(Document):
 
     def fill_items(self):
         loan = frappe.get_doc("Loan", self.loan)
-
         self.total_collateral_value = loan.total_collateral_value
         self.allowable_ltv = loan.allowable_ltv
         self.drawing_power = loan.drawing_power
-
+        self.customer_name = loan.customer_name
         self.loan_balance = loan.balance
+        self.time_remaining = "00:00:00"
         # self.ltv = (self.loan_balance / self.total_collateral_value) * 100
         # Zero division error - handling
         self.ltv = (
@@ -140,6 +141,13 @@ class LoanMarginShortfall(Document):
             self.save(ignore_permissions=True)
             self.notify_customer(margin_shortfall_action)
             frappe.db.commit()
+
+    def on_update(self):
+        loan = self.get_loan()
+        loan.margin_shortfall_amount = self.shortfall_c
+        loan.save(ignore_permissions=True)
+        frappe.db.commit()
+        self.notify_customer()
 
     def update_deadline_based_on_holidays(self, input_datetime=None):
         margin_shortfall_action = self.get_shortfall_action()
@@ -300,3 +308,58 @@ class LoanMarginShortfall(Document):
                 loan=self.loan,
                 customer=self.get_loan().get_customer(),
             )
+
+
+@frappe.whitelist()
+def set_timer(loan_margin_shortfall_name):
+    try:
+        if not loan_margin_shortfall_name:
+            all_margin_shortfall = frappe.get_all("Loan Margin Shortfall")
+            for loan_margin_shortfall_name in all_margin_shortfall:
+                loan_margin_shortfall = frappe.get_doc(
+                    "Loan Margin Shortfall", loan_margin_shortfall_name
+                )
+                if loan_margin_shortfall.status in ["Pending", "Request Pending"]:
+                    timer = convert_sec_to_hh_mm_ss(
+                        abs(
+                            loan_margin_shortfall.deadline - frappe.utils.now_datetime()
+                        ).total_seconds()
+                    )
+                else:
+                    timer = "00:00:00"
+
+                frappe.db.set_value(
+                    "Loan Margin Shortfall",
+                    loan_margin_shortfall_name,
+                    "time_remaining",
+                    timer,
+                    update_modified=False,
+                )
+        else:
+            loan_margin_shortfall = frappe.get_doc(
+                "Loan Margin Shortfall", loan_margin_shortfall_name
+            )
+            if loan_margin_shortfall.status in ["Pending", "Request Pending"]:
+                timer = convert_sec_to_hh_mm_ss(
+                    abs(
+                        loan_margin_shortfall.deadline - frappe.utils.now_datetime()
+                    ).total_seconds()
+                )
+            else:
+                timer = "00:00:00"
+
+            frappe.db.set_value(
+                "Loan Margin Shortfall",
+                loan_margin_shortfall_name,
+                "time_remaining",
+                timer,
+                update_modified=False,
+            )
+    except Exception as e:
+        # To log exception errors into Frappe Error Log
+        frappe.log_error(
+            frappe.get_traceback()
+            + "\nMargin Shortfall Info:\n"
+            + json.dumps(loan_margin_shortfall_name),
+            e.args,
+        )

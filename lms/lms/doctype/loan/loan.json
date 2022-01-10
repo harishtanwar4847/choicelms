@@ -21,12 +21,22 @@
   "allowable_ltv",
   "expiry_date",
   "loan_agreement",
+  "margin_shortfall_amount",
   "items_section",
   "items",
   "loan_status_section",
   "is_eligible_for_interest",
   "is_irregular",
-  "is_penalize"
+  "is_penalize",
+  "interest_details_section",
+  "base_interest_amount",
+  "interest_due",
+  "penal_interest_charges",
+  "total_interest_incl_penal_due",
+  "column_break_28",
+  "rebate_interest_amount",
+  "interest_overdue",
+  "day_past_due"
  ],
  "fields": [
   {
@@ -78,12 +88,14 @@
   {
    "fieldname": "sanctioned_limit",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Sanctioned Limit",
    "read_only": 1
   },
   {
    "fieldname": "drawing_power",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Drawing Power",
    "read_only": 1,
    "reqd": 1
@@ -91,6 +103,7 @@
   {
    "fieldname": "lender",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Lender",
    "options": "Lender",
    "reqd": 1,
@@ -104,6 +117,7 @@
   {
    "fieldname": "balance",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Balance",
    "read_only": 1
   },
@@ -158,10 +172,68 @@
    "fieldtype": "Read Only",
    "in_list_view": 1,
    "label": "Customer Name"
+  },
+  {
+   "fieldname": "base_interest_amount",
+   "fieldtype": "Currency",
+   "label": "Base interest amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rebate_interest_amount",
+   "fieldtype": "Currency",
+   "label": "Rebate interest amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "margin_shortfall_amount",
+   "fieldtype": "Currency",
+   "label": "Margin Shortfall Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_interest_incl_penal_due",
+   "fieldtype": "Currency",
+   "label": "Total Interest (incl penal) due",
+   "read_only": 1
+  },
+  {
+   "fieldname": "interest_details_section",
+   "fieldtype": "Section Break",
+   "label": "Interest Details"
+  },
+  {
+   "fieldname": "interest_due",
+   "fieldtype": "Currency",
+   "label": "Interest Due",
+   "read_only": 1
+  },
+  {
+   "fieldname": "penal_interest_charges",
+   "fieldtype": "Currency",
+   "label": "Penal Interest Charges",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_28",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "interest_overdue",
+   "fieldtype": "Currency",
+   "label": "Interest Overdue",
+   "read_only": 1
+  },
+  {
+   "fieldname": "day_past_due",
+   "fieldtype": "Int",
+   "label": "DPD (days past due)",
+   "read_only": 1
   }
  ],
+ "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-10-27 18:33:03.385006",
+ "modified": "2021-11-29 14:04:14.809215",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

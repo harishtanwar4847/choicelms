@@ -1000,10 +1000,15 @@ def loan_details(**kwargs):
                     )
 
                 loan_margin_shortfall["linked_application"] = {
-                    "loan_application": pledged_securities_for_mg_shortfall[0]
+                    "loan_application": frappe.get_doc(
+                        "Loan Application", pledged_securities_for_mg_shortfall[0].name
+                    )
                     if pledged_securities_for_mg_shortfall
                     else None,
-                    "sell_collateral_application": sell_collateral_for_mg_shortfall[0]
+                    "sell_collateral_application": frappe.get_doc(
+                        "Sell Collateral Application",
+                        sell_collateral_for_mg_shortfall[0].name,
+                    )
                     if sell_collateral_for_mg_shortfall
                     else None,
                 }
@@ -2536,6 +2541,7 @@ def loan_unpledge_request(**kwargs):
                 "doctype": "Unpledge Application",
                 "loan": data.get("loan_name"),
                 "items": items,
+                "customer_name": customer.full_name,
             }
         )
         unpledge_application.insert(ignore_permissions=True)
@@ -2666,6 +2672,7 @@ def sell_collateral_request(**kwargs):
                 "doctype": "Sell Collateral Application",
                 "loan": data.get("loan_name"),
                 "items": items,
+                "customer_name": customer.full_name,
             }
         )
         msg = ""
