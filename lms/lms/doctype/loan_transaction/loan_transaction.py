@@ -652,13 +652,19 @@ def reject_blank_transaction_and_settlement_recon_api():
     try:
         blank_rzp_event_transaction = frappe.get_all(
             "Loan Transaction",
-            {"razorpay_event": ["in", ["", "Payment Cancelled"]], "status": "Pending"},
+            {
+                "transaction_type": "Payment",
+                "razorpay_event": ["in", ["", "Payment Cancelled"]],
+                "status": "Pending",
+            },
         )
+
         if blank_rzp_event_transaction:
             for single_transaction in blank_rzp_event_transaction:
                 single_transaction = frappe.get_doc(
                     "Loan Transaction", single_transaction.name
                 )
+
                 data = single_transaction.name
                 if single_transaction.creation < frappe.utils.now_datetime():
                     hours_difference = convert_sec_to_hh_mm_ss(
@@ -671,11 +677,13 @@ def reject_blank_transaction_and_settlement_recon_api():
                         single_transaction.status = "Rejected"
                         single_transaction.save(ignore_permissions=True)
                         frappe.db.commit()
+
     except Exception as e:
         frappe.log_error(
             message=frappe.get_traceback() + "\nPayment details:\n" + data,
             title=_("Blank Payment Reject Error"),
         )
+
     if frappe.utils.now_datetime().hour > 15:
         settlement_recon_api()
 

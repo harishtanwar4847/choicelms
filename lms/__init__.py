@@ -29,7 +29,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "2.1.0"
+__version__ = "2.1.1"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -995,6 +995,7 @@ def rzp_payment_webhook_callback(**kwargs):
             key=bytes(webhook_secret, "utf-8"),
         )
         generated_signature = expected_signature.hexdigest()
+
         result = hmac.compare_digest(generated_signature, webhook_signature)
         if not result:
             raise SignatureVerificationError("Razorpay Signature Verification Failed")
@@ -1010,6 +1011,7 @@ def rzp_payment_webhook_callback(**kwargs):
                 and data["event"]
                 in ["payment.authorized", "payment.captured", "payment.failed"]
             ):
+
                 frappe.enqueue(
                     method="lms.update_rzp_payment_transaction",
                     data=data,
@@ -1022,6 +1024,7 @@ def rzp_payment_webhook_callback(**kwargs):
                 + json.dumps(data),
                 title=_("Payment Webhook RZP User not found Error"),
             )
+
     except Exception as e:
         frappe.log_error(
             message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
@@ -1048,6 +1051,7 @@ def update_rzp_payment_transaction(data):
                 },
                 "name",
             )
+
         except frappe.DoesNotExistError:
             frappe.log_error(
                 message=frappe.get_traceback() + json.dumps(data),
@@ -1059,6 +1063,7 @@ def update_rzp_payment_transaction(data):
             loan_transaction = frappe.get_doc(
                 "Loan Transaction", payment_transaction_name
             )
+
             # Assign RZP event to loan transaction
             if data["event"] == "payment.authorized":
                 razorpay_event = "Authorized"
@@ -1069,6 +1074,7 @@ def update_rzp_payment_transaction(data):
             loan_transaction.transaction_id = webhook_main_object["id"]
             if loan_transaction.razorpay_event != "Captured":
                 loan_transaction.razorpay_event = razorpay_event
+
             # If RZP event is failed then update the log
             if loan_transaction.razorpay_event == "Failed":
                 loan_transaction.razorpay_payment_log = (
