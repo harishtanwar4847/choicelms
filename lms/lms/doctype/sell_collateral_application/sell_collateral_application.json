@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "creation": "2021-04-05 13:44:25.652240",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -9,8 +10,10 @@
   "lender",
   "initial_shortfall_amount",
   "current_shortfall_amount",
+  "pending_unpledge_request_id",
   "column_break_2",
   "customer",
+  "customer_name",
   "selling_collateral_value",
   "loan_margin_shortfall",
   "lender_selling_amount",
@@ -24,7 +27,8 @@
   {
    "fieldname": "loan",
    "fieldtype": "Link",
-   "label": "Loan",
+   "in_list_view": 1,
+   "label": "Loan Account No.",
    "options": "Loan"
   },
   {
@@ -34,6 +38,7 @@
   {
    "fieldname": "total_collateral_value",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Total Collateral Value"
   },
   {
@@ -59,6 +64,7 @@
   {
    "fieldname": "lender",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Lender",
    "options": "Lender",
    "read_only": 1
@@ -73,6 +79,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "hidden": 1,
+   "in_list_view": 1,
    "label": "Status",
    "options": "Pending\nApproved\nRejected"
   },
@@ -85,11 +92,13 @@
   {
    "fieldname": "selling_collateral_value",
    "fieldtype": "Currency",
-   "label": "Selling Collateral Value"
+   "in_list_view": 1,
+   "label": "Sell Request Amount"
   },
   {
    "fieldname": "loan_margin_shortfall",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Loan Margin Shortfall",
    "options": "Loan Margin Shortfall"
   },
@@ -109,10 +118,24 @@
    "fieldname": "lender_selling_amount",
    "fieldtype": "Currency",
    "label": "Lender Selling Amount"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "label": "Customer Name"
+  },
+  {
+   "fieldname": "pending_unpledge_request_id",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Pending Unpledge Request Id",
+   "options": "Unpledge Application"
   }
  ],
  "is_submittable": 1,
- "modified": "2021-06-11 16:31:38.649738",
+ "links": [],
+ "modified": "2021-11-29 14:55:24.602169",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",

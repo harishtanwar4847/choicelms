@@ -60,7 +60,7 @@
    "fieldname": "loan",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Loan",
+   "label": "Loan Account No.",
    "options": "Loan",
    "reqd": 1,
    "set_only_once": 1
@@ -168,6 +168,7 @@
   },
   {
    "allow_on_submit": 1,
+   "depends_on": "eval: in_list([\"Penal Interest\", \"Additional Interest\", \"Interest\"], doc.transaction_type)",
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Interest Pay Log",
@@ -224,12 +225,14 @@
   {
    "fieldname": "opening_balance",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Opening Balance",
    "read_only": 1
   },
   {
    "fieldname": "closing_balance",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Closing Balance",
    "read_only": 1
   },

@@ -218,7 +218,7 @@ endblock description %} {%- block head_include -%} {% include
               const arr = val.website_tags.split(",");
               var tags = "";
               $.each(arr, (index, tag) => {
-                tags += "<a href=#>" + tag + "</a>";
+                tags += tag + " ";
               });
 
               html +=
@@ -229,7 +229,7 @@ endblock description %} {%- block head_include -%} {% include
                 '<div class="news_card"> <img src="' +
                 val.for_banner_view +
                 '" class="fw">' +
-                "<p>" +
+                "<p class='text-break'>" +
                 tags +
                 "</p>" +
                 '<a href="news-and-blogs/' +
