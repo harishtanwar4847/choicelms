@@ -765,6 +765,7 @@ class Loan(Document):
                             "rebate_amount": rebate_amount,
                             "loan_balance": self.balance,
                             "interest_configuration": interest_configuration["name"],
+                            "customer_name": self.customer_name,
                         }
                     )
                     virtual_interest_doc.save(ignore_permissions=True)
