@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [v2.1.0] - 2022-01-10
+
+### Added
+
 - [Feat: Resend email verification, expiry date of loan application and topup application update on approval, news and blog tag overlapping fixes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/450)
 - [Fix: Manage my loans screen in case of pledge more and sell collateral of margin shortfall](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/441)
 - [Feat: Backend screen restructring](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/432)
