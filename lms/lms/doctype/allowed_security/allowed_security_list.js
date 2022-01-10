@@ -1,6 +1,6 @@
 // Copyright (c) 2020, Atrina Technologies Pvt. Ltd. and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on("Virtual Interest", {
-  refresh: function (frm) {},
-});
+frappe.listview_settings["Allowed Security"] = {
+  hide_name_column: true,
+};
