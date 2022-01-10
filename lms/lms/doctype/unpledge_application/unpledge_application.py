@@ -36,6 +36,20 @@ class UnpledgeApplication(Document):
         loan = self.get_loan()
         self.lender = loan.lender
         self.customer = loan.customer
+        if not self.customer_name:
+            self.customer_name = loan.customer_name
+        allowable_value = loan.max_unpledge_amount()
+        self.max_unpledge_amount = allowable_value["maximum_unpledge_amount"]
+
+        pending_sell_request_id = frappe.db.get_value(
+            "Sell Collateral Application",
+            {"loan": loan.name, "status": "Pending"},
+            "name",
+        )
+        if pending_sell_request_id:
+            self.pending_sell_request_id = pending_sell_request_id
+        else:
+            self.pending_sell_request_id = ""
 
         securities_list = [i.isin for i in self.items]
 
@@ -78,6 +92,7 @@ class UnpledgeApplication(Document):
             unpledge_quantity_map[i.isin] = (
                 unpledge_quantity_map[i.isin] + i.unpledge_quantity
             )
+            i.price = price_map.get(i.isin)
             self.unpledge_collateral_value += i.unpledge_quantity * price_map.get(
                 i.isin
             )
@@ -134,6 +149,9 @@ class UnpledgeApplication(Document):
                     "request_type": "Unpledge",
                     "isin": i.get("isin"),
                     "quantity": i.get("unpledge_quantity"),
+                    "price": i.get("price"),
+                    "security_name": i.get("security_name"),
+                    "security_category": i.get("security_category"),
                     "psn": i.get("psn"),
                     "loan_name": self.loan,
                     "lender_approval_status": "Approved",

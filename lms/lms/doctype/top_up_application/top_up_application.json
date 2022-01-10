@@ -33,7 +33,7 @@
    "fieldname": "loan",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Loan",
+   "label": "Loan Account No.",
    "options": "Loan",
    "read_only": 1
   },
@@ -115,6 +115,7 @@
   {
    "fieldname": "sanctioned_limit",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Sanctioned Limit",
    "read_only": 1
   },
@@ -154,7 +155,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-21 16:42:39.215899",
+ "modified": "2021-11-29 14:48:13.525517",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Top up Application",
