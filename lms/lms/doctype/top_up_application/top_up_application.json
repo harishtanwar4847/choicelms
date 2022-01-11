@@ -21,7 +21,12 @@
   "customer_esigned_document",
   "column_break_12",
   "lender_esigned_document",
-  "amended_from"
+  "amended_from",
+  "section_break_17",
+  "minimum_sanctioned_limit",
+  "lender",
+  "column_break_20",
+  "maximum_sanctioned_limit"
  ],
  "fields": [
   {
@@ -118,6 +123,33 @@
    "fieldname": "expiry_date",
    "fieldtype": "Date",
    "label": "Expiry Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_17",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender",
+   "read_only": 1
+  },
+  {
+   "fieldname": "minimum_sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Minimum Sanctioned Limit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_20",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "maximum_sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Maximum Sanctioned Limit",
    "read_only": 1
   }
  ],

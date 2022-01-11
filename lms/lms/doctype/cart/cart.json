@@ -19,6 +19,7 @@
   "eligible_loan_str",
   "pledgee_boid",
   "loan",
+  "increased_sanctioned_limit",
   "section_break_9",
   "is_processed",
   "column_break_11",
@@ -139,6 +140,13 @@
    "in_global_search": 1,
    "in_list_view": 1,
    "label": "Customer Name"
+  },
+  {
+   "depends_on": "eval:(doc.loan && doc.loan_margin_shortfall == null)",
+   "fieldname": "increased_sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Increased Sanctioned Limit",
+   "read_only": 1
   }
  ],
  "links": [],

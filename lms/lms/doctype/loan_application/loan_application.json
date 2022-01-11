@@ -27,7 +27,13 @@
   "pledgor_boid",
   "pledgee_boid",
   "items_section",
-  "items"
+  "items",
+  "section_break_23",
+  "minimum_sanctioned_limit",
+  "application_type",
+  "column_break_25",
+  "maximum_sanctioned_limit",
+  "increased_sanctioned_limit"
  ],
  "fields": [
   {
@@ -174,6 +180,40 @@
    "fieldname": "pledgee_boid",
    "fieldtype": "Data",
    "label": "Pledgee BOID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "application_type",
+   "fieldtype": "Select",
+   "label": "Application Type",
+   "options": "New Loan\nIncrease Loan\nPledge More\nMargin Shortfall",
+   "read_only": 1
+  },
+  {
+   "fieldname": "minimum_sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Minimum Sanctioned Limit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_25",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "maximum_sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Maximum Sanctioned Limit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_23",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:doc.application_type == \"Increase Loan\"",
+   "fieldname": "increased_sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Increased Sanctioned Limit",
    "read_only": 1
   }
  ],
