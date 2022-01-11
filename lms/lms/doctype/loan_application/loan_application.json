@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "autoname": "LA.######",
  "creation": "2020-07-28 10:26:29.613712",
  "doctype": "DocType",
@@ -55,6 +56,7 @@
    "default": "Waiting to be pledged",
    "fieldname": "status",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Status",
    "options": "Waiting to be pledged\nExecuting pledge\nPledge executed\nPledge accepted by Lender\nEsign Done\nReady for Approval\nApproved\nRejected\nPledge Failure",
    "read_only": 1
@@ -78,7 +80,7 @@
    "fieldname": "customer",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Customer",
+   "label": "Customer ID",
    "options": "Loan Customer",
    "reqd": 1,
    "set_only_once": 1
@@ -93,7 +95,8 @@
   {
    "fieldname": "drawing_power",
    "fieldtype": "Currency",
-   "label": "Drawing Power",
+   "in_list_view": 1,
+   "label": "Sanctioned Limit",
    "read_only": 1,
    "reqd": 1
   },
@@ -118,7 +121,8 @@
   {
    "fieldname": "pledged_total_collateral_value",
    "fieldtype": "Currency",
-   "label": "Pledged Total Collateral Value",
+   "in_list_view": 1,
+   "label": "Pledged Request Value",
    "read_only": 1
   },
   {
@@ -145,13 +149,13 @@
   {
    "fieldname": "drawing_power_str",
    "fieldtype": "Data",
-   "label": "Drawing Power Str",
+   "label": "Sanctioned Limit Str",
    "read_only": 1
   },
   {
    "fieldname": "pledged_total_collateral_value_str",
    "fieldtype": "Data",
-   "label": "Pledged Total Collateral Value Str",
+   "label": "Pledged Request Value Str",
    "read_only": 1
   },
   {
@@ -173,7 +177,8 @@
    "read_only": 1
   }
  ],
- "modified": "2021-02-16 12:24:24.048235",
+ "links": [],
+ "modified": "2021-11-29 12:32:08.257586",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",
