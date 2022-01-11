@@ -612,7 +612,7 @@ class LoanApplication(Document):
         if self.application_type == "Increase Loan":
             self.apply_renewal_charges(loan)
             loan.reload()
-            loan.check_for_shortfall()
+            loan.check_for_shortfall(on_approval=True)
         else:
             loan.reload()
             loan.update_items()
