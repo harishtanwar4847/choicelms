@@ -54,7 +54,11 @@
   "news_and_blog_template",
   "column_break_42",
   "approved_security_template",
-  "og_code_enabled"
+  "og_code_enabled",
+  "razorpay_section_section",
+  "razorpay_key_secret",
+  "column_break_49",
+  "razorpay_webhook_secret"
  ],
  "fields": [
   {
@@ -321,11 +325,31 @@
    "fieldname": "market_end_time",
    "fieldtype": "Int",
    "label": "Market End Time (in hour)"
-    }
+    },
+  {
+   "fieldname": "razorpay_webhook_secret",
+   "fieldtype": "Data",
+   "label": "Razorpay Webhook Secret"
+  },
+  {
+   "fieldname": "razorpay_section_section",
+   "fieldtype": "Section Break",
+   "hidden": 1,
+   "label": "Razorpay Section"
+  },
+  {
+   "fieldname": "razorpay_key_secret",
+   "fieldtype": "Data",
+   "label": "Razorpay Key Secret"
+  },
+  {
+   "fieldname": "column_break_49",
+   "fieldtype": "Column Break"
+  }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2021-11-23 10:37:25.448852",
+ "modified": "2021-12-17 16:53:43.586081",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

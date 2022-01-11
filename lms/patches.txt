@@ -1,4 +1,4 @@
-lms.patches.create_roles #28.10.2021
+lms.patches.create_roles
 lms.patches.import_security_master
 lms.patches.create_choice_lender
 lms.patches.import_allowed_security_master_for_choice_lender
@@ -17,6 +17,7 @@ lms.patches.create_spark_email_account
 lms.patches.redirect_to_root_page
 lms.patches.import_spark_push_notification_content
 lms.patches.update_favicon_in_website_settings #12.11.2021
+lms.patches.add_razorpay_key_secret
 lms.patches.update_lender_ledger_list
 lms.patches.update_loan_margin_shortfall_list
 lms.patches.update_virtual_interest
