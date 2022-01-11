@@ -1502,27 +1502,6 @@ def loan_payment(**kwargs):
             if isinstance(data.get("is_failed"), str):
                 data["is_failed"] = dict(data.get("is_failed"))
 
-            # payment_failure = frappe.get_doc(
-            #     {
-            #         "doctype": "Loan Payment Log",
-            #         "customer": customer.name,
-            #         "customer_name": customer.full_name,
-            #         "loan": data.get("loan_name"),
-            #         "loan_margin_shortfall": data.get("loan_margin_shortfall_name")
-            #         if data.get("loan_margin_shortfall_name")
-            #         else None,
-            #         "is_for_interest": 1 if data.get("is_for_interest") else 0,
-            #         "order_id": data.get("is_failed").get("order_id"),
-            #         "code": data.get("is_failed").get("code"),
-            #         "description": data.get("is_failed").get("description"),
-            #         "source": data.get("is_failed").get("source"),
-            #         "step": data.get("is_failed").get("step"),
-            #         "reason": data.get("is_failed").get("reason"),
-            #     }
-            # )
-            # payment_failure.insert(ignore_permissions=True)
-            # payment_failure.docstatus = 1
-            # payment_failure.save(ignore_permissions=True)
             loan_transaction = frappe.get_doc(
                 "Loan Transaction", data.get("loan_transaction_name")
             )

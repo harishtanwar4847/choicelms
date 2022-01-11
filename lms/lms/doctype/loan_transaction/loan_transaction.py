@@ -16,8 +16,8 @@ from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
 
 import lms
+from lms import convert_sec_to_hh_mm_ss
 from lms.firebase import FirebaseAdmin
-from lms.user import convert_sec_to_hh_mm_ss
 
 
 class LoanTransaction(Document):

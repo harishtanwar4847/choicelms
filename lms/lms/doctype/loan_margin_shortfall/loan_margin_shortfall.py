@@ -147,7 +147,6 @@ class LoanMarginShortfall(Document):
         loan.margin_shortfall_amount = self.shortfall_c
         loan.save(ignore_permissions=True)
         frappe.db.commit()
-        self.notify_customer()
 
     def update_deadline_based_on_holidays(self, input_datetime=None):
         margin_shortfall_action = self.get_shortfall_action()
