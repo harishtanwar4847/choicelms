@@ -992,7 +992,7 @@ class Loan(Document):
                     customer=self.get_customer(),
                 )
 
-    def add_penal_interest(self, input_date=None):
+    def add_penal_interest_old(self, input_date=None):
         # daily scheduler - executes at start of day i.e 00:00
         # get not paid booked interest
         if input_date:
@@ -1136,233 +1136,381 @@ class Loan(Document):
 
                         return penal_interest_transaction.as_dict()
 
-    def before_save(self):
-        self.total_collateral_value_str = lms.amount_formatter(
-            self.total_collateral_value
-        )
-        self.drawing_power_str = lms.amount_formatter(self.drawing_power)
-        self.sanctioned_limit_str = lms.amount_formatter(self.sanctioned_limit)
-        self.balance_str = lms.amount_formatter(self.balance)
-
-    def save_loan_sanction_history(self, agreement_file, event="New loan"):
-        loan_sanction_history = frappe.get_doc(
-            {
-                "doctype": "Loan Sanction History",
-                "loan": self.name,
-                "sanctioned_limit": self.sanctioned_limit,
-                "agreement_file": agreement_file,
-                "time": frappe.utils.now_datetime(),
-                "event": event,
-            }
-        )
-        loan_sanction_history.save(ignore_permissions=True)
-
-    def max_topup_amount(self):
-        max_topup_amount = (
-            self.total_collateral_value * (self.allowable_ltv / 100)
-        ) - self.sanctioned_limit
-
-        # show available top up amount only if topup amount is greater than 10% of sanctioned limit
-        if (
-            max_topup_amount > (self.sanctioned_limit * 0.1)
-            and max_topup_amount >= 1000
-        ):
-            max_topup_amount = lms.round_down_amount_to_nearest_thousand(
-                max_topup_amount
-            )
-            # if max_topup_amount > 1000:
-            #     max_topup_amount = lms.round_down_amount_to_nearest_thousand(
-            #         max_topup_amount
-            #     )
-            # else:
-            #     max_topup_amount = round(max_topup_amount, 1)
+    def add_penal_interest(self, input_date=None):
+        # daily scheduler - executes at start of day i.e 00:00
+        # get not paid booked interest
+        if input_date:
+            current_date = datetime.strptime(input_date, "%Y-%m-%d")
         else:
-            max_topup_amount = 0
+            current_date = frappe.utils.now_datetime()
 
-        return round(max_topup_amount, 2)
-
-    def update_pending_topup_amount(self):
-        pending_topup_request = frappe.get_all(
-            "Top up Application",
+        penal_interest_transaction_list = frappe.get_all(
+            "Loan Transaction",
             filters={
                 "loan": self.name,
-                "status": ["IN", ["Pending", "Esign Done"]],
+                "lender": self.lender,
+                "transaction_type": "Penal Interest",
             },
-            fields=["*"],
-            order_by="creation asc",
+            fields=["time"],
         )
-        for topup_app in pending_topup_request:
+
+        # current_date = (current_date - timedelta(days=1)).replace(
+        #     hour=23, minute=59, second=59, microsecond=999999
+        # )
+        # last_day_of_prev_month = current_date.replace(day=1) - timedelta(days=1)
+        # # num_of_days_in_prev_month = last_day_of_prev_month.day
+        # prev_month = last_day_of_prev_month.month
+        # prev_month_year = last_day_of_prev_month.year
+
+        last_day_of_current_month = (
+            current_date.replace(day=1) + timedelta(days=32)
+        ).replace(day=1) - timedelta(days=1)
+        num_of_days_in_current_month = last_day_of_current_month.day
+
+        # check if any not paid booked interest exist
+        unpaid_interest = frappe.db.sql(
+            "select SUM(unpaid_interest) as unpaid_interest, time, transaction_type, creation from `tabLoan Transaction` where loan='{}' and lender='{}' and transaction_type='Interest' and unpaid_interest > 0 order by time asc".format(
+                self.name, self.lender
+            ),
+            as_dict=1,
+        )
+
+        if unpaid_interest:
+            # get default threshold
+            default_threshold = int(self.get_default_threshold())
+            if default_threshold:
+                transaction_time = unpaid_interest[0]["time"] + timedelta(
+                    days=default_threshold
+                )
+                # check if interest booked time is more than default threshold
+                if current_date > transaction_time and not current_date in [
+                    fields["time"] for fields in penal_interest_transaction_list
+                ]:
+                    # if yes, apply penalty interest
+                    # calculate daily penalty interest
+                    default_interest = int(self.get_default_interest())
+                    if default_interest:
+                        default_interest_daily = (
+                            default_interest / num_of_days_in_current_month
+                        )
+                        amount = self.balance * default_interest_daily / 100
+
+                        frappe.db.begin()
+                        # Penal Interest Entry
+                        penal_interest_transaction = frappe.get_doc(
+                            {
+                                "doctype": "Loan Transaction",
+                                "loan": self.name,
+                                "lender": self.lender,
+                                "transaction_type": "Penal Interest",
+                                "record_type": "DR",
+                                "amount": round(amount, 2),
+                                "unpaid_interest": round(amount, 2),
+                                "time": current_date,
+                            }
+                        )
+                        penal_interest_transaction.insert(ignore_permissions=True)
+                        penal_interest_transaction.transaction_id = (
+                            penal_interest_transaction.name
+                        )
+                        penal_interest_transaction.status = "Approved"
+                        penal_interest_transaction.workflow_state = "Approved"
+                        penal_interest_transaction.docstatus = 1
+                        penal_interest_transaction.save(ignore_permissions=True)
+
+                        # Mark loan as 'is_penalize'
+                        # self.is_penalize = 1
+                        # self.save(ignore_permissions=True)
+
+                        frappe.db.commit()
+
+                        doc = frappe.get_doc(
+                            "User KYC", self.get_customer().choice_kyc
+                        ).as_dict()
+                        doc["loan_name"] = self.name
+                        doc[
+                            "transaction_type"
+                        ] = penal_interest_transaction.transaction_type
+                        doc["unpaid_interest"] = round(
+                            penal_interest_transaction.unpaid_interest, 2
+                        )
+
+                        frappe.enqueue_doc(
+                            "Notification", "Interest Due", method="send", doc=doc
+                        )
+                        msg = "Dear Customer,\nPenal interest of Rs.{}  has been debited to your loan account {} .\nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details - Spark Loans".format(
+                            round(penal_interest_transaction.unpaid_interest, 2),
+                            self.name,
+                        )
+                        fcm_notification = frappe.get_doc(
+                            "Spark Push Notification",
+                            "Penal interest charged",
+                            fields=["*"],
+                        )
+                        message = fcm_notification.message.format(
+                            unpaid_interest=round(
+                                penal_interest_transaction.unpaid_interest, 2
+                            ),
+                            loan=self.name,
+                        )
+
+                        if msg:
+                            receiver_list = list(
+                                set(
+                                    [
+                                        str(self.get_customer().phone),
+                                        str(doc.mobile_number),
+                                    ]
+                                )
+                            )
+                            from frappe.core.doctype.sms_settings.sms_settings import (
+                                send_sms,
+                            )
+
+                            frappe.enqueue(
+                                method=send_sms, receiver_list=receiver_list, msg=msg
+                            )
+
+                        lms.send_spark_push_notification(
+                            fcm_notification=fcm_notification,
+                            message=message,
+                            loan=self.name,
+                            customer=self.get_customer(),
+                        )
+
+                        return penal_interest_transaction.as_dict()
+
+        def before_save(self):
+            self.total_collateral_value_str = lms.amount_formatter(
+                self.total_collateral_value
+            )
+            self.drawing_power_str = lms.amount_formatter(self.drawing_power)
+            self.sanctioned_limit_str = lms.amount_formatter(self.sanctioned_limit)
+            self.balance_str = lms.amount_formatter(self.balance)
+
+        def save_loan_sanction_history(self, agreement_file, event="New loan"):
+            loan_sanction_history = frappe.get_doc(
+                {
+                    "doctype": "Loan Sanction History",
+                    "loan": self.name,
+                    "sanctioned_limit": self.sanctioned_limit,
+                    "agreement_file": agreement_file,
+                    "time": frappe.utils.now_datetime(),
+                    "event": event,
+                }
+            )
+            loan_sanction_history.save(ignore_permissions=True)
+
+        def max_topup_amount(self):
             max_topup_amount = (
                 self.total_collateral_value * (self.allowable_ltv / 100)
             ) - self.sanctioned_limit
-            topup_doc = frappe.get_doc("Top up Application", topup_app["name"])
-            if max_topup_amount > (self.sanctioned_limit * 0.1):
-                if max_topup_amount > 1000:
-                    max_topup_amount = lms.round_down_amount_to_nearest_thousand(
-                        max_topup_amount
+
+            # show available top up amount only if topup amount is greater than 10% of sanctioned limit
+            if (
+                max_topup_amount > (self.sanctioned_limit * 0.1)
+                and max_topup_amount >= 1000
+            ):
+                max_topup_amount = lms.round_down_amount_to_nearest_thousand(
+                    max_topup_amount
+                )
+                # if max_topup_amount > 1000:
+                #     max_topup_amount = lms.round_down_amount_to_nearest_thousand(
+                #         max_topup_amount
+                #     )
+                # else:
+                #     max_topup_amount = round(max_topup_amount, 1)
+            else:
+                max_topup_amount = 0
+
+            return round(max_topup_amount, 2)
+
+        def update_pending_topup_amount(self):
+            pending_topup_request = frappe.get_all(
+                "Top up Application",
+                filters={
+                    "loan": self.name,
+                    "status": ["IN", ["Pending", "Esign Done"]],
+                },
+                fields=["*"],
+                order_by="creation asc",
+            )
+            for topup_app in pending_topup_request:
+                max_topup_amount = (
+                    self.total_collateral_value * (self.allowable_ltv / 100)
+                ) - self.sanctioned_limit
+                topup_doc = frappe.get_doc("Top up Application", topup_app["name"])
+                if max_topup_amount > (self.sanctioned_limit * 0.1):
+                    if max_topup_amount > 1000:
+                        max_topup_amount = lms.round_down_amount_to_nearest_thousand(
+                            max_topup_amount
+                        )
+                    else:
+                        max_topup_amount = round(max_topup_amount, 1)
+
+                    topup_doc.db_set(
+                        "top_up_amount",
+                        max_topup_amount,
                     )
                 else:
-                    max_topup_amount = round(max_topup_amount, 1)
+                    topup_doc.db_set("top_up_amount", 0)
+                frappe.db.commit()
 
-                topup_doc.db_set(
-                    "top_up_amount",
-                    max_topup_amount,
-                )
-            else:
-                topup_doc.db_set("top_up_amount", 0)
-            frappe.db.commit()
-
-    def max_unpledge_amount(self):
-        minimum_collateral_value = (100 / self.allowable_ltv) * self.balance
-        maximum_unpledge_amount = self.total_collateral_value - minimum_collateral_value
-
-        return {
-            "minimum_collateral_value": minimum_collateral_value
-            if minimum_collateral_value > 0
-            else 0.0,
-            "maximum_unpledge_amount": round(maximum_unpledge_amount, 2)
-            if maximum_unpledge_amount > 0
-            else 0.0,
-        }
-
-    def update_pending_sell_collateral_amount(self):
-        all_pending_sell_collateral_applications = frappe.get_all(
-            "Sell Collateral Application",
-            filters={
-                "loan": self.name,
-                "status": "Pending",
-                "creation": ("<=", frappe.utils.now_datetime()),
-            },
-            fields=["*"],
-            order_by="creation asc",
-        )
-        for sell_collateral_req in all_pending_sell_collateral_applications:
-            sell_collateral = frappe.get_doc(
-                "Sell Collateral Application", sell_collateral_req["name"]
+        def max_unpledge_amount(self):
+            minimum_collateral_value = (100 / self.allowable_ltv) * self.balance
+            maximum_unpledge_amount = (
+                self.total_collateral_value - minimum_collateral_value
             )
-            sell_collateral.process_items()
-            sell_collateral.process_sell_items()
-            sell_collateral.save(ignore_permissions=True)
 
-    def get_unpledge_application(self):
-        unpledge_application_name = frappe.db.get_value(
-            "Unpledge Application", {"loan": self.name, "status": "Pending"}, "name"
-        )
+            return {
+                "minimum_collateral_value": minimum_collateral_value
+                if minimum_collateral_value > 0
+                else 0.0,
+                "maximum_unpledge_amount": round(maximum_unpledge_amount, 2)
+                if maximum_unpledge_amount > 0
+                else 0.0,
+            }
 
-        return (
-            frappe.get_doc("Unpledge Application", unpledge_application_name)
-            if unpledge_application_name
-            else None
-        )
+        def update_pending_sell_collateral_amount(self):
+            all_pending_sell_collateral_applications = frappe.get_all(
+                "Sell Collateral Application",
+                filters={
+                    "loan": self.name,
+                    "status": "Pending",
+                    "creation": ("<=", frappe.utils.now_datetime()),
+                },
+                fields=["*"],
+                order_by="creation asc",
+            )
+            for sell_collateral_req in all_pending_sell_collateral_applications:
+                sell_collateral = frappe.get_doc(
+                    "Sell Collateral Application", sell_collateral_req["name"]
+                )
+                sell_collateral.process_items()
+                sell_collateral.process_sell_items()
+                sell_collateral.save(ignore_permissions=True)
 
-    # def validate(self):
-    #     #remove row from items if pledge quantity is 0
-    #     for i in self.items:
-    #         if i.pledged_quantity <= 0:
-    #             self.items.remove(i)
+        def get_unpledge_application(self):
+            unpledge_application_name = frappe.db.get_value(
+                "Unpledge Application", {"loan": self.name, "status": "Pending"}, "name"
+            )
 
-    def create_tnc_file(self, topup_amount):
-        lender = self.get_lender()
-        customer = self.get_customer()
-        user_kyc = customer.get_kyc()
-        # loan = self.get_loan()
+            return (
+                frappe.get_doc("Unpledge Application", unpledge_application_name)
+                if unpledge_application_name
+                else None
+            )
 
-        doc = {
-            "esign_date": "__________",
-            "loan_application_number": self.name,
-            "borrower_name": user_kyc.investor_name,
-            "borrower_address": user_kyc.address,
-            # "sanctioned_amount": topup_amount,
-            # "sanctioned_amount_in_words": num2words(
-            #     topup_amount, lang="en_IN"
-            # ).title(),
-            "sanctioned_amount": lms.validate_rupees(
-                (topup_amount + self.sanctioned_limit)
-            ),
-            "sanctioned_amount_in_words": lms.number_to_word(
-                lms.validate_rupees((topup_amount + self.sanctioned_limit))
-            ).title(),
-            "old_sanctioned_amount": lms.validate_rupees(self.sanctioned_limit),
-            "old_sanctioned_amount_in_words": lms.number_to_word(
-                lms.validate_rupees(self.sanctioned_limit)
-            ).title(),
-            "rate_of_interest": lender.rate_of_interest,
-            "default_interest": lender.default_interest,
-            "rebait_threshold": lender.rebait_threshold,
-            "renewal_charges": lms.validate_rupees(lender.renewal_charges)
-            if lender.renewal_charge_type == "Fix"
-            else lms.validate_percent(lender.renewal_charges),
-            "renewal_charge_type": lender.renewal_charge_type,
-            "renewal_charge_in_words": lms.number_to_word(
-                lms.validate_rupees(lender.renewal_charges)
-            ).title()
-            if lender.renewal_charge_type == "Fix"
-            else "",
-            "renewal_min_amt": lms.validate_rupees(lender.renewal_minimum_amount),
-            "renewal_max_amt": lms.validate_rupees(lender.renewal_maximum_amount),
-            "documentation_charge": lms.validate_rupees(lender.documentation_charges)
-            if lender.documentation_charge_type == "Fix"
-            else lms.validate_percent(lender.documentation_charges),
-            "documentation_charge_type": lender.documentation_charge_type,
-            "documentation_charge_in_words": lms.number_to_word(
-                lms.validate_rupees(lender.documentation_charges)
-            ).title()
-            if lender.documentation_charge_type == "Fix"
-            else "",
-            "documentation_min_amt": lms.validate_rupees(
-                lender.lender_documentation_minimum_amount
-            ),
-            "documentation_max_amt": lms.validate_rupees(
-                lender.lender_documentation_maximum_amount
-            ),
-            "lender_processing_fees_type": lender.lender_processing_fees_type,
-            "processing_charge": lms.validate_rupees(lender.lender_processing_fees)
-            if lender.lender_processing_fees_type == "Fix"
-            else lms.validate_percent(lender.lender_processing_fees),
-            "processing_charge_in_words": lms.number_to_word(
-                lms.validate_rupees(lender.lender_processing_fees)
-            ).title()
-            if lender.lender_processing_fees_type == "Fix"
-            else "",
-            "processing_min_amt": lms.validate_rupees(
-                lender.lender_processing_minimum_amount
-            ),
-            "processing_max_amt": lms.validate_rupees(
-                lender.lender_processing_maximum_amount
-            ),
-            # "documentation_charges": lender.documentation_charges,
-            # "stamp_duty_charges": (lender.stamp_duty / 100)
-            # * self.sanctioned_limit,  # CR loan agreement changes
-            # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
-            "transaction_charges_per_request": lms.validate_rupees(
-                lender.transaction_charges_per_request
-            ),
-            "security_selling_share": lender.security_selling_share,
-            "cic_charges": lms.validate_rupees(lender.cic_charges),
-            "total_pages": lender.total_pages,
-        }
+        # def validate(self):
+        #     #remove row from items if pledge quantity is 0
+        #     for i in self.items:
+        #         if i.pledged_quantity <= 0:
+        #             self.items.remove(i)
 
-        agreement_template = lender.get_loan_enhancement_agreement_template()
+        def create_tnc_file(self, topup_amount):
+            lender = self.get_lender()
+            customer = self.get_customer()
+            user_kyc = customer.get_kyc()
+            # loan = self.get_loan()
 
-        agreement = frappe.render_template(
-            agreement_template.get_content(), {"doc": doc}
-        )
+            doc = {
+                "esign_date": "__________",
+                "loan_application_number": self.name,
+                "borrower_name": user_kyc.investor_name,
+                "borrower_address": user_kyc.address,
+                # "sanctioned_amount": topup_amount,
+                # "sanctioned_amount_in_words": num2words(
+                #     topup_amount, lang="en_IN"
+                # ).title(),
+                "sanctioned_amount": lms.validate_rupees(
+                    (topup_amount + self.sanctioned_limit)
+                ),
+                "sanctioned_amount_in_words": lms.number_to_word(
+                    lms.validate_rupees((topup_amount + self.sanctioned_limit))
+                ).title(),
+                "old_sanctioned_amount": lms.validate_rupees(self.sanctioned_limit),
+                "old_sanctioned_amount_in_words": lms.number_to_word(
+                    lms.validate_rupees(self.sanctioned_limit)
+                ).title(),
+                "rate_of_interest": lender.rate_of_interest,
+                "default_interest": lender.default_interest,
+                "rebait_threshold": lender.rebait_threshold,
+                "renewal_charges": lms.validate_rupees(lender.renewal_charges)
+                if lender.renewal_charge_type == "Fix"
+                else lms.validate_percent(lender.renewal_charges),
+                "renewal_charge_type": lender.renewal_charge_type,
+                "renewal_charge_in_words": lms.number_to_word(
+                    lms.validate_rupees(lender.renewal_charges)
+                ).title()
+                if lender.renewal_charge_type == "Fix"
+                else "",
+                "renewal_min_amt": lms.validate_rupees(lender.renewal_minimum_amount),
+                "renewal_max_amt": lms.validate_rupees(lender.renewal_maximum_amount),
+                "documentation_charge": lms.validate_rupees(
+                    lender.documentation_charges
+                )
+                if lender.documentation_charge_type == "Fix"
+                else lms.validate_percent(lender.documentation_charges),
+                "documentation_charge_type": lender.documentation_charge_type,
+                "documentation_charge_in_words": lms.number_to_word(
+                    lms.validate_rupees(lender.documentation_charges)
+                ).title()
+                if lender.documentation_charge_type == "Fix"
+                else "",
+                "documentation_min_amt": lms.validate_rupees(
+                    lender.lender_documentation_minimum_amount
+                ),
+                "documentation_max_amt": lms.validate_rupees(
+                    lender.lender_documentation_maximum_amount
+                ),
+                "lender_processing_fees_type": lender.lender_processing_fees_type,
+                "processing_charge": lms.validate_rupees(lender.lender_processing_fees)
+                if lender.lender_processing_fees_type == "Fix"
+                else lms.validate_percent(lender.lender_processing_fees),
+                "processing_charge_in_words": lms.number_to_word(
+                    lms.validate_rupees(lender.lender_processing_fees)
+                ).title()
+                if lender.lender_processing_fees_type == "Fix"
+                else "",
+                "processing_min_amt": lms.validate_rupees(
+                    lender.lender_processing_minimum_amount
+                ),
+                "processing_max_amt": lms.validate_rupees(
+                    lender.lender_processing_maximum_amount
+                ),
+                # "documentation_charges": lender.documentation_charges,
+                # "stamp_duty_charges": (lender.stamp_duty / 100)
+                # * self.sanctioned_limit,  # CR loan agreement changes
+                # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
+                "transaction_charges_per_request": lms.validate_rupees(
+                    lender.transaction_charges_per_request
+                ),
+                "security_selling_share": lender.security_selling_share,
+                "cic_charges": lms.validate_rupees(lender.cic_charges),
+                "total_pages": lender.total_pages,
+            }
 
-        from frappe.utils.pdf import get_pdf
+            agreement_template = lender.get_loan_enhancement_agreement_template()
 
-        agreement_pdf = get_pdf(agreement)
+            agreement = frappe.render_template(
+                agreement_template.get_content(), {"doc": doc}
+            )
 
-        tnc_dir_path = frappe.utils.get_files_path("tnc")
-        import os
+            from frappe.utils.pdf import get_pdf
 
-        if not os.path.exists(tnc_dir_path):
-            os.mkdir(tnc_dir_path)
-        tnc_file = "tnc/{}.pdf".format(self.name)
-        tnc_file_path = frappe.utils.get_files_path(tnc_file)
+            agreement_pdf = get_pdf(agreement)
 
-        with open(tnc_file_path, "wb") as f:
-            f.write(agreement_pdf)
-        f.close()
+            tnc_dir_path = frappe.utils.get_files_path("tnc")
+            import os
+
+            if not os.path.exists(tnc_dir_path):
+                os.mkdir(tnc_dir_path)
+            tnc_file = "tnc/{}.pdf".format(self.name)
+            tnc_file_path = frappe.utils.get_files_path(tnc_file)
+
+            with open(tnc_file_path, "wb") as f:
+                f.write(agreement_pdf)
+            f.close()
 
 
 def check_loans_for_shortfall(loans):
