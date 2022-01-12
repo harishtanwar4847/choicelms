@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "creation": "2020-07-28 17:23:54.113474",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -62,17 +63,20 @@
    "reqd": 1
   },
   {
+   "description": "Hours should be in multiple of 24",
    "fieldname": "sell_off_after_hours",
    "fieldtype": "Int",
    "label": "Sell Off Deadline (in hours)"
   },
   {
+   "description": "Hours should be in 0 to 23",
    "fieldname": "sell_off_deadline_eod",
    "fieldtype": "Int",
    "label": "Sell Off Deadline (EOD)"
   }
  ],
- "modified": "2021-04-23 17:27:34.572445",
+ "links": [],
+ "modified": "2022-01-12 12:58:51.140949",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Margin Shortfall Action",
