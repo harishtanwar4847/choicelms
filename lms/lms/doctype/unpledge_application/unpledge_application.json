@@ -8,9 +8,12 @@
   "loan",
   "total_collateral_value",
   "lender",
+  "pending_sell_request_id",
   "column_break_1",
   "customer",
+  "customer_name",
   "unpledge_collateral_value",
+  "max_unpledge_amount",
   "section_braek_1",
   "items",
   "unpledge_items",
@@ -22,7 +25,7 @@
    "fieldname": "loan",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Loan",
+   "label": "Loan Account No.",
    "options": "Loan"
   },
   {
@@ -35,11 +38,13 @@
   {
    "fieldname": "total_collateral_value",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Total Collateral Value"
   },
   {
    "fieldname": "lender",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Lender",
    "options": "Lender"
   },
@@ -50,11 +55,13 @@
   {
    "fieldname": "unpledge_collateral_value",
    "fieldtype": "Currency",
-   "label": "Unpledge Collateral Value"
+   "in_list_view": 1,
+   "label": "Unpledge Request Value"
   },
   {
    "fieldname": "status",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "hidden": 1,
    "label": "Status",
    "options": "Pending\nApproved\nRejected"
@@ -83,11 +90,30 @@
    "fieldtype": "Table",
    "label": "Unpledge Items",
    "options": "Unpledge Application Unpledged Item"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Customer Name"
+  },
+  {
+   "fieldname": "max_unpledge_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Max Allowable Value"
+  },
+  {
+   "fieldname": "pending_sell_request_id",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Pending Sell Request Id",
+   "options": "Sell Collateral Application"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-11-08 15:52:58.681942",
+ "modified": "2021-11-29 15:04:05.417282",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Unpledge Application",

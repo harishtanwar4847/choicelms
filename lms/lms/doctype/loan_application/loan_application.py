@@ -167,7 +167,10 @@ class LoanApplication(Document):
             and not self.loan_margin_shortfall
         ):
             frappe.throw("Please upload Lender Esigned Document")
-
+        elif self.status == "Approved":
+            current = frappe.utils.now_datetime()
+            expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
+            self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
         elif self.status == "Pledge accepted by Lender":
             if self.pledge_status == "Failure":
                 frappe.throw("Sorry! Pledge for this Loan Application is failed.")
@@ -267,7 +270,6 @@ class LoanApplication(Document):
                 loan = self.create_loan()
             else:
                 loan = self.update_existing_loan()
-
             frappe.db.commit()
 
             if not self.loan:
@@ -869,6 +871,9 @@ class LoanApplication(Document):
                             "request_type": "Pledge",
                             "isin": i.get("isin"),
                             "quantity": i.get("pledged_quantity"),
+                            "price": i.get("price"),
+                            "security_name": i.get("security_name"),
+                            "security_category": i.get("security_category"),
                             "data": collateral_ledger_data,
                             "psn": cur.get("PSN"),
                         }
