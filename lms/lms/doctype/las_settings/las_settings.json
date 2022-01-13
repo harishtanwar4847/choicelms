@@ -35,7 +35,6 @@
   "column_break_31",
   "esign_upload_file_uri",
   "esign_download_signed_file_uri",
-  "cersai_public_keypem",
   "section_break_33",
   "app_identification_hash_string",
   "column_break_35",
@@ -51,7 +50,9 @@
   "news_and_blog_template",
   "column_break_42",
   "approved_security_template",
-  "og_code_enabled"
+  "og_code_enabled",
+  "cersai_public_keypem",
+  "fis_private_key"
  ],
  "fields": [
   {
@@ -301,11 +302,17 @@
    "fieldname": "cersai_public_keypem",
    "fieldtype": "Attach",
    "label": "CERSAI Public Key(.pem)"
+  },
+  {
+   "description": "Upload file of .pfx,.p12 format(Keep Public)",
+   "fieldname": "fis_private_key",
+   "fieldtype": "Attach",
+   "label": "FI's Private Key(.pfx,.p12)"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2022-01-07 16:39:05.049481",
+ "modified": "2022-01-13 12:12:49.417764",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

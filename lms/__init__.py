@@ -5,6 +5,7 @@ import base64
 import json
 import os
 import re
+import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 from itertools import groupby
 from random import choice, randint
@@ -13,6 +14,7 @@ from traceback import format_exc
 import frappe
 import requests
 import utils
+from cryptography.hazmat.backends import default_backend
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from rsa.pkcs1 import encrypt
@@ -967,7 +969,9 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
     return frappe.get_doc("Spark Dummy Account", dummy_account_name)
 
 
+@frappe.whitelist()
 def ckyc_search_api(**kwargs):
+    print("aalo")
     # request URL
     url = "https://testbed.ckycindia.in/Search/ckycverificationservice/verify"
 
@@ -993,7 +997,7 @@ def ckyc_search_api(**kwargs):
 
     from Crypto.Cipher import AES
 
-    print(data)
+    # print(data)
     cipher = AES.new(key, AES.MODE_CBC, iv)
     ct_bytes = cipher.encrypt(bytes(data, "utf-8"))
 
@@ -1005,8 +1009,11 @@ def ckyc_search_api(**kwargs):
     import rsa
     from Crypto.PublicKey import RSA
 
-    cersai = frappe.get_single("LAS Settings").cersai_public_keypem
-    file_name = frappe.get_value("File", {"file_url": cersai}, "file_name")
+    las_settings = frappe.get_single("LAS Settings")
+    cersai_public_keypem = las_settings.cersai_public_keypem
+    file_name = frappe.get_value(
+        "File", {"file_url": cersai_public_keypem}, "file_name"
+    )
 
     pub_key = open(frappe.utils.get_files_path(file_name), "r").read()
     rsakey = RSA.importKey(pub_key)
@@ -1018,29 +1025,58 @@ def ckyc_search_api(**kwargs):
     # and sign entire request
     file = ckyc_request_xml(pid=encoded_ct, sess_key=encoded_session_key)
     # return encoded_ct,encrypted_session_key,encoded_session_key
-    import hmac
+    # import hmac
+    from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.primitives.asymmetric import padding
+    from cryptography.hazmat.primitives.serialization import pkcs12
+
+    fis_private_key = las_settings.fis_private_key
+    file_name = frappe.get_value("File", {"file_url": fis_private_key}, "file_name")
+    pfx_file = open(frappe.utils.get_files_path(file_name), "rb").read()
+    (
+        private_key,
+        certificate,
+        additional_certificates,
+    ) = pkcs12.load_key_and_certificates(pfx_file, b"sPark@!@#")
+    import Crypto.Signature.pkcs1_15 as pkcs
+
+    signature = private_key.sign(
+        bytes(file, "utf-8"),
+        padding.PSS(
+            mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH
+        ),
+        hashes.SHA256(),
+    )
 
     # signature = hmac.new("fi chi private key", data, digestmod='sha512')
     # headers
     headers = {
-        "Content-Type": "text/xml; charset=utf-8",
+        "Content-Type": "application/xml; charset=utf-8",
         # 'Sign': signature.hexdigest()
     }
     # POST request
     response = requests.post(url, headers=headers, data=file)
-    # if response
-    # decrypt the response, fetch details and send otp to KYC registered number
+    # if response 200 and response.content
+    # Step 1: Verify response file signature using CERSAI’s public key.
+    # from cryptography.hazmat.primitives.serialization import load_pem_public_key
+    # public_key = load_pem_public_key(pub_key, default_backend())
+    # public_key.verify()
+    # Step 2: Parse key parameter from request message
+    # Step 3: Decode the session key from Base64 string
+    # Step 4: Decrypt encrypted session key using FI’s private key with RSA algorithm
+    # Step 5: Decode the PID from Base64 string
+    # Step 6: Decrypt data using session key with AES algorithm
+
+    # fetch details and send otp to KYC registered number
     # show details to user
     # then confirmation page
     # if no response then return
-
-    return response
+    # return ET.fromstring(response.content)
+    return response.content
 
 
 def ckyc_request_xml(pid, sess_key):
-    import xml.etree.ElementTree as ET
-
-    fi_code_text = "IN1895"
+    fi_code_text = "IN6917"
     req_id_text = "2"
     version_text = "1.2"
 
