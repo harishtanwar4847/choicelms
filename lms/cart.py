@@ -726,7 +726,7 @@ def get_tnc(**kwargs):
             "<li><strong> Security coverage </strong>: Shares & Equity oriented Mutual Funds - <strong>Minimum 200%</strong><br />Other securities - As per rules applicable from time to time;</li>"
         )
         tnc_ul.append(
-            "<li><strong> Facility tenure </strong>: <strong>12 months</strong> (renewable at lender’s discretion, as detailed in the T&C);</li>"
+            "<li><strong> Facility tenure </strong>: 12 months (renewable at lender's discretion, as detailed in the T&C), <strong>Repayment is due</strong> within <strong>12 months</strong> of loan sanction.</li>"
         )
         tnc_ul.append(
             "<li><strong> Repayment through </strong>: Cash flows/Sale of securities/Other investments maturing;</li>"
@@ -839,7 +839,10 @@ def get_tnc(**kwargs):
             "<li><strong> No Due Certificate / No Objection Certificate (NOC) </strong>: <strong>NIL;</strong></li>"
         )
         tnc_ul.append(
-            "<li><strong> Legal & incidental charges </strong>: As per actuals;</li></ul>"
+            "<li><strong> Legal & incidental charges </strong>: As per actuals;</li>"
+        )
+        tnc_ul.append(
+            "<li><strong>Average Percentage Rate</strong> is maximum of <strong>20%</strong> inclusive of the annual interest rate, processing fee, documentation charges, stamp duty charges, renewal charges (if any).</li></ul>"
         )
 
         if data.get("cart_name"):
