@@ -970,7 +970,7 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
 
 
 @frappe.whitelist()
-def ckyc_search_api(**kwargs):
+def ckyc_search_api():
     print("aalo")
     # request URL
     url = "https://testbed.ckycindia.in/Search/ckycverificationservice/verify"
@@ -1025,7 +1025,8 @@ def ckyc_search_api(**kwargs):
     # and sign entire request
     file = ckyc_request_xml(pid=encoded_ct, sess_key=encoded_session_key)
     # return encoded_ct,encrypted_session_key,encoded_session_key
-    # import hmac
+    import hmac
+
     from cryptography.hazmat.primitives import hashes
     from cryptography.hazmat.primitives.asymmetric import padding
     from cryptography.hazmat.primitives.serialization import pkcs12
@@ -1047,13 +1048,10 @@ def ckyc_search_api(**kwargs):
         ),
         hashes.SHA256(),
     )
-
-    # signature = hmac.new("fi chi private key", data, digestmod='sha512')
+    print(private_key)
+    # signature = hmac.new(private_key.encode('utf-8'), data, digestmod='sha256')
     # headers
-    headers = {
-        "Content-Type": "application/xml; charset=utf-8",
-        # 'Sign': signature.hexdigest()
-    }
+    headers = {"Content-Type": "application/xml; charset=utf-8", "Sign": str(signature)}
     # POST request
     response = requests.post(url, headers=headers, data=file)
     # if response 200 and response.content
@@ -1100,9 +1098,9 @@ def ckyc_request_xml(pid, sess_key):
 
     root.append(CKYC_INQ)
 
-    Signature = ET.Element("Signature")
-    Signature.text = "fi chi private key"
-    root.append(Signature)
+    # Signature = ET.Element("Signature")
+    # Signature.text = "fi chi private key"
+    # root.append(Signature)
 
     tree = ET.ElementTree(root)
     tree.write(
