@@ -756,8 +756,6 @@ class Loan(Document):
                         }
                     )
                     virtual_interest_doc.save(ignore_permissions=True)
-
-                    # frappe.db.commit()
                     # return virtual_interest_doc.as_dict()
 
             self.day_past_due = self.calculate_day_past_due(input_date)
@@ -796,10 +794,10 @@ class Loan(Document):
                 fields=["time"],
             )
 
-            job_date = (current_date - timedelta(days=1)).replace(
-                hour=23, minute=59, second=59, microsecond=999999
-            )
-            last_day_of_prev_month = job_date.replace(day=1) - timedelta(days=1)
+            # job_date = (current_date - timedelta(days=1)).replace(
+            #     hour=23, minute=59, second=59, microsecond=999999
+            # )
+            last_day_of_prev_month = current_date.replace(day=1) - timedelta(days=1)
             prev_month = last_day_of_prev_month.month
             prev_month_year = last_day_of_prev_month.year
 
@@ -819,7 +817,7 @@ class Loan(Document):
                         days=rebate_threshold
                     )
 
-                    if job_date > transaction_time and not transaction_time.replace(
+                    if current_date > transaction_time and not transaction_time.replace(
                         hour=23, minute=59, second=59, microsecond=999999
                     ) in [
                         fields["time"]
