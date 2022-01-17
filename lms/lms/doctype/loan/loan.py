@@ -677,13 +677,13 @@ class Loan(Document):
     def calculate_virtual_and_additional_interest(self, input_date=None):
         # for Virtual Interest Entry
         # virtual_interest_doc = self.add_virtual_interest(input_date)
-        virtual_interest_doc = self.add_virtual_interest(input_date)
+        self.add_virtual_interest(input_date)
 
         # Now, check if additional interest applicable
-        add_intrst = self.check_for_additional_interest(input_date)
+        self.check_for_additional_interest(input_date)
 
         # check if penal interest applicable
-        penal_intrst = self.add_penal_interest(input_date)
+        self.add_penal_interest(input_date)
 
     def add_virtual_interest(self, input_date=None):
         try:
@@ -833,7 +833,6 @@ class Loan(Document):
                             as_dict=1,
                         )
 
-                        frappe.db.begin()
                         # Additional Interest Entry
                         additional_interest_transaction = frappe.get_doc(
                             {
@@ -867,14 +866,6 @@ class Loan(Document):
                         additional_interest_transaction.docstatus = 1
                         additional_interest_transaction.save(ignore_permissions=True)
 
-                        # # Update booked interest entry
-                        # booked_interest_transaction_doc = frappe.get_doc(
-                        #     "Loan Transaction", booked_interest[0]["name"]
-                        # )
-                        # booked_interest_transaction_doc.db_set(
-                        #     "additional_interest", additional_interest_transaction.name
-                        # )
-
                         # Mark as booked for rebate
                         frappe.db.sql(
                             "update `tabVirtual Interest` set is_booked_for_rebate = 1 where loan = '{}' and is_booked_for_rebate = 0 and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
@@ -882,19 +873,10 @@ class Loan(Document):
                             )
                         )
 
-                        # Mark loan as 'is_irregular'
-                        # self.is_irregular = 1
-                        # self.save(ignore_permissions=True)
-
-                        frappe.db.commit()
                         self.reload()
-                        self.rebate_interest_amount = frappe.db.sql(
-                            "select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_rebate = 0".format(
-                                self.name
-                            ),
-                            as_dict=1,
-                        )[0]["amount"]
+                        self.map_loan_summary_values()
                         self.save(ignore_permissions=True)
+
                         frappe.db.commit()
 
                         doc = frappe.get_doc(
@@ -1010,7 +992,6 @@ class Loan(Document):
                     )
                     if virtual_interest_sum[0]["amount"] != None:
 
-                        frappe.db.begin()
                         loan_transaction = frappe.get_doc(
                             {
                                 "doctype": "Loan Transaction",
@@ -1038,22 +1019,11 @@ class Loan(Document):
                                 self.name, prev_month_year, prev_month
                             )
                         )
-                        # frappe.db.commit()
                         self.reload()
-
                         self.day_past_due = self.calculate_day_past_due(input_date)
-                        # day_past_due = frappe.db.sql(
-                        #     "select sum(unpaid_interest) as total_amount, DATEDIFF('{}', time) as dpd from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 order by creation asc".format(
-                        #         current_date, self.name
-                        #     ),
-                        #     as_dict=True,
-                        # )
-                        # if day_past_due[0]["total_amount"]:
-                        #     self.day_past_due = day_past_due[0]["dpd"]
-                        # else:
-                        #     self.day_past_due = 0
                         self.save(ignore_permissions=True)
                         frappe.db.commit()
+
                         doc = frappe.get_doc(
                             "User KYC", self.get_customer().choice_kyc
                         ).as_dict()
@@ -1101,7 +1071,6 @@ class Loan(Document):
                             loan=self.name,
                             customer=self.get_customer(),
                         )
-
         except Exception:
             frappe.log_error(
                 message=frappe.get_traceback()
@@ -1294,14 +1263,6 @@ class Loan(Document):
             fields=["time"],
         )
 
-        # current_date = (current_date - timedelta(days=1)).replace(
-        #     hour=23, minute=59, second=59, microsecond=999999
-        # )
-        # last_day_of_prev_month = current_date.replace(day=1) - timedelta(days=1)
-        # # num_of_days_in_prev_month = last_day_of_prev_month.day
-        # prev_month = last_day_of_prev_month.month
-        # prev_month_year = last_day_of_prev_month.year
-
         last_day_of_current_month = (
             current_date.replace(day=1) + timedelta(days=32)
         ).replace(day=1) - timedelta(days=1)
@@ -1335,7 +1296,6 @@ class Loan(Document):
                         )
                         amount = self.balance * default_interest_daily / 100
 
-                        frappe.db.begin()
                         # Penal Interest Entry
                         penal_interest_transaction = frappe.get_doc(
                             {
@@ -1357,10 +1317,6 @@ class Loan(Document):
                         penal_interest_transaction.workflow_state = "Approved"
                         penal_interest_transaction.docstatus = 1
                         penal_interest_transaction.save(ignore_permissions=True)
-
-                        # Mark loan as 'is_penalize'
-                        # self.is_penalize = 1
-                        # self.save(ignore_permissions=True)
 
                         frappe.db.commit()
 
@@ -1703,16 +1659,6 @@ def check_all_loans_for_shortfall():
 
 
 @frappe.whitelist()
-def daily_cron_job(loan_name, input_date=None):
-    frappe.enqueue_doc(
-        "Loan",
-        loan_name,
-        method="calculate_virtual_and_additional_interest",
-        input_date=input_date,
-    )
-
-
-@frappe.whitelist()
 def daily_virtual_job(loan_name, input_date=None):
     frappe.enqueue_doc(
         "Loan",
@@ -1722,14 +1668,14 @@ def daily_virtual_job(loan_name, input_date=None):
     )
 
 
-@frappe.whitelist()
-def daily_cron_job(loan_name, input_date=None):
-    frappe.enqueue_doc(
-        "Loan",
-        loan_name,
-        method="calculate_virtual_and_additional_interest",
-        input_date=input_date,
-    )
+# @frappe.whitelist()
+# def daily_cron_job(loan_name, input_date=None):
+#     frappe.enqueue_doc(
+#         "Loan",
+#         loan_name,
+#         method="calculate_virtual_and_additional_interest",
+#         input_date=input_date,
+#     )
 
 
 @frappe.whitelist()
@@ -1850,16 +1796,16 @@ def book_all_loans_virtual_interest_for_month():
         )
 
 
-def job_dates_for_penal(loan_name):
-    current_date_ = frappe.utils.now_datetime()
-    current_date_ = current_date_.replace(day=1)
-    loan = frappe.get_doc("Loan", loan_name)
-    last_date = (current_date_.replace(day=1) + timedelta(days=32)).replace(
-        day=1
-    ) - timedelta(days=1)
-    while current_date_ <= last_date:
-        loan.add_penal_interest(current_date_.strftime("%Y-%m-%d"))
-        current_date_ += timedelta(days=1)
+# def job_dates_for_penal(loan_name):
+#     current_date_ = frappe.utils.now_datetime()
+#     current_date_ = current_date_.replace(day=1)
+#     loan = frappe.get_doc("Loan", loan_name)
+#     last_date = (current_date_.replace(day=1) + timedelta(days=32)).replace(
+#         day=1
+#     ) - timedelta(days=1)
+#     while current_date_ <= last_date:
+#         loan.add_penal_interest(current_date_.strftime("%Y-%m-%d"))
+#         current_date_ += timedelta(days=1)
 
 
 @frappe.whitelist()
