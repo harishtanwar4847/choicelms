@@ -1246,135 +1246,151 @@ class Loan(Document):
             )
 
     def add_penal_interest(self, input_date=None):
-        # daily scheduler - executes at start of day i.e 00:00
-        # get not paid booked interest
-        if input_date:
-            current_date = datetime.strptime(input_date, "%Y-%m-%d")
-        else:
-            current_date = frappe.utils.now_datetime()
+        try:
+            # daily scheduler - executes at start of day i.e 00:00
+            # get not paid booked interest
+            if input_date:
+                current_date = datetime.strptime(input_date, "%Y-%m-%d")
+            else:
+                current_date = frappe.utils.now_datetime()
 
-        penal_interest_transaction_list = frappe.get_all(
-            "Loan Transaction",
-            filters={
-                "loan": self.name,
-                "lender": self.lender,
-                "transaction_type": "Penal Interest",
-            },
-            fields=["time"],
-        )
+            penal_interest_transaction_list = frappe.get_all(
+                "Loan Transaction",
+                filters={
+                    "loan": self.name,
+                    "lender": self.lender,
+                    "transaction_type": "Penal Interest",
+                },
+                fields=["time"],
+            )
 
-        last_day_of_current_month = (
-            current_date.replace(day=1) + timedelta(days=32)
-        ).replace(day=1) - timedelta(days=1)
-        num_of_days_in_current_month = last_day_of_current_month.day
+            last_day_of_current_month = (
+                current_date.replace(day=1) + timedelta(days=32)
+            ).replace(day=1) - timedelta(days=1)
+            num_of_days_in_current_month = last_day_of_current_month.day
 
-        # check if any not paid booked interest exist
-        unpaid_interest = frappe.db.sql(
-            "select SUM(unpaid_interest) as unpaid_interest, time, transaction_type, creation from `tabLoan Transaction` where loan='{}' and lender='{}' and transaction_type='Interest' and unpaid_interest > 0 order by time asc".format(
-                self.name, self.lender
-            ),
-            as_dict=1,
-        )
+            # check if any not paid booked interest exist
+            unpaid_interest = frappe.db.sql(
+                "select SUM(unpaid_interest) as unpaid_interest, time, transaction_type, creation from `tabLoan Transaction` where loan='{}' and lender='{}' and transaction_type='Interest' and unpaid_interest > 0 order by time asc".format(
+                    self.name, self.lender
+                ),
+                as_dict=1,
+            )
 
-        if unpaid_interest:
-            # get default threshold
-            default_threshold = int(self.get_default_threshold())
-            if default_threshold:
-                transaction_time = unpaid_interest[0]["time"] + timedelta(
-                    days=default_threshold
-                )
-                # check if interest booked time is more than default threshold
-                if current_date > transaction_time and not current_date in [
-                    fields["time"] for fields in penal_interest_transaction_list
-                ]:
-                    # if yes, apply penalty interest
-                    # calculate daily penalty interest
-                    default_interest = int(self.get_default_interest())
-                    if default_interest:
-                        default_interest_daily = (
-                            default_interest / num_of_days_in_current_month
-                        )
-                        amount = self.balance * default_interest_daily / 100
+            if unpaid_interest[0]["unpaid_interest"] > 0:
+                # get default threshold
+                default_threshold = int(self.get_default_threshold())
+                if default_threshold:
+                    transaction_time = unpaid_interest[0]["time"] + timedelta(
+                        days=default_threshold
+                    )
+                    # check if interest booked time is more than default threshold
+                    if current_date > transaction_time and not current_date in [
+                        fields["time"] for fields in penal_interest_transaction_list
+                    ]:
+                        # if yes, apply penalty interest
+                        # calculate daily penalty interest
+                        default_interest = int(self.get_default_interest())
+                        if default_interest:
+                            default_interest_daily = (
+                                default_interest / num_of_days_in_current_month
+                            )
+                            amount = self.balance * default_interest_daily / 100
 
-                        # Penal Interest Entry
-                        penal_interest_transaction = frappe.get_doc(
-                            {
-                                "doctype": "Loan Transaction",
-                                "loan": self.name,
-                                "lender": self.lender,
-                                "transaction_type": "Penal Interest",
-                                "record_type": "DR",
-                                "amount": round(amount, 2),
-                                "unpaid_interest": round(amount, 2),
-                                "time": current_date,
-                            }
-                        )
-                        penal_interest_transaction.insert(ignore_permissions=True)
-                        penal_interest_transaction.transaction_id = (
-                            penal_interest_transaction.name
-                        )
-                        penal_interest_transaction.status = "Approved"
-                        penal_interest_transaction.workflow_state = "Approved"
-                        penal_interest_transaction.docstatus = 1
-                        penal_interest_transaction.save(ignore_permissions=True)
+                            # Penal Interest Entry
+                            penal_interest_transaction = frappe.get_doc(
+                                {
+                                    "doctype": "Loan Transaction",
+                                    "loan": self.name,
+                                    "lender": self.lender,
+                                    "transaction_type": "Penal Interest",
+                                    "record_type": "DR",
+                                    "amount": round(amount, 2),
+                                    "unpaid_interest": round(amount, 2),
+                                    "time": current_date,
+                                }
+                            )
+                            penal_interest_transaction.insert(ignore_permissions=True)
+                            penal_interest_transaction.transaction_id = (
+                                penal_interest_transaction.name
+                            )
+                            penal_interest_transaction.status = "Approved"
+                            penal_interest_transaction.workflow_state = "Approved"
+                            penal_interest_transaction.docstatus = 1
+                            penal_interest_transaction.save(ignore_permissions=True)
 
-                        frappe.db.commit()
+                            frappe.db.commit()
 
-                        doc = frappe.get_doc(
-                            "User KYC", self.get_customer().choice_kyc
-                        ).as_dict()
-                        doc["loan_name"] = self.name
-                        doc[
-                            "transaction_type"
-                        ] = penal_interest_transaction.transaction_type
-                        doc["unpaid_interest"] = round(
-                            penal_interest_transaction.unpaid_interest, 2
-                        )
-
-                        frappe.enqueue_doc(
-                            "Notification", "Interest Due", method="send", doc=doc
-                        )
-                        msg = "Dear Customer,\nPenal interest of Rs.{}  has been debited to your loan account {} .\nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details - Spark Loans".format(
-                            round(penal_interest_transaction.unpaid_interest, 2),
-                            self.name,
-                        )
-                        fcm_notification = frappe.get_doc(
-                            "Spark Push Notification",
-                            "Penal interest charged",
-                            fields=["*"],
-                        )
-                        message = fcm_notification.message.format(
-                            unpaid_interest=round(
+                            doc = frappe.get_doc(
+                                "User KYC", self.get_customer().choice_kyc
+                            ).as_dict()
+                            doc["loan_name"] = self.name
+                            doc[
+                                "transaction_type"
+                            ] = penal_interest_transaction.transaction_type
+                            doc["unpaid_interest"] = round(
                                 penal_interest_transaction.unpaid_interest, 2
-                            ),
-                            loan=self.name,
-                        )
+                            )
 
-                        if msg:
-                            receiver_list = list(
-                                set(
-                                    [
-                                        str(self.get_customer().phone),
-                                        str(doc.mobile_number),
-                                    ]
+                            frappe.enqueue_doc(
+                                "Notification", "Interest Due", method="send", doc=doc
+                            )
+                            msg = "Dear Customer,\nPenal interest of Rs.{}  has been debited to your loan account {} .\nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details - Spark Loans".format(
+                                round(penal_interest_transaction.unpaid_interest, 2),
+                                self.name,
+                            )
+                            fcm_notification = frappe.get_doc(
+                                "Spark Push Notification",
+                                "Penal interest charged",
+                                fields=["*"],
+                            )
+                            message = fcm_notification.message.format(
+                                unpaid_interest=round(
+                                    penal_interest_transaction.unpaid_interest, 2
+                                ),
+                                loan=self.name,
+                            )
+
+                            if msg:
+                                receiver_list = list(
+                                    set(
+                                        [
+                                            str(self.get_customer().phone),
+                                            str(doc.mobile_number),
+                                        ]
+                                    )
                                 )
-                            )
-                            from frappe.core.doctype.sms_settings.sms_settings import (
-                                send_sms,
+                                from frappe.core.doctype.sms_settings.sms_settings import (
+                                    send_sms,
+                                )
+
+                                frappe.enqueue(
+                                    method=send_sms,
+                                    receiver_list=receiver_list,
+                                    msg=msg,
+                                )
+
+                            lms.send_spark_push_notification(
+                                fcm_notification=fcm_notification,
+                                message=message,
+                                loan=self.name,
+                                customer=self.get_customer(),
                             )
 
-                            frappe.enqueue(
-                                method=send_sms, receiver_list=receiver_list, msg=msg
-                            )
-
-                        lms.send_spark_push_notification(
-                            fcm_notification=fcm_notification,
-                            message=message,
-                            loan=self.name,
-                            customer=self.get_customer(),
-                        )
-
-                        return penal_interest_transaction.as_dict()
+                            return penal_interest_transaction.as_dict()
+        except Exception:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\nPenal Interest Details:\n"
+                + json.dumps(
+                    {
+                        "loan": self.name,
+                        "customer_id": self.customer,
+                        "customer_name": self.customer_name,
+                    }
+                ),
+                title=frappe._("Penal Interest Error"),
+            )
 
     def before_save(self):
         self.total_collateral_value_str = lms.amount_formatter(
