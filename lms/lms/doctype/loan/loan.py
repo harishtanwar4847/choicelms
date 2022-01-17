@@ -757,7 +757,7 @@ class Loan(Document):
                     )
                     virtual_interest_doc.save(ignore_permissions=True)
 
-                    frappe.db.commit()
+                    # frappe.db.commit()
                     # return virtual_interest_doc.as_dict()
 
             self.day_past_due = self.calculate_day_past_due(input_date)
