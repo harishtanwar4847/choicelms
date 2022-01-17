@@ -53,6 +53,7 @@ class FirebaseAdmin:
         priority="normal",
         collapse_key="com.sparktechnologies.sparkloans",
         channel_id="channel_ID_1",
+        sound="default",
     ):
         if not tokens:
             raise lms.FirebaseTokensNotProvidedError("Firebase tokens not provided.")
@@ -66,7 +67,7 @@ class FirebaseAdmin:
             priority=priority,
             icon=None,
             color=None,
-            sound=None,
+            sound=sound,
             tag=None,
             click_action=None,
             body_loc_key=None,
@@ -87,13 +88,31 @@ class FirebaseAdmin:
             notification_count=None,
         )
 
+        # Android notification
         android = messaging.AndroidConfig(
             collapse_key=collapse_key,
             priority=priority,
             notification=android_notification,
         )
+        # IOS notification
+        sound = messaging.CriticalSound(name=sound, volume=1.0)
+        alert = messaging.ApsAlert(title=title, body=body)
+        aps = messaging.Aps(alert=alert, content_available=True, sound=sound)
+        payload = messaging.APNSPayload(aps=aps)
+        headers = {
+            "apns-push-type": "background",
+            "apns-priority": "5",
+            "apns-topic": "io.flutter.plugins.firebase.messaging",
+        }
+        apns = messaging.APNSConfig(payload=payload, headers=headers, fcm_options=None)
         multicast_message = messaging.MulticastMessage(
-            tokens, data, notification, android
+            tokens=tokens,
+            data=data,
+            notification=notification,
+            android=android,
+            apns=apns,
+            webpush=None,
+            fcm_options=None,
         )
         try:
             messaging.send_multicast(multicast_message)
