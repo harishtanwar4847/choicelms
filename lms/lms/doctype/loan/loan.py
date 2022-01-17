@@ -676,6 +676,7 @@ class Loan(Document):
 
     def calculate_virtual_and_additional_interest(self, input_date=None):
         # for Virtual Interest Entry
+        # virtual_interest_doc = self.add_virtual_interest(input_date)
         virtual_interest_doc = self.add_virtual_interest(input_date)
 
         # Now, check if additional interest applicable
@@ -690,19 +691,6 @@ class Loan(Document):
                 input_date = datetime.strptime(input_date, "%Y-%m-%d")
             else:
                 input_date = frappe.utils.now_datetime()
-
-            self.day_past_due = self.calculate_day_past_due(input_date)
-
-            # day_past_due = frappe.db.sql(
-            #     "select sum(unpaid_interest) as total_amount, DATEDIFF('{}', time) as dpd from `tabLoan Transaction` where loan = '{}' and transaction_type = 'Interest' and unpaid_interest >0 order by creation asc".format(
-            #         input_date, self.name
-            #     ),
-            #     as_dict=True,
-            # )
-            # if day_past_due[0]["total_amount"]:
-            #     self.day_past_due = day_past_due[0]["dpd"]
-            # else:
-            #     self.day_past_due = 0
 
             if self.balance > 0:
                 interest_configuration = frappe.db.get_value(
@@ -750,7 +738,6 @@ class Loan(Document):
                     )
                     rebate_amount = self.balance * rebate_interest_daily / 100
 
-                    frappe.db.begin()
                     virtual_interest_doc = frappe.get_doc(
                         {
                             "doctype": "Virtual Interest",
@@ -769,21 +756,14 @@ class Loan(Document):
                         }
                     )
                     virtual_interest_doc.save(ignore_permissions=True)
+
                     frappe.db.commit()
-                    self.base_interest_amount = frappe.db.sql(
-                        "select sum(base_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_base = 0".format(
-                            self.name
-                        ),
-                        as_dict=1,
-                    )[0]["amount"]
-                    self.rebate_interest_amount = frappe.db.sql(
-                        "select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_rebate = 0".format(
-                            self.name
-                        ),
-                        as_dict=1,
-                    )[0]["amount"]
-                    self.save(ignore_permissions=True)
-                    return virtual_interest_doc.as_dict()
+                    # return virtual_interest_doc.as_dict()
+
+            self.day_past_due = self.calculate_day_past_due(input_date)
+            self.map_loan_summary_values()
+            self.save(ignore_permissions=True)
+            frappe.db.commit()
         except Exception:
             frappe.log_error(
                 message=frappe.get_traceback()
@@ -1679,6 +1659,20 @@ class Loan(Document):
             return day_past_due[0]["dpd"]
         else:
             return 0
+
+    def map_loan_summary_values(self):
+        self.base_interest_amount = frappe.db.sql(
+            "select sum(base_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_base = 0".format(
+                self.name
+            ),
+            as_dict=1,
+        )[0]["amount"]
+        self.rebate_interest_amount = frappe.db.sql(
+            "select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and is_booked_for_rebate = 0".format(
+                self.name
+            ),
+            as_dict=1,
+        )[0]["amount"]
 
 
 def check_loans_for_shortfall(loans):
