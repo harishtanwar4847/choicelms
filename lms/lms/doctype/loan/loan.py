@@ -1274,7 +1274,7 @@ class Loan(Document):
             )
 
             if (
-                not unpaid_interest[0]["unpaid_interest"]
+                unpaid_interest[0]["unpaid_interest"] != None
                 and unpaid_interest[0]["unpaid_interest"] > 0
             ):
                 # get default threshold
@@ -1284,8 +1284,9 @@ class Loan(Document):
                         days=default_threshold
                     )
                     # check if interest booked time is more than default threshold
-                    if current_date > transaction_time and not current_date in [
-                        fields["time"] for fields in penal_interest_transaction_list
+                    if current_date > transaction_time and not current_date.date() in [
+                        fields["time"].date()
+                        for fields in penal_interest_transaction_list
                     ]:
                         # if yes, apply penalty interest
                         # calculate daily penalty interest
