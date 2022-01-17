@@ -1168,10 +1168,6 @@ class Loan(Document):
                             penal_interest_transaction.docstatus = 1
                             penal_interest_transaction.save(ignore_permissions=True)
 
-                            # Mark loan as 'is_penalize'
-                            # self.is_penalize = 1
-                            # self.save(ignore_permissions=True)
-
                             frappe.db.commit()
 
                             doc = frappe.get_doc(
@@ -1277,7 +1273,10 @@ class Loan(Document):
                 as_dict=1,
             )
 
-            if unpaid_interest[0]["unpaid_interest"] > 0:
+            if (
+                not unpaid_interest[0]["unpaid_interest"]
+                and unpaid_interest[0]["unpaid_interest"] > 0
+            ):
                 # get default threshold
                 default_threshold = int(self.get_default_threshold())
                 if default_threshold:
