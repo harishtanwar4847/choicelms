@@ -871,6 +871,7 @@ class Loan(Document):
                             )
                         )
 
+                        frappe.db.commit()
                         self.reload()
                         self.map_loan_summary_values()
                         self.save(ignore_permissions=True)
