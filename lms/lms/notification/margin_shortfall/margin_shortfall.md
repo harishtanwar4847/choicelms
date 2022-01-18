@@ -61,7 +61,7 @@
                     {% if doc.get("loan_margin_shortfall").get("margin_shortfall_action").sell_off_deadline_eod != 0 %}
                         URGENT ACTION REQUIRED.<br />
                         <br />
-                        There is a margin shortfall in your loan account {{doc.get("loan_margin_shortfall").get("loan")}} which exceeds 15% of portfolio value.<br />
+                        There is a margin shortfall in your loan account {{doc.get("loan_margin_shortfall").get("loan")}} which exceeds {{doc.get("loan_margin_shortfall").get("eod_sell_off")}}% of portfolio value.<br />
                         <br />
                         To mitigate the margin shortfall, you can do the following from the spark loans application:<br />
                         <br />
