@@ -757,7 +757,7 @@ class Loan(Document):
                     )
                     virtual_interest_doc.save(ignore_permissions=True)
                     # return virtual_interest_doc.as_dict()
-
+            input_date += timedelta(days=1)
             self.day_past_due = self.calculate_day_past_due(input_date)
             self.map_loan_summary_values()
             self.save(ignore_permissions=True)
