@@ -69,14 +69,14 @@
    "label": "Sell Off Deadline (in hours)"
   },
   {
-   "description": "Hours should be in 0 to 23",
+   "description": "Hours should be in 1 to 24",
    "fieldname": "sell_off_deadline_eod",
    "fieldtype": "Int",
    "label": "Sell Off Deadline (EOD)"
   }
  ],
  "links": [],
- "modified": "2022-01-12 12:58:51.140949",
+ "modified": "2022-01-18 11:33:16.518215",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Margin Shortfall Action",

@@ -71,7 +71,7 @@
                             <li>Make payments</li>
                         </ul>
                         <br />
-                        Please check the app and take an appropriate action by 10:00pm Today; else sale will be triggered.<br />
+                        Please check the app and take an appropriate action by {{doc.get("loan_margin_shortfall").get("eod_time")}} Today; else sale will be triggered.<br />
                         <br />
                         You can reach to us through 'Contact Us' on the app.<br />
                         We look forward to serve you soon.<br />

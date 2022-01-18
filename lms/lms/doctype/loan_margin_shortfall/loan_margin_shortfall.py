@@ -123,12 +123,20 @@ class LoanMarginShortfall(Document):
                 ):
                     self.update_deadline_based_on_holidays()
                 else:
-                    self.deadline = frappe.utils.now_datetime().replace(
-                        hour=margin_shortfall_action.sell_off_deadline_eod,
-                        minute=0,
-                        second=0,
-                        microsecond=0,
-                    )
+                    if margin_shortfall_action.sell_off_deadline_eod == 24:
+                        self.deadline = frappe.utils.now_datetime().replace(
+                            hour=23,
+                            minute=59,
+                            second=59,
+                            microsecond=999999,
+                        )
+                    else:
+                        self.deadline = frappe.utils.now_datetime().replace(
+                            hour=margin_shortfall_action.sell_off_deadline_eod,
+                            minute=00,
+                            second=00,
+                            microsecond=000000,
+                        )
 
             elif (
                 not margin_shortfall_action.sell_off_after_hours
@@ -201,12 +209,21 @@ class LoanMarginShortfall(Document):
             date_of_deadline = datetime.strptime(
                 total_hrs[-1].strftime("%Y-%m-%d %H:%M:%S.%f"), "%Y-%m-%d %H:%M:%S.%f"
             )
-            self.deadline = date_of_deadline.replace(
-                hour=margin_shortfall_action.sell_off_deadline_eod,
-                minute=00,
-                second=00,
-                microsecond=000000,
-            )
+            print(margin_shortfall_action.sell_off_deadline_eod, "eod")
+            if margin_shortfall_action.sell_off_deadline_eod == 24:
+                self.deadline = date_of_deadline.replace(
+                    hour=23,
+                    minute=59,
+                    second=59,
+                    microsecond=999999,
+                )
+            else:
+                self.deadline = date_of_deadline.replace(
+                    hour=margin_shortfall_action.sell_off_deadline_eod,
+                    minute=00,
+                    second=00,
+                    microsecond=000000,
+                )
 
     def notify_customer(self, margin_shortfall_action):
         mess = ""
@@ -257,13 +274,17 @@ class LoanMarginShortfall(Document):
                 filters={"sell_off_after_hours": ("!=", 0)},
                 fields=["max_threshold"],
             )
+            if margin_shortfall_action.sell_off_deadline_eod == 24:
+                eod_time = "12:00am"
+            else:
+                eod_time = datetime.strptime(
+                    str(margin_shortfall_action.sell_off_deadline_eod), "%H"
+                ).strftime("%I:%M%P")
 
             mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {} which exceeds {}% of portfolio value. Please check the app and take an appropriate action by {} Today; else sale will be triggered. Spark Loans".format(
                 self.loan,
                 eod_sell_off[0].max_threshold,
-                datetime.strptime(
-                    str(margin_shortfall_action.sell_off_deadline_eod), "%H"
-                ).strftime("%I:%M%P"),
+                eod_time,
             )
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification",
@@ -273,9 +294,7 @@ class LoanMarginShortfall(Document):
             message = fcm_notification.message.format(
                 loan=self.loan,
                 max_threshold=eod_sell_off[0].max_threshold,
-                eod_time=datetime.strptime(
-                    str(margin_shortfall_action.sell_off_deadline_eod), "%H"
-                ).strftime("%I:%M%P"),
+                eod_time=eod_time,
             )
 
         if (
@@ -288,6 +307,8 @@ class LoanMarginShortfall(Document):
             doc["loan_margin_shortfall"] = {
                 "loan": self.loan,
                 "margin_shortfall_action": margin_shortfall_action,
+                "eod_time": eod_time,
+                "eod_sell_off": eod_sell_off[0].max_threshold,
             }
             frappe.enqueue_doc(
                 "Notification", "Margin Shortfall", method="send", doc=doc
