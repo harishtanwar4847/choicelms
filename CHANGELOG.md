@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [v2.3.0] - 2022-01-19
+
+- [Feat: Feat: added link in ios app download button in website section](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/468)
+
 ## [v2.2.0] - 2022-01-14
 
 - [Feat: IOS notification payload added for FCM and T&C screen changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/433)
