@@ -184,14 +184,23 @@ class LoanMarginShortfall(Document):
 
             if creation_datetime.date() in holiday_list(is_bank_holiday=1):
                 total_hrs[-1] += timedelta(days=1)
+                hour = 23
+                minute = 59
+                second = 59
+                microsecond = 999999
+            else:
+                hour = creation_datetime.hour
+                minute = creation_datetime.minute
+                second = creation_datetime.second
+                microsecond = creation_datetime.microsecond
             date_of_deadline = datetime.strptime(
                 total_hrs[-1].strftime("%Y-%m-%d %H:%M:%S.%f"), "%Y-%m-%d %H:%M:%S.%f"
             )
             self.deadline = date_of_deadline.replace(
-                hour=creation_datetime.hour,
-                minute=creation_datetime.minute,
-                second=creation_datetime.second,
-                microsecond=creation_datetime.microsecond,
+                hour=hour,
+                minute=minute,
+                second=second,
+                microsecond=microsecond,
             )
 
         else:
