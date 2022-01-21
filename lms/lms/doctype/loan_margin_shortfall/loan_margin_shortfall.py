@@ -247,6 +247,8 @@ class LoanMarginShortfall(Document):
     def notify_customer(self, margin_shortfall_action):
         mess = ""
         eod_time = ""
+        eod_sell_off = ""
+
         if (
             not margin_shortfall_action.sell_off_after_hours
             and not margin_shortfall_action.sell_off_deadline_eod
