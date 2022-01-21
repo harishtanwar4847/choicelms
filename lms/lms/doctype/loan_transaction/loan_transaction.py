@@ -462,10 +462,10 @@ class LoanTransaction(Document):
             if self.amount > self.allowable:
                 frappe.throw("Amount should be less than or equal to allowable amount")
 
-        if self.transaction_type == "Payment" and self.settlement_status != "Processed":
-            frappe.throw(
-                "Can not approve this Payment transaction as its Settlement status is not Processed"
-            )
+        # if self.transaction_type == "Payment" and self.settlement_status != "Processed":
+        #     frappe.throw(
+        #         "Can not approve this Payment transaction as its Settlement status is not Processed"
+        #     )
 
     def on_update(self):
         if self.transaction_type == "Withdrawal":
