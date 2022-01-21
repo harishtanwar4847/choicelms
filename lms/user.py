@@ -1348,36 +1348,6 @@ def dashboard(**kwargs):
         if not customer:
             return utils.respondNotFound(message=frappe._("Customer not found."))
 
-        # all_mgloans = frappe.db.sql(
-        #     """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str,
-        # IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, IFNULL(mrgloan.shortfall, 0.0) as shortfall
-        # from `tabLoan` as loan
-        # left join `tabLoan Margin Shortfall` as mrgloan
-        # on loan.name = mrgloan.loan
-        # where loan.customer = '{}'
-        # and (mrgloan.status = "Pending" or mrgloan.status = "Sell Triggered" or mrgloan.status = "Request Pending")
-        # and shortfall_percentage > 0.0
-        # group by loan.name""".format(
-        #         customer.name
-        #     ),
-        #     as_dict=1,
-        # )
-
-        # all_interest_loans = frappe.db.sql(
-        #     """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str,
-        # sum(loantx.unpaid_interest) as interest_amount
-        # from `tabLoan` as loan
-        # left join `tabLoan Transaction` as loantx
-        # on loan.name = loantx.loan
-        # where loan.customer = '{}'
-        # and loantx.transaction_type in ('Interest','Additional Interest','Penal Interest')
-        # and loantx.unpaid_interest > 0
-        # group by loan.name""".format(
-        #         customer.name
-        #     ),
-        #     as_dict=1,
-        # )
-
         # actionable_loans = []
         # action_loans = []
         mgloan = []
@@ -1390,16 +1360,6 @@ def dashboard(**kwargs):
         )
 
         for dictionary in margin_shortfall_and_interest_loans[0]:
-            # actionable_loans.append(
-            #     {
-            #         "loan_name": dictionary.get("name"),
-            #         "drawing_power": dictionary.get("drawing_power"),
-            #         "drawing_power_str": dictionary.get("drawing_power_str"),
-            #         "balance": dictionary.get("balance"),
-            #         "balance_str": dictionary.get("balance_str"),
-            #     }
-            # )
-            # action_loans.append(dictionary.get("name"))
             loan = frappe.get_doc("Loan", dictionary["name"])
             mg_shortfall_doc = loan.get_margin_shortfall()
             # mg_shortfall_doc = frappe.get_all("Loan Margin Shortfall", filters={"loan": dictionary["name"], "status":["in", ["Pending", "Sell Triggered"]]}, fields=["*"])[0]
@@ -1461,17 +1421,23 @@ def dashboard(**kwargs):
 
                     if frappe.utils.now_datetime().date() in holidays:
                         # if_today_holiday then add those hours in timer
-                        start_time = (
-                            mg_shortfall_doc.creation
+                        if mg_shortfall_action.sell_off_after_hours:
                             if (
                                 frappe.utils.now_datetime().date()
                                 == mg_shortfall_doc.creation.date()
-                            )
-                            and mg_shortfall_action.sell_off_after_hours
-                            else frappe.utils.now_datetime().replace(
+                            ):
+
+                                start_time = datetime.strptime(
+                                    list(holidays)[-1].strftime("%Y-%m-%d %H:%M:%S.%f"),
+                                    "%Y-%m-%d %H:%M:%S.%f",
+                                ).replace(hour=0, minute=0, second=0, microsecond=0)
+                            else:
+                                start_time = mg_shortfall_doc.creation
+
+                        else:
+                            start_time = frappe.utils.now_datetime().replace(
                                 hour=0, minute=0, second=0, microsecond=0
                             )
-                        )
                         is_today_holiday = 1
                         hrs_difference += frappe.utils.now_datetime() - start_time
 

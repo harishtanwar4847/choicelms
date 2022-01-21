@@ -1082,17 +1082,22 @@ def loan_details(**kwargs):
 
                     if frappe.utils.now_datetime().date() in holidays:
                         # if_today_holiday then add those hours in timer
-                        start_time = (
-                            loan_margin_shortfall.creation
+                        if mg_shortfall_action.sell_off_after_hours:
                             if (
                                 frappe.utils.now_datetime().date()
                                 == loan_margin_shortfall.creation.date()
-                            )
-                            and mg_shortfall_action.sell_off_after_hours
-                            else frappe.utils.now_datetime().replace(
+                            ):
+                                start_time = datetime.strptime(
+                                    list(holidays)[-1].strftime("%Y-%m-%d %H:%M:%S.%f"),
+                                    "%Y-%m-%d %H:%M:%S.%f",
+                                ).replace(hour=0, minute=0, second=0, microsecond=0)
+                            else:
+                                start_time = loan_margin_shortfall.creation
+
+                        else:
+                            start_time = frappe.utils.now_datetime().replace(
                                 hour=0, minute=0, second=0, microsecond=0
                             )
-                        )
                         loan_margin_shortfall["is_today_holiday"] = 1
 
                         hrs_difference += frappe.utils.now_datetime() - start_time

@@ -172,6 +172,26 @@ class LoanMarginShortfall(Document):
                     str(self.creation), "%Y-%m-%d %H:%M:%S.%f"
                 )
 
+            if creation_datetime.date() in holiday_list(is_bank_holiday=1):
+                creation_date = creation_datetime.date()
+                while len(total_hrs) < 1:
+                    if creation_date not in holiday_list(is_bank_holiday=1):
+                        total_hrs.append(creation_date)
+                        creation_date += timedelta(hours=24)
+                    else:
+                        creation_date += timedelta(hours=24)
+                creation_date -= timedelta(hours=24)
+
+                hour = 23
+                minute = 59
+                second = 59
+                microsecond = 999999
+            else:
+                hour = creation_datetime.hour
+                minute = creation_datetime.minute
+                second = creation_datetime.second
+                microsecond = creation_datetime.microsecond
+
             counter = 1
             max_days = int(margin_shortfall_action.sell_off_after_hours / 24)
             while counter <= max_days:
@@ -182,16 +202,16 @@ class LoanMarginShortfall(Document):
                 else:
                     creation_date += timedelta(hours=24)
 
-            if creation_datetime.date() in holiday_list(is_bank_holiday=1):
-                total_hrs[-1] += timedelta(days=1)
+            # if creation_datetime.date() in holiday_list(is_bank_holiday=1):
+            #     total_hrs[-1] += timedelta(days=1)
             date_of_deadline = datetime.strptime(
                 total_hrs[-1].strftime("%Y-%m-%d %H:%M:%S.%f"), "%Y-%m-%d %H:%M:%S.%f"
             )
             self.deadline = date_of_deadline.replace(
-                hour=creation_datetime.hour,
-                minute=creation_datetime.minute,
-                second=creation_datetime.second,
-                microsecond=creation_datetime.microsecond,
+                hour=hour,
+                minute=minute,
+                second=second,
+                microsecond=microsecond,
             )
 
         else:
@@ -209,7 +229,6 @@ class LoanMarginShortfall(Document):
             date_of_deadline = datetime.strptime(
                 total_hrs[-1].strftime("%Y-%m-%d %H:%M:%S.%f"), "%Y-%m-%d %H:%M:%S.%f"
             )
-            print(margin_shortfall_action.sell_off_deadline_eod, "eod")
             if margin_shortfall_action.sell_off_deadline_eod == 24:
                 self.deadline = date_of_deadline.replace(
                     hour=23,
@@ -227,6 +246,7 @@ class LoanMarginShortfall(Document):
 
     def notify_customer(self, margin_shortfall_action):
         mess = ""
+        eod_time = ""
         if (
             not margin_shortfall_action.sell_off_after_hours
             and not margin_shortfall_action.sell_off_deadline_eod
