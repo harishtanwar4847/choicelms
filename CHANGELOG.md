@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+## [v2.3.0] - 2022-01-21
+
+### Added
+
+- [Feat: Feat: added link in ios app download button in website section](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/468)
+
+## [v2.2.0] - 2022-01-14
+
+### Added
+
+- [Feat: IOS notification payload added for FCM and T&C screen changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/433)
+
+## [v2.1.1] - 2022-01-10
+
+### Added
+
+- [Feat: Loan none not found - resolved](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/463)
+
 ## [v2.1.0] - 2022-01-10
 
 ### Added
@@ -9,7 +27,6 @@
 - [Feat: Resend email verification, expiry date of loan application and topup application update on approval, news and blog tag overlapping fixes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/450)
 - [Fix: Manage my loans screen in case of pledge more and sell collateral of margin shortfall](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/441)
 - [Feat: Backend screen restructring](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/432)
-- [Feat: Loan none not found - resolved](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/463)
 
 ## [v2.0.0] - 2021-12-21
 
