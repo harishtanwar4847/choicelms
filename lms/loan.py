@@ -1092,7 +1092,9 @@ def loan_details(**kwargs):
                                     "%Y-%m-%d %H:%M:%S.%f",
                                 ).replace(hour=0, minute=0, second=0, microsecond=0)
                             else:
-                                start_time = loan_margin_shortfall.creation
+                                start_time = frappe.utils.now_datetime().replace(
+                                    hour=0, minute=0, second=0, microsecond=0
+                                )
 
                         else:
                             start_time = frappe.utils.now_datetime().replace(
