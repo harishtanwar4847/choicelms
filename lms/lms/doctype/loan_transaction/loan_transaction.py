@@ -94,6 +94,19 @@ class LoanTransaction(Document):
             frappe.throw(_("Invalid User"))
         user_roles = [role[0] for role in user_roles]
 
+        if self.record_type == "CR":
+            interest_entry = frappe.get_value(
+                "Loan Transaction",
+                {
+                    "loan": self.loan,
+                    "transaction_type": "Interest",
+                    "unpaid_interest": [">", 0],
+                },
+                "name",
+            )
+            if interest_entry and not self.is_for_interest:
+                self.is_for_interest = True
+
         # loan_cust_transaction_list = ["Withdrawal", "Payment", "Sell Collateral"]
         loan_cust_transaction_list = ["Withdrawal", "Payment"]
         lender_team_transaction_list = [
