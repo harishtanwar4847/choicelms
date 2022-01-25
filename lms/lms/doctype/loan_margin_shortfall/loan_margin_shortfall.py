@@ -247,7 +247,7 @@ class LoanMarginShortfall(Document):
     def notify_customer(self, margin_shortfall_action):
         mess = ""
         eod_time = ""
-        eod_sell_off = ""
+        eod_sell_off = []
 
         if (
             not margin_shortfall_action.sell_off_after_hours
@@ -329,8 +329,8 @@ class LoanMarginShortfall(Document):
             doc["loan_margin_shortfall"] = {
                 "loan": self.loan,
                 "margin_shortfall_action": margin_shortfall_action,
-                "eod_time": eod_time,
-                "eod_sell_off": eod_sell_off[0].max_threshold,
+                "eod_time": eod_time if eod_time else "",
+                "eod_sell_off": eod_sell_off[0].max_threshold if eod_sell_off else "",
             }
             frappe.enqueue_doc(
                 "Notification", "Margin Shortfall", method="send", doc=doc
