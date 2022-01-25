@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v2.4.1] - 2022-01-25
+
+### Fixed
+
+- [Fix: Interest Fixes - virtual, book, additional, Penal Interest and loan summary](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/467)
+
 ## [v2.4.0] - 2022-01-21
 
 ### Added
