@@ -358,8 +358,9 @@ class LoanTransaction(Document):
             "Payment",
             "Sell Collateral",
         ]:
-            self.update_interest_summary_values(loan)
             loan.reload()
+            self.update_interest_summary_values(loan)
+            # loan.reload()
 
         # update closing balance
         frappe.db.set_value(
