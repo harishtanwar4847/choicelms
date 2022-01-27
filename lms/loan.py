@@ -1054,7 +1054,7 @@ def loan_details(**kwargs):
                     previous_holidays = 0
                     for days in list(holidays):
                         if (
-                            days > loan_margin_shortfall.creation.date()
+                            days >= loan_margin_shortfall.creation.date()
                             and days < frappe.utils.now_datetime().date()
                         ):
                             previous_holidays += 1
@@ -1068,17 +1068,17 @@ def loan_details(**kwargs):
                         )  # if_prev_days_in_holidays then add those days in timer
                     )
 
-                    if (
-                        loan_margin_shortfall.creation.date()
-                        < frappe.utils.now_datetime().date()
-                        and loan_margin_shortfall.creation.date() in holidays
-                    ):
-                        hrs_difference += (
-                            loan_margin_shortfall.creation.replace(
-                                hour=23, minute=59, second=59, microsecond=999999
-                            )
-                            - loan_margin_shortfall.creation
-                        )
+                    # if (
+                    #     loan_margin_shortfall.creation.date()
+                    #     < frappe.utils.now_datetime().date()
+                    #     and loan_margin_shortfall.creation.date() in holidays
+                    # ):
+                    #     hrs_difference += (
+                    #         loan_margin_shortfall.creation.replace(
+                    #             hour=23, minute=59, second=59, microsecond=999999
+                    #         )
+                    #         - loan_margin_shortfall.creation
+                    #     )
 
                     if frappe.utils.now_datetime().date() in holidays:
                         # if_today_holiday then add those hours in timer

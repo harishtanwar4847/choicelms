@@ -1393,7 +1393,7 @@ def dashboard(**kwargs):
                     previous_holidays = 0
                     for days in list(holidays):
                         if (
-                            days > mg_shortfall_doc.creation.date()
+                            days >= mg_shortfall_doc.creation.date()
                             and days < frappe.utils.now_datetime().date()
                         ):
                             previous_holidays += 1
@@ -1407,17 +1407,17 @@ def dashboard(**kwargs):
                         )  # if_prev_days_in_holidays then add those days in timer
                     )
 
-                    if (
-                        mg_shortfall_doc.creation.date()
-                        < frappe.utils.now_datetime().date()
-                        and mg_shortfall_doc.creation.date() in holidays
-                    ):
-                        hrs_difference += (
-                            mg_shortfall_doc.creation.replace(
-                                hour=23, minute=59, second=59, microsecond=999999
-                            )
-                            - mg_shortfall_doc.creation
-                        )
+                    # if (
+                    #     mg_shortfall_doc.creation.date()
+                    #     < frappe.utils.now_datetime().date()
+                    #     and mg_shortfall_doc.creation.date() in holidays
+                    # ):
+                    #     hrs_difference += (
+                    #         mg_shortfall_doc.creation.replace(
+                    #             hour=23, minute=59, second=59, microsecond=999999
+                    #         )
+                    #         - mg_shortfall_doc.creation
+                    #     )
 
                     if frappe.utils.now_datetime().date() in holidays:
                         # if_today_holiday then add those hours in timer
