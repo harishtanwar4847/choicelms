@@ -2,7 +2,27 @@
 
 ## [Unreleased]
 
+## [v2.4.1] - 2022-01-25
+
+### Fixed
+
+- [Fix: Interest Fixes - virtual, book, additional, Penal Interest and loan summary](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/467)
+
+## [v2.4.0] - 2022-01-21
+
+### Added
+
+- [Feat: sitemap file updated till 11-01-2022](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/471)
+
+## [v2.3.0] - 2022-01-21
+
+### Added
+
+- [Feat: added link in ios app download button in website section](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/468)
+
 ## [v2.2.0] - 2022-01-14
+
+### Added
 
 - [Feat: IOS notification payload added for FCM and T&C screen changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/433)
 
