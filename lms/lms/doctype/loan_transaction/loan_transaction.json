@@ -102,7 +102,8 @@
    "fieldtype": "Select",
    "label": "Transaction Type",
    "options": "Withdrawal\nPayment\nDebit Note\nCredit Note\nProcessing Fees\nStamp Duty\nDocumentation Charges\nMortgage Charges\nSell Collateral\nInvoke Pledge\nInterest\nAdditional Interest\nPenal Interest\nOther Charges\nLegal Charges\nRenewal Charges\nDP Reimbursement(Sell)\nDP Reimbursement(Unpledge)\nSell Collateral Charges",
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "bank_account",
@@ -349,7 +350,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-12-24 18:00:00.977381",
+ "modified": "2022-01-13 14:47:41.911565",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
