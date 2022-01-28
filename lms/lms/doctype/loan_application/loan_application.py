@@ -637,15 +637,12 @@ class LoanApplication(Document):
         # loan.drawing_power += self.drawing_power
 
         if self.application_type == "Increase Loan":
-            # drawing_power = round(
-            #     lms.round_down_amount_to_nearest_thousand(loan.drawing_power), 2
-            # )
-            # loan.sanctioned_limit = loan.drawing_power
-            loan.sanctioned_limit = loan.drawing_power = (
+            loan.drawing_power = (
                 self.maximum_sanctioned_limit
                 if self.increased_sanctioned_limit > self.maximum_sanctioned_limit
                 else self.increased_sanctioned_limit
             )
+            loan.sanctioned_limit = loan.drawing_power
 
             # TODO : manage expiry date
             loan.expiry_date = self.expiry_date
