@@ -101,3 +101,38 @@ class Lender(Document):
     def get_lender_logo_file(self):
         file_name = frappe.db.get_value("File", {"file_url": self.logo_file_1})
         return frappe.get_doc("File", file_name) if file_name else None
+
+
+def father_job():
+    """
+    frappe.enqueue(method="lms.lms.doctype.lender.lender.father_job",queue="default",job_name="Father job")
+    from datetime import datetime,timedelta
+    start = datetime.strptime("2022-01-27 17:35:59.152473", "%Y-%m-%d %H:%M:%S.%f")
+    end = datetime.strptime("2022-01-27 17:42:01.640181", "%Y-%m-%d %H:%M:%S.%f")
+    time_used = lms.convert_sec_to_hh_mm_ss(abs(end-start).total_seconds())
+    """
+    for n in range(10):
+        name_of_job = "Child_job_{}".format(n)
+        frappe.enqueue(
+            method="lms.lms.doctype.lender.lender.child_job",
+            queue="short",
+            job_name=name_of_job,
+            name_of_file=name_of_job,
+        )
+
+
+def child_job(name_of_file):
+    import time
+
+    # m = 20
+    o = 2
+
+    for m in range(20):
+        file = frappe.utils.get_files_path("{}.txt".format(name_of_file))
+
+        with open(file, "a") as file1:
+            file1.write(
+                '"index": {}, "time": {}\n'.format(m, str(frappe.utils.now_datetime()))
+            )
+            time.sleep(o)
+        file1.close()
