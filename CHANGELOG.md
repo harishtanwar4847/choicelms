@@ -6,6 +6,12 @@
 
 - [Feat: Any CR transaction made interest should be cleared first](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/474)
 
+## [v2.5.0] - 2022-01-31
+
+### Added
+
+- [Feat: 301 url redirect of 404 pages under /newsblog to /news-and-blogs](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/473)
+
 ## [v2.4.1] - 2022-01-25
 
 ### Fixed
