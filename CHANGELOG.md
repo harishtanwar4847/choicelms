@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- [Feat: In a mail of apply now add IOS APP link]()
+
 ## [v2.5.0] - 2022-01-31
 
 ### Added
