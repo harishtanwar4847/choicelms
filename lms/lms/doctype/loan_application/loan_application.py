@@ -619,12 +619,14 @@ class LoanApplication(Document):
             # TODO : manage expiry date
             loan.expiry_date = self.expiry_date
 
-            loan.drawing_power = (
+            loan.sanctioned_limit = (
                 self.maximum_sanctioned_limit
                 if self.increased_sanctioned_limit > self.maximum_sanctioned_limit
                 else self.increased_sanctioned_limit
             )
-            loan.sanctioned_limit = loan.drawing_power
+            if loan.drawing_power > loan.sanctioned_limit:
+                loan.drawing_power = loan.sanctioned_limit
+            # loan.sanctioned_limit = loan.drawing_power
             loan.save(ignore_permissions=True)
             loan_margin_shortfall = loan.get_margin_shortfall()
             if not loan_margin_shortfall.is_new() and loan_margin_shortfall.status in [
