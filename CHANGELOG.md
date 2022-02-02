@@ -6,6 +6,12 @@
 - [Feat: Min max sanctioned limit](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/414)
 - [Feat: Margin shortfall refactor, timer and holiday master](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/418)
 
+## [v2.6.0] - 2022-02-02
+
+### Added
+
+- [Feat: sparkloanssl.html file added in root directory](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/478)
+
 ## [v2.5.0] - 2022-01-31
 
 ### Added
