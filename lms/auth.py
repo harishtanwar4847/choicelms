@@ -395,6 +395,49 @@ def request_verification_email():
         return lms.generateResponse(is_success=False, error=e)
 
 
+@frappe.whitelist()
+def resend_verification_email(email):
+    try:
+        user_token = frappe.get_last_doc(
+            "User Token",
+            filters={"entity": email, "token_type": "Email Verification Token"},
+        )
+        if not user_token.used:
+            doc = frappe.get_doc("User", email).as_dict()
+            doc["url"] = frappe.utils.get_url(
+                "/api/method/lms.auth.verify_user?token={}&user={}".format(
+                    user_token.token, email
+                )
+            )
+            frappe.enqueue_doc(
+                "Notification",
+                "User Email Verification",
+                method="send",
+                doc=doc,
+            )
+            frappe.msgprint(
+                msg="Verification email resent Successfully",
+                title="Email Verification",
+                indicator="green",
+            )
+        else:
+            lms.create_user_token(
+                entity=email,
+                token=lms.random_token(),
+                token_type="Email Verification Token",
+            )
+            frappe.msgprint(
+                msg="Verification email sent Successfully",
+                title="Email Verification",
+                indicator="green",
+            )
+    except Exception as e:
+        frappe.log_error(
+            frappe.get_traceback() + "\nResend Email Info:\n" + json.dumps(email),
+            e.args,
+        )
+
+
 @frappe.whitelist(allow_guest=True)
 def verify_user(token, user):
     token_document = frappe.db.get_all(

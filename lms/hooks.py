@@ -18,6 +18,7 @@ app_license = "MIT"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/lms/css/lms.css"
 # app_include_js = "/assets/lms/js/lms.js"
+app_include_js = "/assets/lms/js/doctype.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/lms/css/lms.css"
@@ -25,7 +26,6 @@ app_license = "MIT"
 
 # include js in page
 # page_js = {"page" : "public/js/file.js"}
-
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
@@ -139,15 +139,27 @@ scheduler_events = {
     "hourly": [
         "lms.lms.doctype.security_price.security_price.update_all_security_prices"
     ],
-    "daily": [
-        "lms.lms.doctype.loan.loan.add_all_loans_virtual_interest",
-        "lms.lms.doctype.loan.loan.check_for_all_loans_additional_interest",
-        "lms.lms.doctype.loan.loan.add_all_loans_penal_interest",
-    ],
-    "monthly": ["lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"],
+    # "daily": [
+    #     "lms.lms.doctype.loan.loan.add_all_loans_virtual_interest",
+    #     "lms.lms.doctype.loan.loan.check_for_all_loans_additional_interest",
+    #     "lms.lms.doctype.loan.loan.add_all_loans_penal_interest",
+    # ],
+    # "monthly": ["lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"],
     "cron": {
         "*/5 * * * *": [
             "lms.lms.doctype.loan_application.loan_application.process_pledge"
-        ]
+        ],  # At every 5 minutes
+        "15 1 * * *": [
+            "lms.lms.doctype.loan.loan.add_all_loans_virtual_interest"
+        ],  # At 01:15 AM daily
+        "15 2 1 * *": [
+            "lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"
+        ],  # At 02:15 AM on 1st day-of-every-month(monthly)
+        "15 3 * * *": [
+            "lms.lms.doctype.loan.loan.check_for_all_loans_additional_interest"
+        ],  # At 03:15 AM daily
+        "15 4 * * *": [
+            "lms.lms.doctype.loan.loan.add_all_loans_penal_interest"
+        ],  # At 04:15 AM daily
     },
 }
