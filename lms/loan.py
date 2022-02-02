@@ -69,9 +69,7 @@ def esign_old(**kwargs):
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
     except utils.exceptions.APIException as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 
@@ -160,9 +158,7 @@ def esign(**kwargs):
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
     except utils.exceptions.APIException as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 
@@ -328,9 +324,7 @@ def esign_done(**kwargs):
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
     except utils.exceptions.APIException as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 
@@ -391,9 +385,7 @@ def my_loans():
     except (lms.ValidationError, lms.ServerError) as e:
         return lms.generateResponse(status=e.http_status_code, message=str(e))
     except Exception as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return lms.generateResponse(is_success=False, error=e)
 
 
@@ -530,9 +522,7 @@ def create_unpledge_old(loan_name, securities_array):
     except (lms.ValidationError, lms.ServerError) as e:
         return lms.generateResponse(status=e.http_status_code, message=str(e))
     except Exception as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return generateResponse(is_success=False, error=e)
 
 
@@ -577,9 +567,7 @@ def create_topup_old(loan_name, file_id):
     except (lms.ValidationError, lms.ServerError) as e:
         return lms.generateResponse(status=e.http_status_code, message=str(e))
     except Exception as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return generateResponse(is_success=False, error=e)
 
 
@@ -834,9 +822,7 @@ def create_topup(**kwargs):
 
         return utils.respondWithSuccess(data=data)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 
@@ -1203,9 +1189,7 @@ def loan_details(**kwargs):
 
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 
@@ -1248,9 +1232,7 @@ def loan_withdraw_details(**kwargs):
 
         return utils.respondWithSuccess(data=data)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 
@@ -1273,9 +1255,7 @@ def request_loan_withdraw_otp():
             frappe.db.commit()
         return utils.respondWithSuccess(message="Withdraw OTP sent")
     except utils.exceptions.APIException as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 
@@ -1423,9 +1403,7 @@ def loan_withdraw_request(**kwargs):
 
         return utils.respondWithSuccess(message=message, data=data)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 
@@ -1633,9 +1611,7 @@ def loan_payment(**kwargs):
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
         return utils.respondWithSuccess()
     except utils.exceptions.APIException as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 
@@ -2259,9 +2235,7 @@ def loan_statement(**kwargs):
 
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 
@@ -2286,9 +2260,7 @@ def request_unpledge_otp():
             frappe.db.commit()
         return utils.respondWithSuccess(message="Unpledge OTP sent")
     except utils.exceptions.APIException as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 
@@ -2341,9 +2313,7 @@ def loan_unpledge_details(**kwargs):
 
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 
@@ -2555,9 +2525,7 @@ def loan_unpledge_request(**kwargs):
 
         return utils.respondWithSuccess(data=unpledge_application)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 
@@ -2580,9 +2548,7 @@ def request_sell_collateral_otp():
             frappe.db.commit()
         return utils.respondWithSuccess(message="Sell Collateral OTP sent")
     except utils.exceptions.APIException as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 
@@ -2754,9 +2720,7 @@ def sell_collateral_request(**kwargs):
 
         return utils.respondWithSuccess(data=sell_collateral_application)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(
-            message="Customer ID : {}".format(lms.__customer().name), title=__name__
-        )
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 

@@ -1011,7 +1011,7 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
     return frappe.get_doc("Spark Dummy Account", dummy_account_name)
 
 
-def log_api_error(message=None, title=_("API Error")):
+def log_api_error(message=None, title=frappe.get_traceback() + " API Error"):
     """
     Log API error to Error Log
 
