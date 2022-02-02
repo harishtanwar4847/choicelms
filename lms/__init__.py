@@ -1009,3 +1009,25 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
         raise InvalidUserTokenException("Invalid {}".format(token_type))
 
     return frappe.get_doc("Spark Dummy Account", dummy_account_name)
+
+
+def log_api_error(message=None, title=_("API Error")):
+    """
+    Log API error to Error Log
+
+    This method should be called before API responds the HTTP status code
+    """
+
+    # AI ALERT:
+    # the title and message may be swapped
+    # the better API for this is log_error(title, message), and used in many cases this way
+    # this hack tries to be smart about whats a title (single line ;-)) and fixes it
+
+    if message:
+        error = frappe.get_traceback() + "\n\n" + str(message)
+    else:
+        error = frappe.get_traceback()
+
+    return frappe.get_doc(
+        dict(doctype="API Error Log", error=frappe.as_unicode(error), method=title)
+    ).insert(ignore_permissions=True)

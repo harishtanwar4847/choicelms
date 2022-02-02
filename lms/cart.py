@@ -220,6 +220,9 @@ def upsert(**kwargs):
         frappe.db.commit()
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
+        lms.log_api_error(
+            message="Customer ID : {}".format(lms.__customer().name), title=__name__
+        )
         frappe.db.rollback()
         return e.respond()
 
@@ -319,6 +322,9 @@ def process_old(**kwargs):
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
     except utils.exceptions.APIException as e:
+        lms.log_api_error(
+            message="Customer ID : {}".format(lms.__customer().name), title=__name__
+        )
         frappe.db.rollback()
         return e.respond()
 
@@ -383,6 +389,9 @@ def process(**kwargs):
 
         return utils.respondWithSuccess(data=loan_application)
     except utils.exceptions.APIException as e:
+        lms.log_api_error(
+            message="Customer ID : {}".format(lms.__customer().name), title=__name__
+        )
         frappe.db.rollback()
         return e.respond()
 
@@ -497,6 +506,9 @@ def request_pledge_otp():
             frappe.db.commit()
         return utils.respondWithSuccess(message="Pledge OTP sent")
     except utils.exceptions.APIException as e:
+        lms.log_api_error(
+            message="Customer ID : {}".format(lms.__customer().name), title=__name__
+        )
         frappe.db.rollback()
         return e.respond()
 
@@ -873,4 +885,7 @@ def get_tnc(**kwargs):
         return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error(
+            message="Customer ID : {}".format(lms.__customer().name), title=__name__
+        )
         return e.respond()
