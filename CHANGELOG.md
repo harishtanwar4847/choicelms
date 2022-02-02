@@ -2,6 +2,48 @@
 
 ## [Unreleased]
 
+## [v2.6.0] - 2022-02-02
+
+### Added
+
+- [Feat: sparkloanssl.html file added in root directory](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/478)
+
+## [v2.5.0] - 2022-01-31
+
+### Added
+
+- [Feat: 301 url redirect of 404 pages under /newsblog to /news-and-blogs](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/473)
+
+## [v2.4.1] - 2022-01-25
+
+### Fixed
+
+- [Fix: Interest Fixes - virtual, book, additional, Penal Interest and loan summary](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/467)
+
+## [v2.4.0] - 2022-01-21
+
+### Added
+
+- [Feat: sitemap file updated till 11-01-2022](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/471)
+
+## [v2.3.0] - 2022-01-21
+
+### Added
+
+- [Feat: added link in ios app download button in website section](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/468)
+
+## [v2.2.0] - 2022-01-14
+
+### Added
+
+- [Feat: IOS notification payload added for FCM and T&C screen changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/433)
+
+## [v2.1.1] - 2022-01-10
+
+### Added
+
+- [Feat: Loan none not found - resolved](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/463)
+
 ## [v2.1.0] - 2022-01-10
 
 ### Added
@@ -9,7 +51,6 @@
 - [Feat: Resend email verification, expiry date of loan application and topup application update on approval, news and blog tag overlapping fixes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/450)
 - [Fix: Manage my loans screen in case of pledge more and sell collateral of margin shortfall](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/441)
 - [Feat: Backend screen restructring](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/432)
-- [Feat: Loan none not found - resolved](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/463)
 
 ## [v2.0.0] - 2021-12-21
 

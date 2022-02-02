@@ -30,7 +30,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "2.1.1"
+__version__ = "2.6.0"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -663,69 +663,115 @@ def create_log(log, file_name):
 def send_spark_push_notification(
     fcm_notification={}, message="", loan="", customer=None
 ):
-    tokens = get_firebase_tokens(customer.user)
-    if fcm_notification and tokens:
-        if message:
-            message = message
-        else:
-            message = fcm_notification.message
+    try:
+        fcm_payload = {}
+        tokens = get_firebase_tokens(customer.user)
+        if fcm_notification and tokens:
+            if message:
+                message = message
+            else:
+                message = fcm_notification.message
 
-        try:
-            fa = FirebaseAdmin()
-            random_id = randint(1, 2147483646)
-            current_time = frappe.utils.now_datetime()
-            notification_name = (str(random_id) + " " + str(current_time)).replace(
-                " ", "-"
-            )
+            try:
+                random_id = randint(1, 2147483646)
+                current_time = frappe.utils.now_datetime()
+                notification_name = (str(random_id) + " " + str(current_time)).replace(
+                    " ", "-"
+                )
+                sound = "default"
+                priority = "high"
 
-            data = {
-                "click_action": "FLUTTER_NOTIFICATION_CLICK",
-                "name": notification_name,
-                "notification_id": str(random_id),
-                "screen": fcm_notification.screen_to_open,
-                "loan_no": loan if loan else "",
-                "title": fcm_notification.title,
-                "body": message,
-                "notification_type": fcm_notification.notification_type,
-                "time": current_time.strftime("%d %b at %H:%M %p"),
-            }
-
-            fa.send_android_message(
-                title=fcm_notification.title,
-                body=message,
-                data=data,
-                tokens=tokens,
-                priority="high",
-            )
-            # Save log for Spark Push Notification
-            frappe.get_doc(
-                {
-                    "doctype": "Spark Push Notification Log",
-                    "name": notification_name,
-                    "title": data["title"],
-                    "loan_customer": customer.name,
-                    "customer_name": customer.full_name,
-                    "loan": data["loan_no"],
-                    "screen_to_open": data["screen"],
-                    "notification_id": data["notification_id"],
-                    "notification_type": data["notification_type"],
-                    "time": current_time,
-                    "click_action": data["click_action"],
-                    "message": data["body"],
-                    "is_cleared": 0,
-                    "is_read": 0,
+                fcm_payload = {
+                    "registration_ids": tokens,
+                    "priority": priority,
                 }
-            ).insert(ignore_permissions=True)
-            frappe.db.commit()
-        except Exception as e:
-            # return e
-            # To log fcm notification exception errors into Frappe Error Log
-            frappe.log_error(
-                frappe.get_traceback() + "\nNotification Info:\n" + json.dumps(data),
-                e.args,
-            )
-        finally:
-            fa.delete_app()
+
+                notification = {
+                    "title": fcm_notification.title,
+                    "body": message,
+                    "sound": sound,
+                }
+
+                data = {
+                    "click_action": "FLUTTER_NOTIFICATION_CLICK",
+                    "name": notification_name,
+                    "notification_id": str(random_id),
+                    "screen": fcm_notification.screen_to_open,
+                    "loan_no": loan if loan else "",
+                    "title": fcm_notification.title,
+                    "body": message,
+                    "notification_type": fcm_notification.notification_type,
+                    "time": current_time.strftime("%d %b at %H:%M %p"),
+                }
+                android = {"priority": priority, "notification": {"sound": sound}}
+                apns = {
+                    "payload": {"aps": {"sound": sound, "contentAvailable": True}},
+                    "headers": {
+                        "apns-push-type": "background",
+                        "apns-priority": "5",
+                        "apns-topic": "io.flutter.plugins.firebase.messaging",
+                    },
+                }
+
+                fcm_payload["notification"] = notification
+                fcm_payload["data"] = data
+                fcm_payload["android"] = android
+                fcm_payload["apns"] = apns
+
+                headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": "key=AAAAennLf7s:APA91bEoQFxqyBP87PXSVS3nXYGhVwh0-5CXQyOzEW8vwKiRqYw-5y2yPXIFWvQ9-Mr0rHeS2NWdq43ogeH76esO3GJyZCEQs2mOgUk6RStxW-hgsioIAJaaiidov8xDg1-yyTn_JCYQ",
+                }
+                res = requests.post(
+                    url="https://fcm.googleapis.com/fcm/send",
+                    data=json.dumps(fcm_payload),
+                    headers=headers,
+                )
+
+                # fa.send_android_message(
+                #     title=fcm_notification.title,
+                #     body=message,
+                #     data=data,
+                #     tokens=get_firebase_tokens(customer.user),
+                #     priority="high",
+                # )
+                if res.ok and res.status_code == 200:
+                    # Save log for Spark Push Notification
+                    frappe.get_doc(
+                        {
+                            "doctype": "Spark Push Notification Log",
+                            "name": notification_name,
+                            "title": data["title"],
+                            "loan_customer": customer.name,
+                            "customer_name": customer.full_name,
+                            "loan": data["loan_no"],
+                            "screen_to_open": data["screen"],
+                            "notification_id": data["notification_id"],
+                            "notification_type": data["notification_type"],
+                            "time": current_time,
+                            "click_action": data["click_action"],
+                            "message": data["body"],
+                            "is_cleared": 0,
+                            "is_read": 0,
+                        }
+                    ).insert(ignore_permissions=True)
+                    frappe.db.commit()
+            except (
+                requests.RequestException,
+                TypeError,
+                KeyError,
+                ValueError,
+                FirebaseError,
+            ):
+                # To log fcm notification Exception into Frappe Error Log
+                raise Exception
+    except Exception as e:
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\nNotification Info:\n"
+            + json.dumps(fcm_payload if fcm_payload else customer.name),
+            title="Spark Push Notification Error",
+        )
 
 
 def validate_rupees(type_of_fees):
