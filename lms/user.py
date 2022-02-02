@@ -1422,21 +1422,26 @@ def dashboard(**kwargs):
                     if frappe.utils.now_datetime().date() in holidays:
                         # if_today_holiday then add those hours in timer
                         # if mg_shortfall_action.sell_off_after_hours:
-                        if (
-                            mg_shortfall_action.sell_off_after_hours
-                            and frappe.utils.now_datetime().date()
-                            == mg_shortfall_doc.creation.date()
-                        ):
+                        # if (
+                        #     frappe.utils.now_datetime().date()
+                        #     == mg_shortfall_doc.creation.date()
+                        # ):
+                        #     if mg_shortfall_action.sell_off_after_hours:
+                        #         start_time = datetime.strptime(
+                        #             list(holidays)[-1].strftime("%Y-%m-%d %H:%M:%S.%f"),
+                        #             "%Y-%m-%d %H:%M:%S.%f",
+                        #         ).replace(hour=0, minute=0, second=0, microsecond=0)
 
-                            start_time = datetime.strptime(
-                                list(holidays)[-1].strftime("%Y-%m-%d %H:%M:%S.%f"),
-                                "%Y-%m-%d %H:%M:%S.%f",
-                            ).replace(hour=0, minute=0, second=0, microsecond=0)
+                        #     else:
+                        #         start_time = frappe.utils.now_datetime().replace(
+                        #             hour=0, minute=0, second=0, microsecond=0
+                        #         )
 
-                        else:
-                            start_time = frappe.utils.now_datetime().replace(
-                                hour=0, minute=0, second=0, microsecond=0
-                            )
+                        # else:
+                        #     pass
+                        start_time = frappe.utils.now_datetime().replace(
+                            hour=0, minute=0, second=0, microsecond=0
+                        )
                         is_today_holiday = 1
                         hrs_difference += frappe.utils.now_datetime() - start_time
 

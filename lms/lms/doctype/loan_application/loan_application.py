@@ -606,50 +606,37 @@ class LoanApplication(Document):
         )
 
         loan = frappe.get_doc("Loan", self.loan)
+        loan.update_items()
+        loan.fill_items()
 
-        # apply processing fees on new sanctioned limit(loan application drawing power)
-        # apply renewal charges on existing loan sanctioned limit
+        loan.drawing_power = (loan.allowable_ltv / 100) * loan.total_collateral_value
+
         if self.application_type == "Increase Loan":
+            # apply processing fees on new sanctioned limit(loan application drawing power)
+            # apply renewal charges on existing loan sanctioned limit
             self.apply_renewal_charges(loan)
             loan.reload()
-            loan.check_for_shortfall(on_approval=True)
-        else:
-            loan.reload()
-            loan.update_items()
-            loan.fill_items()
+            # TODO : manage expiry date
+            loan.expiry_date = self.expiry_date
 
-        # for item in self.items:
-        #     if item.lender_approval_status == "Approved":
-        #         loan.append(
-        #             "items",
-        #             {
-        #                 "isin": item.isin,
-        #                 "security_name": item.security_name,
-        #                 "security_category": item.security_category,
-        #                 "pledged_quantity": item.pledged_quantity,
-        #                 "price": item.price,
-        #                 "amount": item.amount
-        #             },
-        #         )
-
-        # loan.total_collateral_value += self.total_collateral_value
-        loan.drawing_power = (loan.allowable_ltv / 100) * loan.total_collateral_value
-        # loan.drawing_power += self.drawing_power
-
-        if self.application_type == "Increase Loan":
-            # drawing_power = round(
-            #     lms.round_down_amount_to_nearest_thousand(loan.drawing_power), 2
-            # )
-            # loan.sanctioned_limit = loan.drawing_power
-            loan.sanctioned_limit = loan.drawing_power = (
+            loan.sanctioned_limit = (
                 self.maximum_sanctioned_limit
                 if self.increased_sanctioned_limit > self.maximum_sanctioned_limit
                 else self.increased_sanctioned_limit
             )
-
-            # TODO : manage expiry date
-            loan.expiry_date = self.expiry_date
+            if loan.drawing_power > loan.sanctioned_limit:
+                loan.drawing_power = loan.sanctioned_limit
+            # loan.sanctioned_limit = loan.drawing_power
             loan.save(ignore_permissions=True)
+            loan_margin_shortfall = loan.get_margin_shortfall()
+            if not loan_margin_shortfall.is_new() and loan_margin_shortfall.status in [
+                "Pending",
+                "Request Pending",
+            ]:
+                loan_margin_shortfall.fill_items()
+                if loan_margin_shortfall.shortfall_percentage == 0:
+                    loan_margin_shortfall.status = "Resolved"
+                loan_margin_shortfall.save(ignore_permissions=True)
 
         if self.application_type in ["Margin Shortfall", "Pledge More"]:
             if loan.drawing_power > loan.sanctioned_limit:
