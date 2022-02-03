@@ -43,17 +43,18 @@ class UserToken(Document):
             else:
                 doc = frappe.get_all(
                     "User", filters={"username": self.entity}, fields=["*"]
-                )[0]
-                doc["otp_info"] = {
-                    "token_type": self.token_type.replace(" ", ""),
-                    "token": self.token,
-                }
-                frappe.enqueue_doc(
-                    "Notification",
-                    "Other OTP for Spark Loans",
-                    method="send",
-                    doc=doc,
                 )
+                if doc:
+                    doc[0]["otp_info"] = {
+                        "token_type": self.token_type.replace(" ", ""),
+                        "token": self.token,
+                    }
+                    frappe.enqueue_doc(
+                        "Notification",
+                        "Other OTP for Spark Loans",
+                        method="send",
+                        doc=doc[0],
+                    )
 
             # las_settings = frappe.get_single("LAS Settings")
             # app_hash_string = (las_settings.app_identification_hash_string,)
