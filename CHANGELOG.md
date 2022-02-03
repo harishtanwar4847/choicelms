@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- [Feat: API error logging for Spark API](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/480)
+
 ## [v2.6.0] - 2022-02-02
 
 ### Added
