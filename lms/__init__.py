@@ -1011,7 +1011,7 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
     return frappe.get_doc("Spark Dummy Account", dummy_account_name)
 
 
-def log_api_error(message=None, title=frappe.get_traceback() + " API Error"):
+def log_api_error(message=None):
     """
     Log API error to Error Log
 
@@ -1022,6 +1022,11 @@ def log_api_error(message=None, title=frappe.get_traceback() + " API Error"):
     # the title and message may be swapped
     # the better API for this is log_error(title, message), and used in many cases this way
     # this hack tries to be smart about whats a title (single line ;-)) and fixes it
+
+    title = (
+        frappe.local.form_dict["cmd"].split(".")[-1].replace("_", " ").title()
+        + " API Error"
+    )
 
     if message:
         error = frappe.get_traceback() + "\n\n" + str(message)
