@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [v2.7.0] - 2022-02-04
+
 ### Added
 
 - [Feat: In a mail of apply now add IOS APP link](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/477)
