@@ -1068,13 +1068,14 @@ def ckyc_search_api():
         private_key,
         certificate,
         additional_certificates,
-    ) = pkcs12.load_key_and_certificates(pfx_file, b"sPark@!@#")
+    ) = pkcs12.load_key_and_certificates(pfx_file, b"12345678")
 
     # encoded_pid + encoded_session_key in request.xml
     # and sign entire request
     request_xml = ckyc_request_xml(
         pid=encoded_pid, sess_key=encoded_session_key, private_key=private_key
     )
+    print(request_xml)
     # return encoded_pid,encrypted_session_key,encoded_session_key
     import hmac
 
@@ -1104,7 +1105,7 @@ def ckyc_search_api():
     # then confirmation page
     # if no response then return
     # return ET.fromstring(response.content)
-    return response.content
+    # return response.content
 
 
 def ckyc_request_xml(pid, sess_key, private_key):
@@ -1155,13 +1156,13 @@ def ckyc_request_xml(pid, sess_key, private_key):
     # xml_declaration = '<?xml version="1.0" encoding="UTF-8"?>'
     # file = xml_declaration + str(ET.tostring(signed_root),"utf-8")
 
-    verified_root = XMLVerifier().verify(signed_root).signed_xml
+    # verified_root = XMLVerifier().verify(signed_root).signed_xml
 
     tree.write(
         "request.xml", encoding="UTF-8", xml_declaration=True, short_empty_elements=True
     )
     file = open("request.xml", "r").read()
 
-    print(ET.tostring(signed_root), "signed_root")
-    print(ET.tostring(verified_root), "verified_root")
+    # print(ET.tostring(signed_root), "signed_root")
+    # print(ET.tostring(verified_root), "verified_root")
     return file
