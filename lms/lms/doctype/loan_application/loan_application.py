@@ -610,6 +610,7 @@ class LoanApplication(Document):
         loan.fill_items()
 
         loan.drawing_power = (loan.allowable_ltv / 100) * loan.total_collateral_value
+        loan.save(ignore_permissions=True)
 
         if self.application_type == "Increase Loan":
             # apply processing fees on new sanctioned limit(loan application drawing power)
