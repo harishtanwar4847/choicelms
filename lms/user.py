@@ -574,7 +574,8 @@ def request_choice_kyc(data):
         "investorId": las_settings.choice_investor_id,
         "ticket": las_settings.choice_ticket,
     }
-
+    frappe.logger().info(headers)
+    frappe.logger().info(params)
     res = requests.get(las_settings.choice_pan_api, params=params, headers=headers)
     frappe.logger().info(str(res))
     res_json = res.json()
