@@ -1,0 +1,50 @@
+<head> </head>
+
+<body>
+  <h2>
+    Redirecting... <br />
+    Please wait for a while.
+  </h2>
+
+  <script>
+    function getMobileOperatingSystem() {
+      var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+      // Windows Phone must come first because its UA also contains "Android"
+      if (/windows phone/i.test(userAgent)) {
+        return "Windows Phone";
+      }
+
+      if (/android/i.test(userAgent)) {
+        return "Android";
+      }
+
+      if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+        return "iOS";
+      }
+
+      // alert(userAgent);
+
+      return "unknown";
+    }
+  </script>
+
+  <script>
+    function DetectAndRdr() {
+      if (getMobileOperatingSystem() == "Android") {
+        window.location.href =
+          "https://play.google.com/store/apps/details?id=com.sparktechnologies.sparkloans";
+      } else if (getMobileOperatingSystem() == "iOS") {
+        window.location.href =
+          "https://apps.apple.com/in/app/spark-loans/id1551799259";
+      }
+      // if (getMobileOperatingSystem() == "Windows Phone") {
+      //    window.location.href = "http://www.WindowsPhoneexample.com";
+      // }
+      else {
+        window.location.href = "https://spark.loans/";
+      }
+    }
+    DetectAndRdr();
+  </script>
+</body>
