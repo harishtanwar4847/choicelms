@@ -353,18 +353,18 @@ class LoanApplication(Document):
                         self.name, lms.convert_list_to_tuple_string(rejected_isin_list)
                     ),
                 )
-            try:
-                fa = FirebaseAdmin()
-                fa.send_data(
-                    data={
-                        "event": "Esign Pending",
-                    },
-                    tokens=lms.get_firebase_tokens(self.get_customer().user),
-                )
-            except Exception:
-                pass
-            finally:
-                fa.delete_app()
+            # try:
+            #     fa = FirebaseAdmin()
+            #     fa.send_data(
+            #         data={
+            #             "event": "Esign Pending",
+            #         },
+            #         tokens=lms.get_firebase_tokens(self.get_customer().user),
+            #     )
+            # except Exception:
+            #     pass
+            # finally:
+            #     fa.delete_app()
 
         elif self.status == "Rejected":
             if self.loan_margin_shortfall:

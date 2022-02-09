@@ -486,89 +486,89 @@ class Loan(Document):
             # self.reload()
             # self.margin_shortfall_amount = self.get_margin_shortfall_amount()
             # self.save(ignore_permissions=True)
-            if customer.alerts_based_on_percentage:
-                if self.total_collateral_value > (
-                    old_total_collateral_value
-                    + (
-                        old_total_collateral_value
-                        * int(customer.alerts_based_on_percentage)
-                        / 100
-                    )
-                ):
-                    try:
-                        fa = FirebaseAdmin()
-                        fa.send_data(
-                            data={
-                                "event": "Alert price UP by {}%".format(
-                                    customer.alerts_based_on_percentage
-                                ),
-                            },
-                            tokens=lms.get_firebase_tokens(customer.user),
-                        )
-                    except Exception:
-                        pass
-                    finally:
-                        fa.delete_app()
+            # if customer.alerts_based_on_percentage:
+            #     if self.total_collateral_value > (
+            #         old_total_collateral_value
+            #         + (
+            #             old_total_collateral_value
+            #             * int(customer.alerts_based_on_percentage)
+            #             / 100
+            #         )
+            #     ):
+            #         try:
+            #             fa = FirebaseAdmin()
+            #             fa.send_data(
+            #                 data={
+            #                     "event": "Alert price UP by {}%".format(
+            #                         customer.alerts_based_on_percentage
+            #                     ),
+            #                 },
+            #                 tokens=lms.get_firebase_tokens(customer.user),
+            #             )
+            #         except Exception:
+            #             pass
+            #         finally:
+            #             fa.delete_app()
 
-                elif self.total_collateral_value < (
-                    old_total_collateral_value
-                    - (
-                        old_total_collateral_value
-                        * customer.alerts_based_on_percentage
-                        / 100
-                    )
-                ):
-                    try:
-                        fa = FirebaseAdmin()
-                        fa.send_data(
-                            data={
-                                "event": "Alert price DOWN by {}%".format(
-                                    customer.alerts_based_on_percentage
-                                ),
-                            },
-                            tokens=lms.get_firebase_tokens(customer.user),
-                        )
-                    except Exception:
-                        pass
-                    finally:
-                        fa.delete_app()
+            #     elif self.total_collateral_value < (
+            #         old_total_collateral_value
+            #         - (
+            #             old_total_collateral_value
+            #             * customer.alerts_based_on_percentage
+            #             / 100
+            #         )
+            #     ):
+            #         try:
+            #             fa = FirebaseAdmin()
+            #             fa.send_data(
+            #                 data={
+            #                     "event": "Alert price DOWN by {}%".format(
+            #                         customer.alerts_based_on_percentage
+            #                     ),
+            #                 },
+            #                 tokens=lms.get_firebase_tokens(customer.user),
+            #             )
+            #         except Exception:
+            #             pass
+            #         finally:
+            #             fa.delete_app()
 
-            elif customer.alerts_based_on_amount:
-                if self.total_collateral_value > (
-                    old_total_collateral_value + customer.alerts_based_on_amount
-                ):
-                    try:
-                        fa = FirebaseAdmin()
-                        fa.send_data(
-                            data={
-                                "event": "Alert price UP by Rs. {}".format(
-                                    customer.alerts_based_on_amount
-                                ),
-                            },
-                            tokens=lms.get_firebase_tokens(customer.user),
-                        )
-                    except Exception:
-                        pass
-                    finally:
-                        fa.delete_app()
+            # elif customer.alerts_based_on_amount:
+            #     if self.total_collateral_value > (
+            #         old_total_collateral_value + customer.alerts_based_on_amount
+            #     ):
+            #         try:
+            #             fa = FirebaseAdmin()
+            #             fa.send_data(
+            #                 data={
+            #                     "event": "Alert price UP by Rs. {}".format(
+            #                         customer.alerts_based_on_amount
+            #                     ),
+            #                 },
+            #                 tokens=lms.get_firebase_tokens(customer.user),
+            #             )
+            #         except Exception:
+            #             pass
+            #         finally:
+            #             fa.delete_app()
 
-                elif self.total_collateral_value < (
-                    old_total_collateral_value - customer.alerts_based_on_amount
-                ):
-                    try:
-                        fa = FirebaseAdmin()
-                        fa.send_data(
-                            data={
-                                "event": "Alert price DOWN by Rs. {}".format(
-                                    customer.alerts_based_on_amount
-                                ),
-                            },
-                            tokens=lms.get_firebase_tokens(customer.user),
-                        )
-                    except Exception:
-                        pass
-                    finally:
-                        fa.delete_app()
+            #     elif self.total_collateral_value < (
+            #         old_total_collateral_value - customer.alerts_based_on_amount
+            #     ):
+            #         try:
+            #             fa = FirebaseAdmin()
+            #             fa.send_data(
+            #                 data={
+            #                     "event": "Alert price DOWN by Rs. {}".format(
+            #                         customer.alerts_based_on_amount
+            #                     ),
+            #                 },
+            #                 tokens=lms.get_firebase_tokens(customer.user),
+            #             )
+            #         except Exception:
+            #             pass
+            #         finally:
+            #             fa.delete_app()
 
             # update pending withdraw allowable for this loan
             self.update_pending_withdraw_requests()
