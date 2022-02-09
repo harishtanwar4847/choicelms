@@ -62,13 +62,13 @@ class LoanApplication(Document):
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
             "sanctioned_amount": lms.validate_rupees(
-                self.increased_sanctioned_limit
+                new_increased_sanctioned_limit
                 if self.loan and not self.loan_margin_shortfall
                 else self.drawing_power
             ),
             "sanctioned_amount_in_words": lms.number_to_word(
                 lms.validate_rupees(
-                    self.increased_sanctioned_limit
+                    new_increased_sanctioned_limit
                     if self.loan and not self.loan_margin_shortfall
                     else self.drawing_power,
                 )
