@@ -43,8 +43,8 @@
                     <br />
                     <a href="https://play.google.com/store/apps/details?id=com.sparktechnologies.sparkloans">Link for Play store</a><br />
                     <br />
-                    <!-- <a href="https://spark.loans/">Link for App Store.</a><br />
-                    <br /> -->
+                    <a href="https://apps.apple.com/in/app/spark-loans/id1551799259">Link for App store</a><br />
+                    <br />
                     You can reach us through 'Contact Us' on the app.<br />
                     <br />
                 </span>
