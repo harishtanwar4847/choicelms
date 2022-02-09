@@ -1024,14 +1024,24 @@ def log_api_error(message=None):
     # this hack tries to be smart about whats a title (single line ;-)) and fixes it
 
     title = (
-        frappe.local.form_dict["cmd"].split(".")[-1].replace("_", " ").title()
+        frappe.local.form_dict.get("cmd").split(".")[-1].replace("_", " ").title()
         + " API Error"
     )
 
     if message:
-        error = frappe.get_traceback() + "\n\n" + str(message)
+        error = (
+            frappe.get_traceback()
+            + "\n\n"
+            + str(message)
+            + "\n\n"
+            + "\n".join("{} : {}".format(*i) for i in frappe.local.form_dict.items())
+        )
     else:
-        error = frappe.get_traceback()
+        error = (
+            frappe.get_traceback()
+            + "\n\n"
+            + "\n".join("{} : {}".format(*i) for i in frappe.local.form_dict.items())
+        )
 
     return frappe.get_doc(
         dict(doctype="API Error Log", error=frappe.as_unicode(error), method=title)
