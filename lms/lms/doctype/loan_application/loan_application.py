@@ -38,6 +38,17 @@ class LoanApplication(Document):
         lender = self.get_lender()
         if self.loan:
             loan = self.get_loan()
+            increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+                (self.total_collateral_value + loan.total_collateral_value)
+                * self.allowable_ltv
+                / 100
+            )
+            self.increased_sanctioned_limit = (
+                increased_sanctioned_limit
+                if increased_sanctioned_limit < lender.maximum_sanctioned_limit
+                else lender.maximum_sanctioned_limit
+            )
+            self.save(ignore_permissions=True)
 
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
