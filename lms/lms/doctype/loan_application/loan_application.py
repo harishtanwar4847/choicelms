@@ -43,12 +43,18 @@ class LoanApplication(Document):
                 * self.allowable_ltv
                 / 100
             )
-            self.increased_sanctioned_limit = (
+            new_increased_sanctioned_limit = (
                 increased_sanctioned_limit
                 if increased_sanctioned_limit < lender.maximum_sanctioned_limit
                 else lender.maximum_sanctioned_limit
             )
-            self.save(ignore_permissions=True)
+            frappe.db.set_value(
+                self.doctype,
+                self.name,
+                "increased_sanctioned_limit",
+                new_increased_sanctioned_limit,
+                update_modified=False,
+            )
 
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
