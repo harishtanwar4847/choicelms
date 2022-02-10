@@ -1015,7 +1015,6 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
     return frappe.get_doc("Spark Dummy Account", dummy_account_name)
 
 
-@frappe.whitelist()
 def ckyc_search_api():
     # 256 bit random session key
     key = os.urandom(32)
@@ -1059,29 +1058,13 @@ def ckyc_search_api():
     encrypted_session_key = rsa.encrypt(key, rsakey)
     encoded_session_key = base64.b64encode(encrypted_session_key).decode("ascii")
 
-    from cryptography.hazmat.primitives.serialization import pkcs12
-
-    fis_private_key = las_settings.fis_private_key
-    file_name = frappe.get_value("File", {"file_url": fis_private_key}, "file_name")
-    pfx_file = open(frappe.utils.get_files_path(file_name), "rb").read()
-    (
-        private_key,
-        certificate,
-        additional_certificates,
-    ) = pkcs12.load_key_and_certificates(pfx_file, b"12345678")
-
     # encoded_pid + encoded_session_key in request.xml
     # and sign entire request
-    request_xml = ckyc_request_xml(
-        pid=encoded_pid, sess_key=encoded_session_key, private_key=private_key
+    request_xml = request_xml_ckyc(
+        pid=encoded_pid, sess_key=encoded_session_key, is_search_api=True
     )
     print(request_xml)
     # return encoded_pid,encrypted_session_key,encoded_session_key
-    import hmac
-
-    from cryptography.hazmat.primitives import hashes
-    from cryptography.hazmat.primitives.asymmetric import padding
-    from cryptography.hazmat.primitives.serialization import pkcs12
 
     # headers
     headers = {"Content-Type": "application/xml; charset=utf-8"}
@@ -1108,12 +1091,71 @@ def ckyc_search_api():
     # return response.content
 
 
-def ckyc_request_xml(pid, sess_key, private_key):
+def ckyc_download_api():
+    # 256 bit random session key
+    key = os.urandom(32)
+    # iv = os.urandom(16)
+
+    date = datetime.strftime(frappe.utils.now_datetime(), "%d-%m-%Y %H:%M:%S")
+    dob = "27-12-1995"
+    ckyc_no = "Caadfdsfdfdfsdd"
+
+    # structured XML - current length of data = 192 (CBC mode needs data in multiple of iv(16))
+    # if len of data changes then it should be in multiple of 16
+
+    data = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?><PID_DATA><DATE_TIME>{date}</DATE_TIME><CKYC_NO>{ckyc_no}</CKYC_NO><AUTH_FACTOR_TYPE>01</AUTH_FACTOR_TYPE><AUTH_FACTOR>{dob}</AUTH_FACTOR></PID_DATA>".format(
+        date=date, dob=dob, ckyc_no=ckyc_no
+    )
+
+    from Crypto.Cipher import AES
+
+    # print(data)
+    cipher = AES.new(key, AES.MODE_EAX)
+    # cipher = AES.new(key, AES.MODE_CBC, iv)
+    encrypted_pid = cipher.encrypt(bytes(data, "utf-8"))
+
+    # Encoding
+    encoded_pid = base64.b64encode(encrypted_pid).decode("ascii")
+
+    # temporary cersai public key uploaded to tnc field
+    # cersai_publickey.cer to be converted to .pem format and then upload in backend
+    import rsa
+    from Crypto.PublicKey import RSA
+
+    las_settings = frappe.get_single("LAS Settings")
+    cersai_public_keypem = las_settings.cersai_public_keypem
+    file_name = frappe.get_value(
+        "File", {"file_url": cersai_public_keypem}, "file_name"
+    )
+
+    pub_key = open(frappe.utils.get_files_path(file_name), "r").read()
+    rsakey = RSA.importKey(pub_key)
+
+    encrypted_session_key = rsa.encrypt(key, rsakey)
+    encoded_session_key = base64.b64encode(encrypted_session_key).decode("ascii")
+
+    # encoded_pid + encoded_session_key in request.xml
+    # and sign entire request
+    request_xml = request_xml_ckyc(pid=encoded_pid, sess_key=encoded_session_key)
+    print(request_xml)
+    # return encoded_pid,encrypted_session_key,encoded_session_key
+
+    # headers
+    headers = {"Content-Type": "application/xml; charset=utf-8"}
+    # request URL
+    url = "https://testbed.ckycindia.in/Search/ckycverificationservice/download"
+    # POST request
+    response = requests.post(url, headers=headers, data=request_xml)
+
+
+def request_xml_ckyc(pid, sess_key, is_search_api=False):
     fi_code_text = "IN6917"
     req_id_text = "3"
     version_text = "1.2"
 
-    root = ET.Element("REQ_ROOT")
+    root = (
+        ET.Element("REQ_ROOT") if is_search_api else ET.Element("CKYC_DOWNLOAD_REQUEST")
+    )
 
     header = ET.Element("HEADER")
     FI_CODE = ET.SubElement(header, "FI_CODE")
@@ -1138,9 +1180,20 @@ def ckyc_request_xml(pid, sess_key, private_key):
     from signxml import XMLSigner, XMLVerifier
 
     las_settings = frappe.get_single("LAS Settings")
-    fis_public_cert = las_settings.lender_template
-    file_name = frappe.get_value("File", {"file_url": fis_public_cert}, "file_name")
-    fis_public_cert_file = open(frappe.utils.get_files_path(file_name), "rb").read()
+    from cryptography.hazmat.primitives.serialization import pkcs12
+
+    fis_private_key = las_settings.fis_private_key
+    file_name = frappe.get_value("File", {"file_url": fis_private_key}, "file_name")
+    pfx_file = open(frappe.utils.get_files_path(file_name), "rb").read()
+    (
+        private_key,
+        certificate,
+        additional_certificates,
+    ) = pkcs12.load_key_and_certificates(pfx_file, b"12345678")
+
+    # fis_public_cert = las_settings.lender_template
+    # file_name = frappe.get_value("File", {"file_url": fis_public_cert}, "file_name")
+    # fis_public_cert_file = open(frappe.utils.get_files_path(file_name), "rb").read()
     signed_root = XMLSigner(
         method=signxml.methods.enveloped,
         signature_algorithm="rsa-sha1",
@@ -1148,7 +1201,7 @@ def ckyc_request_xml(pid, sess_key, private_key):
     ).sign(
         root,
         key=private_key,
-        cert=base64.b64encode(fis_public_cert_file).decode("ascii"),
+        # cert=base64.b64encode(fis_public_cert_file).decode("ascii"),
     )
 
     # tree = ET.ElementTree(root)
