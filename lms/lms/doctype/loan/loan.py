@@ -621,7 +621,8 @@ class Loan(Document):
             frappe.enqueue(
                 method=send_sms,
                 receiver_list=[self.get_customer().phone],
-                msg=message + " -Spark Loans",
+                msg=message
+                + " Please check the app and take an appropriate action. -Spark Loans",
             )
             lms.send_spark_push_notification(
                 fcm_notification=fcm_notification,
