@@ -1056,6 +1056,7 @@ def rzp_payment_webhook_callback(**kwargs):
         log = {
             "rzp_payment_webhook_response": data,
         }
+        frappe.log_error(message=str(log), title="test")
         create_log(log, "rzp_payment_webhook_log")
 
         expected_signature = hmac.new(
