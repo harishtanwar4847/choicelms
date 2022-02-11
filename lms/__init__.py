@@ -646,17 +646,24 @@ def web_mail(notification_name, name, recepient, subject):
 
 
 def create_log(log, file_name):
-    log_file = frappe.utils.get_files_path("{}.json".format(file_name))
-    logs = None
-    if os.path.exists(log_file):
-        with open(log_file, "r") as f:
-            logs = f.read()
+    try:
+        log_file = frappe.utils.get_files_path("{}.json".format(file_name))
+        logs = None
+        if os.path.exists(log_file):
+            with open(log_file, "r") as f:
+                logs = f.read()
+            f.close()
+        logs = json.loads(logs or "[]")
+        logs.append(log)
+        with open(log_file, "w") as f:
+            f.write(json.dumps(logs))
         f.close()
-    logs = json.loads(logs or "[]")
-    logs.append(log)
-    with open(log_file, "w") as f:
-        f.write(json.dumps(logs))
-    f.close()
+    except Exception as e:
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\n\nFile name -\n{}\n\nLog details -\n{}".format(file_name, str(log)),
+            title="Create Log Error",
+        )
 
 
 def send_spark_push_notification(
@@ -1053,11 +1060,8 @@ def rzp_payment_webhook_callback(**kwargs):
 
         headers = {k: v for k, v in frappe.local.request.headers.items()}
         webhook_signature = headers.get("X-Razorpay-Signature")
-        # log = {
-        #     "rzp_payment_webhook_response": data,
-        # }
-        # frappe.log_error(message=str(log), title="test")
-        # create_log(log, "rzp_payment_webhook_log")
+        log = {"rzp_payment_webhook_response": data, "headers": headers}
+        create_log(log, "rzp_payment_webhook_log")
 
         expected_signature = hmac.new(
             digestmod="sha256",
