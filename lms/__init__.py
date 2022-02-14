@@ -1219,3 +1219,116 @@ def request_xml_ckyc(pid, sess_key, is_search_api=False):
     # print(ET.tostring(signed_root), "signed_root")
     # print(ET.tostring(verified_root), "verified_root")
     return file
+
+
+rzp_key_secret = "rzp_test_Y6V9MAUGbQlOrW:vEnHHmtHpxZvYwDOEfDZmmPZ"
+import razorpay
+
+
+def create_contact_penny_drop():
+    try:
+        # fetch rzp key secret from las settings and use Basic auth
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(rzp_key_secret, "utf-8")
+        ).decode("ascii")
+
+        # data paramters will be provided by mobile end
+        # name is mandatory field
+
+        data = {
+            "name": "Gaurav Kumar",
+            "email": "gaurav.kumar@example.com",
+            "contact": "9123456789",
+            "type": "",
+            "reference_id": "",
+            "notes": {},
+        }
+
+        raw_res = requests.post(
+            "https://api.razorpay.com/v1/contacts",
+            headers={
+                "Authorization": razorpay_key_secret_auth,
+                "content-type": "application/json",
+            },
+            data=json.dumps(data),
+        )
+
+        if raw_res.json().get("error"):
+            raise Exception
+
+        return raw_res.json()
+    except Exception:
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create contact details -\n{}".format(data)
+        )
+
+
+def create_fund_account_penny_drop():
+    try:
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(rzp_key_secret, "utf-8")
+        ).decode("ascii")
+
+        data = {
+            "contact_id": "cont_Ivr53WVf4IAgDQ",
+            "account_type": "bank_account",
+            "bank_account": {
+                "name": "Gaurav Kumar",
+                "ifsc": "HDFC0000053",
+                "account_number": "765432123456789",
+            },
+        }
+
+        raw_res = requests.post(
+            "https://api.razorpay.com/v1/fund_accounts",
+            headers={
+                "Authorization": razorpay_key_secret_auth,
+                "content-type": "application/json",
+            },
+            data=json.dumps(data),
+        )
+
+        if raw_res.json().get("error"):
+            raise Exception
+
+        return raw_res.json()
+    except Exception:
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create fund account details -\n{}".format(data)
+        )
+
+
+def validate_fund_account_penny_drop():
+    try:
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(rzp_key_secret, "utf-8")
+        ).decode("ascii")
+
+        data = {
+            "account_number": "765432123456789",
+            "fund_account": {"id": "fa_It896bzqurpLD9"},
+            "amount": 100,
+            "currency": "INR",
+            "notes": {},
+        }
+
+        raw_res = requests.post(
+            "https://api.razorpay.com/v1/fund_accounts/validations",
+            headers={
+                "Authorization": razorpay_key_secret_auth,
+                "content-type": "application/json",
+            },
+            data=json.dumps(data),
+        )
+
+        if raw_res.json().get("error"):
+            raise Exception
+
+        return raw_res.json()
+    except Exception:
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Validate fund account details -\n{}".format(data)
+        )
