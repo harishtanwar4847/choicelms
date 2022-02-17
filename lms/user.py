@@ -3057,3 +3057,39 @@ def contact_us(**kwargs):
         return utils.respondWithSuccess()
     except utils.exceptions.APIException as e:
         return e.respond()
+
+
+@frappe.whitelist()
+def bank_master(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(kwargs, {"ifsc": ""})
+
+        reg = lms.regex_special_characters(
+            search=data.get("ifsc"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
+        )
+        if reg:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
+
+        filters_arr = {}
+
+        if data.get("ifsc", None):
+            search_key = ["like", str("%" + data["ifsc"] + "%")]
+            filters_arr = {"": ["like", search_key]}
+
+        details = frappe.get_all(
+            "Spark Bank Branch", or_filters=filters_arr, fields=["*"]
+        )
+
+        if not details:
+            return utils.respondWithSuccess(
+                message="Your issue does not match with Common Issues. Please Contact Us."
+            )
+
+        return utils.respondWithSuccess(data=details)
+    except utils.exceptions.APIException as e:
+        return e.respond()

@@ -1,0 +1,48 @@
+{
+ "actions": [],
+ "creation": "2022-02-02 09:12:37.832720",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "child_doc_name",
+  "parent_doc_link"
+ ],
+ "fields": [
+  {
+   "fieldname": "child_doc_name",
+   "fieldtype": "Data",
+   "label": "Child Doc Name"
+  },
+  {
+   "fieldname": "parent_doc_link",
+   "fieldtype": "Link",
+   "label": "Parent Doc Link",
+   "options": "Parent Doc"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-02-02 09:12:37.832720",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Child Doc",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

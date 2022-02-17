@@ -1,0 +1,110 @@
+{
+ "actions": [],
+ "autoname": "field:child_doc_name",
+ "creation": "2022-02-02 09:13:15.856686",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "child_doc_name",
+  "parent_doc_link",
+  "parent_full_name",
+  "parent_age",
+  "parent_present_address",
+  "table_section_section",
+  "parent_date_and_value",
+  "list_all_parent_section",
+  "button",
+  "parent_list",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "child_doc_name",
+   "fieldtype": "Data",
+   "label": "Child Doc Name",
+   "unique": 1
+  },
+  {
+   "fieldname": "parent_doc_link",
+   "fieldtype": "Link",
+   "label": "Parent Doc Link",
+   "options": "Parent Doc"
+  },
+  {
+   "fieldname": "parent_full_name",
+   "fieldtype": "Data",
+   "label": "Parent Full Name"
+  },
+  {
+   "fieldname": "parent_age",
+   "fieldtype": "Int",
+   "label": "Parent Age"
+  },
+  {
+   "fieldname": "parent_present_address",
+   "fieldtype": "Small Text",
+   "label": "Parent Present Address"
+  },
+  {
+   "fieldname": "table_section_section",
+   "fieldtype": "Section Break",
+   "label": "Table Section"
+  },
+  {
+   "fieldname": "parent_date_and_value",
+   "fieldtype": "Table",
+   "label": "Parent Date and Value",
+   "options": "Child Child Table"
+  },
+  {
+   "fieldname": "list_all_parent_section",
+   "fieldtype": "Section Break",
+   "label": "List all Parent"
+  },
+  {
+   "fieldname": "button",
+   "fieldtype": "Button",
+   "label": "Button"
+  },
+  {
+   "fieldname": "parent_list",
+   "fieldtype": "Table",
+   "label": "Parent List",
+   "options": "Child Child Table Parent List"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Child Doc New",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-02-02 10:02:30.644073",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Child Doc New",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

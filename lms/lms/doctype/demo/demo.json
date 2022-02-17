@@ -1,0 +1,128 @@
+{
+ "actions": [],
+ "autoname": "format:DemoPractise-{MM}}-{YYYY}-{#####}",
+ "creation": "2022-01-19 16:06:18.424811",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "label1",
+  "label2",
+  "attach",
+  "cb1_column",
+  "button",
+  "check",
+  "color",
+  "sb1_section",
+  "date_and_time",
+  "float",
+  "sb2_section",
+  "int",
+  "text",
+  "select",
+  "text_editor",
+  "child_table"
+ ],
+ "fields": [
+  {
+   "default": "jh",
+   "fieldname": "label1",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Label22",
+   "unique": 1
+  },
+  {
+   "fieldname": "label2",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Label2",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "attach",
+   "fieldtype": "Attach",
+   "label": "Attach",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "button",
+   "fieldtype": "Button",
+   "label": "Button"
+  },
+  {
+   "default": "0",
+   "fieldname": "check",
+   "fieldtype": "Check",
+   "label": "Check"
+  },
+  {
+   "fieldname": "color",
+   "fieldtype": "Color",
+   "label": "Color"
+  },
+  {
+   "fieldname": "date_and_time",
+   "fieldtype": "Datetime",
+   "label": "Date and Time"
+  },
+  {
+   "fieldname": "float",
+   "fieldtype": "Float",
+   "label": "Float"
+  },
+  {
+   "fieldname": "int",
+   "fieldtype": "Int",
+   "label": "Int"
+  },
+  {
+   "fieldname": "text",
+   "fieldtype": "Text",
+   "label": "Text"
+  },
+  {
+   "fieldname": "select",
+   "fieldtype": "Select",
+   "label": "Select",
+   "options": "Op1\nOp2\nOp3"
+  },
+  {
+   "fieldname": "text_editor",
+   "fieldtype": "Text Editor",
+   "label": "Text Editor"
+  },
+  {
+   "fieldname": "cb1_column",
+   "fieldtype": "Column Break",
+   "label": "CB1"
+  },
+  {
+   "fieldname": "sb1_section",
+   "fieldtype": "Section Break",
+   "label": "SB1"
+  },
+  {
+   "fieldname": "sb2_section",
+   "fieldtype": "Section Break",
+   "label": "SB2"
+  },
+  {
+   "fieldname": "child_table",
+   "fieldtype": "Table",
+   "label": "child table",
+   "options": "pract"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-01-20 14:49:09.897580",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Demo",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

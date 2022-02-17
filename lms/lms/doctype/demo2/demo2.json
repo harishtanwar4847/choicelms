@@ -1,0 +1,152 @@
+{
+ "actions": [],
+ "autoname": "format:DemoPractise-{MM}}-{YYYY}-{#####}",
+ "creation": "2022-01-20 14:52:11.692005",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "label1",
+  "label2",
+  "attach",
+  "cb1_column",
+  "button",
+  "check",
+  "color",
+  "sb1_section",
+  "date_and_time",
+  "float",
+  "sb2_section",
+  "int",
+  "text",
+  "select",
+  "text_editor",
+  "child_table",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "default": "jh",
+   "fieldname": "label1",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Label22",
+   "unique": 1
+  },
+  {
+   "fieldname": "label2",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Label2",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "attach",
+   "fieldtype": "Attach",
+   "label": "Attach",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "cb1_column",
+   "fieldtype": "Column Break",
+   "label": "CB1"
+  },
+  {
+   "fieldname": "button",
+   "fieldtype": "Button",
+   "label": "Button"
+  },
+  {
+   "default": "0",
+   "fieldname": "check",
+   "fieldtype": "Check",
+   "label": "Check"
+  },
+  {
+   "fieldname": "color",
+   "fieldtype": "Color",
+   "label": "Color"
+  },
+  {
+   "fieldname": "sb1_section",
+   "fieldtype": "Section Break",
+   "label": "SB1"
+  },
+  {
+   "fieldname": "date_and_time",
+   "fieldtype": "Datetime",
+   "label": "Date and Time"
+  },
+  {
+   "fieldname": "float",
+   "fieldtype": "Float",
+   "label": "Float"
+  },
+  {
+   "fieldname": "sb2_section",
+   "fieldtype": "Section Break",
+   "label": "SB2"
+  },
+  {
+   "fieldname": "int",
+   "fieldtype": "Int",
+   "label": "Int"
+  },
+  {
+   "fieldname": "text",
+   "fieldtype": "Text",
+   "label": "Text"
+  },
+  {
+   "fieldname": "select",
+   "fieldtype": "Select",
+   "label": "Select",
+   "options": "Op1\nOp2\nOp3"
+  },
+  {
+   "fieldname": "text_editor",
+   "fieldtype": "Text Editor",
+   "label": "Text Editor"
+  },
+  {
+   "fieldname": "child_table",
+   "fieldtype": "Table",
+   "label": "child table",
+   "options": "pract"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "demo2",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2022-02-07 14:49:02.121145",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "demo2",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
