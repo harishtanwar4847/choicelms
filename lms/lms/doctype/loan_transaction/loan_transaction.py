@@ -727,11 +727,9 @@ def settlement_recon_api(input_date=None):
                         loan_transaction_name = frappe.get_value(
                             "Loan Transaction",
                             {
-                                "status": "Pending",
                                 "order_id": settled_items["order_id"],
                                 "transaction_id": settled_items["entity_id"],
                                 "loan": json.loads(settled_items["notes"])["loan_name"],
-                                "status": "Pending",
                                 "razorpay_event": "Captured",
                             },
                             "name",
@@ -752,14 +750,22 @@ def settlement_recon_api(input_date=None):
                             elif settle_res["status"] == "failed":
                                 settlement_status = "Failed"
 
-                            loan_transaction.settlement_status = settlement_status
-
                             # update settlement id in loan transaction
-                            loan_transaction.settlement_id = settled_items[
-                                "settlement_id"
-                            ]
-                            loan_transaction.save(ignore_permissions=True)
-                            frappe.db.commit()
+                            if loan_transaction.status == "Pending":
+                                loan_transaction.settlement_status = settlement_status
+                                loan_transaction.settlement_id = settled_items[
+                                    "settlement_id"
+                                ]
+                                loan_transaction.save(ignore_permissions=True)
+                                frappe.db.commit()
+                            else:
+                                loan_transaction.db_set(
+                                    "settlement_status", settlement_status
+                                )
+                                loan_transaction.db_set(
+                                    "settlement_id", settled_items["settlement_id"]
+                                )
+
                     except Exception:
                         frappe.log_error(
                             message=frappe.get_traceback()
