@@ -12,39 +12,33 @@ import lms
 
 class SparkBankBranch(Document):
     def validate(self):
-        self.get_ifsc()
-        self.get_district()
-        self.get_city()
-        self.get_state()
+        self.get_bank_details()
 
-    def get_ifsc(self):
+    def get_bank_details(self):
         if self.ifsc:
-            is_alphanumeric = lms.regex_special_characters(
+            check_ifsc = lms.regex_special_characters(
                 search=self.ifsc, regex=re.compile("^[a-zA-Z0-9]*$")
             )
-            if not is_alphanumeric:
+            if not check_ifsc:
                 frappe.throw("Only Alphanumeric value are allowed.")
 
-    def get_district(self):
         if self.district:
-            is_alphanumeric = lms.regex_special_characters(
+            check_district = lms.regex_special_characters(
                 search=self.district, regex=re.compile("^[a-zA-Z0-9]*$")
             )
-            if not is_alphanumeric:
+            if not check_district:
                 frappe.throw("Only Alphanumeric value are allowed.")
 
-    def get_city(self):
         if self.city:
-            is_alphanumeric = lms.regex_special_characters(
+            check_city = lms.regex_special_characters(
                 search=self.city, regex=re.compile("^[a-zA-Z0-9]*$")
             )
-            if not is_alphanumeric:
+            if not check_city:
                 frappe.throw("Only Alphanumeric value are allowed.")
 
-    def get_state(self):
         if self.state:
-            is_alphanumeric = lms.regex_special_characters(
+            check_state = lms.regex_special_characters(
                 search=self.state, regex=re.compile("^[a-zA-Z0-9]*$")
             )
-            if not is_alphanumeric:
+            if not check_state:
                 frappe.throw("Only Alphanumeric value are allowed.")
