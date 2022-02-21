@@ -759,12 +759,13 @@ def settlement_recon_api(input_date=None):
                                 loan_transaction.save(ignore_permissions=True)
                                 frappe.db.commit()
                             else:
-                                loan_transaction.db_set(
-                                    "settlement_status", settlement_status
-                                )
-                                loan_transaction.db_set(
-                                    "settlement_id", settled_items["settlement_id"]
-                                )
+                                if loan_transaction.settlement_status != "Processed":
+                                    loan_transaction.db_set(
+                                        "settlement_status", settlement_status
+                                    )
+                                    loan_transaction.db_set(
+                                        "settlement_id", settled_items["settlement_id"]
+                                    )
 
                     except Exception:
                         frappe.log_error(

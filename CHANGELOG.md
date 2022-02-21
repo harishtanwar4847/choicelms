@@ -6,6 +6,12 @@
 - [Feat: Min max sanctioned limit](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/414)
 - [Feat: Margin shortfall refactor, timer and holiday master](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/418)
 
+## [v2.8.0] - 2022-02-21
+
+### Added
+
+- [Feat: update corporate address in footer and contact page](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/483)
+
 ## [v2.7.0] - 2022-02-07
 
 ### Added
