@@ -587,6 +587,9 @@ class Loan(Document):
             message = fcm_notification.message.format(
                 loan=self.name, stop_time=stop_time, start_time=start_time
             )
+            msg = "Dear Customer,\nDue to bank holiday the margin shortfall timer on your loan account {loan} has been paused on {stop_time} and will resume on {start_time}. Please check the app and take an appropriate action. -Spark Loans".format(
+                loan=self.name, stop_time=stop_time, start_time=start_time
+            )
 
             doc["loan_margin_shortfall"] = {
                 "loan": self.name,
@@ -609,6 +612,9 @@ class Loan(Document):
                 fields=["*"],
             )
             message = fcm_notification.message.format(loan=self.name)
+            msg = "Dear Customer,The margin shortfall timer has been resumed on your loan account {loan} Please check the app and take appropriate action. -Spark Loans".format(
+                loan=self.name
+            )
             doc["loan_margin_shortfall"] = {"loan": self.name}
             frappe.enqueue_doc(
                 "Notification",
@@ -617,12 +623,9 @@ class Loan(Document):
                 doc=doc,
             )
 
-        if fcm_notification and message:
+        if message and msg:
             frappe.enqueue(
-                method=send_sms,
-                receiver_list=[self.get_customer().phone],
-                msg=message
-                + " Please check the app and take an appropriate action. -Spark Loans",
+                method=send_sms, receiver_list=[self.get_customer().phone], msg=msg
             )
             lms.send_spark_push_notification(
                 fcm_notification=fcm_notification,
