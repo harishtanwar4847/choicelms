@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v2.9.0] - 2022-02-22
+
+### Added
+
+- [Feat: Any CR transaction made interest should be cleared first](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/474)
+
 ## [v2.8.0] - 2022-02-21
 
 ### Added
