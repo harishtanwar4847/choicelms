@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+## [v2.9.0] - 2022-02-22
+
+### Added
+
+- [Feat: Any CR transaction made interest should be cleared first](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/474)
+
+## [v2.8.0] - 2022-02-21
+
+### Added
+
+- [Feat: update corporate address in footer and contact page](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/483)
+
+## [v2.7.0] - 2022-02-07
+
+### Added
+
+- [Feat: In a mail of apply now add IOS APP link](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/477)
+
 ## [v2.6.0] - 2022-02-02
 
 ### Added
