@@ -256,25 +256,25 @@ class SellCollateralApplication(Document):
         #     "sell_collateral_maximum_amount",
         # )
 
-        is_for_interest = False
-        interest_entry = frappe.get_value(
-            "Loan Transaction",
-            {
-                "loan": self.loan,
-                "transaction_type": "Interest",
-                "unpaid_interest": [">", 0],
-            },
-            "name",
-        )
-        if interest_entry:
-            is_for_interest = True
+        # is_for_interest = False
+        # interest_entry = frappe.get_value(
+        #     "Loan Transaction",
+        #     {
+        #         "loan": self.loan,
+        #         "transaction_type": "Interest",
+        #         "unpaid_interest": [">", 0],
+        #     },
+        #     "name",
+        # )
+        # if interest_entry:
+        #     is_for_interest = True
         loan.create_loan_transaction(
             transaction_type="Sell Collateral",
             amount=self.lender_selling_amount,
             # amount=self.selling_collateral_value,
             approve=True,
             loan_margin_shortfall_name=self.loan_margin_shortfall,
-            is_for_interest=is_for_interest,
+            # is_for_interest=is_for_interest,
         )
         # DP Reimbursement(Sell)
         # Sell Collateral Charges
