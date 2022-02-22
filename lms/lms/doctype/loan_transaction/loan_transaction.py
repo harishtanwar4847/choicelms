@@ -86,6 +86,21 @@ class LoanTransaction(Document):
         self.opening_balance = loan.balance
         self.customer = loan.customer
         self.customer_name = loan.customer_name
+
+        # if there is interest for loan, mark is_for_interest=True for loan transaction with record type CR
+        if self.record_type == "CR":
+            interest_entry = frappe.get_value(
+                "Loan Transaction",
+                {
+                    "loan": self.loan,
+                    "transaction_type": "Interest",
+                    "unpaid_interest": [">", 0],
+                },
+                "name",
+            )
+            if interest_entry and not self.is_for_interest:
+                self.is_for_interest = True
+
         # check for user roles and permissions before adding transactions
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
