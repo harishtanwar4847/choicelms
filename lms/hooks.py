@@ -68,24 +68,16 @@ after_install = "lms.after_install"
 # -----------
 # Permissions evaluated in scripted ways
 
-# permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# 	"Lender": "lms.hooks.lender_permission_query",
-# }
-
-# import frappe
-# def lender_permission_query():
-#     # print(user, a, b, c)
-#     print('in lender hooks')
-#     if not user:
-#         user = frappe.session.user
-#     print(user.name,"************************************************************************************")
-# todos that belong to user or assigned by user
-# return "(`tabLender`.name = {lender})".format(lender=frappe.db.escape("Demo"))
-# user_doc = frappe.get_doc("User", user.name)
-# if "Lender" in user_doc.roles:
-#     if user_doc.lender:
-#         return "(`tabCart`.lender = {lender})".format(lender=user_doc.lender)
+permission_query_conditions = {
+    # "Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
+    # "Lender": "lms.hooks.lender_permission_query",
+    "Cart": "lms.cart_permission_query",
+    "Loan Application": "lms.loan_application_permission_query",
+    # "Collateral Ledger": "lms.collateral_ledger_permission_query",
+    "Loan": "lms.loan_permission_query",
+    "Loan Transaction": "lms.loan_transaction_permission_query",
+    "Loan Margin Shortfall": "lms.loan_margin_shortfall_permission_query",
+}
 
 #
 # has_permission = {

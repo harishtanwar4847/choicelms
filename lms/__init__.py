@@ -1009,3 +1009,73 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
         raise InvalidUserTokenException("Invalid {}".format(token_type))
 
     return frappe.get_doc("Spark Dummy Account", dummy_account_name)
+
+
+def cart_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    # todos that belong to user or assigned by user
+    # return "(`tabLender`.name = {lender})".format(lender=frappe.db.escape("Demo"))
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabCart`.lender = {lender} or `tabCart`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def loan_application_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabLoan Application`.lender = {lender} or `tabLoan Application`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def collateral_ledger_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    # todos that belong to user or assigned by user
+    # return "(`tabLender`.name = {lender})".format(lender=frappe.db.escape("Demo"))
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabCollateral Ledger`.lender = {lender} or `tabCollateral Ledger`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def loan_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabLoan`.lender = {lender} or `tabLoan`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def loan_transaction_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabLoan Transaction`.lender = {lender} or `tabLoan Transaction`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def loan_margin_shortfall_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "((`tabLoan Margin Shortfall`.loan in (select name from `tabLoan` where `tabLoan`.lender = {lender})) or `tabLoan Margin Shortfall`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
