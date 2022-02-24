@@ -1370,11 +1370,12 @@ def dashboard(**kwargs):
                 is_today_holiday = 0
                 hrs_difference = mg_shortfall_doc.deadline - frappe.utils.now_datetime()
                 # if mg_shortfall_action.sell_off_after_hours:
-                if mg_shortfall_action.sell_off_after_hours or (
-                    mg_shortfall_action.sell_off_deadline_eod
-                    and mg_shortfall_doc.creation.date()
-                    in holiday_list(is_bank_holiday=1)
-                ):
+                # if mg_shortfall_action.sell_off_after_hours or (
+                #     mg_shortfall_action.sell_off_deadline_eod
+                #     and mg_shortfall_doc.creation.date()
+                #     in holiday_list(is_bank_holiday=1)
+                # ):
+                if mg_shortfall_doc.creation.date() != mg_shortfall_doc.deadline.date():
                     date_array = set(
                         mg_shortfall_doc.creation.date() + timedelta(days=x)
                         for x in range(

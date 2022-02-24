@@ -1031,10 +1031,14 @@ def loan_details(**kwargs):
                     loan_margin_shortfall.deadline - frappe.utils.now_datetime()
                 )
                 # if mg_shortfall_action.sell_off_after_hours:
-                if mg_shortfall_action.sell_off_after_hours or (
-                    mg_shortfall_action.sell_off_deadline_eod
-                    and loan_margin_shortfall.creation.date()
-                    in holiday_list(is_bank_holiday=1)
+                # if mg_shortfall_action.sell_off_after_hours or (
+                #     mg_shortfall_action.sell_off_deadline_eod
+                #     and loan_margin_shortfall.creation.date()
+                #     in holiday_list(is_bank_holiday=1)
+                # ):
+                if (
+                    loan_margin_shortfall.creation.date()
+                    != loan_margin_shortfall.deadline.date()
                 ):
                     date_array = set(
                         loan_margin_shortfall.creation.date() + timedelta(days=x)
