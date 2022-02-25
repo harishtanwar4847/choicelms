@@ -1070,6 +1070,72 @@ def loan_transaction_permission_query(user):
             )
 
 
+def unpledge_application_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabUnpledge Application`.lender = {lender} or `tabUnpledge Application`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def sell_collateral_application_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabSell Collateral Application`.lender = {lender} or `tabSell Collateral Application`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def top_up_application_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabTop up Application`.lender = {lender} or `tabTop up Application`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def lender_ledger_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabLender Ledger`.lender = {lender} or `tabLender Ledger`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def allowed_security_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabAllowed Security`.lender = {lender} or `tabAllowed Security`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def lender_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabLender`.name = {lender} or `tabLender`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
 def loan_margin_shortfall_permission_query(user):
     if not user:
         user = frappe.session.user
@@ -1077,5 +1143,38 @@ def loan_margin_shortfall_permission_query(user):
     if "Lender" in [r.role for r in user_doc.roles]:
         if user_doc.get("lender"):
             return "((`tabLoan Margin Shortfall`.loan in (select name from `tabLoan` where `tabLoan`.lender = {lender})) or `tabLoan Margin Shortfall`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def virtual_interest_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "((`tabVirtual Interest`.loan in (select name from `tabLoan` where `tabLoan`.lender = {lender})) or `tabVirtual Interest`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def interest_configuration_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "((`tabInterest Configuration`.loan in (select name from `tabLoan` where `tabLoan`.lender = {lender})) or `tabInterest Configuration`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def loan_payment_log_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "((`tabLoan Payment Log`.loan in (select name from `tabLoan` where `tabLoan`.lender = {lender})) or `tabLoan Payment Log`._assign like '%{user_session}%')".format(
                 lender=frappe.db.escape(user_doc.lender), user_session=user
             )

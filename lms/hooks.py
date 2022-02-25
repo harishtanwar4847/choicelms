@@ -73,10 +73,19 @@ permission_query_conditions = {
     # "Lender": "lms.hooks.lender_permission_query",
     "Cart": "lms.cart_permission_query",
     "Loan Application": "lms.loan_application_permission_query",
-    # "Collateral Ledger": "lms.collateral_ledger_permission_query",
+    "Collateral Ledger": "lms.collateral_ledger_permission_query",
     "Loan": "lms.loan_permission_query",
     "Loan Transaction": "lms.loan_transaction_permission_query",
     "Loan Margin Shortfall": "lms.loan_margin_shortfall_permission_query",
+    "Unpledge Application": "lms.unpledge_application_permission_query",
+    "Sell Collateral Application": "lms.sell_collateral_application_permission_query",
+    "Top up Application": "lms.top_up_application_permission_query",
+    "Virtual Interest": "lms.virtual_interest_permission_query",
+    "Lender Ledger": "lms.lender_ledger_permission_query",
+    "Allowed Security": "lms.allowed_security_permission_query",
+    "Interest Configuration": "lms.interest_configuration_permission_query",
+    "Lender": "lms.lender_permission_query",
+    "Loan Payment Log": "lms.loan_payment_log_permission_query",
 }
 
 #
