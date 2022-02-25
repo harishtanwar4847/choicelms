@@ -21,24 +21,3 @@ class SparkBankBranch(Document):
             )
             if not check_ifsc:
                 frappe.throw("Only Alphanumeric value are allowed.")
-
-        if self.district:
-            check_district = lms.regex_special_characters(
-                search=self.district, regex=re.compile("^[a-zA-Z0-9]*$")
-            )
-            if not check_district:
-                frappe.throw("Only Alphanumeric value are allowed.")
-
-        if self.city:
-            check_city = lms.regex_special_characters(
-                search=self.city, regex=re.compile("^[a-zA-Z0-9]*$")
-            )
-            if not check_city:
-                frappe.throw("Only Alphanumeric value are allowed.")
-
-        if self.state:
-            check_state = lms.regex_special_characters(
-                search=self.state, regex=re.compile("^[a-zA-Z0-9]*$")
-            )
-            if not check_state:
-                frappe.throw("Only Alphanumeric value are allowed.")
