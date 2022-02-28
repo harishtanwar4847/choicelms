@@ -4,6 +4,8 @@
 
 ## [v3.0.0] - 2022-02-28
 
+### Added
+
 - [Feat: Razorpay Payment Webhook event and Settlement API implementation](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/453)
 - [Feat: Min max sanctioned limit](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/414)
 - [Feat: Margin shortfall refactor, timer and holiday master](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/418)
