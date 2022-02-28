@@ -149,6 +149,9 @@ scheduler_events = {
         "*/5 * * * *": [
             "lms.lms.doctype.loan_application.loan_application.process_pledge"
         ],  # At every 5 minutes
+        "30 17,5 * * *": [
+            "lms.lms.doctype.loan_transaction.loan_transaction.reject_blank_transaction_and_settlement_recon_api"
+        ],
         "15 1 * * *": [
             "lms.lms.doctype.loan.loan.add_all_loans_virtual_interest"
         ],  # At 01:15 AM daily

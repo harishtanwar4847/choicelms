@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "autoname": "field:full_name",
  "creation": "2020-09-21 12:06:19.760563",
  "doctype": "DocType",
@@ -21,6 +22,10 @@
   "rebait_threshold",
   "default_interest_threshold",
   "is_active",
+  "sanction_limit_values_section",
+  "minimum_sanctioned_limit",
+  "column_break_19",
+  "maximum_sanctioned_limit",
   "agreement_section",
   "agreement_template",
   "total_pages",
@@ -538,9 +543,29 @@
    "fieldname": "lender_title",
    "fieldtype": "Data",
    "label": "Lender Title"
+  },
+  {
+   "fieldname": "sanction_limit_values_section",
+   "fieldtype": "Section Break",
+   "label": "Sanction Limit Values"
+  },
+  {
+   "fieldname": "minimum_sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Minimum Sanctioned Limit"
+  },
+  {
+   "fieldname": "column_break_19",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "maximum_sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Maximum Sanctioned Limit"
   }
  ],
- "modified": "2021-08-07 19:07:14.215439",
+ "links": [],
+ "modified": "2021-09-20 13:15:27.436767",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",

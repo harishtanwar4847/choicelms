@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 
 import lms
@@ -46,25 +47,16 @@ class SellCollateralApplication(Document):
         else:
             self.pending_unpledge_request_id = ""
 
-        triggered_margin_shortfall = frappe.get_all(
-            "Loan Margin Shortfall",
-            filters={"loan": self.loan, "status": "Sell Triggered"},
-        )
         if self.loan_margin_shortfall:
             loan_margin_shortfall = frappe.get_doc(
                 "Loan Margin Shortfall", self.loan_margin_shortfall
             )
-            if loan_margin_shortfall.status in ["Request Pending"]:
+            if loan_margin_shortfall.status == "Request Pending":
                 self.current_shortfall_amount = loan_margin_shortfall.shortfall
-
-        if triggered_margin_shortfall:
-            self.loan_margin_shortfall = triggered_margin_shortfall[0].name
-            loan_margin_shortfall = frappe.get_doc(
-                "Loan Margin Shortfall", triggered_margin_shortfall[0].name
-            )
-            self.initial_shortfall_amount = loan_margin_shortfall.shortfall
-            loan_margin_shortfall.fill_items()
-            self.current_shortfall_amount = loan_margin_shortfall.shortfall
+            elif loan_margin_shortfall.status == "Sell Triggered":
+                self.initial_shortfall_amount = loan_margin_shortfall.shortfall
+                loan_margin_shortfall.fill_items()
+                self.current_shortfall_amount = loan_margin_shortfall.shortfall
 
         securities_list = [i.isin for i in self.items]
 
@@ -185,6 +177,10 @@ class SellCollateralApplication(Document):
                     filters={
                         "loan": self.loan,
                         "status": ["not IN", ["Approved", "Rejected"]],
+                        "razorpay_event": [
+                            "not in",
+                            ["", "Failed", "Payment Cancelled"],
+                        ],
                         "loan_margin_shortfall": loan_margin_shortfall.name,
                     },
                 )
@@ -296,7 +292,15 @@ class SellCollateralApplication(Document):
                 approve=True,
                 loan_margin_shortfall_name=self.loan_margin_shortfall,
             )
-        if self.owner == frappe.session.user and self.loan_margin_shortfall:
+
+        user_roles = frappe.db.get_values(
+            "Has Role", {"parent": self.owner, "parenttype": "User"}, ["role"]
+        )
+        if not user_roles:
+            frappe.throw(_("Invalid User"))
+        user_roles = [role[0] for role in user_roles]
+
+        if "Loan customer" not in user_roles and self.loan_margin_shortfall:
             doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
             doc["sell_triggered_completion"] = {"loan": self.loan}
             # if self.status in ["Pending", "Approved", "Rejected"]:

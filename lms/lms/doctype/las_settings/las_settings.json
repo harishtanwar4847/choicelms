@@ -35,6 +35,10 @@
   "column_break_31",
   "esign_upload_file_uri",
   "esign_download_signed_file_uri",
+  "market_hours_section",
+  "market_start_time",
+  "column_break_33",
+  "market_end_time",
   "section_break_33",
   "app_identification_hash_string",
   "column_break_35",
@@ -50,7 +54,11 @@
   "news_and_blog_template",
   "column_break_42",
   "approved_security_template",
-  "og_code_enabled"
+  "og_code_enabled",
+  "razorpay_section_section",
+  "razorpay_key_secret",
+  "column_break_49",
+  "razorpay_webhook_secret"
  ],
  "fields": [
   {
@@ -291,14 +299,57 @@
    "label": "OG Code Enabled"
   },
   {
-   "fieldname": "news_and_blog_template",
-   "fieldtype": "Attach",
-   "label": "News and Blog Template"
+  "fieldname": "news_and_blog_template",
+  "fieldtype": "Attach",
+  "label": "News and Blog Template"
+   },
+  {
+   "collapsible": 1,
+   "fieldname": "market_hours_section",
+   "fieldtype": "Section Break",
+   "label": "Market Hours",
+   "permlevel": 1
+  },
+  {
+   "default": "9",
+   "fieldname": "market_start_time",
+   "fieldtype": "Int",
+   "label": "Market Start Time (in hour)"
+  },
+  {
+   "fieldname": "column_break_33",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "16",
+   "fieldname": "market_end_time",
+   "fieldtype": "Int",
+   "label": "Market End Time (in hour)"
+    },
+  {
+   "fieldname": "razorpay_webhook_secret",
+   "fieldtype": "Data",
+   "label": "Razorpay Webhook Secret"
+  },
+  {
+   "fieldname": "razorpay_section_section",
+   "fieldtype": "Section Break",
+   "hidden": 1,
+   "label": "Razorpay Section"
+  },
+  {
+   "fieldname": "razorpay_key_secret",
+   "fieldtype": "Data",
+   "label": "Razorpay Key Secret"
+  },
+  {
+   "fieldname": "column_break_49",
+   "fieldtype": "Column Break"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2021-11-22 18:44:44.076557",
+ "modified": "2021-12-17 16:53:43.586081",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
