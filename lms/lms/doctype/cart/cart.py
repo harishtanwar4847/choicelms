@@ -64,6 +64,20 @@ class Cart(Document):
         # expiry = current.replace(year=current.year + 1)
         expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
 
+        # Set application type
+        approved_tnc = frappe.db.count(
+            "Approved Terms and Conditions",
+            filters={"application_doctype": "Cart", "application_name": self.name},
+        )
+
+        application_type = "New Loan"
+        if self.loan and not self.loan_margin_shortfall:
+            application_type = "Increase Loan"
+        elif self.loan and self.loan_margin_shortfall:
+            application_type = "Margin Shortfall"
+        if not approved_tnc and self.loan and not self.loan_margin_shortfall:
+            application_type = "Pledge More"
+
         items = []
         for item in self.items:
             item = frappe.get_doc(
@@ -96,6 +110,8 @@ class Cart(Document):
                 "loan": self.loan,
                 "workflow_state": "Waiting to be pledged",
                 "items": items,
+                "application_type": application_type,
+                "increased_sanctioned_limit": self.increased_sanctioned_limit,
             }
         )
         loan_application.insert(ignore_permissions=True)
@@ -171,6 +187,17 @@ class Cart(Document):
         user_kyc = customer.get_kyc()
         if self.loan:
             loan = frappe.get_doc("Loan", self.loan)
+            increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+                (self.total_collateral_value + loan.total_collateral_value)
+                * self.allowable_ltv
+                / 100
+            )
+            self.increased_sanctioned_limit = (
+                increased_sanctioned_limit
+                if increased_sanctioned_limit < lender.maximum_sanctioned_limit
+                else lender.maximum_sanctioned_limit
+            )
+            self.save(ignore_permissions=True)
 
         from num2words import num2words
 
@@ -180,21 +207,13 @@ class Cart(Document):
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
             "sanctioned_amount": lms.validate_rupees(
-                lms.round_down_amount_to_nearest_thousand(
-                    (self.total_collateral_value + loan.total_collateral_value)
-                    * self.allowable_ltv
-                    / 100
-                )
-            )
-            if self.loan and not self.loan_margin_shortfall
-            else int(self.eligible_loan),
+                self.increased_sanctioned_limit
+                if self.loan and not self.loan_margin_shortfall
+                else self.eligible_loan
+            ),
             "sanctioned_amount_in_words": lms.number_to_word(
                 lms.validate_rupees(
-                    lms.round_down_amount_to_nearest_thousand(
-                        (self.total_collateral_value + loan.total_collateral_value)
-                        * self.allowable_ltv
-                        / 100
-                    )
+                    self.increased_sanctioned_limit
                     if self.loan and not self.loan_margin_shortfall
                     else self.eligible_loan,
                 )
@@ -309,6 +328,7 @@ class Cart(Document):
 
     def process_cart(self):
         if not self.is_processed:
+            lender = self.get_lender()
             self.total_collateral_value = 0
             self.allowable_ltv = 0
             for item in self.items:
@@ -317,11 +337,16 @@ class Cart(Document):
 
             self.total_collateral_value = round(self.total_collateral_value, 2)
             self.allowable_ltv = float(self.allowable_ltv) / len(self.items)
-            self.eligible_loan = round(
+            eligible_loan = round(
                 lms.round_down_amount_to_nearest_thousand(
                     (self.allowable_ltv / 100) * self.total_collateral_value
                 ),
                 2,
+            )
+            self.eligible_loan = (
+                eligible_loan
+                if eligible_loan < lender.maximum_sanctioned_limit
+                else lender.maximum_sanctioned_limit
             )
 
     def process_bre(self):

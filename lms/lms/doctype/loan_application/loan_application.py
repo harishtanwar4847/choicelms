@@ -38,6 +38,23 @@ class LoanApplication(Document):
         lender = self.get_lender()
         if self.loan:
             loan = self.get_loan()
+            increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+                (self.total_collateral_value + loan.total_collateral_value)
+                * self.allowable_ltv
+                / 100
+            )
+            new_increased_sanctioned_limit = (
+                increased_sanctioned_limit
+                if increased_sanctioned_limit < lender.maximum_sanctioned_limit
+                else lender.maximum_sanctioned_limit
+            )
+            frappe.db.set_value(
+                self.doctype,
+                self.name,
+                "increased_sanctioned_limit",
+                new_increased_sanctioned_limit,
+                update_modified=False,
+            )
 
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
@@ -45,21 +62,13 @@ class LoanApplication(Document):
             "borrower_name": user_kyc.investor_name,
             "borrower_address": user_kyc.address,
             "sanctioned_amount": lms.validate_rupees(
-                lms.round_down_amount_to_nearest_thousand(
-                    (self.total_collateral_value + loan.total_collateral_value)
-                    * self.allowable_ltv
-                    / 100
-                )
-            )
-            if self.loan and not self.loan_margin_shortfall
-            else int(self.drawing_power),
+                new_increased_sanctioned_limit
+                if self.loan and not self.loan_margin_shortfall
+                else self.drawing_power
+            ),
             "sanctioned_amount_in_words": lms.number_to_word(
                 lms.validate_rupees(
-                    lms.round_down_amount_to_nearest_thousand(
-                        (self.total_collateral_value + loan.total_collateral_value)
-                        * self.allowable_ltv
-                        / 100
-                    )
+                    new_increased_sanctioned_limit
                     if self.loan and not self.loan_margin_shortfall
                     else self.drawing_power,
                 )
@@ -161,10 +170,15 @@ class LoanApplication(Document):
         }
 
     def before_save(self):
+        lender = self.get_lender()
+        self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
+        self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
+
         if (
             self.status == "Approved"
             and not self.lender_esigned_document
             and not self.loan_margin_shortfall
+            and not self.application_type == "Pledge More"
         ):
             frappe.throw("Please upload Lender Esigned Document")
         elif self.status == "Approved":
@@ -211,12 +225,39 @@ class LoanApplication(Document):
 
             # TODO : manage loan application and its item's as per lender approval
             self.total_collateral_value = round(total_collateral_value, 2)
-            self.drawing_power = round(
+            drawing_power = round(
                 lms.round_down_amount_to_nearest_thousand(
                     (self.allowable_ltv / 100) * self.total_collateral_value
                 ),
                 2,
             )
+            self.drawing_power = (
+                drawing_power
+                if drawing_power < self.maximum_sanctioned_limit
+                else self.maximum_sanctioned_limit
+            )
+
+            # TODO : if increase loan drawing power is less than 10k the loan application wont be proceed
+            loan_total_collateral_value = 0
+            if self.loan:
+                loan_total_collateral_value = frappe.get_doc(
+                    "Loan", self.loan
+                ).total_collateral_value
+
+            # Use increased sanctioned limit field for this validation
+            drawing_power = round(
+                lms.round_down_amount_to_nearest_thousand(
+                    (self.total_collateral_value + loan_total_collateral_value)
+                    * (self.allowable_ltv / 100)
+                ),
+                2,
+            )
+
+            if self.application_type in ["New Loan", "Increase Loan"]:
+                if drawing_power < self.minimum_sanctioned_limit:
+                    frappe.throw(
+                        "Sorry! This Loan Application can not be Approved as its Drawing power is less than Minimum Sanctioned Limit."
+                    )
 
         if self.status == "Pledge executed":
             total_collateral_value = 0
@@ -228,12 +269,18 @@ class LoanApplication(Document):
                     ):
                         total_collateral_value += i.amount
                         self.total_collateral_value = round(total_collateral_value, 2)
-                        self.drawing_power = round(
+                        drawing_power = round(
                             lms.round_down_amount_to_nearest_thousand(
                                 (self.allowable_ltv / 100) * self.total_collateral_value
                             ),
                             2,
                         )
+                        self.drawing_power = (
+                            drawing_power
+                            if drawing_power < self.maximum_sanctioned_limit
+                            else self.maximum_sanctioned_limit
+                        )
+
                     # elif (
                     #     i.lender_approval_status == "Rejected"
                     #     or i.lender_approval_status == "Pledge Failure"
@@ -305,6 +352,10 @@ class LoanApplication(Document):
                     filters={
                         "loan": self.loan,
                         "status": ["not IN", ["Approved", "Rejected"]],
+                        "razorpay_event": [
+                            "not in",
+                            ["", "Failed", "Payment Cancelled"],
+                        ],
                         "loan_margin_shortfall": loan_margin_shortfall.name,
                     },
                 )
@@ -389,6 +440,10 @@ class LoanApplication(Document):
                     filters={
                         "loan": self.loan,
                         "status": ["not IN", ["Approved", "Rejected"]],
+                        "razorpay_event": [
+                            "not in",
+                            ["", "Failed", "Payment Cancelled"],
+                        ],
                         "loan_margin_shortfall": loan_margin_shortfall.name,
                     },
                 )
@@ -568,58 +623,54 @@ class LoanApplication(Document):
         )
 
         loan = frappe.get_doc("Loan", self.loan)
-
-        # apply processing fees on new sanctioned limit(loan application drawing power)
-        # apply renewal charges on existing loan sanctioned limit
-        if not self.loan_margin_shortfall:
-            self.apply_renewal_charges(loan)
-
-        loan.reload()
         loan.update_items()
         loan.fill_items()
-        # loan.check_for_shortfall()
 
-        # for item in self.items:
-        #     if item.lender_approval_status == "Approved":
-        #         loan.append(
-        #             "items",
-        #             {
-        #                 "isin": item.isin,
-        #                 "security_name": item.security_name,
-        #                 "security_category": item.security_category,
-        #                 "pledged_quantity": item.pledged_quantity,
-        #                 "price": item.price,
-        #                 "amount": item.amount
-        #             },
-        #         )
-
-        # loan.total_collateral_value += self.total_collateral_value
         loan.drawing_power = (loan.allowable_ltv / 100) * loan.total_collateral_value
-        # loan.drawing_power += self.drawing_power
+        loan.save(ignore_permissions=True)
 
-        if not self.loan_margin_shortfall:
-            loan.drawing_power = round(
-                lms.round_down_amount_to_nearest_thousand(loan.drawing_power), 2
-            )
-            loan.sanctioned_limit = loan.drawing_power
+        if self.application_type == "Increase Loan":
+            # apply processing fees on new sanctioned limit(loan application drawing power)
+            # apply renewal charges on existing loan sanctioned limit
+            self.apply_renewal_charges(loan)
+            loan.reload()
             # TODO : manage expiry date
             loan.expiry_date = self.expiry_date
-            loan.save(ignore_permissions=True)
 
-        if self.loan_margin_shortfall:
+            loan.sanctioned_limit = (
+                self.maximum_sanctioned_limit
+                if self.increased_sanctioned_limit > self.maximum_sanctioned_limit
+                else self.increased_sanctioned_limit
+            )
+            if loan.drawing_power > loan.sanctioned_limit:
+                loan.drawing_power = loan.sanctioned_limit
+            # loan.sanctioned_limit = loan.drawing_power
+            loan.save(ignore_permissions=True)
+            loan_margin_shortfall = loan.get_margin_shortfall()
+            if not loan_margin_shortfall.is_new() and loan_margin_shortfall.status in [
+                "Pending",
+                "Request Pending",
+            ]:
+                loan_margin_shortfall.fill_items()
+                if loan_margin_shortfall.shortfall_percentage == 0:
+                    loan_margin_shortfall.status = "Resolved"
+                loan_margin_shortfall.save(ignore_permissions=True)
+
+        if self.application_type in ["Margin Shortfall", "Pledge More"]:
             if loan.drawing_power > loan.sanctioned_limit:
                 loan.drawing_power = loan.sanctioned_limit
 
             loan.save(ignore_permissions=True)
-            loan_margin_shortfall = frappe.get_doc(
-                "Loan Margin Shortfall", self.loan_margin_shortfall
-            )
-            loan_margin_shortfall.fill_items()
-            # if not loan_margin_shortfall.margin_shortfall_action:
-            if loan_margin_shortfall.shortfall_percentage == 0:
-                loan_margin_shortfall.status = "Pledged Securities"
-                loan_margin_shortfall.action_time = frappe.utils.now_datetime()
-            loan_margin_shortfall.save(ignore_permissions=True)
+            if self.loan_margin_shortfall:
+                loan_margin_shortfall = frappe.get_doc(
+                    "Loan Margin Shortfall", self.loan_margin_shortfall
+                )
+                loan_margin_shortfall.fill_items()
+                # if not loan_margin_shortfall.margin_shortfall_action:
+                if loan_margin_shortfall.shortfall_percentage == 0:
+                    loan_margin_shortfall.status = "Pledged Securities"
+                    loan_margin_shortfall.action_time = frappe.utils.now_datetime()
+                loan_margin_shortfall.save(ignore_permissions=True)
 
         return loan
 
@@ -639,11 +690,7 @@ class LoanApplication(Document):
         # -> no processing fee
         # -> renewal on new sanctioned
         # new sanctioned limit = lms.round_down_amount_to_nearest_thousand((new total coll + old total coll) / 2)
-        new_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-            (self.total_collateral_value + loan.total_collateral_value)
-            * self.allowable_ltv
-            / 100
-        )
+        new_sanctioned_limit = self.increased_sanctioned_limit
 
         renewal_sanctioned_limit, processing_sanctioned_limit = (
             (loan.sanctioned_limit, (new_sanctioned_limit - loan.sanctioned_limit))
