@@ -2,18 +2,29 @@ import frappe
 
 
 def execute():
-    security_category_master = frappe.reload_doc("Lms", "DocType", "Security Category")
+    frappe.reload_doc("Lms", "DocType", "Security Category")
 
     doc_exists = frappe.db.sql(
         "SELECT EXISTS(SELECT 1 FROM `tabSecurity Category`) as OUTPUT;",
         as_dict=True,
     )
 
-    if security_category_master and not doc_exists[0].get("OUTPUT"):
-        # path = frappe.get_app_path(
-        #     "lms", "patches", "imports", "spark_push_notification.csv"
-        # )
-        # frappe.core.doctype.data_import.data_import.import_file(
-        #     "Spark Push Notification", path, "Insert"
-        # )
-        distinct_securities = ""
+    if not doc_exists[0].get("OUTPUT"):
+        lender_list = frappe.db.get_list("Lender", pluck="name")
+        for lender in lender_list:
+            allowed_security_list = frappe.db.sql(
+                'select distinct security_category from `tabAllowed Security` where lender = "{lender}"'.format(
+                    lender=lender
+                ),
+                as_dict=True,
+            )
+            if allowed_security_list:
+                for allowed_security in allowed_security_list:
+                    frappe.get_doc(
+                        {
+                            "doctype": "Security Category",
+                            "lender": lender,
+                            "category_name": allowed_security["security_category"],
+                        }
+                    ).insert()
+                frappe.db.commit()
