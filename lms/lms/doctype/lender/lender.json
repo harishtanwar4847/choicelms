@@ -556,7 +556,7 @@
   }
  ],
  "links": [],
- "modified": "2022-02-09 16:41:40.709290",
+ "modified": "2022-03-01 14:19:23.944451",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
@@ -602,7 +602,9 @@
    "read": 1,
    "report": 1,
    "role": "Lender",
-   "share": 1
+   "select": 1,
+   "share": 1,
+   "write": 1
   }
  ],
  "quick_entry": 1,

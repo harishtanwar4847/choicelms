@@ -33,6 +33,12 @@ class Lender(Document):
                     + str(i.idx)
                     + ": Enter either numerical limit or percentage limit"
                 )
+            # if (self.minimum_sanctioned_limit > i.single_scrip_numerical_limit) or (self.maximum_sanctioned_limit < i.single_scrip_numerical_limit) or (self.minimum_sanctioned_limit > i.category_numerical_limit) or (self.maximum_sanctioned_limit < i.category_numerical_limit):
+            #     frappe.throw(
+            #         "Level "
+            #         + str(i.idx)
+            #         + ": Numerical figure has to be in range wrt minimum and maximum lending amount"
+            #     )
             if i.category_percentage_limit or i.single_scrip_percentage_limit:
                 if (
                     float(i.single_scrip_percentage_limit) > 100

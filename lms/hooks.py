@@ -86,6 +86,7 @@ permission_query_conditions = {
     "Interest Configuration": "lms.interest_configuration_permission_query",
     "Lender": "lms.lender_permission_query",
     "Loan Payment Log": "lms.loan_payment_log_permission_query",
+    "Security Category": "lms.security_category_permission_query",
 }
 
 #

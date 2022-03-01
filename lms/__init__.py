@@ -1125,6 +1125,17 @@ def allowed_security_permission_query(user):
             )
 
 
+def security_category_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabSecurity Category`.lender = {lender} or `tabSecurity Category`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
 def lender_permission_query(user):
     if not user:
         user = frappe.session.user
