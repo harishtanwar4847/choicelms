@@ -15,8 +15,10 @@
   "expiry_date",
   "column_break_9",
   "customer",
+  "instrument_type",
   "column_break_8",
   "customer_name",
+  "scheme_type",
   "section_break_10",
   "customer_esigned_document",
   "column_break_12",
@@ -151,11 +153,28 @@
    "fieldtype": "Currency",
    "label": "Maximum Sanctioned Limit",
    "read_only": 1
+  },
+  {
+   "default": "Shares",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund",
+   "read_only": 1
+},
+  {
+   "default": "Equity",
+   "depends_on": "eval:doc.instrument_type==\"Mutual Fund\"",
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "Equity\nDebt",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-01-12 12:39:53.167363",
+ "modified": "2022-03-01 18:54:27.056496",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Top up Application",

@@ -10,11 +10,13 @@
   "loan_transaction",
   "lender_share",
   "transaction_type",
+  "instrument_type",
   "column_break_1",
   "lender",
   "amount",
   "spark_share",
-  "customer_name"
+  "customer_name",
+  "scheme_type"
  ],
  "fields": [
   {
@@ -75,11 +77,28 @@
    "fieldtype": "Read Only",
    "in_list_view": 1,
    "label": "Customer Name"
+  },
+  {
+   "default": "Shares",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund",
+   "read_only": 1
+},
+  {
+   "default": "Equity",
+   "depends_on": "eval:doc.instrument_type==\"Mutual Fund\"",
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "Equity\nDebt",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-11-29 14:26:08.677850",
+ "modified": "2022-03-01 18:52:44.650216",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender Ledger",

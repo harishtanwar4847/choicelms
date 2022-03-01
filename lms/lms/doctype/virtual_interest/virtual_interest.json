@@ -11,13 +11,15 @@
   "base_interest",
   "is_booked_for_base",
   "time",
+  "instrument_type",
   "column_break_1",
   "loan",
   "rebate_amount",
   "loan_balance",
   "rebate_interest",
   "is_booked_for_rebate",
-  "customer_name"
+  "customer_name",
+  "scheme_type"
  ],
  "fields": [
   {
@@ -99,10 +101,27 @@
    "fieldtype": "Read Only",
    "in_list_view": 1,
    "label": "Customer Name"
+  },
+  {
+   "default": "Shares",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund",
+   "read_only": 1
+},
+  {
+   "default": "Equity",
+   "depends_on": "eval:doc.instrument_type==\"Mutual Fund\"",
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "Equity\nDebt",
+   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2021-11-29 14:40:52.978793",
+ "modified": "2022-03-01 18:50:57.177083",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Virtual Interest",

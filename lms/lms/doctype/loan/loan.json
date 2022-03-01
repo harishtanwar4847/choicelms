@@ -22,6 +22,8 @@
   "expiry_date",
   "loan_agreement",
   "margin_shortfall_amount",
+  "instrument_type",
+  "scheme_type",
   "items_section",
   "items",
   "loan_status_section",
@@ -229,11 +231,28 @@
    "fieldtype": "Int",
    "label": "DPD (days past due)",
    "read_only": 1
+  },
+  {
+   "default": "Shares",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund",
+   "read_only": 1
+},
+  {
+   "default": "Equity",
+   "depends_on": "eval:doc.instrument_type==\"Mutual Fund\"",
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "Equity\nDebt",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-01-12 12:41:10.002845",
+ "modified": "2022-03-01 18:37:53.344080",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

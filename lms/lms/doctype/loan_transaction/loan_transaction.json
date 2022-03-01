@@ -33,6 +33,8 @@
   "unpaid_interest",
   "disbursed",
   "remarks",
+  "instrument_type",
+  "scheme_type",
   "is_for_interest",
   "section_break_1",
   "items",
@@ -346,11 +348,28 @@
    "fieldname": "razorpay_payment_section",
    "fieldtype": "Section Break",
    "label": "Razorpay Payment Section"
+  },
+  {
+   "default": "Shares",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund",
+   "read_only": 1
+},
+  {
+   "default": "Equity",
+   "depends_on": "eval:doc.instrument_type==\"Mutual Fund\"",
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "Equity\nDebt",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-01-27 11:14:35.592967",
+ "modified": "2022-03-01 18:35:39.351487",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",

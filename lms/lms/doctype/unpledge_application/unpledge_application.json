@@ -9,11 +9,13 @@
   "total_collateral_value",
   "lender",
   "pending_sell_request_id",
+  "instrument_type",
   "column_break_1",
   "customer",
   "customer_name",
   "unpledge_collateral_value",
   "max_unpledge_amount",
+  "scheme_type",
   "section_braek_1",
   "items",
   "unpledge_items",
@@ -61,8 +63,8 @@
   {
    "fieldname": "status",
    "fieldtype": "Select",
-   "in_list_view": 1,
    "hidden": 1,
+   "in_list_view": 1,
    "label": "Status",
    "options": "Pending\nApproved\nRejected"
   },
@@ -109,11 +111,28 @@
    "in_list_view": 1,
    "label": "Pending Sell Request Id",
    "options": "Sell Collateral Application"
+  },
+  {
+   "default": "Shares",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund",
+   "read_only": 1
+},
+  {
+   "default": "Equity",
+   "depends_on": "eval:doc.instrument_type==\"Mutual Fund\"",
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "Equity\nDebt",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-11-29 15:04:05.417282",
+ "modified": "2022-03-01 18:57:58.891492",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Unpledge Application",
