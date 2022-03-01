@@ -559,27 +559,27 @@
    "options": "Concentration Rule"
   },
   {
-    "fieldname": "sanction_limit_values_section",
-    "fieldtype": "Section Break",
-    "label": "Sanction Limit Values"
-   },
-   {
-      "fieldname": "minimum_sanctioned_limit",
-      "fieldtype": "Currency",
-      "label": "Minimum Sanctioned Limit"
-   },
-   {
-      "fieldname": "column_break_19",
-      "fieldtype": "Column Break"
-   },
-   {
-      "fieldname": "maximum_sanctioned_limit",
-      "fieldtype": "Currency",
-      "label": "Maximum Sanctioned Limit"
-   }
-],
-"links": [],
- "modified": "2022-03-01 14:19:23.944451",
+   "fieldname": "sanction_limit_values_section",
+   "fieldtype": "Section Break",
+   "label": "Sanction Limit Values"
+  },
+  {
+     "fieldname": "minimum_sanctioned_limit",
+     "fieldtype": "Currency",
+     "label": "Minimum Sanctioned Limit"
+  },
+  {
+     "fieldname": "column_break_19",
+     "fieldtype": "Column Break"
+  },
+  {
+     "fieldname": "maximum_sanctioned_limit",
+     "fieldtype": "Currency",
+     "label": "Maximum Sanctioned Limit"
+  }
+ ],
+ "links": [],
+ "modified": "2022-03-01 17:41:31.600879",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",

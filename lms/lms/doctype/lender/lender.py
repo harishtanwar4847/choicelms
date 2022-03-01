@@ -33,12 +33,17 @@ class Lender(Document):
                     + str(i.idx)
                     + ": Enter either numerical limit or percentage limit"
                 )
-            # if (self.minimum_sanctioned_limit > i.single_scrip_numerical_limit) or (self.maximum_sanctioned_limit < i.single_scrip_numerical_limit) or (self.minimum_sanctioned_limit > i.category_numerical_limit) or (self.maximum_sanctioned_limit < i.category_numerical_limit):
-            #     frappe.throw(
-            #         "Level "
-            #         + str(i.idx)
-            #         + ": Numerical figure has to be in range wrt minimum and maximum lending amount"
-            #     )
+            if (
+                (self.minimum_sanctioned_limit > i.single_scrip_numerical_limit)
+                or (self.maximum_sanctioned_limit < i.single_scrip_numerical_limit)
+                or (self.minimum_sanctioned_limit > i.category_numerical_limit)
+                or (self.maximum_sanctioned_limit < i.category_numerical_limit)
+            ):
+                frappe.throw(
+                    "Level "
+                    + str(i.idx)
+                    + ": Single Scrip/Category Numerical limit has to be in between of minimum and maximum lending amount"
+                )
             if i.category_percentage_limit or i.single_scrip_percentage_limit:
                 if (
                     float(i.single_scrip_percentage_limit) > 100
@@ -49,7 +54,7 @@ class Lender(Document):
                     frappe.throw(
                         "Level "
                         + str(i.idx)
-                        + ": Percentage limit should be between 0 and 100"
+                        + ": Single Scrip/Category Percentage limit should be in between 0 and 100"
                     )
             if (
                 i.minimum_scrip_limit or i.conditional_scrip_limit
@@ -62,7 +67,6 @@ class Lender(Document):
                 )
 
     def validate(self):
-        self.validate_concentration_rule()
         if cint(self.interest_percentage_sharing) > 100:
             frappe.throw(
                 _("Interest Percentage Sharing value should not greater than 100.")
@@ -118,6 +122,9 @@ class Lender(Document):
             frappe.throw(
                 _("Mortgage Charges Sharing value should not greater than 100.")
             )
+
+        # Validate concentration rule Mapping
+        self.validate_concentration_rule()
 
     def get_approved_securities_template(self):
         file_name = frappe.db.get_value(
