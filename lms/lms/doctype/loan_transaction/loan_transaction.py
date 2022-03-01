@@ -4,14 +4,19 @@
 
 from __future__ import unicode_literals
 
+import base64
+import json
 from datetime import datetime, timedelta
 
 import frappe
+import razorpay
+import requests
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
 
 import lms
+from lms import convert_sec_to_hh_mm_ss
 from lms.firebase import FirebaseAdmin
 
 
@@ -86,6 +91,21 @@ class LoanTransaction(Document):
         self.opening_balance = loan.balance
         self.customer = loan.customer
         self.customer_name = loan.customer_name
+
+        # if there is interest for loan, mark is_for_interest=True for loan transaction with record type CR
+        if self.record_type == "CR":
+            interest_entry = frappe.get_value(
+                "Loan Transaction",
+                {
+                    "loan": self.loan,
+                    "transaction_type": "Interest",
+                    "unpaid_interest": [">", 0],
+                },
+                "name",
+            )
+            if interest_entry and not self.is_for_interest:
+                self.is_for_interest = True
+
         # check for user roles and permissions before adding transactions
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
@@ -324,6 +344,7 @@ class LoanTransaction(Document):
                 filters={
                     "loan": self.loan,
                     "status": ["not IN", ["Approved", "Rejected"]],
+                    "razorpay_event": ["not in", ["", "Failed", "Payment Cancelled"]],
                     "loan_margin_shortfall": loan_margin_shortfall.name,
                 },
             )
@@ -457,6 +478,11 @@ class LoanTransaction(Document):
             if self.amount > self.allowable:
                 frappe.throw("Amount should be less than or equal to allowable amount")
 
+        # if self.transaction_type == "Payment" and self.settlement_status != "Processed":
+        #     frappe.throw(
+        #         "Can not approve this Payment transaction as its Settlement status is not Processed"
+        #     )
+
     def on_update(self):
         if self.transaction_type == "Withdrawal":
             customer = self.get_loan().get_customer()
@@ -501,6 +527,10 @@ class LoanTransaction(Document):
                     filters={
                         "loan": self.loan,
                         "status": ["not IN", ["Approved", "Rejected"]],
+                        "razorpay_event": [
+                            "not in",
+                            ["", "Failed", "Payment Cancelled"],
+                        ],
                         "loan_margin_shortfall": loan_margin_shortfall.name,
                     },
                 )
@@ -630,3 +660,138 @@ class LoanTransaction(Document):
             and self.status == "Ready for Approval"
         ):
             frappe.throw("Allowable amount could not be greater than requested amount")
+
+
+@frappe.whitelist()
+def reject_blank_transaction_and_settlement_recon_api():
+    data = ""
+    try:
+        blank_rzp_event_transaction = frappe.get_all(
+            "Loan Transaction",
+            {"razorpay_event": ["in", ["", "Payment Cancelled"]], "status": "Pending"},
+        )
+        if blank_rzp_event_transaction:
+            for single_transaction in blank_rzp_event_transaction:
+                single_transaction = frappe.get_doc(
+                    "Loan Transaction", single_transaction.name
+                )
+                data = single_transaction.name
+                if single_transaction.creation < frappe.utils.now_datetime():
+                    hours_difference = convert_sec_to_hh_mm_ss(
+                        abs(
+                            frappe.utils.now_datetime() - single_transaction.creation
+                        ).total_seconds()
+                    )
+                    if hours_difference.split(":")[0] >= "24":
+                        single_transaction.workflow_state = "Rejected"
+                        single_transaction.status = "Rejected"
+                        single_transaction.save(ignore_permissions=True)
+                        frappe.db.commit()
+    except Exception as e:
+        frappe.log_error(
+            message=frappe.get_traceback() + "\nPayment details:\n" + data,
+            title=_("Blank Payment Reject Error"),
+        )
+    if frappe.utils.now_datetime().hour > 15:
+        settlement_recon_api()
+
+
+@frappe.whitelist()
+def settlement_recon_api(input_date=None):
+    try:
+        if input_date:
+            input_date = datetime.strptime(input_date, "%Y-%m-%d")
+        else:
+            input_date = frappe.utils.now_datetime().date()
+
+        loan_transaction_name = ""
+        # get rzp key secret from las settings
+        razorpay_key_secret = frappe.get_single("LAS Settings").razorpay_key_secret
+        if razorpay_key_secret:
+            # split rzp key secret and store in id and secret for auth of single settlement api
+            id, secret = razorpay_key_secret.split(":")
+            client = razorpay.Client(auth=(id, secret))
+
+            # Basic auth for settlement recon api
+            razorpay_key_secret_auth = "Basic " + base64.b64encode(
+                bytes(razorpay_key_secret, "utf-8")
+            ).decode("ascii")
+
+            # query parameters for settlement recon api
+            params = {
+                "year": input_date.year,
+                "month": input_date.month,
+                "day": input_date.day,
+            }
+
+            raw_res = requests.get(
+                "https://api.razorpay.com/v1/settlements/recon/combined",
+                headers={"Authorization": razorpay_key_secret_auth},
+                params=params,
+            )
+            # get json response from raw response
+            res = raw_res.json()
+
+            # create log for settlement recon api
+            lms.create_log(res, "settlement_recon_api_log")
+
+            if res["count"] and res["items"]:
+                # iterate through all settled items
+                for settled_items in res["items"]:
+                    try:
+                        loan_transaction_name = frappe.get_value(
+                            "Loan Transaction",
+                            {
+                                "order_id": settled_items["order_id"],
+                                "transaction_id": settled_items["entity_id"],
+                                "loan": json.loads(settled_items["notes"])["loan_name"],
+                                "razorpay_event": "Captured",
+                            },
+                            "name",
+                        )
+                        if loan_transaction_name:
+                            # call settlement api with id
+                            settle_res = client.settlement.fetch(
+                                settled_items["settlement_id"]
+                            )
+                            loan_transaction = frappe.get_doc(
+                                "Loan Transaction", loan_transaction_name
+                            )
+                            # update settlement status in loan transaction
+                            if settle_res["status"] == "created":
+                                settlement_status = "Created"
+                            elif settle_res["status"] == "processed":
+                                settlement_status = "Processed"
+                            elif settle_res["status"] == "failed":
+                                settlement_status = "Failed"
+
+                            # update settlement id in loan transaction
+                            if loan_transaction.status == "Pending":
+                                loan_transaction.settlement_status = settlement_status
+                                loan_transaction.settlement_id = settled_items[
+                                    "settlement_id"
+                                ]
+                                loan_transaction.save(ignore_permissions=True)
+                                frappe.db.commit()
+                            else:
+                                if loan_transaction.settlement_status != "Processed":
+                                    loan_transaction.db_set(
+                                        "settlement_status", settlement_status
+                                    )
+                                    loan_transaction.db_set(
+                                        "settlement_id", settled_items["settlement_id"]
+                                    )
+
+                    except Exception:
+                        frappe.log_error(
+                            message=frappe.get_traceback()
+                            + "\nSettlement details:\n"
+                            + json.dumps(settled_items)
+                            + loan_transaction_name,
+                            title=_("Payment Settlement Error"),
+                        )
+    except Exception as e:
+        frappe.log_error(
+            message=frappe.get_traceback() + "\nSettlement details:\n" + str(e.args),
+            title=_("Payment Settlement Error"),
+        )

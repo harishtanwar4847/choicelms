@@ -16,22 +16,28 @@ frappe.ui.form.on("Sell Collateral Application", {
 
 frappe.ui.form.on("Sell Collateral Application", {
   loan: function (frm) {
-    cur_frm.clear_table("items");
-    cur_frm.refresh_field("items");
-    if (frappe.session.user == cur_frm.doc.owner) {
-      frappe.model.with_doc("Loan", cur_frm.doc.loan, function () {
-        // frappe.db.get_value("Loan Margin Shortfall", {"loan": cur_frm.doc.loan,"status": "Sell Triggered"}, ["name"], (res) => {
-        //   if (res && res.message) {
-        //     frm.set_value('loan_margin_shortfall', res.message);
-        //   }
-        // });
-        var tabletransfer = frappe.model.get_doc("Loan", cur_frm.doc.loan);
+    var is_true = frappe.user_roles.find((role) => role === "Loan Customer");
+    console.log(is_true);
+    if ((!is_true || frappe.session.user == "Administrator") && frm.doc.loan) {
+      // if (frappe.session.user == frm.doc.owner) {
+      frappe.db.get_value(
+        "Loan Margin Shortfall",
+        { loan: frm.doc.loan, status: "Sell Triggered" },
+        ["name"],
+        (res) => {
+          frm.set_value("loan_margin_shortfall", res["name"]);
+        }
+      );
+      frm.clear_table("items");
+      frm.refresh_field("items");
+      frappe.model.with_doc("Loan", frm.doc.loan, function () {
+        var tabletransfer = frappe.model.get_doc("Loan", frm.doc.loan);
         $.each(tabletransfer.items, function (index, row) {
           if (row.pledged_quantity > 0) {
-            var d = cur_frm.add_child("items");
+            var d = frm.add_child("items");
             d.isin = row.isin;
             d.quantity = row.pledged_quantity;
-            cur_frm.refresh_field("items");
+            frm.refresh_field("items");
           }
         });
       });

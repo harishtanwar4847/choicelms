@@ -139,6 +139,10 @@ class TopupApplication(Document):
 
         loan = self.get_loan()
         updated_top_up_amt = loan.max_topup_amount()
+        if (self.top_up_amount + loan.sanctioned_limit) > self.maximum_sanctioned_limit:
+            frappe.throw(
+                "Can not Approve this Top up Application as Sanctioned limit will cross Maximum Sanctioned limit Cap"
+            )
         if updated_top_up_amt < (loan.sanctioned_limit * 0.1):
             frappe.throw("Top up not available")
         if self.top_up_amount <= 0:
@@ -149,7 +153,7 @@ class TopupApplication(Document):
             self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
 
     def get_lender(self):
-        return frappe.get_doc("Lender", self.get_loan().lender)
+        return frappe.get_doc("Lender", self.lender)
 
     # def create_tnc_file(self):
     #     lender = self.get_lender()
@@ -422,6 +426,12 @@ class TopupApplication(Document):
         )
         # save loan sanction history
         loan.save_loan_sanction_history(loan_agreement_file.name, event)
+
+    def before_save(self):
+        self.sanctioned_limit = self.get_loan().sanctioned_limit
+        lender = self.get_lender()
+        self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
+        self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
 
 
 def only_pdf_upload(doc, method):

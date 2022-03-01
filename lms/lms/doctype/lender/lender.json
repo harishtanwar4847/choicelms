@@ -22,6 +22,10 @@
   "rebait_threshold",
   "default_interest_threshold",
   "is_active",
+  "sanction_limit_values_section",
+  "minimum_sanctioned_limit",
+  "column_break_19",
+  "maximum_sanctioned_limit",
   "agreement_section",
   "agreement_template",
   "total_pages",
@@ -553,9 +557,28 @@
    "fieldtype": "Table",
    "label": "Concentration Rule",
    "options": "Concentration Rule"
-  }
- ],
- "links": [],
+  },
+  {
+    "fieldname": "sanction_limit_values_section",
+    "fieldtype": "Section Break",
+    "label": "Sanction Limit Values"
+   },
+   {
+      "fieldname": "minimum_sanctioned_limit",
+      "fieldtype": "Currency",
+      "label": "Minimum Sanctioned Limit"
+   },
+   {
+      "fieldname": "column_break_19",
+      "fieldtype": "Column Break"
+   },
+   {
+      "fieldname": "maximum_sanctioned_limit",
+      "fieldtype": "Currency",
+      "label": "Maximum Sanctioned Limit"
+   }
+],
+"links": [],
  "modified": "2022-03-01 14:19:23.944451",
  "modified_by": "Administrator",
  "module": "Lms",
