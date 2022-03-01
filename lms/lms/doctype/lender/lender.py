@@ -23,7 +23,40 @@ class Lender(Document):
         )
         return frappe.get_doc("File", file_name)
 
+    def validate_concentration_rule(self):
+        for i in self.concentration_rule:
+            if (i.single_scrip_numerical_limit and i.single_scrip_percentage_limit) or (
+                i.category_numerical_limit and i.category_percentage_limit
+            ):
+                frappe.throw(
+                    "Level "
+                    + str(i.idx)
+                    + ": Enter either numerical limit or percentage limit"
+                )
+            if i.category_percentage_limit or i.single_scrip_percentage_limit:
+                if (
+                    float(i.single_scrip_percentage_limit) > 100
+                    or float(i.category_percentage_limit) > 100
+                    or float(i.single_scrip_percentage_limit) < 0
+                    or float(i.category_percentage_limit) < 0
+                ):
+                    frappe.throw(
+                        "Level "
+                        + str(i.idx)
+                        + ": Percentage limit should be between 0 and 100"
+                    )
+            if (
+                i.minimum_scrip_limit or i.conditional_scrip_limit
+            ) and not i.allow_single_category_lending:
+                frappe.throw(
+                    "Level "
+                    + str(i.idx)
+                    + ": Must allow single category lending "
+                    + i.security_category
+                )
+
     def validate(self):
+        self.validate_concentration_rule()
         if cint(self.interest_percentage_sharing) > 100:
             frappe.throw(
                 _("Interest Percentage Sharing value should not greater than 100.")
