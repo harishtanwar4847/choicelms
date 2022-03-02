@@ -25,25 +25,55 @@ class Lender(Document):
 
     def validate_concentration_rule(self):
         for i in self.concentration_rule:
-            if (i.single_scrip_numerical_limit and i.single_scrip_percentage_limit) or (
-                i.category_numerical_limit and i.category_percentage_limit
+            if i.idx > 1:
+                if (
+                    self.concentration_rule[i.idx - 1].security_category
+                    == self.concentration_rule[i.idx - 2].security_category
+                ):
+                    frappe.throw(
+                        "Level " + str(i.idx) + ": Same Security Category can;t be use"
+                    )
+            if (
+                int(i.single_scrip_numerical_limit) > 0
+                and float(i.single_scrip_percentage_limit) > 0
+            ) or (
+                int(i.category_numerical_limit) > 0
+                and float(i.category_percentage_limit) > 0
             ):
                 frappe.throw(
                     "Level "
                     + str(i.idx)
                     + ": Enter either numerical limit or percentage limit"
                 )
-            if (
-                (self.minimum_sanctioned_limit > i.single_scrip_numerical_limit)
-                or (self.maximum_sanctioned_limit < i.single_scrip_numerical_limit)
-                or (self.minimum_sanctioned_limit > i.category_numerical_limit)
-                or (self.maximum_sanctioned_limit < i.category_numerical_limit)
+            if (float(i.single_scrip_percentage_limit) == 0.0) or (
+                float(i.category_percentage_limit) == 0.0
             ):
-                frappe.throw(
-                    "Level "
-                    + str(i.idx)
-                    + ": Single Scrip/Category Numerical limit has to be in between of minimum and maximum lending amount"
-                )
+                if (
+                    int(i.single_scrip_numerical_limit) == 0
+                    and int(i.category_numerical_limit) == 0
+                ):
+                    frappe.throw(
+                        "Level "
+                        + str(i.idx)
+                        + ": Single Scrip/Category Numerical limit has to be in between of minimum and maximum lending amount"
+                    )
+                if (self.minimum_sanctioned_limit > i.single_scrip_numerical_limit) or (
+                    self.maximum_sanctioned_limit < i.single_scrip_numerical_limit
+                ):
+                    frappe.throw(
+                        "Level "
+                        + str(i.idx)
+                        + ": Single Scrip Numerical limit has to be in between of minimum and maximum lending amount"
+                    )
+                elif (self.minimum_sanctioned_limit > i.category_numerical_limit) or (
+                    self.maximum_sanctioned_limit < i.category_numerical_limit
+                ):
+                    frappe.throw(
+                        "Level "
+                        + str(i.idx)
+                        + ": Category Numerical limit has to be in between of minimum and maximum lending amount"
+                    )
+
             if i.category_percentage_limit or i.single_scrip_percentage_limit:
                 if (
                     float(i.single_scrip_percentage_limit) > 100
