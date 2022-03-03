@@ -1253,9 +1253,8 @@ def approved_securities(**kwargs):
             # security_category = frappe.get_all("Security Category", filters=cat_filters)
 
             # if security_category:
-            filters += " and security_category = '{}_{}'".format(
-                data.get("category"), data.get("lender")
-            )
+
+            filters += " and security_category like '{}%_'".format(data.get("category"))
 
         approved_security_list = []
         approved_security_pdf_file_url = ""
@@ -1279,6 +1278,7 @@ def approved_securities(**kwargs):
                     lender=data.get("lender"), filters=filters
                 ),
                 as_dict=1,
+                debug=1,
             )
 
             approved_security_list.sort(
