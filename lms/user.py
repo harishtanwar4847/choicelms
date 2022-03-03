@@ -1229,8 +1229,8 @@ def approved_securities(**kwargs):
 
         # filters = {}
 
-        # if data.get("lender"):
-        #     filters = {"lender": data.get("lender")}
+        if not data.get("lender"):
+            data["lender"] = frappe.get_doc("Lender", "Choice Finserv").name
 
         security_category_list_ = frappe.db.get_all(
             "Security Category",
@@ -1240,32 +1240,27 @@ def approved_securities(**kwargs):
         )
         security_category_list = [i.category_name for i in security_category_list_]
 
-        or_filters = ""
+        filters = ""
         if data.get("search", None):
             search_key = "like " + str("'%" + data.get("search") + "%'")
-            or_filters = "and security_name {}".format(search_key)
+            filters = "and security_name {}".format(search_key)
 
         if data.get("category", None):
-            cat_filters = {}
-            if data.get("lender"):
-                cat_filters["lender"] = data.get("lender")
-            cat_filters["category_name"] = data.get("category")
-            security_category = frappe.get_all("Security Category", filters=cat_filters)
+            # cat_filters = {}
+            # if data.get("lender"):
+            #     cat_filters["lender"] = data.get("lender")
+            # cat_filters["category_name"] = data.get("category")
+            # security_category = frappe.get_all("Security Category", filters=cat_filters)
 
-            if security_category:
-                or_filters += " and security_category = '{}'".format(
-                    security_category[0]["name"]
-                )
+            # if security_category:
+            filters += " and security_category = '{}_{}'".format(
+                data.get("category"), data.get("lender")
+            )
 
         approved_security_list = []
         approved_security_pdf_file_url = ""
 
         if data.get("is_download"):
-            if not data.get("lender"):
-                return utils.respondWithFailure(
-                    status=417,
-                    message=frappe._("Please select lender."),
-                )
             # approved_security_list = frappe.db.get_all(
             #     "Allowed Security",
             #     filters=filters,
@@ -1280,8 +1275,8 @@ def approved_securities(**kwargs):
             # )
             approved_security_list = frappe.db.sql(
                 """
-            select alsc.isin, alsc.security_name, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {or_filters} order by security_name asc;""".format(
-                    lender=data.get("lender"), or_filters=or_filters
+            select alsc.isin, alsc.security_name, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {filters} order by security_name asc;""".format(
+                    lender=data.get("lender"), filters=filters
                 ),
                 as_dict=1,
             )
@@ -1388,9 +1383,9 @@ def approved_securities(**kwargs):
             # )
             approved_security_list = frappe.db.sql(
                 """
-            select alsc.isin, alsc.security_name, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {or_filters} order by security_name asc limit {offset},{limit};""".format(
+            select alsc.isin, alsc.security_name, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {filters} order by security_name asc limit {offset},{limit};""".format(
                     lender=data.get("lender"),
-                    or_filters=or_filters,
+                    filters=filters,
                     limit=data.get("per_page"),
                     offset=data.get("start"),
                 ),
