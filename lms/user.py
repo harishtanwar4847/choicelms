@@ -1227,11 +1227,6 @@ def approved_securities(**kwargs):
         if isinstance(data.get("is_download"), str):
             data["is_download"] = int(data.get("is_download"))
 
-        # filters = {}
-
-        if not data.get("lender"):
-            data["lender"] = frappe.get_doc("Lender", "Choice Finserv").name
-
         security_category_list_ = frappe.db.get_all(
             "Security Category",
             filters={"lender": data.get("lender")},
@@ -1246,39 +1241,18 @@ def approved_securities(**kwargs):
             filters = "and security_name {}".format(search_key)
 
         if data.get("category", None):
-            # cat_filters = {}
-            # if data.get("lender"):
-            #     cat_filters["lender"] = data.get("lender")
-            # cat_filters["category_name"] = data.get("category")
-            # security_category = frappe.get_all("Security Category", filters=cat_filters)
-
-            # if security_category:
-
             filters += " and security_category like '{}%_'".format(data.get("category"))
 
         approved_security_list = []
         approved_security_pdf_file_url = ""
 
         if data.get("is_download"):
-            # approved_security_list = frappe.db.get_all(
-            #     "Allowed Security",
-            #     filters=filters,
-            #     or_filters=or_filters,
-            #     order_by="security_name asc",
-            #     fields=[
-            #         "isin",
-            #         "security_name",
-            #         "security_category",
-            #         "eligible_percentage",
-            #     ],
-            # )
             approved_security_list = frappe.db.sql(
                 """
             select alsc.isin, alsc.security_name, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {filters} order by security_name asc;""".format(
                     lender=data.get("lender"), filters=filters
                 ),
                 as_dict=1,
-                debug=1,
             )
 
             approved_security_list.sort(
@@ -1368,19 +1342,6 @@ def approved_securities(**kwargs):
             if not data.get("start", None):
                 data["start"] = 0
 
-            # approved_security_list = frappe.db.get_all(
-            #     "Allowed Security",
-            #     filters=filters,
-            #     or_filters=or_filters,
-            #     order_by="security_name asc",
-            #     fields=[
-            #         "isin",
-            #         "security_name",
-            #         "eligible_percentage",
-            #     ],
-            #     start=data.get("start"),
-            #     page_length=data.get("per_page"), debug=True
-            # )
             approved_security_list = frappe.db.sql(
                 """
             select alsc.isin, alsc.security_name, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {filters} order by security_name asc limit {offset},{limit};""".format(
