@@ -16,6 +16,7 @@ from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.utils.password import check_password, update_password
 
 import lms
+from lms import convert_sec_to_hh_mm_ss, holiday_list
 
 # from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
@@ -1357,36 +1358,6 @@ def dashboard(**kwargs):
         if not customer:
             return utils.respondNotFound(message=frappe._("Customer not found."))
 
-        # all_mgloans = frappe.db.sql(
-        #     """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str,
-        # IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage, IFNULL(mrgloan.shortfall, 0.0) as shortfall
-        # from `tabLoan` as loan
-        # left join `tabLoan Margin Shortfall` as mrgloan
-        # on loan.name = mrgloan.loan
-        # where loan.customer = '{}'
-        # and (mrgloan.status = "Pending" or mrgloan.status = "Sell Triggered" or mrgloan.status = "Request Pending")
-        # and shortfall_percentage > 0.0
-        # group by loan.name""".format(
-        #         customer.name
-        #     ),
-        #     as_dict=1,
-        # )
-
-        # all_interest_loans = frappe.db.sql(
-        #     """select loan.name, loan.drawing_power, loan.drawing_power_str, loan.balance, loan.balance_str,
-        # sum(loantx.unpaid_interest) as interest_amount
-        # from `tabLoan` as loan
-        # left join `tabLoan Transaction` as loantx
-        # on loan.name = loantx.loan
-        # where loan.customer = '{}'
-        # and loantx.transaction_type in ('Interest','Additional Interest','Penal Interest')
-        # and loantx.unpaid_interest > 0
-        # group by loan.name""".format(
-        #         customer.name
-        #     ),
-        #     as_dict=1,
-        # )
-
         # actionable_loans = []
         # action_loans = []
         mgloan = []
@@ -1399,16 +1370,6 @@ def dashboard(**kwargs):
         )
 
         for dictionary in margin_shortfall_and_interest_loans[0]:
-            # actionable_loans.append(
-            #     {
-            #         "loan_name": dictionary.get("name"),
-            #         "drawing_power": dictionary.get("drawing_power"),
-            #         "drawing_power_str": dictionary.get("drawing_power_str"),
-            #         "balance": dictionary.get("balance"),
-            #         "balance_str": dictionary.get("balance_str"),
-            #     }
-            # )
-            # action_loans.append(dictionary.get("name"))
             loan = frappe.get_doc("Loan", dictionary["name"])
             mg_shortfall_doc = loan.get_margin_shortfall()
             # mg_shortfall_doc = frappe.get_all("Loan Margin Shortfall", filters={"loan": dictionary["name"], "status":["in", ["Pending", "Sell Triggered"]]}, fields=["*"])[0]
@@ -1416,8 +1377,15 @@ def dashboard(**kwargs):
                 "Margin Shortfall Action", mg_shortfall_doc.margin_shortfall_action
             )
             if mg_shortfall_doc:
+                is_today_holiday = 0
                 hrs_difference = mg_shortfall_doc.deadline - frappe.utils.now_datetime()
-                if mg_shortfall_action.sell_off_after_hours:
+                # if mg_shortfall_action.sell_off_after_hours:
+                # if mg_shortfall_action.sell_off_after_hours or (
+                #     mg_shortfall_action.sell_off_deadline_eod
+                #     and mg_shortfall_doc.creation.date()
+                #     in holiday_list(is_bank_holiday=1)
+                # ):
+                if mg_shortfall_doc.creation.date() != mg_shortfall_doc.deadline.date():
                     date_array = set(
                         mg_shortfall_doc.creation.date() + timedelta(days=x)
                         for x in range(
@@ -1429,22 +1397,75 @@ def dashboard(**kwargs):
                             + 1,
                         )
                     )
-                    holidays = date_array.intersection(set(holiday_list()))
+                    holidays = date_array.intersection(
+                        set(holiday_list(is_bank_holiday=1))
+                    )
+
+                    previous_holidays = 0
+                    for days in list(holidays):
+                        if (
+                            days >= mg_shortfall_doc.creation.date()
+                            and days < frappe.utils.now_datetime().date()
+                        ):
+                            previous_holidays += 1
+
                     hrs_difference = (
                         mg_shortfall_doc.deadline
                         - frappe.utils.now_datetime()
                         - timedelta(days=(len(holidays) if holidays else 0))
+                        + timedelta(
+                            days=previous_holidays
+                        )  # if_prev_days_in_holidays then add those days in timer
                     )
+
+                    # if (
+                    #     mg_shortfall_doc.creation.date()
+                    #     < frappe.utils.now_datetime().date()
+                    #     and mg_shortfall_doc.creation.date() in holidays
+                    # ):
+                    #     hrs_difference += (
+                    #         mg_shortfall_doc.creation.replace(
+                    #             hour=23, minute=59, second=59, microsecond=999999
+                    #         )
+                    #         - mg_shortfall_doc.creation
+                    #     )
+
+                    if frappe.utils.now_datetime().date() in holidays:
+                        # if_today_holiday then add those hours in timer
+                        # if mg_shortfall_action.sell_off_after_hours:
+                        # if (
+                        #     frappe.utils.now_datetime().date()
+                        #     == mg_shortfall_doc.creation.date()
+                        # ):
+                        #     if mg_shortfall_action.sell_off_after_hours:
+                        #         start_time = datetime.strptime(
+                        #             list(holidays)[-1].strftime("%Y-%m-%d %H:%M:%S.%f"),
+                        #             "%Y-%m-%d %H:%M:%S.%f",
+                        #         ).replace(hour=0, minute=0, second=0, microsecond=0)
+
+                        #     else:
+                        #         start_time = frappe.utils.now_datetime().replace(
+                        #             hour=0, minute=0, second=0, microsecond=0
+                        #         )
+
+                        # else:
+                        #     pass
+                        start_time = frappe.utils.now_datetime().replace(
+                            hour=0, minute=0, second=0, microsecond=0
+                        )
+                        is_today_holiday = 1
+                        hrs_difference += frappe.utils.now_datetime() - start_time
 
                 mgloan.append(
                     {
                         "name": dictionary["name"],
+                        "status": dictionary["status"],
                         "deadline": convert_sec_to_hh_mm_ss(
                             abs(hrs_difference).total_seconds()
                         )
                         if mg_shortfall_doc.deadline > frappe.utils.now_datetime()
                         else "00:00:00",
-                        "status": dictionary["status"],
+                        "is_today_holiday": is_today_holiday,
                     }
                 )
 
@@ -1586,6 +1607,7 @@ def dashboard(**kwargs):
                     )
                     if loan_application_doc.loan
                     and not loan_application_doc.loan_margin_shortfall
+                    and not loan_application_doc.application_type == "Pledge More"
                     else "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly the final Sanctioned Limit is Rs. {drawing_power}. Please e-sign the loan agreement to avail the loan now.".format(
                         current_total_collateral_value=frappe.utils.fmt_money(
                             loan_application_doc.total_collateral_value
@@ -1601,27 +1623,29 @@ def dashboard(**kwargs):
                 if (
                     loan_application_doc.loan
                     and not loan_application_doc.loan_margin_shortfall
+                    and not loan_application_doc.application_type == "Pledge More"
                 ):
                     loan = frappe.get_doc("Loan", loan_application_doc.loan)
 
                     increase_loan_mess = dict(
                         existing_limit=loan.sanctioned_limit,
                         existing_collateral_value=loan.total_collateral_value,
-                        new_limit=(
-                            lms.round_down_amount_to_nearest_thousand(
-                                (
-                                    loan_application_doc.total_collateral_value
-                                    + loan.total_collateral_value
-                                )
-                                * loan_application_doc.allowable_ltv
-                                / 100
+                        new_limit=lms.round_down_amount_to_nearest_thousand(
+                            (
+                                loan_application_doc.total_collateral_value
+                                + loan.total_collateral_value
                             )
+                            * loan_application_doc.allowable_ltv
+                            / 100
                         ),
                         new_collateral_value=loan_application_doc.total_collateral_value
                         + loan.total_collateral_value,
                     )
 
-                if not loan_application_doc.loan_margin_shortfall:
+                if (
+                    not loan_application_doc.loan_margin_shortfall
+                    and not loan_application_doc.application_type == "Pledge More"
+                ):
                     la_pending_esigns.append(
                         {
                             "loan_application": loan_application_doc,
@@ -2800,21 +2824,6 @@ def margin_shortfall_and_interest_loans(customer):
     )
 
     return all_mgloans, all_interest_loans
-
-
-def convert_sec_to_hh_mm_ss(seconds):
-    min, sec = divmod(seconds, 60)
-    hour, min = divmod(min, 60)
-    return "%d:%02d:%02d" % (hour, min, sec)
-
-
-def holiday_list():
-    date_list = []
-    holiday_list = frappe.get_all("Bank Holiday", "date", order_by="date asc")
-    for i, dates in enumerate(d["date"] for d in holiday_list):
-        date_list.append(dates)
-
-    return list(set(date_list))
 
 
 @frappe.whitelist()

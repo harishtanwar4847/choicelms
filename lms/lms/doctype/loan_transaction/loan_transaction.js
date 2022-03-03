@@ -8,5 +8,10 @@ frappe.ui.form.on("Loan Transaction", {
     if (frm.doc.status == "Ready for Approval") {
       frm.set_df_property("allowable", "read_only", false);
     }
+    $("select[data-fieldname='razorpay_event']").attr("disabled", "disabled");
+    $("select[data-fieldname='settlement_status']").attr(
+      "disabled",
+      "disabled"
+    );
   },
 });

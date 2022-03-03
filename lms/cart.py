@@ -123,6 +123,12 @@ def upsert(**kwargs):
             data.get("securities", {}), data.get("lender")
         )
 
+        # Min max sanctioned_limit
+        lender = frappe.get_doc("Lender", data.get("lender"))
+
+        min_sanctioned_limit = lender.minimum_sanctioned_limit
+        max_sanctioned_limit = lender.maximum_sanctioned_limit
+
         customer = lms.__customer()
         if data.get("loan_name", None):
             try:
@@ -133,6 +139,12 @@ def upsert(**kwargs):
                 return utils.respondForbidden(
                     message=frappe._("Please use your own loan.")
                 )
+
+            # If pledge more/margin shortfall/increase Loan
+            sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+                loan.total_collateral_value * loan.allowable_ltv / 100
+            )
+
             if data.get("loan_margin_shortfall_name", None):
                 try:
                     loan_margin_shortfall = frappe.get_doc(
@@ -216,6 +228,20 @@ def upsert(**kwargs):
 
             if not loan_margin_shortfall.get("__islocal", 0):
                 res["loan_margin_shortfall_obj"] = loan_margin_shortfall
+
+            if sanctioned_limit < min_sanctioned_limit and not data.get(
+                "loan_margin_shortfall_name"
+            ):
+                min_sanctioned_limit = min_sanctioned_limit - sanctioned_limit
+            else:
+                min_sanctioned_limit = 1000.0
+
+        res["min_sanctioned_limit"] = (
+            min_sanctioned_limit if not data.get("loan_margin_shortfall_name") else 0.0
+        )
+        res["max_sanctioned_limit"] = (
+            max_sanctioned_limit if not data.get("loan_margin_shortfall_name") else 0.0
+        )
 
         frappe.db.commit()
         return utils.respondWithSuccess(data=res)
@@ -653,17 +679,18 @@ def get_tnc(**kwargs):
                     + "</li>"
                 )
             elif data.get("cart_name") and cart.loan and not cart.loan_margin_shortfall:
+                increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+                    (cart.total_collateral_value + loan.total_collateral_value)
+                    * cart.allowable_ltv
+                    / 100
+                )
                 tnc_ul.append(
                     "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}/-</strong> (rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The drawing power is subject to change based on the pledged securities from time to time as also the value thereof determined by our Management as per our internal parameters from time to time);".format(
                         lms.validate_rupees(
-                            lms.round_down_amount_to_nearest_thousand(
-                                (
-                                    cart.total_collateral_value
-                                    + loan.total_collateral_value
-                                )
-                                * cart.allowable_ltv
-                                / 100
-                            )
+                            increased_sanctioned_limit
+                            if increased_sanctioned_limit
+                            < lender.maximum_sanctioned_limit
+                            else lender.maximum_sanctioned_limit
                         )
                     )
                     + "</li>"
