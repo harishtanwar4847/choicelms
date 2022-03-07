@@ -602,10 +602,13 @@ def securities(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {
-                "lender": "",
-            },
+            {"lender": "", "level": "", "demat_account": ""},
         )
+
+        if data.get("demat_account"):
+            demat_ = [i["pledgor_boid"] for i in data.get("demat_account", {})["list"]]
+            demat = lms.convert_list_to_tuple_string(demat_)
+            # print(demat)
 
         reg = lms.regex_special_characters(search=data.get("lender"))
         if reg:
@@ -625,10 +628,13 @@ def securities(**kwargs):
         SELECT `pan` as PAN, `isin` as ISIN, `branch` as Branch, `client_code` as Client_Code, `client_name` as Client_Name, `scrip_name` as Scrip_Name, `depository` as Depository, `stock_at` as Stock_At, `quantity` as Quantity, `price` as Price, `scrip_value` as Scrip_Value, `holding_as_on` as Holding_As_On
         FROM `tabClient Holding` as ch
         WHERE DATE_FORMAT(ch.creation, '%Y-%m-%d') = '{}'
-        AND ch.pan = '{}'
+        AND ch.pan = '{}' {}
         order by ch.`modified` DESC""".format(
                 datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
                 user_kyc.pan_no,
+                "AND ch.stock_at in {}".format(demat)
+                if data.get("demat_account")
+                else "",
             ),
             as_dict=True,
         )
@@ -753,7 +759,7 @@ def securities(**kwargs):
                 customer.name,
             ),
             as_dict=True,
-            debug=True,
+            # debug=True,
         )
 
         if len(pledge_waiting_securitites) > 0:
@@ -932,6 +938,11 @@ def securities(**kwargs):
             except KeyError:
                 i["Is_Eligible"] = False
                 i["Category"] = None
+
+        # if data.get("demat_account"):
+        # for i in securities_list:
+        #     if i["Stock_At"] in demat_:
+        #         pass
 
         return utils.respondWithSuccess(data=securities_list)
 
