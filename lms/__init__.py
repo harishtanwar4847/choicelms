@@ -1471,3 +1471,8 @@ def loan_payment_log_permission_query(user):
             return "((`tabLoan Payment Log`.loan in (select name from `tabLoan` where `tabLoan`.lender = {lender})) or `tabLoan Payment Log`._assign like '%{user_session}%')".format(
                 lender=frappe.db.escape(user_doc.lender), user_session=user
             )
+
+
+def update_security_category(name):
+    category = frappe.get_doc("Security Category", name).category_name
+    return category
