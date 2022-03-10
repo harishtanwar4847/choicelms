@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import base64
 import hmac
 import json
 import os
@@ -1290,4 +1291,176 @@ def update_rzp_payment_transaction(data):
         frappe.log_error(
             message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
             title=_("Payment Webhook Enqueue Error"),
+        )
+
+
+rzp_key_secret = "rzp_test_Y6V9MAUGbQlOrW:vEnHHmtHpxZvYwDOEfDZmmPZ"
+import razorpay
+
+
+def create_contact_penny_drop():
+    try:
+        # fetch rzp key secret from las settings and use Basic auth
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(rzp_key_secret, "utf-8")
+        ).decode("ascii")
+
+        # data paramters will be provided by mobile end
+        # name is mandatory field
+
+        data = {
+            "name": "Deep Chirag",
+            "email": "dpcg7125601@gmail.com",
+            "contact": "9304389521",
+            "type": "customer",
+            "reference_id": "",
+            "notes": {},
+        }
+
+        raw_res = requests.post(
+            "https://api.razorpay.com/v1/contacts",
+            headers={
+                "Authorization": razorpay_key_secret_auth,
+                "content-type": "application/json",
+            },
+            data=json.dumps(data),
+        )
+
+        if raw_res.json().get("error"):
+            raise Exception
+
+        return raw_res.json()
+    except Exception:
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create contact details -\n{}".format(data)
+        )
+
+
+def create_fund_account_penny_drop():
+    try:
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(rzp_key_secret, "utf-8")
+        ).decode("ascii")
+
+        data = {
+            "contact_id": "cont_J5LOh33uX8uzlT",
+            "account_type": "bank_account",
+            "bank_account": {
+                "name": "Choice Finserv private limited",
+                "ifsc": "ICIC0000004",
+                "account_number": "000405112505",
+            },
+        }
+
+        raw_res = requests.post(
+            "https://api.razorpay.com/v1/fund_accounts",
+            headers={
+                "Authorization": razorpay_key_secret_auth,
+                "content-type": "application/json",
+            },
+            data=json.dumps(data),
+        )
+
+        if raw_res.json().get("error"):
+            raise Exception
+
+        return raw_res.json()
+    except Exception:
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create fund account details -\n{}".format(data)
+        )
+
+
+def validate_fund_account_penny_drop():
+    try:
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(rzp_key_secret, "utf-8")
+        ).decode("ascii")
+
+        data = {
+            "account_number": "4564561973630666",
+            "fund_account": {"id": "fa_J5MGjbpJJnuBHq"},
+            "amount": 100,
+            "currency": "INR",
+            "notes": {},
+        }
+
+        raw_res = requests.post(
+            "https://api.razorpay.com/v1/fund_accounts/validations",
+            headers={
+                "Authorization": razorpay_key_secret_auth,
+                "content-type": "application/json",
+            },
+            data=json.dumps(data),
+        )
+
+        if raw_res.json().get("error"):
+            raise Exception
+
+        return raw_res.json()
+    except Exception:
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Validate fund account details -\n{}".format(data)
+        )
+
+
+@frappe.whitelist(allow_guest=True)
+def rzp_fund_account_webhook_callback(**kwargs):
+    try:
+        # fetch RZP user
+        rzp_user = frappe.db.sql(
+            "select u.name from `tabUser` as u left join `tabHas Role` as r on u.email=r.parent where role='Razorpay User'",
+            as_dict=1,
+        )
+        # Webhook event payload
+        data = frappe.local.form_dict
+
+        # Razorpay Signature Verification
+        webhook_secret = frappe.get_single("LAS Settings").razorpay_webhook_secret
+
+        headers = {k: v for k, v in frappe.local.request.headers.items()}
+        webhook_signature = headers.get("X-Razorpay-Signature")
+        log = {"rzp_account_validation_webhook_response": data}
+        create_log(log, "rzp_account_validation_webhook_response_log")
+
+        expected_signature = hmac.new(
+            digestmod="sha256",
+            msg=frappe.local.request.data,
+            key=bytes(webhook_secret, "utf-8"),
+        )
+        generated_signature = expected_signature.hexdigest()
+        result = hmac.compare_digest(generated_signature, webhook_signature)
+        if not result:
+            raise SignatureVerificationError("Razorpay Signature Verification Failed")
+
+        # Assign RZP user session for updating loan transaction
+        if rzp_user and result:
+            frappe.session.user = rzp_user[0]["name"]
+
+            if (
+                data
+                and len(data) > 0
+                and data["entity"] == "event"
+                and data["event"]
+                in [
+                    "fund_account.validation.completed",
+                    "fund_account.validation.failed",
+                ]
+            ):
+                log = {"rzp_account_validation_webhook_response": data}
+                create_log(log, "rzp_account_validation_webhook_response_log")
+        if not rzp_user:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\nWebhook details:\n"
+                + json.dumps(data),
+                title=_("Payment Webhook RZP User not found Error"),
+            )
+    except Exception as e:
+        frappe.log_error(
+            message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
+            title=_("Payment Webhook Error"),
         )
