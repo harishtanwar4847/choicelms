@@ -368,13 +368,17 @@ def get_security_categories(securities, lender):
 
 
 def get_allowed_securities(securities, lender):
+    if type(lender) == list:
+        filter = "in {}".format(convert_list_to_tuple_string(lender))
+    else:
+        filter = "= {}".format(lender)
     query = """select
-				isin, security_name, eligible_percentage, security_category
+				isin, security_name, eligible_percentage, security_category, lender
 				from `tabAllowed Security`
 				where
-				lender = '{}' and
+				lender {} and
 				isin in {}""".format(
-        lender, convert_list_to_tuple_string(securities)
+        filter, convert_list_to_tuple_string(securities)
     )
 
     results = frappe.db.sql(query, as_dict=1)
