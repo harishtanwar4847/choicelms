@@ -5,6 +5,7 @@ import hmac
 import json
 import os
 import re
+from base64 import b64decode
 from datetime import datetime, timedelta
 from itertools import groupby
 from random import choice, randint
@@ -1296,6 +1297,44 @@ def update_rzp_payment_transaction(data):
 @frappe.whitelist(allow_guest=True)
 def decrypt_cams_response(**kwargs):
     data = frappe.local.form_dict
-    frappe.log_error(message=str(data))
-    log = {"decrypt": data}
+
+    #  enncrypted resp
+    # data["lienresponse"]="5m-hEo_aONHeQFJhtRZCYXyTdt-YOlD_SowlbNlgAXWJJRbBmRN39jJRBg9V8h2dUUVSlZ2fm5QIzHl45231kwKg6qf5pRlgo20N7SCQ-AsGpF3JxBMdTTt32pEUlGHI5q8niWUWzJ9fQWyJVCxqX725z0-TXKzRp3r2Z3ttA2DoAbVpdeyIODf2M0BDx_hMKSMd-HwqYhdVPik7RsEfluzBzOg4UBsJMcXr9BSXN3vCnAe4RUfc-XA-HtQFNQLXPlWl_jx1anaUlL_9eesj_or-k0uilQzTSiooFPjgO5as8jrprOSI_ioJq2RJ9y8yVz5V_iY_onu3PIJTNxBV1QuTPQf28V4SnzOPACXKrz8qjwB9Qvnu6928vcS7ku6MD-gToJp7D15nfNJNA6v7ZHabIV7V9xau_HBYn_k8bQ5Rme4sMlXKSqYOnTfiMEGTd212T_Evuh1I1q0PE5FNkhgCfND9XrdGJ_F87TILvVVZBGVcQYfHf55WO2FQ5dou23zqlj6d41QWgO9uzLKWKUCHap1sjNb8ENnUo8xgjz8o1xXSwJte5dbVmXRR5lhhcVsiXs8oyIrdT6NrAzblYUmTkwRx5jMoIb1ed83Yt_EEeLy9HpBVetw4Hyv2b4f8YVsXRuskU745E19rjmsZaPfYBMozWF5gJF-arTw-a1-_bGwI9npEA2P7kfR1oypZZsiEIRz9NSfx1085GhtqCamnvIjyi2QeGVvseu54_PKL1MjKRwRYC2abWomLmwR4-xA46wsXJDspaChs4Z9cu8UWX7jPCoMvaFvL2ndYTZ_AgOV8xIR5BtxbkLnNCLU_joPD8s-x1FmfQtey1VNdjUIR-MfmWWebJkeO6JoXLprGLqGnFeH6mqd8BtilkWaXuAkQFAPULefzHk8iC2-uQp6KD1rppYpD5VrXZCA1Uo4TDhiiyx33KAJAU8tUPfeXNKJ5HFb5ZE5SNg03rx7Yu1Be7QwrJRFhOnfVqfsvHTznZt2L4UZ5f98O65SNfofhmdjBKdUrjq_0yMBke03iZb7hbALKhFGwznEsU7K7Y4S_V0eie_makERdxdPT7shm1cq0rWfqHaap3Yi9G3DOjcKFXV7FGrOuE5gM-0WpDy0aIFCJUx6MQ7O3H5-eMY3fIlR4879RwgqDtqMzwPV1UW5Kx_X7LI9bwZWkgO9wnqrohnbgm4EvH3LBygIFsxq-KEqvDIOhd7Kd4uJK5u139m20p7O9tFNCSe3vbb8n2Wd6L3WWyTxMolMBdEpUaL08K0_A6q7y5DCF30G1j7-dJNJ1-Km2FW1FzCaCLhVoZbgeAOXL2ewnqS0LdCXdxpdNyuALHo1ruNBHijgn-RXHklEGrb1Va5Q4ROj3jvRCRdepK7fhF5WTx2DK2aJnHEqRUSKHNaaetdD9TpTvNTed_mzR_WN8hjTdM_93bf1hO9SR2DC8fXpl-viRxktuzINr7pI_hl99gT-3Q_c_6rpQ-HswqIVpFcw4M_s_P8gWrbMFgCH-qM8pRGkDfhi-nj7Z977Q8h66KLcuZH3_rPVmoodFDxYFhdJ9LkEL_E5uc5rB3Ei0aii0aLY56GhYC_r6Ei-N6IhJWsT73Dz_3ninquOA07K_RZ_IdRy-_rMKeQpK5p_uiD0l2Pi-pIL9d3cYpKi50x0RljcYzo86MiWBKYYKw3iaEMbZ1v2p1wtgIwVJNXconUkv4KvwImQMq7L6xNwGJtlkGsXACqZhXKyhPJx678E3y4yTmeSuSO-Y1mThC7CSyU-89067RXvrQ2LjQbPbklqg6bvmoBKOwH8SbgYf3246Yvfsfhqc6aMObK5Kh956N662TlvHCeJGHABp21ApEGYlfC_VVn6x9sMQI1JAKdelr5JW5HH7kKwpy0gUFRU_v1vH7wSrlC7hH43ALN_bf6Ch88jEUPSpdH3x_x25BsezJzYauHmc3rtw26WMof8FV_v3cfS50t9ky2w-2X9Lgi6mz_KTAHBfvnde_4rTFDnJ4aCLuciIOlKbOfW4bMkKkQsvIAznFwCX2VUi7puLGRWUhAy8wRT1tc-LCg=="
+
+    #  decrypted resp
+    # <?xml version="1.0" encoding="UTF-8" standalone="yes"?><response><lienrefno>10012</lienrefno><errorcode>S000</errorcode><error>Lien marked sucessfully</error><sucessflag></sucessflag><failurereason></failurereason><schemedetails><scheme><amccode>P</amccode><folio>8538997</folio><schemecode>1477</schemecode><schemename>ICICI Prudential Corporate Bond Fund - Growth ICICI Prudential Corporate Bond Fund - Growth ICICI Prudential Corporate Bond Fund - Growth</schemename><isinno>INF109K01CQ1</isinno><schemetype>Debt</schemetype><schemecategory>O</schemecategory><lienunit>1</lienunit><lienapprovedunit>1</lienapprovedunit><lienmarkno></lienmarkno></scheme></schemedetails><loginemail>a_shameembanu@camsonline.com</loginemail><netbankingemail>a_shameembanu@camsonline.com</netbankingemail><clientid>LAMF-TCFINPLTD</clientid><clientname>Choice Finserv Pvt Ltd</clientname><pan>BFAPS2661R</pan><bankschemetype>Debt</bankschemetype><bankrefno>10001</bankrefno><bankname>Choice Finserv Pvt Ltd</bankname><branchname>Mumbai</branchname><address1>Address1</address1><address2>Address2</address2><address3>Address3</address3><city>Mumbai</city><state>MH</state><country>India</country><pincode>400706</pincode><phoneoff>02212345678</phoneoff><phoneres>02221345678</phoneres><faxno>02231245678</faxno><faxres>1357</faxres><requestip>103.48.101.236</requestip><addinfo1>1</addinfo1><addinfo2>2</addinfo2><addinfo3>3</addinfo3><addinfo4>4</addinfo4><addinfo5>5</addinfo5><makerid></makerid><verifierid></verifierid><approverid></approverid></response>
+
+    import hashlib
+
+    from Crypto.Cipher import AES
+    from Crypto.Util.Padding import pad, unpad
+
+    key = hashlib.sha256("SExJRU5obWFj".encode("utf-8")).hexdigest()
+    if len(key) > 32:
+        key = key[:32].encode("utf-8")
+    BLOCK_SIZE = AES.block_size
+    # iv = b'globalaesvectors'
+
+    encrypted_response = b64decode(
+        data.get("lienresponse").replace("-", "+").replace("_", "/")
+    )
+    iv = encrypted_response[:BLOCK_SIZE]
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    decrypted_response = unpad(
+        cipher.decrypt(encrypted_response[BLOCK_SIZE:]), BLOCK_SIZE
+    ).decode("utf-8")
+
+    # decrypted_response = """<?xml version='1.0' encoding="UTF-8" standalone="yes"?><response><lienrefno>10012</lienrefno><errorcode>S000</errorcode><error>Lien marked sucessfully</error><sucessflag></sucessflag><failurereason></failurereason><schemedetails><scheme><amccode>P</amccode><folio>8538997</folio><schemecode>1477</schemecode><schemename>ICICI Prudential Corporate Bond Fund - Growth ICICI Prudential Corporate Bond Fund - Growth ICICI Prudential Corporate Bond Fund - Growth</schemename><isinno>INF109K01CQ1</isinno><schemetype>Debt</schemetype><schemecategory>O</schemecategory><lienunit>1</lienunit><lienapprovedunit>1</lienapprovedunit><lienmarkno></lienmarkno></scheme></schemedetails><loginemail>a_shameembanu@camsonline.com</loginemail><netbankingemail>a_shameembanu@camsonline.com</netbankingemail><clientid>LAMF-TCFINPLTD</clientid><clientname>Choice Finserv Pvt Ltd</clientname><pan>BFAPS2661R</pan><bankschemetype>Debt</bankschemetype><bankrefno>10001</bankrefno><bankname>Choice Finserv Pvt Ltd</bankname><branchname>Mumbai</branchname><address1>Address1</address1><address2>Address2</address2><address3>Address3</address3><city>Mumbai</city><state>MH</state><country>India</country><pincode>400706</pincode><phoneoff>02212345678</phoneoff><phoneres>02221345678</phoneres><faxno>02231245678</faxno><faxres>1357</faxres><requestip>103.48.101.236</requestip><addinfo1>1</addinfo1><addinfo2>2</addinfo2><addinfo3>3</addinfo3><addinfo4>4</addinfo4><addinfo5>5</addinfo5><makerid></makerid><verifierid></verifierid><approverid></approverid></response>"""
+
+    frappe.log_error(message=str(data) + "\n\n" + str(decrypted_response))
+    log = {"decrypt": data, "decrypted_response": decrypted_response}
     create_log(log, "decryption")
+
+    return decrypted_response
+    # from xmljson import parker
+    # from xml.etree.ElementTree import fromstring
+    import xmltodict
+
+    # data = parker.data(fromstring(decrypted_response))
+    data = xmltodict.parse(decrypted_response)
+    return json.dumps(data)
