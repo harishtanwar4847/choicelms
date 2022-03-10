@@ -1294,7 +1294,7 @@ def update_rzp_payment_transaction(data):
         )
 
 
-rzp_key_secret = "rzp_test_Y6V9MAUGbQlOrW:vEnHHmtHpxZvYwDOEfDZmmPZ"
+rzp_key_secret = "rzp_live_55JW5NYsUIguyM:J1px4sH9cxxdbY1SfBgIOly0"
 import razorpay
 
 
@@ -1346,7 +1346,7 @@ def create_fund_account_penny_drop():
         ).decode("ascii")
 
         data = {
-            "contact_id": "cont_J5MmMCeadKERZF",
+            "contact_id": "cont_J5N87iXMJWQReY",
             "account_type": "bank_account",
             "bank_account": {
                 "name": "Choice Finserv private limited",
@@ -1384,7 +1384,7 @@ def validate_fund_account_penny_drop():
 
         data = {
             "account_number": "4564561973630666",
-            "fund_account": {"id": "fa_J5MGjbpJJnuBHq"},
+            "fund_account": {"id": "fa_Iz1qj08YtqNoXo"},
             "amount": 100,
             "currency": "INR",
             "notes": {},
