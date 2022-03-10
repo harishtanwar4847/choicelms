@@ -1291,3 +1291,11 @@ def update_rzp_payment_transaction(data):
             message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
             title=_("Payment Webhook Enqueue Error"),
         )
+
+
+@frappe.whitelist(allow_guest=True)
+def decrypt_cams_response(**kwargs):
+    data = frappe.local.form_dict
+    frappe.log_error(message=str(data))
+    log = {"decrypt": data}
+    create_log(log, "decryption")
