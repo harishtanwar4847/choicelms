@@ -164,5 +164,8 @@ scheduler_events = {
         "15 4 * * *": [
             "lms.lms.doctype.loan.loan.add_all_loans_penal_interest"
         ],  # At 04:15 AM daily
+        "00 8 * * *": [
+            "lms.lms.doctype.security_price.security_price.update_all_schemeNav"
+        ],  # At 08:00 AM daily
     },
 }

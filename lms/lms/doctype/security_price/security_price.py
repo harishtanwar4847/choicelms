@@ -122,6 +122,7 @@ def update_all_security_prices():
                 for start in chunks.get("chunks"):
                     security_list = frappe.db.get_all(
                         "Security",
+                        filters={"instrument_type": "Share"},
                         fields=["name", "security_name", "segment", "token_id"],
                         limit_page_length=chunks.get("limit"),
                         limit_start=start,
@@ -164,7 +165,7 @@ def update_all_schemeNav():
     for start in chunks.get("chunks"):
         schemes_list = frappe.db.get_all(
             "Security",
-            filters={"type": "Mutual Fund"},
+            filters={"instrument_type": "Mutual Fund"},
             fields=["isin", "security_name"],
             limit_page_length=chunks.get("limit"),
             limit_start=start,
@@ -185,6 +186,7 @@ def update_scheme_nav(schemes_list):
         "security_name",
         "time",
         "price",
+        "navdate",
         "creation",
         "modified",
         "owner",
@@ -204,18 +206,19 @@ def update_scheme_nav(schemes_list):
             data = res.json()
             log[req_end_time]["response"] = data
             if data["ISIN"] != "":
-                time = frappe.utils.now_datetime()
-                # time = (
-                #     datetime.strptime(data.get("NavDate"), "%d-%m-%Y")
-                #     if data.get("NavDate")
-                #     else frappe.utils.now_datetime()
-                # )
+                # time = frappe.utils.now_datetime()
+                time = (
+                    datetime.strptime(data.get("NavDate"), "%d-%m-%Y")
+                    if data.get("NavDate")
+                    else frappe.utils.now_datetime()
+                )
                 values_dict["{}-{}".format(scheme["isin"], time)] = (
                     "{}-{}".format(scheme["isin"], time),
                     scheme["isin"],
                     scheme["security_name"],
                     time,
                     data.get("NAV"),
+                    time,
                     time,
                     time,
                     "Administrator",
@@ -236,3 +239,13 @@ def update_scheme_nav(schemes_list):
         )
 
         # update price in security list
+        frappe.db.sql(
+            """
+            update
+                `tabSecurity` s, `tabSecurity Price` sp
+            set
+                s.price = sp.price
+            where
+                s.isin = sp.security
+        """
+        )

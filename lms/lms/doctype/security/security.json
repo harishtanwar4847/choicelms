@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "allow_import": 1,
  "autoname": "field:isin",
  "creation": "2020-10-24 11:16:44.505259",
@@ -12,8 +13,9 @@
   "segment",
   "column_break_5",
   "nse_symbol",
-  "type",
-  "token_id"
+  "instrument_type",
+  "token_id",
+  "scheme_type"
  ],
  "fields": [
   {
@@ -27,8 +29,7 @@
    "fieldname": "security_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Security Name",
-   "unique": 1
+   "label": "Security Name"
   },
   {
    "fieldname": "segment",
@@ -46,12 +47,6 @@
    "label": "NSE Symbol"
   },
   {
-   "fieldname": "type",
-   "fieldtype": "Select",
-   "label": "Type",
-   "options": "Share\nMutual Fund"
-  },
-  {
    "fieldname": "token_id",
    "fieldtype": "Data",
    "label": "Token ID"
@@ -62,9 +57,24 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Price"
+  },
+  {
+   "default": "Share",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Share\nMutual Fund"
+  },
+  {
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "Equity\nDebt",
+   "read_only": 1
   }
  ],
- "modified": "2021-06-15 18:53:13.418223",
+ "links": [],
+ "modified": "2022-03-11 15:00:04.588283",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security",
