@@ -155,3 +155,84 @@ def update_all_security_prices():
             )
         except Exception as e:
             frappe.log_error()
+
+
+@frappe.whitelist()
+def update_all_schemeNav():
+    chunks = lms.chunk_doctype(doctype="Security", limit=50)
+    frappe.logger().info(chunks)
+    for start in chunks.get("chunks"):
+        schemes_list = frappe.db.get_all(
+            "Security",
+            filters={"type": "Mutual Fund"},
+            fields=["isin", "security_name"],
+            limit_page_length=chunks.get("limit"),
+            limit_start=start,
+        )
+        frappe.logger().info(chunks)
+
+        frappe.enqueue(
+            method="lms.lms.doctype.security_price.security_price.update_scheme_nav",
+            schemes_list=schemes_list,
+            queue="long",
+        )
+
+
+def update_scheme_nav(schemes_list):
+    fields = [
+        "name",
+        "security",
+        "security_name",
+        "time",
+        "price",
+        "creation",
+        "modified",
+        "owner",
+        "modified_by",
+    ]
+    values_dict = {}
+
+    for scheme in schemes_list:
+        try:
+            params = {"isin": scheme["isin"]}
+            res = requests.get(
+                "https://api.choiceindia.com/api/bo/Scheme/SchemeNav", params=params
+            )
+            req_end_time = str(frappe.utils.now_datetime())
+            log = {}
+            log[req_end_time] = {"request": params}
+            data = res.json()
+            log[req_end_time]["response"] = data
+            if data["ISIN"] != "":
+                time = frappe.utils.now_datetime()
+                # time = (
+                #     datetime.strptime(data.get("NavDate"), "%d-%m-%Y")
+                #     if data.get("NavDate")
+                #     else frappe.utils.now_datetime()
+                # )
+                values_dict["{}-{}".format(scheme["isin"], time)] = (
+                    "{}-{}".format(scheme["isin"], time),
+                    scheme["isin"],
+                    scheme["security_name"],
+                    time,
+                    data.get("NAV"),
+                    time,
+                    time,
+                    "Administrator",
+                    "Administrator",
+                )
+                lms.create_log(log, "schemes__success_log")
+            else:
+                lms.create_log(log, "schemes__failure_log")
+        except (RequestException, Exception) as e:
+            frappe.log_error()
+
+    if len(values_dict) > 0:
+        # bulk insert
+        values_list = list(values_dict.values())
+        values_list.append(())
+        frappe.db.bulk_insert(
+            "Security Price", fields=fields, values=values_list, ignore_duplicates=True
+        )
+
+        # update price in security list
