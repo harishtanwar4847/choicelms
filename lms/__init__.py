@@ -349,12 +349,14 @@ def get_security_prices(securities=None):
     return price_map
 
 
-def get_security_categories(securities, lender):
-    query = """select isin, category from `tabAllowed Security`
+def get_security_categories(securities, lender, instrument_type="Share"):
+    scheme_type = ", scheme_type" if instrument_type == "Mutual Fund" else ""
+    query = """select isin, category {} from `tabAllowed Security`
 				where
 				lender = '{}' and
+                instrument_type = '{}' and
 				isin in {}""".format(
-        lender, convert_list_to_tuple_string(securities)
+        scheme_type, lender, instrument_type, convert_list_to_tuple_string(securities)
     )
 
     results = frappe.db.sql(query, as_dict=1)
@@ -367,14 +369,16 @@ def get_security_categories(securities, lender):
     return security_map
 
 
-def get_allowed_securities(securities, lender):
+def get_allowed_securities(securities, lender, instrument_type="Share"):
+    scheme_type = ", scheme_type" if instrument_type == "Mutual Fund" else ""
     query = """select
-				isin, security_name, eligible_percentage, security_category
+				isin, security_name, eligible_percentage, security_category {}
 				from `tabAllowed Security`
 				where
 				lender = '{}' and
+                instrument_type = '{}' and
 				isin in {}""".format(
-        lender, convert_list_to_tuple_string(securities)
+        scheme_type, lender, instrument_type, convert_list_to_tuple_string(securities)
     )
 
     results = frappe.db.sql(query, as_dict=1)
