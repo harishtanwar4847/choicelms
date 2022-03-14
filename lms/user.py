@@ -2276,7 +2276,9 @@ def check_eligible_limit(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
-        data = utils.validator.validate(kwargs, {"lender": "", "search": ""})
+        data = utils.validator.validate(
+            kwargs, {"lender": "", "search": "", "instrument_type": ""}
+        )
 
         reg = lms.regex_special_characters(search=data.get("lender"))
         search_reg = lms.regex_special_characters(
@@ -2291,6 +2293,9 @@ def check_eligible_limit(**kwargs):
         if not data.get("lender"):
             data["lender"] = frappe.get_last_doc("Lender").name
 
+        if not data.get("instrument_type"):
+            data["instrument_type"] = "Share"
+
         eligible_limit_list = frappe.db.sql(
             """
 			SELECT
@@ -2298,12 +2303,13 @@ def check_eligible_limit(**kwargs):
 			FROM `tabAllowed Security` als
 			LEFT JOIN `tabSecurity` s
 			ON als.isin = s.isin
-			where als.lender = '{}'
+			where als.lender = '{}' and
+            als.instrument_type = '{}'
             and s.price > 0
 			and als.security_name like '%{}%'
             order by als.security_name;
 			""".format(
-                data.get("lender"), data.get("search")
+                data.get("lender"), data.get("instrument_type"), data.get("search")
             ),
             as_dict=1,
         )
