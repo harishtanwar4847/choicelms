@@ -239,13 +239,23 @@ def update_scheme_nav(schemes_list):
         )
 
         # update price in security list
-        frappe.db.sql(
-            """
-            update
-                `tabSecurity` s, `tabSecurity Price` sp
-            set
-                s.price = sp.price
-            where
-                s.isin = sp.security
-        """
+        # frappe.db.sql(
+        #     """
+        #     update
+        #         `tabSecurity` s, `tabSecurity Price` sp
+        #     set
+        #         s.price = sp.price
+        #     where
+        #         s.isin = sp.security
+        # """
+        # )
+        data = [str((i[1], i[4])) for i in values_dict.values()]
+        query = """
+                INSERT INTO `tabSecurity`(name, price)
+                VALUES {values}
+                ON DUPLICATE KEY UPDATE
+                price = VALUES(price);
+            """.format(
+            values=",".join(data)
         )
+        frappe.db.sql(query)
