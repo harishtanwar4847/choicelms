@@ -26,3 +26,6 @@ lms.patches.update_loan_list #13-12-2021
 lms.patches.update_sell_collateral_application
 lms.patches.update_unpledge_application
 lms.patches.redirect_news_and_blog
+lms.patches.update_instrument_type_security_allowed_security #1
+lms.patches.import_security_mutual_fund_for_choice_lender #2
+lms.patches.import_allowed_security_mutual_fund_for_choice_lender #3
