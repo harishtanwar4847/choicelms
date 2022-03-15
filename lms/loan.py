@@ -2239,19 +2239,25 @@ def request_unpledge_otp():
 
         user = lms.__user()
         user_kyc = lms.__user_kyc()
+        customer = lms.__customer()
 
         is_dummy_account = lms.validate_spark_dummy_account(
             user.username, user.name, check_valid=True
         )
+        token_type = "Unpledge OTP"
+        entity = user_kyc.mobile_number
+        if customer.cams_email_id:
+            token_type = "Revoke OTP"
+            entity = customer.phone
         if not is_dummy_account:
             frappe.db.begin()
             lms.create_user_token(
                 entity=user_kyc.mobile_number,
-                token_type="Unpledge OTP",
+                token_type=token_type,
                 token=lms.random_token(length=4, is_numeric=True),
             )
             frappe.db.commit()
-        return utils.respondWithSuccess(message="Unpledge OTP sent")
+        return utils.respondWithSuccess(message="{} sent".format(token_type))
     except utils.exceptions.APIException as e:
         return e.respond()
 
@@ -2527,18 +2533,23 @@ def request_sell_collateral_otp():
         utils.validator.validate_http_method("POST")
 
         user = lms.__user()
+        customer = lms.__customer()
+
         is_dummy_account = lms.validate_spark_dummy_account(
             user.username, user.name, check_valid=True
         )
+        token_type = "Sell Collateral OTP"
+        if customer.cams_email_id:
+            token_type = "Invoke OTP"
         if not is_dummy_account:
             frappe.db.begin()
             lms.create_user_token(
                 entity=user.username,
-                token_type="Sell Collateral OTP",
+                token_type=token_type,
                 token=lms.random_token(length=4, is_numeric=True),
             )
             frappe.db.commit()
-        return utils.respondWithSuccess(message="Sell Collateral OTP sent")
+        return utils.respondWithSuccess(message="{} sent".format(token_type))
     except utils.exceptions.APIException as e:
         return e.respond()
 

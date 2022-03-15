@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "creation": "2020-07-28 15:27:39.594133",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -9,7 +10,14 @@
   "security_category",
   "pledged_quantity",
   "price",
-  "amount"
+  "amount",
+  "type",
+  "lien_mark_number",
+  "folio",
+  "amc_code",
+  "amc_name",
+  "scheme_code",
+  "scheme_name"
  ],
  "fields": [
   {
@@ -25,7 +33,7 @@
    "fieldname": "security_category",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Security Category",
+   "label": "Security/Scheme Category",
    "read_only": 1,
    "reqd": 1
   },
@@ -34,7 +42,7 @@
    "fieldname": "pledged_quantity",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Quantity Pledged",
+   "label": "Quantity Pledged/Unit",
    "read_only": 1,
    "reqd": 1
   },
@@ -42,7 +50,7 @@
    "fieldname": "price",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Price",
+   "label": "Price/NAV",
    "read_only": 1,
    "reqd": 1
   },
@@ -57,13 +65,56 @@
   {
    "fieldname": "security_name",
    "fieldtype": "Data",
-   "label": "Security Name",
+   "label": "Security/Scheme Name",
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "Shares\nEquity\nDebt"
+  },
+  {
+   "fieldname": "lien_mark_number",
+   "fieldtype": "Data",
+   "label": "Lien Mark Number",
+   "read_only": 1
+  },
+  {
+   "fieldname": "folio",
+   "fieldtype": "Data",
+   "label": "Folio",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amc_code",
+   "fieldtype": "Data",
+   "label": "AMC Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amc_name",
+   "fieldtype": "Data",
+   "label": "AMC Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scheme_code",
+   "fieldtype": "Data",
+   "label": "Scheme Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scheme_name",
+   "fieldtype": "Data",
+   "label": "Scheme Name",
+   "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2021-04-01 17:27:11.349533",
+ "links": [],
+ "modified": "2022-03-15 17:06:47.945492",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Item",

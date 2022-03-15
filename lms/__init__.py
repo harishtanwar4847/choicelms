@@ -40,6 +40,9 @@ user_token_expiry_map = {
     "Unpledge OTP": 10,
     "Sell Collateral OTP": 10,
     "Forgot Pin OTP": 10,
+    "Lien OTP": 10,
+    "Invoke OTP": 10,
+    "Revoke OTP": 10,
 }
 
 

@@ -510,20 +510,26 @@ def request_pledge_otp():
 
         user = lms.__user()
         user_kyc = lms.__user_kyc()
+        customer = lms.__customer()
 
         is_dummy_account = lms.validate_spark_dummy_account(
             user.username, user.name, check_valid=True
         )
+        token_type = "Pledge OTP"
+        entity = user_kyc.mobile_number
+        if customer.cams_email_id:
+            token_type = "Lien OTP"
+            entity = customer.phone
         if not is_dummy_account:
             frappe.db.begin()
 
             lms.create_user_token(
-                entity=user_kyc.mobile_number,
-                token_type="Pledge OTP",
+                entity=entity,
+                token_type=token_type,
                 token=lms.random_token(length=4, is_numeric=True),
             )
             frappe.db.commit()
-        return utils.respondWithSuccess(message="Pledge OTP sent")
+        return utils.respondWithSuccess(message="{} sent".format(token_type))
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
         return e.respond()
