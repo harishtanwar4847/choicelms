@@ -46,12 +46,16 @@
   "column_break_39",
   "lien_initiate_api",
   "revoke_api",
-  "client_section",
+  "cams_config_section",
   "client_id",
   "client_name",
+  "secret_key",
+  "encryption_key",
   "column_break_45",
   "bank_reference_no",
   "bank_name",
+  "hmac_key",
+  "decryption_key",
   "ltv_section",
   "shares_ltv",
   "column_break_48",
@@ -318,10 +322,10 @@
    "label": "OG Code Enabled"
   },
   {
-  "fieldname": "news_and_blog_template",
-  "fieldtype": "Attach",
-  "label": "News and Blog Template"
-   },
+   "fieldname": "news_and_blog_template",
+   "fieldtype": "Attach",
+   "label": "News and Blog Template"
+  },
   {
    "collapsible": 1,
    "fieldname": "market_hours_section",
@@ -344,7 +348,7 @@
    "fieldname": "market_end_time",
    "fieldtype": "Int",
    "label": "Market End Time (in hour)"
-    },
+  },
   {
    "fieldname": "razorpay_webhook_secret",
    "fieldtype": "Data",
@@ -439,12 +443,6 @@
    "label": "Revoke API"
   },
   {
-   "collapsible": 1,
-   "fieldname": "client_section",
-   "fieldtype": "Section Break",
-   "label": "Client Section"
-  },
-  {
    "fieldname": "bank_reference_no",
    "fieldtype": "Data",
    "label": "Bank Reference No"
@@ -457,11 +455,37 @@
   {
    "fieldname": "column_break_45",
    "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "cams_config_section",
+   "fieldtype": "Section Break",
+   "label": "CAMS Config Section"
+  },
+  {
+   "fieldname": "secret_key",
+   "fieldtype": "Data",
+   "label": "Secret Key"
+  },
+  {
+   "fieldname": "encryption_key",
+   "fieldtype": "Data",
+   "label": "Encryption Key"
+  },
+  {
+   "fieldname": "hmac_key",
+   "fieldtype": "Data",
+   "label": "HMAC Key"
+  },
+  {
+   "fieldname": "decryption_key",
+   "fieldtype": "Data",
+   "label": "Decryption Key"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2022-03-15 15:36:17.701848",
+ "modified": "2022-03-15 16:26:20.693759",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
