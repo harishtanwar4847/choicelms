@@ -2308,7 +2308,7 @@ def loan_unpledge_details(**kwargs):
         return e.respond()
 
 
-def validate_securities_for_unpledge(securities, loan):
+def validate_securities_for_unpledge(securities, loan, instrument_type="Share"):
     if not securities or (
         type(securities) is not dict and "list" not in securities.keys()
     ):
@@ -2339,8 +2339,10 @@ def validate_securities_for_unpledge(securities, loan):
 
     if securities_valid:
         securities_list_from_db_ = frappe.db.sql(
-            "select isin from `tabAllowed Security` where lender = '{}' and isin in {}".format(
-                loan.lender, lms.convert_list_to_tuple_string(securities_list)
+            "select isin from `tabAllowed Security` where lender = '{}' and instrument_type = '{}' and isin in {}".format(
+                loan.lender,
+                instrument_type,
+                lms.convert_list_to_tuple_string(securities_list),
             )
         )
         securities_list_from_db = [i[0] for i in securities_list_from_db_]

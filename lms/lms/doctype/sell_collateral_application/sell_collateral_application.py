@@ -31,7 +31,7 @@ class SellCollateralApplication(Document):
                 fcm_notification=fcm_notification, message=fcm_notification.message
             )
 
-    def process_items(self):
+    def process_items(self, instrument_type="Share"):
         self.total_collateral_value = 0
         loan = self.get_loan()
         self.lender = loan.lender
@@ -66,9 +66,9 @@ class SellCollateralApplication(Document):
             FROM
                 `tabSecurity`
             WHERE
-                isin in {};
+                instrument_type = '{}' and isin in {};
         """.format(
-            lms.convert_list_to_tuple_string(securities_list)
+            instrument_type, lms.convert_list_to_tuple_string(securities_list)
         )
 
         res_ = frappe.db.sql(query, as_dict=1)
