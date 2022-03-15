@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 import json
+import re
 
 import frappe
 from frappe.model.document import Document
@@ -54,3 +55,9 @@ class LoanCustomer(Document):
             pass
         finally:
             fa.delete_app()
+
+    def validate(self, email_regex=r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"):
+        if re.fullmatch(email_regex, self.mycams_email_id):
+            pass
+        else:
+            frappe.throw("Enter a valid email id")

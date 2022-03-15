@@ -26,6 +26,7 @@
   "user_profile_section",
   "first_name",
   "phone",
+  "mycams_email_id",
   "column_break_7",
   "middle_name",
   "full_name",
@@ -200,10 +201,15 @@
   {
    "fieldname": "feedback_column_break",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mycams_email_id",
+   "fieldtype": "Data",
+   "label": "MyCams Email ID "
   }
  ],
  "links": [],
- "modified": "2021-12-25 14:21:53.260369",
+ "modified": "2022-03-15 11:16:09.254385",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Customer",
