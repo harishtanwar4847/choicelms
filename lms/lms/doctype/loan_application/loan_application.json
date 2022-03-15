@@ -26,6 +26,8 @@
   "pledge_status",
   "pledgor_boid",
   "pledgee_boid",
+  "instrument_type",
+  "scheme_type",
   "items_section",
   "items",
   "section_break_23",
@@ -183,6 +185,21 @@
    "read_only": 1
   },
   {
+   "default": "Shares",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "\nEquity\nDebt",
+   "read_only": 1
+  },
+  {
    "fieldname": "application_type",
    "fieldtype": "Select",
    "label": "Application Type",
@@ -218,7 +235,7 @@
   }
  ],
  "links": [],
- "modified": "2022-01-11 12:16:10.179013",
+ "modified": "2022-03-15 10:25:12.590373",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

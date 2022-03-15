@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "creation": "2020-05-08 16:20:10.460247",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -10,7 +11,14 @@
   "pledged_quantity",
   "price",
   "amount",
-  "eligible_percentage"
+  "eligible_percentage",
+  "column_break_8",
+  "type",
+  "folio",
+  "amc_code",
+  "amc_name",
+  "scheme_code",
+  "scheme_name"
  ],
  "fields": [
   {
@@ -31,9 +39,9 @@
   },
   {
    "fieldname": "pledged_quantity",
-   "fieldtype": "Int",
+   "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Pledged Quantity",
+   "label": "Pledged Quantity/Unit",
    "read_only": 1,
    "reqd": 1
   },
@@ -41,21 +49,21 @@
    "fieldname": "price",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Price",
+   "label": "Price/NAV",
    "read_only": 1
   },
   {
    "fieldname": "security_category",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Security Category",
+   "label": "Security/Scheme Category",
    "read_only": 1
   },
   {
    "fieldname": "security_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Security Name",
+   "label": "Security/Scheme Name",
    "read_only": 1
   },
   {
@@ -63,10 +71,53 @@
    "fieldtype": "Float",
    "label": "Eligible Percentage",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Shares",
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "Shares\nEquity\nDebt",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amc_code",
+   "fieldtype": "Data",
+   "label": "AMC Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "folio",
+   "fieldtype": "Data",
+   "label": "Folio",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scheme_code",
+   "fieldtype": "Data",
+   "label": "Scheme Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amc_name",
+   "fieldtype": "Data",
+   "label": "AMC Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scheme_name",
+   "fieldtype": "Data",
+   "label": "Scheme Name",
+   "read_only": 1
   }
  ],
  "istable": 1,
- "modified": "2021-04-01 11:06:58.966941",
+ "links": [],
+ "modified": "2022-03-14 13:04:52.637770",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart Item",
