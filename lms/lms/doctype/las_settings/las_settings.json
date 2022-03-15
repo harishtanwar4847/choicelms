@@ -39,6 +39,25 @@
   "market_start_time",
   "column_break_33",
   "market_end_time",
+  "mutual_fund_section",
+  "lien_marking_api",
+  "invoke_api",
+  "investica_api",
+  "column_break_39",
+  "lien_initiate_api",
+  "revoke_api",
+  "client_section",
+  "client_id",
+  "client_name",
+  "column_break_45",
+  "bank_reference_no",
+  "bank_name",
+  "ltv_section",
+  "shares_ltv",
+  "column_break_48",
+  "mf_equity_ltv",
+  "column_break_50",
+  "mf_debt_ltv",
   "section_break_33",
   "app_identification_hash_string",
   "column_break_35",
@@ -345,11 +364,104 @@
   {
    "fieldname": "column_break_49",
    "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "mutual_fund_section",
+   "fieldtype": "Section Break",
+   "label": "Mutual Fund"
+  },
+  {
+   "fieldname": "lien_marking_api",
+   "fieldtype": "Data",
+   "label": "Lien Marking API"
+  },
+  {
+   "fieldname": "column_break_39",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lien_initiate_api",
+   "fieldtype": "Data",
+   "label": "Lien Initiate API"
+  },
+  {
+   "fieldname": "investica_api",
+   "fieldtype": "Data",
+   "label": "Investica API"
+  },
+  {
+   "fieldname": "client_id",
+   "fieldtype": "Data",
+   "label": "Client Id"
+  },
+  {
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "label": "Client Name"
+  },
+  {
+   "fieldname": "ltv_section",
+   "fieldtype": "Section Break",
+   "label": "LTV"
+  },
+  {
+   "fieldname": "shares_ltv",
+   "fieldtype": "Float",
+   "label": "Shares LTV"
+  },
+  {
+   "fieldname": "column_break_48",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mf_equity_ltv",
+   "fieldtype": "Float",
+   "label": "MF Equity LTV"
+  },
+  {
+   "fieldname": "mf_debt_ltv",
+   "fieldtype": "Float",
+   "label": "MF Debt LTV"
+  },
+  {
+   "fieldname": "column_break_50",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "invoke_api",
+   "fieldtype": "Data",
+   "label": "Invoke API"
+  },
+  {
+   "fieldname": "revoke_api",
+   "fieldtype": "Data",
+   "label": "Revoke API"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "client_section",
+   "fieldtype": "Section Break",
+   "label": "Client Section"
+  },
+  {
+   "fieldname": "bank_reference_no",
+   "fieldtype": "Data",
+   "label": "Bank Reference No"
+  },
+  {
+   "fieldname": "bank_name",
+   "fieldtype": "Data",
+   "label": "Bank Name"
+  },
+  {
+   "fieldname": "column_break_45",
+   "fieldtype": "Column Break"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2021-12-17 16:53:43.586081",
+ "modified": "2022-03-15 15:36:17.701848",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
