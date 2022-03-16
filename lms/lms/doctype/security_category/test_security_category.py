@@ -5,5 +5,5 @@
 import unittest
 
 
-class TestConcentrationRule(unittest.TestCase):
+class TestSecurityCategory(unittest.TestCase):
     pass

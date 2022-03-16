@@ -48,15 +48,16 @@
   },
   {
    "fieldname": "security_category",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Security Category",
+   "options": "Security Category",
    "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-03 21:47:30.156905",
+ "modified": "2022-02-28 17:17:25.103726",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",
