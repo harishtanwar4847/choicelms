@@ -50,9 +50,10 @@
   },
   {
    "fieldname": "security_category",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Security Category",
+   "options": "Security Category",
    "reqd": 1
   },
   {

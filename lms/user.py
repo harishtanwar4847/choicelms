@@ -3,6 +3,7 @@ import json
 import os
 import re
 import time
+from ctypes import util
 from datetime import MINYEAR, date, datetime, timedelta
 from logging import debug
 from time import gmtime
@@ -527,7 +528,7 @@ def kyc(**kwargs):
 
 
 @frappe.whitelist()
-def securities_old(**kwargs):
+def securities_old_1(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
@@ -602,10 +603,13 @@ def securities(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {
-                "lender": "",
-            },
+            {"lender": "", "level": "", "demat_account": ""},
         )
+
+        if data.get("demat_account"):
+            demat_ = [i["pledgor_boid"] for i in data.get("demat_account", {})["list"]]
+            demat = lms.convert_list_to_tuple_string(demat_)
+            # print(demat)
 
         reg = lms.regex_special_characters(search=data.get("lender"))
         if reg:
@@ -625,10 +629,13 @@ def securities(**kwargs):
         SELECT `pan` as PAN, `isin` as ISIN, `branch` as Branch, `client_code` as Client_Code, `client_name` as Client_Name, `scrip_name` as Scrip_Name, `depository` as Depository, `stock_at` as Stock_At, `quantity` as Quantity, `price` as Price, `scrip_value` as Scrip_Value, `holding_as_on` as Holding_As_On
         FROM `tabClient Holding` as ch
         WHERE DATE_FORMAT(ch.creation, '%Y-%m-%d') = '{}'
-        AND ch.pan = '{}'
+        AND ch.pan = '{}' {}
         order by ch.`modified` DESC""".format(
                 datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
                 user_kyc.pan_no,
+                "AND ch.stock_at in {}".format(demat)
+                if data.get("demat_account")
+                else "",
             ),
             as_dict=True,
         )
@@ -753,7 +760,7 @@ def securities(**kwargs):
                 customer.name,
             ),
             as_dict=True,
-            debug=True,
+            # debug=True,
         )
 
         if len(pledge_waiting_securitites) > 0:
@@ -1013,7 +1020,7 @@ def dashboard_old():
 
 
 @frappe.whitelist()
-def approved_securities(**kwargs):
+def approved_securities_old(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
@@ -1181,6 +1188,176 @@ def approved_securities(**kwargs):
                 ],
                 start=data.get("start"),
                 page_length=data.get("per_page"),
+            )
+
+        res = {
+            "security_category_list": security_category_list,
+            "approved_securities_list": approved_security_list,
+            "pdf_file_url": approved_security_pdf_file_url,
+        }
+
+        return utils.respondWithSuccess(data=res)
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist()
+def approved_securities(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "lender": "required",
+                "start": "decimal|min:0",
+                "per_page": "decimal|min:0",
+                "search": "",
+                "category": "",
+                "is_download": "decimal|between:0,1",
+            },
+        )
+
+        reg = lms.regex_special_characters(
+            search=data.get("lender") + data.get("category")
+        )
+        search_reg = lms.regex_special_characters(
+            search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
+        )
+        if reg or search_reg:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
+
+        if isinstance(data.get("is_download"), str):
+            data["is_download"] = int(data.get("is_download"))
+
+        security_category_list_ = frappe.db.get_all(
+            "Security Category",
+            filters={"lender": data.get("lender")},
+            fields=["distinct(category_name)"],
+            order_by="category_name asc",
+        )
+        security_category_list = [i.category_name for i in security_category_list_]
+
+        filters = ""
+        if data.get("search", None):
+            search_key = "like " + str("'%" + data.get("search") + "%'")
+            filters = "and security_name {}".format(search_key)
+
+        if data.get("category", None):
+            filters += " and security_category like '{}%_'".format(data.get("category"))
+
+        approved_security_list = []
+        approved_security_pdf_file_url = ""
+
+        if data.get("is_download"):
+            approved_security_list = frappe.db.sql(
+                """
+            select alsc.isin, alsc.security_name, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {filters} order by security_name asc;""".format(
+                    lender=data.get("lender"), filters=filters
+                ),
+                as_dict=1,
+            )
+
+            approved_security_list.sort(
+                key=lambda item: (item["security_name"]).title(),
+            )
+
+            if not approved_security_list:
+                return utils.respondNotFound(message=_("No Record Found"))
+
+            lt_list = []
+
+            for list in approved_security_list:
+                lt_list.append(list.values())
+            df = pd.DataFrame(lt_list)
+            df.columns = approved_security_list[0].keys()
+            df.drop("eligible_percentage", inplace=True, axis=1)
+            df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
+            df.index += 1
+            approved_security_pdf_file = "{}-approved-securities.pdf".format(
+                data.get("lender")
+            ).replace(" ", "-")
+
+            date_ = frappe.utils.now_datetime()
+            # formatting of date as 1 => 1st, 11 => 11th, 21 => 21st
+            formatted_date = lms.date_str_format(date=date_.day)
+
+            curr_date = formatted_date + date_.strftime(" %B, %Y")
+
+            approved_security_pdf_file_path = frappe.utils.get_files_path(
+                approved_security_pdf_file
+            )
+
+            lender = frappe.get_doc("Lender", data["lender"])
+            las_settings = frappe.get_single("LAS Settings")
+            logo_file_path_1 = lender.get_lender_logo_file()
+            logo_file_path_2 = las_settings.get_spark_logo_file()
+            approved_securities_template = lender.get_approved_securities_template()
+            doc = {
+                "column_name": df.columns,
+                "rows": df.iterrows(),
+                "date": curr_date,
+                "logo_file_path_1": logo_file_path_1.file_url
+                if logo_file_path_1
+                else "",
+                "logo_file_path_2": logo_file_path_2.file_url
+                if logo_file_path_2
+                else "",
+            }
+            agreement = frappe.render_template(
+                approved_securities_template.get_content(), {"doc": doc}
+            )
+
+            pdf_file = open(approved_security_pdf_file_path, "wb")
+            # a = df.to_html()
+            # a = a.replace("<th></th>","<th>Sr.No.</th>")
+            # style = """<style>
+            # 	tr {
+            # 	page-break-inside: avoid;
+            # 	}
+            # 	</style>
+            # 	"""
+            # 	# th {text-align: center;}
+            # html_with_style = style + a
+
+            from frappe.utils.pdf import get_pdf
+
+            # pdf = get_pdf(html_with_style)
+            pdf = get_pdf(
+                agreement,
+                options={
+                    "margin-right": "1mm",
+                    "margin-left": "1mm",
+                    "page-size": "A4",
+                },
+            )
+            pdf_file.write(pdf)
+            pdf_file.close()
+
+            approved_security_pdf_file_url = frappe.utils.get_url(
+                "files/{}-approved-securities.pdf".format(data.get("lender")).replace(
+                    " ", "-"
+                )
+            )
+        else:
+            if not data.get("per_page", None):
+                data["per_page"] = 20
+            if not data.get("start", None):
+                data["start"] = 0
+
+            approved_security_list = frappe.db.sql(
+                """
+            select alsc.isin, alsc.security_name, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {filters} order by security_name asc limit {offset},{limit};""".format(
+                    lender=data.get("lender"),
+                    filters=filters,
+                    limit=data.get("per_page"),
+                    offset=data.get("start"),
+                ),
+                as_dict=1,
             )
 
         res = {
@@ -2331,7 +2508,7 @@ def all_lenders_list(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
-        all_lenders = frappe.get_all("Lender", order_by="creation desc")
+        all_lenders = frappe.get_all("Lender", order_by="creation asc")
 
         return utils.respondWithSuccess(data=all_lenders)
 
