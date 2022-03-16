@@ -122,7 +122,7 @@ def update_all_security_prices():
                 for start in chunks.get("chunks"):
                     security_list = frappe.db.get_all(
                         "Security",
-                        filters={"instrument_type": "Share"},
+                        filters={"instrument_type": "Shares"},
                         fields=["name", "security_name", "segment", "token_id"],
                         limit_page_length=chunks.get("limit"),
                         limit_start=start,

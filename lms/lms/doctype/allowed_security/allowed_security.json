@@ -20,7 +20,7 @@
    "fieldname": "security_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Security Name",
+   "label": "Security/Scheme Name",
    "read_only": 1
   },
   {
@@ -52,7 +52,7 @@
    "fieldname": "security_category",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Security Category",
+   "label": "Security/Scheme Category",
    "options": "Security Category",
    "reqd": 1
   },
@@ -67,13 +67,13 @@
    "fieldname": "scheme_type",
    "fieldtype": "Select",
    "label": "Scheme Type",
-   "options": "Equity\nDebt",
+   "options": "\nEquity\nDebt",
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-16 11:38:38.073549",
+ "modified": "2022-03-16 12:24:10.666109",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",

@@ -29,7 +29,7 @@
    "fieldname": "security_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Security Name"
+   "label": "Security/Scheme Name"
   },
   {
    "fieldname": "segment",
@@ -56,7 +56,7 @@
    "fieldname": "price",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Price"
+   "label": "Price/NAV"
   },
   {
    "default": "Shares",
@@ -69,12 +69,12 @@
    "fieldname": "scheme_type",
    "fieldtype": "Select",
    "label": "Scheme Type",
-   "options": "Equity\nDebt",
+   "options": "\nEquity\nDebt",
    "read_only": 1
   }
  ],
  "links": [],
- "modified": "2022-03-16 11:39:00.371243",
+ "modified": "2022-03-16 12:24:39.755919",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security",
