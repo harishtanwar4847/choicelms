@@ -1295,6 +1295,18 @@ def update_rzp_payment_transaction(data):
 
 def update_mycams_email(mycams_email_id):
     try:
+        # loan_customer = frappe.get_doc(
+        #     dict(
+        #         doctype="Loan Customer",
+        #         first_name=first_name,
+        #         phone=phone,
+        #         mycams_email_id = mycams_email_id,
+        #         middle_name = middle_name,
+        #         full_name = full_name,
+        #         last_name=last_name,
+        #         user = user.name
+        #     )
+        # ).insert(ignore_permissions=True)
         loan_customer = __customer()
         loan_customer.mycams_email_id = mycams_email_id
         loan_customer.save(ignore_permissions=True)
