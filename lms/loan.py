@@ -2252,7 +2252,7 @@ def request_unpledge_otp():
         if not is_dummy_account:
             frappe.db.begin()
             lms.create_user_token(
-                entity=user_kyc.mobile_number,
+                entity=entity,
                 token_type=token_type,
                 token=lms.random_token(length=4, is_numeric=True),
             )
@@ -2277,6 +2277,9 @@ def loan_unpledge_details(**kwargs):
             )
 
         customer = lms.__customer()
+        msg_type = ["unpledge", "pledged securities"]
+        if customer.cams_email_id:
+            msg_type = ["revoke", "lien schemes"]
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
             return utils.respondNotFound(message=frappe._("Loan not found."))
@@ -2300,8 +2303,8 @@ def loan_unpledge_details(**kwargs):
         else:
             # get amount_available_for_unpledge,min collateral value
             res["unpledge"] = dict(
-                unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
-                    loan.get_customer().first_name
+                unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot {} any of the {} until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                    loan.get_customer().first_name, msg_type[0], msg_type[1]
                 )
                 if loan_margin_shortfall
                 else None,
@@ -2314,7 +2317,7 @@ def loan_unpledge_details(**kwargs):
         return e.respond()
 
 
-def validate_securities_for_unpledge(securities, loan, instrument_type="Share"):
+def validate_securities_for_unpledge(securities, loan, instrument_type="Shares"):
     if not securities or (
         type(securities) is not dict and "list" not in securities.keys()
     ):
@@ -2433,6 +2436,18 @@ def loan_unpledge_request(**kwargs):
             )
 
         customer = lms.__customer()
+        user_kyc = lms.__user_kyc()
+
+        application_type = "Unpledge"
+        msg_type = ["unpledge", "pledged securities"]
+        token_type = "Unpledge OTP"
+        entity = user_kyc.mobile_number
+        if customer.cams_email_id:
+            application_type = "Revoke"
+            msg_type = ["revoke", "lien schemes"]
+            token_type = "Revoke OTP"
+            entity = customer.phone
+
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
             return utils.respondNotFound(message=frappe._("Loan not found."))
@@ -2444,8 +2459,8 @@ def loan_unpledge_request(**kwargs):
         if loan_margin_shortfall:
             return utils.respondWithFailure(
                 status=417,
-                message="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
-                    loan.get_customer().first_name
+                message="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot {} any of the {} until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                    loan.get_customer().first_name, msg_type[0], msg_type[1]
                 ),
             )
 
@@ -2458,14 +2473,13 @@ def loan_unpledge_request(**kwargs):
         if len(unpledge_application_exist):
             return utils.respondWithFailure(
                 status=417,
-                message="Unpledge Application for {} is already in process.".format(
-                    loan.name
+                message="{} Application for {} is already in process.".format(
+                    application_type, loan.name
                 ),
             )
 
         securities = validate_securities_for_unpledge(data.get("securities", {}), loan)
 
-        user_kyc = lms.__user_kyc()
         frappe.db.begin()
 
         user = lms.__user()
@@ -2474,20 +2488,20 @@ def loan_unpledge_request(**kwargs):
         )
         if not is_dummy_account:
             token = lms.verify_user_token(
-                entity=user_kyc.mobile_number,
+                entity=entity,
                 token=data.get("otp"),
-                token_type="Unpledge OTP",
+                token_type=token_type,
             )
 
             if token.expiry <= frappe.utils.now_datetime():
                 return utils.respondUnauthorized(
-                    message=frappe._("Unpledge OTP Expired.")
+                    message=frappe._("{} Expired.".format(token_type))
                 )
 
             lms.token_mark_as_used(token)
         else:
             token = lms.validate_spark_dummy_account_token(
-                user.username, data.get("otp"), token_type="Unpledge OTP"
+                user.username, data.get("otp"), token_type=token_type
             )
 
         items = []
@@ -2513,7 +2527,9 @@ def loan_unpledge_request(**kwargs):
         frappe.enqueue_doc(
             "Notification", "Unpledge Request", method="send", doc=user_kyc
         )
-        msg = "Dear Customer,\nYour unpledge request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. - Spark Loans"
+        msg = "Dear Customer,\nYour {} request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. - Spark Loans".format(
+            msg_type[0]
+        )
 
         receiver_list = list(
             set([str(customer.phone), str(customer.get_kyc().mobile_number)])
@@ -2580,6 +2596,12 @@ def sell_collateral_request(**kwargs):
 
         user = lms.__user()
         customer = lms.__customer()
+        application_type = "Sell Collateral"
+        msg_type = ["unpledge", "pledged securities"]
+        if customer.cams_email_id:
+            application_type = "Invoke"
+            msg_type = ["revoke", "lien schemes"]
+
         try:
             loan = frappe.get_doc("Loan", data.get("loan_name"))
         except frappe.DoesNotExistError:
@@ -2596,8 +2618,8 @@ def sell_collateral_request(**kwargs):
         if len(sell_application_exist):
             return utils.respondWithFailure(
                 status=417,
-                message="Sell Collateral Application for {} is already in process.".format(
-                    loan.name
+                message="{} Application for {} is already in process.".format(
+                    application_type, loan.name
                 ),
             )
 
@@ -2612,16 +2634,18 @@ def sell_collateral_request(**kwargs):
             token = lms.verify_user_token(
                 entity=user.username,
                 token=data.get("otp"),
-                token_type="Sell Collateral OTP",
+                token_type="{} OTP".format(application_type),
             )
 
             if token.expiry <= frappe.utils.now_datetime():
                 return utils.respondUnauthorized(
-                    message=frappe._("Sell Collateral OTP Expired.")
+                    message=frappe._("{} OTP Expired.".format(application_type))
                 )
         else:
             token = lms.validate_spark_dummy_account_token(
-                user.username, data.get("otp"), token_type="Sell Collateral OTP"
+                user.username,
+                data.get("otp"),
+                token_type="{} OTP".format(application_type),
             )
 
         frappe.db.begin()

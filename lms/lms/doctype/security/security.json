@@ -59,11 +59,11 @@
    "label": "Price"
   },
   {
-   "default": "Share",
+   "default": "Shares",
    "fieldname": "instrument_type",
    "fieldtype": "Select",
    "label": "Instrument Type",
-   "options": "Share\nMutual Fund"
+   "options": "Shares\nMutual Fund"
   },
   {
    "fieldname": "scheme_type",
@@ -74,7 +74,7 @@
   }
  ],
  "links": [],
- "modified": "2022-03-11 15:00:04.588283",
+ "modified": "2022-03-16 11:39:00.371243",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security",

@@ -373,29 +373,34 @@ def process(**kwargs):
 
         user = lms.__user()
         user_kyc = lms.__user_kyc()
+        customer = lms.__customer()
 
         is_dummy_account = lms.validate_spark_dummy_account(
             user.username, user.name, check_valid=True
         )
+        token_type = "Pledge OTP"
+        entity = user_kyc.mobile_number
+        if customer.cams_email_id:
+            token_type = "Lien OTP"
+            entity = customer.phone
+
         if not is_dummy_account:
             token = lms.verify_user_token(
-                entity=user_kyc.mobile_number,
+                entity=entity,
                 token=data.get("otp"),
-                token_type="Pledge OTP",
+                token_type=token_type,
             )
 
             if token.expiry <= frappe.utils.now_datetime():
                 return utils.respondUnauthorized(
-                    message=frappe._("Pledge OTP Expired.")
+                    message=frappe._("{} Expired.".format(token_type))
                 )
 
             lms.token_mark_as_used(token)
         else:
             token = lms.validate_spark_dummy_account_token(
-                user.username, data.get("otp"), token_type="Pledge OTP"
+                user.username, data.get("otp"), token_type=token_type
             )
-
-        customer = lms.__customer()
 
         cart = frappe.get_doc("Cart", data.get("cart_name"))
         if not cart:
@@ -404,12 +409,25 @@ def process(**kwargs):
             return utils.respondForbidden(message=frappe._("Please use your own cart."))
 
         frappe.db.begin()
+        encrypted_data = ""
         cart.reload()
+        if customer.cams_email_id:
+            pass
+            # call lien marking encryption func
+            # send encrypted data in response
+            encrypted_data = "something"
+            cart.lien_reference_number = "abcd"
+
         cart.save(ignore_permissions=True)
         loan_application = cart.create_loan_application()
         frappe.db.commit()
 
-        return utils.respondWithSuccess(data=loan_application)
+        return utils.respondWithSuccess(
+            data={
+                "encrypted_data": encrypted_data,
+                "loan_application": loan_application,
+            }
+        )
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
         return e.respond()

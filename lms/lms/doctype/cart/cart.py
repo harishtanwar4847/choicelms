@@ -89,6 +89,13 @@ class Cart(Document):
                     "pledged_quantity": item.pledged_quantity,
                     "price": item.price,
                     "amount": item.amount,
+                    "type": item.type,
+                    "folio": item.folio,
+                    "amc_code": item.amc_code,
+                    "amc_name": item.amc_name,
+                    "scheme_code": item.scheme_code,
+                    "scheme_name": item.scheme_name,
+                    "prf_number": self.lien_reference_number,
                 }
             )
             items.append(item)
@@ -112,6 +119,8 @@ class Cart(Document):
                 "items": items,
                 "application_type": application_type,
                 "increased_sanctioned_limit": self.increased_sanctioned_limit,
+                "instrument_type": self.instrument_type,
+                "scheme_type": self.scheme_type,
             }
         )
         loan_application.insert(ignore_permissions=True)

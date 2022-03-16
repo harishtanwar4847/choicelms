@@ -57,11 +57,11 @@
    "reqd": 1
   },
   {
-   "default": "Share",
+   "default": "Shares",
    "fieldname": "instrument_type",
    "fieldtype": "Select",
    "label": "Instrument Type",
-   "options": "Share\nMutual Fund"
+   "options": "Shares\nMutual Fund"
   },
   {
    "fieldname": "scheme_type",
@@ -73,7 +73,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-11 15:00:43.111596",
+ "modified": "2022-03-16 11:38:38.073549",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",
