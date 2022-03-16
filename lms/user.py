@@ -3065,3 +3065,45 @@ def contact_us(**kwargs):
         return utils.respondWithSuccess()
     except utils.exceptions.APIException as e:
         return e.respond()
+
+
+@frappe.whitelist()
+def spark_demat_account(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "depository": ["required"],
+                "dpid": ["required"],
+                "client_id": ["required"],
+            },
+        )
+        # field alphanumeric validation
+        reg = lms.regex_special_characters(
+            search=data.get("dpid") + data.get("client_id")
+        )
+        if reg:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
+        print(data)
+        spark_demat_account = frappe.get_doc(
+            {
+                "doctype": "Spark Demat Account",
+                "depository": data.get("depository"),
+                "dpid": data.get("dpid"),
+                "client_id": data.get("client_id"),
+            }
+        )
+        print(spark_demat_account)
+        spark_demat_account.insert(ignore_permissions=True)
+        frappe.db.commit()
+        return utils.respondWithSuccess(message="Form Saved Successfully")
+    except utils.exceptions.APIException as e:
+        frappe.log_error(
+            message=frappe.get_traceback() + json.dumps(data),
+            title=_("Spark Demat Account Error"),
+        )
