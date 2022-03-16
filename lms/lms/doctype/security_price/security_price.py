@@ -197,9 +197,8 @@ def update_scheme_nav(schemes_list):
     for scheme in schemes_list:
         try:
             params = {"isin": scheme["isin"]}
-            res = requests.get(
-                "https://api.choiceindia.com/api/bo/Scheme/SchemeNav", params=params
-            )
+            url = frappe.get_single("LAS Settings").investica_api
+            res = requests.get(url=url, params=params)
             req_end_time = str(frappe.utils.now_datetime())
             log = {}
             log[req_end_time] = {"request": params}

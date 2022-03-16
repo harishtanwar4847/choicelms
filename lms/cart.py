@@ -101,7 +101,9 @@ def upsert(**kwargs):
                 "loan_name": "",
                 "loan_margin_shortfall_name": "",
                 "lender": "",
-                "pledgor_boid": "required",
+                "pledgor_boid": "",
+                "instrument_type": "",
+                "scheme_type": "",
             },
         )
 
@@ -111,11 +113,33 @@ def upsert(**kwargs):
             + data.get("loan_margin_shortfall_name")
             + data.get("lender")
             + data.get("pledgor_boid")
+            + data.get("instrument_type")
+            if data.get("instrument_type", None)
+            else "" + data.get("scheme_type")
+            if data.get("scheme_type", None)
+            else ""
         )
         if reg:
             return utils.respondWithFailure(
                 status=422,
                 message=frappe._("Special Characters not allowed."),
+            )
+
+        if not data.get("instrument_type"):
+            data["instrument_type"] = "Shares"
+
+        if not data.get("pledgor_boid") and data.get("instrument_type") == "Shares":
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Pledgor boid required."),
+            )
+
+        if data.get("instrument_type") == "Mutual Fund" and not (
+            data.get("scheme_type") == "Debt" or data.get("scheme_type") == "Equity"
+        ):
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Please select Equity or Debt as Scheme type."),
             )
 
         if not data.get("lender", None):
@@ -186,6 +210,20 @@ def upsert(**kwargs):
                             loan.name
                         ),
                     )
+        instrument_type = "Shares"
+        scheme_type = ""
+        if (
+            data.get("instrument_type") == "Mutual Fund"
+            and data.get("scheme_type") == "Equity"
+        ):
+            instrument_type = "Mutual Fund"
+            scheme_type = "Equity"
+        elif (
+            data.get("instrument_type") == "Mutual Fund"
+            and data.get("scheme_type") == "Debt"
+        ):
+            instrument_type = "Mutual Fund"
+            scheme_type = "Debt"
 
         if not data.get("cart_name", None):
             cart = frappe.get_doc(
@@ -195,10 +233,18 @@ def upsert(**kwargs):
                     "customer_name": customer.full_name,
                     "lender": data.get("lender"),
                     "pledgor_boid": data.get("pledgor_boid"),
+                    "instrument_type": instrument_type,
+                    "scheme_type": scheme_type,
                 }
             )
         else:
             cart = frappe.get_doc("Cart", data.get("cart_name"))
+            cart.instrument_type = instrument_type
+            cart.scheme_type = scheme_type
+            cart.save(ignore_permissions=True)
+            frappe.db.commit()
+            cart.reload()
+
             if not cart:
                 return utils.respondNotFound(message=frappe._("Cart not found."))
             if cart.customer != customer.name:
@@ -215,6 +261,7 @@ def upsert(**kwargs):
                 {
                     "isin": i["isin"],
                     "pledged_quantity": i["quantity"],
+                    "type": scheme_type if scheme_type else "Shares",
                 },
             )
         cart.save(ignore_permissions=True)
