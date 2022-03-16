@@ -1295,6 +1295,18 @@ def update_rzp_payment_transaction(data):
 
 def update_mycams_email(mycams_email_id):
     try:
+        # loan_customer = frappe.get_doc(
+        #     dict(
+        #         doctype="Loan Customer",
+        #         first_name=first_name,
+        #         phone=phone,
+        #         mycams_email_id = mycams_email_id,
+        #         middle_name = middle_name,
+        #         full_name = full_name,
+        #         last_name=last_name,
+        #         user = user.name
+        #     )
+        # ).insert(ignore_permissions=True)
         loan_customer = __customer()
         loan_customer.mycams_email_id = mycams_email_id
         loan_customer.save(ignore_permissions=True)
@@ -1306,18 +1318,19 @@ def update_mycams_email(mycams_email_id):
 
 
 def spark_demat_account(depository, dpid, client_id):
-    try:
-        spark_demat_account = frappe.get_doc(
-            {
-                "doctype": "Spark Demat Account",
-                "depository": depository,
-                "dpid": dpid,
-                "client_id": client_id,
-            }
-        )
-        spark_demat_account.insert(ignore_permissions=True)
-        frappe.db.commit()
+    # try:
+    spark_demat_account = frappe.get_doc(
+        {
+            "doctype": "Spark Demat Account",
+            "depository": depository,
+            "dpid": dpid,
+            "client_id": client_id,
+        }
+    )
+    spark_demat_account.insert(ignore_permissions=True)
+    frappe.db.commit()
 
-        return spark_demat_account
-    except Exception:
-        return False
+    return spark_demat_account
+
+    # except Exception:
+    #     return False

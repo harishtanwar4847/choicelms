@@ -12,6 +12,6 @@ class SparkDematAccount(Document):
         regex = "^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]+$"
         p = re.compile(regex)
         if (re.search(p, self.dpid)) and (re.search(p, self.client_id)):
-            frappe.msgprint("Form saved")
+            pass
         else:
             frappe.throw("Special Characters not allowed")
