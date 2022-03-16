@@ -3089,7 +3089,6 @@ def spark_demat_account(**kwargs):
                 status=422,
                 message=frappe._("Special Characters not allowed."),
             )
-        print(data)
         spark_demat_account = frappe.get_doc(
             {
                 "doctype": "Spark Demat Account",
@@ -3098,7 +3097,6 @@ def spark_demat_account(**kwargs):
                 "client_id": data.get("client_id"),
             }
         )
-        print(spark_demat_account)
         spark_demat_account.insert(ignore_permissions=True)
         frappe.db.commit()
         return utils.respondWithSuccess(message="Form Saved Successfully")
@@ -3106,4 +3104,32 @@ def spark_demat_account(**kwargs):
         frappe.log_error(
             message=frappe.get_traceback() + json.dumps(data),
             title=_("Spark Demat Account Error"),
+        )
+
+
+@frappe.whitelist()
+def update_mycams_email(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {"email": ["required"]},
+        )
+        # email validation
+        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        if re.search(email_regex, data.get("email")) is None:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Please enter valid email ID"),
+            )
+        loan_customer = lms.__customer()
+        loan_customer.mycams_email_id = data.get("email")
+        loan_customer.save(ignore_permissions=True)
+        frappe.db.commit()
+        return utils.respondWithSuccess(message="Email Updated Successfully")
+    except utils.exceptions.APIException as e:
+        frappe.log_error(
+            message=frappe.get_traceback() + json.dumps(data),
+            title=_("Loan Customer - MyCams Email Update Error"),
         )
