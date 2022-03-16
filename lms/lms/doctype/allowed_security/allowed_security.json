@@ -9,9 +9,11 @@
   "isin",
   "lender",
   "eligible_percentage",
+  "instrument_type",
   "column_break_5",
   "security_name",
-  "security_category"
+  "security_category",
+  "scheme_type"
  ],
  "fields": [
   {
@@ -53,11 +55,25 @@
    "label": "Security Category",
    "options": "Security Category",
    "reqd": 1
+  },
+  {
+   "default": "Share",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Share\nMutual Fund"
+  },
+  {
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "Equity\nDebt",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-02-28 17:17:25.103726",
+ "modified": "2022-03-11 15:00:43.111596",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",
