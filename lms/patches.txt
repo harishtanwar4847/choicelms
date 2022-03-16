@@ -1,28 +1,28 @@
-lms.patches.create_roles
-lms.patches.import_security_master
-lms.patches.create_choice_lender
-lms.patches.import_allowed_security_master_for_choice_lender
-lms.patches.import_concentration_rule
-lms.patches.create_terms_and_conditions
-lms.patches.import_margin_shortfall_action
-lms.patches.update_sms_settings
-lms.patches.update_contact_us_settings
-lms.patches.import_faq
-lms.patches.create_consents
-lms.patches.update_las_settings
-lms.patches.import_interest_configuration
-lms.patches.import_workflows #22.12.2021
-lms.patches.set_hostname_config
-lms.patches.create_spark_email_account
-lms.patches.redirect_to_root_page
-lms.patches.import_spark_push_notification_content
-lms.patches.update_favicon_in_website_settings #12.11.2021
-lms.patches.add_razorpay_key_secret
-lms.patches.update_lender_ledger_list
-lms.patches.update_loan_margin_shortfall_list
-lms.patches.update_virtual_interest
-lms.patches.update_collateral_ledger_list #01-10-2021
-lms.patches.update_loan_list #13-12-2021
-lms.patches.update_sell_collateral_application
-lms.patches.update_unpledge_application
-lms.patches.redirect_news_and_blog
+lms.patches.create_roles ####
+lms.patches.import_security_master ####
+lms.patches.create_choice_lender ####
+lms.patches.import_allowed_security_master_for_choice_lender ####
+lms.patches.import_concentration_rule ####
+lms.patches.create_terms_and_conditions ####
+lms.patches.import_margin_shortfall_action ####
+lms.patches.update_sms_settings ####
+lms.patches.update_contact_us_settings ####
+lms.patches.import_faq ####
+lms.patches.create_consents ####
+lms.patches.update_las_settings ####
+lms.patches.import_interest_configuration ####
+lms.patches.import_workflows #22.12.2021 ####
+lms.patches.set_hostname_config ####
+lms.patches.create_spark_email_account ####
+lms.patches.redirect_to_root_page ####
+lms.patches.import_spark_push_notification_content ####
+lms.patches.update_favicon_in_website_settings #12.11.2021 ####
+lms.patches.add_razorpay_key_secret ####
+lms.patches.update_lender_ledger_list ####
+lms.patches.update_loan_margin_shortfall_list ####
+lms.patches.update_virtual_interest ####
+lms.patches.update_collateral_ledger_list #01-10-2021 ####
+lms.patches.update_loan_list #13-12-2021 ####
+lms.patches.update_sell_collateral_application ####
+lms.patches.update_unpledge_application ####
+lms.patches.redirect_news_and_blog ####
