@@ -1291,3 +1291,33 @@ def update_rzp_payment_transaction(data):
             message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
             title=_("Payment Webhook Enqueue Error"),
         )
+
+
+def update_mycams_email(mycams_email_id):
+    try:
+        loan_customer = __customer()
+        loan_customer.mycams_email_id = mycams_email_id
+        loan_customer.save(ignore_permissions=True)
+        frappe.db.commit()
+
+        return loan_customer
+    except Exception:
+        return False
+
+
+def spark_demat_account(depository, dpid, client_id):
+    try:
+        spark_demat_account = frappe.get_doc(
+            {
+                "doctype": "Spark Demat Account",
+                "depository": depository,
+                "dpid": dpid,
+                "client_id": client_id,
+            }
+        )
+        spark_demat_account.insert(ignore_permissions=True)
+        frappe.db.commit()
+
+        return spark_demat_account
+    except Exception:
+        return False
