@@ -3099,11 +3099,11 @@ def spark_demat_account(**kwargs):
         )
         spark_demat_account.insert(ignore_permissions=True)
         frappe.db.commit()
-        return utils.respondWithSuccess(message="Form Saved Successfully")
+        return utils.respondWithSuccess(message=frappe._("Demat Account Created"))
     except utils.exceptions.APIException as e:
         frappe.log_error(
             message=frappe.get_traceback() + json.dumps(data),
-            title=_("Spark Demat Account Error"),
+            title=_("Demat Account Creation Error"),
         )
 
 
@@ -3127,7 +3127,7 @@ def update_mycams_email(**kwargs):
         loan_customer.mycams_email_id = data.get("email")
         loan_customer.save(ignore_permissions=True)
         frappe.db.commit()
-        return utils.respondWithSuccess(message="Email Updated Successfully")
+        return utils.respondWithSuccess(message=frappe._("Email Updated Successfully"))
     except utils.exceptions.APIException as e:
         frappe.log_error(
             message=frappe.get_traceback() + json.dumps(data),

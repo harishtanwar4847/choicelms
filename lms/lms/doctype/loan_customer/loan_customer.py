@@ -56,7 +56,8 @@ class LoanCustomer(Document):
         finally:
             fa.delete_app()
 
-    def validate(self, email_regex=r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"):
+    def validate(self):
+        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
         if re.fullmatch(email_regex, self.mycams_email_id):
             pass
         else:

@@ -13,23 +13,26 @@
   {
    "fieldname": "depository",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Depository",
    "options": "CDSL\nNSDL"
   },
   {
    "fieldname": "dpid",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "DPID"
   },
   {
    "fieldname": "client_id",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Client ID"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-15 17:15:19.519547",
+ "modified": "2022-03-17 11:15:23.232816",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Demat Account",
