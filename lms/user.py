@@ -3080,6 +3080,11 @@ def spark_demat_account(**kwargs):
                 "client_id": ["required"],
             },
         )
+
+        customer = lms.__customer()
+        if not customer:
+            return utils.respondNotFound(message=frappe._("Customer not found."))
+
         # field alphanumeric validation
         reg = lms.regex_special_characters(
             search=data.get("dpid") + data.get("client_id")
@@ -3092,17 +3097,17 @@ def spark_demat_account(**kwargs):
         spark_demat_account = frappe.get_doc(
             {
                 "doctype": "Spark Demat Account",
+                "customer": customer.name,
                 "depository": data.get("depository"),
                 "dpid": data.get("dpid"),
                 "client_id": data.get("client_id"),
             }
-        )
-        spark_demat_account.insert(ignore_permissions=True)
+        ).insert(ignore_permissions=True)
         frappe.db.commit()
-        return utils.respondWithSuccess(message=frappe._("Demat Account Created"))
+        return utils.respondWithSuccess(data)
     except utils.exceptions.APIException as e:
         frappe.log_error(
-            message=frappe.get_traceback() + json.dumps(data),
+            message=frappe.get_traceback() + json.dumps(data=spark_demat_account),
             title=_("Demat Account Creation Error"),
         )
 
@@ -3116,6 +3121,10 @@ def update_mycams_email(**kwargs):
             kwargs,
             {"email": ["required"]},
         )
+        customer = lms.__customer()
+        if not customer:
+            return utils.respondNotFound(message=frappe._("Customer not found."))
+
         # email validation
         email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
         if re.search(email_regex, data.get("email")) is None:
@@ -3123,11 +3132,11 @@ def update_mycams_email(**kwargs):
                 status=422,
                 message=frappe._("Please enter valid email ID"),
             )
-        loan_customer = lms.__customer()
-        loan_customer.mycams_email_id = data.get("email")
-        loan_customer.save(ignore_permissions=True)
+        customer = lms.__customer()
+        customer.mycams_email_id = data.get("email")  # apply python trim function
+        customer.save(ignore_permissions=True)
         frappe.db.commit()
-        return utils.respondWithSuccess(message=frappe._("Email Updated Successfully"))
+        return utils.respondWithSuccess(data=customer)
     except utils.exceptions.APIException as e:
         frappe.log_error(
             message=frappe.get_traceback() + json.dumps(data),
