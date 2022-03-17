@@ -3142,3 +3142,40 @@ def update_mycams_email(**kwargs):
             message=frappe.get_traceback() + json.dumps(data),
             title=_("Loan Customer - MyCams Email Update Error"),
         )
+
+
+def get_bank_ifsc_details(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(kwargs, {"ifsc": ""})
+        if not data.get("ifsc"):
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Field is empty"),
+            )
+
+        is_alphanumeric = lms.regex_special_characters(
+            search=data.get("ifsc"), regex=re.compile("^[a-zA-Z0-9]*$")
+        )
+
+        if not is_alphanumeric:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Only alphanumeric allowed."),
+            )
+
+        filters_arr = {}
+
+        if data.get("ifsc", None):
+            search_key = str("%" + data["ifsc"] + "%")
+            filters_arr = {"ifsc": ["like", search_key], "is_active": True}
+
+        details = frappe.get_all("Spark Bank Branch", filters_arr, ["*"])
+
+        if not details:
+            return utils.respondWithSuccess(message="Record not found.")
+
+        return utils.respondWithSuccess(data=details)
+    except utils.exceptions.APIException as e:
+        return e.respond()
