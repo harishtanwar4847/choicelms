@@ -15,4 +15,4 @@ class SparkDematAccount(Document):
             search=self.get("dpid") + self.get("client_id")
         )
         if reg == True:
-            frappe.throw("Special Characters not allowed")
+            frappe.throw("Special Characters not allowed in DPID/Client_ID")

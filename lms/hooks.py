@@ -88,12 +88,6 @@ doc_events = {
             "lms.lms.doctype.top_up_application.top_up_application.only_pdf_upload",
         ]
     },
-    "spark_demat_account": {
-        "validate": "lms.lms.doctype.spark_demat_account.spark_demat_account.validate"
-    },
-    "loan_customer": {
-        "validate": "lms.lms.doctype.loan_customer.loan_customer.validate"
-    },
 }
 
 # Scheduled Tasks
