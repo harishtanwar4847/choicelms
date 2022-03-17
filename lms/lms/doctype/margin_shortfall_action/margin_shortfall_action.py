@@ -13,5 +13,12 @@ class MarginShortfallAction(Document):
         if self.sell_off_after_hours and self.sell_off_deadline_eod:
             frappe.throw("Please put value at sell off deadline either EOD or in hours")
 
+        if self.sell_off_after_hours < 0 or self.sell_off_deadline_eod < 0:
+            frappe.throw("Please provide valid input")
+
         if self.sell_off_deadline_eod > 24:
-            frappe.throw("Please keep the value for EOD below 24.")
+            frappe.throw("Please keep the value for EOD between 1 to 24.")
+
+        if self.sell_off_after_hours:
+            if self.sell_off_after_hours < 24 or self.sell_off_after_hours % 24 != 0:
+                frappe.throw("Sell Off Deadline (in hours) should be in multiple of 24")

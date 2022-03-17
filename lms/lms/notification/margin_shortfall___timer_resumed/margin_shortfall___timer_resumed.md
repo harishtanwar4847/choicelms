@@ -39,44 +39,11 @@
         <tr>
             <td>
                 <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
-                    {% if doc.get("loan_margin_shortfall").get("margin_shortfall_action").sell_off_after_hours != 0 %}
-                        URGENT ACTION REQUIRED.<br />
-                        <br />
-                        There is a margin shortfall in your loan account {{doc.get("loan_margin_shortfall").get("loan")}}.<br />
-                        <br />
-                        To mitigate the margin shortfall, you can do the following from the spark loans application:<br />
-                        <br />
-                        <ul>
-                            <li>Sell Collateral</li>
-                            <li>Pledge additional securities</li>
-                            <li>Make payments</li>
-                        </ul>
-                        <br />
-                        Please check the app and take appropriate action within {{doc.get("loan_margin_shortfall").get("margin_shortfall_action").sell_off_after_hours}} hours; else a sale will be triggered.<br />
-                        <br />
-                        You can reach to us through 'Contact Us' on the app.<br />
-                        We look forward to serve you soon.<br />
-                        <br />
-                    {% endif %}
-                    {% if doc.get("loan_margin_shortfall").get("margin_shortfall_action").sell_off_deadline_eod != 0 %}
-                        URGENT ACTION REQUIRED.<br />
-                        <br />
-                        There is a margin shortfall in your loan account {{doc.get("loan_margin_shortfall").get("loan")}} which exceeds {{doc.get("loan_margin_shortfall").get("eod_sell_off")}}% of portfolio value.<br />
-                        <br />
-                        To mitigate the margin shortfall, you can do the following from the spark loans application:<br />
-                        <br />
-                        <ul>
-                            <li>Sell Collateral</li>
-                            <li>Pledge additional securities</li>
-                            <li>Make payments</li>
-                        </ul>
-                        <br />
-                        Please check the app and take an appropriate action by {{doc.get("loan_margin_shortfall").get("eod_time")}} Today; else sale will be triggered.<br />
-                        <br />
-                        You can reach to us through 'Contact Us' on the app.<br />
-                        We look forward to serve you soon.<br />
-                        <br />
-                    {% endif %}
+                    The margin shortfall timer has been resumed on your loan account {{doc.get("loan_margin_shortfall").get("loan")}}. Please check the app and take appropriate action<br />
+                    <br />
+                    You can reach to us through 'Contact Us' on the app.<br />
+                    We look forward to serve you soon.<br />
+                    <br />
                 </span>
             </td>
         </tr>
