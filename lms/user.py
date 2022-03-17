@@ -3104,7 +3104,7 @@ def spark_demat_account(**kwargs):
             }
         ).insert(ignore_permissions=True)
         frappe.db.commit()
-        return utils.respondWithSuccess(data)
+        return utils.respondWithSuccess(data=spark_demat_account)
     except utils.exceptions.APIException as e:
         frappe.log_error(
             message=frappe.get_traceback() + json.dumps(data=spark_demat_account),
@@ -3133,7 +3133,7 @@ def update_mycams_email(**kwargs):
                 message=frappe._("Please enter valid email ID"),
             )
         customer = lms.__customer()
-        customer.mycams_email_id = data.get("email")  # apply python trim function
+        customer.mycams_email_id = data.get("email").strip()
         customer.save(ignore_permissions=True)
         frappe.db.commit()
         return utils.respondWithSuccess(data=customer)
