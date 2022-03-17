@@ -5,6 +5,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "customer",
   "depository",
   "dpid",
   "client_id"
@@ -19,17 +20,29 @@
   {
    "fieldname": "dpid",
    "fieldtype": "Data",
-   "label": "DPID"
+   "in_list_view": 1,
+   "label": "DPID",
+   "reqd": 1
   },
   {
    "fieldname": "client_id",
    "fieldtype": "Data",
-   "label": "Client ID"
+   "in_list_view": 1,
+   "label": "Client ID",
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer ID",
+   "options": "Loan Customer",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-15 11:14:35.384448",
+ "modified": "2022-03-17 14:52:17.698031",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Demat Account",
