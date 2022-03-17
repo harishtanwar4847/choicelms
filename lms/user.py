@@ -3065,3 +3065,71 @@ def contact_us(**kwargs):
         return utils.respondWithSuccess()
     except utils.exceptions.APIException as e:
         return e.respond()
+
+
+@frappe.whitelist()
+def penny_create_contact(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "name": "required",
+                "contact": [
+                    "required",
+                    "decimal",
+                    utils.validator.rules.LengthRule(10),
+                ],
+                "email": "required",
+            },
+        )
+
+        # email validation
+        reg = lms.regex_special_characters(search=data.get("name"))
+        if reg:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
+
+        # email validation
+        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        if re.search(email_regex, data.get("email")) is None:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Please enter valid email ID"),
+            )
+
+        # save user kyc
+        #
+        #
+
+        # fetch rzp key secret from las settings and use Basic auth
+        rzp_key_secret = frappe.get_single("LAS Settings").razorpay_webhook_secret
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(rzp_key_secret, "utf-8")
+        ).decode("ascii")
+
+        data = {
+            "name": "Deep Chirag",
+            "email": "dpcg71253601@gmail.com",
+            "contact": "8271873324",
+            "type": "customer",
+            "reference_id": "",
+            "notes": {},
+        }
+        raw_res = requests.post(
+            "https://api.razorpay.com/v1/contacts",
+            headers={
+                "Authorization": razorpay_key_secret_auth,
+                "content-type": "application/json",
+            },
+            data=json.dumps(data),
+        )
+
+        if raw_res.json().get("error"):
+            raise Exception
+        return utils.respondWithSuccess(message=frappe._("Success"))
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
