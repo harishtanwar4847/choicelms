@@ -993,9 +993,6 @@ def schemes(**kwargs):
         else:
             lender_list = data.get("lender", None).get("list")
 
-        customer = lms.__customer()
-        user_kyc = lms.__user_kyc()
-
         scheme = ""
         lender = ""
         sub_query = ""
@@ -1029,6 +1026,40 @@ def schemes(**kwargs):
             message=frappe._("Success"), data={"securities_list": securities_list}
         )
 
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist()
+def isin_details(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(
+            kwargs,
+            {"isin": "required"},
+        )
+
+        reg = lms.regex_special_characters(search=data.get("isin"))
+        if reg:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
+
+        isin_details = frappe.db.sql(
+            """select als.isin, (select category_name from `tabSecurity Category` where name = als.security_category) as category, l.name, l.minimum_sanctioned_limit, l.maximum_sanctioned_limit, l.rate_of_interest from `tabAllowed Security` als LEFT JOIN `tabLender` l on l.name = als.lender where als.isin='{}'""".format(
+                data.get("isin")
+            ),
+            as_dict=True,
+        )
+
+        if not isin_details:
+            return utils.respondWithSuccess(message=frappe._("No record found."))
+
+        return utils.respondWithSuccess(
+            message=frappe._("Success"), data={"isin_details": isin_details}
+        )
     except utils.exceptions.APIException as e:
         return e.respond()
 
