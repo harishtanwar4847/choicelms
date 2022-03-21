@@ -31,7 +31,7 @@ class SellCollateralApplication(Document):
                 fcm_notification=fcm_notification, message=fcm_notification.message
             )
 
-    def process_items(self, instrument_type="Share"):
+    def process_items(self, instrument_type="Shares"):
         self.total_collateral_value = 0
         loan = self.get_loan()
         self.lender = loan.lender

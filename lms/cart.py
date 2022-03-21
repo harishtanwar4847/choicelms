@@ -18,7 +18,7 @@ from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions
 )
 
 
-def validate_securities_for_cart(securities, lender, instrument_type="Share"):
+def validate_securities_for_cart(securities, lender, instrument_type="Shares"):
     if not securities or (
         type(securities) is not dict and "list" not in securities.keys()
     ):

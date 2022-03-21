@@ -946,6 +946,93 @@ def securities(**kwargs):
         return e.respond()
 
 
+@frappe.whitelist()
+def schemes(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(
+            kwargs,
+            {"scheme_type": "", "lender": "", "level": ""},
+        )
+
+        reg = lms.regex_special_characters(search=data.get("scheme_type"))
+        if reg:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
+        if data.get("scheme_type"):
+            if data.get("scheme_type") != "Equity" or data.get("scheme_type") != "Debt":
+                return utils.respondWithFailure(
+                    status=422,
+                    message=frappe._("Scheme type should be either Equity or Debt."),
+                )
+
+        if type(data.get("lender")) != dict or type(data.get("level")) != dict:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._(
+                    "Lender and Level fields should be in dictionary format."
+                ),
+            )
+
+        if (
+            "list" not in data.get("lender").keys()
+            or "list" not in data.get("level").keys()
+        ):
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._(
+                    "Lender and Level fields should be consist of list key."
+                ),
+            )
+
+        if not data.get("lender", None).get("list"):
+            lender_list = frappe.db.get_list("Lender", pluck="name")
+        else:
+            lender_list = data.get("lender", None).get("list")
+
+        customer = lms.__customer()
+        user_kyc = lms.__user_kyc()
+
+        scheme = ""
+        lender = ""
+        sub_query = ""
+        lender_clause = lms.convert_list_to_tuple_string(lender_list)
+        lender = " and als.lender IN {}".format(lender_clause)
+
+        if data.get("scheme_type"):
+            scheme = " and als.scheme_type = '{}'".format(data.get("scheme_type"))
+        if data.get("level").get("list"):
+            # levels = lms.convert_list_to_tuple_string(list(map(lambda st: str.replace(st, "Level ", ""), data.get("level").get("list"))))
+            levels = lms.convert_list_to_tuple_string(data.get("level").get("list"))
+            sub_query = " and als.security_category in (select security_category from `tabConcentration Rule` where parent in {} and idx in {})".format(
+                lender_clause, levels
+            )
+
+        securities_list = frappe.db.sql(
+            """select als.isin, als.security_name, als.eligible_percentage, als.instrument_type, als.scheme_type, s.price, group_concat(lender,'') as lenders
+            from `tabAllowed Security` als
+            LEFT JOIN `tabSecurity` s on s.isin = als.isin
+            where als.instrument_type='Mutual Fund'{}{}{}
+            group by als.isin
+            order by als.creation desc;""".format(
+                scheme, lender, sub_query
+            ),
+            as_dict=True,
+        )
+        if not securities_list:
+            return utils.respondWithSuccess(message=frappe._("No record found."))
+
+        return utils.respondWithSuccess(
+            message=frappe._("Success"), data={"securities_list": securities_list}
+        )
+
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+
 @frappe.whitelist(allow_guest=True)
 def tds(tds_amount, year):
 
