@@ -161,7 +161,6 @@ def update_all_security_prices():
 @frappe.whitelist()
 def update_all_schemeNav():
     chunks = lms.chunk_doctype(doctype="Security", limit=50)
-    frappe.logger().info(chunks)
     for start in chunks.get("chunks"):
         schemes_list = frappe.db.get_all(
             "Security",
@@ -170,7 +169,6 @@ def update_all_schemeNav():
             limit_page_length=chunks.get("limit"),
             limit_start=start,
         )
-        frappe.logger().info(chunks)
 
         frappe.enqueue(
             method="lms.lms.doctype.security_price.security_price.update_scheme_nav",
