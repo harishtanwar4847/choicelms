@@ -9,6 +9,7 @@
   "registeration",
   "is_email_verified",
   "kyc_update",
+  "bank_update",
   "column_break_65",
   "credit_check",
   "pledge_securities",
@@ -200,10 +201,16 @@
   {
    "fieldname": "feedback_column_break",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "bank_update",
+   "fieldtype": "Check",
+   "label": "Bank Update"
   }
  ],
  "links": [],
- "modified": "2021-12-25 14:21:53.260369",
+ "modified": "2022-03-17 18:09:54.117299",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Customer",

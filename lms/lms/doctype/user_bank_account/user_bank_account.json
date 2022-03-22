@@ -14,6 +14,7 @@
   "state",
   "is_default",
   "is_spark_default",
+  "razorpay_fund_account_id",
   "column_break_1",
   "bank_address",
   "contact",
@@ -21,7 +22,8 @@
   "micr",
   "bank_mode",
   "bank_zip_code",
-  "district"
+  "district",
+  "razorpay_fund_account_validation_id"
  ],
  "fields": [
   {
@@ -114,11 +116,23 @@
    "fieldname": "district",
    "fieldtype": "Data",
    "label": "District"
+  },
+  {
+   "fieldname": "razorpay_fund_account_id",
+   "fieldtype": "Data",
+   "label": "Razorpay Fund Account ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "razorpay_fund_account_validation_id",
+   "fieldtype": "Data",
+   "label": "Razorpay Fund Account Validation ID",
+   "read_only": 1
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2021-10-05 10:25:39.742792",
+ "modified": "2022-03-17 15:29:12.049830",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User Bank Account",
