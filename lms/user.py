@@ -963,7 +963,10 @@ def schemes(**kwargs):
                 message=frappe._("Special Characters not allowed."),
             )
         if data.get("scheme_type"):
-            if data.get("scheme_type") != "Equity" or data.get("scheme_type") != "Debt":
+            if (
+                data.get("scheme_type") != "Equity"
+                and data.get("scheme_type") != "Debt"
+            ):
                 return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Scheme type should be either Equity or Debt."),
@@ -1002,7 +1005,6 @@ def schemes(**kwargs):
         if data.get("scheme_type"):
             scheme = " and als.scheme_type = '{}'".format(data.get("scheme_type"))
         if data.get("level").get("list"):
-            # levels = lms.convert_list_to_tuple_string(list(map(lambda st: str.replace(st, "Level ", ""), data.get("level").get("list"))))
             levels = lms.convert_list_to_tuple_string(data.get("level").get("list"))
             sub_query = " and als.security_category in (select security_category from `tabConcentration Rule` where parent in {} and idx in {})".format(
                 lender_clause, levels
@@ -1019,8 +1021,8 @@ def schemes(**kwargs):
             ),
             as_dict=True,
         )
-        if not schemes_list:
-            return utils.respondWithSuccess(message=frappe._("No record found."))
+        # if not schemes_list:
+        #     return utils.respondWithSuccess(message=frappe._("No record found."))
 
         return utils.respondWithSuccess(
             message=frappe._("Success"), data={"schemes_list": schemes_list}
@@ -1054,8 +1056,8 @@ def isin_details(**kwargs):
             as_dict=True,
         )
 
-        if not isin_details:
-            return utils.respondWithSuccess(message=frappe._("No record found."))
+        # if not isin_details:
+        #     return utils.respondWithSuccess(message=frappe._("No record found."))
 
         return utils.respondWithSuccess(
             message=frappe._("Success"), data={"isin_details": isin_details}

@@ -212,18 +212,12 @@ def upsert(**kwargs):
                     )
         instrument_type = "Shares"
         scheme_type = ""
-        if (
-            data.get("instrument_type") == "Mutual Fund"
-            and data.get("scheme_type") == "Equity"
-        ):
+        if data.get("instrument_type") == "Mutual Fund":
             instrument_type = "Mutual Fund"
-            scheme_type = "Equity"
-        elif (
-            data.get("instrument_type") == "Mutual Fund"
-            and data.get("scheme_type") == "Debt"
-        ):
-            instrument_type = "Mutual Fund"
-            scheme_type = "Debt"
+            if data.get("scheme_type") == "Equity":
+                scheme_type = "Equity"
+            elif data.get("scheme_type") == "Debt":
+                scheme_type = "Debt"
 
         if not data.get("cart_name", None):
             cart = frappe.get_doc(
