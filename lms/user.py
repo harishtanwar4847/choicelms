@@ -3086,35 +3086,38 @@ def penny_create_contact(**kwargs):
         # fetch rzp key secret from las settings and use Basic auth
         las_settings = frappe.get_single("LAS Settings")
         if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Create contact Error",
+                message="Penny Drop Create contact Error - Razorpay Key Secret Missing",
+            )
             return utils.respondWithFailure()
 
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
             bytes(las_settings.razorpay_key_secret, "utf-8")
         ).decode("ascii")
 
-        data = {
-            "name": customer.full_name,
-            "email": customer.user,
-            "contact": customer.phone,
-            "type": "customer",
-            "reference_id": customer.name,
-            "notes": {},
-        }
-
         try:
+            data_rzp = {
+                "name": customer.full_name,
+                "email": customer.user,
+                "contact": customer.phone,
+                "type": "customer",
+                "reference_id": customer.name,
+                "notes": {},
+            }
             raw_res = requests.post(
                 "https://api.razorpay.com/v1/contacts",
                 headers={
                     "Authorization": razorpay_key_secret_auth,
                     "content-type": "application/json",
                 },
-                data=json.dumps(data),
+                data=json.dumps(data_rzp),
             )
             data_res = raw_res.json()
 
             if data_res.get("error"):
                 log = {
-                    "request": data,
+                    "request": data_rzp,
                     "response": data_res.get("error"),
                 }
                 lms.create_log(log, "rzp_penny_contact_error_log")
@@ -3139,11 +3142,11 @@ def penny_create_contact(**kwargs):
             raise utils.exceptions.APIException(str(e))
 
     except utils.exceptions.APIException as e:
-        return frappe.log_error(
+        frappe.log_error(
             title="Penny Drop Create contact Error",
             message=frappe.get_traceback()
             + "\n\nPenny Drop Create contact Error: "
-            + e.respond(),
+            + str(e.args),
         )
 
 
@@ -3179,6 +3182,10 @@ def penny_create_fund_account(**kwargs):
         # fetch rzp key secret from las settings and use Basic auth
         las_settings = frappe.get_single("LAS Settings")
         if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Fund Account Error",
+                message="Penny Drop Fund Account Error - Razorpay Key Secret Missing",
+            )
             return utils.respondWithFailure()
 
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
@@ -3190,23 +3197,23 @@ def penny_create_fund_account(**kwargs):
         except UserKYCNotFoundException:
             return utils.respondWithFailure(message=frappe._("User KYC not found"))
 
-        data = {
-            "contact_id": user_kyc.razorpay_contact_id,
-            "account_type": "bank_account",
-            "bank_account": {
-                "name": data.get("account_holder_name"),
-                "ifsc": data.get("ifsc"),
-                "account_number": data.get("account_number"),
-            },
-        }
         try:
+            data_rzp = {
+                "contact_id": user_kyc.razorpay_contact_id,
+                "account_type": "bank_account",
+                "bank_account": {
+                    "name": data.get("account_holder_name"),
+                    "ifsc": data.get("ifsc"),
+                    "account_number": data.get("account_number"),
+                },
+            }
             raw_res = requests.post(
                 "https://api.razorpay.com/v1/fund_accounts",
                 headers={
                     "Authorization": razorpay_key_secret_auth,
                     "content-type": "application/json",
                 },
-                data=json.dumps(data),
+                data=json.dumps(data_rzp),
             )
             data_res = raw_res.json()
 
@@ -3217,6 +3224,7 @@ def penny_create_fund_account(**kwargs):
                 }
                 lms.create_log(log, "rzp_penny_fund_account_error_log")
                 return utils.respondWithFailure(message=frappe._("failed"))
+            # if not get error
             data_resp = {"fa_id": data_res.get("id")}
             lms.create_log(data_res, "rzp_penny_fund_account_success_log")
             return utils.respondWithSuccess(message=frappe._("success"), data=data_resp)
@@ -3225,11 +3233,11 @@ def penny_create_fund_account(**kwargs):
             raise utils.exceptions.APIException(str(e))
 
     except utils.exceptions.APIException as e:
-        return frappe.log_error(
+        frappe.log_error(
             title="Penny Drop Create fund account Error",
             message=frappe.get_traceback()
             + "\n\nPenny Drop Create fund account Error: "
-            + e.respond(),
+            + str(e.args),
         )
 
 
@@ -3267,34 +3275,42 @@ def penny_create_fund_account_validation(**kwargs):
         # fetch rzp key secret from las settings and use Basic auth
         las_settings = frappe.get_single("LAS Settings")
         if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Fund Account Validation Error",
+                message="Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing",
+            )
             return utils.respondWithFailure()
 
         if not las_settings.razorpay_bank_account:
+            frappe.log_error(
+                title="Penny Drop Fund Account Validation Error",
+                message="Penny Drop Fund Account Validation Error - Razorpay Bank Account Missing",
+            )
             return utils.respondWithFailure()
 
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
             bytes(las_settings.razorpay_key_secret, "utf-8")
         ).decode("ascii")
 
-        data = {
-            "account_number": las_settings.razorpay_bank_account,
-            "fund_account": {"id": data.get("fa_id")},
-            "amount": 100,
-            "currency": "INR",
-            "notes": {
-                "branch": data.get("branch"),
-                "city": data.get("city"),
-                "bank_account_type": data.get("bank_account_type"),
-            },
-        }
         try:
+            data_rzp = {
+                "account_number": las_settings.razorpay_bank_account,
+                "fund_account": {"id": data.get("fa_id")},
+                "amount": 100,
+                "currency": "INR",
+                "notes": {
+                    "branch": data.get("branch"),
+                    "city": data.get("city"),
+                    "bank_account_type": data.get("bank_account_type"),
+                },
+            }
             raw_res = requests.post(
                 "https://api.razorpay.com/v1/fund_accounts/validations",
                 headers={
                     "Authorization": razorpay_key_secret_auth,
                     "content-type": "application/json",
                 },
-                data=json.dumps(data),
+                data=json.dumps(data_rzp),
             )
 
             data_res = raw_res.json()
@@ -3305,11 +3321,11 @@ def penny_create_fund_account_validation(**kwargs):
             raise utils.exceptions.APIException(str(e))
 
     except utils.exceptions.APIException as e:
-        return frappe.log_error(
+        frappe.log_error(
             title="Penny Drop Create fund account validation Error",
             message=frappe.get_traceback()
             + "\n\nPenny Drop Create fund account validation Error: "
-            + e.respond(),
+            + str(e.args),
         )
 
 
@@ -3317,9 +3333,7 @@ def penny_create_fund_account_validation(**kwargs):
 def penny_create_fund_account_validation_by_id(**kwargs):
     try:
         utils.validator.validate_http_method("POST")
-        data = utils.validator.validate(
-            kwargs, {"fav_id": "required", "counter": ["required", "decimal"]}
-        )
+        data = utils.validator.validate(kwargs, {"fav_id": "required"})
 
         # check user
         try:
@@ -3341,6 +3355,10 @@ def penny_create_fund_account_validation_by_id(**kwargs):
         # fetch rzp key secret from las settings and use Basic auth
         las_settings = frappe.get_single("LAS Settings")
         if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Fund Account Validation Error",
+                message="Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing",
+            )
             return utils.respondWithFailure()
 
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
@@ -3366,7 +3384,12 @@ def penny_create_fund_account_validation_by_id(**kwargs):
             raise utils.exceptions.APIException(str(e))
 
     except utils.exceptions.APIException as e:
-        return e.respond()
+        frappe.log_error(
+            title="Penny Drop Create fund account validation Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create fund account validation Error: "
+            + str(e.args),
+        )
 
 
 def penny_api_response_handle(data, user_kyc, customer, data_res):
@@ -3383,11 +3406,6 @@ def penny_api_response_handle(data, user_kyc, customer, data_res):
             "response": data_res,
         }
         lms.create_log(log, "rzp_penny_fund_account_validation_error_log")
-        return utils.respondWithFailure(message=message, data=data_resp)
-
-    if data.get("counter") and data.get("counter") > 4:
-        data_resp["status"] = "failed"
-        message = "Your account details have not been successfully verified"
         return utils.respondWithFailure(message=message, data=data_resp)
 
     if data_res.get("status") == "failed":
