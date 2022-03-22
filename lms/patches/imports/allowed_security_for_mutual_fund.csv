@@ -1,4 +1,4 @@
-ISIN,Lender,Eligible Percentage,Security Category,Instrument Type,Security Name,Scheme Type
+ISIN,Lender,Eligible Percentage,Security Category,Instrument Type,Security/Scheme Name,Scheme Type
 INF277K010A2,Choice Finserv,40,A,Mutual Fund,TATA INDIA CONSUMER FUND REGULAR PLAN GROWTH,Equity
 INF277K010U0,Choice Finserv,60,B,Mutual Fund,Tata Treasury Advantage Fund-Regular Plan - Growth Option,Debt
 INF277K010V8,Choice Finserv,60,C,Mutual Fund,Tata Corporate Bond Fund Segregated Portfolio 1  Regular Plan ,Debt
