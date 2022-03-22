@@ -57,6 +57,7 @@
   "og_code_enabled",
   "razorpay_section_section",
   "razorpay_key_secret",
+  "razorpay_bank_account",
   "column_break_49",
   "razorpay_webhook_secret"
  ],
@@ -344,11 +345,16 @@
   {
    "fieldname": "column_break_49",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "razorpay_bank_account",
+   "fieldtype": "Data",
+   "label": "Razorpay Bank Account"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2022-03-22 11:52:26.306021",
+ "modified": "2022-03-22 15:05:57.868401",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

@@ -3217,7 +3217,7 @@ def penny_create_fund_account(**kwargs):
                 }
                 lms.create_log(log, "rzp_penny_fund_account_error_log")
                 return utils.respondWithFailure(message=frappe._("failed"))
-            data_resp = {"fund_account_id": data_res.get("id")}
+            data_resp = {"fa_id": data_res.get("id")}
             lms.create_log(data_res, "rzp_penny_fund_account_success_log")
             return utils.respondWithSuccess(message=frappe._("success"), data=data_resp)
 
@@ -3251,7 +3251,7 @@ def penny_create_fund_account_validation(**kwargs):
         try:
             user = lms.__user()
         except UserNotFoundException:
-            user = None
+            return utils.respondNotFound(message=frappe._("User not found."))
 
         # check Loan Customer
         customer = lms.__customer(user.name)
@@ -3259,16 +3259,25 @@ def penny_create_fund_account_validation(**kwargs):
             return utils.respondNotFound(message=frappe._("Customer not found."))
 
         # user KYC
-        user_kyc = lms.__user_kyc(user.name)
+        try:
+            user_kyc = lms.__user_kyc(user.name)
+        except UserKYCNotFoundException:
+            return utils.respondWithFailure(message=frappe._("User KYC not found"))
 
         # fetch rzp key secret from las settings and use Basic auth
-        rzp_key_secret = frappe.get_single("LAS Settings").razorpay_webhook_secret
+        las_settings = frappe.get_single("LAS Settings")
+        if not las_settings.razorpay_key_secret:
+            return utils.respondWithFailure()
+
+        if not las_settings.razorpay_bank_account:
+            return utils.respondWithFailure()
+
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
-            bytes(rzp_key_secret, "utf-8")
+            bytes(las_settings.razorpay_key_secret, "utf-8")
         ).decode("ascii")
 
         data = {
-            "account_number": "4564561973630666",
+            "account_number": las_settings.razorpay_bank_account,
             "fund_account": {"id": data.get("fa_id")},
             "amount": 100,
             "currency": "INR",
@@ -3278,122 +3287,45 @@ def penny_create_fund_account_validation(**kwargs):
                 "bank_account_type": data.get("bank_account_type"),
             },
         }
-        raw_res = requests.post(
-            "https://api.razorpay.com/v1/fund_accounts/validations",
-            headers={
-                "Authorization": razorpay_key_secret_auth,
-                "content-type": "application/json",
-            },
-            data=json.dumps(data),
-        )
-
-        data_res = raw_res.json()
-
-        data_resp = {
-            "fav_id": data_res.get("id"),
-            "status": data_res.get("status"),
-        }
-
-        if data_res.get("error") or data_res.get("status") == "failed":
-            data_resp["status"] = "failed"
-            message = "Your account details have not been successfully verified"
-            log = {
-                "request": data,
-                "response": data_res,
-            }
-            lms.create_log(log, "rzp_penny_fund_account_validation_error_log")
-            frappe.log_error(
-                message=frappe.get_traceback()
-                + "\n\nPenny Drop Create fund account Validation Error"
+        try:
+            raw_res = requests.post(
+                "https://api.razorpay.com/v1/fund_accounts/validations",
+                headers={
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                },
+                data=json.dumps(data),
             )
-            return utils.respondWithFailure(message=message, data=data_resp)
 
-        if data_res.get("status") == "completed":
-            # name validation - check user entered account holder name is same with registered name
-            account_holder_name = (
-                data_res.get("fund_account")
-                .get("bank_account")
-                .get("name")
-                .lower()
-                .split(" ")[0]
-            )
-            registered_name = data_res.get("results").get("registered_name").lower()
-            account_status = data_res.get("results").get("account_status")
+            data_res = raw_res.json()
 
-            if account_holder_name in registered_name and account_status == "active":
-                # check bank Entry existence. if not exist then create entry
-                bank_entry_check = frappe.db.exists(
-                    {
-                        "doctype": "User Bank Account",
-                        "parentfield": "bank_account",
-                        "razorpay_fund_account_id": data_res.get("fund_account").get(
-                            "id"
-                        ),
-                        "account_number": data_res.get("fund_account")
-                        .get("bank_account")
-                        .get("account_number"),
-                    }
-                )
-                if not bank_entry_check:
-                    frappe.get_doc(
-                        {
-                            "doctype": "User Bank Account",
-                            "parentfield": "bank_account",
-                            "parenttype": "User KYC",
-                            "bank": data_res.get("fund_account")
-                            .get("bank_account")
-                            .get("bank_name"),
-                            "branch": data_res.get("notes").get("branch"),
-                            "account_type": data_res.get("notes").get(
-                                "bank_account_type"
-                            ),
-                            "account_number": data_res.get("fund_account")
-                            .get("bank_account")
-                            .get("account_number"),
-                            "ifsc": data_res.get("fund_account")
-                            .get("bank_account")
-                            .get("ifsc"),
-                            "city": data_res.get("notes").get("city"),
-                            "parent": user_kyc.name,
-                            "is_default": True,
-                            "razorpay_fund_account_id": data_res.get(
-                                "fund_account"
-                            ).get("id"),
-                            "razorpay_fund_account_validation_id": data_res.get("id"),
-                        }
-                    ).insert(ignore_permissions=True)
-                    frappe.db.commit()
-                    # mark bank update checkbox
-                    customer.bank_update = True
-                    customer.save(ignore_permissions=True)
+            penny_api_response_handle(data, user_kyc, customer, data_res)
 
-                    message = "Your account details have been successfully verified"
-            else:
-                data_resp["status"] = "failed"
-                message = "We have found a mismatch in the account holder name as per the fetched data"
-                return utils.respondWithFailure(message=message, data=data_resp)
-
-        if data_res.get("status") == "created":
-            message = "waiting for response from bank"
-
-        lms.create_log(data_res, "rzp_penny_fund_account_validation_success_log")
-        return utils.respondWithSuccess(message=message, data=data_resp)
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
 
     except utils.exceptions.APIException as e:
-        return e.respond()
+        return frappe.log_error(
+            title="Penny Drop Create fund account validation Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create fund account validation Error: "
+            + e.respond(),
+        )
 
 
 @frappe.whitelist()
 def penny_create_fund_account_validation_by_id(**kwargs):
     try:
         utils.validator.validate_http_method("POST")
-        data = utils.validator.validate(kwargs, {"fav_id": "required"})
+        data = utils.validator.validate(
+            kwargs, {"fav_id": "required", "counter": ["required", "decimal"]}
+        )
 
         # check user
         try:
             user = lms.__user()
         except UserNotFoundException:
-            user = None
+            return utils.respondNotFound(message=frappe._("User not found."))
 
         # check Loan Customer
         customer = lms.__customer(user.name)
@@ -3401,108 +3333,135 @@ def penny_create_fund_account_validation_by_id(**kwargs):
             return utils.respondNotFound(message=frappe._("Customer not found."))
 
         # user KYC
-        user_kyc = lms.__user_kyc(user.name)
+        try:
+            user_kyc = lms.__user_kyc(user.name)
+        except UserKYCNotFoundException:
+            return utils.respondWithFailure(message=frappe._("User KYC not found"))
 
         # fetch rzp key secret from las settings and use Basic auth
-        rzp_key_secret = frappe.get_single("LAS Settings").razorpay_webhook_secret
+        las_settings = frappe.get_single("LAS Settings")
+        if not las_settings.razorpay_key_secret:
+            return utils.respondWithFailure()
+
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
-            bytes(rzp_key_secret, "utf-8")
+            bytes(las_settings.razorpay_key_secret, "utf-8")
         ).decode("ascii")
 
-        raw_res = requests.get(
-            "https://api.razorpay.com/v1/fund_accounts/validations/{}".format(
-                data.get("fav_id")
-            ),
-            headers={
-                "Authorization": razorpay_key_secret_auth,
-                "content-type": "application/json",
-            },
-        )
-
-        data_res = raw_res.json()
-
-        data_resp = {
-            "fav_id": data_res.get("id"),
-            "status": data_res.get("status"),
-        }
-
-        if data_res.get("error") or data_res.get("status") == "failed":
-            data_resp["status"] = "failed"
-            message = "Your account details have not been successfully verified"
-            lms.create_log(data_res, "rzp_penny_fund_account_validation_error_log")
-            frappe.log_error(
-                message=frappe.get_traceback()
-                + "\n\nPenny Drop Create fund account Validation Error"
+        try:
+            raw_res = requests.get(
+                "https://api.razorpay.com/v1/fund_accounts/validations/{}".format(
+                    data.get("fav_id")
+                ),
+                headers={
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                },
             )
-            return utils.respondWithFailure(message=message, data=data_resp)
 
-        if data_res.get("status") == "completed":
-            # name validation - check user entered account holder name is same with registered name
-            account_holder_name = (
-                data_res.get("fund_account")
-                .get("bank_account")
-                .get("name")
-                .lower()
-                .split(" ")[0]
-            )
-            registered_name = data_res.get("results").get("registered_name").lower()
-            account_status = data_res.get("results").get("account_status")
+            data_res = raw_res.json()
 
-            if account_holder_name in registered_name and account_status == "active":
-                # check bank Entry existence. if not exist then create entry
-                bank_entry_check = frappe.db.exists(
-                    {
-                        "doctype": "User Bank Account",
-                        "parentfield": "bank_account",
-                        "account_number": data_res.get("fund_account")
-                        .get("bank_account")
-                        .get("account_number"),
-                    }
-                )
-                if not bank_entry_check:
-                    frappe.get_doc(
-                        {
-                            "doctype": "User Bank Account",
-                            "parentfield": "bank_account",
-                            "parenttype": "User KYC",
-                            "bank": data_res.get("fund_account")
-                            .get("bank_account")
-                            .get("bank_name"),
-                            "branch": data_res.get("notes").get("branch"),
-                            "account_type": data_res.get("notes").get(
-                                "bank_account_type"
-                            ),
-                            "account_number": data_res.get("fund_account")
-                            .get("bank_account")
-                            .get("account_number"),
-                            "ifsc": data_res.get("fund_account")
-                            .get("bank_account")
-                            .get("ifsc"),
-                            "city": data_res.get("notes").get("city"),
-                            "parent": user_kyc.name,
-                            "is_default": True,
-                            "razorpay_fund_account_id": data_res.get(
-                                "fund_account"
-                            ).get("id"),
-                            "razorpay_fund_account_validation_id": data_res.get("id"),
-                        }
-                    ).insert(ignore_permissions=True)
-                    frappe.db.commit()
-                # mark bank update checkbox
-                customer.bank_update = True
-                customer.save(ignore_permissions=True)
+            penny_api_response_handle(data, user_kyc, customer, data_res)
 
-                message = "Your account details have been successfully verified"
-            else:
-                data_resp["status"] = "failed"
-                message = "We have found a mismatch in the account holder name as per the fetched data"
-                return utils.respondWithFailure(message=message, data=data_resp)
-
-        if data_res.get("status") == "created":
-            message = "waiting for response from bank"
-
-        lms.create_log(data_res, "rzp_penny_fund_account_validation_success_log")
-        return utils.respondWithSuccess(message=message, data=data_resp)
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
 
     except utils.exceptions.APIException as e:
         return e.respond()
+
+
+def penny_api_response_handle(data, user_kyc, customer, data_res):
+    data_resp = {
+        "fav_id": data_res.get("id"),
+        "status": data_res.get("status"),
+    }
+
+    if data_res.get("error"):
+        data_resp["status"] = "failed"
+        message = "Your account details have not been successfully verified"
+        log = {
+            "request": data,
+            "response": data_res,
+        }
+        lms.create_log(log, "rzp_penny_fund_account_validation_error_log")
+        return utils.respondWithFailure(message=message, data=data_resp)
+
+    if data.get("counter") and data.get("counter") > 4:
+        data_resp["status"] = "failed"
+        message = "Your account details have not been successfully verified"
+        return utils.respondWithFailure(message=message, data=data_resp)
+
+    if data_res.get("status") == "failed":
+        message = "Your account details have not been successfully verified"
+        return utils.respondWithFailure(message=message, data=data_resp)
+
+    if data_res.get("status") == "created":
+        message = "waiting for response from bank"
+
+    if data_res.get("status") == "completed":
+        # name validation - check user entered account holder name is same with registered name
+        account_holder_name = (
+            data_res.get("fund_account")
+            .get("bank_account")
+            .get("name")
+            .lower()
+            .split(" ")
+        )
+        registered_name = data_res.get("results").get("registered_name").lower()
+        account_status = data_res.get("results").get("account_status")
+
+        if (
+            (account_holder_name[0] in registered_name)
+            or (account_holder_name[1] in registered_name)
+        ) and account_status == "active":
+
+            message = "Your account details have been successfully verified"
+
+            # check bank Entry existence. if not exist then create entry
+            bank_entry_check = frappe.db.exists(
+                {
+                    "doctype": "User Bank Account",
+                    "parentfield": "bank_account",
+                    "razorpay_fund_account_id": data_res.get("fund_account").get("id"),
+                    "account_number": data_res.get("fund_account")
+                    .get("bank_account")
+                    .get("account_number"),
+                }
+            )
+            if not bank_entry_check:
+                frappe.get_doc(
+                    {
+                        "doctype": "User Bank Account",
+                        "parentfield": "bank_account",
+                        "parenttype": "User KYC",
+                        "bank": data_res.get("fund_account")
+                        .get("bank_account")
+                        .get("bank_name"),
+                        "branch": data_res.get("notes").get("branch"),
+                        "account_type": data_res.get("notes").get("bank_account_type"),
+                        "account_number": data_res.get("fund_account")
+                        .get("bank_account")
+                        .get("account_number"),
+                        "ifsc": data_res.get("fund_account")
+                        .get("bank_account")
+                        .get("ifsc"),
+                        "city": data_res.get("notes").get("city"),
+                        "parent": user_kyc.name,
+                        "is_default": True,
+                        "razorpay_fund_account_id": data_res.get("fund_account").get(
+                            "id"
+                        ),
+                        "razorpay_fund_account_validation_id": data_res.get("id"),
+                    }
+                ).insert(ignore_permissions=True)
+                frappe.db.commit()
+                # mark bank update checkbox
+                if not customer.bank_update:
+                    customer.bank_update = True
+                    customer.save(ignore_permissions=True)
+        else:
+            data_resp["status"] = "failed"
+            message = "We have found a mismatch in the account holder name as per the fetched data"
+            return utils.respondWithFailure(message=message, data=data_resp)
+
+    lms.create_log(data_res, "rzp_penny_fund_account_validation_success_log")
+    return utils.respondWithSuccess(message=message, data=data_resp)
