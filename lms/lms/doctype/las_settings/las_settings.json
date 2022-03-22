@@ -299,10 +299,10 @@
    "label": "OG Code Enabled"
   },
   {
-  "fieldname": "news_and_blog_template",
-  "fieldtype": "Attach",
-  "label": "News and Blog Template"
-   },
+   "fieldname": "news_and_blog_template",
+   "fieldtype": "Attach",
+   "label": "News and Blog Template"
+  },
   {
    "collapsible": 1,
    "fieldname": "market_hours_section",
@@ -325,7 +325,7 @@
    "fieldname": "market_end_time",
    "fieldtype": "Int",
    "label": "Market End Time (in hour)"
-    },
+  },
   {
    "fieldname": "razorpay_webhook_secret",
    "fieldtype": "Data",
@@ -334,7 +334,6 @@
   {
    "fieldname": "razorpay_section_section",
    "fieldtype": "Section Break",
-   "hidden": 1,
    "label": "Razorpay Section"
   },
   {
@@ -349,7 +348,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2021-12-17 16:53:43.586081",
+ "modified": "2022-03-22 11:52:26.306021",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

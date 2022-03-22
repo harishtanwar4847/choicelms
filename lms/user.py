@@ -3071,34 +3071,6 @@ def contact_us(**kwargs):
 def penny_create_contact(**kwargs):
     try:
         utils.validator.validate_http_method("POST")
-        # data = utils.validator.validate(
-        #     kwargs,
-        #     {
-        #         "name": "required",
-        #         "contact": [
-        #             "required",
-        #             "decimal",
-        #             utils.validator.rules.LengthRule(10),
-        #         ],
-        #         "email": "required",
-        #     },
-        # )
-
-        # name validation
-        # reg = lms.regex_special_characters(search=data.get("name"))
-        # if reg:
-        #     return utils.respondWithFailure(
-        #         status=422,
-        #         message=frappe._("Special Characters not allowed."),
-        #     )
-
-        # email validation
-        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
-        # if re.search(email_regex, data.get("email")) is None:
-        #     return utils.respondWithFailure(
-        #         status=422,
-        #         message=frappe._("Please enter valid email ID"),
-        #     )
 
         # check user
         try:
@@ -3113,9 +3085,11 @@ def penny_create_contact(**kwargs):
 
         # fetch rzp key secret from las settings and use Basic auth
         las_settings = frappe.get_single("LAS Settings")
-        rzp_key_secret = las_settings.razorpay_webhook_secret
+        if not las_settings.razorpay_key_secret:
+            return utils.respondWithFailure()
+
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
-            bytes(rzp_key_secret, "utf-8")
+            bytes(las_settings.razorpay_key_secret, "utf-8")
         ).decode("ascii")
 
         data = {
@@ -3126,43 +3100,51 @@ def penny_create_contact(**kwargs):
             "reference_id": customer.name,
             "notes": {},
         }
-        raw_res = requests.post(
-            "https://api.razorpay.com/v1/contacts",
-            headers={
-                "Authorization": razorpay_key_secret_auth,
-                "content-type": "application/json",
-            },
-            data=json.dumps(data),
-        )
-        data_res = raw_res.json()
 
-        if data_res.get("error"):
-            log = {
-                "request": data,
-                "response": data_res.get("error"),
-            }
-            lms.create_log(log, "rzp_penny_contact_error_log")
-
-            frappe.log_error(
-                message=frappe.get_traceback() + "\n\nPenny Drop Create contact Error"
-            )
-            return utils.respondWithFailure(message=frappe._("failed"))
-
-        # User KYC save and update contact ID
-        """since CKYC development not done yet, using existing user kyc to update contact ID"""
         try:
-            user_kyc = lms.__user_kyc(user.name)
+            raw_res = requests.post(
+                "https://api.razorpay.com/v1/contacts",
+                headers={
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                },
+                data=json.dumps(data),
+            )
+            data_res = raw_res.json()
+
+            if data_res.get("error"):
+                log = {
+                    "request": data,
+                    "response": data_res.get("error"),
+                }
+                lms.create_log(log, "rzp_penny_contact_error_log")
+                return utils.respondWithFailure(message=frappe._("failed"))
+
+            # User KYC save
+            """since CKYC development not done yet, using existing user kyc to update contact ID"""
+            try:
+                user_kyc = lms.__user_kyc(user.name)
+            except UserKYCNotFoundException:
+                return utils.respondWithFailure(message=frappe._("User KYC not found"))
+
+            # update contact ID
             user_kyc.razorpay_contact_id = data_res.get("id")
             user_kyc.save(ignore_permissions=True)
             frappe.db.commit()
-        except UserKYCNotFoundException:
-            return utils.respondWithFailure(message=frappe._("User KYC not found"))
 
-        lms.create_log(data_res, "rzp_penny_contact_success_log")
-        return utils.respondWithSuccess(message=frappe._("success"))
+            lms.create_log(data_res, "rzp_penny_contact_success_log")
+            return utils.respondWithSuccess(message=frappe._("success"))
+
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
 
     except utils.exceptions.APIException as e:
-        return e.respond()
+        return frappe.log_error(
+            title="Penny Drop Create contact Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create contact Error: "
+            + e.respond(),
+        )
 
 
 @frappe.whitelist()
@@ -3228,10 +3210,6 @@ def penny_create_fund_account(**kwargs):
                 "response": data_res.get("error"),
             }
             lms.create_log(log, "rzp_penny_fund_account_error_log")
-            frappe.log_error(
-                message=frappe.get_traceback()
-                + "\n\nPenny Drop Create fund account Error"
-            )
             return utils.respondWithFailure(message=frappe._("failed"))
         data_resp = {"fund_account_id": data_res.get("id")}
         lms.create_log(data_res, "rzp_penny_fund_account_success_log")
