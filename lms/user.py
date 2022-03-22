@@ -3174,20 +3174,24 @@ def penny_create_fund_account(**kwargs):
         try:
             user = lms.__user()
         except UserNotFoundException:
-            user = None
+            return utils.respondNotFound(message=frappe._("User not found."))
 
         # fetch rzp key secret from las settings and use Basic auth
-        rzp_key_secret = frappe.get_single("LAS Settings").razorpay_webhook_secret
+        las_settings = frappe.get_single("LAS Settings")
+        if not las_settings.razorpay_key_secret:
+            return utils.respondWithFailure()
+
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
-            bytes(rzp_key_secret, "utf-8")
+            bytes(las_settings.razorpay_key_secret, "utf-8")
         ).decode("ascii")
 
-        user_kyc = lms.__user_kyc(user.name)
-        if user_kyc:
-            contact_id = user_kyc.razorpay_contact_id
+        try:
+            user_kyc = lms.__user_kyc(user.name)
+        except UserKYCNotFoundException:
+            return utils.respondWithFailure(message=frappe._("User KYC not found"))
 
         data = {
-            "contact_id": contact_id,
+            "contact_id": user_kyc.razorpay_contact_id,
             "account_type": "bank_account",
             "bank_account": {
                 "name": data.get("account_holder_name"),
@@ -3195,28 +3199,38 @@ def penny_create_fund_account(**kwargs):
                 "account_number": data.get("account_number"),
             },
         }
-        raw_res = requests.post(
-            "https://api.razorpay.com/v1/fund_accounts",
-            headers={
-                "Authorization": razorpay_key_secret_auth,
-                "content-type": "application/json",
-            },
-            data=json.dumps(data),
-        )
-        data_res = raw_res.json()
-        if data_res.get("error"):
-            log = {
-                "request": data,
-                "response": data_res.get("error"),
-            }
-            lms.create_log(log, "rzp_penny_fund_account_error_log")
-            return utils.respondWithFailure(message=frappe._("failed"))
-        data_resp = {"fund_account_id": data_res.get("id")}
-        lms.create_log(data_res, "rzp_penny_fund_account_success_log")
-        return utils.respondWithSuccess(message=frappe._("success"), data=data_resp)
+        try:
+            raw_res = requests.post(
+                "https://api.razorpay.com/v1/fund_accounts",
+                headers={
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                },
+                data=json.dumps(data),
+            )
+            data_res = raw_res.json()
+
+            if data_res.get("error"):
+                log = {
+                    "request": data,
+                    "response": data_res.get("error"),
+                }
+                lms.create_log(log, "rzp_penny_fund_account_error_log")
+                return utils.respondWithFailure(message=frappe._("failed"))
+            data_resp = {"fund_account_id": data_res.get("id")}
+            lms.create_log(data_res, "rzp_penny_fund_account_success_log")
+            return utils.respondWithSuccess(message=frappe._("success"), data=data_resp)
+
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
 
     except utils.exceptions.APIException as e:
-        return e.respond()
+        return frappe.log_error(
+            title="Penny Drop Create fund account Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create fund account Error: "
+            + e.respond(),
+        )
 
 
 @frappe.whitelist()
