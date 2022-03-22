@@ -3120,7 +3120,7 @@ def penny_create_contact(**kwargs):
 
         data = {
             "name": customer.full_name,
-            "email": customer.email,
+            "email": customer.user,
             "contact": customer.phone,
             "type": "customer",
             "reference_id": customer.name,
