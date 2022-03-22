@@ -6,50 +6,16 @@
  "engine": "InnoDB",
  "field_order": [
   "max_threshold",
-  "notifications_section",
-  "sms",
-  "column_break_4",
-  "email",
   "sell_off_section",
   "sell_off_after_hours",
-  "should_selloff",
   "column_break_8",
   "sell_off_deadline_eod"
  ],
  "fields": [
   {
-   "default": "0",
-   "fieldname": "sms",
-   "fieldtype": "Check",
-   "in_list_view": 1,
-   "label": "SMS"
-  },
-  {
-   "default": "0",
-   "fieldname": "email",
-   "fieldtype": "Check",
-   "in_list_view": 1,
-   "label": "Email"
-  },
-  {
-   "fieldname": "notifications_section",
-   "fieldtype": "Section Break",
-   "label": "Notifications"
-  },
-  {
    "fieldname": "sell_off_section",
    "fieldtype": "Section Break",
    "label": "Sell off"
-  },
-  {
-   "default": "0",
-   "fieldname": "should_selloff",
-   "fieldtype": "Check",
-   "label": "Sell Off?"
-  },
-  {
-   "fieldname": "column_break_4",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "column_break_8",
@@ -76,7 +42,7 @@
   }
  ],
  "links": [],
- "modified": "2022-01-18 11:33:16.518215",
+ "modified": "2022-03-21 18:52:19.040632",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Margin Shortfall Action",

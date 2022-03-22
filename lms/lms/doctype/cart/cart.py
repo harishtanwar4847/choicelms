@@ -94,7 +94,6 @@ class Cart(Document):
                     "amc_code": item.amc_code,
                     "amc_name": item.amc_name,
                     "scheme_code": item.scheme_code,
-                    "scheme_name": item.scheme_name,
                     "prf_number": self.lien_reference_number,
                 }
             )
@@ -321,7 +320,8 @@ class Cart(Document):
 
     def process_cart_items(self):
         if not self.is_processed:
-            self.pledgee_boid = self.get_lender().demat_account_number
+            if self.instrument_type != "Mutual Fund":
+                self.pledgee_boid = self.get_lender().demat_account_number
             isin = [i.isin for i in self.items]
             price_map = lms.get_security_prices(isin)
             allowed_securities = lms.get_allowed_securities(isin, self.lender)

@@ -1257,7 +1257,10 @@ def process_pledge(loan_application_name=""):
         )
 
         if is_pledge_executing[0].count == 0:
-            filters_query = {"status": "Waiting to be pledged"}
+            filters_query = {
+                "status": "Waiting to be pledged",
+                "instrument_type": "Shares",
+            }
             if loan_application_name:
                 filters_query["name"] = loan_application_name
 

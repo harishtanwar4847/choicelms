@@ -16,8 +16,7 @@
   "folio",
   "amc_code",
   "amc_name",
-  "scheme_code",
-  "scheme_name"
+  "scheme_code"
  ],
  "fields": [
   {
@@ -104,17 +103,11 @@
    "fieldtype": "Data",
    "label": "Scheme Code",
    "read_only": 1
-  },
-  {
-   "fieldname": "scheme_name",
-   "fieldtype": "Data",
-   "label": "Scheme Name",
-   "read_only": 1
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-03-15 17:06:47.945492",
+ "modified": "2022-03-21 18:48:42.410292",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Item",

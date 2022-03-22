@@ -51,6 +51,7 @@
   "client_name",
   "secret_key",
   "encryption_key",
+  "iv",
   "column_break_45",
   "bank_reference_no",
   "bank_name",
@@ -481,11 +482,16 @@
    "fieldname": "decryption_key",
    "fieldtype": "Data",
    "label": "Decryption Key"
+  },
+  {
+   "fieldname": "iv",
+   "fieldtype": "Data",
+   "label": "IV"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2022-03-15 16:26:20.693759",
+ "modified": "2022-03-22 16:04:02.998675",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

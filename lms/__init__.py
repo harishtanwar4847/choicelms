@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import hashlib
 import hmac
 import json
 import os
 import re
-from base64 import b64decode
+from base64 import b64decode, b64encode
 from datetime import datetime, timedelta
 from itertools import groupby
 from random import choice, randint
@@ -15,6 +16,9 @@ import frappe
 import razorpay
 import requests
 import utils
+import xmltodict
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from razorpay.errors import SignatureVerificationError
@@ -1501,46 +1505,94 @@ def update_security_category(name):
 
 
 @frappe.whitelist(allow_guest=True)
-def decrypt_cams_response(**kwargs):
+def decrypt_lien_marking_response():
     data = frappe.local.form_dict
+    # data = {}
+    # data["lienresponse"] = "5m-hEo_aONHeQFJhtRZCYXyTdt-YOlD_SowlbNlgAXWJJRbBmRN39jJRBg9V8h2dUUVSlZ2fm5QIzHl45231k3bRvPuCZPdp4BfbVD0PX3tDvIo8JrQynWeVx2GRL6XDmHSr8zTOUUJcWQXwQ33CaOeKpNEMb-zZcuP06s7OAHKGA8bG1qJhtsAY91NAPyVqAm_zFmvWXOgWfcOl4Pmxe0iscVrR9rnoY1j-lDAS7Joj8GHimy7jXAjqMkzFduJdm47nbRExIx0iYgOC2qVc6Y5km7dtMm3o04B785I0WKDRSGJvRIKaw5uPMUyxgS5It47uukeGqcKd95a1q_xsgibmiODv7AlmQ5Tsv4Pyq8aqZeqLbXyIHttxCsEvDEubshQrfFFQgIbtSoaV-ZDfIwxLBF_46BYuORPaRO7cRuQInNabDswuvdorvuvaOi6aE63CERSU8w1lPWRYiXJscxNzJZlzG83yqieB4VBHMd9AlhTcZcY63WUK3kHy4QkTy46o0yV7FvdLAzaao1DRx_iawRgLMSQpBCul-i4ZUsVZzcOlhc5785x9Q91soiIKW11soYwGNP6200Kg5g3GPxGFHmrLKa2fDtnZ8Pj7tBhARTO2QXD3YEKLl2kHKWSya3mTEpu36vAIx81y73ncvGjbgzcWn6inOpw7kdNZMLNr54iLHqatUJ6mFUSnABDnJeMVKAj0LLqO4L5EO5v0vyNPJrVoo_8JiuYlyhL6U5PYFye306CMp8J5R-0O-gAqWxib6SMuJRekmPUwVZ5oJDSuMN4rV4CWScunqvj74_CUTTTzVqNMI8H-iEHBFTZ_7Hh1G3Ocgsbaj0YY9q0V440Lw5P1K0L8YfchKsH64lV6y5rVbgKQ3mZmiSzOjsOTiCHRFD4sk1TTpNzs7KpxFsal2H-g66Q4gFpxFqsgP1lKKR8fjqBWWjHLu1iZPAGI6DMT37G3KJKyjaX0ztcQwBu62cmT69EYcoEKjOBeY36Viy34K9shl9eLCVWe42_iO8NzC_dSBJdPCFUxGzG2eibVTUcC9D_wTJBKRh86RxmtBZ31Xz3jkH-ZrI-PbE_LdEmMC7Ctx5xeXDaw54WdMOAywdDtl5MTvkDpZW2yheOrfoAgLxnBvz_QCzUEgMZbf_qCdLgbeQZr9T6RVT_OeRP4fv1Qo2sdBE9ChHWFcQsJPkmnU_cyFdNqrKFUK7ramvz3T2MKxAE895k3gQOM89DCbatCoG45CR-3F5InY74qKvT3KHyKGlBZta22DtIGHKLibt6ruI8heyy5HYjWAN6KXrOw6NBoeM9fmlkY3lBdrSlSjRsb2fNhrRZt0Gyqqa3LblbWWExPEbPcP55wPAbQrrtji9rQ1o5PigxcYUqrkVMW87KyJ1jTEmw6qfbJjY7Wrls868wJqUshAd1CH725G2YD0Ak174bbPGi9LBw3gckRqL7bd7BHzosupd-zI5lf8sy3yTBGmSexQ1ru7w4D8qTsK1pLlJFSWeD9MpeNpCpeiFGYrk_stuloeyF9nL0yL4WibNwaMknr3BgjAP0PqBPwg03PAVIuiE-_QCIPE6fHIVTvG4dXvmkr0pCdFn0jJsvFcMhASGjXh443BQwKB1ZRbawUbPVGsziS4IQum4mu0KOsuSqZEdOrZo9LaQ-4dkJE8VybV0u2VKbPQl8BU7t7AYzchHSZTvS28GO4gxlC7r7LwtFywmbKc4X2yNJxCdrjBIjbB4ocOaZnGVTUMZ2eapDu6oya2PUtvl9j-Al_66EEPhAFlar46c88l49dF4BdrT8C5QiwngOfE3AX9VpO41QruM45jhOvWKeUuxmUXZHNL4UyURN7P6BEMbkx_XOqmu17I3ld25xYXh5NUtnBJ5ngexAyrtHQKL5-qM5eCZ9-j_8MV35C5U25MhilsOo0iOIdRh7MMsfK33rIwaP9ofLzHWpwF8XVw5EqDcgDUSoUczxenCsv5oyo"
+    las_settings = frappe.get_single("LAS Settings")
 
-    #  enncrypted resp
-    # data["lienresponse"]="5m-hEo_aONHeQFJhtRZCYXyTdt-YOlD_SowlbNlgAXWJJRbBmRN39jJRBg9V8h2dUUVSlZ2fm5QIzHl45231kwKg6qf5pRlgo20N7SCQ-AsGpF3JxBMdTTt32pEUlGHI5q8niWUWzJ9fQWyJVCxqX725z0-TXKzRp3r2Z3ttA2DoAbVpdeyIODf2M0BDx_hMKSMd-HwqYhdVPik7RsEfluzBzOg4UBsJMcXr9BSXN3vCnAe4RUfc-XA-HtQFNQLXPlWl_jx1anaUlL_9eesj_or-k0uilQzTSiooFPjgO5as8jrprOSI_ioJq2RJ9y8yVz5V_iY_onu3PIJTNxBV1QuTPQf28V4SnzOPACXKrz8qjwB9Qvnu6928vcS7ku6MD-gToJp7D15nfNJNA6v7ZHabIV7V9xau_HBYn_k8bQ5Rme4sMlXKSqYOnTfiMEGTd212T_Evuh1I1q0PE5FNkhgCfND9XrdGJ_F87TILvVVZBGVcQYfHf55WO2FQ5dou23zqlj6d41QWgO9uzLKWKUCHap1sjNb8ENnUo8xgjz8o1xXSwJte5dbVmXRR5lhhcVsiXs8oyIrdT6NrAzblYUmTkwRx5jMoIb1ed83Yt_EEeLy9HpBVetw4Hyv2b4f8YVsXRuskU745E19rjmsZaPfYBMozWF5gJF-arTw-a1-_bGwI9npEA2P7kfR1oypZZsiEIRz9NSfx1085GhtqCamnvIjyi2QeGVvseu54_PKL1MjKRwRYC2abWomLmwR4-xA46wsXJDspaChs4Z9cu8UWX7jPCoMvaFvL2ndYTZ_AgOV8xIR5BtxbkLnNCLU_joPD8s-x1FmfQtey1VNdjUIR-MfmWWebJkeO6JoXLprGLqGnFeH6mqd8BtilkWaXuAkQFAPULefzHk8iC2-uQp6KD1rppYpD5VrXZCA1Uo4TDhiiyx33KAJAU8tUPfeXNKJ5HFb5ZE5SNg03rx7Yu1Be7QwrJRFhOnfVqfsvHTznZt2L4UZ5f98O65SNfofhmdjBKdUrjq_0yMBke03iZb7hbALKhFGwznEsU7K7Y4S_V0eie_makERdxdPT7shm1cq0rWfqHaap3Yi9G3DOjcKFXV7FGrOuE5gM-0WpDy0aIFCJUx6MQ7O3H5-eMY3fIlR4879RwgqDtqMzwPV1UW5Kx_X7LI9bwZWkgO9wnqrohnbgm4EvH3LBygIFsxq-KEqvDIOhd7Kd4uJK5u139m20p7O9tFNCSe3vbb8n2Wd6L3WWyTxMolMBdEpUaL08K0_A6q7y5DCF30G1j7-dJNJ1-Km2FW1FzCaCLhVoZbgeAOXL2ewnqS0LdCXdxpdNyuALHo1ruNBHijgn-RXHklEGrb1Va5Q4ROj3jvRCRdepK7fhF5WTx2DK2aJnHEqRUSKHNaaetdD9TpTvNTed_mzR_WN8hjTdM_93bf1hO9SR2DC8fXpl-viRxktuzINr7pI_hl99gT-3Q_c_6rpQ-HswqIVpFcw4M_s_P8gWrbMFgCH-qM8pRGkDfhi-nj7Z977Q8h66KLcuZH3_rPVmoodFDxYFhdJ9LkEL_E5uc5rB3Ei0aii0aLY56GhYC_r6Ei-N6IhJWsT73Dz_3ninquOA07K_RZ_IdRy-_rMKeQpK5p_uiD0l2Pi-pIL9d3cYpKi50x0RljcYzo86MiWBKYYKw3iaEMbZ1v2p1wtgIwVJNXconUkv4KvwImQMq7L6xNwGJtlkGsXACqZhXKyhPJx678E3y4yTmeSuSO-Y1mThC7CSyU-89067RXvrQ2LjQbPbklqg6bvmoBKOwH8SbgYf3246Yvfsfhqc6aMObK5Kh956N662TlvHCeJGHABp21ApEGYlfC_VVn6x9sMQI1JAKdelr5JW5HH7kKwpy0gUFRU_v1vH7wSrlC7hH43ALN_bf6Ch88jEUPSpdH3x_x25BsezJzYauHmc3rtw26WMof8FV_v3cfS50t9ky2w-2X9Lgi6mz_KTAHBfvnde_4rTFDnJ4aCLuciIOlKbOfW4bMkKkQsvIAznFwCX2VUi7puLGRWUhAy8wRT1tc-LCg=="
+    encrypted_response = data.get("lienresponse").replace("-", "+").replace("_", "/")
+    print(las_settings.decryption_key)
 
-    #  decrypted resp
-    # <?xml version="1.0" encoding="UTF-8" standalone="yes"?><response><lienrefno>10012</lienrefno><errorcode>S000</errorcode><error>Lien marked sucessfully</error><sucessflag></sucessflag><failurereason></failurereason><schemedetails><scheme><amccode>P</amccode><folio>8538997</folio><schemecode>1477</schemecode><schemename>ICICI Prudential Corporate Bond Fund - Growth ICICI Prudential Corporate Bond Fund - Growth ICICI Prudential Corporate Bond Fund - Growth</schemename><isinno>INF109K01CQ1</isinno><schemetype>Debt</schemetype><schemecategory>O</schemecategory><lienunit>1</lienunit><lienapprovedunit>1</lienapprovedunit><lienmarkno></lienmarkno></scheme></schemedetails><loginemail>a_shameembanu@camsonline.com</loginemail><netbankingemail>a_shameembanu@camsonline.com</netbankingemail><clientid>LAMF-TCFINPLTD</clientid><clientname>Choice Finserv Pvt Ltd</clientname><pan>BFAPS2661R</pan><bankschemetype>Debt</bankschemetype><bankrefno>10001</bankrefno><bankname>Choice Finserv Pvt Ltd</bankname><branchname>Mumbai</branchname><address1>Address1</address1><address2>Address2</address2><address3>Address3</address3><city>Mumbai</city><state>MH</state><country>India</country><pincode>400706</pincode><phoneoff>02212345678</phoneoff><phoneres>02221345678</phoneres><faxno>02231245678</faxno><faxres>1357</faxres><requestip>103.48.101.236</requestip><addinfo1>1</addinfo1><addinfo2>2</addinfo2><addinfo3>3</addinfo3><addinfo4>4</addinfo4><addinfo5>5</addinfo5><makerid></makerid><verifierid></verifierid><approverid></approverid></response>
-
-    import hashlib
-
-    from Crypto.Cipher import AES
-    from Crypto.Util.Padding import pad, unpad
-
-    key = hashlib.sha256("SExJRU5obWFj".encode("utf-8")).hexdigest()
-    if len(key) > 32:
-        key = key[:32].encode("utf-8")
-    BLOCK_SIZE = AES.block_size
-    # iv = b'globalaesvectors'
-
-    encrypted_response = b64decode(
-        data.get("lienresponse").replace("-", "+").replace("_", "/")
+    decrypted_response = AESCBC(las_settings.decryption_key, las_settings.iv).decrypt(
+        encrypted_response
     )
-    iv = encrypted_response[:BLOCK_SIZE]
-    cipher = AES.new(key, AES.MODE_CBC, iv)
-    decrypted_response = unpad(
-        cipher.decrypt(encrypted_response[BLOCK_SIZE:]), BLOCK_SIZE
-    ).decode("utf-8")
 
-    # decrypted_response = """<?xml version='1.0' encoding="UTF-8" standalone="yes"?><response><lienrefno>10012</lienrefno><errorcode>S000</errorcode><error>Lien marked sucessfully</error><sucessflag></sucessflag><failurereason></failurereason><schemedetails><scheme><amccode>P</amccode><folio>8538997</folio><schemecode>1477</schemecode><schemename>ICICI Prudential Corporate Bond Fund - Growth ICICI Prudential Corporate Bond Fund - Growth ICICI Prudential Corporate Bond Fund - Growth</schemename><isinno>INF109K01CQ1</isinno><schemetype>Debt</schemetype><schemecategory>O</schemecategory><lienunit>1</lienunit><lienapprovedunit>1</lienapprovedunit><lienmarkno></lienmarkno></scheme></schemedetails><loginemail>a_shameembanu@camsonline.com</loginemail><netbankingemail>a_shameembanu@camsonline.com</netbankingemail><clientid>LAMF-TCFINPLTD</clientid><clientname>Choice Finserv Pvt Ltd</clientname><pan>BFAPS2661R</pan><bankschemetype>Debt</bankschemetype><bankrefno>10001</bankrefno><bankname>Choice Finserv Pvt Ltd</bankname><branchname>Mumbai</branchname><address1>Address1</address1><address2>Address2</address2><address3>Address3</address3><city>Mumbai</city><state>MH</state><country>India</country><pincode>400706</pincode><phoneoff>02212345678</phoneoff><phoneres>02221345678</phoneres><faxno>02231245678</faxno><faxres>1357</faxres><requestip>103.48.101.236</requestip><addinfo1>1</addinfo1><addinfo2>2</addinfo2><addinfo3>3</addinfo3><addinfo4>4</addinfo4><addinfo5>5</addinfo5><makerid></makerid><verifierid></verifierid><approverid></approverid></response>"""
+    log = {
+        "encrypted_response": data.get("lienresponse"),
+        "decrypted_response": decrypted_response,
+    }
+    create_log(log, "encrypted_response")
 
-    frappe.log_error(message=str(data) + "\n\n" + str(decrypted_response))
-    log = {"decrypt": data, "decrypted_response": decrypted_response}
-    create_log(log, "decryption")
-
-    return decrypted_response
-    # from xmljson import parker
-    # from xml.etree.ElementTree import fromstring
-    import xmltodict
-
-    # data = parker.data(fromstring(decrypted_response))
     data = xmltodict.parse(decrypted_response)
-    return json.dumps(data)
+    dict_payload = json.loads(json.dumps(data))
+    res = dict_payload.get("response")
+    if res.get("errorcode") == "S000" and res.get("error") == "Lien marked sucessfully":
+        cart = frappe.get_doc("Cart", res.get("addinfo1"))
+        cart.reload()
+        frappe.db.begin()
+        cart.lien_reference_number = res.get("lienrefno")
+        cart.items = []
+        schemes = [res.get("schemedetails").get("scheme")]
+        # if type(schemes) != list:
+        #     schemes = list(schemes)
+        print(schemes)
+
+        for i in schemes:
+            cart.append(
+                "items",
+                {
+                    "isin": i["isinno"],
+                    "folio": i["folio"],
+                    "scheme_code": i["schemecode"],
+                    "security_name": i["schemename"],
+                    "amc_code": i["amccode"],
+                    "pledged_quantity": float(i["lienapprovedunit"]),
+                    "requested_quantity": float(i["lienunit"]),
+                    "type": res.get("bankschemetype"),
+                },
+            )
+        cart.save(ignore_permissions=True)
+        cart.create_loan_application()
+        frappe.db.commit()
+
+
+def create_signature_mycams():
+    las_settings = frappe.get_single("LAS Settings")
+    CLIENT_ID = las_settings.client_id
+    SECRET_KEY = las_settings.secret_key
+    hmac_key = las_settings.hmac_key
+    DATE_TIMESTAMP = frappe.utils.now_datetime().strftime("%Y%m%d%H%M%S")
+
+    SIGNATURE = "{}::{}::{}".format(CLIENT_ID, SECRET_KEY, DATE_TIMESTAMP)
+
+    import hmac
+
+    expected_signature = hmac.new(
+        digestmod="sha256",
+        msg=bytes(SIGNATURE, "utf-8"),
+        key=bytes(hmac_key, "utf-8"),
+    )
+    return DATE_TIMESTAMP, expected_signature.hexdigest()
+
+
+class AESCBC:
+    def __init__(self, key, iv):
+        self.key = hashlib.sha256(key.encode("utf-8")).hexdigest()
+        if len(self.key) > 32:
+            self.key = self.key[:32].encode("utf-8")
+        self.iv = bytes(iv, "utf-8")
+
+    def encrypt(self, data):
+        self.cipher = AES.new(self.key, AES.MODE_CBC, self.iv)
+        return (
+            b64encode(self.cipher.encrypt(pad(data.encode("utf-8"), AES.block_size)))
+            .decode("utf-8")
+            .replace("+", "-")
+            .replace("/", "_")
+        )
+
+    def decrypt(self, data):
+        raw = b64decode(data)
+        self.cipher = AES.new(self.key, AES.MODE_CBC, self.iv)
+        return unpad(self.cipher.decrypt(raw), AES.block_size).decode("utf-8")
