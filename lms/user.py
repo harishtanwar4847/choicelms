@@ -1008,8 +1008,8 @@ def schemes(**kwargs):
                 lender_clause, levels
             )
 
-        securities_list = frappe.db.sql(
-            """select als.isin, als.security_name, als.eligible_percentage, als.instrument_type, als.scheme_type, s.price, group_concat(lender,'') as lenders
+        schemes_list = frappe.db.sql(
+            """select als.isin, als.security_name as scheme_name, als.eligible_percentage as ltv, als.instrument_type, als.scheme_type, s.price, group_concat(lender,'') as lenders
             from `tabAllowed Security` als
             LEFT JOIN `tabSecurity` s on s.isin = als.isin
             where als.instrument_type='Mutual Fund'{}{}{}
@@ -1019,11 +1019,11 @@ def schemes(**kwargs):
             ),
             as_dict=True,
         )
-        if not securities_list:
+        if not schemes_list:
             return utils.respondWithSuccess(message=frappe._("No record found."))
 
         return utils.respondWithSuccess(
-            message=frappe._("Success"), data={"securities_list": securities_list}
+            message=frappe._("Success"), data={"schemes_list": schemes_list}
         )
 
     except utils.exceptions.APIException as e:
