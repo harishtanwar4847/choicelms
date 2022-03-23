@@ -956,12 +956,13 @@ def schemes(**kwargs):
             {"scheme_type": "", "lender": "", "level": ""},
         )
 
-        reg = lms.regex_special_characters(search=data.get("scheme_type"))
-        if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+        # reg = lms.regex_special_characters(search=data.get("scheme_type"))
+        # if reg:
+        #     return utils.respondWithFailure(
+        #         status=422,
+        #         message=frappe._("Special Characters not allowed."),
+        #     )
+
         if data.get("scheme_type"):
             if (
                 data.get("scheme_type") != "Equity"
@@ -972,29 +973,16 @@ def schemes(**kwargs):
                     message=frappe._("Scheme type should be either Equity or Debt."),
                 )
 
-        if type(data.get("lender")) != dict or type(data.get("level")) != dict:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._(
-                    "Lender and Level fields should be in dictionary format."
-                ),
-            )
+        if not data.get("level"):
+            data["level"] = []
 
-        if (
-            "list" not in data.get("lender").keys()
-            or "list" not in data.get("level").keys()
-        ):
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._(
-                    "Lender and Level fields should be consist of list key."
-                ),
-            )
+        if isinstance(data.get("level"), str):
+            data["level"] = data.get("level").split(",")
 
-        if not data.get("lender", None).get("list"):
+        if not data.get("lender", None):
             lender_list = frappe.db.get_list("Lender", pluck="name")
         else:
-            lender_list = data.get("lender", None).get("list")
+            lender_list = data.get("lender").split(",")
 
         scheme = ""
         lender = ""
@@ -1004,8 +992,8 @@ def schemes(**kwargs):
 
         if data.get("scheme_type"):
             scheme = " and als.scheme_type = '{}'".format(data.get("scheme_type"))
-        if data.get("level").get("list"):
-            levels = lms.convert_list_to_tuple_string(data.get("level").get("list"))
+        if data.get("level"):
+            levels = lms.convert_list_to_tuple_string(data.get("level"))
             sub_query = " and als.security_category in (select security_category from `tabConcentration Rule` where parent in {} and idx in {})".format(
                 lender_clause, levels
             )
