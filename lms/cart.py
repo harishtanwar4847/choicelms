@@ -134,6 +134,12 @@ def upsert(**kwargs):
                 message=frappe._("Pledgor boid required."),
             )
 
+        if data.get("pledgor_boid") and data.get("instrument_type") == "Mutual Fund":
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Pledgor boid not required."),
+            )
+
         if data.get("instrument_type") == "Mutual Fund" and not (
             data.get("scheme_type") == "Debt" or data.get("scheme_type") == "Equity"
         ):
@@ -145,12 +151,13 @@ def upsert(**kwargs):
         if not data.get("lender", None):
             data["lender"] = "Choice Finserv"
 
+        if data.get("instrument_type") == "Shares":
+            data["scheme_type"] = ""
+
         securities = validate_securities_for_cart(
             securities=data.get("securities", {}),
             lender=data.get("lender"),
-            instrument_type="Mutual Fund"
-            if data.get("instrument_type") == "Mutual Fund"
-            else "Shares",
+            instrument_type=data.get("instrument_type"),
         )
 
         # Min max sanctioned_limit
@@ -214,14 +221,14 @@ def upsert(**kwargs):
                             loan.name
                         ),
                     )
-        instrument_type = "Shares"
-        scheme_type = ""
-        if data.get("instrument_type") == "Mutual Fund":
-            instrument_type = "Mutual Fund"
-            if data.get("scheme_type") == "Equity":
-                scheme_type = "Equity"
-            elif data.get("scheme_type") == "Debt":
-                scheme_type = "Debt"
+        # instrument_type = "Shares"
+        # scheme_type = ""
+        # if data.get("instrument_type") == "Mutual Fund":
+        #     instrument_type = "Mutual Fund"
+        #     if data.get("scheme_type") == "Equity":
+        #         scheme_type = "Equity"
+        #     elif data.get("scheme_type") == "Debt":
+        #         scheme_type = "Debt"
 
         if not data.get("cart_name", None):
             cart = frappe.get_doc(
@@ -231,14 +238,14 @@ def upsert(**kwargs):
                     "customer_name": customer.full_name,
                     "lender": data.get("lender"),
                     "pledgor_boid": data.get("pledgor_boid"),
-                    "instrument_type": instrument_type,
-                    "scheme_type": scheme_type,
+                    "instrument_type": data.get("instrument_type"),
+                    "scheme_type": data.get("scheme_type"),
                 }
             )
         else:
             cart = frappe.get_doc("Cart", data.get("cart_name"))
-            cart.instrument_type = instrument_type
-            cart.scheme_type = scheme_type
+            cart.instrument_type = data.get("instrument_type")
+            cart.scheme_type = data.get("scheme_type")
             cart.save(ignore_permissions=True)
             frappe.db.commit()
             cart.reload()
@@ -259,7 +266,9 @@ def upsert(**kwargs):
                 {
                     "isin": i["isin"],
                     "pledged_quantity": i["quantity"],
-                    "type": scheme_type if scheme_type else "Shares",
+                    "type": data.get("scheme_type")
+                    if data.get("scheme_type")
+                    else "Shares",
                 },
             )
         cart.save(ignore_permissions=True)
@@ -505,7 +514,7 @@ def process(**kwargs):
                 "osid": "Windows",
                 "url": frappe.utils.get_url(),
                 "redirecturl": frappe.utils.get_url(
-                    "lms.decrypt_lien_marking_response"
+                    "/api/method/lms.decrypt_lien_marking_response"
                 ),  # mandatory
                 "markid": "mark12",
                 "verifyid": "verify12",

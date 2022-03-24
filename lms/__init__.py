@@ -1533,9 +1533,9 @@ def decrypt_lien_marking_response():
         frappe.db.begin()
         cart.lien_reference_number = res.get("lienrefno")
         cart.items = []
-        schemes = [res.get("schemedetails").get("scheme")]
-        # if type(schemes) != list:
-        #     schemes = list(schemes)
+        schemes = res.get("schemedetails").get("scheme")
+        if type(schemes) != list:
+            schemes = [schemes]
         # print(schemes)
 
         for i in schemes:
