@@ -1528,6 +1528,7 @@ def decrypt_lien_marking_response():
     dict_payload = json.loads(json.dumps(data))
     res = dict_payload.get("response")
     if res.get("errorcode") == "S000" and res.get("error") == "Lien marked sucessfully":
+        frappe.session.user = frappe.get_doc("Loan Customer", res.get("addinfo1")).user
         cart = frappe.get_doc("Cart", res.get("addinfo1"))
         cart.reload()
         frappe.db.begin()

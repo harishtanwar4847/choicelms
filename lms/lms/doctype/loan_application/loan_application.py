@@ -270,6 +270,7 @@ class LoanApplication(Document):
             decrypted_data = lms.AESCBC(
                 las_settings.decryption_key, las_settings.iv
             ).decrypt(encrypted_response)
+            decrypted_json = json.loads(decrypted_data)
             # decrypted_data = {
             #     "initiatereq": [
             #         {
@@ -330,13 +331,13 @@ class LoanApplication(Document):
             #     }
 
             if (
-                decrypted_data.get("initiatereq")[0].get("errorcode") == "S000"
-                and decrypted_data.get("initiatereq")[0].get("error")
+                decrypted_json.get("initiatereq")[0].get("errorcode") == "S000"
+                and decrypted_json.get("initiatereq")[0].get("error")
                 == "Lien Initiated Sucessfully"
-                and decrypted_data.get("schemedetails")
+                and decrypted_json.get("schemedetails")
             ):
                 total_successfull_lien = 0
-                schemedetails = decrypted_data.get("schemedetails")
+                schemedetails = decrypted_json.get("schemedetails")
                 # schemedetails = [{"amccode": "P", "amcname": "ICICI Prudential Mutual Fund", "folio": "460071", "schemecode": "1637", "schemename": "ICICI Prudential Credit Risk Fund - Growth", "isinno": "INF109K01GU4", "schemetype": "Debt", "schemecategory": "O", "lienunit": "2", "lienapprovedunit": "2", "lienmarkno": "781731", "sanctionedamount": "", "remarks": "SUCCESS"}]
 
                 # security_list = [i.get("isin") for i in schemedetails]
