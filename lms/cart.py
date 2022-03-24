@@ -143,7 +143,7 @@ def upsert(**kwargs):
             )
 
         if not data.get("lender", None):
-            data["lender"] = frappe.get_last_doc("Lender").name
+            data["lender"] = "Choice Finserv"
 
         securities = validate_securities_for_cart(
             securities=data.get("securities", {}),
@@ -504,7 +504,9 @@ def process(**kwargs):
                 "deviceid": "chrome",
                 "osid": "Windows",
                 "url": frappe.utils.get_url(),
-                "redirecturl": "https://uat-spark.atriina.com/api/method/lms.nsdl_success_callback",  # mandatory
+                "redirecturl": frappe.utils.get_url(
+                    "lms.decrypt_lien_marking_response"
+                ),  # mandatory
                 "markid": "mark12",
                 "verifyid": "verify12",
                 "approveid": "appro12",

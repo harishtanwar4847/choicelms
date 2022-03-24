@@ -31,3 +31,4 @@ lms.patches.update_security_category_in_allowed_security ###
 lms.patches.update_instrument_type_security_allowed_security ###
 lms.patches.import_security_mutual_fund_for_choice_lender ###
 lms.patches.import_allowed_security_mutual_fund_for_choice_lender ###
+lms.patches.mutual_fund_config_las

@@ -7,6 +7,8 @@
  "field_order": [
   "application_doctype",
   "lender",
+  "instrument_type",
+  "scheme_type",
   "column_break_3",
   "application_name",
   "customer",
@@ -14,6 +16,7 @@
   "section_break_4",
   "isin",
   "quantity",
+  "requested_quantityunit",
   "pledgor_boid",
   "psn",
   "security_category",
@@ -78,9 +81,9 @@
   },
   {
    "fieldname": "quantity",
-   "fieldtype": "Int",
+   "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Quantity",
+   "label": "Quantity/Unit",
    "reqd": 1
   },
   {
@@ -160,11 +163,32 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Value"
+  },
+  {
+   "fieldname": "requested_quantityunit",
+   "fieldtype": "Float",
+   "label": "Requested Quantity/Unit",
+   "read_only": 1
+  },
+  {
+   "default": "Shares",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "\nEquity\nDebt",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-12-21 12:51:43.958175",
+ "modified": "2022-03-23 12:01:59.742262",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Collateral Ledger",
