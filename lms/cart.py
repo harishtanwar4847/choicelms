@@ -424,17 +424,22 @@ def process(**kwargs):
                 status=422,
                 message=frappe._("Special Characters not allowed."),
             )
-
         user = lms.__user()
         user_kyc = lms.__user_kyc()
         customer = lms.__customer()
+
+        cart = frappe.get_doc("Cart", data.get("cart_name"))
+        if not cart:
+            return utils.respondNotFound(message=frappe._("Cart not found."))
+        if cart.customer != customer.name:
+            return utils.respondForbidden(message=frappe._("Please use your own cart."))
 
         is_dummy_account = lms.validate_spark_dummy_account(
             user.username, user.name, check_valid=True
         )
         token_type = "Pledge OTP"
         entity = user_kyc.mobile_number
-        if customer.cams_email_id:
+        if customer.cams_email_id and cart.instrument_type == "Mutual Fund":
             token_type = "Lien OTP"
             entity = customer.phone
 
@@ -456,13 +461,8 @@ def process(**kwargs):
                 user.username, data.get("otp"), token_type=token_type
             )
 
-        cart = frappe.get_doc("Cart", data.get("cart_name"))
-        if not cart:
-            return utils.respondNotFound(message=frappe._("Cart not found."))
-        if cart.customer != customer.name:
-            return utils.respondForbidden(message=frappe._("Please use your own cart."))
-
         frappe.db.begin()
+        loan_application = ""
         encrypted_data = ""
         cart.reload()
         if not customer.cams_email_id:
@@ -533,12 +533,15 @@ def process(**kwargs):
                 "lien_marking_request",
             )
 
-            loan_application = ""
-
         return utils.respondWithSuccess(
             data={
                 "encrypted_data": encrypted_data,
                 "loan_application": loan_application,
+                "mycams_url": frappe.utils.get_url(
+                    "/mycams?encrypted_data={}".format(str(encrypted_data))
+                )
+                if encrypted_data
+                else "",
             }
         )
     except utils.exceptions.APIException as e:

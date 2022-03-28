@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.js"
+      integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+      crossorigin="anonymous"
+    ></script>
+    <title> </title>
+  </head>
+
+  <body>
+    <form
+      method="post"
+      style="display: none"
+      action="https://mycamsuat.camsonline.com/lamfapi/pgLienmarking.aspx"
+      id="form1"
+    >
+      <div class="aspNetHidden">
+        <input
+          type="hidden"
+          name="__VIEWSTATE"
+          id="__VIEWSTATE"
+          value="bV2LMBuX5Lv9u8K/8QH1L4Pz+Si49i+yd+2FDxGamCctVNWlYzXYil7phnLY+FGUlaQzpOuH2lWWe84Owb7vkZnTbpvqQHJohhlF+ilxLzDMmvYqqj5PK+GnPwCEKJSEQCH3D92liSzFeeXtqHACV2rkKKmYzxJJnecSgLQTUCNLyAbEiLuLk9uqOowVO7SOkdVFAgBPz9iFqfD76/2Z1GdkrfPzaxidbTs9SEQFmNgTWHOpVQ5FKnYZyhV2aOIzJZQngCCnyXLw06hGMxaTeg=="
+        />
+      </div>
+
+      <div class="aspNetHidden">
+        <input
+          type="hidden"
+          namee="__VIEWSTATEGENERATOR"
+          id="__VIEWSTATEGENERATOR"
+          value="90059987"
+        />
+        <input
+          type="hidden"
+          namee="__EVENTVALIDATION"
+          id="__EVENTVALIDATION"
+          value="/QLuMS5oGL3yD3/kvJyb67I67VeILRWpQgiTWX8V90LpnewpA4XPMBslnqUIK4fNFe3HagCPVnNo3fliTplXvmH7t4gPWU3EYnvQCr6oTt8DpZ5kfmkUjTXlvdeMD8F8IhR7B3qGzKVmEW3vW3ELIohinxjUqs6nSgBrsV/klQpmDtFqVbBshiIPMs6T0xGEsl1YBbjbFfgfZwLSnN4Jp6Ja6GF6J5iPMkgyrmO0iOM="
+        />
+      </div>
+      <div>
+        <span id="lblsignhead"
+          >LAMF-TCFINPLTD::HakUx7K9JlfUBE/eL+YES1MAW1EscwI+NOgoIaXVwGU=::20220308180330</span
+        >
+        <b></b>
+        <b>Encrypted</b>
+        <textarea
+          name="lieninput"
+          rows="2"
+          cols="20"
+          id="txt_req_enc"
+          style="height: 355px; width: 453px"
+        >
+{{encrypted}}</textarea
+        >
+        <input type="submit" name="btn_sub" value="submit" id="btn_sub" />
+      </div>
+    </form>
+
+    <script>
+      $(document).ready(function () {
+        $("#btn_sub").click();
+      });
+    </script>
+  </body>
+</html>
