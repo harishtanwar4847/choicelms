@@ -1195,6 +1195,7 @@ def loan_details(**kwargs):
 
         res = {
             "loan": loan,
+            "instrument_type": loan.instrument_type,
             "transactions": loan_transactions_list,
             "margin_shortfall": loan_margin_shortfall,
             "payment_already_in_process": payment_in_process,

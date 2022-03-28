@@ -357,7 +357,7 @@ def get_security_prices(securities=None):
     return price_map
 
 
-def get_security_categories(securities, lender, instrument_type="Share"):
+def get_security_categories(securities, lender, instrument_type="Shares"):
     select = "isin, security_category"
     if instrument_type == "Mutual Fund":
         select += ", scheme_type"

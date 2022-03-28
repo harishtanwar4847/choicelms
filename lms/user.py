@@ -1300,7 +1300,7 @@ def schemes(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {"scheme_type": "", "lender": "", "level": ""},
+            {"scheme_type": "required", "lender": "", "level": ""},
         )
 
         # reg = lms.regex_special_characters(search=data.get("scheme_type"))
@@ -1310,12 +1310,11 @@ def schemes(**kwargs):
         #         message=frappe._("Special Characters not allowed."),
         #     )
 
-        if data.get("scheme_type"):
-            if data.get("scheme_type") not in ["Equity", "Debt"]:
-                return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Scheme type should be either Equity or Debt."),
-                )
+        if data.get("scheme_type") not in ["Equity", "Debt"]:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Scheme type should be either Equity or Debt."),
+            )
 
         if not data.get("level"):
             data["level"] = []
@@ -1897,6 +1896,7 @@ def my_pledge_securities(**kwargs):
 
         res = {
             "loan_name": loan.name,
+            "instrument_type": loan.instrument_type,
             "total_value": loan.total_collateral_value,
             "drawing_power": loan.drawing_power,
             "balance": loan.balance,
@@ -3403,6 +3403,7 @@ def loan_summary_dashboard(**kwargs):
             "unpledge_list": unpledge_list,
             "topup_list": topup_list,
             "increase_loan_list": increase_loan_list,
+            "instrument_type": all_loans[0].instrument_type if all_loans else "",
         }
 
         return utils.respondWithSuccess(data=res)

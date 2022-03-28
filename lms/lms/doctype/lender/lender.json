@@ -47,6 +47,7 @@
   "renewal_charge_type",
   "dp_reimburse_unpledge_charge_type",
   "dp_reimburse_sell_charge_type",
+  "lien_marking_charge_type",
   "column_break_2",
   "lender_processing_fees",
   "stamp_duty",
@@ -56,6 +57,7 @@
   "renewal_charges",
   "dp_reimburse_unpledge_charges",
   "dp_reimburse_sell_charges",
+  "lien_marking_charges",
   "column_break_39",
   "lender_processing_minimum_amount",
   "lender_stamp_duty_minimum_amount",
@@ -65,6 +67,7 @@
   "renewal_minimum_amount",
   "dp_reimburse_unpledge_minimum_amount",
   "dp_reimburse_sell_minimum_amount",
+  "lien_marking_charge_minimum_amount",
   "column_break_54",
   "lender_processing_maximum_amount",
   "lender_stamp_duty_maximum_amount",
@@ -74,6 +77,7 @@
   "renewal_maximum_amount",
   "dp_reimburse_unpledge_maximum_amount",
   "dp_reimburse_sell_maximum_amount",
+  "lien_marking_charge_maximum_amount",
   "charges_sharing_details_section",
   "lender_processing_fees_sharing_type",
   "stamp_duty_sharing_type",
@@ -564,22 +568,43 @@
    "label": "Sanction Limit Values"
   },
   {
-     "fieldname": "minimum_sanctioned_limit",
-     "fieldtype": "Currency",
-     "label": "Minimum Sanctioned Limit"
+   "fieldname": "minimum_sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Minimum Sanctioned Limit"
   },
   {
-     "fieldname": "column_break_19",
-     "fieldtype": "Column Break"
+   "fieldname": "column_break_19",
+   "fieldtype": "Column Break"
   },
   {
-     "fieldname": "maximum_sanctioned_limit",
-     "fieldtype": "Currency",
-     "label": "Maximum Sanctioned Limit"
+   "fieldname": "maximum_sanctioned_limit",
+   "fieldtype": "Currency",
+   "label": "Maximum Sanctioned Limit"
+  },
+  {
+   "fieldname": "lien_marking_charge_type",
+   "fieldtype": "Select",
+   "label": "Lien Marking Charge Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "lien_marking_charges",
+   "fieldtype": "Float",
+   "label": "Lien Marking Charges"
+  },
+  {
+   "fieldname": "lien_marking_charge_minimum_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "lien_marking_charge_maximum_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Amount"
   }
  ],
  "links": [],
- "modified": "2022-03-01 17:41:31.600879",
+ "modified": "2022-03-28 18:00:37.137713",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
