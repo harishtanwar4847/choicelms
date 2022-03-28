@@ -7,11 +7,11 @@ import lms
 
 
 def get_context(context):
-    user = lms.__user()
-    user_kyc = lms.__user_kyc(user.name)
-    customer = lms.__customer(user.name)
-
     cart = frappe.get_doc("Cart", str(frappe.form_dict.cart_name))
+
+    customer = frappe.get_doc("Loan Customer", cart.customer)
+    user_kyc = lms.__user_kyc(customer.user)
+
     if not cart:
         return utils.respondNotFound(message=frappe._("Cart not found."))
     if cart.customer != customer.name:
