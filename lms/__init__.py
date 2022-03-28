@@ -403,7 +403,7 @@ def get_allowed_securities(securities, lender, instrument_type="Shares"):
         isin=convert_list_to_tuple_string(securities),
     )
 
-    results = frappe.db.sql(query, debug=True, as_dict=1)
+    results = frappe.db.sql(query, as_dict=1)
 
     security_map = {}
 

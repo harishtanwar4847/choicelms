@@ -1311,10 +1311,7 @@ def schemes(**kwargs):
         #     )
 
         if data.get("scheme_type"):
-            if (
-                data.get("scheme_type") != "Equity"
-                and data.get("scheme_type") != "Debt"
-            ):
+            if data.get("scheme_type") not in ["Equity", "Debt"]:
                 return utils.respondWithFailure(
                     status=422,
                     message=frappe._("Scheme type should be either Equity or Debt."),

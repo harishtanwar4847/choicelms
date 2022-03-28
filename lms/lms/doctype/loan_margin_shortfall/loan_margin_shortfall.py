@@ -69,7 +69,11 @@ class LoanMarginShortfall(Document):
 
         action_list = frappe.get_all(
             "Margin Shortfall Action",
-            filters={"max_threshold": (">=", self.shortfall_percentage)},
+            filters={
+                "max_threshold": (">=", self.shortfall_percentage),
+                "instrument_type": self.instrument_type,
+                "scheme_type": self.scheme_type,
+            },
             order_by="max_threshold asc",
             page_length=1,
         )

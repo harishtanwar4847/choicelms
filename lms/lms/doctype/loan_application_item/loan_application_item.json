@@ -17,6 +17,7 @@
   "pledge_status",
   "pledge_executed",
   "type",
+  "requested_quantity",
   "folio",
   "amc_code",
   "amc_name",
@@ -141,11 +142,17 @@
    "fieldtype": "Data",
    "label": "Scheme Code",
    "read_only": 1
+  },
+  {
+   "fieldname": "requested_quantity",
+   "fieldtype": "Float",
+   "label": "Requested Quantity/Unit",
+   "read_only": 1
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-03-23 11:54:23.836998",
+ "modified": "2022-03-28 16:19:03.827353",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application Item",

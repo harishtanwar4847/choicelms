@@ -6,6 +6,9 @@
  "engine": "InnoDB",
  "field_order": [
   "max_threshold",
+  "column_break_2",
+  "instrument_type",
+  "scheme_type",
   "sell_off_section",
   "sell_off_after_hours",
   "column_break_8",
@@ -39,10 +42,28 @@
    "fieldname": "sell_off_deadline_eod",
    "fieldtype": "Int",
    "label": "Sell Off Deadline (EOD)"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Shares",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund"
+  },
+  {
+   "depends_on": "eval:doc.instrument_type==\"Mutual Fund\"",
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "\nEquity\nDebt"
   }
  ],
  "links": [],
- "modified": "2022-03-21 18:52:19.040632",
+ "modified": "2022-03-28 14:58:10.980263",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Margin Shortfall Action",

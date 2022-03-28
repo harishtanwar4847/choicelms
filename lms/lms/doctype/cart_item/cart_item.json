@@ -111,12 +111,13 @@
   {
    "fieldname": "requested_quantity",
    "fieldtype": "Float",
-   "label": "Requested Quantity/Unit"
+   "label": "Requested Quantity/Unit",
+   "read_only": 1
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-03-21 18:37:02.317965",
+ "modified": "2022-03-28 16:19:27.691586",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart Item",

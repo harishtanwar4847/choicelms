@@ -87,6 +87,7 @@ class Cart(Document):
                     "security_name": item.security_name,
                     "security_category": item.security_category,
                     "pledged_quantity": item.pledged_quantity,
+                    "requested_quantity": item.requested_quantity,
                     "price": item.price,
                     "amount": item.amount,
                     "type": item.type,

@@ -20,6 +20,7 @@ class CollateralLedger(Document):
         price,
         security_name,
         security_category,
+        requested_quantity=None,
         loan_name=None,
         data=None,
         lender_approval_status=None,
@@ -52,6 +53,9 @@ class CollateralLedger(Document):
         if request_type == "Pledge":
             collateral_ledger.prf = data.prf
             collateral_ledger.expiry = data.expiry
+
+        if requested_quantity:
+            collateral_ledger.requested_quantity = requested_quantity
 
         if lender_approval_status:
             collateral_ledger.lender_approval_status = lender_approval_status

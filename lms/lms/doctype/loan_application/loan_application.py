@@ -18,7 +18,8 @@ from num2words import num2words
 import lms
 from lms.exceptions import PledgeSetupFailureException
 from lms.firebase import FirebaseAdmin
-from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
+from lms.lms.doctype.collateral_ledger.collateral_ledger import \
+    CollateralLedger
 
 
 class LoanApplication(Document):
@@ -172,6 +173,7 @@ class LoanApplication(Document):
     def after_insert(self):
         if self.instrument_type == "Mutual Fund":
             customer = self.get_customer()
+            frappe.session.user = "Administrator"
             user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
             las_settings = frappe.get_single("LAS Settings")
             self.status = "Executing pledge"
@@ -370,6 +372,7 @@ class LoanApplication(Document):
                             "security_category": i.get("security_category"),
                             "data": collateral_ledger_data,
                             "psn": cur.get("lienmarkno"),
+                            "requested_quantity": i.get("requested_quantity")
                         }
                         CollateralLedger.create_entry(**collateral_ledger_input)
                 pledge_securities = 0
@@ -385,7 +388,7 @@ class LoanApplication(Document):
                     pledge_securities = 1
                 # TODO : once done with all batches, mark LA as Pledge executed
                 self.workflow_state = "Pledge executed"
-                self.total_collateral_value = round(self.total_collateral_value, 2)
+                self.total_collateral_value = round(total_collateral_value, 2)
                 self.drawing_power = round(
                     lms.round_down_amount_to_nearest_thousand(
                         (self.allowable_ltv / 100) * self.total_collateral_value
@@ -735,6 +738,10 @@ class LoanApplication(Document):
                         "pledged_quantity": item.pledged_quantity,
                         "price": item.price,
                         "amount": item.amount,
+                        "folio": item.folio,
+                        "amc_code": item.amc_code,
+                        "amc_name": item.amc_name,
+                        "scheme_code": item.scheme_code,
                     }
                 )
 
@@ -753,6 +760,8 @@ class LoanApplication(Document):
                 "lender": self.lender,
                 "items": items,
                 "is_eligible_for_interest": 1,
+                "instrument_type": self.instrument_type,
+                "scheme_type": self.scheme_type
             }
         )
         loan.insert(ignore_permissions=True)
