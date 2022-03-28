@@ -9,7 +9,7 @@ def execute():
             "https://mycams.camsonline.com/lamfapi/pgLienmarking.aspx"
         )
         las_settings.lien_initiate_api = (
-            "https://mycams.camsonline.com/lamfapi/trxn/v1/initiatelien "
+            "https://mycams.camsonline.com/lamfapi/trxn/v1/initiatelien"
         )
         las_settings.invoke_api = "https://mycams.camsonline.com/lamfapi/trxn/v1/invoc"
         las_settings.revoke_api = "https://mycams.camsonline.com/lamfapi/trxn/v1/revoc"
@@ -18,7 +18,7 @@ def execute():
             "https://mycamsuat.camsonline.com/lamfapi/pgLienmarking.aspx"
         )
         las_settings.lien_initiate_api = (
-            "https://mycamsuat.camsonline.com/lamfapi/trxn/v1/initiatelien "
+            "https://mycamsuat.camsonline.com/lamfapi/trxn/v1/initiatelien"
         )
         las_settings.invoke_api = (
             "https://mycamsuat.camsonline.com/lamfapi/trxn/v1/invoc"
