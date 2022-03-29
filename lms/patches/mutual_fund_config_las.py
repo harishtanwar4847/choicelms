@@ -37,6 +37,9 @@ def execute():
     las_settings.client_name = "Choice Finserv Pvt Ltd"
     las_settings.bank_reference_no = "1001"
     las_settings.bank_name = "Choice Finserv Pvt Ltd"
+    las_settings.shares_ltv = 50
+    las_settings.mf_equity_ltv = 50
+    las_settings.mf_debt_ltv = 80
 
     las_settings.save(ignore_permissions=True)
     frappe.db.commit()
