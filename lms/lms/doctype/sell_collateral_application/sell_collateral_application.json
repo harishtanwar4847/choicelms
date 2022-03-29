@@ -11,17 +11,23 @@
   "initial_shortfall_amount",
   "current_shortfall_amount",
   "pending_unpledge_request_id",
+  "instrument_type",
+  "is_validated",
+  "message",
   "column_break_2",
   "customer",
   "customer_name",
   "selling_collateral_value",
   "loan_margin_shortfall",
   "lender_selling_amount",
+  "scheme_type",
+  "is_initiated",
   "section_break_4",
   "items",
   "sell_items",
   "amended_from",
-  "status"
+  "status",
+  "data_23"
  ],
  "fields": [
   {
@@ -131,11 +137,47 @@
    "in_list_view": 1,
    "label": "Pending Unpledge Request Id",
    "options": "Unpledge Application"
+  },
+  {
+   "default": "Shares",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund"
+  },
+  {
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "\nEquity\nDebt",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_initiated",
+   "fieldtype": "Check",
+   "label": "Is Initiated"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_validated",
+   "fieldtype": "Check",
+   "label": "is Validated"
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "Small Text",
+   "label": "Message",
+   "read_only": 1
+  },
+  {
+   "fieldname": "data_23",
+   "fieldtype": "Data"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-11-29 14:55:24.602169",
+ "modified": "2022-03-29 12:27:53.714723",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",
