@@ -2245,9 +2245,19 @@ def request_unpledge_otp():
         is_dummy_account = lms.validate_spark_dummy_account(
             user.username, user.name, check_valid=True
         )
+        try:
+            loan = frappe.get_last_doc(
+                "Loan",
+                filters={
+                    "customer": customer.name,
+                    "instrument_type": "Mutual Fund",
+                },
+            )
+        except frappe.DoesNotExistError:
+            loan = None
         token_type = "Unpledge OTP"
         entity = user_kyc.mobile_number
-        if customer.cams_email_id:
+        if customer.cams_email_id and loan:
             token_type = "Revoke OTP"
             entity = customer.phone
         if not is_dummy_account:
@@ -2555,8 +2565,19 @@ def request_sell_collateral_otp():
         is_dummy_account = lms.validate_spark_dummy_account(
             user.username, user.name, check_valid=True
         )
+        try:
+            loan = frappe.get_last_doc(
+                "Loan",
+                filters={
+                    "customer": customer.name,
+                    "instrument_type": "Mutual Fund",
+                },
+            )
+        except frappe.DoesNotExistError:
+            loan = None
+
         token_type = "Sell Collateral OTP"
-        if customer.cams_email_id:
+        if customer.cams_email_id and loan:
             token_type = "Invoke OTP"
         if not is_dummy_account:
             frappe.db.begin()
