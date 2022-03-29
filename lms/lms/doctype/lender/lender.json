@@ -48,8 +48,8 @@
   "dp_reimburse_unpledge_charge_type",
   "dp_reimburse_sell_charge_type",
   "lien_marking_charge_type",
-  "invoc_charge_type",
-  "revoc_charge_type",
+  "invoke_charge_type",
+  "revoke_charge_type",
   "column_break_2",
   "lender_processing_fees",
   "stamp_duty",
@@ -60,8 +60,8 @@
   "dp_reimburse_unpledge_charges",
   "dp_reimburse_sell_charges",
   "lien_marking_charges",
-  "invoc_charges",
-  "revoc_charges",
+  "invoke_charges",
+  "revoke_charges",
   "column_break_39",
   "lender_processing_minimum_amount",
   "lender_stamp_duty_minimum_amount",
@@ -72,8 +72,8 @@
   "dp_reimburse_unpledge_minimum_amount",
   "dp_reimburse_sell_minimum_amount",
   "lien_marking_charge_minimum_amount",
-  "invoc_charges_minimum_amount",
-  "revoc_charges_minimum_amount",
+  "invoke_charges_minimum_amount",
+  "revoke_charges_minimum_amount",
   "column_break_54",
   "lender_processing_maximum_amount",
   "lender_stamp_duty_maximum_amount",
@@ -84,8 +84,8 @@
   "dp_reimburse_unpledge_maximum_amount",
   "dp_reimburse_sell_maximum_amount",
   "lien_marking_charge_maximum_amount",
-  "invoc_charges_maximum_amount",
-  "revoc_charges_maximum_amount",
+  "invoke_charges_maximum_amount",
+  "revoke_charges_maximum_amount",
   "charges_sharing_details_section",
   "lender_processing_fees_sharing_type",
   "stamp_duty_sharing_type",
@@ -611,50 +611,50 @@
    "label": "Maximum Amount"
   },
   {
-   "fieldname": "invoc_charge_type",
+   "fieldname": "invoke_charge_type",
    "fieldtype": "Select",
-   "label": "Invoc Charge Type",
+   "label": "Invoke Charge Type",
    "options": "Fix\nPercentage"
   },
   {
-   "fieldname": "invoc_charges",
-   "fieldtype": "Float",
-   "label": "Invoc Charges"
+   "fieldname": "revoke_charge_type",
+   "fieldtype": "Select",
+   "label": "Revoke Charge Type",
+   "options": "Fix\nPercentage"
   },
   {
-   "fieldname": "invoc_charges_minimum_amount",
+   "fieldname": "invoke_charges",
+   "fieldtype": "Float",
+   "label": "Invoke Charges"
+  },
+  {
+   "fieldname": "revoke_charges",
+   "fieldtype": "Float",
+   "label": "Revoke Charges"
+  },
+  {
+   "fieldname": "invoke_charges_minimum_amount",
    "fieldtype": "Float",
    "label": "Minimum Amount"
   },
   {
-   "fieldname": "invoc_charges_maximum_amount",
+   "fieldname": "revoke_charges_minimum_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "invoke_charges_maximum_amount",
    "fieldtype": "Float",
    "label": "Maximum Amount"
   },
   {
-   "fieldname": "revoc_charge_type",
-   "fieldtype": "Select",
-   "label": "Revoc Charge Type",
-   "options": "Fix\nPercentage"
-  },
-  {
-   "fieldname": "revoc_charges",
+   "fieldname": "revoke_charges_maximum_amount",
    "fieldtype": "Float",
-   "label": "Revoc Charges"
-  },
-  {
-    "fieldname": "revoc_charges_minimum_amount",
-    "fieldtype": "Float",
-    "label": "Minimum Amount"
-   },
-   {
-    "fieldname": "revoc_charges_maximum_amount",
-    "fieldtype": "Float",
-    "label": "Maximum Amount"
-   }
+   "label": "Maximum Amount"
+  }
  ],
  "links": [],
- "modified": "2022-03-29 13:38:14.718434",
+ "modified": "2022-03-29 15:49:48.929517",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
