@@ -26,8 +26,7 @@
   "items",
   "sell_items",
   "amended_from",
-  "status",
-  "data_23"
+  "status"
  ],
  "fields": [
   {
@@ -169,10 +168,6 @@
    "fieldtype": "Small Text",
    "label": "Message",
    "read_only": 1
-  },
-  {
-   "fieldname": "data_23",
-   "fieldtype": "Data"
   }
  ],
  "is_submittable": 1,

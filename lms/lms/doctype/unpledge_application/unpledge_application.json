@@ -1,4 +1,6 @@
 {
+ "_comments": "[]",
+ "_liked_by": "[]",
  "actions": [],
  "creation": "2021-04-02 12:09:56.917558",
  "doctype": "DocType",
@@ -9,11 +11,16 @@
   "total_collateral_value",
   "lender",
   "pending_sell_request_id",
+  "instrument_type",
+  "is_validated",
+  "message",
   "column_break_1",
   "customer",
   "customer_name",
   "unpledge_collateral_value",
   "max_unpledge_amount",
+  "scheme_type",
+  "is_initiated",
   "section_braek_1",
   "items",
   "unpledge_items",
@@ -61,8 +68,8 @@
   {
    "fieldname": "status",
    "fieldtype": "Select",
-   "in_list_view": 1,
    "hidden": 1,
+   "in_list_view": 1,
    "label": "Status",
    "options": "Pending\nApproved\nRejected"
   },
@@ -109,11 +116,42 @@
    "in_list_view": 1,
    "label": "Pending Sell Request Id",
    "options": "Sell Collateral Application"
+  },
+  {
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_validated",
+   "fieldtype": "Check",
+   "label": "is Validated"
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "Small Text",
+   "label": "Message",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "\nEquity\nDebt"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_initiated",
+   "fieldtype": "Check",
+   "label": "Is Initiated"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-11-29 15:04:05.417282",
+ "modified": "2022-03-29 13:58:11.388842",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Unpledge Application",
