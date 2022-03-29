@@ -1556,6 +1556,9 @@ def decrypt_lien_marking_response():
         cart.save(ignore_permissions=True)
         cart.create_loan_application()
         frappe.db.commit()
+        return utils.respondWithSuccess()
+    else:
+        return utils.respondWithFailure()
 
 
 def create_signature_mycams():
