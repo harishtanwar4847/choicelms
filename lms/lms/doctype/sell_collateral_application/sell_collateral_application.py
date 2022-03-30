@@ -382,12 +382,18 @@ def get_collateral_details(sell_collateral_application_name):
     )
 
 
+import json
+
+import requests
+
+
 @frappe.whitelist()
 def validate_invoc(sell_collateral_application_name):
 
     doc = frappe.get_doc(
         "Sell Collateral Application", sell_collateral_application_name
     )
+    collateral_ledger = frappe.get_all("Collateral Ledger", filter={"loan": doc.loan})
     customer = frappe.get_doc("Loan Customer", doc.customer)
     user_kyc = lms.__user_kyc(customer.user)
 
@@ -395,46 +401,50 @@ def validate_invoc(sell_collateral_application_name):
         # create payload
         datetime_signature = lms.create_signature_mycams()
         las_settings = frappe.get_single("LAS Settings")
+        headers = {
+            "Content-Type": "application/json",
+            "clientid": las_settings.client_id,
+            "datetimestamp": datetime_signature[0],
+            "signature": datetime_signature[1],
+            "subclientid": "",
+        }
+        url = las_settings.invoc_api
         data = {
             "invocvalidate": {
-                "reqrefno": "12381",
-                "lienrefno": "1786",
-                "pan": "ABCDE1234F",
-                "regemailid": "sathyav@abc.com",
-                "clientid": "xxxxx",
-                "requestip": "192.168.21.1",
-                "schemedetails": [
-                    {
-                        "amccode": "TEST",
-                        "folio": "3973186",
-                        "schemecode": "ICFD",
-                        "schemename": "Tata India Fund Regular Plan Dividend",
-                        "isinno": "INF212A8",
-                        "schemetype": "Equity",
-                        "schemecategory": "0",
-                        "lienunit": "1",
-                        "invocationunit": "1",
-                        "lienmarkno": "12289",
-                    },
-                    {
-                        "amccode": "TEST",
-                        "folio": "4233998",
-                        "schemecode": "EOD",
-                        "schemename": "Tata Equity Fund Regular Plan - Dividend",
-                        "isinno": "INF201410",
-                        "schemetype": "Equity",
-                        "schemecategory": "0",
-                        "lienunit": "1",
-                        "invocationunit": "1",
-                        "lienmarkno": "12290",
-                    },
-                ],
+                "reqrefno": doc.name,
+                "lienrefno": collateral_ledger[0]["prf"],
+                "pan": user_kyc.pan_no,
+                "regemailid": customer.cams_email_id,
+                "clientid": las_settings.client_id,
+                "requestip": "103.19.132.194",
+                "schemedetails": [],
             }
         }
+        for i in collateral_ledger:
+            schemedetails = (
+                {
+                    "amccode": "P",
+                    "folio": "460071",
+                    "schemecode": "1637",
+                    "schemename": i.security_name,
+                    "isinno": i.isin,
+                    "schemetype": "Debt",
+                    "schemecategory": "Cat D",
+                    "lienunit": i.quantity,
+                    "invocationunit": "2",
+                    "lienmarkno": i.psn,
+                },
+            )
+            data["schemedetails"].append(schemedetails)
 
         encrypted_data = lms.AESCBC(
             las_settings.encryption_key, las_settings.iv
         ).encrypt(json.dumps(data))
+
+        resp = requests.post(
+            url=url, headers=headers, data=json.dumps(encrypted_data)
+        ).text
+
         lms.create_log(
             {
                 "Customer name": customer.full_name,
