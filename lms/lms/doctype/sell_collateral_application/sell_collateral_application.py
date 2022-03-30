@@ -31,9 +31,11 @@ class SellCollateralApplication(Document):
                 fcm_notification=fcm_notification, message=fcm_notification.message
             )
 
-    def process_items(self, instrument_type="Shares"):
+    def process_items(self):
         self.total_collateral_value = 0
         loan = self.get_loan()
+        self.instrument_type = loan.instrument_type
+        self.scheme_type = loan.scheme_type
         self.lender = loan.lender
         self.customer = loan.customer
         if not self.customer_name:
@@ -68,7 +70,7 @@ class SellCollateralApplication(Document):
             WHERE
                 instrument_type = '{}' and isin in {};
         """.format(
-            instrument_type, lms.convert_list_to_tuple_string(securities_list)
+            loan.instrument_type, lms.convert_list_to_tuple_string(securities_list)
         )
 
         res_ = frappe.db.sql(query, as_dict=1)
@@ -378,3 +380,66 @@ def get_collateral_details(sell_collateral_application_name):
         ),
         having_clause=" HAVING quantity > 0",
     )
+
+
+@frappe.whitelist()
+def validate_invoc(sell_collateral_application_name):
+
+    doc = frappe.get_doc(
+        "Sell Collateral Application", sell_collateral_application_name
+    )
+    customer = frappe.get_doc("Loan Customer", doc.customer)
+    user_kyc = lms.__user_kyc(customer.user)
+
+    if customer.cams_email_id and doc.instrument_type == "Mutual Fund":
+        # create payload
+        datetime_signature = lms.create_signature_mycams()
+        las_settings = frappe.get_single("LAS Settings")
+        data = {
+            "invocvalidate": {
+                "reqrefno": "12381",
+                "lienrefno": "1786",
+                "pan": "ABCDE1234F",
+                "regemailid": "sathyav@abc.com",
+                "clientid": "xxxxx",
+                "requestip": "192.168.21.1",
+                "schemedetails": [
+                    {
+                        "amccode": "TEST",
+                        "folio": "3973186",
+                        "schemecode": "ICFD",
+                        "schemename": "Tata India Fund Regular Plan Dividend",
+                        "isinno": "INF212A8",
+                        "schemetype": "Equity",
+                        "schemecategory": "0",
+                        "lienunit": "1",
+                        "invocationunit": "1",
+                        "lienmarkno": "12289",
+                    },
+                    {
+                        "amccode": "TEST",
+                        "folio": "4233998",
+                        "schemecode": "EOD",
+                        "schemename": "Tata Equity Fund Regular Plan - Dividend",
+                        "isinno": "INF201410",
+                        "schemetype": "Equity",
+                        "schemecategory": "0",
+                        "lienunit": "1",
+                        "invocationunit": "1",
+                        "lienmarkno": "12290",
+                    },
+                ],
+            }
+        }
+
+        encrypted_data = lms.AESCBC(
+            las_settings.encryption_key, las_settings.iv
+        ).encrypt(json.dumps(data))
+        lms.create_log(
+            {
+                "Customer name": customer.full_name,
+                "json_payload": data,
+                "encrypted_request": encrypted_data,
+            },
+            "lien_marking_request",
+        )
