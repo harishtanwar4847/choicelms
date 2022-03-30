@@ -242,8 +242,9 @@ class Loan(Document):
                 "record_type": LoanTransaction.loan_transaction_map.get(
                     transaction_type, "DR"
                 ),
-                # "time": frappe.utils.now_datetime(),
                 "time": frappe.utils.now_datetime(),
+                "instrument_type": self.instrument_type,
+                "scheme_type": self.scheme_type,
             }
         )
 
@@ -372,7 +373,7 @@ class Loan(Document):
             having_clause=having_clause if having_clause else "",
         )
 
-        return frappe.db.sql(sql, as_dict=1)
+        return frappe.db.sql(sql, debug=True, as_dict=1)
 
     def update_collateral_ledger(self, price, isin):
         sql = """Update `tabCollateral Ledger`

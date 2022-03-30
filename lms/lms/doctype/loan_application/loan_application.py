@@ -210,7 +210,7 @@ class LoanApplication(Document):
                         "sucessflag": "Y",
                         "failurereason": "",
                         "loginemail": customer.cams_email_id,
-                        "netbankingemail": customer.cams_email_id,
+                        "netbankingemail": customer.user,
                         "clientid": las_settings.client_id,
                         "clientname": las_settings.client_name,
                         "subclientid": "",
@@ -372,6 +372,9 @@ class LoanApplication(Document):
                             "data": collateral_ledger_data,
                             "psn": cur.get("lienmarkno"),
                             "requested_quantity": i.get("requested_quantity"),
+                            "scheme_code": i.get("scheme_code"),
+                            "folio": i.get("folio"),
+                            "amc_code": i.get("amc_code"),
                         }
                         CollateralLedger.create_entry(**collateral_ledger_input)
                 pledge_securities = 0

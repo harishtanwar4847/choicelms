@@ -1345,7 +1345,7 @@ def schemes(**kwargs):
             """select als.isin, als.security_name as scheme_name, als.eligible_percentage as ltv, als.instrument_type, als.scheme_type, s.price, group_concat(lender,'') as lenders
             from `tabAllowed Security` als
             LEFT JOIN `tabSecurity` s on s.isin = als.isin
-            where als.instrument_type='Mutual Fund'{}{}{}
+            where als.instrument_type='Mutual Fund' and s.price > 0{}{}{}
             group by als.isin
             order by als.creation desc;""".format(
                 scheme, lender, sub_query
@@ -3394,6 +3394,14 @@ def loan_summary_dashboard(**kwargs):
         topup_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
 
+        instrument_type = ""
+        if under_process_la:
+            instrument_type = frappe.get_doc(
+                "Loan Application", under_process_la[0].name
+            ).instrument_type
+        elif all_loans:
+            instrument_type = frappe.get_doc("Loan", all_loans[0].name).instrument_type
+
         res = {
             "sell_collateral_topup_and_unpledge_list": sell_collateral_topup_and_unpledge_list,
             "actionable_loan": actionable_loan,
@@ -3403,7 +3411,7 @@ def loan_summary_dashboard(**kwargs):
             "unpledge_list": unpledge_list,
             "topup_list": topup_list,
             "increase_loan_list": increase_loan_list,
-            "instrument_type": all_loans[0].instrument_type if all_loans else "",
+            "instrument_type": instrument_type,
         }
 
         return utils.respondWithSuccess(data=res)

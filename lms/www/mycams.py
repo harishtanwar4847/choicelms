@@ -24,7 +24,7 @@ def get_context(context):
 
         data = {
             "loginemail": customer.cams_email_id,  # mandatory
-            "netbankingemail": customer.cams_email_id,  # mandatory
+            "netbankingemail": customer.user,  # mandatory
             "clientid": las_settings.client_id,  # mandatory
             "clientname": las_settings.client_name,  # mandatory
             "pan": user_kyc.pan_no,  # mandatory
