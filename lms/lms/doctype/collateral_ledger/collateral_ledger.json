@@ -20,6 +20,7 @@
   "pledgor_boid",
   "psn",
   "security_category",
+  "amc_code",
   "expiry",
   "column_break_1",
   "request_type",
@@ -27,6 +28,8 @@
   "pledgee_boid",
   "lender_approval_status",
   "security_name",
+  "scheme_code",
+  "folio",
   "price",
   "value"
  ],
@@ -184,11 +187,29 @@
    "fieldtype": "Float",
    "label": "Requested Quantity/Unit",
    "read_only": 1
+  },
+  {
+   "fieldname": "scheme_code",
+   "fieldtype": "Data",
+   "label": "Scheme Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amc_code",
+   "fieldtype": "Data",
+   "label": "AMC Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "folio",
+   "fieldtype": "Data",
+   "label": "Folio",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-28 16:00:53.700368",
+ "modified": "2022-03-30 14:23:51.832317",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Collateral Ledger",

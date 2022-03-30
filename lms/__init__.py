@@ -1506,78 +1506,96 @@ def update_security_category(name):
 
 @frappe.whitelist(allow_guest=True)
 def decrypt_lien_marking_response():
-    data = frappe.local.form_dict
-    # data = {}
-    # data["lienresponse"] = "5m-hEo_aONHeQFJhtRZCYXyTdt-YOlD_SowlbNlgAXWJJRbBmRN39jJRBg9V8h2dUUVSlZ2fm5QIzHl45231kwaPytAr0mbfFI9QYe2OXt0zJgQTkx2zzFJizkJJg4uICcEbo7O_J1yuAt2wWp8-Ji93OPld7QPH2c5lFXGhFYGPgqT05PsQbVNa3WOdR_L3K8qXZ6c1V4S56f4KcFHQAptzNSWjR1H7GxUlV2tlET74qzwhSqFyIqgZZ21u70cjGQLVc3TaNMagE-uAAot5FUvCKFzXUkcX2mQskN0-2u8dKqxrAaEMmOo0qndCgUVUsuT4ksUWRxXwxF0JB9uXS9AjYPxyQHVhHpRVv6HrJoHiE-s0-ZzqgxTWHt-lbD3-iXnvjUXXaEeucrs04PX-Uoyv__Gv681STCgvfMtb-0LDAFvSpRGRxya2YXL7dbxsMUOlEpvcFzvKEf_PPjai8_LhfCLMkOPT68oueqxSGKvLHG0VHjtRC1QRdzwUuQ4qjn-zh0pn6kxq4ZdFneS2XmlC7NkDR94LD53nFjH6ZRzW2aavSeSqLAdviKaqraLcFrXise4JJWUnD7fzv7MMooJWcuY9f8zD9PwfusRqECgg_T-vpdgIBhAASa0HU6qnDmaOtonPhLcFlJLT9vM0Mq9uOuShm1FxItRAsXySrrPKVMXhP6ydgPIe_6r9rrMxZlju8DV7DjKVpBNH-hH9Zii_TMDbafynp6PXJs56ND9DLfm8B1Tp3fb1DVR8U4GgwzGk9lQG__9HoyPy77RPofyAOVZJxTYu_xTRPMGNJVeivGQg2SgGhOcuBWANie2gujCYwf4_cG1knG3jPos4Q7x6K7fnc6nPzGPrV1N2bs_7ve7HlQX9HXEivL95tEDZFXilNwehHv7OxqZCH91rJtI7LFZDlR6X55VWIQD_coPSmKPphOkHB9puzmJZgf5xnsPPaEjJyUbSHb0fm1puRBVXj0a9K90jn-iZ__vCj7XnlYNscPBlg9El24oZ6BvY-CuLxN8--ACoKAkX0tXazgbbU6adPUVEGKocSb1IGNGLYvRqg6pvrnjCqfTb_QMqzsyIaOoQKWx11DtAYxtFtBJeDjwUXEFmudY2pRQOTvQo1IIu_jheTiE9kdDNaPIbyxyKgyyXnaw9aK-8pmxwdQupktIWrggQF4zPDy3fpl2uWoBdXdHQ6G2kJRp_HPxq7qV8huurG7Iw1I7zvgj9xr0s7VHj3O-5PbmHnL0puKjW1H1MeVxhC1unynTb-BLqGMQp_TKLorV4TfawnD3xruN5f37p9nere0S2USK6Jewok9liF_WCaw_3oGNPq-VdN4kknMIJOt0GM-8W1nX2-mKK3v3XonWtryqwp2MwgwsEBQ8MEsexCQJFekTfS9YVBOELUdLtHMz58-rYT6pscQKt72b6n0j10BhmLt3XGgK9GgKj9z00ndRWBpEIFCkQYN9Sxv7wIt5-t_BF82ek8LCABn5QrjOtqrzBtpRfpMRtTx_5VBtP2HVK3RcEvqQOMQvrh2NkJ4hRjNgtckiYNGkS55tT6tjXPOmEzqV7qZXFfDT-5KJNlORwg3peNnzBn6sFBnJeq90ei2TDMnPXWBiM8BpC3fFxz9LlmEs_mPwa_bPEXY5VWym7D7YnzhyR3PnjMqPww0HKfTWhxvs_92IKYfoCo8doXiHiI05UEGXY1ot50rJCxSXRwQ_pMaEY36OcvSP-wn2nznU1zMzDkyje5FilNkHiNizzjOG8CnJdhLmfm3ezxNMsBkPIv4b06Patt9Ukz7MGlAmgI5cxJY52xtUARVINpMzM4Vv2fbPBqEdn3w0mht3cY7pfVu1KV_FFnHDRrwBX4hLbKhIfj9_sLrldfs7a9xXyd3ROqCVdGC7EpuMcPJXMZ4cLzCuvmMEqDvT5QLvrdulP0UyXjA_2i4lzo63v3Q_v-Uqw5DAIFGHPKIhDlu2qKLbcuuUB"
-    las_settings = frappe.get_single("LAS Settings")
+    try:
+        data = frappe.local.form_dict
+        las_settings = frappe.get_single("LAS Settings")
+        encrypted_response = (
+            data.get("lienresponse").replace("-", "+").replace("_", "/")
+        )
 
-    encrypted_response = data.get("lienresponse").replace("-", "+").replace("_", "/")
-    print(las_settings.decryption_key)
+        decrypted_response = AESCBC(
+            las_settings.decryption_key, las_settings.iv
+        ).decrypt(encrypted_response)
 
-    decrypted_response = AESCBC(las_settings.decryption_key, las_settings.iv).decrypt(
-        encrypted_response
-    )
+        log = {
+            "encrypted_response": data.get("lienresponse"),
+            "decrypted_response": decrypted_response,
+        }
+        create_log(log, "encrypted_response")
 
-    log = {
-        "encrypted_response": data.get("lienresponse"),
-        "decrypted_response": decrypted_response,
-    }
-    create_log(log, "encrypted_response")
+        data = xmltodict.parse(decrypted_response)
+        dict_payload = json.loads(json.dumps(data))
+        res = dict_payload.get("response")
+        if (
+            res.get("errorcode") == "S000"
+            and res.get("error") == "Lien marked sucessfully"
+        ):
+            frappe.session.user = frappe.get_doc(
+                "Loan Customer", res.get("addinfo2")
+            ).user
+            cart = frappe.get_doc("Cart", res.get("addinfo1"))
+            cart.reload()
+            frappe.db.begin()
+            cart.lien_reference_number = res.get("lienrefno")
+            cart.items = []
+            schemes = res.get("schemedetails").get("scheme")
+            if type(schemes) != list:
+                schemes = [schemes]
+            # print(schemes)
 
-    data = xmltodict.parse(decrypted_response)
-    dict_payload = json.loads(json.dumps(data))
-    res = dict_payload.get("response")
-    if res.get("errorcode") == "S000" and res.get("error") == "Lien marked sucessfully":
-        frappe.session.user = frappe.get_doc("Loan Customer", res.get("addinfo2")).user
-        cart = frappe.get_doc("Cart", res.get("addinfo1"))
-        cart.reload()
-        frappe.db.begin()
-        cart.lien_reference_number = res.get("lienrefno")
-        cart.items = []
-        schemes = res.get("schemedetails").get("scheme")
-        if type(schemes) != list:
-            schemes = [schemes]
-        # print(schemes)
-
-        for i in schemes:
-            cart.append(
-                "items",
-                {
-                    "isin": i["isinno"],
-                    "folio": i["folio"],
-                    "scheme_code": i["schemecode"],
-                    "security_name": i["schemename"],
-                    "amc_code": i["amccode"],
-                    "pledged_quantity": float(i["lienapprovedunit"]),
-                    "requested_quantity": float(i["lienunit"]),
-                    "type": res.get("bankschemetype"),
-                },
-            )
-        cart.save(ignore_permissions=True)
-        cart.create_loan_application()
-        frappe.db.commit()
-        return utils.respondWithSuccess()
-    else:
-        return utils.respondWithFailure()
+            for i in schemes:
+                cart.append(
+                    "items",
+                    {
+                        "isin": i["isinno"],
+                        "folio": i["folio"],
+                        "scheme_code": i["schemecode"],
+                        "security_name": i["schemename"],
+                        "amc_code": i["amccode"],
+                        "pledged_quantity": float(i["lienapprovedunit"]),
+                        "requested_quantity": float(i["lienunit"]),
+                        "type": res.get("bankschemetype"),
+                    },
+                )
+            cart.save(ignore_permissions=True)
+            cart.create_loan_application()
+            frappe.db.commit()
+            return utils.respondWithSuccess()
+        else:
+            return utils.respondWithFailure()
+    except Exception as e:
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\nLien Marking Response Details:\n"
+            + json.dumps(data),
+            title=_("Lien Marking Response Error"),
+        )
 
 
 def create_signature_mycams():
-    las_settings = frappe.get_single("LAS Settings")
-    CLIENT_ID = las_settings.client_id
-    SECRET_KEY = las_settings.secret_key
-    hmac_key = las_settings.hmac_key
-    DATE_TIMESTAMP = frappe.utils.now_datetime().strftime("%Y%m%d%H%M%S")
+    try:
+        las_settings = frappe.get_single("LAS Settings")
+        CLIENT_ID = las_settings.client_id
+        SECRET_KEY = las_settings.secret_key
+        hmac_key = las_settings.hmac_key
+        DATE_TIMESTAMP = frappe.utils.now_datetime().strftime("%Y%m%d%H%M%S")
 
-    SIGNATURE = "{}::{}::{}".format(CLIENT_ID, SECRET_KEY, DATE_TIMESTAMP)
+        SIGNATURE = "{}::{}::{}".format(CLIENT_ID, SECRET_KEY, DATE_TIMESTAMP)
 
-    import hmac
-
-    expected_signature = hmac.new(
-        digestmod="sha256",
-        msg=bytes(SIGNATURE, "utf-8"),
-        key=bytes(hmac_key, "utf-8"),
-    )
-    return DATE_TIMESTAMP, expected_signature.hexdigest()
+        expected_signature = hmac.new(
+            digestmod="sha256",
+            msg=bytes(SIGNATURE, "utf-8"),
+            key=bytes(hmac_key, "utf-8"),
+        )
+        return DATE_TIMESTAMP, expected_signature.hexdigest()
+    except Exception as e:
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\nSignature Details:\n"
+            + frappe.session.user
+            + str(DATE_TIMESTAMP),
+            title=_("Lien Marking Response Error"),
+        )
 
 
 class AESCBC:

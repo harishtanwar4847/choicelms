@@ -1345,7 +1345,7 @@ def schemes(**kwargs):
             """select als.isin, als.security_name as scheme_name, als.eligible_percentage as ltv, als.instrument_type, als.scheme_type, s.price, group_concat(lender,'') as lenders
             from `tabAllowed Security` als
             LEFT JOIN `tabSecurity` s on s.isin = als.isin
-            where als.instrument_type='Mutual Fund'{}{}{}
+            where als.instrument_type='Mutual Fund' and s.price > 0{}{}{}
             group by als.isin
             order by als.creation desc;""".format(
                 scheme, lender, sub_query

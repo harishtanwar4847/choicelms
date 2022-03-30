@@ -25,6 +25,8 @@ class LoanMarginShortfall(Document):
     def fill_items(self):
         loan = frappe.get_doc("Loan", self.loan)
         self.total_collateral_value = loan.total_collateral_value
+        self.instrument_type = loan.instrument_type
+        self.scheme_type = loan.scheme_type
         self.allowable_ltv = loan.allowable_ltv
         self.drawing_power = loan.drawing_power
         self.customer_name = loan.customer_name

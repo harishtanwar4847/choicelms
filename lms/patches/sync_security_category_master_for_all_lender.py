@@ -11,6 +11,13 @@ def execute():
 
     if not doc_exists[0].get("OUTPUT"):
         lender_list = frappe.db.get_list("Lender", pluck="name")
+        frappe.get_doc(
+            {
+                "doctype": "Security Category",
+                "lender": lender,
+                "category_name": "Cat D",
+            }
+        ).insert()
         for lender in lender_list:
             allowed_security_list = frappe.db.sql(
                 'select distinct security_category from `tabAllowed Security` where lender = "{lender}"'.format(
