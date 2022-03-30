@@ -3394,6 +3394,14 @@ def loan_summary_dashboard(**kwargs):
         topup_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
 
+        instrument_type = ""
+        if under_process_la:
+            instrument_type = frappe.get_doc(
+                "Loan Application", under_process_la[0].name
+            ).instrument_type
+        elif all_loans:
+            instrument_type = frappe.get_doc("Loan", all_loans[0].name).instrument_type
+
         res = {
             "sell_collateral_topup_and_unpledge_list": sell_collateral_topup_and_unpledge_list,
             "actionable_loan": actionable_loan,
@@ -3403,7 +3411,7 @@ def loan_summary_dashboard(**kwargs):
             "unpledge_list": unpledge_list,
             "topup_list": topup_list,
             "increase_loan_list": increase_loan_list,
-            "instrument_type": all_loans[0].instrument_type if all_loans else "",
+            "instrument_type": instrument_type,
         }
 
         return utils.respondWithSuccess(data=res)
