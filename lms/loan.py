@@ -1854,6 +1854,7 @@ def loan_statement(**kwargs):
                 "%d-%B-%Y %H:%M:%S"
             ),
             "curr_date": curr_date,
+            "instrument_type": loan.instrument_type,
             "logo_file_path_1": logo_file_path_1.file_url if logo_file_path_1 else "",
             "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else "",
         }
