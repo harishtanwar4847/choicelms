@@ -16,9 +16,10 @@
   "pledgee_boid",
   "column_break_10",
   "prf",
-  "invoke_validate_status",
+  "amc_code",
+  "folio",
+  "scheme_code",
   "invoke_validate_remarks",
-  "invoke_initiate_status",
   "invoke_initiate_remarks"
  ],
  "fields": [
@@ -34,14 +35,14 @@
    "fieldname": "security_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Security Name",
+   "label": "Security/Scheme Name",
    "read_only": 1
   },
   {
    "fieldname": "psn",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "PSN",
+   "label": "PSN/Lien Mark Number",
    "read_only": 1
   },
   {
@@ -79,30 +80,16 @@
   {
    "fieldname": "security_category",
    "fieldtype": "Data",
-   "label": "Security Category"
+   "label": "Security/Scheme Category"
   },
   {
    "fieldname": "column_break_10",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "invoke_validate_status",
-   "fieldtype": "Select",
-   "label": "Invoke Validate Status",
-   "options": "Success\nFailure",
-   "read_only": 1
-  },
-  {
-   "fieldname": "invoke_initiate_status",
-   "fieldtype": "Select",
-   "label": "Invoke Initiate Status",
-   "options": "Success\nFailure",
-   "read_only": 1
-  },
-  {
    "fieldname": "prf",
    "fieldtype": "Data",
-   "label": "PRF",
+   "label": "PRF/Lien Reference Number",
    "read_only": 1
   },
   {
@@ -116,11 +103,29 @@
    "fieldtype": "Small Text",
    "label": "Invoke Initiate Remarks",
    "read_only": 1
+  },
+  {
+   "fieldname": "amc_code",
+   "fieldtype": "Data",
+   "label": "AMC Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "folio",
+   "fieldtype": "Data",
+   "label": "Folio",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scheme_code",
+   "fieldtype": "Data",
+   "label": "Scheme Code",
+   "read_only": 1
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-03-29 15:46:10.182201",
+ "modified": "2022-03-31 15:14:47.484507",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application Sell Item",

@@ -31,9 +31,11 @@ class UnpledgeApplication(Document):
             self.process_items()
             self.process_sell_items()
 
-    def process_items(self, instrument_type="Shares"):
+    def process_items(self):
         self.total_collateral_value = 0
         loan = self.get_loan()
+        self.instrument_type = loan.instrument_type
+        self.scheme_type = loan.scheme_type
         self.lender = loan.lender
         self.customer = loan.customer
         if not self.customer_name:
@@ -61,7 +63,7 @@ class UnpledgeApplication(Document):
             WHERE
                 instrument_type = '{}' and isin in {};
         """.format(
-            instrument_type, lms.convert_list_to_tuple_string(securities_list)
+            loan.instrument_type, lms.convert_list_to_tuple_string(securities_list)
         )
 
         res_ = frappe.db.sql(query, as_dict=1)
@@ -286,3 +288,183 @@ def get_collateral_details(unpledge_application_name):
         ),
         having_clause=" HAVING quantity > 0",
     )
+
+
+import json
+
+import requests
+
+
+@frappe.whitelist()
+def validate_revoc(unpledge_application_name):
+
+    doc = frappe.get_doc("Unpledge Application", unpledge_application_name)
+    collateral_ledger = frappe.get_all(
+        "Collateral Ledger",
+        filters={"loan": doc.loan, "application_doctype": "Loan Application"},
+        fields=["*"],
+    )
+    customer = frappe.get_doc("Loan Customer", doc.customer)
+    user_kyc = lms.__user_kyc(customer.user)
+
+    if customer.cams_email_id and doc.instrument_type == "Mutual Fund":
+        # create payload
+        datetime_signature = lms.create_signature_mycams()
+        las_settings = frappe.get_single("LAS Settings")
+        headers = {
+            "Content-Type": "application/json",
+            "clientid": las_settings.client_id,
+            "datetimestamp": datetime_signature[0],
+            "signature": datetime_signature[1],
+            "subclientid": "",
+        }
+        url = las_settings.revoke_api
+        data = {
+            "revocvalidate": {
+                "reqrefno": doc.name,
+                "lienrefno": collateral_ledger[0]["prf"],
+                "pan": user_kyc.pan_no,
+                "regemailid": customer.cams_email_id,
+                "clientid": las_settings.client_id,
+                "requestip": "103.19.132.194",
+                "schemedetails": [],
+            }
+        }
+        for i in doc.unpledge_items:
+            schemedetails = (
+                {
+                    "amccode": i.amc_code,
+                    "folio": i.folio,
+                    "schemecode": i.scheme_code,
+                    "schemename": i.security_name,
+                    "isinno": i.isin,
+                    "schemetype": doc.scheme_type,
+                    "schemecategory": "Cat B",
+                    "lienunit": i.quantity,
+                    "revocationunit": i.unpledge_quantity,
+                    "lienmarkno": i.psn,
+                },
+            )
+            data["revocvalidate"]["schemedetails"].append(schemedetails[0])
+
+        encrypted_data = lms.AESCBC(
+            las_settings.encryption_key, las_settings.iv
+        ).encrypt(json.dumps(data))
+
+        req_data = {"req": str(encrypted_data)}
+
+        resp = requests.post(url=url, headers=headers, data=json.dumps(req_data)).text
+
+        encrypted_response = (
+            json.loads(resp).get("res").replace("-", "+").replace("_", "/")
+        )
+        decrypted_response = lms.AESCBC(
+            las_settings.decryption_key, las_settings.iv
+        ).decrypt(encrypted_response)
+        dict_payload = json.loads(decrypted_response)
+
+        doc.validate_message = dict_payload.get("revocvalidate").get("message")
+        doc.revoctoken = dict_payload.get("revocvalidate").get("revoctoken")
+
+        if dict_payload.get("revocvalidate").get("message") == "SUCCESS":
+            doc.is_validated = True
+
+        doc.save(ignore_permissions=True)
+        frappe.db.commit()
+
+        lms.create_log(
+            {
+                "json_payload": data,
+                "encrypted_request": encrypted_data,
+                "encrypred_response": json.loads(resp).get("res"),
+                "decrypted_response": dict_payload,
+            },
+            "revoke_validate",
+        )
+
+
+@frappe.whitelist()
+def initiate_revoc(unpledge_application_name):
+
+    doc = frappe.get_doc("Unpledge Application", unpledge_application_name)
+    collateral_ledger = frappe.get_all(
+        "Collateral Ledger",
+        filters={"loan": doc.loan, "application_doctype": "Loan Application"},
+        fields=["*"],
+    )
+    customer = frappe.get_doc("Loan Customer", doc.customer)
+    user_kyc = lms.__user_kyc(customer.user)
+
+    if customer.cams_email_id and doc.instrument_type == "Mutual Fund":
+        # create payload
+        datetime_signature = lms.create_signature_mycams()
+        las_settings = frappe.get_single("LAS Settings")
+        headers = {
+            "Content-Type": "application/json",
+            "clientid": las_settings.client_id,
+            "datetimestamp": datetime_signature[0],
+            "signature": datetime_signature[1],
+            "subclientid": "",
+        }
+        url = las_settings.revoke_api
+        data = {
+            "revocinitiate": {
+                "reqrefno": doc.name,
+                "revoctoken": doc.revoctoken,
+                "lienrefno": collateral_ledger[0]["prf"],
+                "pan": user_kyc.pan_no,
+                "regemailid": customer.cams_email_id,
+                "clientid": las_settings.client_id,
+                "requestip": "103.19.132.194",
+                "schemedetails": [],
+            }
+        }
+        for i in doc.unpledge_items:
+            schemedetails = (
+                {
+                    "amccode": i.amc_code,
+                    "folio": i.folio,
+                    "schemecode": i.scheme_code,
+                    "schemename": i.security_name,
+                    "isinno": i.isin,
+                    "schemetype": doc.scheme_type,
+                    "schemecategory": "Cat B",
+                    "lienunit": i.quantity,
+                    "revocationunit": i.unpledge_quantity,
+                    "lienmarkno": i.psn,
+                },
+            )
+            data["revocinitiate"]["schemedetails"].append(schemedetails[0])
+
+        encrypted_data = lms.AESCBC(
+            las_settings.encryption_key, las_settings.iv
+        ).encrypt(json.dumps(data))
+
+        req_data = {"req": str(encrypted_data)}
+
+        resp = requests.post(url=url, headers=headers, data=json.dumps(req_data)).text
+
+        encrypted_response = (
+            json.loads(resp).get("res").replace("-", "+").replace("_", "/")
+        )
+        decrypted_response = lms.AESCBC(
+            las_settings.decryption_key, las_settings.iv
+        ).decrypt(encrypted_response)
+        dict_payload = json.loads(decrypted_response)
+
+        doc.initiate_message = dict_payload.get("revocinitiate").get("message")
+        if dict_payload.get("revocinitiate").get("message") == "SUCCESS":
+            doc.is_initiated = True
+
+        doc.save(ignore_permissions=True)
+        frappe.db.commit()
+
+        lms.create_log(
+            {
+                "json_payload": data,
+                "encrypted_request": encrypted_data,
+                "encrypred_response": json.loads(resp).get("res"),
+                "decrypted_response": dict_payload,
+            },
+            "revoke_initiate",
+        )

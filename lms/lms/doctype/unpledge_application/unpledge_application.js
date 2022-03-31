@@ -40,13 +40,12 @@ function show_fetch_items_button(frm) {
           frappe.call({
             type: "POST",
             method:
-              "lms.lms.doctype.unpledge_application.unpledge_application.get_collateral_details",
+              "lms.lms.doctype.unpledge_application.unpledge_application.validate_revoc",
             args: { unpledge_application_name: frm.doc.name },
             freeze: true,
-            freeze_message: "Fetching Collateral Details",
+            freeze_message: "Validating Unpledge Items",
             callback: (res) => {
-              frm.set_value("unpledge_items", res.message);
-              show_fetch_items_button(frm);
+              frm.reload_doc();
             },
           });
         });
@@ -57,13 +56,12 @@ function show_fetch_items_button(frm) {
           frappe.call({
             type: "POST",
             method:
-              "lms.lms.doctype.unpledge_application.unpledge_application.get_collateral_details",
+              "lms.lms.doctype.unpledge_application.unpledge_application.initiate_revoc",
             args: { unpledge_application_name: frm.doc.name },
             freeze: true,
-            freeze_message: "Fetching Collateral Details",
+            freeze_message: "Initiating Unpledge Items",
             callback: (res) => {
-              frm.set_value("unpledge_items", res.message);
-              show_fetch_items_button(frm);
+              frm.reload_doc();
             },
           });
         });

@@ -65,6 +65,7 @@ function show_fetch_items_button(frm) {
         freeze: true,
         freeze_message: "Fetching Collateral Details",
         callback: (res) => {
+          console.log(res.message);
           frm.set_value("sell_items", res.message);
           show_fetch_items_button(frm);
         },
@@ -78,13 +79,14 @@ function show_fetch_items_button(frm) {
           frappe.call({
             type: "POST",
             method:
-              "lms.lms.doctype.sell_collateral_application.sell_collateral_application.get_collateral_details",
+              "lms.lms.doctype.sell_collateral_application.sell_collateral_application.validate_invoc",
             args: { sell_collateral_application_name: frm.doc.name },
             freeze: true,
             freeze_message: "Fetching Collateral Details",
             callback: (res) => {
-              frm.set_value("sell_items", res.message);
-              show_fetch_items_button(frm);
+              // frm.set_value("sell_items", res.message);
+              console.log(res.message);
+              // show_fetch_items_button(frm);
             },
           });
         });
@@ -95,13 +97,12 @@ function show_fetch_items_button(frm) {
           frappe.call({
             type: "POST",
             method:
-              "lms.lms.doctype.sell_collateral_application.sell_collateral_application.get_collateral_details",
+              "lms.lms.doctype.sell_collateral_application.sell_collateral_application.initiate_invoc",
             args: { sell_collateral_application_name: frm.doc.name },
             freeze: true,
             freeze_message: "Fetching Collateral Details",
             callback: (res) => {
-              frm.set_value("sell_items", res.message);
-              show_fetch_items_button(frm);
+              console.log(res.message);
             },
           });
         });
