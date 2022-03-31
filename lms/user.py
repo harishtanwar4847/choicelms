@@ -1670,6 +1670,8 @@ def approved_securities(**kwargs):
                 "search": "",
                 "category": "",
                 "is_download": "decimal|between:0,1",
+                "instrument_type": "",
+                "scheme_type": "",
             },
         )
 
@@ -1688,6 +1690,20 @@ def approved_securities(**kwargs):
         if isinstance(data.get("is_download"), str):
             data["is_download"] = int(data.get("is_download"))
 
+        if not data.get("instrument_type"):
+            data["instrument_type"] = "Shares"
+
+        if data.get("instrument_type") == "Shares":
+            data["scheme_type"] = ""
+
+        if data.get("instrument_type") == "Mutual Fund" and not (
+            data.get("scheme_type") == "Debt" or data.get("scheme_type") == "Equity"
+        ):
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Please select Equity or Debt as Scheme type."),
+            )
+
         security_category_list_ = frappe.db.get_all(
             "Security Category",
             filters={"lender": data.get("lender")},
@@ -1697,12 +1713,15 @@ def approved_securities(**kwargs):
         security_category_list = [i.category_name for i in security_category_list_]
 
         filters = ""
+        if data.get("scheme_type", None):
+            filters = "and scheme_type = '{}'".format(data.get("scheme_type"))
+
         if data.get("search", None):
             search_key = "like " + str("'%" + data.get("search") + "%'")
-            filters = "and security_name {}".format(search_key)
+            filters += "and security_name {}".format(search_key)
 
         if data.get("category", None):
-            filters += " and security_category like '{}%_'".format(data.get("category"))
+            filters += " and security_category like '{}_%'".format(data.get("category"))
 
         approved_security_list = []
         approved_security_pdf_file_url = ""
@@ -1710,8 +1729,10 @@ def approved_securities(**kwargs):
         if data.get("is_download"):
             approved_security_list = frappe.db.sql(
                 """
-            select alsc.isin, alsc.security_name, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {filters} order by security_name asc;""".format(
-                    lender=data.get("lender"), filters=filters
+            select alsc.isin, alsc.security_name, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" and instrument_type = "{instrument_type}" {filters} order by security_name asc;""".format(
+                    instrument_type=data.get("instrument_type"),
+                    lender=data.get("lender"),
+                    filters=filters,
                 ),
                 as_dict=1,
             )
@@ -1805,7 +1826,8 @@ def approved_securities(**kwargs):
 
             approved_security_list = frappe.db.sql(
                 """
-            select alsc.isin, alsc.security_name, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {filters} order by security_name asc limit {offset},{limit};""".format(
+            select alsc.isin, alsc.security_name, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" and instrument_type = "{instrument_type}" {filters} order by security_name asc limit {offset},{limit};""".format(
+                    instrument_type=data.get("instrument_type"),
                     lender=data.get("lender"),
                     filters=filters,
                     limit=data.get("per_page"),

@@ -298,6 +298,7 @@ def upsert(**kwargs):
         res["max_sanctioned_limit"] = (
             max_sanctioned_limit if not data.get("loan_margin_shortfall_name") else 0.0
         )
+        res["roi"] = lender.rate_of_interest
 
         frappe.db.commit()
         return utils.respondWithSuccess(data=res)
