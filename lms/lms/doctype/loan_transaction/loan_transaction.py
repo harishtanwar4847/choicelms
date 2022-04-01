@@ -655,6 +655,9 @@ class LoanTransaction(Document):
         loan.save(ignore_permissions=True)
 
     def before_save(self):
+        loan = self.get_loan()
+        self.instrument_type = loan.instrument_type
+        self.scheme_type = loan.scheme_type
         if (
             self.transaction_type == "Withdrawal"
             and self.allowable > self.requested

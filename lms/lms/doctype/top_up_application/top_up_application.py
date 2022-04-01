@@ -428,7 +428,10 @@ class TopupApplication(Document):
         loan.save_loan_sanction_history(loan_agreement_file.name, event)
 
     def before_save(self):
-        self.sanctioned_limit = self.get_loan().sanctioned_limit
+        loan = self.get_loan()
+        self.instrument_type = loan.instrument_type
+        self.scheme_type = loan.scheme_type
+        self.sanctioned_limit = loan.sanctioned_limit
         lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit

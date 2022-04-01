@@ -243,8 +243,6 @@ class Loan(Document):
                     transaction_type, "DR"
                 ),
                 "time": frappe.utils.now_datetime(),
-                "instrument_type": self.instrument_type,
-                "scheme_type": self.scheme_type,
             }
         )
 
