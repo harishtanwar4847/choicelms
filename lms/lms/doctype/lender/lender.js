@@ -13,7 +13,6 @@ frappe.ui.form.on("Concentration Rule", {
   concentration_rule_add(frm, cdt, cdn) {
     if (frm.doc.concentration_rule.length > 9) {
       $(".grid-add-row").hide();
-      $(".grid-row-actions").hide();
     }
   },
 });
