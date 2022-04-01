@@ -13,6 +13,7 @@
   "investor_name",
   "father_name",
   "pan_no",
+  "razorpay_contact_id",
   "basic_details_column_break",
   "mobile_number",
   "mother_name",
@@ -109,12 +110,17 @@
    "fieldname": "bank_account",
    "fieldtype": "Table",
    "label": "Bank Account",
-   "options": "User Bank Account",
-   "reqd": 1
+   "options": "User Bank Account"
+  },
+  {
+   "fieldname": "razorpay_contact_id",
+   "fieldtype": "Data",
+   "label": "Razorpay Contact ID",
+   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2021-10-05 10:31:12.822546",
+ "modified": "2022-03-17 15:29:46.867751",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",

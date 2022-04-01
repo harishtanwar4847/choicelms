@@ -81,6 +81,7 @@
   "og_code_enabled",
   "razorpay_section_section",
   "razorpay_key_secret",
+  "razorpay_bank_account",
   "column_break_49",
   "razorpay_webhook_secret"
  ],
@@ -358,7 +359,6 @@
   {
    "fieldname": "razorpay_section_section",
    "fieldtype": "Section Break",
-   "hidden": 1,
    "label": "Razorpay Section"
   },
   {
@@ -487,6 +487,11 @@
    "fieldname": "iv",
    "fieldtype": "Data",
    "label": "IV"
+  },
+  {
+   "fieldname": "razorpay_bank_account",
+   "fieldtype": "Data",
+   "label": "Razorpay Bank Account"
   }
  ],
  "issingle": 1,

@@ -440,7 +440,7 @@ def process(**kwargs):
         )
         token_type = "Pledge OTP"
         entity = user_kyc.mobile_number
-        if customer.cams_email_id and cart.instrument_type == "Mutual Fund":
+        if customer.mycams_email_id and cart.instrument_type == "Mutual Fund":
             token_type = "Lien OTP"
             entity = customer.phone
 
@@ -465,7 +465,7 @@ def process(**kwargs):
         frappe.db.begin()
         loan_application = ""
         cart.reload()
-        if not customer.cams_email_id:
+        if not customer.mycams_email_id:
             cart.save(ignore_permissions=True)
             loan_application = cart.create_loan_application()
             frappe.db.commit()
@@ -596,7 +596,7 @@ def request_pledge_otp():
             cart = None
         token_type = "Pledge OTP"
         entity = user_kyc.mobile_number
-        if customer.cams_email_id and cart:
+        if customer.mycams_email_id and cart:
             token_type = "Lien OTP"
             entity = customer.phone
         if not is_dummy_account:
