@@ -4,15 +4,16 @@
 frappe.ui.form.on("Lender", {
   refresh: function (frm, cdt, cdn) {
     $("div.grid-heading-row span.hidden-xs").html("Level");
-    if (frm.doc.concentration_rule.length == 10) {
+    if (frm.doc.concentration_rule.length > 9) {
       $(".grid-add-row").hide();
     }
   },
 });
 frappe.ui.form.on("Concentration Rule", {
   concentration_rule_add(frm, cdt, cdn) {
-    if (frm.doc.concentration_rule.length == 10) {
+    if (frm.doc.concentration_rule.length > 9) {
       $(".grid-add-row").hide();
+      $(".grid-row-actions").hide();
     }
   },
 });
