@@ -379,16 +379,27 @@ def get_security_categories(securities, lender, instrument_type="Share"):
     return security_map
 
 
-def get_allowed_securities(securities, lender, instrument_type="Shares"):
+def get_allowed_securities(securities, lender, instrument_type="Shares", levels=""):
 
-    select = "isin, security_name, eligible_percentage, security_category, lender"
+    # select = "isin, security_name, eligible_percentage, security_category, lender"
+    select = (
+        "isin, security_name, eligible_percentage, group_concat(lender,'') as lenders"
+    )
     if instrument_type == "Mutual Fund":
         select += ", scheme_type"
 
     if type(lender) == list:
-        filter = "in {}".format(convert_list_to_tuple_string(lender))
+        lender = "in {}".format(convert_list_to_tuple_string(lender))
     else:
-        filter = "= '{}'".format(lender)
+        select += ", security_category"
+        lender = "= '{}'".format(lender)
+
+    levels_sub_query = ""
+    if len(levels) > 0:
+        levels = convert_list_to_tuple_string(levels)
+        levels_sub_query = " and security_category in (select security_category from `tabConcentration Rule` where parent in {} and idx in {})".format(
+            convert_list_to_tuple_string(lender), levels
+        )
 
     query = """select
 				{select}
@@ -396,10 +407,15 @@ def get_allowed_securities(securities, lender, instrument_type="Shares"):
 				where
 				lender {lender} and
                 instrument_type = '{instrument_type}' and
-				isin in {isin}""".format(
+                {levels_sub_query}
+				isin in {isin}
+                group by isin
+                order by creation desc
+                """.format(
         select=select,
-        lender=filter,
+        lender=lender,
         instrument_type=instrument_type,
+        levels_sub_query=levels_sub_query,
         isin=convert_list_to_tuple_string(securities),
     )
 

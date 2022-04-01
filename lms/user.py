@@ -940,7 +940,7 @@ def securities_old(**kwargs):
         return e.respond()
 
 
-"""Changes as per Concentration rule BRE security selection screen"""
+"""Changes as per Concentration rule BRE security selection screen 28-03-2022"""
 
 
 @frappe.whitelist()
@@ -950,13 +950,8 @@ def securities(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {"lender": "", "level": "", "demat_account": ""},
+            {"lender": "", "level": ""},
         )
-
-        if data.get("demat_account"):
-            demat_ = [i["pledgor_boid"] for i in data.get("demat_account", {})["list"]]
-            demat = lms.convert_list_to_tuple_string(demat_)
-            # print(demat)
 
         reg = lms.regex_special_characters(search=data.get("lender"))
         if reg:
@@ -965,8 +960,19 @@ def securities(**kwargs):
                 message=frappe._("Special Characters not allowed."),
             )
 
+        # if not data.get("lender", None):
+        #     data["lender"] = frappe.get_last_doc("Lender").name
         if not data.get("lender", None):
-            data["lender"] = frappe.get_last_doc("Lender").name
+            # by default all available lenders
+            lender_list = frappe.db.get_list("Lender", pluck="name")
+        else:
+            # separate lender input value by comma,store into list
+            lender_list = data.get("lender").split(",")
+
+        level_list = ""
+        if data.get("level", None):
+            # separate lender input value by comma,store into list
+            level_list = data.get("lender").split(",")
 
         customer = lms.__customer()
         user_kyc = lms.__user_kyc()
@@ -976,13 +982,10 @@ def securities(**kwargs):
         SELECT `pan` as PAN, `isin` as ISIN, `branch` as Branch, `client_code` as Client_Code, `client_name` as Client_Name, `scrip_name` as Scrip_Name, `depository` as Depository, `stock_at` as Stock_At, `quantity` as Quantity, `price` as Price, `scrip_value` as Scrip_Value, `holding_as_on` as Holding_As_On
         FROM `tabClient Holding` as ch
         WHERE DATE_FORMAT(ch.creation, '%Y-%m-%d') = '{}'
-        AND ch.pan = '{}' {}
+        AND ch.pan = '{}'
         order by ch.`modified` DESC""".format(
                 datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
                 user_kyc.pan_no,
-                "AND ch.stock_at in {}".format(demat)
-                if data.get("demat_account")
-                else "",
             ),
             as_dict=True,
         )
@@ -1076,17 +1079,18 @@ def securities(**kwargs):
                     "Client Holding",
                     fields=fields,
                     values=values,
-                    ignore_duplicates=True,
+                    # ignore_duplicates=True,
                 )
 
             except requests.RequestException as e:
                 raise utils.exceptions.APIException(str(e))
 
-        securities_list_ = [i["ISIN"] for i in securities_list]
+        securities_list_ = list(set([i["ISIN"] for i in securities_list]))
         securities_category_map = lms.get_allowed_securities(
-            securities_list_, data.get("lender")
+            securities_list_, lender_list, "Shares", level_list
         )
 
+        # Manage client holding
         pledge_waiting_securitites = frappe.db.sql(
             """
             SELECT GROUP_CONCAT(la.name) as loan_application, la.pledgor_boid,
@@ -1220,6 +1224,7 @@ def securities(**kwargs):
                 i["Category"] = securities_category_map[i["ISIN"]].get(
                     "security_category"
                 )
+                i["Lenders"] = securities_category_map[i["ISIN"]]["lenders"]
                 i["Is_Eligible"] = True
                 i["Total_Qty"] = i["Quantity"]
 
