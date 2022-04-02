@@ -209,7 +209,7 @@ class LoanApplication(Document):
                         "error": "",
                         "sucessflag": "Y",
                         "failurereason": "",
-                        "loginemail": customer.cams_email_id,
+                        "loginemail": customer.mycams_email_id,
                         "netbankingemail": customer.user,
                         "clientid": las_settings.client_id,
                         "clientname": las_settings.client_name,

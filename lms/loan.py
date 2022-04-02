@@ -2290,7 +2290,7 @@ def loan_unpledge_details(**kwargs):
 
         customer = lms.__customer()
         msg_type = ["unpledge", "pledged securities"]
-        if customer.cams_email_id:
+        if customer.mycams_email_id:
             msg_type = ["revoke", "lien schemes"]
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
@@ -2454,7 +2454,7 @@ def loan_unpledge_request(**kwargs):
         msg_type = ["unpledge", "pledged securities"]
         token_type = "Unpledge OTP"
         entity = user_kyc.mobile_number
-        if customer.cams_email_id:
+        if customer.mycams_email_id:
             application_type = "Revoke"
             msg_type = ["revoke", "lien schemes"]
             token_type = "Revoke OTP"
@@ -2621,7 +2621,7 @@ def sell_collateral_request(**kwargs):
         customer = lms.__customer()
         application_type = "Sell Collateral"
         msg_type = ["unpledge", "pledged securities"]
-        if customer.cams_email_id:
+        if customer.mycams_email_id:
             application_type = "Invoke"
             msg_type = ["revoke", "lien schemes"]
 

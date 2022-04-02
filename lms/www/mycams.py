@@ -17,13 +17,13 @@ def get_context(context):
     if cart.customer != customer.name:
         return utils.respondForbidden(message=frappe._("Please use your own cart."))
 
-    if customer.cams_email_id and cart.instrument_type == "Mutual Fund":
+    if customer.mycams_email_id and cart.instrument_type == "Mutual Fund":
         # create payload
         datetime_signature = lms.create_signature_mycams()
         las_settings = frappe.get_single("LAS Settings")
 
         data = {
-            "loginemail": customer.cams_email_id,  # mandatory
+            "loginemail": customer.mycams_email_id,  # mandatory
             "netbankingemail": customer.user,  # mandatory
             "clientid": las_settings.client_id,  # mandatory
             "clientname": las_settings.client_name,  # mandatory

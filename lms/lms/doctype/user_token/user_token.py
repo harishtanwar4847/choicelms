@@ -20,6 +20,9 @@ class UserToken(Document):
             "Withdraw OTP",
             "Unpledge OTP",
             "Sell Collateral OTP",
+            "Lien OTP",
+            "Invoke OTP",
+            "Revoke OTP",
         ]:
             # las_settings = frappe.get_single("LAS Settings")
             # app_hash_string = (las_settings.app_identification_hash_string,)

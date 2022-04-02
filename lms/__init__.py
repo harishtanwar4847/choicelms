@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import base64
 import hashlib
 import hmac
 import json
@@ -1562,6 +1563,12 @@ def decrypt_lien_marking_response():
             frappe.db.commit()
             return utils.respondWithSuccess()
         else:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\nLien Marking Response Details:\n"
+                + json.dumps(data),
+                title=_("Lien Marking Response Error"),
+            )
             return utils.respondWithFailure()
     except Exception as e:
         frappe.log_error(

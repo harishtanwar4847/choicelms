@@ -1670,8 +1670,7 @@ def approved_securities(**kwargs):
                 "search": "",
                 "category": "",
                 "is_download": "decimal|between:0,1",
-                "instrument_type": "",
-                "scheme_type": "",
+                "loan_type": "",
             },
         )
 
@@ -1690,18 +1689,10 @@ def approved_securities(**kwargs):
         if isinstance(data.get("is_download"), str):
             data["is_download"] = int(data.get("is_download"))
 
-        if not data.get("instrument_type"):
-            data["instrument_type"] = "Shares"
-
-        if data.get("instrument_type") == "Shares":
-            data["scheme_type"] = ""
-
-        if data.get("instrument_type") == "Mutual Fund" and not (
-            data.get("scheme_type") == "Debt" or data.get("scheme_type") == "Equity"
-        ):
+        if not data.get("loan_type") in ["Shares", "Equity", "Debt"]:
             return utils.respondWithFailure(
                 status=422,
-                message=frappe._("Please select Equity or Debt as Scheme type."),
+                message=frappe._("Loan type should be in Shares, Equity, Debt."),
             )
 
         security_category_list_ = frappe.db.get_all(
@@ -1712,9 +1703,17 @@ def approved_securities(**kwargs):
         )
         security_category_list = [i.category_name for i in security_category_list_]
 
+        data["instrument_type"] = (
+            "Shares" if data.get("loan_type") == "Shares" else "Mutual Fund"
+        )
+
         filters = ""
-        if data.get("scheme_type", None):
-            filters = "and scheme_type = '{}'".format(data.get("scheme_type"))
+        if data.get("loan_type", None):
+            filters = "and scheme_type = '{}'".format(
+                data.get("loan_type")
+                if data.get("loan_type") in ["Equity", "Debt"]
+                else ""
+            )
 
         if data.get("search", None):
             search_key = "like " + str("'%" + data.get("search") + "%'")
@@ -3734,3 +3733,538 @@ def contact_us(**kwargs):
         return utils.respondWithSuccess()
     except utils.exceptions.APIException as e:
         return e.respond()
+
+
+@frappe.whitelist()
+def spark_demat_account(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "depository": ["required"],
+                "dpid": ["required"],
+                "client_id": ["required"],
+            },
+        )
+
+        customer = lms.__customer()
+        if not customer:
+            return utils.respondNotFound(message=frappe._("Customer not found."))
+
+        # field alphanumeric validation
+        reg = lms.regex_special_characters(
+            search=data.get("dpid") + data.get("client_id")
+        )
+
+        if reg:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
+
+        spark_demat_account = frappe.get_doc(
+            {
+                "doctype": "Spark Demat Account",
+                "customer": customer.name,
+                "depository": data.get("depository"),
+                "dpid": data.get("dpid"),
+                "client_id": data.get("client_id"),
+            }
+        ).insert(ignore_permissions=True)
+        frappe.db.commit()
+        return utils.respondWithSuccess(data=spark_demat_account)
+    except utils.exceptions.APIException as e:
+        frappe.log_error(
+            message=frappe.get_traceback() + json.dumps(data=spark_demat_account),
+            title=_("Demat Account Creation Error"),
+        )
+
+
+@frappe.whitelist()
+def update_mycams_email(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {"email": ["required"]},
+        )
+        customer = lms.__customer()
+        if not customer:
+            return utils.respondNotFound(message=frappe._("Customer not found."))
+
+        # email validation
+        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        if re.search(email_regex, data.get("email")) is None:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Please enter valid email ID"),
+            )
+        customer = lms.__customer()
+        customer.mycams_email_id = data.get("email").strip()
+        customer.save(ignore_permissions=True)
+        frappe.db.commit()
+        return utils.respondWithSuccess(data=customer)
+    except utils.exceptions.APIException as e:
+        frappe.log_error(
+            message=frappe.get_traceback() + json.dumps(data),
+            title=_("Loan Customer - MyCams Email Update Error"),
+        )
+
+
+@frappe.whitelist()
+def get_bank_ifsc_details(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(kwargs, {"ifsc": ""})
+        if not data.get("ifsc"):
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Field is empty"),
+            )
+
+        is_alphanumeric = lms.regex_special_characters(
+            search=data.get("ifsc"), regex=re.compile("^[a-zA-Z0-9]*$")
+        )
+
+        if not is_alphanumeric:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Only alphanumeric allowed."),
+            )
+
+        filters_arr = {}
+
+        if data.get("ifsc", None):
+            search_key = str("%" + data["ifsc"] + "%")
+            filters_arr = {"ifsc": ["like", search_key], "is_active": True}
+
+        details = frappe.get_all("Spark Bank Branch", filters_arr, ["*"])
+
+        if not details:
+            return utils.respondWithSuccess(message="Record not found.")
+
+        return utils.respondWithSuccess(data=details)
+    except utils.exceptions.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist()
+def penny_create_contact(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        # check user
+        try:
+            user = lms.__user()
+        except UserNotFoundException:
+            return utils.respondNotFound(message=frappe._("User not found."))
+
+        # check Loan Customer
+        customer = lms.__customer(user.name)
+        if not customer:
+            return utils.respondNotFound(message=frappe._("Customer not found."))
+
+        # fetch rzp key secret from las settings and use Basic auth
+        las_settings = frappe.get_single("LAS Settings")
+        if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Create contact Error",
+                message="Penny Drop Create contact Error - Razorpay Key Secret Missing",
+            )
+            return utils.respondWithFailure()
+
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(las_settings.razorpay_key_secret, "utf-8")
+        ).decode("ascii")
+
+        try:
+            data_rzp = {
+                "name": customer.full_name,
+                "email": customer.user,
+                "contact": customer.phone,
+                "type": "customer",
+                "reference_id": customer.name,
+                "notes": {},
+            }
+            raw_res = requests.post(
+                "https://api.razorpay.com/v1/contacts",
+                headers={
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                },
+                data=json.dumps(data_rzp),
+            )
+            data_res = raw_res.json()
+
+            if data_res.get("error"):
+                log = {
+                    "request": data_rzp,
+                    "response": data_res.get("error"),
+                }
+                lms.create_log(log, "rzp_penny_contact_error_log")
+                return utils.respondWithFailure(message=frappe._("failed"))
+
+            # User KYC save
+            """since CKYC development not done yet, using existing user kyc to update contact ID"""
+            try:
+                user_kyc = lms.__user_kyc(user.name)
+            except UserKYCNotFoundException:
+                return utils.respondWithFailure(message=frappe._("User KYC not found"))
+
+            # update contact ID
+            user_kyc.razorpay_contact_id = data_res.get("id")
+            user_kyc.save(ignore_permissions=True)
+            frappe.db.commit()
+
+            lms.create_log(data_res, "rzp_penny_contact_success_log")
+            return utils.respondWithSuccess(message=frappe._("success"))
+
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
+
+    except utils.exceptions.APIException as e:
+        frappe.log_error(
+            title="Penny Drop Create contact Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create contact Error: "
+            + str(e.args),
+        )
+
+
+@frappe.whitelist()
+def penny_create_fund_account(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "ifsc": "required",
+                "account_holder_name": "required",
+                "account_number": ["required", "decimal"],
+            },
+        )
+
+        # ifsc and account holder name validation
+        reg = lms.regex_special_characters(
+            search=data.get("account_holder_name") + data.get("ifsc")
+        )
+        if reg:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
+
+        # check user
+        try:
+            user = lms.__user()
+        except UserNotFoundException:
+            return utils.respondNotFound(message=frappe._("User not found."))
+
+        # fetch rzp key secret from las settings and use Basic auth
+        las_settings = frappe.get_single("LAS Settings")
+        if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Fund Account Error",
+                message="Penny Drop Fund Account Error - Razorpay Key Secret Missing",
+            )
+            return utils.respondWithFailure()
+
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(las_settings.razorpay_key_secret, "utf-8")
+        ).decode("ascii")
+
+        try:
+            user_kyc = lms.__user_kyc(user.name)
+        except UserKYCNotFoundException:
+            return utils.respondWithFailure(message=frappe._("User KYC not found"))
+
+        try:
+            data_rzp = {
+                "contact_id": user_kyc.razorpay_contact_id,
+                "account_type": "bank_account",
+                "bank_account": {
+                    "name": data.get("account_holder_name"),
+                    "ifsc": data.get("ifsc"),
+                    "account_number": data.get("account_number"),
+                },
+            }
+            raw_res = requests.post(
+                "https://api.razorpay.com/v1/fund_accounts",
+                headers={
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                },
+                data=json.dumps(data_rzp),
+            )
+            data_res = raw_res.json()
+
+            if data_res.get("error"):
+                log = {
+                    "request": data,
+                    "response": data_res.get("error"),
+                }
+                lms.create_log(log, "rzp_penny_fund_account_error_log")
+                return utils.respondWithFailure(message=frappe._("failed"))
+            # if not get error
+            data_resp = {"fa_id": data_res.get("id")}
+            lms.create_log(data_res, "rzp_penny_fund_account_success_log")
+            return utils.respondWithSuccess(message=frappe._("success"), data=data_resp)
+
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
+
+    except utils.exceptions.APIException as e:
+        frappe.log_error(
+            title="Penny Drop Create fund account Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create fund account Error: "
+            + str(e.args),
+        )
+
+
+@frappe.whitelist()
+def penny_create_fund_account_validation(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "fa_id": "required",
+                "bank_account_type": "",
+                "branch": "required",
+                "city": "required",
+            },
+        )
+
+        # check user
+        try:
+            user = lms.__user()
+        except UserNotFoundException:
+            return utils.respondNotFound(message=frappe._("User not found."))
+
+        # check Loan Customer
+        customer = lms.__customer(user.name)
+        if not customer:
+            return utils.respondNotFound(message=frappe._("Customer not found."))
+
+        # user KYC
+        try:
+            user_kyc = lms.__user_kyc(user.name)
+        except UserKYCNotFoundException:
+            return utils.respondWithFailure(message=frappe._("User KYC not found"))
+
+        # fetch rzp key secret from las settings and use Basic auth
+        las_settings = frappe.get_single("LAS Settings")
+        if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Fund Account Validation Error",
+                message="Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing",
+            )
+            return utils.respondWithFailure()
+
+        if not las_settings.razorpay_bank_account:
+            frappe.log_error(
+                title="Penny Drop Fund Account Validation Error",
+                message="Penny Drop Fund Account Validation Error - Razorpay Bank Account Missing",
+            )
+            return utils.respondWithFailure()
+
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(las_settings.razorpay_key_secret, "utf-8")
+        ).decode("ascii")
+
+        try:
+            data_rzp = {
+                "account_number": las_settings.razorpay_bank_account,
+                "fund_account": {"id": data.get("fa_id")},
+                "amount": 100,
+                "currency": "INR",
+                "notes": {
+                    "branch": data.get("branch"),
+                    "city": data.get("city"),
+                    "bank_account_type": data.get("bank_account_type"),
+                },
+            }
+            raw_res = requests.post(
+                "https://api.razorpay.com/v1/fund_accounts/validations",
+                headers={
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                },
+                data=json.dumps(data_rzp),
+            )
+
+            data_res = raw_res.json()
+
+            penny_api_response_handle(data, user_kyc, customer, data_res)
+
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
+
+    except utils.exceptions.APIException as e:
+        frappe.log_error(
+            title="Penny Drop Create fund account validation Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create fund account validation Error: "
+            + str(e.args),
+        )
+
+
+@frappe.whitelist()
+def penny_create_fund_account_validation_by_id(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(kwargs, {"fav_id": "required"})
+
+        # check user
+        try:
+            user = lms.__user()
+        except UserNotFoundException:
+            return utils.respondNotFound(message=frappe._("User not found."))
+
+        # check Loan Customer
+        customer = lms.__customer(user.name)
+        if not customer:
+            return utils.respondNotFound(message=frappe._("Customer not found."))
+
+        # user KYC
+        try:
+            user_kyc = lms.__user_kyc(user.name)
+        except UserKYCNotFoundException:
+            return utils.respondWithFailure(message=frappe._("User KYC not found"))
+
+        # fetch rzp key secret from las settings and use Basic auth
+        las_settings = frappe.get_single("LAS Settings")
+        if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Fund Account Validation Error",
+                message="Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing",
+            )
+            return utils.respondWithFailure()
+
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(las_settings.razorpay_key_secret, "utf-8")
+        ).decode("ascii")
+
+        try:
+            raw_res = requests.get(
+                "https://api.razorpay.com/v1/fund_accounts/validations/{}".format(
+                    data.get("fav_id")
+                ),
+                headers={
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                },
+            )
+
+            data_res = raw_res.json()
+
+            penny_api_response_handle(data, user_kyc, customer, data_res)
+
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
+
+    except utils.exceptions.APIException as e:
+        frappe.log_error(
+            title="Penny Drop Create fund account validation Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create fund account validation Error: "
+            + str(e.args),
+        )
+
+
+def penny_api_response_handle(data, user_kyc, customer, data_res):
+    data_resp = {
+        "fav_id": data_res.get("id"),
+        "status": data_res.get("status"),
+    }
+
+    if data_res.get("error"):
+        data_resp["status"] = "failed"
+        message = "Your account details have not been successfully verified"
+        log = {
+            "request": data,
+            "response": data_res,
+        }
+        lms.create_log(log, "rzp_penny_fund_account_validation_error_log")
+        return utils.respondWithFailure(message=message, data=data_resp)
+
+    if data_res.get("status") == "failed":
+        message = "Your account details have not been successfully verified"
+        return utils.respondWithFailure(message=message, data=data_resp)
+
+    if data_res.get("status") == "created":
+        message = "waiting for response from bank"
+
+    if data_res.get("status") == "completed":
+        # name validation - check user entered account holder name is same with registered name
+        account_holder_name = (
+            data_res.get("fund_account")
+            .get("bank_account")
+            .get("name")
+            .lower()
+            .split(" ")
+        )
+        registered_name = data_res.get("results").get("registered_name").lower()
+        account_status = data_res.get("results").get("account_status")
+
+        if (
+            (account_holder_name[0] in registered_name)
+            or (account_holder_name[1] in registered_name)
+        ) and account_status == "active":
+
+            message = "Your account details have been successfully verified"
+
+            # check bank Entry existence. if not exist then create entry
+            bank_entry_check = frappe.db.exists(
+                {
+                    "doctype": "User Bank Account",
+                    "parentfield": "bank_account",
+                    "razorpay_fund_account_id": data_res.get("fund_account").get("id"),
+                    "account_number": data_res.get("fund_account")
+                    .get("bank_account")
+                    .get("account_number"),
+                }
+            )
+            if not bank_entry_check:
+                frappe.get_doc(
+                    {
+                        "doctype": "User Bank Account",
+                        "parentfield": "bank_account",
+                        "parenttype": "User KYC",
+                        "bank": data_res.get("fund_account")
+                        .get("bank_account")
+                        .get("bank_name"),
+                        "branch": data_res.get("notes").get("branch"),
+                        "account_type": data_res.get("notes").get("bank_account_type"),
+                        "account_number": data_res.get("fund_account")
+                        .get("bank_account")
+                        .get("account_number"),
+                        "ifsc": data_res.get("fund_account")
+                        .get("bank_account")
+                        .get("ifsc"),
+                        "city": data_res.get("notes").get("city"),
+                        "parent": user_kyc.name,
+                        "is_default": True,
+                        "razorpay_fund_account_id": data_res.get("fund_account").get(
+                            "id"
+                        ),
+                        "razorpay_fund_account_validation_id": data_res.get("id"),
+                    }
+                ).insert(ignore_permissions=True)
+                frappe.db.commit()
+                # mark bank update checkbox
+                if not customer.bank_update:
+                    customer.bank_update = True
+                    customer.save(ignore_permissions=True)
+        else:
+            data_resp["status"] = "failed"
+            message = "We have found a mismatch in the account holder name as per the fetched data"
+            return utils.respondWithFailure(message=message, data=data_resp)
+
+    lms.create_log(data_res, "rzp_penny_fund_account_validation_success_log")
+    return utils.respondWithSuccess(message=message, data=data_resp)
