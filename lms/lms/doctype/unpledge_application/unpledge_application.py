@@ -361,14 +361,34 @@ def validate_revoc(unpledge_application_name):
         decrypted_response = lms.AESCBC(
             las_settings.decryption_key, las_settings.iv
         ).decrypt(encrypted_response)
-        dict_payload = json.loads(decrypted_response)
+        dict_decrypted_response = json.loads(decrypted_response)
 
-        doc.validate_message = dict_payload.get("revocvalidate").get("message")
-        doc.revoctoken = dict_payload.get("revocvalidate").get("revoctoken")
+        if dict_decrypted_response.get("revocvalidate"):
+            doc.validate_message = dict_decrypted_response.get("revocvalidate").get(
+                "message"
+            )
+            doc.revoctoken = dict_decrypted_response.get("revocvalidate").get(
+                "revoctoken"
+            )
 
-        if dict_payload.get("revocvalidate").get("message") == "SUCCESS":
-            doc.is_validated = True
+            isin_details = {}
+            schemedetails_res = dict_decrypted_response.get("revocvalidate").get(
+                "schemedetails"
+            )
 
+            for i in schemedetails_res:
+                isin_details[i.get("isinno")] = i
+
+            for i in doc.unpledge_items:
+                if i.get("isin") in isin_details:
+                    i.revoke_validate_remarks = isin_details.get(i.get("isin")).get(
+                        "remarks"
+                    )
+
+            if dict_decrypted_response.get("revocvalidate").get("message") == "SUCCESS":
+                doc.is_validated = True
+        else:
+            doc.validate_message = dict_decrypted_response.get("status")[0].get("error")
         doc.save(ignore_permissions=True)
         frappe.db.commit()
 
@@ -377,7 +397,7 @@ def validate_revoc(unpledge_application_name):
                 "json_payload": data,
                 "encrypted_request": encrypted_data,
                 "encrypred_response": json.loads(resp).get("res"),
-                "decrypted_response": dict_payload,
+                "decrypted_response": dict_decrypted_response,
             },
             "revoke_validate",
         )
@@ -450,11 +470,29 @@ def initiate_revoc(unpledge_application_name):
         decrypted_response = lms.AESCBC(
             las_settings.decryption_key, las_settings.iv
         ).decrypt(encrypted_response)
-        dict_payload = json.loads(decrypted_response)
+        dict_decrypted_response = json.loads(decrypted_response)
 
-        doc.initiate_message = dict_payload.get("revocinitiate").get("message")
-        if dict_payload.get("revocinitiate").get("message") == "SUCCESS":
-            doc.is_initiated = True
+        if dict_decrypted_response.get("revocinitiate"):
+            doc.initiate_message = dict_decrypted_response.get("revocinitiate").get(
+                "message"
+            )
+
+            schemedetails_res = dict_decrypted_response.get("revocinitiate").get(
+                "schemedetails"
+            )
+            isin_details = {}
+            for i in schemedetails_res:
+                isin_details[i.get("isinno")] = i
+            for i in doc.unpledge_items:
+                if i.get("isin") in isin_details:
+                    i.revoke_validate_remarks = isin_details.get(i.get("isin")).get(
+                        "remarks"
+                    )
+
+            if dict_decrypted_response.get("revocinitiate").get("message") == "SUCCESS":
+                doc.is_initiated = True
+        else:
+            doc.initiate_message = dict_decrypted_response.get("status")[0].get("error")
 
         doc.save(ignore_permissions=True)
         frappe.db.commit()
@@ -464,7 +502,7 @@ def initiate_revoc(unpledge_application_name):
                 "json_payload": data,
                 "encrypted_request": encrypted_data,
                 "encrypred_response": json.loads(resp).get("res"),
-                "decrypted_response": dict_payload,
+                "decrypted_response": dict_decrypted_response,
             },
             "revoke_initiate",
         )

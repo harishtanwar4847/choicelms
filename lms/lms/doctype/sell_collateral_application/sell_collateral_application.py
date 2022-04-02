@@ -456,12 +456,34 @@ def validate_invoc(sell_collateral_application_name):
         decrypted_response = lms.AESCBC(
             las_settings.decryption_key, las_settings.iv
         ).decrypt(encrypted_response)
-        dict_payload = json.loads(decrypted_response)
+        dict_decrypted_response = json.loads(decrypted_response)
 
-        doc.validate_message = dict_payload.get("invocvalidate").get("message")
-        doc.invoctoken = dict_payload.get("invocvalidate").get("invoctoken")
-        if dict_payload.get("invocvalidate").get("message") == "SUCCESS":
-            doc.is_validated = True
+        if dict_decrypted_response.get("invocvalidate"):
+            doc.validate_message = dict_decrypted_response.get("invocvalidate").get(
+                "message"
+            )
+            doc.invoctoken = dict_decrypted_response.get("invocvalidate").get(
+                "invoctoken"
+            )
+
+            schemedetails_res = dict_decrypted_response.get("invocvalidate").get(
+                "schemedetails"
+            )
+            isin_details = {}
+
+            for i in schemedetails_res:
+                isin_details[i.get("isinno")] = i
+
+            for i in doc.sell_items:
+                if i.get("isin") in isin_details:
+                    i.invoke_validate_remarks = isin_details.get(i.get("isin")).get(
+                        "remarks"
+                    )
+
+            if dict_decrypted_response.get("invocvalidate").get("message") == "SUCCESS":
+                doc.is_validated = True
+        else:
+            doc.initiate_message = dict_decrypted_response.get("status")[0].get("error")
 
         doc.save(ignore_permissions=True)
         frappe.db.commit()
@@ -471,7 +493,7 @@ def validate_invoc(sell_collateral_application_name):
                 "json_payload": data,
                 "encrypted_request": encrypted_data,
                 "encrypred_response": json.loads(resp).get("res"),
-                "decrypted_response": dict_payload,
+                "decrypted_response": dict_decrypted_response,
             },
             "invoke_validate",
         )
@@ -546,11 +568,32 @@ def initiate_invoc(sell_collateral_application_name):
         decrypted_response = lms.AESCBC(
             las_settings.decryption_key, las_settings.iv
         ).decrypt(encrypted_response)
-        dict_payload = json.loads(decrypted_response)
+        dict_decrypted_response = json.loads(decrypted_response)
 
-        doc.initiate_message = dict_payload.get("invocinitiate").get("message")
-        if dict_payload.get("invocinitiate").get("message") == "SUCCESS":
-            doc.is_initiated = True
+        if dict_decrypted_response.get("invocinitiate"):
+            doc.initiate_message = dict_decrypted_response.get("invocinitiate").get(
+                "message"
+            )
+
+            isin_details = {}
+            schemedetails_res = dict_decrypted_response.get("invocinitiate").get(
+                "schemedetails"
+            )
+
+            for i in schemedetails_res:
+                isin_details[i.get("isinno")] = i
+
+            for i in doc.sell_items:
+                if i.get("isin") in isin_details:
+                    i.invoke_initiate_remarks = isin_details.get(i.get("isin")).get(
+                        "remarks"
+                    )
+
+            if dict_decrypted_response.get("invocinitiate").get("message") == "SUCCESS":
+                doc.is_initiated = True
+
+        else:
+            doc.initiate_message = dict_decrypted_response.get("status")[0].get("error")
 
         doc.save(ignore_permissions=True)
         frappe.db.commit()
@@ -560,7 +603,7 @@ def initiate_invoc(sell_collateral_application_name):
                 "json_payload": data,
                 "encrypted_request": encrypted_data,
                 "encrypred_response": json.loads(resp).get("res"),
-                "decrypted_response": dict_payload,
+                "decrypted_response": dict_decrypted_response,
             },
             "invoke_initiate",
         )

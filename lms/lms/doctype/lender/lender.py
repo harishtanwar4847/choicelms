@@ -172,10 +172,10 @@ class Lender(Document):
                 _("Mortgage Charges Sharing value should not greater than 100.")
             )
 
-        if self.invoc_charge_type == "Percentage" and cint(self.invoc_charges) > 100:
+        if self.invoke_charge_type == "Percentage" and cint(self.invoc_charges) > 100:
             frappe.throw(_("Invoc Charges value should not greater than 100."))
 
-        if self.revoc_charge_type == "Percentage" and cint(self.revoc_charges) > 100:
+        if self.revoke_charge_type == "Percentage" and cint(self.revoc_charges) > 100:
             frappe.throw(_("revoc Charges value should not greater than 100."))
 
         # Validate concentration rule Mapping
