@@ -103,7 +103,7 @@
    "fieldname": "transaction_type",
    "fieldtype": "Select",
    "label": "Transaction Type",
-   "options": "Withdrawal\nPayment\nDebit Note\nCredit Note\nProcessing Fees\nStamp Duty\nDocumentation Charges\nMortgage Charges\nSell Collateral\nInvoke Pledge\nInterest\nAdditional Interest\nPenal Interest\nOther Charges\nLegal Charges\nRenewal Charges\nDP Reimbursement(Sell)\nDP Reimbursement(Unpledge)\nSell Collateral Charges\nLien Marking Charges",
+   "options": "Withdrawal\nPayment\nDebit Note\nCredit Note\nProcessing Fees\nStamp Duty\nDocumentation Charges\nMortgage Charges\nSell Collateral\nInvoke Pledge\nInterest\nAdditional Interest\nPenal Interest\nOther Charges\nLegal Charges\nRenewal Charges\nDP Reimbursement(Sell)\nDP Reimbursement(Unpledge)\nSell Collateral Charges\nLien Initiate Charges",
    "reqd": 1,
    "set_only_once": 1
   },
@@ -367,7 +367,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-03-28 17:56:09.870142",
+ "modified": "2022-04-05 10:53:50.927770",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",

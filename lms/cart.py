@@ -572,9 +572,15 @@ def process(**kwargs):
 
 
 @frappe.whitelist()
-def request_pledge_otp():
+def request_pledge_otp(**kwargs):
     try:
         utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "instrument_type": "",
+            },
+        )
 
         user = lms.__user()
         user_kyc = lms.__user_kyc()
@@ -583,20 +589,10 @@ def request_pledge_otp():
         is_dummy_account = lms.validate_spark_dummy_account(
             user.username, user.name, check_valid=True
         )
-        try:
-            cart = frappe.get_last_doc(
-                "Cart",
-                filters={
-                    "customer": customer.name,
-                    "instrument_type": "Mutual Fund",
-                    "is_processed": 0,
-                },
-            )
-        except frappe.DoesNotExistError:
-            cart = None
+
         token_type = "Pledge OTP"
         entity = user_kyc.mobile_number
-        if customer.mycams_email_id and cart:
+        if data.get("instrument_type") == "Mutual Fund":
             token_type = "Lien OTP"
             entity = customer.phone
         if not is_dummy_account:
