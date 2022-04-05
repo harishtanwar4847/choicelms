@@ -317,7 +317,7 @@ class SellCollateralApplication(Document):
 
             if invoke_charges > 0:
                 loan.create_loan_transaction(
-                    transaction_type="Invoke Charges",
+                    transaction_type="Invoke Initiate Charges",
                     amount=invoke_charges,
                     approve=True,
                     loan_margin_shortfall_name=self.loan_margin_shortfall,

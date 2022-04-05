@@ -201,7 +201,7 @@ class UnpledgeApplication(Document):
 
             if revoke_charges:
                 loan.create_loan_transaction(
-                    transaction_type="Invoke Charges",
+                    transaction_type="Revoke Initiate Charges",
                     amount=revoke_charges,
                     approve=True,
                     loan_margin_shortfall_name=self.loan_margin_shortfall,
