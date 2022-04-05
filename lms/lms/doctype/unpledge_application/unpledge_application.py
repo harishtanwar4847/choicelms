@@ -167,22 +167,45 @@ class UnpledgeApplication(Document):
         loan.save(ignore_permissions=True)
 
         lender = self.get_lender()
-        dp_reimburse_unpledge_charges = lender.dp_reimburse_unpledge_charges
-        if lender.dp_reimburse_unpledge_charge_type == "Fix":
-            total_dp_reimburse_unpledge_charges = (
-                len(self.items) * dp_reimburse_unpledge_charges
-            )
-        elif lender.dp_reimburse_unpledge_charge_type == "Percentage":
-            total_dp_reimburse_unpledge_charges = (
-                len(self.items) * dp_reimburse_unpledge_charges / 100
-            )
+        if self.instrument_type == "Shares":
+            dp_reimburse_unpledge_charges = lender.dp_reimburse_unpledge_charges
+            if lender.dp_reimburse_unpledge_charge_type == "Fix":
+                total_dp_reimburse_unpledge_charges = (
+                    len(self.items) * dp_reimburse_unpledge_charges
+                )
+            elif lender.dp_reimburse_unpledge_charge_type == "Percentage":
+                total_dp_reimburse_unpledge_charges = (
+                    len(self.items) * dp_reimburse_unpledge_charges / 100
+                )
 
-        if total_dp_reimburse_unpledge_charges:
-            loan.create_loan_transaction(
-                transaction_type="DP Reimbursement(Unpledge)",
-                amount=total_dp_reimburse_unpledge_charges,
-                approve=True,
-            )
+            if total_dp_reimburse_unpledge_charges:
+                loan.create_loan_transaction(
+                    transaction_type="DP Reimbursement(Unpledge)",
+                    amount=total_dp_reimburse_unpledge_charges,
+                    approve=True,
+                )
+        else:
+            # revoke charges - Mutual Fund
+            revoke_charges = lender.revoke_charges
+
+            if lender.revoke_charge_type == "Fix":
+                revoke_charges = revoke_charges
+            elif lender.revoke_charge_type == "Percentage":
+                amount = self.lender_selling_amount * revoke_charges / 100
+                revoke_charges = loan.validate_loan_charges_amount(
+                    lender,
+                    amount,
+                    "revoke_initiate_charges_minimum_amount",
+                    "revoke_initiate_charges_maximum_amount",
+                )
+
+            if revoke_charges:
+                loan.create_loan_transaction(
+                    transaction_type="Invoke Charges",
+                    amount=revoke_charges,
+                    approve=True,
+                    loan_margin_shortfall_name=self.loan_margin_shortfall,
+                )
 
         self.notify_customer()
 

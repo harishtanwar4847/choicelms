@@ -237,21 +237,7 @@ class SellCollateralApplication(Document):
         loan.save(ignore_permissions=True)
 
         lender = self.get_lender()
-        dp_reimburse_sell_charges = lender.dp_reimburse_sell_charges
-        sell_charges = lender.sell_collateral_charges
 
-        if lender.dp_reimburse_sell_charge_type == "Fix":
-            total_dp_reimburse_sell_charges = (
-                len(self.items) * dp_reimburse_sell_charges
-            )
-        elif lender.dp_reimburse_sell_charge_type == "Percentage":
-            total_dp_reimburse_sell_charges = (
-                len(self.items) * dp_reimburse_sell_charges / 100
-            )
-        if lender.sell_collateral_charge_type == "Fix":
-            sell_collateral_charges = sell_charges
-        elif lender.sell_collateral_charge_type == "Percentage":
-            sell_collateral_charges = self.lender_selling_amount * sell_charges / 100
         # sell_collateral_charges = self.validate_loan_charges_amount(
         #     lender,
         #     sell_collateral_charges,
@@ -279,22 +265,63 @@ class SellCollateralApplication(Document):
             loan_margin_shortfall_name=self.loan_margin_shortfall,
             # is_for_interest=is_for_interest,
         )
-        # DP Reimbursement(Sell)
-        # Sell Collateral Charges
-        if total_dp_reimburse_sell_charges:
-            loan.create_loan_transaction(
-                transaction_type="DP Reimbursement(Sell)",
-                amount=total_dp_reimburse_sell_charges,
-                approve=True,
-                loan_margin_shortfall_name=self.loan_margin_shortfall,
-            )
-        if sell_collateral_charges:
-            loan.create_loan_transaction(
-                transaction_type="Sell Collateral Charges",
-                amount=sell_collateral_charges,
-                approve=True,
-                loan_margin_shortfall_name=self.loan_margin_shortfall,
-            )
+
+        if self.instrument_type == "Shares":
+            dp_reimburse_sell_charges = lender.dp_reimburse_sell_charges
+            sell_charges = lender.sell_collateral_charges
+
+            if lender.dp_reimburse_sell_charge_type == "Fix":
+                total_dp_reimburse_sell_charges = (
+                    len(self.items) * dp_reimburse_sell_charges
+                )
+            elif lender.dp_reimburse_sell_charge_type == "Percentage":
+                total_dp_reimburse_sell_charges = (
+                    len(self.items) * dp_reimburse_sell_charges / 100
+                )
+            if lender.sell_collateral_charge_type == "Fix":
+                sell_collateral_charges = sell_charges
+            elif lender.sell_collateral_charge_type == "Percentage":
+                sell_collateral_charges = (
+                    self.lender_selling_amount * sell_charges / 100
+                )
+            # DP Reimbursement(Sell)
+            # Sell Collateral Charges
+            if total_dp_reimburse_sell_charges:
+                loan.create_loan_transaction(
+                    transaction_type="DP Reimbursement(Sell)",
+                    amount=total_dp_reimburse_sell_charges,
+                    approve=True,
+                    loan_margin_shortfall_name=self.loan_margin_shortfall,
+                )
+            if sell_collateral_charges:
+                loan.create_loan_transaction(
+                    transaction_type="Sell Collateral Charges",
+                    amount=sell_collateral_charges,
+                    approve=True,
+                    loan_margin_shortfall_name=self.loan_margin_shortfall,
+                )
+        else:
+            # invoke charges - Mutual Fund
+            invoke_charges = lender.invoke_charges
+
+            if lender.invoke_charge_type == "Fix":
+                invoke_charges = invoke_charges
+            elif lender.invoke_charge_type == "Percentage":
+                amount = self.lender_selling_amount * invoke_charges / 100
+                invoke_charges = loan.validate_loan_charges_amount(
+                    lender,
+                    amount,
+                    "invoke_initiate_charges_minimum_amount",
+                    "invoke_initiate_charges_maximum_amount",
+                )
+
+            if invoke_charges > 0:
+                loan.create_loan_transaction(
+                    transaction_type="Invoke Charges",
+                    amount=invoke_charges,
+                    approve=True,
+                    loan_margin_shortfall_name=self.loan_margin_shortfall,
+                )
 
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": self.owner, "parenttype": "User"}, ["role"]
