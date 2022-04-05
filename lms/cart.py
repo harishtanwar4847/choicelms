@@ -440,7 +440,7 @@ def process(**kwargs):
         )
         token_type = "Pledge OTP"
         entity = user_kyc.mobile_number
-        if customer.mycams_email_id and cart.instrument_type == "Mutual Fund":
+        if cart.instrument_type == "Mutual Fund":
             token_type = "Lien OTP"
             entity = customer.phone
 
