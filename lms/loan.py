@@ -2598,11 +2598,6 @@ def sell_collateral_request(**kwargs):
 
         user = lms.__user()
         customer = lms.__customer()
-        application_type = "Sell Collateral"
-        msg_type = ["unpledge", "pledged securities"]
-        if customer.mycams_email_id:
-            application_type = "Invoke"
-            msg_type = ["revoke", "lien schemes"]
 
         try:
             loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -2610,6 +2605,12 @@ def sell_collateral_request(**kwargs):
             return utils.respondNotFound(message=frappe._("Loan not found."))
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
+
+        application_type = "Sell Collateral"
+        msg_type = "sell collateral"
+        if loan.instrument_type == "Mutual Fund":
+            application_type = "Invoke"
+            msg_type = "invoke"
 
         sell_application_exist = frappe.get_all(
             "Sell Collateral Application",
@@ -2732,7 +2733,9 @@ def sell_collateral_request(**kwargs):
 
         frappe.db.commit()
         if not data.get("loan_margin_shortfall_name"):
-            msg = "Dear Customer,\nYour sell collateral request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. - Spark Loans"
+            msg = "Dear Customer,\nYour {} request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. - Spark Loans".format(
+                msg_type[0]
+            )
         doc = customer.get_kyc().as_dict()
         frappe.enqueue_doc(
             "Notification", "Sell Collateral Request", method="send", doc=doc

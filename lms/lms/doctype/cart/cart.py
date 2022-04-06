@@ -180,7 +180,13 @@ class Cart(Document):
                 "Notification", "Pledge Application Success", method="send", doc=doc
             )
 
-            mess = "Dear Customer,\nYour pledge request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans"
+            msg_type = "pledge"
+            if self.instrument_type == "Mutual Fund":
+                msg_type = "lien"
+
+            mess = "Dear Customer,\nYour {} request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans".format(
+                msg_type
+            )
             # if mess:
             receiver_list = list(
                 set([str(self.get_customer().phone), str(doc.mobile_number)])

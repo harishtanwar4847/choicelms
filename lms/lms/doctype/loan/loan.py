@@ -437,6 +437,10 @@ class Loan(Document):
             securities_price_map = lms.get_security_prices([i.isin for i in self.items])
             check = self.update_items()
 
+            msg_type = ["A sale", "sell"]
+            if self.instrument_type == "Mutual Fund":
+                msg_type = ["An invoke", "invoke"]
+
             if check:
                 self.fill_items()
                 self.save(ignore_permissions=True)
@@ -486,8 +490,8 @@ class Loan(Document):
                             > loan_margin_shortfall.deadline
                         ):
                             loan_margin_shortfall.status = "Sell Triggered"
-                            mess = "Dear Customer,\nURGENT NOTICE. A sale has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
-                                self.name
+                            mess = "Dear Customer,\nURGENT NOTICE. {} has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will {} required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
+                                msg_type[0], self.name, msg_type[1]
                             )
                             fcm_notification = frappe.get_doc(
                                 "Spark Push Notification",

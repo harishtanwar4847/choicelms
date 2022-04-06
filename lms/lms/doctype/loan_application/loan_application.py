@@ -1191,6 +1191,10 @@ class LoanApplication(Document):
     def notify_customer(self):
         from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
+        msg_type = "pledge"
+        if self.instrument_type == "Mutual Fund":
+            msg_type = "lien"
+
         doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
         doc["loan_application"] = {
             "status": self.status,
@@ -1222,12 +1226,16 @@ class LoanApplication(Document):
         if doc.get("loan_application").get("status") == "Pledge Failure":
             msg, fcm_title = (
                 (
-                    "Dear Customer,\nSorry! Your Increase loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app -Spark Loans",
+                    "Dear Customer,\nSorry! Your Increase loan application was turned down since the {} was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app -Spark Loans".format(
+                        msg_type
+                    ),
                     "Increase loan application rejected",
                 )
                 if self.loan and not self.loan_margin_shortfall
                 else (
-                    "Dear Customer,\nSorry! Your loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans",
+                    "Dear Customer,\nSorry! Your loan application was turned down since the {} was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans".format(
+                        msg_type
+                    ),
                     "Pledge rejected",
                 )
             )
@@ -1311,8 +1319,8 @@ class LoanApplication(Document):
             and doc.get("loan_application").get("status") == "Pledge accepted by Lender"
             and not self.loan_margin_shortfall
         ):
-            msg = "Dear Customer,\nCongratulations! Your pledge request was successfully considered and was partially accepted for Rs. {} due to technical reasons. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. -Spark Loans".format(
-                self.total_collateral_value_str
+            msg = "Dear Customer,\nCongratulations! Your {} request was successfully considered and was partially accepted for Rs. {} due to technical reasons. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. -Spark Loans".format(
+                msg_type, self.total_collateral_value_str
             )
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification",
