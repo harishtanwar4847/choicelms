@@ -155,6 +155,10 @@ class UnpledgeApplication(Document):
                     "security_name": i.get("security_name"),
                     "security_category": i.get("security_category"),
                     "psn": i.get("psn"),
+                    "prf": i.get("prf"),
+                    "amc_code": i.get("amc_code"),
+                    "folio": i.get("folio"),
+                    "scheme_code": i.get("scheme_code"),
                     "loan_name": self.loan,
                     "lender_approval_status": "Approved",
                     "data": collateral_ledger_data,
@@ -174,8 +178,12 @@ class UnpledgeApplication(Document):
                     len(self.items) * dp_reimburse_unpledge_charges
                 )
             elif lender.dp_reimburse_unpledge_charge_type == "Percentage":
-                total_dp_reimburse_unpledge_charges = (
-                    len(self.items) * dp_reimburse_unpledge_charges / 100
+                amount = len(self.items) * dp_reimburse_unpledge_charges / 100
+                total_dp_reimburse_unpledge_charges = loan.validate_loan_charges_amount(
+                    lender,
+                    amount,
+                    "dp_reimburse_unpledge_minimum_amount",
+                    "dp_reimburse_unpledge_maximum_amount",
                 )
 
             if total_dp_reimburse_unpledge_charges:
@@ -204,7 +212,6 @@ class UnpledgeApplication(Document):
                     transaction_type="Revoke Initiate Charges",
                     amount=revoke_charges,
                     approve=True,
-                    loan_margin_shortfall_name=self.loan_margin_shortfall,
                 )
 
         self.notify_customer()
@@ -362,7 +369,7 @@ def validate_revoc(unpledge_application_name):
                     "schemename": i.security_name,
                     "isinno": i.isin,
                     "schemetype": doc.scheme_type,
-                    "schemecategory": "Cat B",
+                    "schemecategory": i.security_category,
                     "lienunit": i.quantity,
                     "revocationunit": i.unpledge_quantity,
                     "lienmarkno": i.psn,
@@ -471,7 +478,7 @@ def initiate_revoc(unpledge_application_name):
                     "schemename": i.security_name,
                     "isinno": i.isin,
                     "schemetype": doc.scheme_type,
-                    "schemecategory": "Cat B",
+                    "schemecategory": i.security_category,
                     "lienunit": i.quantity,
                     "revocationunit": i.unpledge_quantity,
                     "lienmarkno": i.psn,

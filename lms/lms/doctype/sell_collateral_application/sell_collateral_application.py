@@ -225,6 +225,10 @@ class SellCollateralApplication(Document):
                     "security_name": i.get("security_name"),
                     "security_category": i.get("security_category"),
                     "psn": i.get("psn"),
+                    "prf": i.get("prf"),
+                    "amc_code": i.get("amc_code"),
+                    "folio": i.get("folio"),
+                    "scheme_code": i.get("scheme_code"),
                     "loan_name": self.loan,
                     "lender_approval_status": "Approved",
                     "data": collateral_ledger_data,
@@ -275,14 +279,23 @@ class SellCollateralApplication(Document):
                     len(self.items) * dp_reimburse_sell_charges
                 )
             elif lender.dp_reimburse_sell_charge_type == "Percentage":
-                total_dp_reimburse_sell_charges = (
-                    len(self.items) * dp_reimburse_sell_charges / 100
+                amount = len(self.items) * dp_reimburse_sell_charges / 100
+                total_dp_reimburse_sell_charges = loan.validate_loan_charges_amount(
+                    lender,
+                    amount,
+                    "dp_reimburse_sell_minimum_amount",
+                    "dp_reimburse_sell_maximum_amount",
                 )
+
             if lender.sell_collateral_charge_type == "Fix":
                 sell_collateral_charges = sell_charges
             elif lender.sell_collateral_charge_type == "Percentage":
-                sell_collateral_charges = (
-                    self.lender_selling_amount * sell_charges / 100
+                amount = self.lender_selling_amount * sell_charges / 100
+                sell_collateral_charges = loan.validate_loan_charges_amount(
+                    lender,
+                    amount,
+                    "sell_collateral_minimum_amount",
+                    "sell_collateral_maximum_amount",
                 )
             # DP Reimbursement(Sell)
             # Sell Collateral Charges
@@ -461,7 +474,7 @@ def validate_invoc(sell_collateral_application_name):
                     "schemename": i.security_name,
                     "isinno": i.isin,
                     "schemetype": doc.scheme_type,
-                    "schemecategory": "Cat B",
+                    "schemecategory": i.security_category,
                     "lienunit": i.quantity,
                     "invocationunit": i.sell_quantity,
                     "lienmarkno": i.psn,
@@ -510,7 +523,7 @@ def validate_invoc(sell_collateral_application_name):
             if dict_decrypted_response.get("invocvalidate").get("message") == "SUCCESS":
                 doc.is_validated = True
         else:
-            doc.initiate_message = dict_decrypted_response.get("status")[0].get("error")
+            doc.validate_message = dict_decrypted_response.get("status")[0].get("error")
 
         doc.save(ignore_permissions=True)
         frappe.db.commit()
@@ -573,7 +586,7 @@ def initiate_invoc(sell_collateral_application_name):
                     "schemename": i.security_name,
                     "isinno": i.isin,
                     "schemetype": doc.scheme_type,
-                    "schemecategory": "Cat B",
+                    "schemecategory": i.security_category,
                     "lienunit": i.quantity,
                     "invocationunit": i.sell_quantity,
                     "lienmarkno": i.psn,
