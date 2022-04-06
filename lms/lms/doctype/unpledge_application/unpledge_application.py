@@ -187,6 +187,11 @@ class UnpledgeApplication(Document):
     def notify_customer(self, check=None):
         msg = ""
         fcm_notification = {}
+
+        msg_type = "unpledge"
+        if self.instrument_type == "Mutual Fund":
+            msg_type = "revoke"
+
         if self.status in ["Approved", "Rejected"]:
             customer = self.get_loan().get_customer()
             user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
@@ -196,7 +201,9 @@ class UnpledgeApplication(Document):
                 "Notification", "Unpledge Application", method="send", doc=doc
             )
             if self.status == "Approved":
-                msg = "Dear Customer,\nCongratulations! Your unpledge request has been successfully executed. Kindly check the app now. -Spark Loans"
+                msg = "Dear Customer,\nCongratulations! Your {} request has been successfully executed. Kindly check the app now. -Spark Loans".format(
+                    msg_type
+                )
                 fcm_notification = frappe.get_doc(
                     "Spark Push Notification",
                     "Unpledge application accepted",
@@ -214,7 +221,9 @@ class UnpledgeApplication(Document):
                         self.get_loan().get_customer().first_name
                     )
                 else:
-                    msg = "Dear Customer,\nSorry! Your unpledge application was turned down due to technical reasons. Please try again after sometime or reach us through 'Contact Us' on the app  -Spark Loans"
+                    msg = "Dear Customer,\nSorry! Your {} application was turned down due to technical reasons. Please try again after sometime or reach us through 'Contact Us' on the app  -Spark Loans".fromat(
+                        msg_type
+                    )
                     fcm_notification = frappe.get_doc(
                         "Spark Push Notification",
                         "Unpledge application rejected",
