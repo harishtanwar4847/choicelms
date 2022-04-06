@@ -744,6 +744,7 @@ class LoanApplication(Document):
                         "amc_code": item.amc_code,
                         "amc_name": item.amc_name,
                         "scheme_code": item.scheme_code,
+                        "type": item.type,
                     }
                 )
 

@@ -14,7 +14,7 @@ def execute():
         frappe.get_doc(
             {
                 "doctype": "Security Category",
-                "lender": lender,
+                "lender": "Choice Finserv",
                 "category_name": "Cat D",
             }
         ).insert()

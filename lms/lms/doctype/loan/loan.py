@@ -190,26 +190,26 @@ class Loan(Document):
             )
 
         if self.instrument_type == "Mutual Fund":
-            lien_marking_charges = lender.lien_marking_charges
-            if lender.lien_marking_charge_type == "Percentage":
+            lien_initiate_charges = lender.lien_initiate_charges
+            if lender.lien_initiate_charge_type == "Percentage":
                 days_left_to_expiry = days_in_year
                 amount = (
-                    (lien_marking_charges / 100)
+                    (lien_initiate_charges / 100)
                     * self.sanctioned_limit
                     / days_in_year
                     * days_left_to_expiry
                 )
-                lien_marking_charges = self.validate_loan_charges_amount(
+                lien_initiate_charges = self.validate_loan_charges_amount(
                     lender,
                     amount,
-                    "lien_marking_charge_minimum_amount",
-                    "lien_marking_charge_maximum_amount",
+                    "lien_initiate_charge_minimum_amount",
+                    "lien_initiate_charge_maximum_amount",
                 )
 
-            if lien_marking_charges > 0:
+            if lien_initiate_charges > 0:
                 self.create_loan_transaction(
-                    "Lien Marking Charges",
-                    lien_marking_charges,
+                    "Lien Initiate Charges",
+                    lien_initiate_charges,
                     approve=True,
                 )
 

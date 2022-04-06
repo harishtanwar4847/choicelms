@@ -103,7 +103,7 @@
    "fieldname": "transaction_type",
    "fieldtype": "Select",
    "label": "Transaction Type",
-   "options": "Withdrawal\nPayment\nDebit Note\nCredit Note\nProcessing Fees\nStamp Duty\nDocumentation Charges\nMortgage Charges\nSell Collateral\nInvoke Pledge\nInterest\nAdditional Interest\nPenal Interest\nOther Charges\nLegal Charges\nRenewal Charges\nDP Reimbursement(Sell)\nDP Reimbursement(Unpledge)\nSell Collateral Charges\nLien Marking Charges\nInvoke Initiate Charges\nRevoke Initiate Charges",
+   "options": "Withdrawal\nPayment\nDebit Note\nCredit Note\nProcessing Fees\nStamp Duty\nDocumentation Charges\nMortgage Charges\nSell Collateral\nInvoke Pledge\nInterest\nAdditional Interest\nPenal Interest\nOther Charges\nLegal Charges\nRenewal Charges\nDP Reimbursement(Sell)\nDP Reimbursement(Unpledge)\nSell Collateral Charges\nLien Initiate Charges\nInvoke Initiate Charges\nRevoke Initiate Charges",
    "reqd": 1,
    "set_only_once": 1
   },

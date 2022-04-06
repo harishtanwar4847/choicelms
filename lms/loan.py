@@ -2450,16 +2450,6 @@ def loan_unpledge_request(**kwargs):
         customer = lms.__customer()
         user_kyc = lms.__user_kyc()
 
-        application_type = "Unpledge"
-        msg_type = ["unpledge", "pledged securities"]
-        token_type = "Unpledge OTP"
-        entity = user_kyc.mobile_number
-        if customer.mycams_email_id:
-            application_type = "Revoke"
-            msg_type = ["revoke", "lien schemes"]
-            token_type = "Revoke OTP"
-            entity = customer.phone
-
         loan = frappe.get_doc("Loan", data.get("loan_name"))
         if not loan:
             return utils.respondNotFound(message=frappe._("Loan not found."))
@@ -2489,6 +2479,16 @@ def loan_unpledge_request(**kwargs):
                     application_type, loan.name
                 ),
             )
+
+        application_type = "Unpledge"
+        msg_type = ["unpledge", "pledged securities"]
+        token_type = "Unpledge OTP"
+        entity = user_kyc.mobile_number
+        if loan.instrument_type == "Mutual Fund":
+            application_type = "Revoke"
+            msg_type = ["revoke", "lien schemes"]
+            token_type = "Revoke OTP"
+            entity = customer.phone
 
         securities = validate_securities_for_unpledge(data.get("securities", {}), loan)
 
