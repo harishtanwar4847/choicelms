@@ -144,6 +144,7 @@ class UnpledgeApplication(Document):
                 collateral_ledger_data = {
                     "pledgor_boid": i.pledgor_boid,
                     "pledgee_boid": i.pledgee_boid,
+                    "prf": i.get("prf"),
                 }
                 collateral_ledger_input = {
                     "doctype": "Unpledge Application",
@@ -155,13 +156,12 @@ class UnpledgeApplication(Document):
                     "security_name": i.get("security_name"),
                     "security_category": i.get("security_category"),
                     "psn": i.get("psn"),
-                    "prf": i.get("prf"),
-                    "amc_code": i.get("amc_code"),
-                    "folio": i.get("folio"),
-                    "scheme_code": i.get("scheme_code"),
                     "loan_name": self.loan,
                     "lender_approval_status": "Approved",
                     "data": collateral_ledger_data,
+                    "scheme_code": i.get("scheme_code"),
+                    "folio": i.get("folio"),
+                    "amc_code": i.get("amc_code"),
                 }
                 CollateralLedger.create_entry(**collateral_ledger_input)
 

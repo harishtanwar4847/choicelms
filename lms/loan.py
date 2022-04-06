@@ -2466,6 +2466,17 @@ def loan_unpledge_request(**kwargs):
                 ),
             )
 
+        application_type = "Unpledge"
+        msg_type = ["unpledge", "pledged securities"]
+        token_type = "Unpledge OTP"
+        entity = user_kyc.mobile_number
+
+        if loan.instrument_type == "Mutual Fund":
+            application_type = "Revoke"
+            msg_type = ["revoke", "lien schemes"]
+            token_type = "Revoke OTP"
+            entity = customer.phone
+
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",
             filters={"loan": loan.name, "status": "Pending"},
@@ -2479,16 +2490,6 @@ def loan_unpledge_request(**kwargs):
                     application_type, loan.name
                 ),
             )
-
-        application_type = "Unpledge"
-        msg_type = ["unpledge", "pledged securities"]
-        token_type = "Unpledge OTP"
-        entity = user_kyc.mobile_number
-        if loan.instrument_type == "Mutual Fund":
-            application_type = "Revoke"
-            msg_type = ["revoke", "lien schemes"]
-            token_type = "Revoke OTP"
-            entity = customer.phone
 
         securities = validate_securities_for_unpledge(data.get("securities", {}), loan)
 
