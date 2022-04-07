@@ -11,10 +11,12 @@
   </head>
 
   <body>
+    {% set lien_marking_api = frappe.db.get_single_value("LAS Settings",
+    "lien_marking_api") %}
     <form
       method="post"
       style="display: none"
-      action="https://mycamsuat.camsonline.com/lamfapi/pgLienmarking.aspx"
+      action="{{lien_marking_api}}"
       id="form1"
     >
       <div class="aspNetHidden">

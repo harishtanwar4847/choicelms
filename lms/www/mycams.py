@@ -59,7 +59,7 @@ def get_context(context):
             "requestername": customer.full_name,
             "deviceid": "chrome",
             "osid": "Windows",
-            "url": frappe.utils.get_url(),
+            "url": "",
             "redirecturl": frappe.utils.get_url(
                 "/api/method/lms.decrypt_lien_marking_response"
             ),  # mandatory
