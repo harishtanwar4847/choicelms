@@ -122,7 +122,7 @@
    "read_only": 1
   },
   {
-   "depends_on": "eval:doc.request_type=='Pledge'",
+   "depends_on": "eval:doc.request_type=='Pledge' || doc.instrument_type == 'Mutual Fund'",
    "fieldname": "prf",
    "fieldtype": "Data",
    "label": "PRF/Lien Reference Number",
@@ -209,7 +209,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-30 14:23:51.832317",
+ "modified": "2022-04-07 12:13:54.570544",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Collateral Ledger",
