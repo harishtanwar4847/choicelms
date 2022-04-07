@@ -518,7 +518,17 @@ def initiate_revoc(unpledge_application_name):
                     i.revoke_validate_remarks = isin_details.get(i.get("isin")).get(
                         "remarks"
                     )
-                    i.psn = isin_details.get(i.get("isin")).get("revoc_refno")
+                    new_psn = isin_details.get(i.get("isin")).get("revoc_refno")
+                    if i.psn != new_psn:
+                        frappe.db.sql(
+                            """
+                            update `tabCollateral Ledger`
+                            set psn = '{psn}', isin = '{isin}'
+                            where loan = '{loan}'
+                            """.format(
+                                psn=new_psn, isin=i.get("isin"), loan=doc.loan
+                            )
+                        )
 
             if dict_decrypted_response.get("revocinitiate").get("message") == "SUCCESS":
                 doc.is_initiated = True
