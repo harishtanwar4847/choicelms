@@ -463,7 +463,7 @@ def process(**kwargs):
             )
 
         frappe.db.begin()
-        loan_application = ""
+        loan_application = {}
         cart.reload()
         if cart.instrument_type != "Mutual Fund":
             loan_application = cart.create_loan_application()
