@@ -128,7 +128,7 @@
    "default": "0",
    "fieldname": "is_validated",
    "fieldtype": "Check",
-   "label": "is Validated"
+   "label": "Is Validated"
   },
   {
    "fieldname": "scheme_type",
@@ -163,7 +163,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-03-31 16:47:39.401800",
+ "modified": "2022-04-07 17:09:19.612506",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Unpledge Application",

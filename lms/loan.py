@@ -2395,7 +2395,7 @@ def validate_securities_for_unpledge(securities, loan):
                     securities_valid = False
                     message = frappe._(
                         "Unpledge quantity for isin {} should not be greater than {}".format(
-                            i["isin"], int(securities_obj[i["isin"]])
+                            i["isin"], securities_obj[i["isin"]]
                         )
                     )
                     break
