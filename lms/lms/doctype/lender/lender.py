@@ -172,6 +172,18 @@ class Lender(Document):
                 _("Mortgage Charges Sharing value should not greater than 100.")
             )
 
+        if (
+            self.invoke_initiate_charge_type == "Percentage"
+            and cint(self.invoke_initiate_charges) > 100
+        ):
+            frappe.throw(_("Invoke Charges value should not greater than 100."))
+
+        if (
+            self.revoke_initiate_charge_type == "Percentage"
+            and cint(self.revoke_initiate_charges) > 100
+        ):
+            frappe.throw(_("revoke Charges value should not greater than 100."))
+
         # Validate concentration rule Mapping
         self.validate_concentration_rule()
 

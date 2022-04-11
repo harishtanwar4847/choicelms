@@ -71,6 +71,41 @@ function show_fetch_items_button(frm) {
       });
     });
   } else {
-    frm.clear_custom_buttons();
+    if (frm.doc.instrument_type == "Mutual Fund") {
+      if (!frm.doc.is_validated) {
+        frm.clear_custom_buttons();
+        frm.add_custom_button(__("Validate Sell Items"), function () {
+          frappe.call({
+            type: "POST",
+            method:
+              "lms.lms.doctype.sell_collateral_application.sell_collateral_application.validate_invoc",
+            args: { sell_collateral_application_name: frm.doc.name },
+            freeze: true,
+            freeze_message: "Validating Collateral Details",
+            callback: (res) => {
+              frm.reload_doc();
+            },
+          });
+        });
+      }
+      if (!frm.doc.is_initiated && frm.doc.is_validated) {
+        frm.clear_custom_buttons();
+        frm.add_custom_button(__("Initiate Sell Items"), function () {
+          frappe.call({
+            type: "POST",
+            method:
+              "lms.lms.doctype.sell_collateral_application.sell_collateral_application.initiate_invoc",
+            args: { sell_collateral_application_name: frm.doc.name },
+            freeze: true,
+            freeze_message: "Initiating Collateral Details",
+            callback: (res) => {
+              frm.reload_doc();
+            },
+          });
+        });
+      }
+    } else {
+      frm.clear_custom_buttons();
+    }
   }
 }

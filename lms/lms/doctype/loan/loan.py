@@ -351,7 +351,35 @@ class Loan(Document):
         # sauce: https://stackoverflow.com/a/23827026/9403680
         sql = """
 			SELECT
-				cl.loan, cl.isin, cl.psn, cl.pledgor_boid, cl.pledgee_boid,
+				cl.loan, cl.isin, cl.psn, cl.pledgor_boid, cl.pledgee_boid, cl.prf, cl.scheme_code, cl.folio, cl.amc_code,
+				s.price, s.security_name,
+				als.security_category
+				, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
+				- SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
+				- SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) quantity
+			FROM `tabCollateral Ledger` cl
+			LEFT JOIN `tabSecurity` s
+				ON cl.isin = s.isin
+			LEFT JOIN `tabAllowed Security` als
+				ON cl.isin = als.isin AND cl.lender = als.lender
+			WHERE cl.loan = '{loan}' {where_clause} AND cl.lender_approval_status = 'Approved'
+			GROUP BY cl.isin{group_by_psn_clause}{having_clause};
+		""".format(
+            loan=self.name,
+            where_clause=where_clause if where_clause else "",
+            group_by_psn_clause=" ,cl.psn" if group_by_psn else "",
+            having_clause=having_clause if having_clause else "",
+        )
+
+        return frappe.db.sql(sql, debug=True, as_dict=1)
+
+    def get_collateral_list_old(
+        self, group_by_psn=False, where_clause="", having_clause=""
+    ):
+        # sauce: https://stackoverflow.com/a/23827026/9403680
+        sql = """
+			SELECT
+				cl.loan, cl.isin, cl.psn, cl.pledgor_boid, cl.pledgee_boid, cl.scheme_code, cl.folio, cl.amc_code,
 				s.price, s.security_name,
 				als.security_category
 				, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
