@@ -2329,7 +2329,7 @@ def loan_unpledge_details(**kwargs):
         return e.respond()
 
 
-def validate_securities_for_unpledge(securities, loan, instrument_type="Shares"):
+def validate_securities_for_unpledge(securities, loan):
     if not securities or (
         type(securities) is not dict and "list" not in securities.keys()
     ):
@@ -2362,7 +2362,7 @@ def validate_securities_for_unpledge(securities, loan, instrument_type="Shares")
         securities_list_from_db_ = frappe.db.sql(
             "select isin from `tabAllowed Security` where lender = '{}' and instrument_type = '{}' and isin in {}".format(
                 loan.lender,
-                instrument_type,
+                loan.instrument_type,
                 lms.convert_list_to_tuple_string(securities_list),
             )
         )
@@ -2395,7 +2395,7 @@ def validate_securities_for_unpledge(securities, loan, instrument_type="Shares")
                     securities_valid = False
                     message = frappe._(
                         "Unpledge quantity for isin {} should not be greater than {}".format(
-                            i["isin"], int(securities_obj[i["isin"]])
+                            i["isin"], securities_obj[i["isin"]]
                         )
                     )
                     break
@@ -2465,6 +2465,17 @@ def loan_unpledge_request(**kwargs):
                     loan.get_customer().first_name, msg_type[0], msg_type[1]
                 ),
             )
+
+        application_type = "Unpledge"
+        msg_type = ["unpledge", "pledged securities"]
+        token_type = "Unpledge OTP"
+        entity = user_kyc.mobile_number
+
+        if loan.instrument_type == "Mutual Fund":
+            application_type = "Revoke"
+            msg_type = ["revoke", "lien schemes"]
+            token_type = "Revoke OTP"
+            entity = customer.phone
 
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",

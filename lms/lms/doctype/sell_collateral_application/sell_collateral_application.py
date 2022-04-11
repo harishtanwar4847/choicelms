@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 import frappe
+import utils
 from frappe import _
 from frappe.model.document import Document
 from rsa import decrypt
@@ -224,6 +225,7 @@ class SellCollateralApplication(Document):
                 collateral_ledger_data = {
                     "pledgor_boid": i.pledgor_boid,
                     "pledgee_boid": i.pledgee_boid,
+                    "prf": i.get("prf"),
                 }
                 collateral_ledger_input = {
                     "doctype": "Sell Collateral Application",
@@ -238,6 +240,9 @@ class SellCollateralApplication(Document):
                     "loan_name": self.loan,
                     "lender_approval_status": "Approved",
                     "data": collateral_ledger_data,
+                    "amc_code": i.get("amc_code"),
+                    "folio": i.get("folio"),
+                    "scheme_code": i.get("scheme_code"),
                 }
                 CollateralLedger.create_entry(**collateral_ledger_input)
 
@@ -285,14 +290,23 @@ class SellCollateralApplication(Document):
                     len(self.items) * dp_reimburse_sell_charges
                 )
             elif lender.dp_reimburse_sell_charge_type == "Percentage":
-                total_dp_reimburse_sell_charges = (
-                    len(self.items) * dp_reimburse_sell_charges / 100
+                amount = len(self.items) * dp_reimburse_sell_charges / 100
+                total_dp_reimburse_sell_charges = loan.validate_loan_charges_amount(
+                    lender,
+                    amount,
+                    "dp_reimburse_sell_minimum_amount",
+                    "dp_reimburse_sell_maximum_amount",
                 )
+
             if lender.sell_collateral_charge_type == "Fix":
                 sell_collateral_charges = sell_charges
             elif lender.sell_collateral_charge_type == "Percentage":
-                sell_collateral_charges = (
-                    self.lender_selling_amount * sell_charges / 100
+                amount = self.lender_selling_amount * sell_charges / 100
+                sell_collateral_charges = loan.validate_loan_charges_amount(
+                    lender,
+                    amount,
+                    "sell_collateral_minimum_amount",
+                    "sell_collateral_maximum_amount",
                 )
             # DP Reimbursement(Sell)
             # Sell Collateral Charges
@@ -450,220 +464,254 @@ import requests
 
 @frappe.whitelist()
 def validate_invoc(sell_collateral_application_name):
-
-    doc = frappe.get_doc(
-        "Sell Collateral Application", sell_collateral_application_name
-    )
-    collateral_ledger = frappe.get_all(
-        "Collateral Ledger",
-        filters={"loan": doc.loan, "application_doctype": "Loan Application"},
-        fields=["*"],
-    )
-    customer = frappe.get_doc("Loan Customer", doc.customer)
-    user_kyc = lms.__user_kyc(customer.user)
-
-    if customer.mycams_email_id and doc.instrument_type == "Mutual Fund":
-        # create payload
-        datetime_signature = lms.create_signature_mycams()
-        las_settings = frappe.get_single("LAS Settings")
-        headers = {
-            "Content-Type": "application/json",
-            "clientid": las_settings.client_id,
-            "datetimestamp": datetime_signature[0],
-            "signature": datetime_signature[1],
-            "subclientid": "",
-        }
-        url = las_settings.invoke_api
-        data = {
-            "invocvalidate": {
-                "reqrefno": doc.name,
-                "lienrefno": collateral_ledger[0]["prf"],
-                "pan": user_kyc.pan_no,
-                "regemailid": customer.mycams_email_id,
-                "clientid": las_settings.client_id,
-                "requestip": "103.19.132.194",
-                "schemedetails": [],
-            }
-        }
-        for i in doc.sell_items:
-            schemedetails = (
-                {
-                    "amccode": i.amc_code,
-                    "folio": i.folio,
-                    "schemecode": i.scheme_code,
-                    "schemename": i.security_name,
-                    "isinno": i.isin,
-                    "schemetype": doc.scheme_type,
-                    "schemecategory": "Cat B",
-                    "lienunit": i.quantity,
-                    "invocationunit": i.sell_quantity,
-                    "lienmarkno": i.psn,
-                },
-            )
-            data["invocvalidate"]["schemedetails"].append(schemedetails[0])
-
-        encrypted_data = lms.AESCBC(
-            las_settings.encryption_key, las_settings.iv
-        ).encrypt(json.dumps(data))
-
-        req_data = {"req": str(encrypted_data)}
-
-        resp = requests.post(url=url, headers=headers, data=json.dumps(req_data)).text
-
-        encrypted_response = (
-            json.loads(resp).get("res").replace("-", "+").replace("_", "/")
+    try:
+        doc = frappe.get_doc(
+            "Sell Collateral Application", sell_collateral_application_name
         )
-        decrypted_response = lms.AESCBC(
-            las_settings.decryption_key, las_settings.iv
-        ).decrypt(encrypted_response)
-        dict_decrypted_response = json.loads(decrypted_response)
+        collateral_ledger = frappe.get_last_doc(
+            "Collateral Ledger", filters={"loan": doc.loan}
+        )
+        customer = frappe.get_doc("Loan Customer", doc.customer)
+        user_kyc = lms.__user_kyc(customer.user)
 
-        if dict_decrypted_response.get("invocvalidate"):
-            doc.validate_message = dict_decrypted_response.get("invocvalidate").get(
-                "message"
-            )
-            doc.invoctoken = dict_decrypted_response.get("invocvalidate").get(
-                "invoctoken"
-            )
+        if customer.mycams_email_id and doc.instrument_type == "Mutual Fund":
+            try:
+                # create payload
+                datetime_signature = lms.create_signature_mycams()
+                las_settings = frappe.get_single("LAS Settings")
+                headers = {
+                    "Content-Type": "application/json",
+                    "clientid": las_settings.client_id,
+                    "datetimestamp": datetime_signature[0],
+                    "signature": datetime_signature[1],
+                    "subclientid": "",
+                }
+                url = las_settings.invoke_api
+                data = {
+                    "invocvalidate": {
+                        "reqrefno": doc.name,
+                        "lienrefno": collateral_ledger.prf,
+                        "pan": user_kyc.pan_no,
+                        "regemailid": customer.mycams_email_id,
+                        "clientid": las_settings.client_id,
+                        "requestip": "103.19.132.194",
+                        "schemedetails": [],
+                    }
+                }
+                for i in doc.sell_items:
+                    schemedetails = (
+                        {
+                            "amccode": i.amc_code,
+                            "folio": i.folio,
+                            "schemecode": i.scheme_code,
+                            "schemename": i.security_name,
+                            "isinno": i.isin,
+                            "schemetype": doc.scheme_type,
+                            "schemecategory": i.security_category,
+                            "lienunit": i.quantity,
+                            "invocationunit": i.sell_quantity,
+                            "lienmarkno": i.psn,
+                        },
+                    )
+                    data["invocvalidate"]["schemedetails"].append(schemedetails[0])
 
-            schemedetails_res = dict_decrypted_response.get("invocvalidate").get(
-                "schemedetails"
-            )
-            isin_details = {}
+                encrypted_data = lms.AESCBC(
+                    las_settings.encryption_key, las_settings.iv
+                ).encrypt(json.dumps(data))
 
-            for i in schemedetails_res:
-                isin_details[i.get("isinno")] = i
+                req_data = {"req": str(encrypted_data)}
 
-            for i in doc.sell_items:
-                if i.get("isin") in isin_details:
-                    i.invoke_validate_remarks = isin_details.get(i.get("isin")).get(
-                        "remarks"
+                resp = requests.post(
+                    url=url, headers=headers, data=json.dumps(req_data)
+                ).text
+
+                encrypted_response = (
+                    json.loads(resp).get("res").replace("-", "+").replace("_", "/")
+                )
+                decrypted_response = lms.AESCBC(
+                    las_settings.decryption_key, las_settings.iv
+                ).decrypt(encrypted_response)
+                dict_decrypted_response = json.loads(decrypted_response)
+
+                if dict_decrypted_response.get("invocvalidate"):
+                    doc.validate_message = dict_decrypted_response.get(
+                        "invocvalidate"
+                    ).get("message")
+                    doc.invoctoken = dict_decrypted_response.get("invocvalidate").get(
+                        "invoctoken"
                     )
 
-            if dict_decrypted_response.get("invocvalidate").get("message") == "SUCCESS":
-                doc.is_validated = True
+                    schemedetails_res = dict_decrypted_response.get(
+                        "invocvalidate"
+                    ).get("schemedetails")
+                    isin_details = {}
+
+                    for i in schemedetails_res:
+                        isin_details[i.get("isinno")] = i
+
+                    for i in doc.sell_items:
+                        if i.get("isin") in isin_details:
+                            i.invoke_validate_remarks = isin_details.get(
+                                i.get("isin")
+                            ).get("remarks")
+
+                    if (
+                        dict_decrypted_response.get("invocvalidate").get("message")
+                        == "SUCCESS"
+                    ):
+                        doc.is_validated = True
+                else:
+                    doc.validate_message = dict_decrypted_response.get("status")[0].get(
+                        "error"
+                    )
+
+                doc.save(ignore_permissions=True)
+                frappe.db.commit()
+
+                lms.create_log(
+                    {
+                        "json_payload": data,
+                        "encrypted_request": encrypted_data,
+                        "encrypred_response": json.loads(resp).get("res"),
+                        "decrypted_response": dict_decrypted_response,
+                    },
+                    "invoke_validate",
+                )
+            except requests.RequestException as e:
+                raise utils.exceptions.APIException(str(e))
         else:
-            doc.initiate_message = dict_decrypted_response.get("status")[0].get("error")
-
-        doc.save(ignore_permissions=True)
-        frappe.db.commit()
-
-        lms.create_log(
-            {
-                "json_payload": data,
-                "encrypted_request": encrypted_data,
-                "encrypred_response": json.loads(resp).get("res"),
-                "decrypted_response": dict_decrypted_response,
-            },
-            "invoke_validate",
+            frappe.throw(frappe._("Mycams Email ID is missing"))
+    except utils.exceptions.APIException as e:
+        frappe.log_error(
+            title="Invocation - Initiate - Error",
+            message=frappe.get_traceback()
+            + "\n\nInvocation - Initiate - Error: "
+            + str(e.args),
         )
 
 
 @frappe.whitelist()
 def initiate_invoc(sell_collateral_application_name):
-
-    doc = frappe.get_doc(
-        "Sell Collateral Application", sell_collateral_application_name
-    )
-    collateral_ledger = frappe.get_all(
-        "Collateral Ledger",
-        filters={"loan": doc.loan, "application_doctype": "Loan Application"},
-        fields=["*"],
-    )
-    customer = frappe.get_doc("Loan Customer", doc.customer)
-    user_kyc = lms.__user_kyc(customer.user)
-
-    if customer.mycams_email_id and doc.instrument_type == "Mutual Fund":
-        # create payload
-        datetime_signature = lms.create_signature_mycams()
-        las_settings = frappe.get_single("LAS Settings")
-        headers = {
-            "Content-Type": "application/json",
-            "clientid": las_settings.client_id,
-            "datetimestamp": datetime_signature[0],
-            "signature": datetime_signature[1],
-            "subclientid": "",
-        }
-        url = las_settings.invoke_api
-        data = {
-            "invocinitiate": {
-                "reqrefno": doc.name,
-                "invoctoken": doc.invoctoken,
-                "lienrefno": collateral_ledger[0]["prf"],
-                "pan": user_kyc.pan_no,
-                "regemailid": customer.mycams_email_id,
-                "clientid": las_settings.client_id,
-                "requestip": "103.19.132.194",
-                "schemedetails": [],
-            }
-        }
-        for i in doc.sell_items:
-            schemedetails = (
-                {
-                    "amccode": i.amc_code,
-                    "folio": i.folio,
-                    "schemecode": i.scheme_code,
-                    "schemename": i.security_name,
-                    "isinno": i.isin,
-                    "schemetype": doc.scheme_type,
-                    "schemecategory": "Cat B",
-                    "lienunit": i.quantity,
-                    "invocationunit": i.sell_quantity,
-                    "lienmarkno": i.psn,
-                },
-            )
-            data["invocinitiate"]["schemedetails"].append(schemedetails[0])
-
-        encrypted_data = lms.AESCBC(
-            las_settings.encryption_key, las_settings.iv
-        ).encrypt(json.dumps(data))
-
-        req_data = {"req": str(encrypted_data)}
-
-        resp = requests.post(url=url, headers=headers, data=json.dumps(req_data)).text
-
-        encrypted_response = (
-            json.loads(resp).get("res").replace("-", "+").replace("_", "/")
+    try:
+        doc = frappe.get_doc(
+            "Sell Collateral Application", sell_collateral_application_name
         )
-        decrypted_response = lms.AESCBC(
-            las_settings.decryption_key, las_settings.iv
-        ).decrypt(encrypted_response)
-        dict_decrypted_response = json.loads(decrypted_response)
+        collateral_ledger = frappe.get_last_doc(
+            "Collateral Ledger", filters={"loan": doc.loan}
+        )
+        customer = frappe.get_doc("Loan Customer", doc.customer)
+        user_kyc = lms.__user_kyc(customer.user)
 
-        if dict_decrypted_response.get("invocinitiate"):
-            doc.initiate_message = dict_decrypted_response.get("invocinitiate").get(
-                "message"
-            )
+        if customer.mycams_email_id and doc.instrument_type == "Mutual Fund":
+            try:
+                # create payload
+                datetime_signature = lms.create_signature_mycams()
+                las_settings = frappe.get_single("LAS Settings")
+                headers = {
+                    "Content-Type": "application/json",
+                    "clientid": las_settings.client_id,
+                    "datetimestamp": datetime_signature[0],
+                    "signature": datetime_signature[1],
+                    "subclientid": "",
+                }
+                url = las_settings.invoke_api
+                data = {
+                    "invocinitiate": {
+                        "reqrefno": doc.name,
+                        "invoctoken": doc.invoctoken,
+                        "lienrefno": collateral_ledger.prf,
+                        "pan": user_kyc.pan_no,
+                        "regemailid": customer.mycams_email_id,
+                        "clientid": las_settings.client_id,
+                        "requestip": "103.19.132.194",
+                        "schemedetails": [],
+                    }
+                }
+                for i in doc.sell_items:
+                    schemedetails = (
+                        {
+                            "amccode": i.amc_code,
+                            "folio": i.folio,
+                            "schemecode": i.scheme_code,
+                            "schemename": i.security_name,
+                            "isinno": i.isin,
+                            "schemetype": doc.scheme_type,
+                            "schemecategory": i.security_category,
+                            "lienunit": i.quantity,
+                            "invocationunit": i.sell_quantity,
+                            "lienmarkno": i.psn,
+                        },
+                    )
+                    data["invocinitiate"]["schemedetails"].append(schemedetails[0])
 
-            isin_details = {}
-            schemedetails_res = dict_decrypted_response.get("invocinitiate").get(
-                "schemedetails"
-            )
+                encrypted_data = lms.AESCBC(
+                    las_settings.encryption_key, las_settings.iv
+                ).encrypt(json.dumps(data))
 
-            for i in schemedetails_res:
-                isin_details[i.get("isinno")] = i
+                req_data = {"req": str(encrypted_data)}
 
-            for i in doc.sell_items:
-                if i.get("isin") in isin_details:
-                    i.invoke_initiate_remarks = isin_details.get(i.get("isin")).get(
-                        "remarks"
+                resp = requests.post(
+                    url=url, headers=headers, data=json.dumps(req_data)
+                ).text
+
+                encrypted_response = (
+                    json.loads(resp).get("res").replace("-", "+").replace("_", "/")
+                )
+                decrypted_response = lms.AESCBC(
+                    las_settings.decryption_key, las_settings.iv
+                ).decrypt(encrypted_response)
+                dict_decrypted_response = json.loads(decrypted_response)
+
+                if dict_decrypted_response.get("invocinitiate"):
+                    doc.initiate_message = dict_decrypted_response.get(
+                        "invocinitiate"
+                    ).get("message")
+
+                    isin_details = {}
+                    schemedetails_res = dict_decrypted_response.get(
+                        "invocinitiate"
+                    ).get("schemedetails")
+
+                    for i in schemedetails_res:
+                        isin_details[i.get("isinno")] = i
+
+                    for i in doc.sell_items:
+                        if i.get("isin") in isin_details:
+                            i.invoke_initiate_remarks = isin_details.get(
+                                i.get("isin")
+                            ).get("remarks")
+
+                    if (
+                        dict_decrypted_response.get("invocinitiate").get("message")
+                        == "SUCCESS"
+                    ):
+                        doc.is_initiated = True
+
+                else:
+                    doc.initiate_message = dict_decrypted_response.get("status")[0].get(
+                        "error"
                     )
 
-            if dict_decrypted_response.get("invocinitiate").get("message") == "SUCCESS":
-                doc.is_initiated = True
+                doc.save(ignore_permissions=True)
+                frappe.db.commit()
 
+                lms.create_log(
+                    {
+                        "json_payload": data,
+                        "encrypted_request": encrypted_data,
+                        "encrypred_response": json.loads(resp).get("res"),
+                        "decrypted_response": dict_decrypted_response,
+                    },
+                    "invoke_initiate",
+                )
+            except requests.RequestException as e:
+                raise utils.exceptions.APIException(str(e))
         else:
-            doc.initiate_message = dict_decrypted_response.get("status")[0].get("error")
-
-        doc.save(ignore_permissions=True)
-        frappe.db.commit()
-
-        lms.create_log(
-            {
-                "json_payload": data,
-                "encrypted_request": encrypted_data,
-                "encrypred_response": json.loads(resp).get("res"),
-                "decrypted_response": dict_decrypted_response,
-            },
-            "invoke_initiate",
+            frappe.throw(frappe._("Mycams Email ID is missing"))
+    except utils.exceptions.APIException as e:
+        frappe.log_error(
+            title="Invocation - Initiate - Error",
+            message=frappe.get_traceback()
+            + "\n\nInvocation - Initiate - Error: "
+            + str(e.args),
         )

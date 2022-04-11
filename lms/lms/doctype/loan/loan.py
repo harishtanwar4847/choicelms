@@ -353,7 +353,7 @@ class Loan(Document):
 			SELECT
 				cl.loan, cl.isin, cl.psn, cl.pledgor_boid, cl.pledgee_boid, cl.prf, cl.scheme_code, cl.folio, cl.amc_code,
 				s.price, s.security_name,
-				als.security_category
+                (select sc.category_name from `tabSecurity Category` sc  where sc.name = als.security_category) as security_category
 				, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
 				- SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
 				- SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) quantity
@@ -1848,12 +1848,18 @@ def check_loans_for_shortfall(loans):
 
 
 @frappe.whitelist()
-def check_all_loans_for_shortfall():
+def check_all_loans_for_shortfall(is_for_mf=0):
     chunks = lms.chunk_doctype(doctype="Loan", limit=50)
+    filters = {}
+    if is_for_mf:
+        filters = {"instrument_type": "Mutual Fund"}
 
     for start in chunks.get("chunks"):
         loan_list = frappe.db.get_all(
-            "Loan", limit_page_length=chunks.get("limit"), limit_start=start
+            "Loan",
+            filters=filters,
+            limit_page_length=chunks.get("limit"),
+            limit_start=start,
         )
 
         frappe.enqueue(

@@ -163,7 +163,7 @@
    "default": "0",
    "fieldname": "is_validated",
    "fieldtype": "Check",
-   "label": "is Validated"
+   "label": "Is Validated"
   },
   {
    "fieldname": "initiate_message",
@@ -186,7 +186,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-03-31 16:13:47.509184",
+ "modified": "2022-04-07 17:09:43.096301",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",

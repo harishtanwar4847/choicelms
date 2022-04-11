@@ -1689,11 +1689,24 @@ def approved_securities(**kwargs):
         if isinstance(data.get("is_download"), str):
             data["is_download"] = int(data.get("is_download"))
 
-        if not data.get("loan_type") in ["Shares", "Equity", "Debt"]:
+        if not data.get("loan_type") in [
+            "Equity",
+            "Mutual Fund - Equity",
+            "Mutual Fund - Debt",
+        ]:
             return utils.respondWithFailure(
                 status=422,
-                message=frappe._("Loan type should be in Shares, Equity, Debt."),
+                message=frappe._(
+                    "Loan type should be in Equity, Mutual Fund - Equity, Mutual Fund - Debt."
+                ),
             )
+
+        if data.get("loan_type") == "Mutual Fund - Equity":
+            data["loan_type"] = "Equity"
+        elif data.get("loan_type") == "Mutual Fund - Debt":
+            data["loan_type"] = "Debt"
+        else:
+            data["loan_type"] = "Shares"
 
         security_category_list_ = frappe.db.get_all(
             "Security Category",
@@ -1708,7 +1721,7 @@ def approved_securities(**kwargs):
         )
 
         filters = ""
-        if data.get("loan_type", None):
+        if data.get("loan_type", None) != "Shares":
             filters = "and scheme_type = '{}'".format(
                 data.get("loan_type")
                 if data.get("loan_type") in ["Equity", "Debt"]
