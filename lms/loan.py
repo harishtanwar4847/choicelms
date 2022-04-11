@@ -2474,11 +2474,13 @@ def loan_unpledge_request(**kwargs):
         msg_type = ["unpledge", "pledged securities"]
         token_type = "Unpledge OTP"
         entity = user_kyc.mobile_number
+        email_subject = "Unpledge Request"
         if loan.instrument_type == "Mutual Fund":
             application_type = "Revoke"
             msg_type = ["revoke", "lien schemes"]
             token_type = "Revoke OTP"
             entity = customer.phone
+            email_subject = "Revoke Request"
 
         securities = validate_securities_for_unpledge(data.get("securities", {}), loan)
 
@@ -2526,9 +2528,7 @@ def loan_unpledge_request(**kwargs):
             }
         )
         unpledge_application.insert(ignore_permissions=True)
-        frappe.enqueue_doc(
-            "Notification", "Unpledge Request", method="send", doc=user_kyc
-        )
+        frappe.enqueue_doc("Notification", email_subject, method="send", doc=user_kyc)
         msg = "Dear Customer,\nYour {} request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. - Spark Loans".format(
             msg_type[0]
         )
@@ -2612,9 +2612,11 @@ def sell_collateral_request(**kwargs):
             return utils.respondForbidden(message=_("Please use your own Loan."))
 
         application_type = "Sell Collateral"
+        email_subject = "Sell Collateral Request"
         msg_type = "sell collateral"
         if loan.instrument_type == "Mutual Fund":
             application_type = "Invoke"
+            email_subject = "Invoke Request"
             msg_type = "invoke"
 
         sell_application_exist = frappe.get_all(
@@ -2742,9 +2744,8 @@ def sell_collateral_request(**kwargs):
                 msg_type
             )
         doc = customer.get_kyc().as_dict()
-        frappe.enqueue_doc(
-            "Notification", "Sell Collateral Request", method="send", doc=doc
-        )
+
+        frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
 
         if msg:
             receiver_list = list(

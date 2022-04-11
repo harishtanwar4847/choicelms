@@ -494,14 +494,26 @@ class Loan(Document):
                                 "Sale triggerred inaction",
                                 fields=["*"],
                             )
-                            message = fcm_notification.message.format(loan=self.name)
+                            message = fcm_notification.message.format(
+                                sale="sale", loan=self.name
+                            )
+                            if self.instrument_type == "Mutual Fund":
+                                message = fcm_notification.message.format(
+                                    sale="invoke", loan=self.name
+                                )
+                                fcm_notification = fcm_notification.as_dict()
+                                fcm_notification["title"] = "Invoke triggerred"
+                            # message = fcm_notification.message.format(loan=self.name)
                             doc = frappe.get_doc(
                                 "User KYC", self.get_customer().choice_kyc
                             ).as_dict()
                             doc["loan_margin_shortfall"] = {"loan": self.name}
+                            email_subject = "Sale Triggered Cross Deadline"
+                            if self.instrument_type == "Mutual Fund":
+                                email_subject = "MF Sale Triggered Cross Deadline"
                             frappe.enqueue_doc(
                                 "Notification",
-                                "Sale Triggered Cross Deadline",
+                                email_subject,
                                 method="send",
                                 doc=doc,
                             )

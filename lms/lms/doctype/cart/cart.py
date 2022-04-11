@@ -176,14 +176,14 @@ class Cart(Document):
             # frappe.enqueue_doc(
             #     "Notification", "Loan Application Creation", method="send", doc=doc
             # )
-            frappe.enqueue_doc(
-                "Notification", "Pledge Application Success", method="send", doc=doc
-            )
             msg_type = "pledge"
+            email_subject = "Pledge Application Success"
             if self.instrument_type == "Mutual Fund":
                 application_type = "Lien"
                 msg_type = "lien"
+                email_subject = "Lien Application Successful"
 
+            frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
             mess = "Dear Customer,\nYour {} request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans".format(
                 msg_type
             )

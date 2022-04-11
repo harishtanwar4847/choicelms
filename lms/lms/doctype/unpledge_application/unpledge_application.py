@@ -189,17 +189,17 @@ class UnpledgeApplication(Document):
         fcm_notification = {}
 
         msg_type = "unpledge"
+        email_subject = "Unpledge Application"
         if self.instrument_type == "Mutual Fund":
             msg_type = "revoke"
+            email_subject = "Revoke Application"
 
         if self.status in ["Approved", "Rejected"]:
             customer = self.get_loan().get_customer()
             user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
             doc = user_kyc.as_dict()
             doc["unpledge_application"] = {"status": self.status}
-            frappe.enqueue_doc(
-                "Notification", "Unpledge Application", method="send", doc=doc
-            )
+            frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
             if self.status == "Approved":
                 msg = "Dear Customer,\nCongratulations! Your {} request has been successfully executed. Kindly check the app now. -Spark Loans".format(
                     msg_type
@@ -209,6 +209,12 @@ class UnpledgeApplication(Document):
                     "Unpledge application accepted",
                     fields=["*"],
                 )
+                message = fcm_notification.message.format(unpledge="unpledge")
+                if self.instrument_type == "Mutual Fund":
+                    message = fcm_notification.message.format(unpledge="revoke")
+                    fcm_notification = fcm_notification.as_dict()
+                    fcm_notification["title"] = "Revoke application accepted"
+
             elif self.status == "Rejected":
                 if check == True:
                     # msg = """Dear {},
@@ -229,6 +235,11 @@ class UnpledgeApplication(Document):
                         "Unpledge application rejected",
                         fields=["*"],
                     )
+                    message = fcm_notification.message.format(unpledge="unpledge")
+                if self.instrument_type == "Mutual Fund":
+                    message = fcm_notification.message.format(unpledge="revoke")
+                    fcm_notification = fcm_notification.as_dict()
+                    fcm_notification["title"] = "Revoke application rejected"
 
             receiver_list = list(
                 set([str(customer.phone), str(user_kyc.mobile_number)])
@@ -240,7 +251,7 @@ class UnpledgeApplication(Document):
         if fcm_notification:
             lms.send_spark_push_notification(
                 fcm_notification=fcm_notification,
-                message=fcm_notification.message,
+                message=message,
                 loan=self.loan,
                 customer=customer,
             )

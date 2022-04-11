@@ -27,9 +27,13 @@ class SellCollateralApplication(Document):
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Sell request rejected", fields=["*"]
             )
-            self.notify_customer(
-                fcm_notification=fcm_notification, message=fcm_notification.message
-            )
+            message = fcm_notification.message.format(sell="sell")
+            if self.instrument_type == "Mutual Fund":
+                message = fcm_notification.message.format(sell="invoke")
+                fcm_notification = fcm_notification.as_dict()
+                fcm_notification["title"] = "Invoke request rejected"
+
+            self.notify_customer(fcm_notification=fcm_notification, message=message)
 
     def process_items(self, instrument_type="Shares"):
         self.total_collateral_value = 0
@@ -304,22 +308,36 @@ class SellCollateralApplication(Document):
             doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
             doc["sell_triggered_completion"] = {"loan": self.loan}
             # if self.status in ["Pending", "Approved", "Rejected"]:
-            frappe.enqueue_doc(
-                "Notification", "Sale Triggered Completion", method="send", doc=doc
-            )
+            email_subject = "Sale Triggered Completion"
+            if self.instrument_type == "Mutual Fund":
+                email_subject = "MF Sale Triggered Completion"
+            frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
             msg = "Dear Customer,\nSale of securities initiated by the lending partner for your loan account  {} is now completed .The sale proceeds have been credited to your loan account and collateral value updated. Please check the app for details. Spark Loans".format(
                 self.loan
             )
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Sale triggerred completed", fields=["*"]
             )
-            message = fcm_notification.message.format(loan=self.loan)
+            message = fcm_notification.message.format(
+                Sale="Sale of securities", loan=self.loan
+            )
+            if self.instrument_type == "Mutual Fund":
+                message = fcm_notification.message.format(Sale="Invoke", loan=self.loan)
+                fcm_notification = fcm_notification.as_dict()
+                fcm_notification["title"] = "Invoke triggerred completed "
+            message = message
+            # message = fcm_notification.message.format(loan=self.loan)
         else:
             msg = "Dear Customer,\nCongratulations! Your sell collateral request has been successfully executed and sale proceeds credited to your loan account. Kindly check the app for details -Spark Loans"
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Sell request executed", fields=["*"]
             )
-            message = fcm_notification.message
+            message = fcm_notification.message.format(sell="sell", sale="sale")
+            if self.instrument_type == "Mutual Fund":
+                message = fcm_notification.message.format(sell="invoke", sale="invoke")
+                fcm_notification = fcm_notification.as_dict()
+                fcm_notification["title"] = "Invoke request executed"
+            message = message
 
         if msg:
             receiver_list = list(
@@ -351,9 +369,10 @@ class SellCollateralApplication(Document):
     def notify_customer(self, fcm_notification={}, message=""):
         doc = self.get_customer().get_kyc().as_dict()
         doc["sell_collateral_application"] = {"status": self.status}
-        frappe.enqueue_doc(
-            "Notification", "Sell Collateral Application", method="send", doc=doc
-        )
+        email_subject = "Sell Collateral Application"
+        if self.instrument_type == "Mutual Fund":
+            email_subject = "Invoke Application"
+        frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
 
         if fcm_notification:
             lms.send_spark_push_notification(
