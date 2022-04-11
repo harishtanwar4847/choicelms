@@ -463,10 +463,9 @@ def process(**kwargs):
             )
 
         frappe.db.begin()
-        loan_application = ""
+        loan_application = {}
         cart.reload()
-        if not customer.mycams_email_id:
-            cart.save(ignore_permissions=True)
+        if cart.instrument_type != "Mutual Fund":
             loan_application = cart.create_loan_application()
             frappe.db.commit()
 

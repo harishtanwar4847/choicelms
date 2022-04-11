@@ -1204,6 +1204,9 @@ class LoanApplication(Document):
             "drawing_power": self.drawing_power_str,
         }
         doc["margin_shortfall"] = self.loan_margin_shortfall
+        email_subject = "Loan Application"
+        if self.instrument_type == "Mutual Fund":
+            email_subject = "MF Loan Application"
         if self.status in [
             "Pledge Failure",
             "Pledge accepted by Lender",
@@ -1216,7 +1219,7 @@ class LoanApplication(Document):
                 )
             else:
                 frappe.enqueue_doc(
-                    "Notification", "Loan Application", method="send", doc=doc
+                    "Notification", email_subject, method="send", doc=doc
                 )
 
         msg = ""
@@ -1268,7 +1271,7 @@ class LoanApplication(Document):
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", fcm_title, fields=["*"]
             )
-            if self.instrument_type == "Mututal Fund":
+            if self.instrument_type == "Mutual Fund":
                 fcm_notification = fcm_notification
                 if fcm_title == "Pledge accepted":
                     fcm_notification = fcm_notification.as_dict()
@@ -1323,6 +1326,9 @@ class LoanApplication(Document):
                 "Spark Push Notification", "E-signing was successful", fields=["*"]
             )
 
+        msg_type = "pledge"
+        if self.instrument_type == "Mutual Fund":
+            msg_type = "lien"
         if (
             (
                 (self.pledge_status == "Partial Success")

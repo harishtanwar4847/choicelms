@@ -2246,9 +2246,19 @@ def request_unpledge_otp():
         is_dummy_account = lms.validate_spark_dummy_account(
             user.username, user.name, check_valid=True
         )
+        try:
+            loan = frappe.get_last_doc(
+                "Loan",
+                filters={
+                    "customer": customer.name,
+                    "instrument_type": "Mutual Fund",
+                },
+            )
+        except frappe.DoesNotExistError:
+            loan = None
         token_type = "Unpledge OTP"
         entity = user_kyc.mobile_number
-        if customer.mycams_email_id:
+        if customer.mycams_email_id and loan:
             token_type = "Revoke OTP"
             entity = customer.phone
         if not is_dummy_account:
@@ -2319,7 +2329,7 @@ def loan_unpledge_details(**kwargs):
         return e.respond()
 
 
-def validate_securities_for_unpledge(securities, loan, instrument_type="Shares"):
+def validate_securities_for_unpledge(securities, loan):
     if not securities or (
         type(securities) is not dict and "list" not in securities.keys()
     ):
@@ -2352,7 +2362,7 @@ def validate_securities_for_unpledge(securities, loan, instrument_type="Shares")
         securities_list_from_db_ = frappe.db.sql(
             "select isin from `tabAllowed Security` where lender = '{}' and instrument_type = '{}' and isin in {}".format(
                 loan.lender,
-                instrument_type,
+                loan.instrument_type,
                 lms.convert_list_to_tuple_string(securities_list),
             )
         )
@@ -2385,7 +2395,7 @@ def validate_securities_for_unpledge(securities, loan, instrument_type="Shares")
                     securities_valid = False
                     message = frappe._(
                         "Unpledge quantity for isin {} should not be greater than {}".format(
-                            i["isin"], int(securities_obj[i["isin"]])
+                            i["isin"], securities_obj[i["isin"]]
                         )
                     )
                     break
@@ -2456,6 +2466,17 @@ def loan_unpledge_request(**kwargs):
                 ),
             )
 
+        application_type = "Unpledge"
+        msg_type = ["unpledge", "pledged securities"]
+        token_type = "Unpledge OTP"
+        entity = user_kyc.mobile_number
+
+        if loan.instrument_type == "Mutual Fund":
+            application_type = "Revoke"
+            msg_type = ["revoke", "lien schemes"]
+            token_type = "Revoke OTP"
+            entity = customer.phone
+
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",
             filters={"loan": loan.name, "status": "Pending"},
@@ -2474,11 +2495,13 @@ def loan_unpledge_request(**kwargs):
         msg_type = ["unpledge", "pledged securities"]
         token_type = "Unpledge OTP"
         entity = user_kyc.mobile_number
+        email_subject = "Unpledge Request"
         if loan.instrument_type == "Mutual Fund":
             application_type = "Revoke"
             msg_type = ["revoke", "lien schemes"]
             token_type = "Revoke OTP"
             entity = customer.phone
+            email_subject = "Revoke Request"
 
         securities = validate_securities_for_unpledge(data.get("securities", {}), loan)
 
@@ -2526,9 +2549,7 @@ def loan_unpledge_request(**kwargs):
             }
         )
         unpledge_application.insert(ignore_permissions=True)
-        frappe.enqueue_doc(
-            "Notification", "Unpledge Request", method="send", doc=user_kyc
-        )
+        frappe.enqueue_doc("Notification", email_subject, method="send", doc=user_kyc)
         msg = "Dear Customer,\nYour {} request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. - Spark Loans".format(
             msg_type[0]
         )
@@ -2556,8 +2577,19 @@ def request_sell_collateral_otp():
         is_dummy_account = lms.validate_spark_dummy_account(
             user.username, user.name, check_valid=True
         )
+        try:
+            loan = frappe.get_last_doc(
+                "Loan",
+                filters={
+                    "customer": customer.name,
+                    "instrument_type": "Mutual Fund",
+                },
+            )
+        except frappe.DoesNotExistError:
+            loan = None
+
         token_type = "Sell Collateral OTP"
-        if customer.mycams_email_id:
+        if customer.mycams_email_id and loan:
             token_type = "Invoke OTP"
         if not is_dummy_account:
             frappe.db.begin()
@@ -2607,9 +2639,11 @@ def sell_collateral_request(**kwargs):
             return utils.respondForbidden(message=_("Please use your own Loan."))
 
         application_type = "Sell Collateral"
+        email_subject = "Sell Collateral Request"
         msg_type = "sell collateral"
         if loan.instrument_type == "Mutual Fund":
             application_type = "Invoke"
+            email_subject = "Invoke Request"
             msg_type = "invoke"
 
         sell_application_exist = frappe.get_all(
@@ -2734,12 +2768,11 @@ def sell_collateral_request(**kwargs):
         frappe.db.commit()
         if not data.get("loan_margin_shortfall_name"):
             msg = "Dear Customer,\nYour {} request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. - Spark Loans".format(
-                msg_type[0]
+                msg_type
             )
         doc = customer.get_kyc().as_dict()
-        frappe.enqueue_doc(
-            "Notification", "Sell Collateral Request", method="send", doc=doc
-        )
+
+        frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
 
         if msg:
             receiver_list = list(

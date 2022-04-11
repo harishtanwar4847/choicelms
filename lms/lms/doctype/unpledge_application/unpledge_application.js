@@ -33,6 +33,41 @@ function show_fetch_items_button(frm) {
       });
     });
   } else {
-    frm.clear_custom_buttons();
+    if (frm.doc.instrument_type == "Mutual Fund") {
+      if (!frm.doc.is_validated) {
+        frm.clear_custom_buttons();
+        frm.add_custom_button(__("Validate Revoke Items"), function () {
+          frappe.call({
+            type: "POST",
+            method:
+              "lms.lms.doctype.unpledge_application.unpledge_application.validate_revoc",
+            args: { unpledge_application_name: frm.doc.name },
+            freeze: true,
+            freeze_message: "Validating Revoke Items",
+            callback: (res) => {
+              frm.reload_doc();
+            },
+          });
+        });
+      }
+      if (!frm.doc.is_initiated && frm.doc.is_validated) {
+        frm.clear_custom_buttons();
+        frm.add_custom_button(__("Initiate Revoke Items"), function () {
+          frappe.call({
+            type: "POST",
+            method:
+              "lms.lms.doctype.unpledge_application.unpledge_application.initiate_revoc",
+            args: { unpledge_application_name: frm.doc.name },
+            freeze: true,
+            freeze_message: "Initiating Revoke Items",
+            callback: (res) => {
+              frm.reload_doc();
+            },
+          });
+        });
+      }
+    } else {
+      frm.clear_custom_buttons();
+    }
   }
 }

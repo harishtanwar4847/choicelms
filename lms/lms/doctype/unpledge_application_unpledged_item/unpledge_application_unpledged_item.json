@@ -13,7 +13,14 @@
   "unpledge_quantity",
   "price",
   "pledgor_boid",
-  "pledgee_boid"
+  "pledgee_boid",
+  "column_break_10",
+  "prf",
+  "amc_code",
+  "folio",
+  "scheme_code",
+  "revoke_validate_remarks",
+  "revoke_initiate_remarks"
  ],
  "fields": [
   {
@@ -28,28 +35,28 @@
    "fieldname": "security_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Security Name",
+   "label": "Security/Scheme Name",
    "read_only": 1
   },
   {
    "fieldname": "psn",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "PSN",
+   "label": "PSN/Lien Mark Number",
    "read_only": 1
   },
   {
    "fieldname": "quantity",
-   "fieldtype": "Int",
+   "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Quantity",
+   "label": "Quantity/Unit",
    "read_only": 1
   },
   {
    "fieldname": "unpledge_quantity",
-   "fieldtype": "Int",
+   "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Unpledge Quantity",
+   "label": "Unpledge Quantity/Unit",
    "reqd": 1
   },
   {
@@ -67,18 +74,55 @@
   {
    "fieldname": "price",
    "fieldtype": "Currency",
-   "label": "Price",
+   "label": "Price/NAV",
    "read_only": 1
   },
   {
    "fieldname": "security_category",
    "fieldtype": "Data",
-   "label": "Security Category"
+   "label": "Security/Scheme Category"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "prf",
+   "fieldtype": "Data",
+   "label": "PRF/Lien Reference Number",
+   "read_only": 1
+  },
+  {
+   "fieldname": "revoke_validate_remarks",
+   "fieldtype": "Small Text",
+   "label": "Revoke Validate Remarks",
+   "read_only": 1
+  },
+  {
+   "fieldname": "revoke_initiate_remarks",
+   "fieldtype": "Small Text",
+   "label": "Revoke Initiate Remarks",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amc_code",
+   "fieldtype": "Data",
+   "label": "AMC Code"
+  },
+  {
+   "fieldname": "folio",
+   "fieldtype": "Data",
+   "label": "Folio"
+  },
+  {
+   "fieldname": "scheme_code",
+   "fieldtype": "Data",
+   "label": "Scheme Code"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2021-11-24 10:05:54.686439",
+ "modified": "2022-04-06 16:05:53.711604",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Unpledge Application Unpledged Item",

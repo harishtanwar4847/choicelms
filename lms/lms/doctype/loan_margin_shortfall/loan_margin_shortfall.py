@@ -280,7 +280,10 @@ class LoanMarginShortfall(Document):
                 "margin_shortfall_action": margin_shortfall_action,
                 "hrs_sell_off": hrs_sell_off[0].max_threshold,
             }
-            frappe.enqueue_doc("Notification", "Sale Triggered", method="send", doc=doc)
+            email_subject = "Sale Triggered"
+            if self.instrument_type == "Mutual Fund":
+                email_subject = "MF Sale triggered"
+            frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
             mess = "Dear Customer,\nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {}% of portfolio value. Therefore {} has been triggered in your loan account {}.The lender will {} required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
                 hrs_sell_off[0].max_threshold, msg_type[0], self.loan, msg_type[1]
             )
@@ -382,9 +385,10 @@ class LoanMarginShortfall(Document):
                 "eod_time": eod_time if eod_time else "",
                 "eod_sell_off": eod_sell_off[0].max_threshold if eod_sell_off else "",
             }
-            frappe.enqueue_doc(
-                "Notification", "Margin Shortfall", method="send", doc=doc
-            )
+            email_subject = "Margin Shortfall"
+            if self.instrument_type == "Mutual Fund":
+                email_subject = "MF Margin shortfall"
+            frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
 
         if mess:
             frappe.enqueue(

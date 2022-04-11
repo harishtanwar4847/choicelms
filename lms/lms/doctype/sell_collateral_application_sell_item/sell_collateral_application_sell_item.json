@@ -13,7 +13,14 @@
   "sell_quantity",
   "price",
   "pledgor_boid",
-  "pledgee_boid"
+  "pledgee_boid",
+  "column_break_10",
+  "prf",
+  "amc_code",
+  "folio",
+  "scheme_code",
+  "invoke_validate_remarks",
+  "invoke_initiate_remarks"
  ],
  "fields": [
   {
@@ -28,28 +35,28 @@
    "fieldname": "security_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Security Name",
+   "label": "Security/Scheme Name",
    "read_only": 1
   },
   {
    "fieldname": "psn",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "PSN",
+   "label": "PSN/Lien Mark Number",
    "read_only": 1
   },
   {
    "fieldname": "quantity",
-   "fieldtype": "Int",
+   "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Quantity",
+   "label": "Quantity/Unit",
    "read_only": 1
   },
   {
    "fieldname": "sell_quantity",
-   "fieldtype": "Int",
+   "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Sell Quantity",
+   "label": "Sell Quantity/Unit",
    "reqd": 1
   },
   {
@@ -67,18 +74,58 @@
   {
    "fieldname": "price",
    "fieldtype": "Currency",
-   "label": "Price",
+   "label": "Price/Nav",
    "read_only": 1
   },
   {
    "fieldname": "security_category",
    "fieldtype": "Data",
-   "label": "Security Category"
+   "label": "Security/Scheme Category"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "prf",
+   "fieldtype": "Data",
+   "label": "PRF/Lien Reference Number",
+   "read_only": 1
+  },
+  {
+   "fieldname": "invoke_validate_remarks",
+   "fieldtype": "Small Text",
+   "label": "Invoke Validate Remarks",
+   "read_only": 1
+  },
+  {
+   "fieldname": "invoke_initiate_remarks",
+   "fieldtype": "Small Text",
+   "label": "Invoke Initiate Remarks",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amc_code",
+   "fieldtype": "Data",
+   "label": "AMC Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "folio",
+   "fieldtype": "Data",
+   "label": "Folio",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scheme_code",
+   "fieldtype": "Data",
+   "label": "Scheme Code",
+   "read_only": 1
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2021-11-24 10:02:32.395105",
+ "modified": "2022-04-06 16:26:06.808641",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application Sell Item",
