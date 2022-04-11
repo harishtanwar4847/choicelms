@@ -336,7 +336,7 @@ def validate_revoc(unpledge_application_name):
         customer = frappe.get_doc("Loan Customer", doc.customer)
         user_kyc = lms.__user_kyc(customer.user)
 
-        if customer.cams_email_id and doc.instrument_type == "Mutual Fund":
+        if customer.mycams_email_id and doc.instrument_type == "Mutual Fund":
             # create payload
             try:
                 datetime_signature = lms.create_signature_mycams()
@@ -354,7 +354,7 @@ def validate_revoc(unpledge_application_name):
                         "reqrefno": doc.name,
                         "lienrefno": collateral_ledger.prf,
                         "pan": user_kyc.pan_no,
-                        "regemailid": customer.cams_email_id,
+                        "regemailid": customer.mycams_email_id,
                         "clientid": las_settings.client_id,
                         "requestip": "103.19.132.194",
                         "schemedetails": [],
@@ -461,7 +461,7 @@ def initiate_revoc(unpledge_application_name):
         customer = frappe.get_doc("Loan Customer", doc.customer)
         user_kyc = lms.__user_kyc(customer.user)
 
-        if customer.cams_email_id and doc.instrument_type == "Mutual Fund":
+        if customer.mycams_email_id and doc.instrument_type == "Mutual Fund":
             try:
                 # create payload
                 datetime_signature = lms.create_signature_mycams()
@@ -480,7 +480,7 @@ def initiate_revoc(unpledge_application_name):
                         "revoctoken": doc.revoctoken,
                         "lienrefno": collateral_ledger.prf,
                         "pan": user_kyc.pan_no,
-                        "regemailid": customer.cams_email_id,
+                        "regemailid": customer.mycams_email_id,
                         "clientid": las_settings.client_id,
                         "requestip": "103.19.132.194",
                         "schemedetails": [],
