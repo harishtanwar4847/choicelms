@@ -498,7 +498,16 @@ class Loan(Document):
                                 "Sale triggerred inaction",
                                 fields=["*"],
                             )
-                            message = fcm_notification.message.format(loan=self.name)
+                            message = fcm_notification.message.format(
+                                sale="sale", loan=self.name
+                            )
+                            if self.instrument_type == "Mutual Fund":
+                                message = fcm_notification.message.format(
+                                    sale="invoke", loan=self.name
+                                )
+                                fcm_notification = fcm_notification.as_dict()
+                                fcm_notification["title"] = "Invoke triggerred"
+                            # message = fcm_notification.message.format(loan=self.name)
                             doc = frappe.get_doc(
                                 "User KYC", self.get_customer().choice_kyc
                             ).as_dict()

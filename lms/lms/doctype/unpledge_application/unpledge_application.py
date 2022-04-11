@@ -202,6 +202,11 @@ class UnpledgeApplication(Document):
                     "Unpledge application accepted",
                     fields=["*"],
                 )
+                message = fcm_notification.message.format(unpledge="unpledge")
+                if self.instrument_type == "Mutual Fund":
+                    message = fcm_notification.message.format(unpledge="revoke")
+                    fcm_notification = fcm_notification.as_dict()
+                    fcm_notification["title"] = "Revoke application accepted"
             elif self.status == "Rejected":
                 if check == True:
                     # msg = """Dear {},
@@ -220,6 +225,11 @@ class UnpledgeApplication(Document):
                         "Unpledge application rejected",
                         fields=["*"],
                     )
+                    message = fcm_notification.message.format(unpledge="unpledge")
+                    if self.instrument_type == "Mutual Fund":
+                        message = fcm_notification.message.format(unpledge="revoke")
+                        fcm_notification = fcm_notification.as_dict()
+                        fcm_notification["title"] = "Revoke application rejected"
 
             receiver_list = list(
                 set([str(customer.phone), str(user_kyc.mobile_number)])
@@ -231,7 +241,7 @@ class UnpledgeApplication(Document):
         if fcm_notification:
             lms.send_spark_push_notification(
                 fcm_notification=fcm_notification,
-                message=fcm_notification.message,
+                message=message,
                 loan=self.loan,
                 customer=customer,
             )

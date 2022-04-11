@@ -288,8 +288,17 @@ class LoanMarginShortfall(Document):
                 "Spark Push Notification", "Sale triggerred immediate", fields=["*"]
             )
             message = fcm_notification.message.format(
-                max_threshold=hrs_sell_off[0].max_threshold
+                Sale="Sale", max_threshold=hrs_sell_off[0].max_threshold
             )
+            if self.instrument_type == "Mutual Fund":
+                message = fcm_notification.message.format(
+                    Sale="Invoke", max_threshold=hrs_sell_off[0].max_threshold
+                )
+                fcm_notification = fcm_notification.as_dict()
+                fcm_notification["title"] = "Invoke triggerred"
+            # message = fcm_notification.message.format(
+            #     max_threshold=hrs_sell_off[0].max_threshold
+            # )
         elif margin_shortfall_action.sell_off_after_hours:
             mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {}. Please check the app and take an appropriate action within {} hours; else sale will be triggered. Spark Loans".format(
                 self.loan, margin_shortfall_action.sell_off_after_hours
@@ -302,8 +311,18 @@ class LoanMarginShortfall(Document):
             message = fcm_notification.message.format(
                 loan=self.loan,
                 shortfall_action=margin_shortfall_action.sell_off_after_hours,
+                sale="sale",
             )
-
+            if self.instrument_type == "Mutual Fund":
+                message = fcm_notification.message.format(
+                    loan=self.loan,
+                    shortfall_action=margin_shortfall_action.sell_off_after_hours,
+                    sale="invoke",
+                )
+            # message = fcm_notification.message.format(
+            #     loan=self.loan,
+            #     shortfall_action=margin_shortfall_action.sell_off_after_hours,
+            # )
         elif margin_shortfall_action.sell_off_deadline_eod:
             eod_sell_off = frappe.get_all(
                 "Margin Shortfall Action",
@@ -335,7 +354,20 @@ class LoanMarginShortfall(Document):
                 loan=self.loan,
                 max_threshold=eod_sell_off[0].max_threshold,
                 eod_time=eod_time,
+                sale="sale",
             )
+            if self.instrument_type == "Mutual Fund":
+                message = fcm_notification.message.format(
+                    loan=self.loan,
+                    max_threshold=eod_sell_off[0].max_threshold,
+                    eod_time=eod_time,
+                    sale="invoke",
+                )
+            # message = fcm_notification.message.format(
+            #     loan=self.loan,
+            #     max_threshold=eod_sell_off[0].max_threshold,
+            #     eod_time=eod_time,
+            # )
 
         if (
             margin_shortfall_action.sell_off_after_hours
