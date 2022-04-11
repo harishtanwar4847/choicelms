@@ -255,13 +255,21 @@ class LoanMarginShortfall(Document):
         eod_time = ""
         eod_sell_off = []
 
+        msg_type = ["sale", "sell"]
+        if self.instrument_type == "Mutual Fund":
+            msg_type = ["invoke", "invoke"]
+
         if (
             not margin_shortfall_action.sell_off_after_hours
             and not margin_shortfall_action.sell_off_deadline_eod
         ):
             hrs_sell_off = frappe.get_all(
                 "Margin Shortfall Action",
-                filters={"sell_off_deadline_eod": ("!=", 0)},
+                filters={
+                    "sell_off_deadline_eod": ("!=", 0),
+                    "instrument_type": self.instrument_type,
+                    "scheme_type": self.scheme_type,
+                },
                 fields=["max_threshold"],
             )
             doc = frappe.get_doc(
@@ -276,8 +284,8 @@ class LoanMarginShortfall(Document):
             if self.instrument_type == "Mutual Fund":
                 email_subject = "MF Sale triggered"
             frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
-            mess = "Dear Customer,\nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {}% of portfolio value. Therefore sale has been triggered in your loan account {}.The lender will sell required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
-                hrs_sell_off[0].max_threshold, self.loan
+            mess = "Dear Customer,\nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {}% of portfolio value. Therefore {} has been triggered in your loan account {}.The lender will {} required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
+                hrs_sell_off[0].max_threshold, msg_type[0], self.loan, msg_type[1]
             )
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Sale triggerred immediate", fields=["*"]
@@ -318,11 +326,14 @@ class LoanMarginShortfall(Document):
             #     loan=self.loan,
             #     shortfall_action=margin_shortfall_action.sell_off_after_hours,
             # )
-
         elif margin_shortfall_action.sell_off_deadline_eod:
             eod_sell_off = frappe.get_all(
                 "Margin Shortfall Action",
-                filters={"sell_off_after_hours": ("!=", 0)},
+                filters={
+                    "sell_off_after_hours": ("!=", 0),
+                    "instrument_type": self.instrument_type,
+                    "scheme_type": self.scheme_type,
+                },
                 fields=["max_threshold"],
             )
             if margin_shortfall_action.sell_off_deadline_eod == 24:

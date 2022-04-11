@@ -214,7 +214,6 @@ class UnpledgeApplication(Document):
                     message = fcm_notification.message.format(unpledge="revoke")
                     fcm_notification = fcm_notification.as_dict()
                     fcm_notification["title"] = "Revoke application accepted"
-
             elif self.status == "Rejected":
                 if check == True:
                     # msg = """Dear {},
@@ -236,10 +235,10 @@ class UnpledgeApplication(Document):
                         fields=["*"],
                     )
                     message = fcm_notification.message.format(unpledge="unpledge")
-                if self.instrument_type == "Mutual Fund":
-                    message = fcm_notification.message.format(unpledge="revoke")
-                    fcm_notification = fcm_notification.as_dict()
-                    fcm_notification["title"] = "Revoke application rejected"
+                    if self.instrument_type == "Mutual Fund":
+                        message = fcm_notification.message.format(unpledge="revoke")
+                        fcm_notification = fcm_notification.as_dict()
+                        fcm_notification["title"] = "Revoke application rejected"
 
             receiver_list = list(
                 set([str(customer.phone), str(user_kyc.mobile_number)])

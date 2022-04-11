@@ -1246,13 +1246,12 @@ class LoanApplication(Document):
                 "Spark Push Notification", fcm_title, fields=["*"]
             )
             fcm_message = fcm_notification.message.format(pledge="pledge")
-            if self.instrument_type == "Mutual Fund":
+            if self.instrument_type == "Mututal Fund":
                 fcm_message = fcm_notification.message.format(pledge="lien")
-                if self.instrument_type == "Mutual Fund":
-                    fcm_notification = fcm_notification
-                    if fcm_title == "Pledge rejected":
-                        fcm_notification = fcm_notification.as_dict()
-                        fcm_notification["title"] = "Lien rejected"
+                fcm_notification = fcm_notification
+                if fcm_title == "Pledge rejected":  # can be refactored
+                    fcm_notification = fcm_notification.as_dict()
+                    fcm_notification["title"] = "Lien rejected"
 
         elif (
             doc.get("loan_application").get("status") == "Pledge accepted by Lender"

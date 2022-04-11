@@ -32,7 +32,6 @@ class SellCollateralApplication(Document):
                 message = fcm_notification.message.format(sell="invoke")
                 fcm_notification = fcm_notification.as_dict()
                 fcm_notification["title"] = "Invoke request rejected"
-
             self.notify_customer(fcm_notification=fcm_notification, message=message)
 
     def process_items(self, instrument_type="Shares"):
@@ -144,8 +143,14 @@ class SellCollateralApplication(Document):
                     )
 
     def on_update(self):
+        msg_type = "sell collateral"
+        if self.instrument_type == "Mutual Fund":
+            msg_type = "invoke"
+
         if self.status == "Rejected":
-            msg = "Dear Customer,\nSorry! Your sell collateral request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
+            msg = "Dear Customer,\nSorry! Your {} request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans".format(
+                msg_type
+            )
 
             receiver_list = list(
                 set(
@@ -210,6 +215,7 @@ class SellCollateralApplication(Document):
                     frappe.db.commit()
 
     def on_submit(self):
+
         for i in self.sell_items:
             if i.sell_quantity > 0:
                 collateral_ledger_data = {
@@ -304,6 +310,10 @@ class SellCollateralApplication(Document):
             frappe.throw(_("Invalid User"))
         user_roles = [role[0] for role in user_roles]
 
+        msg_type = ["Sale of securities", "sale"]
+        if loan.instrument_type == "Mutual Fund":
+            msg_type = ["Invoke", "invoke"]
+
         if "Loan customer" not in user_roles and self.loan_margin_shortfall:
             doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
             doc["sell_triggered_completion"] = {"loan": self.loan}
@@ -312,8 +322,8 @@ class SellCollateralApplication(Document):
             if self.instrument_type == "Mutual Fund":
                 email_subject = "MF Sale Triggered Completion"
             frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
-            msg = "Dear Customer,\nSale of securities initiated by the lending partner for your loan account  {} is now completed .The sale proceeds have been credited to your loan account and collateral value updated. Please check the app for details. Spark Loans".format(
-                self.loan
+            msg = "Dear Customer,\n{} initiated by the lending partner for your loan account  {} is now completed .The {} proceeds have been credited to your loan account and collateral value updated. Please check the app for details. Spark Loans".format(
+                msg_type[0], self.loan, msg_type[1]
             )
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Sale triggerred completed", fields=["*"]
@@ -325,10 +335,16 @@ class SellCollateralApplication(Document):
                 message = fcm_notification.message.format(Sale="Invoke", loan=self.loan)
                 fcm_notification = fcm_notification.as_dict()
                 fcm_notification["title"] = "Invoke triggerred completed "
-            message = message
             # message = fcm_notification.message.format(loan=self.loan)
         else:
-            msg = "Dear Customer,\nCongratulations! Your sell collateral request has been successfully executed and sale proceeds credited to your loan account. Kindly check the app for details -Spark Loans"
+            msg_type = "sell collateral"
+            if loan.instrument_type == "Mutual Fund":
+                msg_type = "invoke"
+
+            msg = "Dear Customer,\nCongratulations! Your {} request has been successfully executed and sale proceeds credited to your loan account. Kindly check the app for details -Spark Loans".format(
+                msg_type
+            )
+
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Sell request executed", fields=["*"]
             )
@@ -337,8 +353,6 @@ class SellCollateralApplication(Document):
                 message = fcm_notification.message.format(sell="invoke", sale="invoke")
                 fcm_notification = fcm_notification.as_dict()
                 fcm_notification["title"] = "Invoke request executed"
-            message = message
-
         if msg:
             receiver_list = list(
                 set(

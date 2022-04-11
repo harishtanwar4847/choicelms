@@ -2598,11 +2598,6 @@ def sell_collateral_request(**kwargs):
 
         user = lms.__user()
         customer = lms.__customer()
-        application_type = "Sell Collateral"
-        msg_type = ["unpledge", "pledged securities"]
-        if customer.mycams_email_id:
-            application_type = "Invoke"
-            msg_type = ["revoke", "lien schemes"]
 
         try:
             loan = frappe.get_doc("Loan", data.get("loan_name"))
