@@ -1804,16 +1804,12 @@ def check_loans_for_shortfall(loans):
 
 
 @frappe.whitelist()
-def check_all_loans_for_shortfall(is_for_mf=0):
+def check_all_loans_for_shortfall():
     chunks = lms.chunk_doctype(doctype="Loan", limit=50)
-    filters = {}
-    if is_for_mf:
-        filters = {"instrument_type": "Mutual Fund"}
 
     for start in chunks.get("chunks"):
         loan_list = frappe.db.get_all(
             "Loan",
-            filters=filters,
             limit_page_length=chunks.get("limit"),
             limit_start=start,
         )
