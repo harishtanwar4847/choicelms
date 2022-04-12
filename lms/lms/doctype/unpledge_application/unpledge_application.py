@@ -348,14 +348,19 @@ import requests
 @frappe.whitelist()
 def validate_revoc(unpledge_application_name):
     try:
-        doc = frappe.get_doc("Unpledge Application", unpledge_application_name)
-        collateral_ledger = frappe.get_last_doc(
-            "Collateral Ledger", filters={"loan": doc.loan}
+        unpledge_application_doc = frappe.get_doc(
+            "Unpledge Application", unpledge_application_name
         )
-        customer = frappe.get_doc("Loan Customer", doc.customer)
+        collateral_ledger = frappe.get_last_doc(
+            "Collateral Ledger", filters={"loan": unpledge_application_doc.loan}
+        )
+        customer = frappe.get_doc("Loan Customer", unpledge_application_doc.customer)
         user_kyc = lms.__user_kyc(customer.user)
 
-        if customer.mycams_email_id and doc.instrument_type == "Mutual Fund":
+        if (
+            customer.mycams_email_id
+            and unpledge_application_doc.instrument_type == "Mutual Fund"
+        ):
             # create payload
             try:
                 datetime_signature = lms.create_signature_mycams()
@@ -370,7 +375,7 @@ def validate_revoc(unpledge_application_name):
                 url = las_settings.revoke_api
                 data = {
                     "revocvalidate": {
-                        "reqrefno": doc.name,
+                        "reqrefno": unpledge_application_doc.name,
                         "lienrefno": collateral_ledger.prf,
                         "pan": user_kyc.pan_no,
                         "regemailid": customer.mycams_email_id,
@@ -379,7 +384,7 @@ def validate_revoc(unpledge_application_name):
                         "schemedetails": [],
                     }
                 }
-                for i in doc.unpledge_items:
+                for i in unpledge_application_doc.unpledge_items:
                     schemedetails = (
                         {
                             "amccode": i.amc_code,
@@ -387,7 +392,7 @@ def validate_revoc(unpledge_application_name):
                             "schemecode": i.scheme_code,
                             "schemename": i.security_name,
                             "isinno": i.isin,
-                            "schemetype": doc.scheme_type,
+                            "schemetype": unpledge_application_doc.scheme_type,
                             "schemecategory": i.security_category,
                             "lienunit": i.quantity,
                             "revocationunit": i.unpledge_quantity,
@@ -414,40 +419,6 @@ def validate_revoc(unpledge_application_name):
                 ).decrypt(encrypted_response)
                 dict_decrypted_response = json.loads(decrypted_response)
 
-                if dict_decrypted_response.get("revocvalidate"):
-                    doc.validate_message = dict_decrypted_response.get(
-                        "revocvalidate"
-                    ).get("message")
-                    doc.revoctoken = dict_decrypted_response.get("revocvalidate").get(
-                        "revoctoken"
-                    )
-
-                    isin_details = {}
-                    schemedetails_res = dict_decrypted_response.get(
-                        "revocvalidate"
-                    ).get("schemedetails")
-
-                    for i in schemedetails_res:
-                        isin_details[i.get("isinno")] = i
-
-                    for i in doc.unpledge_items:
-                        if i.get("isin") in isin_details:
-                            i.revoke_validate_remarks = isin_details.get(
-                                i.get("isin")
-                            ).get("remarks")
-
-                    if (
-                        dict_decrypted_response.get("revocvalidate").get("message")
-                        == "SUCCESS"
-                    ):
-                        doc.is_validated = True
-                else:
-                    doc.validate_message = dict_decrypted_response.get("status")[0].get(
-                        "error"
-                    )
-                doc.save(ignore_permissions=True)
-                frappe.db.commit()
-
                 lms.create_log(
                     {
                         "json_payload": data,
@@ -457,6 +428,41 @@ def validate_revoc(unpledge_application_name):
                     },
                     "revoke_validate",
                 )
+
+                if dict_decrypted_response.get("revocvalidate"):
+                    unpledge_application_doc.validate_message = (
+                        dict_decrypted_response.get("revocvalidate").get("message")
+                    )
+                    unpledge_application_doc.revoctoken = dict_decrypted_response.get(
+                        "revocvalidate"
+                    ).get("revoctoken")
+
+                    isin_details = {}
+                    schemedetails_res = dict_decrypted_response.get(
+                        "revocvalidate"
+                    ).get("schemedetails")
+
+                    for i in schemedetails_res:
+                        isin_details[i.get("isinno")] = i
+
+                    for i in unpledge_application_doc.unpledge_items:
+                        if i.get("isin") in isin_details:
+                            i.revoke_validate_remarks = isin_details.get(
+                                i.get("isin")
+                            ).get("remarks")
+
+                    if (
+                        dict_decrypted_response.get("revocvalidate").get("message")
+                        == "SUCCESS"
+                    ):
+                        unpledge_application_doc.is_validated = True
+                else:
+                    unpledge_application_doc.validate_message = (
+                        dict_decrypted_response.get("status")[0].get("error")
+                    )
+                unpledge_application_doc.save(ignore_permissions=True)
+                frappe.db.commit()
+
             except requests.RequestException as e:
                 raise utils.exceptions.APIException(str(e))
         else:
@@ -473,14 +479,19 @@ def validate_revoc(unpledge_application_name):
 @frappe.whitelist()
 def initiate_revoc(unpledge_application_name):
     try:
-        doc = frappe.get_doc("Unpledge Application", unpledge_application_name)
-        collateral_ledger = frappe.get_last_doc(
-            "Collateral Ledger", filters={"loan": doc.loan}
+        unpledge_application_doc = frappe.get_doc(
+            "Unpledge Application", unpledge_application_name
         )
-        customer = frappe.get_doc("Loan Customer", doc.customer)
+        collateral_ledger = frappe.get_last_doc(
+            "Collateral Ledger", filters={"loan": unpledge_application_doc.loan}
+        )
+        customer = frappe.get_doc("Loan Customer", unpledge_application_doc.customer)
         user_kyc = lms.__user_kyc(customer.user)
 
-        if customer.mycams_email_id and doc.instrument_type == "Mutual Fund":
+        if (
+            customer.mycams_email_id
+            and unpledge_application_doc.instrument_type == "Mutual Fund"
+        ):
             try:
                 # create payload
                 datetime_signature = lms.create_signature_mycams()
@@ -495,8 +506,8 @@ def initiate_revoc(unpledge_application_name):
                 url = las_settings.revoke_api
                 data = {
                     "revocinitiate": {
-                        "reqrefno": doc.name,
-                        "revoctoken": doc.revoctoken,
+                        "reqrefno": unpledge_application_doc.name,
+                        "revoctoken": unpledge_application_doc.revoctoken,
                         "lienrefno": collateral_ledger.prf,
                         "pan": user_kyc.pan_no,
                         "regemailid": customer.mycams_email_id,
@@ -505,7 +516,7 @@ def initiate_revoc(unpledge_application_name):
                         "schemedetails": [],
                     }
                 }
-                for i in doc.unpledge_items:
+                for i in unpledge_application_doc.unpledge_items:
                     schemedetails = (
                         {
                             "amccode": i.amc_code,
@@ -513,7 +524,7 @@ def initiate_revoc(unpledge_application_name):
                             "schemecode": i.scheme_code,
                             "schemename": i.security_name,
                             "isinno": i.isin,
-                            "schemetype": doc.scheme_type,
+                            "schemetype": unpledge_application_doc.scheme_type,
                             "schemecategory": i.security_category,
                             "lienunit": i.quantity,
                             "revocationunit": i.unpledge_quantity,
@@ -540,10 +551,20 @@ def initiate_revoc(unpledge_application_name):
                 ).decrypt(encrypted_response)
                 dict_decrypted_response = json.loads(decrypted_response)
 
+                lms.create_log(
+                    {
+                        "json_payload": data,
+                        "encrypted_request": encrypted_data,
+                        "encrypred_response": json.loads(resp).get("res"),
+                        "decrypted_response": dict_decrypted_response,
+                    },
+                    "revoke_initiate",
+                )
+
                 if dict_decrypted_response.get("revocinitiate"):
-                    doc.initiate_message = dict_decrypted_response.get(
-                        "revocinitiate"
-                    ).get("message")
+                    unpledge_application_doc.initiate_message = (
+                        dict_decrypted_response.get("revocinitiate").get("message")
+                    )
 
                     schemedetails_res = dict_decrypted_response.get(
                         "revocinitiate"
@@ -551,7 +572,7 @@ def initiate_revoc(unpledge_application_name):
                     isin_details = {}
                     for i in schemedetails_res:
                         isin_details[i.get("isinno")] = i
-                    for i in doc.unpledge_items:
+                    for i in unpledge_application_doc.unpledge_items:
                         if i.get("isin") in isin_details:
                             i.revoke_validate_remarks = isin_details.get(
                                 i.get("isin")
@@ -564,7 +585,9 @@ def initiate_revoc(unpledge_application_name):
                                     set psn = '{psn}', isin = '{isin}'
                                     where loan = '{loan}'
                                     """.format(
-                                        psn=new_psn, isin=i.get("isin"), loan=doc.loan
+                                        psn=new_psn,
+                                        isin=i.get("isin"),
+                                        loan=unpledge_application_doc.loan,
                                     )
                                 )
 
@@ -572,24 +595,15 @@ def initiate_revoc(unpledge_application_name):
                         dict_decrypted_response.get("revocinitiate").get("message")
                         == "SUCCESS"
                     ):
-                        doc.is_initiated = True
+                        unpledge_application_doc.is_initiated = True
                 else:
-                    doc.initiate_message = dict_decrypted_response.get("status")[0].get(
-                        "error"
+                    unpledge_application_doc.initiate_message = (
+                        dict_decrypted_response.get("status")[0].get("error")
                     )
 
-                doc.save(ignore_permissions=True)
+                unpledge_application_doc.save(ignore_permissions=True)
                 frappe.db.commit()
 
-                lms.create_log(
-                    {
-                        "json_payload": data,
-                        "encrypted_request": encrypted_data,
-                        "encrypred_response": json.loads(resp).get("res"),
-                        "decrypted_response": dict_decrypted_response,
-                    },
-                    "revoke_initiate",
-                )
             except requests.RequestException as e:
                 raise utils.exceptions.APIException(str(e))
         else:
