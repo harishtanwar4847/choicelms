@@ -141,6 +141,14 @@ def esign(**kwargs):
                 headers=esign_request.get("headers"),
             )
 
+            log = {
+                "url": esign_request.get("file_upload_url"),
+                "headers": esign_request.get("headers"),
+                "request": esign_request,
+                "response": res.json(),
+            }
+            lms.create_log(log, "esign_log")
+
             if not res.ok:
                 raise utils.exceptions.APIException(res.text)
 
