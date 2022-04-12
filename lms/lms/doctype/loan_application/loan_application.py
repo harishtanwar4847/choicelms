@@ -1350,7 +1350,7 @@ class LoanApplication(Document):
             )
             fcm_message = (
                 fcm_notification.message.format(
-                    partial="pledge",
+                    pledge="pledge",
                     total_collateral_value_str=self.total_collateral_value_str,
                 )
                 if self.loan
@@ -1359,7 +1359,7 @@ class LoanApplication(Document):
             if self.instrument_type == "Mutual Fund":
                 fcm_message = (
                     fcm_notification.message.format(
-                        partial="lien",
+                        pledge="lien",
                         total_collateral_value_str=self.total_collateral_value_str,
                     )
                     if self.loan
