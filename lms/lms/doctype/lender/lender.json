@@ -609,50 +609,50 @@
    "fieldname": "lien_initiate_charge_maximum_amount",
    "fieldtype": "Float",
    "label": "Maximum Amount"
-  },
-  {
-   "fieldname": "invoke_initiate_charge_type",
-   "fieldtype": "Select",
-   "label": "Invoke Initiate Charge Type",
-   "options": "Fix\nPercentage"
-  },
-  {
-   "fieldname": "revoke_initiate_charge_type",
-   "fieldtype": "Select",
-   "label": "Revoke Initiate Charge Type",
-   "options": "Fix\nPercentage"
-  },
-  {
-   "fieldname": "invoke_initiate_charges",
-   "fieldtype": "Float",
-   "label": "Invoke Initiate Charges",
-   "precision": "2"
-  },
-  {
-   "fieldname": "revoke_initiate_charges",
-   "fieldtype": "Float",
-   "label": "Revoke Initiate Charges",
-   "precision": "2"
-  },
-  {
-   "fieldname": "invoke_initiate_charges_minimum_amount",
-   "fieldtype": "Float",
-   "label": "Minimum Amount"
-  },
-  {
-   "fieldname": "revoke_initiate_charges_minimum_amount",
-   "fieldtype": "Float",
-   "label": "Minimum Amount"
-  },
-  {
-   "fieldname": "invoke_initiate_charges_maximum_amount",
-   "fieldtype": "Float",
-   "label": "Maximum Amount"
-  },
-  {
-   "fieldname": "revoke_initiate_charges_maximum_amount",
-   "fieldtype": "Float",
-   "label": "Maximum Amount"
+},
+{
+ "fieldname": "invoke_initiate_charge_type",
+ "fieldtype": "Select",
+ "label": "Invoke Initiate Charge Type",
+ "options": "Fix\nPercentage"
+},
+{
+ "fieldname": "revoke_initiate_charge_type",
+ "fieldtype": "Select",
+ "label": "Revoke Initiate Charge Type",
+ "options": "Fix\nPercentage"
+},
+{
+ "fieldname": "invoke_initiate_charges",
+ "fieldtype": "Float",
+ "label": "Invoke Initiate Charges",
+ "precision": "2"
+},
+{
+ "fieldname": "revoke_initiate_charges",
+ "fieldtype": "Float",
+ "label": "Revoke Initiate Charges",
+ "precision": "2"
+},
+{
+ "fieldname": "invoke_initiate_charges_minimum_amount",
+ "fieldtype": "Float",
+ "label": "Minimum Amount"
+},
+{
+ "fieldname": "revoke_initiate_charges_minimum_amount",
+ "fieldtype": "Float",
+ "label": "Minimum Amount"
+},
+{
+ "fieldname": "invoke_initiate_charges_maximum_amount",
+ "fieldtype": "Float",
+ "label": "Maximum Amount"
+},
+{
+ "fieldname": "revoke_initiate_charges_maximum_amount",
+ "fieldtype": "Float",
+ "label": "Maximum Amount"
   }
  ],
  "links": [],
