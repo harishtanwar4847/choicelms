@@ -1519,15 +1519,15 @@ def decrypt_lien_marking_response():
             las_settings.decryption_key, las_settings.iv
         ).decrypt(encrypted_response)
 
-        log = {
-            "encrypted_response": data.get("lienresponse"),
-            "decrypted_response": decrypted_response,
-        }
-        create_log(log, "encrypted_response")
-
         data = xmltodict.parse(decrypted_response)
         dict_payload = json.loads(json.dumps(data))
         res = dict_payload.get("response")
+
+        log = {
+            "encrypted_response": data.get("lienresponse"),
+            "decrypted_response": res,
+        }
+        create_log(log, "encrypted_response")
         if (
             res.get("errorcode") == "S000"
             and res.get("error") == "Lien marked sucessfully"

@@ -16,6 +16,7 @@
   "pledged_total_collateral_value",
   "pledged_total_collateral_value_str",
   "loan_margin_shortfall",
+  "remarks",
   "loan_application_column_break",
   "customer",
   "customer_name",
@@ -232,10 +233,16 @@
    "fieldtype": "Currency",
    "label": "Increased Sanctioned Limit",
    "read_only": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Text",
+   "label": "Remarks",
+   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2022-03-15 10:25:12.590373",
+ "modified": "2022-04-12 14:08:34.414048",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

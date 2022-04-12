@@ -171,243 +171,185 @@ class LoanApplication(Document):
 
     def after_insert(self):
         if self.instrument_type == "Mutual Fund":
-            customer = self.get_customer()
-            frappe.session.user = "Administrator"
-            user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
-            las_settings = frappe.get_single("LAS Settings")
-            self.status = "Executing pledge"
-            self.workflow_state = "Executing pledge"
-            self.total_collateral_value = 0
-            for i in self.items:
-                i.lender_approval_status = "Approved"
-            self.save(ignore_permissions=True)
-            frappe.db.commit()
-            lien_ref_no = self.items[0].get("prf_number")
-            schemedetails = []
-            for i in self.items:
-                item = {
-                    "amccode": i.get("amc_code"),
-                    "amcname": i.get("amc_name"),
-                    "folio": i.get("folio"),
-                    "schemecode": i.get("scheme_code"),
-                    "schemename": i.get("security_name"),
-                    "isinno": i.get("isin"),
-                    "schemetype": i.get("type"),
-                    "schemecategory": "O",
-                    "lienunit": str(i.get("requested_quantity")),
-                    "lienapprovedunit": str(i.get("pledged_quantity")),
-                    "lienmarkno": "",
-                    "sanctionedamount": "",
-                }
-                schemedetails.append(item)
-
-            data = {
-                "initiatereq": [
-                    {
-                        "lienrefno": lien_ref_no,
-                        "errorcode": "",
-                        "error": "",
-                        "sucessflag": "Y",
-                        "failurereason": "",
-                        "loginemail": customer.mycams_email_id,
-                        "netbankingemail": customer.user,
-                        "clientid": las_settings.client_id,
-                        "clientname": las_settings.client_name,
-                        "subclientid": "",
-                        "pan": user_kyc.pan_no,
-                        "bankschemetype": self.scheme_type,
-                        "bankrefno": las_settings.bank_reference_no,
-                        "bankname": las_settings.bank_name,
-                        "branchname": "Mumbai",
-                        "address1": "Address1",
-                        "address2": "Address2",
-                        "address3": "Address3",
-                        "city": "Mumbai",
-                        "state": "MH",
-                        "country": "india",
-                        "pincode": "400706",
-                        "phoneoff": "02212345678",
-                        "phoneres": "02221345678",
-                        "faxno": "02231245678",
-                        "faxres": "1357",
-                        "requestip": "",
-                        "addinfo1": self.name,
-                        "addinfo2": customer.name,
-                        "addinfo3": customer.full_name,
-                        "addinfo4": "4",
-                        "addinfo5": "5",
-                        "markid": "",
-                        "verifyid": "",
-                        "approveid": "",
-                    }
-                ],
-                "schemedetails": schemedetails,
-            }
-
-            encrypted_data = lms.AESCBC(
-                las_settings.encryption_key, las_settings.iv
-            ).encrypt(json.dumps(data))
-
-            url = las_settings.lien_initiate_api
-            datetime_signature = lms.create_signature_mycams()
-            headers = {
-                "Content-Type": "application/json",
-                "clientid": las_settings.client_id,
-                "datetimestamp": datetime_signature[0],
-                "signature": datetime_signature[1],
-            }
-
-            lms.create_log(
-                {
-                    "Customer name": customer.full_name,
-                    "json_payload": data,
-                    "encrypted_request": encrypted_data,
-                },
-                "lien_initiate_request",
-            )
-            response = requests.post(url=url, headers=headers, data=encrypted_data)
-            encrypted_response = response.text.replace("-", "+").replace("_", "/")
-            print(encrypted_response, "decrypted daata")
-            decrypted_data = lms.AESCBC(
-                las_settings.decryption_key, las_settings.iv
-            ).decrypt(encrypted_response)
-            decrypted_json = json.loads(decrypted_data)
-            # decrypted_data = {
-            #     "initiatereq": [
-            #         {
-            #         "lienrefno": "10177",
-            #         "errorcode": "S000",
-            #         "error": "Lien Initiated Sucessfully",
-            #         "sucessflag": "Y",
-            #         "failurereason": "",
-            #         "loginemail": "a_shameembanu@camsonline.com",
-            #         "netbankingemail": "a_shameembanu@camsonline.com",
-            #         "clientid": "LAMF-TCFINPLTD",
-            #         "clientname": "Choice Finserv Pvt Ltd",
-            #         "subclientid": "",
-            #         "pan": "BFAPS2661R",
-            #         "bankschemetype": "Debt",
-            #         "bankrefno": "10001",
-            #         "bankname": "Choice Finserv Pvt Ltd",
-            #         "branchname": "Mumbai",
-            #         "address1": "Address1",
-            #         "address2": "Address2",
-            #         "address3": "Address3",
-            #         "city": "Mumbai",
-            #         "state": "MH",
-            #         "country": "india",
-            #         "pincode": "400706",
-            #         "phoneoff": "02212345678",
-            #         "phoneres": "02221345678",
-            #         "faxno": "02231245678",
-            #         "faxres": "1357",
-            #         "requestip": "",
-            #         "addinfo1": "self.name",
-            #         "addinfo2": "customer.name",
-            #         "addinfo3": "customer.full_name",
-            #         "addinfo4": "4",
-            #         "addinfo5": "5",
-            #         "markid": "",
-            #         "verifyid": "",
-            #         "approveid": ""
-            #         }
-            #     ],
-            #     "schemedetails": [
-            #         {
-            #         "amccode": "P",
-            #         "amcname": "ICICI Prudential Mutual Fund",
-            #         "folio": "460071",
-            #         "schemecode": "1637",
-            #         "schemename": "ICICI Prudential Credit Risk Fund - Growth",
-            #         "isinno": "INF109K01GU4",
-            #         "schemetype": "Debt",
-            #         "schemecategory": "O",
-            #         "lienunit": "100.5",
-            #         "lienapprovedunit": "100.5",
-            #         "lienmarkno": "781747",
-            #         "sanctionedamount": "",
-            #         "remarks": "SUCCESS"
-            #         }
-            #     ]
-            #     }
-
-            if (
-                decrypted_json.get("initiatereq")[0].get("errorcode") == "S000"
-                and decrypted_json.get("initiatereq")[0].get("error")
-                == "Lien Initiated Sucessfully"
-                and decrypted_json.get("schemedetails")
-            ):
-                total_successfull_lien = 0
-                schemedetails = decrypted_json.get("schemedetails")
-                # schemedetails = [{"amccode": "P", "amcname": "ICICI Prudential Mutual Fund", "folio": "460071", "schemecode": "1637", "schemename": "ICICI Prudential Credit Risk Fund - Growth", "isinno": "INF109K01GU4", "schemetype": "Debt", "schemecategory": "O", "lienunit": "2", "lienapprovedunit": "2", "lienmarkno": "781731", "sanctionedamount": "", "remarks": "SUCCESS"}]
-
-                # security_list = [i.get("isin") for i in schemedetails]
-                # from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
-                total_collateral_value = 0
-                isin_details = {}
-                for i in schemedetails:
-                    isin_details[i.get("isinno")] = i
-                for i in self.items:
-                    if i.get("isin") in isin_details:
-                        cur = isin_details.get(i.get("isin"))
-                        i.pledge_executed = 1
-                        i.pledge_status = cur.get("remarks").title()
-                        if i.pledge_status == "Success":
-                            total_successfull_lien += 1
-                        # i.lien_mark_number = cur.get("lienmarkno")
-                        total_collateral_value += i.amount
-                        collateral_ledger_data = {
-                            "prf": i.get("prf_number"),
-                            "expiry": self.expiry_date,
-                        }
-                        collateral_ledger_input = {
-                            "doctype": "Loan Application",
-                            "docname": self.name,
-                            "request_type": "Pledge",
-                            "isin": i.get("isin"),
-                            "quantity": i.get("pledged_quantity"),
-                            "price": i.get("price"),
-                            "security_name": i.get("security_name"),
-                            "security_category": i.get("security_category"),
-                            "data": collateral_ledger_data,
-                            "psn": cur.get("lienmarkno"),
-                            "requested_quantity": i.get("requested_quantity"),
-                            "scheme_code": i.get("scheme_code"),
-                            "folio": i.get("folio"),
-                            "amc_code": i.get("amc_code"),
-                        }
-                        CollateralLedger.create_entry(**collateral_ledger_input)
-                pledge_securities = 0
-                if total_successfull_lien == len(self.items):
-                    self.pledge_status = "Success"
-                    pledge_securities = 1
-                elif total_successfull_lien == 0:
-                    # self.reload()
-                    self.status = "Pledge Failure"
-                    self.pledge_status = "Failure"
-                else:
-                    self.pledge_status = "Partial Success"
-                    pledge_securities = 1
-                # TODO : once done with all batches, mark LA as Pledge executed
-                self.workflow_state = "Pledge executed"
-                self.status = "Pledge executed"
-                self.total_collateral_value = round(total_collateral_value, 2)
-                self.drawing_power = round(
-                    lms.round_down_amount_to_nearest_thousand(
-                        (self.allowable_ltv / 100) * self.total_collateral_value
-                    ),
-                    2,
-                )
-
+            if self.drawing_power < self.minimum_sanctioned_limit:
+                self.remarks = "Loan application is rejected because sanctioned limit is less than minimum sanctioned limit"
+                self.status = "Rejected"
+                self.workflow_state = "Rejected"
                 self.save(ignore_permissions=True)
-                # la.save_collateral_ledger()
-
-                if not customer.pledge_securities:
-                    # customer.pledge_securities = 1
-                    customer.pledge_securities = pledge_securities
-                    customer.save(ignore_permissions=True)
-
                 frappe.db.commit()
+                # send sms/email/fcm to user for rejection of loan application
+
+            elif self.drawing_power >= self.minimum_sanctioned_limit:
+                customer = self.get_customer()
+                frappe.session.user = "Administrator"
+                user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+                las_settings = frappe.get_single("LAS Settings")
+                self.status = "Executing pledge"
+                self.workflow_state = "Executing pledge"
+                self.total_collateral_value = 0
+                for i in self.items:
+                    i.lender_approval_status = "Approved"
+                self.save(ignore_permissions=True)
+                frappe.db.commit()
+                lien_ref_no = self.items[0].get("prf_number")
+                schemedetails = []
+                for i in self.items:
+                    item = {
+                        "amccode": i.get("amc_code"),
+                        "amcname": i.get("amc_name"),
+                        "folio": i.get("folio"),
+                        "schemecode": i.get("scheme_code"),
+                        "schemename": i.get("security_name"),
+                        "isinno": i.get("isin"),
+                        "schemetype": i.get("type"),
+                        "schemecategory": "O",
+                        "lienunit": str(i.get("requested_quantity")),
+                        "lienapprovedunit": str(i.get("pledged_quantity")),
+                        "lienmarkno": "",
+                        "sanctionedamount": "",
+                    }
+                    schemedetails.append(item)
+
+                data = {
+                    "initiatereq": [
+                        {
+                            "lienrefno": lien_ref_no,
+                            "errorcode": "",
+                            "error": "",
+                            "sucessflag": "Y",
+                            "failurereason": "",
+                            "loginemail": customer.mycams_email_id,
+                            "netbankingemail": customer.user,
+                            "clientid": las_settings.client_id,
+                            "clientname": las_settings.client_name,
+                            "subclientid": "",
+                            "pan": user_kyc.pan_no,
+                            "bankschemetype": self.scheme_type,
+                            "bankrefno": las_settings.bank_reference_no,
+                            "bankname": las_settings.bank_name,
+                            "branchname": "Mumbai",
+                            "address1": "Address1",
+                            "address2": "Address2",
+                            "address3": "Address3",
+                            "city": "Mumbai",
+                            "state": "MH",
+                            "country": "india",
+                            "pincode": "400706",
+                            "phoneoff": "02212345678",
+                            "phoneres": "02221345678",
+                            "faxno": "02231245678",
+                            "faxres": "1357",
+                            "requestip": "",
+                            "addinfo1": self.name,
+                            "addinfo2": customer.name,
+                            "addinfo3": customer.full_name,
+                            "addinfo4": "4",
+                            "addinfo5": "5",
+                            "markid": "",
+                            "verifyid": "",
+                            "approveid": "",
+                        }
+                    ],
+                    "schemedetails": schemedetails,
+                }
+
+                encrypted_data = lms.AESCBC(
+                    las_settings.encryption_key, las_settings.iv
+                ).encrypt(json.dumps(data))
+
+                url = las_settings.lien_initiate_api
+                datetime_signature = lms.create_signature_mycams()
+                headers = {
+                    "Content-Type": "application/json",
+                    "clientid": las_settings.client_id,
+                    "datetimestamp": datetime_signature[0],
+                    "signature": datetime_signature[1],
+                }
+
+                response = requests.post(url=url, headers=headers, data=encrypted_data)
+                encrypted_response = response.text.replace("-", "+").replace("_", "/")
+                decrypted_data = lms.AESCBC(
+                    las_settings.decryption_key, las_settings.iv
+                ).decrypt(encrypted_response)
+                decrypted_json = json.loads(decrypted_data)
+
+                lms.create_log(
+                    {
+                        "Customer name": customer.full_name,
+                        "json_payload": data,
+                        "encrypted_request": encrypted_data,
+                        "decrypted_json": decrypted_json,
+                    },
+                    "lien_initiate_request",
+                )
+                if (
+                    decrypted_json.get("initiatereq")[0].get("errorcode") == "S000"
+                    and decrypted_json.get("initiatereq")[0].get("error")
+                    == "Lien Initiated Sucessfully"
+                    and decrypted_json.get("schemedetails")
+                ):
+                    total_successfull_lien = 0
+                    schemedetails = decrypted_json.get("schemedetails")
+                    total_collateral_value = 0
+                    isin_details = {}
+                    for i in schemedetails:
+                        isin_details[i.get("isinno")] = i
+                    for i in self.items:
+                        if i.get("isin") in isin_details:
+                            cur = isin_details.get(i.get("isin"))
+                            i.pledge_executed = 1
+                            i.pledge_status = cur.get("remarks").title()
+                            if i.pledge_status == "Success":
+                                total_successfull_lien += 1
+                            total_collateral_value += i.amount
+                            collateral_ledger_data = {
+                                "prf": i.get("prf_number"),
+                                "expiry": self.expiry_date,
+                            }
+                            collateral_ledger_input = {
+                                "doctype": "Loan Application",
+                                "docname": self.name,
+                                "request_type": "Pledge",
+                                "isin": i.get("isin"),
+                                "quantity": i.get("pledged_quantity"),
+                                "price": i.get("price"),
+                                "security_name": i.get("security_name"),
+                                "security_category": i.get("security_category"),
+                                "data": collateral_ledger_data,
+                                "psn": cur.get("lienmarkno"),
+                                "requested_quantity": i.get("requested_quantity"),
+                                "scheme_code": i.get("scheme_code"),
+                                "folio": i.get("folio"),
+                                "amc_code": i.get("amc_code"),
+                            }
+                            CollateralLedger.create_entry(**collateral_ledger_input)
+                    pledge_securities = 0
+                    self.status = "Pledge executed"
+                    if total_successfull_lien == len(self.items):
+                        self.pledge_status = "Success"
+                        pledge_securities = 1
+                    elif total_successfull_lien == 0:
+                        self.status = "Pledge Failure"
+                        self.pledge_status = "Failure"
+                    else:
+                        self.pledge_status = "Partial Success"
+                        pledge_securities = 1
+                    self.workflow_state = "Pledge executed"
+                    self.total_collateral_value = round(total_collateral_value, 2)
+                    self.drawing_power = round(
+                        lms.round_down_amount_to_nearest_thousand(
+                            (self.allowable_ltv / 100) * self.total_collateral_value
+                        ),
+                        2,
+                    )
+
+                    self.save(ignore_permissions=True)
+
+                    if not customer.pledge_securities:
+                        customer.pledge_securities = pledge_securities
+                        customer.save(ignore_permissions=True)
+
+                    frappe.db.commit()
 
     def before_save(self):
         lender = self.get_lender()
