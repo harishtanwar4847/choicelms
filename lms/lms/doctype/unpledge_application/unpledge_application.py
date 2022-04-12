@@ -197,9 +197,9 @@ class UnpledgeApplication(Document):
             # revoke charges - Mutual Fund
             revoke_charges = lender.revoke_initiate_charges
 
-            if lender.revoke_initiate_charge_type == "Fix":
-                revoke_charges = revoke_charges
-            elif lender.revoke_initiate_charge_type == "Percentage":
+            # if lender.revoke_initiate_charge_type == "Fix":
+            #     revoke_charges = revoke_charges
+            if lender.revoke_initiate_charge_type == "Percentage":
                 amount = self.lender_selling_amount * revoke_charges / 100
                 revoke_charges = loan.validate_loan_charges_amount(
                     lender,
