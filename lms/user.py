@@ -1794,6 +1794,7 @@ def approved_securities(**kwargs):
                 "logo_file_path_2": logo_file_path_2.file_url
                 if logo_file_path_2
                 else "",
+                "instrument_type": data.get("instrument_type"),
             }
             agreement = frappe.render_template(
                 approved_securities_template.get_content(), {"doc": doc}
