@@ -390,6 +390,7 @@ class LoanApplication(Document):
                     pledge_securities = 1
                 # TODO : once done with all batches, mark LA as Pledge executed
                 self.workflow_state = "Pledge executed"
+                self.status = "Pledge executed"
                 self.total_collateral_value = round(total_collateral_value, 2)
                 self.drawing_power = round(
                     lms.round_down_amount_to_nearest_thousand(
