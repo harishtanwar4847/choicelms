@@ -472,7 +472,9 @@ def process(**kwargs):
         return utils.respondWithSuccess(
             data={
                 "loan_application": loan_application,
-                "mycam_url": frappe.utils.get_url(
+                "mycam_url": ""
+                if loan_application
+                else frappe.utils.get_url(
                     "/mycams?cart_name={}".format(str(cart.name))
                 ),
             }
