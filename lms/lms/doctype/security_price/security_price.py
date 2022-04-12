@@ -175,11 +175,6 @@ def update_all_schemeNav():
             schemes_list=schemes_list,
             queue="long",
         )
-    frappe.enqueue(
-        method="lms.lms.doctype.loan.loan.check_all_loans_for_shortfall",
-        queue="long",
-        is_for_mf=1,
-    )
 
 
 def update_scheme_nav(schemes_list):
