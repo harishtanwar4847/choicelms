@@ -2258,9 +2258,9 @@ def request_unpledge_otp():
             loan = None
         token_type = "Unpledge OTP"
         entity = user_kyc.mobile_number
-        # if customer.mycams_email_id and loan:
-        #     token_type = "Revoke OTP"
-        #     entity = customer.phone
+        if customer.mycams_email_id and loan:
+            token_type = "Revoke OTP"
+            entity = customer.phone
         if not is_dummy_account:
             frappe.db.begin()
             lms.create_user_token(
