@@ -91,29 +91,39 @@ class SellCollateralApplication(Document):
         if self.status != "Pending":
             return
 
+        applicaton_type = "sell" if self.instrument_type == "Shares" else "invoke"
+
         self.selling_collateral_value = 0
 
         price_map = {i.isin: i.price for i in self.items}
         sell_quantity_map = {i.isin: 0 for i in self.items}
 
+        msg = (
+            "Can not sell {}(PSN: {}) more than {}"
+            if self.instrument_type == "Shares"
+            else "Can not invoke {}(Lien Mark Number: {}) more than {}"
+        )
+
         for i in self.sell_items:
             if i.sell_quantity > i.quantity:
-                frappe.throw(
-                    "Can not sell {}(PSN: {}) more than {}".format(
-                        i.isin, i.psn, i.quantity
-                    )
-                )
+                frappe.throw(msg.format(i.isin, i.psn, i.quantity))
             sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
             i.price = price_map.get(i.isin)
             self.selling_collateral_value += i.sell_quantity * price_map.get(i.isin)
 
         for i in self.items:
             if sell_quantity_map.get(i.isin) > i.quantity:
-                frappe.throw("Can not sell {} more than {}".format(i.isin, i.quantity))
+                frappe.throw(
+                    "Can not {} {} more than {}".format(
+                        applicaton_type, i.isin, i.quantity
+                    )
+                )
 
     def before_submit(self):
         # check if all securities are sold
         sell_quantity_map = {i.isin: 0 for i in self.items}
+
+        applicaton_type = "sell" if self.instrument_type == "Shares" else "invoke"
 
         for i in self.sell_items:
             sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
@@ -122,7 +132,9 @@ class SellCollateralApplication(Document):
             # print(sell_quantity_map.get(i.isin), i.quantity)
             if sell_quantity_map.get(i.isin) < i.quantity:
                 frappe.throw(
-                    "You need to sell all {} of isin {}".format(i.quantity, i.isin)
+                    "You need to {} all {} of isin {}".format(
+                        applicaton_type, i.quantity, i.isin
+                    )
                 )
         """22-06-21 informed by vinayak"""
         # if self.lender_selling_amount > self.selling_collateral_value:
@@ -139,8 +151,9 @@ class SellCollateralApplication(Document):
             for j in self.sell_items:
                 if i["isin"] == j.isin and i["pledged_quantity"] < j.sell_quantity:
                     frappe.throw(
-                        "Sufficient quantity not available for ISIN {sell_isin},\nCurrent Quantity= {loan_qty} Requested Sell Quantity {sell_quantity}\nPlease Reject this Application".format(
+                        "Sufficient quantity not available for ISIN {sell_isin},\nCurrent Quantity= {loan_qty} Requested {applicaton_type} Quantity {sell_quantity}\nPlease Reject this Application".format(
                             sell_isin=j.isin,
+                            applicaton_type=applicaton_type.title(),
                             loan_qty=i["pledged_quantity"],
                             sell_quantity=j.sell_quantity,
                         )
@@ -355,16 +368,20 @@ class SellCollateralApplication(Document):
         user_roles = [role[0] for role in user_roles]
 
         msg_type = ["Sale of securities", "sale"]
+        email_subject = "Sale Triggered Completion"
+        application_type = "sell collateral"
         if loan.instrument_type == "Mutual Fund":
             msg_type = ["Invoke", "invoke"]
+            email_subject = "MF Sale Triggered Completion"
+            application_type = "invoke"
 
         if "Loan customer" not in user_roles and self.loan_margin_shortfall:
             doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
             doc["sell_triggered_completion"] = {"loan": self.loan}
             # if self.status in ["Pending", "Approved", "Rejected"]:
-            email_subject = "Sale Triggered Completion"
-            if self.instrument_type == "Mutual Fund":
-                email_subject = "MF Sale Triggered Completion"
+            # email_subject = "Sale Triggered Completion"
+            # if self.instrument_type == "Mutual Fund":
+            # email_subject = "MF Sale Triggered Completion"
             frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
             msg = "Dear Customer,\n{} initiated by the lending partner for your loan account  {} is now completed .The {} proceeds have been credited to your loan account and collateral value updated. Please check the app for details. Spark Loans".format(
                 msg_type[0], self.loan, msg_type[1]
@@ -381,12 +398,12 @@ class SellCollateralApplication(Document):
                 fcm_notification["title"] = "Invoke triggerred completed "
             # message = fcm_notification.message.format(loan=self.loan)
         else:
-            msg_type = "sell collateral"
-            if loan.instrument_type == "Mutual Fund":
-                msg_type = "invoke"
+            # msg_type = "sell collateral"
+            # if loan.instrument_type == "Mutual Fund":
+            #     msg_type = "invoke"
 
             msg = "Dear Customer,\nCongratulations! Your {} request has been successfully executed and sale proceeds credited to your loan account. Kindly check the app for details -Spark Loans".format(
-                msg_type
+                application_type
             )
 
             fcm_notification = frappe.get_doc(

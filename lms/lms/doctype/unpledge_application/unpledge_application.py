@@ -82,16 +82,20 @@ class UnpledgeApplication(Document):
 
         self.unpledge_collateral_value = 0
 
+        application_type = "unpledge" if self.instrument_type == "Shares" else "revoke"
+
         price_map = {i.isin: i.price for i in self.items}
         unpledge_quantity_map = {i.isin: 0 for i in self.items}
 
+        msg = (
+            "Can not unpledge {}(PSN: {}) more than {}"
+            if self.instrument_type == "Shares"
+            else "Can not revoke {}(Lien Mark Number: {}) more than {}"
+        )
+
         for i in self.unpledge_items:
             if i.unpledge_quantity > i.quantity:
-                frappe.throw(
-                    "Can not unpledge {}(PSN: {}) more than {}".format(
-                        i.isin, i.psn, i.quantity
-                    )
-                )
+                frappe.throw(msg.format(i.isin, i.psn, i.quantity))
             unpledge_quantity_map[i.isin] = (
                 unpledge_quantity_map[i.isin] + i.unpledge_quantity
             )
@@ -103,12 +107,16 @@ class UnpledgeApplication(Document):
         for i in self.items:
             if unpledge_quantity_map.get(i.isin) > i.quantity:
                 frappe.throw(
-                    "Can not unpledge {} more than {}".format(i.isin, i.quantity)
+                    "Can not {} {} more than {}".format(
+                        application_type, i.isin, i.quantity
+                    )
                 )
 
     def before_submit(self):
         # check if all securities are sold
         unpledge_quantity_map = {i.isin: 0 for i in self.items}
+
+        application_type = "unpledge" if self.instrument_type == "Shares" else "revoke"
 
         if len(self.unpledge_items):
             for i in self.unpledge_items:
@@ -116,13 +124,15 @@ class UnpledgeApplication(Document):
                     unpledge_quantity_map[i.isin] + i.unpledge_quantity
                 )
         else:
-            frappe.throw("Please add items to unpledge")
+            frappe.throw("Please add items to {}".format(application_type))
 
         for i in self.items:
             # print(unpledge_quantity_map.get(i.isin), i.quantity)
             if unpledge_quantity_map.get(i.isin) < i.quantity:
                 frappe.throw(
-                    "You need to unpledge all {} of isin {}".format(i.quantity, i.isin)
+                    "You need to {} all {} of isin {}".format(
+                        application_type, i.quantity, i.isin
+                    )
                 )
 
         loan_items = frappe.get_all(
@@ -132,8 +142,9 @@ class UnpledgeApplication(Document):
             for j in self.unpledge_items:
                 if i["isin"] == j.isin and i["pledged_quantity"] < j.unpledge_quantity:
                     frappe.throw(
-                        "Sufficient quantity not available for ISIN {unpledge_isin},\nCurrent Quantity= {loan_qty} Requested Unpledge Quantity {unpledge_quantity}\nPlease Reject this Application".format(
+                        "Sufficient quantity not available for ISIN {unpledge_isin},\nCurrent Quantity= {loan_qty} Requested {application_type} Quantity {unpledge_quantity}\nPlease Reject this Application".format(
                             unpledge_isin=j.isin,
+                            application_type=application_type.title(),
                             loan_qty=i["pledged_quantity"],
                             unpledge_quantity=j.unpledge_quantity,
                         )
@@ -255,8 +266,8 @@ class UnpledgeApplication(Document):
                     # You can send another unpledge request when there is no margin shortfall.""".format(
                     #     self.get_loan().get_customer().first_name
                     # )
-                    msg = """Your unpledge request was rejected. There is a margin shortfall. You can send another unpledge request when there is no margin shortfall.""".format(
-                        self.get_loan().get_customer().first_name
+                    msg = """Your {msg_type} request was rejected. There is a margin shortfall. You can send another {msg_type} request when there is no margin shortfall.""".format(
+                        msg_type=msg_type
                     )
                 else:
                     msg = "Dear Customer,\nSorry! Your {} application was turned down due to technical reasons. Please try again after sometime or reach us through 'Contact Us' on the app  -Spark Loans".format(

@@ -2389,13 +2389,15 @@ def validate_securities_for_unpledge(securities, loan):
             securities_obj = {}
             for i in securities_list_from_db_:
                 securities_obj[i[0]] = i[1]
-
+            applicaion_type = (
+                "Unpledge" if loan.instrument_type == "Shares" else "Revoke"
+            )
             for i in securities:
                 if i["quantity"] > securities_obj[i["isin"]]:
                     securities_valid = False
                     message = frappe._(
-                        "Unpledge quantity for isin {} should not be greater than {}".format(
-                            i["isin"], securities_obj[i["isin"]]
+                        "{} quantity for isin {} should not be greater than {}".format(
+                            applicaion_type, i["isin"], securities_obj[i["isin"]]
                         )
                     )
                     break
@@ -2451,6 +2453,17 @@ def loan_unpledge_request(**kwargs):
         user_kyc = lms.__user_kyc()
 
         loan = frappe.get_doc("Loan", data.get("loan_name"))
+
+        msg_type = ["unpledge", "pledged securities"]
+        token_type = "Unpledge OTP"
+        entity = user_kyc.mobile_number
+        email_subject = "Unpledge Request"
+        if loan.instrument_type == "Mutual Fund":
+            msg_type = ["revoke", "lien schemes"]
+            token_type = "Revoke OTP"
+            entity = customer.phone
+            email_subject = "Revoke Request"
+
         if not loan:
             return utils.respondNotFound(message=frappe._("Loan not found."))
         if loan.customer != customer.name:
@@ -2466,17 +2479,6 @@ def loan_unpledge_request(**kwargs):
                 ),
             )
 
-        application_type = "Unpledge"
-        msg_type = ["unpledge", "pledged securities"]
-        token_type = "Unpledge OTP"
-        entity = user_kyc.mobile_number
-
-        if loan.instrument_type == "Mutual Fund":
-            application_type = "Revoke"
-            msg_type = ["revoke", "lien schemes"]
-            token_type = "Revoke OTP"
-            entity = customer.phone
-
         unpledge_application_exist = frappe.get_all(
             "Unpledge Application",
             filters={"loan": loan.name, "status": "Pending"},
@@ -2487,21 +2489,21 @@ def loan_unpledge_request(**kwargs):
             return utils.respondWithFailure(
                 status=417,
                 message="{} Application for {} is already in process.".format(
-                    application_type, loan.name
+                    msg_type[0].title(), loan.name
                 ),
             )
 
-        application_type = "Unpledge"
-        msg_type = ["unpledge", "pledged securities"]
-        token_type = "Unpledge OTP"
-        entity = user_kyc.mobile_number
-        email_subject = "Unpledge Request"
-        if loan.instrument_type == "Mutual Fund":
-            application_type = "Revoke"
-            msg_type = ["revoke", "lien schemes"]
-            token_type = "Revoke OTP"
-            entity = customer.phone
-            email_subject = "Revoke Request"
+        # application_type = "Unpledge"
+        # msg_type = ["unpledge", "pledged securities"]
+        # token_type = "Unpledge OTP"
+        # entity = user_kyc.mobile_number
+        # email_subject = "Unpledge Request"
+        # if loan.instrument_type == "Mutual Fund":
+        #     application_type = "Revoke"
+        #     msg_type = ["revoke", "lien schemes"]
+        #     token_type = "Revoke OTP"
+        #     entity = customer.phone
+        #     email_subject = "Revoke Request"
 
         securities = validate_securities_for_unpledge(data.get("securities", {}), loan)
 
@@ -2638,11 +2640,11 @@ def sell_collateral_request(**kwargs):
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
 
-        application_type = "Sell Collateral"
+        # application_type = "Sell Collateral"
         email_subject = "Sell Collateral Request"
         msg_type = "sell collateral"
         if loan.instrument_type == "Mutual Fund":
-            application_type = "Invoke"
+            # application_type = "Invoke"
             email_subject = "Invoke Request"
             msg_type = "invoke"
 
@@ -2656,7 +2658,7 @@ def sell_collateral_request(**kwargs):
             return utils.respondWithFailure(
                 status=417,
                 message="{} Application for {} is already in process.".format(
-                    application_type, loan.name
+                    msg_type.title(), loan.name
                 ),
             )
 
@@ -2671,18 +2673,18 @@ def sell_collateral_request(**kwargs):
             token = lms.verify_user_token(
                 entity=user.username,
                 token=data.get("otp"),
-                token_type="{} OTP".format(application_type),
+                token_type="{} OTP".format(msg_type.title()),
             )
 
             if token.expiry <= frappe.utils.now_datetime():
                 return utils.respondUnauthorized(
-                    message=frappe._("{} OTP Expired.".format(application_type))
+                    message=frappe._("{} OTP Expired.".format(msg_type.title()))
                 )
         else:
             token = lms.validate_spark_dummy_account_token(
                 user.username,
                 data.get("otp"),
-                token_type="{} OTP".format(application_type),
+                token_type="{} OTP".format(msg_type.title()),
             )
 
         frappe.db.begin()
