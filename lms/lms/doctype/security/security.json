@@ -27,10 +27,9 @@
   },
   {
    "fieldname": "security_name",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
-   "label": "Security/Scheme Name",
-   "unique": 1
+   "label": "Security/Scheme Name"
   },
   {
    "fieldname": "segment",
@@ -75,7 +74,7 @@
   }
  ],
  "links": [],
- "modified": "2022-03-29 12:57:53.766417",
+ "modified": "2022-04-13 15:28:41.230841",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security",
