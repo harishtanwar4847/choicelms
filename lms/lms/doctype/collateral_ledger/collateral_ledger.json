@@ -144,7 +144,7 @@
   },
   {
    "fieldname": "security_name",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
    "label": "Security/Scheme Name"
   },
@@ -209,7 +209,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-30 14:23:51.832317",
+ "modified": "2022-04-13 15:34:57.151103",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Collateral Ledger",
