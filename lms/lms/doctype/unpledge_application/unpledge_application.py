@@ -391,7 +391,7 @@ def validate_revoc(unpledge_application_name):
                         "pan": user_kyc.pan_no,
                         "regemailid": customer.mycams_email_id,
                         "clientid": las_settings.client_id,
-                        "requestip": "103.19.132.194",
+                        "requestip": "",
                         "schemedetails": [],
                     }
                 }
@@ -523,7 +523,7 @@ def initiate_revoc(unpledge_application_name):
                         "pan": user_kyc.pan_no,
                         "regemailid": customer.mycams_email_id,
                         "clientid": las_settings.client_id,
-                        "requestip": "103.19.132.194",
+                        "requestip": "",
                         "schemedetails": [],
                     }
                 }
@@ -585,7 +585,7 @@ def initiate_revoc(unpledge_application_name):
                         isin_details[i.get("isinno")] = i
                     for i in unpledge_application_doc.unpledge_items:
                         if i.get("isin") in isin_details:
-                            i.revoke_validate_remarks = isin_details.get(
+                            i.revoke_initiate_remarks = isin_details.get(
                                 i.get("isin")
                             ).get("remarks")
                             new_psn = isin_details.get(i.get("isin")).get("revoc_refno")

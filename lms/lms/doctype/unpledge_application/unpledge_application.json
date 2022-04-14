@@ -126,14 +126,14 @@
   },
   {
    "default": "0",
-   "depends_on": "doc.instrument_type == \"Mutual Fund\";",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
    "fieldname": "is_validated",
    "fieldtype": "Check",
    "label": "Is Validated",
    "read_only": 1
   },
   {
-   "depends_on": "doc.instrument_type == \"Mutual Fund\";",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
    "fieldname": "scheme_type",
    "fieldtype": "Select",
    "label": "Scheme Type",
@@ -142,28 +142,28 @@
   },
   {
    "default": "0",
-   "depends_on": "doc.instrument_type == \"Mutual Fund\";",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
    "fieldname": "is_initiated",
    "fieldtype": "Check",
    "label": "Is Initiated",
    "read_only": 1
   },
   {
-   "depends_on": "doc.instrument_type == \"Mutual Fund\";",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
    "fieldname": "validate_message",
    "fieldtype": "Small Text",
    "label": "Validate Message",
    "read_only": 1
   },
   {
-   "depends_on": "doc.instrument_type == \"Mutual Fund\";",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
    "fieldname": "initiate_message",
    "fieldtype": "Small Text",
    "label": "Initiate Message",
    "read_only": 1
   },
   {
-   "depends_on": "doc.instrument_type == \"Mutual Fund\";",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
    "fieldname": "revoctoken",
    "fieldtype": "Data",
    "label": "Revoctoken",
@@ -172,7 +172,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-04-13 15:39:47.913133",
+ "modified": "2022-04-13 18:12:29.608373",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Unpledge Application",
