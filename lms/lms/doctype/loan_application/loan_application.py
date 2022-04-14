@@ -172,12 +172,43 @@ class LoanApplication(Document):
     def after_insert(self):
         if self.instrument_type == "Mutual Fund":
             if self.drawing_power < self.minimum_sanctioned_limit:
-                self.remarks = "Loan application is rejected because sanctioned limit is less than minimum sanctioned limit"
+                self.remarks = "Rejected due to min/max range"
                 self.status = "Rejected"
                 self.workflow_state = "Rejected"
                 self.save(ignore_permissions=True)
                 frappe.db.commit()
+                doc = frappe.get_doc(
+                    "User KYC", self.get_customer().choice_kyc
+                ).as_dict()
+                doc["minimum_sanctioned_limit"] = self.minimum_sanctioned_limit
+                doc["maximum_sanctioned_limit"] = self.maximum_sanctioned_limit
                 # send sms/email/fcm to user for rejection of loan application
+                frappe.enqueue_doc(
+                    "Notification",
+                    "Lien not Approved by lender",
+                    method="send",
+                    doc=doc,
+                )
+                msg = "Dear Customer,\nSorry! Your loan application was turned down since the requested loan amount is not in the range of lender's minimum sanction limit (Rs.{}) and maximum sanction limit (Rs.{}) criteria. We regret the inconvenience caused. Please try again with the expected criteria or reach out to us through 'Contact Us' on the app  -Spark Loans".format(
+                    self.minimum_sanctioned_limit, self.maximum_sanctioned_limit
+                )
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification", "Lien unsuccessful", fields=["*"]
+                )
+                fcm_message = fcm_notification.message.format(
+                    minimum_sanctioned_limit=self.minimum_sanctioned_limit,
+                    maximum_sanctioned_limit=self.maximum_sanctioned_limit,
+                )
+                receiver_list = list(
+                    set([str(self.get_customer().phone), str(doc.mobile_number)])
+                )
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+                lms.send_spark_push_notification(
+                    fcm_notification=fcm_notification,
+                    message=fcm_message,
+                    customer=self.get_customer(),
+                )
 
             elif self.drawing_power >= self.minimum_sanctioned_limit:
                 customer = self.get_customer()
@@ -348,7 +379,6 @@ class LoanApplication(Document):
                     if not customer.pledge_securities:
                         customer.pledge_securities = pledge_securities
                         customer.save(ignore_permissions=True)
-
                     frappe.db.commit()
 
     def before_save(self):
@@ -1242,6 +1272,7 @@ class LoanApplication(Document):
         elif (
             doc.get("loan_application").get("status") == "Rejected"
             and not self.loan_margin_shortfall
+            and not self.remarks
         ):
             msg, fcm_title = (
                 (
@@ -1290,25 +1321,17 @@ class LoanApplication(Document):
                 else "Pledge partially accepted",
                 fields=["*"],
             )
-            fcm_message = (
-                fcm_notification.message.format(
+            if fcm_notification.title == "Pledge partially accepted":
+                fcm_message = fcm_notification.message.format(
                     pledge="pledge",
                     total_collateral_value_str=self.total_collateral_value_str,
                 )
-                if self.loan
-                else ""
-            )
-            if self.instrument_type == "Mutual Fund":
-                fcm_message = (
-                    fcm_notification.message.format(
+                if self.instrument_type == "Mutual Fund":
+                    fcm_message = fcm_notification.message.format(
                         pledge="lien",
                         total_collateral_value_str=self.total_collateral_value_str,
                     )
-                    if self.loan
-                    else ""
-                )
-                fcm_notification = fcm_notification.as_dict()
-                if fcm_notification["title"] == "Pledge partially accepted":
+                    fcm_notification = fcm_notification.as_dict()
                     fcm_notification["title"] = "Lien partially accepted"
 
             # fcm_message = (

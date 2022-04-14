@@ -236,13 +236,13 @@
   },
   {
    "fieldname": "remarks",
-   "fieldtype": "Text",
+   "fieldtype": "Data",
    "label": "Remarks",
    "read_only": 1
   }
  ],
  "links": [],
- "modified": "2022-04-12 14:08:34.414048",
+ "modified": "2022-04-12 16:52:32.553309",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

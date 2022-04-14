@@ -173,36 +173,32 @@ class Cart(Document):
             customer = frappe.get_doc("Loan Customer", self.customer)
             doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
             doc["loan_application_name"] = loan_application.name
+            doc["minimum_sanctioned_limit"] = loan_application.minimum_sanctioned_limit
             # frappe.enqueue_doc(
             #     "Notification", "Loan Application Creation", method="send", doc=doc
             # )
-            msg_type = "pledge"
-            email_subject = "Pledge Application Success"
-            if self.instrument_type == "Mutual Fund":
-                application_type = "Lien"
-                msg_type = "lien"
-                email_subject = "Lien Application Successful"
+            if self.eligible_loan >= loan_application.minimum_sanctioned_limit:
+                msg_type = "pledge"
+                email_subject = "Pledge Application Success"
+                if self.instrument_type == "Mutual Fund":
+                    application_type = "Lien"
+                    msg_type = "lien"
+                    email_subject = "Lien Application Successful"
 
-            frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
-            mess = "Dear Customer,\nYour {} request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans".format(
-                msg_type
-            )
+                frappe.enqueue_doc(
+                    "Notification", email_subject, method="send", doc=doc
+                )
+                mess = "Dear Customer,\nYour {} request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans".format(
+                    msg_type
+                )
+                # if mess:
+                receiver_list = list(
+                    set([str(self.get_customer().phone), str(doc.mobile_number)])
+                )
+                from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
-            msg_type = "pledge"
-            if self.instrument_type == "Mutual Fund":
-                msg_type = "lien"
-
-            mess = "Dear Customer,\nYour {} request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans".format(
-                msg_type
-            )
-            # if mess:
-            receiver_list = list(
-                set([str(self.get_customer().phone), str(doc.mobile_number)])
-            )
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
-
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
-        return loan_application
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
+            return loan_application
 
     def create_tnc_file(self):
         lender = self.get_lender()

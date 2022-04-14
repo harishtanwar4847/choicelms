@@ -67,7 +67,7 @@
                         We look forward to serve you soon.<br />
                         <br />
                     {% endif %}
-                    {% if doc.get("loan_application").get("status") == "Rejected" and not doc.get("loan_margin_shortfall") %}
+                    {% if doc.get("loan_application").get("status") == "Rejected" and not doc.get("loan_margin_shortfall") and doc.get("loan_application").get(drawing_power) > doc.get("loan_application").get("minimum_sanctioned_limit") %}
                         Sorry! Your loan application was turned down due to technical reasons.<br />
                         <br />
                         We regret the inconvenience caused.<br />
