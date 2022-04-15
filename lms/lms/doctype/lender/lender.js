@@ -8,6 +8,29 @@ frappe.ui.form.on("Lender", {
       $(".grid-add-row").hide();
     }
   },
+  concentration_rule_on_form_rendered(frm, cdt, cdn) {
+    frm.fields_dict["concentration_rule"].grid.wrapper
+      .find(".grid-shortcuts")
+      .hide();
+    if (frm.doc.concentration_rule.length > 9) {
+      $(".grid-add-row").hide();
+      frm.fields_dict["concentration_rule"].grid.wrapper
+        .find(".grid-delete-row")
+        .hide();
+      frm.fields_dict["concentration_rule"].grid.wrapper
+        .find(".grid-insert-row-below")
+        .hide();
+      frm.fields_dict["concentration_rule"].grid.wrapper
+        .find(".grid-insert-row")
+        .hide();
+      frm.fields_dict["concentration_rule"].grid.wrapper
+        .find(".grid-duplicate-row")
+        .hide();
+      frm.fields_dict["concentration_rule"].grid.wrapper
+        .find(".grid-append-row")
+        .hide();
+    }
+  },
 });
 frappe.ui.form.on("Concentration Rule", {
   concentration_rule_add(frm, cdt, cdn) {
@@ -18,6 +41,9 @@ frappe.ui.form.on("Concentration Rule", {
       // frm.fields_dict["concentration_rule"].grid.wrapper.find(".grid-insert-row-below").hide();
       // frm.fields_dict["concentration_rule"].grid.wrapper.find(".grid-insert-row").hide();
       // frm.fields_dict["concentration_rule"].grid.wrapper.find(".grid-duplicate-row").hide();
+    }
+    if (frm.doc.concentration_rule.length > 10) {
+      frappe.msgprint(__("Only 10 rows allowed"));
     }
   },
   // concentration_rule_on_form_rendered(frm, cdt, cdn) {
