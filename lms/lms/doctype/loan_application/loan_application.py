@@ -1041,34 +1041,58 @@ class LoanApplication(Document):
 
     # hit pledge request as per batch items
     def pledge_request(self, security_list):
-        las_settings = frappe.get_single("LAS Settings")
-        API_URL = "{}{}".format(las_settings.cdsl_host, las_settings.pledge_setup_uri)
+        try:
+            las_settings = frappe.get_single("LAS Settings")
+            API_URL = "{}{}".format(
+                las_settings.cdsl_host, las_settings.pledge_setup_uri
+            )
 
-        prf_number = lms.random_token(length=12)
-        securities_array = []
-        for i in self.items:
-            if i.isin in security_list:
-                # set prf_number to LA item
-                i.prf_number = prf_number
-                j = {
-                    "ISIN": i.isin,
-                    "Quantity": str(float(i.pledged_quantity)),
-                    "Value": str(float(i.price)),
-                }
-                securities_array.append(j)
-        self.save(ignore_permissions=True)
+            prf_number = lms.random_token(length=12)
+            securities_array = []
+            for i in self.items:
+                if i.isin in security_list:
+                    # set prf_number to LA item
+                    i.prf_number = prf_number
+                    j = {
+                        "ISIN": i.isin,
+                        "Quantity": str(float(i.pledged_quantity)),
+                        "Value": str(float(i.price)),
+                    }
+                    securities_array.append(j)
+            self.save(ignore_permissions=True)
 
-        payload = {
-            "PledgorBOID": self.pledgor_boid,
-            "PledgeeBOID": self.pledgee_boid,
-            "PRFNumber": prf_number,
-            "ExpiryDate": self.expiry_date.strftime("%d%m%Y"),
-            "ISINDTLS": securities_array,
-        }
+            payload = {
+                "PledgorBOID": self.pledgor_boid,
+                "PledgeeBOID": self.pledgee_boid,
+                "PRFNumber": prf_number,
+                "ExpiryDate": self.expiry_date.strftime("%d%m%Y"),
+                "ISINDTLS": securities_array,
+            }
+            headers = las_settings.cdsl_headers()
 
-        headers = las_settings.cdsl_headers()
+            res = requests.get(API_URL, headers=headers, json=payload)
+            data = res.json()
+            log = {
+                "url": API_URL,
+                "headers": headers,
+                "request": payload,
+                "response": data,
+            }
 
-        return {"url": API_URL, "headers": headers, "payload": payload}
+            lms.create_log(log, "pledge_request_log")
+            return {"url": API_URL, "headers": headers, "payload": payload}
+        except Exception as e:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\nPledge Details:\n{security_list}".format(
+                    security_list=security_list
+                ),
+                title=frappe.local.form_dict.get("cmd")
+                .split(".")[-1]
+                .replace("_", " ")
+                .title()
+                + " Error",
+            )
 
     # dummy pledge response for pledge
     def dummy_pledge_response(self, security_list):
