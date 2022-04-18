@@ -177,7 +177,7 @@ class Cart(Document):
             # frappe.enqueue_doc(
             #     "Notification", "Loan Application Creation", method="send", doc=doc
             # )
-            if self.eligible_loan >= loan_application.minimum_sanctioned_limit:
+            if not loan_application.remarks:
                 msg_type = "pledge"
                 email_subject = "Pledge Application Success"
                 if self.instrument_type == "Mutual Fund":
