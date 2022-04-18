@@ -1602,7 +1602,7 @@ def create_signature_mycams():
             + "\nSignature Details:\n"
             + frappe.session.user
             + str(DATE_TIMESTAMP),
-            title=_("Lien Marking Response Error"),
+            title=_("MyCAMS Signature Error"),
         )
 
 
