@@ -184,6 +184,6 @@ scheduler_events = {
         ],  # At 04:15 AM daily
         "30 8 * * *": [
             "lms.lms.doctype.security_price.security_price.update_all_schemeNav"
-        ],  # At 08:00 AM daily
+        ],  # At 08:30 AM daily
     },
 }
