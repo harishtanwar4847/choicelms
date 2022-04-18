@@ -1055,7 +1055,20 @@ def ckyc_search_api():
     pub_key = open(frappe.utils.get_files_path(file_name), "r").read()
     rsakey = RSA.importKey(pub_key)
 
-    encrypted_session_key = rsa.encrypt(key, rsakey)
+    # encrypted_session_key = rsa.encrypt(key, rsakey)
+    # from cryptography.hazmat.primitives.asymmetric import padding
+    # from cryptography.hazmat.primitives import hashes
+    # from Crypto.Cipher import PKCS1_OAEP
+    # from Crypto import Random
+    from Crypto.Cipher import PKCS1_OAEP
+    from Crypto.Hash import SHA1, SHA256
+    from Crypto.Signature import pss
+
+    print(len(key) < (rsakey.n.bit_length() / 8))
+    encrypted_session_key = PKCS1_OAEP.new(
+        key=rsakey, hashAlgo=SHA256, mgfunc=lambda x, y: pss.MGF1(x, y, SHA1)
+    ).encrypt(key)
+    # encrypted_session_key = rsakey.encrypt(key,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
     encoded_session_key = base64.b64encode(encrypted_session_key).decode("ascii")
 
     # encoded_pid + encoded_session_key in request.xml
@@ -1088,7 +1101,7 @@ def ckyc_search_api():
     # then confirmation page
     # if no response then return
     # return ET.fromstring(response.content)
-    # return response.content
+    return response.content
 
 
 def ckyc_download_api():
