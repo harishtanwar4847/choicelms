@@ -43,7 +43,7 @@ frappe.ui.form.on("Concentration Rule", {
       // frm.fields_dict["concentration_rule"].grid.wrapper.find(".grid-duplicate-row").hide();
     }
     if (frm.doc.concentration_rule.length > 10) {
-      frappe.msgprint(__("Only 10 rows allowed"));
+      frappe.msgprint(__("Maximum 10 levels allowed"));
     }
   },
   // concentration_rule_on_form_rendered(frm, cdt, cdn) {
