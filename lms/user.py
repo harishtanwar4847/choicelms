@@ -228,7 +228,7 @@ def get_choice_kyc_old(pan_no, birth_date):
 
 
 @frappe.whitelist()
-def get_choice_kyc(**kwargs):
+def get_choice_kyc_1(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
@@ -354,7 +354,7 @@ def get_choice_kyc(**kwargs):
 
 
 @frappe.whitelist()
-def kyc(**kwargs):
+def kyc_1(**kwargs):
     try:
         utils.validator.validate_http_method("POST")
 
@@ -525,6 +525,340 @@ def kyc(**kwargs):
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
         return e.respond()
+
+
+"""Changes as per new jiffy KYC API - related to bajaj lender - (CR-Dec21) - start"""
+
+
+def validate_kyc_request(data):
+    try:
+        datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
+    except ValueError:
+        return {
+            "is_valid": False,
+            "status": 417,
+            "message": "Incorrect date format, should be DD-MM-YYYY",
+        }
+
+    reg = lms.regex_special_characters(
+        search=data.get("pan_no"),
+        regex=re.compile("[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"),
+    )
+
+    if not reg or len(data.get("pan_no")) != 10:
+        return {
+            "is_valid": False,
+            "status": 422,
+            "message": "Invalid PAN",
+        }
+
+    """Check for Prod environment only"""
+    debug_mode = frappe.db.get_single_value("LAS Settings", "debug_mode")
+    if not debug_mode:
+        if (data.get("pan_no")[3]).lower() != "p":
+            return {
+                "is_valid": False,
+                "status": 422,
+                "message": "Invalid PAN",
+            }
+
+    return {"is_valid": True}
+
+
+def request_choice_kyc(data):
+    las_settings = frappe.get_single("LAS Settings")
+
+    params = {"panNum": data.get("pan_no")}
+
+    headers = {
+        "businessUnit": las_settings.choice_business_unit,
+        "userId": las_settings.choice_user_id,
+        "investorId": las_settings.choice_investor_id,
+        "ticket": las_settings.choice_ticket,
+    }
+    frappe.logger().info(headers)
+    frappe.logger().info(params)
+    res = requests.get(las_settings.choice_pan_api, params=params, headers=headers)
+    frappe.logger().info(str(res))
+    res_json = res.json()
+
+    # log jiffy kyc api request and response
+    log = {}
+    log[datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d %H:%M:%S")] = {
+        "url": las_settings.choice_pan_api,
+        "headers": headers,
+        "request": params,
+        "response": res_json,
+    }
+
+    lms.create_log(log, "jiffy_kyc_log")
+
+    if not res.ok or "errorCode" in res_json:
+        raise UserKYCNotFoundException
+
+    return res_json
+
+
+@frappe.whitelist()
+def get_choice_kyc(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "pan_no": "required",
+                "birth_date": "required",
+                "accept_terms": ["required", "between:0,1", "decimal"],
+            },
+        )
+
+        validated_data = validate_kyc_request(data)
+
+        if not validated_data["is_valid"]:
+            return utils.respondWithFailure(
+                status=validated_data["status"],
+                message=frappe._(validated_data["message"]),
+            )
+
+        try:
+            user_kyc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
+        except UserKYCNotFoundException:
+            user_kyc = None
+
+        if not user_kyc:
+
+            if not data.get("accept_terms"):
+                return utils.respondUnauthorized(
+                    message=frappe._("Please accept Terms and Conditions.")
+                )
+
+            user_kyc = {}
+            try:
+                res_json = request_choice_kyc(data)
+
+                user_kyc["investor_name"] = res_json["investorName"]
+                user_kyc["pan_no"] = res_json["panNum"]
+                user_kyc["address"] = "".join(
+                    [
+                        res_json["permanantAddress1"],
+                        res_json["permanantAddress2"],
+                        res_json["permanantAddress3"],
+                        res_json["perCity"],
+                        " ",
+                        res_json["perState"],
+                        " ",
+                        res_json["perPincode"],
+                    ]
+                )
+
+                if res_json["banks"]:
+                    user_kyc["bank_account"] = {}
+
+                    for bank in res_json["banks"]:
+                        if bank["defaultBank"] == "Y":
+                            user_kyc["bank_account"]["bank"] = bank["bank"]
+                            user_kyc["bank_account"]["account_number"] = bank[
+                                "accountNumber"
+                            ]
+                            user_kyc["bank_account"]["ifsc"] = bank["ifsc"]
+                            user_kyc["bank_account"]["is_default"] = (
+                                1 if bank["defaultBank"] == "Y" else 0
+                            )
+
+            except requests.RequestException as e:
+                raise utils.exceptions.APIException(str(e))
+            except UserKYCNotFoundException:
+                raise
+            except Exception as e:
+                raise utils.exceptions.APIException(str(e))
+
+        data = {"user_kyc": user_kyc}
+        return utils.respondWithSuccess(data=data)
+    except utils.exceptions.APIException as e:
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\nget_choice_kyc api details:\n"
+            + str(e.args),
+            title=_("User KYC Error"),
+        )
+        return e.respond()
+
+
+@frappe.whitelist()
+def kyc(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "pan_no": "required",
+                "birth_date": "required",
+                "accept_terms": ["required", "between:0,1", "decimal"],
+            },
+        )
+
+        validated_data = validate_kyc_request(data)
+
+        if not validated_data["is_valid"]:
+            return utils.respondWithFailure(
+                status=validated_data["status"],
+                message=frappe._(validated_data["message"]),
+            )
+
+        try:
+            user_kyc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
+        except UserKYCNotFoundException:
+            user_kyc = None
+
+        if not user_kyc:
+
+            if not data.get("accept_terms"):
+                return utils.respondUnauthorized(
+                    message=frappe._("Please accept Terms and Conditions.")
+                )
+
+            try:
+                res_json = request_choice_kyc(data)
+            except requests.RequestException as e:
+                raise utils.exceptions.APIException(str(e))
+            except UserKYCNotFoundException:
+                raise
+            except Exception as e:
+                raise utils.exceptions.APIException(str(e))
+
+            frappe.db.begin()
+            user_kyc = lms.__user_kyc(pan_no=data.get("pan_no"), throw=False)
+            user_kyc.kyc_type = "CHOICE"
+            user_kyc.investor_name = res_json["investorName"]
+            user_kyc.first_name = res_json["firstName"]  # new
+            user_kyc.middle_name = res_json["middleName"]  # new
+            user_kyc.last_name = res_json["lastName"]  # new
+            user_kyc.email_id = res_json["emailId"]  # new
+            user_kyc.date_of_birth = datetime.strptime(
+                res_json["dateOfBirth"], "%Y-%m-%dT%H:%M:%S.%f%z"
+            ).strftime("%Y-%m-%d")
+            user_kyc.father_name = res_json["fatherName"]
+            user_kyc.mother_name = res_json["motherName"]
+            user_kyc.address = "".join(
+                [
+                    res_json["permanantAddress1"],
+                    res_json["permanantAddress2"],
+                    res_json["permanantAddress3"],
+                    res_json["perCity"],
+                    " ",
+                    res_json["perState"],
+                    " ",
+                    res_json["perPincode"],
+                ]
+            )  # changes
+            user_kyc.permanant_address1 = res_json["permanantAddress1"]  # new
+            user_kyc.permanant_address2 = res_json["permanantAddress2"]  # new
+            user_kyc.permanant_address3 = res_json["permanantAddress3"]  # new
+            user_kyc.per_city = res_json["perCity"]  # new
+            user_kyc.per_state = res_json["perState"]  # new
+            user_kyc.per_pincode = res_json["perPincode"]  # new
+            user_kyc.current_address1 = res_json["currentAddress1"]  # new
+            user_kyc.current_address2 = res_json["currentAddress2"]  # new
+            user_kyc.current_address3 = res_json["currentAddress3"]  # new
+            user_kyc.curr_city = res_json["currCity"]  # new
+            user_kyc.curr_state = res_json["currState"]  # new
+            user_kyc.curr_pincode = res_json["currPincode"]  # new
+            user_kyc.address_city = res_json["addressCity"]  # new
+            user_kyc.address_state = res_json["addressState"]  # new
+            user_kyc.address_pincode = res_json["addressPinCode"]  # new
+            user_kyc.city = res_json["city"]  # changes
+            user_kyc.state = res_json["state"]  # changes
+            user_kyc.pincode = res_json["pinCode"]  # changes
+            user_kyc.address_proof_type = res_json["addressProofType"]  # new
+            user_kyc.same_as_current_address = (
+                1 if res_json["sameAsCurrentAddress"] == "true" else 0
+            )  # new
+            user_kyc.mobile_number = res_json["mobileNum"]
+            user_kyc.choice_client_id = res_json["clientId"]
+            user_kyc.pan_no = res_json["panNum"]
+
+            if res_json["banks"]:
+                user_kyc.bank_account = []
+
+                for bank in res_json["banks"]:
+                    user_kyc.append(
+                        "bank_account",
+                        {
+                            "is_default": bank["defaultBank"] == "Y",
+                            "account_type": bank["accountType"],
+                            "cancel_cheque_file_name": bank[
+                                "cancelChequeFileName"
+                            ],  # new
+                            "ifsc": bank["ifsc"],
+                            "micr": bank["micr"],
+                            "branch": bank["branch"],
+                            "bank": bank["bank"],
+                            "bank_address": bank["bankAddress"],
+                            "contact": bank["contact"],
+                            "city": bank["city"],
+                            "district": bank["district"],
+                            "state": bank["state"],
+                            "bank_mode": bank["bankMode"],
+                            "bank_code": bank["bankcode"],
+                            "bank_zip_code": bank["bankZipCode"],
+                            "address_state": bank["addressState"],  # new
+                            "account_number": bank["accountNumber"],
+                        },
+                    )
+            user_kyc.save(ignore_permissions=True)
+
+            customer = lms.__customer()
+            customer.kyc_update = 1
+            customer.choice_kyc = user_kyc.name
+            customer.save(ignore_permissions=True)
+
+            # save user kyc consent
+            user = lms.__user()
+
+            kyc_consent_doc = frappe.get_doc(
+                {
+                    "doctype": "User Consent",
+                    "mobile": user.phone,
+                    "consent": "Kyc",
+                }
+            )
+            kyc_consent_doc.insert(ignore_permissions=True)
+
+            frappe.db.commit()
+
+            """
+                # changes as per latest email notification list-sent by vinayak - email verification final 2.0
+                # frappe.enqueue_doc("Notification", "User KYC", method="send", doc=user)
+
+                # mess = frappe._(
+                #     "Dear "
+                #     + user.full_name
+                #     + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
+                # )
+                # mess = frappe._(
+                #     "Congratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
+                # )
+            """
+            mess = frappe._(
+                "Dear Customer, \nCongratulations! \nYour KYC verification is completed.  -Spark Loans"
+            )
+            frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
+
+        data = {"user_kyc": user_kyc}
+
+        return utils.respondWithSuccess(data=data)
+    except utils.exceptions.APIException as e:
+        frappe.db.rollback()
+        frappe.log_error(
+            message=frappe.get_traceback() + "\nkyc api details:\n" + str(e.args),
+            title=_("User KYC Error"),
+        )
+        return e.respond()
+
+
+"""Changes as per new jiffy KYC API - related to bajaj lender - (CR-Dec21) - end"""
 
 
 @frappe.whitelist()

@@ -23,7 +23,9 @@
   "bank_mode",
   "bank_zip_code",
   "district",
-  "razorpay_fund_account_validation_id"
+  "razorpay_fund_account_validation_id",
+  "address_state",
+  "cancel_cheque_file_name"
  ],
  "fields": [
   {
@@ -128,6 +130,16 @@
    "fieldtype": "Data",
    "label": "Razorpay Fund Account Validation ID",
    "read_only": 1
+  },
+  {
+   "fieldname": "address_state",
+   "fieldtype": "Data",
+   "label": "Address State"
+  },
+  {
+   "fieldname": "cancel_cheque_file_name",
+   "fieldtype": "Data",
+   "label": "Cancel Cheque File Name"
   }
  ],
  "istable": 1,

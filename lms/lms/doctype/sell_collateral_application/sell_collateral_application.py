@@ -4,7 +4,10 @@
 
 from __future__ import unicode_literals
 
+import json
+
 import frappe
+import requests
 import utils
 from frappe import _
 from frappe.model.document import Document
@@ -472,11 +475,6 @@ def get_collateral_details(sell_collateral_application_name):
         ),
         having_clause=" HAVING quantity > 0",
     )
-
-
-import json
-
-import requests
 
 
 @frappe.whitelist()

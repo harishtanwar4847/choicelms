@@ -24,6 +24,41 @@ class UserToken(Document):
             "Invoke OTP",
             "Revoke OTP",
         ]:
+
+            # OTP on Email as per new Requiement on Dec 10, 2021
+            if self.token_type in [
+                "Pledge OTP",
+                "Unpledge OTP",
+            ]:
+                doc = frappe.get_all(
+                    "User KYC", filters={"user": frappe.session.user}, fields=["*"]
+                )[0]
+                doc["otp_info"] = {
+                    "token_type": self.token_type.replace(" ", ""),
+                    "token": self.token,
+                }
+                frappe.enqueue_doc(
+                    "Notification",
+                    "OTP for Spark Loans",
+                    method="send",
+                    doc=doc,
+                )
+            else:
+                doc = frappe.get_all(
+                    "User", filters={"username": self.entity}, fields=["*"]
+                )
+                if doc:
+                    doc[0]["otp_info"] = {
+                        "token_type": self.token_type.replace(" ", ""),
+                        "token": self.token,
+                    }
+                    frappe.enqueue_doc(
+                        "Notification",
+                        "Other OTP for Spark Loans",
+                        method="send",
+                        doc=doc[0],
+                    )
+
             # las_settings = frappe.get_single("LAS Settings")
             # app_hash_string = (las_settings.app_identification_hash_string,)
             # "Your {token_type} for LMS is {token}. Do not share your {token_type} with anyone.{app_hash_string}"
@@ -72,11 +107,18 @@ class UserToken(Document):
                 doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
             else:
                 doc = frappe.get_doc("User", self.entity).as_dict()
-            doc["otp_info"] = {
-                "token_type": self.token_type,
+
+            user_doc = frappe.get_doc("User", self.entity).as_dict()
+            user_doc["otp_info"] = {
+                "token_type": self.token_type.replace(" ", ""),
                 "token": self.token,
-                "expiry_in_minutes": expiry_in_minutes,
             }
+            frappe.enqueue_doc(
+                "Notification",
+                "Other OTP for Spark Loans",
+                method="send",
+                doc=user_doc,
+            )
 
             """changes as per latest email notification list-sent by vinayak - email verification final 2.0"""
             # mess = _(
@@ -125,7 +167,7 @@ def validate_receiver_nos(receiver_list):
         validated_receiver_list.append(d)
 
     if not validated_receiver_list:
-        throw(_("Please enter valid mobile nos"))
+        frappe.throw(_("Please enter valid mobile nos"))
 
     return validated_receiver_list
 
