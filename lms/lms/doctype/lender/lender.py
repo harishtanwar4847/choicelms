@@ -122,8 +122,7 @@ class Lender(Document):
     def validate(self):
 
         if len(self.concentration_rule) > 10:
-            print("dgkdfgklslkjg")
-            frappe.throw(_("Only 10 rows allowed."))
+            frappe.throw(_("Maximum 10 levels allowed."))
 
         if cint(self.interest_percentage_sharing) > 100:
             frappe.throw(
