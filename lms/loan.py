@@ -2330,18 +2330,32 @@ def loan_unpledge_details(**kwargs):
 
 
 def validate_securities_for_unpledge(securities, loan):
+    items_type = "Securities" if loan.instrument_type == "Shares" else "Scheme"
+    applicaion_type = "Unpledge" if loan.instrument_type == "Shares" else "Revoke"
     if not securities or (
         type(securities) is not dict and "list" not in securities.keys()
     ):
         raise utils.exceptions.ValidationException(
-            {"securities": {"required": frappe._("Securities required.")}}
+            {
+                "securities": {
+                    "required": frappe._(
+                        "{items_type} required.".format(items_type=items_type)
+                    )
+                }
+            }
         )
 
     securities = securities["list"]
 
     if len(securities) == 0:
         raise utils.exceptions.ValidationException(
-            {"securities": {"required": frappe._("Securities required.")}}
+            {
+                "securities": {
+                    "required": frappe._(
+                        "{items_type} required.".format(items_type=items_type)
+                    )
+                }
+            }
         )
 
     # check if securities is a list of dict
@@ -2349,7 +2363,11 @@ def validate_securities_for_unpledge(securities, loan):
 
     if type(securities) is not list:
         securities_valid = False
-        message = frappe._("securities should be list of dictionaries")
+        message = frappe._(
+            "{items_type} should be list of dictionaries".format(
+                items_type=items_type.lower()
+            )
+        )
 
     securities_list = [i["isin"] for i in securities]
 
@@ -2389,9 +2407,6 @@ def validate_securities_for_unpledge(securities, loan):
             securities_obj = {}
             for i in securities_list_from_db_:
                 securities_obj[i[0]] = i[1]
-            applicaion_type = (
-                "Unpledge" if loan.instrument_type == "Shares" else "Revoke"
-            )
             for i in securities:
                 if i["quantity"] > securities_obj[i["isin"]]:
                     securities_valid = False
@@ -2790,18 +2805,32 @@ def sell_collateral_request(**kwargs):
 
 
 def validate_securities_for_sell_collateral(securities, loan_name):
+    loan = frappe.get_doc("Loan", loan_name)
+    items_type = "Securities" if loan.instrument_type == "Shares" else "Scheme"
     if not securities or (
         type(securities) is not dict and "list" not in securities.keys()
     ):
         raise utils.exceptions.ValidationException(
-            {"securities": {"required": frappe._("Securities required.")}}
+            {
+                "securities": {
+                    "required": frappe._(
+                        "{items_type} required.".format(items_type=items_type.lower())
+                    )
+                }
+            }
         )
 
     securities = securities["list"]
 
     if len(securities) == 0:
         raise utils.exceptions.ValidationException(
-            {"securities": {"required": frappe._("Securities required.")}}
+            {
+                "securities": {
+                    "required": frappe._(
+                        "{items_type} required.".format(items_type=items_type.lower())
+                    )
+                }
+            }
         )
 
     # check if securities is a list of dict
@@ -2809,7 +2838,11 @@ def validate_securities_for_sell_collateral(securities, loan_name):
 
     if type(securities) is not list:
         securities_valid = False
-        message = frappe._("securities should be list of dictionaries")
+        message = frappe._(
+            "{items_type} should be list of dictionaries".format(
+                items_type=items_type.lower()
+            )
+        )
 
     securities_list = [i["isin"] for i in securities]
 
@@ -2835,7 +2868,11 @@ def validate_securities_for_sell_collateral(securities, loan_name):
         for i in securities:
             if type(i) is not dict:
                 securities_valid = False
-                message = frappe._("items in securities need to be dictionaries")
+                message = frappe._(
+                    "items in {items_type} need to be dictionaries".format(
+                        items_type=items_type.lower()
+                    )
+                )
                 break
 
             keys = i.keys()
