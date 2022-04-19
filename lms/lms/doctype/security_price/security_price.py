@@ -214,7 +214,7 @@ def update_scheme_nav(schemes_list):
                     scheme["isin"],
                     scheme["security_name"],
                     time,
-                    data.get("NAV"),
+                    round(data.get("NAV"), 4),
                     time,
                     time,
                     time,
