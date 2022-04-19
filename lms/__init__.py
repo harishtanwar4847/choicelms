@@ -1074,13 +1074,19 @@ def ckyc_search_api():
     # encoded_pid + encoded_session_key in request.xml
     # and sign entire request
     request_xml = request_xml_ckyc(
-        pid=encoded_pid, sess_key=encoded_session_key, is_search_api=True
+        pid=encoded_pid, sess_key="TZhX1e27Ej5BaK9ykQdPmRCGU6xgiJqo", is_search_api=True
     )
-    print(request_xml)
+    r = bytearray(request_xml, "ascii")
+    print(r)
+    print(len(r), "\nbyte len")
     # return encoded_pid,encrypted_session_key,encoded_session_key
 
     # headers
-    headers = {"Content-Type": "application/xml; charset=utf-8"}
+    headers = {
+        "Content-Type": "application/xml; charset=utf-8",
+        "Content-Length": str(len(r)),
+    }
+    print(headers, "headers")
     # request URL
     url = "https://testbed.ckycindia.in/Search/ckycverificationservice/verify"
     # POST request
