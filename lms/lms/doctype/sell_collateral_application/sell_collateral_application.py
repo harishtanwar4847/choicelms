@@ -115,8 +115,17 @@ class SellCollateralApplication(Document):
                     )
                 )
             sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
-            i.price = price_map.get(i.isin)
-            self.selling_collateral_value += i.sell_quantity * price_map.get(i.isin)
+            # i.price = price_map.get(i.isin)
+            # self.selling_collateral_value += i.sell_quantity * price_map.get(i.isin)
+            if self.instrument_type == "Shares":
+                i.price = price_map.get(i.isin)
+            else:
+                i.price = (
+                    price_map.get(i.isin)
+                    if i.invoke_initiate_remarks == "SUCCESS"
+                    else 0
+                )
+            self.selling_collateral_value += i.sell_quantity * i.price
 
         for i in self.items:
             if sell_quantity_map.get(i.isin) > i.quantity:

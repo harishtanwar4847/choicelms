@@ -107,10 +107,19 @@ class UnpledgeApplication(Document):
             unpledge_quantity_map[i.isin] = (
                 unpledge_quantity_map[i.isin] + i.unpledge_quantity
             )
-            i.price = price_map.get(i.isin)
-            self.unpledge_collateral_value += i.unpledge_quantity * price_map.get(
-                i.isin
-            )
+            # i.price = price_map.get(i.isin)
+            # self.unpledge_collateral_value += i.unpledge_quantity * price_map.get(
+            #     i.isin
+            # )
+            if self.instrument_type == "Shares":
+                i.price = price_map.get(i.isin)
+            else:
+                i.price = (
+                    price_map.get(i.isin)
+                    if i.revoke_initiate_remarks == "SUCCESS"
+                    else 0
+                )
+            self.unpledge_collateral_value += i.unpledge_quantity * i.price
 
         for i in self.items:
             if unpledge_quantity_map.get(i.isin) > i.quantity:
@@ -601,8 +610,8 @@ def initiate_revoc(unpledge_application_name):
                                 frappe.db.sql(
                                     """
                                     update `tabCollateral Ledger`
-                                    set psn = '{psn}', isin = '{isin}'
-                                    where loan = '{loan}'
+                                    set psn = '{psn}'
+                                    where loan = '{loan}' and isin = '{isin}'
                                     """.format(
                                         psn=new_psn,
                                         isin=i.get("isin"),
