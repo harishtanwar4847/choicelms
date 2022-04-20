@@ -622,6 +622,9 @@ def initiate_revoc(unpledge_application_name):
                     if (
                         dict_decrypted_response.get("revocinitiate").get("message")
                         == "SUCCESS"
+                    ) or (
+                        dict_decrypted_response.get("revocinitiate").get("message")
+                        == "PARTIAL FAILURE"
                     ):
                         unpledge_application_doc.is_initiated = True
                 else:

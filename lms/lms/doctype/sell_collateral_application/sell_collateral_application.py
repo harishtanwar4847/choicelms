@@ -738,6 +738,9 @@ def initiate_invoc(sell_collateral_application_name):
                     if (
                         dict_decrypted_response.get("invocinitiate").get("message")
                         == "SUCCESS"
+                    ) or (
+                        dict_decrypted_response.get("invocinitiate").get("message")
+                        == "PARTIAL FAILURE"
                     ):
                         sell_collateral_application_doc.is_initiated = True
 
