@@ -1246,8 +1246,12 @@ def loan_details(**kwargs):
         res["amount_available_for_withdrawal"] = loan.maximum_withdrawable_amount()
 
         # Pledgor boid of particular loan
-        res["pledgor_boid"] = frappe.db.get_value(
-            "Collateral Ledger", {"loan": loan.name}, "pledgor_boid"
+        res["pledgor_boid"] = (
+            ""
+            if loan.instrument_type == "Mutual Fund"
+            else frappe.db.get_value(
+                "Collateral Ledger", {"loan": loan.name}, "pledgor_boid"
+            )
         )
 
         return utils.respondWithSuccess(data=res)
