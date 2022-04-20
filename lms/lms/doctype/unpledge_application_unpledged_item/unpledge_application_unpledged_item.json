@@ -24,6 +24,7 @@
  ],
  "fields": [
   {
+   "columns": 1,
    "fieldname": "isin",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -32,6 +33,7 @@
    "read_only": 1
   },
   {
+   "columns": 2,
    "fieldname": "security_name",
    "fieldtype": "Small Text",
    "in_list_view": 1,
@@ -39,6 +41,7 @@
    "read_only": 1
   },
   {
+   "columns": 1,
    "fieldname": "psn",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -46,6 +49,7 @@
    "read_only": 1
   },
   {
+   "columns": 2,
    "fieldname": "quantity",
    "fieldtype": "Float",
    "in_list_view": 1,
@@ -53,6 +57,7 @@
    "read_only": 1
   },
   {
+   "columns": 2,
    "fieldname": "unpledge_quantity",
    "fieldtype": "Float",
    "in_list_view": 1,
@@ -122,7 +127,7 @@
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-04-13 17:07:16.637676",
+ "modified": "2022-04-19 20:51:28.658429",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Unpledge Application Unpledged Item",

@@ -4,6 +4,9 @@
 frappe.ui.form.on("Unpledge Application", {
   refresh: function (frm) {
     show_fetch_items_button(frm);
+    if (frm.doc.status == "Rejected") {
+      frm.clear_custom_buttons();
+    }
   },
 });
 
