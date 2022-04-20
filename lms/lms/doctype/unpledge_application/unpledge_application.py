@@ -86,7 +86,7 @@ class UnpledgeApplication(Document):
 
         price_map = {i.isin: i.price for i in self.items}
         unpledge_quantity_map = {i.isin: 0 for i in self.items}
-
+        unpledge_requested_quantity_map = {i.isin: i.quantity for i in self.items}
         msg = (
             "Can not unpledge {}(PSN: {}) more than {}"
             if self.instrument_type == "Shares"
@@ -96,6 +96,14 @@ class UnpledgeApplication(Document):
         for i in self.unpledge_items:
             if i.unpledge_quantity > i.quantity:
                 frappe.throw(msg.format(i.isin, i.psn, i.quantity))
+            if unpledge_requested_quantity_map.get(i.isin) > i.unpledge_quantity:
+                frappe.throw(
+                    "You need to {} all {} of isin {}".format(
+                        application_type,
+                        unpledge_requested_quantity_map.get(i.isin),
+                        i.isin,
+                    )
+                )
             unpledge_quantity_map[i.isin] = (
                 unpledge_quantity_map[i.isin] + i.unpledge_quantity
             )
@@ -126,14 +134,14 @@ class UnpledgeApplication(Document):
         else:
             frappe.throw("Please add items to {}".format(application_type))
 
-        for i in self.items:
-            # print(unpledge_quantity_map.get(i.isin), i.quantity)
-            if unpledge_quantity_map.get(i.isin) < i.quantity:
-                frappe.throw(
-                    "You need to {} all {} of isin {}".format(
-                        application_type, i.quantity, i.isin
-                    )
-                )
+        # for i in self.items:
+        #     # print(unpledge_quantity_map.get(i.isin), i.quantity)
+        #     if unpledge_quantity_map.get(i.isin) < i.quantity:
+        #         frappe.throw(
+        #             "You need to {} all {} of isin {}".format(
+        #                 application_type, i.quantity, i.isin
+        #             )
+        #         )
 
         loan_items = frappe.get_all(
             "Loan Item", filters={"parent": self.loan}, fields=["*"]

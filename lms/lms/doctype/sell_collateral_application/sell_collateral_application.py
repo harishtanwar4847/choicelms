@@ -97,6 +97,7 @@ class SellCollateralApplication(Document):
 
         price_map = {i.isin: i.price for i in self.items}
         sell_quantity_map = {i.isin: 0 for i in self.items}
+        sell_requested_quantity_map = {i.isin: i.quantity for i in self.items}
 
         msg = (
             "Can not sell {}(PSN: {}) more than {}"
@@ -107,6 +108,12 @@ class SellCollateralApplication(Document):
         for i in self.sell_items:
             if i.sell_quantity > i.quantity:
                 frappe.throw(msg.format(i.isin, i.psn, i.quantity))
+            if sell_requested_quantity_map.get(i.isin) > i.sell_quantity:
+                frappe.throw(
+                    "You need to {} all {} of isin {}".format(
+                        applicaton_type, i.quantity, i.isin
+                    )
+                )
             sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
             i.price = price_map.get(i.isin)
             self.selling_collateral_value += i.sell_quantity * price_map.get(i.isin)
