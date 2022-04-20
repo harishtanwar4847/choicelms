@@ -3461,7 +3461,10 @@ def loan_summary_dashboard(**kwargs):
             ).instrument_type
             for la in under_process_la:
                 la_doc = frappe.get_doc("Loan Application", la.name)
-                if la_doc.instrument_type == "Mutual Fund":
+                if (
+                    la_doc.instrument_type == "Mutual Fund"
+                    and "pledge" in la_doc.status.lower()
+                ):
                     la.status = la_doc.status.lower().replace("pledge", "Lien")
 
         elif all_loans:
