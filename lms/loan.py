@@ -974,12 +974,18 @@ def loan_details(**kwargs):
                     sell_off_shortfall = sell_collateral_for_mg_shortfall[
                         0
                     ].total_collateral_value
+                    msg_type = ["unpledge", "pledged securities"]
+                    if loan.instrument_type == "Mutual Fund":
+                        msg_type = ["revoke", "liened schemes"]
 
-                    action_taken_for_sell = """\nOn {} we received a sell collateral request of Rs. {}/- which is under process. \n(Click here to see sell collateral summary) """.format(
-                        (sell_collateral_for_mg_shortfall[0].creation).strftime(
+                    action_taken_for_sell = """\nOn {date} we received a {msg} request of Rs. {amount}/- which is under process. \n(Click here to see {msg} summary) """.format(
+                        date=(sell_collateral_for_mg_shortfall[0].creation).strftime(
                             "%d.%m.%Y %I:%M %p"
                         ),
-                        sell_off_shortfall,
+                        amount=sell_off_shortfall,
+                        msg="invoke"
+                        if loan.instrument_type == "Mutual Fund"
+                        else "sell collateral",
                     )
                     loan_margin_shortfall["action_taken_msg"] += action_taken_for_sell
 
@@ -1234,9 +1240,12 @@ def loan_details(**kwargs):
             res["unpledge"] = None
         else:
             # get amount_available_for_unpledge,min collateral value
+            msg_type = ["unpledge", "pledged securities"]
+            if loan.instrument_type == "Mutual Fund":
+                msg_type = ["revoke", "liened schemes"]
             res["unpledge"] = dict(
-                unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
-                    loan.get_customer().first_name
+                unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot {} any of the {} until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                    loan.get_customer().first_name, msg_type[0], msg_type[1]
                 )
                 if loan_margin_shortfall
                 else None,

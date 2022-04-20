@@ -2003,9 +2003,13 @@ def my_pledge_securities(**kwargs):
             res["unpledge"] = None
         else:
             # get amount_available_for_unpledge,min collateral value
+            msg_type = ["unpledge", "pledged securities"]
+            if loan.instrument_type == "Mutual Fund":
+                msg_type = ["revoke", "liened schemes"]
+
             res["unpledge"] = dict(
-                unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
-                    loan.get_customer().first_name
+                unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot {} any of the {} until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                    loan.get_customer().first_name, msg_type[0], msg_type[1]
                 )
                 if loan_margin_shortfall
                 else None,
@@ -3372,13 +3376,16 @@ def loan_summary_dashboard(**kwargs):
                     }
                 )
             else:
+                msg_type = ["unpledge", "pledged securities"]
+                if loan.instrument_type == "Mutual Fund":
+                    msg_type = ["revoke", "liened schemes"]
                 unpledge_list.append(
                     {
                         "loan_name": loan.name,
                         # "creation": mindate,
                         "unpledge_application_available": None,
-                        "unpledge_msg_while_margin_shortfall": """OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
-                            loan.get_customer().first_name
+                        "unpledge_msg_while_margin_shortfall": """OOPS! Dear {}, It seems you have a margin shortfall. You cannot {} any of the {} until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                            loan.get_customer().first_name, msg_type[0], msg_type[1]
                         )
                         if loan_margin_shortfall
                         else None,
