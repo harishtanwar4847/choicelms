@@ -11,7 +11,7 @@ lms.patches.import_faq
 lms.patches.create_consents
 lms.patches.update_las_settings
 lms.patches.import_interest_configuration
-lms.patches.import_workflows #19.04.2022
+lms.patches.import_workflows #20.04.2022
 lms.patches.set_hostname_config
 lms.patches.create_spark_email_account
 lms.patches.redirect_to_root_page
