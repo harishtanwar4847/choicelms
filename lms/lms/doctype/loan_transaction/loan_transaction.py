@@ -764,6 +764,14 @@ def settlement_recon_api(input_date=None):
                             settle_res = client.settlement.fetch(
                                 settled_items["settlement_id"]
                             )
+                            lms.create_log(
+                                {
+                                    "settle_res": settle_res,
+                                    "loan_transaction_name": loan_transaction_name,
+                                },
+                                "settlement_api_id_log",
+                            )
+
                             loan_transaction = frappe.get_doc(
                                 "Loan Transaction", loan_transaction_name
                             )

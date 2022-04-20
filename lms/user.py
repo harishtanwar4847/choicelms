@@ -295,6 +295,15 @@ def get_choice_kyc(**kwargs):
 
                 data = res.json()
 
+                log = {
+                    "url": las_settings.choice_pan_api,
+                    "headers": headers,
+                    "request": params,
+                    "response": data,
+                }
+
+                lms.create_log(log, "get_choice_kyc_log")
+
                 if not res.ok or "errorCode" in data:
                     raise UserKYCNotFoundException
                     raise utils.exceptions.APIException(res.text)
@@ -988,25 +997,34 @@ def securities(**kwargs):
         )
 
         if len(securities_list) == 0:
-            las_settings = frappe.get_single("LAS Settings")
-
-            # get securities list from choice
-            payload = {
-                "UserID": las_settings.choice_user_id,
-                "ClientID": user_kyc.pan_no,
-            }
 
             try:
+                las_settings = frappe.get_single("LAS Settings")
+
+                # get securities list from choice
+                payload = {
+                    "UserID": las_settings.choice_user_id,
+                    "ClientID": user_kyc.pan_no,
+                }
                 res = requests.post(
-                    las_settings.choice_securities_list_api,
+                    url=las_settings.choice_securities_list_api,
                     json=payload,
                     headers={"Accept": "application/json"},
                 )
+                res_json = res.json()
+                log = {
+                    "url": las_settings.choice_securities_list_api,
+                    "headers": {"Accept": "application/json"},
+                    "request": payload,
+                    "response": res_json,
+                }
+
+                lms.create_log(log, "securities_log")
+
                 if not res.ok:
                     raise utils.exceptions.APIException(res.text)
-
-                res_json = res.json()
                 frappe.logger().info(res_json)
+
                 if res_json["Status"] != "Success":
                     raise utils.exceptions.APIException(res.text)
 

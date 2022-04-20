@@ -37,6 +37,14 @@ def update_security_prices(securities_dict, session_id):
         response = requests.post(get_latest_security_price_url, json=payload)
         response_json = response.json()
 
+        log = {
+            "url": get_latest_security_price_url,
+            "request": payload,
+            "response": response_json,
+        }
+
+        lms.create_log(log, "security_prices_log")
+
         if response.ok and response_json.get("Status") == "Success":
             fields = [
                 "name",
@@ -117,6 +125,13 @@ def update_all_security_prices():
 
             response = requests.get(session_id_generator_url)
             response_json = response.json()
+            log = {
+                "timestamp": str(frappe.utils.now_datetime()),
+                "request_url": session_id_generator_url,
+                "response": response_json,
+            }
+
+            lms.create_log(log, "jiffy_session_generator_log")
 
             if response.ok and response_json.get("Status") == "Success":
                 for start in chunks.get("chunks"):
