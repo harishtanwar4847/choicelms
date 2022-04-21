@@ -143,7 +143,7 @@ class TopupApplication(Document):
             frappe.throw(
                 "Can not Approve this Top up Application as Sanctioned limit will cross Maximum Sanctioned limit Cap"
             )
-        if updated_top_up_amt < (loan.sanctioned_limit * 0.1):
+        if not updated_top_up_amt or updated_top_up_amt < self.top_up_amount:
             frappe.throw("Top up not available")
         if self.top_up_amount <= 0:
             frappe.throw("Top up can not be approved with Amount Rs. 0")
