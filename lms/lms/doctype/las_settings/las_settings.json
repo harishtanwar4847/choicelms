@@ -413,6 +413,7 @@
   {
    "fieldname": "ltv_section",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "LTV"
   },
   {
@@ -496,7 +497,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2022-04-01 17:01:20.324354",
+ "modified": "2022-04-22 12:17:47.405385",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
