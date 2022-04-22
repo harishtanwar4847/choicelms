@@ -19,18 +19,30 @@ from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions
 
 
 def validate_securities_for_cart(securities, lender, instrument_type="Shares"):
+    msg = "securities"
+    if instrument_type == "Mutual Fund":
+        msg = "schemes"
+
     if not securities or (
         type(securities) is not dict and "list" not in securities.keys()
     ):
         raise utils.exceptions.ValidationException(
-            {"securities": {"required": frappe._("Securities required.")}}
+            {
+                "securities": {
+                    "required": frappe._("{msg} required.".format(msg=msg.title()))
+                }
+            }
         )
 
     securities = securities["list"]
 
     if len(securities) == 0:
         raise utils.exceptions.ValidationException(
-            {"securities": {"required": frappe._("Securities required.")}}
+            {
+                "securities": {
+                    "required": frappe._("{msg} required.".format(msg=msg.title()))
+                }
+            }
         )
 
     # check if securities is a list of dict
@@ -38,7 +50,7 @@ def validate_securities_for_cart(securities, lender, instrument_type="Shares"):
 
     if type(securities) is not list:
         securities_valid = False
-        message = frappe._("securities should be list of dictionaries")
+        message = frappe._("{msg} should be list of dictionaries".format(msg=msg))
 
     securities_list = [i["isin"] for i in securities]
 
@@ -66,7 +78,9 @@ def validate_securities_for_cart(securities, lender, instrument_type="Shares"):
         for i in securities:
             if type(i) is not dict:
                 securities_valid = False
-                message = frappe._("items in securities need to be dictionaries")
+                message = frappe._(
+                    "items in {msg} need to be dictionaries".format(msg=msg)
+                )
                 break
 
             keys = i.keys()

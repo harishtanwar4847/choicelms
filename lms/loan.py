@@ -2343,7 +2343,7 @@ def loan_unpledge_details(**kwargs):
 
 
 def validate_securities_for_unpledge(securities, loan):
-    items_type = "Securities" if loan.instrument_type == "Shares" else "Scheme"
+    items_type = "Securities" if loan.instrument_type == "Shares" else "Schemes"
     applicaion_type = "Unpledge" if loan.instrument_type == "Shares" else "Revoke"
     if not securities or (
         type(securities) is not dict and "list" not in securities.keys()
@@ -2819,7 +2819,7 @@ def sell_collateral_request(**kwargs):
 
 def validate_securities_for_sell_collateral(securities, loan_name):
     loan = frappe.get_doc("Loan", loan_name)
-    items_type = "Securities" if loan.instrument_type == "Shares" else "Scheme"
+    items_type = "Securities" if loan.instrument_type == "Shares" else "Schemes"
     if not securities or (
         type(securities) is not dict and "list" not in securities.keys()
     ):
