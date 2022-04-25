@@ -35,7 +35,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "3.0.1"
+__version__ = "3.1.0"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -1524,10 +1524,10 @@ def decrypt_lien_marking_response():
         res = dict_payload.get("response")
 
         log = {
-            "encrypted_response": data.get("lienresponse"),
+            "encrypted_response": str(encrypted_response),
             "decrypted_response": res,
         }
-        create_log(log, "encrypted_response")
+        create_log(log, "lien_marking_response")
         if (
             res.get("errorcode") == "S000"
             and res.get("error") == "Lien marked sucessfully"

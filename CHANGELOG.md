@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v3.1.0]
+
+### Added
+
+- [Feat: Mutual Fund Implementation](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/489)
+
 ## [v3.0.1] - 2022-03-08
 
 ### Fixed
