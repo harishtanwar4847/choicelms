@@ -83,4 +83,9 @@ def get_context(context):
 
         context.encrypted = encrypted_data
     except Exception:
-        frappe.log_error(title="Mycams Page render error")
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\nCart name:\n"
+            + str(frappe.form_dict.cart_name),
+            title="Mycams Page render error",
+        )

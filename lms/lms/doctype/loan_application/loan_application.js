@@ -60,7 +60,10 @@ frappe.ui.form.on("Loan Application", {
     }
 
     // enable/disable custom btn to actions on LA items when status is Pledge executed
-    if (frm.doc.status == "Pledge executed") {
+    if (
+      frm.doc.status == "Pledge executed" &&
+      frm.doc.instrument_type != "Mutual Fund"
+    ) {
       frm.add_custom_button(
         __("Approve All ISIN"),
         function () {
