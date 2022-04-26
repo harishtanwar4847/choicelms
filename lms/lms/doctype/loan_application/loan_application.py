@@ -218,8 +218,8 @@ class LoanApplication(Document):
                 self.status = "Executing pledge"
                 self.workflow_state = "Executing pledge"
                 self.total_collateral_value = 0
-                for i in self.items:
-                    i.lender_approval_status = "Approved"
+                # for i in self.items:
+                #     i.lender_approval_status = "Approved"
                 self.save(ignore_permissions=True)
                 frappe.db.commit()
                 lien_ref_no = self.items[0].get("prf_number")
@@ -332,7 +332,9 @@ class LoanApplication(Document):
                             i.pledge_status = cur.get("remarks").title()
                             if i.pledge_status == "Success":
                                 total_successfull_lien += 1
-                            total_collateral_value += i.amount
+                                i.lender_approval_status = "Approved"
+                            else:
+                                i.lender_approval_status = "Rejected"
                             collateral_ledger_data = {
                                 "prf": i.get("prf_number"),
                                 "expiry": self.expiry_date,

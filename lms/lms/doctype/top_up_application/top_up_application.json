@@ -159,18 +159,20 @@
    "fieldname": "instrument_type",
    "fieldtype": "Select",
    "label": "Instrument Type",
-   "options": "Shares\nMutual Fund"
+   "options": "Shares\nMutual Fund",
+   "read_only": 1
   },
   {
    "fieldname": "scheme_type",
    "fieldtype": "Select",
    "label": "Scheme Type",
-   "options": "\nEquity\nDebt"
+   "options": "\nEquity\nDebt",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-03-30 10:32:52.227454",
+ "modified": "2022-04-26 16:39:35.724294",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Top up Application",
