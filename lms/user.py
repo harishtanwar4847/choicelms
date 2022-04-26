@@ -3025,7 +3025,7 @@ def all_lenders_list(**kwargs):
         lenders = frappe.get_all("Lender", order_by="creation asc")
         for lender in lenders:
             query = [
-                i.level
+                "Level {}".format(i.level)
                 for i in frappe.db.sql(
                     "select idx as level from `tabConcentration Rule` where parent = '{}' order by idx asc".format(
                         lender.name
