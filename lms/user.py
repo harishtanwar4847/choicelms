@@ -1813,6 +1813,7 @@ def approved_securities(**kwargs):
                 if logo_file_path_2
                 else "",
                 "instrument_type": data.get("instrument_type"),
+                "scheme_type": data.get("loan_type"),
             }
             agreement = frappe.render_template(
                 approved_securities_template.get_content(), {"doc": doc}
@@ -3020,7 +3021,19 @@ def all_lenders_list(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
-        all_lenders = frappe.get_all("Lender", order_by="creation asc")
+        all_lenders = []
+        lenders = frappe.get_all("Lender", order_by="creation asc")
+        for lender in lenders:
+            query = [
+                i.level
+                for i in frappe.db.sql(
+                    "select idx as level from `tabConcentration Rule` where parent = '{}' order by idx asc".format(
+                        lender.name
+                    ),
+                    as_dict=True,
+                )
+            ]
+            all_lenders.append({"name": lender.name, "levels": query})
 
         return utils.respondWithSuccess(data=all_lenders)
 
