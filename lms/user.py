@@ -2971,7 +2971,7 @@ def check_eligible_limit(**kwargs):
         )
 
         reg = lms.regex_special_characters(
-            search=data.get("lender") + data.get("instrument_type")
+            search=data.get("lender") or "" + data.get("instrument_type") or ""
         )
         search_reg = lms.regex_special_characters(
             search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
@@ -2986,7 +2986,7 @@ def check_eligible_limit(**kwargs):
             data["lender"] = frappe.get_last_doc("Lender").name
 
         if not data.get("instrument_type"):
-            data["instrument_type"] = "Share"
+            data["instrument_type"] = "Shares"
 
         eligible_limit_list = frappe.db.sql(
             """

@@ -608,7 +608,7 @@ def request_pledge_otp(**kwargs):
                 "instrument_type": "",
             },
         )
-        reg = lms.regex_special_characters(data.get("instrument_type"))
+        reg = lms.regex_special_characters(data.get("instrument_type") or "")
         if reg:
             return utils.respondWithFailure(
                 status=422,
