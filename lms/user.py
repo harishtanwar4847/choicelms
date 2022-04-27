@@ -1323,8 +1323,10 @@ def schemes(**kwargs):
 
         reg = lms.regex_special_characters(
             search=data.get("scheme_type") + data.get("lender")
-            or "" + data.get("level")
-            or ""
+            if data.get("lender")
+            else "" + data.get("level")
+            if data.get("level")
+            else ""
         )
         if reg:
             return utils.respondWithFailure(

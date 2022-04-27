@@ -128,8 +128,10 @@ def upsert(**kwargs):
             + data.get("lender")
             + data.get("pledgor_boid")
             + data.get("instrument_type")
-            or "" + data.get("scheme_type")
-            or ""
+            if data.get("instrument_type", None)
+            else "" + data.get("scheme_type")
+            if data.get("scheme_type", None)
+            else ""
         )
         if reg:
             return utils.respondWithFailure(
@@ -606,7 +608,9 @@ def request_pledge_otp(**kwargs):
                 "instrument_type": "",
             },
         )
-        reg = lms.regex_special_characters(data.get("instrument_type") or "")
+        reg = lms.regex_special_characters(
+            data.get("instrument_type") if data.get("instrument_type") else ""
+        )
         if reg:
             return utils.respondWithFailure(
                 status=422,
