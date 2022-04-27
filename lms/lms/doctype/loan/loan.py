@@ -1668,7 +1668,7 @@ class Loan(Document):
         maximum_unpledge_amount = self.total_collateral_value - minimum_collateral_value
 
         return {
-            "minimum_collateral_value": minimum_collateral_value
+            "minimum_collateral_value": round(minimum_collateral_value, 2)
             if minimum_collateral_value > 0
             else 0.0,
             "maximum_unpledge_amount": round(maximum_unpledge_amount, 2)
