@@ -2970,7 +2970,9 @@ def check_eligible_limit(**kwargs):
             kwargs, {"lender": "", "search": "", "instrument_type": ""}
         )
 
-        reg = lms.regex_special_characters(search=data.get("lender"))
+        reg = lms.regex_special_characters(
+            search=data.get("lender") + data.get("instrument_type")
+        )
         search_reg = lms.regex_special_characters(
             search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
         )
