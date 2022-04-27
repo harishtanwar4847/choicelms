@@ -1321,12 +1321,16 @@ def schemes(**kwargs):
             {"scheme_type": "required", "lender": "", "level": ""},
         )
 
-        # reg = lms.regex_special_characters(search=data.get("scheme_type"))
-        # if reg:
-        #     return utils.respondWithFailure(
-        #         status=422,
-        #         message=frappe._("Special Characters not allowed."),
-        #     )
+        reg = lms.regex_special_characters(
+            search=data.get("scheme_type") + data.get("lender")
+            or "" + data.get("level")
+            or ""
+        )
+        if reg:
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Special Characters not allowed."),
+            )
 
         if data.get("scheme_type") not in ["Equity", "Debt"]:
             return utils.respondWithFailure(

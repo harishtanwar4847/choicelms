@@ -128,10 +128,8 @@ def upsert(**kwargs):
             + data.get("lender")
             + data.get("pledgor_boid")
             + data.get("instrument_type")
-            if data.get("instrument_type", None)
-            else "" + data.get("scheme_type")
-            if data.get("scheme_type", None)
-            else ""
+            or "" + data.get("scheme_type")
+            or ""
         )
         if reg:
             return utils.respondWithFailure(
