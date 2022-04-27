@@ -1206,12 +1206,16 @@ class LoanApplication(Document):
         email_subject = "Loan Application"
         if self.instrument_type == "Mutual Fund":
             email_subject = "MF Loan Application"
-        if self.status in [
-            "Pledge Failure",
-            "Pledge accepted by Lender",
-            "Approved",
-            "Rejected",
-        ]:
+        if (
+            self.status
+            in [
+                "Pledge Failure",
+                "Pledge accepted by Lender",
+                "Approved",
+                "Rejected",
+            ]
+            and not self.remarks
+        ):
             if self.loan and not self.loan_margin_shortfall:
                 frappe.enqueue_doc(
                     "Notification", "Increase Loan Application", method="send", doc=doc
