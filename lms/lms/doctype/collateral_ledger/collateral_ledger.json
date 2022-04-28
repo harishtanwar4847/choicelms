@@ -87,6 +87,7 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Quantity/Unit",
+   "precision": "3",
    "reqd": 1
   },
   {
@@ -186,6 +187,7 @@
    "fieldname": "requested_quantity",
    "fieldtype": "Float",
    "label": "Requested Quantity/Unit",
+   "precision": "3",
    "read_only": 1
   },
   {
@@ -209,7 +211,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-04-13 15:34:57.151103",
+ "modified": "2022-04-28 19:00:42.709432",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Collateral Ledger",
