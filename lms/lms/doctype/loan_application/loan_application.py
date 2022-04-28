@@ -234,8 +234,8 @@ class LoanApplication(Document):
                         "isinno": i.get("isin"),
                         "schemetype": i.get("type"),
                         "schemecategory": "O",
-                        "lienunit": str(i.get("requested_quantity")),
-                        "lienapprovedunit": str(i.get("pledged_quantity")),
+                        "lienunit": str(round(i.get("requested_quantity"), 3)),
+                        "lienapprovedunit": str(round(i.get("pledged_quantity"), 3)),
                         "lienmarkno": "",
                         "sanctionedamount": "",
                     }

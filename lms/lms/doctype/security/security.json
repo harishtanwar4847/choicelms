@@ -27,7 +27,7 @@
   },
   {
    "fieldname": "security_name",
-   "fieldtype": "Small Text",
+   "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Security/Scheme Name"
   },
@@ -56,7 +56,8 @@
    "fieldname": "price",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Price/NAV"
+   "label": "Price/NAV",
+   "precision": "9"
   },
   {
    "default": "Shares",
@@ -74,7 +75,7 @@
   }
  ],
  "links": [],
- "modified": "2022-04-20 11:13:49.860442",
+ "modified": "2022-04-28 12:58:20.957004",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security",

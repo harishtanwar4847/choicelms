@@ -1366,7 +1366,7 @@ def schemes(**kwargs):
             )
 
         schemes_list = frappe.db.sql(
-            """select als.isin, als.security_name as scheme_name, als.eligible_percentage as ltv, als.instrument_type, als.scheme_type, s.price, group_concat(lender,'') as lenders
+            """select als.isin, als.security_name as scheme_name, als.eligible_percentage as ltv, als.instrument_type, als.scheme_type, round(s.price,4) as price, group_concat(lender,'') as lenders
             from `tabAllowed Security` als
             LEFT JOIN `tabSecurity` s on s.isin = als.isin
             where als.instrument_type='Mutual Fund' and s.price > 0{}{}{}
