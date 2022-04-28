@@ -198,7 +198,7 @@ class Cart(Document):
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
-            return loan_application
+        return loan_application
 
     def create_tnc_file(self):
         lender = self.get_lender()
