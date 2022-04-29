@@ -2382,10 +2382,27 @@ def validate_securities_for_unpledge(securities, loan):
             )
         )
 
+    duplicate_securities_list = []
+    folio_list = []
+    folio_clause = ""
+    for i in securities:
+        if loan.instrument_type == "Mutual Fund":
+            if "folio" not in i.keys() or not i.get("folio"):
+                securities_valid = False
+                message = frappe._("folio not present")
+                break
+            duplicate_securities_list.append("{}{}".format(i["isin"], i["folio"]))
+            folio_list.append(i["folio"])
+
+    if folio_list:
+        folio_clause = " and folio in {}".format(
+            lms.convert_list_to_tuple_string(folio_list)
+        )
+
     securities_list = [i["isin"] for i in securities]
 
     if securities_valid:
-        if len(set(securities_list)) != len(securities_list):
+        if len(set(duplicate_securities_list)) != len(duplicate_securities_list):
             securities_valid = False
             message = frappe._("duplicate isin")
 
@@ -2406,8 +2423,10 @@ def validate_securities_for_unpledge(securities, loan):
 
     if securities_valid:
         securities_list_from_db_ = frappe.db.sql(
-            "select isin, pledged_quantity from `tabLoan Item` where  parent = '{}' and isin in {}".format(
-                loan.name, lms.convert_list_to_tuple_string(securities_list)
+            "select isin, pledged_quantity, folio from `tabLoan Item` where  parent = '{}' and isin in {}{}".format(
+                loan.name,
+                lms.convert_list_to_tuple_string(securities_list),
+                folio_clause,
             )
         )
         securities_list_from_db = [i[0] for i in securities_list_from_db_]
@@ -2521,18 +2540,6 @@ def loan_unpledge_request(**kwargs):
                 ),
             )
 
-        # application_type = "Unpledge"
-        # msg_type = ["unpledge", "pledged securities"]
-        # token_type = "Unpledge OTP"
-        # entity = user_kyc.mobile_number
-        # email_subject = "Unpledge Request"
-        # if loan.instrument_type == "Mutual Fund":
-        #     application_type = "Revoke"
-        #     msg_type = ["revoke", "lien schemes"]
-        #     token_type = "Revoke OTP"
-        #     entity = customer.phone
-        #     email_subject = "Revoke Request"
-
         securities = validate_securities_for_unpledge(data.get("securities", {}), loan)
 
         frappe.db.begin()
@@ -2566,6 +2573,7 @@ def loan_unpledge_request(**kwargs):
                     "doctype": "Unpledge Application Item",
                     "isin": i["isin"],
                     "quantity": i["quantity"],
+                    "folio": i["folio"],
                 }
             )
             items.append(temp)
@@ -2724,6 +2732,7 @@ def sell_collateral_request(**kwargs):
                     "doctype": "Sell Collateral Application Item",
                     "isin": i["isin"],
                     "quantity": i["quantity"],
+                    "folio": i["folio"],
                 }
             )
             items.append(temp)
@@ -2857,17 +2866,36 @@ def validate_securities_for_sell_collateral(securities, loan_name):
             )
         )
 
+    duplicate_securities_list = []
+    folio_list = []
+    folio_clause = ""
+    for i in securities:
+        if loan.instrument_type == "Mutual Fund":
+            if "folio" not in i.keys() or not i.get("folio"):
+                securities_valid = False
+                message = frappe._("folio not present")
+                break
+            duplicate_securities_list.append("{}{}".format(i["isin"], i["folio"]))
+            folio_list.append(i["folio"])
+
+    if folio_list:
+        folio_clause = " and folio in {}".format(
+            lms.convert_list_to_tuple_string(folio_list)
+        )
+
     securities_list = [i["isin"] for i in securities]
 
     if securities_valid:
-        if len(set(securities_list)) != len(securities_list):
+        if len(set(duplicate_securities_list)) != len(duplicate_securities_list):
             securities_valid = False
             message = frappe._("duplicate isin")
 
     if securities_valid:
         securities_list_from_db_ = frappe.db.sql(
-            "select isin from `tabLoan Item` where parent = '{}' and isin in {}".format(
-                loan_name, lms.convert_list_to_tuple_string(securities_list)
+            "select isin, folio from `tabLoan Item` where parent = '{}' and isin in {}{}".format(
+                loan_name,
+                lms.convert_list_to_tuple_string(securities_list),
+                folio_clause,
             )
         )
         securities_list_from_db = [i[0] for i in securities_list_from_db_]
