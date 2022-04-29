@@ -2261,7 +2261,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-25 11:15:31.118329",
+  "modified": "2022-04-29 15:11:44.793994",
   "name": "20b2c24baa",
   "parameters": [
    {
@@ -2280,7 +2280,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": "Securities Object",
+    "description": "Securities/Scheme Object",
     "field": "securities",
     "group": null,
     "optional": 0,
@@ -2293,7 +2293,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": "list of securities",
+    "description": "list of securities/scheme",
     "field": "securities.list",
     "group": null,
     "optional": 0,
@@ -2319,7 +2319,7 @@
    {
     "allowed_values": null,
     "default_value": null,
-    "description": "Quantity to be pledged",
+    "description": "Quantity/Unit to be pledged",
     "field": "securities.list.quantity",
     "group": "Security",
     "optional": 0,
@@ -2327,7 +2327,7 @@
     "parentfield": "parameters",
     "parenttype": "API Doc",
     "size": null,
-    "type": "Integer"
+    "type": "Float"
    },
    {
     "allowed_values": null,
@@ -2380,25 +2380,51 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Shares or Mutual Fund",
+    "field": "instrument_type",
+    "group": null,
+    "optional": 0,
+    "parent": "20b2c24baa",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "\"\" or Equity or Debt",
+    "field": "scheme_type",
+    "group": null,
+    "optional": 0,
+    "parent": "20b2c24baa",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
    }
   ],
   "parameters_example": [
    {
-    "example": "{\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"isin\",\n\t\t\t\t\"quantity\":10\n\t\t\t}\n\t\t]\n\t},\n\t\"pledgor_boid\": \"123456789\",\n\t\"cart_name\": \"\",\n\t\"loan_name\": \"\",\n\t\"loan_margin_shortfall_name\": \"\",\n\t\"lender\": \"\"\n}",
+    "example": "{\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"isin\",\n\t\t\t\t\"quantity\":10\n\t\t\t}\n\t\t]\n\t},\n\t\"pledgor_boid\": \"123456789\",\n\t\"cart_name\": \"\",\n\t\"loan_name\": \"\",\n\t\"loan_margin_shortfall_name\": \"\",\n\t\"lender\": \"\"\n\t\"instrument_type\": \"Shares\" or \"Mutual Fund\",\n        \"scheme_type\": \"\" or \"Equity\" or \"Debt\"\n}",
     "parent": "20b2c24baa",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
     "title": "Request Example"
    },
    {
-    "example": "{\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"isin\",\n\t\t\t\t\"quantity\":10\n\t\t\t}\n\t\t]\n\t},\n\t\"pledgor_boid\": \"123456789\",\n\t\"cart_name\": \"\",\n\t\"loan_name\": \"SL000001\",\n\t\"loan_margin_shortfall_name\": \"\",\n\t\"lender\": \"\"\n}",
+    "example": "{\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"isin\",\n\t\t\t\t\"quantity\":10\n\t\t\t}\n\t\t]\n\t},\n\t\"pledgor_boid\": \"123456789\",\n\t\"cart_name\": \"\",\n\t\"loan_name\": \"SL000001\",\n\t\"loan_margin_shortfall_name\": \"\",\n\t\"lender\": \"\"\n\t\"instrument_type\": \"Shares\" or \"Mutual Fund\",\n        \"scheme_type\": \"\" or \"Equity\" or \"Debt\"\n}",
     "parent": "20b2c24baa",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
     "title": "Request Example (Increase Loan)"
    },
    {
-    "example": "{\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"isin\",\n\t\t\t\t\"quantity\":10\n\t\t\t}\n\t\t]\n\t},\n\t\"pledgor_boid\": \"123456789\",\n\t\"cart_name\": \"\",\n\t\"loan_name\": \"SL000001\",\n\t\"loan_margin_shortfall_name\": \"abcd1234\",\n\t\"lender\": \"\"\n}",
+    "example": "{\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"isin\",\n\t\t\t\t\"quantity\":10\n\t\t\t}\n\t\t]\n\t},\n\t\"pledgor_boid\": \"123456789\",\n\t\"cart_name\": \"\",\n\t\"loan_name\": \"SL000001\",\n\t\"loan_margin_shortfall_name\": \"abcd1234\",\n\t\"lender\": \"\"\n\t\"instrument_type\": \"Shares\" or \"Mutual Fund\",\n        \"scheme_type\": \"\" or \"Equity\" or \"Debt\"\n}",
     "parent": "20b2c24baa",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -2542,8 +2568,28 @@
    },
    {
     "default_value": null,
-    "description": "Lender Beneficiary Owner's ID",
-    "field": "data.cart.pledgee_boid",
+    "description": "Increased Sanctioned Limit",
+    "field": "data.cart.increased_sanctioned_limit",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Cart instrument type",
+    "field": "data.cart.instrument_type",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Cart Scheme Type",
+    "field": "data.cart.scheme_type",
     "group": null,
     "parent": "20b2c24baa",
     "parentfield": "success",
@@ -2602,7 +2648,7 @@
    },
    {
     "default_value": null,
-    "description": "isin entry name",
+    "description": "Cart Items isin entry name",
     "field": "data.cart.items.name",
     "group": null,
     "parent": "20b2c24baa",
@@ -2621,8 +2667,8 @@
     "type": "String"
    },
    {
-    "default_value": null,
-    "description": "items",
+    "default_value": "items",
+    "description": "Cart Items parentfield = items",
     "field": "data.cart.items.parentfield",
     "group": null,
     "parent": "20b2c24baa",
@@ -2631,8 +2677,8 @@
     "type": "String"
    },
    {
-    "default_value": null,
-    "description": "Cart",
+    "default_value": "Cart",
+    "description": "Cart Items parenttype = Cart",
     "field": "data.cart.items.parenttype",
     "group": null,
     "parent": "20b2c24baa",
@@ -2642,7 +2688,7 @@
    },
    {
     "default_value": null,
-    "description": "12-digit alphanumeric code that uniquely identifies a specific security",
+    "description": "Cart Items isin = 12-digit alphanumeric code that uniquely identifies a specific security",
     "field": "data.cart.items.isin",
     "group": null,
     "parent": "20b2c24baa",
@@ -2652,7 +2698,7 @@
    },
    {
     "default_value": null,
-    "description": "Name of Security",
+    "description": "Cart Items Name of Security/Scheme",
     "field": "data.cart.items.security_name",
     "group": null,
     "parent": "20b2c24baa",
@@ -2662,7 +2708,7 @@
    },
    {
     "default_value": null,
-    "description": "Security Category",
+    "description": "Cart Items Security/Scheme Category",
     "field": "data.cart.items.security_category",
     "group": null,
     "parent": "20b2c24baa",
@@ -2672,17 +2718,27 @@
    },
    {
     "default_value": null,
-    "description": "Quantities pledged",
+    "description": "Cart Items Quantities/Unit pledged",
     "field": "data.cart.items.pledged_quantity",
     "group": null,
     "parent": "20b2c24baa",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Integer"
+    "type": "Float"
    },
    {
     "default_value": null,
-    "description": "Price",
+    "description": "Cart Items Requested quantity",
+    "field": "data.cart.items.requested_quantity",
+    "group": null,
+    "parent": "20b2c24baa",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Cart Items Price/NAV",
     "field": "data.cart.items.price",
     "group": null,
     "parent": "20b2c24baa",
@@ -2692,7 +2748,7 @@
    },
    {
     "default_value": null,
-    "description": "Price * Pledged Quantity",
+    "description": "Cart Items amount = Price/NAV * Pledged Quantity/Unit",
     "field": "data.cart.items.amount",
     "group": null,
     "parent": "20b2c24baa",
@@ -2702,7 +2758,7 @@
    },
    {
     "default_value": null,
-    "description": "Eligible percentage of Security",
+    "description": "Cart Items Eligible percentage of Security/Scheme",
     "field": "data.cart.items.eligible_percentage",
     "group": null,
     "parent": "20b2c24baa",
@@ -2712,8 +2768,8 @@
    },
    {
     "default_value": null,
-    "description": "Doctype name - Cart Item",
-    "field": "data.cart.items.doctype",
+    "description": "Cart Items Type = Shares or Equity or Debt",
+    "field": "data.cart.items.type",
     "group": null,
     "parent": "20b2c24baa",
     "parentfield": "success",
@@ -2722,32 +2778,32 @@
    },
    {
     "default_value": null,
-    "description": "0 or 1",
-    "field": "data.cart.items.__unsaved",
+    "description": "Cart Items Doctype name - Cart Item",
+    "field": "data.cart.items.doctype",
     "group": null,
     "parent": "20b2c24baa",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Integer"
+    "type": "String"
    }
   ],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"cart\": {\n      \"name\": \"C000001\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"total_collateral_value\": 20000,\n      \"total_collateral_value_str\": \"20,000\",\n      \"pledgor_boid\": \"123456\",\n      \"allowable_ltv\": 50,\n      \"lender\": \"lender's name\",\n      \"eligible_loan\": 10000,\n      \"eligible_loan_str\": \"10,000\",\n      \"pledgee_boid\": \"654321\",\n      \"is_processed\": 0,\n      \"doctype\": \"Cart\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"C000001\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Cart\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": isin,\n          \"security_name\": \"Bajaj\",\n          \"security_category\": \"Cat B\",\n          \"pledged_quantity\": 10,\n          \"price\": 2000,\n          \"amount\": 20000,\n          \"eligible_percentage\": 50.0,\n          \"doctype\": \"Cart Item\",\n          \"__unsaved\": 1\n        }\n      ]\n    }\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"cart\": {\n      \"name\": \"C000001\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"total_collateral_value\": 20000.00,\n      \"total_collateral_value_str\": \"20,000.00\",\n      \"pledgor_boid\": \"123456\",\n      \"allowable_ltv\": 50,\n      \"lender\": \"lender's name\",\n      \"eligible_loan\": 10000.00,\n      \"eligible_loan_str\": \"10,000.00\",\n      \"increased_sanctioned_limit\": 0.0,\n      \"instrument_type\": \"Shares\" or \"Mutual Fund\",\n      \"scheme_type\": \"\" or \"Equity\" or \"Debt\",\n      \"is_processed\": 0,\n      \"doctype\": \"Cart\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"C000001\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Cart\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": isin,\n          \"security_name\": \"Bajaj\",\n          \"security_category\": \"Cat B\",\n          \"pledged_quantity\": 10.0,\n          \"price\": 2000.00,\n          \"amount\": 20000.00,\n          \"eligible_percentage\": 50.0,\n          \"requested_quantity\": 0.0,\n          \"type\": \"\" or \"Equity\" or \"Debt\",\n          \"doctype\": \"Cart Item\",\n          \"__unsaved\": 1\n        }\n      ]\n    }\n  }\n}",
     "parent": "20b2c24baa",
     "parentfield": "success_example",
     "parenttype": "API Doc",
     "title": "Success"
    },
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"cart\": {\n      \"name\": \"C000001\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"total_collateral_value\": 20000,\n      \"total_collateral_value_str\": \"20,000\",\n      \"pledgor_boid\": \"123456\",\n      \"allowable_ltv\": 50,\n      \"lender\": \"lender's name\",\n      \"eligible_loan\": 10000,\n      \"eligible_loan_str\": \"10,000\",\n      \"pledgee_boid\": \"654321\",\n      \"loan_name\": \"SL000001\",\n      \"is_processed\": 0,\n      \"doctype\": \"Cart\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"C000001\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Cart\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": isin,\n          \"security_name\": \"Bajaj\",\n          \"security_category\": \"Cat B\",\n          \"pledged_quantity\": 10,\n          \"price\": 2000,\n          \"amount\": 20000,\n          \"eligible_percentage\": 50.0,\n          \"doctype\": \"Cart Item\",\n          \"__unsaved\": 1\n        }\n      ]\n    }\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"cart\": {\n      \"name\": \"C000001\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"total_collateral_value\": 20000.00,\n      \"total_collateral_value_str\": \"20,000.00\",\n      \"pledgor_boid\": \"123456\",\n      \"allowable_ltv\": 50,\n      \"lender\": \"lender's name\",\n      \"eligible_loan\": 10000.00,\n      \"eligible_loan_str\": \"10,000.00\",\n      \"pledgee_boid\": \"654321\",\n      \"loan_name\": \"SL000001\",\n      \"increased_sanctioned_limit\": 0.0,\n      \"instrument_type\": \"Shares\" or \"Mutual Fund\",\n      \"scheme_type\": \"\" or \"Equity\" or \"Debt\",\n      \"is_processed\": 0,\n      \"doctype\": \"Cart\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"C000001\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Cart\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": isin,\n          \"security_name\": \"Bajaj\",\n          \"security_category\": \"Cat B\",\n          \"pledged_quantity\": 10.0,\n          \"price\": 2000.00,\n          \"amount\": 20000.00,\n          \"eligible_percentage\": 50.0,\n          \"requested_quantity\": 0.0,\n          \"type\": \"\" or \"Equity\" or \"Debt\",\n          \"doctype\": \"Cart Item\",\n          \"__unsaved\": 1\n        }\n      ]\n    }\n  }\n}",
     "parent": "20b2c24baa",
     "parentfield": "success_example",
     "parenttype": "API Doc",
     "title": "Success Increase loan"
    },
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"cart\": {\n      \"name\": \"C000001\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"total_collateral_value\": 20000,\n      \"total_collateral_value_str\": \"20,000\",\n      \"pledgor_boid\": \"123456\",\n      \"allowable_ltv\": 50,\n      \"lender\": \"lender's name\",\n      \"eligible_loan\": 10000,\n      \"eligible_loan_str\": \"10,000\",\n      \"pledgee_boid\": \"654321\",\n      \"loan_name\": \"SL000001\",\n      \"loan_margin_shortfall_name\": \"abcd1234\",\n      \"is_processed\": 0,\n      \"doctype\": \"Cart\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"C000001\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Cart\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": isin,\n          \"security_name\": \"Bajaj\",\n          \"security_category\": \"Cat B\",\n          \"pledged_quantity\": 10,\n          \"price\": 2000,\n          \"amount\": 20000,\n          \"eligible_percentage\": 50.0,\n          \"doctype\": \"Cart Item\",\n          \"__unsaved\": 1\n        }\n      ]\n    }\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"cart\": {\n      \"name\": \"C000001\",\n      \"owner\": \"john@gmail.com\",\n      \"creation\": \"datetime\",\n      \"modified\": \"datetime\",\n      \"modified_by\": \"john@gmail.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"customer\": \"CUST-1234\",\n      \"customer_name\": \"John Doe\",\n      \"total_collateral_value\": 20000.00,\n      \"total_collateral_value_str\": \"20,000.00\",\n      \"pledgor_boid\": \"123456\",\n      \"allowable_ltv\": 50,\n      \"lender\": \"lender's name\",\n      \"eligible_loan\": 10000.00,\n      \"eligible_loan_str\": \"10,000.00\",\n      \"pledgee_boid\": \"654321\",\n      \"loan_name\": \"SL000001\",\n      \"loan_margin_shortfall_name\": \"abcd1234\",\n      \"increased_sanctioned_limit\": 0.0,\n      \"instrument_type\": \"Shares\" or \"Mutual Fund\",\n      \"scheme_type\": \"\" or \"Equity\" or \"Debt\",\n      \"is_processed\": 0,\n      \"doctype\": \"Cart\",\n      \"items\": [\n        {\n          \"name\": \"isin entry name\",\n          \"owner\": \"john@gmail.com\",\n          \"creation\": \"datetime\",\n          \"modified\": \"datetime\",\n          \"modified_by\": \"john@gmail.com\",\n          \"parent\": \"C000001\",\n          \"parentfield\": \"items\",\n          \"parenttype\": \"Cart\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"isin\": isin,\n          \"security_name\": \"Bajaj\",\n          \"security_category\": \"Cat B\",\n          \"pledged_quantity\": 10.0,\n          \"price\": 2000.00,\n          \"amount\": 20000.00,\n          \"eligible_percentage\": 50.0,\n          \"requested_quantity\": 0.0,\n          \"type\": \"\" or \"Equity\" or \"Debt\",\n          \"doctype\": \"Cart Item\",\n          \"__unsaved\": 1\n        }\n      ]\n    }\n  }\n}",
     "parent": "20b2c24baa",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -2797,7 +2853,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-25 14:07:30.848071",
+  "modified": "2022-04-29 11:57:38.888057",
   "name": "945ae148f4",
   "parameters": [
    {
@@ -2852,7 +2908,7 @@
     "type": "String"
    },
    {
-    "default_value": null,
+    "default_value": "\"\"",
     "description": "Data Object",
     "field": "data",
     "group": null,
@@ -2864,7 +2920,7 @@
    {
     "default_value": null,
     "description": "Loan Application Name",
-    "field": "data.name",
+    "field": "data.loan_application.name",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -2874,7 +2930,7 @@
    {
     "default_value": null,
     "description": "Workflow state",
-    "field": "data.workflow_state",
+    "field": "data.loan_application.workflow_state",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -2884,7 +2940,7 @@
    {
     "default_value": null,
     "description": "Total Collateral value",
-    "field": "data.total_collateral_value",
+    "field": "data.loan_application.total_collateral_value",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -2894,7 +2950,7 @@
    {
     "default_value": null,
     "description": "Total Collateral value String",
-    "field": "data.total_collateral_value_str",
+    "field": "data.loan_application.total_collateral_value_str",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -2904,7 +2960,7 @@
    {
     "default_value": null,
     "description": "Drawing Power",
-    "field": "data.drawing_power",
+    "field": "data.loan_application.drawing_power",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -2914,7 +2970,7 @@
    {
     "default_value": null,
     "description": "Drawing Power String",
-    "field": "data.drawing_power_str",
+    "field": "data.loan_application.drawing_power_str",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -2924,7 +2980,7 @@
    {
     "default_value": null,
     "description": "Lender Name",
-    "field": "data.lender",
+    "field": "data.loan_application.lender",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -2934,7 +2990,7 @@
    {
     "default_value": null,
     "description": "Loan Application Status",
-    "field": "data.status",
+    "field": "data.loan_application.status",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -2944,7 +3000,7 @@
    {
     "default_value": null,
     "description": "Pledged total Collateral Value",
-    "field": "data.pledged_total_collateral_value",
+    "field": "data.loan_application.pledged_total_collateral_value",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -2954,7 +3010,7 @@
    {
     "default_value": null,
     "description": "Pledged total Collateral Value String",
-    "field": "data.pledged_total_collateral_value_str",
+    "field": "data.loan_application.pledged_total_collateral_value_str",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -2964,7 +3020,7 @@
    {
     "default_value": null,
     "description": "Customer",
-    "field": "data.customer",
+    "field": "data.loan_application.customer",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -2974,7 +3030,7 @@
    {
     "default_value": null,
     "description": "Customer name",
-    "field": "data.customer_name",
+    "field": "data.loan_application.customer_name",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -2984,7 +3040,7 @@
    {
     "default_value": null,
     "description": "Allowable LTV",
-    "field": "data.allowable_ltv",
+    "field": "data.loan_application.allowable_ltv",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -2994,7 +3050,7 @@
    {
     "default_value": null,
     "description": "Expiry Date",
-    "field": "data.expiry_date",
+    "field": "data.loan_application.expiry_date",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3004,7 +3060,7 @@
    {
     "default_value": null,
     "description": "Pledge status",
-    "field": "data.pledge_status",
+    "field": "data.loan_application.pledge_status",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3014,7 +3070,7 @@
    {
     "default_value": null,
     "description": "Pledgor Boid",
-    "field": "data.pledgor_boid",
+    "field": "data.loan_application.pledgor_boid",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3024,7 +3080,7 @@
    {
     "default_value": null,
     "description": "Pledgee Boid",
-    "field": "data.pledgee_boid",
+    "field": "data.loan_application.pledgee_boid",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3034,7 +3090,7 @@
    {
     "default_value": null,
     "description": "Doctype = Loan Application",
-    "field": "data.doctype",
+    "field": "data.loan_application.doctype",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3044,7 +3100,7 @@
    {
     "default_value": null,
     "description": "Loan Application Item",
-    "field": "data.items",
+    "field": "data.loan_application.items",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3054,7 +3110,7 @@
    {
     "default_value": null,
     "description": "Loan Application Item name",
-    "field": "data.items.name",
+    "field": "data.loan_application.items.name",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3064,7 +3120,7 @@
    {
     "default_value": null,
     "description": "Loan Application Item parent",
-    "field": "data.items.parent",
+    "field": "data.loan_application.items.parent",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3074,7 +3130,7 @@
    {
     "default_value": null,
     "description": "Loan Application Item Parent Field",
-    "field": "data.items.parentfield",
+    "field": "data.loan_application.items.parentfield",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3084,7 +3140,7 @@
    {
     "default_value": null,
     "description": "Loan Application Item Type",
-    "field": "data.items.parenttype",
+    "field": "data.loan_application.items.parenttype",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3094,7 +3150,7 @@
    {
     "default_value": null,
     "description": "Loan Application Item lender approval status",
-    "field": "data.items.lender_approval_status",
+    "field": "data.loan_application.items.lender_approval_status",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3104,7 +3160,7 @@
    {
     "default_value": null,
     "description": "Loan Application Item ISIN",
-    "field": "data.items.isin",
+    "field": "data.loan_application.items.isin",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3113,8 +3169,8 @@
    },
    {
     "default_value": null,
-    "description": "Loan Application Item security name",
-    "field": "data.items.security_name",
+    "description": "Loan Application Item security/Scheme name",
+    "field": "data.loan_application.items.security_name",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3123,8 +3179,8 @@
    },
    {
     "default_value": null,
-    "description": "Loan Application Item security category",
-    "field": "data.items.security_category",
+    "description": "Loan Application Item security/Scheme category",
+    "field": "data.loan_application.items.security_category",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3133,18 +3189,18 @@
    },
    {
     "default_value": null,
-    "description": "Loan Application Item pledged quantity",
-    "field": "data.items.pledged_quantity",
+    "description": "Loan Application Item pledged quantity/Uint",
+    "field": "data.loan_application.items.pledged_quantity",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Integer"
+    "type": "Float"
    },
    {
     "default_value": null,
-    "description": "Loan Application Item price",
-    "field": "data.items.price",
+    "description": "Loan Application Item Price/NAV",
+    "field": "data.loan_application.items.price",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3154,7 +3210,7 @@
    {
     "default_value": null,
     "description": "Loan Application Amount = pledged Quantity * price",
-    "field": "data.items.amount",
+    "field": "data.loan_application.items.amount",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3164,7 +3220,7 @@
    {
     "default_value": null,
     "description": "Loan Application Item pledge status",
-    "field": "data.items.pledge_status",
+    "field": "data.loan_application.items.pledge_status",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3174,17 +3230,37 @@
    {
     "default_value": null,
     "description": "0 or 1",
-    "field": "data.items.pledge_executed",
+    "field": "data.loan_application.items.pledge_executed",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Integer"
+   },
+   {
+    "default_value": "",
+    "description": "oan Application Item pledge type = Shares or Mutual Fund",
+    "field": "data.loan_application.items.type",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "oan Application Item pledge requested quantity",
+    "field": "data.loan_application.items.requested_quantity",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
    },
    {
     "default_value": null,
     "description": "Doctype = Loan Application Item",
-    "field": "data.items.doctype",
+    "field": "data.loan_application.items.doctype",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
@@ -3194,21 +3270,38 @@
    {
     "default_value": null,
     "description": "0 or 1",
-    "field": "data.items.__unsaved",
+    "field": "data.loan_application.items.__unsaved",
     "group": null,
     "parent": "945ae148f4",
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Integer"
+   },
+   {
+    "default_value": "\"\"",
+    "description": "Lien Marking redirection URL",
+    "field": "data.mycam_url",
+    "group": null,
+    "parent": "945ae148f4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
    }
   ],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"name\": \"LA000001\",\n    \"owner\": \"john@gmail.com\",\n    \"creation\": \"datetime\",\n    \"modified\": \"datetime\",\n    \"modified_by\": \"john@gmail.com\",\n    \"idx\": 0,\n    \"docstatus\": 0,\n    \"workflow_state\": \"Waiting to be pledged\",\n    \"total_collateral_value\": 20000,\n    total_collateral_value_str: \"20,000\",\n    \"drawing_power\": 10000,\n    \"drawing_power_str\": \"10,000\",\n    \"lender\": \"lender name\",\n    \"status\": \"Waiting to be pledged\",\n    \"pledged_total_collateral_value\": 20000,\n    \"pledged_total_collateral_value_str\": \"20,000\",\n    \"customer\": \"CUST-1234\",\n    \"customer_name\": \"John Doe\",\n    \"allowable_ltv\": 50,\n    \"expiry_date\": \"expiry_date_with_time\",\n    \"pledge_status\": \"Pending\",\n    \"pledgor_boid\": \"pledgor_boid\",\n    \"pledgee_boid\": \"pledgee_boid\",\n    \"doctype\": \"Loan Application\",\n    \"items\": [\n      {\n        \"name\": \"isin item entry name\",\n        \"owner\": \"john@gmail.com\",\n        \"creation\": \"datetime\",\n        \"modified\": \"datetime\",\n        \"modified_by\": \"john@gmail.com\",\n        \"parent\": \"loan application name\",\n        \"parentfield\": \"items\",\n        \"parenttype\": \"Loan Application\",\n        \"idx\": 1,\n        \"docstatus\": 0,\n        \"lender_approval_status\": \"\",\n        \"isin\": \"isin\",\n        \"security_name\": \"security_name\",\n        \"security_category\": \"Cat b\",\n        \"pledged_quantity\": 10,\n        \"price\": 2000,\n        \"amount\": 20000,\n        \"pledge_status\": \"\",\n        \"pledge_executed\": 0,\n        \"doctype\": \"Loan Application Item\",\n        \"__unsaved\": 1\n      }\n    ]\n  }\n}\n",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n\"loan_application\":{\n    \"name\": \"LA000001\",\n    \"owner\": \"john@gmail.com\",\n    \"creation\": \"datetime\",\n    \"modified\": \"datetime\",\n    \"modified_by\": \"john@gmail.com\",\n    \"idx\": 0,\n    \"docstatus\": 0,\n    \"workflow_state\": \"Waiting to be pledged\",\n    \"total_collateral_value\": 20000,\n    total_collateral_value_str: \"20,000\",\n    \"drawing_power\": 10000,\n    \"drawing_power_str\": \"10,000\",\n    \"lender\": \"lender name\",\n    \"status\": \"Waiting to be pledged\",\n    \"pledged_total_collateral_value\": 20000,\n    \"pledged_total_collateral_value_str\": \"20,000\",\n    \"customer\": \"CUST-1234\",\n    \"customer_name\": \"John Doe\",\n    \"allowable_ltv\": 50,\n    \"expiry_date\": \"expiry_date_with_time\",\n    \"pledge_status\": \"Pending\",\n    \"pledgor_boid\": \"pledgor_boid\",\n    \"pledgee_boid\": \"pledgee_boid\",\n    \"instrument_type\": \"Shares\",\n    \"scheme_type\": \"\",\n    \"minimum_sanctioned_limit\": 0.0,\n    \"application_type\": \"New Loan\",\n    \"maximum_sanctioned_limit\": 80000.0,\n    \"increased_sanctioned_limit\": 0.0,\n    \"doctype\": \"Loan Application\",\n    \"items\": [\n      {\n        \"name\": \"isin item entry name\",\n        \"owner\": \"john@gmail.com\",\n        \"creation\": \"datetime\",\n        \"modified\": \"datetime\",\n        \"modified_by\": \"john@gmail.com\",\n        \"parent\": \"loan application name\",\n        \"parentfield\": \"items\",\n        \"parenttype\": \"Loan Application\",\n        \"idx\": 1,\n        \"docstatus\": 0,\n        \"lender_approval_status\": \"\",\n        \"isin\": \"isin\",\n        \"security_name\": \"security_name\",\n        \"security_category\": \"Cat b\",\n        \"pledged_quantity\": 10,\n        \"price\": 2000.00,\n        \"amount\": 20000.00,\n        \"pledge_status\": \"\",\n        \"pledge_executed\": 0,\n        \"type\": \"Shares\",\n        \"requested_quantity\": 0.0,\n        \"doctype\": \"Loan Application Item\",\n        \"__unsaved\": 1\n      }\n    ]\n  }\n\"mycam_url\": \"\"\n}\n}\n",
     "parent": "945ae148f4",
     "parentfield": "success_example",
     "parenttype": "API Doc",
-    "title": "Success"
+    "title": "Success (Shares)"
+   },
+   {
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n      \"loan_application\":\"\"\n      \"mycam_url\": \"spark.loans/mycams?cart_name=CART001\"\n  }\n}\n",
+    "parent": "945ae148f4",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success (Mutual Fund)"
    }
   ],
   "title": "Process Cart",
@@ -3254,16 +3347,37 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-22 18:48:30.052413",
+  "modified": "2022-04-29 11:58:54.334723",
   "name": "6758aefe27",
-  "parameters": [],
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Shares or Mutual Fund",
+    "field": "instrument_type",
+    "group": null,
+    "optional": 0,
+    "parent": "6758aefe27",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
   "parameters_example": [
    {
-    "example": "{}",
+    "example": "{\n\t\"instrument_type\": \"Shares\"\n}",
     "parent": "6758aefe27",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
-    "title": "Request Example"
+    "title": "Request Example (Shares)"
+   },
+   {
+    "example": "{\n\t\"instrument_type\": \"Mutual Fund\"\n}",
+    "parent": "6758aefe27",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example (Mutual Fund)"
    }
   ],
   "parent": null,
@@ -3288,7 +3402,14 @@
     "parent": "6758aefe27",
     "parentfield": "success_example",
     "parenttype": "API Doc",
-    "title": "Success"
+    "title": "Success (Shares)"
+   },
+   {
+    "example": "{\n\t\"message\": \"Lien OTP sent\"\n}",
+    "parent": "6758aefe27",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success (Mutual Fund)"
    }
   ],
   "title": "Request Pledge OTP",
@@ -3461,7 +3582,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-25 12:45:12.948996",
+  "modified": "2022-04-29 16:48:28.995731",
   "name": "424822d68b",
   "parameters": [
    {
@@ -3700,6 +3821,36 @@
    },
    {
     "default_value": null,
+    "description": "Margin Shortfall Amoount",
+    "field": "data.loan.margin_shortfall_amount",
+    "group": null,
+    "parent": "424822d68b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Instrument Type = \"Shares\" or \"Mutual Fund\"",
+    "field": "data.loan.instrument_type",
+    "group": null,
+    "parent": "424822d68b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Scheme Type = \" or \"Equity\" or \"Debt\"",
+    "field": "data.loan.scheme_type",
+    "group": null,
+    "parent": "424822d68b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
     "description": "0 or 1",
     "field": "data.loan.is_eligible_for_interest",
     "group": null,
@@ -3722,6 +3873,76 @@
     "default_value": null,
     "description": "0 or 1",
     "field": "data.loan.is_penalize",
+    "group": null,
+    "parent": "424822d68b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "Base Interest Amount",
+    "field": "data.loan.base_interest_amount",
+    "group": null,
+    "parent": "424822d68b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Interest Due Amount",
+    "field": "data.loan.interest_due",
+    "group": null,
+    "parent": "424822d68b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Penal Interest Charges",
+    "field": "data.loan.penal_interest_charges",
+    "group": null,
+    "parent": "424822d68b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Total Interest charges including Penal Interest Charges",
+    "field": "data.loan.total_interest_incl_penal_due",
+    "group": null,
+    "parent": "424822d68b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Rebase Interest Amount",
+    "field": "data.loan.rebate_interest_amount",
+    "group": null,
+    "parent": "424822d68b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Interest Overdue",
+    "field": "data.loan.interest_overdue",
+    "group": null,
+    "parent": "424822d68b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Day Past Due",
+    "field": "data.loan.day_past_due",
     "group": null,
     "parent": "424822d68b",
     "parentfield": "success",
@@ -3800,7 +4021,7 @@
    },
    {
     "default_value": null,
-    "description": "Loan Item Security Name",
+    "description": "Loan Item Security/Scheme Name",
     "field": "data.loan.items.security_name",
     "group": null,
     "parent": "424822d68b",
@@ -3810,7 +4031,7 @@
    },
    {
     "default_value": null,
-    "description": "Loan Item Security Category",
+    "description": "Loan Item Security/Scheme Category",
     "field": "data.loan.items.security_category",
     "group": null,
     "parent": "424822d68b",
@@ -3820,7 +4041,7 @@
    },
    {
     "default_value": null,
-    "description": "Loan Item Pledges Quantity",
+    "description": "Loan Item Pledges Quantity/Unit",
     "field": "data.loan.items.pledged_quantity",
     "group": null,
     "parent": "424822d68b",
@@ -3830,7 +4051,7 @@
    },
    {
     "default_value": null,
-    "description": "Loan Item price",
+    "description": "Loan Item price/NAV",
     "field": "data.loan.items.price",
     "group": null,
     "parent": "424822d68b",
@@ -3847,6 +4068,26 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Item folio",
+    "field": "data.loan.items.folio",
+    "group": null,
+    "parent": "424822d68b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Items Type = Shares or Equity or Debt",
+    "field": "data.loan.items.type",
+    "group": null,
+    "parent": "424822d68b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
    },
    {
     "default_value": null,
@@ -3927,6 +4168,16 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "Instrument Type =  Shares or Mutual Fund",
+    "field": "data.instrument_type",
+    "group": null,
+    "parent": "424822d68b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
    },
    {
     "default_value": null,
@@ -11143,7 +11394,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2021-10-25 15:26:48.816808",
+  "modified": "2022-04-29 16:12:16.518830",
   "name": "1141858dda",
   "parameters": [
    {
@@ -11222,12 +11473,25 @@
     "parentfield": "parameters",
     "parenttype": "API Doc",
     "size": null,
+    "type": "Float"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Security Folio",
+    "field": "securities.list.folio",
+    "group": "Security",
+    "optional": 0,
+    "parent": "1141858dda",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
     "type": "Integer"
    }
   ],
   "parameters_example": [
    {
-    "example": "{\n\t\"loan_name\": \"SL000001\",\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"IN111A11111\",\n\t\t\t\t\"quantity\": 5\n\t\t\t}\n\t\t]\n\t},\n\t\"otp\": \"1234\"\n}",
+    "example": "{\n\t\"loan_name\": \"SL000001\",\n\t\"securities\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"isin\": \"IN111A11111\",\n\t\t\t\t\"quantity\": 5\n                                \"folio\": 12345\n\t\t\t}\n\t\t]\n\t},\n\t\"otp\": \"1234\"\n}",
     "parent": "1141858dda",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -11311,6 +11575,36 @@
    },
    {
     "default_value": null,
+    "description": "Pending sell request id",
+    "field": "data.pending_sell_request_id",
+    "group": null,
+    "parent": "1141858dda",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Instrument Type =  Shares or Mutual Fund",
+    "field": "data.instrument_type",
+    "group": null,
+    "parent": "1141858dda",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.is_validated",
+    "group": null,
+    "parent": "1141858dda",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Decimal"
+   },
+   {
+    "default_value": null,
     "description": "Customer",
     "field": "data.customer",
     "group": null,
@@ -11328,6 +11622,36 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Maximum Unpledge Amount",
+    "field": "data.max_unpledge_amount",
+    "group": null,
+    "parent": "1141858dda",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Scheme Type = \"\" or \"Equity\" or \"Debt\"",
+    "field": "data.scheme_type",
+    "group": null,
+    "parent": "1141858dda",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.is_initiated",
+    "group": null,
+    "parent": "1141858dda",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Decimal"
    },
    {
     "default_value": null,
@@ -11411,7 +11735,7 @@
    },
    {
     "default_value": null,
-    "description": "Items security name",
+    "description": "Items security/scheme name",
     "field": "data.items.security_name",
     "group": null,
     "parent": "1141858dda",
@@ -11421,7 +11745,7 @@
    },
    {
     "default_value": null,
-    "description": "Items security category",
+    "description": "Items security/scheme category",
     "field": "data.items.quantity",
     "group": null,
     "parent": "1141858dda",
@@ -11431,7 +11755,7 @@
    },
    {
     "default_value": null,
-    "description": "Items price",
+    "description": "Items price/NAV",
     "field": "data.items.price",
     "group": null,
     "parent": "1141858dda",
@@ -11477,7 +11801,7 @@
     "parent": "1141858dda",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Array"
+    "type": "String"
    },
    {
     "default_value": null,
@@ -11487,47 +11811,47 @@
     "parent": "1141858dda",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Array"
+    "type": "String"
    },
    {
     "default_value": null,
-    "description": "Unpledge Items Security Name",
+    "description": "Unpledge Items Security/Scheme Name",
     "field": "data.unpledge_items.security_name",
     "group": null,
     "parent": "1141858dda",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Array"
+    "type": "String"
    },
    {
     "default_value": null,
-    "description": "Unpledge Items PSN",
+    "description": "Unpledge Items PSN/Lien Mark Number",
     "field": "data.unpledge_items.psn",
     "group": null,
     "parent": "1141858dda",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Array"
+    "type": "String"
    },
    {
     "default_value": null,
-    "description": "Unpledge Items Quantity",
+    "description": "Unpledge Items Quantity/Unit",
     "field": "data.unpledge_items.quantity",
     "group": null,
     "parent": "1141858dda",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Integer"
+    "type": "Float"
    },
    {
     "default_value": null,
-    "description": "Unpledge Items Unpledge Quantity",
+    "description": "Unpledge Items Unpledge Quantity/Unit",
     "field": "data.unpledge_items.unpledge_quantity",
     "group": null,
     "parent": "1141858dda",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Integer"
+    "type": "Float"
    },
    {
     "default_value": null,
@@ -11548,6 +11872,66 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "Unpledge Items PRF/Lien Reference Number",
+    "field": "data.unpledge_items.prf",
+    "group": null,
+    "parent": "1141858dda",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "Unpledge Items AMC Code",
+    "field": "data.unpledge_items.amc_code",
+    "group": null,
+    "parent": "1141858dda",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Unpledge Items Folio",
+    "field": "data.unpledge_items.folio",
+    "group": null,
+    "parent": "1141858dda",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Unpledge Items Scheme Code",
+    "field": "data.unpledge_items.scheme_code",
+    "group": null,
+    "parent": "1141858dda",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Unpledge Items Revoke Validate Remarks",
+    "field": "data.unpledge_items.revoke_validate_remarks",
+    "group": null,
+    "parent": "1141858dda",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Unpledge Items Revoke Initiate Remarks",
+    "field": "data.unpledge_items.revoke_initiate_remarks",
+    "group": null,
+    "parent": "1141858dda",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
    }
   ],
   "success_example": [
