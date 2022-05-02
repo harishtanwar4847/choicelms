@@ -285,7 +285,7 @@ def upsert(**kwargs):
 
             cart.items = []
 
-        frappe.db.begin()
+        # frappe.db.begin()
         for i in securities:
             cart.append(
                 "items",
@@ -368,7 +368,7 @@ def process_old(**kwargs):
             return utils.respondForbidden(message=frappe._("Please use your own cart."))
 
         pledge_request = cart.pledge_request()
-        frappe.db.begin()
+        # frappe.db.begin()
         # frappe.db.set_value(
         #     "Cart",
         #     cart.name,
@@ -488,7 +488,7 @@ def process(**kwargs):
                 user.username, data.get("otp"), token_type=token_type
             )
 
-        frappe.db.begin()
+        # frappe.db.begin()
         loan_application = {}
         cart.reload()
         if cart.instrument_type != "Mutual Fund":
@@ -631,7 +631,7 @@ def request_pledge_otp(**kwargs):
             token_type = "Lien OTP"
             entity = customer.phone
         if not is_dummy_account:
-            frappe.db.begin()
+            # frappe.db.begin()
 
             lms.create_user_token(
                 entity=entity,

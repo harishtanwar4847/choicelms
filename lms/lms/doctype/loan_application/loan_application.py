@@ -809,7 +809,7 @@ class LoanApplication(Document):
             loan_agreement_file_name, is_private=is_private
         )
 
-        frappe.db.begin()
+        # frappe.db.begin()
         loan_agreement_file = frappe.get_doc(
             {
                 "doctype": "File",
@@ -1398,7 +1398,7 @@ class LoanApplication(Document):
 
 def check_for_pledge(loan_application_doc):
     # TODO : Workers assigned for this cron can be set in las and we can apply (fetch records)limit as per no. of workers assigned
-    frappe.db.begin()
+    # frappe.db.begin()
     loan_application_doc.status = "Executing pledge"
     loan_application_doc.workflow_state = "Executing pledge"
     loan_application_doc.total_collateral_value = 0
@@ -1420,7 +1420,7 @@ def check_for_pledge(loan_application_doc):
     page_length = 10
     total_successful_pledge = 0
     for b_no in range(no_of_batches):
-        frappe.db.begin()
+        # frappe.db.begin()
         # fetch loan application items
         if b_no > 0:
             start += page_length
@@ -1483,7 +1483,7 @@ def check_for_pledge(loan_application_doc):
         total_successful_pledge += total_successful_pledge_count
         frappe.db.commit()
 
-    frappe.db.begin()
+    # frappe.db.begin()
     # manage loan application doc pledge status
     loan_application_doc.status = "Pledge executed"
     pledge_securities = 0

@@ -1537,7 +1537,7 @@ def decrypt_lien_marking_response():
             ).user
             cart = frappe.get_doc("Cart", res.get("addinfo1"))
             cart.reload()
-            frappe.db.begin()
+            # frappe.db.begin()
             cart.lien_reference_number = res.get("lienrefno")
             cart.items = []
             schemes = res.get("schemedetails").get("scheme")

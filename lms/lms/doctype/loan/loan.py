@@ -1378,7 +1378,7 @@ class Loan(Document):
                             )
                             amount = self.balance * default_interest_daily / 100
 
-                            frappe.db.begin()
+                            # frappe.db.begin()
                             # Penal Interest Entry
                             penal_interest_transaction = frappe.get_doc(
                                 {
