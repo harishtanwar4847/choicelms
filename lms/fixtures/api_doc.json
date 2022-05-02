@@ -16612,5 +16612,703 @@
    }
   ],
   "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2022-05-02 16:34:25.941802",
+  "name": "8bcf712104",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "IFSC code",
+    "field": "ifsc",
+    "group": null,
+    "optional": 0,
+    "parent": "8bcf712104",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"ifsc\": \"ABCD000\"\n}",
+    "parent": "8bcf712104",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.get_bank_ifsc_details",
+  "success": [
+   {
+    "default_value": null,
+    "description": "Success or Validation message",
+    "field": "message",
+    "group": null,
+    "parent": "8bcf712104",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "List of multiple object of Bank details",
+    "field": "data",
+    "group": null,
+    "parent": "8bcf712104",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "name of Spark bank branch entry = IFSC Code",
+    "field": "data.name",
+    "group": null,
+    "parent": "8bcf712104",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Name of Bank",
+    "field": "data.bank",
+    "group": null,
+    "parent": "8bcf712104",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "IFSC Code",
+    "field": "data.ifsc",
+    "group": null,
+    "parent": "8bcf712104",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Branch of the Bank Account",
+    "field": "data.branch",
+    "group": null,
+    "parent": "8bcf712104",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Address of the Bank",
+    "field": "data.address",
+    "group": null,
+    "parent": "8bcf712104",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "District of the Bank",
+    "field": "data.district",
+    "group": null,
+    "parent": "8bcf712104",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "City of the Bank",
+    "field": "data.city",
+    "group": null,
+    "parent": "8bcf712104",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "State of the Bank",
+    "field": "data.state",
+    "group": null,
+    "parent": "8bcf712104",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\n\t\"message\": \"Success\",\n\t\"data\": [\n\t\t{\n\t\t\t\"name\": \"IFSC Code\",\n\t\t\t\"creation\": \"2022-03-23 15:55:30.772324\",\n\t\t\t\"modified\": \"2022-03-23 15:58:29.795815\",\n\t\t\t\"modified_by\": \"Administrator\",\n\t\t\t\"owner\": \"Administrator\",\n\t\t\t\"docstatus\": 0,\n\t\t\t\"parent\": null,\n\t\t\t\"parentfield\": null,\n\t\t\t\"parenttype\": null,\n\t\t\t\"idx\": 0,\n\t\t\t\"bank\": \"name of the bank\",\n\t\t\t\"ifsc\": \"IFSC Code\",\n\t\t\t\"branch\": \"SBI\",\n\t\t\t\"address\": null,\n\t\t\t\"district\": \"Kol\",\n\t\t\t\"city\": \"Mumbai\",\n\t\t\t\"state\": null,\n\t\t\t\"is_active\": 1,\n\t\t\t\"_user_tags\": null,\n\t\t\t\"_comments\": null,\n\t\t\t\"_assign\": null,\n\t\t\t\"_liked_by\": null\n\t\t}\n\t]\n}",
+    "parent": "8bcf712104",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "success"
+   }
+  ],
+  "title": "Get Bank IFSC Details",
+  "use_api_define": [
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "8bcf712104",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "8bcf712104",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "8bcf712104",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "8bcf712104",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2022-05-02 16:37:50.875693",
+  "name": "d78a4d5831",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Depository",
+    "field": "depository",
+    "group": null,
+    "optional": 0,
+    "parent": "d78a4d5831",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "DPID",
+    "field": "dpid",
+    "group": null,
+    "optional": 0,
+    "parent": "d78a4d5831",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Client ID",
+    "field": "client_id",
+    "group": null,
+    "optional": 0,
+    "parent": "d78a4d5831",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"depository\": \"CDSL\",\n\t\"dpid\": \"43232qwe\",\n\t\"client_id\": \"CF332\"\n}",
+    "parent": "d78a4d5831",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.spark_demat_account",
+  "success": [
+   {
+    "default_value": null,
+    "description": "Success or Validation message",
+    "field": "message",
+    "group": null,
+    "parent": "d78a4d5831",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "List of multiple object of Bank details",
+    "field": "data",
+    "group": null,
+    "parent": "d78a4d5831",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "name of Spark Demat Account Entry",
+    "field": "data.name",
+    "group": null,
+    "parent": "d78a4d5831",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Depository",
+    "field": "data.depository",
+    "group": null,
+    "parent": "d78a4d5831",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "DPID",
+    "field": "data.dpid",
+    "group": null,
+    "parent": "d78a4d5831",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Client ID",
+    "field": "data.client_id",
+    "group": null,
+    "parent": "d78a4d5831",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "doctype = Spark Demat Account",
+    "field": "data.doctype",
+    "group": null,
+    "parent": "d78a4d5831",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\n\t\"message\": \"Success\",\n\t\"data\": {\n\t\t\"name\": \"d4c1c33f22\",\n\t\t\"owner\": \"choice.jiffy@gmail.com\",\n\t\t\"creation\": \"2022-03-23 15:52:05.088255\",\n\t\t\"modified\": \"2022-03-23 15:52:05.088255\",\n\t\t\"modified_by\": \"choice.jiffy@gmail.com\",\n\t\t\"idx\": 0,\n\t\t\"docstatus\": 0,\n\t\t\"customer\": \"CUST-03-2022-0114\",\n\t\t\"depository\": \"CDSL\",\n\t\t\"dpid\": \"43232qwe\",\n\t\t\"client_id\": \"CF332\",\n\t\t\"doctype\": \"Spark Demat Account\"\n\t}\n}",
+    "parent": "d78a4d5831",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "success"
+   }
+  ],
+  "title": "Spark Demat Account",
+  "use_api_define": [
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "d78a4d5831",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "d78a4d5831",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "d78a4d5831",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "d78a4d5831",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2022-05-02 16:43:51.659231",
+  "name": "1202edda8d",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "mycams email",
+    "field": "email",
+    "group": null,
+    "optional": 0,
+    "parent": "1202edda8d",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"email\": \"email id\"\n}",
+    "parent": "1202edda8d",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.update_mycams_email",
+  "success": [
+   {
+    "default_value": null,
+    "description": "Success or validation message",
+    "field": "message",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Data Object",
+    "field": "data",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "Customer Object",
+    "field": "data.customer",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "Customer name",
+    "field": "data.customer.name",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.customer.registeration",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.customer.is_email_verified",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.customer.kyc_update",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.customer.bank_update",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.customer.credit_check",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.customer.pledge_securities",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.customer.loan_open",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.customer.feedback_submitted",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.customer.feedback_do_not_show_popup",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "Choice Kyc name",
+    "field": "data.customer.choice_kyc",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "CKYC",
+    "field": "data.customer.ckcy",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "KRA",
+    "field": "data.customer.kra",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Customer First name",
+    "field": "data.customer.first_name",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Customer Phone Number",
+    "field": "data.customer.phone",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Mycams Email ID",
+    "field": "data.customer.mycams_email_id",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Customer Full Name",
+    "field": "data.customer.full_name",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Customer last Name",
+    "field": "data.customer.last_name",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User",
+    "field": "data.customer.user",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Alert based on percentage",
+    "field": "data.customer.alerts_based_on_percentage",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Alert based on amount",
+    "field": "data.customer.alerts_based_on_amount",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Doctype = Loan Customer",
+    "field": "data.customer.doctype",
+    "group": null,
+    "parent": "1202edda8d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\n\t\"message\": \"Success\",\n\t\"data\": {\n\t\t\"name\": \"CUST-03-2022-0116\",\n\t\t\"owner\": \"Guest\",\n\t\t\"creation\": \"2022-03-23 16:20:23.916543\",\n\t\t\"modified\": \"2022-05-02 16:38:04.915314\",\n\t\t\"modified_by\": \"penny.jiffy@gmail.com\",\n\t\t\"idx\": 4,\n\t\t\"docstatus\": 0,\n\t\t\"registeration\": 1,\n\t\t\"is_email_verified\": 1,\n\t\t\"kyc_update\": 1,\n\t\t\"bank_update\": 1,\n\t\t\"credit_check\": 0,\n\t\t\"pledge_securities\": 1,\n\t\t\"loan_open\": 1,\n\t\t\"feedback_submitted\": 1,\n\t\t\"feedback_do_not_show_popup\": 0,\n\t\t\"choice_kyc\": \"USR-KYC-03-2022-00117\",\n\t\t\"ckcy\": \"\",\n\t\t\"kra\": \"\",\n\t\t\"first_name\": \"penny\",\n\t\t\"phone\": \"5555555555\",\n\t\t\"mycams_email_id\": \"mycams.jiffy@gmail.com\",\n\t\t\"full_name\": \"penny testing\",\n\t\t\"last_name\": \"testing\",\n\t\t\"user\": \"penny.jiffy@gmail.com\",\n\t\t\"alerts_based_on_percentage\": 10.0,\n\t\t\"alerts_based_on_amount\": 0.0,\n\t\t\"doctype\": \"Loan Customer\"\n\t}\n}",
+    "parent": "1202edda8d",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success example"
+   }
+  ],
+  "title": "Update Mycams Email ID",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "1202edda8d",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "1202edda8d",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "1202edda8d",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "1202edda8d",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
  }
 ]
