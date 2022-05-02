@@ -15983,5 +15983,504 @@
    }
   ],
   "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2022-05-02 15:52:45.017691",
+  "name": "a9833aedae",
+  "parameters": [],
+  "parameters_example": [],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.penny_create_contact",
+  "success": [
+   {
+    "default_value": null,
+    "description": "Success or Validation message",
+    "field": "message",
+    "group": null,
+    "parent": "a9833aedae",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\n\t\"message\": \"success\"\n}",
+    "parent": "a9833aedae",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success Example"
+   }
+  ],
+  "title": "Penny Create Contact",
+  "use_api_define": [
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "a9833aedae",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "a9833aedae",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "a9833aedae",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "a9833aedae",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2022-05-02 15:57:14.302402",
+  "name": "c5ef4b88e1",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "IFSC code of the Bank",
+    "field": "ifsc",
+    "group": null,
+    "optional": 0,
+    "parent": "c5ef4b88e1",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Account Holder Name of the Bank Account",
+    "field": "account_holder_name",
+    "group": null,
+    "optional": 0,
+    "parent": "c5ef4b88e1",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Account Number of the Bank Account",
+    "field": "account_number",
+    "group": null,
+    "optional": 0,
+    "parent": "c5ef4b88e1",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"ifsc\": \"ABCD0000004\",\n\t\"account_holder_name\": \"Name of the bank\",\n\t\"account_number\": \"0000005002500\"\n}",
+    "parent": "c5ef4b88e1",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Parameter"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.penny_create_fund_account",
+  "success": [
+   {
+    "default_value": null,
+    "description": "Success or Validation message",
+    "field": "message",
+    "group": null,
+    "parent": "c5ef4b88e1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "c5ef4b88e1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "Fund Account ID received from razorpay create fund account API",
+    "field": "data.fa_id",
+    "group": null,
+    "parent": "c5ef4b88e1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\n\t\"message\": \"success\"\n}",
+    "parent": "c5ef4b88e1",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success Example"
+   }
+  ],
+  "title": "Penny Create Fund Account",
+  "use_api_define": [
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "c5ef4b88e1",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "c5ef4b88e1",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "c5ef4b88e1",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "c5ef4b88e1",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2022-05-02 16:03:03.282193",
+  "name": "c4327ca759",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Fund Account ID received from razorpay create fund account API",
+    "field": "fa_id",
+    "group": null,
+    "optional": 0,
+    "parent": "c4327ca759",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Type of Bank Account",
+    "field": "bank_account_type",
+    "group": null,
+    "optional": 0,
+    "parent": "c4327ca759",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Branch of the Bank Account",
+    "field": "branch",
+    "group": null,
+    "optional": 0,
+    "parent": "c4327ca759",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "City of the Bank Address",
+    "field": "city",
+    "group": null,
+    "optional": 0,
+    "parent": "c4327ca759",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"fa_id\": \"fa_JAUh6ugNL71Leb\",\n\t\"bank_account_type\": \"current\",\n\t\"branch\": \"White House\",\n\t\"city\":\"Kolkata\"\n}",
+    "parent": "c4327ca759",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Parameter"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.penny_create_fund_account_validation",
+  "success": [
+   {
+    "default_value": null,
+    "description": "Success or Validation message",
+    "field": "message",
+    "group": null,
+    "parent": "c4327ca759",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "c4327ca759",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "Fund Account Validation ID received from razorpay fund account validation API",
+    "field": "data.fav_id",
+    "group": null,
+    "parent": "c4327ca759",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "status = created or completed or failed",
+    "field": "data.status",
+    "group": null,
+    "parent": "c4327ca759",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\n\t\"message\": \"messages to show on mobile end\",\n        \"data\": {\n                \"fav_id\" : \"fav_00dsadwq\",\n                \"status\" : \"completed\"\n}",
+    "parent": "c4327ca759",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success Example"
+   }
+  ],
+  "title": "Penny Create Fund Account Validation",
+  "use_api_define": [
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "c4327ca759",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "c4327ca759",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "c4327ca759",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "c4327ca759",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2022-05-02 16:04:16.793928",
+  "name": "7d9fcfa820",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Fund Account Validation ID received from razorpay fund account Validation by ID API",
+    "field": "fav_id",
+    "group": null,
+    "optional": 0,
+    "parent": "7d9fcfa820",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"fav_id\": \"fav_JAV114inBPnP9s\"\n}",
+    "parent": "7d9fcfa820",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Parameter"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.penny_create_fund_account_validation_by_id",
+  "success": [
+   {
+    "default_value": null,
+    "description": "Success or Validation message",
+    "field": "message",
+    "group": null,
+    "parent": "7d9fcfa820",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": null,
+    "field": "data",
+    "group": null,
+    "parent": "7d9fcfa820",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "Fund Account Validation ID received from razorpay fund account validation API",
+    "field": "data.fav_id",
+    "group": null,
+    "parent": "7d9fcfa820",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "status = created or completed or failed",
+    "field": "data.status",
+    "group": null,
+    "parent": "7d9fcfa820",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\n\t\"message\": \"messages to show on mobile end\",\n        \"data\": {\n                \"fav_id\" : \"fav_00dsadwq\",\n                \"status\" : \"completed\"\n}",
+    "parent": "7d9fcfa820",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success Example"
+   }
+  ],
+  "title": "Penny Create Fund Account Validation by ID",
+  "use_api_define": [
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "7d9fcfa820",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "7d9fcfa820",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "7d9fcfa820",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "7d9fcfa820",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
  }
 ]
