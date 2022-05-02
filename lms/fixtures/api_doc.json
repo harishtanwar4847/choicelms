@@ -9,7 +9,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-25 11:19:08.231567",
+  "modified": "2022-05-02 14:58:28.073629",
   "name": "cbf6ce11f2",
   "parameters": [
    {
@@ -273,7 +273,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-25 11:54:54.057771",
+  "modified": "2022-05-02 15:46:43.993370",
   "name": "4621dd797d",
   "parameters": [],
   "parameters_example": [
@@ -354,6 +354,16 @@
     "default_value": null,
     "description": "0 or 1",
     "field": "data.customer.kyc_update",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.customer.bank_update",
     "group": null,
     "parent": "4621dd797d",
     "parentfield": "success",
@@ -454,6 +464,16 @@
     "default_value": null,
     "description": "Customer's Phone",
     "field": "data.customer.phone",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Mycams Email ID",
+    "field": "data.customer.mycams_email_id",
     "group": null,
     "parent": "4621dd797d",
     "parentfield": "success",
@@ -574,6 +594,16 @@
     "default_value": null,
     "description": "User Pan Number",
     "field": "data.user_kyc.pan_no",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Razorpay Contact ID (For Penny drop)",
+    "field": "data.user_kyc.razorpay_contact_id",
     "group": null,
     "parent": "4621dd797d",
     "parentfield": "success",
@@ -762,6 +792,26 @@
    },
    {
     "default_value": null,
+    "description": "Razorpay Fund Account ID (For Penny Drop)",
+    "field": "data.user_kyc.bank_account.razorpay_fund_account_id",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Razorpay Fund Account Validation ID (For Penny Drop)",
+    "field": "data.user_kyc.bank_account.razorpay_fund_account_validation_id",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
     "description": "User's Bank Address",
     "field": "data.user_kyc.bank_account.bank_address",
     "group": null,
@@ -899,6 +949,16 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.margin_shortfall_card.loan_with_margin_shortfall_list.is_today_holiday",
+    "group": null,
+    "parent": "4621dd797d",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
    },
    {
     "default_value": null,
@@ -1583,7 +1643,7 @@
   ],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"customer\": {\n      \"name\": \"CUST-07-2021-0913\",\n      \"owner\": \"Guest\",\n      \"creation\": \"2021-07-16 12:08:17.047711\",\n      \"modified\": \"2021-07-16 12:19:53.851280\",\n      \"modified_by\": \"Guest\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"registeration\": 1,\n      \"is_email_verified\": 1,\n      \"kyc_update\": 1,\n      \"credit_check\": 0,\n      \"pledge_securities\": 0,\n      \"loan_open\": 0,\n      \"feedback_submitted\": 0,\n      \"feedback_do_not_show_popup\": 0,\n      \"choice_kyc\": \"USR-KYC-07-2021-00914\",\n      \"ckcy\": \"\",\n      \"kra\": \"\",\n      \"first_name\": \"John\",\n      \"phone\": \"9304389521\",\n      \"full_name\": \"John Doe\",\n      \"last_name\": \"Doe\",\n      \"user\": \"testing@test.com\",\n      \"alerts_based_on_percentage\": 0.0,\n      \"alerts_based_on_amount\": 0.0,\n      \"doctype\": \"Loan Customer\"\n    },\n    \"user_kyc\": {\n      \"name\": \"USR-KYC-07-2021-00914\",\n      \"owner\": \"testing@test.com\",\n      \"creation\": \"2021-07-16 12:09:34.356264\",\n      \"modified\": \"2021-07-16 12:09:34.356264\",\n      \"modified_by\": \"testing@test.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"user\": \"testing@test.com\",\n      \"kyc_type\": \"CHOICE\",\n      \"investor_name\": \"RATIRAJ TIBREWAL HUF\",\n      \"pan_no\": \"ABCDE1234E\",\n      \"mobile_number\": \"1234567890\",\n      \"date_of_birth\": \"1970-01-01\",\n      \"address\": \"ABC-1, LOREM IPSUM, LOREM (Lorem) 123456\",\n      \"city\": \"Lorem\",\n      \"doctype\": \"User KYC\",\n      \"bank_account\": [\n        {\n          \"name\": \"d29f72bea3\",\n          \"owner\": \"testing@test.com\",\n          \"creation\": \"2021-07-16 12:09:34.356264\",\n          \"modified\": \"2021-07-16 12:09:34.356264\",\n          \"modified_by\": \"testing@test.com\",\n          \"parent\": \"USR-KYC-07-2021-00914\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"bank\": \"HDFC BANK\",\n          \"branch\": \"CHOUDHURY COMPLEX\",\n          \"account_number\": \"03621000042135\",\n          \"ifsc\": \"HDFC0000362\",\n          \"bank_code\": \"HDF\",\n          \"city\": \"ROURKELA\",\n          \"state\": \"ORISSA\",\n          \"is_default\": 0,\n          \"bank_address\": \"CHOUDHURY COMPLEX PANPOSH  ROAD\",\n          \"contact\": \"9937903333\",\n          \"account_type\": \"S\",\n          \"micr\": \"769240003\",\n          \"bank_mode\": \"NODAL\",\n          \"bank_zip_code\": \"769004\",\n          \"district\": \"SUNDERGARH\",\n          \"doctype\": \"User Bank Account\"\n        },\n        {\n          \"name\": \"f6af585ddc\",\n          \"owner\": \"testing@test.com\",\n          \"creation\": \"2021-07-16 12:09:34.356264\",\n          \"modified\": \"2021-07-16 12:09:34.356264\",\n          \"modified_by\": \"testing@test.com\",\n          \"parent\": \"USR-KYC-07-2021-00914\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 2,\n          \"docstatus\": 0,\n          \"bank\": \"ABC BANK\",\n          \"branch\": \"ABCSD COMPLEX\",\n          \"account_number\": \"12345678915215\",\n          \"ifsc\": \"ABCD0000001\",\n          \"bank_code\": \"ABC\",\n          \"city\": \"ROURKELA\",\n          \"state\": \"ORISSA\",\n          \"is_default\": 1,\n          \"bank_address\": \"CHOUDHURY COMPLEX PANPOSH  ROAD\",\n          \"contact\": \"1234568825\",\n          \"account_type\": \"C\",\n          \"micr\": \"769240003\",\n          \"bank_mode\": \"NODAL\",\n          \"bank_zip_code\": \"769004\",\n          \"district\": \"SUNDERGARH\",\n          \"doctype\": \"User Bank Account\"\n        }\n      ]\n    },\n    \"margin_shortfall_card\": {\n        \"earliest_deadline\": \"00:00:00\",\n        \"loan_with_margin_shortfall_list\": [\n        {\n          \"name\": \"SL000007\",\n          \"deadline\": \"00:00:00\",\n          \"status\": \"Sell Triggered\"\n        },\n        {\n          \"name\": \"SL000006\",\n          \"deadline\": \"00:00:00\",\n          \"status\": \"Sell Triggered\"\n        }\n        ]\n    },\n    \"total_interest_all_loans_card\": {},\n    \"pending_esigns_list\": {\n      \"la_pending_esigns\": [\n            {\n            \"loan_application\": {\n            \"name\": \"LA000016\",\n            \"owner\": \"dpcg7125601@gmail.com\",\n            \"creation\": \"2021-09-25 17:42:52.739247\",\n            \"modified\": \"2021-09-25 17:51:44.868424\",\n            \"modified_by\": \"Administrator\",\n            \"idx\": 0,\n            \"docstatus\": 0,\n            \"workflow_state\": \"Pledge accepted by Lender\",\n            \"total_collateral_value\": 0.0,\n            \"total_collateral_value_str\": \"0.00\",\n            \"drawing_power\": 0.0,\n            \"drawing_power_str\": \"0.00\",\n            \"lender\": \"Choice Finserv\",\n            \"status\": \"Pledge accepted by Lender\",\n            \"pledged_total_collateral_value\": 0.0,\n            \"pledged_total_collateral_value_str\": \"0.00\",\n            \"customer\": \"CUST-09-2021-0001\",\n            \"customer_name\": \"Deep Chirag\",\n            \"allowable_ltv\": 50.0,\n            \"expiry_date\": \"2022-09-24\",\n            \"pledge_status\": \"Success\",\n            \"pledgor_boid\": \"1206690000000050\",\n            \"pledgee_boid\": \"1206690000284106\",\n            \"doctype\": \"Loan Application\",\n            \"items\": [\n              {\n                \"name\": \"93724e147c\",\n                \"owner\": \"dpcg7125601@gmail.com\",\n                \"creation\": \"2021-09-25 17:42:52.739247\",\n                \"modified\": \"2021-09-25 17:51:44.868424\",\n                \"modified_by\": \"Administrator\",\n                \"parent\": \"LA000016\",\n                \"parentfield\": \"items\",\n                \"parenttype\": \"Loan Application\",\n                \"idx\": 1,\n                \"docstatus\": 0,\n                \"lender_approval_status\": \"Approved\",\n                \"isin\": \"INE736A01011\",\n                \"security_name\": \"Central Depository Services (India) Ltd.\",\n                \"security_category\": \"Cat B\",\n                \"pledged_quantity\": 5,\n                \"price\": 0.0,\n                \"amount\": 0.0,\n                \"prf_number\": \"yIrounxxAo1f\",\n                \"pledge_status\": \"Success\",\n                \"pledge_executed\": 1,\n                \"doctype\": \"Loan Application Item\"\n              }\n            ]\n          },\n          \"message\": \"Congratulations! Your application is being considered favorably by our lending partner and finally accepted at Rs. 0.00 against the request value of Rs. 0.00. Accordingly, the final Sanctioned Limit is Rs. 0.00. Please e-sign the loan agreement to avail the loan now.\",\n          \"increase_loan_message\": null\n        }\n        ],\n      \"topup_pending_esigns\": []\n    },\n    \"show_feedback_popup\": 0,\n    \"youtube_video_ids\": [\n      \"hSQOfS4I7Hc\",\n      \"A45rpr3KLe8\"\n    ],\n    \"profile_picture_file_url\": null,\n    \"fcm_unread_count\": 0\n  }\n}",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": {\n    \"customer\": {\n      \"name\": \"CUST-07-2021-0913\",\n      \"owner\": \"Guest\",\n      \"creation\": \"2021-07-16 12:08:17.047711\",\n      \"modified\": \"2021-07-16 12:19:53.851280\",\n      \"modified_by\": \"Guest\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"registeration\": 1,\n      \"is_email_verified\": 1,\n      \"kyc_update\": 1,\n      \"bank_update\": 1,\n      \"credit_check\": 0,\n      \"pledge_securities\": 0,\n      \"loan_open\": 0,\n      \"feedback_submitted\": 0,\n      \"feedback_do_not_show_popup\": 0,\n      \"choice_kyc\": \"USR-KYC-07-2021-00914\",\n      \"ckcy\": \"\",\n      \"kra\": \"\",\n      \"first_name\": \"John\",\n      \"phone\": \"9304389521\",\n      \"mycams_email_id\": \"testing@test.com\",\n      \"full_name\": \"John Doe\",\n      \"last_name\": \"Doe\",\n      \"user\": \"testing@test.com\",\n      \"alerts_based_on_percentage\": 0.0,\n      \"alerts_based_on_amount\": 0.0,\n      \"doctype\": \"Loan Customer\"\n    },\n    \"user_kyc\": {\n      \"name\": \"USR-KYC-07-2021-00914\",\n      \"owner\": \"testing@test.com\",\n      \"creation\": \"2021-07-16 12:09:34.356264\",\n      \"modified\": \"2021-07-16 12:09:34.356264\",\n      \"modified_by\": \"testing@test.com\",\n      \"idx\": 0,\n      \"docstatus\": 0,\n      \"user\": \"testing@test.com\",\n      \"kyc_type\": \"CHOICE\",\n      \"investor_name\": \"RATIRAJ TIBREWAL HUF\",\n      \"pan_no\": \"ABCDE1234E\",\n      \"razorpay_contact_id\": \"cont_JAVOmei5w2jwHD\",\n      \"mobile_number\": \"1234567890\",\n      \"date_of_birth\": \"1970-01-01\",\n      \"address\": \"ABC-1, LOREM IPSUM, LOREM (Lorem) 123456\",\n      \"city\": \"Lorem\",\n      \"doctype\": \"User KYC\",\n      \"bank_account\": [\n        {\n          \"name\": \"d29f72bea3\",\n          \"owner\": \"testing@test.com\",\n          \"creation\": \"2021-07-16 12:09:34.356264\",\n          \"modified\": \"2021-07-16 12:09:34.356264\",\n          \"modified_by\": \"testing@test.com\",\n          \"parent\": \"USR-KYC-07-2021-00914\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 1,\n          \"docstatus\": 0,\n          \"bank\": \"HDFC BANK\",\n          \"branch\": \"CHOUDHURY COMPLEX\",\n          \"account_number\": \"03621000042135\",\n          \"ifsc\": \"HDFC0000362\",\n          \"bank_code\": \"HDF\",\n          \"city\": \"ROURKELA\",\n          \"state\": \"ORISSA\",\n          \"is_default\": 0,\n          \"bank_address\": \"CHOUDHURY COMPLEX PANPOSH  ROAD\",\n          \"contact\": \"9937903333\",\n          \"razorpay_fund_account_id\": \"fa_JAUh6ugNL71Leb\",\n\t  \"account_type\": \"current\",\n\t  \"razorpay_fund_account_validation_id\": \"fav_JAUi4gHVeExYOG\",\n          \"micr\": \"769240003\",\n          \"bank_mode\": \"NODAL\",\n          \"bank_zip_code\": \"769004\",\n          \"district\": \"SUNDERGARH\",\n          \"doctype\": \"User Bank Account\"\n        },\n        {\n          \"name\": \"f6af585ddc\",\n          \"owner\": \"testing@test.com\",\n          \"creation\": \"2021-07-16 12:09:34.356264\",\n          \"modified\": \"2021-07-16 12:09:34.356264\",\n          \"modified_by\": \"testing@test.com\",\n          \"parent\": \"USR-KYC-07-2021-00914\",\n          \"parentfield\": \"bank_account\",\n          \"parenttype\": \"User KYC\",\n          \"idx\": 2,\n          \"docstatus\": 0,\n          \"bank\": \"ABC BANK\",\n          \"branch\": \"ABCSD COMPLEX\",\n          \"account_number\": \"12345678915215\",\n          \"ifsc\": \"ABCD0000001\",\n          \"bank_code\": \"ABC\",\n          \"city\": \"ROURKELA\",\n          \"state\": \"ORISSA\",\n          \"is_default\": 1,\n          \"bank_address\": \"CHOUDHURY COMPLEX PANPOSH  ROAD\",\n          \"contact\": \"1234568825\",\n          \"account_type\": \"C\",\n          \"micr\": \"769240003\",\n          \"bank_mode\": \"NODAL\",\n          \"bank_zip_code\": \"769004\",\n          \"district\": \"SUNDERGARH\",\n          \"doctype\": \"User Bank Account\"\n        }\n      ]\n    },\n    \"margin_shortfall_card\": {\n        \"earliest_deadline\": \"00:00:00\",\n        \"loan_with_margin_shortfall_list\": [\n        {\n          \"name\": \"SL000007\",\n          \"deadline\": \"00:00:00\",\n          \"status\": \"Sell Triggered\"\n        },\n        {\n          \"name\": \"SL000006\",\n          \"deadline\": \"00:00:00\",\n          \"status\": \"Sell Triggered\"\n        }\n        ]\n    },\n    \"total_interest_all_loans_card\": {},\n    \"pending_esigns_list\": {\n      \"la_pending_esigns\": [\n            {\n            \"loan_application\": {\n            \"name\": \"LA000016\",\n            \"owner\": \"dpcg7125601@gmail.com\",\n            \"creation\": \"2021-09-25 17:42:52.739247\",\n            \"modified\": \"2021-09-25 17:51:44.868424\",\n            \"modified_by\": \"Administrator\",\n            \"idx\": 0,\n            \"docstatus\": 0,\n            \"workflow_state\": \"Pledge accepted by Lender\",\n            \"total_collateral_value\": 0.0,\n            \"total_collateral_value_str\": \"0.00\",\n            \"drawing_power\": 0.0,\n            \"drawing_power_str\": \"0.00\",\n            \"lender\": \"Choice Finserv\",\n            \"status\": \"Pledge accepted by Lender\",\n            \"pledged_total_collateral_value\": 0.0,\n            \"pledged_total_collateral_value_str\": \"0.00\",\n            \"customer\": \"CUST-09-2021-0001\",\n            \"customer_name\": \"Deep Chirag\",\n            \"allowable_ltv\": 50.0,\n            \"expiry_date\": \"2022-09-24\",\n            \"pledge_status\": \"Success\",\n            \"pledgor_boid\": \"1206690000000050\",\n            \"pledgee_boid\": \"1206690000284106\",\n            \"doctype\": \"Loan Application\",\n            \"items\": [\n              {\n                \"name\": \"93724e147c\",\n                \"owner\": \"dpcg7125601@gmail.com\",\n                \"creation\": \"2021-09-25 17:42:52.739247\",\n                \"modified\": \"2021-09-25 17:51:44.868424\",\n                \"modified_by\": \"Administrator\",\n                \"parent\": \"LA000016\",\n                \"parentfield\": \"items\",\n                \"parenttype\": \"Loan Application\",\n                \"idx\": 1,\n                \"docstatus\": 0,\n                \"lender_approval_status\": \"Approved\",\n                \"isin\": \"INE736A01011\",\n                \"security_name\": \"Central Depository Services (India) Ltd.\",\n                \"security_category\": \"Cat B\",\n                \"pledged_quantity\": 5,\n                \"price\": 0.0,\n                \"amount\": 0.0,\n                \"prf_number\": \"yIrounxxAo1f\",\n                \"pledge_status\": \"Success\",\n                \"pledge_executed\": 1,\n                \"doctype\": \"Loan Application Item\"\n              }\n            ]\n          },\n          \"message\": \"Congratulations! Your application is being considered favorably by our lending partner and finally accepted at Rs. 0.00 against the request value of Rs. 0.00. Accordingly, the final Sanctioned Limit is Rs. 0.00. Please e-sign the loan agreement to avail the loan now.\",\n          \"increase_loan_message\": null\n        }\n        ],\n      \"topup_pending_esigns\": []\n    },\n    \"show_feedback_popup\": 0,\n    \"youtube_video_ids\": [\n      \"hSQOfS4I7Hc\",\n      \"A45rpr3KLe8\"\n    ],\n    \"profile_picture_file_url\": null,\n    \"fcm_unread_count\": 0\n  }\n}",
     "parent": "4621dd797d",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -1633,7 +1693,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-25 11:27:32.367033",
+  "modified": "2022-05-02 15:06:31.993488",
   "name": "b5e26f3219",
   "parameters": [
    {
@@ -1703,6 +1763,19 @@
    },
    {
     "allowed_values": null,
+    "default_value": null,
+    "description": "Loan Type = Equity or Mutual Fund - Equity or Mutual Fund - Debt",
+    "field": "loan_type",
+    "group": null,
+    "optional": 0,
+    "parent": "b5e26f3219",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
     "default_value": "0",
     "description": "Download file",
     "field": "is_download",
@@ -1717,7 +1790,7 @@
   ],
   "parameters_example": [
    {
-    "example": "{\n\t\"lender\": \"\",\n\t\"start\":0,\n\t\"per_page\":20,\n\t\"search\": \"\",\n        \"category\":\"\",\n\t\"is_download\": 0\n}",
+    "example": "{\n\t\"lender\": \"Choice Finserv\",\n\t\"start\": 0,\n\t\"per_page\": 20,\n\t\"search\": \"\",\n\t\"category\": \"Cat A\",\n\t\"loan_type\":\"Mutual Fund - Debt\",\n\t\"is_download\": 1\n}\t",
     "parent": "b5e26f3219",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -5379,7 +5452,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2022-05-02 13:42:19.264193",
+  "modified": "2022-05-02 14:53:15.193900",
   "name": "3755fd67c8",
   "parameters": [
    {
@@ -5974,7 +6047,7 @@
     "parent": "3755fd67c8",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Strong"
+    "type": "String"
    },
    {
     "default_value": null,
@@ -5984,7 +6057,7 @@
     "parent": "3755fd67c8",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Strong"
+    "type": "String"
    },
    {
     "default_value": null,
@@ -6152,7 +6225,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2022-05-02 13:56:16.903847",
+  "modified": "2022-05-02 14:52:48.600257",
   "name": "1692eb7604",
   "parameters": [
    {
@@ -6727,7 +6800,7 @@
     "parent": "1692eb7604",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Integer"
+    "type": "String"
    },
    {
     "default_value": null,
@@ -6737,7 +6810,7 @@
     "parent": "1692eb7604",
     "parentfield": "success",
     "parenttype": "API Doc",
-    "type": "Integer"
+    "type": "String"
    },
    {
     "default_value": null,
@@ -9387,7 +9460,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-25 11:22:27.359830",
+  "modified": "2022-05-02 15:04:33.194174",
   "name": "023a7ca67c",
   "parameters": [
    {
@@ -9442,6 +9515,16 @@
     "default_value": null,
     "description": "Loan name",
     "field": "data.loan_name",
+    "group": null,
+    "parent": "023a7ca67c",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Instrument Type = Shares or Mutual Fund",
+    "field": "data.instrument_type",
     "group": null,
     "parent": "023a7ca67c",
     "parentfield": "success",
@@ -9510,7 +9593,7 @@
    },
    {
     "default_value": null,
-    "description": "Security name",
+    "description": "Security/Scheme name",
     "field": "data.all_pledged_securities.security_name",
     "group": null,
     "parent": "023a7ca67c",
@@ -9520,7 +9603,7 @@
    },
    {
     "default_value": null,
-    "description": "Pledged quantity",
+    "description": "Pledged quantity/Unit",
     "field": "data.all_pledged_securities.pledged_quantity",
     "group": null,
     "parent": "023a7ca67c",
@@ -9530,7 +9613,7 @@
    },
    {
     "default_value": null,
-    "description": "Security category",
+    "description": "Security/Scheme category",
     "field": "data.all_pledged_securities.security_category",
     "group": null,
     "parent": "023a7ca67c",
@@ -9540,7 +9623,7 @@
    },
    {
     "default_value": null,
-    "description": "Price",
+    "description": "Price/NAV",
     "field": "data.all_pledged_securities.price",
     "group": null,
     "parent": "023a7ca67c",
@@ -11050,7 +11133,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-22 17:47:00.380929",
+  "modified": "2022-05-02 14:32:26.995389",
   "name": "0a23d8c2e9",
   "parameters": [],
   "parameters_example": [
@@ -11100,7 +11183,7 @@
   ],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": [\n    {\n      \"name\": \"loan name\"\n    }\n    \n  ]\n}\n",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": [\n    {\n      \"name\": \"loan name\"\n    }\n  ]\n}\n",
     "parent": "0a23d8c2e9",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -11610,7 +11693,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-22 17:46:33.380652",
+  "modified": "2022-05-02 14:31:10.540546",
   "name": "6e3c48529e",
   "parameters": [],
   "parameters_example": [
@@ -11656,11 +11739,21 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "List of levels of lender",
+    "field": "data.levels",
+    "group": null,
+    "parent": "6e3c48529e",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "List"
    }
   ],
   "success_example": [
    {
-    "example": "{\n  \"message\": \"Success\",\n  \"data\": [\n    {\n      \"name\": \"lender name\"\n    }\n  ]\n}\n",
+    "example": "{\n  \"message\": \"Success\",\n  \"data\": [\n    {\n      \"name\": \"lender name\",\n      \"levels\": [\n\t\t\"Level 1\",\n                \"Level 2\"\n\t\t]\n    }\n  ]\n}\n",
     "parent": "6e3c48529e",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -11710,7 +11803,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-22 18:05:31.920847",
+  "modified": "2022-05-02 14:41:56.011497",
   "name": "c4921d34b1",
   "parameters": [
    {
@@ -11738,11 +11831,24 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Instrument Type = Shares or Mutual Fund",
+    "field": "instrument_type",
+    "group": null,
+    "optional": 0,
+    "parent": "c4921d34b1",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
    }
   ],
   "parameters_example": [
    {
-    "example": "{\n\t\"lender\": \"\",\n\t\"search\": \"\"\n}",
+    "example": "{\n\t\"lender\": \"\",\n\t\"search\": \"\"\n        \"instrument_type\": \"\"\n}",
     "parent": "c4921d34b1",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -11806,7 +11912,7 @@
    },
    {
     "default_value": null,
-    "description": "Security Category",
+    "description": "Security/Scheme Category",
     "field": "data.Category",
     "group": null,
     "parent": "c4921d34b1",
@@ -11816,7 +11922,7 @@
    },
    {
     "default_value": null,
-    "description": "Security Price",
+    "description": "Security/Scheme Price/Nav",
     "field": "data.Price",
     "group": null,
     "parent": "c4921d34b1",
@@ -12479,7 +12585,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-22 18:46:06.032618",
+  "modified": "2022-05-02 14:51:56.058417",
   "name": "227ef993a2",
   "parameters": [
    {
@@ -12587,7 +12693,7 @@
     "type": "Integer"
    },
    {
-    "default_value": null,
+    "default_value": "",
     "description": "check for Verified Email",
     "field": "data.customer_details.is_email_verified",
     "group": null,
@@ -12597,9 +12703,19 @@
     "type": "Integer"
    },
    {
-    "default_value": null,
+    "default_value": "",
     "description": "Check for KYC update",
     "field": "data.customer_details.kyc_update",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": "0",
+    "description": "Check for Bank update",
+    "field": "data.customer_details.bank_update",
     "group": null,
     "parent": "227ef993a2",
     "parentfield": "success",
@@ -12700,6 +12816,16 @@
     "default_value": null,
     "description": "Customer Phone Number",
     "field": "data.customer_details.phone",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Customer Mycams Email ID",
+    "field": "data.customer_details.mycams_email_id",
     "group": null,
     "parent": "227ef993a2",
     "parentfield": "success",
@@ -12868,6 +12994,16 @@
    },
    {
     "default_value": null,
+    "description": "Razorpay Contact ID (For Penny drop)",
+    "field": "data.user_kyc.razorpay_contact_id",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
     "description": "User kyc doctype",
     "field": "data.user_kyc.doctype",
     "group": null,
@@ -13005,6 +13141,26 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "Razorpay Fund Account ID (For Penny Drop)",
+    "field": "data.user_kyc.bank_account.razorpay_fund_account_id",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Razorpay Fund Account Validation ID (For Penny Drop)",
+    "field": "data.user_kyc.bank_account.razorpay_fund_account_validation_id",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
    },
    {
     "default_value": null,
@@ -13826,7 +13982,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2021-10-25 15:20:01.827654",
+  "modified": "2022-05-02 15:30:59.566896",
   "name": "17aa761a09",
   "parameters": [],
   "parameters_example": [
@@ -14355,7 +14511,7 @@
    },
    {
     "default_value": null,
-    "description": "Actionable Loan Drawing Power String",
+    "description": "Actionable Loan Balance String",
     "field": "data.actionable_loan.balance_str",
     "group": null,
     "parent": "17aa761a09",
@@ -14822,6 +14978,16 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "Instrument Type = Shares or Mutual Fund",
+    "field": "data.instrument_type",
+    "group": null,
+    "parent": "17aa761a09",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
    }
   ],
   "success_example": [
