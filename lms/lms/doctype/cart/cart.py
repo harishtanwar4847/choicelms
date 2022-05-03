@@ -324,11 +324,6 @@ class Cart(Document):
             if lender.revoke_initiate_charge_type == "Fix"
             else lms.validate_percent(lender.revoke_initiate_charges),
         }
-        print(doc.get("invoke_initiate_charge_type"))
-        print(doc.get("revoke_initiate_charge_type"))
-        print(doc.get("invoke_initiate_charges"))
-        print(doc.get("revoke_initiate_charges"))
-
         if self.loan and not self.loan_margin_shortfall:
             loan = frappe.get_doc("Loan", self.loan)
             doc["old_sanctioned_amount"] = lms.validate_rupees(loan.sanctioned_limit)
