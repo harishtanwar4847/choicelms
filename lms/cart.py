@@ -779,7 +779,7 @@ def get_tnc(**kwargs):
             + "</li>"
         )
         tnc_ul.append(
-            "<li><strong>  Nature of facility sanctioned :</strong> Loan Against Securities - Overdraft Facility;</li>"
+            "<li><strong> Nature of facility sanctioned :</strong> Loan Against Securities - Overdraft Facility;</li>"
         )
         tnc_ul.append(
             "<li><strong> Purpose </strong>: General purpose.<br />Note:-The facility shall not be used for anti-social or illegal purposes;</li>"
