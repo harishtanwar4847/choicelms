@@ -140,16 +140,17 @@ def upsert(**kwargs):
             )
 
         for security in data.get("securities")["list"]:
-            quantity_split_list = str(security["quantity"]).split(".")
-            if len(quantity_split_list) > 1 and len(quantity_split_list[-1]) > 3:
-                return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._(
-                        "Unit of {} should be in 3 digit precision.".format(
-                            security["isin"]
-                        )
-                    ),
-                )
+            security["quantity"] = round(security["quantity"], 3)
+            # quantity_split_list = str(security["quantity"]).split(".")
+            # if len(quantity_split_list) > 1 and len(quantity_split_list[-1]) > 3:
+            #     return utils.respondWithFailure(
+            #         status=422,
+            #         message=frappe._(
+            #             "Unit of {} should be in 3 digit precision.".format(
+            #                 security["isin"]
+            #             )
+            #         ),
+            #     )
 
         if not data.get("instrument_type"):
             data["instrument_type"] = "Shares"
