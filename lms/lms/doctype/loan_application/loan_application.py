@@ -314,7 +314,7 @@ class LoanApplication(Document):
                     "lien_initiate_request",
                 )
 
-                schemedetails = decrypted_json.get("schemedetails")
+                schemedetails = decrypted_json.get("schemedetails", None)
                 isin_details = {}
 
                 if schemedetails and "Success" in [
