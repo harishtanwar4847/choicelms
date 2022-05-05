@@ -779,7 +779,7 @@ def get_tnc(**kwargs):
             + "</li>"
         )
         tnc_ul.append(
-            "<li><strong> Nature of facility sanctioned :</strong> Loan Against Securities - Overdraft facility;</li>"
+            "<li><strong>  Nature of facility sanctioned :</strong> Loan Against Securities - Overdraft Facility;</li>"
         )
         tnc_ul.append(
             "<li><strong> Purpose </strong>: General purpose.<br />Note:-The facility shall not be used for anti-social or illegal purposes;</li>"
@@ -944,6 +944,66 @@ def get_tnc(**kwargs):
             )
             + "</li>"
         )
+        if lender.lien_initiate_charge_type == "Percentage":
+            tnc_ul.append(
+                "<li><strong> Documentation charges </strong>: <strong> {percent_charge}%</strong> of the sanctioned amount; subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
+                    percent_charge=lms.validate_percent(lender.lien_initiate_charges),
+                    min_amt=lms.validate_rupees(
+                        lender.lien_initiate_charge_minimum_amount
+                    ),
+                    max_amt=lms.validate_rupees(
+                        lender.lien_initiate_charge_maximum_amount
+                    ),
+                )
+                + "</li>"
+            )
+        elif lender.lien_initiate_charge_type == "Fix":
+            tnc_ul.append(
+                "<li><strong> Documentation charges </strong>: <strong>Rs. {fix_charge}/-, {fix_charge_in_words} Only</strong>".format(
+                    fix_charge=lms.validate_rupees(lender.lien_initiate_charges),
+                )
+                + "</li>"
+            )
+        if lender.invoke_initiate_charge_type == "Percentage":
+            tnc_ul.append(
+                "<li><strong> Documentation charges </strong>: <strong> {percent_charge}%</strong> of the sanctioned amount; subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
+                    percent_charge=lms.validate_percent(lender.invoke_initiate_charges),
+                    min_amt=lms.validate_rupees(
+                        lender.invoke_initiate_charges_minimum_amount
+                    ),
+                    max_amt=lms.validate_rupees(
+                        lender.invoke_initiate_charges_maximum_amount
+                    ),
+                )
+                + "</li>"
+            )
+        elif lender.invoke_initiate_charge_type == "Fix":
+            tnc_ul.append(
+                "<li><strong> Documentation charges </strong>: <strong>Rs. {fix_charge}/-, {fix_charge_in_words} Only</strong>".format(
+                    fix_charge=lms.validate_rupees(lender.invoke_initiate_charges),
+                )
+                + "</li>"
+            )
+        if lender.revoke_initiate_charge_type == "Percentage":
+            tnc_ul.append(
+                "<li><strong> Documentation charges </strong>: <strong> {percent_charge}%</strong> of the sanctioned amount; subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
+                    percent_charge=lms.validate_percent(lender.revoke_initiate_charges),
+                    min_amt=lms.validate_rupees(
+                        lender.revoke_initiate_charges_minimum_amount
+                    ),
+                    max_amt=lms.validate_rupees(
+                        lender.revoke_initiate_charges_maximum_amount
+                    ),
+                )
+                + "</li>"
+            )
+        elif lender.revoke_initiate_charge_type == "Fix":
+            tnc_ul.append(
+                "<li><strong> Documentation charges </strong>: <strong>Rs. {fix_charge}/-, {fix_charge_in_words} Only</strong>".format(
+                    fix_charge=lms.validate_rupees(lender.revoke_initiate_charges),
+                )
+                + "</li>"
+            )
         tnc_ul.append(
             "<li><strong> Credit Information Companies'(CICs) Charges </strong>: <strong>Upto Rs {}/-</strong> per instance (for individuals);".format(
                 lms.validate_rupees(lender.cic_charges)
@@ -974,7 +1034,9 @@ def get_tnc(**kwargs):
         tnc_header = "Please refer to the <a href='{}'>Terms & Conditions</a> for LAS facility, for detailed terms.".format(
             tnc_file_url
         )
-        tnc_footer = "You shall be required to authenticate (in token of you having fully read and irrevocably and unconditionally accepted and authenticated) the above application for loan including the pledge request and the Terms and Conditions (which can be opened by clicking on the links) and entire contents thereof, by entering the OTP that will be sent to you next on your registered mobile number with CDSL."
+        # tnc_footer = "You shall be required to authenticate (in token of you having fully read and irrevocably and unconditionally accepted and authenticated) the above application for loan including the pledge request and the Terms and Conditions (which can be opened by clicking on the links) and entire contents thereof, by entering the OTP that will be sent to you next on your registered mobile number with CDSL."
+        """Changes for Mutual Funds"""
+        tnc_footer = "You shall be required to authenticate (in token of you having fully read and irrevocably and unconditionally accepted and authenticated) the above application for loan including the pledge request and the Terms and Conditions (which can be opened by clicking on the links) and entire contents thereof, by entering the OTP that will be sent to you next on your registered mobile number with CDSL (For Loan Against Shares) or spark.loans (For Loan Against Mutual Funds)"
         tnc_checkboxes = [
             i.tnc
             for i in frappe.get_all(
