@@ -9,15 +9,17 @@
  "field_order": [
   "security",
   "security_name",
+  "amc_name",
+  "column_break_4",
   "amc_code",
   "amc_image"
  ],
  "fields": [
   {
    "fieldname": "security_name",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
-   "label": "Security/Scheme Name",
+   "label": "Scheme Name",
    "read_only": 1
   },
   {
@@ -35,14 +37,23 @@
   {
    "fieldname": "security",
    "fieldtype": "Link",
-   "label": "Security",
+   "label": "ISIN",
    "options": "Security",
    "reqd": 1,
    "unique": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amc_name",
+   "fieldtype": "Data",
+   "label": "AMC Name"
   }
  ],
  "links": [],
- "modified": "2022-05-05 13:47:27.719209",
+ "modified": "2022-05-06 10:19:53.507629",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "AMC Details",
