@@ -38,7 +38,7 @@ def set_pin(**kwargs):
             },
         )
 
-        frappe.db.begin()
+        # frappe.db.begin()
         update_password(frappe.session.user, data.get("pin"))
         frappe.db.commit()
 
@@ -102,7 +102,7 @@ def kyc_old(**kwargs):
 
             user = lms.__user()
 
-            frappe.db.begin()
+            # frappe.db.begin()
             # save user kyc consent
             kyc_consent_doc = frappe.get_doc(
                 {
@@ -446,7 +446,7 @@ def kyc(**kwargs):
                     message=frappe._("Please accept Terms and Conditions.")
                 )
 
-            frappe.db.begin()
+            # frappe.db.begin()
 
             # res = get_choice_kyc(data.get("pan_no"), data.get("birth_date"))
             # user_kyc = res["user_kyc"]
@@ -3585,7 +3585,7 @@ def otp_for_testing(**kwargs):
 
         if tester:
             # Mark old token as Used
-            frappe.db.begin()
+            # frappe.db.begin()
             old_token_name = frappe.get_all(
                 "User Token",
                 filters={

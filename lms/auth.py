@@ -54,7 +54,7 @@ def login(**kwargs):
         except UserNotFoundException:
             user = None
 
-        frappe.db.begin()
+        # frappe.db.begin()
         if data.get("pin"):
             try:
                 frappe.local.login_manager.authenticate(
@@ -234,7 +234,7 @@ def verify_otp(**kwargs):
             return utils.respondUnauthorized(message=message)
 
         if token:
-            frappe.db.begin()
+            # frappe.db.begin()
             if (not is_dummy_account) and (token.expiry <= frappe.utils.now_datetime()):
                 return utils.respondUnauthorized(message=frappe._("OTP Expired."))
 
@@ -347,7 +347,7 @@ def register(**kwargs):
             "email": data.get("email"),
             "tester": True if data.get("email") in emails else False,
         }
-        frappe.db.begin()
+        # frappe.db.begin()
         user = lms.create_user(**user_data)
         customer = lms.create_customer(user)
 
@@ -553,7 +553,7 @@ def request_forgot_pin_otp(**kwargs):
                 old_token = frappe.get_doc("User Token", old_token_name[0].name)
                 lms.token_mark_as_used(old_token)
 
-            frappe.db.begin()
+            # frappe.db.begin()
             lms.create_user_token(
                 entity=user.email,
                 token_type="Forgot Pin OTP",
@@ -618,7 +618,7 @@ def verify_forgot_pin_otp(**kwargs):
         except InvalidUserTokenException:
             return utils.respondForbidden(message=frappe._("Invalid Forgot Pin OTP."))
 
-        frappe.db.begin()
+        # frappe.db.begin()
 
         if token and not is_dummy_account:
             if token.expiry <= frappe.utils.now_datetime():

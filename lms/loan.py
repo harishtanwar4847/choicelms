@@ -240,7 +240,7 @@ def esign_done(**kwargs):
 
         try:
             res = requests.get(esigned_pdf_url, allow_redirects=True)
-            frappe.db.begin()
+            # frappe.db.begin()
 
             # save e-sign consent
             kyc_consent_doc = frappe.get_doc(
@@ -625,7 +625,7 @@ def create_topup(**kwargs):
             current = frappe.utils.now_datetime()
             expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
 
-            frappe.db.begin()
+            # frappe.db.begin()
             topup_application = frappe.get_doc(
                 {
                     "doctype": "Top up Application",
@@ -1320,7 +1320,7 @@ def request_loan_withdraw_otp():
             user.username, user.name, check_valid=True
         )
         if not is_dummy_account:
-            frappe.db.begin()
+            # frappe.db.begin()
             lms.create_user_token(
                 entity=user.username,
                 token_type="Withdraw OTP",
@@ -1430,7 +1430,7 @@ def loan_withdraw_request(**kwargs):
                 ),
             )
 
-        frappe.db.begin()
+        # frappe.db.begin()
         withdrawal_transaction = frappe.get_doc(
             {
                 "doctype": "Loan Transaction",
@@ -1597,7 +1597,7 @@ def loan_payment(**kwargs):
                 )
 
         if not data.get("is_failed"):
-            frappe.db.begin()
+            # frappe.db.begin()
             loan_transaction = loan.create_loan_transaction(
                 transaction_type="Payment",
                 amount=data.get("amount"),
@@ -2275,7 +2275,7 @@ def request_unpledge_otp():
             token_type = "Revoke OTP"
             entity = customer.phone
         if not is_dummy_account:
-            frappe.db.begin()
+            # frappe.db.begin()
             lms.create_user_token(
                 entity=entity,
                 token_type=token_type,
@@ -2542,7 +2542,7 @@ def loan_unpledge_request(**kwargs):
 
         securities = validate_securities_for_unpledge(data.get("securities", {}), loan)
 
-        frappe.db.begin()
+        # frappe.db.begin()
 
         user = lms.__user()
         is_dummy_account = lms.validate_spark_dummy_account(
@@ -2630,7 +2630,7 @@ def request_sell_collateral_otp():
         if customer.mycams_email_id and loan:
             token_type = "Invoke OTP"
         if not is_dummy_account:
-            frappe.db.begin()
+            # frappe.db.begin()
             lms.create_user_token(
                 entity=user.username,
                 token_type=token_type,
@@ -2723,7 +2723,7 @@ def sell_collateral_request(**kwargs):
                 token_type="{} OTP".format(msg_type.title()),
             )
 
-        frappe.db.begin()
+        # frappe.db.begin()
 
         items = []
         for i in securities:
