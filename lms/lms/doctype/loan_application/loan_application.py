@@ -347,23 +347,26 @@ class LoanApplication(Document):
                     },
                     "lien_initiate_request",
                 )
-                if (
-                    decrypted_json.get("initiatereq")[0].get("errorcode") == "S000"
-                    and decrypted_json.get("initiatereq")[0].get("error")
-                    == "Lien Initiated Sucessfully"
-                    and decrypted_json.get("schemedetails")
-                ):
+
+                schemedetails = decrypted_json.get("schemedetails", None)
+                isin_details = {}
+
+                if schemedetails and "Success" in [
+                    i["remarks"].title() for i in schemedetails
+                ]:
                     total_successfull_lien = 0
-                    schemedetails = decrypted_json.get("schemedetails")
                     total_collateral_value = 0
-                    isin_details = {}
                     for i in schemedetails:
                         isin_details[i.get("isinno")] = i
                     for i in self.items:
                         if i.get("isin") in isin_details:
                             cur = isin_details.get(i.get("isin"))
                             i.pledge_executed = 1
-                            i.pledge_status = cur.get("remarks").title()
+                            i.pledge_status = (
+                                "Success"
+                                if cur.get("remarks").title() == "Success"
+                                else "Failure"
+                            )
                             if i.pledge_status == "Success":
                                 total_successfull_lien += 1
                                 i.lender_approval_status = "Approved"
@@ -410,12 +413,29 @@ class LoanApplication(Document):
                         2,
                     )
 
-                    self.save(ignore_permissions=True)
+                    # self.save(ignore_permissions=True)
 
                     if not customer.pledge_securities:
                         customer.pledge_securities = pledge_securities
                         customer.save(ignore_permissions=True)
-                    frappe.db.commit()
+                    # frappe.db.commit()
+
+                else:
+                    if schemedetails:
+                        for i in schemedetails:
+                            isin_details[i.get("isinno")] = i
+                        for i in self.items:
+                            if i.get("isin") in isin_details:
+                                i.pledge_executed = 1
+                                i.pledge_status = "Failure"
+                                i.lender_approval_status = "Rejected"
+
+                    self.status = "Pledge Failure"
+                    self.pledge_status = "Failure"
+                    self.workflow_state = "Pledge executed"
+
+                self.save(ignore_permissions=True)
+                frappe.db.commit()
 
     def before_save(self):
         lender = self.get_lender()
