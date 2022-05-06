@@ -1379,6 +1379,9 @@ def schemes(**kwargs):
         )
         # if not schemes_list:
         #     return utils.respondWithSuccess(message=frappe._("No record found."))
+        for scheme in schemes_list:
+            if scheme.amc_image:
+                scheme.amc_image = frappe.utils.get_url(scheme.amc_image)
 
         return utils.respondWithSuccess(
             message=frappe._("Success"), data={"schemes_list": schemes_list}
