@@ -769,6 +769,8 @@ class LoanApplication(Document):
                         "pledged_quantity": item.pledged_quantity,
                         "price": item.price,
                         "amount": item.amount,
+                        "eligible_percentage": item.eligible_percentage,
+                        "eligible_amount": item.eligible_amount,
                         "folio": item.folio,
                         "amc_code": item.amc_code,
                         "amc_name": item.amc_name,

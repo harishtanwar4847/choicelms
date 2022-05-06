@@ -90,6 +90,8 @@ class Cart(Document):
                     "requested_quantity": round(item.requested_quantity, 3),
                     "price": item.price,
                     "amount": item.amount,
+                    "eligible_percentage": item.eligible_percentage,
+                    "eligible_amount": item.eligible_amount,
                     "type": item.type,
                     "folio": item.folio,
                     "amc_code": item.amc_code,
@@ -379,7 +381,11 @@ class Cart(Document):
                 i.eligible_percentage = security.eligible_percentage
 
                 i.price = price_map.get(i.isin, 0)
-                i.amount = i.pledged_quantity * i.price
+                # i.amount = i.pledged_quantity * i.price
+                amount = i.pledged_quantity * i.price
+                i.amount = amount
+                if i.type != "Shares":
+                    i.eligible_amount = (amount * security.eligible_percentage) / 100
 
     def process_cart(self):
         if not self.is_processed:

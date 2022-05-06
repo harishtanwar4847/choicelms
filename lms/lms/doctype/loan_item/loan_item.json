@@ -9,11 +9,13 @@
   "security_name",
   "security_category",
   "pledged_quantity",
+  "eligible_percentage",
   "column_break_7",
   "price",
   "amount",
   "type",
-  "folio"
+  "folio",
+  "eligible_amount"
  ],
  "fields": [
   {
@@ -82,11 +84,23 @@
    "fieldtype": "Data",
    "label": "Folio",
    "read_only": 1
+  },
+  {
+   "fieldname": "eligible_percentage",
+   "fieldtype": "Float",
+   "label": "Eligible Percentage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "eligible_amount",
+   "fieldtype": "Currency",
+   "label": "Eligible Amount",
+   "read_only": 1
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-04-29 11:23:52.864618",
+ "modified": "2022-05-06 14:32:37.186773",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Item",
