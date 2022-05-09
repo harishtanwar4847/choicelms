@@ -359,10 +359,17 @@ def get_collateral_details(unpledge_application_name):
     doc = frappe.get_doc("Unpledge Application", unpledge_application_name)
     loan = doc.get_loan()
     isin_list = [i.isin for i in doc.items]
+    folio_clause = (
+        " and cl.folio IN {}".format(
+            lms.convert_list_to_tuple_string([i.folio for i in doc.items])
+        )
+        if doc.instrument_type == "Mutual Fund"
+        else ""
+    )
     return loan.get_collateral_list(
         group_by_psn=True,
-        where_clause="and cl.isin IN {}".format(
-            lms.convert_list_to_tuple_string(isin_list)
+        where_clause="and cl.isin IN {}{}".format(
+            lms.convert_list_to_tuple_string(isin_list), folio_clause
         ),
         having_clause=" HAVING quantity > 0",
     )

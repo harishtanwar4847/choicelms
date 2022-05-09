@@ -111,7 +111,7 @@ class SellCollateralApplication(Document):
             if sell_requested_quantity_map.get(i.isin) > i.sell_quantity:
                 frappe.throw(
                     "You need to {} all {} of isin {}".format(
-                        applicaton_type, i.quantity, i.isin
+                        applicaton_type, sell_requested_quantity_map.get(i.isin), i.isin
                     )
                 )
             sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
@@ -481,10 +481,17 @@ def get_collateral_details(sell_collateral_application_name):
     )
     loan = doc.get_loan()
     isin_list = [i.isin for i in doc.items]
+    folio_clause = (
+        " and cl.folio IN {}".format(
+            lms.convert_list_to_tuple_string([i.folio for i in doc.items])
+        )
+        if doc.instrument_type == "Mutual Fund"
+        else ""
+    )
     return loan.get_collateral_list(
         group_by_psn=True,
-        where_clause="and cl.isin IN {}".format(
-            lms.convert_list_to_tuple_string(isin_list)
+        where_clause="and cl.isin IN {}{}".format(
+            lms.convert_list_to_tuple_string(isin_list), folio_clause
         ),
         having_clause=" HAVING quantity > 0",
     )

@@ -1,0 +1,104 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "field:security",
+ "creation": "2022-05-05 13:29:59.333644",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "security",
+  "security_name",
+  "amc_name",
+  "column_break_4",
+  "amc_code",
+  "amc_image"
+ ],
+ "fields": [
+  {
+   "fieldname": "security_name",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Scheme Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amc_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "AMC code",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amc_image",
+   "fieldtype": "Attach Image",
+   "label": "AMC Image"
+  },
+  {
+   "fieldname": "security",
+   "fieldtype": "Link",
+   "label": "ISIN",
+   "options": "Security",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amc_name",
+   "fieldtype": "Data",
+   "label": "AMC Name"
+  }
+ ],
+ "links": [],
+ "modified": "2022-05-06 10:19:53.507629",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "AMC Details",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Spark Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Loan Customer"
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lender",
+   "share": 1
+  }
+ ],
+ "search_fields": "security_name",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

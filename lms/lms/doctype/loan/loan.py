@@ -363,7 +363,7 @@ class Loan(Document):
 			LEFT JOIN `tabAllowed Security` als
 				ON cl.isin = als.isin AND cl.lender = als.lender
 			WHERE cl.loan = '{loan}' {where_clause} AND cl.lender_approval_status = 'Approved'
-			GROUP BY cl.isin{group_by_psn_clause}{having_clause};
+			GROUP BY cl.isin, cl.folio{group_by_psn_clause}{having_clause};
 		""".format(
             loan=self.name,
             where_clause=where_clause if where_clause else "",
@@ -411,6 +411,47 @@ class Loan(Document):
         return frappe.db.sql(sql, as_dict=1)
 
     def update_items(self):
+        check = False
+
+        collateral_list = self.get_collateral_list()
+        collateral_list_map = {
+            "{}{}".format(i.isin, i.folio if i.folio else ""): i
+            for i in collateral_list
+        }
+        # updating existing and
+        # setting check flag
+        for i in self.items:
+            isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
+            curr = collateral_list_map.get(isin_folio_combo)
+            # curr = collateral_list_map.get(i.isin)
+            # print(check, i.price, curr.price, not check or i.price != curr.price)
+            if (not check or i.price != curr.price) and i.pledged_quantity > 0:
+                check = True
+                self.update_collateral_ledger(curr.price, curr.isin)
+
+            i.price = curr.price
+            i.pledged_quantity = curr.quantity
+
+            del collateral_list_map[isin_folio_combo]
+
+        # adding new items if any
+        for i in collateral_list_map.values():
+            loan_item = frappe.get_doc(
+                {
+                    "doctype": "Loan Item",
+                    "isin": i.isin,
+                    "security_name": i.security_name,
+                    "security_category": i.security_category,
+                    "pledged_quantity": i.quantity,
+                    "price": i.price,
+                }
+            )
+
+            self.append("items", loan_item)
+
+        return check
+
+    def update_items_old(self):
         check = False
 
         collateral_list = self.get_collateral_list()
@@ -1337,7 +1378,7 @@ class Loan(Document):
                             )
                             amount = self.balance * default_interest_daily / 100
 
-                            frappe.db.begin()
+                            # frappe.db.begin()
                             # Penal Interest Entry
                             penal_interest_transaction = frappe.get_doc(
                                 {
@@ -1791,6 +1832,40 @@ class Loan(Document):
             "security_selling_share": lender.security_selling_share,
             "cic_charges": lms.validate_rupees(lender.cic_charges),
             "total_pages": lender.total_pages,
+            "lien_initiate_charge_type": lender.lien_initiate_charge_type,
+            "invoke_initiate_charge_type": lender.invoke_initiate_charge_type,
+            "revoke_initiate_charge_type": lender.revoke_initiate_charge_type,
+            "lien_initiate_charge_minimum_amount": lms.validate_rupees(
+                lender.lien_initiate_charge_minimum_amount
+            ),
+            "lien_initiate_charge_maximum_amount": lms.validate_rupees(
+                lender.lien_initiate_charge_maximum_amount
+            ),
+            "lien_initiate_charges": lms.validate_rupees(lender.lien_initiate_charges)
+            if lender.lien_initiate_charge_type == "Fix"
+            else lms.validate_percent(lender.lien_initiate_charges),
+            "invoke_initiate_charges_minimum_amount": lms.validate_rupees(
+                lender.invoke_initiate_charges_minimum_amount
+            ),
+            "invoke_initiate_charges_maximum_amount": lms.validate_rupees(
+                lender.invoke_initiate_charges_maximum_amount
+            ),
+            "invoke_initiate_charges": lms.validate_rupees(
+                lender.invoke_initiate_charges
+            )
+            if lender.invoke_initiate_charge_type == "Fix"
+            else lms.validate_percent(lender.invoke_initiate_charges),
+            "revoke_initiate_charges_minimum_amount": lms.validate_rupees(
+                lender.revoke_initiate_charges_minimum_amount
+            ),
+            "revoke_initiate_charges_maximum_amount": lms.validate_rupees(
+                lender.revoke_initiate_charges_maximum_amount
+            ),
+            "revoke_initiate_charges": lms.validate_rupees(
+                lender.revoke_initiate_charges
+            )
+            if lender.revoke_initiate_charge_type == "Fix"
+            else lms.validate_percent(lender.revoke_initiate_charges),
         }
 
         agreement_template = lender.get_loan_enhancement_agreement_template()

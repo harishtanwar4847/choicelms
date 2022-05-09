@@ -38,7 +38,7 @@ def set_pin(**kwargs):
             },
         )
 
-        frappe.db.begin()
+        # frappe.db.begin()
         update_password(frappe.session.user, data.get("pin"))
         frappe.db.commit()
 
@@ -102,7 +102,7 @@ def kyc_old(**kwargs):
 
             user = lms.__user()
 
-            frappe.db.begin()
+            # frappe.db.begin()
             # save user kyc consent
             kyc_consent_doc = frappe.get_doc(
                 {
@@ -446,7 +446,7 @@ def kyc(**kwargs):
                     message=frappe._("Please accept Terms and Conditions.")
                 )
 
-            frappe.db.begin()
+            # frappe.db.begin()
 
             # res = get_choice_kyc(data.get("pan_no"), data.get("birth_date"))
             # user_kyc = res["user_kyc"]
@@ -1366,9 +1366,10 @@ def schemes(**kwargs):
             )
 
         schemes_list = frappe.db.sql(
-            """select als.isin, als.security_name as scheme_name, als.eligible_percentage as ltv, als.instrument_type, als.scheme_type, round(s.price,4) as price, group_concat(lender,'') as lenders
+            """select als.isin, als.security_name as scheme_name, als.eligible_percentage as ltv, als.instrument_type, als.scheme_type, round(s.price,4) as price, group_concat(lender,'') as lenders, ad.amc_code, ad.amc_image
             from `tabAllowed Security` als
             LEFT JOIN `tabSecurity` s on s.isin = als.isin
+            LEFT JOIN `tabAMC Details` ad on ad.security = als.isin
             where als.instrument_type='Mutual Fund' and s.price > 0{}{}{}
             group by als.isin
             order by als.creation desc;""".format(
@@ -1378,6 +1379,9 @@ def schemes(**kwargs):
         )
         # if not schemes_list:
         #     return utils.respondWithSuccess(message=frappe._("No record found."))
+        for scheme in schemes_list:
+            if scheme.amc_image:
+                scheme.amc_image = frappe.utils.get_url(scheme.amc_image)
 
         return utils.respondWithSuccess(
             message=frappe._("Success"), data={"schemes_list": schemes_list}
@@ -1950,6 +1954,7 @@ def my_pledge_securities(**kwargs):
                     "security_category": i.get("security_category"),
                     "price": i.get("price"),
                     "amount": i.get("amount"),
+                    "folio": i.get("folio"),
                 }
             )
         all_pledged_securities.sort(key=lambda item: item["security_name"])
@@ -3584,7 +3589,7 @@ def otp_for_testing(**kwargs):
 
         if tester:
             # Mark old token as Used
-            frappe.db.begin()
+            # frappe.db.begin()
             old_token_name = frappe.get_all(
                 "User Token",
                 filters={
