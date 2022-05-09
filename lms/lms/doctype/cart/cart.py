@@ -57,6 +57,7 @@ class Cart(Document):
             return f.read()
 
     def create_loan_application(self):
+        print(self.eligible_loan)
         if self.is_processed:
             return
 
@@ -125,6 +126,7 @@ class Cart(Document):
                 "scheme_type": self.scheme_type,
             }
         )
+
         loan_application.insert(ignore_permissions=True)
 
         # mark cart as processed
@@ -362,7 +364,7 @@ class Cart(Document):
         self.total_collateral_value_str = lms.amount_formatter(
             self.total_collateral_value
         )
-        self.eligible_loan_str = lms.amount_formatter(self.eligible_loan)
+        self._str = lms.amount_formatter(self.eligible_loan)
 
     def process_cart_items(self):
         if not self.is_processed:
@@ -391,19 +393,26 @@ class Cart(Document):
         if not self.is_processed:
             lender = self.get_lender()
             self.total_collateral_value = 0
-            self.allowable_ltv = 0
+            allowable_ltv = 0
+            eligible_loan = 0
             for item in self.items:
                 self.total_collateral_value += item.amount
-                self.allowable_ltv += item.eligible_percentage
+                allowable_ltv += item.eligible_percentage
 
             self.total_collateral_value = round(self.total_collateral_value, 2)
-            self.allowable_ltv = float(self.allowable_ltv) / len(self.items)
+            if self.instrument_type == "Shares":
+                self.allowable_ltv = float(allowable_ltv) / len(self.items)
+                eligible_loan = (self.allowable_ltv / 100) * self.total_collateral_value
+
+            else:
+                for i in self.items:
+                    eligible_loan += i.eligible_amount
+
             eligible_loan = round(
-                lms.round_down_amount_to_nearest_thousand(
-                    (self.allowable_ltv / 100) * self.total_collateral_value
-                ),
+                lms.round_down_amount_to_nearest_thousand(eligible_loan),
                 2,
             )
+
             self.eligible_loan = (
                 eligible_loan
                 if eligible_loan < lender.maximum_sanctioned_limit

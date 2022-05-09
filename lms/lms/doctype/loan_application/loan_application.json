@@ -82,6 +82,7 @@
    "fieldname": "allowable_ltv",
    "fieldtype": "Float",
    "label": "Allowable LTV",
+   "mandatory_depends_on": "doc.instrument_type==\"Shares\";",
    "read_only": 1,
    "reqd": 1
   },
@@ -242,7 +243,7 @@
   }
  ],
  "links": [],
- "modified": "2022-04-12 16:52:32.553309",
+ "modified": "2022-05-09 11:40:17.999383",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",
