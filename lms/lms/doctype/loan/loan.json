@@ -19,6 +19,7 @@
   "customer",
   "customer_name",
   "allowable_ltv",
+  "actual_drawing_power",
   "expiry_date",
   "loan_agreement",
   "margin_shortfall_amount",
@@ -246,11 +247,17 @@
    "label": "Scheme Type",
    "options": "\nEquity\nDebt",
    "read_only": 1
+  },
+  {
+   "fieldname": "actual_drawing_power",
+   "fieldtype": "Currency",
+   "label": "Actual Drawing Power",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-15 16:30:17.241340",
+ "modified": "2022-05-05 22:41:38.778896",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

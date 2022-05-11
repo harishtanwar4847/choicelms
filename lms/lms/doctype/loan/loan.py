@@ -343,14 +343,25 @@ class Loan(Document):
         # for Drawing power Calculation
         for i in self.items:
             i.amount = i.price * i.pledged_quantity
-            dp = i.eligible_percentage * i.amount
+            dp = (i.eligible_percentage / 100) * i.amount
+            i.eligible_amount = dp
             self.total_collateral_value += i.amount
             drawing_power += dp
+
+        drawing_power = round(
+            drawing_power,
+            2,
+        )
 
         self.drawing_power = (
             drawing_power
             if drawing_power <= self.sanctioned_limit
             else self.sanctioned_limit
+        )
+        # Updating actual drawing power
+        self.actual_drawing_power = round(
+            lms.round_down_amount_to_nearest_thousand(drawing_power),
+            2,
         )
 
     def get_collateral_list(
@@ -1728,17 +1739,22 @@ class Loan(Document):
             frappe.db.commit()
 
     def max_unpledge_amount(self):
-        minimum_collateral_value = (100 / self.allowable_ltv) * self.balance
-        maximum_unpledge_amount = self.total_collateral_value - minimum_collateral_value
+        if self.instrument_type == "Shares":
+            minimum_collateral_value = (100 / self.allowable_ltv) * self.balance
+            maximum_unpledge_amount = (
+                self.total_collateral_value - minimum_collateral_value
+            )
 
-        return {
-            "minimum_collateral_value": round(minimum_collateral_value, 2)
-            if minimum_collateral_value > 0
-            else 0.0,
-            "maximum_unpledge_amount": round(maximum_unpledge_amount, 2)
-            if maximum_unpledge_amount > 0
-            else 0.0,
-        }
+            return {
+                "minimum_collateral_value": round(minimum_collateral_value, 2)
+                if minimum_collateral_value > 0
+                else 0.0,
+                "maximum_unpledge_amount": round(maximum_unpledge_amount, 2)
+                if maximum_unpledge_amount > 0
+                else 0.0,
+            }
+        else:
+            return {}
 
     def update_pending_sell_collateral_amount(self):
         all_pending_sell_collateral_applications = frappe.get_all(

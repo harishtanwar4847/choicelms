@@ -406,10 +406,21 @@ class LoanApplication(Document):
                         pledge_securities = 1
                     self.workflow_state = "Pledge executed"
                     self.total_collateral_value = round(total_collateral_value, 2)
-                    self.drawing_power = round(
-                        lms.round_down_amount_to_nearest_thousand(
-                            (self.allowable_ltv / 100) * self.total_collateral_value
-                        ),
+                    # self.drawing_power = round(
+                    #     lms.round_down_amount_to_nearest_thousand(
+                    #         (self.allowable_ltv / 100) * self.total_collateral_value
+                    #     ),
+                    #     2,
+                    # )
+                    drawing_power = 0
+                    for i in self.items:
+                        i.amount = i.price * i.pledged_quantity
+                        dp = (i.eligible_percentage / 100) * i.amount
+                        # self.total_collateral_value += i.amount
+                        drawing_power += dp
+
+                    drawing_power = round(
+                        lms.round_down_amount_to_nearest_thousand(drawing_power),
                         2,
                     )
 
@@ -493,17 +504,31 @@ class LoanApplication(Document):
 
             # TODO : manage loan application and its item's as per lender approval
             self.total_collateral_value = round(total_collateral_value, 2)
+            # drawing_power = round(
+            #     lms.round_down_amount_to_nearest_thousand(
+            #         (self.allowable_ltv / 100) * self.total_collateral_value
+            #     ),
+            #     2,
+            # )
+            drawing_power = 0
+            for i in self.items:
+                i.amount = i.price * i.pledged_quantity
+                dp = (i.eligible_percentage / 100) * i.amount
+                # self.total_collateral_value += i.amount
+                drawing_power += dp
+
             drawing_power = round(
-                lms.round_down_amount_to_nearest_thousand(
-                    (self.allowable_ltv / 100) * self.total_collateral_value
-                ),
+                lms.round_down_amount_to_nearest_thousand(drawing_power),
                 2,
             )
+
             self.drawing_power = (
                 drawing_power
                 if drawing_power < self.maximum_sanctioned_limit
                 else self.maximum_sanctioned_limit
             )
+            # Updating actual drawing power
+            self.actual_drawing_power = drawing_power
 
             # TODO : if increase loan drawing power is less than 10k the loan application wont be proceed
             loan_total_collateral_value = 0
@@ -513,11 +538,22 @@ class LoanApplication(Document):
                 ).total_collateral_value
 
             # Use increased sanctioned limit field for this validation
+            # drawing_power = round(
+            #     lms.round_down_amount_to_nearest_thousand(
+            #         (self.total_collateral_value + loan_total_collateral_value)
+            #         * (self.allowable_ltv / 100)
+            #     ),
+            #     2,
+            # )
+            drawing_power = 0
+            for i in self.items:
+                i.amount = i.price * i.pledged_quantity
+                dp = (i.eligible_percentage / 100) * i.amount
+                # self.total_collateral_value += i.amount
+                drawing_power += dp
+
             drawing_power = round(
-                lms.round_down_amount_to_nearest_thousand(
-                    (self.total_collateral_value + loan_total_collateral_value)
-                    * (self.allowable_ltv / 100)
-                ),
+                lms.round_down_amount_to_nearest_thousand(drawing_power),
                 2,
             )
 
@@ -537,10 +573,21 @@ class LoanApplication(Document):
                     ):
                         total_collateral_value += i.amount
                         self.total_collateral_value = round(total_collateral_value, 2)
+                        # drawing_power = round(
+                        #     lms.round_down_amount_to_nearest_thousand(
+                        #         (self.allowable_ltv / 100) * self.total_collateral_value
+                        #     ),
+                        #     2,
+                        # )
+                        drawing_power = 0
+                        for i in self.items:
+                            i.amount = i.price * i.pledged_quantity
+                            dp = (i.eligible_percentage / 100) * i.amount
+                            # self.total_collateral_value += i.amount
+                            drawing_power += dp
+
                         drawing_power = round(
-                            lms.round_down_amount_to_nearest_thousand(
-                                (self.allowable_ltv / 100) * self.total_collateral_value
-                            ),
+                            lms.round_down_amount_to_nearest_thousand(drawing_power),
                             2,
                         )
                         self.drawing_power = (
@@ -904,7 +951,9 @@ class LoanApplication(Document):
         loan.update_items()
         loan.fill_items()
 
-        loan.drawing_power = (loan.allowable_ltv / 100) * loan.total_collateral_value
+        loan.drawing_power = (
+            loan.allowable_ltv / 100
+        ) * loan.total_collateral_value  # can be altered later for MF
         loan.save(ignore_permissions=True)
 
         if self.application_type == "Increase Loan":
@@ -1561,11 +1610,22 @@ def check_for_pledge(loan_application_doc):
     loan_application_doc.total_collateral_value = round(
         loan_application_doc.total_collateral_value, 2
     )
+    # loan_application_doc.drawing_power = round(
+    #     lms.round_down_amount_to_nearest_thousand(
+    #         (loan_application_doc.allowable_ltv / 100)
+    #         * loan_application_doc.total_collateral_value
+    #     ),
+    #     2,
+    # )
+    drawing_power = 0
+    for i in loan_application_doc.items:
+        i.amount = i.price * i.pledged_quantity
+        dp = (i.eligible_percentage / 100) * i.amount
+        # loan_application_doc.total_collateral_value += i.amount
+        drawing_power += dp
+
     loan_application_doc.drawing_power = round(
-        lms.round_down_amount_to_nearest_thousand(
-            (loan_application_doc.allowable_ltv / 100)
-            * loan_application_doc.total_collateral_value
-        ),
+        lms.round_down_amount_to_nearest_thousand(drawing_power),
         2,
     )
 
@@ -1652,13 +1712,25 @@ def actions_on_isin(loan_application):
                 ):
                     total_collateral_value += i["amount"]
                     total_collateral_value = round(total_collateral_value, 2)
+                    # drawing_power = round(
+                    #     lms.round_down_amount_to_nearest_thousand(
+                    #         (loan_application["allowable_ltv"] / 100)
+                    #         * total_collateral_value
+                    #     ),
+                    #     2,
+                    # )
+                    drawing_power = 0
+                    for i in loan_application.items:
+                        i.amount = i.price * i.pledged_quantity
+                        dp = (i.eligible_percentage / 100) * i.amount
+                        # total_collateral_value += i.amount
+                        drawing_power += dp
+
                     drawing_power = round(
-                        lms.round_down_amount_to_nearest_thousand(
-                            (loan_application["allowable_ltv"] / 100)
-                            * total_collateral_value
-                        ),
+                        lms.round_down_amount_to_nearest_thousand(drawing_power),
                         2,
                     )
+
                 # elif (
                 #     i["lender_approval_status"] == "Rejected"
                 #     or i["lender_approval_status"] == "Pledge Failure"
