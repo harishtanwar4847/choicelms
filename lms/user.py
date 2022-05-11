@@ -606,7 +606,7 @@ def securities_old_1(**kwargs):
 
 
 @frappe.whitelist()
-def securities_old(**kwargs):
+def securities(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
@@ -953,7 +953,7 @@ def securities_old(**kwargs):
 
 
 @frappe.whitelist()
-def securities(**kwargs):
+def securities_new(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
