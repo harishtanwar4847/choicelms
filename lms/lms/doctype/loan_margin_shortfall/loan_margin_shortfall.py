@@ -46,14 +46,12 @@ class LoanMarginShortfall(Document):
             self.minimum_collateral_value = (
                 100 / self.allowable_ltv
             ) * self.loan_balance
-        else:
-            return {}
 
-        self.shortfall = math.ceil(
-            (self.minimum_collateral_value - self.total_collateral_value)
-            if self.loan_balance > self.drawing_power
-            else 0
-        )
+            self.shortfall = math.ceil(
+                (self.minimum_collateral_value - self.total_collateral_value)
+                if self.loan_balance > self.drawing_power
+                else 0
+            )
         self.shortfall_c = math.ceil(
             ((self.loan_balance - self.drawing_power) * 2)
             if self.loan_balance > self.drawing_power
