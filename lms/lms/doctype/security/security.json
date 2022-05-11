@@ -27,7 +27,7 @@
   },
   {
    "fieldname": "security_name",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
    "label": "Security/Scheme Name"
   },
@@ -75,7 +75,7 @@
   }
  ],
  "links": [],
- "modified": "2022-04-28 12:58:20.957004",
+ "modified": "2022-05-11 12:24:20.937652",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security",
