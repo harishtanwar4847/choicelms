@@ -343,7 +343,7 @@ class Loan(Document):
         # for Drawing power Calculation
         for i in self.items:
             i.amount = i.price * i.pledged_quantity
-            dp = i.eligible_percentage * i.amount
+            dp = (i.eligible_percentage / 100) * i.amount
             self.total_collateral_value += i.amount
             drawing_power += dp
 

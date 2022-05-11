@@ -13,6 +13,7 @@
   "price",
   "amount",
   "eligible_percentage",
+  "eligible_amount",
   "column_break_8",
   "prf_number",
   "pledge_status",
@@ -22,8 +23,7 @@
   "folio",
   "amc_code",
   "amc_name",
-  "scheme_code",
-  "eligible_amount"
+  "scheme_code"
  ],
  "fields": [
   {
@@ -153,23 +153,23 @@
    "fieldtype": "Float",
    "label": "Requested Quantity/Unit",
    "read_only": 1
-},
-{
- "fieldname": "eligible_percentage",
- "fieldtype": "Float",
- "label": "Eligible Percentage",
- "read_only": 1
-},
-{
- "fieldname": "eligible_amount",
- "fieldtype": "Currency",
- "label": "Eligible Amount",
- "read_only": 1
+  },
+  {
+   "fieldname": "eligible_percentage",
+   "fieldtype": "Float",
+   "label": "Eligible Percentage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "eligible_amount",
+   "fieldtype": "Currency",
+   "label": "Eligible Amount",
+   "read_only": 1
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-05-06 14:32:52.124749",
+ "modified": "2022-05-10 16:36:56.631596",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application Item",

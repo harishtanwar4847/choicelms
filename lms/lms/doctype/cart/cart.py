@@ -57,7 +57,6 @@ class Cart(Document):
             return f.read()
 
     def create_loan_application(self):
-        print(self.eligible_loan)
         if self.is_processed:
             return
 

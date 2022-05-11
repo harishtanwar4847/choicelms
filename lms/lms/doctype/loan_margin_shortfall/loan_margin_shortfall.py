@@ -61,7 +61,10 @@ class LoanMarginShortfall(Document):
 
         self.minimum_pledge_amount = self.shortfall_c
         self.advisable_pledge_amount = self.minimum_pledge_amount * 1.1
-        self.minimum_cash_amount = (self.allowable_ltv / 100) * self.shortfall_c
+        if self.instrument_type == "Mutual Fund":
+            self.minimum_cash_amount = self.loan_balance - self.drawing_power
+        else:
+            self.minimum_cash_amount = (self.allowable_ltv / 100) * self.shortfall_c
         self.advisable_cash_amount = self.minimum_cash_amount * 1.1
 
         self.set_shortfall_action()
