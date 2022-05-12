@@ -333,25 +333,26 @@ class Loan(Document):
     def fill_items(self):
         self.total_collateral_value = 0
         drawing_power = 0
-        # for i in self.items:
-        #     i.amount = i.price * i.pledged_quantity
-        #     self.total_collateral_value += i.amount
+        if self.instrument_type == "Shares":
+            for i in self.items:
+                i.amount = i.price * i.pledged_quantity
+                self.total_collateral_value += i.amount
 
-        # drawing_power = round(
-        #     (self.total_collateral_value * (self.allowable_ltv / 100)), 2
-        # )
-        # for Drawing power Calculation
-        for i in self.items:
-            i.amount = i.price * i.pledged_quantity
-            dp = (i.eligible_percentage / 100) * i.amount
-            i.eligible_amount = dp
-            self.total_collateral_value += i.amount
-            drawing_power += dp
+            drawing_power = round(
+                (self.total_collateral_value * (self.allowable_ltv / 100)), 2
+            )
+        else:  # for Drawing power Calculation
+            for i in self.items:
+                i.amount = i.price * i.pledged_quantity
+                dp = (i.eligible_percentage / 100) * i.amount
+                i.eligible_amount = dp
+                self.total_collateral_value += i.amount
+                drawing_power += dp
 
-        drawing_power = round(
-            drawing_power,
-            2,
-        )
+            drawing_power = round(
+                drawing_power,
+                2,
+            )
 
         self.drawing_power = (
             drawing_power
