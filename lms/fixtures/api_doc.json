@@ -2909,7 +2909,7 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2022-04-29 11:57:38.888057",
+  "modified": "2022-05-05 17:12:49.609901",
   "name": "945ae148f4",
   "parameters": [
    {
@@ -2964,7 +2964,7 @@
     "type": "String"
    },
    {
-    "default_value": "\"\"",
+    "default_value": "",
     "description": "Data Object",
     "field": "data",
     "group": null,
@@ -3334,7 +3334,7 @@
     "type": "Integer"
    },
    {
-    "default_value": "\"\"",
+    "default_value": "",
     "description": "Lien Marking redirection URL",
     "field": "data.mycam_url",
     "group": null,
@@ -15957,10 +15957,18 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2022-05-02 15:52:45.017691",
+  "modified": "2022-05-05 17:10:34.768249",
   "name": "a9833aedae",
   "parameters": [],
-  "parameters_example": [],
+  "parameters_example": [
+   {
+    "example": "{}",
+    "parent": "a9833aedae",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
   "parent": null,
   "parentfield": null,
   "parenttype": null,

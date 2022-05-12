@@ -141,16 +141,6 @@ def upsert(**kwargs):
 
         for security in data.get("securities")["list"]:
             security["quantity"] = round(security["quantity"], 3)
-            # quantity_split_list = str(security["quantity"]).split(".")
-            # if len(quantity_split_list) > 1 and len(quantity_split_list[-1]) > 3:
-            #     return utils.respondWithFailure(
-            #         status=422,
-            #         message=frappe._(
-            #             "Unit of {} should be in 3 digit precision.".format(
-            #                 security["isin"]
-            #             )
-            #         ),
-            #     )
 
         if not data.get("instrument_type"):
             data["instrument_type"] = "Shares"
@@ -248,14 +238,6 @@ def upsert(**kwargs):
                             loan.name
                         ),
                     )
-        # instrument_type = "Shares"
-        # scheme_type = ""
-        # if data.get("instrument_type") == "Mutual Fund":
-        #     instrument_type = "Mutual Fund"
-        #     if data.get("scheme_type") == "Equity":
-        #         scheme_type = "Equity"
-        #     elif data.get("scheme_type") == "Debt":
-        #         scheme_type = "Debt"
 
         if not data.get("cart_name", None):
             cart = frappe.get_doc(
@@ -810,18 +792,7 @@ def get_tnc(**kwargs):
                     )
                     + "</li>"
                 )
-            # tnc_ul.append(
-            #     "<li><strong> New Enhanced Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
-            #         lms.round_down_amount_to_nearest_thousand(
-            #             (cart.total_collateral_value + loan.total_collateral_value)
-            #             * cart.allowable_ltv
-            #             / 100
-            #         )
-            #     )
-            #     + "</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Previous Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong>;".format(loan.drawing_power)+ "</li>")
+
         else:
             tnc_ul.append(
                 "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}/-</strong> (Rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
@@ -922,11 +893,7 @@ def get_tnc(**kwargs):
                 )
                 + "</li>"
             )
-        # tnc_ul.append(
-        #     "<li><strong> Stamp duty & other statutory charges : Rs. {}/-;</li></strong>".format(
-        #         int(lender.lender_stamp_duty_minimum_amount)
-        #     )
-        # )
+
         tnc_ul.append(
             "<li><strong> Stamp duty & other statutory charges : At actuals;</li></strong>"
         )
@@ -1057,16 +1024,6 @@ def get_tnc(**kwargs):
         }
 
         for tnc in frappe.get_list("Terms and Conditions", filters={"is_active": 1}):
-            # if data.get("loan_name"):
-            #     top_up_approved_tnc = {
-            #         "doctype": "Top up Application",
-            #         "docname": data.get("loan_name"),
-            #         "mobile": user.username,
-            #         "tnc": tnc.name,
-            #         "time": frappe.utils.now_datetime(),
-            #     }
-            #     ApprovedTermsandConditions.create_entry(**top_up_approved_tnc)
-            #     frappe.db.commit()
             if data.get("cart_name"):
                 cart_approved_tnc = {
                     "doctype": "Cart",
