@@ -236,11 +236,15 @@ def update_scheme_nav(schemes_list):
                     "Administrator",
                     "Administrator",
                 )
-                lms.create_log(log, "schemes__success_log")
+                lms.create_log(log, "schemes_nav_update_success_log")
             else:
-                lms.create_log(log, "schemes__failure_log")
+                lms.create_log(log, "schemes_nav_update_failure_log")
         except (RequestException, Exception) as e:
-            frappe.log_error()
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\n\nScheme details-\n{}".format(str(scheme)),
+                title="Update scheme nav error",
+            )
 
     if len(values_dict) > 0:
         # bulk insert

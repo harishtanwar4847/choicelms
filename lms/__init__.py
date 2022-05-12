@@ -1501,11 +1501,6 @@ def loan_payment_log_permission_query(user):
             )
 
 
-def update_security_category(name):
-    category = frappe.get_doc("Security Category", name).category_name
-    return category
-
-
 @frappe.whitelist(allow_guest=True)
 def decrypt_lien_marking_response():
     try:

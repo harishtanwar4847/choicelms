@@ -505,9 +505,13 @@ import requests
 @frappe.whitelist()
 def validate_invoc(sell_collateral_application_name):
     try:
-        sell_collateral_application_doc = frappe.get_doc(
-            "Sell Collateral Application", sell_collateral_application_name
-        )
+        print(sell_collateral_application_name, "sell_collateral_application_name")
+        try:
+            sell_collateral_application_doc = frappe.get_doc(
+                "Sell Collateral Application", sell_collateral_application_name
+            )
+        except frappe.DoesNotExistError as e:
+            raise utils.exceptions.APIException(str(e))
         collateral_ledger = frappe.get_last_doc(
             "Collateral Ledger", filters={"loan": sell_collateral_application_doc.loan}
         )
@@ -629,19 +633,22 @@ def validate_invoc(sell_collateral_application_name):
             frappe.throw(frappe._("Mycams Email ID is missing"))
     except utils.exceptions.APIException as e:
         frappe.log_error(
-            title="Invocation - Initiate - Error",
+            title="Invocation - Validate - Error",
             message=frappe.get_traceback()
-            + "\n\nInvocation - Initiate - Error: "
-            + str(e.args),
+            + "\n\nInvocation - Validate Details:\n"
+            + str(sell_collateral_application_name),
         )
 
 
 @frappe.whitelist()
 def initiate_invoc(sell_collateral_application_name):
     try:
-        sell_collateral_application_doc = frappe.get_doc(
-            "Sell Collateral Application", sell_collateral_application_name
-        )
+        try:
+            sell_collateral_application_doc = frappe.get_doc(
+                "Sell Collateral Application", sell_collateral_application_name
+            )
+        except frappe.DoesNotExistError as e:
+            raise utils.exceptions.APIException(str(e))
         collateral_ledger = frappe.get_last_doc(
             "Collateral Ledger", filters={"loan": sell_collateral_application_doc.loan}
         )
@@ -767,6 +774,6 @@ def initiate_invoc(sell_collateral_application_name):
         frappe.log_error(
             title="Invocation - Initiate - Error",
             message=frappe.get_traceback()
-            + "\n\nInvocation - Initiate - Error: "
-            + str(e.args),
+            + "\n\nInvocation - Initiate Details:\n"
+            + str(sell_collateral_application_name),
         )

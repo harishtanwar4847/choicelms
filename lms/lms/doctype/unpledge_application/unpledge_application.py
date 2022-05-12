@@ -383,9 +383,12 @@ import requests
 @frappe.whitelist()
 def validate_revoc(unpledge_application_name):
     try:
-        unpledge_application_doc = frappe.get_doc(
-            "Unpledge Application", unpledge_application_name
-        )
+        try:
+            unpledge_application_doc = frappe.get_doc(
+                "Unpledge Application", unpledge_application_name
+            )
+        except frappe.DoesNotExistError as e:
+            raise utils.exceptions.APIException(str(e))
         collateral_ledger = frappe.get_last_doc(
             "Collateral Ledger", filters={"loan": unpledge_application_doc.loan}
         )
@@ -506,17 +509,20 @@ def validate_revoc(unpledge_application_name):
         frappe.log_error(
             title="Revocation - Validate - Error",
             message=frappe.get_traceback()
-            + "\n\nRevocation - Validate - Error: "
-            + str(e.args),
+            + "\n\nRevocation - Validate Details:\n"
+            + str(unpledge_application_name),
         )
 
 
 @frappe.whitelist()
 def initiate_revoc(unpledge_application_name):
     try:
-        unpledge_application_doc = frappe.get_doc(
-            "Unpledge Application", unpledge_application_name
-        )
+        try:
+            unpledge_application_doc = frappe.get_doc(
+                "Unpledge Application", unpledge_application_name
+            )
+        except frappe.DoesNotExistError as e:
+            raise utils.exceptions.APIException(str(e))
         collateral_ledger = frappe.get_last_doc(
             "Collateral Ledger", filters={"loan": unpledge_application_doc.loan}
         )
@@ -652,6 +658,6 @@ def initiate_revoc(unpledge_application_name):
         frappe.log_error(
             title="Revocation - Initiate - Error",
             message=frappe.get_traceback()
-            + "\n\nRevocation - Initiate - Error: "
-            + str(e.args),
+            + "\n\nRevocation - Initiate Details:\n"
+            + str(unpledge_application_name),
         )
