@@ -1621,7 +1621,7 @@ def check_for_pledge(loan_application_doc):
     loan_application_doc.total_collateral_value = round(
         loan_application_doc.total_collateral_value, 2
     )
-    if self.instrument_type == "Shares":
+    if loan_application_doc.instrument_type == "Shares":
         loan_application_doc.drawing_power = round(
             lms.round_down_amount_to_nearest_thousand(
                 (loan_application_doc.allowable_ltv / 100)
