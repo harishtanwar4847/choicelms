@@ -24,10 +24,6 @@ class Lender(Document):
         return frappe.get_doc("File", file_name)
 
     def validate_concentration_rule(self):
-        # if len(self.concentration_rule) > 10 :
-        #         frappe.throw(
-        #         _("Only 10 rows allowed.")
-        #     )
         for i in self.concentration_rule:
             if i.idx > 1:
                 if (
