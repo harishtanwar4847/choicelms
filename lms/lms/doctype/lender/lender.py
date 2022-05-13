@@ -17,6 +17,11 @@ class Lender(Document):
         file_name = frappe.db.get_value("File", {"file_url": self.agreement_template})
         return frappe.get_doc("File", file_name)
 
+    # def before_save(self):
+    #     security_category = [i.security_category for i in self.concentration_rule]
+    #     if len(security_category) > len(set(security_category)):
+    #         frappe.throw('labels can not have duplicates')
+
     def get_loan_enhancement_agreement_template(self):
         file_name = frappe.db.get_value(
             "File", {"file_url": self.enhancement_agreement_template}
@@ -25,14 +30,17 @@ class Lender(Document):
 
     def validate_concentration_rule(self):
         for i in self.concentration_rule:
-            if i.idx > 1:
-                if (
-                    self.concentration_rule[i.idx - 1].security_category
-                    == self.concentration_rule[i.idx - 2].security_category
-                ):
-                    frappe.throw(
-                        "Level " + str(i.idx) + ": Same Security Category can't be use"
-                    )
+            # if i.idx > 1:
+            #     if (
+            #         self.concentration_rule[i.idx - 1].security_category
+            #         == self.concentration_rule[i.idx - 2].security_category
+            #     ):
+            #         frappe.throw(
+            #             "Level " + str(i.idx) + ": Same Security Category can't be use"
+            #         )
+            security_category = [i.security_category for i in self.concentration_rule]
+            if len(security_category) > len(set(security_category)):
+                frappe.throw("Same Security Category can't be use")
             if (
                 i.single_scrip_numerical_limit != None
                 and i.single_scrip_percentage_limit != None
