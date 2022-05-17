@@ -1318,7 +1318,7 @@ def schemes(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {"scheme_type": "required", "lender": "", "level": ""},
+            {"scheme_type": "", "lender": "", "level": ""},
         )
 
         reg = lms.regex_special_characters(
@@ -1339,17 +1339,23 @@ def schemes(**kwargs):
                 status=422,
                 message=frappe._("Scheme type should be either Equity or Debt."),
             )
+        if not data.get("lender", None):
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Atleast one lender required"),
+            )
+        else:
+            lender_list = data.get("lender").split(",")
 
         if not data.get("level"):
-            data["level"] = []
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Atleast one level required"),
+            )
+            # data["level"] = []
 
         if isinstance(data.get("level"), str):
             data["level"] = data.get("level").split(",")
-
-        if not data.get("lender", None):
-            lender_list = frappe.db.get_list("Lender", pluck="name")
-        else:
-            lender_list = data.get("lender").split(",")
 
         scheme = ""
         lender = ""
