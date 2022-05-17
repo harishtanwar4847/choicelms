@@ -24,19 +24,19 @@ class Lender(Document):
         return frappe.get_doc("File", file_name)
 
     def validate_concentration_rule(self):
-        # if len(self.concentration_rule) > 10 :
-        #         frappe.throw(
-        #         _("Only 10 rows allowed.")
-        #     )
+        security_category = [i.security_category for i in self.concentration_rule]
+        if len(security_category) > len(set(security_category)):
+            frappe.throw("Same Security Category can't be use")
         for i in self.concentration_rule:
-            if i.idx > 1:
-                if (
-                    self.concentration_rule[i.idx - 1].security_category
-                    == self.concentration_rule[i.idx - 2].security_category
-                ):
-                    frappe.throw(
-                        "Level " + str(i.idx) + ": Same Security Category can't be use"
-                    )
+            # if i.idx > 1:
+            #     if (
+            #         self.concentration_rule[i.idx - 1].security_category
+            #         == self.concentration_rule[i.idx - 2].security_category
+            #     ):
+            #         frappe.throw(
+            #             "Level " + str(i.idx) + ": Same Security Category can't be use"
+            #         )
+
             if (
                 i.single_scrip_numerical_limit != None
                 and i.single_scrip_percentage_limit != None
