@@ -61,17 +61,17 @@ class UnauthorizedException(APIException):
 
 class FailureException(APIException):
     http_status_code = 422
-    message = frappe._("Invalid data")
+    message = frappe._("Something went wrong")
     save_error_log = False
 
 
 class RespondFailureException(APIException):
     http_status_code = 417
-    message = frappe._("Invalid data")
+    message = frappe._("Something went wrong")
     save_error_log = False
 
 
 class RespondWithFailureException(APIException):
     http_status_code = 500
-    message = frappe._("Invalid data")
+    message = frappe._("Something went wrong")
     save_error_log = False

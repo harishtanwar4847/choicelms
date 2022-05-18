@@ -77,17 +77,21 @@ def kyc_old(**kwargs):
         try:
             datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
         except ValueError:
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Incorrect date format, should be DD-MM-YYYY")
             )
 
         reg = lms.regex_special_characters(search=data.get("pan_no"))
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Character not allowed"))
 
         try:
             user_kyc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
@@ -97,8 +101,11 @@ def kyc_old(**kwargs):
         if not user_kyc:
 
             if not data.get("accept_terms"):
-                return utils.respondUnauthorized(
-                    message=frappe._("Please accept Terms and Conditions.")
+                # return utils.respondUnauthorized(
+                #     message=frappe._("Please accept Terms and Conditions.")
+                # )
+                raise lms.exceptions.UnauthorizedException(
+                    _("Please accept Terms and Conditions.")
                 )
 
             user = lms.__user()
@@ -457,8 +464,11 @@ def kyc(**kwargs):
         if not user_kyc_doc:
 
             if not data.get("accept_terms"):
-                return utils.respondUnauthorized(
-                    message=frappe._("Please accept Terms and Conditions.")
+                # return utils.respondUnauthorized(
+                #     message=frappe._("Please accept Terms and Conditions.")
+                # )
+                raise lms.exceptions.UnauthorizedException(
+                    _("Please accept Terms and Conditions.")
                 )
 
             # frappe.db.begin()
@@ -565,10 +575,11 @@ def securities_old_1(**kwargs):
         )
         reg = lms.regex_special_characters(search=data.get("lender"))
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Character not allowed."))
 
         if not data.get("lender", None):
             data["lender"] = frappe.get_last_doc("Lender").name
@@ -988,10 +999,11 @@ def securities_new(**kwargs):
 
         reg = lms.regex_special_characters(search=data.get("lender"))
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         if not data.get("lender", None):
             data["lender"] = frappe.get_last_doc("Lender").name
@@ -1349,15 +1361,19 @@ def schemes(**kwargs):
             else ""
         )
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         if data.get("scheme_type") not in ["Equity", "Debt"]:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Scheme type should be either Equity or Debt."),
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Scheme type should be either Equity or Debt."),
+            # )
+            raise lms.exceptions.FailureException(
+                _("Scheme type should be either Equity or Debt.")
             )
 
         if not data.get("level"):
@@ -1424,10 +1440,11 @@ def isin_details(**kwargs):
 
         reg = lms.regex_special_characters(search=data.get("isin"))
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         isin_details = frappe.db.sql(
             """select als.isin, (select category_name from `tabSecurity Category` where name = als.security_category) as category, l.name, l.minimum_sanctioned_limit, l.maximum_sanctioned_limit, l.rate_of_interest from `tabAllowed Security` als LEFT JOIN `tabLender` l on l.name = als.lender where als.isin='{}'""".format(
@@ -1543,10 +1560,11 @@ def approved_securities_old(**kwargs):
             search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
         )
         if reg or search_reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         if isinstance(data.get("is_download"), str):
             data["is_download"] = int(data.get("is_download"))
@@ -1593,7 +1611,8 @@ def approved_securities_old(**kwargs):
             )
 
             if not approved_security_list:
-                return utils.respondNotFound(message=_("No Record Found"))
+                # return utils.respondNotFound(message=_("No Record Found"))
+                raise lms.exceptions.NotFoundException(_("No Record found"))
 
             lt_list = []
 
@@ -1720,10 +1739,11 @@ def approved_securities(**kwargs):
             search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
         )
         if reg or search_reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         if isinstance(data.get("is_download"), str):
             data["is_download"] = int(data.get("is_download"))
@@ -1733,11 +1753,16 @@ def approved_securities(**kwargs):
             "Mutual Fund - Equity",
             "Mutual Fund - Debt",
         ]:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._(
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._(
+            #         "Loan type should be in Equity, Mutual Fund - Equity, Mutual Fund - Debt."
+            #     ),
+            # )
+            raise lms.exceptions.FailureException(
+                _(
                     "Loan type should be in Equity, Mutual Fund - Equity, Mutual Fund - Debt."
-                ),
+                )
             )
 
         if data.get("loan_type") == "Mutual Fund - Equity":
@@ -1793,7 +1818,8 @@ def approved_securities(**kwargs):
             )
 
             if not approved_security_list:
-                return utils.respondNotFound(message=_("No Record Found"))
+                # return utils.respondNotFound(message=_("No Record Found"))
+                raise lms.exceptions.NotFoundException(_("No Record found"))
 
             lt_list = []
 
@@ -1899,7 +1925,8 @@ def all_loans_list(**kwargs):
 
         customer = lms.__customer()
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         all_loans = frappe.get_all(
             "Loan", filters={"customer": customer.name}, order_by="creation desc"
@@ -1923,10 +1950,12 @@ def my_pledge_securities(**kwargs):
         customer = lms.__customer()
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+
         try:
             if data.get("loan_name"):
                 loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -1939,13 +1968,16 @@ def my_pledge_securities(**kwargs):
                 )
                 loan = frappe.get_doc("Loan", latest_loan[0].name)
         except frappe.DoesNotExistError:
-            return utils.respondNotFound(message=frappe._("Loan not found."))
+            # return utils.respondNotFound(message=frappe._("Loan not found."))
+            raise lms.exceptions.NotFoundException(_("Loan not found"))
 
         if loan.customer != customer.name:
-            return utils.respondForbidden(message=_("Please use your own Loan."))
+            # return utils.respondForbidden(message=_("Please use your own Loan."))
+            raise lms.exceptions.ForbiddenException(_("Please use your own Loan"))
 
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         all_pledged_securities = []
         for i in loan.get("items"):
@@ -2051,7 +2083,8 @@ def dashboard(**kwargs):
 
         customer = lms.__customer()
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         # actionable_loans = []
         # action_loans = []
@@ -2407,7 +2440,8 @@ def weekly_pledged_security_dashboard(**kwargs):
 
         customer = lms.__customer()
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         ## sum_of_all_pledged_securities for 52 weeks
         all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
@@ -2536,21 +2570,27 @@ def get_profile_set_alerts(**kwargs):
             and not data.get("percentage")
             and not data.get("amount")
         ):
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._(
-                    "Please select Amount or Percentage for setting Alerts"
-                ),
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._(
+            #         "Please select Amount or Percentage for setting Alerts"
+            #     ),
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Please select Amount or Percentage for setting Alerts.")
             )
 
         elif (
             data.get("is_for_alerts") and data.get("percentage") and data.get("amount")
         ):
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._(
-                    "Please choose one between Amount or Percentage for setting Alerts"
-                ),
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._(
+            #         "Please choose one between Amount or Percentage for setting Alerts"
+            #     ),
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Please choose one between Amount or Percentage for setting Alerts.")
             )
 
         elif data.get("is_for_alerts") and data.get("percentage"):
@@ -2649,9 +2689,10 @@ def update_profile_pic_and_pin(**kwargs):
             )
 
         elif data.get("is_for_profile_pic") and not data.get("image"):
-            return utils.respondWithFailure(
-                status=417, message=frappe._("Please upload image.")
-            )
+            # return utils.respondWithFailure(
+            #     status=417, message=frappe._("Please upload image.")
+            # )
+            raise lms.exceptions.RespondFailureException(_("Please upload image."))
 
         if (
             data.get("is_for_update_pin")
@@ -2665,9 +2706,10 @@ def update_profile_pic_and_pin(**kwargs):
                     frappe.session.user, data.get("old_pin")
                 )
             except frappe.AuthenticationError:
-                raise utils.respondWithFailure(
-                    status=417, message=frappe._("Invalid current pin")
-                )
+                # raise utils.respondWithFailure(
+                #     status=417, message=frappe._("Invalid current pin")
+                # )
+                raise lms.exceptions.RespondFailureException(_("Invalid current pin."))
 
             if old_pass_check:
                 if data.get("retype_pin") == data.get("new_pin") and data.get(
@@ -2677,14 +2719,20 @@ def update_profile_pic_and_pin(**kwargs):
                     update_password(frappe.session.user, data.get("retype_pin"))
                     frappe.db.commit()
                 elif data.get("old_pin") == data.get("new_pin"):
-                    return utils.respondWithFailure(
-                        status=417,
-                        message=frappe._("New pin cannot be same as old pin"),
+                    # return utils.respondWithFailure(
+                    #     status=417,
+                    #     message=frappe._("New pin cannot be same as old pin"),
+                    # )
+                    raise lms.exceptions.RespondFailureException(
+                        _("New pin cannot be same as old pin.")
                     )
                 else:
-                    return utils.respondWithFailure(
-                        status=417,
-                        message=frappe._("Retyped pin does not match with new pin"),
+                    # return utils.respondWithFailure(
+                    #     status=417,
+                    #     message=frappe._("Retyped pin does not match with new pin"),
+                    # )
+                    raise lms.exceptions.RespondFailureException(
+                        _("Retyped pin does not match with new pin")
                     )
 
             return utils.respondWithSuccess(
@@ -2694,8 +2742,11 @@ def update_profile_pic_and_pin(**kwargs):
         elif data.get("is_for_update_pin") and (
             not data.get("old_pin") or not data.get("new_pin")
         ):
-            return utils.respondWithFailure(
-                status=417, message=frappe._("Please Enter old pin and new pin.")
+            # return utils.respondWithFailure(
+            #     status=417, message=frappe._("Please Enter old pin and new pin.")
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Please Enter old pin and new pin.")
             )
 
     except utils.exceptions.APIException as e:
@@ -2717,10 +2768,11 @@ def contact_us_old(**kwargs):
             search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
         )
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Charaters not allowed."))
 
         if isinstance(data.get("view_more"), str):
             data["view_more"] = int(data.get("view_more"))
@@ -2772,10 +2824,11 @@ def check_eligible_limit(**kwargs):
             search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
         )
         if reg or search_reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Charaters not allowed."))
 
         if not data.get("lender"):
             data["lender"] = frappe.get_last_doc("Lender").name
@@ -2802,7 +2855,8 @@ def check_eligible_limit(**kwargs):
         )
 
         if not eligible_limit_list:
-            return utils.respondNotFound(message=_("No Record Found"))
+            # return utils.respondNotFound(message=_("No Record Found"))
+            raise lms.exceptions.NotFoundException(_("No Record Found"))
 
         # for i in eligible_limit_list:
         #     i["Is_Eligible"] = True
@@ -2862,10 +2916,11 @@ def feedback(**kwargs):
         customer = lms.__customer()
         reg = lms.regex_special_characters(search=data.get("comment"))
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Charaters not allowed."))
 
         if isinstance(data.get("do_not_show_again"), str):
             data["do_not_show_again"] = int(data.get("do_not_show_again"))
@@ -2894,9 +2949,12 @@ def feedback(**kwargs):
             if (data.get("bulls_eye") and data.get("can_do_better")) or (
                 not data.get("bulls_eye") and not data.get("can_do_better")
             ):
-                return utils.respondWithFailure(
-                    status=417,
-                    message=frappe._("Please select atleast one option."),
+                # return utils.respondWithFailure(
+                #     status=417,
+                #     message=frappe._("Please select atleast one option."),
+                # )
+                raise lms.exceptions.RespondFailureException(
+                    _("Please select atleast one option.")
                 )
 
             if (
@@ -2905,15 +2963,21 @@ def feedback(**kwargs):
                 and not data.get("related_to_functionality")
                 and not data.get("others")
             ):
-                return utils.respondWithFailure(
-                    status=417,
-                    message=frappe._("Please select atleast one from below options."),
+                # return utils.respondWithFailure(
+                #     status=417,
+                #     message=frappe._("Please select atleast one from below options."),
+                # )
+                raise lms.exceptions.RespondFailureException(
+                    _("Please select atleast one from below options.")
                 )
 
             # if not data.get("do_not_show_again") or not customer.feedback_submitted:
             if not data.get("comment") or data.get("comment").isspace():
-                return utils.respondWithFailure(
-                    message=frappe._("Please write your suggestion to us.")
+                # return utils.respondWithFailure(
+                #     message=frappe._("Please write your suggestion to us.")
+                # )
+                raise lms.exceptions.RespondWithFailureException(
+                    _("Please write your suggestions to us.")
                 )
 
         number_of_user_login = frappe.get_all(
@@ -2979,9 +3043,13 @@ def feedback(**kwargs):
             )
 
         else:
-            return utils.respondWithFailure(
-                status=417, message=frappe._("Oops something went wrong.")
+            # return utils.respondWithFailure(
+            #     status=417, message=frappe._("Oops something went wrong.")
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Oops something went wrong.")
             )
+
     except utils.exceptions.APIException as e:
         lms.log_api_error()
         return e.respond()
@@ -2999,7 +3067,8 @@ def loan_summary_dashboard(**kwargs):
 
         customer = lms.__customer()
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         mindate = datetime(MINYEAR, 1, 1)
         all_loans = frappe.get_all(
@@ -3345,10 +3414,11 @@ def otp_for_testing(**kwargs):
             "Sell Collateral OTP",
             "Forgot Pin OTP",
         ]:
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._("Incorrect OTP type."),
-            )
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._("Incorrect OTP type."),
+            # )
+            raise lms.exceptions.RespondFailureException(_("Incorrect OTP type."))
 
         customer = lms.__customer()
 
@@ -3368,7 +3438,8 @@ def otp_for_testing(**kwargs):
 
         if not tester:
             # Unauthorized user
-            return utils.respondUnauthorized(message="Unauthorized User")
+            # return utils.respondUnauthorized(message="Unauthorized User")
+            raise lms.exceptions.UnauthorizedException(_("Unauthorized User"))
 
         if tester:
             # Mark old token as Used
@@ -3421,7 +3492,8 @@ def push_notification_list(**kwargs):
 
         customer = lms.__customer()
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         # all_notifications = frappe.get_all(
         #     "Spark Push Notification Log",
@@ -3468,17 +3540,24 @@ def read_or_clear_notifications(**kwargs):
 
         customer = lms.__customer()
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         if data.get("is_for_read") and data.get("is_for_clear"):
-            return utils.respondForbidden(
-                message=_("Can not use both option at once, please use one.")
+            # return utils.respondForbidden(
+            #     message=_("Can not use both option at once, please use one.")
+            # )
+            raise lms.exceptions.ForbiddenException(
+                _("Can not use both option at once, please use one.")
             )
 
         if data.get("is_for_read") and not data.get("notification_name"):
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._("Notification name field empty"),
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._("Notification name field empty"),
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Notification name field empty.")
             )
 
         if data.get("is_for_clear") and not data.get("notification_name"):
@@ -3497,8 +3576,11 @@ def read_or_clear_notifications(**kwargs):
                 "Spark Push Notification Log", data.get("notification_name")
             )
             if fcm_log.loan_customer != customer.name:
-                return utils.respondForbidden(
-                    message=_("Notification doesnt belong to this customer")
+                # return utils.respondForbidden(
+                #     message=_("Notification doesnt belong to this customer")
+                # )
+                raise lms.exceptions.ForbiddenException(
+                    _("Notification doesnt belong to this customer.")
                 )
 
             if data.get("is_for_clear"):
@@ -3507,9 +3589,12 @@ def read_or_clear_notifications(**kwargs):
                     fcm_log.save(ignore_permissions=True)
                     frappe.db.commit()
                 else:
-                    return utils.respondWithFailure(
-                        status=417,
-                        message=frappe._("Notification not found"),
+                    # return utils.respondWithFailure(
+                    #     status=417,
+                    #     message=frappe._("Notification not found"),
+                    # )
+                    raise lms.exceptions.RespondFailureException(
+                        _("Notification not found.")
                     )
             if data.get("is_for_read"):
                 if fcm_log.is_read == 0:
@@ -3539,8 +3624,11 @@ def contact_us(**kwargs):
         #     )
 
         if not data.get("message") or data.get("message").isspace():
-            return utils.respondWithFailure(
-                message=frappe._("Please write your query to us.")
+            # return utils.respondWithFailure(
+            #     message=frappe._("Please write your query to us.")
+            # )
+            raise lms.exceptions.RespondWithFailureException(
+                _("Please write your query to us.")
             )
 
         try:
@@ -3611,7 +3699,8 @@ def spark_demat_account(**kwargs):
 
         customer = lms.__customer()
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         # field alphanumeric validation
         reg = lms.regex_special_characters(
@@ -3619,10 +3708,11 @@ def spark_demat_account(**kwargs):
         )
 
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Charaters not allowed."))
 
         spark_demat_account = frappe.get_doc(
             {
@@ -3653,15 +3743,17 @@ def update_mycams_email(**kwargs):
         )
         customer = lms.__customer()
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         # email validation
         email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
         if re.search(email_regex, data.get("email")) is None:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Please enter valid email ID"),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Please enter valid email ID"),
+            # )
+            raise lms.exceptions.FailureException(_("Please enter valid email ID"))
         customer = lms.__customer()
         customer.mycams_email_id = data.get("email").strip()
         customer.save(ignore_permissions=True)
@@ -3681,20 +3773,22 @@ def get_bank_ifsc_details(**kwargs):
 
         data = utils.validator.validate(kwargs, {"ifsc": ""})
         if not data.get("ifsc"):
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Field is empty"),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Field is empty"),
+            # )
+            raise lms.exceptions.FailureException(_("Field is empty"))
 
         is_alphanumeric = lms.regex_special_characters(
             search=data.get("ifsc"), regex=re.compile("^[a-zA-Z0-9]*$")
         )
 
         if not is_alphanumeric:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Only alphanumeric allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Only alphanumeric allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Only alphanumeric allowed."))
 
         filters_arr = {}
 
@@ -3722,12 +3816,14 @@ def penny_create_contact(**kwargs):
         try:
             user = lms.__user()
         except UserNotFoundException:
-            return utils.respondNotFound(message=frappe._("User not found."))
+            # return utils.respondNotFound(message=frappe._("User not found."))
+            raise lms.exceptions.NotFoundException(_("User not found"))
 
         # check Loan Customer
         customer = lms.__customer(user.name)
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         # fetch rzp key secret from las settings and use Basic auth
         las_settings = frappe.get_single("LAS Settings")
@@ -3736,7 +3832,10 @@ def penny_create_contact(**kwargs):
                 title="Penny Drop Create contact Error",
                 message="Penny Drop Create contact Error - Razorpay Key Secret Missing",
             )
-            return utils.respondWithFailure()
+            # return utils.respondWithFailure()
+            raise lms.exceptions.FailureException(
+                _("Penny Drop Create contact Error - Razorpay Key Secret Missing")
+            )
 
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
             bytes(las_settings.razorpay_key_secret, "utf-8")
@@ -3767,14 +3866,18 @@ def penny_create_contact(**kwargs):
                     "response": data_res.get("error"),
                 }
                 lms.create_log(log, "rzp_penny_contact_error_log")
-                return utils.respondWithFailure(message=frappe._("failed"))
+                # return utils.respondWithFailure(message=frappe._("failed"))
+                raise lms.exceptions.RespondWithFailureException(_("failed"))
 
             # User KYC save
             """since CKYC development not done yet, using existing user kyc to update contact ID"""
             try:
                 user_kyc = lms.__user_kyc(user.name)
             except UserKYCNotFoundException:
-                return utils.respondWithFailure(message=frappe._("User KYC not found"))
+                # return utils.respondWithFailure(message=frappe._("User KYC not found"))
+                raise lms.exceptions.RespondWithFailureException(
+                    _("User KYC not found")
+                )
 
             # update contact ID
             user_kyc.razorpay_contact_id = data_res.get("id")
@@ -3814,16 +3917,18 @@ def penny_create_fund_account(**kwargs):
             search=data.get("account_holder_name") + data.get("ifsc")
         )
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         # check user
         try:
             user = lms.__user()
         except UserNotFoundException:
-            return utils.respondNotFound(message=frappe._("User not found."))
+            # return utils.respondNotFound(message=frappe._("User not found."))
+            raise lms.exceptions.NotFoundException(_("User not found"))
 
         # fetch rzp key secret from las settings and use Basic auth
         las_settings = frappe.get_single("LAS Settings")
@@ -3832,7 +3937,10 @@ def penny_create_fund_account(**kwargs):
                 title="Penny Drop Fund Account Error",
                 message="Penny Drop Fund Account Error - Razorpay Key Secret Missing",
             )
-            return utils.respondWithFailure()
+            # return utils.respondWithFailure()
+            raise lms.exceptions.RespondWithFailureException(
+                _("Penny Drop Fund Account Error - Razorpay Key Secret Missing")
+            )
 
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
             bytes(las_settings.razorpay_key_secret, "utf-8")
@@ -3841,7 +3949,8 @@ def penny_create_fund_account(**kwargs):
         try:
             user_kyc = lms.__user_kyc(user.name)
         except UserKYCNotFoundException:
-            return utils.respondWithFailure(message=frappe._("User KYC not found"))
+            # return utils.respondWithFailure(message=frappe._("User KYC not found"))
+            raise lms.exceptions.RespondWithFailureException(_("User KYC not found"))
 
         try:
             data_rzp = {
@@ -3869,7 +3978,8 @@ def penny_create_fund_account(**kwargs):
                     "response": data_res.get("error"),
                 }
                 lms.create_log(log, "rzp_penny_fund_account_error_log")
-                return utils.respondWithFailure(message=frappe._("failed"))
+                # return utils.respondWithFailure(message=frappe._("failed"))
+                raise lms.exceptions.RespondWithFailureException(_("failed"))
             # if not get error
             data_resp = {"fa_id": data_res.get("id")}
             lms.create_log(data_res, "rzp_penny_fund_account_success_log")
@@ -3905,18 +4015,21 @@ def penny_create_fund_account_validation(**kwargs):
         try:
             user = lms.__user()
         except UserNotFoundException:
-            return utils.respondNotFound(message=frappe._("User not found."))
+            # return utils.respondNotFound(message=frappe._("User not found."))
+            raise lms.exceptions.NotFoundException(_("User not found"))
 
         # check Loan Customer
         customer = lms.__customer(user.name)
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         # user KYC
         try:
             user_kyc = lms.__user_kyc(user.name)
         except UserKYCNotFoundException:
-            return utils.respondWithFailure(message=frappe._("User KYC not found"))
+            # return utils.respondWithFailure(message=frappe._("User KYC not found"))
+            raise lms.exceptions.RespondWithFailureException(_("User KYC not found"))
 
         # fetch rzp key secret from las settings and use Basic auth
         las_settings = frappe.get_single("LAS Settings")
@@ -3925,14 +4038,16 @@ def penny_create_fund_account_validation(**kwargs):
                 title="Penny Drop Fund Account Validation Error",
                 message="Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing",
             )
-            return utils.respondWithFailure()
+            # return utils.respondWithFailure()
+            raise lms.exceptions.RespondWithFailureException()
 
         if not las_settings.razorpay_bank_account:
             frappe.log_error(
                 title="Penny Drop Fund Account Validation Error",
                 message="Penny Drop Fund Account Validation Error - Razorpay Bank Account Missing",
             )
-            return utils.respondWithFailure()
+            # return utils.respondWithFailure()
+            raise lms.exceptions.RespondWithFailureException()
 
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
             bytes(las_settings.razorpay_key_secret, "utf-8")
@@ -3985,18 +4100,21 @@ def penny_create_fund_account_validation_by_id(**kwargs):
         try:
             user = lms.__user()
         except UserNotFoundException:
-            return utils.respondNotFound(message=frappe._("User not found."))
+            # return utils.respondNotFound(message=frappe._("User not found."))
+            raise lms.exceptions.NotFoundException(_("User not found"))
 
         # check Loan Customer
         customer = lms.__customer(user.name)
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         # user KYC
         try:
             user_kyc = lms.__user_kyc(user.name)
         except UserKYCNotFoundException:
-            return utils.respondWithFailure(message=frappe._("User KYC not found"))
+            # return utils.respondWithFailure(message=frappe._("User KYC not found"))
+            raise lms.exceptions.RespondWithFailureException(_("User KYC not found"))
 
         # fetch rzp key secret from las settings and use Basic auth
         las_settings = frappe.get_single("LAS Settings")
@@ -4005,7 +4123,8 @@ def penny_create_fund_account_validation_by_id(**kwargs):
                 title="Penny Drop Fund Account Validation Error",
                 message="Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing",
             )
-            return utils.respondWithFailure()
+            # return utils.respondWithFailure()
+            raise lms.exceptions.RespondWithFailureException()
 
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
             bytes(las_settings.razorpay_key_secret, "utf-8")
@@ -4052,11 +4171,13 @@ def penny_api_response_handle(data, user_kyc, customer, data_res):
             "response": data_res,
         }
         lms.create_log(log, "rzp_penny_fund_account_validation_error_log")
-        return utils.respondWithFailure(message=message, data=data_resp)
+        # return utils.respondWithFailure(message=message, data=data_resp)
+        raise lms.exceptions.RespondWithFailureException(message, data_resp)
 
     if data_res.get("status") == "failed":
         message = "Your account details have not been successfully verified"
-        return utils.respondWithFailure(message=message, data=data_resp)
+        # return utils.respondWithFailure(message=message, data=data_resp)
+        raise lms.exceptions.RespondWithFailureException(message, data_resp)
 
     if data_res.get("status") == "created":
         message = "waiting for response from bank"
@@ -4125,7 +4246,8 @@ def penny_api_response_handle(data, user_kyc, customer, data_res):
         else:
             data_resp["status"] = "failed"
             message = "We have found a mismatch in the account holder name as per the fetched data"
-            return utils.respondWithFailure(message=message, data=data_resp)
+            # return utils.respondWithFailure(message=message, data=data_resp)
+            raise lms.exceptions.RespondWithFailureException(message, data_resp)
 
     lms.create_log(data_res, "rzp_penny_fund_account_validation_success_log")
     return utils.respondWithSuccess(message=message, data=data_resp)

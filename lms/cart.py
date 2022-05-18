@@ -213,8 +213,11 @@ def upsert(**kwargs):
                         "Loan Margin Shortfall", data.get("loan_margin_shortfall_name")
                     )
                 except frappe.DoesNotExistError:
-                    raise utils.respondNotFound(
-                        message=frappe._("Loan Margin Shortfall not found.")
+                    # raise utils.respondNotFound(
+                    #     message=frappe._("Loan Margin Shortfall not found.")
+                    # )
+                    raise lms.exceptions.NotFoundException(
+                        _("Loan Margin Shortfall not found")
                     )
                 if loan_margin_shortfall.status == "Sell Triggered":
                     # return utils.respondWithFailure(
