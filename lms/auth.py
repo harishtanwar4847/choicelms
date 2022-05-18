@@ -61,7 +61,7 @@ def login(**kwargs):
                     user=user.name, pwd=data.get("pin")
                 )
             except frappe.SecurityException as e:
-                return utils.respondUnauthorized(message=str(e))
+                raise utils.respondUnauthorized(message=str(e))
             except frappe.AuthenticationError as e:
                 message = frappe._("Incorrect PIN.")
                 invalid_login_attempts = get_login_attempt_tracker(user.name)
@@ -117,9 +117,11 @@ def login(**kwargs):
         frappe.db.commit()
         return utils.respondWithSuccess(message=frappe._("OTP Sent"))
     except utils.exceptions.APIException as e:
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         frappe.db.rollback()
         return e.respond()
     except frappe.SecurityException as e:
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         frappe.db.rollback()
         return utils.respondUnauthorized(message=str(e))
 
@@ -164,6 +166,7 @@ def terms_of_use():
         return utils.respondWithSuccess(message=frappe._("success"), data=data)
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 
@@ -269,9 +272,11 @@ def verify_otp(**kwargs):
             return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         frappe.db.rollback()
         return e.respond()
     except frappe.SecurityException as e:
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         frappe.db.rollback()
         return utils.respondUnauthorized(message=str(e))
 
@@ -372,6 +377,7 @@ def register(**kwargs):
             message=frappe._("Registered Successfully."), data=data
         )
     except utils.exceptions.APIException as e:
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         frappe.db.rollback()
         return e.respond()
 
@@ -390,8 +396,10 @@ def request_verification_email():
 
         return lms.generateResponse(message=_("Verification email sent"))
     except (lms.ValidationError, lms.ServerError) as e:
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return lms.generateResponse(status=e.http_status_code, message=str(e))
     except Exception as e:
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return lms.generateResponse(is_success=False, error=e)
 
 
@@ -432,6 +440,7 @@ def resend_verification_email(email):
                 indicator="green",
             )
     except Exception as e:
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         frappe.log_error(
             frappe.get_traceback() + "\nResend Email Info:\n" + json.dumps(email),
             e.args,
@@ -532,7 +541,7 @@ def request_forgot_pin_otp(**kwargs):
         try:
             user = frappe.get_doc("User", data.get("email"))
         except frappe.DoesNotExistError:
-            return utils.respondNotFound(
+            raise utils.respondNotFound(
                 message=frappe._("Please use registered email.")
             )
 
@@ -562,6 +571,7 @@ def request_forgot_pin_otp(**kwargs):
             frappe.db.commit()
         return utils.respondWithSuccess(message="Forgot Pin OTP sent")
     except utils.exceptions.APIException as e:
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
 
 
@@ -594,7 +604,7 @@ def verify_forgot_pin_otp(**kwargs):
         try:
             user = frappe.get_doc("User", data.get("email"))
         except frappe.DoesNotExistError:
-            return utils.respondNotFound(
+            raise utils.respondNotFound(
                 message=frappe._("Please use registered email.")
             )
 
@@ -616,7 +626,7 @@ def verify_forgot_pin_otp(**kwargs):
                     user.username, data.get("otp"), token_type="Forgot Pin OTP"
                 )
         except InvalidUserTokenException:
-            return utils.respondForbidden(message=frappe._("Invalid Forgot Pin OTP."))
+            raise utils.respondForbidden(message=frappe._("Invalid Forgot Pin OTP."))
 
         # frappe.db.begin()
 
@@ -649,6 +659,7 @@ def verify_forgot_pin_otp(**kwargs):
             lms.token_mark_as_used(token)
 
     except utils.exceptions.APIException:
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         frappe.db.rollback()
 
 

@@ -1072,6 +1072,42 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
     return frappe.get_doc("Spark Dummy Account", dummy_account_name)
 
 
+def log_api_error():
+    try:
+        """
+        Log API error to Error Log
+
+        This method should be called before API responds the HTTP status code
+        """
+
+        # AI ALERT:
+        # the title and message may be swapped
+        # the better API for this is log_error(title, message), and used in many cases this way
+        # this hack tries to be smart about whats a title (single line ;-)) and fixes it
+        request_parameters = frappe.local.form_dict
+        headers = {k: v for k, v in frappe.local.request.headers.items()}
+        message = "Customer ID : {}\n\nRequest Parameters : {}\n\nHeaders : {}".format(
+            __customer().name, str(request_parameters), str(headers)
+        )
+
+        title = (
+            request_parameters.get("cmd").split(".")[-1].replace("_", " ").title()
+            + " API Error"
+        )
+
+        error = frappe.get_traceback() + "\n\n" + message
+
+        return frappe.get_doc(
+            dict(doctype="API Error Log", error=frappe.as_unicode(error), method=title)
+        ).insert(ignore_permissions=True)
+
+    except Exception:
+        frappe.log_error(
+            message=frappe.get_traceback(),
+            title=_("API Error Log Error"),
+        )
+
+
 @frappe.whitelist(allow_guest=True)
 def rzp_payment_webhook_callback(**kwargs):
     try:

@@ -188,9 +188,9 @@ def upsert(**kwargs):
             try:
                 loan = frappe.get_doc("Loan", data.get("loan_name"))
             except frappe.DoesNotExistError:
-                return utils.respondNotFound(message=frappe._("Loan not found."))
+                raise utils.respondNotFound(message=frappe._("Loan not found."))
             if loan.customer != customer.name:
-                return utils.respondForbidden(
+                raise utils.respondForbidden(
                     message=frappe._("Please use your own loan.")
                 )
 
@@ -205,7 +205,7 @@ def upsert(**kwargs):
                         "Loan Margin Shortfall", data.get("loan_margin_shortfall_name")
                     )
                 except frappe.DoesNotExistError:
-                    return utils.respondNotFound(
+                    raise utils.respondNotFound(
                         message=frappe._("Loan Margin Shortfall not found.")
                     )
                 if loan_margin_shortfall.status == "Sell Triggered":
@@ -312,6 +312,7 @@ def upsert(**kwargs):
         frappe.db.commit()
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         frappe.db.rollback()
         return e.respond()
 
@@ -489,6 +490,7 @@ def process(**kwargs):
             }
         )
     except utils.exceptions.APIException as e:
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         frappe.db.rollback()
         return e.respond()
 
@@ -624,6 +626,7 @@ def request_pledge_otp(**kwargs):
             frappe.db.commit()
         return utils.respondWithSuccess(message="{} sent".format(token_type))
     except utils.exceptions.APIException as e:
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         frappe.db.rollback()
         return e.respond()
 
@@ -1038,4 +1041,5 @@ def get_tnc(**kwargs):
         return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
         return e.respond()
