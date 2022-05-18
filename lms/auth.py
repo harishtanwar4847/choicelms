@@ -44,9 +44,12 @@ def login(**kwargs):
                 regex=re.compile("[@!#$%^&*()<>?/\|}{~`]"),
             )
             if reg:
-                return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
+                # return utils.respondWithFailure(
+                #     status=422,
+                #     message=frappe._("Special Characters not allowed."),
+                # )
+                raise lms.exceptions.FailureException(
+                    _("Special Characters not allowed.")
                 )
 
         try:
@@ -117,11 +120,11 @@ def login(**kwargs):
         frappe.db.commit()
         return utils.respondWithSuccess(message=frappe._("OTP Sent"))
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         frappe.db.rollback()
         return e.respond()
     except frappe.SecurityException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         frappe.db.rollback()
         return utils.respondUnauthorized(message=str(e))
 
@@ -166,7 +169,7 @@ def terms_of_use():
         return utils.respondWithSuccess(message=frappe._("success"), data=data)
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -190,9 +193,12 @@ def verify_otp(**kwargs):
                 regex=re.compile("[@!#$%^&*()<>?/\|}{~`]"),
             )
             if reg:
-                return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
+                # return utils.respondWithFailure(
+                #     status=422,
+                #     message=frappe._("Special Characters not allowed."),
+                # )
+                raise lms.exceptions.FailureException(
+                    _("Special Characters not allowed.")
                 )
 
         try:
@@ -272,11 +278,11 @@ def verify_otp(**kwargs):
             return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         frappe.db.rollback()
         return e.respond()
     except frappe.SecurityException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         frappe.db.rollback()
         return utils.respondUnauthorized(message=str(e))
 
@@ -319,16 +325,18 @@ def register(**kwargs):
         # email validation
         email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
         if re.search(email_regex, data.get("email")) is None:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Please enter valid email ID"),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Please enter valid email ID"),
+            # )
+            raise lms.exceptions.FailureException(_("Please enter valid email ID."))
 
         if reg or firebase_reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         is_dummy_account = lms.validate_spark_dummy_account(data.get("mobile"))
         if is_dummy_account:
@@ -337,10 +345,11 @@ def register(**kwargs):
             )
 
             if not is_valid_dummy_account:
-                return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Invalid Mobile or Email."),
-                )
+                # return utils.respondWithFailure(
+                #     status=422,
+                #     message=frappe._("Invalid Mobile or Email."),
+                # )
+                raise lms.exceptions.FailureException(_("Invalid Mobile or Email."))
 
         tester = frappe.get_all("Spark Tester", fields=["email_id"])
         emails = [e["email_id"] for e in tester if tester]
@@ -377,7 +386,7 @@ def register(**kwargs):
             message=frappe._("Registered Successfully."), data=data
         )
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         frappe.db.rollback()
         return e.respond()
 
@@ -396,10 +405,10 @@ def request_verification_email():
 
         return lms.generateResponse(message=_("Verification email sent"))
     except (lms.ValidationError, lms.ServerError) as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return lms.generateResponse(status=e.http_status_code, message=str(e))
     except Exception as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return lms.generateResponse(is_success=False, error=e)
 
 
@@ -440,7 +449,7 @@ def resend_verification_email(email):
                 indicator="green",
             )
     except Exception as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         frappe.log_error(
             frappe.get_traceback() + "\nResend Email Info:\n" + json.dumps(email),
             e.args,
@@ -533,10 +542,11 @@ def request_forgot_pin_otp(**kwargs):
         # email validation
         email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
         if re.search(email_regex, data.get("email")) is None:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Please enter valid email ID"),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Please enter valid email ID"),
+            # )
+            raise lms.exceptions.FailureException(_("Please enter valid email ID."))
 
         try:
             user = frappe.get_doc("User", data.get("email"))
@@ -571,7 +581,7 @@ def request_forgot_pin_otp(**kwargs):
             frappe.db.commit()
         return utils.respondWithSuccess(message="Forgot Pin OTP sent")
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -596,10 +606,11 @@ def verify_forgot_pin_otp(**kwargs):
         # email validation
         email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
         if re.search(email_regex, data.get("email")) is None:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Please enter valid email ID"),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Please enter valid email ID"),
+            # )
+            raise lms.exceptions.FailureException(_("Please enter valid email ID."))
 
         try:
             user = frappe.get_doc("User", data.get("email"))
@@ -645,21 +656,27 @@ def verify_forgot_pin_otp(**kwargs):
                 )
 
             else:
-                return utils.respondWithFailure(
-                    status=417, message=frappe._("Please retype correct pin.")
+                # return utils.respondWithFailure(
+                #     status=417, message=frappe._("Please retype correct pin.")
+                # )
+                raise lms.exceptions.RespondFailureException(
+                    _("Please retype correct pin.")
                 )
 
         elif not data.get("retype_pin") or not data.get("new_pin"):
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._("Please Enter value for new pin and retype pin."),
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._("Please Enter value for new pin and retype pin."),
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("SPlease Enter value for new pind and retype pin.")
             )
 
         if not is_dummy_account:
             lms.token_mark_as_used(token)
 
     except utils.exceptions.APIException:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         frappe.db.rollback()
 
 

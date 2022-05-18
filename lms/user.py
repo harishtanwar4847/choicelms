@@ -55,7 +55,7 @@ def set_pin(**kwargs):
 
         return utils.respondWithSuccess(message=frappe._("User PIN has been set"))
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         frappe.db.rollback()
         return e.respond()
 
@@ -143,7 +143,7 @@ def kyc_old(**kwargs):
 
         return utils.respondWithSuccess(data=data)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         frappe.db.rollback()
         return e.respond()
 
@@ -223,7 +223,7 @@ def get_choice_kyc_old(pan_no, birth_date):
     except UserKYCNotFoundException:
         raise
     except Exception as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         raise utils.exceptions.APIException(str(e))
 
 
@@ -245,16 +245,22 @@ def get_choice_kyc(**kwargs):
         )
 
         if not data.get("accept_terms"):
-            return utils.respondUnauthorized(
-                message=frappe._("Please accept Terms and Conditions.")
+            # return utils.respondUnauthorized(
+            #     message=frappe._("Please accept Terms and Conditions.")
+            # )
+            raise lms.exceptions.UnauthorizedException(
+                _("Please accept Terms and Conditions.")
             )
 
         try:
             datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
         except ValueError:
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Incorrect date format, should be DD-MM-YYYY")
             )
 
         reg = lms.regex_special_characters(
@@ -263,10 +269,11 @@ def get_choice_kyc(**kwargs):
         )
 
         if not reg or len(data.get("pan_no")) != 10:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Invalid PAN"),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Invalid PAN"),
+            # )
+            raise lms.exceptions.FailureException(_("Invalid PAN"))
 
         try:
             user_kyc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
@@ -362,7 +369,7 @@ def get_choice_kyc(**kwargs):
         return utils.respondWithSuccess(data=data)
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -425,17 +432,21 @@ def kyc(**kwargs):
         )
 
         if not reg or len(user_kyc.get("pan_no")) != 10:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Invalid PAN"),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Invalid PAN"),
+            # )
+            raise lms.exceptions.FailureException(_("Invalid PAN"))
 
         try:
             datetime.strptime(user_kyc.get("date_of_birth"), "%Y-%m-%d")
         except ValueError:
-            raise utils.respondWithFailure(
-                status=417,
-                message=frappe._("Incorrect date of birth format"),
+            # raise utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._("Incorrect date of birth format"),
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Incorrect date of birth format")
             )
 
         try:
@@ -536,7 +547,7 @@ def kyc(**kwargs):
 
         return utils.respondWithSuccess(data=data)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         frappe.db.rollback()
         return e.respond()
 
@@ -604,7 +615,7 @@ def securities_old_1(**kwargs):
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -625,10 +636,11 @@ def securities(**kwargs):
 
         reg = lms.regex_special_characters(search=data.get("lender"))
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         if not data.get("lender", None):
             data["lender"] = frappe.get_last_doc("Lender").name
@@ -952,7 +964,7 @@ def securities(**kwargs):
         return utils.respondWithSuccess(data=securities_list)
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -1315,7 +1327,7 @@ def securities_new(**kwargs):
         return utils.respondWithSuccess(data=securities_list)
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -1396,7 +1408,7 @@ def schemes(**kwargs):
         )
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -1876,7 +1888,7 @@ def approved_securities(**kwargs):
         return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -1896,7 +1908,7 @@ def all_loans_list(**kwargs):
         return utils.respondWithSuccess(data=all_loans)
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2022,7 +2034,7 @@ def my_pledge_securities(**kwargs):
         return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2384,7 +2396,7 @@ def dashboard(**kwargs):
         return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2464,7 +2476,7 @@ def weekly_pledged_security_dashboard(**kwargs):
         return utils.respondWithSuccess(data=weekly_security_amount)
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2564,7 +2576,7 @@ def get_profile_set_alerts(**kwargs):
 
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2687,7 +2699,7 @@ def update_profile_pic_and_pin(**kwargs):
             )
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         frappe.db.rollback()
         return e.respond()
 
@@ -2740,7 +2752,7 @@ def contact_us_old(**kwargs):
 
         return utils.respondWithSuccess(data=faq)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2798,7 +2810,7 @@ def check_eligible_limit(**kwargs):
 
         return utils.respondWithSuccess(data=list)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2824,7 +2836,7 @@ def all_lenders_list(**kwargs):
         return utils.respondWithSuccess(data=all_lenders)
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2971,7 +2983,7 @@ def feedback(**kwargs):
                 status=417, message=frappe._("Oops something went wrong.")
             )
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -3281,7 +3293,7 @@ def loan_summary_dashboard(**kwargs):
         return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -3398,7 +3410,7 @@ def otp_for_testing(**kwargs):
             return utils.respondWithSuccess(data=token[0] if token else None)
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -3430,7 +3442,7 @@ def push_notification_list(**kwargs):
         return utils.respondWithSuccess(data=all_notifications)
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -3508,7 +3520,7 @@ def read_or_clear_notifications(**kwargs):
         return utils.respondWithSuccess()
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -3579,7 +3591,7 @@ def contact_us(**kwargs):
 
         return utils.respondWithSuccess()
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -3697,7 +3709,7 @@ def get_bank_ifsc_details(**kwargs):
 
         return utils.respondWithSuccess(data=details)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 

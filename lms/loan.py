@@ -71,7 +71,7 @@ def esign_old(**kwargs):
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -90,10 +90,11 @@ def esign(**kwargs):
             + data.get("topup_application_name")
         )
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         customer = lms.__customer()
         if data.get("loan_application_name") and data.get("topup_application_name"):
@@ -160,7 +161,7 @@ def esign(**kwargs):
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -184,10 +185,11 @@ def esign_done(**kwargs):
             + data.get("file_id")
         )
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         user = lms.__user()
         customer = lms.__customer()
@@ -326,7 +328,7 @@ def esign_done(**kwargs):
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -523,7 +525,7 @@ def create_unpledge_old(loan_name, securities_array):
     except (lms.ValidationError, lms.ServerError) as e:
         return lms.generateResponse(status=e.http_status_code, message=str(e))
     except Exception as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return generateResponse(is_success=False, error=e)
 
 
@@ -568,7 +570,7 @@ def create_topup_old(loan_name, file_id):
     except (lms.ValidationError, lms.ServerError) as e:
         return lms.generateResponse(status=e.http_status_code, message=str(e))
     except Exception as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return generateResponse(is_success=False, error=e)
 
 
@@ -587,10 +589,11 @@ def create_topup(**kwargs):
 
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
         customer = lms.__customer()
         user_kyc = lms.__user_kyc()
         user = lms.__user()
@@ -618,15 +621,24 @@ def create_topup(**kwargs):
                 message=_("Top up for {} is already in process.".format(loan.name))
             )
         elif not topup_amt:
-            return utils.respondWithFailure(status=417, message="Top up not available")
+            # return utils.respondWithFailure(status=417, message="Top up not available")
+            raise lms.exceptions.RespondFailureException(_("Top up not available."))
         elif data.get("topup_amount") <= 0:
-            return utils.respondWithFailure(
-                status=417, message="Top up amount can not be 0 or less than 0"
+            # return utils.respondWithFailure(
+            #     status=417, message="Top up amount can not be 0 or less than 0"
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Top up amount can not be 0 or less than 0.")
             )
         elif data.get("topup_amount") > topup_amt:
-            return utils.respondWithFailure(
-                status=417,
-                message="Top up amount can not be more than Rs. {}".format(topup_amt),
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message="Top up amount can not be more than Rs. {}".format(topup_amt),
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _(
+                    "Top up amount can not be more than Rs. {}".format(topup_amt),
+                )
             )
         elif 0.0 < data.get("topup_amount") <= topup_amt:
             current = frappe.utils.now_datetime()
@@ -684,7 +696,7 @@ def create_topup(**kwargs):
 
         return utils.respondWithSuccess(data=data)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -1123,9 +1135,7 @@ def loan_withdraw_details(**kwargs):
             #     status=422,
             #     message=frappe._("Special Characters not allowed."),
             # )
-            raise lms.exceptions.FailureException(
-                422, _("Special Characters not allowed.")
-            )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         customer = lms.__customer()
         loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -1135,9 +1145,7 @@ def loan_withdraw_details(**kwargs):
             # return utils.respondForbidden(
             #     message=_("Please use your own Loan Application.")
             # )
-            raise lms.exceptions.ForbiddenException(
-                _("Please use your own Loan Application.")
-            )
+            raise lms.exceptions.ForbiddenException(_("Please use your own Loan."))
 
         # set amount_available_for_withdrawal
         max_withdraw_amount = loan.maximum_withdrawable_amount()
@@ -1243,8 +1251,11 @@ def loan_withdraw_request(**kwargs):
         if frappe.db.count("Loan Transaction", filters) == 0 and not data.get(
             "bank_account_name", None
         ):
-            return utils.respondWithFailure(
-                status=417, message="Need bank account for first withdrawal"
+            # return utils.respondWithFailure(
+            #     status=417, message="Need bank account for first withdrawal"
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Need bank account for first withdrawal.")
             )
 
         if not data.get("bank_account_name", None):
@@ -1268,8 +1279,11 @@ def loan_withdraw_request(**kwargs):
         # amount validation
         amount = data.get("amount", 0)
         if amount <= 0:
-            return utils.respondWithFailure(
-                status=417, message="Amount should be more than 0"
+            # return utils.respondWithFailure(
+            #     status=417, message="Amount should be more than 0"
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Special Characters not allowed.")
             )
 
         max_withdraw_amount = loan.maximum_withdrawable_amount()
@@ -1368,9 +1382,12 @@ def loan_payment(**kwargs):
                 regex=re.compile("[@!#$%^&*()<>?/\|}{~`]"),
             )
             if reg:
-                return utils.respondWithFailure(
-                    status=422,
-                    message=frappe._("Special Characters not allowed."),
+                # return utils.respondWithFailure(
+                #     status=422,
+                #     message=frappe._("Special Characters not allowed."),
+                # )
+                raise lms.exceptions.FailureException(
+                    _("Special Characters not allowed.")
                 )
 
         customer = lms.__customer()
@@ -1447,10 +1464,11 @@ def loan_payment(**kwargs):
                     message=_("Loan Margin Shortfall should be for the provided loan.")
                 )
             if loan_margin_shortfall.status == "Sell Triggered":
-                return utils.respondWithFailure(
-                    status=417,
-                    message=frappe._("Sale is Triggered"),
-                )
+                # return utils.respondWithFailure(
+                #     status=417,
+                #     message=frappe._("Sale is Triggered"),
+                # )
+                raise lms.exceptions.RespondFailureException(_("Sale is Triggered."))
 
         if not data.get("is_failed"):
             # frappe.db.begin()
@@ -1502,10 +1520,11 @@ def loan_statement(**kwargs):
             search=data.get("loan_name") + data.get("file_format") + data.get("type")
         )
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         if isinstance(data.get("is_download"), str):
             data["is_download"] = int(data.get("is_download"))
@@ -1535,10 +1554,13 @@ def loan_statement(**kwargs):
         )
 
         if data.get("is_download") and data.get("is_email"):
-            return utils.respondWithFailure(
-                message=frappe._(
-                    "Please choose one between download or email transactions at a time."
-                )
+            # return utils.respondWithFailure(
+            #     message=frappe._(
+            #         "Please choose one between download or email transactions at a time."
+            #     )
+            # )
+            raise lms.exceptions.RespondWithFailureException(
+                _("Please choose one between download or email transactions at a time.")
             )
 
         elif (
@@ -1546,25 +1568,34 @@ def loan_statement(**kwargs):
             and (data.get("from_date") or data.get("to_date"))
             and data.get("duration")
         ):
-            return utils.respondWithFailure(
-                message=frappe._(
-                    "Please use either 'From date and To date' or Duration"
-                )
+            # return utils.respondWithFailure(
+            #     message=frappe._(
+            #         "Please use either 'From date and To date' or Duration"
+            #     )
+            # )
+            raise lms.exceptions.RespondWithFailureException(
+                _("Please use either 'From date and To date' or Duration.")
             )
 
         elif (data.get("from_date") and not data.get("to_date")) or (
             not data.get("from_date") and data.get("to_date")
         ):
-            return utils.respondWithFailure(
-                message=frappe._("Please use both 'From date and To date'")
+            # return utils.respondWithFailure(
+            #     message=frappe._("Please use both 'From date and To date'")
+            # )
+            raise lms.exceptions.RespondWithFailureException(
+                _("Please use both 'From date and To date'")
             )
 
         elif (data.get("is_download") or data.get("is_email")) and (
             not data.get("file_format")
             or data.get("file_format") not in ["pdf", "excel"]
         ):
-            return utils.respondWithFailure(
-                message=frappe._("Please select PDF/Excel file format")
+            # return utils.respondWithFailure(
+            #     message=frappe._("Please select PDF/Excel file format")
+            # )
+            raise lms.exceptions.RespondWithFailureException(
+                _("Please select PDF/Excel file format")
             )
 
         statement_period = ""
@@ -1579,8 +1610,11 @@ def loan_statement(**kwargs):
                 )
 
             if from_date > to_date:
-                return utils.respondWithFailure(
-                    message=frappe._("From date cannot be greater than To date")
+                # return utils.respondWithFailure(
+                #     message=frappe._("From date cannot be greater than To date")
+                # )
+                raise lms.exceptions.RespondWithFailureException(
+                    _("From date cannot be greater than to date")
                 )
 
             statement_period = (
@@ -1603,8 +1637,11 @@ def loan_statement(**kwargs):
                 "prev_6",
                 "current_year",
             ]:
-                return utils.respondWithFailure(
-                    message=frappe._("Please provide valid Duration")
+                # return utils.respondWithFailure(
+                #     message=frappe._("Please provide valid Duration")
+                # )
+                raise lms.exceptions.RespondWithFailureException(
+                    _("Please provide valid Duration.")
                 )
 
             curr_month = (
@@ -1689,8 +1726,13 @@ def loan_statement(**kwargs):
                 )
         else:
             if data.get("is_download") or data.get("is_email"):
-                return utils.respondWithFailure(
-                    message=frappe._(
+                # return utils.respondWithFailure(
+                #     message=frappe._(
+                #         "Please use either 'From date and To date' or Duration to proceed"
+                #     )
+                # )
+                raise lms.exceptions.RespondWithFailureException(
+                    _(
                         "Please use either 'From date and To date' or Duration to proceed"
                     )
                 )
@@ -2073,7 +2115,7 @@ def loan_statement(**kwargs):
 
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2114,7 +2156,7 @@ def request_unpledge_otp():
             frappe.db.commit()
         return utils.respondWithSuccess(message="{} sent".format(token_type))
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2127,10 +2169,11 @@ def loan_unpledge_details(**kwargs):
 
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         customer = lms.__customer()
         msg_type = ["unpledge", "pledged securities"]
@@ -2170,7 +2213,7 @@ def loan_unpledge_details(**kwargs):
 
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2323,10 +2366,11 @@ def loan_unpledge_request(**kwargs):
 
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Character not ."))
 
         customer = lms.__customer()
         user_kyc = lms.__user_kyc()
@@ -2433,7 +2477,7 @@ def loan_unpledge_request(**kwargs):
 
         return utils.respondWithSuccess(data=unpledge_application)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2472,7 +2516,7 @@ def request_sell_collateral_otp():
             frappe.db.commit()
         return utils.respondWithSuccess(message="{} sent".format(token_type))
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2650,7 +2694,7 @@ def sell_collateral_request(**kwargs):
 
         return utils.respondWithSuccess(data=sell_collateral_application)
     except utils.exceptions.APIException as e:
-        lms.log_api_error(message="Customer ID : {}".format(lms.__customer().name))
+        lms.log_api_error()
         return e.respond()
 
 
