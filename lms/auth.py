@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 import frappe
 import utils
+from frappe import _
 
 # from frappe.auth import LoginManager, get_login_failed_count
 from frappe.auth import LoginAttemptTracker, get_login_attempt_tracker
