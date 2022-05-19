@@ -96,14 +96,15 @@ class UnpledgeApplication(Document):
         for i in self.unpledge_items:
             if i.unpledge_quantity > i.quantity:
                 frappe.throw(msg.format(i.isin, i.psn, i.quantity))
-            if unpledge_requested_quantity_map.get(i.isin) > i.unpledge_quantity:
-                frappe.throw(
-                    "You need to {} all {} of isin {}".format(
-                        application_type,
-                        unpledge_requested_quantity_map.get(i.isin),
-                        i.isin,
+            if self.instrument_type == "Mutual Fund":
+                if unpledge_requested_quantity_map.get(i.isin) > i.unpledge_quantity:
+                    frappe.throw(
+                        "You need to {} all {} of isin {}".format(
+                            application_type,
+                            unpledge_requested_quantity_map.get(i.isin),
+                            i.isin,
+                        )
                     )
-                )
             unpledge_quantity_map[i.isin] = (
                 unpledge_quantity_map[i.isin] + i.unpledge_quantity
             )
@@ -128,19 +129,25 @@ class UnpledgeApplication(Document):
                         application_type, i.isin, i.quantity
                     )
                 )
+            if unpledge_quantity_map.get(i.isin) < i.quantity:
+                frappe.throw(
+                    "You need to {} all {} of isin {}".format(
+                        application_type, i.quantity, i.isin
+                    )
+                )
 
     def before_submit(self):
         # check if all securities are sold
-        unpledge_quantity_map = {i.isin: 0 for i in self.items}
+        # unpledge_quantity_map = {i.isin: 0 for i in self.items}
 
         application_type = "unpledge" if self.instrument_type == "Shares" else "revoke"
 
-        if len(self.unpledge_items):
-            for i in self.unpledge_items:
-                unpledge_quantity_map[i.isin] = (
-                    unpledge_quantity_map[i.isin] + i.unpledge_quantity
-                )
-        else:
+        # if len(self.unpledge_items):
+        #     for i in self.unpledge_items:
+        #         unpledge_quantity_map[i.isin] = (
+        #             unpledge_quantity_map[i.isin] + i.unpledge_quantity
+        #         )
+        if len(self.unpledge_items) == 0:
             frappe.throw("Please add items to {}".format(application_type))
 
         # for i in self.items:
