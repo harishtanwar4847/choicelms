@@ -90,6 +90,8 @@ class Cart(Document):
                     "requested_quantity": round(item.requested_quantity, 3),
                     "price": item.price,
                     "amount": item.amount,
+                    "eligible_percentage": item.eligible_percentage,
+                    "eligible_amount": item.eligible_amount,
                     "type": item.type,
                     "folio": item.folio,
                     "amc_code": item.amc_code,
@@ -123,6 +125,7 @@ class Cart(Document):
                 "scheme_type": self.scheme_type,
             }
         )
+
         loan_application.insert(ignore_permissions=True)
 
         # mark cart as processed
@@ -360,7 +363,7 @@ class Cart(Document):
         self.total_collateral_value_str = lms.amount_formatter(
             self.total_collateral_value
         )
-        self.eligible_loan_str = lms.amount_formatter(self.eligible_loan)
+        self._str = lms.amount_formatter(self.eligible_loan)
 
     def process_cart_items(self):
         if not self.is_processed:
@@ -379,25 +382,36 @@ class Cart(Document):
                 i.eligible_percentage = security.eligible_percentage
 
                 i.price = price_map.get(i.isin, 0)
-                i.amount = i.pledged_quantity * i.price
+                # i.amount = i.pledged_quantity * i.price
+                amount = i.pledged_quantity * i.price
+                i.amount = amount
+                if i.type != "Shares":
+                    i.eligible_amount = (amount * security.eligible_percentage) / 100
 
     def process_cart(self):
         if not self.is_processed:
             lender = self.get_lender()
             self.total_collateral_value = 0
-            self.allowable_ltv = 0
+            allowable_ltv = 0
+            eligible_loan = 0
             for item in self.items:
                 self.total_collateral_value += item.amount
-                self.allowable_ltv += item.eligible_percentage
+                allowable_ltv += item.eligible_percentage
 
             self.total_collateral_value = round(self.total_collateral_value, 2)
-            self.allowable_ltv = float(self.allowable_ltv) / len(self.items)
+            if self.instrument_type == "Shares":
+                self.allowable_ltv = float(allowable_ltv) / len(self.items)
+                eligible_loan = (self.allowable_ltv / 100) * self.total_collateral_value
+
+            else:
+                for i in self.items:
+                    eligible_loan += i.eligible_amount
+
             eligible_loan = round(
-                lms.round_down_amount_to_nearest_thousand(
-                    (self.allowable_ltv / 100) * self.total_collateral_value
-                ),
+                lms.round_down_amount_to_nearest_thousand(eligible_loan),
                 2,
             )
+
             self.eligible_loan = (
                 eligible_loan
                 if eligible_loan < lender.maximum_sanctioned_limit

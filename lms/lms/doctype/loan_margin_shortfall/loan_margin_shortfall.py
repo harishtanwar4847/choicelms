@@ -34,20 +34,24 @@ class LoanMarginShortfall(Document):
         self.time_remaining = "00:00:00"
         # self.ltv = (self.loan_balance / self.total_collateral_value) * 100
         # Zero division error - handling
-        self.ltv = (
-            (self.loan_balance / self.total_collateral_value) * 100
-            if self.total_collateral_value > 0
-            else loan.allowable_ltv
-        )
 
-        self.surplus_margin = 100 - self.ltv
-        self.minimum_collateral_value = (100 / self.allowable_ltv) * self.loan_balance
+        if self.instrument_type == "Shares":
+            self.ltv = (
+                (self.loan_balance / self.total_collateral_value) * 100
+                if self.total_collateral_value > 0
+                else loan.allowable_ltv
+            )
 
-        self.shortfall = math.ceil(
-            (self.minimum_collateral_value - self.total_collateral_value)
-            if self.loan_balance > self.drawing_power
-            else 0
-        )
+            self.surplus_margin = 100 - self.ltv
+            self.minimum_collateral_value = (
+                100 / self.allowable_ltv
+            ) * self.loan_balance
+
+            self.shortfall = math.ceil(
+                (self.minimum_collateral_value - self.total_collateral_value)
+                if self.loan_balance > self.drawing_power
+                else 0
+            )
         self.shortfall_c = math.ceil(
             ((self.loan_balance - self.drawing_power) * 2)
             if self.loan_balance > self.drawing_power
@@ -61,7 +65,11 @@ class LoanMarginShortfall(Document):
 
         self.minimum_pledge_amount = self.shortfall_c
         self.advisable_pledge_amount = self.minimum_pledge_amount * 1.1
-        self.minimum_cash_amount = (self.allowable_ltv / 100) * self.shortfall_c
+        # self.minimum_cash_amount = (self.allowable_ltv / 100) * self.shortfall_c
+        if self.instrument_type == "Mutual Fund":
+            self.minimum_cash_amount = self.loan_balance - self.drawing_power
+        else:
+            self.minimum_cash_amount = (self.allowable_ltv / 100) * self.shortfall_c
         self.advisable_cash_amount = self.minimum_cash_amount * 1.1
 
         self.set_shortfall_action()
