@@ -55,8 +55,8 @@ def set_pin(**kwargs):
 
         return utils.respondWithSuccess(message=frappe._("User PIN has been set"))
     except utils.exceptions.APIException as e:
-        lms.log_api_error()
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
 
 
@@ -150,8 +150,8 @@ def kyc_old(**kwargs):
 
         return utils.respondWithSuccess(data=data)
     except utils.exceptions.APIException as e:
-        lms.log_api_error()
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
 
 
@@ -557,8 +557,8 @@ def kyc(**kwargs):
 
         return utils.respondWithSuccess(data=data)
     except utils.exceptions.APIException as e:
-        lms.log_api_error()
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2750,8 +2750,8 @@ def update_profile_pic_and_pin(**kwargs):
             )
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error()
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
 
 

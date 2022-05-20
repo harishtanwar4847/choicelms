@@ -127,12 +127,12 @@ def login(**kwargs):
         frappe.db.commit()
         return utils.respondWithSuccess(message=frappe._("OTP Sent"))
     except utils.exceptions.APIException as e:
-        lms.log_api_error()
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
     except frappe.SecurityException as e:
-        lms.log_api_error()
         frappe.db.rollback()
+        lms.log_api_error()
         # return utils.respondUnauthorized(message=str(e))
         raise lms.exceptions.UnauthorizedException(str(e))
 
@@ -294,12 +294,12 @@ def verify_otp(**kwargs):
             return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
-        lms.log_api_error()
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
     except frappe.SecurityException as e:
-        lms.log_api_error()
         frappe.db.rollback()
+        lms.log_api_error()
         # return utils.respondUnauthorized(message=str(e))
         raise lms.exceptions.UnauthorizedException(str(e))
 
@@ -403,8 +403,8 @@ def register(**kwargs):
             message=frappe._("Registered Successfully."), data=data
         )
     except utils.exceptions.APIException as e:
-        lms.log_api_error()
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
 
 
@@ -699,8 +699,8 @@ def verify_forgot_pin_otp(**kwargs):
             lms.token_mark_as_used(token)
 
     except utils.exceptions.APIException:
-        lms.log_api_error()
         frappe.db.rollback()
+        lms.log_api_error()
 
 
 def login_activity(customer):

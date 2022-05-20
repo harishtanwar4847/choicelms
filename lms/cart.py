@@ -338,8 +338,8 @@ def upsert(**kwargs):
         frappe.db.commit()
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
-        lms.log_api_error()
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
 
 
@@ -525,8 +525,8 @@ def process(**kwargs):
             }
         )
     except utils.exceptions.APIException as e:
-        lms.log_api_error()
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
 
 
@@ -662,8 +662,8 @@ def request_pledge_otp(**kwargs):
             frappe.db.commit()
         return utils.respondWithSuccess(message="{} sent".format(token_type))
     except utils.exceptions.APIException as e:
-        lms.log_api_error()
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
 
 
