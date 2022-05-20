@@ -671,149 +671,9 @@ def create_topup(**kwargs):
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
-            # tnc_ul = ["<ul>"]
-            # tnc_ul.append(
-            #     "<li><strong> Name Of Borrower : {} </strong>".format(
-            #         user_kyc.investor_name
-            #     )
-            #     + "</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Address Of Borrower </strong> : {}".format(
-            #         user_kyc.address or ""
-            #     )
-            #     + "</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Nature of facility sanctioned : Loan Against Securities - Overdraft facility;</strong></li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Purpose </strong>: General Purpose. The facility shall not be used for anti-social or illegal purposes;</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Top up Amount </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
-            #         topup_application.top_up_amount + loan.drawing_power
-            #     )
-            #     + "</li>"
-            # )
-            # tnc_ul.append("<li><strong> Interest type </strong>: Floating</li>")
-            # tnc_ul.append(
-            #     "<li><strong> Rate of Interest </strong>: <strong>{}%  per month</strong> after rebate, if paid within <strong>7 days</strong> of due date. Otherwise Rebate of <strong>0.20%</strong> will not be applicable and higher interest rate will be applicable [Interest rate is subject to change based on management discretion from time to time];".format(
-            #         lender.rate_of_interest
-            #     )
-            #     + "</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Details of security / Collateral obtained </strong>: Shares and other securities as will be pledged from time to time to maintain the required security coverage;</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Security Coverage </strong>: Shares & Equity oriented Mutual Funds - <strong>Minimum 200%</strong>, Other Securities - As per rules applicable from time to time;</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Facility Tenure </strong>: <strong>12 Months</strong> (Renewable at Lender’s discretion, as detailed in the T&C);</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Repayment Through </strong>: Cash Flows /Sale of Securities/Other Investments Maturing;</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Mode of communication</strong> of changes in interest rates and others : Website and Mobile App notification, SMS, Email, Letters, Notices at branches, communication through statement of accounts of the borrower, or any other mode of communication;</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> EMI Payable </strong>: <strong>Not Applicable;</strong></li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Penal Interest rate / Penal Charges </strong>: In case of occurrence of Event of Default (EOD), Penal Interest shall be charged <strong>upto 4.00% per month</strong> over and above applicable Interest Rate;</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Processing Fee </strong>: <strong>{}%</strong> of the sanctioned amount, subject to minimum amount of <strong>Rs. 1500/-;</strong>".format(
-            #         lender.lender_processing_fees
-            #     )
-            #     + "</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Account Renewal charges </strong>: <strong>{}%</strong> of the renewal amount (Facility valid for a period of 12 months from the date of sanction; account renewal charges shall be debited at the end of 12 months), subject to minimum amount of <strong>Rs. 750/-;</strong>".format(
-            #         lender.account_renewal_charges
-            #     )
-            #     + "</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Documentation charges </strong>: <strong>Rs. {}/-;</strong>".format(
-            #         lender.documentation_charges
-            #     )
-            #     + "</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Stamp duty & other statutory charges </strong>: At actuals;</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Pre-payment charges </strong>: <strong>NIL;</strong></li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Transaction Charges per Request (per variation in the composition of the Demat securities pledged) </strong>: <strong>Upto Rs. {}/-</strong> per request;".format(
-            #         lender.transaction_charges_per_request
-            #     )
-            #     + "</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Collection Charges on Sale of security in the event of default or otherwise </strong>: <strong>{}%</strong> of the sale amount plus all brokerage, incidental transaction charges, costs and expenses and other levies as per actuals;".format(
-            #         lender.security_selling_share
-            #     )
-            #     + "</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Credit Information Companies'(CICs) Charges </strong>: <strong>Upto Rs {}/-</strong> per instance (For individuals);".format(
-            #         lender.cic_charges
-            #     )
-            #     + "</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Solvency Certificate </strong>: Not Applicable;</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> No Due Certificate / No Objection Certificate (NOC) </strong>: <strong>NIL;</strong></li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Legal & incidental charges </strong>: As per actuals;</li></ul>"
-            # )
-            # topup_application.create_tnc_file()
-            # tnc_file_url = frappe.utils.get_url(
-            #     "files/tnc/{}.pdf".format(topup_application.name)
-            # )
-            # tnc_header = "Please refer to the <a href='{}'>Terms & Conditions</a> for LAS facility, for detailed terms.".format(
-            #     tnc_file_url
-            # )
-            # tnc_footer = "You shall be required to authenticate (in token of you having fully read and irrevocably and unconditionally accepted and authenticated) the above application for loan including the pledge request and the Terms and Conditions (which can be opened by clicking on the links) and entire contents thereof, by entering the OTP that will be sent to you next on your registered mobile number with CDSL."
-            # tnc_checkboxes = [
-            #     i.tnc
-            #     for i in frappe.get_all(
-            #         "Terms and Conditions",
-            #         filters={"is_active": 1},
-            #         fields=["tnc"],
-            #         order_by="creation asc",
-            #     )
-            # ]
-
             data = {
                 "topup_application_name": topup_application.name,
-                #     "tnc_file": tnc_file_url,
-                #     "tnc_html": "".join(tnc_ul),
-                #     "tnc_header": tnc_header,
-                #     "tnc_footer": tnc_footer,
-                #     "tnc_checkboxes": tnc_checkboxes,
             }
-
-            # for tnc in frappe.get_list(
-            #     "Terms and Conditions", filters={"is_active": 1}
-            # ):
-            #     top_up_approved_tnc = {
-            #         "doctype": "Top up Application",
-            #         "docname": topup_application.name,
-            #         "mobile": user.username,
-            #         "tnc": tnc.name,
-            #         "time": frappe.utils.now_datetime(),
-            #     }
-            #     ApprovedTermsandConditions.create_entry(**top_up_approved_tnc)
-            #     frappe.db.commit()
 
         return utils.respondWithSuccess(data=data)
     except utils.exceptions.APIException as e:
@@ -1078,38 +938,7 @@ def loan_details(**kwargs):
                         )  # if_prev_days_in_holidays then add those days in timer
                     )
 
-                    # if (
-                    #     loan_margin_shortfall.creation.date()
-                    #     < frappe.utils.now_datetime().date()
-                    #     and loan_margin_shortfall.creation.date() in holidays
-                    # ):
-                    #     hrs_difference += (
-                    #         loan_margin_shortfall.creation.replace(
-                    #             hour=23, minute=59, second=59, microsecond=999999
-                    #         )
-                    #         - loan_margin_shortfall.creation
-                    #     )
-
                     if frappe.utils.now_datetime().date() in holidays:
-                        # if_today_holiday then add those hours in timer
-                        # if (
-                        #     frappe.utils.now_datetime().date()
-                        #     == loan_margin_shortfall.creation.date()
-                        # ):
-                        #     if mg_shortfall_action.sell_off_after_hours:
-                        #         start_time = datetime.strptime(
-                        #             list(holidays)[-1].strftime("%Y-%m-%d %H:%M:%S.%f"),
-                        #             "%Y-%m-%d %H:%M:%S.%f",
-                        #         ).replace(hour=0, minute=0, second=0, microsecond=0)
-                        #         print(start_time,"start_time")
-
-                        #     else:
-                        #         start_time = frappe.utils.now_datetime().replace(
-                        #             hour=0, minute=0, second=0, microsecond=0
-                        #         )
-
-                        # else:
-                        #     pass
                         start_time = frappe.utils.now_datetime().replace(
                             hour=0, minute=0, second=0, microsecond=0
                         )
@@ -2002,17 +1831,6 @@ def loan_statement(**kwargs):
 
                 pdf_file = open(loan_statement_pdf_file_path, "wb")
                 df.index += 1
-                # a = df.to_html()
-                # a.replace("dataframe", "center")
-                # style = """<style>
-                # tr {
-                # page-break-inside: avoid;
-                # }
-                # th {text-align: center;}
-                # </style>
-                # """
-
-                # html_with_style = style + a
 
                 from frappe.utils.pdf import get_pdf
 
@@ -2128,23 +1946,6 @@ def loan_statement(**kwargs):
                     lender,
                     las_settings,
                 )
-
-                # if data.get("type") == "Account Statement":
-                #     # to_numeric(s, downcast='float')
-                #     df.columns = ["Date", "Transaction Type", "Ref .No.", "Record Type", "Amount", "Opening Balance", "Closing Balance(₹)"]
-                #     # df["Amount"] = frappe.utils.fmt_money(df["Amount"].apply(lambda x: float(x)))
-                #     df.loc[df['Record Type'] == "DR", 'Withdrawal (₹)'] = df["Amount"]
-                #     df.loc[df['Record Type'] == "CR", 'Deposit (₹)'] = df["Amount"]
-                #     df.drop("Opening Balance", inplace=True, axis=1)
-                #     df.drop("Record Type", inplace=True, axis=1)
-                #     df.drop("Amount", inplace=True, axis=1)
-                #     last_column = df.pop('Closing Balance(₹)')
-                #     df['Closing Balance(₹)'] = last_column
-
-                # if data.get("type") == "Pledged Securities Transactions":
-                #     df.columns = ["Date", "ISIN", "Security Name", "Quantity", "Description"]
-
-                # df.to_excel(loan_statement_excel_file_path, index=False)
 
             loan_statement_pdf_file_url = ""
             loan_statement_excel_file_url = ""
@@ -2774,13 +2575,6 @@ def sell_collateral_request(**kwargs):
                         loan.name
                     ),
                 )
-            # if loan_margin_shortfall.status == "Request Pending":
-            #     return utils.respondWithFailure(
-            #         status=417,
-            #         message="Payment for Margin Shortfall of Loan {} is already in process.".format(
-            #             loan.name
-            #         ),
-            #     )
             if loan_margin_shortfall.status == "Pending":
                 loan_margin_shortfall.status = "Request Pending"
                 loan_margin_shortfall.save(ignore_permissions=True)

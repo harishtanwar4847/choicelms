@@ -11,13 +11,15 @@ frappe.ui.form.on("Sell Collateral Application", {
     if (frm.doc.owner != frappe.session.user) {
       frm.set_df_property("loan_margin_shortfall", "read_only", 1);
     }
+    if (frm.doc.status != "Pending") {
+      frm.clear_custom_buttons();
+    }
   },
 });
 
 frappe.ui.form.on("Sell Collateral Application", {
   loan: function (frm) {
     var is_true = frappe.user_roles.find((role) => role === "Loan Customer");
-    console.log(is_true);
     if ((!is_true || frappe.session.user == "Administrator") && frm.doc.loan) {
       // if (frappe.session.user == frm.doc.owner) {
       frappe.db.get_value(
@@ -63,7 +65,7 @@ function show_fetch_items_button(frm) {
           "lms.lms.doctype.sell_collateral_application.sell_collateral_application.get_collateral_details",
         args: { sell_collateral_application_name: frm.doc.name },
         freeze: true,
-        freeze_message: "Fetching Collateral Details",
+        freeze_message: "Please wait",
         callback: (res) => {
           frm.set_value("sell_items", res.message);
           show_fetch_items_button(frm);
@@ -81,7 +83,7 @@ function show_fetch_items_button(frm) {
               "lms.lms.doctype.sell_collateral_application.sell_collateral_application.validate_invoc",
             args: { sell_collateral_application_name: frm.doc.name },
             freeze: true,
-            freeze_message: "Validating Collateral Details",
+            freeze_message: "Please wait",
             callback: (res) => {
               frm.reload_doc();
             },
@@ -97,7 +99,7 @@ function show_fetch_items_button(frm) {
               "lms.lms.doctype.sell_collateral_application.sell_collateral_application.initiate_invoc",
             args: { sell_collateral_application_name: frm.doc.name },
             freeze: true,
-            freeze_message: "Initiating Collateral Details",
+            freeze_message: "Please wait",
             callback: (res) => {
               frm.reload_doc();
             },

@@ -1318,7 +1318,7 @@ def schemes(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {"scheme_type": "required", "lender": "", "level": ""},
+            {"scheme_type": "", "lender": "", "level": ""},
         )
 
         reg = lms.regex_special_characters(
@@ -1339,17 +1339,23 @@ def schemes(**kwargs):
                 status=422,
                 message=frappe._("Scheme type should be either Equity or Debt."),
             )
+        if not data.get("lender", None):
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Atleast one lender required"),
+            )
+        else:
+            lender_list = data.get("lender").split(",")
 
         if not data.get("level"):
-            data["level"] = []
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Atleast one level required"),
+            )
+            # data["level"] = []
 
         if isinstance(data.get("level"), str):
             data["level"] = data.get("level").split(",")
-
-        if not data.get("lender", None):
-            lender_list = frappe.db.get_list("Lender", pluck="name")
-        else:
-            lender_list = data.get("lender").split(",")
 
         scheme = ""
         lender = ""
@@ -1618,16 +1624,6 @@ def approved_securities_old(**kwargs):
             )
 
             pdf_file = open(approved_security_pdf_file_path, "wb")
-            # a = df.to_html()
-            # a = a.replace("<th></th>","<th>Sr.No.</th>")
-            # style = """<style>
-            # 	tr {
-            # 	page-break-inside: avoid;
-            # 	}
-            # 	</style>
-            # 	"""
-            # 	# th {text-align: center;}
-            # html_with_style = style + a
 
             from frappe.utils.pdf import get_pdf
 
@@ -1830,16 +1826,6 @@ def approved_securities(**kwargs):
             )
 
             pdf_file = open(approved_security_pdf_file_path, "wb")
-            # a = df.to_html()
-            # a = a.replace("<th></th>","<th>Sr.No.</th>")
-            # style = """<style>
-            # 	tr {
-            # 	page-break-inside: avoid;
-            # 	}
-            # 	</style>
-            # 	"""
-            # 	# th {text-align: center;}
-            # html_with_style = style + a
 
             from frappe.utils.pdf import get_pdf
 
@@ -2109,38 +2095,7 @@ def dashboard(**kwargs):
                         )  # if_prev_days_in_holidays then add those days in timer
                     )
 
-                    # if (
-                    #     mg_shortfall_doc.creation.date()
-                    #     < frappe.utils.now_datetime().date()
-                    #     and mg_shortfall_doc.creation.date() in holidays
-                    # ):
-                    #     hrs_difference += (
-                    #         mg_shortfall_doc.creation.replace(
-                    #             hour=23, minute=59, second=59, microsecond=999999
-                    #         )
-                    #         - mg_shortfall_doc.creation
-                    #     )
-
                     if frappe.utils.now_datetime().date() in holidays:
-                        # if_today_holiday then add those hours in timer
-                        # if mg_shortfall_action.sell_off_after_hours:
-                        # if (
-                        #     frappe.utils.now_datetime().date()
-                        #     == mg_shortfall_doc.creation.date()
-                        # ):
-                        #     if mg_shortfall_action.sell_off_after_hours:
-                        #         start_time = datetime.strptime(
-                        #             list(holidays)[-1].strftime("%Y-%m-%d %H:%M:%S.%f"),
-                        #             "%Y-%m-%d %H:%M:%S.%f",
-                        #         ).replace(hour=0, minute=0, second=0, microsecond=0)
-
-                        #     else:
-                        #         start_time = frappe.utils.now_datetime().replace(
-                        #             hour=0, minute=0, second=0, microsecond=0
-                        #         )
-
-                        # else:
-                        #     pass
                         start_time = frappe.utils.now_datetime().replace(
                             hour=0, minute=0, second=0, microsecond=0
                         )
@@ -2171,17 +2126,6 @@ def dashboard(**kwargs):
             }
         # Interest ##
         for dictionary in margin_shortfall_and_interest_loans[1]:
-            # if dictionary.get("name") not in action_loans:
-            #     actionable_loans.append(
-            #         {
-            #             "loan_name": dictionary.get("name"),
-            #             "drawing_power": dictionary.get("drawing_power"),
-            #             "drawing_power_str": dictionary.get("drawing_power_str"),
-            #             "balance": dictionary.get("balance"),
-            #             "balance_str": dictionary.get("balance_str"),
-            #         }
-            #     )
-
             if dictionary["interest_amount"]:
                 loan = frappe.get_doc("Loan", dictionary.get("name"))
                 current_date = frappe.utils.now_datetime()
@@ -2242,33 +2186,6 @@ def dashboard(**kwargs):
                 "loans_interest_due_date": due_date_for_all_interest[0],
                 "interest_loan_list": interest_loan_list,
             }
-
-        ## Under process loan application ##
-        # under_process_la = frappe.get_all(
-        #     "Loan Application",
-        #     filters={
-        #         "customer": customer.name,
-        #         "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
-        #         "pledge_status": ["!=", "Failure"],
-        #     },
-        #     fields=["name", "status"],
-        # )
-
-        # ## Active loans ##
-        # active_loans = frappe.get_all(
-        #     "Loan",
-        #     filters={
-        #         "customer": customer.name,
-        #         "name": ["not in", [list["loan_name"] for list in actionable_loans]],
-        #     },
-        #     fields=[
-        #         "name",
-        #         "drawing_power",
-        #         "drawing_power_str",
-        #         "balance",
-        #         "balance_str",
-        #     ],
-        # )
 
         # pending esign object for loan application and topup application
         pending_loan_applications = frappe.get_all(
@@ -2383,162 +2300,6 @@ def dashboard(**kwargs):
             la_pending_esigns=la_pending_esigns,
             topup_pending_esigns=topup_pending_esigns,
         )
-
-        ## Topup ##
-        # topup = None
-        # topup_list = []
-        # sell_collateral_list = []
-        # increase_loan_list = []
-        # unpledge_application_list = []
-        # all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
-
-        # for loan in all_loans:
-        # loan = frappe.get_doc("Loan", loan.name)
-        # existing_topup_application = frappe.get_all(
-        #     "Top up Application",
-        #     filters={
-        #         "loan": loan.name,
-        #         "customer": customer.name,
-        #         "status": ["not IN", ["Approved", "Rejected"]],
-        #     },
-        #     fields=["count(name) as in_process"],
-        # )
-
-        # if existing_topup_application[0]["in_process"] == 0:
-        #     topup = loan.max_topup_amount()
-        #     if topup:
-        #         top_up = {
-        #             "loan": loan.name,
-        #             "top_up_amount": topup,
-        #         }
-        #         topup_list.append(top_up)
-        #     else:
-        #         top_up = None
-
-        # # Sell Collateral
-        # sell_collateral_application_exist = frappe.get_all(
-        #     "Sell Collateral Application",
-        #     filters={"loan": loan.name, "status": "Pending"},
-        #     fields=[
-        #         "name",
-        #         "creation",
-        #         "modified",
-        #         "modified_by",
-        #         "owner",
-        #         "docstatus",
-        #         "parent",
-        #         "parentfield",
-        #         "parenttype",
-        #         "idx",
-        #         "loan",
-        #         "total_collateral_value",
-        #         "lender",
-        #         "customer",
-        #         "selling_collateral_value",
-        #         "amended_from",
-        #         "status",
-        #         "workflow_state",
-        #         "loan_margin_shortfall",
-        #     ],
-        #     order_by="creation desc",
-        #     page_length=1,
-        # )
-        # if sell_collateral_application_exist:
-        #     sell_collateral_application_exist[0]["items"] = frappe.get_all(
-        #         "Sell Collateral Application Item",
-        #         filters={"parent": sell_collateral_application_exist[0].name},
-        #         fields=["*"],
-        #     )
-
-        # sell_collateral_list.append(
-        #     {
-        #         "loan_name": loan.name,
-        #         "sell_collateral_available": sell_collateral_application_exist[0]
-        #         if len(sell_collateral_application_exist)
-        #         else None,
-        #     }
-        # )
-
-        # Increase Loan
-        # existing_loan_application = frappe.get_all(
-        #     "Loan Application",
-        #     filters={
-        #         "loan": loan.name,
-        #         "customer": loan.customer,
-        #         "status": ["not IN", ["Approved", "Rejected"]],
-        #     },
-        #     fields=["count(name) as in_process"],
-        # )
-
-        # increase_loan_list.append(
-        #     {
-        #         "loan_name": loan.name,
-        #         "increase_loan_available": 1
-        #         if existing_loan_application[0]["in_process"] == 0
-        #         else None,
-        #     }
-        # )
-
-        # check if any pending unpledge application exist
-        #     loan_margin_shortfall = loan.get_margin_shortfall()
-        #     if loan_margin_shortfall.get("__islocal", None):
-        #         loan_margin_shortfall = None
-        #     unpledge_application_exist = frappe.get_all(
-        #         "Unpledge Application",
-        #         filters={"loan": loan.name, "status": "Pending"},
-        #         fields=[
-        #             "name",
-        #             "creation",
-        #             "modified",
-        #             "modified_by",
-        #             "owner",
-        #             "docstatus",
-        #             "parent",
-        #             "parentfield",
-        #             "parenttype",
-        #             "idx",
-        #             "loan",
-        #             "total_collateral_value",
-        #             "lender",
-        #             "customer",
-        #             "unpledge_collateral_value",
-        #             "amended_from",
-        #             "status",
-        #             "workflow_state",
-        #         ],
-        #         order_by="creation desc",
-        #         page_length=1,
-        #     )
-        #     if unpledge_application_exist:
-        #         unpledge_application_exist[0]["items"] = frappe.get_all(
-        #             "Unpledge Application Item",
-        #             filters={"parent": unpledge_application_exist[0].name},
-        #             fields=["*"],
-        #         )
-
-        #     unpledge_application_list.append(
-        #         {
-        #             "loan_name": loan.name,
-        #             "unpledge_application_available": unpledge_application_exist[0]
-        #             if unpledge_application_exist
-        #             else None,
-        #             "unpledge_msg_while_margin_shortfall": """OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
-        #                 loan.get_customer().first_name
-        #             )
-        #             if loan_margin_shortfall
-        #             else None,
-        #             "unpledge": None
-        #             if unpledge_application_exist or loan_margin_shortfall
-        #             else loan.max_unpledge_amount(),
-        #         }
-        #     )
-
-        # topup_list.sort(key=lambda item: (item["loan"]), reverse=True)
-        # sell_collateral_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
-        # increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
-        # unpledge_application_list.sort(
-        #     key=lambda item: (item["loan_name"]), reverse=True
-        # )
 
         number_of_user_login = frappe.get_all(
             "Activity Log",
@@ -3104,11 +2865,6 @@ def feedback(**kwargs):
         if isinstance(data.get("from_more_menu"), str):
             data["from_more_menu"] = int(data.get("from_more_menu"))
 
-        # validation
-        # if data.get("do_not_show_again") or customer.feedback_submitted:
-        #     return utils.respondWithFailure(
-        #         message=frappe._("Dont show feedback popup again")
-        #     )
         if not data.get("do_not_show_again"):
             if (data.get("bulls_eye") and data.get("can_do_better")) or (
                 not data.get("bulls_eye") and not data.get("can_do_better")

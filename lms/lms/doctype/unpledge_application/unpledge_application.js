@@ -4,7 +4,7 @@
 frappe.ui.form.on("Unpledge Application", {
   refresh: function (frm) {
     show_fetch_items_button(frm);
-    if (frm.doc.status == "Rejected") {
+    if (frm.doc.status != "Pending") {
       frm.clear_custom_buttons();
     }
   },
@@ -28,7 +28,7 @@ function show_fetch_items_button(frm) {
           "lms.lms.doctype.unpledge_application.unpledge_application.get_collateral_details",
         args: { unpledge_application_name: frm.doc.name },
         freeze: true,
-        freeze_message: "Fetching Collateral Details",
+        freeze_message: "Please wait",
         callback: (res) => {
           frm.set_value("unpledge_items", res.message);
           show_fetch_items_button(frm);
@@ -46,7 +46,7 @@ function show_fetch_items_button(frm) {
               "lms.lms.doctype.unpledge_application.unpledge_application.validate_revoc",
             args: { unpledge_application_name: frm.doc.name },
             freeze: true,
-            freeze_message: "Validating Revoke Items",
+            freeze_message: "Please wait",
             callback: (res) => {
               frm.reload_doc();
             },
@@ -62,7 +62,7 @@ function show_fetch_items_button(frm) {
               "lms.lms.doctype.unpledge_application.unpledge_application.initiate_revoc",
             args: { unpledge_application_name: frm.doc.name },
             freeze: true,
-            freeze_message: "Initiating Revoke Items",
+            freeze_message: "Please wait",
             callback: (res) => {
               frm.reload_doc();
             },

@@ -108,12 +108,15 @@ class SellCollateralApplication(Document):
         for i in self.sell_items:
             if i.sell_quantity > i.quantity:
                 frappe.throw(msg.format(i.isin, i.psn, i.quantity))
-            if sell_requested_quantity_map.get(i.isin) > i.sell_quantity:
-                frappe.throw(
-                    "You need to {} all {} of isin {}".format(
-                        applicaton_type, sell_requested_quantity_map.get(i.isin), i.isin
+            if self.instrument_type == "Mutual Fund":
+                if sell_requested_quantity_map.get(i.isin) > i.sell_quantity:
+                    frappe.throw(
+                        "You need to {} all {} of isin {}".format(
+                            applicaton_type,
+                            sell_requested_quantity_map.get(i.isin),
+                            i.isin,
+                        )
                     )
-                )
             sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
             # i.price = price_map.get(i.isin)
             # self.selling_collateral_value += i.sell_quantity * price_map.get(i.isin)
@@ -134,24 +137,30 @@ class SellCollateralApplication(Document):
                         applicaton_type, i.isin, i.quantity
                     )
                 )
-
-    def before_submit(self):
-        # check if all securities are sold
-        sell_quantity_map = {i.isin: 0 for i in self.items}
-
-        applicaton_type = "sell" if self.instrument_type == "Shares" else "invoke"
-
-        for i in self.sell_items:
-            sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
-
-        for i in self.items:
-            # print(sell_quantity_map.get(i.isin), i.quantity)
             if sell_quantity_map.get(i.isin) < i.quantity:
                 frappe.throw(
                     "You need to {} all {} of isin {}".format(
                         applicaton_type, i.quantity, i.isin
                     )
                 )
+
+    def before_submit(self):
+        # check if all securities are sold
+        # sell_quantity_map = {i.isin: 0 for i in self.items}
+
+        applicaton_type = "sell" if self.instrument_type == "Shares" else "invoke"
+
+        # for i in self.sell_items:
+        #     sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
+
+        # for i in self.items:
+        #     # print(sell_quantity_map.get(i.isin), i.quantity)
+        #     if sell_quantity_map.get(i.isin) < i.quantity:
+        #         frappe.throw(
+        #             "You need to {} all {} of isin {}".format(
+        #                 applicaton_type, i.quantity, i.isin
+        #             )
+        #         )
         """22-06-21 informed by vinayak"""
         # if self.lender_selling_amount > self.selling_collateral_value:
         #     frappe.throw(
@@ -505,9 +514,13 @@ import requests
 @frappe.whitelist()
 def validate_invoc(sell_collateral_application_name):
     try:
-        sell_collateral_application_doc = frappe.get_doc(
-            "Sell Collateral Application", sell_collateral_application_name
-        )
+        print(sell_collateral_application_name, "sell_collateral_application_name")
+        try:
+            sell_collateral_application_doc = frappe.get_doc(
+                "Sell Collateral Application", sell_collateral_application_name
+            )
+        except frappe.DoesNotExistError as e:
+            raise utils.exceptions.APIException(str(e))
         collateral_ledger = frappe.get_last_doc(
             "Collateral Ledger", filters={"loan": sell_collateral_application_doc.loan}
         )
@@ -629,19 +642,22 @@ def validate_invoc(sell_collateral_application_name):
             frappe.throw(frappe._("Mycams Email ID is missing"))
     except utils.exceptions.APIException as e:
         frappe.log_error(
-            title="Invocation - Initiate - Error",
+            title="Invocation - Validate - Error",
             message=frappe.get_traceback()
-            + "\n\nInvocation - Initiate - Error: "
-            + str(e.args),
+            + "\n\nInvocation - Validate Details:\n"
+            + str(sell_collateral_application_name),
         )
 
 
 @frappe.whitelist()
 def initiate_invoc(sell_collateral_application_name):
     try:
-        sell_collateral_application_doc = frappe.get_doc(
-            "Sell Collateral Application", sell_collateral_application_name
-        )
+        try:
+            sell_collateral_application_doc = frappe.get_doc(
+                "Sell Collateral Application", sell_collateral_application_name
+            )
+        except frappe.DoesNotExistError as e:
+            raise utils.exceptions.APIException(str(e))
         collateral_ledger = frappe.get_last_doc(
             "Collateral Ledger", filters={"loan": sell_collateral_application_doc.loan}
         )
@@ -767,6 +783,6 @@ def initiate_invoc(sell_collateral_application_name):
         frappe.log_error(
             title="Invocation - Initiate - Error",
             message=frappe.get_traceback()
-            + "\n\nInvocation - Initiate - Error: "
-            + str(e.args),
+            + "\n\nInvocation - Initiate Details:\n"
+            + str(sell_collateral_application_name),
         )
