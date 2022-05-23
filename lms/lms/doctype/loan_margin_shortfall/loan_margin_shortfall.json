@@ -15,6 +15,7 @@
   "allowable_ltv",
   "column_break_6",
   "drawing_power",
+  "actual_drawing_power",
   "section_break_8",
   "loan_balance",
   "minimum_collateral_value",
@@ -224,10 +225,17 @@
    "label": "Scheme Type",
    "options": "\nEquity\nDebt",
    "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type != \"Shares\";",
+   "fieldname": "actual_drawing_power",
+   "fieldtype": "Currency",
+   "label": "Actual Drawing Power",
+   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2022-03-28 14:59:35.813472",
+ "modified": "2022-05-23 15:51:13.986820",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Margin Shortfall",

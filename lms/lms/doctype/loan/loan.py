@@ -344,6 +344,11 @@ class Loan(Document):
             if drawing_power <= self.sanctioned_limit
             else self.sanctioned_limit
         )
+        # Updating actual drawing power
+        self.actual_drawing_power = round(
+            (drawing_power),
+            2,
+        )
 
     def get_collateral_list(
         self, group_by_psn=False, where_clause="", having_clause=""

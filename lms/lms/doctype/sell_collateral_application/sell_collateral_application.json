@@ -7,6 +7,7 @@
  "field_order": [
   "loan",
   "total_collateral_value",
+  "actual_drawing_power",
   "lender",
   "initial_shortfall_amount",
   "current_shortfall_amount",
@@ -191,11 +192,18 @@
    "fieldtype": "Data",
    "label": "Invoctoken",
    "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type != \"Shares\";",
+   "fieldname": "actual_drawing_power",
+   "fieldtype": "Currency",
+   "label": "Actual Drawing Power",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-05-12 16:40:28.935642",
+ "modified": "2022-05-23 15:49:56.310664",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",

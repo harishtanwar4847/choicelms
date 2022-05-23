@@ -9,6 +9,7 @@
   "loan",
   "top_up_amount",
   "sanctioned_limit",
+  "actual_drawing_power",
   "column_break_6",
   "time",
   "status",
@@ -168,11 +169,18 @@
    "label": "Scheme Type",
    "options": "\nEquity\nDebt",
    "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type != \"Shares\";",
+   "fieldname": "actual_drawing_power",
+   "fieldtype": "Currency",
+   "label": "Actual Drawing Power",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-04-26 16:39:35.724294",
+ "modified": "2022-05-23 15:44:42.033964",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Top up Application",
