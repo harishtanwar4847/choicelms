@@ -137,31 +137,31 @@ class SellCollateralApplication(Document):
                         applicaton_type, i.isin, i.quantity
                     )
                 )
-        for i in self.sell_items:
-            if sell_quantity_map.get(i.isin) < i.quantity:
-                frappe.throw(
-                    "You need to {} all {} of isin {}".format(
-                        applicaton_type, i.quantity, i.isin
-                    )
-                )
-
-    def before_submit(self):
-        # check if all securities are sold
-        # sell_quantity_map = {i.isin: 0 for i in self.items}
-
-        applicaton_type = "sell" if self.instrument_type == "Shares" else "invoke"
-
-        # for i in self.sell_items:
-        #     sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
-
         # for i in self.items:
-        #     # print(sell_quantity_map.get(i.isin), i.quantity)
         #     if sell_quantity_map.get(i.isin) < i.quantity:
         #         frappe.throw(
         #             "You need to {} all {} of isin {}".format(
         #                 applicaton_type, i.quantity, i.isin
         #             )
         #         )
+
+    def before_submit(self):
+        # check if all securities are sold
+        sell_quantity_map = {i.isin: 0 for i in self.items}
+
+        applicaton_type = "sell" if self.instrument_type == "Shares" else "invoke"
+
+        for i in self.sell_items:
+            sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
+
+        for i in self.items:
+            # print(sell_quantity_map.get(i.isin), i.quantity)
+            if sell_quantity_map.get(i.isin) < i.quantity:
+                frappe.throw(
+                    "You need to {} all {} of isin {}".format(
+                        applicaton_type, i.quantity, i.isin
+                    )
+                )
         """22-06-21 informed by vinayak"""
         # if self.lender_selling_amount > self.selling_collateral_value:
         #     frappe.throw(
