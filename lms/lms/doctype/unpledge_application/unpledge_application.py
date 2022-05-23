@@ -129,6 +129,7 @@ class UnpledgeApplication(Document):
                         application_type, i.isin, i.quantity
                     )
                 )
+        for i in self.unpledge_items:
             if unpledge_quantity_map.get(i.isin) < i.quantity:
                 frappe.throw(
                     "You need to {} all {} of isin {}".format(

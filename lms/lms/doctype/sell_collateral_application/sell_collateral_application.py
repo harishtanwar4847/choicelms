@@ -137,6 +137,7 @@ class SellCollateralApplication(Document):
                         applicaton_type, i.isin, i.quantity
                     )
                 )
+        for i in self.sell_items:
             if sell_quantity_map.get(i.isin) < i.quantity:
                 frappe.throw(
                     "You need to {} all {} of isin {}".format(
