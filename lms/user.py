@@ -1340,19 +1340,20 @@ def schemes(**kwargs):
                 message=frappe._("Scheme type should be either Equity or Debt."),
             )
         if not data.get("lender", None):
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Atleast one lender required"),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Atleast one lender required"),
+            # )
+            lender_list = frappe.db.get_list("Lender", pluck="name")
         else:
             lender_list = data.get("lender").split(",")
 
         if not data.get("level"):
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Atleast one level required"),
-            )
-            # data["level"] = []
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Atleast one level required"),
+            # )
+            data["level"] = []
 
         if isinstance(data.get("level"), str):
             data["level"] = data.get("level").split(",")
