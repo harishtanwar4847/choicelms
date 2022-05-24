@@ -2131,10 +2131,10 @@ def loan_unpledge_details(**kwargs):
 
         lender = frappe.get_doc("Lender", loan.lender)
         revoke_initiate_charges = {
-            "invoke_initiate_charge_type": lender.revoke_initiate_charge_type,
-            "invoke_initiate_charges": lender.revoke_initiate_charges,
-            "invoke_initiate_charges_minimum_amount": lender.revoke_initiate_charges_minimum_amount,
-            "invoke_initiate_charges_maximum_amount": lender.revoke_initiate_charges_maximum_amount,
+            "revoke_initiate_charge_type": lender.revoke_initiate_charge_type,
+            "revoke_initiate_charges": lender.revoke_initiate_charges,
+            "revoke_initiate_charges_minimum_amount": lender.revoke_initiate_charges_minimum_amount,
+            "revoke_initiate_charges_maximum_amount": lender.revoke_initiate_charges_maximum_amount,
         }
 
         res = {
