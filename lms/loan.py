@@ -992,6 +992,7 @@ def loan_details(**kwargs):
             due_date = ""
             due_date_txt = "Pay By"
             info_msg = ""
+            dpd = "Days Passed Due - {}".format(loan.day_past_due)
 
             rebate_threshold = int(loan.get_rebate_threshold())
             default_threshold = int(loan.get_default_threshold())
@@ -1012,6 +1013,7 @@ def loan_details(**kwargs):
                 "due_date": due_date.strftime("%d.%m.%Y"),
                 "due_date_txt": due_date_txt,
                 "info_msg": info_msg,
+                "dpd": dpd,
             }
         else:
             interest = None
