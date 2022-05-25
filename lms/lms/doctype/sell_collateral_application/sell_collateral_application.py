@@ -108,12 +108,15 @@ class SellCollateralApplication(Document):
         for i in self.sell_items:
             if i.sell_quantity > i.quantity:
                 frappe.throw(msg.format(i.isin, i.psn, i.quantity))
-            if sell_requested_quantity_map.get(i.isin) > i.sell_quantity:
-                frappe.throw(
-                    "You need to {} all {} of isin {}".format(
-                        applicaton_type, sell_requested_quantity_map.get(i.isin), i.isin
+            if self.instrument_type == "Mutual Fund":
+                if sell_requested_quantity_map.get(i.isin) > i.sell_quantity:
+                    frappe.throw(
+                        "You need to {} all {} of isin {}".format(
+                            applicaton_type,
+                            sell_requested_quantity_map.get(i.isin),
+                            i.isin,
+                        )
                     )
-                )
             sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
             # i.price = price_map.get(i.isin)
             # self.selling_collateral_value += i.sell_quantity * price_map.get(i.isin)
@@ -134,6 +137,13 @@ class SellCollateralApplication(Document):
                         applicaton_type, i.isin, i.quantity
                     )
                 )
+        # for i in self.items:
+        #     if sell_quantity_map.get(i.isin) < i.quantity:
+        #         frappe.throw(
+        #             "You need to {} all {} of isin {}".format(
+        #                 applicaton_type, i.quantity, i.isin
+        #             )
+        #         )
 
     def before_submit(self):
         # check if all securities are sold
