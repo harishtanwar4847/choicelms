@@ -1415,7 +1415,7 @@ def isin_details(**kwargs):
             )
 
         isin_details = frappe.db.sql(
-            """select als.isin, (select category_name from `tabSecurity Category` where name = als.security_category) as category, l.name, l.minimum_sanctioned_limit, l.maximum_sanctioned_limit, l.rate_of_interest from `tabAllowed Security` als LEFT JOIN `tabLender` l on l.name = als.lender where als.isin='{}'""".format(
+            """select als.isin, als.eligible_percentage as ltv, (select category_name from `tabSecurity Category` where name = als.security_category) as category, l.name, l.minimum_sanctioned_limit, l.maximum_sanctioned_limit, l.rate_of_interest from `tabAllowed Security` als LEFT JOIN `tabLender` l on l.name = als.lender where als.isin='{}'""".format(
                 data.get("isin")
             ),
             as_dict=True,

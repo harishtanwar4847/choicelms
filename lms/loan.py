@@ -810,6 +810,8 @@ def loan_details(**kwargs):
                         "action_taken_msg"
                     ] = "Total Margin Shortfall: Rs. {}/- ".format(
                         loan_margin_shortfall.shortfall
+                        if loan_margin_shortfall.instrument_type == "Shares"
+                        else loan_margin_shortfall.minimum_cash_amount
                     )
 
                 if pledged_securities_for_mg_shortfall:
