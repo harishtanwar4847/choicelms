@@ -2132,7 +2132,7 @@ def dashboard(**kwargs):
                 due_date = ""
                 due_date_txt = "Pay By"
                 info_msg = ""
-                dpd = "Days Passed Due - {}".format(loan.day_past_due)
+                dpd = loan.day_past_due
 
                 rebate_threshold = int(loan.get_rebate_threshold())
                 default_threshold = int(loan.get_default_threshold())
