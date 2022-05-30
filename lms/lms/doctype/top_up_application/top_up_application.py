@@ -463,6 +463,7 @@ class TopupApplication(Document):
 
     def before_save(self):
         loan = self.get_loan()
+        self.actual_drawing_power = loan.actual_drawing_power
         self.instrument_type = loan.instrument_type
         self.scheme_type = loan.scheme_type
         self.sanctioned_limit = loan.sanctioned_limit

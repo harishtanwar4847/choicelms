@@ -1350,7 +1350,7 @@ def schemes(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {"scheme_type": "required", "lender": "", "level": ""},
+            {"scheme_type": "", "lender": "", "level": ""},
         )
 
         reg = lms.regex_special_characters(
@@ -1375,17 +1375,23 @@ def schemes(**kwargs):
             raise lms.exceptions.FailureException(
                 _("Scheme type should be either Equity or Debt.")
             )
+        if not data.get("lender", None):
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Atleast one lender required"),
+            )
+        else:
+            lender_list = data.get("lender").split(",")
 
         if not data.get("level"):
-            data["level"] = []
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Atleast one level required"),
+            )
+            # data["level"] = []
 
         if isinstance(data.get("level"), str):
             data["level"] = data.get("level").split(",")
-
-        if not data.get("lender", None):
-            lender_list = frappe.db.get_list("Lender", pluck="name")
-        else:
-            lender_list = data.get("lender").split(",")
 
         scheme = ""
         lender = ""
@@ -1447,7 +1453,7 @@ def isin_details(**kwargs):
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         isin_details = frappe.db.sql(
-            """select als.isin, (select category_name from `tabSecurity Category` where name = als.security_category) as category, l.name, l.minimum_sanctioned_limit, l.maximum_sanctioned_limit, l.rate_of_interest from `tabAllowed Security` als LEFT JOIN `tabLender` l on l.name = als.lender where als.isin='{}'""".format(
+            """select als.isin, als.eligible_percentage as ltv, (select category_name from `tabSecurity Category` where name = als.security_category) as category, l.name, l.minimum_sanctioned_limit, l.maximum_sanctioned_limit, l.rate_of_interest from `tabAllowed Security` als LEFT JOIN `tabLender` l on l.name = als.lender where als.isin='{}'""".format(
                 data.get("isin")
             ),
             as_dict=True,
@@ -2183,6 +2189,7 @@ def dashboard(**kwargs):
                 due_date = ""
                 due_date_txt = "Pay By"
                 info_msg = ""
+                dpd = loan.day_past_due
 
                 rebate_threshold = int(loan.get_rebate_threshold())
                 default_threshold = int(loan.get_default_threshold())
@@ -2223,6 +2230,7 @@ def dashboard(**kwargs):
                         "%d.%m.%Y"
                     ),
                     "due_date_txt": dictionary["interest"]["due_date_txt"],
+                    "dpd": dpd,
                 }
             )
 

@@ -39,6 +39,7 @@ class SellCollateralApplication(Document):
     def process_items(self):
         self.total_collateral_value = 0
         loan = self.get_loan()
+        self.actual_drawing_power = loan.actual_drawing_power
         self.instrument_type = loan.instrument_type
         self.scheme_type = loan.scheme_type
         self.lender = loan.lender
@@ -108,12 +109,15 @@ class SellCollateralApplication(Document):
         for i in self.sell_items:
             if i.sell_quantity > i.quantity:
                 frappe.throw(msg.format(i.isin, i.psn, i.quantity))
-            if sell_requested_quantity_map.get(i.isin) > i.sell_quantity:
-                frappe.throw(
-                    "You need to {} all {} of isin {}".format(
-                        applicaton_type, sell_requested_quantity_map.get(i.isin), i.isin
+            if self.instrument_type == "Mutual Fund":
+                if sell_requested_quantity_map.get(i.isin) > i.sell_quantity:
+                    frappe.throw(
+                        "You need to {} all {} of isin {}".format(
+                            applicaton_type,
+                            sell_requested_quantity_map.get(i.isin),
+                            i.isin,
+                        )
                     )
-                )
             sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
             # i.price = price_map.get(i.isin)
             # self.selling_collateral_value += i.sell_quantity * price_map.get(i.isin)
@@ -134,6 +138,13 @@ class SellCollateralApplication(Document):
                         applicaton_type, i.isin, i.quantity
                     )
                 )
+        # for i in self.items:
+        #     if sell_quantity_map.get(i.isin) < i.quantity:
+        #         frappe.throw(
+        #             "You need to {} all {} of isin {}".format(
+        #                 applicaton_type, i.quantity, i.isin
+        #             )
+        #         )
 
     def before_submit(self):
         # check if all securities are sold
@@ -355,11 +366,11 @@ class SellCollateralApplication(Document):
                 )
         else:
             # invoke charges - Mutual Fund
-            invoke_charges = lender.invoke_charges
+            invoke_charges = lender.invoke_initiate_charges
 
-            # if lender.invoke_charge_type == "Fix":
-            #     invoke_charges = invoke_charges
-            if lender.invoke_charge_type == "Percentage":
+            if lender.invoke_charge_type == "Fix":
+                invoke_charges = invoke_charges
+            elif lender.invoke_charge_type == "Percentage":
                 amount = self.lender_selling_amount * invoke_charges / 100
                 invoke_charges = loan.validate_loan_charges_amount(
                     lender,

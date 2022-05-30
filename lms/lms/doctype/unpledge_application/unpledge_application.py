@@ -21,6 +21,8 @@ class UnpledgeApplication(Document):
         self.process_items()
 
     def before_save(self):
+        loan = self.get_loan()
+        self.actual_drawing_power = loan.actual_drawing_power
         loan_margin_shortfall = frappe.get_all(
             "Loan Margin Shortfall",
             {"loan": self.loan, "status": "Pending"},
@@ -41,8 +43,9 @@ class UnpledgeApplication(Document):
         self.customer = loan.customer
         if not self.customer_name:
             self.customer_name = loan.customer_name
-        allowable_value = loan.max_unpledge_amount()
-        self.max_unpledge_amount = allowable_value["maximum_unpledge_amount"]
+        if self.instrument_type == "Shares":
+            allowable_value = loan.max_unpledge_amount()
+            self.max_unpledge_amount = allowable_value["maximum_unpledge_amount"]
 
         pending_sell_request_id = frappe.db.get_value(
             "Sell Collateral Application",
@@ -96,14 +99,15 @@ class UnpledgeApplication(Document):
         for i in self.unpledge_items:
             if i.unpledge_quantity > i.quantity:
                 frappe.throw(msg.format(i.isin, i.psn, i.quantity))
-            if unpledge_requested_quantity_map.get(i.isin) > i.unpledge_quantity:
-                frappe.throw(
-                    "You need to {} all {} of isin {}".format(
-                        application_type,
-                        unpledge_requested_quantity_map.get(i.isin),
-                        i.isin,
+            if self.instrument_type == "Mutual Fund":
+                if unpledge_requested_quantity_map.get(i.isin) > i.unpledge_quantity:
+                    frappe.throw(
+                        "You need to {} all {} of isin {}".format(
+                            application_type,
+                            unpledge_requested_quantity_map.get(i.isin),
+                            i.isin,
+                        )
                     )
-                )
             unpledge_quantity_map[i.isin] = (
                 unpledge_quantity_map[i.isin] + i.unpledge_quantity
             )
@@ -128,6 +132,13 @@ class UnpledgeApplication(Document):
                         application_type, i.isin, i.quantity
                     )
                 )
+        # for i in self.items:
+        #     if unpledge_quantity_map.get(i.isin) < i.quantity:
+        #         frappe.throw(
+        #             "You need to {} all {} of isin {}".format(
+        #                 application_type, i.quantity, i.isin
+        #             )
+        #         )
 
     def before_submit(self):
         # check if all securities are sold
@@ -140,17 +151,17 @@ class UnpledgeApplication(Document):
                 unpledge_quantity_map[i.isin] = (
                     unpledge_quantity_map[i.isin] + i.unpledge_quantity
                 )
-        else:
+        if len(self.unpledge_items) == 0:
             frappe.throw("Please add items to {}".format(application_type))
 
-        # for i in self.items:
-        #     # print(unpledge_quantity_map.get(i.isin), i.quantity)
-        #     if unpledge_quantity_map.get(i.isin) < i.quantity:
-        #         frappe.throw(
-        #             "You need to {} all {} of isin {}".format(
-        #                 application_type, i.quantity, i.isin
-        #             )
-        #         )
+        for i in self.items:
+            # print(unpledge_quantity_map.get(i.isin), i.quantity)
+            if unpledge_quantity_map.get(i.isin) < i.quantity:
+                frappe.throw(
+                    "You need to {} all {} of isin {}".format(
+                        application_type, i.quantity, i.isin
+                    )
+                )
 
         loan_items = frappe.get_all(
             "Loan Item", filters={"parent": self.loan}, fields=["*"]
@@ -225,9 +236,9 @@ class UnpledgeApplication(Document):
             # revoke charges - Mutual Fund
             revoke_charges = lender.revoke_initiate_charges
 
-            # if lender.revoke_initiate_charge_type == "Fix":
-            #     revoke_charges = revoke_charges
-            if lender.revoke_initiate_charge_type == "Percentage":
+            if lender.revoke_initiate_charge_type == "Fix":
+                revoke_charges = revoke_charges
+            elif lender.revoke_initiate_charge_type == "Percentage":
                 amount = self.lender_selling_amount * revoke_charges / 100
                 revoke_charges = loan.validate_loan_charges_amount(
                     lender,

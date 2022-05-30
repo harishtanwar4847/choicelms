@@ -35,3 +35,4 @@ lms.patches.import_allowed_security_mutual_fund_for_choice_lender ##
 lms.patches.mutual_fund_config_las
 lms.patches.update_margin_shortfall_action_list
 lms.patches.update_spark_push_notification_content #
+lms.patches.import_amc_details
