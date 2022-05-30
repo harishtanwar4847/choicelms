@@ -133,8 +133,8 @@ def login(**kwargs):
     except frappe.SecurityException as e:
         frappe.db.rollback()
         lms.log_api_error()
-        # return utils.respondUnauthorized(message=str(e))
-        raise lms.exceptions.UnauthorizedException(str(e))
+        return utils.respondUnauthorized(message=str(e))
+        # raise lms.exceptions.UnauthorizedException(str(e))
 
 
 @frappe.whitelist()
@@ -300,8 +300,8 @@ def verify_otp(**kwargs):
     except frappe.SecurityException as e:
         frappe.db.rollback()
         lms.log_api_error()
-        # return utils.respondUnauthorized(message=str(e))
-        raise lms.exceptions.UnauthorizedException(str(e))
+        return utils.respondUnauthorized(message=str(e))
+        # raise lms.exceptions.UnauthorizedException(str(e))
 
 
 @frappe.whitelist(allow_guest=True)

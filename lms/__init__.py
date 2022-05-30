@@ -1086,9 +1086,18 @@ def log_api_error():
         # this hack tries to be smart about whats a title (single line ;-)) and fixes it
         request_parameters = frappe.local.form_dict
         headers = {k: v for k, v in frappe.local.request.headers.items()}
-        message = "Customer ID : {}\n\nRequest Parameters : {}\n\nHeaders : {}".format(
-            __customer().name, str(request_parameters), str(headers)
-        )
+        customer = frappe.get_all("Loan Customer", filters={"user": __user().name})
+
+        if len(customer) == 0:
+            message = "Request Parameters : {}\n\nHeaders : {}".format(
+                str(request_parameters), str(headers)
+            )
+        else:
+            message = (
+                "Customer ID : {}\n\nRequest Parameters : {}\n\nHeaders : {}".format(
+                    customer[0].name, str(request_parameters), str(headers)
+                )
+            )
 
         title = (
             request_parameters.get("cmd").split(".")[-1].replace("_", " ").title()
@@ -1096,10 +1105,12 @@ def log_api_error():
         )
 
         error = frappe.get_traceback() + "\n\n" + message
-
-        return frappe.get_doc(
+        log = frappe.get_doc(
             dict(doctype="API Error Log", error=frappe.as_unicode(error), method=title)
         ).insert(ignore_permissions=True)
+        frappe.db.commit()
+
+        return log
 
     except Exception:
         frappe.log_error(
