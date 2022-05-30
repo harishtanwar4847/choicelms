@@ -23,8 +23,6 @@ class SellCollateralApplication(Document):
         self.process_items()
 
     def before_save(self):
-        loan = self.get_loan()
-        self.actual_drawing_power = loan.actual_drawing_power
         self.process_items()
         self.process_sell_items()
         if self.status == "Rejected":
@@ -41,6 +39,7 @@ class SellCollateralApplication(Document):
     def process_items(self):
         self.total_collateral_value = 0
         loan = self.get_loan()
+        self.actual_drawing_power = loan.actual_drawing_power
         self.instrument_type = loan.instrument_type
         self.scheme_type = loan.scheme_type
         self.lender = loan.lender

@@ -21,8 +21,6 @@ from lms.firebase import FirebaseAdmin
 class LoanMarginShortfall(Document):
     def before_save(self):
         self.fill_items()
-        # loan = frappe.get_doc("Loan", self.loan)
-        # self.actual_drawing_power = loan.actual_drawing_power
 
     def fill_items(self):
         loan = frappe.get_doc("Loan", self.loan)
