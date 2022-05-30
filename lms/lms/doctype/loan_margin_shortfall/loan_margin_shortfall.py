@@ -56,7 +56,7 @@ class LoanMarginShortfall(Document):
                 else 0
             )
         self.shortfall_c = math.ceil(
-            ((self.loan_balance - self.drawing_power) * 2)
+            ((self.loan_balance - self.drawing_power) * 100 / self.allowable_ltv)
             if self.loan_balance > self.drawing_power
             else 0
         )
