@@ -1713,7 +1713,7 @@ def actions_on_isin(loan_application):
                 ):
                     total_collateral_value += i["amount"]
                     total_collateral_value = round(total_collateral_value, 2)
-                    if loan_application.instrument_type == "Shares":
+                    if loan_application_doc.instrument_type == "Shares":
                         drawing_power = round(
                             lms.round_down_amount_to_nearest_thousand(
                                 (loan_application["allowable_ltv"] / 100)
