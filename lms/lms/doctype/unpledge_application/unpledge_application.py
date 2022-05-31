@@ -21,6 +21,8 @@ class UnpledgeApplication(Document):
         self.process_items()
 
     def before_save(self):
+        loan = self.get_loan()
+        self.actual_drawing_power = loan.actual_drawing_power
         loan_margin_shortfall = frappe.get_all(
             "Loan Margin Shortfall",
             {"loan": self.loan, "status": "Pending"},
@@ -41,8 +43,9 @@ class UnpledgeApplication(Document):
         self.customer = loan.customer
         if not self.customer_name:
             self.customer_name = loan.customer_name
-        allowable_value = loan.max_unpledge_amount()
-        self.max_unpledge_amount = allowable_value["maximum_unpledge_amount"]
+        if self.instrument_type == "Shares":
+            allowable_value = loan.max_unpledge_amount()
+            self.max_unpledge_amount = allowable_value["maximum_unpledge_amount"]
 
         pending_sell_request_id = frappe.db.get_value(
             "Sell Collateral Application",
@@ -233,9 +236,9 @@ class UnpledgeApplication(Document):
             # revoke charges - Mutual Fund
             revoke_charges = lender.revoke_initiate_charges
 
-            # if lender.revoke_initiate_charge_type == "Fix":
-            #     revoke_charges = revoke_charges
-            if lender.revoke_initiate_charge_type == "Percentage":
+            if lender.revoke_initiate_charge_type == "Fix":
+                revoke_charges = revoke_charges
+            elif lender.revoke_initiate_charge_type == "Percentage":
                 amount = self.lender_selling_amount * revoke_charges / 100
                 revoke_charges = loan.validate_loan_charges_amount(
                     lender,

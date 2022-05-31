@@ -39,6 +39,7 @@ class SellCollateralApplication(Document):
     def process_items(self):
         self.total_collateral_value = 0
         loan = self.get_loan()
+        self.actual_drawing_power = loan.actual_drawing_power
         self.instrument_type = loan.instrument_type
         self.scheme_type = loan.scheme_type
         self.lender = loan.lender
@@ -365,11 +366,11 @@ class SellCollateralApplication(Document):
                 )
         else:
             # invoke charges - Mutual Fund
-            invoke_charges = lender.invoke_charges
+            invoke_charges = lender.invoke_initiate_charges
 
-            # if lender.invoke_charge_type == "Fix":
-            #     invoke_charges = invoke_charges
-            if lender.invoke_charge_type == "Percentage":
+            if lender.invoke_charge_type == "Fix":
+                invoke_charges = invoke_charges
+            elif lender.invoke_charge_type == "Percentage":
                 amount = self.lender_selling_amount * invoke_charges / 100
                 invoke_charges = loan.validate_loan_charges_amount(
                     lender,

@@ -715,6 +715,14 @@ def loan_details(**kwargs):
         if not data.get("transactions_start", None):
             data["transactions_start"] = 0
 
+        lender = frappe.get_doc("Lender", loan.lender)
+        invoke_initiate_charges = {
+            "invoke_initiate_charge_type": lender.invoke_initiate_charge_type,
+            "invoke_initiate_charges": lender.invoke_initiate_charges,
+            "invoke_initiate_charges_minimum_amount": lender.invoke_initiate_charges_minimum_amount,
+            "invoke_initiate_charges_maximum_amount": lender.invoke_initiate_charges_maximum_amount,
+        }
+
         loan_transactions_list = frappe.db.get_all(
             "Loan Transaction",
             filters={"loan": data.get("loan_name"), "docstatus": 1},
@@ -802,6 +810,8 @@ def loan_details(**kwargs):
                         "action_taken_msg"
                     ] = "Total Margin Shortfall: Rs. {}/- ".format(
                         loan_margin_shortfall.shortfall
+                        if loan_margin_shortfall.instrument_type == "Shares"
+                        else loan_margin_shortfall.minimum_cash_amount
                     )
 
                 if pledged_securities_for_mg_shortfall:
@@ -849,15 +859,23 @@ def loan_details(**kwargs):
                     )
                     loan_margin_shortfall["action_taken_msg"] += action_taken_for_sell
 
-                remaining_shortfall = (
-                    loan_margin_shortfall.shortfall
-                    - pledged_paid_shortfall
-                    - sell_off_shortfall
-                    - (
-                        cash_paid_shortfall
-                        * (100 / loan_margin_shortfall.allowable_ltv)
+                # for margin shortfall action taken message
+                if loan_margin_shortfall.instrument_type == "Shares":
+                    remaining_shortfall = (
+                        loan_margin_shortfall.shortfall
+                        - pledged_paid_shortfall
+                        - sell_off_shortfall
+                        - (
+                            cash_paid_shortfall
+                            * (100 / loan_margin_shortfall.allowable_ltv)
+                        )
                     )
-                )
+                else:
+                    remaining_shortfall = (
+                        loan_margin_shortfall.minimum_cash_amount
+                        - sell_off_shortfall
+                        - cash_paid_shortfall
+                    )
 
                 if (
                     pledged_securities_for_mg_shortfall
@@ -976,6 +994,7 @@ def loan_details(**kwargs):
             due_date = ""
             due_date_txt = "Pay By"
             info_msg = ""
+            dpd = loan.day_past_due
 
             rebate_threshold = int(loan.get_rebate_threshold())
             default_threshold = int(loan.get_default_threshold())
@@ -996,6 +1015,7 @@ def loan_details(**kwargs):
                 "due_date": due_date.strftime("%d.%m.%Y"),
                 "due_date_txt": due_date_txt,
                 "info_msg": info_msg,
+                "dpd": dpd,
             }
         else:
             interest = None
@@ -1037,6 +1057,7 @@ def loan_details(**kwargs):
             "interest": interest,
             "topup": topup if topup else None,
             "increase_loan": increase_loan,
+            "invoke_charge_details": invoke_initiate_charges,
         }
 
         sell_collateral_application_exist = frappe.get_all(
@@ -2112,7 +2133,18 @@ def loan_unpledge_details(**kwargs):
         if loan.customer != customer.name:
             return utils.respondForbidden(message=_("Please use your own Loan."))
 
-        res = {"loan": loan}
+        lender = frappe.get_doc("Lender", loan.lender)
+        revoke_initiate_charges = {
+            "revoke_initiate_charge_type": lender.revoke_initiate_charge_type,
+            "revoke_initiate_charges": lender.revoke_initiate_charges,
+            "revoke_initiate_charges_minimum_amount": lender.revoke_initiate_charges_minimum_amount,
+            "revoke_initiate_charges_maximum_amount": lender.revoke_initiate_charges_maximum_amount,
+        }
+
+        res = {
+            "loan": loan,
+            "revoke_charge_details": revoke_initiate_charges,
+        }
 
         loan_margin_shortfall = loan.get_margin_shortfall()
         if loan_margin_shortfall.get("__islocal", None):

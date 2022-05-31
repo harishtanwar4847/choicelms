@@ -332,17 +332,37 @@ class Loan(Document):
 
     def fill_items(self):
         self.total_collateral_value = 0
-        for i in self.items:
-            i.amount = i.price * i.pledged_quantity
-            self.total_collateral_value += i.amount
+        drawing_power = 0
+        if self.instrument_type == "Shares":
+            for i in self.items:
+                i.amount = i.price * i.pledged_quantity
+                self.total_collateral_value += i.amount
 
-        drawing_power = round(
-            (self.total_collateral_value * (self.allowable_ltv / 100)), 2
-        )
+            drawing_power = round(
+                (self.total_collateral_value * (self.allowable_ltv / 100)), 2
+            )
+        else:  # for Drawing power Calculation
+            for i in self.items:
+                i.amount = i.price * i.pledged_quantity
+                dp = (i.eligible_percentage / 100) * i.amount
+                i.eligible_amount = dp
+                self.total_collateral_value += i.amount
+                drawing_power += dp
+
+            drawing_power = round(
+                drawing_power,
+                2,
+            )
+
         self.drawing_power = (
             drawing_power
             if drawing_power <= self.sanctioned_limit
             else self.sanctioned_limit
+        )
+        # Updating actual drawing power
+        self.actual_drawing_power = round(
+            (drawing_power),
+            2,
         )
 
     def get_collateral_list(
@@ -1648,28 +1668,43 @@ class Loan(Document):
 
     def max_topup_amount(self):
         lender = self.get_lender()
-        max_topup_amount = (
-            self.total_collateral_value * (self.allowable_ltv / 100)
-        ) - self.sanctioned_limit
+        if self.instrument_type == "Mutual Fund":
+            max_topup_amount = self.actual_drawing_power - self.sanctioned_limit
+        else:
+            max_topup_amount = (
+                self.total_collateral_value * (self.allowable_ltv / 100)
+            ) - self.sanctioned_limit
 
         # show available top up amount only if topup amount is greater than 10% of sanctioned limit
-        if self.sanctioned_limit > lender.maximum_sanctioned_limit:
-            max_topup_amount = 0
-        elif (
-            max_topup_amount > (self.sanctioned_limit * 0.1)
-            and max_topup_amount >= 1000
-        ):
-            max_topup_amount = lms.round_down_amount_to_nearest_thousand(
-                max_topup_amount
-            )
-            if (
-                max_topup_amount + self.sanctioned_limit
-            ) > lender.maximum_sanctioned_limit:
-                max_topup_amount = (
-                    lender.maximum_sanctioned_limit - self.sanctioned_limit
-                )
-        else:
-            max_topup_amount = 0
+        if self.instrument_type == "Mutual Fund":  # for Mutual Fund Topup
+            if self.sanctioned_limit > lender.maximum_sanctioned_limit:
+                max_topup_amount = 0
+            elif (
+                self.actual_drawing_power / self.sanctioned_limit * 100 - 100
+            ) >= 10 and max_topup_amount >= 1000:
+                if (
+                    max_topup_amount + self.sanctioned_limit
+                ) > lender.maximum_sanctioned_limit:
+                    max_topup_amount = (
+                        lender.maximum_sanctioned_limit - self.sanctioned_limit
+                    )
+            else:
+                max_topup_amount = 0
+        else:  # for Share Topup
+            if self.sanctioned_limit > lender.maximum_sanctioned_limit:
+                max_topup_amount = 0
+            elif (
+                max_topup_amount > (self.sanctioned_limit * 0.1)
+                and max_topup_amount >= 1000
+            ):
+                if (
+                    max_topup_amount + self.sanctioned_limit
+                ) > lender.maximum_sanctioned_limit:
+                    max_topup_amount = (
+                        lender.maximum_sanctioned_limit - self.sanctioned_limit
+                    )
+            else:
+                max_topup_amount = 0
 
         return round(max_topup_amount, 2)
 
@@ -1705,17 +1740,22 @@ class Loan(Document):
             frappe.db.commit()
 
     def max_unpledge_amount(self):
-        minimum_collateral_value = (100 / self.allowable_ltv) * self.balance
-        maximum_unpledge_amount = self.total_collateral_value - minimum_collateral_value
+        if self.instrument_type == "Shares":
+            minimum_collateral_value = (100 / self.allowable_ltv) * self.balance
+            maximum_unpledge_amount = (
+                self.total_collateral_value - minimum_collateral_value
+            )
 
-        return {
-            "minimum_collateral_value": round(minimum_collateral_value, 2)
-            if minimum_collateral_value > 0
-            else 0.0,
-            "maximum_unpledge_amount": round(maximum_unpledge_amount, 2)
-            if maximum_unpledge_amount > 0
-            else 0.0,
-        }
+            return {
+                "minimum_collateral_value": round(minimum_collateral_value, 2)
+                if minimum_collateral_value > 0
+                else 0.0,
+                "maximum_unpledge_amount": round(maximum_unpledge_amount, 2)
+                if maximum_unpledge_amount > 0
+                else 0.0,
+            }
+        else:
+            return {}
 
     def update_pending_sell_collateral_amount(self):
         all_pending_sell_collateral_applications = frappe.get_all(
