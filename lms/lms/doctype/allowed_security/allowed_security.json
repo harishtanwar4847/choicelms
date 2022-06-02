@@ -12,6 +12,7 @@
   "eligible_percentage",
   "instrument_type",
   "amc_code",
+  "amc_name",
   "column_break_5",
   "security_name",
   "security_category",
@@ -103,11 +104,18 @@
    "fieldtype": "Data",
    "label": "Remark ",
    "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
+   "fetch_from": "amc_code.amc_name",
+   "fieldname": "amc_name",
+   "fieldtype": "Data",
+   "label": "AMC Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-06-02 12:57:06.845974",
+ "modified": "2022-06-02 14:12:51.744123",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",
