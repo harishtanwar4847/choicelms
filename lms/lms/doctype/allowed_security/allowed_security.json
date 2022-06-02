@@ -18,7 +18,7 @@
   "security_category",
   "scheme_type",
   "allowed",
-  "status",
+  "res_status",
   "remark"
  ],
  "fields": [
@@ -77,13 +77,6 @@
    "options": "\nEquity\nDebt"
   },
   {
-   "default": "0",
-   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
-   "fieldname": "allowed",
-   "fieldtype": "Check",
-   "label": "Allowed"
-  },
-  {
    "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
    "fieldname": "amc_code",
    "fieldtype": "Link",
@@ -91,31 +84,37 @@
    "options": "AMC Master"
   },
   {
-   "default": "0",
-   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
-   "fieldname": "status",
-   "fieldtype": "Check",
-   "label": "Status",
-   "read_only": 1
-  },
-  {
-   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
-   "fieldname": "remark",
-   "fieldtype": "Data",
-   "label": "Remark ",
-   "read_only": 1
-  },
-  {
    "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
    "fetch_from": "amc_code.amc_name",
    "fieldname": "amc_name",
    "fieldtype": "Data",
    "label": "AMC Name"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
+   "fieldname": "allowed",
+   "fieldtype": "Check",
+   "label": "Allowed"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Data",
+   "label": "Remark",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
+   "fieldname": "res_status",
+   "fieldtype": "Check",
+   "label": "Status",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-06-02 14:12:51.744123",
+ "modified": "2022-06-02 16:36:53.268287",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",
