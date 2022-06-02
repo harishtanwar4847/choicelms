@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_import": 1,
+ "autoname": "Prompt",
  "creation": "2020-05-08 17:48:43.472417",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -10,10 +11,14 @@
   "lender",
   "eligible_percentage",
   "instrument_type",
+  "amc_code",
   "column_break_5",
   "security_name",
   "security_category",
-  "scheme_type"
+  "scheme_type",
+  "allowed",
+  "status",
+  "remark"
  ],
  "fields": [
   {
@@ -69,11 +74,35 @@
    "fieldtype": "Select",
    "label": "Scheme Type",
    "options": "\nEquity\nDebt"
+  },
+  {
+   "default": "0",
+   "fieldname": "allowed",
+   "fieldtype": "Check",
+   "label": "Allowed"
+  },
+  {
+   "fieldname": "amc_code",
+   "fieldtype": "Data",
+   "label": "AMC Code"
+  },
+  {
+   "default": "0",
+   "fieldname": "status",
+   "fieldtype": "Check",
+   "label": "Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Data",
+   "label": "Remark ",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-29 12:58:22.575782",
+ "modified": "2022-06-02 12:31:39.678002",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",
