@@ -77,23 +77,28 @@
   },
   {
    "default": "0",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
    "fieldname": "allowed",
    "fieldtype": "Check",
    "label": "Allowed"
   },
   {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
    "fieldname": "amc_code",
-   "fieldtype": "Data",
-   "label": "AMC Code"
+   "fieldtype": "Link",
+   "label": "AMC Code",
+   "options": "AMC Master"
   },
   {
    "default": "0",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
    "fieldname": "status",
    "fieldtype": "Check",
    "label": "Status",
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
    "fieldname": "remark",
    "fieldtype": "Data",
    "label": "Remark ",
@@ -102,7 +107,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-06-02 12:31:39.678002",
+ "modified": "2022-06-02 12:57:06.845974",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",
