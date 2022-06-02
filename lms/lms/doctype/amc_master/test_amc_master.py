@@ -5,5 +5,5 @@
 import unittest
 
 
-class TestAMCDetails(unittest.TestCase):
+class TestAMCMaster(unittest.TestCase):
     pass
