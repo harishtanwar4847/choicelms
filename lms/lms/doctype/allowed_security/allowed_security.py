@@ -90,11 +90,13 @@ class AllowedSecurity(Document):
                 else "N - " + lienscheme["error"]
             )
             if lienscheme and lienscheme["errorcode"] == "S000":
-                self.res_status = (
-                    True
-                    if lienscheme["schemedetails"][0]["status"] == "SUCCESS"
-                    else lienscheme["schemedetails"][0]["status"]
-                )
+                if lienscheme["schemedetails"][0]["status"] == "SUCCESS":
+                    self.res_status = True
+                else:
+                    self.res_status = False
+                    self.allowed = False if self.allowed == True else True
+            else:
+                self.allowed = False if self.allowed == True else True
 
         except requests.RequestException as e:
             frappe.log_error(
