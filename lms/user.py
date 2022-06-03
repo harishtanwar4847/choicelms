@@ -3768,6 +3768,7 @@ def update_mycams_email(**kwargs):
         frappe.db.commit()
         return utils.respondWithSuccess(data=customer)
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         frappe.log_error(
             message=frappe.get_traceback() + json.dumps(data),
             title=_("Loan Customer - MyCams Email Update Error"),
