@@ -560,67 +560,67 @@ class Loan(Document):
                     if loan_margin_shortfall.is_new():
                         if loan_margin_shortfall.shortfall_percentage > 0:
                             loan_margin_shortfall.insert(ignore_permissions=True)
-                            if (
-                                frappe.utils.now_datetime()
-                                > loan_margin_shortfall.deadline
-                            ):
-                                loan_margin_shortfall.status = "Sell Triggered"
-                                loan_margin_shortfall.save(ignore_permissions=True)
+                            # if (
+                            #     frappe.utils.now_datetime()
+                            #     > loan_margin_shortfall.deadline
+                            # ):
+                            #     loan_margin_shortfall.status = "Sell Triggered"
+                            #     loan_margin_shortfall.save(ignore_permissions=True)
                     else:
                         if loan_margin_shortfall.shortfall_percentage == 0:
                             loan_margin_shortfall.status = "Resolved"
                             loan_margin_shortfall.action_time = (
                                 frappe.utils.now_datetime()
                             )
-                        if (
-                            loan_margin_shortfall.shortfall_percentage > 0
-                            and frappe.utils.now_datetime()
-                            > loan_margin_shortfall.deadline
-                        ):
-                            loan_margin_shortfall.status = "Sell Triggered"
-                            mess = "Dear Customer,\nURGENT NOTICE. {} has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will {} required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
-                                msg_type[0], self.name, msg_type[1]
-                            )
-                            fcm_notification = frappe.get_doc(
-                                "Spark Push Notification",
-                                "Sale triggerred inaction",
-                                fields=["*"],
-                            )
-                            message = fcm_notification.message.format(
-                                sale="sale", loan=self.name
-                            )
-                            if self.instrument_type == "Mutual Fund":
-                                message = fcm_notification.message.format(
-                                    sale="invoke", loan=self.name
-                                )
-                                fcm_notification = fcm_notification.as_dict()
-                                fcm_notification["title"] = "Invoke triggerred"
-                            # message = fcm_notification.message.format(loan=self.name)
-                            doc = frappe.get_doc(
-                                "User KYC", self.get_customer().choice_kyc
-                            ).as_dict()
-                            doc["loan_margin_shortfall"] = {"loan": self.name}
-                            email_subject = "Sale Triggered Cross Deadline"
-                            if self.instrument_type == "Mutual Fund":
-                                email_subject = "MF Sale Triggered Cross Deadline"
-                            frappe.enqueue_doc(
-                                "Notification",
-                                email_subject,
-                                method="send",
-                                doc=doc,
-                            )
-                            frappe.enqueue(
-                                method=send_sms,
-                                receiver_list=[self.get_customer().phone],
-                                msg=mess,
-                            )
-                            lms.send_spark_push_notification(
-                                fcm_notification=fcm_notification,
-                                message=message,
-                                loan=self.name,
-                                customer=self.get_customer(),
-                            )
-                        loan_margin_shortfall.save(ignore_permissions=True)
+                            # if (
+                            #     loan_margin_shortfall.shortfall_percentage > 0
+                            #     and frappe.utils.now_datetime()
+                            #     > loan_margin_shortfall.deadline
+                            # ):
+                            #     loan_margin_shortfall.status = "Sell Triggered"
+                            #     mess = "Dear Customer,\nURGENT NOTICE. {} has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will {} required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
+                            #         msg_type[0], self.name, msg_type[1]
+                            #     )
+                            #     fcm_notification = frappe.get_doc(
+                            #         "Spark Push Notification",
+                            #         "Sale triggerred inaction",
+                            #         fields=["*"],
+                            #     )
+                            #     message = fcm_notification.message.format(
+                            #         sale="sale", loan=self.name
+                            #     )
+                            #     if self.instrument_type == "Mutual Fund":
+                            #         message = fcm_notification.message.format(
+                            #             sale="invoke", loan=self.name
+                            #         )
+                            #         fcm_notification = fcm_notification.as_dict()
+                            #         fcm_notification["title"] = "Invoke triggerred"
+                            #     # message = fcm_notification.message.format(loan=self.name)
+                            #     doc = frappe.get_doc(
+                            #         "User KYC", self.get_customer().choice_kyc
+                            #     ).as_dict()
+                            #     doc["loan_margin_shortfall"] = {"loan": self.name}
+                            #     email_subject = "Sale Triggered Cross Deadline"
+                            #     if self.instrument_type == "Mutual Fund":
+                            #         email_subject = "MF Sale Triggered Cross Deadline"
+                            #     frappe.enqueue_doc(
+                            #         "Notification",
+                            #         email_subject,
+                            #         method="send",
+                            #         doc=doc,
+                            #     )
+                            #     frappe.enqueue(
+                            #         method=send_sms,
+                            #         receiver_list=[self.get_customer().phone],
+                            #         msg=mess,
+                            #     )
+                            #     lms.send_spark_push_notification(
+                            #         fcm_notification=fcm_notification,
+                            #         message=message,
+                            #         loan=self.name,
+                            #         customer=self.get_customer(),
+                            #     )
+                            loan_margin_shortfall.save(ignore_permissions=True)
 
                 if (
                     loan_margin_shortfall.status in ["Pending", "Request Pending"]
