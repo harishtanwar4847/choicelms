@@ -1372,11 +1372,13 @@ def schemes(**kwargs):
             )
 
         schemes_list = frappe.db.sql(
-            """select als.isin, als.security_name as scheme_name, als.eligible_percentage as ltv, als.instrument_type, als.scheme_type, round(s.price,4) as price, group_concat(lender,'') as lenders, ad.amc_code, ad.amc_image
+            """select als.isin, als.security_name as scheme_name, als.allowed, als.eligible_percentage as ltv, als.instrument_type, als.scheme_type, round(s.price,4) as price, group_concat(lender,'') as lenders, ad.amc_code, ad.amc_image
             from `tabAllowed Security` als
             LEFT JOIN `tabSecurity` s on s.isin = als.isin
             LEFT JOIN `tabAMC Details` ad on ad.security = als.isin
-            where als.instrument_type='Mutual Fund' and s.price > 0{}{}{}
+            where als.instrument_type='Mutual Fund'  and
+            als.allowed = 1 and 
+            s.price > 0{}{}{}
             group by als.isin
             order by als.creation desc;""".format(
                 scheme, lender, sub_query
@@ -1761,14 +1763,18 @@ def approved_securities(**kwargs):
 
         approved_security_list = []
         approved_security_pdf_file_url = ""
+        allowed = ""
+        if data.get("instrument_type") == "Mutual Fund":
+            allowed = "and alsc.allowed = 1"
 
         if data.get("is_download"):
             approved_security_list = frappe.db.sql(
                 """
-            select alsc.isin, alsc.security_name, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" and instrument_type = "{instrument_type}" {filters} order by security_name asc;""".format(
+            select alsc.isin, alsc.security_name, alsc.allowed, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {allowed} and instrument_type = "{instrument_type}" {filters} order by security_name asc;""".format(
                     instrument_type=data.get("instrument_type"),
                     lender=data.get("lender"),
                     filters=filters,
+                    allowed=allowed,
                 ),
                 as_dict=1,
             )
@@ -1854,10 +1860,11 @@ def approved_securities(**kwargs):
 
             approved_security_list = frappe.db.sql(
                 """
-            select alsc.isin, alsc.security_name, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" and instrument_type = "{instrument_type}" {filters} order by security_name asc limit {offset},{limit};""".format(
+            select alsc.isin, alsc.security_name, alsc.allowed, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {allowed} and instrument_type = "{instrument_type}" {filters} order by security_name asc limit {offset},{limit};""".format(
                     instrument_type=data.get("instrument_type"),
                     lender=data.get("lender"),
                     filters=filters,
+                    allowed=allowed,
                     limit=data.get("per_page"),
                     offset=data.get("start"),
                 ),

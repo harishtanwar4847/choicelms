@@ -1667,8 +1667,31 @@ class Loan(Document):
 
     def max_topup_amount(self):
         lender = self.get_lender()
+        # allowed_security = frappe.db.sql(
+        #         'select distinct isin from `tabAllowed Security` where allowed = 1',as_dict=True)
+
+        allowed_security = frappe.db.sql_list(
+            """select distinct als.isin from `tabAllowed Security` als LEFT JOIN `tabLoan` l ON als.lender = l.lender where als.allowed = 1 and l.name = '{name}' """.format(
+                name="SL000014"
+            )
+        )
+        print("Allowed Security", allowed_security)
+        actual_drawing_power = 0
+        total_collateral_value = 0
         if self.instrument_type == "Mutual Fund":
-            max_topup_amount = self.actual_drawing_power - self.sanctioned_limit
+            for i in self.items:
+                print("ISIN", i.isin)
+                if i.isin in allowed_security:
+                    print("ISIN", i.isin)
+                    i.amount = i.price * i.pledged_quantity
+                    i.eligible_amount = (i.eligible_percentage / 100) * i.amount
+                    total_collateral_value += i.amount
+                    actual_drawing_power += i.eligible_amount
+                    print("inside if")
+                    print("actual_drawing_power", actual_drawing_power)
+            max_topup_amount = actual_drawing_power - self.sanctioned_limit
+            print("Topup Amount", max_topup_amount)
+            print("actual_drawing_power", actual_drawing_power)
         else:
             max_topup_amount = (
                 self.total_collateral_value * (self.allowable_ltv / 100)
@@ -1679,7 +1702,7 @@ class Loan(Document):
         if self.sanctioned_limit > lender.maximum_sanctioned_limit:
             max_topup_amount = 0
         elif (
-            (self.actual_drawing_power / self.sanctioned_limit * 100) - 100 >= 10
+            (actual_drawing_power / self.sanctioned_limit * 100) - 100 >= 10
             and max_topup_amount >= 1000
             and self.instrument_type == "Mutual Fund"
         ) or (
