@@ -770,7 +770,6 @@ def loan_details(**kwargs):
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         customer = lms.__customer()
-        print(frappe.local.form_dict)
         try:
             loan = frappe.get_doc("Loan", data.get("loan_name"))
         except frappe.DoesNotExistError:

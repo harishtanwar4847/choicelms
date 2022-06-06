@@ -1,5 +1,4 @@
 import frappe
-from braintree import Customer
 from utils.exceptions import APIException
 
 
