@@ -53,20 +53,18 @@ class LoanMarginShortfall(Document):
                 if self.loan_balance > self.drawing_power
                 else 0
             )
-        self.shortfall_c = math.ceil(
-            ((self.loan_balance - self.drawing_power) * 100 / self.allowable_ltv)
-            if self.loan_balance > self.drawing_power
-            else 0
-        )
+            self.shortfall_c = math.ceil(
+                ((self.loan_balance - self.drawing_power) * 100 / self.allowable_ltv)
+                if self.loan_balance > self.drawing_power
+                else 0
+            )
+            self.minimum_pledge_amount = self.shortfall_c
+            self.advisable_pledge_amount = self.minimum_pledge_amount * 1.1
         self.shortfall_percentage = (
             ((self.loan_balance - self.drawing_power) / self.loan_balance) * 100
             if self.loan_balance > self.drawing_power
             else 0
         )
-
-        self.minimum_pledge_amount = self.shortfall_c
-        self.advisable_pledge_amount = self.minimum_pledge_amount * 1.1
-        # self.minimum_cash_amount = (self.allowable_ltv / 100) * self.shortfall_c
         if self.instrument_type == "Mutual Fund":
             self.minimum_cash_amount = self.loan_balance - self.drawing_power
         else:

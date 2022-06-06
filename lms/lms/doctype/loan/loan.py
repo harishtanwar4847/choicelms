@@ -344,10 +344,9 @@ class Loan(Document):
         else:  # for Drawing power Calculation
             for i in self.items:
                 i.amount = i.price * i.pledged_quantity
-                dp = (i.eligible_percentage / 100) * i.amount
-                i.eligible_amount = dp
+                i.eligible_amount = (i.eligible_percentage / 100) * i.amount
                 self.total_collateral_value += i.amount
-                drawing_power += dp
+                drawing_power += i.eligible_amount
 
             drawing_power = round(
                 drawing_power,
@@ -1676,35 +1675,41 @@ class Loan(Document):
             ) - self.sanctioned_limit
 
         # show available top up amount only if topup amount is greater than 10% of sanctioned limit
-        if self.instrument_type == "Mutual Fund":  # for Mutual Fund Topup
-            if self.sanctioned_limit > lender.maximum_sanctioned_limit:
-                max_topup_amount = 0
-            elif (
-                self.actual_drawing_power / self.sanctioned_limit * 100 - 100
-            ) >= 10 and max_topup_amount >= 1000:
-                if (
-                    max_topup_amount + self.sanctioned_limit
-                ) > lender.maximum_sanctioned_limit:
-                    max_topup_amount = (
-                        lender.maximum_sanctioned_limit - self.sanctioned_limit
-                    )
-            else:
-                max_topup_amount = 0
-        else:  # for Share Topup
-            if self.sanctioned_limit > lender.maximum_sanctioned_limit:
-                max_topup_amount = 0
-            elif (
-                max_topup_amount > (self.sanctioned_limit * 0.1)
-                and max_topup_amount >= 1000
-            ):
-                if (
-                    max_topup_amount + self.sanctioned_limit
-                ) > lender.maximum_sanctioned_limit:
-                    max_topup_amount = (
-                        lender.maximum_sanctioned_limit - self.sanctioned_limit
-                    )
-            else:
-                max_topup_amount = 0
+        # if self.instrument_type == "Mutual Fund":  # for Mutual Fund Topup
+        if self.sanctioned_limit > lender.maximum_sanctioned_limit:
+            max_topup_amount = 0
+        elif (
+            (self.actual_drawing_power / self.sanctioned_limit * 100) - 100 >= 10
+            and max_topup_amount >= 1000
+            and self.instrument_type == "Mutual Fund"
+        ) or (
+            max_topup_amount > (self.sanctioned_limit * 0.1)
+            and max_topup_amount >= 1000
+            and self.instrument_type == "Shares"
+        ):
+            if (
+                max_topup_amount + self.sanctioned_limit
+            ) > lender.maximum_sanctioned_limit:
+                max_topup_amount = (
+                    lender.maximum_sanctioned_limit - self.sanctioned_limit
+                )
+        else:
+            max_topup_amount = 0
+        # else:  # for Share Topup
+        #     if self.sanctioned_limit > lender.maximum_sanctioned_limit:
+        #         max_topup_amount = 0
+        #     elif (
+        #         max_topup_amount > (self.sanctioned_limit * 0.1)
+        #         and max_topup_amount >= 1000
+        #     ):
+        #         if (
+        #             max_topup_amount + self.sanctioned_limit
+        #         ) > lender.maximum_sanctioned_limit:
+        #             max_topup_amount = (
+        #                 lender.maximum_sanctioned_limit - self.sanctioned_limit
+        # #             )
+        #     else:
+        #         max_topup_amount = 0
 
         return round(max_topup_amount, 2)
 
