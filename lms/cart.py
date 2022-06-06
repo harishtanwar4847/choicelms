@@ -20,8 +20,10 @@ from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions
 
 def validate_securities_for_cart(securities, lender, instrument_type="Shares"):
     msg = "securities"
+    allowed = ""
     if instrument_type == "Mutual Fund":
         msg = "schemes"
+        allowed = "and allowed = 1"
 
     if not securities or (
         type(securities) is not dict and "list" not in securities.keys()
@@ -61,10 +63,11 @@ def validate_securities_for_cart(securities, lender, instrument_type="Shares"):
 
     if securities_valid:
         securities_list_from_db_ = frappe.db.sql(
-            "select isin from `tabAllowed Security` where lender = '{}' and instrument_type = '{}' and isin in {}".format(
+            "select isin from `tabAllowed Security` where lender = '{}' {allowed} and instrument_type = '{}' and isin in {}".format(
                 lender,
                 instrument_type,
                 lms.convert_list_to_tuple_string(securities_list),
+                allowed=allowed,
             )
         )
         securities_list_from_db = [i[0] for i in securities_list_from_db_]
