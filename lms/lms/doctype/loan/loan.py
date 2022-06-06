@@ -1272,7 +1272,7 @@ class Loan(Document):
                             )
                         )
                         self.reload()
-                        self.day_past_due = self.calculate_day_past_due(input_date)
+                        self.day_past_due = self.calculate_day_past_due(current_date)
                         self.save(ignore_permissions=True)
                         frappe.db.commit()
 
