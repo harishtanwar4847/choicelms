@@ -116,15 +116,20 @@ def update_mycams_scheme_bulk(upload_file):
 
     csv_data = read_csv_content(fcontent)
 
+    isin = frappe.db.get_list("Allowed Security", pluck="isin")
+
     schemedetails = []
     for i in csv_data[1:]:
-        scheme = {
-            "amccode": i[6],
-            "isinno": i[1],
-            "approveflag": "Y" if i[10] else "N",
-            "lienperc": i[3],
-        }
-        schemedetails.append(scheme)
+        if i[1] in isin:
+            frappe.throw("{} already exist in Allowed Security List".format(i[1]))
+        else:
+            scheme = {
+                "amccode": i[6],
+                "isinno": i[1],
+                "approveflag": "Y" if i[10] else "N",
+                "lienperc": i[3],
+            }
+            schemedetails.append(scheme)
     try:
         datetime_signature = lms.create_signature_mycams()
         las_settings = frappe.get_single("LAS Settings")
