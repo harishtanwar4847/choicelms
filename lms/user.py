@@ -3734,6 +3734,7 @@ def spark_demat_account(**kwargs):
         frappe.db.commit()
         return utils.respondWithSuccess(data=spark_demat_account)
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         frappe.log_error(
             message=frappe.get_traceback() + json.dumps(data=spark_demat_account),
             title=_("Demat Account Creation Error"),
@@ -3900,6 +3901,7 @@ def penny_create_contact(**kwargs):
             raise utils.exceptions.APIException(str(e))
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         frappe.log_error(
             title="Penny Drop Create contact Error",
             message=frappe.get_traceback()
@@ -3998,6 +4000,7 @@ def penny_create_fund_account(**kwargs):
             raise utils.exceptions.APIException(str(e))
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         frappe.log_error(
             title="Penny Drop Create fund account Error",
             message=frappe.get_traceback()
@@ -4091,6 +4094,7 @@ def penny_create_fund_account_validation(**kwargs):
             raise utils.exceptions.APIException(str(e))
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         frappe.log_error(
             title="Penny Drop Create fund account validation Error",
             message=frappe.get_traceback()
@@ -4158,6 +4162,7 @@ def penny_create_fund_account_validation_by_id(**kwargs):
             raise utils.exceptions.APIException(str(e))
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         frappe.log_error(
             title="Penny Drop Create fund account validation Error",
             message=frappe.get_traceback()
