@@ -27,7 +27,7 @@
   },
   {
    "fieldname": "security_name",
-   "fieldtype": "Small Text",
+   "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Security/Scheme Name"
   },
