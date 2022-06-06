@@ -231,6 +231,7 @@ def update_mycams_scheme_bulk(upload_file):
                 values.append(scheme)
         else:
             frappe.throw(frappe._(lienscheme["error"]))
+        values.append([])
         frappe.db.bulk_insert(
             "Allowed Security", fields=fields, values=values, ignore_duplicates=False
         )
