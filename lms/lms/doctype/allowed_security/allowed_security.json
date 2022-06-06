@@ -1,7 +1,6 @@
 {
  "actions": [],
  "allow_import": 1,
- "autoname": "Prompt",
  "creation": "2020-05-08 17:48:43.472417",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -114,7 +113,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-06-02 16:36:53.268287",
+ "modified": "2022-06-06 13:26:48.732030",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",
