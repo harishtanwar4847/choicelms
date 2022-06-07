@@ -1669,29 +1669,21 @@ class Loan(Document):
         lender = self.get_lender()
         # allowed_security = frappe.db.sql(
         #         'select distinct isin from `tabAllowed Security` where allowed = 1',as_dict=True)
-
-        allowed_security = frappe.db.sql_list(
-            """select distinct als.isin from `tabAllowed Security` als LEFT JOIN `tabLoan` l ON als.lender = l.lender where als.allowed = 1 and l.name = '{name}' """.format(
-                name="SL000014"
-            )
-        )
-        print("Allowed Security", allowed_security)
         actual_drawing_power = 0
         total_collateral_value = 0
         if self.instrument_type == "Mutual Fund":
+            allowed_security = frappe.db.sql_list(
+                """select distinct als.isin from `tabAllowed Security` als JOIN `tabLoan Item` l ON als.isin = l.isin where als.allowed = 1 and als.lender = '{}'  """.format(
+                    lender.name
+                )
+            )
             for i in self.items:
-                print("ISIN", i.isin)
                 if i.isin in allowed_security:
-                    print("ISIN", i.isin)
                     i.amount = i.price * i.pledged_quantity
                     i.eligible_amount = (i.eligible_percentage / 100) * i.amount
                     total_collateral_value += i.amount
                     actual_drawing_power += i.eligible_amount
-                    print("inside if")
-                    print("actual_drawing_power", actual_drawing_power)
             max_topup_amount = actual_drawing_power - self.sanctioned_limit
-            print("Topup Amount", max_topup_amount)
-            print("actual_drawing_power", actual_drawing_power)
         else:
             max_topup_amount = (
                 self.total_collateral_value * (self.allowable_ltv / 100)
