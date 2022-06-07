@@ -84,18 +84,18 @@ class AllowedSecurity(Document):
             )
             lienscheme = dict_decrypted_response["lienscheme"]
             self.remark = (
-                "Y - " + lienscheme["error"]
+                "Y - " + lienscheme["schemedetails"][0]["status"]
                 if self.allowed
-                else "N - " + lienscheme["error"]
+                else "N - " + lienscheme["schemedetails"][0]["status"]
             )
-            if lienscheme and lienscheme["errorcode"] == "S000":
-                if lienscheme["schemedetails"][0]["status"] == "SUCCESS":
-                    self.res_status = True
-                else:
-                    self.res_status = False
-                    self.allowed = False if self.allowed == True else True
+            if lienscheme["schemedetails"][0]["status"] == "SUCCESS":
+                self.res_status = True
             else:
-                self.allowed = False if self.allowed == True else True
+                self.res_status = False
+                if self.is_new():
+                    self.allowed = False
+                else:
+                    self.allowed = False if self.allowed == True else True
 
         except requests.RequestException as e:
             frappe.log_error(
@@ -108,20 +108,20 @@ class AllowedSecurity(Document):
 
 @frappe.whitelist()
 def update_mycams_scheme_bulk(upload_file):
-    f = frappe.get_all("File", filters={"file_url": upload_file}, page_length=1)
-    f = frappe.get_doc("File", f[0].name)
-    ff = f.get_full_path()
-    with open(ff, "r") as upfile:
+    files = frappe.get_all("File", filters={"file_url": upload_file}, page_length=1)
+    file = frappe.get_doc("File", files[0].name)
+    file_path = file.get_full_path()
+    with open(file_path, "r") as upfile:
         fcontent = upfile.read()
 
     csv_data = read_csv_content(fcontent)
 
     isin = frappe.db.get_list("Allowed Security", pluck="isin")
-
+    exists_scheme = []
     schemedetails = []
     for i in csv_data[1:]:
         if i[1] in isin:
-            frappe.throw("{} already exist in Allowed Security List".format(i[1]))
+            exists_scheme.append(i[1])
         else:
             scheme = {
                 "amccode": i[6],
@@ -130,6 +130,13 @@ def update_mycams_scheme_bulk(upload_file):
                 "lienperc": i[3],
             }
             schemedetails.append(scheme)
+    if len(exists_scheme):
+        frappe.throw(
+            "ISIN: {} {} already exist in Allowed Security List".format(
+                ", ".join(isin_scheme for isin_scheme in exists_scheme),
+                "is" if len(exists_scheme) == 1 else "are",
+            )
+        )
     try:
         datetime_signature = lms.create_signature_mycams()
         las_settings = frappe.get_single("LAS Settings")
@@ -222,16 +229,13 @@ def update_mycams_scheme_bulk(upload_file):
             for i in lienscheme["schemedetails"]:
                 scheme = approved_security_map.get(i["isinno"])
                 scheme["remark"] = (
-                    "Y - " + lienscheme["error"]
-                    if scheme["allowed"]
-                    else "N - " + lienscheme["error"]
+                    "Y - " + i["status"] if scheme["allowed"] else "N - " + i["status"]
                 )
                 if i["status"] == "SUCCESS":
                     scheme["res_status"] = True
                 else:
                     scheme["res_status"] = False
-                    scheme["allowed"] = False if scheme["allowed"] == True else False
-
+                    scheme["allowed"] = False
                 scheme = list(scheme.values())
                 values.append(scheme)
         else:

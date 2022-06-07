@@ -25,7 +25,7 @@ def approved_securities(instrument_type):
     #     ],
     # )
     approved_security_list = frappe.db.sql(
-        """ 
+        """
         select alsc.isin,alsc.security_name,(select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category,alsc.eligible_percentage,alsc.lender  from `tabAllowed Security` alsc  where instrument_type = "{}" order by security_name asc
         """.format(
             instrument_type
@@ -33,7 +33,7 @@ def approved_securities(instrument_type):
         as_dict=True,
     )
     approved_security_list.sort(key=lambda item: (item["security_name"]).title())
-    print("approved_security_list", len(approved_security_list))
+    # print("approved_security_list", len(approved_security_list))
     lt_list = []
     for list in approved_security_list:
         lt_list.append(list.values())
@@ -157,7 +157,7 @@ def get_context(context):
     )[0]
 
     context.lenderCharges = frappe.get_last_doc("Lender")
-    print(context.lenderCharges.lender_stamp_duty_minimum_amount)
+    # print(context.lenderCharges.lender_stamp_duty_minimum_amount)
     context.approved_pdf_shares = approved_securities(instrument_type="Shares")
     context.approved_pdf_mf = approved_securities(instrument_type="Mutual Fund")
 
