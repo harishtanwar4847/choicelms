@@ -163,6 +163,7 @@ scheduler_events = {
     #     "lms.lms.doctype.loan.loan.add_all_loans_penal_interest",
     # ],
     # "monthly": ["lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"],
+    # "all": ["lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered"],
     "cron": {
         "*/5 * * * *": [
             "lms.lms.doctype.loan_application.loan_application.process_pledge"
@@ -185,5 +186,8 @@ scheduler_events = {
         "30 8 * * *": [
             "lms.lms.doctype.security_price.security_price.update_all_schemeNav"
         ],  # At 08:30 AM daily
+        "* * * * *": [
+            "lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered"
+        ],  # At every minute
     },
 }
