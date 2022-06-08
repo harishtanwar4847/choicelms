@@ -1,4 +1,5 @@
 from datetime import datetime
+from warnings import filters
 
 import frappe
 import pandas as pd
@@ -8,21 +9,31 @@ import lms
 
 
 @frappe.whitelist(allow_guest=True)
-def approved_securities():
+def approved_securities(instrument_type):
     approved_security_list = []
     approved_security_pdf_file_url = ""
-    approved_security_list = frappe.db.get_all(
-        "Allowed Security",
-        order_by="security_name asc",
-        fields=[
-            "isin",
-            "security_name",
-            "security_category",
-            "eligible_percentage",
-            "lender",
-        ],
+    # approved_security_list = frappe.db.get_all(
+    #     "Allowed Security",
+    #     order_by="security_name asc",
+    #     filters={"instrument_type":"Mutual Fund"},
+    #     fields=[
+    #         "isin",
+    #         "security_name",
+    #         "security_category",
+    #         "eligible_percentage",
+    #         "lender",
+    #     ],
+    # )
+    approved_security_list = frappe.db.sql(
+        """
+        select alsc.isin,alsc.security_name,(select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category,alsc.eligible_percentage,alsc.lender  from `tabAllowed Security` alsc  where instrument_type = "{}" order by security_name asc
+        """.format(
+            instrument_type
+        ),
+        as_dict=True,
     )
     approved_security_list.sort(key=lambda item: (item["security_name"]).title())
+    # print("approved_security_list", len(approved_security_list))
     lt_list = []
     for list in approved_security_list:
         lt_list.append(list.values())
@@ -146,7 +157,8 @@ def get_context(context):
     )[0]
 
     context.lenderCharges = frappe.get_last_doc("Lender")
-    print(context.lenderCharges.lender_stamp_duty_minimum_amount)
-    context.approved_pdf = approved_securities()
+    # print(context.lenderCharges.lender_stamp_duty_minimum_amount)
+    context.approved_pdf_shares = approved_securities(instrument_type="Shares")
+    context.approved_pdf_mf = approved_securities(instrument_type="Mutual Fund")
 
     context.lender_pdf = lenders()

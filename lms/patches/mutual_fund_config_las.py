@@ -13,6 +13,10 @@ def execute():
         )
         las_settings.invoke_api = "https://mycams.camsonline.com/lamfapi/trxn/v1/invoc"
         las_settings.revoke_api = "https://mycams.camsonline.com/lamfapi/trxn/v1/revoc"
+        las_settings.lien_allowed_scheme_update_api = (
+            "https://mycams.camsonline.com/lamfapi/trxn/v1/lienscheme"
+        )
+
     else:
         las_settings.lien_marking_api = (
             "https://mycamsuat.camsonline.com/lamfapi/pgLienmarking.aspx"
@@ -25,6 +29,9 @@ def execute():
         )
         las_settings.revoke_api = (
             "https://mycamsuat.camsonline.com/lamfapi/trxn/v1/revoc"
+        )
+        las_settings.lien_allowed_scheme_update_api = (
+            "https://mycamsuat.camsonline.com/lamfapi/trxn/v1/lienscheme"
         )
 
     las_settings.investica_api = "https://api.choiceindia.com/api/bo/Scheme/SchemeNav"
