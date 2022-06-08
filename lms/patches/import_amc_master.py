@@ -2,6 +2,7 @@ import frappe
 
 
 def execute():
+    frappe.reload_doc("Lms", "Doctype", "AMC Master")
     frappe.db.sql("truncate `tabAMC Master`")
     frappe.db.commit()
     path = frappe.get_app_path("lms", "patches", "imports", "amc_master_details.csv")
