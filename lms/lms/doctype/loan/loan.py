@@ -1726,7 +1726,7 @@ class Loan(Document):
         #     else:
         #         max_topup_amount = 0
 
-        return round(max_topup_amount, 2)
+        return round(lms.round_down_amount_to_nearest_thousand(max_topup_amount), 2)
 
     def update_pending_topup_amount(self):
         pending_topup_request = frappe.get_all(
