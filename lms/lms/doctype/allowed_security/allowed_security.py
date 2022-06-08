@@ -21,6 +21,10 @@ import lms
 class AllowedSecurity(Document):
     def before_save(self):
         self.security_name = frappe.db.get_value("Security", self.isin, "security_name")
+        if self.instrument_type == "Mutual Fund":
+            self.update_mycams_scheme()
+
+    def before_insert(self):
         exists_security = frappe.db.exists(
             "Allowed Security", {"isin": self.isin, "lender": self.lender}
         )
@@ -30,7 +34,6 @@ class AllowedSecurity(Document):
                     "ISIN: {} already exists for {}".format(self.isin, self.lender)
                 )
             )
-        self.update_mycams_scheme()
 
     def update_mycams_scheme(self):
         try:
