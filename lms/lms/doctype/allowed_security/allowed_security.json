@@ -10,10 +10,15 @@
   "lender",
   "eligible_percentage",
   "instrument_type",
+  "amc_code",
+  "amc_name",
   "column_break_5",
   "security_name",
   "security_category",
-  "scheme_type"
+  "scheme_type",
+  "allowed",
+  "res_status",
+  "remark"
  ],
  "fields": [
   {
@@ -69,11 +74,46 @@
    "fieldtype": "Select",
    "label": "Scheme Type",
    "options": "\nEquity\nDebt"
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
+   "fieldname": "amc_code",
+   "fieldtype": "Link",
+   "label": "AMC Code",
+   "options": "AMC Master"
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
+   "fetch_from": "amc_code.amc_name",
+   "fieldname": "amc_name",
+   "fieldtype": "Data",
+   "label": "AMC Name"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
+   "fieldname": "allowed",
+   "fieldtype": "Check",
+   "label": "Allowed"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Data",
+   "label": "Remark",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
+   "fieldname": "res_status",
+   "fieldtype": "Check",
+   "label": "Status",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-03-29 12:58:22.575782",
+ "modified": "2022-06-06 13:26:48.732030",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",

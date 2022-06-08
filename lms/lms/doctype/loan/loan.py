@@ -1272,7 +1272,7 @@ class Loan(Document):
                             )
                         )
                         self.reload()
-                        self.day_past_due = self.calculate_day_past_due(input_date)
+                        self.day_past_due = self.calculate_day_past_due(current_date)
                         self.save(ignore_permissions=True)
                         frappe.db.commit()
 
@@ -1667,8 +1667,23 @@ class Loan(Document):
 
     def max_topup_amount(self):
         lender = self.get_lender()
+        # allowed_security = frappe.db.sql(
+        #         'select distinct isin from `tabAllowed Security` where allowed = 1',as_dict=True)
+        actual_drawing_power = 0
+        total_collateral_value = 0
         if self.instrument_type == "Mutual Fund":
-            max_topup_amount = self.actual_drawing_power - self.sanctioned_limit
+            allowed_security = frappe.db.sql_list(
+                """select distinct als.isin from `tabAllowed Security` als JOIN `tabLoan Item` l ON als.isin = l.isin where als.allowed = 1 and als.lender = '{}'  """.format(
+                    lender.name
+                )
+            )
+            for i in self.items:
+                if i.isin in allowed_security:
+                    i.amount = i.price * i.pledged_quantity
+                    i.eligible_amount = (i.eligible_percentage / 100) * i.amount
+                    total_collateral_value += i.amount
+                    actual_drawing_power += i.eligible_amount
+            max_topup_amount = actual_drawing_power - self.sanctioned_limit
         else:
             max_topup_amount = (
                 self.total_collateral_value * (self.allowable_ltv / 100)
@@ -1679,7 +1694,7 @@ class Loan(Document):
         if self.sanctioned_limit > lender.maximum_sanctioned_limit:
             max_topup_amount = 0
         elif (
-            (self.actual_drawing_power / self.sanctioned_limit * 100) - 100 >= 10
+            (actual_drawing_power / self.sanctioned_limit * 100) - 100 >= 10
             and max_topup_amount >= 1000
             and self.instrument_type == "Mutual Fund"
         ) or (
@@ -1711,7 +1726,7 @@ class Loan(Document):
         #     else:
         #         max_topup_amount = 0
 
-        return round(max_topup_amount, 2)
+        return round(lms.round_down_amount_to_nearest_thousand(max_topup_amount), 2)
 
     def update_pending_topup_amount(self):
         pending_topup_request = frappe.get_all(

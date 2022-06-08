@@ -383,8 +383,10 @@ def get_security_categories(securities, lender, instrument_type="Shares"):
 def get_allowed_securities(securities, lender, instrument_type="Shares"):
 
     select = "als.isin, als.security_name, als.eligible_percentage, sc.category_name as security_category, als.lender"
+    allowed = ""
     if instrument_type == "Mutual Fund":
-        select += ", als.scheme_type"
+        select += ", als.scheme_type, als.allowed"
+        allowed = "and als.allowed = 1"
 
     if type(lender) == list:
         filter = "in {}".format(convert_list_to_tuple_string(lender))
@@ -396,11 +398,13 @@ def get_allowed_securities(securities, lender, instrument_type="Shares"):
 				from `tabAllowed Security` als
                 LEFT JOIN `tabSecurity Category` sc
 				ON als.security_category = sc.name where
-				als.lender {lender} and
+				als.lender {lender} 
+                {allowed} and
                 als.instrument_type = '{instrument_type}' and
                 als.isin in {isin}""".format(
         select=select,
         lender=filter,
+        allowed=allowed,
         instrument_type=instrument_type,
         isin=convert_list_to_tuple_string(securities),
     )
