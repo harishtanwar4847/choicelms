@@ -13,6 +13,7 @@ import requests
 import utils
 from frappe.model.document import Document
 from frappe.utils.csvutils import read_csv_content
+from genericpath import exists
 
 import lms
 
@@ -20,6 +21,15 @@ import lms
 class AllowedSecurity(Document):
     def before_save(self):
         self.security_name = frappe.db.get_value("Security", self.isin, "security_name")
+        exists_security = frappe.db.exists(
+            "Allowed Security", {"isin": self.isin, "lender": self.lender}
+        )
+        if exists_security:
+            frappe.throw(
+                frappe._(
+                    "ISIN: {} already exists for {}".format(self.isin, self.lender)
+                )
+            )
         self.update_mycams_scheme()
 
     def update_mycams_scheme(self):
@@ -116,12 +126,19 @@ def update_mycams_scheme_bulk(upload_file):
 
     csv_data = read_csv_content(fcontent)
 
-    isin = frappe.db.get_list("Allowed Security", pluck="isin")
+    # isin = frappe.db.get_list("Allowed Security", pluck="isin")
+    existing_security = frappe.db.get_list(
+        "Allowed Security",
+        fields=["isin", "lender"],
+    )
     exists_scheme = []
     schemedetails = []
     for i in csv_data[1:]:
-        if i[1] in isin:
-            exists_scheme.append(i[1])
+        for security in existing_security:
+            if i[1] == security["isin"] and i[2] == security["lender"]:
+                exists_scheme.append(i[1] + " (" + i[2] + ")")
+        # if i[1] in isin:
+        # exists_scheme.append(i[1])
         else:
             scheme = {
                 "amccode": i[6],
