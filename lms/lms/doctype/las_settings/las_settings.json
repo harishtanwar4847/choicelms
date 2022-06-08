@@ -46,6 +46,7 @@
   "column_break_39",
   "lien_initiate_api",
   "revoke_api",
+  "lien_allowed_scheme_update_api",
   "cams_config_section",
   "client_id",
   "client_name",
@@ -493,11 +494,16 @@
    "fieldname": "iv",
    "fieldtype": "Data",
    "label": "IV"
+  },
+  {
+   "fieldname": "lien_allowed_scheme_update_api",
+   "fieldtype": "Data",
+   "label": "Lien Allowed Scheme Update API"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2022-04-22 12:17:47.405385",
+ "modified": "2022-06-02 12:34:50.441622",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
