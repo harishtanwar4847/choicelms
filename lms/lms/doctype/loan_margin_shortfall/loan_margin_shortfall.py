@@ -165,7 +165,11 @@ class LoanMarginShortfall(Document):
 
     def on_update(self):
         loan = self.get_loan()
-        loan.margin_shortfall_amount = self.shortfall_c
+        loan.margin_shortfall_amount = (
+            self.shortfall_c
+            if self.instrument_type == "Shares"
+            else self.minimum_cash_amount
+        )
         loan.save(ignore_permissions=True)
         frappe.db.commit()
 

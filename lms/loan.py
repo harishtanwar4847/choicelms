@@ -1057,7 +1057,9 @@ def loan_details(**kwargs):
             "interest": interest,
             "topup": topup if topup else None,
             "increase_loan": increase_loan,
-            "invoke_charge_details": invoke_initiate_charges,
+            "invoke_charge_details": invoke_initiate_charges
+            if loan.instrument_type == "Mutual Fund"
+            else {},
         }
 
         sell_collateral_application_exist = frappe.get_all(
@@ -2143,7 +2145,9 @@ def loan_unpledge_details(**kwargs):
 
         res = {
             "loan": loan,
-            "revoke_charge_details": revoke_initiate_charges,
+            "revoke_charge_details": revoke_initiate_charges
+            if loan.instrument_type == "Mutual Fund"
+            else {},
         }
 
         loan_margin_shortfall = loan.get_margin_shortfall()
