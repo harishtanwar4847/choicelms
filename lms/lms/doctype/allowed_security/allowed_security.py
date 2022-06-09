@@ -37,12 +37,15 @@ class AllowedSecurity(Document):
 
     def update_mycams_scheme(self):
         try:
+            # LAS Settings Doc
             las_settings = frappe.get_single("LAS Settings")
 
             datetime_signature = lms.create_signature_mycams()
 
+            # Mycams Allowed Scheme Update API
             url = las_settings.lien_allowed_scheme_update_api
 
+            # Headers
             headers = {
                 "Content-Type": "application/json",
                 "clientid": las_settings.client_id,
@@ -51,6 +54,7 @@ class AllowedSecurity(Document):
                 "subclientid": "",
             }
 
+            # Request Parameter Data
             data = {
                 "lienscheme": {
                     "clientid": las_settings.client_id,
@@ -67,25 +71,32 @@ class AllowedSecurity(Document):
                 }
             }
 
+            # Encrypted Request Parameter Data
             encrypted_data = lms.AESCBC(
                 las_settings.encryption_key, las_settings.iv
             ).encrypt(json.dumps(data))
 
+            # Request parameter with encrypted request data
             req_data = {"req": str(encrypted_data)}
 
             resp = requests.post(
                 url=url, headers=headers, data=json.dumps(req_data)
             ).text
 
+            # Encrypted response
             encrypted_response = (
                 json.loads(resp).get("res").replace("-", "+").replace("_", "/")
             )
+
+            # Decrypted response
             decrypted_response = lms.AESCBC(
                 las_settings.decryption_key, las_settings.iv
             ).decrypt(encrypted_response)
 
+            # Decrypted response in Dict format
             dict_decrypted_response = json.loads(decrypted_response)
 
+            # API request-response Log
             lms.create_log(
                 {
                     "json_payload": data,
@@ -96,20 +107,25 @@ class AllowedSecurity(Document):
                 "approve_security_update",
             )
             lienscheme = dict_decrypted_response["lienscheme"]
-            self.remark = (
-                "Y - " + lienscheme["schemedetails"][0]["status"]
-                if self.allowed
-                else "N - " + lienscheme["schemedetails"][0]["status"]
-            )
-            if lienscheme["schemedetails"][0]["status"] == "SUCCESS":
-                self.res_status = True
-            else:
-                self.res_status = False
-                if self.is_new():
-                    self.allowed = False
+            if lienscheme["schemedetails"]:
+                self.remark = (
+                    "Y - " + lienscheme["schemedetails"][0]["status"]
+                    if self.allowed
+                    else "N - " + lienscheme["schemedetails"][0]["status"]
+                )
+                if lienscheme["schemedetails"][0]["status"] == "SUCCESS":
+                    self.res_status = True
                 else:
-                    self.allowed = False if self.allowed == True else True
-
+                    self.res_status = False
+                    if self.is_new():
+                        self.allowed = False
+                    else:
+                        if self.allowed:
+                            self.allowed = False
+                        else:
+                            self.allowed = True
+            else:
+                frappe.throw(frappe._(lienscheme["error"]))
         except requests.RequestException as e:
             frappe.log_error(
                 title="Allowed Security Update - Error",
@@ -137,19 +153,19 @@ def update_mycams_scheme_bulk(upload_file):
     exists_scheme = []
     schemedetails = []
     for i in csv_data[1:]:
-        for security in existing_security:
-            if i[1] == security["isin"] and i[2] == security["lender"]:
-                exists_scheme.append(i[1] + " (" + i[2] + ")")
         # if i[1] in isin:
         # exists_scheme.append(i[1])
-        else:
-            scheme = {
-                "amccode": i[6],
-                "isinno": i[1],
-                "approveflag": "Y" if i[10] else "N",
-                "lienperc": i[3],
-            }
-            schemedetails.append(scheme)
+        for security in existing_security:
+            if i[0] == security["isin"] and i[1] == security["lender"]:
+                exists_scheme.append(i[1] + " (" + i[1] + ")")
+        schemes = {
+            "amccode": i[5],
+            "isinno": i[0],
+            "approveflag": "Y" if i[9] else "N",
+            "lienperc": i[2],
+        }
+        schemedetails.append(schemes)
+    print(schemedetails)
     if len(exists_scheme):
         frappe.throw(
             "ISIN: {} {} already exist in Allowed Security List".format(
@@ -159,7 +175,11 @@ def update_mycams_scheme_bulk(upload_file):
         )
     try:
         datetime_signature = lms.create_signature_mycams()
+
+        # LAS Settings Doc
         las_settings = frappe.get_single("LAS Settings")
+
+        # Headers
         headers = {
             "Content-Type": "application/json",
             "clientid": las_settings.client_id,
@@ -167,7 +187,11 @@ def update_mycams_scheme_bulk(upload_file):
             "signature": datetime_signature[1],
             "subclientid": "",
         }
+
+        # Mycams Allowed Scheme Update API
         url = las_settings.lien_allowed_scheme_update_api
+
+        # Request Parameter Data
         data = {
             "lienscheme": {
                 "clientid": las_settings.client_id,
@@ -177,18 +201,30 @@ def update_mycams_scheme_bulk(upload_file):
             }
         }
 
+        # Encrypted Request Parameter Data
         encrypted_data = lms.AESCBC(
             las_settings.encryption_key, las_settings.iv
         ).encrypt(json.dumps(data))
+
+        # Request parameter with encrypted request data
         req_data = {"req": str(encrypted_data)}
+
         resp = requests.post(url=url, headers=headers, data=json.dumps(req_data)).text
+
+        # Encrypted response
         encrypted_response = (
             json.loads(resp).get("res").replace("-", "+").replace("_", "/")
         )
+
+        # Decrypted response
         decrypted_response = lms.AESCBC(
             las_settings.decryption_key, las_settings.iv
         ).decrypt(encrypted_response)
+
+        # Decrypted response in Dict format
         dict_decrypted_response = json.loads(decrypted_response)
+
+        # API request-response Log
         lms.create_log(
             {
                 "json_payload": data,
@@ -219,21 +255,21 @@ def update_mycams_scheme_bulk(upload_file):
             "res_status",
         ]
         approved_security_map = {
-            i[1]: {
+            i[0]: {
                 "name": "".join(
                     random.choice(string.ascii_lowercase + string.digits)
                     for _ in range(10)
                 ),
-                "isin": i[1],
-                "lender": i[2],
-                "eligible_percentage": i[3],
-                "security_category": i[4],
-                "instrument_type": i[5],
-                "amc_code": i[6],
-                "amc_name": i[7],
-                "security_name": i[8],
-                "scheme_type": i[9],
-                "allowed": int(i[10]),
+                "isin": i[0],
+                "lender": i[1],
+                "eligible_percentage": i[2],
+                "security_category": i[3],
+                "instrument_type": i[4],
+                "amc_code": i[5],
+                "amc_name": i[6],
+                "security_name": i[7],
+                "scheme_type": i[8],
+                "allowed": int(i[9]),
                 "creation": frappe.utils.now(),
                 "modified": frappe.utils.now(),
                 "owner": "Administrator",
@@ -245,7 +281,7 @@ def update_mycams_scheme_bulk(upload_file):
         values = []
         lienscheme = dict_decrypted_response["lienscheme"]
 
-        if lienscheme and lienscheme["errorcode"] == "S000":
+        if lienscheme["schemedetails"]:
             for i in lienscheme["schemedetails"]:
                 scheme = approved_security_map.get(i["isinno"])
                 scheme["remark"] = (
