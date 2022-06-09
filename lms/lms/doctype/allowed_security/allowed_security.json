@@ -97,6 +97,7 @@
    "label": "Allowed"
   },
   {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
    "fieldname": "remark",
    "fieldtype": "Data",
    "label": "Remark",
@@ -113,7 +114,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-06-06 13:26:48.732030",
+ "modified": "2022-06-08 17:58:39.524667",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",
