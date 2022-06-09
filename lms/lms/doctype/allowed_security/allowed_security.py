@@ -157,7 +157,7 @@ def update_mycams_scheme_bulk(upload_file):
         # exists_scheme.append(i[1])
         for security in existing_security:
             if i[0] == security["isin"] and i[1] == security["lender"]:
-                exists_scheme.append(i[1] + " (" + i[1] + ")")
+                exists_scheme.append(i[0] + " (" + i[1] + ")")
         schemes = {
             "amccode": i[5],
             "isinno": i[0],
@@ -165,11 +165,11 @@ def update_mycams_scheme_bulk(upload_file):
             "lienperc": i[2],
         }
         schemedetails.append(schemes)
-    print(schemedetails)
+
     if len(exists_scheme):
         frappe.throw(
             "ISIN: {} {} already exist in Allowed Security List".format(
-                ", ".join(isin_scheme for isin_scheme in exists_scheme),
+                ", ".join(isin_scheme for isin_scheme in list(set(exists_scheme))),
                 "is" if len(exists_scheme) == 1 else "are",
             )
         )
