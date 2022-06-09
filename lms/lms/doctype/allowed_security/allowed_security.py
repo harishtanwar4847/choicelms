@@ -107,7 +107,7 @@ class AllowedSecurity(Document):
                 "approve_security_update",
             )
             lienscheme = dict_decrypted_response["lienscheme"]
-            if lienscheme["schemedetails"]:
+            if lienscheme.get("schemedetails"):
                 self.remark = (
                     "Y - " + lienscheme["schemedetails"][0]["status"]
                     if self.allowed
@@ -281,7 +281,7 @@ def update_mycams_scheme_bulk(upload_file):
         values = []
         lienscheme = dict_decrypted_response["lienscheme"]
 
-        if lienscheme["schemedetails"]:
+        if lienscheme.get("schemedetails"):
             for i in lienscheme["schemedetails"]:
                 scheme = approved_security_map.get(i["isinno"])
                 scheme["remark"] = (
