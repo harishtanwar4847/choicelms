@@ -127,11 +127,32 @@ class Loan(Document):
                 "lender_processing_minimum_amount",
                 "lender_processing_maximum_amount",
             )
-
         if processing_fees > 0:
             self.create_loan_transaction(
                 "Processing Fees",
                 processing_fees,
+                approve=True,
+            )
+        # Charges on GST
+        if lender.lender_processing_cgst > 0:
+            cgst = processing_fees * (lender.lender_processing_cgst / 100)
+            self.create_loan_charges(
+                "Lender Processing CGST",
+                cgst,
+                approve=True,
+            )
+        if lender.lender_processing_sgst > 0:
+            cgst = processing_fees * (lender.lender_processing_sgst / 100)
+            self.create_loan_charges(
+                "Lender Processing SGST",
+                cgst,
+                approve=True,
+            )
+        if lender.lender_processing_igst > 0:
+            cgst = processing_fees * (lender.lender_processing_igst / 100)
+            self.create_loan_charges(
+                "Lender Processing IGST",
+                cgst,
                 approve=True,
             )
 
@@ -152,6 +173,28 @@ class Loan(Document):
                 stamp_duty,
                 approve=True,
             )
+        # Charges on GST
+        if lender.stamp_duty_cgst > 0:
+            cgst = stamp_duty * (lender.stamp_duty_cgst / 100)
+            self.create_loan_charges(
+                "Stamp Duty CGST",
+                cgst,
+                approve=True,
+            )
+        if lender.stamp_duty_sgst > 0:
+            sgst = stamp_duty * (lender.stamp_duty_sgst / 100)
+            self.create_loan_charges(
+                "Stamp Duty SGST",
+                sgst,
+                approve=True,
+            )
+        if lender.stamp_duty_igst > 0:
+            igst = processing_fees * (lender.stamp_duty_igst / 100)
+            self.create_loan_charges(
+                "Stamp Duty IGST",
+                igst,
+                approve=True,
+            )
 
         # Documentation Charges
         documentation_charges = lender.documentation_charges
@@ -170,6 +213,28 @@ class Loan(Document):
                 documentation_charges,
                 approve=True,
             )
+        # Charges on GST
+        if lender.documentation_charges_cgst > 0:
+            cgst = documentation_charges * (lender.documentation_charges_cgst / 100)
+            self.create_loan_charges(
+                "Documentation Charges CGST",
+                cgst,
+                approve=True,
+            )
+        if lender.documentation_charges_sgst > 0:
+            sgst = documentation_charges * (lender.documentation_charges_sgst / 100)
+            self.create_loan_charges(
+                "Documentation Charges SGST",
+                sgst,
+                approve=True,
+            )
+        if lender.documentation_charges_igst > 0:
+            igst = documentation_charges * (lender.documentation_charges_igst / 100)
+            self.create_loan_charges(
+                "Documentation Charges IGST",
+                igst,
+                approve=True,
+            )
 
         # Mortgage Charges
         mortgage_charges = lender.mortgage_charges
@@ -181,11 +246,32 @@ class Loan(Document):
                 "lender_mortgage_minimum_amount",
                 "lender_mortgage_maximum_amount",
             )
-
         if mortgage_charges > 0:
             self.create_loan_transaction(
                 "Mortgage Charges",
                 mortgage_charges,
+                approve=True,
+            )
+        # Charges on GST
+        if lender.mortgage_charges_cgst > 0:
+            igst = mortgage_charges * (lender.mortgage_charges_cgst / 100)
+            self.create_loan_charges(
+                "Mortgage Charges CGST",
+                igst,
+                approve=True,
+            )
+        if lender.mortgage_charges_sgst > 0:
+            igst = mortgage_charges * (lender.mortgage_charges_sgst / 100)
+            self.create_loan_charges(
+                "Mortgage Charges SGST",
+                igst,
+                approve=True,
+            )
+        if lender.mortgage_charges_igst > 0:
+            igst = mortgage_charges * (lender.mortgage_charges_igst / 100)
+            self.create_loan_charges(
+                "Mortgage Charges IGST",
+                igst,
                 approve=True,
             )
 
@@ -210,6 +296,28 @@ class Loan(Document):
                 self.create_loan_transaction(
                     "Lien Initiate Charges",
                     lien_initiate_charges,
+                    approve=True,
+                )
+            # Charges on GST
+            if lender.lien_initiate_charges_igst > 0:
+                cgst = mortgage_charges * (lender.lien_initiate_charges_cgst / 100)
+                self.create_loan_charges(
+                    "Lien Initiate Charges CGST",
+                    cgst,
+                    approve=True,
+                )
+            if lender.lien_initiate_charges_igst > 0:
+                sgst = mortgage_charges * (lender.lien_initiate_charges_sgst / 100)
+                self.create_loan_charges(
+                    "Lien Initiate Charges SGST",
+                    sgst,
+                    approve=True,
+                )
+            if lender.lien_initiate_charges_igst > 0:
+                igst = mortgage_charges * (lender.lien_initiate_charges_igst / 100)
+                self.create_loan_charges(
+                    "Lien Initiate Charges IGST",
+                    igst,
                     approve=True,
                 )
 

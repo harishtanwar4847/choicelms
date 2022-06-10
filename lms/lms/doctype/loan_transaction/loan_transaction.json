@@ -15,6 +15,7 @@
   "customer_name",
   "lender",
   "additional_interest",
+  "charge_reference",
   "requested",
   "allowable",
   "opening_balance",
@@ -29,6 +30,7 @@
   "status",
   "amended_from",
   "record_type",
+  "gst_percent",
   "loan_margin_shortfall",
   "unpaid_interest",
   "disbursed",
@@ -363,11 +365,22 @@
    "label": "Scheme Type",
    "options": "\nEquity\nDebt",
    "read_only": 1
+  },
+  {
+   "fieldname": "charge_reference",
+   "fieldtype": "Link",
+   "label": "Charge Reference",
+   "options": "Loan Transaction"
+  },
+  {
+   "fieldname": "gst_percent",
+   "fieldtype": "Data",
+   "label": "GST Percent"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-04-08 15:57:48.317676",
+ "modified": "2022-06-09 17:24:03.345042",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
