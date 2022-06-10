@@ -209,6 +209,7 @@ class UnpledgeApplication(Document):
         loan.update_items()
         loan.fill_items()
         loan.save(ignore_permissions=True)
+        loan_transaction = frappe.get_doc("Loan Transaction", self.loan)
 
         lender = self.get_lender()
         if self.instrument_type == "Shares":
@@ -232,6 +233,42 @@ class UnpledgeApplication(Document):
                     amount=total_dp_reimburse_unpledge_charges,
                     approve=True,
                 )
+            if lender.cgst_on_dp_reimbursementunpledge_charges > 0:
+                cgst = total_dp_reimburse_unpledge_charges * (
+                    lender.cgst_on_dp_reimbursementunpledge_charges / 100
+                )
+                loan_transaction.gst_percent = (
+                    lender.cgst_on_dp_reimbursementunpledge_charges
+                )
+                loan.create_loan_transaction(
+                    "DP Reimbursement(Unpledge) CGST",
+                    cgst,
+                    approve=True,
+                )
+            if lender.sgst_on_dp_reimbursementunpledge_charges > 0:
+                sgst = total_dp_reimburse_unpledge_charges * (
+                    lender.sgst_on_dp_reimbursementunpledge_charges / 100
+                )
+                loan_transaction.gst_percent = (
+                    lender.sgst_on_dp_reimbursementunpledge_charges
+                )
+                loan.create_loan_transaction(
+                    "DP Reimbursement(Unpledge) SGST",
+                    sgst,
+                    approve=True,
+                )
+            if lender.igst_on_dp_reimbursementunpledge_charges > 0:
+                igst = total_dp_reimburse_unpledge_charges * (
+                    lender.igst_on_dp_reimbursementunpledge_charges / 100
+                )
+                loan_transaction.gst_percent = (
+                    lender.igst_on_dp_reimbursementunpledge_charges
+                )
+                loan.create_loan_transaction(
+                    "DP Reimbursement(Unpledge) IGST",
+                    igst,
+                    approve=True,
+                )
         else:
             # revoke charges - Mutual Fund
             revoke_charges = lender.revoke_initiate_charges
@@ -251,6 +288,30 @@ class UnpledgeApplication(Document):
                 loan.create_loan_transaction(
                     transaction_type="Revoke Initiate Charges",
                     amount=revoke_charges,
+                    approve=True,
+                )
+            if lender.cgst_on_revocation_charges > 0:
+                cgst = revoke_charges * (lender.cgst_on_revocation_charges / 100)
+                loan_transaction.gst_percent = lender.cgst_on_revocation_charges
+                loan.create_loan_transaction(
+                    "Revoke Initiate Charges CGST",
+                    cgst,
+                    approve=True,
+                )
+            if lender.sgst_on_revocation_charges > 0:
+                sgst = revoke_charges * (lender.sgst_on_revocation_charges / 100)
+                loan_transaction.gst_percent = lender.sgst_on_revocation_charges
+                loan.create_loan_transaction(
+                    "Revoke Initiate Charges SGST",
+                    sgst,
+                    approve=True,
+                )
+            if lender.igst_on_revocation_charges > 0:
+                igst = revoke_charges * (lender.igst_on_revocation_charges / 100)
+                loan_transaction.gst_percent = lender.igst_on_revocation_charges
+                loan.create_loan_transaction(
+                    "Revoke Initiate Charges IGST",
+                    igst,
                     approve=True,
                 )
 

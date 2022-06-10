@@ -12,6 +12,7 @@ from rsa import decrypt
 
 import lms
 from lms.firebase import FirebaseAdmin
+from lms.lms.doctype import loan_transaction
 from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
 
 
@@ -290,6 +291,7 @@ class SellCollateralApplication(Document):
         loan.update_items()
         loan.fill_items()
         loan.save(ignore_permissions=True)
+        loan_transaction = frappe.get_doc("Loan Transaction", self.loan)
 
         lender = self.get_lender()
 
@@ -357,12 +359,78 @@ class SellCollateralApplication(Document):
                     approve=True,
                     loan_margin_shortfall_name=self.loan_margin_shortfall,
                 )
+            if lender.cgst_on_dp_reimbursementsell_charges > 0:
+                cgst = total_dp_reimburse_sell_charges * (
+                    lender.cgst_on_dp_reimbursementsell_charges / 100
+                )
+                loan_transaction.gst_percent = (
+                    lender.cgst_on_dp_reimbursementsell_charges
+                )
+                loan.create_loan_transaction(
+                    "DP Reimbursement(Sell) CGST",
+                    cgst,
+                    approve=True,
+                )
+            if lender.sgst_on_dp_reimbursementsell_charges > 0:
+                sgst = total_dp_reimburse_sell_charges * (
+                    lender.sgst_on_dp_reimbursementsell_charges / 100
+                )
+                loan_transaction.gst_percent = (
+                    lender.sgst_on_dp_reimbursementsell_charges
+                )
+                loan.create_loan_transaction(
+                    "DP Reimbursement(Sell) SGST",
+                    sgst,
+                    approve=True,
+                )
+            if lender.igst_on_dp_reimbursementsell_charges > 0:
+                igst = total_dp_reimburse_sell_charges * (
+                    lender.igst_on_dp_reimbursementsell_charges / 100
+                )
+                loan_transaction.gst_percent = (
+                    lender.igst_on_dp_reimbursementsell_charges
+                )
+                loan.create_loan_transaction(
+                    "DP Reimbursement(Sell) IGST",
+                    igst,
+                    approve=True,
+                )
             if sell_collateral_charges:
                 loan.create_loan_transaction(
                     transaction_type="Sell Collateral Charges",
                     amount=sell_collateral_charges,
                     approve=True,
                     loan_margin_shortfall_name=self.loan_margin_shortfall,
+                )
+            if lender.cgst_on_sell_collateral_charges > 0:
+                cgst = sell_collateral_charges * (
+                    lender.cgst_on_sell_collateral_charges / 100
+                )
+                loan_transaction.gst_percent = lender.cgst_on_sell_collateral_charges
+                loan.create_loan_transaction(
+                    "Sell Collateral Charges CGST",
+                    cgst,
+                    approve=True,
+                )
+            if lender.sgst_on_sell_collateral_charges > 0:
+                sgst = sell_collateral_charges * (
+                    lender.sgst_on_sell_collateral_charges / 100
+                )
+                loan_transaction.gst_percent = lender.sgst_on_sell_collateral_charges
+                loan.create_loan_transaction(
+                    "Sell Collateral Charges SGST",
+                    sgst,
+                    approve=True,
+                )
+            if lender.igst_on_sell_collateral_charges > 0:
+                igst = sell_collateral_charges * (
+                    lender.igst_on_sell_collateral_charges / 100
+                )
+                loan_transaction.gst_percent = lender.igst_on_sell_collateral_charges
+                loan.create_loan_transaction(
+                    "Sell Collateral Charges IGST",
+                    igst,
+                    approve=True,
                 )
         else:
             # invoke charges - Mutual Fund
@@ -385,6 +453,30 @@ class SellCollateralApplication(Document):
                     amount=invoke_charges,
                     approve=True,
                     loan_margin_shortfall_name=self.loan_margin_shortfall,
+                )
+            if lender.cgst_on_invocation_charges > 0:
+                cgst = invoke_charges * (lender.cgst_on_invocation_charges / 100)
+                loan_transaction.gst_percent = lender.cgst_on_invocation_charges
+                loan.create_loan_transaction(
+                    "Invoke Initiate Charges CGST",
+                    cgst,
+                    approve=True,
+                )
+            if lender.sgst_on_invocation_charges > 0:
+                sgst = invoke_charges * (lender.sgst_on_invocation_charges / 100)
+                loan_transaction.gst_percent = lender.sgst_on_invocation_charges
+                loan.create_loan_transaction(
+                    "Invoke Initiate Charges SGST",
+                    sgst,
+                    approve=True,
+                )
+            if lender.igst_on_invocation_charges > 0:
+                igst = invoke_charges * (lender.igst_on_invocation_charges / 100)
+                loan_transaction.gst_percent = lender.igst_on_invocation_charges
+                loan.create_loan_transaction(
+                    "Invoke Initiate Charges IGST",
+                    igst,
+                    approve=True,
                 )
 
         user_roles = frappe.db.get_values(
