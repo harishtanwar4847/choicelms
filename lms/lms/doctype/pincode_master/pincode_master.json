@@ -1,0 +1,73 @@
+{
+ "actions": [],
+ "autoname": "field:pincode",
+ "creation": "2022-06-09 14:28:22.115475",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "pincode",
+  "new_district",
+  "state_name",
+  "state",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "pincode",
+   "fieldtype": "Data",
+   "label": "Pincode",
+   "unique": 1
+  },
+  {
+   "fetch_from": "new_district.new_district",
+   "fieldname": "new_district",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "New District"
+  },
+  {
+   "fetch_from": "state.description",
+   "fieldname": "state_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "State Name"
+  },
+  {
+   "fetch_from": "state.code",
+   "fieldname": "state",
+   "fieldtype": "Link",
+   "label": "State",
+   "options": "State Master"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-06-09 16:49:46.522612",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Pincode Master",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
