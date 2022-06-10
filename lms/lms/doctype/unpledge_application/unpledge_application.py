@@ -249,7 +249,7 @@ class UnpledgeApplication(Document):
 
             if revoke_charges:
                 loan.create_loan_transaction(
-                    transaction_type="Revoke Initiate Charges",
+                    transaction_type="Revocation Charges",
                     amount=revoke_charges,
                     approve=True,
                 )
