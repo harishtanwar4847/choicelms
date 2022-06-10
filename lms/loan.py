@@ -1896,6 +1896,8 @@ def loan_statement(**kwargs):
                 list["amount"] = frappe.utils.fmt_money(list["amount"])
                 # list["amount"] = lms.amount_formatter(list["amount"])
                 list["time"] = list["time"].strftime("%Y-%m-%d %H:%M")
+                if "Processing Fees" in list["transaction_type"]:
+                    list["transaction_type"] = list["transaction_type"] + " @9%"
                 lt_list.append(list.values())
             # lt_list = [lst.values() for lst in loan_transaction_list]
             res["loan_transaction_list"] = loan_transaction_list
