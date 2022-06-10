@@ -367,7 +367,7 @@ class SellCollateralApplication(Document):
                     lender.cgst_on_dp_reimbursementsell_charges
                 )
                 loan.create_loan_transaction(
-                    "DP Reimbursement(Sell) CGST",
+                    "CGST on DP Reimbursement(Sell) Charges",
                     cgst,
                     approve=True,
                 )
@@ -379,7 +379,7 @@ class SellCollateralApplication(Document):
                     lender.sgst_on_dp_reimbursementsell_charges
                 )
                 loan.create_loan_transaction(
-                    "DP Reimbursement(Sell) SGST",
+                    "SGST on DP Reimbursement(Sell) Charges",
                     sgst,
                     approve=True,
                 )
@@ -391,7 +391,7 @@ class SellCollateralApplication(Document):
                     lender.igst_on_dp_reimbursementsell_charges
                 )
                 loan.create_loan_transaction(
-                    "DP Reimbursement(Sell) IGST",
+                    "IGST on DP Reimbursement(Sell) Charges",
                     igst,
                     approve=True,
                 )
@@ -408,7 +408,7 @@ class SellCollateralApplication(Document):
                 )
                 loan_transaction.gst_percent = lender.cgst_on_sell_collateral_charges
                 loan.create_loan_transaction(
-                    "Sell Collateral Charges CGST",
+                    "CGST on Sell Collateral Charges",
                     cgst,
                     approve=True,
                 )
@@ -418,7 +418,7 @@ class SellCollateralApplication(Document):
                 )
                 loan_transaction.gst_percent = lender.sgst_on_sell_collateral_charges
                 loan.create_loan_transaction(
-                    "Sell Collateral Charges SGST",
+                    "SGST on Sell Collateral Charges",
                     sgst,
                     approve=True,
                 )
@@ -428,7 +428,7 @@ class SellCollateralApplication(Document):
                 )
                 loan_transaction.gst_percent = lender.igst_on_sell_collateral_charges
                 loan.create_loan_transaction(
-                    "Sell Collateral Charges IGST",
+                    "IGST on Sell Collateral Charges",
                     igst,
                     approve=True,
                 )
@@ -449,7 +449,7 @@ class SellCollateralApplication(Document):
 
             if invoke_charges > 0:
                 loan.create_loan_transaction(
-                    transaction_type="Invoke Initiate Charges",
+                    transaction_type="Invoke Charges",
                     amount=invoke_charges,
                     approve=True,
                     loan_margin_shortfall_name=self.loan_margin_shortfall,
@@ -458,7 +458,7 @@ class SellCollateralApplication(Document):
                 cgst = invoke_charges * (lender.cgst_on_invocation_charges / 100)
                 loan_transaction.gst_percent = lender.cgst_on_invocation_charges
                 loan.create_loan_transaction(
-                    "Invoke Initiate Charges CGST",
+                    "CGST on Invocation Charges",
                     cgst,
                     approve=True,
                 )
@@ -466,7 +466,7 @@ class SellCollateralApplication(Document):
                 sgst = invoke_charges * (lender.sgst_on_invocation_charges / 100)
                 loan_transaction.gst_percent = lender.sgst_on_invocation_charges
                 loan.create_loan_transaction(
-                    "Invoke Initiate Charges SGST",
+                    "SGST on Invocation Charges",
                     sgst,
                     approve=True,
                 )
@@ -474,7 +474,7 @@ class SellCollateralApplication(Document):
                 igst = invoke_charges * (lender.igst_on_invocation_charges / 100)
                 loan_transaction.gst_percent = lender.igst_on_invocation_charges
                 loan.create_loan_transaction(
-                    "Invoke Initiate Charges IGST",
+                    "IGST on Invocation Charges",
                     igst,
                     approve=True,
                 )

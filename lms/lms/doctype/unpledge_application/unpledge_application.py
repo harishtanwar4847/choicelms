@@ -241,7 +241,7 @@ class UnpledgeApplication(Document):
                     lender.cgst_on_dp_reimbursementunpledge_charges
                 )
                 loan.create_loan_transaction(
-                    "DP Reimbursement(Unpledge) CGST",
+                    "CGST on DP Reimbursement(Unpledge) Charges",
                     cgst,
                     approve=True,
                 )
@@ -253,7 +253,7 @@ class UnpledgeApplication(Document):
                     lender.sgst_on_dp_reimbursementunpledge_charges
                 )
                 loan.create_loan_transaction(
-                    "DP Reimbursement(Unpledge) SGST",
+                    "SGST on DP Reimbursement(Unpledge) Charges",
                     sgst,
                     approve=True,
                 )
@@ -265,7 +265,7 @@ class UnpledgeApplication(Document):
                     lender.igst_on_dp_reimbursementunpledge_charges
                 )
                 loan.create_loan_transaction(
-                    "DP Reimbursement(Unpledge) IGST",
+                    "IGST on DP Reimbursement(Unpledge) Charges",
                     igst,
                     approve=True,
                 )
@@ -294,7 +294,7 @@ class UnpledgeApplication(Document):
                 cgst = revoke_charges * (lender.cgst_on_revocation_charges / 100)
                 loan_transaction.gst_percent = lender.cgst_on_revocation_charges
                 loan.create_loan_transaction(
-                    "Revoke Initiate Charges CGST",
+                    "CGST on Revocation Charges",
                     cgst,
                     approve=True,
                 )
@@ -302,7 +302,7 @@ class UnpledgeApplication(Document):
                 sgst = revoke_charges * (lender.sgst_on_revocation_charges / 100)
                 loan_transaction.gst_percent = lender.sgst_on_revocation_charges
                 loan.create_loan_transaction(
-                    "Revoke Initiate Charges SGST",
+                    "SGST on Revocation Charges",
                     sgst,
                     approve=True,
                 )
@@ -310,7 +310,7 @@ class UnpledgeApplication(Document):
                 igst = revoke_charges * (lender.igst_on_revocation_charges / 100)
                 loan_transaction.gst_percent = lender.igst_on_revocation_charges
                 loan.create_loan_transaction(
-                    "Revoke Initiate Charges IGST",
+                    "IGST on Revocation Charges",
                     igst,
                     approve=True,
                 )

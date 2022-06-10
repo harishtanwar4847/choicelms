@@ -14,6 +14,7 @@ from num2words import num2words
 
 import lms
 from lms.firebase import FirebaseAdmin
+from lms.lms.doctype import loan_transaction
 from lms.lms.doctype.loan_transaction.loan_transaction import LoanTransaction
 
 
@@ -106,7 +107,6 @@ class Loan(Document):
 
     def create_loan_charges(self):
         lender = self.get_lender()
-        loan_transaction = frappe.get_doc("Loan Transaction", self.loan)
 
         # Processing fees
         import calendar
@@ -139,7 +139,7 @@ class Loan(Document):
             cgst = processing_fees * (lender.cgst_on_processing_fees / 100)
             loan_transaction.gst_percent = lender.cgst_on_processing_fees
             self.create_loan_transaction(
-                "Lender Processing CGST",
+                "CGST on Processing Fees",
                 cgst,
                 approve=True,
             )
@@ -147,7 +147,7 @@ class Loan(Document):
             sgst = processing_fees * (lender.sgst_on_processing_fees / 100)
             loan_transaction.gst_percent = lender.sgst_on_processing_fees
             self.create_loan_transaction(
-                "Lender Processing SGST",
+                "SGST on Processing Fees",
                 sgst,
                 approve=True,
             )
@@ -155,7 +155,7 @@ class Loan(Document):
             igst = processing_fees * (lender.igst_on_processing_fees / 100)
             loan_transaction.gst_percent = lender.igst_on_processing_fees
             self.create_loan_transaction(
-                "Lender Processing IGST",
+                "IGST on Processing Fees",
                 igst,
                 approve=True,
             )
@@ -182,7 +182,7 @@ class Loan(Document):
             cgst = stamp_duty * (lender.cgst_on_stamp_duty / 100)
             loan_transaction.gst_percent = lender.cgst_on_stamp_duty
             self.create_loan_transaction(
-                "Stamp Duty CGST",
+                "CGST on Stamp Duty",
                 cgst,
                 approve=True,
             )
@@ -190,7 +190,7 @@ class Loan(Document):
             sgst = stamp_duty * (lender.sgst_on_stamp_duty / 100)
             loan_transaction.gst_percent = lender.sgst_on_stamp_duty
             self.create_loan_transaction(
-                "Stamp Duty SGST",
+                "SGST on Stamp Duty",
                 sgst,
                 approve=True,
             )
@@ -198,7 +198,7 @@ class Loan(Document):
             igst = processing_fees * (lender.igst_on_stamp_duty / 100)
             loan_transaction.gst_percent = lender.igst_on_stamp_duty
             self.create_loan_transaction(
-                "Stamp Duty IGST",
+                "IGST on Stamp Duty",
                 igst,
                 approve=True,
             )
@@ -225,7 +225,7 @@ class Loan(Document):
             cgst = documentation_charges * (lender.cgst_on_documentation_charges / 100)
             loan_transaction.gst_percent = lender.cgst_on_documentation_charges
             self.create_loan_transaction(
-                "Documentation Charges CGST",
+                "CGST on Documentation Charges",
                 cgst,
                 approve=True,
             )
@@ -233,7 +233,7 @@ class Loan(Document):
             sgst = documentation_charges * (lender.sgst_on_documentation_charges / 100)
             loan_transaction.gst_percent = lender.sgst_on_documentation_charges
             self.create_loan_transaction(
-                "Documentation Charges SGST",
+                "SGST on Documentation Charges",
                 sgst,
                 approve=True,
             )
@@ -241,7 +241,7 @@ class Loan(Document):
             igst = documentation_charges * (lender.igst_on_documentation_charges / 100)
             loan_transaction.gst_percent = lender.igst_on_documentation_charges
             self.create_loan_transaction(
-                "Documentation Charges IGST",
+                "IGST on Documentation Charges",
                 igst,
                 approve=True,
             )
@@ -267,7 +267,7 @@ class Loan(Document):
             cgst = mortgage_charges * (lender.cgst_on_mortgage_charges / 100)
             loan_transaction.gst_percent = lender.cgst_on_mortgage_charges
             self.create_loan_transaction(
-                "Mortgage Charges CGST",
+                "CGST on Mortgage Charges",
                 cgst,
                 approve=True,
             )
@@ -275,7 +275,7 @@ class Loan(Document):
             sgst = mortgage_charges * (lender.sgst_on_mortgage_charges / 100)
             loan_transaction.gst_percent = lender.sgst_on_mortgage_charges
             self.create_loan_transaction(
-                "Mortgage Charges SGST",
+                "SGST on Mortgage Charges",
                 sgst,
                 approve=True,
             )
@@ -283,7 +283,7 @@ class Loan(Document):
             igst = mortgage_charges * (lender.igst_on_mortgage_charges / 100)
             loan_transaction.gst_percent = lender.igst_on_mortgage_charges
             self.create_loan_transaction(
-                "Mortgage Charges IGST",
+                "IGST on Mortgage Charges",
                 igst,
                 approve=True,
             )
@@ -307,7 +307,7 @@ class Loan(Document):
 
             if lien_initiate_charges > 0:
                 self.create_loan_transaction(
-                    "Lien Initiate Charges",
+                    "Lien Charges",
                     lien_initiate_charges,
                     approve=True,
                 )

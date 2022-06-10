@@ -42,9 +42,9 @@ class LoanTransaction(Document):
         "DP Reimbursement(Sell)": "DR",
         "Sell Collateral Charges": "DR",
         "Renewal Charges": "DR",
-        "Lien Initiate Charges": "DR",  # MF
-        "Invoke Initiate Charges": "DR",  # MF
-        "Revoke Initiate Charges": "DR",  # MF
+        "Lien Charges": "DR",  # MF
+        "Invoke Charges": "DR",  # MF
+        "Revoke Charges": "DR",  # MF
     }
 
     def autoname(self):

@@ -72,7 +72,7 @@ class TopupApplication(Document):
             cgst = renewal_charges * (lender.cgst_on_account_renewal_charges / 100)
             loan_transaction.gst_percent = lender.cgst_on_account_renewal_charges
             loan.create_loan_transaction(
-                "Renewal Charges CGST",
+                "CGST on Account renewal charges",
                 cgst,
                 approve=True,
             )
@@ -80,7 +80,7 @@ class TopupApplication(Document):
             sgst = renewal_charges * (lender.sgst_on_account_renewal_charges / 100)
             loan_transaction.gst_percent = lender.sgst_on_account_renewal_charges
             loan.create_loan_transaction(
-                "Renewal Charges SGST",
+                "SGST on Account renewal charges",
                 sgst,
                 approve=True,
             )
@@ -88,7 +88,7 @@ class TopupApplication(Document):
             igst = renewal_charges * (lender.igst_on_account_renewal_charges / 100)
             loan_transaction.gst_percent = lender.igst_on_account_renewal_charges
             loan.create_loan_transaction(
-                "Renewal Charges IGST",
+                "IGST on Account renewal charges",
                 igst,
                 approve=True,
             )
