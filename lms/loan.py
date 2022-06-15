@@ -802,6 +802,7 @@ def loan_details(**kwargs):
                 "record_type",
                 "amount",
                 "time",
+                "gst_percent",
             ],
             start=data.get("transactions_start"),
             page_length=data.get("transactions_per_page"),
@@ -818,7 +819,12 @@ def loan_details(**kwargs):
                     loan_transactions_list,
                 )
             )
-
+        for items in loan_transactions_list:
+            if "GST" in items["transaction_type"]:
+                items["transaction_type"] = items["transaction_type"] + " @{}%".format(
+                    items["gst_percent"],
+                )
+            del items["gst_percent"]
         loan_margin_shortfall = loan.get_margin_shortfall()
         if loan_margin_shortfall.get("__islocal", None):
             loan_margin_shortfall = None
@@ -1881,6 +1887,7 @@ def loan_statement(**kwargs):
                     "name",
                     "record_type",
                     "amount",
+                    "gst_percent",
                     # "DATE_FORMAT(time, '%Y-%m-%d %H:%i') as time",
                     # "status",
                     "opening_balance",
@@ -1896,9 +1903,14 @@ def loan_statement(**kwargs):
                 list["amount"] = frappe.utils.fmt_money(list["amount"])
                 # list["amount"] = lms.amount_formatter(list["amount"])
                 list["time"] = list["time"].strftime("%Y-%m-%d %H:%M")
-                if "Processing Fees" in list["transaction_type"]:
-                    list["transaction_type"] = list["transaction_type"] + " @9%"
+                if "GST" in list["transaction_type"]:
+                    list["transaction_type"] = list[
+                        "transaction_type"
+                    ] + " @{}%".format(
+                        list["gst_percent"],
+                    )
                 lt_list.append(list.values())
+                del list["gst_percent"]
             # lt_list = [lst.values() for lst in loan_transaction_list]
             res["loan_transaction_list"] = loan_transaction_list
             df = pd.DataFrame(lt_list)

@@ -107,10 +107,10 @@ class Loan(Document):
 
     def create_loan_charges(self):
         lender = self.get_lender()
-
         # Processing fees
         import calendar
 
+        gst = 0
         date = frappe.utils.now_datetime()
         days_in_year = 366 if calendar.isleap(date.year) else 365
         processing_fees = lender.lender_processing_fees
@@ -129,36 +129,46 @@ class Loan(Document):
                 "lender_processing_maximum_amount",
             )
         if processing_fees > 0:
-            self.create_loan_transaction(
+            processing_fees_reference = self.create_loan_transaction(
                 "Processing Fees",
                 processing_fees,
                 approve=True,
             )
-        # Charges on GST
-        if lender.cgst_on_processing_fees > 0:
-            cgst = processing_fees * (lender.cgst_on_processing_fees / 100)
-            loan_transaction.gst_percent = lender.cgst_on_processing_fees
-            self.create_loan_transaction(
-                "CGST on Processing Fees",
-                cgst,
-                approve=True,
-            )
-        if lender.sgst_on_processing_fees > 0:
-            sgst = processing_fees * (lender.sgst_on_processing_fees / 100)
-            loan_transaction.gst_percent = lender.sgst_on_processing_fees
-            self.create_loan_transaction(
-                "SGST on Processing Fees",
-                sgst,
-                approve=True,
-            )
-        if lender.igst_on_processing_fees > 0:
-            igst = processing_fees * (lender.igst_on_processing_fees / 100)
-            loan_transaction.gst_percent = lender.igst_on_processing_fees
-            self.create_loan_transaction(
-                "IGST on Processing Fees",
-                igst,
-                approve=True,
-            )
+
+            # GST on Charges
+            if lender.cgst_on_processing_fees > 0:
+                cgst = processing_fees * (lender.cgst_on_processing_fees / 100)
+                gst_percent = lender.cgst_on_processing_fees
+                # charge_reference.charge_reference.db_set(
+                #     "charge_reference", reference.transaction_type
+                # )
+                self.create_loan_transaction(
+                    "CGST on Processing Fees",
+                    cgst,
+                    gst_percent,
+                    charge_reference=processing_fees_reference.name,
+                    approve=True,
+                )
+            if lender.sgst_on_processing_fees > 0:
+                sgst = processing_fees * (lender.sgst_on_processing_fees / 100)
+                gst_percent = lender.sgst_on_processing_fees
+                self.create_loan_transaction(
+                    "SGST on Processing Fees",
+                    sgst,
+                    gst_percent,
+                    charge_reference=processing_fees_reference.name,
+                    approve=True,
+                )
+            if lender.igst_on_processing_fees > 0:
+                igst = processing_fees * (lender.igst_on_processing_fees / 100)
+                gst_percent = lender.igst_on_processing_fees
+                self.create_loan_transaction(
+                    "IGST on Processing Fees",
+                    igst,
+                    gst_percent,
+                    charge_reference=processing_fees_reference.name,
+                    approve=True,
+                )
 
         # Stamp Duty
         stamp_duty = lender.stamp_duty
@@ -172,36 +182,42 @@ class Loan(Document):
             )
 
         if stamp_duty > 0:
-            self.create_loan_transaction(
+            stamp_duty_reference = self.create_loan_transaction(
                 "Stamp Duty",
                 stamp_duty,
                 approve=True,
             )
-        # Charges on GST
-        if lender.cgst_on_stamp_duty > 0:
-            cgst = stamp_duty * (lender.cgst_on_stamp_duty / 100)
-            loan_transaction.gst_percent = lender.cgst_on_stamp_duty
-            self.create_loan_transaction(
-                "CGST on Stamp Duty",
-                cgst,
-                approve=True,
-            )
-        if lender.sgst_on_stamp_duty > 0:
-            sgst = stamp_duty * (lender.sgst_on_stamp_duty / 100)
-            loan_transaction.gst_percent = lender.sgst_on_stamp_duty
-            self.create_loan_transaction(
-                "SGST on Stamp Duty",
-                sgst,
-                approve=True,
-            )
-        if lender.igst_on_stamp_duty > 0:
-            igst = processing_fees * (lender.igst_on_stamp_duty / 100)
-            loan_transaction.gst_percent = lender.igst_on_stamp_duty
-            self.create_loan_transaction(
-                "IGST on Stamp Duty",
-                igst,
-                approve=True,
-            )
+            # Charges on GST
+            if lender.cgst_on_stamp_duty > 0:
+                cgst = stamp_duty * (lender.cgst_on_stamp_duty / 100)
+                gst_percent = lender.cgst_on_stamp_duty
+                self.create_loan_transaction(
+                    "CGST on Stamp Duty",
+                    cgst,
+                    gst_percent,
+                    charge_reference=stamp_duty_reference.name,
+                    approve=True,
+                )
+            if lender.sgst_on_stamp_duty > 0:
+                sgst = stamp_duty * (lender.sgst_on_stamp_duty / 100)
+                gst_percent = lender.sgst_on_stamp_duty
+                self.create_loan_transaction(
+                    "SGST on Stamp Duty",
+                    sgst,
+                    gst_percent,
+                    charge_reference=stamp_duty_reference.name,
+                    approve=True,
+                )
+            if lender.igst_on_stamp_duty > 0:
+                igst = processing_fees * (lender.igst_on_stamp_duty / 100)
+                gst_percent = lender.igst_on_stamp_duty
+                self.create_loan_transaction(
+                    "IGST on Stamp Duty",
+                    igst,
+                    gst_percent,
+                    charge_reference=stamp_duty_reference.name,
+                    approve=True,
+                )
 
         # Documentation Charges
         documentation_charges = lender.documentation_charges
@@ -215,36 +231,48 @@ class Loan(Document):
             )
 
         if documentation_charges > 0:
-            self.create_loan_transaction(
+            documentation_charges_reference = self.create_loan_transaction(
                 "Documentation Charges",
                 documentation_charges,
                 approve=True,
             )
-        # Charges on GST
-        if lender.cgst_on_documentation_charges > 0:
-            cgst = documentation_charges * (lender.cgst_on_documentation_charges / 100)
-            loan_transaction.gst_percent = lender.cgst_on_documentation_charges
-            self.create_loan_transaction(
-                "CGST on Documentation Charges",
-                cgst,
-                approve=True,
-            )
-        if lender.sgst_on_documentation_charges > 0:
-            sgst = documentation_charges * (lender.sgst_on_documentation_charges / 100)
-            loan_transaction.gst_percent = lender.sgst_on_documentation_charges
-            self.create_loan_transaction(
-                "SGST on Documentation Charges",
-                sgst,
-                approve=True,
-            )
-        if lender.igst_on_documentation_charges > 0:
-            igst = documentation_charges * (lender.igst_on_documentation_charges / 100)
-            loan_transaction.gst_percent = lender.igst_on_documentation_charges
-            self.create_loan_transaction(
-                "IGST on Documentation Charges",
-                igst,
-                approve=True,
-            )
+            # GST Charges on
+            if lender.cgst_on_documentation_charges > 0:
+                cgst = documentation_charges * (
+                    lender.cgst_on_documentation_charges / 100
+                )
+                gst_percent = lender.cgst_on_documentation_charges
+                self.create_loan_transaction(
+                    "CGST on Documentation Charges",
+                    cgst,
+                    gst_percent,
+                    charge_reference=documentation_charges_reference.name,
+                    approve=True,
+                )
+            if lender.sgst_on_documentation_charges > 0:
+                sgst = documentation_charges * (
+                    lender.sgst_on_documentation_charges / 100
+                )
+                gst_percent = lender.sgst_on_documentation_charges
+                self.create_loan_transaction(
+                    "SGST on Documentation Charges",
+                    sgst,
+                    gst_percent,
+                    charge_reference=documentation_charges_reference.name,
+                    approve=True,
+                )
+            if lender.igst_on_documentation_charges > 0:
+                igst = documentation_charges * (
+                    lender.igst_on_documentation_charges / 100
+                )
+                gst_percent = lender.igst_on_documentation_charges
+                self.create_loan_transaction(
+                    "IGST on Documentation Charges",
+                    igst,
+                    gst_percent,
+                    charge_reference=documentation_charges_reference.name,
+                    approve=True,
+                )
 
         # Mortgage Charges
         mortgage_charges = lender.mortgage_charges
@@ -257,36 +285,42 @@ class Loan(Document):
                 "lender_mortgage_maximum_amount",
             )
         if mortgage_charges > 0:
-            self.create_loan_transaction(
+            mortgage_charges_reference = self.create_loan_transaction(
                 "Mortgage Charges",
                 mortgage_charges,
                 approve=True,
             )
-        # Charges on GST
-        if lender.cgst_on_mortgage_charges > 0:
-            cgst = mortgage_charges * (lender.cgst_on_mortgage_charges / 100)
-            loan_transaction.gst_percent = lender.cgst_on_mortgage_charges
-            self.create_loan_transaction(
-                "CGST on Mortgage Charges",
-                cgst,
-                approve=True,
-            )
-        if lender.sgst_on_mortgage_charges > 0:
-            sgst = mortgage_charges * (lender.sgst_on_mortgage_charges / 100)
-            loan_transaction.gst_percent = lender.sgst_on_mortgage_charges
-            self.create_loan_transaction(
-                "SGST on Mortgage Charges",
-                sgst,
-                approve=True,
-            )
-        if lender.igst_on_mortgage_charges > 0:
-            igst = mortgage_charges * (lender.igst_on_mortgage_charges / 100)
-            loan_transaction.gst_percent = lender.igst_on_mortgage_charges
-            self.create_loan_transaction(
-                "IGST on Mortgage Charges",
-                igst,
-                approve=True,
-            )
+            # Charges on GST
+            if lender.cgst_on_mortgage_charges > 0:
+                cgst = mortgage_charges * (lender.cgst_on_mortgage_charges / 100)
+                gst_percent = lender.cgst_on_mortgage_charges
+                self.create_loan_transaction(
+                    "CGST on Mortgage Charges",
+                    cgst,
+                    gst_percent,
+                    charge_reference=mortgage_charges_reference.name,
+                    approve=True,
+                )
+            if lender.sgst_on_mortgage_charges > 0:
+                sgst = mortgage_charges * (lender.sgst_on_mortgage_charges / 100)
+                gst_percent = lender.sgst_on_mortgage_charges
+                self.create_loan_transaction(
+                    "SGST on Mortgage Charges",
+                    sgst,
+                    gst_percent,
+                    charge_reference=mortgage_charges_reference.name,
+                    approve=True,
+                )
+            if lender.igst_on_mortgage_charges > 0:
+                igst = mortgage_charges * (lender.igst_on_mortgage_charges / 100)
+                gst_percent = lender.igst_on_mortgage_charges
+                self.create_loan_transaction(
+                    "IGST on Mortgage Charges",
+                    igst,
+                    gst_percent,
+                    charge_reference=mortgage_charges_reference.name,
+                    approve=True,
+                )
 
         if self.instrument_type == "Mutual Fund":
             lien_initiate_charges = lender.lien_initiate_charges
@@ -306,36 +340,42 @@ class Loan(Document):
                 )
 
             if lien_initiate_charges > 0:
-                self.create_loan_transaction(
+                lien_initiate_charges_reference = self.create_loan_transaction(
                     "Lien Charges",
                     lien_initiate_charges,
                     approve=True,
                 )
-            # Charges on GST
-            if lender.cgst_on_lien_charges > 0:
-                cgst = mortgage_charges * (lender.cgst_on_lien_charges / 100)
-                loan_transaction.gst_percent = lender.cgst_on_lien_charges
-                self.create_loan_transaction(
-                    "CGST on Lien Charges",
-                    cgst,
-                    approve=True,
-                )
-            if lender.sgst_on_lien_charges > 0:
-                sgst = mortgage_charges * (lender.sgst_on_lien_charges / 100)
-                loan_transaction.gst_percent = lender.sgst_on_lien_charges
-                self.create_loan_transaction(
-                    "SGST on Lien Charges",
-                    sgst,
-                    approve=True,
-                )
-            if lender.igst_on_lien_charges > 0:
-                igst = mortgage_charges * (lender.igst_on_lien_charges / 100)
-                loan_transaction.gst_percent = lender.igst_on_lien_charges
-                self.create_loan_transaction(
-                    "IGST on Lien Charges",
-                    igst,
-                    approve=True,
-                )
+                # Charges on GST
+                if lender.cgst_on_lien_charges > 0:
+                    cgst = lien_initiate_charges * (lender.cgst_on_lien_charges / 100)
+                    gst_percent = lender.cgst_on_lien_charges
+                    self.create_loan_transaction(
+                        "CGST on Lien Charges",
+                        cgst,
+                        gst_percent,
+                        charge_reference=lien_initiate_charges_reference.name,
+                        approve=True,
+                    )
+                if lender.sgst_on_lien_charges > 0:
+                    sgst = lien_initiate_charges * (lender.sgst_on_lien_charges / 100)
+                    gst_percent = lender.sgst_on_lien_charges
+                    self.create_loan_transaction(
+                        "SGST on Lien Charges",
+                        sgst,
+                        gst_percent,
+                        charge_reference=lien_initiate_charges_reference.name,
+                        approve=True,
+                    )
+                if lender.igst_on_lien_charges > 0:
+                    igst = lien_initiate_charges * (lender.igst_on_lien_charges / 100)
+                    gst_percent = lender.igst_on_lien_charges
+                    self.create_loan_transaction(
+                        "IGST on Lien Charges",
+                        igst,
+                        gst_percent,
+                        charge_reference=lien_initiate_charges_reference.name,
+                        approve=True,
+                    )
 
     def validate_loan_charges_amount(self, lender_doc, amount, min_field, max_field):
         lender_dict = lender_doc.as_dict()
@@ -349,6 +389,8 @@ class Loan(Document):
         self,
         transaction_type,
         amount,
+        gst_percent=None,
+        charge_reference=None,
         approve=False,
         transaction_id=None,
         loan_margin_shortfall_name=None,
@@ -363,6 +405,7 @@ class Loan(Document):
                 "lender": self.lender,
                 "amount": round(amount, 2),
                 "transaction_type": transaction_type,
+                "gst_percent": gst_percent,
                 "record_type": LoanTransaction.loan_transaction_map.get(
                     transaction_type, "DR"
                 ),
@@ -380,6 +423,10 @@ class Loan(Document):
             loan_transaction.razorpay_event = razorpay_event
         if order_id:
             loan_transaction.order_id = order_id
+        if charge_reference:
+            loan_transaction.charge_reference = charge_reference
+        if gst_percent:
+            loan_transaction.gst_percent = gst_percent
 
         loan_transaction.insert(ignore_permissions=True)
 
