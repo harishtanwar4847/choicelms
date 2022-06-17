@@ -10,6 +10,7 @@
   "category",
   "constitution_type",
   "size",
+  "column_break_5",
   "id_no_applicable",
   "data_type",
   "remarks"
@@ -51,11 +52,15 @@
    "fieldname": "remarks",
    "fieldtype": "Data",
    "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-06-10 10:51:06.402171",
+ "modified": "2022-06-17 15:38:08.179509",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Identity Code",
