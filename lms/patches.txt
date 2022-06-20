@@ -42,5 +42,5 @@ lms.patches.import_pincode_master ####
 lms.patches.import_document_master ###
 lms.patches.import_identity_code #
 lms.patches.import_related_person_type ###
-lms.patches.import_country_master
+lms.patches.import_country_master ###
 lms.patches.settlement_and_pennydrop_api_update_in_las
