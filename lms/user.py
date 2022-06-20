@@ -4154,7 +4154,6 @@ def penny_create_fund_account_validation_by_id(**kwargs):
                 las_settings.pennydrop_create_fund_account_validation_id
                 + "/{}".format(data.get("fav_id"))
             )
-            print(url)
             raw_res = requests.get(
                 url,
                 headers={
