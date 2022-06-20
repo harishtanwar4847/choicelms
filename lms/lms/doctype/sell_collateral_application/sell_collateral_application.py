@@ -12,7 +12,6 @@ from rsa import decrypt
 
 import lms
 from lms.firebase import FirebaseAdmin
-from lms.lms.doctype import loan_transaction
 from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
 
 
