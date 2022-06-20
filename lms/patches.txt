@@ -38,9 +38,9 @@ lms.patches.update_spark_push_notification_content #
 lms.patches.import_amc_master
 lms.patches.import_state_master
 lms.patches.import_district_master 
-lms.patches.import_pincode_master ##
-lms.patches.import_document_master #
-lms.patches.import_identity_code ##
-lms.patches.import_related_person_type #
-lms.patches.import_country_master #
-lms.patches.settlement_and_pennydrop_api_update_in_las #
+lms.patches.import_pincode_master
+lms.patches.import_document_master
+lms.patches.import_identity_code
+lms.patches.import_related_person_type
+lms.patches.import_country_master
+lms.patches.settlement_and_pennydrop_api_update_in_las
