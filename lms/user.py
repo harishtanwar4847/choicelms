@@ -480,7 +480,6 @@ def kyc(**kwargs):
 
             # res = get_choice_kyc(data.get("pan_no"), data.get("birth_date"))
             # user_kyc = res["user_kyc"]
-            pan_no = user_kyc["pan_no"]
             user_kyc_doc = lms.__user_kyc(pan_no=user_kyc.get("pan_no"), throw=False)
             user_kyc_doc.kyc_type = "CHOICE"
             user_kyc_doc.investor_name = user_kyc["investor_name"]
@@ -492,14 +491,13 @@ def kyc(**kwargs):
             user_kyc_doc.pincode = user_kyc["pincode"]
             user_kyc_doc.mobile_number = user_kyc["mobile_number"]
             user_kyc_doc.choice_client_id = user_kyc["choice_client_id"]
-            user_kyc_doc.pan_no = lms.user_details_hashing(pan_no)
+            user_kyc_doc.pan_no = lms.user_details_hashing(user_kyc["pan_no"])
             user_kyc_doc.date_of_birth = datetime.strptime(
                 user_kyc["date_of_birth"], "%Y-%m-%d"
             ).strftime("%Y-%m-%d")
 
             if user_kyc["bank_account"]:
                 user_kyc_doc.bank_account = []
-                acc_no = bank["account_number"]
 
                 for bank in user_kyc["bank_account"]:
                     user_kyc_doc.append(
@@ -510,7 +508,9 @@ def kyc(**kwargs):
                             "branch": bank["branch"],
                             "contact": bank["contact"],
                             "account_type": bank["account_type"],
-                            "account_number": lms.user_details_hashing(acc_no),
+                            "account_number": lms.user_details_hashing(
+                                bank["account_number"]
+                            ),
                             "ifsc": bank["ifsc"],
                             "micr": bank["micr"],
                             "bank_mode": bank["bank_mode"],
@@ -561,7 +561,6 @@ def kyc(**kwargs):
             frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
 
         data = {"user_kyc": user_kyc_doc}
-        # print(user_kyc_doc.pan_no)
 
         return utils.respondWithSuccess(data=data)
     except utils.exceptions.APIException as e:

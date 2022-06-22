@@ -437,7 +437,6 @@ def __customer(entity=None):
 
 def __user_kyc(entity=None, pan_no=None, throw=True):
     filters = {"user": __user(entity).name}
-    print(__user(entity))
     if pan_no:
         filters["pan_no"] = pan_no
     res = frappe.get_all("User KYC", filters=filters, order_by="creation desc")
@@ -461,10 +460,7 @@ def __banks(user_kyc=None):
         order_by="is_default desc",
     )
     for i in res:
-        acc_no = i.account_number
-        i.account_number = user_details_hashing(acc_no)
-    # acc = res.acccount_number
-    # res.acccount_number = user_details_hashing(acc)
+        i.account_number = user_details_hashing(i.account_number)
 
     for i in res:
         i.creation = str(i.creation)
