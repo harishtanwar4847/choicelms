@@ -12,28 +12,23 @@
 
 ## Added
 
-- Mutual Fund for new loan(Initial changes)
-- LTV changes for mutual fund
-- AMC changes
-- DUPlICATE ISIN
-- Unit handling in eligibility and view vault screen
-- Loan agreement changes
-- Total collateral max validation on eligibility screen, details dialog and view vault screen
-- Details dialog data handling
-- Locally handle scheme value and eligible loan amount on view vault screen
-- Mutual fund client CR
-- Mutual fund client bug
-- Revoke LTV
-- Invoke LTV
-- Margin shortfall changes
-- Unit Handling in invoke and Revoke Screen
-- DPD
-- Payment screen enter amount handling
-- Biometric in iOS and android UI changes
-- Mf Product page
-- API Error Logging
-- MF-Approved/allowed Security Update
-- Sell triggered in margin shortfall
+- [Mutual Fund for new loan(Initial changes)]()
+- [LTV changes for mutual fund]()
+- [AMC changes]()
+- [DUPlICATE ISIN]()
+- [Loan agreement changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/492)
+- [Mutual fund client CR]()
+- [Mutual fund client bug]()
+- [Revoke LTV](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/490)
+- [Invoke LTV](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/490)
+- [Margin shortfall changes]()
+- [DPD]()
+- [Mf Product page](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/497)
+- [API Error Logging](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/502)
+- [MF-Approved/allowed Security Update](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/505)
+- [Sell triggered in margin shortfall]()
+- [PII changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/510)
+- [API Doc changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/491)
 
 ## [v3.1.0]
 
