@@ -368,9 +368,9 @@ class SellCollateralApplication(Document):
             # invoke charges - Mutual Fund
             invoke_charges = lender.invoke_initiate_charges
 
-            if lender.invoke_charge_type == "Fix":
+            if lender.invoke_initiate_charge_type == "Fix":
                 invoke_charges = invoke_charges
-            elif lender.invoke_charge_type == "Percentage":
+            elif lender.invoke_initiate_charge_type == "Percentage":
                 amount = self.lender_selling_amount * invoke_charges / 100
                 invoke_charges = loan.validate_loan_charges_amount(
                     lender,
