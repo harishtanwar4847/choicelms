@@ -282,18 +282,47 @@ def update_mycams_scheme_bulk(upload_file):
         lienscheme = dict_decrypted_response["lienscheme"]
 
         if lienscheme.get("schemedetails"):
-            for i in lienscheme["schemedetails"]:
-                scheme = approved_security_map.get(i["isinno"])
-                scheme["remark"] = (
-                    "Y - " + i["status"] if scheme["allowed"] else "N - " + i["status"]
-                )
-                if i["status"] == "SUCCESS":
-                    scheme["res_status"] = True
-                else:
-                    scheme["res_status"] = False
-                    scheme["allowed"] = False
-                scheme = list(scheme.values())
-                values.append(scheme)
+            if len(lienscheme["schemedetails"]) == 1:
+                scheme = frappe.get_doc(
+                    {
+                        "doctype": "Allowed Security",
+                        "name": "".join(
+                            random.choice(string.ascii_lowercase + string.digits)
+                            for _ in range(10)
+                        ),
+                        "isin": i[0],
+                        "lender": i[1],
+                        "eligible_percentage": i[2],
+                        "security_category": i[3],
+                        "instrument_type": i[4],
+                        "amc_code": i[5],
+                        "amc_name": i[6],
+                        "security_name": i[7],
+                        "scheme_type": i[8],
+                        "allowed": int(i[9]),
+                        "creation": frappe.utils.now(),
+                        "modified": frappe.utils.now(),
+                        "owner": "Administrator",
+                        "modified_by": "Administrator",
+                    }
+                ).insert(ignore_permissions=True)
+                frappe.db.commit()
+
+            else:
+                for i in lienscheme["schemedetails"]:
+                    scheme = approved_security_map.get(i["isinno"])
+                    scheme["remark"] = (
+                        "Y - " + i["status"]
+                        if scheme["allowed"]
+                        else "N - " + i["status"]
+                    )
+                    if i["status"] == "SUCCESS":
+                        scheme["res_status"] = True
+                    else:
+                        scheme["res_status"] = False
+                        scheme["allowed"] = False
+                    scheme = list(scheme.values())
+                    values.append(scheme)
         else:
             frappe.throw(frappe._(lienscheme["error"]))
         values.append([])
