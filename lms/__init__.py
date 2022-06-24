@@ -35,7 +35,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "3.1.0"
+__version__ = "4.0.2-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -459,8 +459,8 @@ def __banks(user_kyc=None):
         fields=["*"],
         order_by="is_default desc",
     )
-    for i in res:
-        i.account_number = user_details_hashing(i.account_number)
+    # for i in res:
+    #     i.account_number = user_details_hashing(i.account_number)
 
     for i in res:
         i.creation = str(i.creation)

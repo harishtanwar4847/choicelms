@@ -2,6 +2,34 @@
 
 ## [Unreleased]
 
+## [v4.0.2-uat]
+
+## Fixed
+
+- [Fix: PII changes in kyc and get choice kyc api for esign audit](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/511)
+
+## [v4.0.1-uat]
+
+## Added
+
+- [Mutual Fund for new loan(Initial changes)]()
+- [LTV changes for mutual fund]()
+- [AMC changes]()
+- [DUPlICATE ISIN]()
+- [Loan agreement changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/492)
+- [Mutual fund client CR]()
+- [Mutual fund client bug]()
+- [Revoke LTV](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/490)
+- [Invoke LTV](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/490)
+- [Margin shortfall changes]()
+- [DPD]()
+- [Mf Product page](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/497)
+- [API Error Logging](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/502)
+- [MF-Approved/allowed Security Update](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/505)
+- [Sell triggered in margin shortfall]()
+- [PII changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/510)
+- [API Doc changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/491)
+
 ## [v3.1.0]
 
 ### Added

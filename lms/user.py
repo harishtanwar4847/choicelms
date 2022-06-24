@@ -336,7 +336,7 @@ def get_choice_kyc(**kwargs):
                 user_kyc["pincode"] = data["addressPinCode"]
                 user_kyc["mobile_number"] = data["mobileNum"]
                 user_kyc["choice_client_id"] = data["clientId"]
-                user_kyc["pan_no"] = lms.user_details_hashing(data["panNum"])
+                user_kyc["pan_no"] = data["panNum"]
                 user_kyc["date_of_birth"] = datetime.strptime(
                     data["dateOfBirth"], "%Y-%m-%dT%H:%M:%S.%f%z"
                 ).strftime("%Y-%m-%d")
@@ -352,9 +352,7 @@ def get_choice_kyc(**kwargs):
                                 "branch": bank["branch"],
                                 "contact": bank["contact"],
                                 "account_type": bank["accountType"],
-                                "account_number": lms.user_details_hashing(
-                                    bank["accountNumber"]
-                                ),
+                                "account_number": bank["accountNumber"],
                                 "ifsc": bank["ifsc"],
                                 "micr": bank["micr"],
                                 "bank_mode": bank["bankMode"],
@@ -459,10 +457,7 @@ def kyc(**kwargs):
             )
 
         try:
-            user_kyc_doc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
-            user_kyc_doc.pan_no = lms.user_details_hashing(user_kyc_doc.pan_no)
-            for i in user_kyc_doc.bank_account:
-                i.account_number = lms.user_details_hashing(i.account_number)
+            user_kyc_doc = lms.__user_kyc(frappe.session.user, user_kyc.get("pan_no"))
         except UserKYCNotFoundException:
             user_kyc_doc = None
 
@@ -478,8 +473,8 @@ def kyc(**kwargs):
 
             # frappe.db.begin()
 
-            # res = get_choice_kyc(data.get("pan_no"), data.get("birth_date"))
-            # user_kyc = res["user_kyc"]
+            # res = get_choice_kyc_old(data.get("pan_no"), data.get("date_of_birth"))
+            # user_kyc_doc = res["user_kyc"]
             user_kyc_doc = lms.__user_kyc(pan_no=user_kyc.get("pan_no"), throw=False)
             user_kyc_doc.kyc_type = "CHOICE"
             user_kyc_doc.investor_name = user_kyc["investor_name"]
@@ -491,7 +486,7 @@ def kyc(**kwargs):
             user_kyc_doc.pincode = user_kyc["pincode"]
             user_kyc_doc.mobile_number = user_kyc["mobile_number"]
             user_kyc_doc.choice_client_id = user_kyc["choice_client_id"]
-            user_kyc_doc.pan_no = lms.user_details_hashing(user_kyc["pan_no"])
+            user_kyc_doc.pan_no = user_kyc["pan_no"]
             user_kyc_doc.date_of_birth = datetime.strptime(
                 user_kyc["date_of_birth"], "%Y-%m-%d"
             ).strftime("%Y-%m-%d")
@@ -508,9 +503,7 @@ def kyc(**kwargs):
                             "branch": bank["branch"],
                             "contact": bank["contact"],
                             "account_type": bank["account_type"],
-                            "account_number": lms.user_details_hashing(
-                                bank["account_number"]
-                            ),
+                            "account_number": bank["account_number"],
                             "ifsc": bank["ifsc"],
                             "micr": bank["micr"],
                             "bank_mode": bank["bank_mode"],
