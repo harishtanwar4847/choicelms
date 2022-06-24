@@ -2,6 +2,39 @@
 
 ## [Unreleased]
 
+## [v4.0.2-uat]
+
+## Fixed
+
+- [Fix: PII changes in kyc and get choice kyc api for esign audit](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/511)
+
+## [v4.0.1-uat]
+
+## Added
+
+- Mutual Fund for new loan(Initial changes)
+- LTV changes for mutual fund
+- AMC changes
+- DUPlICATE ISIN
+- Unit handling in eligibility and view vault screen
+- Loan agreement changes
+- Total collateral max validation on eligibility screen, details dialog and view vault screen
+- Details dialog data handling
+- Locally handle scheme value and eligible loan amount on view vault screen
+- Mutual fund client CR
+- Mutual fund client bug
+- Revoke LTV
+- Invoke LTV
+- Margin shortfall changes
+- Unit Handling in invoke and Revoke Screen
+- DPD
+- Payment screen enter amount handling
+- Biometric in iOS and android UI changes
+- Mf Product page
+- API Error Logging
+- MF-Approved/allowed Security Update
+- Sell triggered in margin shortfall
+
 ## [v3.1.0]
 
 ### Added
