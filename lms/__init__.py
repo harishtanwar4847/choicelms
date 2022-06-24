@@ -1626,3 +1626,8 @@ class AESCBC:
         raw = b64decode(data)
         self.cipher = AES.new(self.key, AES.MODE_CBC, self.iv)
         return unpad(self.cipher.decrypt(raw), AES.block_size).decode("utf-8")
+
+
+def user_details_hashing(value):
+    value = value[:2] + len(value[1:-3]) * "X" + value[-2:]
+    return value

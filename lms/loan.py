@@ -1456,9 +1456,12 @@ def loan_withdraw_request(**kwargs):
 
         data = {"loan_transaction_name": withdrawal_transaction.name}
 
-        masked_bank_account_number = (
-            len(bank_account.account_number[:-4]) * "x"
-            + bank_account.account_number[-4:]
+        # masked_bank_account_number = (
+        #     len(bank_account.account_number[:-4]) * "x"
+        #     + bank_account.account_number[-4:]
+        # )
+        masked_bank_account_number = lms.user_details_hashing(
+            bank_account.account_number
         )
         message = "Great! Your request for withdrawal has been successfully received. The amount shall be credited to your bank account {} within next 24 hours.".format(
             masked_bank_account_number

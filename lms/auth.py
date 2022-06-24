@@ -250,6 +250,9 @@ def verify_otp(**kwargs):
             customer = lms.__customer(user.name)
             try:
                 user_kyc = lms.__user_kyc(user.name)
+                user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
+                for i in user_kyc.bank_account:
+                    i.account_number = lms.user_details_hashing(i.account_number)
             except UserKYCNotFoundException:
                 user_kyc = {}
 

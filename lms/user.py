@@ -319,7 +319,7 @@ def get_choice_kyc(**kwargs):
                 user_kyc["pincode"] = data["addressPinCode"]
                 user_kyc["mobile_number"] = data["mobileNum"]
                 user_kyc["choice_client_id"] = data["clientId"]
-                user_kyc["pan_no"] = data["panNum"]
+                user_kyc["pan_no"] = lms.user_details_hashing(data["panNum"])
                 user_kyc["date_of_birth"] = datetime.strptime(
                     data["dateOfBirth"], "%Y-%m-%dT%H:%M:%S.%f%z"
                 ).strftime("%Y-%m-%d")
@@ -335,7 +335,9 @@ def get_choice_kyc(**kwargs):
                                 "branch": bank["branch"],
                                 "contact": bank["contact"],
                                 "account_type": bank["accountType"],
-                                "account_number": bank["accountNumber"],
+                                "account_number": lms.user_details_hashing(
+                                    bank["accountNumber"]
+                                ),
                                 "ifsc": bank["ifsc"],
                                 "micr": bank["micr"],
                                 "bank_mode": bank["bankMode"],
@@ -372,6 +374,8 @@ def kyc(**kwargs):
             {
                 "user_kyc": "required",
                 "accept_terms": ["required", "between:0,1", "decimal"],
+                "pan_no": "required",
+                "date_of_birth": "required",
             },
         )
 
@@ -416,18 +420,18 @@ def kyc(**kwargs):
         #     )
 
         reg = lms.regex_special_characters(
-            search=user_kyc.get("pan_no"),
-            regex=re.compile("[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"),
+            search=data.get("pan_no"),
+            # regex=re.compile("[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"),
         )
 
-        if not reg or len(user_kyc.get("pan_no")) != 10:
+        if reg or len(data.get("pan_no")) != 10:
             return utils.respondWithFailure(
                 status=422,
                 message=frappe._("Invalid PAN"),
             )
 
         try:
-            datetime.strptime(user_kyc.get("date_of_birth"), "%Y-%m-%d")
+            datetime.strptime(data.get("date_of_birth"), "%d-%m-%Y")
         except ValueError:
             return utils.respondWithFailure(
                 status=417,
@@ -448,49 +452,49 @@ def kyc(**kwargs):
 
             # frappe.db.begin()
 
-            # res = get_choice_kyc(data.get("pan_no"), data.get("birth_date"))
-            # user_kyc = res["user_kyc"]
-            user_kyc_doc = lms.__user_kyc(pan_no=user_kyc.get("pan_no"), throw=False)
-            user_kyc_doc.kyc_type = "CHOICE"
-            user_kyc_doc.investor_name = user_kyc["investor_name"]
-            user_kyc_doc.father_name = user_kyc["father_name"]
-            user_kyc_doc.mother_name = user_kyc["mother_name"]
-            user_kyc_doc.address = user_kyc["address"]
-            user_kyc_doc.city = user_kyc["city"]
-            user_kyc_doc.state = user_kyc["state"]
-            user_kyc_doc.pincode = user_kyc["pincode"]
-            user_kyc_doc.mobile_number = user_kyc["mobile_number"]
-            user_kyc_doc.choice_client_id = user_kyc["choice_client_id"]
-            user_kyc_doc.pan_no = user_kyc["pan_no"]
-            user_kyc_doc.date_of_birth = datetime.strptime(
-                user_kyc["date_of_birth"], "%Y-%m-%d"
-            ).strftime("%Y-%m-%d")
+            res = get_choice_kyc_old(data.get("pan_no"), data.get("date_of_birth"))
+            user_kyc_doc = res["user_kyc"]
+            # user_kyc_doc = lms.__user_kyc(pan_no=user_kyc.get("pan_no"), throw=False)
+            # user_kyc_doc.kyc_type = "CHOICE"
+            # user_kyc_doc.investor_name = user_kyc["investor_name"]
+            # user_kyc_doc.father_name = user_kyc["father_name"]
+            # user_kyc_doc.mother_name = user_kyc["mother_name"]
+            # user_kyc_doc.address = user_kyc["address"]
+            # user_kyc_doc.city = user_kyc["city"]
+            # user_kyc_doc.state = user_kyc["state"]
+            # user_kyc_doc.pincode = user_kyc["pincode"]
+            # user_kyc_doc.mobile_number = user_kyc["mobile_number"]
+            # user_kyc_doc.choice_client_id = user_kyc["choice_client_id"]
+            # user_kyc_doc.pan_no = user_kyc["pan_no"]
+            # user_kyc_doc.date_of_birth = datetime.strptime(
+            #     user_kyc["date_of_birth"], "%Y-%m-%d"
+            # ).strftime("%Y-%m-%d")
 
-            if user_kyc["bank_account"]:
-                user_kyc_doc.bank_account = []
+            # if user_kyc["bank_account"]:
+            #     user_kyc_doc.bank_account = []
 
-                for bank in user_kyc["bank_account"]:
-                    user_kyc_doc.append(
-                        "bank_account",
-                        {
-                            "bank": bank["bank"],
-                            "bank_address": bank["bank_address"],
-                            "branch": bank["branch"],
-                            "contact": bank["contact"],
-                            "account_type": bank["account_type"],
-                            "account_number": bank["account_number"],
-                            "ifsc": bank["ifsc"],
-                            "micr": bank["micr"],
-                            "bank_mode": bank["bank_mode"],
-                            "bank_code": bank["bank_code"],
-                            "bank_zip_code": bank["bank_zip_code"],
-                            "city": bank["city"],
-                            "district": bank["district"],
-                            "state": bank["state"],
-                            "is_default": bank["is_default"],
-                        },
-                    )
-            user_kyc_doc.save(ignore_permissions=True)
+            #     for bank in user_kyc["bank_account"]:
+            #         user_kyc_doc.append(
+            #             "bank_account",
+            #             {
+            #                 "bank": bank["bank"],
+            #                 "bank_address": bank["bank_address"],
+            #                 "branch": bank["branch"],
+            #                 "contact": bank["contact"],
+            #                 "account_type": bank["account_type"],
+            #                 "account_number": bank["account_number"],
+            #                 "ifsc": bank["ifsc"],
+            #                 "micr": bank["micr"],
+            #                 "bank_mode": bank["bank_mode"],
+            #                 "bank_code": bank["bank_code"],
+            #                 "bank_zip_code": bank["bank_zip_code"],
+            #                 "city": bank["city"],
+            #                 "district": bank["district"],
+            #                 "state": bank["state"],
+            #                 "is_default": bank["is_default"],
+            #             },
+            #         )
+            # user_kyc_doc.save(ignore_permissions=True)
 
             customer = lms.__customer()
             customer.kyc_update = 1
@@ -2042,6 +2046,9 @@ def dashboard(**kwargs):
         user = lms.__user()
         try:
             user_kyc = lms.__user_kyc()
+            user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
+            for i in user_kyc.bank_account:
+                i.account_number = lms.user_details_hashing(i.account_number)
         except UserKYCNotFoundException:
             user_kyc = None
 
@@ -2721,6 +2728,9 @@ def get_profile_set_alerts(**kwargs):
         # user_kyc details
         try:
             user_kyc = lms.__user_kyc(user.email)
+            user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
+            for i in user_kyc.bank_account:
+                i.account_number = lms.user_details_hashing(i.account_number)
         except UserKYCNotFoundException:
             user_kyc = None
 
