@@ -457,6 +457,7 @@ def __banks(user_kyc=None):
     )
 
     for i in res:
+        i.account_number = user_details_hashing(i.account_number)
         i.creation = str(i.creation)
         i.modified = str(i.modified)
 
