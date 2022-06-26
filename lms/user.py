@@ -3873,7 +3873,7 @@ def penny_create_contact(**kwargs):
                 "notes": {},
             }
             raw_res = requests.post(
-                "https://api.razorpay.com/v1/contacts",
+                las_settings.pennydrop_create_contact,
                 headers={
                     "Authorization": razorpay_key_secret_auth,
                     "content-type": "application/json",
@@ -3986,7 +3986,7 @@ def penny_create_fund_account(**kwargs):
                 },
             }
             raw_res = requests.post(
-                "https://api.razorpay.com/v1/fund_accounts",
+                las_settings.pennydrop_create_fund_account,
                 headers={
                     "Authorization": razorpay_key_secret_auth,
                     "content-type": "application/json",
@@ -4090,7 +4090,7 @@ def penny_create_fund_account_validation(**kwargs):
                 },
             }
             raw_res = requests.post(
-                "https://api.razorpay.com/v1/fund_accounts/validations",
+                las_settings.pennydrop_create_fund_account_validation,
                 headers={
                     "Authorization": razorpay_key_secret_auth,
                     "content-type": "application/json",
@@ -4156,10 +4156,12 @@ def penny_create_fund_account_validation_by_id(**kwargs):
         ).decode("ascii")
 
         try:
+            url = (
+                las_settings.pennydrop_create_fund_account_validation_id
+                + "/{}".format(data.get("fav_id"))
+            )
             raw_res = requests.get(
-                "https://api.razorpay.com/v1/fund_accounts/validations/{}".format(
-                    data.get("fav_id")
-                ),
+                url,
                 headers={
                     "Authorization": razorpay_key_secret_auth,
                     "content-type": "application/json",

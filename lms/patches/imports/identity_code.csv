@@ -1,0 +1,13 @@
+Code,Category,Constitution type,Size,ID No Applicable,Data Type,Remarks
+A,Passport,Individual,20,Yes,VarChar,
+B,Voter ID,Individual,20,Yes,VarChar,
+C,PAN,Individual/Legal Entity,10,Yes,VarChar,Values not permitted for upload and update. This will only be provided in download
+D,Driving Licence,Individual,20,Yes,VarChar,
+E,Proof of Possession of Aadhaar,Individual,12,Yes,VarChar,Maximum 12 characters allowed. Only last 4 digits will be accepted
+F,NREGA Job Card,Individual,40,Yes,VarChar,
+G,National Population Register Letter,Individual,20,Yes,VarChar,
+H,E-KYC Authentication,Individual,12,Yes,VarChar,Maximum 12 characters allowed. Only last 4 digits will be accepted
+I,Offline Verification of Aadhaar,Individual,12,Yes,VarChar,Maximum 12 characters allowed. Only last 4 digits will be accepted
+Z,Others,Individual,20,Yes,VarChar,Values not permitted for upload and update. This will only be provided in download
+S01,"Simplified Measures Account  - Identity card with applicant?s photograph issued by Central/ State Government Departments, Statutory/ Regulatory Authorities, Public Sector Undertakings, Scheduled Commercial Banks, and Public Financial Institutions.",Individual,3,No,,Values not permitted for upload and update. This will only be provided in download
+S02,"Simplified Measures Account  - Letter issued by a gazetted officer, with a duly attested photograph of the person.",Individual,3,No,,Values not permitted for upload and update. This will only be provided in download

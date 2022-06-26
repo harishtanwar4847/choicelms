@@ -1,0 +1,85 @@
+{
+ "actions": [],
+ "autoname": "field:code",
+ "creation": "2022-06-09 14:36:09.439475",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "code",
+  "category",
+  "constitution_type",
+  "size",
+  "column_break_5",
+  "id_no_applicable",
+  "data_type",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "code",
+   "fieldtype": "Data",
+   "label": "Code",
+   "unique": 1
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Category"
+  },
+  {
+   "fieldname": "constitution_type",
+   "fieldtype": "Data",
+   "label": "Constitution type"
+  },
+  {
+   "fieldname": "size",
+   "fieldtype": "Data",
+   "label": "Size"
+  },
+  {
+   "fieldname": "id_no_applicable",
+   "fieldtype": "Data",
+   "label": "ID No Applicable"
+  },
+  {
+   "fieldname": "data_type",
+   "fieldtype": "Data",
+   "label": "Data Type"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-06-17 15:38:08.179509",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Identity Code",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

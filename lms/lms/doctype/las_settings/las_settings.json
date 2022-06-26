@@ -83,8 +83,13 @@
   "razorpay_section_section",
   "razorpay_key_secret",
   "razorpay_bank_account",
+  "pennydrop_create_contact",
+  "pennydrop_create_fund_account",
   "column_break_49",
-  "razorpay_webhook_secret"
+  "razorpay_webhook_secret",
+  "settlement_recon_api",
+  "pennydrop_create_fund_account_validation",
+  "pennydrop_create_fund_account_validation_id"
  ],
  "fields": [
   {
@@ -499,11 +504,36 @@
    "fieldname": "lien_allowed_scheme_update_api",
    "fieldtype": "Data",
    "label": "Lien Allowed Scheme Update API"
+  },
+  {
+   "fieldname": "pennydrop_create_contact",
+   "fieldtype": "Data",
+   "label": "PennyDrop Create Contact"
+  },
+  {
+   "fieldname": "pennydrop_create_fund_account",
+   "fieldtype": "Data",
+   "label": "PennyDrop Create Fund Account"
+  },
+  {
+   "fieldname": "pennydrop_create_fund_account_validation",
+   "fieldtype": "Data",
+   "label": "PennyDrop Create Fund Account Validation"
+  },
+  {
+   "fieldname": "pennydrop_create_fund_account_validation_id",
+   "fieldtype": "Data",
+   "label": "PennyDrop Create Fund Account Validation Id"
+  },
+  {
+   "fieldname": "settlement_recon_api",
+   "fieldtype": "Data",
+   "label": "Settlement recon API"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2022-06-02 12:34:50.441622",
+ "modified": "2022-06-17 15:43:42.988885",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

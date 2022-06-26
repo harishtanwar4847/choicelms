@@ -734,8 +734,9 @@ def settlement_recon_api(input_date=None):
                 "day": input_date.day,
             }
 
+            las_settings = frappe.get_single("LAS Settings")
             raw_res = requests.get(
-                "https://api.razorpay.com/v1/settlements/recon/combined",
+                las_settings.settlement_recon_api,
                 headers={"Authorization": razorpay_key_secret_auth},
                 params=params,
             )
