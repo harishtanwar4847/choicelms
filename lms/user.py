@@ -337,6 +337,7 @@ def get_choice_kyc(**kwargs):
                 user_kyc["mobile_number"] = data["mobileNum"]
                 user_kyc["choice_client_id"] = data["clientId"]
                 user_kyc["pan_no"] = data["panNum"]
+                user_kyc["email"] = data["emailId"]
                 user_kyc["date_of_birth"] = datetime.strptime(
                     data["dateOfBirth"], "%Y-%m-%dT%H:%M:%S.%f%z"
                 ).strftime("%Y-%m-%d")
@@ -418,6 +419,7 @@ def kyc(**kwargs):
                 "mobile_number",
                 "choice_client_id",
                 "pan_no",
+                "email",
                 "date_of_birth",
                 "bank_account",
             ]
@@ -487,6 +489,7 @@ def kyc(**kwargs):
             user_kyc_doc.mobile_number = user_kyc["mobile_number"]
             user_kyc_doc.choice_client_id = user_kyc["choice_client_id"]
             user_kyc_doc.pan_no = user_kyc["pan_no"]
+            user_kyc_doc.email = user_kyc["email"]
             user_kyc_doc.date_of_birth = datetime.strptime(
                 user_kyc["date_of_birth"], "%Y-%m-%d"
             ).strftime("%Y-%m-%d")
