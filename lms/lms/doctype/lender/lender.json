@@ -86,6 +86,42 @@
   "lien_initiate_charge_maximum_amount",
   "invoke_initiate_charges_maximum_amount",
   "revoke_initiate_charges_maximum_amount",
+  "taxes_details_section",
+  "cgst_on_processing_fees",
+  "cgst_on_stamp_duty",
+  "cgst_on_documentation_charges",
+  "cgst_on_mortgage_charges",
+  "cgst_on_sell_collateral_charges",
+  "cgst_on_account_renewal_charges",
+  "cgst_on_dp_reimbursementunpledge_charges",
+  "cgst_on_dp_reimbursementsell_charges",
+  "cgst_on_lien_charges",
+  "cgst_on_invocation_charges",
+  "cgst_on_revocation_charges",
+  "column_break_83",
+  "sgst_on_processing_fees",
+  "sgst_on_stamp_duty",
+  "sgst_on_documentation_charges",
+  "sgst_on_mortgage_charges",
+  "sgst_on_sell_collateral_charges",
+  "sgst_on_account_renewal_charges",
+  "sgst_on_dp_reimbursementunpledge_charges",
+  "sgst_on_dp_reimbursementsell_charges",
+  "sgst_on_lien_charges",
+  "sgst_on_invocation_charges",
+  "sgst_on_revocation_charges",
+  "column_break_85",
+  "igst_on_processing_fees",
+  "igst_on_stamp_duty",
+  "igst_on_documentation_charges",
+  "igst_on_mortgage_charges",
+  "igst_on_sell_collateral_charges",
+  "igst_on_account_renewal_charges",
+  "igst_on_dp_reimbursementunpledge_charges",
+  "igst_on_dp_reimbursementsell_charges",
+  "igst_on_lien_charges",
+  "igst_on_invocation_charges",
+  "igst_on_revocation_charges",
   "charges_sharing_details_section",
   "lender_processing_fees_sharing_type",
   "stamp_duty_sharing_type",
@@ -609,54 +645,264 @@
    "fieldname": "lien_initiate_charge_maximum_amount",
    "fieldtype": "Float",
    "label": "Maximum Amount"
-},
-{
- "fieldname": "invoke_initiate_charge_type",
- "fieldtype": "Select",
- "label": "Invoke Initiate Charge Type",
- "options": "Fix\nPercentage"
-},
-{
- "fieldname": "revoke_initiate_charge_type",
- "fieldtype": "Select",
- "label": "Revoke Initiate Charge Type",
- "options": "Fix\nPercentage"
-},
-{
- "fieldname": "invoke_initiate_charges",
- "fieldtype": "Float",
- "label": "Invoke Initiate Charges",
- "precision": "2"
-},
-{
- "fieldname": "revoke_initiate_charges",
- "fieldtype": "Float",
- "label": "Revoke Initiate Charges",
- "precision": "2"
-},
-{
- "fieldname": "invoke_initiate_charges_minimum_amount",
- "fieldtype": "Float",
- "label": "Minimum Amount"
-},
-{
- "fieldname": "revoke_initiate_charges_minimum_amount",
- "fieldtype": "Float",
- "label": "Minimum Amount"
-},
-{
- "fieldname": "invoke_initiate_charges_maximum_amount",
- "fieldtype": "Float",
- "label": "Maximum Amount"
-},
-{
- "fieldname": "revoke_initiate_charges_maximum_amount",
- "fieldtype": "Float",
- "label": "Maximum Amount"
+  },
+  {
+   "fieldname": "invoke_initiate_charge_type",
+   "fieldtype": "Select",
+   "label": "Invoke Initiate Charge Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "revoke_initiate_charge_type",
+   "fieldtype": "Select",
+   "label": "Revoke Initiate Charge Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "invoke_initiate_charges",
+   "fieldtype": "Float",
+   "label": "Invoke Initiate Charges",
+   "precision": "2"
+  },
+  {
+   "fieldname": "revoke_initiate_charges",
+   "fieldtype": "Float",
+   "label": "Revoke Initiate Charges",
+   "precision": "2"
+  },
+  {
+   "fieldname": "invoke_initiate_charges_minimum_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "revoke_initiate_charges_minimum_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "invoke_initiate_charges_maximum_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Amount"
+  },
+  {
+   "fieldname": "revoke_initiate_charges_maximum_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Amount"
+  },
+  {
+   "fieldname": "taxes_details_section",
+   "fieldtype": "Section Break",
+   "label": "Taxes Details"
+  },
+  {
+   "fieldname": "column_break_83",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_85",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cgst_on_processing_fees",
+   "fieldtype": "Float",
+   "label": "CGST on Processing Fees (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "sgst_on_processing_fees",
+   "fieldtype": "Float",
+   "label": "SGST on Processing Fees (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "igst_on_processing_fees",
+   "fieldtype": "Float",
+   "label": "IGST on Processing Fees (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "cgst_on_stamp_duty",
+   "fieldtype": "Float",
+   "label": "CGST on Stamp Duty (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "cgst_on_mortgage_charges",
+   "fieldtype": "Float",
+   "label": "CGST on Mortgage Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "cgst_on_documentation_charges",
+   "fieldtype": "Float",
+   "label": "CGST on Documentation Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "cgst_on_sell_collateral_charges",
+   "fieldtype": "Float",
+   "label": "CGST on Sell Collateral Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "cgst_on_account_renewal_charges",
+   "fieldtype": "Float",
+   "label": "CGST on Account renewal charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "cgst_on_dp_reimbursementunpledge_charges",
+   "fieldtype": "Float",
+   "label": "CGST on DP Reimbursement(Unpledge) Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "cgst_on_dp_reimbursementsell_charges",
+   "fieldtype": "Float",
+   "label": "CGST on DP Reimbursement(Sell) Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "cgst_on_lien_charges",
+   "fieldtype": "Float",
+   "label": "CGST on Lien Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "cgst_on_invocation_charges",
+   "fieldtype": "Float",
+   "label": "CGST on Invocation Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "cgst_on_revocation_charges",
+   "fieldtype": "Float",
+   "label": "CGST on Revocation Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "sgst_on_stamp_duty",
+   "fieldtype": "Float",
+   "label": "SGST on Stamp Duty (Percent)"
+  },
+  {
+   "fieldname": "sgst_on_documentation_charges",
+   "fieldtype": "Float",
+   "label": "SGST on Documentation Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "sgst_on_mortgage_charges",
+   "fieldtype": "Float",
+   "label": "SGST on Mortgage Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "sgst_on_sell_collateral_charges",
+   "fieldtype": "Float",
+   "label": "SGST on Sell Collateral Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "sgst_on_account_renewal_charges",
+   "fieldtype": "Float",
+   "label": "SGST on Account renewal charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "sgst_on_dp_reimbursementunpledge_charges",
+   "fieldtype": "Float",
+   "label": "SGST on DP Reimbursement(Unpledge) Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "sgst_on_dp_reimbursementsell_charges",
+   "fieldtype": "Float",
+   "label": "SGST on DP Reimbursement(Sell) Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "sgst_on_lien_charges",
+   "fieldtype": "Float",
+   "label": "SGST on Lien Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "sgst_on_invocation_charges",
+   "fieldtype": "Float",
+   "label": "SGST on Invocation Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "sgst_on_revocation_charges",
+   "fieldtype": "Float",
+   "label": "SGST on Revocation Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "igst_on_stamp_duty",
+   "fieldtype": "Float",
+   "label": "IGST on Stamp Duty (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "igst_on_documentation_charges",
+   "fieldtype": "Float",
+   "label": "IGST on Documentation Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "igst_on_mortgage_charges",
+   "fieldtype": "Float",
+   "label": "IGST on Mortgage Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "igst_on_sell_collateral_charges",
+   "fieldtype": "Float",
+   "label": "IGST on Sell Collateral Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "igst_on_account_renewal_charges",
+   "fieldtype": "Float",
+   "label": "IGST on Account renewal charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "igst_on_dp_reimbursementunpledge_charges",
+   "fieldtype": "Float",
+   "label": "IGST on DP Reimbursement(Unpledge) Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "igst_on_dp_reimbursementsell_charges",
+   "fieldtype": "Float",
+   "label": "IGST on DP Reimbursement(Sell) Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "igst_on_lien_charges",
+   "fieldtype": "Float",
+   "label": "IGST on Lien Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "igst_on_invocation_charges",
+   "fieldtype": "Float",
+   "label": "IGST on Invocation Charges (Percent)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "igst_on_revocation_charges",
+   "fieldtype": "Float",
+   "label": "IGST on Revocation Charges (Percent)",
+   "precision": "2"
   }
  ],
  "links": [],
- "modified": "2022-04-12 12:08:00.829194",
+ "modified": "2022-06-10 12:59:43.765774",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
