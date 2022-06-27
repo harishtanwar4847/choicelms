@@ -4282,3 +4282,29 @@ def penny_api_response_handle(data, user_kyc, customer, data_res):
 
     lms.create_log(data_res, "rzp_penny_fund_account_validation_success_log")
     return utils.respondWithSuccess(message=message, data=data_resp)
+
+
+@frappe.whitelist()
+def consent_details(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(kwargs, {"consent_name": "required"})
+
+        customer = lms.__customer()
+        if not customer:
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
+
+        consent_list = frappe.get_list("Consent", pluck="name", ignore_permissions=True)
+
+        if data.get("consent_name") not in consent_list:
+            raise lms.exceptions.ForbiddenException(_("Consent not found"))
+        try:
+            consent_details = frappe.get_doc("Consent", data.get("consent_name"))
+        except frappe.DoesNotExistError:
+            raise lms.exceptions.NotFoundException(_("Consent not found"))
+        return utils.respondWithSuccess(data=consent_details)
+
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
