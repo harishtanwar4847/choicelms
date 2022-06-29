@@ -6,6 +6,7 @@ import time
 from ctypes import util
 from datetime import MINYEAR, date, datetime, timedelta
 from logging import debug
+from random import choice, randint
 from time import gmtime
 
 import frappe
@@ -4304,7 +4305,94 @@ def consent_details(**kwargs):
         except frappe.DoesNotExistError:
             raise lms.exceptions.NotFoundException(_("Consent not found"))
         return utils.respondWithSuccess(data=consent_details)
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
 
+
+@frappe.whitelist()
+def ckyc_search(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "pan_no": "required",
+            },
+        )
+
+        ckyc_no = {}
+
+        reg = lms.regex_special_characters(
+            search=data.get("pan_no"),
+            regex=re.compile("[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"),
+        )
+        if not reg or len(data.get("pan_no")) != 10:
+            raise lms.exceptions.FailureException(_("Invalid PAN"))
+
+        res_json = lms.ckyc_dot_net(data.get("pan_no"), is_for_search=True)
+
+        if res_json.get("status") == 200 and not res_json.get("error"):
+            pid_data = (
+                json.loads(res_json.get("data"))
+                .get("PID_DATA")
+                .get("SearchResponsePID")
+            )
+            ckyc_no = {"ckyc_no": pid_data.get("CKYC_NO")}
+        else:
+            lms.log_api_error(mess=str(res_json))
+            return utils.respondWithFailure(
+                status=res_json.get("status"),
+                message=res_json.get("message"),
+                errors=res_json.get("error"),
+            )
+
+        return utils.respondWithSuccess(data=ckyc_no)
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
+
+
+@frappe.whitelist()
+def ckyc_download(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(
+            kwargs, {"pan_no": "required", "dob": "required", "ckyc_no": "required"}
+        )
+
+        reg = lms.regex_special_characters(
+            search=data.get("pan_no"),
+            regex=re.compile("[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"),
+        )
+        if not reg or len(data.get("pan_no")) != 10:
+            raise lms.exceptions.FailureException(_("Invalid PAN"))
+
+        pid_data = {}
+
+        res_json = lms.ckyc_dot_net(
+            pan_no=data.get("pan_no"),
+            is_for_download=True,
+            dob=data.get("dob"),
+            ckyc_no=data.get("ckyc_no"),
+        )
+
+        if res_json.get("status") == 200 and not res_json.get("error"):
+            pid_data = json.loads(res_json.get("data")).get("PID_DATA")
+            for img in pid_data.get("IMAGE_DETAILS").get("IMAGE"):
+                image = img.get("IMAGE_DATA")
+                img_byte = base64.decodestring(bytes(image, encoding="utf8"))
+                image_file = open("ckyc_dp.jpg", "wb").write(img_byte)
+            # img = pid_data.get("IMAGE_DETAILS").get("IMAGE")[0].get("IMAGE_DATA")
+            # print(type(img))
+            # print(img)
+            # print(json.loads(json.loads(res.text).get("data")).get("PID_DATA").get("SearchResponsePID"))
+            # frappe.log_error(message=img)
+        else:
+            lms.log_api_error()
+            raise lms.exceptions.FailureException()
+
+        return utils.respondWithSuccess(data=pid_data)
     except utils.exceptions.APIException as e:
         lms.log_api_error()
         return e.respond()
