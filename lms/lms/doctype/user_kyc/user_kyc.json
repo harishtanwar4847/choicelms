@@ -579,7 +579,8 @@
    "default": "0",
    "fieldname": "consent_given",
    "fieldtype": "Check",
-   "label": "Consent Given"
+   "label": "Consent Given",
+   "read_only": 1
   },
   {
    "fieldname": "identity_details",
@@ -591,7 +592,8 @@
    "default": "0",
    "fieldname": "is_edited",
    "fieldtype": "Check",
-   "label": "Is_edited"
+   "label": "Is_edited",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_32",
@@ -657,7 +659,7 @@
   }
  ],
  "links": [],
- "modified": "2022-06-29 19:58:22.159612",
+ "modified": "2022-06-29 20:16:44.106331",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
