@@ -1,0 +1,60 @@
+{
+ "actions": [],
+ "creation": "2022-06-29 13:47:15.245995",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "sequence_no",
+  "ident_type",
+  "ident_category",
+  "column_break_4",
+  "ident_num",
+  "idver_status"
+ ],
+ "fields": [
+  {
+   "fieldname": "sequence_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Identity sequence number"
+  },
+  {
+   "fieldname": "ident_type",
+   "fieldtype": "Data",
+   "label": "Identification type"
+  },
+  {
+   "fieldname": "ident_category",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Identification category"
+  },
+  {
+   "fieldname": "ident_num",
+   "fieldtype": "Data",
+   "label": "Identity Number"
+  },
+  {
+   "fieldname": "idver_status",
+   "fieldtype": "Data",
+   "label": "Identity Verification status"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2022-06-29 19:58:42.868076",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "CKYC Identity Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
