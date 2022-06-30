@@ -5,6 +5,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "status",
   "bank",
   "branch",
   "account_number",
@@ -15,6 +16,8 @@
   "is_default",
   "is_spark_default",
   "razorpay_fund_account_id",
+  "account_holder_name",
+  "personalized_cheque",
   "column_break_1",
   "bank_address",
   "contact",
@@ -23,9 +26,7 @@
   "bank_mode",
   "bank_zip_code",
   "district",
-  "razorpay_fund_account_validation_id",
-  "account_holder_name",
-  "personalized_cheque"
+  "razorpay_fund_account_validation_id"
  ],
  "fields": [
   {
@@ -140,11 +141,21 @@
    "fieldname": "personalized_cheque",
    "fieldtype": "Attach Image",
    "label": "Personalized Cheque"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nApproved\nRejected",
+   "read_only": 1,
+   "read_only_depends_on": "eval:doc.status != \"Pending\""
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-06-29 14:26:56.337552",
+ "modified": "2022-06-29 17:06:03.113745",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User Bank Account",
