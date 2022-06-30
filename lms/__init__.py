@@ -1745,18 +1745,18 @@ def upload_image_to_doctype(
             ).replace(" ", "-")
         )
 
-        image_file = frappe.get_doc(
-            {
-                "doctype": "File",
-                "file_name": profile_picture_file,
-                "content": image_file,
-                "attached_to_doctype": doctype,
-                "attached_to_field": attached_to_field,
-                "folder": "Home",
-            }
-        )
-        image_file.insert(ignore_permissions=True)
-        frappe.db.commit()
+        # image_file = frappe.get_doc(
+        #     {
+        #         "doctype": "File",
+        #         "file_name": profile_picture_file,
+        #         "content": image_file,
+        #         "attached_to_doctype": doctype,
+        #         "attached_to_field": attached_to_field,
+        #         "folder": "Home",
+        #     }
+        # )
+        # image_file.insert(ignore_permissions=True)
+        # frappe.db.commit()
 
         return ckyc_image_file_url
     except Exception:
