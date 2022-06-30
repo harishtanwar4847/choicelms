@@ -11,7 +11,7 @@
   "pan_no",
   "razorpay_contact_id",
   "consent_given",
-  "status",
+  "kyc_status",
   "basic_details_column_break",
   "kyc_type",
   "date_of_birth",
@@ -214,7 +214,7 @@
    "depends_on": "eval:doc.consent_given == 1;",
    "fieldname": "personal_details_section",
    "fieldtype": "Section Break",
-   "label": "PERSONAL_DETAILS"
+   "label": "Personal Details"
   },
   {
    "fieldname": "lname",
@@ -614,16 +614,6 @@
    "options": "CKYC Image Details"
   },
   {
-   "default": "Pending",
-   "depends_on": "eval:doc.consent_given == 1;",
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "label": "Status",
-   "options": "Pending\nApproved\nRejected",
-   "read_only": 1,
-   "read_only_depends_on": "eval:doc.status != \"Pending\";"
-  },
-  {
    "fieldname": "form_60",
    "fieldtype": "Data",
    "label": "Form 60  Submitted"
@@ -656,10 +646,20 @@
    "depends_on": "eval:doc.consent_given == 1;",
    "fieldname": "section_breaks",
    "fieldtype": "Section Break"
+  },
+  {
+   "default": "Pending",
+   "depends_on": "eval:doc.consent_given == 1;",
+   "fieldname": "kyc_status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pending\nApproved\nRejected",
+   "read_only": 1,
+   "read_only_depends_on": "eval:doc.kyc_status != \"Pending\";"
   }
  ],
  "links": [],
- "modified": "2022-06-29 20:16:44.106331",
+ "modified": "2022-06-30 12:13:22.798329",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
