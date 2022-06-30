@@ -13,7 +13,7 @@ import lms
 
 class UserKYC(Document):
     def on_update(self):
-        if self.status == "Approved":
+        if self.kyc_status == "Approved":
             cust_name = frappe.db.get_value(
                 "Loan Customer", {"user": self.user}, "name"
             )

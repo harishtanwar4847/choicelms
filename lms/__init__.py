@@ -1712,3 +1712,52 @@ def ckyc_dot_net(
         return res_json
     except Exception:
         raise Exception
+
+
+def upload_image_to_doctype(
+    customer, seq_no, image_, img_format, doctype, attached_to_field=""
+):
+    try:
+        tnc_dir_path = frappe.utils.get_files_path("CKYC_IMG")
+
+        if not os.path.exists(tnc_dir_path):
+            os.mkdir(tnc_dir_path)
+
+        profile_picture_file = "CKYC_IMG/{}-{}.{}".format(
+            customer.full_name, seq_no, img_format
+        ).replace(" ", "-")
+
+        image_path = frappe.utils.get_files_path(profile_picture_file)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+        profile_picture_file = "CKYC_IMG/{}-{}.{}".format(
+            customer.full_name, seq_no, img_format
+        ).replace(" ", "-")
+
+        ckyc_image_file_path = frappe.utils.get_files_path(profile_picture_file)
+        image_decode = base64.decodestring(bytes(image_, encoding="utf8"))
+        image_file = open(ckyc_image_file_path, "wb").write(image_decode)
+
+        ckyc_image_file_url = frappe.utils.get_url(
+            "files/CKYC_IMG/{}-{}.{}".format(
+                customer.full_name, seq_no, img_format
+            ).replace(" ", "-")
+        )
+
+        image_file = frappe.get_doc(
+            {
+                "doctype": "File",
+                "file_name": profile_picture_file,
+                "content": image_file,
+                "attached_to_doctype": doctype,
+                "attached_to_field": attached_to_field,
+                "folder": "Home",
+            }
+        )
+        image_file.insert(ignore_permissions=True)
+        frappe.db.commit()
+
+        return ckyc_image_file_url
+    except Exception:
+        log_api_error()

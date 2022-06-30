@@ -156,6 +156,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "depends_on": "eval:doc.consent_given == 1;",
    "fieldname": "bank_account",
    "fieldtype": "Table",
    "label": "Bank Account",
@@ -577,6 +578,7 @@
   },
   {
    "default": "0",
+   "depends_on": "eval:doc.consent_given == true;",
    "fieldname": "consent_given",
    "fieldtype": "Check",
    "label": "Consent Given",
@@ -659,7 +661,7 @@
   }
  ],
  "links": [],
- "modified": "2022-06-30 12:13:22.798329",
+ "modified": "2022-06-30 14:45:59.700662",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",

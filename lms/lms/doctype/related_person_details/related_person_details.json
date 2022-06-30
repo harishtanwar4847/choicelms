@@ -86,7 +86,6 @@
   "org_name",
   "org_code",
   "din",
-  "remarks_1",
   "description"
  ],
  "fields": [
@@ -496,11 +495,6 @@
    "label": "DIN Number"
   },
   {
-   "fieldname": "remarks_1",
-   "fieldtype": "Small Text",
-   "label": "Remarks, if any"
-  },
-  {
    "fieldname": "description",
    "fieldtype": "Data",
    "label": "Related Person type Others Description"
@@ -509,7 +503,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-06-29 19:54:08.189943",
+ "modified": "2022-06-30 17:58:45.942904",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Related Person Details",
