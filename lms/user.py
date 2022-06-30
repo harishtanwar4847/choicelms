@@ -155,6 +155,7 @@ def kyc_old(**kwargs):
         return e.respond()
 
 
+@frappe.whitelist()
 def get_choice_kyc_old(pan_no, birth_date):
     try:
         las_settings = frappe.get_single("LAS Settings")
@@ -235,6 +236,70 @@ def get_choice_kyc_old(pan_no, birth_date):
 
 
 """ Changes as per new kyc flow - confirmed with vinayak - 14/07/2021"""
+
+
+@frappe.whitelist()
+def get_bank_details():
+    try:
+        utils.validator.validate_http_method("POST")
+        las_settings = frappe.get_single("LAS Settings")
+        try:
+            user_kyc = lms.__user_kyc()
+        except UserKYCNotFoundException:
+            user_kyc = None
+        # if user_kyc and user_kyc.status == "Approved":
+        if user_kyc:
+            params = {
+                "PANNum": user_kyc.pan_no,
+                "dob": user_kyc.date_of_birth,
+            }
+            headers = {
+                "businessUnit": las_settings.choice_business_unit,
+                "userId": las_settings.choice_user_id,
+                "investorId": las_settings.choice_investor_id,
+                "ticket": las_settings.choice_ticket,
+            }
+
+            res = requests.get(
+                las_settings.choice_pan_api, params=params, headers=headers
+            )
+            data = res.json()
+            if res.ok and data.get("banks"):
+                user_kyc.kyc_type = "CHOICE"
+                user_kyc.email = data["emailId"]
+                user_kyc.bank_account = []
+
+                for bank in data["banks"]:
+                    user_kyc.append(
+                        "bank_account",
+                        {
+                            "bank": bank["bank"],
+                            "bank_address": bank["bankAddress"],
+                            "branch": bank["branch"],
+                            "contact": bank["contact"],
+                            "account_type": bank["accountType"],
+                            "account_number": bank["accountNumber"],
+                            "ifsc": bank["ifsc"],
+                            "micr": bank["micr"],
+                            "bank_mode": bank["bankMode"],
+                            "bank_code": bank["bankcode"],
+                            "bank_zip_code": bank["bankZipCode"],
+                            "city": bank["city"],
+                            "district": bank["district"],
+                            "state": bank["state"],
+                            "is_default": bank["defaultBank"] == "Y",
+                        },
+                    )
+                user_kyc.save(ignore_permissions=True)
+                frappe.db.commit()
+                return utils.respondWithSuccess(data=user_kyc)
+            else:
+                return utils.respondWithSuccess("User KYC is not approved")
+
+    except utils.exceptions.APIException as e:
+        frappe.db.rollback()
+        lms.log_api_error()
+        return e.respond()
 
 
 @frappe.whitelist()
@@ -3974,6 +4039,7 @@ def penny_create_fund_account(**kwargs):
 
         try:
             user_kyc = lms.__user_kyc(user.name)
+
         except UserKYCNotFoundException:
             # return utils.respondWithFailure(message=frappe._("User KYC not found"))
             raise lms.exceptions.RespondWithFailureException(_("User KYC not found"))
@@ -3997,7 +4063,6 @@ def penny_create_fund_account(**kwargs):
                 data=json.dumps(data_rzp),
             )
             data_res = raw_res.json()
-
             if data_res.get("error"):
                 log = {
                     "request": data,
@@ -4009,6 +4074,22 @@ def penny_create_fund_account(**kwargs):
             # if not get error
             data_resp = {"fa_id": data_res.get("id")}
             lms.create_log(data_res, "rzp_penny_fund_account_success_log")
+            bank_account_entry_name = frappe.db.get_value(
+                "User Bank Account",
+                {
+                    "parent": user_kyc.name,
+                    "parentfield": "bank_account",
+                    "account_number": data_res.get("bank_account").get(
+                        "account_number"
+                    ),
+                    "ifsc": data_res.get("bank_account").get("ifsc"),
+                },
+                "name",
+            )
+            holder_name = frappe.get_doc("User Bank Account", bank_account_entry_name)
+            holder_name.account_holder_name = data_res.get("bank_account").get("name")
+            holder_name.save(ignore_permissions=True)
+            frappe.db.commit()
             return utils.respondWithSuccess(message=frappe._("success"), data=data_resp)
 
         except requests.RequestException as e:
