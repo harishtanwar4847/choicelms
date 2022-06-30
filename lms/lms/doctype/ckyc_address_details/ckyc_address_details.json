@@ -1,0 +1,166 @@
+{
+ "actions": [],
+ "creation": "2022-06-29 18:14:08.433794",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "perm_line1",
+  "perm_line2",
+  "perm_line3",
+  "perm_city",
+  "perm_dist",
+  "perm_state",
+  "perm_country",
+  "perm_pin",
+  "perm_poa",
+  "perm_image",
+  "column_break_11",
+  "perm_corres_flag",
+  "corres_line1",
+  "corres_line2",
+  "corres_line3",
+  "corres_city",
+  "corres_dist",
+  "corres_state",
+  "corres_country",
+  "corres_pin",
+  "corres_poa",
+  "corres_poa_image"
+ ],
+ "fields": [
+  {
+   "fieldname": "perm_line1",
+   "fieldtype": "Data",
+   "label": "Current/Permanent/Overseas Address Line 1 "
+  },
+  {
+   "fieldname": "perm_line2",
+   "fieldtype": "Data",
+   "label": "Current/Permanent/Overseas Address Line 2"
+  },
+  {
+   "fieldname": "perm_line3",
+   "fieldtype": "Data",
+   "label": "Current/Permanent/Overseas Address Line 3"
+  },
+  {
+   "fieldname": "perm_city",
+   "fieldtype": "Data",
+   "label": "Current/Permanent/Overseas Address City"
+  },
+  {
+   "fieldname": "perm_dist",
+   "fieldtype": "Data",
+   "label": "Current/Permanent/Overseas Address District"
+  },
+  {
+   "fieldname": "perm_state",
+   "fieldtype": "Data",
+   "label": "Current/Permanent/Overseas Address State"
+  },
+  {
+   "fieldname": "perm_country",
+   "fieldtype": "Data",
+   "label": "Current/Permanent/Overseas Address Country"
+  },
+  {
+   "fieldname": "perm_pin",
+   "fieldtype": "Data",
+   "label": "Current/Permanent/Overseas Address Pincode"
+  },
+  {
+   "fieldname": "perm_poa",
+   "fieldtype": "Data",
+   "label": "Proof of Address submitted for Current/Permanent/Overseas Address"
+  },
+  {
+   "fieldname": "perm_image",
+   "fieldtype": "Attach Image",
+   "label": "Proof of Address submitted for Current/Permanent/Overseas Address Image"
+  },
+  {
+   "fieldname": "perm_corres_flag",
+   "fieldtype": "Data",
+   "label": "Flag indicating if Current/Permanent/Overseas Address is same as correspondence/local Address"
+  },
+  {
+   "fieldname": "corres_line1",
+   "fieldtype": "Data",
+   "label": "Correspondence/Local Address Line 1"
+  },
+  {
+   "fieldname": "corres_line2",
+   "fieldtype": "Data",
+   "label": "Correspondence/Local Address Line 2"
+  },
+  {
+   "fieldname": "corres_line3",
+   "fieldtype": "Data",
+   "label": "Correspondence/Local Address Line 3"
+  },
+  {
+   "fieldname": "corres_city",
+   "fieldtype": "Data",
+   "label": "Correspondence/Local Address City"
+  },
+  {
+   "fieldname": "corres_dist",
+   "fieldtype": "Data",
+   "label": "Correspondence/Local Address District"
+  },
+  {
+   "fieldname": "corres_state",
+   "fieldtype": "Data",
+   "label": "Correspondence/Local Address State"
+  },
+  {
+   "fieldname": "corres_country",
+   "fieldtype": "Data",
+   "label": "Correspondence/Local Address Country"
+  },
+  {
+   "fieldname": "corres_pin",
+   "fieldtype": "Data",
+   "label": "Correspondence/Local Address Pincode"
+  },
+  {
+   "fieldname": "corres_poa",
+   "fieldtype": "Data",
+   "label": "Proof of Address submitted for Current Address"
+  },
+  {
+   "fieldname": "corres_poa_image",
+   "fieldtype": "Attach Image",
+   "label": "Proof of Address submitted for Current Address Image"
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-06-29 18:34:29.527625",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "CKYC Address Details",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

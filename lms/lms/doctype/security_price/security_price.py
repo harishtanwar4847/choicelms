@@ -218,9 +218,11 @@ def update_scheme_nav(schemes_list):
             data = res.json()
             log[req_end_time]["response"] = data
             if data["ISIN"] != "":
-                # time = frappe.utils.now_datetime()
+                ctime = frappe.utils.now_datetime()
                 time = (
-                    datetime.strptime(data.get("NavDate"), "%d-%m-%Y")
+                    datetime.strptime(data.get("NavDate"), "%d-%m-%Y").replace(
+                        hour=ctime.hour, minute=ctime.minute, second=ctime.second
+                    )
                     if data.get("NavDate")
                     else frappe.utils.now_datetime()
                 )
