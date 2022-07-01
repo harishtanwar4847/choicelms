@@ -4462,8 +4462,7 @@ def ckyc_search(**kwargs):
             lms.log_api_error(mess=str(res_json))
             return utils.respondWithFailure(
                 status=res_json.get("status"),
-                message=res_json.get("message"),
-                errors=res_json.get("error"),
+                message=res_json.get("error"),
             )
 
         return utils.respondWithSuccess(data=ckyc_no)
@@ -4512,7 +4511,7 @@ def ckyc_download(**kwargs):
                         "doctype": "User KYC",
                         "owner": customer.user,
                         "user": customer.user,
-                        "pan_no": data.get("pan_no"),
+                        "pan_no": personal_details.get("PAN"),
                         "date_of_birth": datetime.strptime(data.get("dob"), "%d-%m-%Y"),
                         "consti_type": personal_details.get("CONSTI_TYPE"),
                         "acc_type": personal_details.get("ACC_TYPE"),
@@ -4768,8 +4767,7 @@ def ckyc_download(**kwargs):
             lms.log_api_error(mess=str(res_json))
             return utils.respondWithFailure(
                 status=res_json.get("status"),
-                message=res_json.get("message"),
-                errors=res_json.get("error"),
+                message=res_json.get("error"),
             )
 
         return utils.respondWithSuccess(data={"user_kyc_name": user_kyc_name})
