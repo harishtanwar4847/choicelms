@@ -4001,6 +4001,7 @@ def penny_create_fund_account(**kwargs):
                 "ifsc": "required",
                 "account_holder_name": "required",
                 "account_number": ["required", "decimal"],
+                "personalized_cheque": "required",
             },
         )
 
@@ -4018,6 +4019,7 @@ def penny_create_fund_account(**kwargs):
         # check user
         try:
             user = lms.__user()
+            customer = lms.__customer(user.name)
         except UserNotFoundException:
             # return utils.respondNotFound(message=frappe._("User not found."))
             raise lms.exceptions.NotFoundException(_("User not found"))
@@ -4072,6 +4074,15 @@ def penny_create_fund_account(**kwargs):
                 lms.create_log(log, "rzp_penny_fund_account_error_log")
                 # return utils.respondWithFailure(message=frappe._("failed"))
                 raise lms.exceptions.RespondWithFailureException(_("failed"))
+
+            photos_ = lms.upload_image_to_doctype(
+                customer=customer,
+                seq_no=data.get("account_number")[-4:],
+                image_=data.get("personalized_cheque"),
+                img_format="jpeg",
+                img_folder="personalized_cheque",
+            )
+
             # if not get error
             data_resp = {"fa_id": data_res.get("id")}
             lms.create_log(data_res, "rzp_penny_fund_account_success_log")
@@ -4089,6 +4100,7 @@ def penny_create_fund_account(**kwargs):
             )
             holder_name = frappe.get_doc("User Bank Account", bank_account_entry_name)
             holder_name.account_holder_name = data_res.get("bank_account").get("name")
+            holder_name.personalized_cheque = photos_
             holder_name.save(ignore_permissions=True)
             frappe.db.commit()
             return utils.respondWithSuccess(message=frappe._("success"), data=data_resp)
@@ -4399,7 +4411,6 @@ def ckyc_search(**kwargs):
             kwargs,
             {
                 "pan_no": "required",
-                "accept_terms": ["required", "between:0,1", "decimal"],
             },
         )
 
@@ -4412,14 +4423,6 @@ def ckyc_search(**kwargs):
         if not reg or len(data.get("pan_no")) != 10:
             raise lms.exceptions.FailureException(_("Invalid PAN"))
 
-        if not data.get("accept_terms"):
-            # return utils.respondUnauthorized(
-            #     message=frappe._("Please accept Terms and Conditions.")
-            # )
-            raise lms.exceptions.UnauthorizedException(
-                _("Please accept Terms and Conditions.")
-            )
-
         res_json = lms.ckyc_dot_net(data.get("pan_no"), is_for_search=True)
 
         if res_json.get("status") == 200 and not res_json.get("error"):
@@ -4429,16 +4432,6 @@ def ckyc_search(**kwargs):
                 .get("SearchResponsePID")
             )
             ckyc_no = {"ckyc_no": pid_data.get("CKYC_NO")}
-            # save user kyc consent
-            kyc_consent_doc = frappe.get_doc(
-                {
-                    "doctype": "User Consent",
-                    "mobile": lms.__user().phone,
-                    "consent": "Kyc",
-                }
-            )
-            kyc_consent_doc.insert(ignore_permissions=True)
-            frappe.db.commit()
         else:
             lms.log_api_error(mess=str(res_json))
             return utils.respondWithFailure(
@@ -4458,13 +4451,7 @@ def ckyc_download(**kwargs):
     try:
         utils.validator.validate_http_method("POST")
         data = utils.validator.validate(
-            kwargs,
-            {
-                "pan_no": "required",
-                "dob": "required",
-                "ckyc_no": "required",
-                "accept_terms": ["required", "between:0,1", "decimal"],
-            },
+            kwargs, {"pan_no": "required", "dob": "required", "ckyc_no": "required"}
         )
 
         reg = lms.regex_special_characters(
@@ -4473,11 +4460,6 @@ def ckyc_download(**kwargs):
         )
         if not reg or len(data.get("pan_no")) != 10:
             raise lms.exceptions.FailureException(_("Invalid PAN"))
-
-        if not data.get("accept_terms"):
-            raise lms.exceptions.UnauthorizedException(
-                _("Please accept Terms and Conditions.")
-            )
 
         pid_data = {}
         customer = lms.__customer()
@@ -4607,30 +4589,23 @@ def ckyc_download(**kwargs):
                             related_person = [related_person]
 
                         for r in related_person:
-                            doctype = "Related Person Details"
                             photos_ = lms.upload_image_to_doctype(
                                 customer=customer,
                                 seq_no=r.get("REL_TYPE"),
                                 image_=r.get("PHOTO_DATA"),
                                 img_format=r.get("PHOTO_TYPE"),
-                                doctype=doctype,
-                                attached_to_field="photo",
                             )
                             perm_poi_photos_ = lms.upload_image_to_doctype(
                                 customer=customer,
                                 seq_no=r.get("REL_TYPE"),
                                 image_=r.get("PERM_POI_DATA"),
                                 img_format=r.get("PERM_POI_IMAGE_TYPE"),
-                                doctype=doctype,
-                                attached_to_field="perm_poi",
                             )
                             corres_poi_photos_ = lms.upload_image_to_doctype(
                                 customer=customer,
                                 seq_no=r.get("REL_TYPE"),
                                 image_=r.get("CORRES_POI_DATA"),
                                 img_format=r.get("CORRES_POI_IMAGE_TYPE"),
-                                doctype=doctype,
-                                attached_to_field="corres_poi",
                             )
                             user_kyc.append(
                                 "related_person_details",
@@ -4732,14 +4707,11 @@ def ckyc_download(**kwargs):
                             image_ = [image_]
 
                         for im in image_:
-                            doctype = "CKYC Image Details"
                             image_data = lms.upload_image_to_doctype(
                                 customer=customer,
                                 seq_no=im.get("SEQUENCE_NO"),
                                 image_=im.get("IMAGE_DATA"),
                                 img_format=im.get("IMAGE_TYPE"),
-                                doctype=doctype,
-                                attached_to_field="image",
                             )
                             user_kyc.append(
                                 "image_details",
@@ -4759,14 +4731,6 @@ def ckyc_download(**kwargs):
                             )
 
                 user_kyc.insert(ignore_permissions=True)
-                kyc_consent_doc = frappe.get_doc(
-                    {
-                        "doctype": "User Consent",
-                        "mobile": lms.__user().phone,
-                        "consent": "Ckyc",
-                    }
-                )
-                kyc_consent_doc.insert(ignore_permissions=True)
                 frappe.db.commit()
 
             except Exception:
@@ -4783,253 +4747,5 @@ def ckyc_download(**kwargs):
         return utils.respondWithSuccess(data=user_kyc.name)
     except utils.exceptions.APIException as e:
         frappe.db.rollback
-        lms.log_api_error()
-        return e.respond()
-
-
-@frappe.whitelist()
-def ckyc_consent_details(**kwargs):
-    try:
-        utils.validator.validate_http_method("POST")
-        data = utils.validator.validate(
-            kwargs,
-            {
-                "user_kyc_name": "required",
-                "address_details": "",
-                "consent_name": "",
-            },
-        )
-        try:
-            user_kyc_doc = frappe.get_doc("User KYC", data.get("user_kyc_name"))
-        except UserKYCNotFoundException:
-            user_kyc_doc = None
-        try:
-            consent_details = frappe.get_doc("Consent", data.get("consent_name"))
-        except frappe.DoesNotExistError:
-            raise lms.exceptions.NotFoundException(_("Consent not found"))
-        poa_type = frappe.get_list(
-            "Proof of Address Master", pluck="poa_name", ignore_permissions=True
-        )
-        country = frappe.get_all("Country Master", fields=["country"], pluck="country")
-        data_res = {
-            "user_kyc_doc": user_kyc_doc,
-            "consent_details": consent_details,
-            "poa_type": poa_type,
-            "country": country,
-        }
-        if data.get("address_details") != "":
-            address = []
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_line1,
-                    "=",
-                    data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line1"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_line2,
-                    "=",
-                    data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line2"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_line3,
-                    "=",
-                    data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line3"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_city,
-                    "=",
-                    data.get("address_details").get("permanent_address").get("city"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_dist,
-                    "=",
-                    data.get("address_details")
-                    .get("permanent_address")
-                    .get("district"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_state,
-                    "=",
-                    data.get("address_details").get("permanent_address").get("state"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_country,
-                    "=",
-                    data.get("address_details").get("permanent_address").get("country"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.perm_pin,
-                    "=",
-                    data.get("address_details")
-                    .get("permanent_address")
-                    .get("pin_code"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_line1,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line1"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_line2,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line2"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_line3,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line3"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_city,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("city"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_dist,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("district"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_state,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("state"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_country,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("country"),
-                )
-            )
-            address.append(
-                frappe.compare(
-                    user_kyc_doc.corres_pin,
-                    "=",
-                    data.get("address_details")
-                    .get("corresponding_address")
-                    .get("pin_code"),
-                )
-            )
-
-            ckyc_address_doc = frappe.get_doc(
-                {
-                    "doctype": "CKYC Address Details",
-                    "perm_line1": data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line1"),
-                    "perm_line2": data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line2"),
-                    "perm_line3": data.get("address_details")
-                    .get("permanent_address")
-                    .get("address_line3"),
-                    "perm_city": data.get("address_details")
-                    .get("permanent_address")
-                    .get("city"),
-                    "perm_dist": data.get("address_details")
-                    .get("permanent_address")
-                    .get("district"),
-                    "perm_state": data.get("address_details")
-                    .get("permanent_address")
-                    .get("state"),
-                    "perm_country": data.get("address_details")
-                    .get("permanent_address")
-                    .get("country"),
-                    "perm_pin": data.get("address_details")
-                    .get("permanent_address")
-                    .get("pin_code"),
-                    "perm_poa": data.get("address_details")
-                    .get("permanent_address")
-                    .get("poa_type"),
-                    "perm_corres_flag": data.get("address_details").get(
-                        "perm_corres_flag"
-                    ),
-                    "corres_line1": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line1"),
-                    "corres_line2": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line2"),
-                    "corres_line3": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("address_line3"),
-                    "corres_city": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("city"),
-                    "corres_dist": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("district"),
-                    "corres_state": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("state"),
-                    "corres_country": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("country"),
-                    "corres_pin": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("pin_code"),
-                    "corres_poa": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("poa_type"),
-                }
-            ).insert(ignore_permissions=True)
-            user_kyc_doc.address = ckyc_address_doc.name
-            user_kyc_doc.consent_given = 1
-            if False in address:
-                user_kyc_doc.is_edited = 1
-            user_kyc_doc.save(ignore_permissions=True)
-            frappe.db.commit()
-
-        # responce all these for user kyc get request
-        return utils.respondWithSuccess(data=data_res)
-    except utils.exceptions.APIException as e:
-        frappe.db.rollback()
         lms.log_api_error()
         return e.respond()

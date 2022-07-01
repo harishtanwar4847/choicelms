@@ -1715,24 +1715,24 @@ def ckyc_dot_net(
 
 
 def upload_image_to_doctype(
-    customer, seq_no, image_, img_format, doctype, attached_to_field=""
+    customer, seq_no, image_, img_format, img_folder="CKYC_IMG"
 ):
     try:
-        tnc_dir_path = frappe.utils.get_files_path("CKYC_IMG")
+        tnc_dir_path = frappe.utils.get_files_path("{}".format(img_folder))
 
         if not os.path.exists(tnc_dir_path):
             os.mkdir(tnc_dir_path)
 
-        profile_picture_file = "CKYC_IMG/{}-{}.{}".format(
-            customer.full_name, seq_no, img_format
+        profile_picture_file = "{}/{}-{}.{}".format(
+            img_folder, customer.full_name, seq_no, img_format
         ).replace(" ", "-")
 
         image_path = frappe.utils.get_files_path(profile_picture_file)
         if os.path.exists(image_path):
             os.remove(image_path)
 
-        profile_picture_file = "CKYC_IMG/{}-{}.{}".format(
-            customer.full_name, seq_no, img_format
+        profile_picture_file = "{}/{}-{}.{}".format(
+            img_folder, customer.full_name, seq_no, img_format
         ).replace(" ", "-")
 
         ckyc_image_file_path = frappe.utils.get_files_path(profile_picture_file)
@@ -1740,8 +1740,8 @@ def upload_image_to_doctype(
         image_file = open(ckyc_image_file_path, "wb").write(image_decode)
 
         ckyc_image_file_url = frappe.utils.get_url(
-            "files/CKYC_IMG/{}-{}.{}".format(
-                customer.full_name, seq_no, img_format
+            "files/{}/{}-{}.{}".format(
+                img_folder, customer.full_name, seq_no, img_format
             ).replace(" ", "-")
         )
 
