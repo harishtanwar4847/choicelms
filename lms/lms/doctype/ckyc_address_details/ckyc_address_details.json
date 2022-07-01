@@ -71,7 +71,7 @@
   },
   {
    "fieldname": "perm_poa",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "Proof of Address submitted for Current/Permanent/Overseas Address"
   },
   {
@@ -126,7 +126,7 @@
   },
   {
    "fieldname": "corres_poa",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "label": "Proof of Address submitted for Current Address"
   },
   {
@@ -141,7 +141,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-06-29 18:34:29.527625",
+ "modified": "2022-07-01 11:35:42.242951",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "CKYC Address Details",
