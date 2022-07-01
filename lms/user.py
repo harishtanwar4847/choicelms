@@ -4777,6 +4777,67 @@ def ckyc_download(**kwargs):
         return e.respond()
 
 
+def validate_address(address):
+    if not address or (type(address) is not dict):
+        raise utils.exceptions.ValidationException(
+            {"address": {"required": frappe._("address details required.")}}
+        )
+    perm_add = address["permanent_address"]
+    corres_add = address["corresponding_address"]
+
+    if len(perm_add) == 0:
+        raise utils.exceptions.ValidationException(
+            {"address": {"required": frappe._("Permanent Address Required")}}
+        )
+
+    address_valid = True
+    if type(perm_add) is not dict:
+        address_valid = False
+        message = frappe._("Permanent Address should be dictionary")
+
+    if address_valid:
+        for i in perm_add.values():
+            if type(i) is not str:
+                address_valid = False
+                message = frappe._("permanent address should be in string format")
+                break
+            keys = perm_add.keys()
+            if "address_line1" not in keys or perm_add["address_line1"] == "":
+                address_valid = False
+                message = frappe._("permanent address line1 not present or empty")
+                break
+
+    if len(corres_add) == 0:
+        raise utils.exceptions.ValidationException(
+            {"address": {"required": frappe._("Corresponding Address Required")}}
+        )
+
+    if type(corres_add) is not dict:
+        print(address_valid)
+        address_valid = False
+        message = frappe._("Corresponding Address should be dictionary")
+
+    if address_valid:
+        for i in corres_add.values():
+            if type(i) is not str:
+                address_valid = False
+                message = frappe._("Corresponding should be in string format")
+                break
+
+            keys = corres_add.keys()
+            if "address_line1" not in keys or corres_add["address_line1"] == "":
+                address_valid = False
+                message = frappe._("corresponding address line1 not present or empty")
+                break
+
+    if not address_valid:
+        raise utils.exceptions.ValidationException(
+            {"address_details": {"required": message}}
+        )
+
+    return address
+
+
 @frappe.whitelist()
 def ckyc_consent_details(**kwargs):
     try:
@@ -4789,6 +4850,10 @@ def ckyc_consent_details(**kwargs):
                 "accept_terms": ["between:0,1", "decimal"],
             },
         )
+        address = validate_address(
+            address=data.get("address_details", {}),
+        )
+
         try:
             user_kyc_doc = frappe.get_doc("User KYC", data.get("user_kyc_name"))
         except UserKYCNotFoundException:
@@ -5067,7 +5132,6 @@ def ckyc_consent_details(**kwargs):
 @frappe.whitelist()
 def pincode(**kwargs):
     try:
-        utils.validator.validate_http_method("POST")
         data = utils.validator.validate(
             kwargs,
             {
