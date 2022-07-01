@@ -4423,6 +4423,14 @@ def ckyc_search(**kwargs):
         if not reg or len(data.get("pan_no")) != 10:
             raise lms.exceptions.FailureException(_("Invalid PAN"))
 
+        user_kyc = frappe.db.get_value(
+            "User KYC",
+            {"user": frappe.session.user, "pan_no": data.get("pan_no")},
+            "name",
+        )
+        if user_kyc:
+            raise lms.exceptions.FailureException(_("Your KYC is already in process."))
+
         res_json = lms.ckyc_dot_net(data.get("pan_no"), is_for_search=True)
 
         if res_json.get("status") == 200 and not res_json.get("error"):
@@ -4461,8 +4469,17 @@ def ckyc_download(**kwargs):
         if not reg or len(data.get("pan_no")) != 10:
             raise lms.exceptions.FailureException(_("Invalid PAN"))
 
+        pending_user_kyc = frappe.db.get_value(
+            "User KYC",
+            {"user": frappe.session.user, "pan_no": data.get("pan_no")},
+            "name",
+        )
+        if pending_user_kyc:
+            raise lms.exceptions.FailureException(_("Your KYC is already in process."))
+
         pid_data = {}
         customer = lms.__customer()
+        user_kyc_name = ""
 
         res_json = lms.ckyc_dot_net(
             pan_no=data.get("pan_no"),
@@ -4731,6 +4748,7 @@ def ckyc_download(**kwargs):
                             )
 
                 user_kyc.insert(ignore_permissions=True)
+                user_kyc_name = user_kyc.name
                 frappe.db.commit()
 
             except Exception:
@@ -4744,7 +4762,7 @@ def ckyc_download(**kwargs):
                 errors=res_json.get("error"),
             )
 
-        return utils.respondWithSuccess(data=user_kyc.name)
+        return utils.respondWithSuccess(data={"user_kyc_name": user_kyc_name})
     except utils.exceptions.APIException as e:
         frappe.db.rollback
         lms.log_api_error()
