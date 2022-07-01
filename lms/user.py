@@ -4399,6 +4399,7 @@ def ckyc_search(**kwargs):
             kwargs,
             {
                 "pan_no": "required",
+                "accept_terms": ["required", "between:0,1", "decimal"],
             },
         )
 
@@ -4411,6 +4412,14 @@ def ckyc_search(**kwargs):
         if not reg or len(data.get("pan_no")) != 10:
             raise lms.exceptions.FailureException(_("Invalid PAN"))
 
+        if not data.get("accept_terms"):
+            # return utils.respondUnauthorized(
+            #     message=frappe._("Please accept Terms and Conditions.")
+            # )
+            raise lms.exceptions.UnauthorizedException(
+                _("Please accept Terms and Conditions.")
+            )
+
         res_json = lms.ckyc_dot_net(data.get("pan_no"), is_for_search=True)
 
         if res_json.get("status") == 200 and not res_json.get("error"):
@@ -4420,6 +4429,16 @@ def ckyc_search(**kwargs):
                 .get("SearchResponsePID")
             )
             ckyc_no = {"ckyc_no": pid_data.get("CKYC_NO")}
+            # save user kyc consent
+            kyc_consent_doc = frappe.get_doc(
+                {
+                    "doctype": "User Consent",
+                    "mobile": lms.__user().phone,
+                    "consent": "Kyc",
+                }
+            )
+            kyc_consent_doc.insert(ignore_permissions=True)
+            frappe.db.commit()
         else:
             lms.log_api_error(mess=str(res_json))
             return utils.respondWithFailure(
