@@ -4411,6 +4411,7 @@ def ckyc_search(**kwargs):
             kwargs,
             {
                 "pan_no": "required",
+                "accept_terms": ["required", "between:0,1", "decimal"],
             },
         )
 
@@ -4423,13 +4424,13 @@ def ckyc_search(**kwargs):
         if not reg or len(data.get("pan_no")) != 10:
             raise lms.exceptions.FailureException(_("Invalid PAN"))
 
-        user_kyc = frappe.db.get_value(
-            "User KYC",
-            {"user": frappe.session.user, "pan_no": data.get("pan_no")},
-            "name",
-        )
-        if user_kyc:
-            raise lms.exceptions.FailureException(_("Your KYC is already in process."))
+        if not data.get("accept_terms"):
+            # return utils.respondUnauthorized(
+            #     message=frappe._("Please accept Terms and Conditions.")
+            # )
+            raise lms.exceptions.UnauthorizedException(
+                _("Please accept Terms and Conditions.")
+            )
 
         res_json = lms.ckyc_dot_net(data.get("pan_no"), is_for_search=True)
 
@@ -4440,6 +4441,15 @@ def ckyc_search(**kwargs):
                 .get("SearchResponsePID")
             )
             ckyc_no = {"ckyc_no": pid_data.get("CKYC_NO")}
+            kyc_consent_doc = frappe.get_doc(
+                {
+                    "doctype": "User Consent",
+                    "mobile": lms.__user().phone,
+                    "consent": "Kyc",
+                }
+            )
+            kyc_consent_doc.insert(ignore_permissions=True)
+            frappe.db.commit()
         else:
             lms.log_api_error(mess=str(res_json))
             return utils.respondWithFailure(
@@ -4468,14 +4478,6 @@ def ckyc_download(**kwargs):
         )
         if not reg or len(data.get("pan_no")) != 10:
             raise lms.exceptions.FailureException(_("Invalid PAN"))
-
-        pending_user_kyc = frappe.db.get_value(
-            "User KYC",
-            {"user": frappe.session.user, "pan_no": data.get("pan_no")},
-            "name",
-        )
-        if pending_user_kyc:
-            raise lms.exceptions.FailureException(_("Your KYC is already in process."))
 
         pid_data = {}
         customer = lms.__customer()
@@ -4778,7 +4780,7 @@ def ckyc_consent_details(**kwargs):
             {
                 "user_kyc_name": "required",
                 "address_details": "",
-                "consent_name": "",
+                "accept_terms": ["between:0,1", "decimal"],
             },
         )
         try:
@@ -4786,39 +4788,28 @@ def ckyc_consent_details(**kwargs):
         except UserKYCNotFoundException:
             user_kyc_doc = None
         try:
-            consent_details = frappe.get_doc("Consent", data.get("consent_name"))
+            consent_details = frappe.get_doc("Consent", "Ckyc")
         except frappe.DoesNotExistError:
             raise lms.exceptions.NotFoundException(_("Consent not found"))
+
+        if data.get("address_details") and not data.get("accept_terms"):
+            raise lms.exceptions.UnauthorizedException(
+                _("Please accept Terms and Conditions.")
+            )
+
         poa_type = frappe.get_list(
             "Proof of Address Master", pluck="poa_name", ignore_permissions=True
         )
+
         country = frappe.get_all("Country Master", fields=["country"], pluck="country")
+
         data_res = {
             "user_kyc_doc": user_kyc_doc,
             "consent_details": consent_details,
             "poa_type": poa_type,
             "country": country,
         }
-        perm_add_photos = lms.upload_image_to_doctype(
-            customer=lms.__customer(user_kyc_doc.user),
-            seq_no="perm-add",
-            image_=data.get("address_details")
-            .get("permanent_address")
-            .get("address_proof_image"),
-            img_format="jpeg",
-            img_folder="user_ckyc_address",
-        )
-        corres_add_photos = lms.upload_image_to_doctype(
-            customer=lms.__customer(user_kyc_doc.user),
-            seq_no="corres-add",
-            image_=data.get("address_details")
-            .get("corresponding_address")
-            .get("address_proof_image"),
-            img_format="jpeg",
-            img_folder="user_ckyc_address",
-        )
-        print(perm_add_photos)
-        print(corres_add_photos)
+
         if data.get("address_details") != "":
             address = []
             address.append(
@@ -4960,6 +4951,25 @@ def ckyc_consent_details(**kwargs):
                 )
             )
 
+            perm_add_photos = lms.upload_image_to_doctype(
+                customer=lms.__customer(user_kyc_doc.user),
+                seq_no="perm-add",
+                image_=data.get("address_details")
+                .get("permanent_address")
+                .get("address_proof_image"),
+                img_format="jpeg",
+                img_folder="user_ckyc_address",
+            )
+            corres_add_photos = lms.upload_image_to_doctype(
+                customer=lms.__customer(user_kyc_doc.user),
+                seq_no="corres-add",
+                image_=data.get("address_details")
+                .get("corresponding_address")
+                .get("address_proof_image"),
+                img_format="jpeg",
+                img_folder="user_ckyc_address",
+            )
+
             ckyc_address_doc = frappe.get_doc(
                 {
                     "doctype": "CKYC Address Details",
@@ -5029,6 +5039,15 @@ def ckyc_consent_details(**kwargs):
             if False in address:
                 user_kyc_doc.is_edited = 1
             user_kyc_doc.save(ignore_permissions=True)
+            kyc_consent_doc = frappe.get_doc(
+                {
+                    "doctype": "User Consent",
+                    "mobile": lms.__user().phone,
+                    "consent": "Ckyc",
+                }
+            )
+            kyc_consent_doc.insert(ignore_permissions=True)
+
             frappe.db.commit()
 
         # responce all these for user kyc get request
