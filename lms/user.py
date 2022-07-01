@@ -4983,6 +4983,7 @@ def ckyc_consent_details(**kwargs):
                 }
             ).insert(ignore_permissions=True)
             user_kyc_doc.address = ckyc_address_doc.name
+            user_kyc_doc.consent_given = 1
             if False in address:
                 user_kyc_doc.is_edited = 1
             user_kyc_doc.save(ignore_permissions=True)
