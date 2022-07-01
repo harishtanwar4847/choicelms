@@ -4587,8 +4587,6 @@ def ckyc_download(**kwargs):
                                     "kyc_empcode": r.get("KYC_EMPCODE"),
                                     "org_name": r.get("ORG_NAME"),
                                     "org_code": r.get("ORG_CODE"),
-                                    "din": r.get("DIN"),
-                                    "description": r.get("RE_TYPE_OTHERS_DESC"),
                                     "photo_type": r.get("PHOTO_TYPE"),
                                     "photo": photos_,
                                     "perm_poi_image_type": r.get("PERM_POI_IMAGE_TYPE"),
