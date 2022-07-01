@@ -15,6 +15,7 @@ import requests
 import utils
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
+from frappe.exceptions import DoesNotExistError
 from frappe.utils.password import check_password, update_password
 
 import lms
@@ -265,6 +266,13 @@ def get_bank_details():
                 las_settings.choice_pan_api, params=params, headers=headers
             )
             data = res.json()
+            log = {
+                "url": las_settings.choice_pan_api,
+                "headers": headers,
+                "request": params,
+                "response": data,
+            }
+            lms.create_log(log, "get_bank_details_log")
             if res.ok and data.get("banks"):
                 user_kyc.kyc_type = "CHOICE"
                 user_kyc.email = data["emailId"]
@@ -5054,5 +5062,26 @@ def ckyc_consent_details(**kwargs):
         return utils.respondWithSuccess(data=data_res)
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
+        lms.log_api_error()
+        return e.respond()
+
+
+@frappe.whitelist()
+def pincode(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "pincode": "required",
+            },
+        )
+        try:
+            pincode = frappe.get_doc("Pincode Master", data.get("pincode"))
+        except DoesNotExistError:
+            raise lms.exceptions.NotFoundException(_("Pincode not found"))
+        data_res = {"district": pincode.new_district, "state": pincode.state_name}
+        return utils.respondWithSuccess(data=data_res)
+    except utils.exceptions.APIException as e:
         lms.log_api_error()
         return e.respond()
