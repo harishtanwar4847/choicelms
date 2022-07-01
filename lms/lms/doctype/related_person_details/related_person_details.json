@@ -84,10 +84,7 @@
   "kyc_branch",
   "kyc_empcode",
   "org_name",
-  "org_code",
-  "din",
-  "remarks_1",
-  "description"
+  "org_code"
  ],
  "fields": [
   {
@@ -489,27 +486,12 @@
    "fieldname": "nationality",
    "fieldtype": "Data",
    "label": "Related Person Nationality"
-  },
-  {
-   "fieldname": "din",
-   "fieldtype": "Data",
-   "label": "DIN Number"
-  },
-  {
-   "fieldname": "remarks_1",
-   "fieldtype": "Small Text",
-   "label": "Remarks, if any"
-  },
-  {
-   "fieldname": "description",
-   "fieldtype": "Data",
-   "label": "Related Person type Others Description"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-06-29 19:54:08.189943",
+ "modified": "2022-06-30 19:11:47.601550",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Related Person Details",

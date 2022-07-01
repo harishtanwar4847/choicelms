@@ -49,8 +49,8 @@
   },
   {
    "fieldname": "image",
-   "fieldtype": "Attach",
-   "label": "Image"
+   "fieldtype": "Attach Image",
+   "label": "IMAGE"
   },
   {
    "fieldname": "column_break_5",
@@ -60,7 +60,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-06-30 12:19:34.150718",
+ "modified": "2022-06-30 16:28:22.156378",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "CKYC Image Details",
