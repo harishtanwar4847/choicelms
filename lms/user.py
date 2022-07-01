@@ -4458,7 +4458,13 @@ def ckyc_download(**kwargs):
     try:
         utils.validator.validate_http_method("POST")
         data = utils.validator.validate(
-            kwargs, {"pan_no": "required", "dob": "required", "ckyc_no": "required"}
+            kwargs,
+            {
+                "pan_no": "required",
+                "dob": "required",
+                "ckyc_no": "required",
+                "accept_terms": ["required", "between:0,1", "decimal"],
+            },
         )
 
         reg = lms.regex_special_characters(
@@ -4467,6 +4473,11 @@ def ckyc_download(**kwargs):
         )
         if not reg or len(data.get("pan_no")) != 10:
             raise lms.exceptions.FailureException(_("Invalid PAN"))
+
+        if not data.get("accept_terms"):
+            raise lms.exceptions.UnauthorizedException(
+                _("Please accept Terms and Conditions.")
+            )
 
         pid_data = {}
         customer = lms.__customer()
@@ -4748,6 +4759,14 @@ def ckyc_download(**kwargs):
                             )
 
                 user_kyc.insert(ignore_permissions=True)
+                kyc_consent_doc = frappe.get_doc(
+                    {
+                        "doctype": "User Consent",
+                        "mobile": lms.__user().phone,
+                        "consent": "Ckyc",
+                    }
+                )
+                kyc_consent_doc.insert(ignore_permissions=True)
                 frappe.db.commit()
 
             except Exception:
