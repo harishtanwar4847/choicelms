@@ -1078,7 +1078,7 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
     return frappe.get_doc("Spark Dummy Account", dummy_account_name)
 
 
-def log_api_error():
+def log_api_error(mess=""):
     try:
         """
         Log API error to Error Log
@@ -1110,7 +1110,7 @@ def log_api_error():
             + " API Error"
         )
 
-        error = frappe.get_traceback() + "\n\n" + message
+        error = frappe.get_traceback() + "\n\n" + mess + "\n\n" + message
         log = frappe.get_doc(
             dict(doctype="API Error Log", error=frappe.as_unicode(error), method=title)
         ).insert(ignore_permissions=True)
@@ -1679,3 +1679,85 @@ class AESCBC:
 def user_details_hashing(value):
     value = value[:2] + len(value[1:-3]) * "X" + value[-2:]
     return value
+
+
+def ckyc_dot_net(
+    pan_no, is_for_search=False, is_for_download=False, dob="", ckyc_no=""
+):
+    try:
+        req_data = {
+            "idType": "C",
+            "idNumber": pan_no,
+            "dateTime": datetime.strftime(
+                frappe.utils.now_datetime(), "%d-%m-%Y %H:%M:%S"
+            ),
+            "requestId": datetime.strftime(frappe.utils.now_datetime(), "%d%m")
+            + str(abs(randint(0, 9999) - randint(1, 99))),
+        }
+
+        las_settings = frappe.get_single("LAS Settings")
+
+        if is_for_search:
+            url = las_settings.ckyc_search_api
+
+        if is_for_download and dob and ckyc_no:
+            req_data.update({"dob": dob, "ckycNumber": ckyc_no})
+            url = las_settings.ckyc_download_api
+
+        headers = {"Content-Type": "application/json"}
+
+        res = requests.post(url=url, headers=headers, data=json.dumps(req_data))
+        res_json = json.loads(res.text)
+
+        return res_json
+    except Exception:
+        raise Exception
+
+
+def upload_image_to_doctype(
+    customer, seq_no, image_, img_format, doctype, attached_to_field=""
+):
+    try:
+        tnc_dir_path = frappe.utils.get_files_path("CKYC_IMG")
+
+        if not os.path.exists(tnc_dir_path):
+            os.mkdir(tnc_dir_path)
+
+        profile_picture_file = "CKYC_IMG/{}-{}.{}".format(
+            customer.full_name, seq_no, img_format
+        ).replace(" ", "-")
+
+        image_path = frappe.utils.get_files_path(profile_picture_file)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+        profile_picture_file = "CKYC_IMG/{}-{}.{}".format(
+            customer.full_name, seq_no, img_format
+        ).replace(" ", "-")
+
+        ckyc_image_file_path = frappe.utils.get_files_path(profile_picture_file)
+        image_decode = base64.decodestring(bytes(image_, encoding="utf8"))
+        image_file = open(ckyc_image_file_path, "wb").write(image_decode)
+
+        ckyc_image_file_url = frappe.utils.get_url(
+            "files/CKYC_IMG/{}-{}.{}".format(
+                customer.full_name, seq_no, img_format
+            ).replace(" ", "-")
+        )
+
+        # image_file = frappe.get_doc(
+        #     {
+        #         "doctype": "File",
+        #         "file_name": profile_picture_file,
+        #         "content": image_file,
+        #         "attached_to_doctype": doctype,
+        #         "attached_to_field": attached_to_field,
+        #         "folder": "Home",
+        #     }
+        # )
+        # image_file.insert(ignore_permissions=True)
+        # frappe.db.commit()
+
+        return ckyc_image_file_url
+    except Exception:
+        log_api_error()

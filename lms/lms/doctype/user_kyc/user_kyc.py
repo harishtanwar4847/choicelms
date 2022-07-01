@@ -8,10 +8,18 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
+import lms
+
 
 class UserKYC(Document):
-    pass
-    # def before_save(self):
-    #     new_dict = self.as_dict()
-    #     if "__islocal" not in new_dict.keys():
-    #         frappe.throw("Modifications not allowed.")
+    def on_update(self):
+        if self.kyc_status == "Approved":
+            cust_name = frappe.db.get_value(
+                "Loan Customer", {"user": self.user}, "name"
+            )
+            loan_customer = frappe.get_doc("Loan Customer", cust_name)
+            if not loan_customer.kyc_update and not loan_customer.choice_kyc:
+                loan_customer.kyc_update = 1
+                loan_customer.choice_kyc = self.name
+                loan_customer.save(ignore_permissions=True)
+                frappe.db.commit()
