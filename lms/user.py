@@ -3821,13 +3821,7 @@ def get_bank_ifsc_details(**kwargs):
             # )
             raise lms.exceptions.FailureException(_("Only alphanumeric allowed."))
 
-        filters_arr = {}
-
-        if data.get("ifsc", None):
-            search_key = str("%" + data["ifsc"] + "%")
-            filters_arr = {"ifsc": ["like", search_key], "is_active": True}
-
-        details = frappe.get_all("Spark Bank Branch", filters_arr, ["*"])
+        details = lms.ifsc_details(data.get("ifsc"))
 
         if not details:
             return utils.respondWithSuccess(message="Record not found.")

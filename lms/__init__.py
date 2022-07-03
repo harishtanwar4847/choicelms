@@ -1773,3 +1773,12 @@ def upload_image_to_doctype(
         return ckyc_image_file_url
     except Exception:
         log_api_error()
+
+
+def ifsc_details(ifsc=""):
+    filters_arr = {}
+    if ifsc:
+        search_key = str("%" + ifsc + "%")
+        filters_arr = {"ifsc": ["like", search_key], "is_active": True}
+
+    return frappe.get_all("Spark Bank Branch", filters_arr, ["*"])
