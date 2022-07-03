@@ -5,6 +5,7 @@ import re
 import time
 from ctypes import util
 from datetime import MINYEAR, date, datetime, timedelta
+from email import message
 from logging import debug
 from random import choice, randint
 from time import gmtime
@@ -17,6 +18,8 @@ from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.exceptions import DoesNotExistError
 from frappe.utils.password import check_password, update_password
+from pymysql import NULL
+from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms
 from lms import convert_sec_to_hh_mm_ss, holiday_list
@@ -238,77 +241,6 @@ def get_choice_kyc_old(pan_no, birth_date):
 
 
 """ Changes as per new kyc flow - confirmed with vinayak - 14/07/2021"""
-
-
-@frappe.whitelist()
-def get_bank_details():
-    try:
-        utils.validator.validate_http_method("POST")
-        las_settings = frappe.get_single("LAS Settings")
-        try:
-            user_kyc = lms.__user_kyc()
-        except UserKYCNotFoundException:
-            user_kyc = None
-        # if user_kyc and user_kyc.status == "Approved":
-        if user_kyc:
-            params = {
-                "PANNum": user_kyc.pan_no,
-                "dob": user_kyc.date_of_birth,
-            }
-            headers = {
-                "businessUnit": las_settings.choice_business_unit,
-                "userId": las_settings.choice_user_id,
-                "investorId": las_settings.choice_investor_id,
-                "ticket": las_settings.choice_ticket,
-            }
-
-            res = requests.get(
-                las_settings.choice_pan_api, params=params, headers=headers
-            )
-            data = res.json()
-            log = {
-                "url": las_settings.choice_pan_api,
-                "headers": headers,
-                "request": params,
-                "response": data,
-            }
-            lms.create_log(log, "get_bank_details_log")
-            if res.ok and data.get("banks"):
-                user_kyc.kyc_type = "CHOICE"
-                user_kyc.email = data["emailId"]
-                user_kyc.bank_account = []
-
-                for bank in data["banks"]:
-                    user_kyc.append(
-                        "bank_account",
-                        {
-                            "bank": bank["bank"],
-                            "bank_address": bank["bankAddress"],
-                            "branch": bank["branch"],
-                            "contact": bank["contact"],
-                            "account_type": bank["accountType"],
-                            "account_number": bank["accountNumber"],
-                            "ifsc": bank["ifsc"],
-                            "micr": bank["micr"],
-                            "bank_mode": bank["bankMode"],
-                            "bank_code": bank["bankcode"],
-                            "bank_zip_code": bank["bankZipCode"],
-                            "city": bank["city"],
-                            "district": bank["district"],
-                            "state": bank["state"],
-                            "is_default": bank["defaultBank"] == "Y",
-                        },
-                    )
-                user_kyc.save(ignore_permissions=True)
-                frappe.db.commit()
-                return utils.respondWithSuccess(data=user_kyc)
-            else:
-                return utils.respondWithSuccess("User KYC is not approved")
-
-    except utils.exceptions.APIException as e:
-        frappe.db.rollback()
-        lms.log_api_error()
-        return e.respond()
 
 
 @frappe.whitelist()
@@ -4847,11 +4779,8 @@ def ckyc_consent_details(**kwargs):
             {
                 "user_kyc_name": "required",
                 "address_details": "",
-                "accept_terms": ["between:0,1", "decimal"],
+                "accept_terms": "",
             },
-        )
-        address = validate_address(
-            address=data.get("address_details", {}),
         )
 
         try:
@@ -4862,11 +4791,6 @@ def ckyc_consent_details(**kwargs):
             consent_details = frappe.get_doc("Consent", "Ckyc")
         except frappe.DoesNotExistError:
             raise lms.exceptions.NotFoundException(_("Consent not found"))
-
-        if data.get("address_details") and not data.get("accept_terms"):
-            raise lms.exceptions.UnauthorizedException(
-                _("Please accept Terms and Conditions.")
-            )
 
         poa_type = frappe.get_list(
             "Proof of Address Master", pluck="poa_name", ignore_permissions=True
@@ -4881,7 +4805,14 @@ def ckyc_consent_details(**kwargs):
             "country": country,
         }
 
-        if data.get("address_details") != "":
+        if data.get("address_details") != None and data.get("accept_terms") != None:
+            address = validate_address(
+                address=data.get("address_details", {}),
+            )
+            if data.get("address_details") and data.get("accept_terms") == 0:
+                raise lms.exceptions.UnauthorizedException(
+                    _("Please accept Terms and Conditions.")
+                )
             address = []
             address.append(
                 frappe.compare(
@@ -5123,6 +5054,80 @@ def ckyc_consent_details(**kwargs):
 
         # responce all these for user kyc get request
         return utils.respondWithSuccess(data=data_res)
+    except utils.exceptions.APIException as e:
+        frappe.db.rollback()
+        lms.log_api_error()
+        return e.respond()
+
+
+@frappe.whitelist()
+def get_bank_details():
+    try:
+        utils.validator.validate_http_method("POST")
+        las_settings = frappe.get_single("LAS Settings")
+        try:
+            user_kyc = lms.__user_kyc()
+        except UserKYCNotFoundException:
+            user_kyc = None
+        # if user_kyc and user_kyc.status == "Approved":
+        if user_kyc:
+            params = {
+                "PANNum": user_kyc.pan_no,
+                "dob": user_kyc.date_of_birth,
+            }
+            headers = {
+                "businessUnit": las_settings.choice_business_unit,
+                "userId": las_settings.choice_user_id,
+                "investorId": las_settings.choice_investor_id,
+                "ticket": las_settings.choice_ticket,
+            }
+
+            res = requests.get(
+                las_settings.choice_pan_api, params=params, headers=headers
+            )
+
+            data = res.json()
+
+            log = {
+                "url": las_settings.choice_pan_api,
+                "headers": headers,
+                "request": params,
+                "response": data,
+            }
+            lms.create_log(log, "get_bank_details_log")
+            if res.ok and "errorCode" not in data and data.get("banks"):
+                user_kyc.kyc_type = "CHOICE"
+                user_kyc.email = data["emailId"]
+                user_kyc.bank_account = []
+
+                for bank in data["banks"]:
+                    user_kyc.append(
+                        "bank_account",
+                        {
+                            "bank": bank["bank"],
+                            "bank_address": bank["bankAddress"],
+                            "branch": bank["branch"],
+                            "contact": bank["contact"],
+                            "account_type": bank["accountType"],
+                            "account_number": bank["accountNumber"],
+                            "ifsc": bank["ifsc"],
+                            "micr": bank["micr"],
+                            "bank_mode": bank["bankMode"],
+                            "bank_code": bank["bankcode"],
+                            "bank_zip_code": bank["bankZipCode"],
+                            "city": bank["city"],
+                            "district": bank["district"],
+                            "state": bank["state"],
+                            "is_default": bank["defaultBank"] == "Y",
+                        },
+                    )
+                user_kyc.save(ignore_permissions=True)
+                frappe.db.commit()
+                return utils.respondWithSuccess(data=user_kyc)
+            else:
+                message = "Record does not exist."
+                return utils.respondWithSuccess(message=message)
+
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
         lms.log_api_error()
