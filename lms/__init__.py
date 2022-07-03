@@ -436,7 +436,7 @@ def __customer(entity=None):
 
 
 def __user_kyc(entity=None, pan_no=None, throw=True):
-    filters = {"user": __user(entity).name}
+    filters = {"user": __user(entity).name, "consent_given": 1}
     if pan_no:
         filters["pan_no"] = pan_no
     res = frappe.get_all("User KYC", filters=filters, order_by="creation desc")

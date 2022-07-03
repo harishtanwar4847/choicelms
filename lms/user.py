@@ -4710,16 +4710,39 @@ def ckyc_download(**kwargs):
 
 
 def validate_address(address):
-    if not address or (type(address) is not dict):
-        raise utils.exceptions.ValidationException(
-            {"address": {"required": frappe._("address details required.")}}
+    if type(address) is not dict:
+        raise lms.exceptions.FailureException(
+            message=frappe._("address details should be dictionary.")
         )
+
     perm_add = address["permanent_address"]
     corres_add = address["corresponding_address"]
 
+    add_details = [
+        "address_line1",
+        "address_line2",
+        "address_line3",
+        "city",
+        "pin_code",
+        "state",
+        "district",
+        "country",
+        "address_proof_image",
+    ]
+
+    if not all(key in perm_add for key in add_details):
+        raise lms.exceptions.FailureException(
+            message=frappe._("Keys missing in Permanent address details")
+        )
+
+    if not all(key in corres_add for key in add_details):
+        raise lms.exceptions.FailureException(
+            message=frappe._("Keys missing in Corresponding address details")
+        )
+
     if len(perm_add) == 0:
-        raise utils.exceptions.ValidationException(
-            {"address": {"required": frappe._("Permanent Address Required")}}
+        raise lms.exceptions.FailureException(
+            message=frappe._("Permanent Address Required")
         )
 
     address_valid = True
@@ -4733,15 +4756,32 @@ def validate_address(address):
                 address_valid = False
                 message = frappe._("permanent address should be in string format")
                 break
-            keys = perm_add.keys()
-            if "address_line1" not in keys or perm_add["address_line1"] == "":
-                address_valid = False
-                message = frappe._("permanent address line1 not present or empty")
-                break
+
+        for k, v in perm_add.items():
+            if (
+                k
+                in [
+                    "address_line1",
+                    "city",
+                    "pin_code",
+                    "state",
+                    "district",
+                    "country",
+                    "address_proof_image",
+                ]
+                and not v
+            ):
+                raise lms.exceptions.FailureException(
+                    message=frappe._(
+                        "{} field required permanent address".format(
+                            k.title().replace("_", " ")
+                        )
+                    )
+                )
 
     if len(corres_add) == 0:
-        raise utils.exceptions.ValidationException(
-            {"address": {"required": frappe._("Corresponding Address Required")}}
+        raise lms.exceptions.FailureException(
+            message=frappe._("Corresponding Address Required")
         )
 
     if type(corres_add) is not dict:
@@ -4756,16 +4796,30 @@ def validate_address(address):
                 message = frappe._("Corresponding should be in string format")
                 break
 
-            keys = corres_add.keys()
-            if "address_line1" not in keys or corres_add["address_line1"] == "":
-                address_valid = False
-                message = frappe._("corresponding address line1 not present or empty")
-                break
+        for k, v in corres_add.items():
+            if (
+                k
+                in [
+                    "address_line1",
+                    "city",
+                    "pin_code",
+                    "state",
+                    "district",
+                    "country",
+                    "address_proof_image",
+                ]
+                and not v
+            ):
+                raise lms.exceptions.FailureException(
+                    message=frappe._(
+                        "{} field required in corresponding address".format(
+                            k.title().replace("_", " ")
+                        )
+                    )
+                )
 
     if not address_valid:
-        raise utils.exceptions.ValidationException(
-            {"address_details": {"required": message}}
-        )
+        raise lms.exceptions.FailureException(message=message)
 
     return address
 
@@ -4790,7 +4844,12 @@ def ckyc_consent_details(**kwargs):
         try:
             consent_details = frappe.get_doc("Consent", "Ckyc")
         except frappe.DoesNotExistError:
-            raise lms.exceptions.NotFoundException(_("Consent not found"))
+            raise lms.exceptions.NotFoundException(message=_("Consent not found"))
+
+        if data.get("address_details") and not data.get("accept_terms"):
+            raise lms.exceptions.UnauthorizedException(
+                message=_("Please accept Terms and Conditions.")
+            )
 
         poa_type = frappe.get_list(
             "Proof of Address Master", pluck="poa_name", ignore_permissions=True
@@ -4805,14 +4864,11 @@ def ckyc_consent_details(**kwargs):
             "country": country,
         }
 
-        if data.get("address_details") != None and data.get("accept_terms") != None:
-            address = validate_address(
+        if data.get("address_details") and data.get("accept_terms"):
+            validate_address(
                 address=data.get("address_details", {}),
             )
-            if data.get("address_details") and data.get("accept_terms") == 0:
-                raise lms.exceptions.UnauthorizedException(
-                    _("Please accept Terms and Conditions.")
-                )
+
             address = []
             address.append(
                 frappe.compare(
@@ -5137,17 +5193,21 @@ def get_bank_details():
 @frappe.whitelist()
 def pincode(**kwargs):
     try:
+        utils.validator.validate_http_method("GET")
         data = utils.validator.validate(
             kwargs,
             {
                 "pincode": "required",
             },
         )
+
         try:
             pincode = frappe.get_doc("Pincode Master", data.get("pincode"))
         except DoesNotExistError:
             raise lms.exceptions.NotFoundException(_("Pincode not found"))
+
         data_res = {"district": pincode.new_district, "state": pincode.state_name}
+
         return utils.respondWithSuccess(data=data_res)
     except utils.exceptions.APIException as e:
         lms.log_api_error()
