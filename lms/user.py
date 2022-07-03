@@ -5175,6 +5175,7 @@ def get_bank_details():
                             "district": bank["district"],
                             "state": bank["state"],
                             "is_default": bank["defaultBank"] == "Y",
+                            "bank_status": "Pending",
                         },
                     )
                 user_kyc.save(ignore_permissions=True)

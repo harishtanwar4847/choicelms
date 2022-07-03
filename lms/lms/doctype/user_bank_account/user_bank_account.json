@@ -5,7 +5,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "status",
+  "bank_status",
   "bank",
   "branch",
   "account_number",
@@ -144,18 +144,16 @@
   },
   {
    "default": "Pending",
-   "fieldname": "status",
+   "fieldname": "bank_status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "Pending\nApproved\nRejected",
-   "read_only": 1,
-   "read_only_depends_on": "eval:doc.status != \"Pending\""
+   "options": "Pending\nApproved\nRejected"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-06-29 17:06:03.113745",
+ "modified": "2022-07-03 12:09:46.758011",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User Bank Account",
