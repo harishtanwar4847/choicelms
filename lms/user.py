@@ -4474,6 +4474,16 @@ def ckyc_download(**kwargs):
                         "perm_dist": personal_details.get("PERM_DIST"),
                         "perm_state": personal_details.get("PERM_STATE"),
                         "perm_country": personal_details.get("PERM_COUNTRY"),
+                        "perm_state_name": frappe.db.get_value(
+                            "Pincode Master",
+                            {"state": personal_details.get("PERM_STATE")},
+                            "state_name",
+                        ),
+                        "perm_country_name": frappe.db.get_value(
+                            "Country Master",
+                            {"name": personal_details.get("PERM_COUNTRY")},
+                            "country",
+                        ),
                         "perm_pin": personal_details.get("PERM_PIN"),
                         "perm_poa": personal_details.get("PERM_POA"),
                         "perm_corres_sameflag": personal_details.get(
@@ -4486,6 +4496,16 @@ def ckyc_download(**kwargs):
                         "corres_dist": personal_details.get("CORRES_DIST"),
                         "corres_state": personal_details.get("CORRES_STATE"),
                         "corres_country": personal_details.get("CORRES_COUNTRY"),
+                        "corres_state_name": frappe.db.get_value(
+                            "Pincode Master",
+                            {"state": personal_details.get("CORRES_STATE")},
+                            "state_name",
+                        ),
+                        "corres_country_name": frappe.db.get_value(
+                            "Country Master",
+                            {"name": personal_details.get("CORRES_COUNTRY")},
+                            "country",
+                        ),
                         "corres_pin": personal_details.get("CORRES_PIN"),
                         "corres_poa": personal_details.get("CORRES_POA"),
                         "resi_std_code": personal_details.get("RESI_STD_CODE"),
@@ -4909,14 +4929,14 @@ def ckyc_consent_details(**kwargs):
             )
             address.append(
                 frappe.compare(
-                    user_kyc_doc.perm_state,
+                    user_kyc_doc.perm_state_name,
                     "=",
                     data.get("address_details").get("permanent_address").get("state"),
                 )
             )
             address.append(
                 frappe.compare(
-                    user_kyc_doc.perm_country,
+                    user_kyc_doc.perm_country_name,
                     "=",
                     data.get("address_details").get("permanent_address").get("country"),
                 )
@@ -4977,7 +4997,7 @@ def ckyc_consent_details(**kwargs):
             )
             address.append(
                 frappe.compare(
-                    user_kyc_doc.corres_state,
+                    user_kyc_doc.corres_state_name,
                     "=",
                     data.get("address_details")
                     .get("corresponding_address")
@@ -4986,7 +5006,7 @@ def ckyc_consent_details(**kwargs):
             )
             address.append(
                 frappe.compare(
-                    user_kyc_doc.corres_country,
+                    user_kyc_doc.corres_country_name,
                     "=",
                     data.get("address_details")
                     .get("corresponding_address")
