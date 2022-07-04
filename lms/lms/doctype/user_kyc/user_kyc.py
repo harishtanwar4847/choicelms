@@ -23,3 +23,16 @@ class UserKYC(Document):
                 loan_customer.choice_kyc = self.name
                 loan_customer.save(ignore_permissions=True)
                 frappe.db.commit()
+
+        status = []
+        for i in self.bank_account:
+            status.append(i.bank_status)
+        if "Approved" in status:
+            cust_name = frappe.db.get_value(
+                "Loan Customer", {"user": self.user}, "name"
+            )
+            loan_customer = frappe.get_doc("Loan Customer", cust_name)
+            if not loan_customer.bank_update:
+                loan_customer.bank_update = 1
+                loan_customer.save(ignore_permissions=True)
+                frappe.db.commit()

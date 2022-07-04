@@ -378,6 +378,7 @@ def esign_done(**kwargs):
 def my_loans():
     try:
         customer = lms.__customer()
+        user = lms.__user()
         loans = frappe.db.sql(
             """select
 			loan.total_collateral_value, loan.name, loan.sanctioned_limit, loan.drawing_power,
@@ -416,7 +417,16 @@ def my_loans():
                     "pledge_status": ["!=", "Failure"],
                 },
             )
-            if not under_process_la:
+            loan_cust = frappe.db.get_value(
+                "Loan Customer",
+                {
+                    "user": user.email,
+                    "kyc_update": 1,
+                    "bank_update": 1,
+                },
+                "name",
+            )
+            if not under_process_la and loan_cust:
                 data["user_can_pledge"] = 1
 
         data["total_outstanding"] = float(sum([i.outstanding for i in loans]))
