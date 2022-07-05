@@ -260,6 +260,7 @@ def send_request(gateway_url, params, headers=None, use_post=False):
         "params": params,
         "response": response.json(),
     }
+    lms.create_log(log, "send_request")
     import os
 
     sms_log_file = frappe.utils.get_files_path("sms_log.json")

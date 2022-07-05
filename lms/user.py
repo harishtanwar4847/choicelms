@@ -700,6 +700,14 @@ def securities(**kwargs):
                     raise utils.exceptions.APIException(res.text)
 
                 res_json = res.json()
+                log = {
+                    "url": las_settings.choice_securities_list_api,
+                    "headers": {"Accept": "application/json"},
+                    "request": payload,
+                    "response": res_json,
+                }
+
+                lms.create_log(log, "securities_log")
                 frappe.logger().info(res_json)
                 if res_json["Status"] != "Success":
                     raise utils.exceptions.APIException(res.text)
@@ -1058,7 +1066,7 @@ def securities_new(**kwargs):
                     "response": res_json,
                 }
 
-                lms.create_log(log, "securities_log")
+                lms.create_log(log, "securities_new_log")
 
                 if not res.ok:
                     raise utils.exceptions.APIException(res.text)
@@ -4094,16 +4102,26 @@ def penny_create_fund_account_validation(**kwargs):
                     "bank_account_type": data.get("bank_account_type"),
                 },
             }
+            url = las_settings.pennydrop_create_fund_account_validation
+            headers = {
+                "Authorization": razorpay_key_secret_auth,
+                "content-type": "application/json",
+            }
             raw_res = requests.post(
-                las_settings.pennydrop_create_fund_account_validation,
-                headers={
-                    "Authorization": razorpay_key_secret_auth,
-                    "content-type": "application/json",
-                },
+                url,
+                headers,
                 data=json.dumps(data_rzp),
             )
 
             data_res = raw_res.json()
+            log = {
+                "url": las_settings.pennydrop_create_fund_account_validation,
+                "headers": headers,
+                "request": data_rzp,
+                "response": data_res,
+            }
+
+            lms.create_log(log, "rzp_pennydrop_create_fund_account_validation")
 
             penny_api_response_handle(
                 data,
@@ -4177,15 +4195,24 @@ def penny_create_fund_account_validation_by_id(**kwargs):
                 las_settings.pennydrop_create_fund_account_validation_id
                 + "/{}".format(data.get("fav_id"))
             )
+            headers = {
+                "Authorization": razorpay_key_secret_auth,
+                "content-type": "application/json",
+            }
             raw_res = requests.get(
                 url,
-                headers={
-                    "Authorization": razorpay_key_secret_auth,
-                    "content-type": "application/json",
-                },
+                headers,
             )
 
             data_res = raw_res.json()
+            log = {
+                "url": url,
+                "headers": headers,
+                "request": data,
+                "response": data_res,
+            }
+
+            lms.create_log(log, "rzp_pennydrop_create_fund_account_validation_by_id")
             penny_api_response_handle(
                 data,
                 user_kyc,

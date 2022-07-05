@@ -763,11 +763,21 @@ def send_spark_push_notification(
                     "Content-Type": "application/json",
                     "Authorization": "key=AAAAennLf7s:APA91bEoQFxqyBP87PXSVS3nXYGhVwh0-5CXQyOzEW8vwKiRqYw-5y2yPXIFWvQ9-Mr0rHeS2NWdq43ogeH76esO3GJyZCEQs2mOgUk6RStxW-hgsioIAJaaiidov8xDg1-yyTn_JCYQ",
                 }
+                url = "https://fcm.googleapis.com/fcm/send"
                 res = requests.post(
-                    url="https://fcm.googleapis.com/fcm/send",
+                    url=url,
                     data=json.dumps(fcm_payload),
                     headers=headers,
                 )
+                res_json = json.loads(res.text)
+                log = {
+                    "url": url,
+                    "headers": headers,
+                    "request": data,
+                    "response": res_json,
+                }
+
+                create_log(log, "Send Spark Push Notification Log")
 
                 # fa.send_android_message(
                 #     title=fcm_notification.title,
@@ -1748,7 +1758,7 @@ def upload_image_to_doctype(
         ).replace(" ", "-")
 
         ckyc_image_file_path = frappe.utils.get_files_path(profile_picture_file)
-        image_decode = base64.decodestring(bytes(image_, encoding="utf8"))
+        image_decode = base64.decodestring(bytes(str(image_), encoding="utf8"))
         image_file = open(ckyc_image_file_path, "wb").write(image_decode)
 
         ckyc_image_file_url = frappe.utils.get_url(
