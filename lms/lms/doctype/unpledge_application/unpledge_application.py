@@ -238,7 +238,6 @@ class UnpledgeApplication(Document):
                     cgst = total_dp_reimburse_unpledge_charges * (
                         lender.cgst_on_dp_reimbursementunpledge_charges / 100
                     )
-                    print("total", total_dp_reimburse_unpledge_charges_reference.name)
                     loan.create_loan_transaction(
                         transaction_type="CGST on DP Reimbursement(Unpledge) Charges",
                         amount=cgst,

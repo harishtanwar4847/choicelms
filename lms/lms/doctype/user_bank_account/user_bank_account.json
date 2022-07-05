@@ -26,7 +26,8 @@
   "bank_mode",
   "bank_zip_code",
   "district",
-  "razorpay_fund_account_validation_id"
+  "razorpay_fund_account_validation_id",
+  "notification_sent"
  ],
  "fields": [
   {
@@ -150,12 +151,18 @@
    "label": "Status",
    "options": "Pending\nApproved\nRejected",
    "read_only": 1,
-   "read_only_depends_on": "eval:doc.bank_status != \"Pending\";"
+   "read_only_depends_on": "// eval:doc.bank_status != \"Pending\";"
+  },
+  {
+   "default": "0",
+   "fieldname": "notification_sent",
+   "fieldtype": "Check",
+   "label": "Notification Sent"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-07-04 11:56:58.646286",
+ "modified": "2022-07-05 17:33:26.995432",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User Bank Account",

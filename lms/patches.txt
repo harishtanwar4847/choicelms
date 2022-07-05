@@ -47,3 +47,4 @@ lms.patches.settlement_and_pennydrop_api_update_in_las
 lms.patches.import_proof_of_address_master
 lms.patches.update_email_in_kyc
 lms.patches.update_ckyc_url_las_settings
+lms.patches.update_ckyc_spark_push_notification_content

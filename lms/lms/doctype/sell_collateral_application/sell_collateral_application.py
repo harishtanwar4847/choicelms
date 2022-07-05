@@ -290,7 +290,6 @@ class SellCollateralApplication(Document):
         loan.update_items()
         loan.fill_items()
         loan.save(ignore_permissions=True)
-        loan_transaction = frappe.get_doc("Loan Transaction", self.loan)
 
         lender = self.get_lender()
 
@@ -364,9 +363,6 @@ class SellCollateralApplication(Document):
                     cgst = total_dp_reimburse_sell_charges * (
                         lender.cgst_on_dp_reimbursementsell_charges / 100
                     )
-                    loan_transaction.gst_percent = (
-                        lender.cgst_on_dp_reimbursementsell_charges
-                    )
                     loan.create_loan_transaction(
                         transaction_type="CGST on DP Reimbursement(Sell) Charges",
                         amount=cgst,
@@ -378,9 +374,6 @@ class SellCollateralApplication(Document):
                     sgst = total_dp_reimburse_sell_charges * (
                         lender.sgst_on_dp_reimbursementsell_charges / 100
                     )
-                    loan_transaction.gst_percent = (
-                        lender.sgst_on_dp_reimbursementsell_charges
-                    )
                     loan.create_loan_transaction(
                         transaction_type="SGST on DP Reimbursement(Sell) Charges",
                         amount=sgst,
@@ -391,9 +384,6 @@ class SellCollateralApplication(Document):
                 if lender.igst_on_dp_reimbursementsell_charges > 0:
                     igst = total_dp_reimburse_sell_charges * (
                         lender.igst_on_dp_reimbursementsell_charges / 100
-                    )
-                    loan_transaction.gst_percent = (
-                        lender.igst_on_dp_reimbursementsell_charges
                     )
                     loan.create_loan_transaction(
                         transaction_type="IGST on DP Reimbursement(Sell) Charges",
@@ -413,9 +403,6 @@ class SellCollateralApplication(Document):
                     cgst = sell_collateral_charges * (
                         lender.cgst_on_sell_collateral_charges / 100
                     )
-                    loan_transaction.gst_percent = (
-                        lender.cgst_on_sell_collateral_charges
-                    )
                     loan.create_loan_transaction(
                         transaction_type="CGST on Sell Collateral Charges",
                         amount=cgst,
@@ -427,9 +414,6 @@ class SellCollateralApplication(Document):
                     sgst = sell_collateral_charges * (
                         lender.sgst_on_sell_collateral_charges / 100
                     )
-                    loan_transaction.gst_percent = (
-                        lender.sgst_on_sell_collateral_charges
-                    )
                     loan.create_loan_transaction(
                         transaction_type="SGST on Sell Collateral Charges",
                         amount=sgst,
@@ -440,9 +424,6 @@ class SellCollateralApplication(Document):
                 if lender.igst_on_sell_collateral_charges > 0:
                     igst = sell_collateral_charges * (
                         lender.igst_on_sell_collateral_charges / 100
-                    )
-                    loan_transaction.gst_percent = (
-                        lender.igst_on_sell_collateral_charges
                     )
                     loan.create_loan_transaction(
                         transaction_type="IGST on Sell Collateral Charges",
@@ -468,7 +449,7 @@ class SellCollateralApplication(Document):
 
             if invoke_charges > 0:
                 invoke_charges_reference = loan.create_loan_transaction(
-                    transaction_type="Invoke Charges",
+                    transaction_type="Invocation Charges",
                     amount=invoke_charges,
                     approve=True,
                     gst_percent=0,
@@ -476,7 +457,6 @@ class SellCollateralApplication(Document):
                 )
                 if lender.cgst_on_invocation_charges > 0:
                     cgst = invoke_charges * (lender.cgst_on_invocation_charges / 100)
-                    loan_transaction.gst_percent = (lender.cgst_on_invocation_charges,)
                     loan.create_loan_transaction(
                         transaction_type="CGST on Invocation Charges",
                         amount=cgst,
@@ -486,7 +466,6 @@ class SellCollateralApplication(Document):
                     )
                 if lender.sgst_on_invocation_charges > 0:
                     sgst = invoke_charges * (lender.sgst_on_invocation_charges / 100)
-                    loan_transaction.gst_percent = lender.sgst_on_invocation_charges
                     loan.create_loan_transaction(
                         transaction_type="SGST on Invocation Charges",
                         amount=sgst,
@@ -496,7 +475,6 @@ class SellCollateralApplication(Document):
                     )
                 if lender.igst_on_invocation_charges > 0:
                     igst = invoke_charges * (lender.igst_on_invocation_charges / 100)
-                    loan_transaction.gst_percent = lender.igst_on_invocation_charges
                     loan.create_loan_transaction(
                         transaction_type="IGST on Invocation Charges",
                         amount=igst,
