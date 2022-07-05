@@ -31,15 +31,6 @@ def execute():
                     )
 
                     data = res.json()
-                    log = {
-                        "url": las_settings.choice_pan_api,
-                        "headers": headers,
-                        "request": params,
-                        "response": data,
-                    }
-
-                    lms.create_log(log, "update_email_in_kyc")
-
                     if res.ok and not "errorCode" in data:
 
                         # frappe.db.sql("""
