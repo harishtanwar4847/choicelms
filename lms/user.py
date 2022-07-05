@@ -4462,7 +4462,9 @@ def ckyc_search(**kwargs):
                 _("Please accept Terms and Conditions.")
             )
 
-        res_json = lms.ckyc_dot_net(data.get("pan_no"), is_for_search=True)
+        customer = lms.__customer()
+
+        res_json = lms.ckyc_dot_net(customer, data.get("pan_no"), is_for_search=True)
 
         if res_json.get("status") == 200 and not res_json.get("error"):
             pid_data = (
@@ -4513,6 +4515,7 @@ def ckyc_download(**kwargs):
         user_kyc_name = ""
 
         res_json = lms.ckyc_dot_net(
+            cust=customer,
             pan_no=data.get("pan_no"),
             is_for_download=True,
             dob=data.get("dob"),

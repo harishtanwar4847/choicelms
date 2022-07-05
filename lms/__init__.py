@@ -1693,7 +1693,7 @@ def user_details_hashing(value):
 
 
 def ckyc_dot_net(
-    pan_no, is_for_search=False, is_for_download=False, dob="", ckyc_no=""
+    cust, pan_no, is_for_search=False, is_for_download=False, dob="", ckyc_no=""
 ):
     try:
         req_data = {
@@ -1734,6 +1734,7 @@ def ckyc_dot_net(
                 if res_json.get("status") == 200 and not res_json.get("error")
                 else "Failure",
                 "error": res_json.get("error"),
+                "customer": cust.name,
             }
         ).insert(ignore_permissions=True)
         frappe.db.commit()
