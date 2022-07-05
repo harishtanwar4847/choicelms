@@ -53,6 +53,8 @@
   "perm_dist",
   "perm_state",
   "perm_country",
+  "perm_state_name",
+  "perm_country_name",
   "perm_pin",
   "perm_poa",
   "column_break_50",
@@ -64,6 +66,8 @@
   "corres_dist",
   "corres_state",
   "corres_country",
+  "corres_state_name",
+  "corres_country_name",
   "corres_pin",
   "corres_poa",
   "resi_std_code",
@@ -637,10 +641,34 @@
    "options": "Pending\nApproved\nRejected",
    "read_only": 1,
    "read_only_depends_on": "eval:doc.kyc_status != \"Pending\";"
+  },
+  {
+   "fieldname": "perm_state_name",
+   "fieldtype": "Data",
+   "label": "Permanent State Name",
+   "length": 100
+  },
+  {
+   "fieldname": "perm_country_name",
+   "fieldtype": "Data",
+   "label": "Permanent Country Name",
+   "length": 100
+  },
+  {
+   "fieldname": "corres_state_name",
+   "fieldtype": "Data",
+   "label": "Correspondence State Name",
+   "length": 100
+  },
+  {
+   "fieldname": "corres_country_name",
+   "fieldtype": "Data",
+   "label": "Correspondence Country Name",
+   "length": 100
   }
  ],
  "links": [],
- "modified": "2022-06-30 19:13:12.907559",
+ "modified": "2022-07-04 15:02:54.488787",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
