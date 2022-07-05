@@ -1,0 +1,75 @@
+{
+ "actions": [],
+ "creation": "2022-07-05 15:30:53.602346",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "ckyc_api_type",
+  "parameters",
+  "response_status",
+  "error"
+ ],
+ "fields": [
+  {
+   "fieldname": "ckyc_api_type",
+   "fieldtype": "Select",
+   "label": "CKYC API Type",
+   "options": "CKYC Search\nCKYC Download"
+  },
+  {
+   "fieldname": "parameters",
+   "fieldtype": "Small Text",
+   "label": "Parameters"
+  },
+  {
+   "fieldname": "response_status",
+   "fieldtype": "Select",
+   "label": "Response Status",
+   "options": "Success\nFailure"
+  },
+  {
+   "depends_on": "eval:doc.response_status == \"Failure\";",
+   "fieldname": "error",
+   "fieldtype": "Small Text",
+   "label": "Error",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-07-05 15:40:43.598271",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "CKYC API Response",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Spark Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

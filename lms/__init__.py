@@ -1711,28 +1711,39 @@ def ckyc_dot_net(
         if is_for_search:
             url = las_settings.ckyc_search_api
             log_name = "CKYC_search_api"
+            api_type = "CKYC Search"
 
         if is_for_download and dob and ckyc_no:
             req_data.update({"dob": dob, "ckycNumber": ckyc_no})
             url = las_settings.ckyc_download_api
             log_name = "CKYC_download_api"
+            api_type = "CKYC Download"
 
         headers = {"Content-Type": "application/json"}
 
         res = requests.post(url=url, headers=headers, data=json.dumps(req_data))
         res_json = json.loads(res.text)
 
-        log = {
-            "url": las_settings.choice_pan_api,
-            "headers": headers,
-            "request": req_data,
-            "response": res_json,
-        }
+        log = {"url": url, "headers": headers, "request": req_data}
+        frappe.get_doc(
+            {
+                "doctype": "CKYC API Response",
+                "ckyc_api_type": api_type,
+                "parameters": str(log),
+                "response_status": "Success"
+                if res_json.get("status") == 200 and not res_json.get("error")
+                else "Failure",
+                "error": res_json.get("error"),
+            }
+        ).insert(ignore_permissions=True)
+        frappe.db.commit()
+        log["response"] = res_json
 
         create_log(log, log_name)
 
         return res_json
     except Exception:
+        log_api_error(res.text)
         raise Exception
 
 
