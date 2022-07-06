@@ -4995,6 +4995,7 @@ def ckyc_consent_details(**kwargs):
             "poa_type": poa_type,
             "country": country,
         }
+        message = "Success"
 
         if data.get("address_details") and data.get("accept_terms"):
             validate_address(
@@ -5239,9 +5240,10 @@ def ckyc_consent_details(**kwargs):
             kyc_consent_doc.insert(ignore_permissions=True)
 
             frappe.db.commit()
+            message = "Your KYC verification is in process, it will be executed in next 24 hours"
 
         # responce all these for user kyc get request
-        return utils.respondWithSuccess(data=data_res)
+        return utils.respondWithSuccess(message=message, data=data_res)
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
         lms.log_api_error()
