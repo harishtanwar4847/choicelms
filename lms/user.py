@@ -4108,8 +4108,8 @@ def penny_create_fund_account_validation(**kwargs):
                 "content-type": "application/json",
             }
             raw_res = requests.post(
-                url,
-                headers,
+                url=url,
+                headers=headers,
                 data=json.dumps(data_rzp),
             )
 
@@ -4200,8 +4200,8 @@ def penny_create_fund_account_validation_by_id(**kwargs):
                 "content-type": "application/json",
             }
             raw_res = requests.get(
-                url,
-                headers,
+                url=url,
+                headers=headers,
             )
 
             data_res = raw_res.json()
