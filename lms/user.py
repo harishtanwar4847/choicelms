@@ -4964,9 +4964,9 @@ def ckyc_consent_details(**kwargs):
         )
 
         try:
-            user_kyc_doc = frappe.get_doc("User KYC", data.get("user_kyc_name"))
+            user_kyc = frappe.get_doc("User KYC", data.get("user_kyc_name"))
         except UserKYCNotFoundException:
-            user_kyc_doc = None
+            user_kyc = None
         try:
             consent_details = frappe.get_doc("Consent", "Ckyc")
         except frappe.DoesNotExistError:
@@ -4983,8 +4983,14 @@ def ckyc_consent_details(**kwargs):
 
         country = frappe.get_all("Country Master", fields=["country"], pluck="country")
 
+        user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
+        user_kyc.ckyc_no = lms.user_details_hashing(user_kyc.ckyc_no)
+        user_kyc.email = lms.user_details_hashing(user_kyc.email)
+        user_kyc.email_id = lms.user_details_hashing(user_kyc.email_id)
+        user_kyc.mob_num = lms.user_details_hashing(user_kyc.mob_num)
+
         data_res = {
-            "user_kyc_doc": user_kyc_doc,
+            "user_kyc_doc": user_kyc,
             "consent_details": consent_details,
             "poa_type": poa_type,
             "country": country,
@@ -4994,7 +5000,7 @@ def ckyc_consent_details(**kwargs):
             validate_address(
                 address=data.get("address_details", {}),
             )
-
+            user_kyc_doc = frappe.get_doc("User KYC", user_kyc.name)
             address = []
             address.append(
                 frappe.compare(
