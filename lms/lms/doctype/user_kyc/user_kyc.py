@@ -115,3 +115,10 @@ class UserKYC(Document):
                 lms.send_spark_push_notification(
                     fcm_notification=fcm_notification, customer=loan_customer
                 )
+
+    def validate(self):
+        for i, item in enumerate(
+            sorted(self.bank_account, key=lambda item: item.is_default, reverse=True),
+            start=1,
+        ):
+            item.idx = i

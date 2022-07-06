@@ -10,8 +10,8 @@
   "user",
   "pan_no",
   "razorpay_contact_id",
-  "consent_given",
   "kyc_status",
+  "consent_given",
   "basic_details_column_break",
   "kyc_type",
   "date_of_birth",
@@ -44,6 +44,7 @@
   "mother_lname",
   "mother_fullname",
   "gender",
+  "gender_full",
   "dob",
   "pan",
   "form_60",
@@ -120,7 +121,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "KYC Type",
-   "options": "CHOICE\nKRA",
+   "options": "CHOICE\nCKYC",
    "reqd": 1,
    "set_only_once": 1
   },
@@ -674,10 +675,16 @@
    "fieldtype": "Check",
    "label": "Notification Sent",
    "read_only": 1
+  },
+  {
+   "fieldname": "gender_full",
+   "fieldtype": "Data",
+   "label": "Gender Full",
+   "length": 20
   }
  ],
  "links": [],
- "modified": "2022-07-05 16:42:41.195507",
+ "modified": "2022-07-06 12:51:37.881118",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",

@@ -4536,6 +4536,7 @@ def ckyc_download(**kwargs):
                         "doctype": "User KYC",
                         "owner": customer.user,
                         "user": customer.user,
+                        "kyc_type": "CKYC",
                         "pan_no": personal_details.get("PAN"),
                         "date_of_birth": datetime.strptime(data.get("dob"), "%d-%m-%Y"),
                         "consti_type": personal_details.get("CONSTI_TYPE"),
@@ -4631,6 +4632,16 @@ def ckyc_download(**kwargs):
                         "num_images": personal_details.get("NUM_IMAGES"),
                     }
                 )
+
+                if user_kyc.gender == "M":
+                    gender_full = "Male"
+                elif user_kyc.gender == "F":
+                    gender_full = "Female"
+                else:
+                    gender_full = "Transgender"
+
+                user_kyc.gender_full = gender_full
+
                 if identity_details:
                     identity = identity_details.get("IDENTITY")
                     if identity:
@@ -5295,7 +5306,9 @@ def get_bank_details():
                     )
                 user_kyc.save(ignore_permissions=True)
                 frappe.db.commit()
-                return utils.respondWithSuccess(data=user_kyc)
+                return utils.respondWithSuccess(
+                    data=frappe.get_doc("User KYC", user_kyc.name)
+                )
             else:
                 message = "Record does not exist."
                 return utils.respondWithSuccess(message=message)
