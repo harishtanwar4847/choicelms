@@ -122,8 +122,8 @@
    "in_list_view": 1,
    "label": "KYC Type",
    "options": "CHOICE\nCKYC",
-   "reqd": 1,
-   "set_only_once": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "basic_details_section_break",
@@ -684,7 +684,7 @@
   }
  ],
  "links": [],
- "modified": "2022-07-06 12:51:37.881118",
+ "modified": "2022-07-06 16:40:38.444619",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
