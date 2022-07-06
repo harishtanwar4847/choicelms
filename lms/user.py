@@ -4306,6 +4306,16 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                     )
 
                     if not bank_entry_name:
+                        bank_account_list = frappe.get_all(
+                            "User Bank Account", fields=["*"]
+                        )
+                        for b in bank_account_list:
+                            if bank_entry_name != b.name:
+                                other_bank = frappe.get_doc("User Bank Account", b.name)
+                                if other_bank.is_default == 1:
+                                    print("inside if")
+                                    other_bank.is_default = 0
+                                    other_bank.save(ignore_permissions=True)
                         frappe.get_doc(
                             {
                                 "doctype": "User Bank Account",
@@ -4349,18 +4359,8 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                             data_res.get("fund_account").get("bank_account").get("name")
                         )
                         bank_account.personalized_cheque = photos_
-                        bank_account.is_default = 1
                         bank_account.save(ignore_permissions=True)
-                        bank_account_list = frappe.get_all(
-                            "User Bank Account", fields=["*"]
-                        )
-                        for b in bank_account_list:
-                            if bank_entry_name != b.name:
-                                other_bank = frappe.get_doc("User Bank Account", b.name)
-                                other_bank.is_default = 0
-                                other_bank.save(ignore_permissions=True)
                         frappe.db.commit()
-
                 else:
                     # For non choice user
                     frappe.get_doc(
