@@ -392,6 +392,6 @@ def execute():
                 lms.convert_list_to_tuple_string(all_kyc)
             )
         )
-    except Exception:
-        print(str(Exception))
-        lms.log_api_error()
+    except Exception as e:
+        print(str(e.args))
+        lms.log_api_error(str(e.args))
