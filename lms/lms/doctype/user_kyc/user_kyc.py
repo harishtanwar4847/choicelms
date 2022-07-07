@@ -50,14 +50,11 @@ class UserKYC(Document):
                     "Spark Push Notification", "Ckyc Rejected", fields=["*"]
                 )
 
-            receiver_list = list(
-                set(
-                    [
-                        str(loan_customer.phone),
-                        str(self.mob_num),
-                    ]
-                )
-            )
+            receiver_list = [str(loan_customer.phone)]
+            if self.mob_num:
+                receiver_list.append(str(self.mob_num))
+
+            receiver_list = list(set(receiver_list))
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
             lms.send_spark_push_notification(
                 fcm_notification=fcm_notification, customer=loan_customer
@@ -97,14 +94,11 @@ class UserKYC(Document):
                     i.save(ignore_permissions=True)
                     frappe.db.commit()
 
-                receiver_list = list(
-                    set(
-                        [
-                            str(loan_customer.phone),
-                            str(self.mob_num),
-                        ]
-                    )
-                )
+                receiver_list = [str(loan_customer.phone)]
+                if self.mob_num:
+                    receiver_list.append(str(self.mob_num))
+
+                receiver_list = list(set(receiver_list))
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
                 lms.send_spark_push_notification(
                     fcm_notification=fcm_notification, customer=loan_customer

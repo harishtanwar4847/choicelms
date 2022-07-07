@@ -374,9 +374,11 @@ class UnpledgeApplication(Document):
                         fcm_notification = fcm_notification.as_dict()
                         fcm_notification["title"] = "Revoke application rejected"
 
-            receiver_list = list(
-                set([str(customer.phone), str(user_kyc.mobile_number)])
-            )
+            receiver_list = [str(customer.phone)]
+            if user_kyc.mob_num:
+                receiver_list.append(str(user_kyc.mob_num))
+
+            receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)

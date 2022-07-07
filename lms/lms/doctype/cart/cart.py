@@ -155,14 +155,11 @@ class Cart(Document):
                 loan=self.loan,
                 customer=self.get_customer(),
             )
-            receiver_list = list(
-                set(
-                    [
-                        str(self.get_customer().phone),
-                        str(self.get_customer().get_kyc().mobile_number),
-                    ]
-                )
-            )
+            receiver_list = [str(self.get_customer().phone)]
+            if self.get_customer().get_kyc().mob_num:
+                receiver_list.append(str(self.get_customer().get_kyc().mob_num))
+
+            receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
@@ -195,9 +192,11 @@ class Cart(Document):
                     msg_type
                 )
                 # if mess:
-                receiver_list = list(
-                    set([str(self.get_customer().phone), str(doc.mobile_number)])
-                )
+                receiver_list = [str(self.get_customer().phone)]
+                if doc.mob_num:
+                    receiver_list.append(str(doc.mob_num))
+
+                receiver_list = list(set(receiver_list))
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)

@@ -1332,14 +1332,11 @@ class Loan(Document):
                         )
 
                         if msg:
-                            receiver_list = list(
-                                set(
-                                    [
-                                        str(self.get_customer().phone),
-                                        str(doc.mobile_number),
-                                    ]
-                                )
-                            )
+                            receiver_list = [str(self.get_customer().phone)]
+                            if doc.mob_num:
+                                receiver_list.append(str(doc.mob_num))
+
+                            receiver_list = list(set(receiver_list))
                             from frappe.core.doctype.sms_settings.sms_settings import (
                                 send_sms,
                             )
@@ -1472,14 +1469,11 @@ class Loan(Document):
                             loan=self.name,
                         )
                         if msg:
-                            receiver_list = list(
-                                set(
-                                    [
-                                        str(self.get_customer().phone),
-                                        str(doc.mobile_number),
-                                    ]
-                                )
-                            )
+                            receiver_list = [str(self.get_customer().phone)]
+                            if doc.mob_num:
+                                receiver_list.append(str(doc.mob_num))
+
+                            receiver_list = list(set(receiver_list))
                             from frappe.core.doctype.sms_settings.sms_settings import (
                                 send_sms,
                             )
@@ -1624,14 +1618,11 @@ class Loan(Document):
                             )
 
                             if msg:
-                                receiver_list = list(
-                                    set(
-                                        [
-                                            str(self.get_customer().phone),
-                                            str(doc.mobile_number),
-                                        ]
-                                    )
-                                )
+                                receiver_list = [str(self.get_customer().phone)]
+                                if doc.mob_num:
+                                    receiver_list.append(str(doc.mob_num))
+
+                                receiver_list = list(set(receiver_list))
                                 from frappe.core.doctype.sms_settings.sms_settings import (
                                     send_sms,
                                 )
@@ -1775,14 +1766,11 @@ class Loan(Document):
                             )
 
                             if msg:
-                                receiver_list = list(
-                                    set(
-                                        [
-                                            str(self.get_customer().phone),
-                                            str(doc.mobile_number),
-                                        ]
-                                    )
-                                )
+                                receiver_list = [str(self.get_customer().phone)]
+                                if doc.mob_num:
+                                    receiver_list.append(str(doc.mob_num))
+
+                                receiver_list = list(set(receiver_list))
                                 from frappe.core.doctype.sms_settings.sms_settings import (
                                     send_sms,
                                 )

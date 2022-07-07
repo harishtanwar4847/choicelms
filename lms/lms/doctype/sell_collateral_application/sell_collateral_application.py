@@ -196,14 +196,11 @@ class SellCollateralApplication(Document):
                 msg_type
             )
 
-            receiver_list = list(
-                set(
-                    [
-                        str(self.get_customer().phone),
-                        str(self.get_customer().get_kyc().mobile_number),
-                    ]
-                )
-            )
+            receiver_list = [str(self.get_customer().phone)]
+            if self.get_customer().get_kyc().mob_num:
+                receiver_list.append(str(self.get_customer().get_kyc().mob_num))
+
+            receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
@@ -538,14 +535,11 @@ class SellCollateralApplication(Document):
                 fcm_notification = fcm_notification.as_dict()
                 fcm_notification["title"] = "Invoke request executed"
         if msg:
-            receiver_list = list(
-                set(
-                    [
-                        str(self.get_customer().phone),
-                        str(self.get_customer().get_kyc().mobile_number),
-                    ]
-                )
-            )
+            receiver_list = [str(self.get_customer().phone)]
+            if self.get_customer().get_kyc().mob_num:
+                receiver_list.append(str(self.get_customer().get_kyc().mob_num))
+
+            receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)

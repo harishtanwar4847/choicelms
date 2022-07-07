@@ -103,8 +103,10 @@ class UserToken(Document):
 
             if customer.choice_kyc:
                 doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+                mob_num = doc.mob_num
             else:
                 doc = frappe.get_doc("User", self.entity).as_dict()
+                mob_num = doc.phone
             # doc["otp_info"] = {
             #     "token_type": self.token_type,
             #     "token": self.token,
@@ -151,7 +153,11 @@ class UserToken(Document):
                 # expiry_in_minutes=expiry_in_minutes,
             )
             if msg:
-                receiver_list = list(set([str(customer.phone), str(doc.mobile_number)]))
+                receiver_list = [str(customer.phone)]
+                if mob_num:
+                    receiver_list.append(str(mob_num))
+
+                receiver_list = list(set(receiver_list))
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
