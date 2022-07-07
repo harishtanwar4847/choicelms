@@ -4422,7 +4422,7 @@ def consent_details(**kwargs):
         consent_list = frappe.get_list("Consent", pluck="name", ignore_permissions=True)
 
         if data.get("consent_name") not in consent_list:
-            raise lms.exceptions.ForbiddenException(_("Consent not found"))
+            raise lms.exceptions.NotFoundException(_("Consent not found"))
         try:
             consent_details = frappe.get_doc("Consent", data.get("consent_name"))
         except frappe.DoesNotExistError:
