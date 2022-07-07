@@ -4307,7 +4307,7 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
 
                     if not bank_entry_name:
                         bank_account_list = frappe.get_all(
-                            "User Bank Account", fields=["*"]
+                            "User Bank Account", {"parent": user_kyc.name}, fields=["*"]
                         )
                         for b in bank_account_list:
                             if bank_entry_name != b.name:

@@ -14,37 +14,26 @@ import lms
 
 class UserKYC(Document):
     def on_update(self):
-        if self.kyc_status == "Approved":
-            cust_name = frappe.db.get_value(
-                "Loan Customer", {"user": self.user}, "name"
-            )
-            loan_customer = frappe.get_doc("Loan Customer", cust_name)
-            if not loan_customer.kyc_update and not loan_customer.choice_kyc:
-                loan_customer.kyc_update = 1
-                loan_customer.choice_kyc = self.name
-                loan_customer.save(ignore_permissions=True)
-                frappe.db.commit()
-
         status = []
+        check = 0
         for i in self.bank_account:
             status.append(i.bank_status)
         if "Approved" in status:
-            cust_name = frappe.db.get_value(
-                "Loan Customer", {"user": self.user}, "name"
-            )
-            loan_customer = frappe.get_doc("Loan Customer", cust_name)
-            if not loan_customer.bank_update:
-                loan_customer.bank_update = 1
-                loan_customer.save(ignore_permissions=True)
-                frappe.db.commit()
-        self.notify_customer()
+            check = 1
 
-    def notify_customer(self):
+        self.kyc_update_and_notify_customer(check)
+
+    def kyc_update_and_notify_customer(self, check):
         cust_name = frappe.db.get_value("Loan Customer", {"user": self.user}, "name")
         loan_customer = frappe.get_doc("Loan Customer", cust_name)
         doc = self.as_dict()
         if self.notification_sent == 0 and self.kyc_status in ["Approved", "Rejected"]:
             if self.kyc_status == "Approved":
+                if not loan_customer.kyc_update and not loan_customer.choice_kyc:
+                    loan_customer.kyc_update = 1
+                    loan_customer.choice_kyc = self.name
+                    loan_customer.save(ignore_permissions=True)
+                    frappe.db.commit()
                 frappe.enqueue_doc(
                     "Notification", "Ckyc Approved", method="send", doc=doc
                 )
@@ -65,7 +54,7 @@ class UserKYC(Document):
                 set(
                     [
                         str(loan_customer.phone),
-                        str(loan_customer.get_kyc().mobile_number),
+                        str(self.mob_num),
                     ]
                 )
             )
@@ -75,6 +64,11 @@ class UserKYC(Document):
             )
             self.notification_sent = 1
             self.save(ignore_permissions=True)
+            frappe.db.commit()
+
+        if check and not loan_customer.bank_update:
+            loan_customer.bank_update = 1
+            loan_customer.save(ignore_permissions=True)
             frappe.db.commit()
 
         for i in self.bank_account:
@@ -107,7 +101,7 @@ class UserKYC(Document):
                     set(
                         [
                             str(loan_customer.phone),
-                            str(loan_customer.get_kyc().mobile_number),
+                            str(self.mob_num),
                         ]
                     )
                 )
