@@ -4979,9 +4979,7 @@ def ckyc_consent_details(**kwargs):
             "Proof of Address Master", pluck="poa_name", ignore_permissions=True
         )
 
-        country = frappe.get_all(
-            "Country Master", fields=["name", "country"], order_by="name asc"
-        )
+        country = frappe.get_all("Country Master", fields=["country"], pluck="country")
 
         user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
         user_kyc.ckyc_no = lms.user_details_hashing(user_kyc.ckyc_no)
