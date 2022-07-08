@@ -194,7 +194,7 @@ def get_choice_kyc_old(pan_no, birth_date):
         user_kyc.city = data["addressCity"]
         user_kyc.state = data["addressState"]
         user_kyc.pincode = data["addressPinCode"]
-        user_kyc.mobile_number = data["mobileNum"]
+        user_kyc.choice_mob_no = data["mobileNum"]
         user_kyc.choice_client_id = data["clientId"]
         user_kyc.pan_no = data["panNum"]
         user_kyc.date_of_birth = datetime.strptime(
@@ -340,7 +340,7 @@ def get_choice_kyc(**kwargs):
                 user_kyc["city"] = data["addressCity"]
                 user_kyc["state"] = data["addressState"]
                 user_kyc["pincode"] = data["addressPinCode"]
-                user_kyc["mobile_number"] = data["mobileNum"]
+                user_kyc["choice_mob_no"] = data["mobileNum"]
                 user_kyc["choice_client_id"] = data["clientId"]
                 user_kyc["pan_no"] = data["panNum"]
                 user_kyc["email"] = data["emailId"]
@@ -492,7 +492,7 @@ def kyc(**kwargs):
             user_kyc_doc.city = user_kyc["city"]
             user_kyc_doc.state = user_kyc["state"]
             user_kyc_doc.pincode = user_kyc["pincode"]
-            user_kyc_doc.mobile_number = user_kyc["mobile_number"]
+            user_kyc_doc.choice_mob_no = user_kyc["choice_mob_no"]
             user_kyc_doc.choice_client_id = user_kyc["choice_client_id"]
             user_kyc_doc.pan_no = user_kyc["pan_no"]
             user_kyc_doc.email = user_kyc["email"]
@@ -5286,6 +5286,7 @@ def get_bank_details():
             if res.ok and "errorCode" not in data and data.get("banks"):
                 user_kyc.kyc_type = "CHOICE"
                 user_kyc.email = data["emailId"]
+                user_kyc.choice_mob_no = data["mobileNum"]
                 user_kyc.bank_account = []
 
                 for bank in data["banks"]:

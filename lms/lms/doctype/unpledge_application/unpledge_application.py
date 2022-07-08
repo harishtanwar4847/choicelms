@@ -377,6 +377,8 @@ class UnpledgeApplication(Document):
             receiver_list = [str(customer.phone)]
             if user_kyc.mob_num:
                 receiver_list.append(str(user_kyc.mob_num))
+            if user_kyc.choice_mob_no:
+                receiver_list.append(str(user_kyc.choice_mob_no))
 
             receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms

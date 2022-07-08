@@ -1335,6 +1335,8 @@ class Loan(Document):
                             receiver_list = [str(self.get_customer().phone)]
                             if doc.mob_num:
                                 receiver_list.append(str(doc.mob_num))
+                            if doc.choice_mob_no:
+                                receiver_list.append(str(doc.choice_mob_no))
 
                             receiver_list = list(set(receiver_list))
                             from frappe.core.doctype.sms_settings.sms_settings import (
@@ -1472,6 +1474,8 @@ class Loan(Document):
                             receiver_list = [str(self.get_customer().phone)]
                             if doc.mob_num:
                                 receiver_list.append(str(doc.mob_num))
+                            if doc.choice_mob_no:
+                                receiver_list.append(str(doc.choice_mob_no))
 
                             receiver_list = list(set(receiver_list))
                             from frappe.core.doctype.sms_settings.sms_settings import (
@@ -1621,6 +1625,8 @@ class Loan(Document):
                                 receiver_list = [str(self.get_customer().phone)]
                                 if doc.mob_num:
                                     receiver_list.append(str(doc.mob_num))
+                                if doc.choice_mob_no:
+                                    receiver_list.append(str(doc.choice_mob_no))
 
                                 receiver_list = list(set(receiver_list))
                                 from frappe.core.doctype.sms_settings.sms_settings import (
@@ -1769,6 +1775,8 @@ class Loan(Document):
                                 receiver_list = [str(self.get_customer().phone)]
                                 if doc.mob_num:
                                     receiver_list.append(str(doc.mob_num))
+                                if doc.choice_mob_no:
+                                    receiver_list.append(str(doc.choice_mob_no))
 
                                 receiver_list = list(set(receiver_list))
                                 from frappe.core.doctype.sms_settings.sms_settings import (

@@ -233,12 +233,11 @@ class LoanApplication(Document):
                     minimum_sanctioned_limit=self.minimum_sanctioned_limit,
                     maximum_sanctioned_limit=self.maximum_sanctioned_limit,
                 )
-                receiver_list = list(
-                    set([str(self.get_customer().phone), str(doc.mobile_number)])
-                )
                 receiver_list = [str(self.get_customer().phone)]
                 if doc.mob_num:
                     receiver_list.append(str(doc.mob_num))
+                if doc.choice_mob_no:
+                    receiver_list.append(str(doc.choice_mob_no))
 
                 receiver_list = list(set(receiver_list))
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
@@ -1658,6 +1657,8 @@ class LoanApplication(Document):
             receiver_list = [str(self.get_customer().phone)]
             if doc.mob_num:
                 receiver_list.append(str(doc.mob_num))
+            if doc.choice_mob_no:
+                receiver_list.append(str(doc.choice_mob_no))
 
             receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms

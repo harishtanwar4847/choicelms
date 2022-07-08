@@ -353,6 +353,8 @@ def esign_done(**kwargs):
                 receiver_list = [str(customer.phone)]
                 if customer.get_kyc().mob_num:
                     receiver_list.append(str(customer.get_kyc().mob_num))
+                if customer.get_kyc().choice_mob_no:
+                    receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
                 receiver_list = list(set(receiver_list))
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
@@ -745,6 +747,8 @@ def create_topup(**kwargs):
             receiver_list = [str(customer.phone)]
             if customer.get_kyc().mob_num:
                 receiver_list.append(str(customer.get_kyc().mob_num))
+            if customer.get_kyc().choice_mob_no:
+                receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
             receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
@@ -1434,6 +1438,8 @@ def loan_withdraw_request(**kwargs):
             receiver_list = [str(customer.phone)]
             if customer.get_kyc().mob_num:
                 receiver_list.append(str(customer.get_kyc().mob_num))
+            if customer.get_kyc().choice_mob_no:
+                receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
             receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
@@ -1531,6 +1537,8 @@ def loan_payment(**kwargs):
                 receiver_list = [str(customer.phone)]
                 if customer.get_kyc().mob_num:
                     receiver_list.append(str(customer.get_kyc().mob_num))
+                if customer.get_kyc().choice_mob_no:
+                    receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
                 receiver_list = list(set(receiver_list))
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
@@ -1595,6 +1603,8 @@ def loan_payment(**kwargs):
             receiver_list = [str(customer.phone)]
             if customer.get_kyc().mob_num:
                 receiver_list.append(str(customer.get_kyc().mob_num))
+            if customer.get_kyc().choice_mob_no:
+                receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
             receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
@@ -2268,7 +2278,12 @@ def request_unpledge_otp():
         except frappe.DoesNotExistError:
             loan = None
         token_type = "Unpledge OTP"
-        entity = user_kyc.mobile_number
+        if user_kyc.kyc_type == "CHOICE":
+            entity = user_kyc.choice_mob_no
+        elif user_kyc.mob_num != "":
+            entity = user_kyc.mob_num
+        else:
+            entity = customer.phone
         if customer.mycams_email_id and loan:
             token_type = "Revoke OTP"
             entity = customer.phone
@@ -2520,7 +2535,12 @@ def loan_unpledge_request(**kwargs):
 
         msg_type = ["unpledge", "pledged securities"]
         token_type = "Unpledge OTP"
-        entity = user_kyc.mobile_number
+        if user_kyc.kyc_type == "CHOICE":
+            entity = user_kyc.choice_mob_no
+        elif user_kyc.mob_num != "":
+            entity = user_kyc.mob_num
+        else:
+            entity = customer.phone
         email_subject = "Unpledge Request"
         if loan.instrument_type == "Mutual Fund":
             msg_type = ["revoke", "lien schemes"]
@@ -2631,6 +2651,8 @@ def loan_unpledge_request(**kwargs):
         receiver_list = [str(customer.phone)]
         if customer.get_kyc().mob_num:
             receiver_list.append(str(customer.get_kyc().mob_num))
+        if customer.get_kyc().choice_mob_no:
+            receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
         receiver_list = list(set(receiver_list))
         from frappe.core.doctype.sms_settings.sms_settings import send_sms
@@ -2875,6 +2897,8 @@ def sell_collateral_request(**kwargs):
             receiver_list = [str(customer.phone)]
             if customer.get_kyc().mob_num:
                 receiver_list.append(str(customer.get_kyc().mob_num))
+            if customer.get_kyc().choice_mob_no:
+                receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
             receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms

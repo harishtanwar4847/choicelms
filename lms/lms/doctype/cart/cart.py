@@ -158,6 +158,8 @@ class Cart(Document):
             receiver_list = [str(self.get_customer().phone)]
             if self.get_customer().get_kyc().mob_num:
                 receiver_list.append(str(self.get_customer().get_kyc().mob_num))
+            if self.get_customer().get_kyc().choice_mob_no:
+                receiver_list.append(str(self.get_customer().get_kyc().choice_mob_no))
 
             receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
@@ -195,6 +197,8 @@ class Cart(Document):
                 receiver_list = [str(self.get_customer().phone)]
                 if doc.mob_num:
                     receiver_list.append(str(doc.mob_num))
+                if doc.choice_mob_no:
+                    receiver_list.append(str(doc.choice_mob_no))
 
                 receiver_list = list(set(receiver_list))
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms

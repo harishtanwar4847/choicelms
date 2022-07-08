@@ -16,6 +16,7 @@
   "kyc_type",
   "date_of_birth",
   "email",
+  "choice_mob_no",
   "notification_sent",
   "personal_details_section",
   "consti_type",
@@ -681,10 +682,16 @@
    "fieldtype": "Data",
    "label": "Gender Full",
    "length": 20
+  },
+  {
+   "depends_on": "eval:doc.consent_given == 1;",
+   "fieldname": "choice_mob_no",
+   "fieldtype": "Data",
+   "label": "Choice Mobile No."
   }
  ],
  "links": [],
- "modified": "2022-07-06 16:40:38.444619",
+ "modified": "2022-07-08 16:11:04.432885",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",

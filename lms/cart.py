@@ -361,9 +361,15 @@ def process_old(**kwargs):
         )
 
         user_kyc = lms.__user_kyc()
+        if user_kyc.kyc_type == "CHOICE":
+            entity = user_kyc.choice_mob_no
+        elif user_kyc.mob_num != "":
+            entity = user_kyc.mob_num
+        else:
+            entity = customer.phone
 
         token = lms.verify_user_token(
-            entity=user_kyc.mobile_number,
+            entity=entity,
             token=data.get("otp"),
             token_type="Pledge OTP",
         )
@@ -484,7 +490,12 @@ def process(**kwargs):
             user.username, user.name, check_valid=True
         )
         token_type = "Pledge OTP"
-        entity = user_kyc.mobile_number
+        if user_kyc.kyc_type == "CHOICE":
+            entity = user_kyc.choice_mob_no
+        elif user_kyc.mob_num != "":
+            entity = user_kyc.mob_num
+        else:
+            entity = customer.phone
         if cart.instrument_type == "Mutual Fund":
             token_type = "Lien OTP"
             entity = customer.phone
@@ -650,7 +661,12 @@ def request_pledge_otp(**kwargs):
         )
 
         token_type = "Pledge OTP"
-        entity = user_kyc.mobile_number
+        if user_kyc.kyc_type == "CHOICE":
+            entity = user_kyc.choice_mob_no
+        elif user_kyc.mob_num != "":
+            entity = user_kyc.mob_num
+        else:
+            entity = customer.phone
         if data.get("instrument_type") == "Mutual Fund":
             token_type = "Lien OTP"
             entity = customer.phone

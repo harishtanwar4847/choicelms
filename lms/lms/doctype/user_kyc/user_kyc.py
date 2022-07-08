@@ -53,6 +53,8 @@ class UserKYC(Document):
             receiver_list = [str(loan_customer.phone)]
             if self.mob_num:
                 receiver_list.append(str(self.mob_num))
+            if self.choice_mob_no:
+                receiver_list.append(str(self.choice_mob_no))
 
             receiver_list = list(set(receiver_list))
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
@@ -97,6 +99,8 @@ class UserKYC(Document):
                 receiver_list = [str(loan_customer.phone)]
                 if self.mob_num:
                     receiver_list.append(str(self.mob_num))
+                if self.choice_mob_no:
+                    receiver_list.append(str(self.choice_mob_no))
 
                 receiver_list = list(set(receiver_list))
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)

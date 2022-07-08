@@ -1369,6 +1369,8 @@ def update_rzp_payment_transaction(data):
                 receiver_list = [str(customer.phone)]
                 if customer.get_kyc().mob_num:
                     receiver_list.append(str(customer.get_kyc().mob_num))
+                if customer.get_kyc().choice_mob_no:
+                    receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
                 receiver_list = list(set(receiver_list))
 
