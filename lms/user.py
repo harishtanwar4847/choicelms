@@ -4233,75 +4233,28 @@ def penny_create_fund_account_validation_by_id(**kwargs):
         return e.respond()
 
 
-# def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_cheque):
-@frappe.whitelist()
-def penny_api_response_handle():
+def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_cheque):
     try:
-        user = lms.__user()
-        customer = lms.__customer(user.name)
-        user_kyc = lms.__user_kyc(user.name)
-        personalized_cheque = "/9j/4AAQSkZJRgABAQEAYABgAAD"
-        data_res = {
-            "id": "fav_JpHg4DC2VJ80Zw",
-            "entity": "fund_account.validation",
-            "fund_account": {
-                "id": "fa_JpHHUNv7GhGkOf",
-                "entity": "fund_account",
-                "contact_id": "cont_JpHHIYu00BTzNL",
-                "account_type": "bank_account",
-                "bank_account": {
-                    "ifsc": "ICIC0000004",
-                    "bank_name": "ICICI Bank",
-                    "name": "Choice Finserv private limited",
-                    "notes": [],
-                    "account_number": "000405112505",
-                },
-                "batch_id": None,
-                "active": True,
-                "created_at": 1656935250,
-                "details": {
-                    "ifsc": "ICIC0000004",
-                    "bank_name": "ICICI Bank",
-                    "name": "Choice Finserv private limited",
-                    "notes": [],
-                    "account_number": "000405112505",
-                },
-            },
-            "status": "completed",
-            "amount": 100,
-            "currency": "INR",
-            "notes": {
-                "branch": "ROURKELA PANPOSH ROAD ORISSA",
-                "city": "RAURKELA",
-                "bank_account_type": "S",
-            },
-            "results": {
-                "account_status": "active",
-                "registered_name": "CHOICE FINSERV PVT LTD",
-            },
-            "created_at": 1656936646,
-            "utr": None,
+        data_resp = {
+            "fav_id": data_res.get("id"),
+            "status": data_res.get("status"),
         }
-        # data_resp = {
-        #     "fav_id": data_res.get("id"),
-        #     "status": data_res.get("status"),
-        # }
 
-        # if data_res.get("error"):
-        #     data_resp["status"] = "failed"
-        #     message = "Your account details have not been successfully verified"
-        #     log = {
-        #         "request": data,
-        #         "response": data_res,
-        #     }
-        #     lms.create_log(log, "rzp_penny_fund_account_validation_error_log")
-        #     # return utils.respondWithFailure(message=message, data=data_resp)
-        #     raise lms.exceptions.RespondWithFailureException(message, data_resp)
+        if data_res.get("error"):
+            data_resp["status"] = "failed"
+            message = "Your account details have not been successfully verified"
+            log = {
+                "request": data,
+                "response": data_res,
+            }
+            lms.create_log(log, "rzp_penny_fund_account_validation_error_log")
+            # return utils.respondWithFailure(message=message, data=data_resp)
+            raise lms.exceptions.RespondWithFailureException(message, data_resp)
 
-        # if data_res.get("status") == "failed":
-        #     message = "Your account details have not been successfully verified"
-        #     # return utils.respondWithFailure(message=message, data=data_resp)
-        #     raise lms.exceptions.RespondWithFailureException(message, data_resp)
+        if data_res.get("status") == "failed":
+            message = "Your account details have not been successfully verified"
+            # return utils.respondWithFailure(message=message, data=data_resp)
+            raise lms.exceptions.RespondWithFailureException(message, data_resp)
 
         if data_res.get("status") == "created":
             message = "waiting for response from bank"
@@ -4349,6 +4302,7 @@ def penny_api_response_handle():
                         },
                         "name",
                     )
+
                     if not bank_entry_name:
                         bank_account_list = frappe.get_all(
                             "User Bank Account",
@@ -4397,7 +4351,6 @@ def penny_api_response_handle():
                         ).insert(ignore_permissions=True)
                         frappe.db.commit()
                     else:
-                        print("abc")
                         # For existing choice bank entries
                         bank_account = frappe.get_doc(
                             "User Bank Account", bank_entry_name
@@ -4442,14 +4395,14 @@ def penny_api_response_handle():
                         }
                     ).insert(ignore_permissions=True)
                     frappe.db.commit()
-        #     else:
-        #         data_resp["status"] = "failed"
-        #         message = "We have found a mismatch in the account holder name as per the fetched data"
-        #         # return utils.respondWithFailure(message=message, data=data_resp)
-        #         raise lms.exceptions.RespondWithFailureException(message, data_resp)
+            else:
+                data_resp["status"] = "failed"
+                message = "We have found a mismatch in the account holder name as per the fetched data"
+                # return utils.respondWithFailure(message=message, data=data_resp)
+                raise lms.exceptions.RespondWithFailureException(message, data_resp)
 
-        # lms.create_log(data_res, "rzp_penny_fund_account_validation_success_log")
-        return utils.respondWithSuccess(message=message, data=data_res)
+        lms.create_log(data_res, "rzp_penny_fund_account_validation_success_log")
+        return utils.respondWithSuccess(message=message, data=data_resp)
     except utils.exceptions.APIException as e:
         lms.log_api_error()
         return e.respond()
