@@ -1,0 +1,97 @@
+{
+ "actions": [],
+ "creation": "2022-07-11 16:32:52.098588",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "loan_no",
+  "client_name",
+  "date",
+  "transaction_type",
+  "crdr",
+  "debit",
+  "credit",
+  "loan_balance",
+  "interest_with_rebate",
+  "interest_without_rebate"
+ ],
+ "fields": [
+  {
+   "fieldname": "loan_no",
+   "fieldtype": "Link",
+   "label": "Loan Account No",
+   "options": "Loan"
+  },
+  {
+   "fetch_from": "loan_no.customer_name",
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "label": "Client Name"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Data",
+   "label": "Date"
+  },
+  {
+   "fieldname": "transaction_type",
+   "fieldtype": "Data",
+   "label": "Transaction Type"
+  },
+  {
+   "fieldname": "crdr",
+   "fieldtype": "Data",
+   "label": "Cr/Dr"
+  },
+  {
+   "fieldname": "debit",
+   "fieldtype": "Data",
+   "label": "Debit"
+  },
+  {
+   "fieldname": "credit",
+   "fieldtype": "Data",
+   "label": "Credit"
+  },
+  {
+   "fieldname": "loan_balance",
+   "fieldtype": "Data",
+   "label": "Loan Balance"
+  },
+  {
+   "fieldname": "interest_with_rebate",
+   "fieldtype": "Data",
+   "label": "Interest (With Rebate)"
+  },
+  {
+   "fieldname": "interest_without_rebate",
+   "fieldtype": "Data",
+   "label": "Interest (Without Rebate)"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-07-11 16:34:48.033187",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Interest Calculations",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
