@@ -1769,10 +1769,6 @@ def upload_image_to_doctype(
         if os.path.exists(image_path):
             os.remove(image_path)
 
-        profile_picture_file = "{}/{}-{}.{}".format(
-            img_folder, customer.full_name, seq_no, img_format
-        ).replace(" ", "-")
-
         ckyc_image_file_path = frappe.utils.get_files_path(profile_picture_file)
         image_decode = base64.decodestring(bytes(str(image_), encoding="utf8"))
         image_file = open(ckyc_image_file_path, "wb").write(image_decode)

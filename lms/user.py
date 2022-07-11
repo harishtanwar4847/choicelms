@@ -4347,6 +4347,7 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                                 "razorpay_fund_account_validation_id": data_res.get(
                                     "id"
                                 ),
+                                "bank_status": "Pending",
                             }
                         ).insert(ignore_permissions=True)
                         frappe.db.commit()
@@ -4359,6 +4360,7 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                             data_res.get("fund_account").get("bank_account").get("name")
                         )
                         bank_account.personalized_cheque = photos_
+                        bank_account.bank_status = "Pending"
                         bank_account.save(ignore_permissions=True)
                         frappe.db.commit()
                 else:
@@ -4392,6 +4394,7 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                                 "fund_account"
                             ).get("id"),
                             "razorpay_fund_account_validation_id": data_res.get("id"),
+                            "bank_status": "Pending",
                         }
                     ).insert(ignore_permissions=True)
                     frappe.db.commit()
@@ -5310,7 +5313,7 @@ def get_bank_details():
                             "district": bank["district"],
                             "state": bank["state"],
                             "is_default": bank["defaultBank"] == "Y",
-                            "bank_status": "Pending",
+                            "bank_status": "",
                         },
                     )
                 user_kyc.save(ignore_permissions=True)
