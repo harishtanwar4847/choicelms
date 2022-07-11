@@ -5690,7 +5690,7 @@
    {
     "default_value": null,
     "description": "User KYC Investor's name",
-    "field": "data.user_kyc.investor_name",
+    "field": "data.user_kyc.fullname",
     "group": null,
     "parent": "4621dd797d",
     "parentfield": "success",
@@ -10939,7 +10939,7 @@
    {
     "default_value": null,
     "description": "User Kyc investor name",
-    "field": "data.user_kyc.investor_name",
+    "field": "data.user_kyc.fullname",
     "group": null,
     "parent": "3755fd67c8",
     "parentfield": "success",
@@ -11692,7 +11692,7 @@
    {
     "default_value": null,
     "description": "User Kyc Investor name",
-    "field": "data.user_kyc.investor_name",
+    "field": "data.user_kyc.fullname",
     "group": "Success 200",
     "parent": "1692eb7604",
     "parentfield": "success",

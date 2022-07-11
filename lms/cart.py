@@ -836,9 +836,7 @@ def get_tnc(**kwargs):
 
         tnc_ul = ["<ul>"]
         tnc_ul.append(
-            "<li><strong> Name of borrower : {} </strong>".format(
-                user_kyc.investor_name
-            )
+            "<li><strong> Name of borrower : {} </strong>".format(user_kyc.full_name)
             + "</li>"
         )
         tnc_ul.append(

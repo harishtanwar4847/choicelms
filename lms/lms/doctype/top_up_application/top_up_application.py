@@ -351,7 +351,7 @@ class TopupApplication(Document):
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_application_number": self.name,
-            "borrower_name": user_kyc.investor_name,
+            "borrower_name": user_kyc.fullname,
             "borrower_address": user_kyc.address,
             # "sanctioned_amount": self.top_up_amount,
             # "sanctioned_amount_in_words": num2words(

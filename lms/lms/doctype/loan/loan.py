@@ -1989,7 +1989,7 @@ class Loan(Document):
         doc = {
             "esign_date": "__________",
             "loan_application_number": self.name,
-            "borrower_name": user_kyc.investor_name,
+            "borrower_name": user_kyc.fullname,
             "borrower_address": user_kyc.address,
             # "sanctioned_amount": topup_amount,
             # "sanctioned_amount_in_words": num2words(
