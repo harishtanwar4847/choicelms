@@ -274,7 +274,7 @@ class UnpledgeApplication(Document):
             if lender.revoke_initiate_charge_type == "Fix":
                 revoke_charges = revoke_charges
             elif lender.revoke_initiate_charge_type == "Percentage":
-                amount = self.lender_selling_amount * revoke_charges / 100
+                amount = self.unpledge_collateral_value * revoke_charges / 100
                 revoke_charges = loan.validate_loan_charges_amount(
                     lender,
                     amount,
