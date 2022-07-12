@@ -10,6 +10,7 @@
   "date",
   "request_type",
   "isin",
+  "column_break_6",
   "security_name",
   "psn",
   "qty",
@@ -56,23 +57,27 @@
   },
   {
    "fieldname": "qty",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Qty"
   },
   {
    "fieldname": "rate",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Rate"
   },
   {
    "fieldname": "value",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Value"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-11 16:22:24.889003",
+ "modified": "2022-07-12 11:39:48.317707",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Transaction",

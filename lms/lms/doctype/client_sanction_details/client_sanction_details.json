@@ -9,6 +9,7 @@
   "loan_no",
   "client_name",
   "pan_no",
+  "column_break_5",
   "start_date",
   "end_date",
   "sanctioned_amount",
@@ -39,30 +40,34 @@
   },
   {
    "fieldname": "start_date",
-   "fieldtype": "Data",
+   "fieldtype": "Date",
    "label": "Start Date"
   },
   {
    "fetch_from": "loan_no.expiry_date",
    "fieldname": "end_date",
-   "fieldtype": "Data",
+   "fieldtype": "Date",
    "label": "End Date"
   },
   {
    "fetch_from": "loan_no.sanctioned_limit",
    "fieldname": "sanctioned_amount",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Sanctioned Amount"
   },
   {
    "fieldname": "roi",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "ROI%"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-11 16:04:20.365389",
+ "modified": "2022-07-12 11:40:41.652721",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Client Sanction Details",

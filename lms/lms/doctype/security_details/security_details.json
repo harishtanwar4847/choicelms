@@ -10,6 +10,7 @@
   "security_category",
   "isin",
   "security_name",
+  "column_break_6",
   "quantity",
   "rate",
   "value",
@@ -39,17 +40,17 @@
   },
   {
    "fieldname": "quantity",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Quantity"
   },
   {
    "fieldname": "rate",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Rate"
   },
   {
    "fieldname": "value",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Value"
   },
   {
@@ -62,11 +63,15 @@
    "fieldtype": "Link",
    "label": "Loan Account No",
    "options": "Loan"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-11 16:29:03.194716",
+ "modified": "2022-07-12 11:31:58.482434",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Details",

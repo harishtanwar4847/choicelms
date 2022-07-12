@@ -25,28 +25,28 @@
   },
   {
    "fieldname": "quantity",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Quantity"
   },
   {
    "fieldname": "rate",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Rate"
   },
   {
    "fieldname": "value",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Value"
   },
   {
    "fieldname": "exposure_",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Exposure %"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-11 16:25:13.798108",
+ "modified": "2022-07-12 11:32:28.520587",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Exposure Summary",

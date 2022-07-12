@@ -1808,3 +1808,16 @@ def ifsc_details(ifsc=""):
         filters_arr = {"ifsc": ["like", search_key], "is_active": True}
 
     return frappe.get_all("Spark Bank Branch", filters_arr, ["*"])
+
+
+@frappe.whitelist()
+def parent_enqueue():
+    # daily
+    frappe.enqueue(
+        method="lms.lms.doctype.client_summary.client_summary.client_summary",
+        queue="long",
+    ),
+    frappe.enqueue(
+        method="lms.lms.doctype.client_sanction_details.client_sanction_details.client_sanction_details",
+        queue="long",
+    )
