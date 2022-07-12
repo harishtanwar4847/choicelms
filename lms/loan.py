@@ -1878,7 +1878,7 @@ def loan_statement(**kwargs):
         logo_file_path_2 = las_settings.get_spark_logo_file()
         curr_date = (frappe.utils.now_datetime()).strftime("%d-%B-%Y")
         doc = {
-            "username": user_kyc.full_name,
+            "username": user_kyc.fullname,
             "loan_name": loan.name,
             "email": user_kyc.user,
             "customer_id": customer.name,
@@ -2214,7 +2214,7 @@ def loan_statement(**kwargs):
                     )[0][0]
 
                 loan_statement_notification = loan_statement_notification.replace(
-                    "investor_name", user_kyc.full_name
+                    "investor_name", user_kyc.fullname
                 )
                 loan_statement_notification = loan_statement_notification.replace(
                     "logo_file",
