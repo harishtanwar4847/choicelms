@@ -187,7 +187,7 @@ def get_choice_kyc_old(pan_no, birth_date):
 
         user_kyc = lms.__user_kyc(pan_no=pan_no, throw=False)
         user_kyc.kyc_type = "CHOICE"
-        user_kyc.investor_name = data["investorName"]
+        user_kyc.fullname = data["investorName"]
         user_kyc.father_name = data["fatherName"]
         user_kyc.mother_name = data["motherName"]
         user_kyc.address = data["address"].replace("~", " ")
@@ -333,7 +333,7 @@ def get_choice_kyc(**kwargs):
 
                 # user_kyc = lms.__user_kyc(pan_no=pan_no, throw=False)
                 user_kyc["kyc_type"] = "CHOICE"
-                user_kyc["investor_name"] = data["investorName"]
+                user_kyc["fullname"] = data["investorName"]
                 user_kyc["father_name"] = data["fatherName"]
                 user_kyc["mother_name"] = data["motherName"]
                 user_kyc["address"] = data["address"].replace("~", " ")
@@ -485,7 +485,7 @@ def kyc(**kwargs):
             # user_kyc_doc = res["user_kyc"]
             user_kyc_doc = lms.__user_kyc(pan_no=user_kyc.get("pan_no"), throw=False)
             user_kyc_doc.kyc_type = "CHOICE"
-            user_kyc_doc.investor_name = user_kyc["investor_name"]
+            user_kyc_doc.fullname = user_kyc["investor_name"]
             user_kyc_doc.father_name = user_kyc["father_name"]
             user_kyc_doc.mother_name = user_kyc["mother_name"]
             user_kyc_doc.address = user_kyc["address"]
