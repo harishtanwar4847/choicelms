@@ -230,7 +230,7 @@ class Cart(Document):
         doc = {
             "esign_date": "__________",
             "loan_application_number": " ",
-            "borrower_name": user_kyc.investor_name,
+            "borrower_name": user_kyc.fullname,
             "borrower_address": user_kyc.address,
             "sanctioned_amount": lms.validate_rupees(
                 self.increased_sanctioned_limit

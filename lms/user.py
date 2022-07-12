@@ -4249,17 +4249,18 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
             }
             lms.create_log(log, "rzp_penny_fund_account_validation_error_log")
             # return utils.respondWithFailure(message=message, data=data_resp)
-            raise lms.exceptions.RespondWithFailureException(message, data_resp)
+            raise lms.exceptions.RespondFailureException(message, data_resp)
 
         if data_res.get("status") == "failed":
             message = "Your account details have not been successfully verified"
-            # return utils.respondWithFailure(message=message, data=data_resp)
-            raise lms.exceptions.RespondWithFailureException(message, data_resp)
+            # return utils.respondWithFailuremessage=message, data=data_resp)
+            raise lms.exceptions.RespondFailureException(message, data_resp)
 
         if data_res.get("status") == "created":
             message = "waiting for response from bank"
 
-        if data_res.get("status") == "completed":
+        account_status = data_res.get("results").get("account_status")
+        if data_res.get("status") == "completed" and account_status == "active":
             # name validation - check user entered account holder name is same with registered name
             account_holder_name = (
                 data_res.get("fund_account")
@@ -4280,10 +4281,9 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                 img_folder="personalized_cheque",
             )
 
-            if (
-                (account_holder_name[0] in registered_name)
-                or (account_holder_name[1] in registered_name)
-            ) and account_status == "active":
+            if (account_holder_name[0] in registered_name) or (
+                account_holder_name[1] in registered_name
+            ):
 
                 message = "Your account details have been successfully verified"
 
@@ -4402,7 +4402,12 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                 data_resp["status"] = "failed"
                 message = "We have found a mismatch in the account holder name as per the fetched data"
                 # return utils.respondWithFailure(message=message, data=data_resp)
-                raise lms.exceptions.RespondWithFailureException(message, data_resp)
+                raise lms.exceptions.RespondFailureException(message, data_resp)
+        else:
+            data_resp["status"] = "failed"
+            message = "We have found a mismatch in the account holder name as per the fetched data"
+            # return utils.respondWithFailure(message=message, data=data_resp)
+            raise lms.exceptions.RespondFailureException(message, data_resp)
 
         lms.create_log(data_res, "rzp_penny_fund_account_validation_success_log")
         return utils.respondWithSuccess(message=message, data=data_resp)
@@ -5230,7 +5235,7 @@ def ckyc_consent_details(**kwargs):
                     .get("poa_type"),
                 }
             ).insert(ignore_permissions=True)
-            user_kyc_doc.address = ckyc_address_doc.name
+            user_kyc_doc.address_details = ckyc_address_doc.name
             user_kyc_doc.consent_given = 1
             if False in address:
                 user_kyc_doc.is_edited = 1
