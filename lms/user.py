@@ -5230,7 +5230,7 @@ def ckyc_consent_details(**kwargs):
                     .get("poa_type"),
                 }
             ).insert(ignore_permissions=True)
-            user_kyc_doc.address = ckyc_address_doc.name
+            user_kyc_doc.address_details = ckyc_address_doc.name
             user_kyc_doc.consent_given = 1
             if False in address:
                 user_kyc_doc.is_edited = 1

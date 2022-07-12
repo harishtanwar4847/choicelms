@@ -100,18 +100,12 @@
   "related_person_details",
   "image_details",
   "address_section_break",
-  "address",
+  "address_details",
   "is_edited",
   "bank_account_section_break",
   "bank_account"
  ],
  "fields": [
-  {
-   "fieldname": "address",
-   "fieldtype": "Link",
-   "label": "Address",
-   "options": "CKYC Address Details"
-  },
   {
    "fieldname": "pan_no",
    "fieldtype": "Data",
@@ -688,10 +682,16 @@
    "fieldname": "choice_mob_no",
    "fieldtype": "Data",
    "label": "Choice Mobile No."
+  },
+  {
+   "fieldname": "address_details",
+   "fieldtype": "Link",
+   "label": "Address",
+   "options": "CKYC Address Details"
   }
  ],
  "links": [],
- "modified": "2022-07-08 16:11:04.432885",
+ "modified": "2022-07-12 17:13:06.723761",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
