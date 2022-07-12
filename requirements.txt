@@ -1,7 +1,7 @@
 frappe
 utils
 firebase-admin
-black
+black==21.12b0
 isort
 pandas
 Click==7.1.2
