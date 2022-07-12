@@ -4313,7 +4313,6 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                             if bank_entry_name != b.name:
                                 other_bank = frappe.get_doc("User Bank Account", b.name)
                                 if other_bank.is_default == 1:
-                                    print("inside if")
                                     other_bank.is_default = 0
                                     other_bank.save(ignore_permissions=True)
                         frappe.get_doc(
