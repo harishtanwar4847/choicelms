@@ -40,7 +40,7 @@ def execute():
                         # confirmed by vinayak
                         user_kyc_doc = frappe.get_doc("User KYC", kyc["name"])
                         user_kyc_doc.email = data["emailId"]
-                        user_kyc.choice_mob_no = data["mobileNum"]
+                        user_kyc_doc.choice_mob_no = data["mobileNum"]
                         user_kyc_doc.save(ignore_permissions=True)
                     frappe.db.commit()
             except Exception:
