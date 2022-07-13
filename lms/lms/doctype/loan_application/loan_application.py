@@ -1192,7 +1192,7 @@ class LoanApplication(Document):
                     approve=True,
                 )
             if lender.igst_on_stamp_duty > 0:
-                igst = processing_fees * (lender.igst_on_stamp_duty / 100)
+                igst = stamp_duty * (lender.igst_on_stamp_duty / 100)
                 gst_percent = lender.igst_on_stamp_duty
                 loan.create_loan_transaction(
                     "IGST on Stamp Duty",

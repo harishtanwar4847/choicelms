@@ -121,7 +121,7 @@ class TopupApplication(Document):
                 approve=True,
             )
             if lender.cgst_on_processing_fees > 0:
-                cgst = renewal_charges * (lender.cgst_on_processing_fees / 100)
+                cgst = processing_fees * (lender.cgst_on_processing_fees / 100)
                 gst_percent = lender.cgst_on_processing_fees
                 loan.create_loan_transaction(
                     "CGST on Processing Fees",
@@ -131,7 +131,7 @@ class TopupApplication(Document):
                     approve=True,
                 )
             if lender.sgst_on_processing_fees > 0:
-                sgst = renewal_charges * (lender.sgst_on_processing_fees / 100)
+                sgst = processing_fees * (lender.sgst_on_processing_fees / 100)
                 gst_percent = lender.sgst_on_processing_fees
                 loan.create_loan_transaction(
                     "SGST on Processing Fees",
@@ -141,7 +141,7 @@ class TopupApplication(Document):
                     approve=True,
                 )
             if lender.igst_on_processing_fees > 0:
-                igst = renewal_charges * (lender.igst_on_processing_fees / 100)
+                igst = processing_fees * (lender.igst_on_processing_fees / 100)
                 gst_percent = lender.igst_on_processing_fees
                 loan.create_loan_transaction(
                     "IGST on Processing Fees",
@@ -190,7 +190,7 @@ class TopupApplication(Document):
                     approve=True,
                 )
             if lender.igst_on_stamp_duty > 0:
-                igst = processing_fees * (lender.igst_on_stamp_duty / 100)
+                igst = stamp_duty * (lender.igst_on_stamp_duty / 100)
                 gst_percent = lender.igst_on_stamp_duty
                 loan.create_loan_transaction(
                     "IGST on Stamp Duty",
