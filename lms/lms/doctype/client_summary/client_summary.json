@@ -43,19 +43,19 @@
   {
    "fetch_from": "loan_name.sanctioned_limit",
    "fieldname": "sanctioned_amount",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Sanctioned Amount"
   },
   {
    "fetch_from": "loan_name.total_collateral_value",
    "fieldname": "pledged_value",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Pledged Value"
   },
   {
    "fetch_from": "loan_name.drawing_power",
    "fieldname": "drawing_power",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Drawing Power"
   },
@@ -70,13 +70,13 @@
   },
   {
    "fieldname": "loan_balance",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Loan Balance"
   },
   {
    "fieldname": "adp_shortfall",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Available Drawing Power /Shortfall "
   },
   {
@@ -107,11 +107,27 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "DPD"
+  },
+  {
+   "fieldname": "loan_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Loan Name",
+   "options": "Loan"
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "creation_date",
+   "fieldtype": "Date",
+   "label": "Doc Creation Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-14 12:34:57.691696",
+ "modified": "2022-07-14 14:19:01.902235",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Client Summary",

@@ -1,8 +1,14 @@
 # Copyright (c) 2022, Atrina Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
+import datetime
+
 import frappe
+import numpy as np
+import pandas as pd
 from frappe.model.document import Document
+
+import lms
 
 
 class SecurityExposureSummary(Document):
@@ -35,6 +41,7 @@ def security_exposure_summary():
                     rate=security.price,
                     value=(qty * security.price),
                     exposure_=((qty * security.price) / total_sum) * 100,
+                    creation_date=frappe.utils.now_datetime(),
                 ),
             ).insert(ignore_permissions=True)
             frappe.db.commit()
@@ -43,3 +50,36 @@ def security_exposure_summary():
             message=frappe.get_traceback(),
             title=frappe._("Security Exposure Summary"),
         )
+
+
+@frappe.whitelist()
+def excel_generator(doc_filters):
+    seurity_exposure_doc = frappe.get_all(
+        "Security Exposure Summary",
+        filters=doc_filters,
+        fields=[
+            "isin",
+            "security_name",
+            "quantity",
+            "rate",
+            "value",
+            "exposure_",
+        ],
+    )
+    if seurity_exposure_doc == []:
+        frappe.throw(("Record does not exist"))
+    print("abcd")
+    final = pd.DataFrame([c.values() for c in seurity_exposure_doc], index=None)
+    final.columns = seurity_exposure_doc[0].keys()
+    final.columns = pd.Series(final.columns.str.replace("_", " ")).str.title()
+    report = final.sum(numeric_only=True)
+    report = final.iloc[:, 2:6].sum()
+    final.loc["Grand Total"] = report
+    final.fillna("")
+    # final.set_index(['loan_no','client_name','pan_no','sanctioned_amount','pledged_value','drawing_power','loan_balance','adp_shortfall','roi_','client_demat_acc','customer_contact_no','loan_expiry_date','dpd'])
+    # report = final.groupby(['']).apply(lambda sub_df:  sub_df.pivot_table(index=['customer','customer_name','transaction_type'], values=['amount'],aggfunc=np.sum, margins=True,margins_name= 'TOTAL'))
+    # report.loc[('', 'Grand Total','',''), :] = report[report.index.get_level_values(1) != 'TOTAL'].sum()
+    # report=report.reset_index(level=0,drop=True)
+    # final
+    # report=report.reset_index(level=0,drop=True)
+    final.to_excel("security_exposure_summary.xlsx", index=False)

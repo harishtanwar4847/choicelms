@@ -1,7 +1,11 @@
 # Copyright (c) 2022, Atrina Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
+import datetime
+
 import frappe
+import numpy as np
+import pandas as pd
 from frappe.model.document import Document
 
 import lms
@@ -59,6 +63,7 @@ def client_summary():
                     customer_contact_no=phone,
                     loan_expiry_date=loan.expiry_date,
                     dpd=loan.day_past_due,
+                    creation_date=frappe.utils.now_datetime(),
                 ),
             ).insert(ignore_permissions=True)
             frappe.db.commit()
@@ -67,3 +72,44 @@ def client_summary():
             message=frappe.get_traceback(),
             title=frappe._("Client Summary"),
         )
+
+
+@frappe.whitelist()
+def excel_generator(doc_filters):
+    print(doc_filters)
+    client_summary_doc = frappe.get_all(
+        "Client Summary",
+        filters=doc_filters,
+        fields=[
+            "loan_no",
+            "client_name",
+            "pan_no",
+            "sanctioned_amount",
+            "pledged_value",
+            "drawing_power",
+            "loan_balance",
+            "adp_shortfall",
+            "roi_",
+            "client_demat_acc",
+            "customer_contact_no",
+            "loan_expiry_date",
+            "dpd",
+        ],
+    )
+    if client_summary_doc == []:
+        frappe.throw(("Record does not exist"))
+
+    final = pd.DataFrame([c.values() for c in client_summary_doc], index=None)
+    final.columns = client_summary_doc[0].keys()
+    final.columns = pd.Series(final.columns.str.replace("_", " ")).str.title()
+    report = final.sum(numeric_only=True)
+    report = final.iloc[:, 3:8].sum()
+    final.loc["Total"] = report
+    final.fillna("")
+    # final.set_index(['loan_no','client_name','pan_no','sanctioned_amount','pledged_value','drawing_power','loan_balance','adp_shortfall','roi_','client_demat_acc','customer_contact_no','loan_expiry_date','dpd'])
+    # report = final.groupby(['']).apply(lambda sub_df:  sub_df.pivot_table(index=['customer','customer_name','transaction_type'], values=['amount'],aggfunc=np.sum, margins=True,margins_name= 'TOTAL'))
+    # report.loc[('', 'Grand Total','',''), :] = report[report.index.get_level_values(1) != 'TOTAL'].sum()
+    # report=report.reset_index(level=0,drop=True)
+    # final
+    # report=report.reset_index(level=0,drop=True)
+    final.to_excel("client_summary.xlsx", index=False)
