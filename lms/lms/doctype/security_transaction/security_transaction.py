@@ -63,11 +63,12 @@ def security_transaction():
 
 @frappe.whitelist()
 def excel_generator(doc_filters):
-    file_name = r"/home/vagrant/spark-bench/sites/security_transaction.xlsx"
-    file_path = frappe.utils.get_files_path(file_name)
-    if os.path.exists(file_path):
-        print(file_path)
-        os.remove(file_path)
+    # file_name = "security_transaction.xlsx"
+    # file_path = frappe.utils.get_files_path(file_name)
+    # print(file_path)
+    # if os.path.exists(file_path):
+
+    #     os.remove(file_path)
 
     security_transaction_doc = frappe.get_all(
         "Security Transaction",
@@ -104,13 +105,34 @@ def excel_generator(doc_filters):
     # report.loc[('Grand Total','','','','','','','','','','',''), :] = report[report.index.get_level_values(1) != 'TOTAL'].sum()
     # final.drop_duplicates(subset=["Loan No", "Client Name",'Dpid'],keep='first')
     print("abcd", final)
-    final.to_excel("security_transaction.xlsx", index=False)
 
-    frappe.local.response.filename = "security_transaction.xlsx"
-    with open(
-        "/home/vagrant/spark-bench/sites/security_transaction.xlsx", "rb"
-    ) as fileobj:
-        filedata = fileobj.read()
+    # frappe.local.response.filename = "security_transaction.xlsx"
+    # with open(
+    #     "/home/vagrant/spark-bench/sites/security_transaction.xlsx", "rb"
+    # ) as fileobj:
+    #     filedata = fileobj.read()
 
-    frappe.local.response.filecontent = filedata
-    frappe.local.response.type = "download"
+    # frappe.local.response.filecontent = filedata
+    # frappe.local.response.type = "download"
+    # return frappe.utils.get_url(file_path)
+    tnc_dir_path = frappe.utils.get_files_path("report_folder")
+
+    if not os.path.exists(tnc_dir_path):
+        os.mkdir(tnc_dir_path)
+
+    profile_picture_file = "security_transaction.xlsx"
+
+    image_path = frappe.utils.get_files_path(profile_picture_file)
+    if os.path.exists(image_path):
+        os.remove(image_path)
+
+    ckyc_image_file_path = frappe.utils.get_files_path(profile_picture_file)
+
+    final.to_excel(ckyc_image_file_path, index=False)
+
+    ckyc_image_file_url = frappe.utils.get_url(
+        "files/{}/{}".format(tnc_dir_path, profile_picture_file)
+    )
+    print(ckyc_image_file_url)
+    # frappe.local.response["type"] = "redirect"
+    # frappe.local.response["location"] = ckyc_image_file_url
