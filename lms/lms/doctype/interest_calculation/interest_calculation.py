@@ -1,6 +1,8 @@
 # Copyright (c) 2022, Atrina Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
+from datetime import datetime
+
 import frappe
 from frappe.model.document import Document
 
@@ -11,16 +13,20 @@ class InterestCalculation(Document):
 
 def interest_calculation(loan):
     interest_calculation_list = []
-    transactions = frappe.get_all(
-        "Loan Transaction",
-        filters={"loan": loan.name, "status": "Approved"},
-        fields=["*"],
+    transactions = frappe.db.sql(
+        """select time, transaction_type, record_type, amount, disbursed, closing_balance from `tabLoan Transaction` where loan = "{}" AND month(time) = month(now())""".format(
+            loan.name
+        ),
+        as_dict=True,
     )
-    interests = frappe.get_all(
-        "Virtual Interest", filters={"loan": loan.name}, fields=["*"]
+    interests = frappe.db.sql(
+        """select time, loan_balance, base_amount, rebate_interest from `tabVirtual Interest` where loan = "{}" AND month(time) = month(now())""".format(
+            loan.name
+        ),
+        as_dict=True,
     )
     for transaction in transactions:
-        print("Transaction", transaction.name)
+        frappe.logger().info(transaction.time)
         if transaction.record_type == "DR":
             credit = 0
             debit = (
@@ -36,7 +42,7 @@ def interest_calculation(loan):
                 doctype="Interest Calculation",
                 loan_no=loan.name,
                 client_name=loan.customer_name,
-                date=transaction.time,
+                date=transaction.time.date(),
                 transaction_type=transaction.transaction_type,
                 crdr=transaction.record_type,
                 debit=debit,
@@ -47,23 +53,40 @@ def interest_calculation(loan):
             )
         )
     for interest in interests:
+        frappe.logger().info(interest.time)
+        index = [
+            i
+            for i, _ in enumerate(interest_calculation_list)
+            if _["date"] == interest.time.date()
+        ]
         rebate = interest.base_amount + interest.rebate_interest
-        interest_calculation_list.append(
-            dict(
-                doctype="Interest Calculation",
-                loan_no=loan.name,
-                client_name=loan.customer_name,
-                date=interest.time,
-                transaction_type="-",
-                crdr="-",
-                credit="-",
-                debit="-",
-                loan_balance=interest.loan_balance,
-                interest_with_rebate=rebate,
-                interest_without_rebate=interest.base_amount,
+        if index:
+            interest_calculation_list[index[0]].update(
+                [
+                    ("loan_balance", interest.loan_balance),
+                    ("interest_with_rebate", rebate),
+                    ("interest_without_rebate", interest.base_amount),
+                ]
             )
-        )
-    interest_calculation_list.sort(key=lambda item: (item["loan_no"]), reverse=True)
+        else:
+            interest_calculation_list.append(
+                dict(
+                    doctype="Interest Calculation",
+                    loan_no=loan.name,
+                    client_name=loan.customer_name,
+                    date=interest.time.date(),
+                    transaction_type="-",
+                    crdr="-",
+                    credit="-",
+                    debit="-",
+                    loan_balance=interest.loan_balance,
+                    interest_with_rebate=rebate,
+                    interest_without_rebate=interest.base_amount,
+                )
+            )
+    interest_calculation_list.sort(
+        key=lambda item: (item["loan_no"], item["date"]), reverse=True
+    )
     for i in interest_calculation_list:
         frappe.get_doc(i).insert(ignore_permissions=True)
         frappe.db.commit()
@@ -79,22 +102,6 @@ def interest_calculation_enqueue():
                 queue="long",
                 loan=loan,
             )
-            # interest_calculation = frappe.get_doc(
-            #     dict(
-            #         doctype = "Interest Calculation",
-            #         loan_no = loan.name,
-            #         client_name = loan.customer_name,
-            #         date = interest.creation.date(),
-            #         transaction_type = transaction_type,
-            #         crdr = crdr,
-            #         debit = debit,
-            #         credit = credit,
-            #         loan_balance = loan.balance,
-            #         interest_with_rebate = rebate,
-            #         interest_without_rebate = interest.base_amount
-            #     ),
-            # ).insert(ignore_permissions=True)
-            # frappe.db.commit()
     except Exception:
         frappe.log_error(
             message=frappe.get_traceback(),
