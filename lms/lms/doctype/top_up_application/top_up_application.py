@@ -36,9 +36,10 @@ class TopupApplication(Document):
         self.map_loan_agreement_file(loan)
         # self.notify_customer()
 
+        lms.client_sanction_details(loan)
+
     def apply_loan_charges(self, loan):
         lender = loan.get_lender()
-
         # renewal charges
         import calendar
 
@@ -171,6 +172,7 @@ class TopupApplication(Document):
             # StampDuty changes for GST
             if lender.cgst_on_stamp_duty > 0:
                 cgst = stamp_duty * (lender.cgst_on_stamp_duty / 100)
+                print("CGST STAMP", cgst)
                 gst_percent = lender.cgst_on_stamp_duty
                 loan.create_loan_transaction(
                     "CGST on Stamp Duty",
@@ -179,6 +181,7 @@ class TopupApplication(Document):
                     charge_reference=stamp_duty_reference.name,
                     approve=True,
                 )
+                print("CGST STAMP", cgst)
             if lender.sgst_on_stamp_duty > 0:
                 sgst = stamp_duty * (lender.sgst_on_stamp_duty / 100)
                 gst_percent = lender.sgst_on_stamp_duty
@@ -189,6 +192,7 @@ class TopupApplication(Document):
                     charge_reference=stamp_duty_reference.name,
                     approve=True,
                 )
+                print("SGST STAMP", sgst)
             if lender.igst_on_stamp_duty > 0:
                 igst = stamp_duty * (lender.igst_on_stamp_duty / 100)
                 gst_percent = lender.igst_on_stamp_duty

@@ -14,13 +14,15 @@
   "quantity",
   "rate",
   "value",
-  "pledgor_boid"
+  "pledgor_boid",
+  "creation_date"
  ],
  "fields": [
   {
    "fetch_from": "loan_no.customer_name",
    "fieldname": "client_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Client Name"
   },
   {
@@ -31,11 +33,13 @@
   {
    "fieldname": "isin",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "ISIN"
   },
   {
    "fieldname": "security_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Security Name"
   },
   {
@@ -61,17 +65,23 @@
   {
    "fieldname": "loan_no",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Loan Account No",
    "options": "Loan"
   },
   {
    "fieldname": "column_break_6",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "creation_date",
+   "fieldtype": "Date",
+   "label": "Doc Creation Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-12 11:31:58.482434",
+ "modified": "2022-07-14 12:22:00.736088",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Details",

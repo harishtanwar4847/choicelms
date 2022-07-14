@@ -1769,6 +1769,10 @@ def upload_image_to_doctype(
         if os.path.exists(image_path):
             os.remove(image_path)
 
+        profile_picture_file = "{}/{}-{}.{}".format(
+            img_folder, customer.full_name, seq_no, img_format
+        ).replace(" ", "-")
+
         ckyc_image_file_path = frappe.utils.get_files_path(profile_picture_file)
         image_decode = base64.decodestring(bytes(str(image_), encoding="utf8"))
         image_file = open(ckyc_image_file_path, "wb").write(image_decode)
@@ -1806,14 +1810,73 @@ def ifsc_details(ifsc=""):
     return frappe.get_all("Spark Bank Branch", filters_arr, ["*"])
 
 
+def client_sanction_details(loan):
+    try:
+        loan = frappe.get_doc("Loan", loan.name)
+        customer = frappe.get_doc("Loan Customer", loan.customer)
+        user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+        interest_config = frappe.get_value(
+            "Interest Configuration",
+            {
+                "to_amount": [">=", loan.sanctioned_limit],
+            },
+            order_by="to_amount asc",
+        )
+        print("MY LOan", loan.name)
+        int_config = frappe.get_doc("Interest Configuration", interest_config)
+        roi_ = int_config.base_interest * 12
+        start_date = frappe.db.sql(
+            """select cast(creation as date) from `tabLoan` where name = "{}" """.format(
+                loan.name
+            )
+        )
+        client_sanction_details = frappe.get_doc(
+            dict(
+                doctype="Client Sanction Details",
+                client_code=customer.name,
+                loan_no=loan.name,
+                client_name=loan.customer_name,
+                pan_no=user_kyc.pan_no,
+                start_date=start_date,
+                end_date=loan.expiry_date,
+                sanctioned_amount=loan.sanctioned_limit,
+                roi=roi_,
+            ),
+        ).insert(ignore_permissions=True)
+        frappe.db.commit()
+        print("Client Sanction Details", client_sanction_details)
+    except Exception:
+        frappe.log_error(
+            message=frappe.get_traceback(),
+            title=frappe._("Client Sanction Details"),
+        )
+
+
 @frappe.whitelist()
-def parent_enqueue():
+def system_report_enqueue():
     # daily
     frappe.enqueue(
         method="lms.lms.doctype.client_summary.client_summary.client_summary",
         queue="long",
-    ),
+    )
     frappe.enqueue(
-        method="lms.lms.doctype.client_sanction_details.client_sanction_details.client_sanction_details",
+        method="lms.lms.doctype.security_transaction.security_transaction.security_transaction",
         queue="long",
     )
+    frappe.enqueue(
+        method="lms.lms.doctype.security_exposure_summary.security_exposure_summary.security_exposure_summary",
+        queue="long",
+    )
+    frappe.enqueue(
+        method="lms.lms.doctype.security_details.security_details.security_details",
+        queue="long",
+    )
+    curr_date = frappe.utils.now_datetime().date()
+    last_date = (curr_date.replace(day=1) + timedelta(days=32)).replace(
+        day=1
+    ) - timedelta(days=1)
+    if curr_date == last_date:
+        frappe.enqueue(
+            method="lms.lms.doctype.interest_calculation.interest_calculation.interest_calculation_enqueue",
+            queue="long",
+        )

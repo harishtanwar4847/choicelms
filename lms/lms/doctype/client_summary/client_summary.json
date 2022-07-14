@@ -11,6 +11,7 @@
   "sanctioned_amount",
   "pledged_value",
   "drawing_power",
+  "creation_date",
   "column_break_7",
   "loan_balance",
   "adp_shortfall",
@@ -21,6 +22,13 @@
   "dpd"
  ],
  "fields": [
+  {
+   "fieldname": "loan_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Loan Name",
+   "options": "Loan"
+  },
   {
    "fetch_from": "loan_name.customer_name",
    "fieldname": "client_name",
@@ -48,11 +56,22 @@
    "fetch_from": "loan_name.drawing_power",
    "fieldname": "drawing_power",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Drawing Power"
+  },
+  {
+   "fieldname": "creation_date",
+   "fieldtype": "Date",
+   "label": "Doc Creation Date"
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "loan_balance",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Loan Balance"
   },
   {
@@ -79,28 +98,20 @@
    "fetch_from": "loan_name.expiry_date",
    "fieldname": "loan_expiry_date",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Loan Expiry Date"
   },
   {
    "fetch_from": "loan_name.day_past_due",
    "fieldname": "dpd",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "DPD"
-  },
-  {
-   "fieldname": "loan_no",
-   "fieldtype": "Link",
-   "label": "Loan Name",
-   "options": "Loan"
-  },
-  {
-   "fieldname": "column_break_7",
-   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-12 11:26:49.559875",
+ "modified": "2022-07-14 12:34:57.691696",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Client Summary",

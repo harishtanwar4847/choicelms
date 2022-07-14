@@ -58,7 +58,7 @@ def client_summary():
                     client_demat_acc=pledgor_boid,
                     customer_contact_no=phone,
                     loan_expiry_date=loan.expiry_date,
-                    dpd=loan.dpd,
+                    dpd=loan.day_past_due,
                 ),
             ).insert(ignore_permissions=True)
             frappe.db.commit()

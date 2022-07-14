@@ -648,6 +648,8 @@ class LoanApplication(Document):
             else:
                 loan = self.update_existing_loan()
             frappe.db.commit()
+            if self.application_type in ["New Loan", "Increase Loan"]:
+                lms.client_sanction_details(loan)
 
             if not self.loan:
                 # new loan agreement mapping
