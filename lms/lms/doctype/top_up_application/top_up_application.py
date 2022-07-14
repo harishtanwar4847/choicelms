@@ -38,7 +38,6 @@ class TopupApplication(Document):
 
     def apply_loan_charges(self, loan):
         lender = loan.get_lender()
-        loan_transaction = frappe.get_doc("Loan Transaction", self.loan)
 
         # renewal charges
         import calendar
@@ -122,7 +121,7 @@ class TopupApplication(Document):
                 approve=True,
             )
             if lender.cgst_on_processing_fees > 0:
-                cgst = renewal_charges * (lender.cgst_on_processing_fees / 100)
+                cgst = processing_fees * (lender.cgst_on_processing_fees / 100)
                 gst_percent = lender.cgst_on_processing_fees
                 loan.create_loan_transaction(
                     "CGST on Processing Fees",
@@ -132,7 +131,7 @@ class TopupApplication(Document):
                     approve=True,
                 )
             if lender.sgst_on_processing_fees > 0:
-                sgst = renewal_charges * (lender.sgst_on_processing_fees / 100)
+                sgst = processing_fees * (lender.sgst_on_processing_fees / 100)
                 gst_percent = lender.sgst_on_processing_fees
                 loan.create_loan_transaction(
                     "SGST on Processing Fees",
@@ -142,7 +141,7 @@ class TopupApplication(Document):
                     approve=True,
                 )
             if lender.igst_on_processing_fees > 0:
-                igst = renewal_charges * (lender.igst_on_processing_fees / 100)
+                igst = processing_fees * (lender.igst_on_processing_fees / 100)
                 gst_percent = lender.igst_on_processing_fees
                 loan.create_loan_transaction(
                     "IGST on Processing Fees",
@@ -173,7 +172,7 @@ class TopupApplication(Document):
             if lender.cgst_on_stamp_duty > 0:
                 cgst = stamp_duty * (lender.cgst_on_stamp_duty / 100)
                 gst_percent = lender.cgst_on_stamp_duty
-                self.create_loan_transaction(
+                loan.create_loan_transaction(
                     "CGST on Stamp Duty",
                     cgst,
                     gst_percent,
@@ -183,7 +182,7 @@ class TopupApplication(Document):
             if lender.sgst_on_stamp_duty > 0:
                 sgst = stamp_duty * (lender.sgst_on_stamp_duty / 100)
                 gst_percent = lender.sgst_on_stamp_duty
-                self.create_loan_transaction(
+                loan.create_loan_transaction(
                     "SGST on Stamp Duty",
                     sgst,
                     gst_percent,
@@ -191,9 +190,9 @@ class TopupApplication(Document):
                     approve=True,
                 )
             if lender.igst_on_stamp_duty > 0:
-                igst = processing_fees * (lender.igst_on_stamp_duty / 100)
+                igst = stamp_duty * (lender.igst_on_stamp_duty / 100)
                 gst_percent = lender.igst_on_stamp_duty
-                self.create_loan_transaction(
+                loan.create_loan_transaction(
                     "IGST on Stamp Duty",
                     igst,
                     gst_percent,
@@ -224,7 +223,7 @@ class TopupApplication(Document):
                     lender.cgst_on_documentation_charges / 100
                 )
                 gst_percent = lender.cgst_on_documentation_charges
-                self.create_loan_transaction(
+                loan.create_loan_transaction(
                     "CGST on Documentation Charges",
                     cgst,
                     gst_percent,
@@ -236,7 +235,7 @@ class TopupApplication(Document):
                     lender.sgst_on_documentation_charges / 100
                 )
                 gst_percent = lender.sgst_on_documentation_charges
-                self.create_loan_transaction(
+                loan.create_loan_transaction(
                     "SGST on Documentation Charges",
                     sgst,
                     gst_percent,
@@ -248,7 +247,7 @@ class TopupApplication(Document):
                     lender.igst_on_documentation_charges / 100
                 )
                 gst_percent = lender.igst_on_documentation_charges
-                self.create_loan_transaction(
+                loan.create_loan_transaction(
                     "IGST on Documentation Charges",
                     igst,
                     gst_percent,

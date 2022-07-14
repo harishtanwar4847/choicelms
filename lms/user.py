@@ -4239,7 +4239,6 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
             "fav_id": data_res.get("id"),
             "status": data_res.get("status"),
         }
-
         if data_res.get("error"):
             data_resp["status"] = "failed"
             message = "Your account details have not been successfully verified"
@@ -4248,13 +4247,13 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                 "response": data_res,
             }
             lms.create_log(log, "rzp_penny_fund_account_validation_error_log")
-            # return utils.respondWithFailure(message=message, data=data_resp)
-            raise lms.exceptions.RespondFailureException(message, data_resp)
+            # raise utils.respondWithFailure(message=message)
+            raise lms.exceptions.RespondWithFailureException(message=message)
 
         if data_res.get("status") == "failed":
             message = "Your account details have not been successfully verified"
             # return utils.respondWithFailuremessage=message, data=data_resp)
-            raise lms.exceptions.RespondFailureException(message, data_resp)
+            # raise lms.exceptions.RespondFailureException(message, data_resp)
 
         if data_res.get("status") == "created":
             message = "waiting for response from bank"
@@ -4313,7 +4312,6 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                             if bank_entry_name != b.name:
                                 other_bank = frappe.get_doc("User Bank Account", b.name)
                                 if other_bank.is_default == 1:
-                                    print("inside if")
                                     other_bank.is_default = 0
                                     other_bank.save(ignore_permissions=True)
                         frappe.get_doc(
@@ -4402,17 +4400,21 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                 data_resp["status"] = "failed"
                 message = "We have found a mismatch in the account holder name as per the fetched data"
                 # return utils.respondWithFailure(message=message, data=data_resp)
-                raise lms.exceptions.RespondFailureException(message, data_resp)
+                # raise lms.exceptions.RespondFailureException(message, data_resp)
         else:
             data_resp["status"] = "failed"
-            message = "We have found a mismatch in the account holder name as per the fetched data"
+            message = "Your account details have not been successfully verified"
             # return utils.respondWithFailure(message=message, data=data_resp)
-            raise lms.exceptions.RespondFailureException(message, data_resp)
+            # raise lms.exceptions.RespondFailureException(message, data_resp)
 
         lms.create_log(data_res, "rzp_penny_fund_account_validation_success_log")
         return utils.respondWithSuccess(message=message, data=data_resp)
     except utils.exceptions.APIException as e:
-        lms.log_api_error()
+        lms.log_api_error(
+            str(message if message else "")
+            + "\n"
+            + str(data_resp if data_resp else data_res)
+        )
         return e.respond()
 
 
@@ -4991,7 +4993,12 @@ def ckyc_consent_details(**kwargs):
             "Proof of Address Master", pluck="poa_name", ignore_permissions=True
         )
 
-        country = frappe.get_all("Country Master", fields=["country"], pluck="country")
+        country = frappe.get_all(
+            "Country Master",
+            fields=["country"],
+            pluck="country",
+            order_by="country asc",
+        )
 
         user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
         user_kyc.ckyc_no = lms.user_details_hashing(user_kyc.ckyc_no)

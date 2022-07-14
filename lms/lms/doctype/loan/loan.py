@@ -110,7 +110,6 @@ class Loan(Document):
         # Processing fees
         import calendar
 
-        gst = 0
         date = frappe.utils.now_datetime()
         days_in_year = 366 if calendar.isleap(date.year) else 365
         processing_fees = lender.lender_processing_fees
@@ -209,7 +208,7 @@ class Loan(Document):
                     approve=True,
                 )
             if lender.igst_on_stamp_duty > 0:
-                igst = processing_fees * (lender.igst_on_stamp_duty / 100)
+                igst = stamp_duty * (lender.igst_on_stamp_duty / 100)
                 gst_percent = lender.igst_on_stamp_duty
                 self.create_loan_transaction(
                     "IGST on Stamp Duty",
