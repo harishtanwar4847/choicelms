@@ -24,6 +24,9 @@ frappe.listview_settings["Security Transaction"] = {
                     .get_user_settings("Security Transaction")
                     ["List"].filters.map((filter) => filter.slice(1, 4)),
                 },
+                callback: (res) => {
+                  window.open(res.message);
+                },
               });
             });
           }

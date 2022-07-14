@@ -115,24 +115,8 @@ def excel_generator(doc_filters):
     # frappe.local.response.filecontent = filedata
     # frappe.local.response.type = "download"
     # return frappe.utils.get_url(file_path)
-    tnc_dir_path = frappe.utils.get_files_path("report_folder")
-
-    if not os.path.exists(tnc_dir_path):
-        os.mkdir(tnc_dir_path)
-
-    profile_picture_file = "security_transaction.xlsx"
-
-    image_path = frappe.utils.get_files_path(profile_picture_file)
-    if os.path.exists(image_path):
-        os.remove(image_path)
-
-    ckyc_image_file_path = frappe.utils.get_files_path(profile_picture_file)
-
-    final.to_excel(ckyc_image_file_path, index=False)
-
-    ckyc_image_file_url = frappe.utils.get_url(
-        "files/{}/{}".format(tnc_dir_path, profile_picture_file)
-    )
-    print(ckyc_image_file_url)
     # frappe.local.response["type"] = "redirect"
     # frappe.local.response["location"] = ckyc_image_file_url
+    return lms.download_file(
+        dataframe=final, file_name="security_transaction", file_extention="xlsx"
+    )
