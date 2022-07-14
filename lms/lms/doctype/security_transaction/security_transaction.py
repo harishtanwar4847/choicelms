@@ -18,6 +18,10 @@ def security_transaction():
                 "Collateral Ledger", filters={"loan": loan.name}, fields=["*"]
             )
             for i in collateral_ledger:
+                if i.request_type != "Pledge":
+                    qty = -(i.quantity)
+                else:
+                    qty = i.quantity
                 security_transaction = frappe.get_doc(
                     dict(
                         doctype="Security Transaction",
@@ -28,7 +32,7 @@ def security_transaction():
                         isin=i.isin,
                         security_name=i.security_name,
                         psn=i.psn,
-                        qty=i.quantity,
+                        qty=qty,
                         rate=i.price,
                         value=i.value,
                     ),
