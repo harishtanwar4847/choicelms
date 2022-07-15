@@ -85,4 +85,7 @@ def excel_generator(doc_filters):
     # report=report.reset_index(level=0,drop=True)
     # final
     # report=report.reset_index(level=0,drop=True)
-    final.to_excel("security_details.xlsx", index=False)
+    # final.to_excel("security_details.xlsx", index=False)
+    return lms.download_file(
+        dataframe=final, file_name="security_details", file_extention="xlsx"
+    )

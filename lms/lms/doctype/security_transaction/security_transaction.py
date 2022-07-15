@@ -100,11 +100,32 @@ def excel_generator(doc_filters):
     # final
     # report=report.reset_index(level=0,drop=True)
 
-    # report = final.groupby(['Loan No']).apply(lambda sub_df:  sub_df.pivot_table(index=['Client Name','Dpid','Date', 'Request Type','Isin','Creation Date','Security Name','Psn','Qty','Rate'], values=['Value'],aggfunc=np.sum, margins=True,margins_name= 'TOTAL'))
-    # report.reset_index(level=0,drop=True)
-    # report.loc[('Grand Total','','','','','','','','','','',''), :] = report[report.index.get_level_values(1) != 'TOTAL'].sum()
-    # final.drop_duplicates(subset=["Loan No", "Client Name",'Dpid'],keep='first')
-    print("abcd", final)
+    report = final.groupby(["Loan No"]).apply(
+        lambda sub_df: sub_df.pivot_table(
+            index=[
+                "Client Name",
+                "Dpid",
+                "Date",
+                "Request Type",
+                "Isin",
+                "Creation Date",
+                "Security Name",
+                "Psn",
+                "Qty",
+                "Rate",
+            ],
+            values=["Value"],
+            aggfunc=np.sum,
+            margins=True,
+            margins_name="TOTAL",
+        )
+    )
+    report.reset_index(level=0, drop=True)
+    report.loc[("Grand Total", "", "", "", "", "", "", "", "", "", "")] = report[
+        report.index.get_level_values(1) != "TOTAL"
+    ].sum()
+    print(report)
+    # final=pd.unique(final[["Loan No", "Client Name",'Dpid']].values)
 
     # frappe.local.response.filename = "security_transaction.xlsx"
     # with open(
@@ -118,5 +139,5 @@ def excel_generator(doc_filters):
     # frappe.local.response["type"] = "redirect"
     # frappe.local.response["location"] = ckyc_image_file_url
     return lms.download_file(
-        dataframe=final, file_name="security_transaction", file_extention="xlsx"
+        dataframe=report, file_name="security_transaction", file_extention="xlsx"
     )

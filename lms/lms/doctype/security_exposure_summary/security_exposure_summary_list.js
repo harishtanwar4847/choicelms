@@ -24,6 +24,9 @@ frappe.listview_settings["Security Exposure Summary"] = {
                     .get_user_settings("Security Exposure Summary")
                     ["List"].filters.map((filter) => filter.slice(1, 4)),
                 },
+                callback: (res) => {
+                  window.open(res.message);
+                },
               });
             });
           }

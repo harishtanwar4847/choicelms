@@ -24,6 +24,9 @@ frappe.listview_settings["Interest Calculation"] = {
                     .get_user_settings("Interest Calculation")
                     ["List"].filters.map((filter) => filter.slice(1, 4)),
                 },
+                callback: (res) => {
+                  window.open(res.message);
+                },
               });
             });
           }

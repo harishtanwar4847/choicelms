@@ -150,4 +150,7 @@ def excel_generator(doc_filters):
     # report=report.reset_index(level=0,drop=True)
     # final
     # report=report.reset_index(level=0,drop=True)
-    final.to_excel("client_summary.xlsx", index=False)
+    # final.to_excel("client_summary.xlsx", index=False)
+    return lms.download_file(
+        dataframe=final, file_name="interest_calculation", file_extention="xlsx"
+    )

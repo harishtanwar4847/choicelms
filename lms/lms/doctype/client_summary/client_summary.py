@@ -76,7 +76,6 @@ def client_summary():
 
 @frappe.whitelist()
 def excel_generator(doc_filters):
-    print(doc_filters)
     client_summary_doc = frappe.get_all(
         "Client Summary",
         filters=doc_filters,
@@ -112,4 +111,8 @@ def excel_generator(doc_filters):
     # report=report.reset_index(level=0,drop=True)
     # final
     # report=report.reset_index(level=0,drop=True)
-    final.to_excel("client_summary.xlsx", index=False)
+    # final.to_excel("client_summary.xlsx", index=False)
+    print(final)
+    return lms.download_file(
+        dataframe=final, file_name="client_summary", file_extention="xlsx"
+    )

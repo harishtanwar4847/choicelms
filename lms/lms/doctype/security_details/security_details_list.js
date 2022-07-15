@@ -24,6 +24,9 @@ frappe.listview_settings["Security Details"] = {
                     .get_user_settings("Security Details")
                     ["List"].filters.map((filter) => filter.slice(1, 4)),
                 },
+                callback: (res) => {
+                  window.open(res.message);
+                },
               });
             });
           }

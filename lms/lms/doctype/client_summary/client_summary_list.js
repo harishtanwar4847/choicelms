@@ -26,6 +26,9 @@ frappe.listview_settings["Client Summary"] = {
                 .get_user_settings("Client Summary")
                 ["List"].filters.map((filter) => filter.slice(1, 4)),
             },
+            callback: (res) => {
+              window.open(res.message);
+            },
           });
         });
       }

@@ -1884,12 +1884,16 @@ def system_report_enqueue():
 
 def download_file(dataframe, file_name, file_extention):
     file_name = "{}.{}".format(file_name, file_extention)
-
+    print("init", dataframe)
+    print("name", file_name)
     file_path = frappe.utils.get_files_path(file_name)
+    print(file_path)
     if os.path.exists(file_path):
+        print("EXIST")
         os.remove(file_path)
-
+    file_path = frappe.utils.get_files_path(file_name)
     dataframe.to_excel(file_path, index=False)
-
+    print("path", file_path)
     file_url = frappe.utils.get_url("files/{}".format(file_name))
+    print("url", file_url)
     return file_url
