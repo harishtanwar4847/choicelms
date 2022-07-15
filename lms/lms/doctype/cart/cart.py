@@ -226,11 +226,43 @@ class Cart(Document):
 
         from num2words import num2words
 
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "CKYC Address Details", user_kyc.address_details
+            )
+            address = (
+                str(address_details.perm_line1)
+                + ", "
+                + str(address_details.perm_line2)
+                + ", "
+                + str(address_details.perm_line3)
+                + ", "
+                + str(address_details.perm_city)
+                + ", "
+                + str(address_details.perm_dist)
+                + ", "
+                + str(
+                    frappe.db.get_value(
+                        "State Master", address_details.perm_state, "description"
+                    )
+                )
+                + ", "
+                + str(
+                    frappe.db.get_value(
+                        "Country Master", address_details.perm_country, "country"
+                    )
+                )
+                + ", "
+                + str(address_details.perm_pin)
+            )
+        else:
+            address = ""
+
         doc = {
             "esign_date": "__________",
             "loan_application_number": " ",
             "borrower_name": user_kyc.fullname,
-            "borrower_address": user_kyc.address,
+            "borrower_address": address,
             "sanctioned_amount": lms.validate_rupees(
                 self.increased_sanctioned_limit
                 if self.loan and not self.loan_margin_shortfall
