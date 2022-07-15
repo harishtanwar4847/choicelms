@@ -361,10 +361,11 @@ class LoanApplication(Document):
                     total_successfull_lien = 0
                     total_collateral_value = 0
                     for i in schemedetails:
-                        isin_details[i.get("isinno")] = i
+                        isin_details[str(i.get("isinno")) + str(i.get("folio"))] = i
                     for i in self.items:
-                        if i.get("isin") in isin_details:
-                            cur = isin_details.get(i.get("isin"))
+                        isin_folio_combo = str(i.get("isin")) + str(i.get("folio"))
+                        if isin_folio_combo in isin_details:
+                            cur = isin_details.get(isin_folio_combo)
                             i.pledge_executed = 1
                             i.pledge_status = (
                                 "Success"
@@ -439,10 +440,11 @@ class LoanApplication(Document):
 
                 else:
                     if schemedetails:
+                        isin_folio_combo = str(i.get("isin")) + str(i.get("folio"))
                         for i in schemedetails:
-                            isin_details[i.get("isinno")] = i
+                            isin_details[isin_folio_combo] = i
                         for i in self.items:
-                            if i.get("isin") in isin_details:
+                            if isin_folio_combo in isin_details:
                                 i.pledge_executed = 1
                                 i.pledge_status = "Failure"
                                 i.lender_approval_status = "Rejected"

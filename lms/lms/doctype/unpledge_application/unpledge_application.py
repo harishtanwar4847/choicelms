@@ -87,49 +87,82 @@ class UnpledgeApplication(Document):
 
         application_type = "unpledge" if self.instrument_type == "Shares" else "revoke"
 
-        price_map = {i.isin: i.price for i in self.items}
-        unpledge_quantity_map = {i.isin: 0 for i in self.items}
-        unpledge_requested_quantity_map = {i.isin: i.quantity for i in self.items}
+        # price_map = {i.isin: i.price for i in self.items}
+        # unpledge_quantity_map = {i.isin: 0 for i in self.items}
+        # unpledge_requested_quantity_map = {i.isin: i.quantity for i in self.items}
+        price_map = {
+            "{}{}".format(
+                i.isin, "{}".format("-" + str(i.folio) if i.folio else "")
+            ): i.price
+            for i in self.items
+        }
+        unpledge_quantity_map = {
+            "{}{}".format(i.isin, "{}".format("-" + str(i.folio) if i.folio else "")): 0
+            for i in self.items
+        }
+        unpledge_requested_quantity_map = {
+            "{}{}".format(
+                i.isin, "{}".format("-" + str(i.folio) if i.folio else "")
+            ): i.quantity
+            for i in self.items
+        }
+
         msg = (
-            "Can not unpledge {}(PSN: {}) more than {}"
+            "Can not unpledge {}(PSN: {}){} more than {}"
             if self.instrument_type == "Shares"
-            else "Can not revoke {}(Lien Mark Number: {}) more than {}"
+            else "Can not revoke {}(Lien Mark Number: {}){} more than {}"
         )
 
         for i in self.unpledge_items:
+            isin_folio_combo = "{}{}".format(
+                i.isin, "{}".format("-" + str(i.folio) if i.folio else "")
+            )
             if i.unpledge_quantity > i.quantity:
-                frappe.throw(msg.format(i.isin, i.psn, i.quantity))
+                frappe.throw(
+                    msg.format(
+                        i.isin,
+                        i.psn,
+                        "{}".format("-" + str(i.folio) if i.folio else ""),
+                        i.quantity,
+                    )
+                )
             if self.instrument_type == "Mutual Fund":
-                if unpledge_requested_quantity_map.get(i.isin) > i.unpledge_quantity:
+                if (
+                    unpledge_requested_quantity_map.get(isin_folio_combo)
+                    > i.unpledge_quantity
+                ):
                     frappe.throw(
                         "You need to {} all {} of isin {}".format(
                             application_type,
-                            unpledge_requested_quantity_map.get(i.isin),
-                            i.isin,
+                            unpledge_requested_quantity_map.get(isin_folio_combo),
+                            isin_folio_combo,
                         )
                     )
-            unpledge_quantity_map[i.isin] = (
-                unpledge_quantity_map[i.isin] + i.unpledge_quantity
+            unpledge_quantity_map[isin_folio_combo] = (
+                unpledge_quantity_map[isin_folio_combo] + i.unpledge_quantity
             )
             # i.price = price_map.get(i.isin)
             # self.unpledge_collateral_value += i.unpledge_quantity * price_map.get(
             #     i.isin
             # )
             if self.instrument_type == "Shares":
-                i.price = price_map.get(i.isin)
+                i.price = price_map.get(isin_folio_combo)
             else:
                 i.price = (
-                    price_map.get(i.isin)
+                    price_map.get(isin_folio_combo)
                     if i.revoke_initiate_remarks == "SUCCESS"
                     else 0
                 )
             self.unpledge_collateral_value += i.unpledge_quantity * i.price
 
         for i in self.items:
-            if unpledge_quantity_map.get(i.isin) > i.quantity:
+            isin_folio_combo = "{}{}".format(
+                i.isin, "{}".format("-" + str(i.folio) if i.folio else "")
+            )
+            if unpledge_quantity_map.get(isin_folio_combo) > i.quantity:
                 frappe.throw(
                     "Can not {} {} more than {}".format(
-                        application_type, i.isin, i.quantity
+                        application_type, isin_folio_combo, i.quantity
                     )
                 )
         # for i in self.items:
@@ -142,24 +175,33 @@ class UnpledgeApplication(Document):
 
     def before_submit(self):
         # check if all securities are sold
-        unpledge_quantity_map = {i.isin: 0 for i in self.items}
+        unpledge_quantity_map = {
+            "{}{}".format(i.isin, "{}".format("-" + str(i.folio) if i.folio else "")): 0
+            for i in self.items
+        }
 
         application_type = "unpledge" if self.instrument_type == "Shares" else "revoke"
 
         if len(self.unpledge_items):
             for i in self.unpledge_items:
-                unpledge_quantity_map[i.isin] = (
-                    unpledge_quantity_map[i.isin] + i.unpledge_quantity
+                isin_folio_combo = "{}{}".format(
+                    i.isin, "{}".format("-" + str(i.folio) if i.folio else "")
+                )
+                unpledge_quantity_map[isin_folio_combo] = (
+                    unpledge_quantity_map[isin_folio_combo] + i.unpledge_quantity
                 )
         if len(self.unpledge_items) == 0:
             frappe.throw("Please add items to {}".format(application_type))
 
         for i in self.items:
+            isin_folio_combo = "{}{}".format(
+                i.isin, "{}".format("-" + str(i.folio) if i.folio else "")
+            )
             # print(unpledge_quantity_map.get(i.isin), i.quantity)
-            if unpledge_quantity_map.get(i.isin) < i.quantity:
+            if unpledge_quantity_map.get(isin_folio_combo) < i.quantity:
                 frappe.throw(
                     "You need to {} all {} of isin {}".format(
-                        application_type, i.quantity, i.isin
+                        application_type, i.quantity, isin_folio_combo
                     )
                 )
 
@@ -168,7 +210,11 @@ class UnpledgeApplication(Document):
         )
         for i in loan_items:
             for j in self.unpledge_items:
-                if i["isin"] == j.isin and i["pledged_quantity"] < j.unpledge_quantity:
+                if (
+                    str(i["isin"]) + str(i["folio"] if i["folio"] else "")
+                    == str(j.isin) + str(j.folio if j.folio else "")
+                    and i["pledged_quantity"] < j.unpledge_quantity
+                ):
                     frappe.throw(
                         "Sufficient quantity not available for ISIN {unpledge_isin},\nCurrent Quantity= {loan_qty} Requested {application_type} Quantity {unpledge_quantity}\nPlease Reject this Application".format(
                             unpledge_isin=j.isin,
@@ -558,12 +604,12 @@ def validate_revoc(unpledge_application_name):
                     ).get("schemedetails")
 
                     for i in schemedetails_res:
-                        isin_details[i.get("isinno")] = i
-
+                        isin_details["{}{}".format(i.get("isinno"), i.get("folio"))] = i
                     for i in unpledge_application_doc.unpledge_items:
-                        if i.get("isin") in isin_details:
+                        isin_folio_combo = "{}{}".format(i.get("isin"), i.get("folio"))
+                        if isin_folio_combo in isin_details:
                             i.revoke_validate_remarks = isin_details.get(
-                                i.get("isin")
+                                isin_folio_combo
                             ).get("remarks")
 
                     if (
@@ -689,15 +735,21 @@ def initiate_revoc(unpledge_application_name):
                     ).get("schemedetails")
                     isin_details = {}
                     for i in schemedetails_res:
-                        isin_details[i.get("isinno")] = i
+                        isin_details["{}{}".format(i.get("isinno"), i.get("folio"))] = i
+
                     for i in unpledge_application_doc.unpledge_items:
-                        if i.get("isin") in isin_details:
+                        isin_folio_combo = "{}{}".format(i.get("isin"), i.get("folio"))
+                        if isin_folio_combo in isin_details:
                             i.revoke_initiate_remarks = isin_details.get(
-                                i.get("isin")
+                                isin_folio_combo
                             ).get("remarks")
                             old_psn = i.psn
-                            i.psn = isin_details.get(i.get("isin")).get("revoc_refno")
-                            new_psn = isin_details.get(i.get("isin")).get("revoc_refno")
+                            i.psn = isin_details.get(isin_folio_combo).get(
+                                "revoc_refno"
+                            )
+                            new_psn = isin_details.get(isin_folio_combo).get(
+                                "revoc_refno"
+                            )
                             if old_psn != new_psn:
                                 frappe.db.sql(
                                     """
