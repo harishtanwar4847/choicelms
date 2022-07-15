@@ -895,6 +895,25 @@ def initiate_invoc(sell_collateral_application_name):
                                 isin_folio_combo
                             ).get("remarks")
 
+                            old_psn = i.psn
+                            i.psn = isin_details.get(isin_folio_combo).get("invocrefno")
+                            new_psn = isin_details.get(isin_folio_combo).get(
+                                "invocrefno"
+                            )
+                            if old_psn != new_psn:
+                                frappe.db.sql(
+                                    """
+                                    update `tabCollateral Ledger`
+                                    set psn = '{psn}'
+                                    where loan = '{loan}' and isin = '{isin}' and folio = '{folio}'
+                                    """.format(
+                                        psn=new_psn,
+                                        isin=i.get("isin"),
+                                        loan=sell_collateral_application_doc.loan,
+                                        folio=i.get("folio"),
+                                    )
+                                )
+
                     if (
                         dict_decrypted_response.get("invocinitiate").get("message")
                         == "SUCCESS"

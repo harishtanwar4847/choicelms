@@ -755,11 +755,12 @@ def initiate_revoc(unpledge_application_name):
                                     """
                                     update `tabCollateral Ledger`
                                     set psn = '{psn}'
-                                    where loan = '{loan}' and isin = '{isin}'
+                                    where loan = '{loan}' and isin = '{isin}' and folio = '{folio}'
                                     """.format(
                                         psn=new_psn,
                                         isin=i.get("isin"),
                                         loan=unpledge_application_doc.loan,
+                                        folio=i.get("folio"),
                                     )
                                 )
 
