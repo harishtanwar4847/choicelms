@@ -777,7 +777,7 @@ def send_spark_push_notification(
                     "response": res_json,
                 }
 
-                create_log(log, "Send Spark Push Notification Log")
+                create_log(log, "Send_Spark_Push_Notification_Log")
 
                 # fa.send_android_message(
                 #     title=fcm_notification.title,

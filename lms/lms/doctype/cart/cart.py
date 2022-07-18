@@ -228,7 +228,7 @@ class Cart(Document):
 
         if user_kyc.address_details:
             address_details = frappe.get_doc(
-                "CKYC Address Details", user_kyc.address_details
+                "Customer Address Details", user_kyc.address_details
             )
             address = (
                 str(address_details.perm_line1)

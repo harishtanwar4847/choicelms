@@ -5180,7 +5180,7 @@ def ckyc_consent_details(**kwargs):
 
             ckyc_address_doc = frappe.get_doc(
                 {
-                    "doctype": "CKYC Address Details",
+                    "doctype": "Customer Address Details",
                     "perm_line1": data.get("address_details")
                     .get("permanent_address")
                     .get("address_line1"),
@@ -5246,6 +5246,7 @@ def ckyc_consent_details(**kwargs):
             user_kyc_doc.consent_given = 1
             if False in address:
                 user_kyc_doc.is_edited = 1
+                ckyc_address_doc.is_edited = 1
             user_kyc_doc.save(ignore_permissions=True)
             kyc_consent_doc = frappe.get_doc(
                 {
