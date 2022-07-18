@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import datetime
+from datetime import timedelta
 
 import frappe
 import numpy as np
@@ -76,6 +77,11 @@ def client_summary():
 
 @frappe.whitelist()
 def excel_generator(doc_filters):
+    if len(doc_filters) == 2:
+        today = frappe.utils.now_datetime()
+        today_date = today.date()
+        yesterday = today_date - timedelta(days=1)
+        doc_filters = {"creation_date": yesterday}
     client_summary_doc = frappe.get_all(
         "Client Summary",
         filters=doc_filters,
@@ -112,7 +118,9 @@ def excel_generator(doc_filters):
     # final
     # report=report.reset_index(level=0,drop=True)
     # final.to_excel("client_summary.xlsx", index=False)
+    final.loc[final["Loan No"].isnull(), "Loan No"] = "Total"
     print(final)
+    file_name = "client_summary_{}".format(frappe.utils.now_datetime())
     return lms.download_file(
-        dataframe=final, file_name="client_summary", file_extention="xlsx"
+        dataframe=final, file_name=file_name, file_extention="xlsx"
     )

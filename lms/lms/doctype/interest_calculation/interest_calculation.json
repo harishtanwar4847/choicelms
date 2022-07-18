@@ -35,7 +35,7 @@
   },
   {
    "fieldname": "date",
-   "fieldtype": "Date",
+   "fieldtype": "Data",
    "label": "Date"
   },
   {
@@ -88,7 +88,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-14 12:24:02.812749",
+ "modified": "2022-07-15 13:03:57.437533",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Interest Calculation",

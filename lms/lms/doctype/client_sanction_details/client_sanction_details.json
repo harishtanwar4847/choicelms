@@ -14,8 +14,7 @@
   "start_date",
   "end_date",
   "sanctioned_amount",
-  "roi",
-  "creation_date"
+  "roi"
  ],
  "fields": [
   {
@@ -44,14 +43,14 @@
   },
   {
    "fieldname": "start_date",
-   "fieldtype": "Date",
+   "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Start Date"
   },
   {
    "fetch_from": "loan_no.expiry_date",
    "fieldname": "end_date",
-   "fieldtype": "Date",
+   "fieldtype": "Data",
    "in_list_view": 1,
    "label": "End Date"
   },
@@ -78,7 +77,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-14 12:25:53.257192",
+ "modified": "2022-07-15 13:05:25.930493",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Client Sanction Details",

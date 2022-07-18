@@ -82,7 +82,7 @@
   },
   {
    "fieldname": "creation_date",
-   "fieldtype": "Date",
+   "fieldtype": "Data",
    "label": "Doc Creation Date"
   },
   {
@@ -93,7 +93,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-14 15:18:38.215441",
+ "modified": "2022-07-15 17:05:38.955100",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Transaction",

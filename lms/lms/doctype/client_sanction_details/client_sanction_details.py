@@ -80,7 +80,6 @@ def excel_generator(doc_filters):
     final = pd.DataFrame(
         [c.values() for c in client_sanctioned_details_doc], index=None
     )
-    print(final)
     # final=final.set_index(['client_code', 'loan_no','client_name','pan_no'],drop = False)
     # final = final.set_index(['client_code', 'loan_no','client_name','pan_no','start_date'])
     final.columns = client_sanctioned_details_doc[0].keys()
@@ -94,6 +93,19 @@ def excel_generator(doc_filters):
     # final
     # report=report.reset_index(level=0,drop=True)
     # final.to_excel("Client_Sanction_Details.xlsx", index=False)
+    # final.loc[final['Client Code'].duplicated(), 'Client Code'] = ""
+    # final.loc[final['Loan No'].duplicated(), 'Loan No'] = ""
+    # final.loc[final['Client Name'].duplicated(), 'Client Name'] = ""
+    # final.loc[final['Pan No'].duplicated(), 'Pan No'] = ""
+    final.loc[final["Client Code"].duplicated(), "Client Code"] = ""
+    final.loc[final["Loan No"].duplicated(), "Loan No"] = ""
+    final.loc[final["Client Name"].duplicated(), "Client Name"] = ""
+
+    # final.loc[(final['Client Code'].duplicated() & final['Loan No'].duplicated()), ['Client Code','Loan No']] = ''
+    # final.loc[(final['Client Code'].duplicated() & final['Client Name'].duplicated()), ['Client Code','Client Name']] = ''
+    # final.loc[(final['Client Code'].duplicated() & final['Pan No'].duplicated()), ['Client Code','Pan No']] = ''
+    print(final)
+    file_name = "client_santion_details_{}".format(frappe.utils.now_datetime())
     return lms.download_file(
-        dataframe=final, file_name="Client_Sanction_Details", file_extention="xlsx"
+        dataframe=final, file_name=file_name, file_extention="xlsx"
     )

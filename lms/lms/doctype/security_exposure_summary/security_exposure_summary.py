@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import datetime
+from datetime import timedelta
 
 import frappe
 import numpy as np
@@ -30,21 +31,20 @@ def security_exposure_summary():
                 )
             )
             qty = qty[0][0]
-            if not qty:
-                qty = 0
-            security_exposure_summary = frappe.get_doc(
-                dict(
-                    doctype="Security Exposure Summary",
-                    isin=security.name,
-                    security_name=security.security_name,
-                    quantity=qty,
-                    rate=security.price,
-                    value=(qty * security.price),
-                    exposure_=((qty * security.price) / total_sum) * 100,
-                    creation_date=frappe.utils.now_datetime(),
-                ),
-            ).insert(ignore_permissions=True)
-            frappe.db.commit()
+            if qty:
+                security_exposure_summary = frappe.get_doc(
+                    dict(
+                        doctype="Security Exposure Summary",
+                        isin=security.name,
+                        security_name=security.security_name,
+                        quantity=qty,
+                        rate=security.price,
+                        value=(qty * security.price),
+                        exposure_=((qty * security.price) / total_sum) * 100,
+                        creation_date=frappe.utils.now_datetime(),
+                    ),
+                ).insert(ignore_permissions=True)
+                frappe.db.commit()
     except Exception:
         frappe.log_error(
             message=frappe.get_traceback(),
@@ -54,7 +54,18 @@ def security_exposure_summary():
 
 @frappe.whitelist()
 def excel_generator(doc_filters):
-    seurity_exposure_doc = frappe.get_all(
+    if len(doc_filters) == 2:
+        today = frappe.utils.now_datetime()
+        today_date = today.date()
+        print(type(today_date))
+        # today_date = '19-07-2022'
+        # NextDay_Date = today_date + datetime.timedelta(days=1)
+        # print(NextDay_Date)
+        yesterday = today_date - timedelta(days=1)
+        doc_filters = {"creation_date": yesterday}
+        print(yesterday)
+        print(doc_filters)
+    security_exposure_doc = frappe.get_all(
         "Security Exposure Summary",
         filters=doc_filters,
         fields=[
@@ -66,15 +77,16 @@ def excel_generator(doc_filters):
             "exposure_",
         ],
     )
-    if seurity_exposure_doc == []:
+    if security_exposure_doc == []:
         frappe.throw(("Record does not exist"))
     print("abcd")
-    final = pd.DataFrame([c.values() for c in seurity_exposure_doc], index=None)
-    final.columns = seurity_exposure_doc[0].keys()
+    final = pd.DataFrame([c.values() for c in security_exposure_doc], index=None)
+    final.columns = security_exposure_doc[0].keys()
     final.columns = pd.Series(final.columns.str.replace("_", " ")).str.title()
     report = final.sum(numeric_only=True)
     report = final.iloc[:, 2:6].sum()
     final.loc["Grand Total"] = report
+    final.loc[final["Isin"].isnull(), "Isin"] = "Total"
     final.fillna("")
     # final.set_index(['loan_no','client_name','pan_no','sanctioned_amount','pledged_value','drawing_power','loan_balance','adp_shortfall','roi_','client_demat_acc','customer_contact_no','loan_expiry_date','dpd'])
     # report = final.groupby(['']).apply(lambda sub_df:  sub_df.pivot_table(index=['customer','customer_name','transaction_type'], values=['amount'],aggfunc=np.sum, margins=True,margins_name= 'TOTAL'))
@@ -83,6 +95,7 @@ def excel_generator(doc_filters):
     # final
     # report=report.reset_index(level=0,drop=True)
     # final.to_excel("security_exposure_summary.xlsx", index=False)
+    file_name = "security_exposure_{}".format(frappe.utils.now_datetime())
     return lms.download_file(
-        dataframe=final, file_name="security_exposure_summary", file_extention="xlsx"
+        dataframe=final, file_name=file_name, file_extention="xlsx"
     )

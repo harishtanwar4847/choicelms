@@ -4,10 +4,12 @@
 import datetime
 import json
 import os
+from datetime import timedelta
 
 import frappe
 import numpy as np
 import pandas as pd
+from black import Report
 from frappe.model.document import Document
 
 import lms
@@ -63,13 +65,11 @@ def security_transaction():
 
 @frappe.whitelist()
 def excel_generator(doc_filters):
-    # file_name = "security_transaction.xlsx"
-    # file_path = frappe.utils.get_files_path(file_name)
-    # print(file_path)
-    # if os.path.exists(file_path):
-
-    #     os.remove(file_path)
-
+    if len(doc_filters) == 2:
+        today = frappe.utils.now_datetime()
+        today_date = today.date()
+        yesterday = today_date - timedelta(days=1)
+        doc_filters = {"creation_date": yesterday}
     security_transaction_doc = frappe.get_all(
         "Security Transaction",
         filters=doc_filters,
@@ -80,11 +80,11 @@ def excel_generator(doc_filters):
             "date",
             "request_type",
             "isin",
-            "creation_date",
             "security_name",
             "psn",
             "qty",
             "rate",
+            "creation_date",
             "value",
         ],
     )
@@ -93,51 +93,52 @@ def excel_generator(doc_filters):
     final = pd.DataFrame([c.values() for c in security_transaction_doc], index=None)
     final.columns = security_transaction_doc[0].keys()
     final.columns = pd.Series(final.columns.str.replace("_", " ")).str.title()
-    # final.set_index(['loan_no','client_name','pan_no','sanctioned_amount','pledged_value','drawing_power','loan_balance','adp_shortfall','roi_','client_demat_acc','customer_contact_no','loan_expiry_date','dpd'])
-    # report = final.groupby(['']).apply(lambda sub_df:  sub_df.pivot_table(index=['customer','customer_name','transaction_type'], values=['amount'],aggfunc=np.sum, margins=True,margins_name= 'TOTAL'))
-    # report.loc[('', 'Grand Total','',''), :] = report[report.index.get_level_values(1) != 'TOTAL'].sum()
-    # report=report.reset_index(level=0,drop=True)
-    # final
-    # report=report.reset_index(level=0,drop=True)
 
-    report = final.groupby(["Loan No"]).apply(
-        lambda sub_df: sub_df.pivot_table(
-            index=[
-                "Client Name",
-                "Dpid",
-                "Date",
-                "Request Type",
-                "Isin",
-                "Creation Date",
-                "Security Name",
-                "Psn",
-                "Qty",
-                "Rate",
-            ],
-            values=["Value"],
-            aggfunc=np.sum,
-            margins=True,
-            margins_name="TOTAL",
-        )
-    )
-    report.reset_index(level=0, drop=True)
-    report.loc[("Grand Total", "", "", "", "", "", "", "", "", "", "")] = report[
-        report.index.get_level_values(1) != "TOTAL"
-    ].sum()
-    print(report)
-    # final=pd.unique(final[["Loan No", "Client Name",'Dpid']].values)
+    # report =  pd.concat([final,
+    #          final.groupby(["Loan No"],as_index=False)['Qty','Value'].sum()]).sort_values('Loan No')
+    # report.loc[report['Client Name'].isnull(), 'Loan No']
+    # report.loc[report['Dpid'].isnull(), 'Loan No']
+    # report.loc[report['Date'].isnull(), 'Loan No']
+    # report.loc[report['Request Type'].isnull(), 'Loan No']
+    # report.loc[report['Isin'].isnull(), 'Loan No'] = 'Total'
+    # report.loc[report['Security Name'].isnull(), 'Loan No']
+    # report.loc[report['Psn'].isnull(), 'Loan No']
+    # report.loc[report['Qty'].isnull(), 'Loan No']
+    # report.loc[report['Rate'].isnull(), 'Loan No']
 
-    # frappe.local.response.filename = "security_transaction.xlsx"
-    # with open(
-    #     "/home/vagrant/spark-bench/sites/security_transaction.xlsx", "rb"
-    # ) as fileobj:
-    #     filedata = fileobj.read()
+    # final.loc[(final['Loan No'].duplicated() & final['Client Name'].duplicated()), ['Loan No','Client Name']] = ''
+    # final.loc[(final['Loan No'].duplicated() & final['Dpid'].duplicated()), ['Loan No','Dpid']] = ''
 
-    # frappe.local.response.filecontent = filedata
-    # frappe.local.response.type = "download"
-    # return frappe.utils.get_url(file_path)
-    # frappe.local.response["type"] = "redirect"
-    # frappe.local.response["location"] = ckyc_image_file_url
+    # for label, _final in final.groupby(['Loan No','Client Name','Dpid']):
+    #     print(label)
+    #     print(_final)
+    #     print()
+    # container = []
+    # for label, _final in final.groupby(['Loan No','Client Name','Dpid']):
+    #     _final.loc['{label[0]} {label[1]} {label[2]:.} Total'] = final[['Value']].sum()
+    #     container.append(_final)
+
+    # report = pd.concat(container)
+    # report.loc["Grand Total"] = final[['Value']].sum()
+    # report.fillna('')
+
+    # new code
+    df_subtotal = final.groupby("Loan No", as_index=False)[["Qty", "Value"]].sum()
+    # Join dataframes
+    df_new = pd.concat([final, df_subtotal], axis=0, ignore_index=True)
+    # Sort
+    df_new = df_new.sort_values(["Loan No", "Creation Date"])
+    val = final[["Value"]].sum()
+    df_new.loc[df_new["Isin"].isnull(), "Loan No"] = "Total"
+    # df_new.loc[df_new['Client Name'].isnull(), 'Loan No'] = ' Grand Total'
+    df_new.loc["Grand Total"] = val
+    # df_new.loc['Grand Total'] = df_new.loc['Grand Total'].fillna("")
+    # df_new.loc[(df_new['Loan No'].duplicated() & df_new['Client Name'].duplicated()), ['Loan No','Client Name']] = ''
+    # df_new.loc[(df_new['Loan No'].duplicated() & df_new['Dpid'].duplicated()), ['Loan No','Dpid']] = ''
+    # print("qty",qty)
+    # print("val",val)
+    file_name = "security_transaction_{}".format(frappe.utils.now_datetime())
+    print("excel_name", df_new)
     return lms.download_file(
-        dataframe=report, file_name="security_transaction", file_extention="xlsx"
+        dataframe=df_new, file_name=file_name, file_extention="xlsx"
     )
