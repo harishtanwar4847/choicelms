@@ -2021,7 +2021,7 @@ class Loan(Document):
             "esign_date": "__________",
             "loan_application_number": self.name,
             "borrower_name": user_kyc.fullname,
-            "borrower_address": address,
+            "borrower_address": user_kyc.address.details,
             # "sanctioned_amount": topup_amount,
             # "sanctioned_amount_in_words": num2words(
             #     topup_amount, lang="en_IN"

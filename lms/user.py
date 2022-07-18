@@ -190,7 +190,7 @@ def get_choice_kyc_old(pan_no, birth_date):
         user_kyc.fullname = data["investorName"]
         user_kyc.father_name = data["fatherName"]
         user_kyc.mother_name = data["motherName"]
-        user_kyc.address = data["address"].replace("~", " ")
+        user_kyc.address_details = data["address"].replace("~", " ")
         user_kyc.city = data["addressCity"]
         user_kyc.state = data["addressState"]
         user_kyc.pincode = data["addressPinCode"]
@@ -488,7 +488,7 @@ def kyc(**kwargs):
             user_kyc_doc.fullname = user_kyc["investor_name"]
             user_kyc_doc.father_name = user_kyc["father_name"]
             user_kyc_doc.mother_name = user_kyc["mother_name"]
-            user_kyc_doc.address = user_kyc["address"]
+            user_kyc_doc.address_details = user_kyc["address"]
             user_kyc_doc.city = user_kyc["city"]
             user_kyc_doc.state = user_kyc["state"]
             user_kyc_doc.pincode = user_kyc["pincode"]

@@ -262,7 +262,7 @@ class Cart(Document):
             "esign_date": "__________",
             "loan_application_number": " ",
             "borrower_name": user_kyc.fullname,
-            "borrower_address": address,
+            "borrower_address": user_kyc.address_details,
             "sanctioned_amount": lms.validate_rupees(
                 self.increased_sanctioned_limit
                 if self.loan and not self.loan_margin_shortfall

@@ -1884,7 +1884,7 @@ def loan_statement(**kwargs):
             "customer_id": customer.name,
             # "phone": user_kyc.mobile_number,
             "phone": customer.phone,
-            "address": user_kyc.address,
+            "address": user_kyc.address_details,
             "account_opening_date": (loan.creation).strftime("%d-%B-%Y"),
             "overdraft_limit": loan.sanctioned_limit,
             "drawing_power": loan.drawing_power,
