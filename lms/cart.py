@@ -841,7 +841,7 @@ def get_tnc(**kwargs):
         )
         tnc_ul.append(
             "<li><strong> Address of borrower </strong> : {}".format(
-                user_kyc.address or ""
+                user_kyc.address_details or ""
             )
             + "</li>"
         )
