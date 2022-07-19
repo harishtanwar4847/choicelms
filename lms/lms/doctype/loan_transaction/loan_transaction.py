@@ -38,8 +38,8 @@ class LoanTransaction(Document):
         "Penal Interest": "DR",
         "Other Charges": "DR",
         "Legal Charges": "DR",
-        "DP Reimbursement(Unpledge)": "DR",
-        "DP Reimbursement(Sell)": "DR",
+        "DP Reimbursement(Unpledge) Charges": "DR",
+        "DP Reimbursement(Sell) Charges": "DR",
         "Sell Collateral Charges": "DR",
         "Renewal Charges": "DR",
         "Lien Charges": "DR",  # MF
@@ -132,8 +132,8 @@ class LoanTransaction(Document):
             "Other Charges",
             "Sell Collateral",
             "Legal Charges",
-            "DP Reimbursement(Unpledge)",
-            "DP Reimbursement(Sell)",
+            "DP Reimbursement(Unpledge) Charges",
+            "DP Reimbursement(Sell) Charges",
             "Sell Collateral Charges",
             "Renewal Charges",
         ]
@@ -187,6 +187,9 @@ class LoanTransaction(Document):
                 lender_sharing_amount,
                 spark_sharing_amount,
             )
+
+        if self.status == "Approved":
+            self.gst_on_charges()
 
         loan = self.get_loan()
 
@@ -667,6 +670,74 @@ class LoanTransaction(Document):
             and self.status == "Ready for Approval"
         ):
             frappe.throw("Allowable amount could not be greater than requested amount")
+
+    def gst_on_charges(self):
+        loan = self.get_loan()
+        lender = self.get_lender().as_dict()
+        if self.transaction_type in [
+            "Processing Fees",
+            "Stamp Duty",
+            "Documentation Charges",
+            "Mortgage Charges",
+            "Sell Collateral Charges",
+            "Renewal Charges",
+            "DP Reimbursement(Unpledge) Charges",
+            "DP Reimbursement(Sell) Charges",
+            "Lien Charges",
+            "Invocation Charges",
+            "Revocation Charges",
+        ]:
+            # CGST
+            transac_cgst = "CGST on " + self.transaction_type
+            print(transac_cgst)
+            print(
+                "Transact Type :",
+                transac_cgst.lower()
+                .replace(" ", "_")
+                .replace("(", "")
+                .replace(")", ""),
+            )
+            trans_cgst = (
+                transac_cgst.lower().replace(" ", "_").replace("(", "").replace(")", "")
+            )
+            print("Lender GST : ", lender[trans_cgst])
+            if lender[trans_cgst] > 0:
+                sgst = self.amount * (lender[trans_cgst] / 100)
+                loan.create_loan_transaction(
+                    transaction_type=transac_cgst,
+                    amount=sgst,
+                    gst_percent=lender[trans_cgst],
+                    charge_reference=self.name,
+                    approve=True,
+                )
+            # SGST
+            transac_sgst = "SGST on " + self.transaction_type
+            trans_sgst = (
+                transac_sgst.lower().replace(" ", "_").replace("(", "").replace(")", "")
+            )
+            if lender[trans_sgst] > 0:
+                sgst = self.amount * (lender[trans_sgst] / 100)
+                loan.create_loan_transaction(
+                    transaction_type=transac_sgst,
+                    amount=sgst,
+                    gst_percent=lender[trans_sgst],
+                    charge_reference=self.name,
+                    approve=True,
+                )
+            # IGST
+            transac_igst = "IGST on " + self.transaction_type
+            trans_igst = (
+                transac_igst.lower().replace(" ", "_").replace("(", "").replace(")", "")
+            )
+            if lender[trans_igst] > 0:
+                sgst = self.amount * (lender[trans_igst] / 100)
+                loan.create_loan_transaction(
+                    transaction_type=transac_igst,
+                    amount=sgst,
+                    gst_percent=lender[trans_igst],
+                    charge_reference=self.name,
+                    approve=True,
+                )
 
 
 @frappe.whitelist()

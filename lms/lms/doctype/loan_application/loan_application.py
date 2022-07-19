@@ -1066,36 +1066,36 @@ class LoanApplication(Document):
                 "Renewal Charges", renewal_charges, approve=True
             )
 
-            if lender.cgst_on_account_renewal_charges > 0:
-                cgst = renewal_charges * (lender.cgst_on_account_renewal_charges / 100)
-                gst_percent = lender.cgst_on_account_renewal_charges
-                loan.create_loan_transaction(
-                    "CGST on Account renewal charges",
-                    cgst,
-                    gst_percent,
-                    charge_reference=renewal_charges_reference.name,
-                    approve=True,
-                )
-            if lender.sgst_on_account_renewal_charges > 0:
-                sgst = renewal_charges * (lender.sgst_on_account_renewal_charges / 100)
-                gst_percent = lender.sgst_on_account_renewal_charges
-                loan.create_loan_transaction(
-                    "SGST on Account renewal charges",
-                    sgst,
-                    gst_percent,
-                    charge_reference=renewal_charges_reference.name,
-                    approve=True,
-                )
-            if lender.igst_on_account_renewal_charges > 0:
-                igst = renewal_charges * (lender.igst_on_account_renewal_charges / 100)
-                gst_percent = lender.igst_on_account_renewal_charges
-                loan.create_loan_transaction(
-                    "IGST on Account renewal charges",
-                    igst,
-                    gst_percent,
-                    charge_reference=renewal_charges_reference.name,
-                    approve=True,
-                )
+            # if lender.cgst_on_account_renewal_charges > 0:
+            #     cgst = renewal_charges * (lender.cgst_on_account_renewal_charges / 100)
+            #     gst_percent = lender.cgst_on_account_renewal_charges
+            #     loan.create_loan_transaction(
+            #         "CGST on Account renewal charges",
+            #         cgst,
+            #         gst_percent,
+            #         charge_reference=renewal_charges_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.sgst_on_account_renewal_charges > 0:
+            #     sgst = renewal_charges * (lender.sgst_on_account_renewal_charges / 100)
+            #     gst_percent = lender.sgst_on_account_renewal_charges
+            #     loan.create_loan_transaction(
+            #         "SGST on Account renewal charges",
+            #         sgst,
+            #         gst_percent,
+            #         charge_reference=renewal_charges_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.igst_on_account_renewal_charges > 0:
+            #     igst = renewal_charges * (lender.igst_on_account_renewal_charges / 100)
+            #     gst_percent = lender.igst_on_account_renewal_charges
+            #     loan.create_loan_transaction(
+            #         "IGST on Account renewal charges",
+            #         igst,
+            #         gst_percent,
+            #         charge_reference=renewal_charges_reference.name,
+            #         approve=True,
+            #     )
 
         # Processing fees
         processing_fees = lender.lender_processing_fees
@@ -1122,36 +1122,36 @@ class LoanApplication(Document):
                 approve=True,
             )
             # GST Charges
-            if lender.cgst_on_processing_fees > 0:
-                cgst = processing_fees * (lender.cgst_on_processing_fees / 100)
-                gst_percent = lender.cgst_on_processing_fees
-                loan.create_loan_transaction(
-                    "CGST on Processing Fees",
-                    cgst,
-                    gst_percent,
-                    charge_reference=processing_fees_reference.name,
-                    approve=True,
-                )
-            if lender.sgst_on_processing_fees > 0:
-                sgst = processing_fees * (lender.sgst_on_processing_fees / 100)
-                gst_percent = lender.sgst_on_processing_fees
-                loan.create_loan_transaction(
-                    "SGST on Processing Fees",
-                    sgst,
-                    gst_percent,
-                    charge_reference=processing_fees_reference.name,
-                    approve=True,
-                )
-            if lender.igst_on_processing_fees > 0:
-                igst = processing_fees * (lender.igst_on_processing_fees / 100)
-                gst_percent = lender.igst_on_processing_fees
-                loan.create_loan_transaction(
-                    "IGST on Processing Fees",
-                    igst,
-                    gst_percent,
-                    charge_reference=processing_fees_reference.name,
-                    approve=True,
-                )
+            # if lender.cgst_on_processing_fees > 0:
+            #     cgst = processing_fees * (lender.cgst_on_processing_fees / 100)
+            #     gst_percent = lender.cgst_on_processing_fees
+            #     loan.create_loan_transaction(
+            #         "CGST on Processing Fees",
+            #         cgst,
+            #         gst_percent,
+            #         charge_reference=processing_fees_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.sgst_on_processing_fees > 0:
+            #     sgst = processing_fees * (lender.sgst_on_processing_fees / 100)
+            #     gst_percent = lender.sgst_on_processing_fees
+            #     loan.create_loan_transaction(
+            #         "SGST on Processing Fees",
+            #         sgst,
+            #         gst_percent,
+            #         charge_reference=processing_fees_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.igst_on_processing_fees > 0:
+            #     igst = processing_fees * (lender.igst_on_processing_fees / 100)
+            #     gst_percent = lender.igst_on_processing_fees
+            #     loan.create_loan_transaction(
+            #         "IGST on Processing Fees",
+            #         igst,
+            #         gst_percent,
+            #         charge_reference=processing_fees_reference.name,
+            #         approve=True,
+            #     )
 
         # Stamp Duty
         stamp_duty = lender.stamp_duty

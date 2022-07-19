@@ -124,9 +124,7 @@ class Cart(Document):
                 "instrument_type": self.instrument_type,
                 "scheme_type": self.scheme_type,
             }
-        )
-
-        loan_application.insert(ignore_permissions=True)
+        ).insert(ignore_permissions=True)
 
         # mark cart as processed
         self.is_processed = 1
