@@ -155,14 +155,13 @@ class Cart(Document):
                 loan=self.loan,
                 customer=self.get_customer(),
             )
-            receiver_list = list(
-                set(
-                    [
-                        str(self.get_customer().phone),
-                        str(self.get_customer().get_kyc().mobile_number),
-                    ]
-                )
-            )
+            receiver_list = [str(self.get_customer().phone)]
+            if self.get_customer().get_kyc().mob_num:
+                receiver_list.append(str(self.get_customer().get_kyc().mob_num))
+            if self.get_customer().get_kyc().choice_mob_no:
+                receiver_list.append(str(self.get_customer().get_kyc().choice_mob_no))
+
+            receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
@@ -195,9 +194,13 @@ class Cart(Document):
                     msg_type
                 )
                 # if mess:
-                receiver_list = list(
-                    set([str(self.get_customer().phone), str(doc.mobile_number)])
-                )
+                receiver_list = [str(self.get_customer().phone)]
+                if doc.mob_num:
+                    receiver_list.append(str(doc.mob_num))
+                if doc.choice_mob_no:
+                    receiver_list.append(str(doc.choice_mob_no))
+
+                receiver_list = list(set(receiver_list))
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
@@ -223,11 +226,43 @@ class Cart(Document):
 
         from num2words import num2words
 
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+            address = (
+                str(address_details.perm_line1)
+                + ", "
+                + str(address_details.perm_line2)
+                + ", "
+                + str(address_details.perm_line3)
+                + ", "
+                + str(address_details.perm_city)
+                + ", "
+                + str(address_details.perm_dist)
+                + ", "
+                + str(
+                    frappe.db.get_value(
+                        "State Master", address_details.perm_state, "description"
+                    )
+                )
+                + ", "
+                + str(
+                    frappe.db.get_value(
+                        "Country Master", address_details.perm_country, "country"
+                    )
+                )
+                + ", "
+                + str(address_details.perm_pin)
+            )
+        else:
+            address = ""
+
         doc = {
             "esign_date": "__________",
             "loan_application_number": " ",
-            "borrower_name": user_kyc.investor_name,
-            "borrower_address": user_kyc.address,
+            "borrower_name": user_kyc.fullname,
+            "borrower_address": address,
             "sanctioned_amount": lms.validate_rupees(
                 self.increased_sanctioned_limit
                 if self.loan and not self.loan_margin_shortfall

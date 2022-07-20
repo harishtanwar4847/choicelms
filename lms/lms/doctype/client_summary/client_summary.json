@@ -1,0 +1,125 @@
+{
+ "actions": [],
+ "creation": "2022-07-11 14:44:55.172183",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "loan_no",
+  "client_name",
+  "pan_no",
+  "sanctioned_amount",
+  "pledged_value",
+  "drawing_power",
+  "column_break_7",
+  "loan_balance",
+  "adp_shortfall",
+  "roi_",
+  "client_demat_acc",
+  "customer_contact_no",
+  "loan_expiry_date",
+  "dpd"
+ ],
+ "fields": [
+  {
+   "fetch_from": "loan_name.customer_name",
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "label": "Client Name"
+  },
+  {
+   "fieldname": "pan_no",
+   "fieldtype": "Data",
+   "label": "Pan No."
+  },
+  {
+   "fetch_from": "loan_name.sanctioned_limit",
+   "fieldname": "sanctioned_amount",
+   "fieldtype": "Data",
+   "label": "Sanctioned Amount"
+  },
+  {
+   "fetch_from": "loan_name.total_collateral_value",
+   "fieldname": "pledged_value",
+   "fieldtype": "Data",
+   "label": "Pledged Value"
+  },
+  {
+   "fetch_from": "loan_name.drawing_power",
+   "fieldname": "drawing_power",
+   "fieldtype": "Data",
+   "label": "Drawing Power"
+  },
+  {
+   "fieldname": "loan_balance",
+   "fieldtype": "Data",
+   "label": "Loan Balance"
+  },
+  {
+   "fieldname": "adp_shortfall",
+   "fieldtype": "Data",
+   "label": "Available Drawing Power /Shortfall "
+  },
+  {
+   "fieldname": "roi_",
+   "fieldtype": "Data",
+   "label": "ROI %"
+  },
+  {
+   "fieldname": "client_demat_acc",
+   "fieldtype": "Data",
+   "label": "Client Demat Account"
+  },
+  {
+   "fieldname": "customer_contact_no",
+   "fieldtype": "Data",
+   "label": "Customer Contact No."
+  },
+  {
+   "fetch_from": "loan_name.expiry_date",
+   "fieldname": "loan_expiry_date",
+   "fieldtype": "Data",
+   "label": "Loan Expiry Date"
+  },
+  {
+   "fetch_from": "loan_name.day_past_due",
+   "fieldname": "dpd",
+   "fieldtype": "Data",
+   "label": "DPD"
+  },
+  {
+   "fieldname": "loan_no",
+   "fieldtype": "Link",
+   "label": "Loan Name",
+   "options": "Loan"
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-07-12 11:26:49.559875",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Client Summary",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

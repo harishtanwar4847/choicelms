@@ -35,7 +35,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "4.0.2-uat"
+__version__ = "5.0.0-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -436,7 +436,7 @@ def __customer(entity=None):
 
 
 def __user_kyc(entity=None, pan_no=None, throw=True):
-    filters = {"user": __user(entity).name}
+    filters = {"user": __user(entity).name, "consent_given": 1}
     if pan_no:
         filters["pan_no"] = pan_no
     res = frappe.get_all("User KYC", filters=filters, order_by="creation desc")
@@ -463,6 +463,7 @@ def __banks(user_kyc=None):
     #     i.account_number = user_details_hashing(i.account_number)
 
     for i in res:
+        i.account_number = user_details_hashing(i.account_number)
         i.creation = str(i.creation)
         i.modified = str(i.modified)
 
@@ -485,7 +486,7 @@ def delete_user(doc, method):
     frappe.db.commit()
 
 
-def add_firebase_token(firebase_token, user=None):
+def add_firebase_token(firebase_token, app_version_platform, user=None):
     if not user:
         user = frappe.session.user
 
@@ -507,10 +508,15 @@ def add_firebase_token(firebase_token, user=None):
     if get_user_token:
         return
 
-    create_user_token(entity=user, token=firebase_token, token_type="Firebase Token")
+    create_user_token(
+        entity=user,
+        token=firebase_token,
+        token_type="Firebase Token",
+        app_version_platform=app_version_platform,
+    )
 
 
-def create_user_token(entity, token, token_type="OTP"):
+def create_user_token(entity, token, token_type="OTP", app_version_platform=""):
     doc_data = {
         "doctype": "User Token",
         "entity": entity,
@@ -531,6 +537,12 @@ def create_user_token(entity, token, token_type="OTP"):
         )
         doc_data["expiry"] = frappe.utils.now_datetime() + timedelta(
             minutes=expiry_in_minutes
+        )
+
+    if app_version_platform:
+        doc_data["app_version_platform"] = app_version_platform
+        doc_data["customer_id"] = frappe.db.get_value(
+            "Loan Customer", {"user": entity}, "name"
         )
 
     user_token = frappe.get_doc(doc_data)
@@ -762,11 +774,21 @@ def send_spark_push_notification(
                     "Content-Type": "application/json",
                     "Authorization": "key=AAAAennLf7s:APA91bEoQFxqyBP87PXSVS3nXYGhVwh0-5CXQyOzEW8vwKiRqYw-5y2yPXIFWvQ9-Mr0rHeS2NWdq43ogeH76esO3GJyZCEQs2mOgUk6RStxW-hgsioIAJaaiidov8xDg1-yyTn_JCYQ",
                 }
+                url = "https://fcm.googleapis.com/fcm/send"
                 res = requests.post(
-                    url="https://fcm.googleapis.com/fcm/send",
+                    url=url,
                     data=json.dumps(fcm_payload),
                     headers=headers,
                 )
+                res_json = json.loads(res.text)
+                log = {
+                    "url": url,
+                    "headers": headers,
+                    "request": data,
+                    "response": res_json,
+                }
+
+                create_log(log, "Send_Spark_Push_Notification_Log")
 
                 # fa.send_android_message(
                 #     title=fcm_notification.title,
@@ -1078,7 +1100,7 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
     return frappe.get_doc("Spark Dummy Account", dummy_account_name)
 
 
-def log_api_error():
+def log_api_error(mess=""):
     try:
         """
         Log API error to Error Log
@@ -1110,7 +1132,7 @@ def log_api_error():
             + " API Error"
         )
 
-        error = frappe.get_traceback() + "\n\n" + message
+        error = frappe.get_traceback() + "\n\n" + mess + "\n\n" + message
         log = frappe.get_doc(
             dict(doctype="API Error Log", error=frappe.as_unicode(error), method=title)
         ).insert(ignore_permissions=True)
@@ -1355,9 +1377,13 @@ def update_rzp_payment_transaction(data):
                     customer=customer,
                 )
             if msg:
-                receiver_list = list(
-                    set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-                )
+                receiver_list = [str(customer.phone)]
+                if customer.get_kyc().mob_num:
+                    receiver_list.append(str(customer.get_kyc().mob_num))
+                if customer.get_kyc().choice_mob_no:
+                    receiver_list.append(str(customer.get_kyc().choice_mob_no))
+
+                receiver_list = list(set(receiver_list))
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
         if not payment_transaction_name:
@@ -1679,3 +1705,126 @@ class AESCBC:
 def user_details_hashing(value):
     value = value[:2] + len(value[1:-3]) * "X" + value[-2:]
     return value
+
+
+def ckyc_dot_net(
+    cust, pan_no, is_for_search=False, is_for_download=False, dob="", ckyc_no=""
+):
+    try:
+        req_data = {
+            "idType": "C",
+            "idNumber": pan_no,
+            "dateTime": datetime.strftime(
+                frappe.utils.now_datetime(), "%d-%m-%Y %H:%M:%S"
+            ),
+            "requestId": datetime.strftime(frappe.utils.now_datetime(), "%d%m")
+            + str(abs(randint(0, 9999) - randint(1, 99))),
+        }
+
+        las_settings = frappe.get_single("LAS Settings")
+
+        if is_for_search:
+            url = las_settings.ckyc_search_api
+            log_name = "CKYC_search_api"
+            api_type = "CKYC Search"
+
+        if is_for_download and dob and ckyc_no:
+            req_data.update({"dob": dob, "ckycNumber": ckyc_no})
+            url = las_settings.ckyc_download_api
+            log_name = "CKYC_download_api"
+            api_type = "CKYC Download"
+
+        headers = {"Content-Type": "application/json"}
+
+        res = requests.post(url=url, headers=headers, data=json.dumps(req_data))
+        res_json = json.loads(res.text)
+
+        log = {"url": url, "headers": headers, "request": req_data}
+        frappe.get_doc(
+            {
+                "doctype": "CKYC API Response",
+                "ckyc_api_type": api_type,
+                "parameters": str(log),
+                "response_status": "Success"
+                if res_json.get("status") == 200 and not res_json.get("error")
+                else "Failure",
+                "error": res_json.get("error"),
+                "customer": cust.name,
+            }
+        ).insert(ignore_permissions=True)
+        frappe.db.commit()
+        log["response"] = res_json
+
+        create_log(log, log_name)
+
+        return res_json
+    except Exception:
+        log_api_error(res.text)
+        raise Exception
+
+
+def upload_image_to_doctype(
+    customer, seq_no, image_, img_format, img_folder="CKYC_IMG"
+):
+    try:
+        tnc_dir_path = frappe.utils.get_files_path("{}".format(img_folder))
+
+        if not os.path.exists(tnc_dir_path):
+            os.mkdir(tnc_dir_path)
+
+        profile_picture_file = "{}/{}-{}.{}".format(
+            img_folder, customer.full_name, seq_no, img_format
+        ).replace(" ", "-")
+
+        image_path = frappe.utils.get_files_path(profile_picture_file)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+        ckyc_image_file_path = frappe.utils.get_files_path(profile_picture_file)
+        image_decode = base64.decodestring(bytes(str(image_), encoding="utf8"))
+        image_file = open(ckyc_image_file_path, "wb").write(image_decode)
+
+        ckyc_image_file_url = frappe.utils.get_url(
+            "files/{}/{}-{}.{}".format(
+                img_folder, customer.full_name, seq_no, img_format
+            ).replace(" ", "-")
+        )
+
+        # image_file = frappe.get_doc(
+        #     {
+        #         "doctype": "File",
+        #         "file_name": profile_picture_file,
+        #         "content": image_file,
+        #         "attached_to_doctype": doctype,
+        #         "attached_to_field": attached_to_field,
+        #         "folder": "Home",
+        #     }
+        # )
+        # image_file.insert(ignore_permissions=True)
+        # frappe.db.commit()
+
+        return ckyc_image_file_url
+    except Exception:
+        log_api_error()
+
+
+def ifsc_details(ifsc=""):
+    filters_arr = {}
+    if ifsc:
+        search_key = str("%" + ifsc + "%")
+        filters_arr = {"ifsc": ["like", search_key], "is_active": True}
+
+    return frappe.get_all("Spark Bank Branch", filters_arr, ["*"])
+
+
+@frappe.whitelist()
+def parent_enqueue():
+    # daily
+    frappe.enqueue(
+        method="lms.lms.doctype.client_summary.client_summary.client_summary",
+        queue="long",
+    ),
+    frappe.enqueue(
+        method="lms.lms.doctype.client_sanction_details.client_sanction_details.client_sanction_details",
+        queue="long",
+    )

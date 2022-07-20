@@ -175,21 +175,29 @@ def update_all_security_prices():
 
 @frappe.whitelist()
 def update_all_schemeNav():
-    chunks = lms.chunk_doctype(doctype="Security", limit=50)
-    for start in chunks.get("chunks"):
-        schemes_list = frappe.db.get_all(
-            "Security",
-            filters={"instrument_type": "Mutual Fund"},
-            fields=["isin", "security_name"],
-            limit_page_length=chunks.get("limit"),
-            limit_start=start,
-        )
+    current_hour = frappe.utils.now_datetime().hour
+    las_settings = frappe.get_single("LAS Settings")
 
-        frappe.enqueue(
-            method="lms.lms.doctype.security_price.security_price.update_scheme_nav",
-            schemes_list=schemes_list,
-            queue="long",
-        )
+    if frappe.utils.now_datetime().date() not in lms.holiday_list(
+        is_market_holiday=1
+    ) and (
+        las_settings.market_start_time <= current_hour < las_settings.market_end_time
+    ):
+        chunks = lms.chunk_doctype(doctype="Security", limit=50)
+        for start in chunks.get("chunks"):
+            schemes_list = frappe.db.get_all(
+                "Security",
+                filters={"instrument_type": "Mutual Fund"},
+                fields=["isin", "security_name"],
+                limit_page_length=chunks.get("limit"),
+                limit_start=start,
+            )
+
+            frappe.enqueue(
+                method="lms.lms.doctype.security_price.security_price.update_scheme_nav",
+                schemes_list=schemes_list,
+                queue="long",
+            )
 
 
 def update_scheme_nav(schemes_list):
@@ -218,9 +226,11 @@ def update_scheme_nav(schemes_list):
             data = res.json()
             log[req_end_time]["response"] = data
             if data["ISIN"] != "":
-                # time = frappe.utils.now_datetime()
+                ctime = frappe.utils.now_datetime()
                 time = (
-                    datetime.strptime(data.get("NavDate"), "%d-%m-%Y")
+                    datetime.strptime(data.get("NavDate"), "%d-%m-%Y").replace(
+                        hour=ctime.hour, minute=ctime.minute, second=ctime.second
+                    )
                     if data.get("NavDate")
                     else frappe.utils.now_datetime()
                 )

@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.0.0-uat]
+
+## Added
+
+- [Feat : CKYC Integration](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/512)
+
 ## [v4.0.2-uat]
 
 ## Fixed

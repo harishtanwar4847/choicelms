@@ -1,0 +1,72 @@
+{
+ "actions": [],
+ "creation": "2022-06-29 13:57:58.043775",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "sequence_no",
+  "image_type",
+  "image_code",
+  "image_name",
+  "column_break_5",
+  "global_flag",
+  "branch_code",
+  "image"
+ ],
+ "fields": [
+  {
+   "fieldname": "sequence_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Sequence NO."
+  },
+  {
+   "fieldname": "image_type",
+   "fieldtype": "Data",
+   "label": "Image Type"
+  },
+  {
+   "fieldname": "image_code",
+   "fieldtype": "Data",
+   "label": "Image Code"
+  },
+  {
+   "fieldname": "image_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Image Name"
+  },
+  {
+   "fieldname": "global_flag",
+   "fieldtype": "Data",
+   "label": "Global Flag"
+  },
+  {
+   "fieldname": "branch_code",
+   "fieldtype": "Data",
+   "label": "Branch Code"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "IMAGE"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2022-06-30 16:28:22.156378",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "CKYC Image Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

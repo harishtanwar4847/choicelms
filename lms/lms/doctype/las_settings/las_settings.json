@@ -58,6 +58,10 @@
   "bank_name",
   "hmac_key",
   "decryption_key",
+  "ckyc_config_section",
+  "ckyc_search_api",
+  "column_break_56",
+  "ckyc_download_api",
   "ltv_section",
   "shares_ltv",
   "column_break_48",
@@ -83,8 +87,13 @@
   "razorpay_section_section",
   "razorpay_key_secret",
   "razorpay_bank_account",
+  "pennydrop_create_contact",
+  "pennydrop_create_fund_account",
   "column_break_49",
-  "razorpay_webhook_secret"
+  "razorpay_webhook_secret",
+  "settlement_recon_api",
+  "pennydrop_create_fund_account_validation",
+  "pennydrop_create_fund_account_validation_id"
  ],
  "fields": [
   {
@@ -468,7 +477,7 @@
    "collapsible": 1,
    "fieldname": "cams_config_section",
    "fieldtype": "Section Break",
-   "label": "CAMS Config Section"
+   "label": "CAMS Config"
   },
   {
    "fieldname": "secret_key",
@@ -499,11 +508,56 @@
    "fieldname": "lien_allowed_scheme_update_api",
    "fieldtype": "Data",
    "label": "Lien Allowed Scheme Update API"
+  },
+  {
+   "fieldname": "pennydrop_create_contact",
+   "fieldtype": "Data",
+   "label": "PennyDrop Create Contact"
+  },
+  {
+   "fieldname": "pennydrop_create_fund_account",
+   "fieldtype": "Data",
+   "label": "PennyDrop Create Fund Account"
+  },
+  {
+   "fieldname": "pennydrop_create_fund_account_validation",
+   "fieldtype": "Data",
+   "label": "PennyDrop Create Fund Account Validation"
+  },
+  {
+   "fieldname": "pennydrop_create_fund_account_validation_id",
+   "fieldtype": "Data",
+   "label": "PennyDrop Create Fund Account Validation Id"
+  },
+  {
+   "fieldname": "settlement_recon_api",
+   "fieldtype": "Data",
+   "label": "Settlement recon API"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "ckyc_config_section",
+   "fieldtype": "Section Break",
+   "label": "CKYC Config"
+  },
+  {
+   "fieldname": "ckyc_search_api",
+   "fieldtype": "Data",
+   "label": "CKYC Search API"
+  },
+  {
+   "fieldname": "column_break_56",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ckyc_download_api",
+   "fieldtype": "Data",
+   "label": "CKYC Download API"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2022-06-02 12:34:50.441622",
+ "modified": "2022-06-29 15:17:20.676282",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

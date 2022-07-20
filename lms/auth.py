@@ -36,6 +36,8 @@ def login(**kwargs):
                 "pin": [utils.validator.rules.LengthRule(4)],
                 "firebase_token": [utils.validator.rules.RequiredIfPresent("pin")],
                 "accept_terms": "decimal|between:0,1",
+                "platform": "",
+                "app_version": "",
             },
         )
         if data.get("firebase_token"):
@@ -91,7 +93,14 @@ def login(**kwargs):
                 customer=customer,
                 user_kyc=user_kyc,
             )
-            lms.add_firebase_token(data.get("firebase_token"), user.name)
+            app_version_platform = ""
+            if data.get("app_version") and data.get("platform"):
+                app_version_platform = (
+                    data.get("app_version") + " | " + data.get("platform")
+                )
+            lms.add_firebase_token(
+                data.get("firebase_token"), app_version_platform, user.name
+            )
             lms.auth.login_activity(customer)
             return utils.respondWithSuccess(
                 message=frappe._("Logged in Successfully"), data=token
@@ -192,6 +201,8 @@ def verify_otp(**kwargs):
                 "mobile": ["required", "decimal", utils.validator.rules.LengthRule(10)],
                 "firebase_token": "required",
                 "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+                "platform": "",
+                "app_version": "",
             },
         )
         if data.get("firebase_token"):
@@ -291,7 +302,14 @@ def verify_otp(**kwargs):
                 token.used = 1
                 token.save(ignore_permissions=True)
 
-            lms.add_firebase_token(data.get("firebase_token"), user.name)
+            app_version_platform = ""
+            if data.get("app_version") and data.get("platform"):
+                app_version_platform = (
+                    data.get("app_version") + " | " + data.get("platform")
+                )
+            lms.add_firebase_token(
+                data.get("firebase_token"), app_version_platform, user.name
+            )
             lms.auth.login_activity(customer)
             frappe.db.commit()
             return utils.respondWithSuccess(data=res)
@@ -334,6 +352,8 @@ def register(**kwargs):
                     ),
                 ],
                 "firebase_token": "required",
+                "platform": "",
+                "app_version": "",
             },
         )
         reg = lms.regex_special_characters(search=data.get("last_name"))
@@ -343,7 +363,10 @@ def register(**kwargs):
             regex=re.compile("[@!#$%^&*()<>?/\|}{~`]"),
         )
         # email validation
-        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        email_regex = (
+            r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
+        )
         if re.search(email_regex, data.get("email")) is None:
             # return utils.respondWithFailure(
             #     status=422,
@@ -395,7 +418,14 @@ def register(**kwargs):
             customer.is_email_verified = 1
             customer.save(ignore_permissions=True)
 
-        lms.add_firebase_token(data.get("firebase_token"), user.name)
+        app_version_platform = ""
+        if data.get("app_version") and data.get("platform"):
+            app_version_platform = (
+                data.get("app_version") + " | " + data.get("platform")
+            )
+        lms.add_firebase_token(
+            data.get("firebase_token"), app_version_platform, user.name
+        )
         data = {
             "token": utils.create_user_access_token(user.name),
             "customer": customer,
@@ -560,7 +590,10 @@ def request_forgot_pin_otp(**kwargs):
             {"email": ["required"]},
         )
         # email validation
-        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        email_regex = (
+            r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
+        )
         if re.search(email_regex, data.get("email")) is None:
             # return utils.respondWithFailure(
             #     status=422,
@@ -616,17 +649,20 @@ def verify_forgot_pin_otp(**kwargs):
             kwargs,
             {
                 "email": ["required"],
-                "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
-                "new_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
-                "retype_pin": [
-                    "required",
-                    "decimal",
-                    utils.validator.rules.LengthRule(4),
-                ],
+                # "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+                # "new_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+                # "retype_pin": [
+                #     "required",
+                #     "decimal",
+                #     utils.validator.rules.LengthRule(4),
+                # ],
             },
         )
         # email validation
-        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        email_regex = (
+            r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
+        )
         if re.search(email_regex, data.get("email")) is None:
             # return utils.respondWithFailure(
             #     status=422,
@@ -701,9 +737,10 @@ def verify_forgot_pin_otp(**kwargs):
         if not is_dummy_account:
             lms.token_mark_as_used(token)
 
-    except utils.exceptions.APIException:
+    except utils.exceptions.APIException as e:
         frappe.db.rollback()
         lms.log_api_error()
+        return e.respond()
 
 
 def login_activity(customer):

@@ -24,6 +24,39 @@ class UserToken(Document):
             "Invoke OTP",
             "Revoke OTP",
         ]:
+            if self.token_type in [
+                "Pledge OTP",
+                "Unpledge OTP",
+            ]:
+                doc = frappe.get_all(
+                    "User KYC", filters={"user": frappe.session.user}, fields=["*"]
+                )[0]
+                doc["otp_info"] = {
+                    "token_type": self.token_type.replace(" ", ""),
+                    "token": self.token,
+                }
+                frappe.enqueue_doc(
+                    "Notification",
+                    "OTP for Spark Loans",
+                    method="send",
+                    doc=doc,
+                )
+            else:
+                doc = frappe.get_all(
+                    "User", filters={"username": self.entity}, fields=["*"]
+                )
+                if doc:
+                    doc[0]["otp_info"] = {
+                        "token_type": self.token_type.replace(" ", ""),
+                        "token": self.token,
+                    }
+                    frappe.enqueue_doc(
+                        "Notification",
+                        "Other OTP for Spark Loans",
+                        method="send",
+                        doc=doc[0],
+                    )
+
             # las_settings = frappe.get_single("LAS Settings")
             # app_hash_string = (las_settings.app_identification_hash_string,)
             # "Your {token_type} for LMS is {token}. Do not share your {token_type} with anyone.{app_hash_string}"
@@ -70,13 +103,31 @@ class UserToken(Document):
 
             if customer.choice_kyc:
                 doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+                if doc.mob_num:
+                    mob_num = doc.mob_num
+                else:
+                    mob_num = doc.ckyc_mob_no
             else:
                 doc = frappe.get_doc("User", self.entity).as_dict()
-            doc["otp_info"] = {
-                "token_type": self.token_type,
+                mob_num = doc.phone
+
+            # doc["otp_info"] = {
+            #     "token_type": self.token_type,
+            #     "token": self.token,
+            #     "expiry_in_minutes": expiry_in_minutes,
+            # }
+            user_doc = frappe.get_doc("User", self.entity).as_dict()
+            user_doc["otp_info"] = {
+                "token_type": self.token_type.replace(" ", ""),
                 "token": self.token,
-                "expiry_in_minutes": expiry_in_minutes,
             }
+
+            frappe.enqueue_doc(
+                "Notification",
+                "Other OTP for Spark Loans",
+                method="send",
+                doc=user_doc,
+            )
 
             """changes as per latest email notification list-sent by vinayak - email verification final 2.0"""
             # mess = _(
@@ -106,7 +157,11 @@ class UserToken(Document):
                 # expiry_in_minutes=expiry_in_minutes,
             )
             if msg:
-                receiver_list = list(set([str(customer.phone), str(doc.mobile_number)]))
+                receiver_list = [str(customer.phone)]
+                if mob_num:
+                    receiver_list.append(str(mob_num))
+
+                receiver_list = list(set(receiver_list))
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
@@ -125,7 +180,7 @@ def validate_receiver_nos(receiver_list):
         validated_receiver_list.append(d)
 
     if not validated_receiver_list:
-        throw(_("Please enter valid mobile nos"))
+        frappe.throw(_("Please enter valid mobile nos"))
 
     return validated_receiver_list
 
@@ -215,6 +270,7 @@ def send_request(gateway_url, params, headers=None, use_post=False):
         "params": params,
         "response": response.json(),
     }
+    lms.create_log(log, "send_request")
     import os
 
     sms_log_file = frappe.utils.get_files_path("sms_log.json")

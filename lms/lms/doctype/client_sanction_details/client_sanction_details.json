@@ -1,0 +1,92 @@
+{
+ "actions": [],
+ "creation": "2022-07-11 15:39:24.243776",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "client_code",
+  "loan_no",
+  "client_name",
+  "pan_no",
+  "column_break_5",
+  "start_date",
+  "end_date",
+  "sanctioned_amount",
+  "roi"
+ ],
+ "fields": [
+  {
+   "fieldname": "client_code",
+   "fieldtype": "Data",
+   "label": "Client Code"
+  },
+  {
+   "fieldname": "loan_no",
+   "fieldtype": "Link",
+   "label": "Loan No.",
+   "options": "Loan"
+  },
+  {
+   "fetch_from": "loan_no.customer_name",
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "label": "Client Name"
+  },
+  {
+   "fieldname": "pan_no",
+   "fieldtype": "Data",
+   "label": "PAN No."
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date"
+  },
+  {
+   "fetch_from": "loan_no.expiry_date",
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  },
+  {
+   "fetch_from": "loan_no.sanctioned_limit",
+   "fieldname": "sanctioned_amount",
+   "fieldtype": "Float",
+   "label": "Sanctioned Amount"
+  },
+  {
+   "fieldname": "roi",
+   "fieldtype": "Float",
+   "label": "ROI%"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-07-12 11:40:41.652721",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Client Sanction Details",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

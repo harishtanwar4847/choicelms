@@ -226,12 +226,47 @@ class UnpledgeApplication(Document):
                     "dp_reimburse_unpledge_maximum_amount",
                 )
 
-            if total_dp_reimburse_unpledge_charges:
-                loan.create_loan_transaction(
-                    transaction_type="DP Reimbursement(Unpledge)",
-                    amount=total_dp_reimburse_unpledge_charges,
-                    approve=True,
+            if total_dp_reimburse_unpledge_charges > 0:
+                total_dp_reimburse_unpledge_charges_reference = (
+                    loan.create_loan_transaction(
+                        transaction_type="DP Reimbursement(Unpledge)",
+                        amount=total_dp_reimburse_unpledge_charges,
+                        approve=True,
+                    )
                 )
+                if lender.cgst_on_dp_reimbursementunpledge_charges > 0:
+                    cgst = total_dp_reimburse_unpledge_charges * (
+                        lender.cgst_on_dp_reimbursementunpledge_charges / 100
+                    )
+                    loan.create_loan_transaction(
+                        transaction_type="CGST on DP Reimbursement(Unpledge) Charges",
+                        amount=cgst,
+                        gst_percent=lender.cgst_on_dp_reimbursementunpledge_charges,
+                        charge_reference=total_dp_reimburse_unpledge_charges_reference.name,
+                        approve=True,
+                    )
+                if lender.sgst_on_dp_reimbursementunpledge_charges > 0:
+                    sgst = total_dp_reimburse_unpledge_charges * (
+                        lender.sgst_on_dp_reimbursementunpledge_charges / 100
+                    )
+                    loan.create_loan_transaction(
+                        transaction_type="SGST on DP Reimbursement(Unpledge) Charges",
+                        amount=sgst,
+                        gst_percent=lender.sgst_on_dp_reimbursementunpledge_charges,
+                        charge_reference=total_dp_reimburse_unpledge_charges_reference.name,
+                        approve=True,
+                    )
+                if lender.igst_on_dp_reimbursementunpledge_charges > 0:
+                    igst = total_dp_reimburse_unpledge_charges * (
+                        lender.igst_on_dp_reimbursementunpledge_charges / 100
+                    )
+                    loan.create_loan_transaction(
+                        transaction_type="IGST on DP Reimbursement(Unpledge) Charges",
+                        amount=igst,
+                        gst_percent=lender.igst_on_dp_reimbursementunpledge_charges,
+                        charge_reference=total_dp_reimburse_unpledge_charges_reference.name,
+                        approve=True,
+                    )
         else:
             # revoke charges - Mutual Fund
             revoke_charges = lender.revoke_initiate_charges
@@ -239,7 +274,7 @@ class UnpledgeApplication(Document):
             if lender.revoke_initiate_charge_type == "Fix":
                 revoke_charges = revoke_charges
             elif lender.revoke_initiate_charge_type == "Percentage":
-                amount = self.lender_selling_amount * revoke_charges / 100
+                amount = self.unpledge_collateral_value * revoke_charges / 100
                 revoke_charges = loan.validate_loan_charges_amount(
                     lender,
                     amount,
@@ -247,12 +282,39 @@ class UnpledgeApplication(Document):
                     "revoke_initiate_charges_maximum_amount",
                 )
 
-            if revoke_charges:
-                loan.create_loan_transaction(
-                    transaction_type="Revoke Initiate Charges",
+            if revoke_charges > 0:
+                revoke_charges_reference = loan.create_loan_transaction(
+                    transaction_type="Revocation Charges",
                     amount=revoke_charges,
                     approve=True,
                 )
+                if lender.cgst_on_revocation_charges > 0:
+                    cgst = revoke_charges * (lender.cgst_on_revocation_charges / 100)
+                    loan.create_loan_transaction(
+                        transaction_type="CGST on Revocation Charges",
+                        amount=cgst,
+                        gst_percent=lender.cgst_on_revocation_charges,
+                        charge_reference=revoke_charges_reference.name,
+                        approve=True,
+                    )
+                if lender.sgst_on_revocation_charges > 0:
+                    sgst = revoke_charges * (lender.sgst_on_revocation_charges / 100)
+                    loan.create_loan_transaction(
+                        transaction_type="SGST on Revocation Charges",
+                        amount=sgst,
+                        gst_percent=lender.sgst_on_revocation_charges,
+                        charge_reference=revoke_charges_reference.name,
+                        approve=True,
+                    )
+                if lender.igst_on_revocation_charges > 0:
+                    igst = revoke_charges * (lender.igst_on_revocation_charges / 100)
+                    loan.create_loan_transaction(
+                        transaction_type="IGST on Revocation Charges",
+                        amount=igst,
+                        gst_percent=lender.igst_on_revocation_charges,
+                        charge_reference=revoke_charges_reference.name,
+                        approve=True,
+                    )
 
         self.notify_customer()
 
@@ -312,9 +374,13 @@ class UnpledgeApplication(Document):
                         fcm_notification = fcm_notification.as_dict()
                         fcm_notification["title"] = "Revoke application rejected"
 
-            receiver_list = list(
-                set([str(customer.phone), str(user_kyc.mobile_number)])
-            )
+            receiver_list = [str(customer.phone)]
+            if user_kyc.mob_num:
+                receiver_list.append(str(user_kyc.mob_num))
+            if user_kyc.choice_mob_no:
+                receiver_list.append(str(user_kyc.choice_mob_no))
+
+            receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)

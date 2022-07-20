@@ -8,6 +8,5150 @@
   "group": "User",
   "headers": [],
   "headers_example": [],
+  "method": "POST",
+  "modified": "2022-07-06 11:03:37.003822",
+  "name": "8974e56a5b",
+  "parameters": [],
+  "parameters_example": [
+   {
+    "example": "{}\n",
+    "parent": "8974e56a5b",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.get_bank_details",
+  "success": [
+   {
+    "default_value": null,
+    "description": "Success or validation message",
+    "field": "message",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Data Object",
+    "field": "data",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "Data Parent",
+    "field": "data.parent",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Data Parent Type",
+    "field": "data.parent_type",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Data Parent Field",
+    "field": "data.parent_field",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User Kyc name",
+    "field": "data.name",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User Kyc user",
+    "field": "data.user",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Pan Number",
+    "field": "data.pan_no",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "",
+    "description": "0 or 1",
+    "field": "data.consent_given",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": "",
+    "description": "Status",
+    "field": "data.kyc_status",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User Kyc type",
+    "field": "data.kyc_type",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's DOB",
+    "field": "data.date_of_birth",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Email",
+    "field": "data.email",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Applicant Constitution Type",
+    "field": "data.consti_type",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User Account Holder Type",
+    "field": "data.acc_type",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's CKYC No",
+    "field": "data.ckyc_no",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User Prefix",
+    "field": "data.prefix",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's First Name",
+    "field": "data.fname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Middle Name",
+    "field": "data.mname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Last Name",
+    "field": "data.lname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Full Name",
+    "field": "data.fullname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Maiden Prefix",
+    "field": "data.maiden_prefix",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Maiden First Name",
+    "field": "data.maiden_fname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Maiden Middle Name",
+    "field": "data.maiden_mname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Maiden Last Name",
+    "field": "data.maiden_lname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Maiden Full Name",
+    "field": "data.maiden_fullname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Flag to indicate Father or Spouse",
+    "field": "data.fatherspouse_flag",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Father Prefix",
+    "field": "data.father_prefix",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Father First Name",
+    "field": "data.father_fname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Father Middle Name",
+    "field": "data.father_mname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Father Last Name",
+    "field": "data.father_lname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Father Full Name",
+    "field": "data.father_fullname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Mother Prefix",
+    "field": "data.mother_prefix",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Mother First Name",
+    "field": "data.mother_fname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Mother Middle Name",
+    "field": "data.mother_mname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Mother Last Name",
+    "field": "data.mother_lname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Mother Full Name",
+    "field": "data.mother_fullname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Gender",
+    "field": "data.gender",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Date of Birth",
+    "field": "data.dob",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Pan No",
+    "field": "data.pan_no",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address Line no. 1",
+    "field": "data.perm_line_1",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address Line no. 2",
+    "field": "data.perm_line_2",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address Line no. 3",
+    "field": "data.perm_line_3",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address City",
+    "field": "data.perm_city",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address District",
+    "field": "data.perm_dist",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address State",
+    "field": "data.perm_state",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address Country",
+    "field": "data.perm_country",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address Pincode",
+    "field": "data.perm_pin",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address Proof of Address",
+    "field": "data.perm_poa",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent/Correspondence Address Indicating Same flag",
+    "field": "data.perm_corres_sameflag",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address Line No.1",
+    "field": "data.corres_line1",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address Line No.2",
+    "field": "data.corres_line2",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address Line No.3",
+    "field": "data.corres_line_3",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address CIty",
+    "field": "data.corres_city",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address District",
+    "field": "data.corres_district",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address State",
+    "field": "data.corres_state",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address Country",
+    "field": "data.corres_country",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address Pincode",
+    "field": "data.corres_pin",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address Proof of Address",
+    "field": "data.corres_poa",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Residence STD Code",
+    "field": "data.resi_std_code",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Residence Telephone  Number",
+    "field": "data.resi_tel_num",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Office STD Code",
+    "field": "data.off_std_code",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Office Telephone no",
+    "field": "data.off_tel_num",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Mobile Code",
+    "field": "data.mob_code",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Mobile Number",
+    "field": "data.mob_no",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Email ID",
+    "field": "data.email_id",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Remarks",
+    "field": "data.remarks",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Remarks",
+    "field": "data.dec_date",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Declaration Place",
+    "field": "data.dec_place",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Declaration Place",
+    "field": "data.dec_place",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "KYC verification Date",
+    "field": "data.kyc_date",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "KYC verification name",
+    "field": "data.kyc_name",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "KYC verification designation",
+    "field": "data.kyc_designation",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "KYC verification branch",
+    "field": "data.kyc_branch",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "KYC verification Employee Code",
+    "field": "data.kyc_empcode",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "KYC verification Organization Name",
+    "field": "data.org_name",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "KYC verification Organization Code",
+    "field": "data.org_code",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Number of Identity Documents",
+    "field": "data.num_identity",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Number of Related Persons",
+    "field": "data.num_related",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Number of Images",
+    "field": "data.num_images",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.is_edited",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Doctype name",
+    "field": "data.doctype",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details List",
+    "field": "data.identity_details",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details Parent",
+    "field": "data.identity_details.parent",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details Parent Type",
+    "field": "data.identity_details.parent_type",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details Parent Field",
+    "field": "data.identity_details.parent_field",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details Sequence Number",
+    "field": "data.identity_details.sequence_no",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details Identity Type",
+    "field": "data.identity_details.ident_type",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details Identity Category",
+    "field": "data.identity_details.ident_category",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details Identity Document Number",
+    "field": "data.identity_details.ident_num",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details Identity Verification Status",
+    "field": "data.identity_details.idver_status",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Details list",
+    "field": "data.related_person_details",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Details Parent",
+    "field": "data.related_person_details.parent",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Details Parent Type",
+    "field": "data.related_person_details.parent_type",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Details Parent Field",
+    "field": "data.related_person_details.parent_field",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Details Sequence Number",
+    "field": "data.related_person_details.sequence_no",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Details Relation Type",
+    "field": "data.related_person_details.rel_type",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Addition/Deletion of Related Person",
+    "field": "data.related_person_details.add_del_flag",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person CKYC Number",
+    "field": "data.related_person_details.ckyc_no",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Prefix",
+    "field": "data.related_person_details.prefix",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person First Name",
+    "field": "data.related_person_details.fname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Middle Name",
+    "field": "data.related_person_details.mname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Last Name",
+    "field": "data.related_person_details.lname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Full Name",
+    "field": "data.related_person_details.fullname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Maiden Prefix",
+    "field": "data.related_person_details.maiden_prefix",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Maiden First Name",
+    "field": "data.related_person_details.maiden_fname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Maiden Middle Name",
+    "field": "data.related_person_details.maiden_mname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Maiden Last Name",
+    "field": "data.related_person_details.maiden_lname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Maiden Full Name",
+    "field": "data.related_person_details.maiden_fullname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Father/Spouse indicating flag",
+    "field": "data.related_person_details.fatherspouse_flag",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Father Prefix",
+    "field": "data.related_person_details.father_prefix",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Father First Name",
+    "field": "data.related_person_details.father_fname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Father Middle Name",
+    "field": "data.related_person_details.father_mname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Father Last Name",
+    "field": "data.related_person_details.father_lname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Father Full Name",
+    "field": "data.related_person_details.father_fullname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Mother Prefix",
+    "field": "data.related_person_details.mother_prefix",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Mother First Name",
+    "field": "data.related_person_details.mother_fname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Mother Middle Name",
+    "field": "data.related_person_details.mother_mname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Mother Last Name",
+    "field": "data.related_person_details.mother_lname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Mother Full Name",
+    "field": "data.related_person_details.mother_fullname",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Date of Birth",
+    "field": "data.related_person_details.dob",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Gender",
+    "field": "data.related_person_details.gender",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's PAN Number",
+    "field": "data.related_person_details.pan",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Permanent Proof Of Address Type",
+    "field": "data.related_person_details.perm_poi_type",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Permanent Address Line 1",
+    "field": "data.related_person_details.perm_add_line_1",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Permanent Address Line 2",
+    "field": "data.related_person_details.perm_add_line_2",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Permanent Address Line 3",
+    "field": "data.related_person_details.perm_add_line_3",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Permanent Address City",
+    "field": "data.related_person_details.perm_add_city",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Permanent Address District",
+    "field": "data.related_person_details.perm_add_dist",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Permanent Address State",
+    "field": "data.related_person_details.perm_add_state",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Permanent Address Country",
+    "field": "data.related_person_details.perm_add_country",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Permanent/Correspondence Address Same indicating flag",
+    "field": "data.related_person_details.perm_corres_same_flag",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence Address Line 1",
+    "field": "data.related_person_details.corres_add_line_1",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence Address Line 2",
+    "field": "data.related_person_details.corres_add_line_2",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence Address Line 3",
+    "field": "data.related_person_details.corres_add_line_3",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence Address City",
+    "field": "data.related_person_details.corres_add_city",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence Address District",
+    "field": "data.related_person_details.corres_add_dist",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence Address State",
+    "field": "data.related_person_details.corres_add_state",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence Address Country",
+    "field": "data.related_person_details.corres_add_country",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence Address Pincode",
+    "field": "data.related_person_details.corres_add_pin",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence POI Address Type",
+    "field": "data.related_person_details.corres_poi_type",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Residence STD Code",
+    "field": "data.related_person_details.res_std_code",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Residence Telephone Number",
+    "field": "data.related_person_details.res_tel_num",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Office STD Code",
+    "field": "data.related_person_details.off_std_code",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Office Telephone Number",
+    "field": "data.related_person_details.off_tel_num",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Mobile Code",
+    "field": "data.related_person_details.mob_code",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Mobile Number",
+    "field": "data.related_person_details.mob_no",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Email ID",
+    "field": "data.related_person_details.email_id",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Remarks",
+    "field": "data.related_person_details.remarks",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Photo Type",
+    "field": "data.related_person_details.photo_type",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Photo",
+    "field": "data.related_person_details.photo",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Permanent POI Image Type",
+    "field": "data.related_person_details.perm_poi_image_type",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Permanent POI Image",
+    "field": "data.related_person_details.perm_poi_image",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Passport",
+    "field": "data.related_person_details.passport",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Declaration Place",
+    "field": "data.related_person_details.dec_place",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Declaration Date",
+    "field": "data.related_person_details.dec_date",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's KYC Verification Date",
+    "field": "data.related_person_details.kyc_date",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Document Submitted",
+    "field": "data.related_person_details.doc_sub",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's KYC Verification Name",
+    "field": "data.related_person_details.kyc_name",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's KYC Verification Designation",
+    "field": "data.related_person_details.kyc_designation",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's KYC Verification Branch",
+    "field": "data.related_person_details.kyc_branch",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's KYC Verification Employee Code",
+    "field": "data.related_person_details.kyc_empcode",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Organization Name",
+    "field": "data.related_person_details.org_name",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Organization Code",
+    "field": "data.related_person_details.org_code",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Doctype Name",
+    "field": "data.related_person_details.doctype",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details List",
+    "field": "data.image_details",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details parent",
+    "field": "data.image_details.parent",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Parent Type",
+    "field": "data.image_details.parent_type",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Parent Field",
+    "field": "data.image_details.parent_field",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Sequence Number",
+    "field": "data.image_details.sequence_no",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Image Type",
+    "field": "data.image_details.image_type",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Image Code",
+    "field": "data.image_details.image_code",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Image Name",
+    "field": "data.image_details.image_name",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Global Flag",
+    "field": "data.image_details.global_flag",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Branch Code",
+    "field": "data.image_details.branch_code",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Image",
+    "field": "data.image_details.image",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Doctype Name",
+    "field": "data.image_details.doctype",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account List",
+    "field": "data.bank_account",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account parent",
+    "field": "data.bank_account.parent",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account parent type",
+    "field": "data.bank_account.parenttype",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account parent Field",
+    "field": "data.bank_account.parentfield",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account Status",
+    "field": "data.bank_account.bank_status",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account bank",
+    "field": "data.bank_account.bank",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account branch",
+    "field": "data.bank_account.branch",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account number",
+    "field": "data.bank_account.account_number",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account IFSC",
+    "field": "data.bank_account.ifsc",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account bank Code",
+    "field": "data.bank_account.bank_code",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account city",
+    "field": "data.bank_account.city",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account state",
+    "field": "data.bank_account.state",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.bank_account.is_default",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account address",
+    "field": "data.bank_account.bank_address",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account Contact",
+    "field": "data.bank_account.contact",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account type",
+    "field": "data.bank_account.account_type",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account bank mode",
+    "field": "data.bank_account.bank_mode",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account name",
+    "field": "data.bank_account.name",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1 ",
+    "field": "data.bank_account.is_default",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account MICR",
+    "field": "data.bank_account.micr",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account zip code",
+    "field": "data.bank_account.bank_zip_code",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account district",
+    "field": "data.bank_account.district",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Doctype = User Bank Account",
+    "field": "data.bank_account.doctype",
+    "group": null,
+    "parent": "8974e56a5b",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\n\t\"message\": \"Success\",\n\t\"data\": {\n\t\t\"name\": \"USR-KYC-07-2022-00358\",\n\t\t\"owner\": \"user_canpledge@gmail.com\",\n\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\"modified\": \"2022-07-05 17:26:23.465473\",\n\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\"idx\": 0,\n\t\t\"docstatus\": 0,\n\t\t\"user\": \"user_canpledge@gmail.com\",\n\t\t\"pan_no\": \"AAKHR7426K\",\n\t\t\"consent_given\": 1,\n\t\t\"kyc_status\": \"Approved\",\n\t\t\"kyc_type\": \"CHOICE\",\n\t\t\"date_of_birth\": \"1970-01-01\",\n\t\t\"email\": \"ratiraj.ram@gmail.com\",\n\t\t\"consti_type\": \"01\",\n\t\t\"acc_type\": \"01\",\n\t\t\"ckyc_no\": \"50088727998324\",\n\t\t\"prefix\": \"Ms\",\n\t\t\"fname\": \"KHUSHI\",\n\t\t\"mname\": \"\",\n\t\t\"lname\": \"CHHAPARWAL\",\n\t\t\"fullname\": \"Ms KHUSHI  CHHAPARWAL\",\n\t\t\"maiden_prefix\": \"\",\n\t\t\"maiden_fname\": \"\",\n\t\t\"maiden_mname\": \"\",\n\t\t\"maiden_lname\": \"\",\n\t\t\"maiden_fullname\": \"\",\n\t\t\"fatherspouse_flag\": \"01\",\n\t\t\"father_prefix\": \"MR\",\n\t\t\"father_fname\": \"MANOJ\",\n\t\t\"father_mname\": \"\",\n\t\t\"father_lname\": \"CHHAPARWAL\",\n\t\t\"father_fullname\": \"MR MANOJ  CHHAPARWAL\",\n\t\t\"mother_prefix\": \"\",\n\t\t\"mother_fname\": \"\",\n\t\t\"mother_mname\": \"\",\n\t\t\"mother_lname\": \"\",\n\t\t\"mother_fullname\": \"\",\n\t\t\"gender\": \"F\",\n\t\t\"dob\": \"04-08-2001\",\n\t\t\"pan\": \"CEFPC3206R\",\n\t\t\"perm_line1\": \"CHOICE HOUSE S K PATODIA\",\n\t\t\"perm_line2\": \"ANDHERI\",\n\t\t\"perm_line3\": \"\",\n\t\t\"perm_city\": \"MUMBAI\",\n\t\t\"perm_dist\": \"Mumbai Suburban\",\n\t\t\"perm_state\": \"MH\",\n\t\t\"perm_country\": \"IN\",\n\t\t\"perm_pin\": \"400099\",\n\t\t\"perm_poa\": \"10\",\n\t\t\"perm_corres_sameflag\": \"Y\",\n\t\t\"corres_line1\": \"CHOICE HOUSE S K PATODIA\",\n\t\t\"corres_line2\": \"ANDHERI\",\n\t\t\"corres_line3\": \"\",\n\t\t\"corres_city\": \"MUMBAI\",\n\t\t\"corres_dist\": \"Mumbai Suburban\",\n\t\t\"corres_state\": \"MH\",\n\t\t\"corres_country\": \"IN\",\n\t\t\"corres_pin\": \"400099\",\n\t\t\"corres_poa\": \"10\",\n\t\t\"resi_std_code\": \"\",\n\t\t\"resi_tel_num\": \"\",\n\t\t\"off_std_code\": \"\",\n\t\t\"off_tel_num\": \"\",\n\t\t\"mob_code\": \"\",\n\t\t\"mob_num\": \"\",\n\t\t\"email_id\": \"\",\n\t\t\"remarks\": \"\",\n\t\t\"dec_date\": \"31-05-2022\",\n\t\t\"dec_place\": \"MUMBAI\",\n\t\t\"kyc_date\": \"31-05-2022\",\n\t\t\"doc_sub\": \"01\",\n\t\t\"kyc_name\": \"MANISH\",\n\t\t\"kyc_designation\": \"MANAGER\",\n\t\t\"kyc_branch\": \"MUMBAI\",\n\t\t\"kyc_empcode\": \"25250\",\n\t\t\"org_name\": \"Choice Finserv Private Limited\",\n\t\t\"org_code\": \"IN6917\",\n\t\t\"num_identity\": \"4\",\n\t\t\"num_related\": \"2\",\n\t\t\"num_images\": \"5\",\n\t\t\"is_edited\": 0,\n\t\t\"doctype\": \"User KYC\",\n\t\t\"identity_details\": [\n\t\t\t{\n\t\t\t\t\"name\": \"1a8d1022f0\",\n\t\t\t\t\"owner\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\"modified\": \"2022-07-05 17:26:23.465473\",\n\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"parent\": \"USR-KYC-07-2022-00358\",\n\t\t\t\t\"parentfield\": \"identity_details\",\n\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\"idx\": 1,\n\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\"sequence_no\": \"1\",\n\t\t\t\t\"ident_type\": \"A\",\n\t\t\t\t\"ident_category\": \"Passport\",\n\t\t\t\t\"ident_num\": \"123045607890\",\n\t\t\t\t\"idver_status\": \"02\",\n\t\t\t\t\"doctype\": \"CKYC Identity Details\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"name\": \"305fd819f4\",\n\t\t\t\t\"owner\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\"modified\": \"2022-07-05 17:26:23.465473\",\n\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"parent\": \"USR-KYC-07-2022-00358\",\n\t\t\t\t\"parentfield\": \"identity_details\",\n\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\"idx\": 2,\n\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\"sequence_no\": \"2\",\n\t\t\t\t\"ident_type\": \"B\",\n\t\t\t\t\"ident_category\": \"Voter ID\",\n\t\t\t\t\"ident_num\": \"321065409870\",\n\t\t\t\t\"idver_status\": \"02\",\n\t\t\t\t\"doctype\": \"CKYC Identity Details\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"name\": \"e02f619266\",\n\t\t\t\t\"owner\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\"modified\": \"2022-07-05 17:26:23.465473\",\n\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"parent\": \"USR-KYC-07-2022-00358\",\n\t\t\t\t\"parentfield\": \"identity_details\",\n\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\"idx\": 3,\n\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\"sequence_no\": \"3\",\n\t\t\t\t\"ident_type\": \"C\",\n\t\t\t\t\"ident_category\": \"PAN\",\n\t\t\t\t\"ident_num\": \"CEFPC3206R\",\n\t\t\t\t\"idver_status\": \"02\",\n\t\t\t\t\"doctype\": \"CKYC Identity Details\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"name\": \"85d6e85d0c\",\n\t\t\t\t\"owner\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\"modified\": \"2022-07-05 17:26:23.465473\",\n\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"parent\": \"USR-KYC-07-2022-00358\",\n\t\t\t\t\"parentfield\": \"identity_details\",\n\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\"idx\": 4,\n\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\"sequence_no\": \"4\",\n\t\t\t\t\"ident_type\": \"I\",\n\t\t\t\t\"ident_category\": \"Offline Verification of Aadhaar\",\n\t\t\t\t\"ident_num\": \"XXXXXXXX5241\",\n\t\t\t\t\"idver_status\": \"02\",\n\t\t\t\t\"doctype\": \"CKYC Identity Details\"\n\t\t\t}\n\t\t],\n\t\t\"related_person_details\": [\n\t\t\t{\n\t\t\t\t\"name\": \"d9262b1512\",\n\t\t\t\t\"owner\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\"modified\": \"2022-07-05 17:26:23.465473\",\n\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"parent\": \"USR-KYC-07-2022-00358\",\n\t\t\t\t\"parentfield\": \"related_person_details\",\n\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\"idx\": 1,\n\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\"sequence_no\": \"1\",\n\t\t\t\t\"rel_type\": \"03\",\n\t\t\t\t\"add_del_flag\": \"1\",\n\t\t\t\t\"ckyc_no\": \"\",\n\t\t\t\t\"prefix\": \"MS\",\n\t\t\t\t\"fname\": \"KHUSHI\",\n\t\t\t\t\"mname\": \"\",\n\t\t\t\t\"lname\": \"CHHAPARWAL\",\n\t\t\t\t\"maiden_prefix\": \"\",\n\t\t\t\t\"maiden_fname\": \"\",\n\t\t\t\t\"maiden_mname\": \"\",\n\t\t\t\t\"maiden_lname\": \"\",\n\t\t\t\t\"fatherspouse_flag\": \"01\",\n\t\t\t\t\"father_prefix\": \"MR\",\n\t\t\t\t\"father_fname\": \"MANOJ\",\n\t\t\t\t\"father_mname\": \"\",\n\t\t\t\t\"father_lname\": \"CHHAPARWAL\",\n\t\t\t\t\"mother_prefix\": \"\",\n\t\t\t\t\"mother_fname\": \"\",\n\t\t\t\t\"mother_mname\": \"\",\n\t\t\t\t\"mother_lname\": \"\",\n\t\t\t\t\"dob\": \"04-08-2001\",\n\t\t\t\t\"gender\": \"F\",\n\t\t\t\t\"pan\": \"CEFPC3206R\",\n\t\t\t\t\"perm_poi_type\": \"10\",\n\t\t\t\t\"same_as_perm_flag\": \"Y\",\n\t\t\t\t\"corres_add_line1\": \"CHOICE HOUSE S K PATODIA\",\n\t\t\t\t\"corres_add_line2\": \"ANDHERI\",\n\t\t\t\t\"corres_add_line3\": \"\",\n\t\t\t\t\"corres_add_city\": \"MUMBAI\",\n\t\t\t\t\"corres_add_dist\": \"Mumbai Suburban\",\n\t\t\t\t\"corres_add_state\": \"MH\",\n\t\t\t\t\"corres_add_country\": \"IN\",\n\t\t\t\t\"corres_add_pin\": \"400099\",\n\t\t\t\t\"corres_poi_type\": \"10\",\n\t\t\t\t\"resi_std_code\": \"\",\n\t\t\t\t\"resi_tel_num\": \"\",\n\t\t\t\t\"off_std_code\": \"\",\n\t\t\t\t\"off_tel_num\": \"\",\n\t\t\t\t\"mob_code\": \"\",\n\t\t\t\t\"mob_num\": \"\",\n\t\t\t\t\"email\": \"\",\n\t\t\t\t\"remarks\": \"\",\n\t\t\t\t\"photo_type\": \"jpg\",\n\t\t\t\t\"photo\": \"http://localhost:8000/files/CKYC_IMG/usercan-pledge-03.jpg\",\n\t\t\t\t\"perm_poi_image_type\": \"jpg\",\n\t\t\t\t\"perm_poi\": \"http://localhost:8000/files/CKYC_IMG/usercan-pledge-03.jpg\",\n\t\t\t\t\"offline_verification_aadhaar\": \"XXXXXXXX5421\",\n\t\t\t\t\"dec_date\": \"31-05-2022\",\n\t\t\t\t\"dec_place\": \"MUMBAI\",\n\t\t\t\t\"kyc_date\": \"31-05-2022\",\n\t\t\t\t\"doc_sub\": \"01\",\n\t\t\t\t\"kyc_name\": \"MANISH\",\n\t\t\t\t\"kyc_designation\": \"MANAGER\",\n\t\t\t\t\"kyc_branch\": \"MUMBAI\",\n\t\t\t\t\"kyc_empcode\": \"25250\",\n\t\t\t\t\"org_name\": \"Choice Finserv Private Limited\",\n\t\t\t\t\"org_code\": \"IN6917\",\n\t\t\t\t\"doctype\": \"Related Person Details\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"name\": \"ccc135f714\",\n\t\t\t\t\"owner\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\"modified\": \"2022-07-05 17:26:23.465473\",\n\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"parent\": \"USR-KYC-07-2022-00358\",\n\t\t\t\t\"parentfield\": \"related_person_details\",\n\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\"idx\": 2,\n\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\"sequence_no\": \"2\",\n\t\t\t\t\"rel_type\": \"03\",\n\t\t\t\t\"add_del_flag\": \"1\",\n\t\t\t\t\"ckyc_no\": \"\",\n\t\t\t\t\"prefix\": \"MS\",\n\t\t\t\t\"fname\": \"HARSHA\",\n\t\t\t\t\"mname\": \"\",\n\t\t\t\t\"lname\": \"SANKLA\",\n\t\t\t\t\"maiden_prefix\": \"\",\n\t\t\t\t\"maiden_fname\": \"\",\n\t\t\t\t\"maiden_mname\": \"\",\n\t\t\t\t\"maiden_lname\": \"\",\n\t\t\t\t\"fatherspouse_flag\": \"01\",\n\t\t\t\t\"father_prefix\": \"MR\",\n\t\t\t\t\"father_fname\": \"MANOJ\",\n\t\t\t\t\"father_mname\": \"\",\n\t\t\t\t\"father_lname\": \"SANKLA\",\n\t\t\t\t\"mother_prefix\": \"\",\n\t\t\t\t\"mother_fname\": \"\",\n\t\t\t\t\"mother_mname\": \"\",\n\t\t\t\t\"mother_lname\": \"\",\n\t\t\t\t\"dob\": \"31-05-1998\",\n\t\t\t\t\"gender\": \"F\",\n\t\t\t\t\"pan\": \"IRRPS4554M\",\n\t\t\t\t\"perm_poi_type\": \"02\",\n\t\t\t\t\"same_as_perm_flag\": \"Y\",\n\t\t\t\t\"corres_add_line1\": \"VILE PARLE\",\n\t\t\t\t\"corres_add_line2\": \"ANDHERI\",\n\t\t\t\t\"corres_add_line3\": \"MUMBAI\",\n\t\t\t\t\"corres_add_city\": \"MUMBAI\",\n\t\t\t\t\"corres_add_dist\": \"Mumbai Suburban\",\n\t\t\t\t\"corres_add_state\": \"MH\",\n\t\t\t\t\"corres_add_country\": \"IN\",\n\t\t\t\t\"corres_add_pin\": \"400057\",\n\t\t\t\t\"corres_poi_type\": \"02\",\n\t\t\t\t\"resi_std_code\": \"\",\n\t\t\t\t\"resi_tel_num\": \"\",\n\t\t\t\t\"off_std_code\": \"\",\n\t\t\t\t\"off_tel_num\": \"\",\n\t\t\t\t\"mob_code\": \"\",\n\t\t\t\t\"mob_num\": \"9876543210\",\n\t\t\t\t\"email\": \"ABCD@BAC.COM\",\n\t\t\t\t\"remarks\": \"REMARK\",\n\t\t\t\t\"photo_type\": \"jpg\",\n\t\t\t\t\"photo\": \"http://localhost:8000/files/CKYC_IMG/usercan-pledge-03.jpg\",\n\t\t\t\t\"perm_poi_image_type\": \"jpg\",\n\t\t\t\t\"perm_poi\": \"http://localhost:8000/files/CKYC_IMG/usercan-pledge-03.jpg\",\n\t\t\t\t\"passport\": \"123456789\",\n\t\t\t\t\"dec_date\": \"29-06-2022\",\n\t\t\t\t\"dec_place\": \"MUMBAI\",\n\t\t\t\t\"kyc_date\": \"29-06-2022\",\n\t\t\t\t\"doc_sub\": \"01\",\n\t\t\t\t\"kyc_name\": \"MANISH\",\n\t\t\t\t\"kyc_designation\": \"MANAGER\",\n\t\t\t\t\"kyc_branch\": \"MUMBAI\",\n\t\t\t\t\"kyc_empcode\": \"12345\",\n\t\t\t\t\"org_name\": \"Choice Finserv Private Limited\",\n\t\t\t\t\"org_code\": \"IN6917\",\n\t\t\t\t\"doctype\": \"Related Person Details\"\n\t\t\t}\n\t\t],\n\t\t\"image_details\": [\n\t\t\t{\n\t\t\t\t\"name\": \"dd676200e7\",\n\t\t\t\t\"owner\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\"modified\": \"2022-07-05 17:26:23.465473\",\n\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"parent\": \"USR-KYC-07-2022-00358\",\n\t\t\t\t\"parentfield\": \"image_details\",\n\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\"idx\": 1,\n\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\"sequence_no\": \"1\",\n\t\t\t\t\"image_type\": \"jpg\",\n\t\t\t\t\"image_code\": \"02\",\n\t\t\t\t\"image_name\": \"Photograph\",\n\t\t\t\t\"global_flag\": \"\",\n\t\t\t\t\"branch_code\": \"HO\",\n\t\t\t\t\"image\": \"http://localhost:8000/files/CKYC_IMG/usercan-pledge-1.jpg\",\n\t\t\t\t\"doctype\": \"CKYC Image Details\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"name\": \"767e21c107\",\n\t\t\t\t\"owner\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\"modified\": \"2022-07-05 17:26:23.465473\",\n\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"parent\": \"USR-KYC-07-2022-00358\",\n\t\t\t\t\"parentfield\": \"image_details\",\n\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\"idx\": 2,\n\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\"sequence_no\": \"2\",\n\t\t\t\t\"image_type\": \"jpg\",\n\t\t\t\t\"image_code\": \"05\",\n\t\t\t\t\"image_name\": \"Passport\",\n\t\t\t\t\"global_flag\": \"\",\n\t\t\t\t\"branch_code\": \"HO\",\n\t\t\t\t\"image\": \"http://localhost:8000/files/CKYC_IMG/usercan-pledge-2.jpg\",\n\t\t\t\t\"doctype\": \"CKYC Image Details\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"name\": \"ad6deefcee\",\n\t\t\t\t\"owner\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\"modified\": \"2022-07-05 17:26:23.465473\",\n\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"parent\": \"USR-KYC-07-2022-00358\",\n\t\t\t\t\"parentfield\": \"image_details\",\n\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\"idx\": 3,\n\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\"sequence_no\": \"3\",\n\t\t\t\t\"image_type\": \"jpg\",\n\t\t\t\t\"image_code\": \"07\",\n\t\t\t\t\"image_name\": \"Voters Identity Card\",\n\t\t\t\t\"global_flag\": \"\",\n\t\t\t\t\"branch_code\": \"HO\",\n\t\t\t\t\"image\": \"http://localhost:8000/files/CKYC_IMG/usercan-pledge-3.jpg\",\n\t\t\t\t\"doctype\": \"CKYC Image Details\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"name\": \"e12e6e9f94\",\n\t\t\t\t\"owner\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\"modified\": \"2022-07-05 17:26:23.465473\",\n\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"parent\": \"USR-KYC-07-2022-00358\",\n\t\t\t\t\"parentfield\": \"image_details\",\n\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\"idx\": 4,\n\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\"sequence_no\": \"4\",\n\t\t\t\t\"image_type\": \"jpg\",\n\t\t\t\t\"image_code\": \"09\",\n\t\t\t\t\"image_name\": \"Signature\",\n\t\t\t\t\"global_flag\": \"\",\n\t\t\t\t\"branch_code\": \"HO\",\n\t\t\t\t\"image\": \"http://localhost:8000/files/CKYC_IMG/usercan-pledge-4.jpg\",\n\t\t\t\t\"doctype\": \"CKYC Image Details\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"name\": \"1e8921e2a8\",\n\t\t\t\t\"owner\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\"modified\": \"2022-07-05 17:26:23.465473\",\n\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"parent\": \"USR-KYC-07-2022-00358\",\n\t\t\t\t\"parentfield\": \"image_details\",\n\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\"idx\": 5,\n\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\"sequence_no\": \"5\",\n\t\t\t\t\"image_type\": \"jpg\",\n\t\t\t\t\"image_code\": \"37\",\n\t\t\t\t\"image_name\": \"Offline verification of Aadhaar\",\n\t\t\t\t\"global_flag\": \"\",\n\t\t\t\t\"branch_code\": \"HO\",\n\t\t\t\t\"image\": \"http://localhost:8000/files/CKYC_IMG/usercan-pledge-5.jpg\",\n\t\t\t\t\"doctype\": \"CKYC Image Details\"\n\t\t\t}\n\t\t],\n\t\t\"bank_account\": [\n\t\t\t{\n\t\t\t\t\"name\": \"33a367827d\",\n\t\t\t\t\"owner\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\"modified\": \"2022-07-05 17:26:23.465473\",\n\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"parent\": \"USR-KYC-07-2022-00358\",\n\t\t\t\t\"parentfield\": \"bank_account\",\n\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\"idx\": 1,\n\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\"bank_status\": \"Pending\",\n\t\t\t\t\"bank\": \"HDFC BANK\",\n\t\t\t\t\"branch\": \"ROURKELA PANPOSH ROAD ORISSA\",\n\t\t\t\t\"account_number\": \"03621000042135\",\n\t\t\t\t\"ifsc\": \"HDFC0000362\",\n\t\t\t\t\"bank_code\": \"HDF\",\n\t\t\t\t\"city\": \"RAURKELA\",\n\t\t\t\t\"state\": \"ODISHA\",\n\t\t\t\t\"is_default\": 0,\n\t\t\t\t\"bank_address\": \"CHOUDHURY COMPLEX PANPOSH ROAD ROURKELAROURKELAORISSA769004\",\n\t\t\t\t\"contact\": \"9937903333\",\n\t\t\t\t\"account_type\": \"S\",\n\t\t\t\t\"micr\": \"769240003\",\n\t\t\t\t\"bank_mode\": \"NODAL\",\n\t\t\t\t\"bank_zip_code\": \"769004\",\n\t\t\t\t\"district\": \"SUNDERGARH\",\n\t\t\t\t\"doctype\": \"User Bank Account\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"name\": \"225bfd6673\",\n\t\t\t\t\"owner\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\"modified\": \"2022-07-05 17:26:23.465473\",\n\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\"parent\": \"USR-KYC-07-2022-00358\",\n\t\t\t\t\"parentfield\": \"bank_account\",\n\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\"idx\": 2,\n\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\"bank_status\": \"Pending\",\n\t\t\t\t\"bank\": \"HDFC BANK\",\n\t\t\t\t\"branch\": \"ROURKELA PANPOSH ROAD ORISSA\",\n\t\t\t\t\"account_number\": \"50200051781714\",\n\t\t\t\t\"ifsc\": \"HDFC0000362\",\n\t\t\t\t\"bank_code\": \"HDF\",\n\t\t\t\t\"city\": \"RAURKELA\",\n\t\t\t\t\"state\": \"ODISHA\",\n\t\t\t\t\"is_default\": 1,\n\t\t\t\t\"bank_address\": \"CHOUDHURY COMPLEX PANPOSH ROAD ROURKELAROURKELAORISSA769004\",\n\t\t\t\t\"contact\": \"9937903333\",\n\t\t\t\t\"account_type\": \"C\",\n\t\t\t\t\"micr\": \"769240003\",\n\t\t\t\t\"bank_mode\": \"NODAL\",\n\t\t\t\t\"bank_zip_code\": \"769004\",\n\t\t\t\t\"district\": \"SUNDERGARH\",\n\t\t\t\t\"doctype\": \"User Bank Account\"\n\t\t\t}\n\t\t]\n\t}\n}",
+    "parent": "8974e56a5b",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success"
+   }
+  ],
+  "title": "Get Bank Details",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "8974e56a5b",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "8974e56a5b",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "8974e56a5b",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "8974e56a5b",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2022-07-06 11:46:28.121576",
+  "name": "12cb405dd1",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "User's PAN Number",
+    "field": "pan_no",
+    "group": null,
+    "optional": 0,
+    "parent": "12cb405dd1",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "User's Date of Birth",
+    "field": "dob",
+    "group": null,
+    "optional": 0,
+    "parent": "12cb405dd1",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "User's CKYC NUmber",
+    "field": "ckyc_no",
+    "group": null,
+    "optional": 0,
+    "parent": "12cb405dd1",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"pan_no\": \"CNSGU3268R\",\n\t\"dob\": \"09-05-2001\",\n\t\"ckyc_no\": \"53975727906324\"\n}\n",
+    "parent": "12cb405dd1",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.ckyc_download",
+  "success": [
+   {
+    "default_value": null,
+    "description": "Success or validation message",
+    "field": "message",
+    "group": null,
+    "parent": "12cb405dd1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Data Object",
+    "field": "data",
+    "group": null,
+    "parent": "12cb405dd1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "User KYC Document Name",
+    "field": "data.user_kyc_name",
+    "group": null,
+    "parent": "12cb405dd1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\n\t\"message\": \"Success\",\n\t\"data\": {\n\t\t\"user_kyc_name\": \"USR-KYC-07-2022-00002\"\n\t}\n}",
+    "parent": "12cb405dd1",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success"
+   }
+  ],
+  "title": "CKYC Download",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "12cb405dd1",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "12cb405dd1",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "12cb405dd1",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "12cb405dd1",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2022-07-06 11:55:22.955838",
+  "name": "0fb97b0a80",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "User's PAN Number",
+    "field": "pan_no",
+    "group": null,
+    "optional": 0,
+    "parent": "0fb97b0a80",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "accept_terms",
+    "group": null,
+    "optional": 0,
+    "parent": "0fb97b0a80",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"pan_no\": \"CNXHD2486R\",\n\t\"accept_terms\":1\n}",
+    "parent": "0fb97b0a80",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.ckyc_search",
+  "success": [
+   {
+    "default_value": null,
+    "description": "Success or validation message",
+    "field": "message",
+    "group": null,
+    "parent": "0fb97b0a80",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Data Object",
+    "field": "data",
+    "group": null,
+    "parent": "0fb97b0a80",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "User CKYC Number",
+    "field": "data.ckyc_no",
+    "group": null,
+    "parent": "0fb97b0a80",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\n\t\"message\": \"Success\",\n\t\"data\": {\n\t\t\"ckyc_no\": \"24513658975485\"\n\t}\n}",
+    "parent": "0fb97b0a80",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success"
+   }
+  ],
+  "title": "CKYC Search",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "0fb97b0a80",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "0fb97b0a80",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "0fb97b0a80",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "0fb97b0a80",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2022-07-06 13:11:37.671213",
+  "name": "750618d4dc",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "User's KYC Document Name",
+    "field": "user_kyc_name",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Address Details Object",
+    "field": "address_details",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Object"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Permanent Address Object",
+    "field": "address_details.permanent_address",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Object"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Permanent Address Line 1",
+    "field": "address_details.permanent_address.address_line_1",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Permanent Address Line 2",
+    "field": "address_details.permanent_address.address_line_2",
+    "group": null,
+    "optional": 1,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Permanent Address Line 3",
+    "field": "address_details.permanent_address.address_line_3",
+    "group": null,
+    "optional": 1,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Permanent Address City",
+    "field": "address_details.permanent_address.city",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Permanent Address Pincode",
+    "field": "address_details.permanent_address.pincode",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Permanent Address State",
+    "field": "address_details.permanent_address.state",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Permanent Address District",
+    "field": "address_details.permanent_address.district",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Permanent Address Country",
+    "field": "address_details.permanent_address.country",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Permanent Address Proof Image",
+    "field": "address_details.permanent_address.address_proof_image",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Permanent Address Proof Type",
+    "field": "address_details.permanent_address.poa_type",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Flag indicating Same Permanent/Correspondence Address",
+    "field": "address_details.perm_corres_flag",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Correpomdence Address Object",
+    "field": "address_details.corresponding_address",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Object"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Correspondence Address Line 1",
+    "field": "address_details.corresponding_address.address_line_1",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Correspondence Address Line 2",
+    "field": "address_details.corresponding_address.address_line_2",
+    "group": null,
+    "optional": 1,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Correspondence Address Line 3",
+    "field": "address_details.corresponding_address.address_line_3",
+    "group": null,
+    "optional": 1,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Correspondence Address City",
+    "field": "address_details.corresponding_address.city",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Correspondence Address Pincode",
+    "field": "address_details.corresponding_address.pincode",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Correspondence Address State",
+    "field": "address_details.corresponding_address.state",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Correspondence Address District",
+    "field": "address_details.corresponding_address.district",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Correspondence Address Country",
+    "field": "address_details.corresponding_address.country",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Correspondence Address Proof Image",
+    "field": "address_details.corresponding_address.address_proof_image",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Correspondence Address Proof Type",
+    "field": "address_details.corresponding_address.poa_type",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "accept_terms",
+    "group": null,
+    "optional": 0,
+    "parent": "750618d4dc",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"user_kyc_name\": \"USR-KYC-07-2022-00002\",\n\t\"address_details\": {\n\t\t\"permanent_address\": {\n\t\t\t\"address_line1\": \"E2/2 \",\n\t\t\t\"address_line2\": \"Marol Police Camp\",\n\t\t\t\"address_line3\": \"M.M Road\",\n\t\t\t\"city\": \"Andheri(East)\",\n\t\t\t\"pin_code\": \"400059\",\n\t\t\t\"state\": \"MH\",\n\t\t\t\"district\": \"Mumbai\",\n\t\t\t\"country\": \"IN\",\n\t\t\t\"address_proof_image\":\n\"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\\\"\",\n\t\t\t\"poa_type\":\"Letter of allotment of accommodation from employer issued by State or Central Government departments, statutory or regulatory bodies, public sector undertakings, scheduled commercial banks, financial institutions and listed companies. Similarly, leave and license agreements with such employers allotting official accommodation.\"\n\t\t},\n\t\t\"perm_corres_flag\":\"yes\",\n\t\t\"corresponding_address\": {\n\t\t\t\"address_line1\": \"E2/3\",\n\t\t\t\"address_line2\": \"Marol Police Camp\",\n\t\t\t\"address_line3\": \"M.M Road\",\n\t\t\t\"city\": \"Andheri(East)\",\n\t\t\t\"pin_code\": \"400059\",\n\t\t\t\"state\": \"MH\",\n\t\t\t\"district\": \"Mumbai\",\n\t\t\t\"country\": \"IN\",\n\t\t\t\"address_proof_image\": \"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\\\"\",\n\t\t\t\"poa_type\":\"Driving License\"\n\t\t}\n\t\t},\n\t\t\"accept_terms\": 1\n}",
+    "parent": "750618d4dc",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.ckyc_consent_details",
+  "success": [
+   {
+    "default_value": null,
+    "description": "Success or validation message",
+    "field": "message",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Data Object",
+    "field": "data",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "User KYC Document Object",
+    "field": "data.user_kyc_doc",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "User Kyc name",
+    "field": "data.user_kyc_doc.name",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User Kyc user",
+    "field": "data.user_kyc_doc.user",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Pan Number",
+    "field": "data.user_kyc_doc.pan_no",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "",
+    "description": "0 or 1",
+    "field": "data.user_kyc_doc.consent_given",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": "",
+    "description": "Status",
+    "field": "data.user_kyc_doc.kyc_status",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User Kyc type",
+    "field": "data.user_kyc_doc.kyc_type",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's DOB",
+    "field": "data.user_kyc_doc.date_of_birth",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Email",
+    "field": "data.user_kyc_doc.email",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Applicant Constitution Type",
+    "field": "data.user_kyc_doc.consti_type",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User Account Holder Type",
+    "field": "data.user_kyc_doc.acc_type",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's CKYC No",
+    "field": "data.user_kyc_doc.ckyc_no",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User Prefix",
+    "field": "data.user_kyc_doc.prefix",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's First Name",
+    "field": "data.user_kyc_doc.fname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Middle Name",
+    "field": "data.user_kyc_doc.mname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Last Name",
+    "field": "data.user_kyc_doc.lname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Full Name",
+    "field": "data.user_kyc_doc.fullname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Maiden Prefix",
+    "field": "data.user_kyc_doc.maiden_prefix",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Maiden First Name",
+    "field": "data.user_kyc_doc.maiden_fname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Maiden Middle Name",
+    "field": "data.user_kyc_doc.maiden_mname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Maiden Last Name",
+    "field": "data.user_kyc_doc.maiden_lname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Maiden Full Name",
+    "field": "data.user_kyc_doc.maiden_fullname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Flag to indicate Father or Spouse",
+    "field": "data.user_kyc_doc.fatherspouse_flag",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Father Prefix",
+    "field": "data.user_kyc_doc.father_prefix",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Father First Name",
+    "field": "data.user_kyc_doc.father_fname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Father Middle Name",
+    "field": "data.user_kyc_doc.father_mname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Father Last Name",
+    "field": "data.user_kyc_doc.father_lname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Father Full Name",
+    "field": "data.user_kyc_doc.father_fullname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Mother Prefix",
+    "field": "data.user_kyc_doc.mother_prefix",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Mother First Name",
+    "field": "data.user_kyc_doc.mother_fname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Mother Middle Name",
+    "field": "data.user_kyc_doc.mother_mname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Mother Last Name",
+    "field": "data.user_kyc_doc.mother_lname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Mother Full Name",
+    "field": "data.user_kyc_doc.mother_fullname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Gender",
+    "field": "data.user_kyc_doc.gender",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Date of Birth",
+    "field": "data.user_kyc_doc.dob",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Pan No",
+    "field": "data.user_kyc_doc.pan_no",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address Line no. 1",
+    "field": "data.user_kyc_doc.perm_line_1",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address Line no. 2",
+    "field": "data.user_kyc_doc.perm_line_2",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address Line no. 3",
+    "field": "data.user_kyc_doc.perm_line_3",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address City",
+    "field": "data.user_kyc_doc.perm_city",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address District",
+    "field": "data.user_kyc_doc.perm_dist",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address State",
+    "field": "data.user_kyc_doc.perm_state",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address Country",
+    "field": "data.user_kyc_doc.perm_country",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address Pincode",
+    "field": "data.user_kyc_doc.perm_pin",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent Address Proof of Address",
+    "field": "data.user_kyc_doc.perm_poa",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Permanent/Correspondence Address Indicating Same flag",
+    "field": "data.user_kyc_doc.perm_corres_sameflag",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address Line No.1",
+    "field": "data.user_kyc_doc.corres_line1",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address Line No.2",
+    "field": "data.user_kyc_doc.corres_line2",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address Line No.3",
+    "field": "data.user_kyc_doc.corres_line_3",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address CIty",
+    "field": "data.user_kyc_doc.corres_city",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address District",
+    "field": "data.user_kyc_doc.corres_district",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address State",
+    "field": "data.user_kyc_doc.corres_state",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address Country",
+    "field": "data.user_kyc_doc.corres_country",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address Pincode",
+    "field": "data.user_kyc_doc.corres_pin",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Correspondence Address Proof of Address",
+    "field": "data.user_kyc_doc.corres_poa",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Residence STD Code",
+    "field": "data.user_kyc_doc.resi_std_code",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Residence Telephone  Number",
+    "field": "data.user_kyc_doc.resi_tel_num",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Office STD Code",
+    "field": "data.user_kyc_doc.off_std_code",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Office Telephone no",
+    "field": "data.user_kyc_doc.off_tel_num",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Mobile Code",
+    "field": "data.user_kyc_doc.mob_code",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Mobile Number",
+    "field": "data.user_kyc_doc.mob_no",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Email ID",
+    "field": "data.user_kyc_doc.email_id",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Remarks",
+    "field": "data.user_kyc_doc.remarks",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Remarks",
+    "field": "data.user_kyc_doc.dec_date",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Declaration Place",
+    "field": "data.user_kyc_doc.dec_place",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Declaration Place",
+    "field": "data.user_kyc_doc",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "KYC verification Date",
+    "field": "data.user_kyc_doc.kyc_date",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "KYC verification name",
+    "field": "data.user_kyc_doc.kyc_name",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "KYC verification designation",
+    "field": "data.user_kyc_doc.kyc_designation",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "KYC verification branch",
+    "field": "data.user_kyc_doc.kyc_branch",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "KYC verification Employee Code",
+    "field": "data.user_kyc_doc.kyc_empcode",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "KYC verification Organization Name",
+    "field": "data.user_kyc_doc.org_name",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "KYC verification Organization Code",
+    "field": "data.user_kyc_doc.org_code",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Number of Identity Documents",
+    "field": "data.user_kyc_doc.num_identity",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Number of Related Persons",
+    "field": "data.user_kyc_doc.num_related",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Number of Images",
+    "field": "data.user_kyc_doc.num_images",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.user_kyc_doc.is_edited",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Doctype name",
+    "field": "data.user_kyc_doc.doctype",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details List",
+    "field": "data.user_kyc_doc.identity_details",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details Parent",
+    "field": "data.user_kyc_doc.identity_details.parent",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details Parent Type",
+    "field": "data.user_kyc_doc.identity_details.parent_type",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details Parent Field",
+    "field": "data.user_kyc_doc.identity_details.parent_field",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details Sequence Number",
+    "field": "data.user_kyc_doc.identity_details.sequence_no",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details Identity Type",
+    "field": "data.user_kyc_doc.identity_details.ident_type",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details Identity Category",
+    "field": "data.user_kyc_doc.identity_details.ident_category",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details Identity Document Number",
+    "field": "data.user_kyc_doc.identity_details.ident_num",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Identity Details Identity Verification Status",
+    "field": "data.user_kyc_doc.identity_details.idver_status",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Details list",
+    "field": "data.user_kyc_doc.related_person_details",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Details Parent",
+    "field": "data.user_kyc_doc.related_person_details.parent",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Details Parent Type",
+    "field": "data.user_kyc_doc.related_person_details.parent_type",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Details Parent Field",
+    "field": "data.user_kyc_doc.related_person_details.parent_field",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Details Sequence Number",
+    "field": "data.user_kyc_doc.related_person_details.sequence_no",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Details Relation Type",
+    "field": "data.user_kyc_doc.related_person_details.rel_type",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Addition/Deletion of Related Person",
+    "field": "data.user_kyc_doc.related_person_details.add_del_flag",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person CKYC Number",
+    "field": "data.user_kyc_doc.related_person_details.ckyc_no",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Prefix",
+    "field": "data.user_kyc_doc.related_person_details.prefix",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person First Name",
+    "field": "data.user_kyc_doc.related_person_details.fname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Middle Name",
+    "field": "data.user_kyc_doc.related_person_details.mname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Last Name",
+    "field": "data.user_kyc_doc.related_person_details.lname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Full Name",
+    "field": "data.user_kyc_doc.related_person_details.fullname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Maiden Prefix",
+    "field": "data.user_kyc_doc.related_person_details.maiden_prefix",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Maiden First Name",
+    "field": "data.user_kyc_doc.related_person_details.maiden_fname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Maiden Middle Name",
+    "field": "data.user_kyc_doc.related_person_details.maiden_mname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Maiden Last Name",
+    "field": "data.user_kyc_doc.related_person_details.maiden_lname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Maiden Full Name",
+    "field": "data.user_kyc_doc.related_person_details.maiden_fullname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Father/Spouse indicating flag",
+    "field": "data.user_kyc_doc.related_person_details.fatherspouse_flag",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Father Prefix",
+    "field": "data.user_kyc_doc.related_person_details.father_prefix",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Father First Name",
+    "field": "data.user_kyc_doc.related_person_details.father_fname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Father Middle Name",
+    "field": "data.user_kyc_doc.related_person_details.father_mname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Father Last Name",
+    "field": "data.user_kyc_doc.related_person_details.father_lname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Father Full Name",
+    "field": "data.user_kyc_doc.related_person_details.father_fullname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Mother Prefix",
+    "field": "data.user_kyc_doc.related_person_details.mother_prefix",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Mother First Name",
+    "field": "data.user_kyc_doc.related_person_details.mother_fname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Mother Middle Name",
+    "field": "data.user_kyc_doc.related_person_details.mother_mname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Mother Last Name",
+    "field": "data.user_kyc_doc.related_person_details.mother_lname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person Mother Full Name",
+    "field": "data.user_kyc_doc.related_person_details.mother_fullname",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Date of Birth",
+    "field": "data.user_kyc_doc.related_person_details.dob",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Gender",
+    "field": "data.user_kyc_doc.related_person_details.gender",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's PAN Number",
+    "field": "data.user_kyc_doc.related_person_details.pan",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Permanent Proof Of Address Type",
+    "field": "data.user_kyc_doc.related_person_details.perm_poi_type",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Permanent/Correspondence Address Same indicating flag",
+    "field": "data.user_kyc_doc.related_person_details.perm_corres_same_flag",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence Address Line 1",
+    "field": "data.user_kyc_doc.related_person_details.corres_add_line_1",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence Address Line 2",
+    "field": "data.user_kyc_doc.related_person_details.corres_add_line_2",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence Address Line 3",
+    "field": "data.user_kyc_doc.related_person_details.corres_add_line_3",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence Address City",
+    "field": "data.user_kyc_doc.related_person_details.corres_add_city",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence Address District",
+    "field": "data.user_kyc_doc.related_person_details.corres_add_dist",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence Address State",
+    "field": "data.user_kyc_doc.related_person_details.corres_add_state",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence Address Country",
+    "field": "data.user_kyc_doc.related_person_details.corres_add_country",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence Address Pincode",
+    "field": "data.user_kyc_doc.related_person_details.corres_add_pin",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Correspondence POI Address Type",
+    "field": "data.user_kyc_doc.related_person_details.corres_poi_type",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Residence STD Code",
+    "field": "data.user_kyc_doc.related_person_details.res_std_code",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Residence Telephone Number",
+    "field": "data.user_kyc_doc.related_person_details.res_tel_num",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Office STD Code",
+    "field": "data.user_kyc_doc.related_person_details.off_std_code",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Office Telephone Number",
+    "field": "data.user_kyc_doc.related_person_details.off_tel_num",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Mobile Code",
+    "field": "data.user_kyc_doc.related_person_details.mob_code",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Mobile Number",
+    "field": "data.user_kyc_doc.related_person_details.mob_no",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Email ID",
+    "field": "data.user_kyc_doc.related_person_details.email_id",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Remarks",
+    "field": "data.user_kyc_doc.related_person_details.remarks",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Photo Type",
+    "field": "data.user_kyc_doc.related_person_details.photo_type",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Photo",
+    "field": "data.user_kyc_doc.related_person_details.photo",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Permanent POI Image Type",
+    "field": "data.user_kyc_doc.related_person_details.perm_poi_image_type",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Permanent POI Image",
+    "field": "data.user_kyc_doc.related_person_details.perm_poi_image",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Passport",
+    "field": "data.user_kyc_doc.related_person_details.passport",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Declaration Place",
+    "field": "data.user_kyc_doc.related_person_details.dec_place",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Declaration Date",
+    "field": "data.user_kyc_doc.related_person_details.dec_date",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's KYC Verification Date",
+    "field": "data.user_kyc_doc.related_person_details.kyc_date",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Document Submitted",
+    "field": "data.user_kyc_doc.related_person_details.doc_sub",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's KYC Verification Name",
+    "field": "data.user_kyc_doc.related_person_details.kyc_name",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's KYC Verification Designation",
+    "field": "data.user_kyc_doc.related_person_details.kyc_designation",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's KYC Verification Branch",
+    "field": "data.user_kyc_doc.related_person_details.kyc_branch",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's KYC Verification Employee Code",
+    "field": "data.user_kyc_doc.related_person_details.kyc_empcode",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Organization Name",
+    "field": "data.user_kyc_doc.related_person_details.org_name",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Organization Code",
+    "field": "data.user_kyc_doc.related_person_details.org_code",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Related Person's Doctype Name",
+    "field": "data.user_kyc_doc.related_person_details.doctype",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details List",
+    "field": "data.user_kyc_doc.image_details",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details parent",
+    "field": "data.user_kyc_doc.image_details.parent",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Parent Type",
+    "field": "data.user_kyc_doc.image_details.parent_type",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Parent Field",
+    "field": "data.user_kyc_doc.image_details.parent_field",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Sequence Number",
+    "field": "data.user_kyc_doc.image_details.sequence_no",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Image Type",
+    "field": "data.user_kyc_doc.image_details.image_type",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Image Code",
+    "field": "data.user_kyc_doc.image_details.image_code",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Image Name",
+    "field": "data.user_kyc_doc.image_details.image_name",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Global Flag",
+    "field": "data.user_kyc_doc.image_details.global_flag",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Branch Code",
+    "field": "data.user_kyc_doc.image_details.branch_code",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Image",
+    "field": "data.user_kyc_doc.image_details.image",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Image Details Doctype Name",
+    "field": "data.user_kyc_doc.image_details.doctype",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account List",
+    "field": "data.user_kyc_doc.bank_account",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account parent",
+    "field": "data.user_kyc_doc.bank_account.parent",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account parent type",
+    "field": "data.user_kyc_doc.bank_account.parenttype",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account parent Field",
+    "field": "data.user_kyc_doc.bank_account.parentfield",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account Status",
+    "field": "data.user_kyc_doc.bank_account.bank_status",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account bank",
+    "field": "data.user_kyc_doc.bank_account.bank",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account branch",
+    "field": "data.user_kyc_doc.bank_account.branch",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account number",
+    "field": "data.user_kyc_doc.bank_account.account_number",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account IFSC",
+    "field": "data.user_kyc_doc.bank_account.ifsc",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account bank Code",
+    "field": "data.user_kyc_doc.bank_account.bank_code",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account city",
+    "field": "data.user_kyc_doc.bank_account.city",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account state",
+    "field": "data.user_kyc_doc.bank_account.state",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.user_kyc_doc.bank_account.is_default",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account address",
+    "field": "data.user_kyc_doc.bank_account.bank_address",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account Contact",
+    "field": "data.user_kyc_doc.bank_account.contact",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account type",
+    "field": "data.user_kyc_doc.bank_account.account_type",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account bank mode",
+    "field": "data.user_kyc_doc.bank_account.bank_mode",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account name",
+    "field": "data.user_kyc_doc.bank_account.name",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1 ",
+    "field": "data.user_kyc_doc.bank_account.is_default",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account MICR",
+    "field": "data.user_kyc_doc.bank_account.micr",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account zip code",
+    "field": "data.user_kyc_doc.bank_account.bank_zip_code",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "User's Bank Account district",
+    "field": "data.user_kyc_doc.bank_account.district",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Doctype = User Bank Account",
+    "field": "data.user_kyc_doc.bank_account.doctype",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Consent Details Object",
+    "field": "data.consent_details",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "Consent Details Name",
+    "field": "data.consent_details.name",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Consent",
+    "field": "data.consent_details.consent",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Doctype Name",
+    "field": "data.consent_details.doctype",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Proof of Addres Type",
+    "field": "data.poa_type",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "List of Countries",
+    "field": "data.country",
+    "group": null,
+    "parent": "750618d4dc",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\n\t\"message\": \"Success\",\n\t\"data\": {\n\t\t\"user_kyc_doc\": {\n\t\t\t\"name\": \"USR-KYC-07-2022-00008\",\n\t\t\t\"owner\": \"john_deol@gmail.com\",\n\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\"modified\": \"2022-07-06 12:54:51.083968\",\n\t\t\t\"modified_by\": \"john_deol@gmail.com\",\n\t\t\t\"idx\": 0,\n\t\t\t\"docstatus\": 0,\n\t\t\t\"user\": \"john_deol@gmail.com\",\n\t\t\t\"pan_no\": \"BCHDG5686K\",\n\t\t\t\"consent_given\": 1,\n\t\t\t\"kyc_status\": \"Approved\",\n\t\t\t\"kyc_type\": \"CHOICE\",\n\t\t\t\"date_of_birth\": \"1970-01-01\",\n\t\t\t\"email\": \"JOHN_DEOL@gmail.com\",\n\t\t\t\"notification_sent\": 1,\n\t\t\t\"consti_type\": \"01\",\n\t\t\t\"acc_type\": \"01\",\n\t\t\t\"ckyc_no\": \"98564210359874\",\n\t\t\t\"prefix\": \"MR\",\n\t\t\t\"fname\": \"JOHN\",\n\t\t\t\"mname\": \"\",\n\t\t\t\"lname\": \"DEOL\",\n\t\t\t\"fullname\": \"Mr JOHN  DEOL\",\n\t\t\t\"maiden_prefix\": \"\",\n\t\t\t\"maiden_fname\": \"\",\n\t\t\t\"maiden_mname\": \"\",\n\t\t\t\"maiden_lname\": \"\",\n\t\t\t\"maiden_fullname\": \"\",\n\t\t\t\"fatherspouse_flag\": \"01\",\n\t\t\t\"father_prefix\": \"MR\",\n\t\t\t\"father_fname\": \"STEPHEN\",\n\t\t\t\"father_mname\": \"\",\n\t\t\t\"father_lname\": \"JOSEPH\",\n\t\t\t\"father_fullname\": \"MR STEPHEN  JOSEPH\",\n\t\t\t\"mother_prefix\": \"\",\n\t\t\t\"mother_fname\": \"\",\n\t\t\t\"mother_mname\": \"\",\n\t\t\t\"mother_lname\": \"\",\n\t\t\t\"mother_fullname\": \"\",\n\t\t\t\"gender\": \"F\",\n\t\t\t\"dob\": \"04-08-2001\",\n\t\t\t\"pan\": \"BCHDFT2682R\",\n\t\t\t\"perm_line1\": \"CHOICE HOUSE S K PATODIA\",\n\t\t\t\"perm_line2\": \"ANDHERI\",\n\t\t\t\"perm_line3\": \"\",\n\t\t\t\"perm_city\": \"MUMBAI\",\n\t\t\t\"perm_dist\": \"Mumbai Suburban\",\n\t\t\t\"perm_state\": \"MH\",\n\t\t\t\"perm_country\": \"IN\",\n\t\t\t\"perm_pin\": \"400099\",\n\t\t\t\"perm_poa\": \"10\",\n\t\t\t\"perm_corres_sameflag\": \"Y\",\n\t\t\t\"corres_line1\": \"CHOICE HOUSE S K PATODIA\",\n\t\t\t\"corres_line2\": \"ANDHERI\",\n\t\t\t\"corres_line3\": \"\",\n\t\t\t\"corres_city\": \"MUMBAI\",\n\t\t\t\"corres_dist\": \"Mumbai Suburban\",\n\t\t\t\"corres_state\": \"MH\",\n\t\t\t\"corres_country\": \"IN\",\n\t\t\t\"corres_pin\": \"400099\",\n\t\t\t\"corres_poa\": \"10\",\n\t\t\t\"resi_std_code\": \"\",\n\t\t\t\"resi_tel_num\": \"\",\n\t\t\t\"off_std_code\": \"\",\n\t\t\t\"off_tel_num\": \"\",\n\t\t\t\"mob_code\": \"\",\n\t\t\t\"mob_num\": \"\",\n\t\t\t\"email_id\": \"\",\n\t\t\t\"remarks\": \"\",\n\t\t\t\"dec_date\": \"31-05-2022\",\n\t\t\t\"dec_place\": \"MUMBAI\",\n\t\t\t\"kyc_date\": \"31-05-2022\",\n\t\t\t\"doc_sub\": \"01\",\n\t\t\t\"kyc_name\": \"MANISH\",\n\t\t\t\"kyc_designation\": \"MANAGER\",\n\t\t\t\"kyc_branch\": \"MUMBAI\",\n\t\t\t\"kyc_empcode\": \"25250\",\n\t\t\t\"org_name\": \"Choice Finserv Private Limited\",\n\t\t\t\"org_code\": \"IN6917\",\n\t\t\t\"num_identity\": \"4\",\n\t\t\t\"num_related\": \"2\",\n\t\t\t\"num_images\": \"5\",\n\t\t\t\"address\": \"4ad77ea5d5\",\n\t\t\t\"is_edited\": 1,\n\t\t\t\"doctype\": \"User KYC\",\n\t\t\t\"identity_details\": [\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"1a8d1022f0\",\n\t\t\t\t\t\"owner\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\t\"modified\": \"2022-07-06 12:54:51.083968\",\n\t\t\t\t\t\"modified_by\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"parent\": \"USR-KYC-07-2022-00008\",\n\t\t\t\t\t\"parentfield\": \"identity_details\",\n\t\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\t\"idx\": 1,\n\t\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\t\"sequence_no\": \"1\",\n\t\t\t\t\t\"ident_type\": \"A\",\n\t\t\t\t\t\"ident_category\": \"Passport\",\n\t\t\t\t\t\"ident_num\": \"1234567893521\",\n\t\t\t\t\t\"idver_status\": \"02\",\n\t\t\t\t\t\"doctype\": \"CKYC Identity Details\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"305fd819f4\",\n\t\t\t\t\t\"owner\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\t\"modified\": \"2022-07-06 12:54:51.083968\",\n\t\t\t\t\t\"modified_by\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"parent\": \"USR-KYC-07-2022-00008\",\n\t\t\t\t\t\"parentfield\": \"identity_details\",\n\t\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\t\"idx\": 2,\n\t\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\t\"sequence_no\": \"2\",\n\t\t\t\t\t\"ident_type\": \"B\",\n\t\t\t\t\t\"ident_category\": \"Voter ID\",\n\t\t\t\t\t\"ident_num\": \"321265409870\",\n\t\t\t\t\t\"idver_status\": \"02\",\n\t\t\t\t\t\"doctype\": \"CKYC Identity Details\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"e02f619266\",\n\t\t\t\t\t\"owner\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\t\"modified\": \"2022-07-06 12:54:51.083968\",\n\t\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\t\"parent\": \"USR-KYC-07-2022-00358\",\n\t\t\t\t\t\"parentfield\": \"identity_details\",\n\t\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\t\"idx\": 3,\n\t\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\t\"sequence_no\": \"3\",\n\t\t\t\t\t\"ident_type\": \"C\",\n\t\t\t\t\t\"ident_category\": \"PAN\",\n\t\t\t\t\t\"ident_num\": \"BCHDFT2682R\",\n\t\t\t\t\t\"idver_status\": \"02\",\n\t\t\t\t\t\"doctype\": \"CKYC Identity Details\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"85d6e85d0c\",\n\t\t\t\t\t\"owner\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\t\"modified\": \"2022-07-06 12:54:51.083968\",\n\t\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\t\"parent\": \"USR-KYC-07-2022-00358\",\n\t\t\t\t\t\"parentfield\": \"identity_details\",\n\t\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\t\"idx\": 4,\n\t\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\t\"sequence_no\": \"4\",\n\t\t\t\t\t\"ident_type\": \"I\",\n\t\t\t\t\t\"ident_category\": \"Offline Verification of Aadhaar\",\n\t\t\t\t\t\"ident_num\": \"XXXXXXXX6541\",\n\t\t\t\t\t\"idver_status\": \"02\",\n\t\t\t\t\t\"doctype\": \"CKYC Identity Details\"\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"related_person_details\": [\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"d9262b1512\",\n\t\t\t\t\t\"owner\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\t\"modified\": \"2022-07-06 12:54:51.083968\",\n\t\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\t\"parent\": \"USR-KYC-07-2022-00008\",\n\t\t\t\t\t\"parentfield\": \"related_person_details\",\n\t\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\t\"idx\": 1,\n\t\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\t\"sequence_no\": \"1\",\n\t\t\t\t\t\"rel_type\": \"03\",\n\t\t\t\t\t\"add_del_flag\": \"1\",\n\t\t\t\t\t\"ckyc_no\": \"\",\n\t\t\t\t\t\"prefix\": \"MR\",\n\t\t\t\t\t\"fname\": \"JOHN\",\n\t\t\t\t\t\"mname\": \"\",\n\t\t\t\t\t\"lname\": \"DEOL\",\n\t\t\t\t\t\"maiden_prefix\": \"\",\n\t\t\t\t\t\"maiden_fname\": \"\",\n\t\t\t\t\t\"maiden_mname\": \"\",\n\t\t\t\t\t\"maiden_lname\": \"\",\n\t\t\t\t\t\"fatherspouse_flag\": \"01\",\n\t\t\t\t\t\"father_prefix\": \"MR\",\n\t\t\t\t\t\"father_fname\": \"STEPHEN\",\n\t\t\t\t\t\"father_mname\": \"\",\n\t\t\t\t\t\"father_lname\": \"JOSEPH\",\n\t\t\t\t\t\"mother_prefix\": \"\",\n\t\t\t\t\t\"mother_fname\": \"\",\n\t\t\t\t\t\"mother_mname\": \"\",\n\t\t\t\t\t\"mother_lname\": \"\",\n\t\t\t\t\t\"dob\": \"04-08-2001\",\n\t\t\t\t\t\"gender\": \"F\",\n\t\t\t\t\t\"pan\": \"BCHDFT2682R\",\n\t\t\t\t\t\"perm_poi_type\": \"10\",\n\t\t\t\t\t\"same_as_perm_flag\": \"Y\",\n\t\t\t\t\t\"corres_add_line1\": \"CHOICE HOUSE S K PATODIA\",\n\t\t\t\t\t\"corres_add_line2\": \"ANDHERI\",\n\t\t\t\t\t\"corres_add_line3\": \"\",\n\t\t\t\t\t\"corres_add_city\": \"MUMBAI\",\n\t\t\t\t\t\"corres_add_dist\": \"Mumbai Suburban\",\n\t\t\t\t\t\"corres_add_state\": \"MH\",\n\t\t\t\t\t\"corres_add_country\": \"IN\",\n\t\t\t\t\t\"corres_add_pin\": \"400099\",\n\t\t\t\t\t\"corres_poi_type\": \"10\",\n\t\t\t\t\t\"resi_std_code\": \"\",\n\t\t\t\t\t\"resi_tel_num\": \"\",\n\t\t\t\t\t\"off_std_code\": \"\",\n\t\t\t\t\t\"off_tel_num\": \"\",\n\t\t\t\t\t\"mob_code\": \"\",\n\t\t\t\t\t\"mob_num\": \"\",\n\t\t\t\t\t\"email\": \"\",\n\t\t\t\t\t\"remarks\": \"\",\n\t\t\t\t\t\"photo_type\": \"jpg\",\n\t\t\t\t\t\"photo\": \"http://localhost:8000/files/CKYC_IMG/john-deol-03.jpg\",\n\t\t\t\t\t\"perm_poi_image_type\": \"jpg\",\n\t\t\t\t\t\"perm_poi\": \"http://localhost:8000/files/CKYC_IMG/john-deol-03.jpg\",\n\t\t\t\t\t\"offline_verification_aadhaar\": \"XXXXXXXX5421\",\n\t\t\t\t\t\"dec_date\": \"31-05-2022\",\n\t\t\t\t\t\"dec_place\": \"MUMBAI\",\n\t\t\t\t\t\"kyc_date\": \"31-05-2022\",\n\t\t\t\t\t\"doc_sub\": \"01\",\n\t\t\t\t\t\"kyc_name\": \"MANISH\",\n\t\t\t\t\t\"kyc_designation\": \"MANAGER\",\n\t\t\t\t\t\"kyc_branch\": \"MUMBAI\",\n\t\t\t\t\t\"kyc_empcode\": \"25250\",\n\t\t\t\t\t\"org_name\": \"Choice Finserv Private Limited\",\n\t\t\t\t\t\"org_code\": \"IN6917\",\n\t\t\t\t\t\"doctype\": \"Related Person Details\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"ccc135f714\",\n\t\t\t\t\t\"owner\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\t\"modified\": \"2022-07-06 12:54:51.083968\",\n\t\t\t\t\t\"modified_by\": \"user_canpledge@gmail.com\",\n\t\t\t\t\t\"parent\": \"USR-KYC-07-2022-00008\",\n\t\t\t\t\t\"parentfield\": \"related_person_details\",\n\t\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\t\"idx\": 2,\n\t\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\t\"sequence_no\": \"2\",\n\t\t\t\t\t\"rel_type\": \"03\",\n\t\t\t\t\t\"add_del_flag\": \"1\",\n\t\t\t\t\t\"ckyc_no\": \"\",\n\t\t\t\t\t\"prefix\": \"MS\",\n\t\t\t\t\t\"fname\": \"HARSHA\",\n\t\t\t\t\t\"mname\": \"\",\n\t\t\t\t\t\"lname\": \"SANKLA\",\n\t\t\t\t\t\"maiden_prefix\": \"\",\n\t\t\t\t\t\"maiden_fname\": \"\",\n\t\t\t\t\t\"maiden_mname\": \"\",\n\t\t\t\t\t\"maiden_lname\": \"\",\n\t\t\t\t\t\"fatherspouse_flag\": \"01\",\n\t\t\t\t\t\"father_prefix\": \"MR\",\n\t\t\t\t\t\"father_fname\": \"MANOJ\",\n\t\t\t\t\t\"father_mname\": \"\",\n\t\t\t\t\t\"father_lname\": \"SANKLA\",\n\t\t\t\t\t\"mother_prefix\": \"\",\n\t\t\t\t\t\"mother_fname\": \"\",\n\t\t\t\t\t\"mother_mname\": \"\",\n\t\t\t\t\t\"mother_lname\": \"\",\n\t\t\t\t\t\"dob\": \"31-05-1998\",\n\t\t\t\t\t\"gender\": \"F\",\n\t\t\t\t\t\"pan\": \"IRRPS4554M\",\n\t\t\t\t\t\"perm_poi_type\": \"02\",\n\t\t\t\t\t\"same_as_perm_flag\": \"Y\",\n\t\t\t\t\t\"corres_add_line1\": \"VILE PARLE\",\n\t\t\t\t\t\"corres_add_line2\": \"ANDHERI\",\n\t\t\t\t\t\"corres_add_line3\": \"MUMBAI\",\n\t\t\t\t\t\"corres_add_city\": \"MUMBAI\",\n\t\t\t\t\t\"corres_add_dist\": \"Mumbai Suburban\",\n\t\t\t\t\t\"corres_add_state\": \"MH\",\n\t\t\t\t\t\"corres_add_country\": \"IN\",\n\t\t\t\t\t\"corres_add_pin\": \"400057\",\n\t\t\t\t\t\"corres_poi_type\": \"02\",\n\t\t\t\t\t\"resi_std_code\": \"\",\n\t\t\t\t\t\"resi_tel_num\": \"\",\n\t\t\t\t\t\"off_std_code\": \"\",\n\t\t\t\t\t\"off_tel_num\": \"\",\n\t\t\t\t\t\"mob_code\": \"\",\n\t\t\t\t\t\"mob_num\": \"9876543210\",\n\t\t\t\t\t\"email\": \"ABCD@BAC.COM\",\n\t\t\t\t\t\"remarks\": \"REMARK\",\n\t\t\t\t\t\"photo_type\": \"jpg\",\n\t\t\t\t\t\"photo\": \"http://localhost:8000/files/CKYC_IMG/john-deol-03.jpg\",\n\t\t\t\t\t\"perm_poi_image_type\": \"jpg\",\n\t\t\t\t\t\"perm_poi\": \"http://localhost:8000/files/CKYC_IMG/john-deol-03.jpg\",\n\t\t\t\t\t\"passport\": \"123456789\",\n\t\t\t\t\t\"dec_date\": \"29-06-2022\",\n\t\t\t\t\t\"dec_place\": \"MUMBAI\",\n\t\t\t\t\t\"kyc_date\": \"29-06-2022\",\n\t\t\t\t\t\"doc_sub\": \"01\",\n\t\t\t\t\t\"kyc_name\": \"MANISH\",\n\t\t\t\t\t\"kyc_designation\": \"MANAGER\",\n\t\t\t\t\t\"kyc_branch\": \"MUMBAI\",\n\t\t\t\t\t\"kyc_empcode\": \"12345\",\n\t\t\t\t\t\"org_name\": \"Choice Finserv Private Limited\",\n\t\t\t\t\t\"org_code\": \"IN6917\",\n\t\t\t\t\t\"doctype\": \"Related Person Details\"\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"image_details\": [\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"dd676200e7\",\n\t\t\t\t\t\"owner\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\t\"modified\": \"2022-07-06 12:54:51.083968\",\n\t\t\t\t\t\"modified_by\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"parent\": \"USR-KYC-07-2022-00008\",\n\t\t\t\t\t\"parentfield\": \"image_details\",\n\t\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\t\"idx\": 1,\n\t\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\t\"sequence_no\": \"1\",\n\t\t\t\t\t\"image_type\": \"jpg\",\n\t\t\t\t\t\"image_code\": \"02\",\n\t\t\t\t\t\"image_name\": \"Photograph\",\n\t\t\t\t\t\"global_flag\": \"\",\n\t\t\t\t\t\"branch_code\": \"HO\",\n\t\t\t\t\t\"image\": \"http://localhost:8000/files/CKYC_IMG/john-deol-1.jpg\",\n\t\t\t\t\t\"doctype\": \"CKYC Image Details\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"767e21c107\",\n\t\t\t\t\t\"owner\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\t\"modified\": \"2022-07-06 12:54:51.083968\",\n\t\t\t\t\t\"modified_by\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"parent\": \"USR-KYC-07-2022-00008\",\n\t\t\t\t\t\"parentfield\": \"image_details\",\n\t\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\t\"idx\": 2,\n\t\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\t\"sequence_no\": \"2\",\n\t\t\t\t\t\"image_type\": \"jpg\",\n\t\t\t\t\t\"image_code\": \"05\",\n\t\t\t\t\t\"image_name\": \"Passport\",\n\t\t\t\t\t\"global_flag\": \"\",\n\t\t\t\t\t\"branch_code\": \"HO\",\n\t\t\t\t\t\"image\": \"http://localhost:8000/files/CKYC_IMG/john-deol-2.jpg\",\n\t\t\t\t\t\"doctype\": \"CKYC Image Details\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"ad6deefcee\",\n\t\t\t\t\t\"owner\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\t\"modified\": \"2022-07-06 12:54:51.083968\",\n\t\t\t\t\t\"modified_by\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"parent\": \"USR-KYC-07-2022-00008\",\n\t\t\t\t\t\"parentfield\": \"image_details\",\n\t\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\t\"idx\": 3,\n\t\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\t\"sequence_no\": \"3\",\n\t\t\t\t\t\"image_type\": \"jpg\",\n\t\t\t\t\t\"image_code\": \"07\",\n\t\t\t\t\t\"image_name\": \"Voters Identity Card\",\n\t\t\t\t\t\"global_flag\": \"\",\n\t\t\t\t\t\"branch_code\": \"HO\",\n\t\t\t\t\t\"image\": \"http://localhost:8000/files/CKYC_IMG/usercan-pledge-3.jpg\",\n\t\t\t\t\t\"doctype\": \"CKYC Image Details\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"e12e6e9f94\",\n\t\t\t\t\t\"owner\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\t\"modified\": \"2022-07-06 12:54:51.083968\",\n\t\t\t\t\t\"modified_by\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"parent\": \"USR-KYC-07-2022-00008\",\n\t\t\t\t\t\"parentfield\": \"image_details\",\n\t\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\t\"idx\": 4,\n\t\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\t\"sequence_no\": \"4\",\n\t\t\t\t\t\"image_type\": \"jpg\",\n\t\t\t\t\t\"image_code\": \"09\",\n\t\t\t\t\t\"image_name\": \"Signature\",\n\t\t\t\t\t\"global_flag\": \"\",\n\t\t\t\t\t\"branch_code\": \"HO\",\n\t\t\t\t\t\"image\": \"http://localhost:8000/files/CKYC_IMG/usercan-pledge-4.jpg\",\n\t\t\t\t\t\"doctype\": \"CKYC Image Details\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"1e8921e2a8\",\n\t\t\t\t\t\"owner\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\t\"modified\": \"2022-07-06 12:54:51.083968\",\n\t\t\t\t\t\"modified_by\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"parent\": \"USR-KYC-07-2022-00008\",\n\t\t\t\t\t\"parentfield\": \"image_details\",\n\t\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\t\"idx\": 5,\n\t\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\t\"sequence_no\": \"5\",\n\t\t\t\t\t\"image_type\": \"jpg\",\n\t\t\t\t\t\"image_code\": \"37\",\n\t\t\t\t\t\"image_name\": \"Offline verification of Aadhaar\",\n\t\t\t\t\t\"global_flag\": \"\",\n\t\t\t\t\t\"branch_code\": \"HO\",\n\t\t\t\t\t\"image\": \"http://localhost:8000/files/CKYC_IMG/john-deol-5.jpg\",\n\t\t\t\t\t\"doctype\": \"CKYC Image Details\"\n\t\t\t\t}\n\t\t\t],\n\t\t\t\"bank_account\": [\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"f7306971e9\",\n\t\t\t\t\t\"owner\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\t\"modified\": \"2022-07-06 12:54:51.083968\",\n\t\t\t\t\t\"modified_by\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"parent\": \"USR-KYC-07-2022-00008\",\n\t\t\t\t\t\"parentfield\": \"bank_account\",\n\t\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\t\"idx\": 1,\n\t\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\t\"bank_status\": \"Pending\",\n\t\t\t\t\t\"bank\": \"HDFC BANK\",\n\t\t\t\t\t\"branch\": \"ROURKELA PANPOSH ROAD ORISSA\",\n\t\t\t\t\t\"account_number\": \"036210004985625\",\n\t\t\t\t\t\"ifsc\": \"HDFC0000002\",\n\t\t\t\t\t\"bank_code\": \"HDF\",\n\t\t\t\t\t\"city\": \"RAURKELA\",\n\t\t\t\t\t\"state\": \"ODISHA\",\n\t\t\t\t\t\"is_default\": 0,\n\t\t\t\t\t\"bank_address\": \"CHOUDHURY COMPLEX PANPOSH ROAD ROURKELAROURKELAORISSA769004\",\n\t\t\t\t\t\"contact\": \"9937264625\",\n\t\t\t\t\t\"account_type\": \"S\",\n\t\t\t\t\t\"micr\": \"746540003\",\n\t\t\t\t\t\"bank_mode\": \"NODAL\",\n\t\t\t\t\t\"bank_zip_code\": \"769004\",\n\t\t\t\t\t\"district\": \"SUNDERGARH\",\n\t\t\t\t\t\"notification_sent\": 0,\n\t\t\t\t\t\"doctype\": \"User Bank Account\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\": \"08df76b388\",\n\t\t\t\t\t\"owner\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"creation\": \"2022-07-04 16:10:41.352458\",\n\t\t\t\t\t\"modified\": \"2022-07-06 12:54:51.083968\",\n\t\t\t\t\t\"modified_by\": \"john_deol@gmail.com\",\n\t\t\t\t\t\"parent\": \"USR-KYC-07-2022-00008\",\n\t\t\t\t\t\"parentfield\": \"bank_account\",\n\t\t\t\t\t\"parenttype\": \"User KYC\",\n\t\t\t\t\t\"idx\": 2,\n\t\t\t\t\t\"docstatus\": 0,\n\t\t\t\t\t\"bank_status\": \"Pending\",\n\t\t\t\t\t\"bank\": \"HDFC BANK\",\n\t\t\t\t\t\"branch\": \"ROURKELA PANPOSH ROAD ORISSA\",\n\t\t\t\t\t\"account_number\": \"50200051254814\",\n\t\t\t\t\t\"ifsc\": \"HDFC0000002\",\n\t\t\t\t\t\"bank_code\": \"HDF\",\n\t\t\t\t\t\"city\": \"RAURKELA\",\n\t\t\t\t\t\"state\": \"ODISHA\",\n\t\t\t\t\t\"is_default\": 1,\n\t\t\t\t\t\"bank_address\": \"CHOUDHURY COMPLEX PANPOSH ROAD ROURKELAROURKELAORISSA769004\",\n\t\t\t\t\t\"contact\": \"9931432584\",\n\t\t\t\t\t\"account_type\": \"C\",\n\t\t\t\t\t\"micr\": \"769240003\",\n\t\t\t\t\t\"bank_mode\": \"NODAL\",\n\t\t\t\t\t\"bank_zip_code\": \"769004\",\n\t\t\t\t\t\"district\": \"SUNDERGARH\",\n\t\t\t\t\t\"notification_sent\": 0,\n\t\t\t\t\t\"doctype\": \"User Bank Account\"\n\t\t\t\t}\n\t\t\t]\n\t\t},\n\t\t\"consent_details\": {\n\t\t\t\"name\": \"Ckyc\",\n\t\t\t\"owner\": \"Administrator\",\n\t\t\t\"creation\": \"2022-07-01 14:58:14.394650\",\n\t\t\t\"modified\": \"2022-07-01 14:58:14.394650\",\n\t\t\t\"modified_by\": \"Administrator\",\n\t\t\t\"idx\": 0,\n\t\t\t\"docstatus\": 0,\n\t\t\t\"consent\": \"I hereby give my consent for storing the information received from C-KYC Registry or to be updated as and when required. I declare that the details furnished above are true and correct to the best of my knowledge and belief and I undertake to inform you of any changes therein, immediately. In case any of the above information is found to be false or untrue or misleading or misrepresenting, I am aware that I may be held liable for it.\",\n\t\t\t\"doctype\": \"Consent\"\n\t\t},\n\t\t\"poa_type\": [\n\t\t\t\"Documents issued by Government departments of foreign jurisdictions and letter issued by Foreign Embassy or Mission in India.\",\n\t\t\t\"Letter of allotment of accommodation from employer issued by State or Central Government departments, statutory or regulatory bodies, public sector undertakings, scheduled commercial banks, financial institutions and listed companies. Similarly, leave and license agreements with such employers allotting official accommodation.\",\n\t\t\t\"Pension or family pension payment orders (PPOs) issued to retired employees by Government Departments or Public Sector Undertakings, if they contain the address.\",\n\t\t\t\"Bank account or Post Office savings bank account statement.\",\n\t\t\t\"Property or Municipal Tax receipt.\",\n\t\t\t\"Utility bill which is not more than two months old of any service provider (electricity, telephone, post-paid mobile phone, piped gas, water bill).\",\n\t\t\t\"Other\",\n\t\t\t\"Self Declaration\",\n\t\t\t\"Letter of allotment of accommodation from employer issued by State or Central Government departments, statutory or regulatory bodies, public sector undertakings, scheduled commercial banks, financial institutions and listed companies. Similarly, leave and license agreements with such employers allotting official accommodation.\",\n\t\t\t\"Pension or family pension payment orders (PPOs) issued to retired employees by Government Departments or Public Sector Undertakings, if they contain the address.\",\n\t\t\t\"Property or Municipal Tax receipt.\",\n\t\t\t\"Utility bill which is not more than two months old of any service provider (electricity, telephone, post-paid mobile phone, piped gas, water bill).\",\n\t\t\t\"Offline verification of Aadhaar\",\n\t\t\t\"E-KYC Authentication\",\n\t\t\t\"National Population Register Letter\",\n\t\t\t\"NREGA Job Card\",\n\t\t\t\"Voters Identity Card\",\n\t\t\t\"Driving License\",\n\t\t\t\"Passport\",\n\t\t\t\"Proof of Possession of Aadhaar\"\n\t\t],\n\t\t\"country\": [\n\t\t\t\"Zimbabwe\",\n\t\t\t\"Zambia\",\n\t\t\t\"Yemen\",\n\t\t\t\"Western Sahara\",\n\t\t\t\"Wallis and Futuna\",\n\t\t\t\"Virgin Islands, U.S.\",\n\t\t\t\"Virgin Islands, British\",\n\t\t\t\"Viet Nam\",\n\t\t\t\"Venezuela, Bolivarian Republic of\",\n\t\t\t\"Vanuatu\",\n\t\t\t\"Uzbekistan\",\n\t\t\t\"Uruguay\",\n\t\t\t\"United States Minor Outlying Islands\",\n\t\t\t\"United States\",\n\t\t\t\"United Kingdom\",\n\t\t\t\"United Arab Emirates\",\n\t\t\t\"Ukraine\",\n\t\t\t\"Uganda\",\n\t\t\t\"Tuvalu\",\n\t\t\t\"Turks and Caicos Islands\",\n\t\t\t\"Turkmenistan\",\n\t\t\t\"Turkey\",\n\t\t\t\"Tunisia\",\n\t\t\t\"Trinidad and Tobago\",\n\t\t\t\"Tonga\",\n\t\t\t\"Tokelau\",\n\t\t\t\"Togo\",\n\t\t\t\"Timor-Leste\",\n\t\t\t\"Thailand\",\n\t\t\t\"Tanzania, United Republic of\",\n\t\t\t\"Tajikistan\",\n\t\t\t\"Taiwan, Province of China\",\n\t\t\t\"Syrian Arab Republic\",\n\t\t\t\"Switzerland\",\n\t\t\t\"Sweden\",\n\t\t\t\"Swaziland\",\n\t\t\t\"Svalbard and Jan Mayen\",\n\t\t\t\"Suriname\",\n\t\t\t\"Sudan\",\n\t\t\t\"Sri Lanka\",\n\t\t\t\"Spain\",\n\t\t\t\"South Sudan\",\n\t\t\t\"South Georgia and the South Sandwich Islands\",\n\t\t\t\"South Africa\",\n\t\t\t\"Somalia\",\n\t\t\t\"Solomon Islands\",\n\t\t\t\"Slovenia\",\n\t\t\t\"Slovakia\",\n\t\t\t\"Sint Maarten (Dutch part)\",\n\t\t\t\"Singapore\",\n\t\t\t\"Sierra Leone\",\n\t\t\t\"Seychelles\",\n\t\t\t\"Serbia\",\n\t\t\t\"Senegal\",\n\t\t\t\"Saudi Arabia\",\n\t\t\t\"Sao Tome and Principe\",\n\t\t\t\"San Marino\",\n\t\t\t\"Samoa\",\n\t\t\t\"Saint Vincent and the Grenadines\",\n\t\t\t\"Saint Pierre and Miquelon\",\n\t\t\t\"Saint Martin (French part)\",\n\t\t\t\"Saint Lucia\",\n\t\t\t\"Saint Kitts and Nevis\",\n\t\t\t\"Saint Helena, Ascension and Tristan da Cunha\",\n\t\t\t\"Saint Barthelemy !Saint Barth\u00e9lemy\",\n\t\t\t\"Rwanda\",\n\t\t\t\"Russian Federation\",\n\t\t\t\"Romania\",\n\t\t\t\"Reunion !R\u00e9union\",\n\t\t\t\"Qatar\",\n\t\t\t\"Puerto Rico\",\n\t\t\t\"Portugal\",\n\t\t\t\"Poland\",\n\t\t\t\"Pitcairn\",\n\t\t\t\"Philippines\",\n\t\t\t\"Peru\",\n\t\t\t\"Paraguay\",\n\t\t\t\"Papua New Guinea\",\n\t\t\t\"Panama\",\n\t\t\t\"Palestine, State of\",\n\t\t\t\"Palau\",\n\t\t\t\"Pakistan\",\n\t\t\t\"Oman\",\n\t\t\t\"Norway\",\n\t\t\t\"Northern Mariana Islands\",\n\t\t\t\"Norfolk Island\",\n\t\t\t\"Niue\",\n\t\t\t\"Nigeria\",\n\t\t\t\"Niger\",\n\t\t\t\"Nicaragua\",\n\t\t\t\"New Zealand\",\n\t\t\t\"New Caledonia\",\n\t\t\t\"Netherlands\",\n\t\t\t\"Nepal\",\n\t\t\t\"Nauru\",\n\t\t\t\"Namibia\",\n\t\t\t\"Myanmar\",\n\t\t\t\"Mozambique\",\n\t\t\t\"Morocco\",\n\t\t\t\"Montserrat\",\n\t\t\t\"Montenegro\",\n\t\t\t\"Mongolia\",\n\t\t\t\"Monaco\",\n\t\t\t\"Moldova, Republic of\",\n\t\t\t\"Micronesia, Federated States of\",\n\t\t\t\"Mexico\",\n\t\t\t\"Mayotte\",\n\t\t\t\"Mauritius\",\n\t\t\t\"Mauritania\",\n\t\t\t\"Martinique\",\n\t\t\t\"Marshall Islands\",\n\t\t\t\"Malta\",\n\t\t\t\"Mali\",\n\t\t\t\"Maldives\",\n\t\t\t\"Malaysia\",\n\t\t\t\"Malawi\",\n\t\t\t\"Madagascar\",\n\t\t\t\"Macedonia, the former Yugoslav Republic of\",\n\t\t\t\"Macao\",\n\t\t\t\"Luxembourg\",\n\t\t\t\"Lithuania\",\n\t\t\t\"Liechtenstein\",\n\t\t\t\"Libya\",\n\t\t\t\"Liberia\",\n\t\t\t\"Lesotho\",\n\t\t\t\"Lebanon\",\n\t\t\t\"Latvia\",\n\t\t\t\"Lao People's Democratic Republic\",\n\t\t\t\"Kyrgyzstan\",\n\t\t\t\"Kuwait\",\n\t\t\t\"Korea, Republic of\",\n\t\t\t\"Korea, Democratic People's Republic of\",\n\t\t\t\"Kiribati\",\n\t\t\t\"Kenya\",\n\t\t\t\"Kazakhstan\",\n\t\t\t\"Jordan\",\n\t\t\t\"Jersey\",\n\t\t\t\"Japan\",\n\t\t\t\"Jamaica\",\n\t\t\t\"Italy\",\n\t\t\t\"Israel\",\n\t\t\t\"Isle of Man\",\n\t\t\t\"Ireland\",\n\t\t\t\"Iraq\",\n\t\t\t\"Iran, Islamic Republic of\",\n\t\t\t\"Indonesia\",\n\t\t\t\"India\",\n\t\t\t\"Iceland\",\n\t\t\t\"Hungary\",\n\t\t\t\"Hong Kong\",\n\t\t\t\"Honduras\",\n\t\t\t\"Holy See (Vatican City State)\",\n\t\t\t\"Heard Island and McDonald Islands\",\n\t\t\t\"Haiti\",\n\t\t\t\"Guyana\",\n\t\t\t\"Guinea-Bissau\",\n\t\t\t\"Guinea\",\n\t\t\t\"Guernsey\",\n\t\t\t\"Guatemala\",\n\t\t\t\"Guam\",\n\t\t\t\"Guadeloupe\",\n\t\t\t\"Grenada\",\n\t\t\t\"Greenland\",\n\t\t\t\"Greece\",\n\t\t\t\"Gibraltar\",\n\t\t\t\"Ghana\",\n\t\t\t\"Germany\",\n\t\t\t\"Georgia\",\n\t\t\t\"Gambia\",\n\t\t\t\"Gabon\",\n\t\t\t\"French Southern Territories\",\n\t\t\t\"French Polynesia\",\n\t\t\t\"French Guiana\",\n\t\t\t\"France\",\n\t\t\t\"Finland\",\n\t\t\t\"Fiji\",\n\t\t\t\"Faroe Islands\",\n\t\t\t\"Falkland Islands (Malvinas)\",\n\t\t\t\"Ethiopia\",\n\t\t\t\"Estonia\",\n\t\t\t\"Eritrea\",\n\t\t\t\"Equatorial Guinea\",\n\t\t\t\"El Salvador\",\n\t\t\t\"Egypt\",\n\t\t\t\"Ecuador\",\n\t\t\t\"Dominican Republic\",\n\t\t\t\"Dominica\",\n\t\t\t\"Djibouti\",\n\t\t\t\"Denmark\",\n\t\t\t\"Czech Republic\",\n\t\t\t\"Cyprus\",\n\t\t\t\"Curacao !Cura\u00e7ao\",\n\t\t\t\"Cuba\",\n\t\t\t\"Croatia\",\n\t\t\t\"Cote d'Ivoire !C\u00f4te d'Ivoire\",\n\t\t\t\"Costa Rica\",\n\t\t\t\"Cook Islands\",\n\t\t\t\"Congo, the Democratic Republic of the\",\n\t\t\t\"Congo\",\n\t\t\t\"Comoros\",\n\t\t\t\"Colombia\",\n\t\t\t\"Cocos (Keeling) Islands\",\n\t\t\t\"Christmas Island\",\n\t\t\t\"China\",\n\t\t\t\"Chile\",\n\t\t\t\"Chad\",\n\t\t\t\"Central African Republic\",\n\t\t\t\"Cayman Islands\",\n\t\t\t\"Canada\",\n\t\t\t\"Cameroon\",\n\t\t\t\"Cambodia\",\n\t\t\t\"Cabo Verde\",\n\t\t\t\"Burundi\",\n\t\t\t\"Burkina Faso\",\n\t\t\t\"Bulgaria\",\n\t\t\t\"Brunei Darussalam\",\n\t\t\t\"British Indian Ocean Territory\",\n\t\t\t\"Brazil\",\n\t\t\t\"Bouvet Island\",\n\t\t\t\"Botswana\",\n\t\t\t\"Bosnia and Herzegovina\",\n\t\t\t\"Bonaire, Sint Eustatius and Saba\",\n\t\t\t\"Bolivia, Plurinational State of\",\n\t\t\t\"Bhutan\",\n\t\t\t\"Bermuda\",\n\t\t\t\"Benin\",\n\t\t\t\"Belize\",\n\t\t\t\"Belgium\",\n\t\t\t\"Belarus\",\n\t\t\t\"Barbados\",\n\t\t\t\"Bangladesh\",\n\t\t\t\"Bahrain\",\n\t\t\t\"Bahamas\",\n\t\t\t\"Azerbaijan\",\n\t\t\t\"Austria\",\n\t\t\t\"Australia\",\n\t\t\t\"Aruba\",\n\t\t\t\"Armenia\",\n\t\t\t\"Argentina\",\n\t\t\t\"Antigua and Barbuda\",\n\t\t\t\"Antarctica\",\n\t\t\t\"Anguilla\",\n\t\t\t\"Angola\",\n\t\t\t\"Andorra\",\n\t\t\t\"American Samoa\",\n\t\t\t\"Algeria\",\n\t\t\t\"Albania\",\n\t\t\t\"Aland Islands\",\n\t\t\t\"Afghanistan\"\n\t\t]\n\t}\n}",
+    "parent": "750618d4dc",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success"
+   }
+  ],
+  "title": "CKYC Consent Details",
+  "use_api_define": [
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "750618d4dc",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "750618d4dc",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "750618d4dc",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "750618d4dc",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2022-07-06 14:26:28.587186",
+  "name": "6551f735f1",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Pincode",
+    "field": "pincode",
+    "group": null,
+    "optional": 0,
+    "parent": "6551f735f1",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"pincode\": \"400042\"\n}",
+    "parent": "6551f735f1",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.pincode",
+  "success": [
+   {
+    "default_value": null,
+    "description": "Success or Validation message",
+    "field": "message",
+    "group": null,
+    "parent": "6551f735f1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Data Object",
+    "field": "data",
+    "group": null,
+    "parent": "6551f735f1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "District NAme",
+    "field": "data.district",
+    "group": null,
+    "parent": "6551f735f1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "State Name",
+    "field": "data.state",
+    "group": null,
+    "parent": "6551f735f1",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\n\t\"message\": \"Success\",\n\t\"data\": {\n\t\t\"district\": \"Mumbai Suburban\",\n\t\t\"state\": \"MAHARASHTRA\"\n\t}\n}",
+    "parent": "6551f735f1",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "success"
+   }
+  ],
+  "title": "Pincode",
+  "use_api_define": [
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "6551f735f1",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "6551f735f1",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "6551f735f1",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "6551f735f1",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2022-07-06 14:51:39.381721",
+  "name": "7e4337e5b3",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Consent Name",
+    "field": "consen_name",
+    "group": null,
+    "optional": 0,
+    "parent": "7e4337e5b3",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"consent_name\": \"Ckyc\"\n}",
+    "parent": "7e4337e5b3",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.consent_details",
+  "success": [
+   {
+    "default_value": null,
+    "description": "Success or Validation message",
+    "field": "message",
+    "group": null,
+    "parent": "7e4337e5b3",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "List of multiple object of security",
+    "field": "data",
+    "group": null,
+    "parent": "7e4337e5b3",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "Consent name",
+    "field": "data.name",
+    "group": null,
+    "parent": "7e4337e5b3",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "consent",
+    "field": "data.consent",
+    "group": null,
+    "parent": "7e4337e5b3",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Doctype Name",
+    "field": "data.doctype",
+    "group": null,
+    "parent": "7e4337e5b3",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\n\t\"message\": \"Success\",\n\t\"data\": {\n\t\t\"name\": \"Ckyc\",\n\t\t\"owner\": \"Administrator\",\n\t\t\"creation\": \"2022-07-01 14:58:14.394650\",\n\t\t\"modified\": \"2022-07-01 14:58:14.394650\",\n\t\t\"modified_by\": \"Administrator\",\n\t\t\"idx\": 0,\n\t\t\"docstatus\": 0,\n\t\t\"consent\": \"I hereby give my consent for storing the information received from C-KYC Registry or to be updated as and when required. I declare that the details furnished above are true and correct to the best of my knowledge and belief and I undertake to inform you of any changes therein, immediately. In case any of the above information is found to be false or untrue or misleading or misrepresenting, I am aware that I may be held liable for it.\",\n\t\t\"doctype\": \"Consent\"\n\t}\n}",
+    "parent": "7e4337e5b3",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "success"
+   }
+  ],
+  "title": "Consent Details",
+  "use_api_define": [
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "7e4337e5b3",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "7e4337e5b3",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "7e4337e5b3",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "7e4337e5b3",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "Loan",
+  "headers": [],
+  "headers_example": [],
+  "method": "POST",
+  "modified": "2022-07-06 14:58:14.680462",
+  "name": "6e53e8d2ea",
+  "parameters": [],
+  "parameters_example": [
+   {
+    "example": "{}",
+    "parent": "6e53e8d2ea",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.cart.my_loans",
+  "success": [
+   {
+    "default_value": null,
+    "description": "Success or validation message",
+    "field": "message",
+    "group": null,
+    "parent": "6e53e8d2ea",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "Status Code",
+    "field": "message.status",
+    "group": null,
+    "parent": "6e53e8d2ea",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "",
+    "description": "Data Object",
+    "field": "message.data",
+    "group": null,
+    "parent": "6e53e8d2ea",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "List of Loans",
+    "field": "message.data.loans",
+    "group": null,
+    "parent": "6e53e8d2ea",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "message.data.user_can_pledge",
+    "group": null,
+    "parent": "6e53e8d2ea",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": "",
+    "description": "Total Outstanding Value",
+    "field": "message.data.total_outstanding",
+    "group": null,
+    "parent": "6e53e8d2ea",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Total Sanctioned Limit",
+    "field": "message.data.total_sanctioned_limit",
+    "group": null,
+    "parent": "6e53e8d2ea",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Drawing Power",
+    "field": "message.data.drawing_power",
+    "group": null,
+    "parent": "6e53e8d2ea",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Total Collateral Value",
+    "field": "message.data.total_total_collateral_value",
+    "group": null,
+    "parent": "6e53e8d2ea",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Total Margin Shortfall",
+    "field": "message.data.total_margin_shortfall",
+    "group": null,
+    "parent": "6e53e8d2ea",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\n\t\"message\": {\n\t\t\"status\": 200,\n\t\t\"message\": \"Loan\",\n\t\t\"data\": {\n\t\t\t\"loans\": [],\n\t\t\t\"user_can_pledge\": 0,\n\t\t\t\"total_outstanding\": 0.0,\n\t\t\t\"total_sanctioned_limit\": 0.0,\n\t\t\t\"total_drawing_power\": 0.0,\n\t\t\t\"total_total_collateral_value\": 0.0,\n\t\t\t\"total_margin_shortfall\": 0.0\n\t\t}\n\t}\n}",
+    "parent": "6e53e8d2ea",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "Success "
+   }
+  ],
+  "title": "My Loans",
+  "use_api_define": [
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "6e53e8d2ea",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "6e53e8d2ea",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "6e53e8d2ea",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "6e53e8d2ea",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
   "method": "GET",
   "modified": "2022-05-02 16:26:17.379082",
   "name": "cbf6ce11f2",
@@ -546,7 +5690,7 @@
    {
     "default_value": null,
     "description": "User KYC Investor's name",
-    "field": "data.user_kyc.investor_name",
+    "field": "data.user_kyc.fullname",
     "group": null,
     "parent": "4621dd797d",
     "parentfield": "success",
@@ -5795,7 +10939,7 @@
    {
     "default_value": null,
     "description": "User Kyc investor name",
-    "field": "data.user_kyc.investor_name",
+    "field": "data.user_kyc.fullname",
     "group": null,
     "parent": "3755fd67c8",
     "parentfield": "success",
@@ -6548,7 +11692,7 @@
    {
     "default_value": null,
     "description": "User Kyc Investor name",
-    "field": "data.user_kyc.investor_name",
+    "field": "data.user_kyc.fullname",
     "group": "Success 200",
     "parent": "1692eb7604",
     "parentfield": "success",

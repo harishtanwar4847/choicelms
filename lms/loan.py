@@ -350,9 +350,13 @@ def esign_done(**kwargs):
                 topup_application.save(ignore_permissions=True)
                 frappe.db.commit()
                 msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of your new OD limit. Thank you for your patience. - Spark Loans"
-                receiver_list = list(
-                    set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-                )
+                receiver_list = [str(customer.phone)]
+                if customer.get_kyc().mob_num:
+                    receiver_list.append(str(customer.get_kyc().mob_num))
+                if customer.get_kyc().choice_mob_no:
+                    receiver_list.append(str(customer.get_kyc().choice_mob_no))
+
+                receiver_list = list(set(receiver_list))
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
@@ -378,6 +382,7 @@ def esign_done(**kwargs):
 def my_loans():
     try:
         customer = lms.__customer()
+        user = lms.__user()
         loans = frappe.db.sql(
             """select
 			loan.total_collateral_value, loan.name, loan.sanctioned_limit, loan.drawing_power,
@@ -416,7 +421,16 @@ def my_loans():
                     "pledge_status": ["!=", "Failure"],
                 },
             )
-            if not under_process_la:
+            loan_cust = frappe.db.get_value(
+                "Loan Customer",
+                {
+                    "user": user.email,
+                    "kyc_update": 1,
+                    "bank_update": 1,
+                },
+                "name",
+            )
+            if not under_process_la and loan_cust:
                 data["user_can_pledge"] = 1
 
         data["total_outstanding"] = float(sum([i.outstanding for i in loans]))
@@ -730,9 +744,13 @@ def create_topup(**kwargs):
             )
 
             msg = "Dear Customer,\nYour top up request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans"
-            receiver_list = list(
-                set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-            )
+            receiver_list = [str(customer.phone)]
+            if customer.get_kyc().mob_num:
+                receiver_list.append(str(customer.get_kyc().mob_num))
+            if customer.get_kyc().choice_mob_no:
+                receiver_list.append(str(customer.get_kyc().choice_mob_no))
+
+            receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
@@ -802,6 +820,7 @@ def loan_details(**kwargs):
                 "record_type",
                 "amount",
                 "time",
+                "gst_percent",
             ],
             start=data.get("transactions_start"),
             page_length=data.get("transactions_per_page"),
@@ -818,7 +837,12 @@ def loan_details(**kwargs):
                     loan_transactions_list,
                 )
             )
-
+        for items in loan_transactions_list:
+            if "GST" in items["transaction_type"]:
+                items["transaction_type"] = items["transaction_type"] + " @{}%".format(
+                    items["gst_percent"],
+                )
+            del items["gst_percent"]
         loan_margin_shortfall = loan.get_margin_shortfall()
         if loan_margin_shortfall.get("__islocal", None):
             loan_margin_shortfall = None
@@ -1411,9 +1435,13 @@ def loan_withdraw_request(**kwargs):
         frappe.enqueue_doc("Notification", "Withdrawal Request", method="send", doc=doc)
         msg = "Dear Customer,\nYour withdrawal request has been received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans"
         if msg:
-            receiver_list = list(
-                set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-            )
+            receiver_list = [str(customer.phone)]
+            if customer.get_kyc().mob_num:
+                receiver_list.append(str(customer.get_kyc().mob_num))
+            if customer.get_kyc().choice_mob_no:
+                receiver_list.append(str(customer.get_kyc().choice_mob_no))
+
+            receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
@@ -1506,9 +1534,13 @@ def loan_payment(**kwargs):
                 frappe.enqueue_doc(
                     "Notification", "Payment Request", method="send", doc=doc
                 )
-                receiver_list = list(
-                    set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-                )
+                receiver_list = [str(customer.phone)]
+                if customer.get_kyc().mob_num:
+                    receiver_list.append(str(customer.get_kyc().mob_num))
+                if customer.get_kyc().choice_mob_no:
+                    receiver_list.append(str(customer.get_kyc().choice_mob_no))
+
+                receiver_list = list(set(receiver_list))
                 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
@@ -1568,9 +1600,13 @@ def loan_payment(**kwargs):
             frappe.db.commit()
 
         if msg:
-            receiver_list = list(
-                set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-            )
+            receiver_list = [str(customer.phone)]
+            if customer.get_kyc().mob_num:
+                receiver_list.append(str(customer.get_kyc().mob_num))
+            if customer.get_kyc().choice_mob_no:
+                receiver_list.append(str(customer.get_kyc().choice_mob_no))
+
+            receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
@@ -1842,13 +1878,13 @@ def loan_statement(**kwargs):
         logo_file_path_2 = las_settings.get_spark_logo_file()
         curr_date = (frappe.utils.now_datetime()).strftime("%d-%B-%Y")
         doc = {
-            "username": user_kyc.investor_name,
+            "username": user_kyc.fullname,
             "loan_name": loan.name,
             "email": user_kyc.user,
             "customer_id": customer.name,
             # "phone": user_kyc.mobile_number,
             "phone": customer.phone,
-            "address": user_kyc.address,
+            "address": user_kyc.address_details,
             "account_opening_date": (loan.creation).strftime("%d-%B-%Y"),
             "overdraft_limit": loan.sanctioned_limit,
             "drawing_power": loan.drawing_power,
@@ -1880,6 +1916,7 @@ def loan_statement(**kwargs):
                     "name",
                     "record_type",
                     "amount",
+                    "gst_percent",
                     # "DATE_FORMAT(time, '%Y-%m-%d %H:%i') as time",
                     # "status",
                     "opening_balance",
@@ -1895,7 +1932,14 @@ def loan_statement(**kwargs):
                 list["amount"] = frappe.utils.fmt_money(list["amount"])
                 # list["amount"] = lms.amount_formatter(list["amount"])
                 list["time"] = list["time"].strftime("%Y-%m-%d %H:%M")
+                if "GST" in list["transaction_type"]:
+                    list["transaction_type"] = list[
+                        "transaction_type"
+                    ] + " @{}%".format(
+                        list["gst_percent"],
+                    )
                 lt_list.append(list.values())
+                del list["gst_percent"]
             # lt_list = [lst.values() for lst in loan_transaction_list]
             res["loan_transaction_list"] = loan_transaction_list
             df = pd.DataFrame(lt_list)
@@ -2170,7 +2214,7 @@ def loan_statement(**kwargs):
                     )[0][0]
 
                 loan_statement_notification = loan_statement_notification.replace(
-                    "investor_name", user_kyc.investor_name
+                    "investor_name", user_kyc.fullname
                 )
                 loan_statement_notification = loan_statement_notification.replace(
                     "logo_file",
@@ -2234,7 +2278,12 @@ def request_unpledge_otp():
         except frappe.DoesNotExistError:
             loan = None
         token_type = "Unpledge OTP"
-        entity = user_kyc.mobile_number
+        if user_kyc.kyc_type == "CHOICE":
+            entity = user_kyc.choice_mob_no
+        elif user_kyc.mob_num != "":
+            entity = user_kyc.mob_num
+        else:
+            entity = customer.phone
         if customer.mycams_email_id and loan:
             token_type = "Revoke OTP"
             entity = customer.phone
@@ -2486,7 +2535,12 @@ def loan_unpledge_request(**kwargs):
 
         msg_type = ["unpledge", "pledged securities"]
         token_type = "Unpledge OTP"
-        entity = user_kyc.mobile_number
+        if user_kyc.kyc_type == "CHOICE":
+            entity = user_kyc.choice_mob_no
+        elif user_kyc.mob_num != "":
+            entity = user_kyc.mob_num
+        else:
+            entity = customer.phone
         email_subject = "Unpledge Request"
         if loan.instrument_type == "Mutual Fund":
             msg_type = ["revoke", "lien schemes"]
@@ -2594,9 +2648,13 @@ def loan_unpledge_request(**kwargs):
             msg_type[0]
         )
 
-        receiver_list = list(
-            set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-        )
+        receiver_list = [str(customer.phone)]
+        if customer.get_kyc().mob_num:
+            receiver_list.append(str(customer.get_kyc().mob_num))
+        if customer.get_kyc().choice_mob_no:
+            receiver_list.append(str(customer.get_kyc().choice_mob_no))
+
+        receiver_list = list(set(receiver_list))
         from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
         frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
@@ -2836,9 +2894,13 @@ def sell_collateral_request(**kwargs):
         frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
 
         if msg:
-            receiver_list = list(
-                set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-            )
+            receiver_list = [str(customer.phone)]
+            if customer.get_kyc().mob_num:
+                receiver_list.append(str(customer.get_kyc().mob_num))
+            if customer.get_kyc().choice_mob_no:
+                receiver_list.append(str(customer.get_kyc().choice_mob_no))
+
+            receiver_list = list(set(receiver_list))
             from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
