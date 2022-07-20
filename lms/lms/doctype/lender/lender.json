@@ -92,7 +92,7 @@
   "cgst_on_documentation_charges",
   "cgst_on_mortgage_charges",
   "cgst_on_sell_collateral_charges",
-  "cgst_on_renewal_charges",
+  "cgst_on_account_renewal_charges",
   "cgst_on_dp_reimbursementunpledge_charges",
   "cgst_on_dp_reimbursementsell_charges",
   "cgst_on_lien_charges",
@@ -104,7 +104,7 @@
   "sgst_on_documentation_charges",
   "sgst_on_mortgage_charges",
   "sgst_on_sell_collateral_charges",
-  "sgst_on_renewal_charges",
+  "sgst_on_account_renewal_charges",
   "sgst_on_dp_reimbursementunpledge_charges",
   "sgst_on_dp_reimbursementsell_charges",
   "sgst_on_lien_charges",
@@ -116,7 +116,7 @@
   "igst_on_documentation_charges",
   "igst_on_mortgage_charges",
   "igst_on_sell_collateral_charges",
-  "igst_on_renewal_charges",
+  "igst_on_account_renewal_charges",
   "igst_on_dp_reimbursementunpledge_charges",
   "igst_on_dp_reimbursementsell_charges",
   "igst_on_lien_charges",
@@ -883,26 +883,26 @@
    "precision": "2"
   },
   {
-   "fieldname": "igst_on_renewal_charges",
+   "fieldname": "cgst_on_account_renewal_charges",
    "fieldtype": "Float",
-   "label": "IGST on Account renewal charges (Percent)",
+   "label": "CGST on Account renewal charges (Percent)",
    "precision": "2"
   },
   {
-   "fieldname": "sgst_on_renewal_charges",
+   "fieldname": "sgst_on_account_renewal_charges",
    "fieldtype": "Float",
    "label": "SGST on Account renewal charges (Percent)",
    "precision": "2"
   },
   {
-   "fieldname": "cgst_on_renewal_charges",
+   "fieldname": "igst_on_account_renewal_charges",
    "fieldtype": "Float",
-   "label": "CGST on Account renewal charges (Percent)",
+   "label": "IGST on Account renewal charges (Percent)",
    "precision": "2"
   }
  ],
  "links": [],
- "modified": "2022-07-19 17:31:06.269357",
+ "modified": "2022-07-20 14:41:34.963293",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
