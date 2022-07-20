@@ -35,7 +35,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "4.0.2-uat"
+__version__ = "5.0.0-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -486,7 +486,7 @@ def delete_user(doc, method):
     frappe.db.commit()
 
 
-def add_firebase_token(firebase_token, user=None):
+def add_firebase_token(firebase_token, app_version_platform, user=None):
     if not user:
         user = frappe.session.user
 
@@ -508,10 +508,15 @@ def add_firebase_token(firebase_token, user=None):
     if get_user_token:
         return
 
-    create_user_token(entity=user, token=firebase_token, token_type="Firebase Token")
+    create_user_token(
+        entity=user,
+        token=firebase_token,
+        token_type="Firebase Token",
+        app_version_platform=app_version_platform,
+    )
 
 
-def create_user_token(entity, token, token_type="OTP"):
+def create_user_token(entity, token, token_type="OTP", app_version_platform=""):
     doc_data = {
         "doctype": "User Token",
         "entity": entity,
@@ -532,6 +537,12 @@ def create_user_token(entity, token, token_type="OTP"):
         )
         doc_data["expiry"] = frappe.utils.now_datetime() + timedelta(
             minutes=expiry_in_minutes
+        )
+
+    if app_version_platform:
+        doc_data["app_version_platform"] = app_version_platform
+        doc_data["customer_id"] = frappe.db.get_value(
+            "Loan Customer", {"user": entity}, "name"
         )
 
     user_token = frappe.get_doc(doc_data)
@@ -777,7 +788,7 @@ def send_spark_push_notification(
                     "response": res_json,
                 }
 
-                create_log(log, "Send Spark Push Notification Log")
+                create_log(log, "Send_Spark_Push_Notification_Log")
 
                 # fa.send_android_message(
                 #     title=fcm_notification.title,

@@ -5,5 +5,5 @@
 import unittest
 
 
-class TestCKYCAddressDetails(unittest.TestCase):
+class TestCustomerAddressDetails(unittest.TestCase):
     pass

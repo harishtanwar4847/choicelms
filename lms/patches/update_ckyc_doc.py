@@ -15,6 +15,7 @@ def execute():
         all_kyc = []
         frappe.reload_doc("Lms", "DocType", "CKYC API Response")
         frappe.reload_doc("Lms", "DocType", "User KYC")
+        frappe.reload_doc("Lms", "DocType", "Customer Address Details")
         user_kyc = frappe.get_all("User KYC", fields=["*"])
         for kyc in user_kyc:
             cust = frappe.db.get_value("Loan Customer", {"user": kyc.user}, "name")

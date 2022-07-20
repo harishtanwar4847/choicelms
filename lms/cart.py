@@ -833,6 +833,37 @@ def get_tnc(**kwargs):
             # from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+            address = (
+                str(address_details.perm_line1)
+                + ", "
+                + str(address_details.perm_line2)
+                + ", "
+                + str(address_details.perm_line3)
+                + ", "
+                + str(address_details.perm_city)
+                + ", "
+                + str(address_details.perm_dist)
+                + ", "
+                + str(
+                    frappe.db.get_value(
+                        "State Master", address_details.perm_state, "description"
+                    )
+                )
+                + ", "
+                + str(
+                    frappe.db.get_value(
+                        "Country Master", address_details.perm_country, "country"
+                    )
+                )
+                + ", "
+                + str(address_details.perm_pin)
+            )
+        else:
+            address = ""
 
         tnc_ul = ["<ul>"]
         tnc_ul.append(
@@ -840,9 +871,7 @@ def get_tnc(**kwargs):
             + "</li>"
         )
         tnc_ul.append(
-            "<li><strong> Address of borrower </strong> : {}".format(
-                user_kyc.address or ""
-            )
+            "<li><strong> Address of borrower </strong> : {}".format(address or "")
             + "</li>"
         )
         tnc_ul.append(

@@ -60,7 +60,7 @@ class LoanApplication(Document):
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_application_number": self.name,
             "borrower_name": user_kyc.fullname,
-            "borrower_address": user_kyc.address,
+            "borrower_address": user_kyc.address_details,
             "sanctioned_amount": lms.validate_rupees(
                 new_increased_sanctioned_limit
                 if self.loan and not self.loan_margin_shortfall

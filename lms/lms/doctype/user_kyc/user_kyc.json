@@ -687,11 +687,11 @@
    "fieldname": "address_details",
    "fieldtype": "Link",
    "label": "Address",
-   "options": "CKYC Address Details"
+   "options": "Customer Address Details"
   }
  ],
  "links": [],
- "modified": "2022-07-12 17:13:06.723761",
+ "modified": "2022-07-18 14:04:42.987516",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
