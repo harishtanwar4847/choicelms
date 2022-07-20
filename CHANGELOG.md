@@ -2,11 +2,17 @@
 
 ## [Unreleased]
 
+## [v5.0.1-uat]
+
+## Fixed
+
+- [Fix: Bug fixes provided by client for mycams, internal qa fixes and code review fixes for ckyc](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/514)
+
 ## [v5.0.0-uat]
 
 ## Added
 
-- [Feat : CKYC Integration](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/512)
+- [Feat: CKYC Integration](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/512)
 
 ## [v4.0.2-uat]
 

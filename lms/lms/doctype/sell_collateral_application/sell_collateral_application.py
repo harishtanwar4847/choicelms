@@ -96,46 +96,72 @@ class SellCollateralApplication(Document):
 
         self.selling_collateral_value = 0
 
-        price_map = {i.isin: i.price for i in self.items}
-        sell_quantity_map = {i.isin: 0 for i in self.items}
-        sell_requested_quantity_map = {i.isin: i.quantity for i in self.items}
+        # price_map = {i.isin: i.price for i in self.items}
+        # sell_quantity_map = {i.isin: 0 for i in self.items}
+        # sell_requested_quantity_map = {i.isin: i.quantity for i in self.items}
+        price_map = {
+            "{}{}".format(i.isin, i.folio if i.folio else ""): i.price
+            for i in self.items
+        }
+        sell_quantity_map = {
+            "{}{}".format(i.isin, i.folio if i.folio else ""): 0 for i in self.items
+        }
+        sell_requested_quantity_map = {
+            "{}{}".format(i.isin, i.folio if i.folio else ""): i.quantity
+            for i in self.items
+        }
 
         msg = (
-            "Can not sell {}(PSN: {}) more than {}"
+            "Can not sell {}(PSN: {}){} more than {}"
             if self.instrument_type == "Shares"
-            else "Can not invoke {}(Lien Mark Number: {}) more than {}"
+            else "Can not invoke {}(Lien Mark Number: {}){} more than {}"
         )
 
         for i in self.sell_items:
+            isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
             if i.sell_quantity > i.quantity:
-                frappe.throw(msg.format(i.isin, i.psn, i.quantity))
+                frappe.throw(
+                    msg.format(
+                        i.isin,
+                        i.psn,
+                        "{}".format("-" + str(i.folio) if i.folio else ""),
+                        i.quantity,
+                    )
+                )
             if self.instrument_type == "Mutual Fund":
-                if sell_requested_quantity_map.get(i.isin) > i.sell_quantity:
+                if sell_requested_quantity_map.get(isin_folio_combo) > i.sell_quantity:
                     frappe.throw(
-                        "You need to {} all {} of isin {}".format(
+                        "You need to {} all {} of isin {}{}".format(
                             applicaton_type,
-                            sell_requested_quantity_map.get(i.isin),
+                            sell_requested_quantity_map.get(isin_folio_combo),
                             i.isin,
+                            "{}".format("-" + str(i.folio) if i.folio else ""),
                         )
                     )
-            sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
+            sell_quantity_map[isin_folio_combo] = (
+                sell_quantity_map[isin_folio_combo] + i.sell_quantity
+            )
             # i.price = price_map.get(i.isin)
             # self.selling_collateral_value += i.sell_quantity * price_map.get(i.isin)
             if self.instrument_type == "Shares":
-                i.price = price_map.get(i.isin)
+                i.price = price_map.get(isin_folio_combo)
             else:
                 i.price = (
-                    price_map.get(i.isin)
+                    price_map.get(isin_folio_combo)
                     if i.invoke_initiate_remarks == "SUCCESS"
                     else 0
                 )
             self.selling_collateral_value += i.sell_quantity * i.price
 
         for i in self.items:
-            if sell_quantity_map.get(i.isin) > i.quantity:
+            isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
+            if sell_quantity_map.get(isin_folio_combo) > i.quantity:
                 frappe.throw(
-                    "Can not {} {} more than {}".format(
-                        applicaton_type, i.isin, i.quantity
+                    "Can not {} {}{} more than {}".format(
+                        applicaton_type,
+                        i.isin,
+                        "{}".format("-" + str(i.folio) if i.folio else ""),
+                        i.quantity,
                     )
                 )
         # for i in self.items:
@@ -148,19 +174,28 @@ class SellCollateralApplication(Document):
 
     def before_submit(self):
         # check if all securities are sold
-        sell_quantity_map = {i.isin: 0 for i in self.items}
+        sell_quantity_map = {
+            "{}{}".format(i.isin, i.folio if i.folio else ""): 0 for i in self.items
+        }
 
         applicaton_type = "sell" if self.instrument_type == "Shares" else "invoke"
 
         for i in self.sell_items:
-            sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
+            isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
+            sell_quantity_map[isin_folio_combo] = (
+                sell_quantity_map[isin_folio_combo] + i.sell_quantity
+            )
 
         for i in self.items:
+            isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
             # print(sell_quantity_map.get(i.isin), i.quantity)
-            if sell_quantity_map.get(i.isin) < i.quantity:
+            if sell_quantity_map.get(isin_folio_combo) < i.quantity:
                 frappe.throw(
-                    "You need to {} all {} of isin {}".format(
-                        applicaton_type, i.quantity, i.isin
+                    "You need to {} all {} of isin {}{}".format(
+                        applicaton_type,
+                        i.quantity,
+                        i.isin,
+                        "{}".format("-" + str(i.folio) if i.folio else ""),
                     )
                 )
         """22-06-21 informed by vinayak"""
@@ -176,7 +211,11 @@ class SellCollateralApplication(Document):
         )
         for i in loan_items:
             for j in self.sell_items:
-                if i["isin"] == j.isin and i["pledged_quantity"] < j.sell_quantity:
+                if (
+                    str(i["isin"]) + str(i["folio"] if i["folio"] else "")
+                    == str(j.isin) + str(j.folio if j.folio else "")
+                    and i["pledged_quantity"] < j.sell_quantity
+                ):
                     frappe.throw(
                         "Sufficient quantity not available for ISIN {sell_isin},\nCurrent Quantity= {loan_qty} Requested {applicaton_type} Quantity {sell_quantity}\nPlease Reject this Application".format(
                             sell_isin=j.isin,
@@ -711,12 +750,13 @@ def validate_invoc(sell_collateral_application_name):
                     isin_details = {}
 
                     for i in schemedetails_res:
-                        isin_details[i.get("isinno")] = i
+                        isin_details["{}{}".format(i.get("isinno"), i.get("folio"))] = i
 
                     for i in sell_collateral_application_doc.sell_items:
-                        if i.get("isin") in isin_details:
+                        isin_folio_combo = "{}{}".format(i.get("isin"), i.get("folio"))
+                        if isin_folio_combo in isin_details:
                             i.invoke_validate_remarks = isin_details.get(
-                                i.get("isin")
+                                isin_folio_combo
                             ).get("remarks")
 
                     if (
@@ -846,13 +886,33 @@ def initiate_invoc(sell_collateral_application_name):
                     ).get("schemedetails")
 
                     for i in schemedetails_res:
-                        isin_details[i.get("isinno")] = i
+                        isin_details["{}{}".format(i.get("isinno"), i.get("folio"))] = i
 
                     for i in sell_collateral_application_doc.sell_items:
-                        if i.get("isin") in isin_details:
+                        isin_folio_combo = "{}{}".format(i.get("isin"), i.get("folio"))
+                        if isin_folio_combo in isin_details:
                             i.invoke_initiate_remarks = isin_details.get(
-                                i.get("isin")
+                                isin_folio_combo
                             ).get("remarks")
+
+                            old_psn = i.psn
+                            i.psn = isin_details.get(isin_folio_combo).get("invocrefno")
+                            new_psn = isin_details.get(isin_folio_combo).get(
+                                "invocrefno"
+                            )
+                            if old_psn != new_psn:
+                                frappe.db.sql(
+                                    """
+                                    update `tabCollateral Ledger`
+                                    set psn = '{psn}'
+                                    where loan = '{loan}' and isin = '{isin}' and folio = '{folio}'
+                                    """.format(
+                                        psn=new_psn,
+                                        isin=i.get("isin"),
+                                        loan=sell_collateral_application_doc.loan,
+                                        folio=i.get("folio"),
+                                    )
+                                )
 
                     if (
                         dict_decrypted_response.get("invocinitiate").get("message")

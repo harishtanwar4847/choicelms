@@ -848,17 +848,9 @@ def get_tnc(**kwargs):
                 + ", "
                 + str(address_details.perm_dist)
                 + ", "
-                + str(
-                    frappe.db.get_value(
-                        "State Master", address_details.perm_state, "description"
-                    )
-                )
+                + str(address_details.perm_state)
                 + ", "
-                + str(
-                    frappe.db.get_value(
-                        "Country Master", address_details.perm_country, "country"
-                    )
-                )
+                + str(address_details.perm_country)
                 + ", "
                 + str(address_details.perm_pin)
             )

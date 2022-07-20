@@ -2000,17 +2000,9 @@ class Loan(Document):
                 + ", "
                 + str(address_details.perm_dist)
                 + ", "
-                + str(
-                    frappe.db.get_value(
-                        "State Master", address_details.perm_state, "description"
-                    )
-                )
+                + str(address_details.perm_state)
                 + ", "
-                + str(
-                    frappe.db.get_value(
-                        "Country Master", address_details.perm_country, "country"
-                    )
-                )
+                + str(address_details.perm_country)
                 + ", "
                 + str(address_details.perm_pin)
             )
@@ -2021,7 +2013,7 @@ class Loan(Document):
             "esign_date": "__________",
             "loan_application_number": self.name,
             "borrower_name": user_kyc.fullname,
-            "borrower_address": user_kyc.address.details,
+            "borrower_address": address,
             # "sanctioned_amount": topup_amount,
             # "sanctioned_amount_in_words": num2words(
             #     topup_amount, lang="en_IN"
