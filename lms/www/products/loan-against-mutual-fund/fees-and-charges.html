@@ -390,19 +390,24 @@ rates, LAMF {% endblock keywords %} {% block head %}
             stamp_duty = val.stamp_duty + "%";
           }
           if (val.lien_initiate_charge_type == "Fix") {
-            lien_charges = "Rs. " + val.lien_initiate_charges + "/-";
+            lien_charges =
+              "Rs. " + val.lien_initiate_charges + "/- per transaction";
           } else {
-            lien_charges = val.lien_initiate_charges + "%";
+            lien_charges = val.lien_initiate_charges + "% per transaction";
           }
           if (val.invoke_initiate_charge_type == "Fix") {
-            invocation_charges = "Rs. " + val.invoke_initiate_charges + "/-";
+            invocation_charges =
+              "Rs. " + val.invoke_initiate_charges + "/- per transaction";
           } else {
-            invocation_charges = val.invoke_initiate_charges + "%";
+            invocation_charges =
+              val.invoke_initiate_charges + "% per transaction";
           }
           if (val.revoke_initiate_charge_type == "Fix") {
-            revocation_charges = "Rs. " + val.revoke_initiate_charges + "/-";
+            revocation_charges =
+              "Rs. " + val.revoke_initiate_charges + "/- per transaction";
           } else {
-            revocation_charges = val.revoke_initiate_charges + "%";
+            revocation_charges =
+              val.revoke_initiate_charges + "% per transaction";
           }
           update_lender +=
             "<ol>" +

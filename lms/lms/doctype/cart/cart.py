@@ -80,6 +80,7 @@ class Cart(Document):
 
         items = []
         for item in self.items:
+            amount = round(item.pledged_quantity, 3) * item.price
             item = frappe.get_doc(
                 {
                     "doctype": "Loan Application Item",
@@ -89,9 +90,9 @@ class Cart(Document):
                     "pledged_quantity": round(item.pledged_quantity, 3),
                     "requested_quantity": round(item.requested_quantity, 3),
                     "price": item.price,
-                    "amount": item.amount,
+                    "amount": amount,
                     "eligible_percentage": item.eligible_percentage,
-                    "eligible_amount": item.eligible_amount,
+                    "eligible_amount": (amount * item.eligible_percentage) / 100,
                     "type": item.type,
                     "folio": item.folio,
                     "amc_code": item.amc_code,
@@ -239,17 +240,9 @@ class Cart(Document):
                 + ", "
                 + str(address_details.perm_dist)
                 + ", "
-                + str(
-                    frappe.db.get_value(
-                        "State Master", address_details.perm_state, "description"
-                    )
-                )
+                + str(address_details.perm_state)
                 + ", "
-                + str(
-                    frappe.db.get_value(
-                        "Country Master", address_details.perm_country, "country"
-                    )
-                )
+                + str(address_details.perm_country)
                 + ", "
                 + str(address_details.perm_pin)
             )
@@ -419,7 +412,12 @@ class Cart(Document):
                 amount = i.pledged_quantity * i.price
                 i.amount = amount
                 if i.type != "Shares":
-                    i.eligible_amount = (amount * security.eligible_percentage) / 100
+                    i.amount = round(i.pledged_quantity, 3) * i.price
+                    i.eligible_amount = (
+                        round(i.pledged_quantity, 3)
+                        * i.price
+                        * security.eligible_percentage
+                    ) / 100
 
     def process_cart(self):
         if not self.is_processed:
