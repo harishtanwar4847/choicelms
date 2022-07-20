@@ -35,7 +35,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.0.0-uat"
+__version__ = "5.0.1-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -1789,19 +1789,6 @@ def upload_image_to_doctype(
                 img_folder, customer.full_name, seq_no, img_format
             ).replace(" ", "-")
         )
-
-        # image_file = frappe.get_doc(
-        #     {
-        #         "doctype": "File",
-        #         "file_name": profile_picture_file,
-        #         "content": image_file,
-        #         "attached_to_doctype": doctype,
-        #         "attached_to_field": attached_to_field,
-        #         "folder": "Home",
-        #     }
-        # )
-        # image_file.insert(ignore_permissions=True)
-        # frappe.db.commit()
 
         return ckyc_image_file_url
     except Exception:

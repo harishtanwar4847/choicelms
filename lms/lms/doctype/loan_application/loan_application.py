@@ -56,11 +56,35 @@ class LoanApplication(Document):
                 update_modified=False,
             )
 
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+            address = (
+                str(address_details.perm_line1)
+                + ", "
+                + str(address_details.perm_line2)
+                + ", "
+                + str(address_details.perm_line3)
+                + ", "
+                + str(address_details.perm_city)
+                + ", "
+                + str(address_details.perm_dist)
+                + ", "
+                + str(address_details.perm_state)
+                + ", "
+                + str(address_details.perm_country)
+                + ", "
+                + str(address_details.perm_pin)
+            )
+        else:
+            address = ""
+
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_application_number": self.name,
             "borrower_name": user_kyc.fullname,
-            "borrower_address": user_kyc.address_details,
+            "borrower_address": address,
             "sanctioned_amount": lms.validate_rupees(
                 new_increased_sanctioned_limit
                 if self.loan and not self.loan_margin_shortfall

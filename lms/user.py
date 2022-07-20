@@ -5,10 +5,7 @@ import re
 import time
 from ctypes import util
 from datetime import MINYEAR, date, datetime, timedelta
-from email import message
-from logging import debug
 from random import choice, randint
-from time import gmtime
 
 import frappe
 import pandas as pd
@@ -18,7 +15,6 @@ from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.exceptions import DoesNotExistError
 from frappe.utils.password import check_password, update_password
-from pymysql import NULL
 from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms

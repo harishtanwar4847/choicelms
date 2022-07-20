@@ -1877,6 +1877,30 @@ def loan_statement(**kwargs):
         logo_file_path_1 = lender.get_lender_logo_file()
         logo_file_path_2 = las_settings.get_spark_logo_file()
         curr_date = (frappe.utils.now_datetime()).strftime("%d-%B-%Y")
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+            address = (
+                str(address_details.perm_line1)
+                + ", "
+                + str(address_details.perm_line2)
+                + ", "
+                + str(address_details.perm_line3)
+                + ", "
+                + str(address_details.perm_city)
+                + ", "
+                + str(address_details.perm_dist)
+                + ", "
+                + str(address_details.perm_state)
+                + ", "
+                + str(address_details.perm_country)
+                + ", "
+                + str(address_details.perm_pin)
+            )
+        else:
+            address = ""
+
         doc = {
             "username": user_kyc.fullname,
             "loan_name": loan.name,
@@ -1884,7 +1908,7 @@ def loan_statement(**kwargs):
             "customer_id": customer.name,
             # "phone": user_kyc.mobile_number,
             "phone": customer.phone,
-            "address": user_kyc.address_details,
+            "address": address,
             "account_opening_date": (loan.creation).strftime("%d-%B-%Y"),
             "overdraft_limit": loan.sanctioned_limit,
             "drawing_power": loan.drawing_power,
