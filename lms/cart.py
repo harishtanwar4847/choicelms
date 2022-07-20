@@ -848,9 +848,9 @@ def get_tnc(**kwargs):
                 + ", "
                 + str(address_details.perm_dist)
                 + ", "
-                + address_details.perm_state
+                + str(address_details.perm_state)
                 + ", "
-                + address_details.perm_country
+                + str(address_details.perm_country)
                 + ", "
                 + str(address_details.perm_pin)
             )
