@@ -5247,6 +5247,7 @@ def ckyc_consent_details(**kwargs):
             if False in address:
                 user_kyc_doc.is_edited = 1
                 ckyc_address_doc.is_edited = 1
+                ckyc_address_doc.save(ignore_permissions=True)
             user_kyc_doc.save(ignore_permissions=True)
             kyc_consent_doc = frappe.get_doc(
                 {
