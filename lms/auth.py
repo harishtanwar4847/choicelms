@@ -363,7 +363,10 @@ def register(**kwargs):
             regex=re.compile("[@!#$%^&*()<>?/\|}{~`]"),
         )
         # email validation
-        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        email_regex = (
+            r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
+        )
         if re.search(email_regex, data.get("email")) is None:
             # return utils.respondWithFailure(
             #     status=422,
@@ -587,7 +590,10 @@ def request_forgot_pin_otp(**kwargs):
             {"email": ["required"]},
         )
         # email validation
-        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        email_regex = (
+            r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
+        )
         if re.search(email_regex, data.get("email")) is None:
             # return utils.respondWithFailure(
             #     status=422,
@@ -643,17 +649,20 @@ def verify_forgot_pin_otp(**kwargs):
             kwargs,
             {
                 "email": ["required"],
-                "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
-                "new_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
-                "retype_pin": [
-                    "required",
-                    "decimal",
-                    utils.validator.rules.LengthRule(4),
-                ],
+                # "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+                # "new_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+                # "retype_pin": [
+                #     "required",
+                #     "decimal",
+                #     utils.validator.rules.LengthRule(4),
+                # ],
             },
         )
         # email validation
-        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        email_regex = (
+            r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
+        )
         if re.search(email_regex, data.get("email")) is None:
             # return utils.respondWithFailure(
             #     status=422,
@@ -728,9 +737,10 @@ def verify_forgot_pin_otp(**kwargs):
         if not is_dummy_account:
             lms.token_mark_as_used(token)
 
-    except utils.exceptions.APIException:
+    except utils.exceptions.APIException as e:
         frappe.db.rollback()
         lms.log_api_error()
+        return e.respond()
 
 
 def login_activity(customer):

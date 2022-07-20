@@ -3784,7 +3784,10 @@ def update_mycams_email(**kwargs):
             raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         # email validation
-        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        email_regex = (
+            r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
+        )
         if re.search(email_regex, data.get("email")) is None:
             # return utils.respondWithFailure(
             #     status=422,
@@ -3802,6 +3805,7 @@ def update_mycams_email(**kwargs):
             message=frappe.get_traceback() + json.dumps(data),
             title=_("Loan Customer - MyCams Email Update Error"),
         )
+        return e.respond()
 
 
 @frappe.whitelist()

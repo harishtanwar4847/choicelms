@@ -103,7 +103,7 @@ class UserToken(Document):
 
             if customer.choice_kyc:
                 doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-                if mob_num:
+                if doc.mob_num:
                     mob_num = doc.mob_num
                 else:
                     mob_num = doc.ckyc_mob_no
