@@ -1185,22 +1185,7 @@ class Loan(Document):
             self.map_loan_summary_values()
             self.save(ignore_permissions=True)
             frappe.db.commit()
-            rebate = base_amount + rebate_amount
-            interest_calculation = frappe.get_doc(
-                dict(
-                    doctype="Interest Calculation",
-                    loan_no=self.name,
-                    client_name=self.customer_name,
-                    date=input_date.date(),
-                    transaction_type="-",
-                    crdr="-",
-                    debit="-",
-                    loan_balance=self.balance,
-                    interest_with_rebate=rebate,
-                    interest_without_rebate=base_amount,
-                ),
-            ).insert(ignore_permissions=True)
-            frappe.db.commit()
+
         except Exception:
             frappe.log_error(
                 message=frappe.get_traceback()

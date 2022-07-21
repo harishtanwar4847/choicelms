@@ -87,14 +87,23 @@ class LoanTransaction(Document):
         if not self.time:
             self.time = frappe.utils.now_datetime()
         self.set_record_type()
-        self.validate_withdrawal_amount()
+        user_roles = frappe.db.get_values(
+            "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
+        )
+        print("USer", frappe.session.user)
+        if "Loan Customer" in user_roles:
+            self.validate_withdrawal_amount()
         # set customer
         loan = self.get_loan()
         # update opening balance
         self.opening_balance = loan.balance
         self.customer = loan.customer
         self.customer_name = loan.customer_name
-        if self.transaction_type == "Withdrawal":
+        if (
+            self.transaction_type == "Withdrawal"
+            and not self.allowable
+            and not self.requested
+        ):
             self.requested = self.amount
             self.allowable = loan.maximum_withdrawable_amount()
 
@@ -113,9 +122,6 @@ class LoanTransaction(Document):
                 self.is_for_interest = True
 
         # check for user roles and permissions before adding transactions
-        user_roles = frappe.db.get_values(
-            "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
-        )
         if not user_roles:
             frappe.throw(_("Invalid User"))
         user_roles = [role[0] for role in user_roles]
@@ -697,44 +703,47 @@ class LoanTransaction(Document):
             trans_cgst = (
                 transac_cgst.lower().replace(" ", "_").replace("(", "").replace(")", "")
             )
-            if lender[trans_cgst] > 0:
-                sgst = self.amount * (lender[trans_cgst] / 100)
-                loan.create_loan_transaction(
-                    transaction_type=transac_cgst,
-                    amount=sgst,
-                    gst_percent=lender[trans_cgst],
-                    charge_reference=self.name,
-                    approve=True,
-                )
+            if lender.get(trans_cgst) > 0:
+                cgst = self.amount * (lender.get(trans_cgst) / 100)
+                if cgst > 0:
+                    loan.create_loan_transaction(
+                        transaction_type=transac_cgst,
+                        amount=cgst,
+                        gst_percent=lender.get(trans_cgst),
+                        charge_reference=self.name,
+                        approve=True,
+                    )
             # SGST
             transac_sgst = "SGST on " + self.transaction_type
             trans_sgst = (
                 transac_sgst.lower().replace(" ", "_").replace("(", "").replace(")", "")
             )
-            if lender[trans_sgst] > 0:
-                sgst = self.amount * (lender[trans_sgst] / 100)
-                loan.create_loan_transaction(
-                    transaction_type=transac_sgst,
-                    amount=sgst,
-                    gst_percent=lender[trans_sgst],
-                    charge_reference=self.name,
-                    approve=True,
-                )
+            if lender.get(trans_sgst) > 0:
+                sgst = self.amount * (lender.get(trans_sgst) / 100)
+                if sgst > 0:
+                    loan.create_loan_transaction(
+                        transaction_type=transac_sgst,
+                        amount=sgst,
+                        gst_percent=lender.get(trans_sgst),
+                        charge_reference=self.name,
+                        approve=True,
+                    )
         else:
             # IGST
             transac_igst = "IGST on " + self.transaction_type
             trans_igst = (
                 transac_igst.lower().replace(" ", "_").replace("(", "").replace(")", "")
             )
-            if lender[trans_igst] > 0:
-                sgst = self.amount * (lender[trans_igst] / 100)
-                loan.create_loan_transaction(
-                    transaction_type=transac_igst,
-                    amount=sgst,
-                    gst_percent=lender[trans_igst],
-                    charge_reference=self.name,
-                    approve=True,
-                )
+            if lender.get(trans_igst) > 0:
+                igst = self.amount * (lender.get(trans_igst) / 100)
+                if igst > 0:
+                    loan.create_loan_transaction(
+                        transaction_type=transac_igst,
+                        amount=igst,
+                        gst_percent=lender.get(trans_igst),
+                        charge_reference=self.name,
+                        approve=True,
+                    )
 
 
 @frappe.whitelist()
