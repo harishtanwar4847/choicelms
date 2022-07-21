@@ -381,6 +381,39 @@ def execute():
                                     },
                                 )
 
+                    user_address_details = frappe.get_doc(
+                        {
+                            "doctype": "Customer Address Details",
+                            "perm_line1": user_kyc.perm_line1,
+                            "perm_line2": user_kyc.perm_line2,
+                            "perm_line3": user_kyc.perm_line3,
+                            "perm_city": user_kyc.perm_city,
+                            "perm_dist": user_kyc.perm_dist,
+                            "perm_state": user_kyc.perm_state_name,
+                            "perm_country": user_kyc.perm_country_name,
+                            "perm_pin": user_kyc.perm_pin,
+                            "perm_poa": frappe.db.get_value(
+                                "Proof of Address Master",
+                                {"name": user_kyc.perm_poa},
+                                "poa_name",
+                            ),
+                            "perm_corres_flag": user_kyc.perm_corres_sameflag,
+                            "corres_line1": user_kyc.corres_line1,
+                            "corres_line2": user_kyc.corres_line2,
+                            "corres_line3": user_kyc.corres_line3,
+                            "corres_city": user_kyc.corres_city,
+                            "corres_dist": user_kyc.corres_dist,
+                            "corres_state": user_kyc.corres_state_name,
+                            "corres_country": user_kyc.corres_country_name,
+                            "corres_pin": user_kyc.corres_pin,
+                            "corres_poa": frappe.db.get_value(
+                                "Proof of Address Master",
+                                {"name": user_kyc.corres_poa},
+                                "poa_name",
+                            ),
+                        }
+                    ).insert(ignore_permissions=True)
+                    user_kyc.address_details = user_address_details.name
                     user_kyc.save(ignore_permissions=True)
                     frappe.db.commit()
                     all_kyc.append(user_kyc.name)

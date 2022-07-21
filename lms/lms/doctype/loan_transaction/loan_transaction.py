@@ -90,7 +90,6 @@ class LoanTransaction(Document):
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
         )
-        print("USer", frappe.session.user)
         if "Loan Customer" in user_roles:
             self.validate_withdrawal_amount()
         # set customer
