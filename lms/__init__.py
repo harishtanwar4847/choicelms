@@ -1703,7 +1703,13 @@ class AESCBC:
 
 
 def user_details_hashing(value):
-    value = value[:2] + len(value[1:-3]) * "X" + value[-2:]
+    if len(value) > 4:
+        value = value[:2] + len(value[1:-3]) * "X" + value[-2:]
+    elif len(value) <= 4 and len(value) > 2:
+        value = value[:2] + len(value[2:]) * "X"
+    else:
+        value = value[:1] + len(value[1:]) * "X"
+
     return value
 
 
@@ -1815,3 +1821,18 @@ def parent_enqueue():
         method="lms.lms.doctype.client_sanction_details.client_sanction_details.client_sanction_details",
         queue="long",
     )
+
+
+def user_kyc_hashing(user_kyc):
+    user_kyc.pan_no = user_details_hashing(user_kyc.pan_no)
+    user_kyc.ckyc_no = user_details_hashing(user_kyc.ckyc_no)
+    user_kyc.pan = user_details_hashing(user_kyc.pan)
+    for i in user_kyc.bank_account:
+        i.account_number = user_details_hashing(i.account_number)
+    for i in user_kyc.related_person_details:
+        i.pan = user_details_hashing(i.pan)
+        i.ckyc_no = user_details_hashing(i.ckyc_no)
+    for i in user_kyc.identity_details:
+        i.ident_num = user_details_hashing(i.ident_num)
+
+    return user_kyc

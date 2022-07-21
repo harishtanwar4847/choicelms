@@ -91,7 +91,7 @@ def login(**kwargs):
             token = dict(
                 token=utils.create_user_access_token(user.name),
                 customer=customer,
-                user_kyc=user_kyc,
+                user_kyc=lms.user_kyc_hashing(user_kyc),
             )
             app_version_platform = ""
             if data.get("app_version") and data.get("platform"):
@@ -649,13 +649,13 @@ def verify_forgot_pin_otp(**kwargs):
             kwargs,
             {
                 "email": ["required"],
-                # "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
-                # "new_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
-                # "retype_pin": [
-                #     "required",
-                #     "decimal",
-                #     utils.validator.rules.LengthRule(4),
-                # ],
+                "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+                "new_pin": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+                "retype_pin": [
+                    "required",
+                    "decimal",
+                    utils.validator.rules.LengthRule(4),
+                ],
             },
         )
         # email validation

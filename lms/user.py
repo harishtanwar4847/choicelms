@@ -2102,9 +2102,10 @@ def dashboard(**kwargs):
         user = lms.__user()
         try:
             user_kyc = lms.__user_kyc()
-            user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
-            for i in user_kyc.bank_account:
-                i.account_number = lms.user_details_hashing(i.account_number)
+            # user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
+            # for i in user_kyc.bank_account:
+            #     i.account_number = lms.user_details_hashing(i.account_number)
+            user_kyc = lms.user_kyc_hashing(user_kyc)
         except UserKYCNotFoundException:
             user_kyc = None
 
@@ -5000,11 +5001,12 @@ def ckyc_consent_details(**kwargs):
             order_by="country asc",
         )
 
-        user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
-        user_kyc.ckyc_no = lms.user_details_hashing(user_kyc.ckyc_no)
-        user_kyc.email = lms.user_details_hashing(user_kyc.email)
-        user_kyc.email_id = lms.user_details_hashing(user_kyc.email_id)
-        user_kyc.mob_num = lms.user_details_hashing(user_kyc.mob_num)
+        # user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
+        # user_kyc.ckyc_no = lms.user_details_hashing(user_kyc.ckyc_no)
+        # user_kyc.email = lms.user_details_hashing(user_kyc.email)
+        # user_kyc.email_id = lms.user_details_hashing(user_kyc.email_id)
+        # user_kyc.mob_num = lms.user_details_hashing(user_kyc.mob_num)
+        user_kyc = lms.user_kyc_hashing(user_kyc)
 
         data_res = {
             "user_kyc_doc": user_kyc,
@@ -5334,9 +5336,9 @@ def get_bank_details():
                     )
                 user_kyc.save(ignore_permissions=True)
                 frappe.db.commit()
-                return utils.respondWithSuccess(
-                    data=frappe.get_doc("User KYC", user_kyc.name)
-                )
+                user_kyc_doc = frappe.get_doc("User KYC", user_kyc.name)
+                user_kyc_doc = lms.user_kyc_hashing(user_kyc_doc)
+                return utils.respondWithSuccess(data=user_kyc_doc)
             else:
                 message = "Record does not exist."
                 return utils.respondWithSuccess(message=message)
