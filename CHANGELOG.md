@@ -6,7 +6,7 @@
 
 ## Added
 
-- [Feat: PII Chnages for CKYC details](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/516)
+- [Feat: PII Changes for CKYC details](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/516)
 
 ## [v5.0.1-uat]
 
