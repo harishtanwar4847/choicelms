@@ -8,6 +8,12 @@
 
 - [Feat: PII Changes for CKYC details](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/516)
 
+## [v5.1.0-uat]
+
+## Added
+
+- [Feat: Loan Transaction created from backend](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/515)
+
 ## [v5.0.1-uat]
 
 ## Fixed
