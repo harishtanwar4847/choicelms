@@ -1446,6 +1446,19 @@ class Loan(Document):
                         self.day_past_due = self.calculate_day_past_due(current_date)
                         self.save(ignore_permissions=True)
                         frappe.db.commit()
+                        interest_calculation = frappe.get_doc(
+                            dict(
+                                doctype="Interest Calculation",
+                                loan_no=self.name,
+                                client_name=self.customer_name,
+                                date=job_date.date(),
+                                transaction_type="Interest",
+                                crdr="DR",
+                                debit=round(virtual_interest_sum[0]["amount"], 2),
+                                loan_balance=loan_transaction.closing_balance,
+                            ),
+                        ).insert(ignore_permissions=True)
+                        frappe.db.commit()
 
                         doc = frappe.get_doc(
                             "User KYC", self.get_customer().choice_kyc

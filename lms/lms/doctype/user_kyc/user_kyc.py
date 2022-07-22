@@ -41,9 +41,9 @@ class UserKYC(Document):
                 fcm_notification = frappe.get_doc(
                     "Spark Push Notification", "Ckyc Approved", fields=["*"]
                 )
-            elif self.kyc_status == "Rejected":
+            else:
                 frappe.enqueue_doc(
-                    "Notification", "Ckyc Rejection", method="send", doc=doc
+                    "Notification", "Ckyc Rejected", method="send", doc=doc
                 )
                 msg = "Your KYC Request has been rejected due to mismatch in details. Please visit spark.loans in order to reapply."
                 fcm_notification = frappe.get_doc(
