@@ -60,16 +60,9 @@ def security_details():
 @frappe.whitelist()
 def excel_generator(doc_filters):
     if len(doc_filters) == 2:
-        today = frappe.utils.now_datetime()
-        today_date = today.date()
-        print(type(today_date))
-        # today_date = '19-07-2022'
-        NextDay_Date = today_date + datetime.timedelta(days=1)
-        # print(NextDay_Date)
-        yesterday = NextDay_Date - timedelta(days=1)
-        doc_filters = {"creation_date": yesterday}
-        print(yesterday)
-        print(doc_filters)
+        doc_filters = {
+            "creation_date": frappe.utils.now_datetime().date() - timedelta(days=1)
+        }
 
     seurity_details_doc = frappe.get_all(
         "Security Details",

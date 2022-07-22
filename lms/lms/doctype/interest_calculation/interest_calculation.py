@@ -117,10 +117,9 @@ def interest_calculation_enqueue():
 @frappe.whitelist()
 def excel_generator(doc_filters):
     if len(doc_filters) == 2:
-        today = frappe.utils.now_datetime()
-        today_date = today.date()
-        yesterday = today_date - timedelta(days=1)
-        doc_filters = {"creation_date": yesterday}
+        doc_filters = {
+            "creation_date": frappe.utils.now_datetime().date() - timedelta(days=1)
+        }
 
     interest_calculation_doc = frappe.get_all(
         "Interest Calculation",
