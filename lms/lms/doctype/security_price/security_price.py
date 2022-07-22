@@ -163,14 +163,14 @@ def update_all_security_prices():
                 )
         except (RequestException, Exception) as e:
             frappe.log_error()
-    else:
-        try:
-            frappe.enqueue(
-                method="lms.lms.doctype.loan.loan.check_all_loans_for_shortfall",
-                queue="long",
-            )
-        except Exception as e:
-            frappe.log_error()
+    # else:
+    #     try:
+    #         frappe.enqueue(
+    #             method="lms.lms.doctype.loan.loan.check_all_loans_for_shortfall",
+    #             queue="long",
+    #         )
+    #     except Exception as e:
+    #         frappe.log_error()
 
 
 @frappe.whitelist()

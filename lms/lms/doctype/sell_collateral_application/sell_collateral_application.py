@@ -386,50 +386,50 @@ class SellCollateralApplication(Document):
                     "sell_collateral_minimum_amount",
                     "sell_collateral_maximum_amount",
                 )
-            # DP Reimbursement(Sell)
+            # DP Reimbursement(Sell) Charges
             # Sell Collateral Charges
             if total_dp_reimburse_sell_charges > 0:
                 total_dp_reimburse_sell_charges_reference = (
                     loan.create_loan_transaction(
-                        transaction_type="DP Reimbursement(Sell)",
+                        transaction_type="DP Reimbursement(Sell) Charges",
                         amount=total_dp_reimburse_sell_charges,
                         approve=True,
                         loan_margin_shortfall_name=self.loan_margin_shortfall,
                     )
                 )
-                if lender.cgst_on_dp_reimbursementsell_charges > 0:
-                    cgst = total_dp_reimburse_sell_charges * (
-                        lender.cgst_on_dp_reimbursementsell_charges / 100
-                    )
-                    loan.create_loan_transaction(
-                        transaction_type="CGST on DP Reimbursement(Sell) Charges",
-                        amount=cgst,
-                        gst_percent=lender.cgst_on_dp_reimbursementsell_charges,
-                        charge_reference=total_dp_reimburse_sell_charges_reference.name,
-                        approve=True,
-                    )
-                if lender.sgst_on_dp_reimbursementsell_charges > 0:
-                    sgst = total_dp_reimburse_sell_charges * (
-                        lender.sgst_on_dp_reimbursementsell_charges / 100
-                    )
-                    loan.create_loan_transaction(
-                        transaction_type="SGST on DP Reimbursement(Sell) Charges",
-                        amount=sgst,
-                        gst_percent=lender.sgst_on_dp_reimbursementsell_charges,
-                        charge_reference=total_dp_reimburse_sell_charges_reference.name,
-                        approve=True,
-                    )
-                if lender.igst_on_dp_reimbursementsell_charges > 0:
-                    igst = total_dp_reimburse_sell_charges * (
-                        lender.igst_on_dp_reimbursementsell_charges / 100
-                    )
-                    loan.create_loan_transaction(
-                        transaction_type="IGST on DP Reimbursement(Sell) Charges",
-                        amount=igst,
-                        gst_percent=lender.igst_on_dp_reimbursementsell_charges,
-                        charge_reference=total_dp_reimburse_sell_charges_reference.name,
-                        approve=True,
-                    )
+                # if lender.cgst_on_dp_reimbursementsell_charges > 0:
+                #     cgst = total_dp_reimburse_sell_charges * (
+                #         lender.cgst_on_dp_reimbursementsell_charges / 100
+                #     )
+                #     loan.create_loan_transaction(
+                #         transaction_type="CGST on DP Reimbursement(Sell) Charges",
+                #         amount=cgst,
+                #         gst_percent=lender.cgst_on_dp_reimbursementsell_charges,
+                #         charge_reference=total_dp_reimburse_sell_charges_reference.name,
+                #         approve=True,
+                #     )
+                # if lender.sgst_on_dp_reimbursementsell_charges > 0:
+                #     sgst = total_dp_reimburse_sell_charges * (
+                #         lender.sgst_on_dp_reimbursementsell_charges / 100
+                #     )
+                #     loan.create_loan_transaction(
+                #         transaction_type="SGST on DP Reimbursement(Sell) Charges",
+                #         amount=sgst,
+                #         gst_percent=lender.sgst_on_dp_reimbursementsell_charges,
+                #         charge_reference=total_dp_reimburse_sell_charges_reference.name,
+                #         approve=True,
+                #     )
+                # if lender.igst_on_dp_reimbursementsell_charges > 0:
+                #     igst = total_dp_reimburse_sell_charges * (
+                #         lender.igst_on_dp_reimbursementsell_charges / 100
+                #     )
+                #     loan.create_loan_transaction(
+                #         transaction_type="IGST on DP Reimbursement(Sell) Charges",
+                #         amount=igst,
+                #         gst_percent=lender.igst_on_dp_reimbursementsell_charges,
+                #         charge_reference=total_dp_reimburse_sell_charges_reference.name,
+                #         approve=True,
+                #     )
             if sell_collateral_charges > 0:
                 sell_collateral_charges_reference = loan.create_loan_transaction(
                     transaction_type="Sell Collateral Charges",
@@ -437,39 +437,39 @@ class SellCollateralApplication(Document):
                     approve=True,
                     loan_margin_shortfall_name=self.loan_margin_shortfall,
                 )
-                if lender.cgst_on_sell_collateral_charges > 0:
-                    cgst = sell_collateral_charges * (
-                        lender.cgst_on_sell_collateral_charges / 100
-                    )
-                    loan.create_loan_transaction(
-                        transaction_type="CGST on Sell Collateral Charges",
-                        amount=cgst,
-                        gst_percent=lender.cgst_on_sell_collateral_charges,
-                        charge_reference=sell_collateral_charges_reference.name,
-                        approve=True,
-                    )
-                if lender.sgst_on_sell_collateral_charges > 0:
-                    sgst = sell_collateral_charges * (
-                        lender.sgst_on_sell_collateral_charges / 100
-                    )
-                    loan.create_loan_transaction(
-                        transaction_type="SGST on Sell Collateral Charges",
-                        amount=sgst,
-                        gst_percent=lender.sgst_on_sell_collateral_charges,
-                        charge_reference=sell_collateral_charges_reference.name,
-                        approve=True,
-                    )
-                if lender.igst_on_sell_collateral_charges > 0:
-                    igst = sell_collateral_charges * (
-                        lender.igst_on_sell_collateral_charges / 100
-                    )
-                    loan.create_loan_transaction(
-                        transaction_type="IGST on Sell Collateral Charges",
-                        amount=igst,
-                        gst_percent=lender.igst_on_sell_collateral_charges,
-                        charge_reference=sell_collateral_charges_reference.name,
-                        approve=True,
-                    )
+                # if lender.cgst_on_sell_collateral_charges > 0:
+                #     cgst = sell_collateral_charges * (
+                #         lender.cgst_on_sell_collateral_charges / 100
+                #     )
+                #     loan.create_loan_transaction(
+                #         transaction_type="CGST on Sell Collateral Charges",
+                #         amount=cgst,
+                #         gst_percent=lender.cgst_on_sell_collateral_charges,
+                #         charge_reference=sell_collateral_charges_reference.name,
+                #         approve=True,
+                #     )
+                # if lender.sgst_on_sell_collateral_charges > 0:
+                #     sgst = sell_collateral_charges * (
+                #         lender.sgst_on_sell_collateral_charges / 100
+                #     )
+                #     loan.create_loan_transaction(
+                #         transaction_type="SGST on Sell Collateral Charges",
+                #         amount=sgst,
+                #         gst_percent=lender.sgst_on_sell_collateral_charges,
+                #         charge_reference=sell_collateral_charges_reference.name,
+                #         approve=True,
+                #     )
+                # if lender.igst_on_sell_collateral_charges > 0:
+                #     igst = sell_collateral_charges * (
+                #         lender.igst_on_sell_collateral_charges / 100
+                #     )
+                #     loan.create_loan_transaction(
+                #         transaction_type="IGST on Sell Collateral Charges",
+                #         amount=igst,
+                #         gst_percent=lender.igst_on_sell_collateral_charges,
+                #         charge_reference=sell_collateral_charges_reference.name,
+                #         approve=True,
+                #     )
         else:
             # invoke charges - Mutual Fund
             invoke_charges = lender.invoke_initiate_charges
@@ -493,33 +493,33 @@ class SellCollateralApplication(Document):
                     gst_percent=0,
                     loan_margin_shortfall_name=self.loan_margin_shortfall,
                 )
-                if lender.cgst_on_invocation_charges > 0:
-                    cgst = invoke_charges * (lender.cgst_on_invocation_charges / 100)
-                    loan.create_loan_transaction(
-                        transaction_type="CGST on Invocation Charges",
-                        amount=cgst,
-                        gst_percent=lender.cgst_on_invocation_charges,
-                        charge_reference=invoke_charges_reference.name,
-                        approve=True,
-                    )
-                if lender.sgst_on_invocation_charges > 0:
-                    sgst = invoke_charges * (lender.sgst_on_invocation_charges / 100)
-                    loan.create_loan_transaction(
-                        transaction_type="SGST on Invocation Charges",
-                        amount=sgst,
-                        gst_percent=lender.sgst_on_invocation_charges,
-                        charge_reference=invoke_charges_reference.name,
-                        approve=True,
-                    )
-                if lender.igst_on_invocation_charges > 0:
-                    igst = invoke_charges * (lender.igst_on_invocation_charges / 100)
-                    loan.create_loan_transaction(
-                        transaction_type="IGST on Invocation Charges",
-                        amount=igst,
-                        gst_percent=lender.igst_on_invocation_charges,
-                        charge_reference=invoke_charges_reference.name,
-                        approve=True,
-                    )
+                # if lender.cgst_on_invocation_charges > 0:
+                #     cgst = invoke_charges * (lender.cgst_on_invocation_charges / 100)
+                #     loan.create_loan_transaction(
+                #         transaction_type="CGST on Invocation Charges",
+                #         amount=cgst,
+                #         gst_percent=lender.cgst_on_invocation_charges,
+                #         charge_reference=invoke_charges_reference.name,
+                #         approve=True,
+                #     )
+                # if lender.sgst_on_invocation_charges > 0:
+                #     sgst = invoke_charges * (lender.sgst_on_invocation_charges / 100)
+                #     loan.create_loan_transaction(
+                #         transaction_type="SGST on Invocation Charges",
+                #         amount=sgst,
+                #         gst_percent=lender.sgst_on_invocation_charges,
+                #         charge_reference=invoke_charges_reference.name,
+                #         approve=True,
+                #     )
+                # if lender.igst_on_invocation_charges > 0:
+                #     igst = invoke_charges * (lender.igst_on_invocation_charges / 100)
+                #     loan.create_loan_transaction(
+                #         transaction_type="IGST on Invocation Charges",
+                #         amount=igst,
+                #         gst_percent=lender.igst_on_invocation_charges,
+                #         charge_reference=invoke_charges_reference.name,
+                #         approve=True,
+                #     )
 
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": self.owner, "parenttype": "User"}, ["role"]
