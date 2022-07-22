@@ -31,7 +31,6 @@ lms.patches.sync_security_category_master_for_all_lender ##
 lms.patches.update_security_category_in_allowed_security ##
 lms.patches.update_instrument_type_security_allowed_security ##
 lms.patches.import_security_mutual_fund_for_choice_lender ##
-lms.patches.import_allowed_security_mutual_fund_for_choice_lender ##
 lms.patches.mutual_fund_config_las ##
 lms.patches.update_margin_shortfall_action_list
 lms.patches.update_spark_push_notification_content #
@@ -48,4 +47,4 @@ lms.patches.import_proof_of_address_master
 lms.patches.update_email_in_kyc
 lms.patches.update_ckyc_url_las_settings
 lms.patches.update_ckyc_spark_push_notification_content
-lms.patches.update_ckyc_doc
+lms.patches.update_ckyc_doc ############

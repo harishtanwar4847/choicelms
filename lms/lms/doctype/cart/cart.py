@@ -80,6 +80,7 @@ class Cart(Document):
 
         items = []
         for item in self.items:
+            amount = round(item.pledged_quantity, 3) * item.price
             item = frappe.get_doc(
                 {
                     "doctype": "Loan Application Item",
@@ -89,9 +90,9 @@ class Cart(Document):
                     "pledged_quantity": round(item.pledged_quantity, 3),
                     "requested_quantity": round(item.requested_quantity, 3),
                     "price": item.price,
-                    "amount": item.amount,
+                    "amount": amount,
                     "eligible_percentage": item.eligible_percentage,
-                    "eligible_amount": item.eligible_amount,
+                    "eligible_amount": (amount * item.eligible_percentage) / 100,
                     "type": item.type,
                     "folio": item.folio,
                     "amc_code": item.amc_code,
@@ -124,9 +125,7 @@ class Cart(Document):
                 "instrument_type": self.instrument_type,
                 "scheme_type": self.scheme_type,
             }
-        )
-
-        loan_application.insert(ignore_permissions=True)
+        ).insert(ignore_permissions=True)
 
         # mark cart as processed
         self.is_processed = 1
@@ -226,11 +225,35 @@ class Cart(Document):
 
         from num2words import num2words
 
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+            address = (
+                str(address_details.perm_line1)
+                + ", "
+                + str(address_details.perm_line2)
+                + ", "
+                + str(address_details.perm_line3)
+                + ", "
+                + str(address_details.perm_city)
+                + ", "
+                + str(address_details.perm_dist)
+                + ", "
+                + str(address_details.perm_state)
+                + ", "
+                + str(address_details.perm_country)
+                + ", "
+                + str(address_details.perm_pin)
+            )
+        else:
+            address = ""
+
         doc = {
             "esign_date": "__________",
             "loan_application_number": " ",
             "borrower_name": user_kyc.fullname,
-            "borrower_address": user_kyc.address,
+            "borrower_address": address,
             "sanctioned_amount": lms.validate_rupees(
                 self.increased_sanctioned_limit
                 if self.loan and not self.loan_margin_shortfall
@@ -389,7 +412,12 @@ class Cart(Document):
                 amount = i.pledged_quantity * i.price
                 i.amount = amount
                 if i.type != "Shares":
-                    i.eligible_amount = (amount * security.eligible_percentage) / 100
+                    i.amount = round(i.pledged_quantity, 3) * i.price
+                    i.eligible_amount = (
+                        round(i.pledged_quantity, 3)
+                        * i.price
+                        * security.eligible_percentage
+                    ) / 100
 
     def process_cart(self):
         if not self.is_processed:

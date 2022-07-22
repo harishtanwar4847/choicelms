@@ -5,10 +5,7 @@ import re
 import time
 from ctypes import util
 from datetime import MINYEAR, date, datetime, timedelta
-from email import message
-from logging import debug
 from random import choice, randint
-from time import gmtime
 
 import frappe
 import pandas as pd
@@ -18,7 +15,6 @@ from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.exceptions import DoesNotExistError
 from frappe.utils.password import check_password, update_password
-from pymysql import NULL
 from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms
@@ -190,7 +186,7 @@ def get_choice_kyc_old(pan_no, birth_date):
         user_kyc.fullname = data["investorName"]
         user_kyc.father_name = data["fatherName"]
         user_kyc.mother_name = data["motherName"]
-        user_kyc.address = data["address"].replace("~", " ")
+        user_kyc.address_details = data["address"].replace("~", " ")
         user_kyc.city = data["addressCity"]
         user_kyc.state = data["addressState"]
         user_kyc.pincode = data["addressPinCode"]
@@ -488,7 +484,7 @@ def kyc(**kwargs):
             user_kyc_doc.fullname = user_kyc["investor_name"]
             user_kyc_doc.father_name = user_kyc["father_name"]
             user_kyc_doc.mother_name = user_kyc["mother_name"]
-            user_kyc_doc.address = user_kyc["address"]
+            user_kyc_doc.address_details = user_kyc["address"]
             user_kyc_doc.city = user_kyc["city"]
             user_kyc_doc.state = user_kyc["state"]
             user_kyc_doc.pincode = user_kyc["pincode"]
@@ -2106,9 +2102,10 @@ def dashboard(**kwargs):
         user = lms.__user()
         try:
             user_kyc = lms.__user_kyc()
-            user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
-            for i in user_kyc.bank_account:
-                i.account_number = lms.user_details_hashing(i.account_number)
+            # user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
+            # for i in user_kyc.bank_account:
+            #     i.account_number = lms.user_details_hashing(i.account_number)
+            user_kyc = lms.user_kyc_hashing(user_kyc)
         except UserKYCNotFoundException:
             user_kyc = None
 
@@ -3784,7 +3781,10 @@ def update_mycams_email(**kwargs):
             raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         # email validation
-        email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        email_regex = (
+            r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
+        )
         if re.search(email_regex, data.get("email")) is None:
             # return utils.respondWithFailure(
             #     status=422,
@@ -3802,6 +3802,7 @@ def update_mycams_email(**kwargs):
             message=frappe.get_traceback() + json.dumps(data),
             title=_("Loan Customer - MyCams Email Update Error"),
         )
+        return e.respond()
 
 
 @frappe.whitelist()
@@ -5000,11 +5001,12 @@ def ckyc_consent_details(**kwargs):
             order_by="country asc",
         )
 
-        user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
-        user_kyc.ckyc_no = lms.user_details_hashing(user_kyc.ckyc_no)
-        user_kyc.email = lms.user_details_hashing(user_kyc.email)
-        user_kyc.email_id = lms.user_details_hashing(user_kyc.email_id)
-        user_kyc.mob_num = lms.user_details_hashing(user_kyc.mob_num)
+        # user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
+        # user_kyc.ckyc_no = lms.user_details_hashing(user_kyc.ckyc_no)
+        # user_kyc.email = lms.user_details_hashing(user_kyc.email)
+        # user_kyc.email_id = lms.user_details_hashing(user_kyc.email_id)
+        # user_kyc.mob_num = lms.user_details_hashing(user_kyc.mob_num)
+        user_kyc = lms.user_kyc_hashing(user_kyc)
 
         data_res = {
             "user_kyc_doc": user_kyc,
@@ -5180,7 +5182,7 @@ def ckyc_consent_details(**kwargs):
 
             ckyc_address_doc = frappe.get_doc(
                 {
-                    "doctype": "CKYC Address Details",
+                    "doctype": "Customer Address Details",
                     "perm_line1": data.get("address_details")
                     .get("permanent_address")
                     .get("address_line1"),
@@ -5246,6 +5248,8 @@ def ckyc_consent_details(**kwargs):
             user_kyc_doc.consent_given = 1
             if False in address:
                 user_kyc_doc.is_edited = 1
+                ckyc_address_doc.is_edited = 1
+                ckyc_address_doc.save(ignore_permissions=True)
             user_kyc_doc.save(ignore_permissions=True)
             kyc_consent_doc = frappe.get_doc(
                 {
@@ -5332,9 +5336,9 @@ def get_bank_details():
                     )
                 user_kyc.save(ignore_permissions=True)
                 frappe.db.commit()
-                return utils.respondWithSuccess(
-                    data=frappe.get_doc("User KYC", user_kyc.name)
-                )
+                user_kyc_doc = frappe.get_doc("User KYC", user_kyc.name)
+                user_kyc_doc = lms.user_kyc_hashing(user_kyc_doc)
+                return utils.respondWithSuccess(data=user_kyc_doc)
             else:
                 message = "Record does not exist."
                 return utils.respondWithSuccess(message=message)

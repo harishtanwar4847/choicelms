@@ -65,38 +65,38 @@ class TopupApplication(Document):
             )
         if renewal_charges > 0:
             renewal_charges_reference = loan.create_loan_transaction(
-                "Renewal Charges", renewal_charges, approve=True
+                "Account Renewal Charges", renewal_charges, approve=True
             )
-            if lender.cgst_on_account_renewal_charges > 0:
-                cgst = renewal_charges * (lender.cgst_on_account_renewal_charges / 100)
-                gst_percent = (lender.cgst_on_account_renewal_charges,)
-                loan.create_loan_transaction(
-                    "CGST on Account renewal charges",
-                    cgst,
-                    gst_percent,
-                    charge_reference=renewal_charges_reference.name,
-                    approve=True,
-                )
-            if lender.sgst_on_account_renewal_charges > 0:
-                sgst = renewal_charges * (lender.sgst_on_account_renewal_charges / 100)
-                gst_percent = (lender.sgst_on_account_renewal_charges,)
-                loan.create_loan_transaction(
-                    "SGST on Account renewal charges",
-                    sgst,
-                    gst_percent,
-                    charge_reference=renewal_charges_reference.name,
-                    approve=True,
-                )
-            if lender.igst_on_account_renewal_charges > 0:
-                igst = renewal_charges * (lender.igst_on_account_renewal_charges / 100)
-                gst_percent = lender.igst_on_account_renewal_charges
-                loan.create_loan_transaction(
-                    "IGST on Account renewal charges",
-                    igst,
-                    gst_percent,
-                    charge_reference=renewal_charges_reference.name,
-                    approve=True,
-                )
+            # if lender.cgst_on_account_renewal_charges > 0:
+            #     cgst = renewal_charges * (lender.cgst_on_account_renewal_charges / 100)
+            #     gst_percent = (lender.cgst_on_account_renewal_charges,)
+            #     loan.create_loan_transaction(
+            #         "CGST on Account renewal charges",
+            #         cgst,
+            #         gst_percent,
+            #         charge_reference=renewal_charges_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.sgst_on_account_renewal_charges > 0:
+            #     sgst = renewal_charges * (lender.sgst_on_account_renewal_charges / 100)
+            #     gst_percent = (lender.sgst_on_account_renewal_charges,)
+            #     loan.create_loan_transaction(
+            #         "SGST on Account renewal charges",
+            #         sgst,
+            #         gst_percent,
+            #         charge_reference=renewal_charges_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.igst_on_account_renewal_charges > 0:
+            #     igst = renewal_charges * (lender.igst_on_account_renewal_charges / 100)
+            #     gst_percent = lender.igst_on_account_renewal_charges
+            #     loan.create_loan_transaction(
+            #         "IGST on Account renewal charges",
+            #         igst,
+            #         gst_percent,
+            #         charge_reference=renewal_charges_reference.name,
+            #         approve=True,
+            #     )
 
         # Processing fees
         processing_fees = lender.lender_processing_fees
@@ -121,36 +121,36 @@ class TopupApplication(Document):
                 processing_fees,
                 approve=True,
             )
-            if lender.cgst_on_processing_fees > 0:
-                cgst = processing_fees * (lender.cgst_on_processing_fees / 100)
-                gst_percent = lender.cgst_on_processing_fees
-                loan.create_loan_transaction(
-                    "CGST on Processing Fees",
-                    cgst,
-                    gst_percent,
-                    charge_reference=processing_fees_reference.name,
-                    approve=True,
-                )
-            if lender.sgst_on_processing_fees > 0:
-                sgst = processing_fees * (lender.sgst_on_processing_fees / 100)
-                gst_percent = lender.sgst_on_processing_fees
-                loan.create_loan_transaction(
-                    "SGST on Processing Fees",
-                    sgst,
-                    gst_percent,
-                    charge_reference=processing_fees_reference.name,
-                    approve=True,
-                )
-            if lender.igst_on_processing_fees > 0:
-                igst = processing_fees * (lender.igst_on_processing_fees / 100)
-                gst_percent = lender.igst_on_processing_fees
-                loan.create_loan_transaction(
-                    "IGST on Processing Fees",
-                    igst,
-                    gst_percent,
-                    charge_reference=processing_fees_reference.name,
-                    approve=True,
-                )
+            # if lender.cgst_on_processing_fees > 0:
+            #     cgst = processing_fees * (lender.cgst_on_processing_fees / 100)
+            #     gst_percent = lender.cgst_on_processing_fees
+            #     loan.create_loan_transaction(
+            #         "CGST on Processing Fees",
+            #         cgst,
+            #         gst_percent,
+            #         charge_reference=processing_fees_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.sgst_on_processing_fees > 0:
+            #     sgst = processing_fees * (lender.sgst_on_processing_fees / 100)
+            #     gst_percent = lender.sgst_on_processing_fees
+            #     loan.create_loan_transaction(
+            #         "SGST on Processing Fees",
+            #         sgst,
+            #         gst_percent,
+            #         charge_reference=processing_fees_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.igst_on_processing_fees > 0:
+            #     igst = processing_fees * (lender.igst_on_processing_fees / 100)
+            #     gst_percent = lender.igst_on_processing_fees
+            #     loan.create_loan_transaction(
+            #         "IGST on Processing Fees",
+            #         igst,
+            #         gst_percent,
+            #         charge_reference=processing_fees_reference.name,
+            #         approve=True,
+            #     )
 
         # Stamp Duty
         stamp_duty = lender.stamp_duty
@@ -170,39 +170,36 @@ class TopupApplication(Document):
                 approve=True,
             )
             # StampDuty changes for GST
-            if lender.cgst_on_stamp_duty > 0:
-                cgst = stamp_duty * (lender.cgst_on_stamp_duty / 100)
-                print("CGST STAMP", cgst)
-                gst_percent = lender.cgst_on_stamp_duty
-                loan.create_loan_transaction(
-                    "CGST on Stamp Duty",
-                    cgst,
-                    gst_percent,
-                    charge_reference=stamp_duty_reference.name,
-                    approve=True,
-                )
-                print("CGST STAMP", cgst)
-            if lender.sgst_on_stamp_duty > 0:
-                sgst = stamp_duty * (lender.sgst_on_stamp_duty / 100)
-                gst_percent = lender.sgst_on_stamp_duty
-                loan.create_loan_transaction(
-                    "SGST on Stamp Duty",
-                    sgst,
-                    gst_percent,
-                    charge_reference=stamp_duty_reference.name,
-                    approve=True,
-                )
-                print("SGST STAMP", sgst)
-            if lender.igst_on_stamp_duty > 0:
-                igst = stamp_duty * (lender.igst_on_stamp_duty / 100)
-                gst_percent = lender.igst_on_stamp_duty
-                loan.create_loan_transaction(
-                    "IGST on Stamp Duty",
-                    igst,
-                    gst_percent,
-                    charge_reference=stamp_duty_reference.name,
-                    approve=True,
-                )
+            # if lender.cgst_on_stamp_duty > 0:
+            #     cgst = stamp_duty * (lender.cgst_on_stamp_duty / 100)
+            #     gst_percent = lender.cgst_on_stamp_duty
+            #     loan.create_loan_transaction(
+            #         "CGST on Stamp Duty",
+            #         cgst,
+            #         gst_percent,
+            #         charge_reference=stamp_duty_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.sgst_on_stamp_duty > 0:
+            #     sgst = stamp_duty * (lender.sgst_on_stamp_duty / 100)
+            #     gst_percent = lender.sgst_on_stamp_duty
+            #     loan.create_loan_transaction(
+            #         "SGST on Stamp Duty",
+            #         sgst,
+            #         gst_percent,
+            #         charge_reference=stamp_duty_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.igst_on_stamp_duty > 0:
+            #     igst = stamp_duty * (lender.igst_on_stamp_duty / 100)
+            #     gst_percent = lender.igst_on_stamp_duty
+            #     loan.create_loan_transaction(
+            #         "IGST on Stamp Duty",
+            #         igst,
+            #         gst_percent,
+            #         charge_reference=stamp_duty_reference.name,
+            #         approve=True,
+            #     )
 
         # Documentation Charges
         documentation_charges = lender.documentation_charges
@@ -222,42 +219,42 @@ class TopupApplication(Document):
                 approve=True,
             )
             # Charges on GST
-            if lender.cgst_on_documentation_charges > 0:
-                cgst = documentation_charges * (
-                    lender.cgst_on_documentation_charges / 100
-                )
-                gst_percent = lender.cgst_on_documentation_charges
-                loan.create_loan_transaction(
-                    "CGST on Documentation Charges",
-                    cgst,
-                    gst_percent,
-                    charge_reference=documentation_charges_reference.name,
-                    approve=True,
-                )
-            if lender.sgst_on_documentation_charges > 0:
-                sgst = documentation_charges * (
-                    lender.sgst_on_documentation_charges / 100
-                )
-                gst_percent = lender.sgst_on_documentation_charges
-                loan.create_loan_transaction(
-                    "SGST on Documentation Charges",
-                    sgst,
-                    gst_percent,
-                    charge_reference=documentation_charges_reference.name,
-                    approve=True,
-                )
-            if lender.igst_on_documentation_charges > 0:
-                igst = documentation_charges * (
-                    lender.igst_on_documentation_charges / 100
-                )
-                gst_percent = lender.igst_on_documentation_charges
-                loan.create_loan_transaction(
-                    "IGST on Documentation Charges",
-                    igst,
-                    gst_percent,
-                    charge_reference=documentation_charges_reference.name,
-                    approve=True,
-                )
+            # if lender.cgst_on_documentation_charges > 0:
+            #     cgst = documentation_charges * (
+            #         lender.cgst_on_documentation_charges / 100
+            #     )
+            #     gst_percent = lender.cgst_on_documentation_charges
+            #     loan.create_loan_transaction(
+            #         "CGST on Documentation Charges",
+            #         cgst,
+            #         gst_percent,
+            #         charge_reference=documentation_charges_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.sgst_on_documentation_charges > 0:
+            #     sgst = documentation_charges * (
+            #         lender.sgst_on_documentation_charges / 100
+            #     )
+            #     gst_percent = lender.sgst_on_documentation_charges
+            #     loan.create_loan_transaction(
+            #         "SGST on Documentation Charges",
+            #         sgst,
+            #         gst_percent,
+            #         charge_reference=documentation_charges_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.igst_on_documentation_charges > 0:
+            #     igst = documentation_charges * (
+            #         lender.igst_on_documentation_charges / 100
+            #     )
+            #     gst_percent = lender.igst_on_documentation_charges
+            #     loan.create_loan_transaction(
+            #         "IGST on Documentation Charges",
+            #         igst,
+            #         gst_percent,
+            #         charge_reference=documentation_charges_reference.name,
+            #         approve=True,
+            #     )
 
     def on_update(self):
         if self.status == "Esign Done" and self.lender_esigned_document != None:
@@ -351,11 +348,35 @@ class TopupApplication(Document):
         lender = self.get_lender()
         loan = self.get_loan()
 
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+            address = (
+                str(address_details.perm_line1)
+                + ", "
+                + str(address_details.perm_line2)
+                + ", "
+                + str(address_details.perm_line3)
+                + ", "
+                + str(address_details.perm_city)
+                + ", "
+                + str(address_details.perm_dist)
+                + ", "
+                + str(address_details.perm_state)
+                + ", "
+                + str(address_details.perm_country)
+                + ", "
+                + str(address_details.perm_pin)
+            )
+        else:
+            address = ""
+
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_application_number": self.name,
             "borrower_name": user_kyc.fullname,
-            "borrower_address": user_kyc.address,
+            "borrower_address": address,
             # "sanctioned_amount": self.top_up_amount,
             # "sanctioned_amount_in_words": num2words(
             #     self.top_up_amount, lang="en_IN"

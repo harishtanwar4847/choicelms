@@ -5,6 +5,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "is_edited",
   "perm_line1",
   "perm_line2",
   "perm_line3",
@@ -137,14 +138,21 @@
   {
    "fieldname": "column_break_11",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_edited",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is_edited"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-01 11:35:42.242951",
+ "modified": "2022-07-18 14:13:54.064516",
  "modified_by": "Administrator",
  "module": "Lms",
- "name": "CKYC Address Details",
+ "name": "Customer Address Details",
  "owner": "Administrator",
  "permissions": [
   {

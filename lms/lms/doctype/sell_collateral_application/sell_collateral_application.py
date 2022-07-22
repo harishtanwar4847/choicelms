@@ -96,46 +96,72 @@ class SellCollateralApplication(Document):
 
         self.selling_collateral_value = 0
 
-        price_map = {i.isin: i.price for i in self.items}
-        sell_quantity_map = {i.isin: 0 for i in self.items}
-        sell_requested_quantity_map = {i.isin: i.quantity for i in self.items}
+        # price_map = {i.isin: i.price for i in self.items}
+        # sell_quantity_map = {i.isin: 0 for i in self.items}
+        # sell_requested_quantity_map = {i.isin: i.quantity for i in self.items}
+        price_map = {
+            "{}{}".format(i.isin, i.folio if i.folio else ""): i.price
+            for i in self.items
+        }
+        sell_quantity_map = {
+            "{}{}".format(i.isin, i.folio if i.folio else ""): 0 for i in self.items
+        }
+        sell_requested_quantity_map = {
+            "{}{}".format(i.isin, i.folio if i.folio else ""): i.quantity
+            for i in self.items
+        }
 
         msg = (
-            "Can not sell {}(PSN: {}) more than {}"
+            "Can not sell {}(PSN: {}){} more than {}"
             if self.instrument_type == "Shares"
-            else "Can not invoke {}(Lien Mark Number: {}) more than {}"
+            else "Can not invoke {}(Lien Mark Number: {}){} more than {}"
         )
 
         for i in self.sell_items:
+            isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
             if i.sell_quantity > i.quantity:
-                frappe.throw(msg.format(i.isin, i.psn, i.quantity))
+                frappe.throw(
+                    msg.format(
+                        i.isin,
+                        i.psn,
+                        "{}".format("-" + str(i.folio) if i.folio else ""),
+                        i.quantity,
+                    )
+                )
             if self.instrument_type == "Mutual Fund":
-                if sell_requested_quantity_map.get(i.isin) > i.sell_quantity:
+                if sell_requested_quantity_map.get(isin_folio_combo) > i.sell_quantity:
                     frappe.throw(
-                        "You need to {} all {} of isin {}".format(
+                        "You need to {} all {} of isin {}{}".format(
                             applicaton_type,
-                            sell_requested_quantity_map.get(i.isin),
+                            sell_requested_quantity_map.get(isin_folio_combo),
                             i.isin,
+                            "{}".format("-" + str(i.folio) if i.folio else ""),
                         )
                     )
-            sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
+            sell_quantity_map[isin_folio_combo] = (
+                sell_quantity_map[isin_folio_combo] + i.sell_quantity
+            )
             # i.price = price_map.get(i.isin)
             # self.selling_collateral_value += i.sell_quantity * price_map.get(i.isin)
             if self.instrument_type == "Shares":
-                i.price = price_map.get(i.isin)
+                i.price = price_map.get(isin_folio_combo)
             else:
                 i.price = (
-                    price_map.get(i.isin)
+                    price_map.get(isin_folio_combo)
                     if i.invoke_initiate_remarks == "SUCCESS"
                     else 0
                 )
             self.selling_collateral_value += i.sell_quantity * i.price
 
         for i in self.items:
-            if sell_quantity_map.get(i.isin) > i.quantity:
+            isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
+            if sell_quantity_map.get(isin_folio_combo) > i.quantity:
                 frappe.throw(
-                    "Can not {} {} more than {}".format(
-                        applicaton_type, i.isin, i.quantity
+                    "Can not {} {}{} more than {}".format(
+                        applicaton_type,
+                        i.isin,
+                        "{}".format("-" + str(i.folio) if i.folio else ""),
+                        i.quantity,
                     )
                 )
         # for i in self.items:
@@ -148,19 +174,28 @@ class SellCollateralApplication(Document):
 
     def before_submit(self):
         # check if all securities are sold
-        sell_quantity_map = {i.isin: 0 for i in self.items}
+        sell_quantity_map = {
+            "{}{}".format(i.isin, i.folio if i.folio else ""): 0 for i in self.items
+        }
 
         applicaton_type = "sell" if self.instrument_type == "Shares" else "invoke"
 
         for i in self.sell_items:
-            sell_quantity_map[i.isin] = sell_quantity_map[i.isin] + i.sell_quantity
+            isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
+            sell_quantity_map[isin_folio_combo] = (
+                sell_quantity_map[isin_folio_combo] + i.sell_quantity
+            )
 
         for i in self.items:
+            isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
             # print(sell_quantity_map.get(i.isin), i.quantity)
-            if sell_quantity_map.get(i.isin) < i.quantity:
+            if sell_quantity_map.get(isin_folio_combo) < i.quantity:
                 frappe.throw(
-                    "You need to {} all {} of isin {}".format(
-                        applicaton_type, i.quantity, i.isin
+                    "You need to {} all {} of isin {}{}".format(
+                        applicaton_type,
+                        i.quantity,
+                        i.isin,
+                        "{}".format("-" + str(i.folio) if i.folio else ""),
                     )
                 )
         """22-06-21 informed by vinayak"""
@@ -176,7 +211,11 @@ class SellCollateralApplication(Document):
         )
         for i in loan_items:
             for j in self.sell_items:
-                if i["isin"] == j.isin and i["pledged_quantity"] < j.sell_quantity:
+                if (
+                    str(i["isin"]) + str(i["folio"] if i["folio"] else "")
+                    == str(j.isin) + str(j.folio if j.folio else "")
+                    and i["pledged_quantity"] < j.sell_quantity
+                ):
                     frappe.throw(
                         "Sufficient quantity not available for ISIN {sell_isin},\nCurrent Quantity= {loan_qty} Requested {applicaton_type} Quantity {sell_quantity}\nPlease Reject this Application".format(
                             sell_isin=j.isin,
@@ -347,50 +386,50 @@ class SellCollateralApplication(Document):
                     "sell_collateral_minimum_amount",
                     "sell_collateral_maximum_amount",
                 )
-            # DP Reimbursement(Sell)
+            # DP Reimbursement(Sell) Charges
             # Sell Collateral Charges
             if total_dp_reimburse_sell_charges > 0:
                 total_dp_reimburse_sell_charges_reference = (
                     loan.create_loan_transaction(
-                        transaction_type="DP Reimbursement(Sell)",
+                        transaction_type="DP Reimbursement(Sell) Charges",
                         amount=total_dp_reimburse_sell_charges,
                         approve=True,
                         loan_margin_shortfall_name=self.loan_margin_shortfall,
                     )
                 )
-                if lender.cgst_on_dp_reimbursementsell_charges > 0:
-                    cgst = total_dp_reimburse_sell_charges * (
-                        lender.cgst_on_dp_reimbursementsell_charges / 100
-                    )
-                    loan.create_loan_transaction(
-                        transaction_type="CGST on DP Reimbursement(Sell) Charges",
-                        amount=cgst,
-                        gst_percent=lender.cgst_on_dp_reimbursementsell_charges,
-                        charge_reference=total_dp_reimburse_sell_charges_reference.name,
-                        approve=True,
-                    )
-                if lender.sgst_on_dp_reimbursementsell_charges > 0:
-                    sgst = total_dp_reimburse_sell_charges * (
-                        lender.sgst_on_dp_reimbursementsell_charges / 100
-                    )
-                    loan.create_loan_transaction(
-                        transaction_type="SGST on DP Reimbursement(Sell) Charges",
-                        amount=sgst,
-                        gst_percent=lender.sgst_on_dp_reimbursementsell_charges,
-                        charge_reference=total_dp_reimburse_sell_charges_reference.name,
-                        approve=True,
-                    )
-                if lender.igst_on_dp_reimbursementsell_charges > 0:
-                    igst = total_dp_reimburse_sell_charges * (
-                        lender.igst_on_dp_reimbursementsell_charges / 100
-                    )
-                    loan.create_loan_transaction(
-                        transaction_type="IGST on DP Reimbursement(Sell) Charges",
-                        amount=igst,
-                        gst_percent=lender.igst_on_dp_reimbursementsell_charges,
-                        charge_reference=total_dp_reimburse_sell_charges_reference.name,
-                        approve=True,
-                    )
+                # if lender.cgst_on_dp_reimbursementsell_charges > 0:
+                #     cgst = total_dp_reimburse_sell_charges * (
+                #         lender.cgst_on_dp_reimbursementsell_charges / 100
+                #     )
+                #     loan.create_loan_transaction(
+                #         transaction_type="CGST on DP Reimbursement(Sell) Charges",
+                #         amount=cgst,
+                #         gst_percent=lender.cgst_on_dp_reimbursementsell_charges,
+                #         charge_reference=total_dp_reimburse_sell_charges_reference.name,
+                #         approve=True,
+                #     )
+                # if lender.sgst_on_dp_reimbursementsell_charges > 0:
+                #     sgst = total_dp_reimburse_sell_charges * (
+                #         lender.sgst_on_dp_reimbursementsell_charges / 100
+                #     )
+                #     loan.create_loan_transaction(
+                #         transaction_type="SGST on DP Reimbursement(Sell) Charges",
+                #         amount=sgst,
+                #         gst_percent=lender.sgst_on_dp_reimbursementsell_charges,
+                #         charge_reference=total_dp_reimburse_sell_charges_reference.name,
+                #         approve=True,
+                #     )
+                # if lender.igst_on_dp_reimbursementsell_charges > 0:
+                #     igst = total_dp_reimburse_sell_charges * (
+                #         lender.igst_on_dp_reimbursementsell_charges / 100
+                #     )
+                #     loan.create_loan_transaction(
+                #         transaction_type="IGST on DP Reimbursement(Sell) Charges",
+                #         amount=igst,
+                #         gst_percent=lender.igst_on_dp_reimbursementsell_charges,
+                #         charge_reference=total_dp_reimburse_sell_charges_reference.name,
+                #         approve=True,
+                #     )
             if sell_collateral_charges > 0:
                 sell_collateral_charges_reference = loan.create_loan_transaction(
                     transaction_type="Sell Collateral Charges",
@@ -398,39 +437,39 @@ class SellCollateralApplication(Document):
                     approve=True,
                     loan_margin_shortfall_name=self.loan_margin_shortfall,
                 )
-                if lender.cgst_on_sell_collateral_charges > 0:
-                    cgst = sell_collateral_charges * (
-                        lender.cgst_on_sell_collateral_charges / 100
-                    )
-                    loan.create_loan_transaction(
-                        transaction_type="CGST on Sell Collateral Charges",
-                        amount=cgst,
-                        gst_percent=lender.cgst_on_sell_collateral_charges,
-                        charge_reference=sell_collateral_charges_reference.name,
-                        approve=True,
-                    )
-                if lender.sgst_on_sell_collateral_charges > 0:
-                    sgst = sell_collateral_charges * (
-                        lender.sgst_on_sell_collateral_charges / 100
-                    )
-                    loan.create_loan_transaction(
-                        transaction_type="SGST on Sell Collateral Charges",
-                        amount=sgst,
-                        gst_percent=lender.sgst_on_sell_collateral_charges,
-                        charge_reference=sell_collateral_charges_reference.name,
-                        approve=True,
-                    )
-                if lender.igst_on_sell_collateral_charges > 0:
-                    igst = sell_collateral_charges * (
-                        lender.igst_on_sell_collateral_charges / 100
-                    )
-                    loan.create_loan_transaction(
-                        transaction_type="IGST on Sell Collateral Charges",
-                        amount=igst,
-                        gst_percent=lender.igst_on_sell_collateral_charges,
-                        charge_reference=sell_collateral_charges_reference.name,
-                        approve=True,
-                    )
+                # if lender.cgst_on_sell_collateral_charges > 0:
+                #     cgst = sell_collateral_charges * (
+                #         lender.cgst_on_sell_collateral_charges / 100
+                #     )
+                #     loan.create_loan_transaction(
+                #         transaction_type="CGST on Sell Collateral Charges",
+                #         amount=cgst,
+                #         gst_percent=lender.cgst_on_sell_collateral_charges,
+                #         charge_reference=sell_collateral_charges_reference.name,
+                #         approve=True,
+                #     )
+                # if lender.sgst_on_sell_collateral_charges > 0:
+                #     sgst = sell_collateral_charges * (
+                #         lender.sgst_on_sell_collateral_charges / 100
+                #     )
+                #     loan.create_loan_transaction(
+                #         transaction_type="SGST on Sell Collateral Charges",
+                #         amount=sgst,
+                #         gst_percent=lender.sgst_on_sell_collateral_charges,
+                #         charge_reference=sell_collateral_charges_reference.name,
+                #         approve=True,
+                #     )
+                # if lender.igst_on_sell_collateral_charges > 0:
+                #     igst = sell_collateral_charges * (
+                #         lender.igst_on_sell_collateral_charges / 100
+                #     )
+                #     loan.create_loan_transaction(
+                #         transaction_type="IGST on Sell Collateral Charges",
+                #         amount=igst,
+                #         gst_percent=lender.igst_on_sell_collateral_charges,
+                #         charge_reference=sell_collateral_charges_reference.name,
+                #         approve=True,
+                #     )
         else:
             # invoke charges - Mutual Fund
             invoke_charges = lender.invoke_initiate_charges
@@ -454,33 +493,33 @@ class SellCollateralApplication(Document):
                     gst_percent=0,
                     loan_margin_shortfall_name=self.loan_margin_shortfall,
                 )
-                if lender.cgst_on_invocation_charges > 0:
-                    cgst = invoke_charges * (lender.cgst_on_invocation_charges / 100)
-                    loan.create_loan_transaction(
-                        transaction_type="CGST on Invocation Charges",
-                        amount=cgst,
-                        gst_percent=lender.cgst_on_invocation_charges,
-                        charge_reference=invoke_charges_reference.name,
-                        approve=True,
-                    )
-                if lender.sgst_on_invocation_charges > 0:
-                    sgst = invoke_charges * (lender.sgst_on_invocation_charges / 100)
-                    loan.create_loan_transaction(
-                        transaction_type="SGST on Invocation Charges",
-                        amount=sgst,
-                        gst_percent=lender.sgst_on_invocation_charges,
-                        charge_reference=invoke_charges_reference.name,
-                        approve=True,
-                    )
-                if lender.igst_on_invocation_charges > 0:
-                    igst = invoke_charges * (lender.igst_on_invocation_charges / 100)
-                    loan.create_loan_transaction(
-                        transaction_type="IGST on Invocation Charges",
-                        amount=igst,
-                        gst_percent=lender.igst_on_invocation_charges,
-                        charge_reference=invoke_charges_reference.name,
-                        approve=True,
-                    )
+                # if lender.cgst_on_invocation_charges > 0:
+                #     cgst = invoke_charges * (lender.cgst_on_invocation_charges / 100)
+                #     loan.create_loan_transaction(
+                #         transaction_type="CGST on Invocation Charges",
+                #         amount=cgst,
+                #         gst_percent=lender.cgst_on_invocation_charges,
+                #         charge_reference=invoke_charges_reference.name,
+                #         approve=True,
+                #     )
+                # if lender.sgst_on_invocation_charges > 0:
+                #     sgst = invoke_charges * (lender.sgst_on_invocation_charges / 100)
+                #     loan.create_loan_transaction(
+                #         transaction_type="SGST on Invocation Charges",
+                #         amount=sgst,
+                #         gst_percent=lender.sgst_on_invocation_charges,
+                #         charge_reference=invoke_charges_reference.name,
+                #         approve=True,
+                #     )
+                # if lender.igst_on_invocation_charges > 0:
+                #     igst = invoke_charges * (lender.igst_on_invocation_charges / 100)
+                #     loan.create_loan_transaction(
+                #         transaction_type="IGST on Invocation Charges",
+                #         amount=igst,
+                #         gst_percent=lender.igst_on_invocation_charges,
+                #         charge_reference=invoke_charges_reference.name,
+                #         approve=True,
+                #     )
 
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": self.owner, "parenttype": "User"}, ["role"]
@@ -711,12 +750,13 @@ def validate_invoc(sell_collateral_application_name):
                     isin_details = {}
 
                     for i in schemedetails_res:
-                        isin_details[i.get("isinno")] = i
+                        isin_details["{}{}".format(i.get("isinno"), i.get("folio"))] = i
 
                     for i in sell_collateral_application_doc.sell_items:
-                        if i.get("isin") in isin_details:
+                        isin_folio_combo = "{}{}".format(i.get("isin"), i.get("folio"))
+                        if isin_folio_combo in isin_details:
                             i.invoke_validate_remarks = isin_details.get(
-                                i.get("isin")
+                                isin_folio_combo
                             ).get("remarks")
 
                     if (
@@ -846,13 +886,33 @@ def initiate_invoc(sell_collateral_application_name):
                     ).get("schemedetails")
 
                     for i in schemedetails_res:
-                        isin_details[i.get("isinno")] = i
+                        isin_details["{}{}".format(i.get("isinno"), i.get("folio"))] = i
 
                     for i in sell_collateral_application_doc.sell_items:
-                        if i.get("isin") in isin_details:
+                        isin_folio_combo = "{}{}".format(i.get("isin"), i.get("folio"))
+                        if isin_folio_combo in isin_details:
                             i.invoke_initiate_remarks = isin_details.get(
-                                i.get("isin")
+                                isin_folio_combo
                             ).get("remarks")
+
+                            old_psn = i.psn
+                            i.psn = isin_details.get(isin_folio_combo).get("invocrefno")
+                            new_psn = isin_details.get(isin_folio_combo).get(
+                                "invocrefno"
+                            )
+                            if old_psn != new_psn:
+                                frappe.db.sql(
+                                    """
+                                    update `tabCollateral Ledger`
+                                    set psn = '{psn}'
+                                    where loan = '{loan}' and isin = '{isin}' and folio = '{folio}'
+                                    """.format(
+                                        psn=new_psn,
+                                        isin=i.get("isin"),
+                                        loan=sell_collateral_application_doc.loan,
+                                        folio=i.get("folio"),
+                                    )
+                                )
 
                     if (
                         dict_decrypted_response.get("invocinitiate").get("message")

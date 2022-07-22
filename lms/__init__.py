@@ -35,7 +35,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "4.0.2-uat"
+__version__ = "5.2.0-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -486,7 +486,7 @@ def delete_user(doc, method):
     frappe.db.commit()
 
 
-def add_firebase_token(firebase_token, user=None):
+def add_firebase_token(firebase_token, app_version_platform, user=None):
     if not user:
         user = frappe.session.user
 
@@ -508,10 +508,15 @@ def add_firebase_token(firebase_token, user=None):
     if get_user_token:
         return
 
-    create_user_token(entity=user, token=firebase_token, token_type="Firebase Token")
+    create_user_token(
+        entity=user,
+        token=firebase_token,
+        token_type="Firebase Token",
+        app_version_platform=app_version_platform,
+    )
 
 
-def create_user_token(entity, token, token_type="OTP"):
+def create_user_token(entity, token, token_type="OTP", app_version_platform=""):
     doc_data = {
         "doctype": "User Token",
         "entity": entity,
@@ -532,6 +537,12 @@ def create_user_token(entity, token, token_type="OTP"):
         )
         doc_data["expiry"] = frappe.utils.now_datetime() + timedelta(
             minutes=expiry_in_minutes
+        )
+
+    if app_version_platform:
+        doc_data["app_version_platform"] = app_version_platform
+        doc_data["customer_id"] = frappe.db.get_value(
+            "Loan Customer", {"user": entity}, "name"
         )
 
     user_token = frappe.get_doc(doc_data)
@@ -777,7 +788,7 @@ def send_spark_push_notification(
                     "response": res_json,
                 }
 
-                create_log(log, "Send Spark Push Notification Log")
+                create_log(log, "Send_Spark_Push_Notification_Log")
 
                 # fa.send_android_message(
                 #     title=fcm_notification.title,
@@ -1692,7 +1703,13 @@ class AESCBC:
 
 
 def user_details_hashing(value):
-    value = value[:2] + len(value[1:-3]) * "X" + value[-2:]
+    if len(value) > 4:
+        value = value[:2] + len(value[1:-3]) * "X" + value[-2:]
+    elif len(value) <= 4 and len(value) > 2:
+        value = value[:2] + len(value[2:]) * "X"
+    else:
+        value = value[:1] + len(value[1:]) * "X"
+
     return value
 
 
@@ -1783,19 +1800,6 @@ def upload_image_to_doctype(
             ).replace(" ", "-")
         )
 
-        # image_file = frappe.get_doc(
-        #     {
-        #         "doctype": "File",
-        #         "file_name": profile_picture_file,
-        #         "content": image_file,
-        #         "attached_to_doctype": doctype,
-        #         "attached_to_field": attached_to_field,
-        #         "folder": "Home",
-        #     }
-        # )
-        # image_file.insert(ignore_permissions=True)
-        # frappe.db.commit()
-
         return ckyc_image_file_url
     except Exception:
         log_api_error()
@@ -1822,7 +1826,6 @@ def client_sanction_details(loan):
             },
             order_by="to_amount asc",
         )
-        print("MY LOan", loan.name)
         int_config = frappe.get_doc("Interest Configuration", interest_config)
         roi_ = int_config.base_interest * 12
         start_date = frappe.db.sql(
@@ -1844,7 +1847,6 @@ def client_sanction_details(loan):
             ),
         ).insert(ignore_permissions=True)
         frappe.db.commit()
-        print("Client Sanction Details", client_sanction_details)
     except Exception:
         frappe.log_error(
             message=frappe.get_traceback(),
@@ -1892,3 +1894,18 @@ def download_file(dataframe, file_name, file_extention):
     dataframe.to_excel(file_path, index=False)
     file_url = frappe.utils.get_url("files/{}".format(file_name))
     return file_url
+
+
+def user_kyc_hashing(user_kyc):
+    user_kyc.pan_no = user_details_hashing(user_kyc.pan_no)
+    user_kyc.ckyc_no = user_details_hashing(user_kyc.ckyc_no)
+    user_kyc.pan = user_details_hashing(user_kyc.pan)
+    for i in user_kyc.bank_account:
+        i.account_number = user_details_hashing(i.account_number)
+    for i in user_kyc.related_person_details:
+        i.pan = user_details_hashing(i.pan)
+        i.ckyc_no = user_details_hashing(i.ckyc_no)
+    for i in user_kyc.identity_details:
+        i.ident_num = user_details_hashing(i.ident_num)
+
+    return user_kyc

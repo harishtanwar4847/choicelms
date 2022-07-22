@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class CKYCAddressDetails(Document):
+class CustomerAddressDetails(Document):
     pass

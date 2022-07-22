@@ -7,10 +7,13 @@
  "field_order": [
   "entity",
   "token_type",
+  "app_version_platform",
   "used",
   "column_break_4",
   "token",
-  "expiry"
+  "expiry",
+  "customer_id",
+  "customer_name"
  ],
  "fields": [
   {
@@ -54,10 +57,30 @@
    "fieldtype": "Check",
    "label": "Used",
    "read_only": 1
+  },
+  {
+   "fieldname": "app_version_platform",
+   "fieldtype": "Data",
+   "label": "App Version & Platform",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_id",
+   "fieldtype": "Link",
+   "label": "Customer Id",
+   "options": "Loan Customer",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "customer_id.full_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2022-03-15 16:38:11.492210",
+ "modified": "2022-07-19 12:18:41.811957",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User Token",

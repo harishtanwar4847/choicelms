@@ -31,6 +31,7 @@ class UserToken(Document):
                 doc = frappe.get_all(
                     "User KYC", filters={"user": frappe.session.user}, fields=["*"]
                 )[0]
+                doc["doctype"] = "User KYC"
                 doc["otp_info"] = {
                     "token_type": self.token_type.replace(" ", ""),
                     "token": self.token,
@@ -46,6 +47,7 @@ class UserToken(Document):
                     "User", filters={"username": self.entity}, fields=["*"]
                 )
                 if doc:
+                    doc[0]["doctype"] = "User"
                     doc[0]["otp_info"] = {
                         "token_type": self.token_type.replace(" ", ""),
                         "token": self.token,
@@ -103,7 +105,7 @@ class UserToken(Document):
 
             if customer.choice_kyc:
                 doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-                if mob_num:
+                if doc.mob_num:
                     mob_num = doc.mob_num
                 else:
                     mob_num = doc.ckyc_mob_no
