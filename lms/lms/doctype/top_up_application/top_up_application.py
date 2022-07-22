@@ -36,7 +36,8 @@ class TopupApplication(Document):
         self.map_loan_agreement_file(loan)
         # self.notify_customer()
 
-        lms.client_sanction_details(loan)
+        date = frappe.utils.now_datetime().date()
+        lms.client_sanction_details(loan, date)
 
     def apply_loan_charges(self, loan):
         lender = loan.get_lender()

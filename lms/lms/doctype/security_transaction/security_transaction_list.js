@@ -12,7 +12,7 @@ frappe.listview_settings["Security Transaction"] = {
             });
           }
         );
-        frappe.db.get_single_value("LAS Settings", "debug_mode").then((res) => {
+        frappe.db.get_single_value("LAS Settings").then((res) => {
           if (res) {
             listview.page.add_inner_button(__("Generate Excel"), function () {
               frappe.call({

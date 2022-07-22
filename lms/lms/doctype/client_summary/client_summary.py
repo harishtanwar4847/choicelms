@@ -41,7 +41,7 @@ def client_summary():
                 adp_shortfall = loan.margin_shortfall_amount
             else:
                 adp_shortfall = loan.actual_drawing_power
-            roi = int_config.base_interest * 12
+            roi = round((int_config.base_interest * 12), 2)
             if user_kyc.choice_mob_no:
                 phone = user_kyc.choice_mob_no
             elif user_kyc.choice_mob_no == "":
@@ -58,7 +58,7 @@ def client_summary():
                     pledged_value=loan.total_collateral_value,
                     drawing_power=loan.drawing_power,
                     loan_balance=loan.balance,
-                    adp_shortfall=adp_shortfall,
+                    adp_shortfall=(loan.drawing_power - loan.balance),
                     roi_=roi,
                     client_demat_acc=pledgor_boid,
                     customer_contact_no=phone,
@@ -75,12 +75,16 @@ def client_summary():
         )
 
 
+def color_negative_red(value):
+    if type(value) in [int, float]:
+        color = "red" if value < 0 else "black"
+        return "color: %s" % color
+
+
 @frappe.whitelist()
 def excel_generator(doc_filters):
     if len(doc_filters) == 2:
-        doc_filters = {
-            "creation_date": frappe.utils.now_datetime().date() - timedelta(days=1)
-        }
+        doc_filters = {"creation_date": frappe.utils.now_datetime().date()}
     client_summary_doc = frappe.get_all(
         "Client Summary",
         filters=doc_filters,
@@ -118,6 +122,10 @@ def excel_generator(doc_filters):
     # report=report.reset_index(level=0,drop=True)
     # final.to_excel("client_summary.xlsx", index=False)
     final.loc[final["Loan No"].isnull(), "Loan No"] = "Total"
+    final = final["Adp Shortfall"].style.applymap(color_negative_red)
+    final = final.rename(
+        columns={"Adp Shortfall": "Available Drawing Power/Shortfall"}, inplace=True
+    )
     print(final)
     file_name = "client_summary_{}".format(frappe.utils.now_datetime())
     return lms.download_file(

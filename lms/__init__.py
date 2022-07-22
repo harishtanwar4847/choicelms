@@ -1840,10 +1840,12 @@ def client_sanction_details(loan):
                 loan_no=loan.name,
                 client_name=loan.customer_name,
                 pan_no=user_kyc.pan_no,
+                creation_date=frappe.utils.now_datetime().date(),
                 start_date=start_date,
                 end_date=loan.expiry_date,
                 sanctioned_amount=loan.sanctioned_limit,
                 roi=roi_,
+                # sanction_date = date
             ),
         ).insert(ignore_permissions=True)
         frappe.db.commit()

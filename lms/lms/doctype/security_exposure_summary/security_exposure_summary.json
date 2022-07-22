@@ -47,7 +47,8 @@
    "fieldname": "exposure_",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Exposure %"
+   "label": "Exposure %",
+   "precision": "2"
   },
   {
    "fieldname": "creation_date",
@@ -61,7 +62,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-14 12:22:25.687665",
+ "modified": "2022-07-22 18:34:48.154436",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Exposure Summary",
