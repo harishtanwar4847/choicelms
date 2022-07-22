@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.2.0-uat]
+
+## Added
+
+- [Feat: PII Changes for CKYC details](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/516)
+
 ## [v5.1.0-uat]
 
 ## Added
@@ -19,6 +25,17 @@
 ## Added
 
 - [Feat: CKYC Integration](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/512)
+- [API Doc Changes for CKYC]()
+- [Feild name change of mobile_num to mob_num]()
+- [Feild name change of investor_name to fullname]()
+- [Store Choice Email id, mobile no ,bank details]()
+- [Change penny flow to store bank cheque image]()
+- [Added doctypes for ckyc master files]()
+- [Stopped using KYC , Get_Choice_KYC API's]()
+- [GST on Charges]()
+- [OTP on emails]()
+- [New notification,email and fcm were added for ckcy and bank approval/rejection]()
+- [In Loan Aggrement ,Loan Enhancement Aggrement and TNC HTML address is fetched from ckyc address details doctype]()
 
 ## [v4.0.2-uat]
 
