@@ -57,6 +57,7 @@ def excel_generator(doc_filters):
     final.loc[final["Client Code"].duplicated(), "Client Code"] = ""
     final.loc[final["Loan No"].duplicated(), "Loan No"] = ""
     final.loc[final["Client Name"].duplicated(), "Client Name"] = ""
+    final.loc[final["Pan No"].duplicated(), "Pan No"] = ""
 
     # final.loc[(final['Client Code'].duplicated() & final['Loan No'].duplicated()), ['Client Code','Loan No']] = ''
     # final.loc[(final['Client Code'].duplicated() & final['Client Name'].duplicated()), ['Client Code','Client Name']] = ''

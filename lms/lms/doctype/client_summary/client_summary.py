@@ -64,7 +64,7 @@ def client_summary():
                     customer_contact_no=phone,
                     loan_expiry_date=loan.expiry_date,
                     dpd=loan.day_past_due,
-                    creation_date=frappe.utils.now_datetime(),
+                    creation_date=frappe.utils.now_datetime().date(),
                 ),
             ).insert(ignore_permissions=True)
             frappe.db.commit()
@@ -84,7 +84,9 @@ def color_negative_red(value):
 @frappe.whitelist()
 def excel_generator(doc_filters):
     if len(doc_filters) == 2:
-        doc_filters = {"creation_date": frappe.utils.now_datetime().date()}
+        doc_filters = {
+            "creation_date": str(frappe.utils.now_datetime().date()) - timedelta(days=1)
+        }
     client_summary_doc = frappe.get_all(
         "Client Summary",
         filters=doc_filters,
@@ -122,11 +124,10 @@ def excel_generator(doc_filters):
     # report=report.reset_index(level=0,drop=True)
     # final.to_excel("client_summary.xlsx", index=False)
     final.loc[final["Loan No"].isnull(), "Loan No"] = "Total"
-    final = final["Adp Shortfall"].style.applymap(color_negative_red)
     final = final.rename(
-        columns={"Adp Shortfall": "Available Drawing Power/Shortfall"}, inplace=True
+        columns={final.columns[7]: "Available Drawing Power/Shortfall"}
     )
-    print(final)
+    final = final.style.applymap(color_negative_red)
     file_name = "client_summary_{}".format(frappe.utils.now_datetime())
     return lms.download_file(
         dataframe=final, file_name=file_name, file_extention="xlsx"

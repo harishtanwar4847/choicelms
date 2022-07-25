@@ -52,7 +52,7 @@ def security_transaction():
                         qty=qty,
                         rate=i.price,
                         value=i.value,
-                        creation_date=frappe.utils.now_datetime(),
+                        creation_date=frappe.utils.now_datetime().date(),
                     ),
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
@@ -67,8 +67,9 @@ def security_transaction():
 def excel_generator(doc_filters):
     if len(doc_filters) == 2:
         doc_filters = {
-            "creation_date": frappe.utils.now_datetime().date() - timedelta(days=1)
+            "creation_date": str(frappe.utils.now_datetime().date() - timedelta(days=1))
         }
+        print("Doc Filter", doc_filters)
     security_transaction_doc = frappe.get_all(
         "Security Transaction",
         filters=doc_filters,
@@ -87,6 +88,7 @@ def excel_generator(doc_filters):
             "value",
         ],
     )
+    print("Security Transaction", security_transaction_doc)
     if security_transaction_doc == []:
         frappe.throw(("Record does not exist"))
     final = pd.DataFrame([c.values() for c in security_transaction_doc], index=None)
@@ -130,7 +132,21 @@ def excel_generator(doc_filters):
     val = final[["Value"]].sum()
     df_new.loc[df_new["Isin"].isnull(), "Loan No"] = "Total"
     # df_new.loc[df_new['Client Name'].isnull(), 'Loan No'] = ' Grand Total'
-    df_new.loc["Grand Total"] = val
+    df_new.loc[len(df_new)] = [
+        "Grand Total",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        float(val),
+    ]
+    # df_new["Grand Total"] = val
     # df_new.loc['Grand Total'] = df_new.loc['Grand Total'].fillna("")
     # df_new.loc[(df_new['Loan No'].duplicated() & df_new['Client Name'].duplicated()), ['Loan No','Client Name']] = ''
     # df_new.loc[(df_new['Loan No'].duplicated() & df_new['Dpid'].duplicated()), ['Loan No','Dpid']] = ''

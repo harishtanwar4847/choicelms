@@ -55,6 +55,7 @@ def interest_calculation(loan):
                 loan_balance=transaction.closing_balance,
                 interest_with_rebate=0,
                 interest_without_rebate=0,
+                creation_date=frappe.utils.now_datetime().date(),
             )
         )
     for interest in interests:
@@ -87,6 +88,7 @@ def interest_calculation(loan):
                     loan_balance=interest.loan_balance,
                     interest_with_rebate=rebate,
                     interest_without_rebate=interest.base_amount,
+                    creation_date=frappe.utils.now_datetime().date(),
                 )
             )
     interest_calculation_list.sort(
@@ -98,27 +100,10 @@ def interest_calculation(loan):
 
 
 @frappe.whitelist()
-def interest_calculation_enqueue():
-    try:
-        loans = frappe.get_all("Loan", fields=["*"])
-        for loan in loans:
-            frappe.enqueue(
-                method="lms.lms.doctype.interest_calculation.interest_calculation.interest_calculation",
-                queue="long",
-                loan=loan,
-            )
-    except Exception:
-        frappe.log_error(
-            message=frappe.get_traceback(),
-            title=frappe._("Interest Calculation"),
-        )
-
-
-@frappe.whitelist()
 def excel_generator(doc_filters):
     if len(doc_filters) == 2:
         doc_filters = {
-            "creation_date": frappe.utils.now_datetime().date() - timedelta(days=1)
+            "creation_date": str(frappe.utils.now_datetime().date() - timedelta(days=1))
         }
 
     interest_calculation_doc = frappe.get_all(

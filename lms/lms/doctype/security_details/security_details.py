@@ -46,7 +46,7 @@ def security_details():
                     rate=co_ledger.price,
                     value=co_ledger.value,
                     pledgor_boid=pledgor_boid,
-                    creation_date=frappe.utils.now_datetime(),
+                    creation_date=frappe.utils.now_datetime().date(),
                 ),
             ).insert(ignore_permissions=True)
             frappe.db.commit()
@@ -61,7 +61,7 @@ def security_details():
 def excel_generator(doc_filters):
     if len(doc_filters) == 2:
         doc_filters = {
-            "creation_date": frappe.utils.now_datetime().date() - timedelta(days=1)
+            "creation_date": str(frappe.utils.now_datetime().date() - timedelta(days=1))
         }
 
     seurity_details_doc = frappe.get_all(

@@ -41,7 +41,7 @@ def security_exposure_summary():
                         rate=security.price,
                         value=(qty * security.price),
                         exposure_=((qty * security.price) / total_sum) * 100,
-                        creation_date=frappe.utils.now_datetime(),
+                        creation_date=frappe.utils.now_datetime().date(),
                     ),
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
@@ -56,7 +56,7 @@ def security_exposure_summary():
 def excel_generator(doc_filters):
     if len(doc_filters) == 2:
         doc_filters = {
-            "creation_date": frappe.utils.now_datetime().date() - timedelta(days=1)
+            "creation_date": str(frappe.utils.now_datetime().date() - timedelta(days=1))
         }
     security_exposure_doc = frappe.get_all(
         "Security Exposure Summary",
@@ -76,7 +76,7 @@ def excel_generator(doc_filters):
     final.columns = security_exposure_doc[0].keys()
     final.columns = pd.Series(final.columns.str.replace("_", " ")).str.title()
     report = final.sum(numeric_only=True)
-    report = final.iloc[:, 2:6].sum()
+    report = final.iloc[:, [2, 4, 5]].sum()
     final.loc["Grand Total"] = report
     final.loc[final["Isin"].isnull(), "Isin"] = "Total"
     final.fillna("")
