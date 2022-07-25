@@ -5371,3 +5371,22 @@ def pincode(**kwargs):
     except utils.exceptions.APIException as e:
         lms.log_api_error()
         return e.respond()
+
+
+@frappe.whitelist()
+def get_app_version_details():
+    try:
+        utils.validator.validate_http_method("GET")
+
+        version_details = frappe.get_all(
+            "Spark App Version",
+            fields=["*"],
+            order_by="release_date desc",
+            page_length=1,
+        )
+        if not version_details:
+            raise lms.exceptions.NotFoundException(_("No Record found"))
+        return utils.respondWithSuccess(data=version_details[0])
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
