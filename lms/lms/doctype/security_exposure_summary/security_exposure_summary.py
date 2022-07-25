@@ -55,9 +55,7 @@ def security_exposure_summary():
 @frappe.whitelist()
 def excel_generator(doc_filters):
     if len(doc_filters) == 2:
-        doc_filters = {
-            "creation_date": str(frappe.utils.now_datetime().date() - timedelta(days=1))
-        }
+        doc_filters = {"creation_date": str(frappe.utils.now_datetime().date())}
     security_exposure_doc = frappe.get_all(
         "Security Exposure Summary",
         filters=doc_filters,
