@@ -86,6 +86,10 @@ def excel_generator(doc_filters):
     # report=report.reset_index(level=0,drop=True)
     # final.to_excel("security_exposure_summary.xlsx", index=False)
     file_name = "security_exposure_{}".format(frappe.utils.now_datetime())
+    sheet_name = "Security Exposure Summary"
     return lms.download_file(
-        dataframe=final, file_name=file_name, file_extention="xlsx"
+        dataframe=final,
+        file_name=file_name,
+        file_extention="xlsx",
+        sheet_name=sheet_name,
     )

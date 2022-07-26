@@ -130,6 +130,14 @@ def excel_generator(doc_filters):
     # Sort
     df_new = df_new.sort_values(["Loan No", "Creation Date"])
     val = final[["Value"]].sum()
+    df_new.loc[
+        (
+            df_new["Loan No"].duplicated()
+            & df_new["Client Name"].duplicated()
+            & df_new["Dpid"].duplicated()
+        ),
+        ["Loan No", "Client Name", "Dpid"],
+    ] = ""
     df_new.loc[df_new["Isin"].isnull(), "Loan No"] = "Total"
     # df_new.loc[df_new['Client Name'].isnull(), 'Loan No'] = ' Grand Total'
     df_new.loc[len(df_new)] = [
@@ -146,14 +154,12 @@ def excel_generator(doc_filters):
         "",
         float(val),
     ]
-    # df_new["Grand Total"] = val
-    # df_new.loc['Grand Total'] = df_new.loc['Grand Total'].fillna("")
-    # df_new.loc[(df_new['Loan No'].duplicated() & df_new['Client Name'].duplicated()), ['Loan No','Client Name']] = ''
-    # df_new.loc[(df_new['Loan No'].duplicated() & df_new['Dpid'].duplicated()), ['Loan No','Dpid']] = ''
-    # print("qty",qty)
-    # print("val",val)
+    df_new.drop("Creation Date", axis=1, inplace=True)
     file_name = "security_transaction_{}".format(frappe.utils.now_datetime())
-    print("excel_name", df_new)
+    sheet_name = "Security Transaction"
     return lms.download_file(
-        dataframe=df_new, file_name=file_name, file_extention="xlsx"
+        dataframe=df_new,
+        file_name=file_name,
+        file_extention="xlsx",
+        sheet_name=sheet_name,
     )

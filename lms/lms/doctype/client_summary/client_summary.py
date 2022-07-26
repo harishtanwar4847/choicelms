@@ -127,8 +127,15 @@ def excel_generator(doc_filters):
     final = final.rename(
         columns={final.columns[7]: "Available Drawing Power/Shortfall"}
     )
-    final = final.style.applymap(color_negative_red)
+    final = final.style.applymap(
+        color_negative_red,
+        subset=pd.IndexSlice[:, ["Available Drawing Power/Shortfall"]],
+    )
     file_name = "client_summary_{}".format(frappe.utils.now_datetime())
+    sheet_name = "Client Summary"
     return lms.download_file(
-        dataframe=final, file_name=file_name, file_extention="xlsx"
+        dataframe=final,
+        file_name=file_name,
+        file_extention="xlsx",
+        sheet_name=sheet_name,
     )

@@ -62,8 +62,12 @@ def excel_generator(doc_filters):
     # final.loc[(final['Client Code'].duplicated() & final['Loan No'].duplicated()), ['Client Code','Loan No']] = ''
     # final.loc[(final['Client Code'].duplicated() & final['Client Name'].duplicated()), ['Client Code','Client Name']] = ''
     # final.loc[(final['Client Code'].duplicated() & final['Pan No'].duplicated()), ['Client Code','Pan No']] = ''
-    print(final)
+    # print(final)
     file_name = "client_santion_details_{}".format(frappe.utils.now_datetime())
+    sheet_name = "Client Sanction Details"
     return lms.download_file(
-        dataframe=final, file_name=file_name, file_extention="xlsx"
+        dataframe=final,
+        file_name=file_name,
+        file_extention="xlsx",
+        sheet_name=sheet_name,
     )

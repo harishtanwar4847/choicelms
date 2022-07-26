@@ -120,6 +120,7 @@ def excel_generator(doc_filters):
             "loan_balance",
             "interest_with_rebate",
             "interest_without_rebate",
+            "creation_date",
         ],
     )
     if interest_calculation_doc == []:
@@ -128,17 +129,47 @@ def excel_generator(doc_filters):
     final = pd.DataFrame([c.values() for c in interest_calculation_doc], index=None)
     final.columns = interest_calculation_doc[0].keys()
     final.columns = pd.Series(final.columns.str.replace("_", " ")).str.title()
-    report = final.sum(numeric_only=True)
-    report = final.iloc[:, 7:10].sum()
-    final.loc["Total"] = report
-    final.loc[
-        (final["Loan No"].duplicated() & final["Client Name"].duplicated()),
+    # report = final.sum(numeric_only=True)
+    # report = final.iloc[:, 7:10].sum()
+    # final.loc["Total"] = report
+    # final.loc[
+    #     (final["Loan No"].duplicated() & final["Client Name"].duplicated()),
+    #     ["Loan No", "Client Name"],
+    # ] = ""
+    # final.loc[
+    #     final["Transaction Type"].isnull(), "Transaction Type"
+    # ] = "Closing balance"
+    # file_name = "interest_calculation_{}".format(frappe.utils.now_datetime())
+    # return lms.download_file(
+    #     dataframe=final, file_name=file_name, file_extention="xlsx"
+    # )
+
+    df_subtotal = final.groupby(["Loan No", "Client Name"], as_index=False)[
+        "Loan Balance", "Interest With Rebate", "Interest Without Rebate"
+    ].sum()
+    # Join dataframes
+    df_new = pd.concat([final, df_subtotal], axis=0, ignore_index=True)
+    # Sort
+    df_new = df_new.sort_values(["Loan No", "Creation Date"])
+    df_new.loc[
+        (df_new["Loan No"].duplicated() & df_new["Client Name"].duplicated()),
         ["Loan No", "Client Name"],
     ] = ""
-    final.loc[
-        final["Transaction Type"].isnull(), "Transaction Type"
-    ] = "Closing balance"
+    df_new.loc[df_new["Date"].isnull(), "Transaction Type"] = "Closing Balance"
+    df_new.drop("Creation Date", axis=1, inplace=True)
+    df_new = df_new.rename(
+        columns={
+            "Crdr": "Cr/Dr",
+            "Interest With Rebate": "Interest(With Rebate)",
+            "Interest Without Rebate": "Interest(Without Rebate)",
+        }
+    )
     file_name = "interest_calculation_{}".format(frappe.utils.now_datetime())
+    sheet_name = "Interest Calculation"
+    print("excel_name", df_new)
     return lms.download_file(
-        dataframe=final, file_name=file_name, file_extention="xlsx"
+        dataframe=df_new,
+        file_name=file_name,
+        file_extention="xlsx",
+        sheet_name=sheet_name,
     )
