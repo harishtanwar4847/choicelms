@@ -95,6 +95,13 @@ class LoanTransaction(Document):
         # set customer
         loan = self.get_loan()
         # update opening balance
+        customer = frappe.get_doc("Loan Customer", loan.customer)
+        user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+        for i in user_kyc.bank_account:
+            if i.is_default == 1:
+                bank = i.bank
+                account_number = i.account_number
+                ifsc = i.ifsc
         self.opening_balance = loan.balance
         self.customer = loan.customer
         self.customer_name = loan.customer_name
@@ -102,9 +109,13 @@ class LoanTransaction(Document):
             self.transaction_type == "Withdrawal"
             and not self.allowable
             and not self.requested
+            and "Loan Customer" not in user_roles
         ):
             self.requested = self.amount
             self.allowable = loan.maximum_withdrawable_amount()
+            self.bank = bank
+            self.account_number = account_number
+            self.ifsc = ifsc
 
         # if there is interest for loan, mark is_for_interest=True for loan transaction with record type CR
         if self.record_type == "CR":
