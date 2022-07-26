@@ -88,10 +88,13 @@ def login(**kwargs):
             except UserKYCNotFoundException:
                 user_kyc = {}
 
+            if user_kyc:
+                user_kyc = lms.user_kyc_hashing(user_kyc)
+
             token = dict(
                 token=utils.create_user_access_token(user.name),
                 customer=customer,
-                user_kyc=lms.user_kyc_hashing(user_kyc),
+                user_kyc=user_kyc,
             )
             app_version_platform = ""
             if data.get("app_version") and data.get("platform"):

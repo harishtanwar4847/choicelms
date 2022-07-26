@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.2.1-uat]
+
+## Fixed
+
+- [Fix: Login with pin user KYC hashing fixes and Loan transaction backend (withdraw transaction bank details update)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/517)
+
 ## [v5.2.0-uat]
 
 ## Added
