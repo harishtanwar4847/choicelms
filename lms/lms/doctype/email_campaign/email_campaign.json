@@ -7,6 +7,7 @@
  "field_order": [
   "title",
   "subject",
+  "email_selection",
   "html",
   "customer_selection",
   "image",
@@ -53,12 +54,18 @@
    "fieldname": "image",
    "fieldtype": "Attach Image",
    "label": "Image "
+  },
+  {
+   "fieldname": "email_selection",
+   "fieldtype": "Table",
+   "label": "Email Selection",
+   "options": "User Email"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-07-25 15:21:44.721193",
+ "modified": "2022-07-27 19:01:29.810754",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Email Campaign",

@@ -51,7 +51,6 @@ class EmailCampaign(Document):
         print(self.title)
         print(self.subject)
         print(self.customer_selection)
-        print(self.no_of_users)
         if self.customer_selection == "All Customer":
             doc = frappe.get_all("Loan Customer", fields=["user"])
         elif self.customer_selection == "Loan Customer":
@@ -64,13 +63,16 @@ class EmailCampaign(Document):
             doc = frappe.get_all("Loan Customer", fields=["user"])
         else:
             pass
-        print(doc)
+        print(self.email_selection)
+        for d in self.email_selection:
+            sender = d.email_id
+        print(sender)
+
         for i in doc:
-            print(i.user)
             frappe.enqueue(
                 method=frappe.sendmail,
                 recipients=i.user,
-                sender="notifications@example.com",
+                sender=sender,
                 subject=self.subject,
                 message=self.html,
                 send_after=self.date_time_picker,
