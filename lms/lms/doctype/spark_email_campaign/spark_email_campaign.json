@@ -1,0 +1,169 @@
+{
+ "actions": [],
+ "creation": "2022-07-25 10:55:00.557204",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "subject",
+  "sender",
+  "default_image_section",
+  "logo_file",
+  "fb_icon",
+  "column_break_7",
+  "tw_icon",
+  "inst_icon",
+  "html_section",
+  "html",
+  "section_break_1",
+  "customer_selection",
+  "customer_email",
+  "no_of_user",
+  "column_break_1",
+  "schedule_time",
+  "datetime",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "length": 100
+  },
+  {
+   "fieldname": "subject",
+   "fieldtype": "Data",
+   "label": "Subject",
+   "length": 200
+  },
+  {
+   "fieldname": "sender",
+   "fieldtype": "Table",
+   "label": "Sender",
+   "options": "User Email"
+  },
+  {
+   "fieldname": "default_image_section",
+   "fieldtype": "Section Break",
+   "label": "Default Image"
+  },
+  {
+   "fieldname": "logo_file",
+   "fieldtype": "Data",
+   "label": "Logo File",
+   "length": 100,
+   "read_only": 1
+  },
+  {
+   "fieldname": "fb_icon",
+   "fieldtype": "Data",
+   "label": "Facebook Icon",
+   "length": 100,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tw_icon",
+   "fieldtype": "Data",
+   "label": "Twitter Icon",
+   "length": 100,
+   "read_only": 1
+  },
+  {
+   "fieldname": "inst_icon",
+   "fieldtype": "Data",
+   "label": "Instagram Icon",
+   "length": 100,
+   "read_only": 1
+  },
+  {
+   "fieldname": "html_section",
+   "fieldtype": "Section Break",
+   "label": "Html"
+  },
+  {
+   "fieldname": "html",
+   "fieldtype": "HTML Editor",
+   "label": "Html"
+  },
+  {
+   "fieldname": "section_break_1",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "customer_selection",
+   "fieldtype": "Select",
+   "label": "Customer Selection",
+   "options": "All Customer\nLoan Customer\nNon Loan Customer\nKyc Customer\nSelected Customer"
+  },
+  {
+   "depends_on": "eval:doc.customer_selection == \"Selected Customer\";",
+   "fieldname": "customer_email",
+   "fieldtype": "Table",
+   "label": "Customer Email",
+   "mandatory_depends_on": "eval:doc.customer_selection == \"Selected Customer\";",
+   "options": "Spark Customer Email ID"
+  },
+  {
+   "fieldname": "no_of_user",
+   "fieldtype": "Int",
+   "label": "No of User"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "schedule_time",
+   "fieldtype": "Select",
+   "label": "Schedule Time",
+   "options": "Immediate\nSchedule"
+  },
+  {
+   "depends_on": "eval:doc.schedule_time == \"Schedule\";",
+   "fieldname": "datetime",
+   "fieldtype": "Datetime",
+   "label": "Datetime",
+   "mandatory_depends_on": "eval:doc.schedule_time == \"Schedule\";"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Spark Email Campaign",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2022-07-28 12:31:15.372382",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Spark Email Campaign",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

@@ -47,11 +47,22 @@ class EmailCampaign(Document):
     # 	self.add_new_cron_for_email(cron)
     # 	self.mail_send()
 
+    def before_save(self):
+        self.logo_file = frappe.utils.get_url("/assets/lms/mail_images/logo.png")
+        self.fb_icon = frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png")
+        self.tw_icon = frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png")
+        self.inst_icon = frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png")
+        for i in self.sender:
+            if "spark" in i.email_id or "choice" in i.email_id:
+                i.email_id
+            else:
+                frappe.throw("Please Enter Spark/Choice email id")
+
     def mail_send(self):
         print(self.title)
         print(self.subject)
         print(self.customer_selection)
-        print(self.no_of_users)
+        # print(self.no_of_users)
         if self.customer_selection == "All Customer":
             doc = frappe.get_all("Loan Customer", fields=["user"])
         elif self.customer_selection == "Loan Customer":
@@ -65,15 +76,21 @@ class EmailCampaign(Document):
         else:
             pass
         print(doc)
+        print(len(doc))
+        print(self.sender[0].email_id)
+        for i in self.sender:
+            if "spark" in i.email_id or "choice" in i.email_id:
+                sender = i.email_id
+
         for i in doc:
             print(i.user)
             frappe.enqueue(
                 method=frappe.sendmail,
                 recipients=i.user,
-                sender="notifications@example.com",
+                sender=sender,
                 subject=self.subject,
                 message=self.html,
-                send_after=self.date_time_picker,
+                send_after=self.datetime,
             )
 
     # def web_mail(notification_name, name, recepient, subject):
@@ -114,3 +131,16 @@ class EmailCampaign(Document):
     # 		subject="{}".format(subject),
     # 		message=mail_content[0],
     # 	)
+
+
+# @frappe.whitelist()
+# def get_email_address():
+#     doc = frappe.get_all(
+#         "Email Account", fields = ["email_id"]
+#     )
+#     email_list = []
+#     for i in doc:
+#         if "spark" in i.email_id or "choice" in i.email_id :
+#             email_list.append(i.email_id)
+#     email_list.append("Other")
+#     return email_list
