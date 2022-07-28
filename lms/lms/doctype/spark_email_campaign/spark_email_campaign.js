@@ -22,7 +22,7 @@ frappe.ui.form.on("Spark Email Campaign", {
     }
   },
 });
-frappe.ui.form.on("User Email", {
+frappe.ui.form.on("Sender", {
   sender_add(frm, cdt, cdn) {
     console.log(frm.fields_dict["sender"].grid.wrapper);
     if (frm.doc.sender.length == 1) {
