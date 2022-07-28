@@ -5311,6 +5311,7 @@ def get_bank_details():
                 user_kyc.email = data["emailId"]
                 user_kyc.choice_mob_no = data["mobileNum"]
                 user_kyc.bank_account = []
+                user_kyc.save(ignore_permissions=True)
                 frappe.db.commit()
                 user_kyc_doc = frappe.get_doc("User KYC", user_kyc.name)
 
