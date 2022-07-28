@@ -83,7 +83,6 @@ class EmailCampaign(Document):
                 sender = i.email_id
 
         for i in doc:
-            print(i.user)
             frappe.enqueue(
                 method=frappe.sendmail,
                 recipients=i.user,
