@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.2.2-uat]
+
+## Fixed
+
+- [Fix: User bank account display depends on fix](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/520)
+
 ## [v5.2.1-uat]
 
 ## Fixed
