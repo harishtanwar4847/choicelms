@@ -12,9 +12,18 @@
  "fields": [
   {
    "fieldname": "full_name",
+<<<<<<< HEAD
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Full Name"
+=======
+   "fieldtype": "Read Only",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Full Name",
+   "unique": 1
+>>>>>>> fe11a7c4695090d1bc1947adb87831ad3ae91729
   },
   {
    "fetch_from": "full_name.name",
@@ -35,7 +44,11 @@
  ],
  "istable": 1,
  "links": [],
+<<<<<<< HEAD
  "modified": "2022-07-31 21:45:57.240121",
+=======
+ "modified": "2022-07-28 12:55:10.133581",
+>>>>>>> fe11a7c4695090d1bc1947adb87831ad3ae91729
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Customer Email ID",

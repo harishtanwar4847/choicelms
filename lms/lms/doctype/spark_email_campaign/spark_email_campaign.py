@@ -36,7 +36,7 @@ class SparkEmailCampaign(Document):
     def before_save(self):
         for i in self.sender_email:
             if "spark" in i.email_id or "choice" in i.email_id:
-                i.email_id
+                sender = i.email_id
             else:
                 frappe.throw("Please Enter Spark/Choice email id")
 
