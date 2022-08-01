@@ -7,7 +7,7 @@
  "field_order": [
   "title",
   "subject",
-  "sender",
+  "sender_email",
   "default_image_section",
   "logo_file",
   "fb_icon",
@@ -15,14 +15,14 @@
   "tw_icon",
   "inst_icon",
   "html_section",
-  "html",
+  "template_html",
   "section_break_1",
   "customer_selection",
   "customer_email",
   "no_of_user",
   "column_break_1",
   "schedule_time",
-  "datetime",
+  "schedule_datetime",
   "amended_from"
  ],
  "fields": [
@@ -37,12 +37,6 @@
    "fieldtype": "Data",
    "label": "Subject",
    "length": 200
-  },
-  {
-   "fieldname": "sender",
-   "fieldtype": "Table",
-   "label": "Sender",
-   "options": "User Email"
   },
   {
    "fieldname": "default_image_section",
@@ -87,11 +81,6 @@
    "label": "Html"
   },
   {
-   "fieldname": "html",
-   "fieldtype": "HTML Editor",
-   "label": "Html"
-  },
-  {
    "fieldname": "section_break_1",
    "fieldtype": "Section Break"
   },
@@ -125,13 +114,6 @@
    "options": "Immediate\nSchedule"
   },
   {
-   "depends_on": "eval:doc.schedule_time == \"Schedule\";",
-   "fieldname": "datetime",
-   "fieldtype": "Datetime",
-   "label": "Datetime",
-   "mandatory_depends_on": "eval:doc.schedule_time == \"Schedule\";"
-  },
-  {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
@@ -139,12 +121,30 @@
    "options": "Spark Email Campaign",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "template_html",
+   "fieldtype": "HTML Editor",
+   "label": "Html"
+  },
+  {
+   "depends_on": "eval:doc.schedule_time == \"Schedule\";",
+   "fieldname": "schedule_datetime",
+   "fieldtype": "Datetime",
+   "label": "Datetime",
+   "mandatory_depends_on": "eval:doc.schedule_time == \"Schedule\";"
+  },
+  {
+   "fieldname": "sender_email",
+   "fieldtype": "Table",
+   "label": "Sender Email",
+   "options": "User Email"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-07-28 12:31:15.372382",
+ "modified": "2022-07-29 15:11:17.674932",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Email Campaign",

@@ -7,36 +7,35 @@
  "field_order": [
   "customer_id",
   "full_name",
-  "email_id"
+  "user"
  ],
  "fields": [
   {
-   "fetch_from": "customer_id.full_name",
    "fieldname": "full_name",
-   "fieldtype": "Read Only",
-   "in_global_search": 1,
-   "in_standard_filter": 1,
-   "label": "Full Name",
-   "unique": 1
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Full Name"
   },
   {
+   "fetch_from": "full_name.name",
    "fieldname": "customer_id",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Customer ID",
    "options": "Loan Customer",
-   "unique": 1
+   "reqd": 1
   },
   {
    "fetch_from": "customer_id.user",
-   "fieldname": "email_id",
-   "fieldtype": "Read Only",
+   "fieldname": "user",
+   "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Email Id"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-07-28 12:16:23.829742",
+ "modified": "2022-07-31 21:45:57.240121",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Customer Email ID",

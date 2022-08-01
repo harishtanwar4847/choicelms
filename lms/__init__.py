@@ -1836,3 +1836,16 @@ def user_kyc_hashing(user_kyc):
         i.ident_num = user_details_hashing(i.ident_num)
 
     return user_kyc
+
+
+# def cron_convertor(self):
+# 	print("time",(self.date_time_picker))
+# 	dt = self.date_time_picker
+# 	dt_obj = datetime.strptime(dt,'%Y-%m-%d %H:%M:%S')
+# 	print("dt",dt)
+# 	print("obj",type(dt_obj))
+# 	cron  = f"{dt_obj.minute} {dt_obj.hour} {dt_obj.day} {dt_obj.month} *"
+
+# 	print("Cron",cron)
+# 	self.add_new_cron_for_email(cron)
+# 	self.mail_send()ṇ
