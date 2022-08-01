@@ -764,7 +764,7 @@ def reject_blank_transaction_and_settlement_recon_api():
             "Loan Transaction",
             {
                 "transaction_type": "Payment",
-                "razorpay_event": ["in", ["", "Payment Cancelled"]],
+                "razorpay_event": "",
                 "status": "Pending",
             },
         )
