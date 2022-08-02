@@ -398,7 +398,7 @@ def get_allowed_securities(securities, lender, instrument_type="Shares"):
 				from `tabAllowed Security` als
                 LEFT JOIN `tabSecurity Category` sc
 				ON als.security_category = sc.name where
-				als.lender {lender} 
+				als.lender {lender}
                 {allowed} and
                 als.instrument_type = '{instrument_type}' and
                 als.isin in {isin}""".format(
@@ -1132,7 +1132,7 @@ def log_api_error(mess=""):
             + " API Error"
         )
 
-        error = frappe.get_traceback() + "\n\n" + mess + "\n\n" + message
+        error = frappe.get_traceback() + "\n\n" + str(mess) + "\n\n" + message
         log = frappe.get_doc(
             dict(doctype="API Error Log", error=frappe.as_unicode(error), method=title)
         ).insert(ignore_permissions=True)
