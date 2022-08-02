@@ -12,6 +12,7 @@ def execute():
             "app_store_link": "https://apps.apple.com/in/app/spark-loans/id1551799259?uo=4",
             "whats_new": "Force update",
             "release_date": frappe.utils.now_datetime().date(),
+            "backend_version": "v5.3.0-uat",
         }
     ).insert(ignore_permissions=True)
     frappe.db.commit()
