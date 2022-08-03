@@ -1246,9 +1246,11 @@ def update_rzp_payment_transaction(data):
             loan_transaction.transaction_id = webhook_main_object["id"]
             if loan_transaction.razorpay_event != "Captured":
                 loan_transaction.razorpay_event = razorpay_event
-                loan_transaction.workflow_state = "Approved"
-                loan_transaction.status = "Approved"
-                loan_transaction.docstatus = 1
+                frappe.db.sql(
+                    "update `tabLoan Transaction` set workflow_state = 'Approved', status = 'Approved', docstatus = 1 where name = '{}'".format(
+                        loan_transaction.name
+                    )
+                )
             # If RZP event is failed then update the log
             if loan_transaction.razorpay_event == "Failed":
                 loan_transaction.razorpay_payment_log = (
@@ -1267,8 +1269,11 @@ def update_rzp_payment_transaction(data):
                     + "<b>reason</b> : "
                     + webhook_main_object.get("error_reason")
                 )
-                loan_transaction.workflow_state = "Rejected"
-                loan_transaction.status = "Rejected"
+                frappe.db.sql(
+                    "update `tabLoan Transaction` set workflow_state = 'Rejected', status = 'Rejected' where name = '{}'".format(
+                        loan_transaction.name
+                    )
+                )
             else:
                 loan_transaction.razorpay_payment_log = ""
 
