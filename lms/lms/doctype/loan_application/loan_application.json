@@ -244,7 +244,7 @@
   }
  ],
  "links": [],
- "modified": "2022-05-11 17:12:24.453836",
+ "modified": "2022-08-03 16:01:23.159011",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",
@@ -259,6 +259,7 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "select": 1,
    "share": 1,
    "write": 1
   },

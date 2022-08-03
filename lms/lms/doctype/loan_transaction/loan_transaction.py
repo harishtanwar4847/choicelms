@@ -701,6 +701,15 @@ class LoanTransaction(Document):
             and self.status == "Ready for Approval"
         ):
             frappe.throw("Allowable amount could not be greater than requested amount")
+        if self.transaction_type == "Payment":
+            if self.razorpay_event == "Captured":
+                self.workflow_state = "Approved"
+                self.status = "Approved"
+                self.docstatus = 1
+            else:
+                self.workflow_state = "Rejected"
+                self.status = "Rejected"
+                self.docstatus = 0
 
     def gst_on_charges(self, loan, lender):
         lender = lender.as_dict()
