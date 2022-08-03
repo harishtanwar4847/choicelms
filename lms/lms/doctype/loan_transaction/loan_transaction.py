@@ -702,6 +702,21 @@ class LoanTransaction(Document):
         ):
             frappe.throw("Allowable amount could not be greater than requested amount")
 
+    def after_save(self):
+        if self.razorpay_event == "Captured":
+            frappe.db.sql(
+                "update `tabLoan Transaction` set workflow_state = 'Approved', status = 'Approved', docstatus = 1 where name = '{}'".format(
+                    self.name
+                )
+            )
+
+        elif self.razorpay_event == "Failed":
+            frappe.db.sql(
+                "update `tabLoan Transaction` set workflow_state = 'Rejected', status = 'Rejected' where name = '{}'".format(
+                    self.name
+                )
+            )
+
     def gst_on_charges(self, loan, lender):
         lender = lender.as_dict()
         customer = frappe.get_doc("Loan Customer", loan.customer)
