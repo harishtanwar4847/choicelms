@@ -381,7 +381,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-07-20 15:00:39.317195",
+ "modified": "2022-08-03 20:24:09.806264",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
@@ -427,6 +427,13 @@
    "create": 1,
    "read": 1,
    "role": "Spark Manager",
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Razorpay User",
    "submit": 1,
    "write": 1
   }
