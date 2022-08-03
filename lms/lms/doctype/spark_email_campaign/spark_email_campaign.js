@@ -6,6 +6,7 @@ frappe.ui.form.on("Spark Email Campaign", {
     $("div.grid-heading-row span.hidden-xs").html("Level");
     if (frm.doc.sender_email.length > 0) {
       $(".grid-add-row").hide();
+      console.log("lol");
     }
   },
   sender_email_on_form_rendered(frm, cdt, cdn) {
@@ -34,7 +35,6 @@ frappe.ui.form.on("Spark Email Campaign", {
 
 frappe.ui.form.on("User Email", {
   sender_email_add(frm, cdt, cdn) {
-    console.log(frm.doc);
     if (frm.doc.sender_email.length >= 1) {
       $(".grid-add-row").hide();
     }
