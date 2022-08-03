@@ -1308,14 +1308,14 @@ def update_rzp_payment_transaction(data):
 
             if loan_transaction.razorpay_event == "Captured":
                 frappe.db.sql(
-                    "update `tabLoan Transaction set workflow_state = 'Approved', status = 'Approved', docstatus = 1 where name = '{}'".format(
+                    "update `tabLoan Transaction` set workflow_state = 'Approved', status = 'Approved', docstatus = 1 where name = '{}'".format(
                         loan_transaction.name
                     )
                 )
 
             elif loan_transaction.razorpay_event == "Failed":
                 frappe.db.sql(
-                    "update `tabLoan Transaction set workflow_state = 'Rejected', status = 'Rejected' where name = '{}'".format(
+                    "update `tabLoan Transaction` set workflow_state = 'Rejected', status = 'Rejected' where name = '{}'".format(
                         loan_transaction.name
                     )
                 )
