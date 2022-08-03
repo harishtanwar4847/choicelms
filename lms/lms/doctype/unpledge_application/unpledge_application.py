@@ -275,7 +275,7 @@ class UnpledgeApplication(Document):
             if total_dp_reimburse_unpledge_charges > 0:
                 total_dp_reimburse_unpledge_charges_reference = (
                     loan.create_loan_transaction(
-                        transaction_type="DP Reimbursement(Unpledge)",
+                        transaction_type="DP Reimbursement(Unpledge) Charges",
                         amount=total_dp_reimburse_unpledge_charges,
                         approve=True,
                     )

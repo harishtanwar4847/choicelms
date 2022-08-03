@@ -81,6 +81,7 @@ def esign_old(**kwargs):
 
 @frappe.whitelist()
 def esign(**kwargs):
+    res_params = {}
     try:
         utils.validator.validate_http_method("POST")
 
@@ -166,6 +167,18 @@ def esign(**kwargs):
                 files=esign_request.get("files"),
                 headers=esign_request.get("headers"),
             )
+            res_params = {
+                "timestamp": str(frappe.utils.now_datetime()),
+                "esign_file_upload_url": esign_request.get("file_upload_url"),
+                "headers": esign_request.get("headers"),
+                "loan_application_name": data.get("loan_application_name"),
+                "topup_application_name": data.get("topup_application_name"),
+                "esign_response": res.json(),
+            }
+            lms.create_log(
+                res_params,
+                "esign_log",
+            )
 
             if not res.ok:
                 raise utils.exceptions.APIException(res.text)
@@ -183,12 +196,13 @@ def esign(**kwargs):
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
     except utils.exceptions.APIException as e:
-        lms.log_api_error()
+        lms.log_api_error(res_params)
         return e.respond()
 
 
 @frappe.whitelist()
 def esign_done(**kwargs):
+    res_params = {}
     try:
         utils.validator.validate_http_method("POST")
 
@@ -212,6 +226,12 @@ def esign_done(**kwargs):
             #     message=frappe._("Special Characters not allowed."),
             # )
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+
+        if data.get("file_id").isspace():
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Space not allowed in file id."),
+            )
 
         user = lms.__user()
         customer = lms.__customer()
@@ -289,92 +309,111 @@ def esign_done(**kwargs):
         try:
             res = requests.get(esigned_pdf_url, allow_redirects=True)
             # frappe.db.begin()
+            res_params = {
+                "timestamp": str(frappe.utils.now_datetime()),
+                "loan_application_name": data.get("loan_application_name"),
+                "topup_application_name": data.get("topup_application_name"),
+                "esign_done_request": esigned_pdf_url,
+                "esign_done_response_status": "Success"
+                if (str(res.content)).startswith("b'%PDF-")
+                else "Failed",
+            }
+            lms.create_log(res_params, "esign_done_log")
 
-            # save e-sign consent
-            kyc_consent_doc = frappe.get_doc(
-                {
-                    "doctype": "User Consent",
-                    "mobile": user.phone,
-                    "consent": "E-sign",
-                }
-            )
-            kyc_consent_doc.insert(ignore_permissions=True)
+            if (str(res.content)).startswith("b'%PDF-"):
+                frappe.db.begin()
 
-            if data.get("loan_application_name"):
-                esigned_file = frappe.get_doc(
+                # save e-sign consent
+                kyc_consent_doc = frappe.get_doc(
                     {
-                        "doctype": "File",
-                        "file_name": "{}-aggrement.pdf".format(
-                            data.get("loan_application_name")
-                        ),
-                        "content": res.content,
-                        "attached_to_doctype": "Loan Application",
-                        "attached_to_name": data.get("loan_application_name"),
-                        "attached_to_field": "customer_esigned_document",
-                        "folder": "Home",
+                        "doctype": "User Consent",
+                        "mobile": user.phone,
+                        "consent": "E-sign",
                     }
                 )
-                esigned_file.save(ignore_permissions=True)
+                kyc_consent_doc.insert(ignore_permissions=True)
 
-                loan_application.status = "Esign Done"
-                loan_application.workflow_state = "Esign Done"
-                loan_application.customer_esigned_document = esigned_file.file_url
-                loan_application.save(ignore_permissions=True)
-                frappe.db.commit()
-                doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-                frappe.enqueue_doc(
-                    "Notification",
-                    "Loan Application Esign Done",
-                    method="send",
-                    doc=doc,
-                )
+                if data.get("loan_application_name"):
+                    esigned_file = frappe.get_doc(
+                        {
+                            "doctype": "File",
+                            "file_name": "{}-aggrement.pdf".format(
+                                data.get("loan_application_name")
+                            ),
+                            "content": res.content,
+                            "attached_to_doctype": "Loan Application",
+                            "attached_to_name": data.get("loan_application_name"),
+                            "attached_to_field": "customer_esigned_document",
+                            "folder": "Home",
+                        }
+                    )
+                    esigned_file.save(ignore_permissions=True)
+
+                    loan_application.status = "Esign Done"
+                    loan_application.workflow_state = "Esign Done"
+                    loan_application.customer_esigned_document = esigned_file.file_url
+                    loan_application.save(ignore_permissions=True)
+                    frappe.db.commit()
+                    doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+                    frappe.enqueue_doc(
+                        "Notification",
+                        "Loan Application Esign Done",
+                        method="send",
+                        doc=doc,
+                    )
+                else:
+                    esigned_file = frappe.get_doc(
+                        {
+                            "doctype": "File",
+                            "file_name": "{}-aggrement.pdf".format(
+                                data.get("topup_application_name")
+                            ),
+                            "content": res.content,
+                            "attached_to_doctype": "Top up Application",
+                            "attached_to_name": data.get("topup_application_name"),
+                            "attached_to_field": "customer_esigned_document",
+                            "folder": "Home",
+                        }
+                    )
+                    esigned_file.save(ignore_permissions=True)
+
+                    topup_application.status = "Esign Done"
+                    topup_application.workflow_state = "Esign Done"
+                    topup_application.customer_esigned_document = esigned_file.file_url
+                    topup_application.save(ignore_permissions=True)
+                    frappe.db.commit()
+                    msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of your new OD limit. Thank you for your patience. - Spark Loans"
+                    receiver_list = [str(customer.phone)]
+                    if customer.get_kyc().mob_num:
+                        receiver_list.append(str(customer.get_kyc().mob_num))
+                    if customer.get_kyc().choice_mob_no:
+                        receiver_list.append(str(customer.get_kyc().choice_mob_no))
+
+                    receiver_list = list(set(receiver_list))
+                    from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+                    frappe.enqueue(
+                        method=send_sms, receiver_list=receiver_list, msg=msg
+                    )
+
+                    fcm_notification = frappe.get_doc(
+                        "Spark Push Notification",
+                        "Topup E-signing was successful",
+                        fields=["*"],
+                    )
+                    lms.send_spark_push_notification(
+                        fcm_notification=fcm_notification, customer=customer
+                    )
+
+                return utils.respondWithSuccess()
             else:
-                esigned_file = frappe.get_doc(
-                    {
-                        "doctype": "File",
-                        "file_name": "{}-aggrement.pdf".format(
-                            data.get("topup_application_name")
-                        ),
-                        "content": res.content,
-                        "attached_to_doctype": "Top up Application",
-                        "attached_to_name": data.get("topup_application_name"),
-                        "attached_to_field": "customer_esigned_document",
-                        "folder": "Home",
-                    }
-                )
-                esigned_file.save(ignore_permissions=True)
+                lms.log_api_error(res_params)
+                return utils.respondWithFailure()
 
-                topup_application.status = "Esign Done"
-                topup_application.workflow_state = "Esign Done"
-                topup_application.customer_esigned_document = esigned_file.file_url
-                topup_application.save(ignore_permissions=True)
-                frappe.db.commit()
-                msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of your new OD limit. Thank you for your patience. - Spark Loans"
-                receiver_list = [str(customer.phone)]
-                if customer.get_kyc().mob_num:
-                    receiver_list.append(str(customer.get_kyc().mob_num))
-                if customer.get_kyc().choice_mob_no:
-                    receiver_list.append(str(customer.get_kyc().choice_mob_no))
-
-                receiver_list = list(set(receiver_list))
-                from frappe.core.doctype.sms_settings.sms_settings import send_sms
-
-                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-
-                fcm_notification = frappe.get_doc(
-                    "Spark Push Notification",
-                    "Topup E-signing was successful",
-                    fields=["*"],
-                )
-                lms.send_spark_push_notification(
-                    fcm_notification=fcm_notification, customer=customer
-                )
-
-            return utils.respondWithSuccess()
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
     except utils.exceptions.APIException as e:
-        lms.log_api_error()
+        lms.log_api_error(res_params)
         return e.respond()
 
 

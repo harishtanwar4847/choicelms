@@ -35,7 +35,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.2.0-uat"
+__version__ = "5.3.0-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -398,7 +398,7 @@ def get_allowed_securities(securities, lender, instrument_type="Shares"):
 				from `tabAllowed Security` als
                 LEFT JOIN `tabSecurity Category` sc
 				ON als.security_category = sc.name where
-				als.lender {lender} 
+				als.lender {lender}
                 {allowed} and
                 als.instrument_type = '{instrument_type}' and
                 als.isin in {isin}""".format(
@@ -1132,7 +1132,7 @@ def log_api_error(mess=""):
             + " API Error"
         )
 
-        error = frappe.get_traceback() + "\n\n" + mess + "\n\n" + message
+        error = frappe.get_traceback() + "\n\n" + str(mess) + "\n\n" + message
         log = frappe.get_doc(
             dict(doctype="API Error Log", error=frappe.as_unicode(error), method=title)
         ).insert(ignore_permissions=True)
@@ -1770,29 +1770,34 @@ def ckyc_dot_net(
 
 
 def upload_image_to_doctype(
-    customer, seq_no, image_, img_format, img_folder="CKYC_IMG"
+    customer,
+    seq_no,
+    image_,
+    img_format,
+    img_folder="CKYC_IMG",
+    date_time=frappe.utils.now_datetime(),
 ):
     try:
-        tnc_dir_path = frappe.utils.get_files_path("{}".format(img_folder))
+        img_dir_path = frappe.utils.get_files_path("{}".format(img_folder))
 
-        if not os.path.exists(tnc_dir_path):
-            os.mkdir(tnc_dir_path)
+        if not os.path.exists(img_dir_path):
+            os.mkdir(img_dir_path)
 
-        profile_picture_file = "{}/{}-{}.{}".format(
-            img_folder, customer.full_name, seq_no, img_format
+        picture_file = "{}/{}-{}-{}.{}".format(
+            img_folder, customer.full_name, seq_no, date_time, img_format
         ).replace(" ", "-")
 
-        image_path = frappe.utils.get_files_path(profile_picture_file)
+        image_path = frappe.utils.get_files_path(picture_file)
         if os.path.exists(image_path):
             os.remove(image_path)
 
-        ckyc_image_file_path = frappe.utils.get_files_path(profile_picture_file)
+        ckyc_image_file_path = frappe.utils.get_files_path(picture_file)
         image_decode = base64.decodestring(bytes(str(image_), encoding="utf8"))
         image_file = open(ckyc_image_file_path, "wb").write(image_decode)
 
         ckyc_image_file_url = frappe.utils.get_url(
-            "files/{}/{}-{}.{}".format(
-                img_folder, customer.full_name, seq_no, img_format
+            "files/{}/{}-{}-{}.{}".format(
+                img_folder, customer.full_name, seq_no, date_time, img_format
             ).replace(" ", "-")
         )
 
