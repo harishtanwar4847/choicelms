@@ -701,6 +701,8 @@ class LoanTransaction(Document):
             and self.status == "Ready for Approval"
         ):
             frappe.throw("Allowable amount could not be greater than requested amount")
+
+    def after_save(self):
         if self.transaction_type == "Payment":
             if self.razorpay_event == "Captured":
                 self.workflow_state = "Approved"
