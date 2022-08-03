@@ -541,23 +541,23 @@ class LoanTransaction(Document):
                 lms.send_spark_push_notification(
                     fcm_notification=fcm_notification, loan=self.loan, customer=customer
                 )
-        if self.transaction_type == "Payment" and self.status == "Pending":
-            if self.razorpay_event == "Captured":
-                frappe.db.set_value(
-                    self.doctype,
-                    self.name,
-                    "workflow_state",
-                    "Approved",
-                    update_modified=False,
-                )
-            elif self.razorpay_event == "Failed":
-                frappe.db.set_value(
-                self.doctype,
-                self.name,
-                "workflow_state",
-                "Rejected",
-                update_modified=False,
-            )
+        # if self.transaction_type == "Payment" and self.status == "Pending":
+        #     if self.razorpay_event == "Captured":
+        #         frappe.db.set_value(
+        #             self.doctype,
+        #             self.name,
+        #             "workflow_state",
+        #             "Approved",
+        #             update_modified=False,
+        #         )
+        #     elif self.razorpay_event == "Failed":
+        #         frappe.db.set_value(
+        #         self.doctype,
+        #         self.name,
+        #         "workflow_state",
+        #         "Rejected",
+        #         update_modified=False,
+        #     )
 
         if self.loan_margin_shortfall:
             if self.status == "Rejected":
@@ -718,7 +718,6 @@ class LoanTransaction(Document):
             and self.status == "Ready for Approval"
         ):
             frappe.throw("Allowable amount could not be greater than requested amount")
-
 
     def gst_on_charges(self, loan, lender):
         lender = lender.as_dict()

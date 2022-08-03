@@ -1247,7 +1247,13 @@ def update_rzp_payment_transaction(data):
             if loan_transaction.razorpay_event != "Captured":
                 loan_transaction.razorpay_event = razorpay_event
             # If RZP event is failed then update the log
+            if loan_transaction.razorpay_event == "Captured":
+                loan_transaction.workflow_state = "Approved"
+                loan_transaction.status = "Approved"
+                loan_transaction.docstatus = 1
             if loan_transaction.razorpay_event == "Failed":
+                loan_transaction.workflow_state = "Rejected"
+                loan_transaction.status = "Rejected"
                 loan_transaction.razorpay_payment_log = (
                     "<b>code</b> : "
                     + webhook_main_object.get("error_code")
