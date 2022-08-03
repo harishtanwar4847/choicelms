@@ -6,8 +6,8 @@ def execute():
     las_settings = frappe.get_single("LAS Settings")
 
     if frappe.utils.get_url() == "https://spark.loans":
-        las_settings.ckyc_search_api = ""
-        las_settings.ckyc_download_api = ""
+        las_settings.ckyc_search_api = "https://kyc.spark.loans/api/ckyc/search"
+        las_settings.ckyc_download_api = "https://kyc.spark.loans/api/ckyc/download"
     else:
         las_settings.ckyc_search_api = "https://uatkyc.spark.loans/api/ckyc/search"
         las_settings.ckyc_download_api = "https://uatkyc.spark.loans/api/ckyc/download"

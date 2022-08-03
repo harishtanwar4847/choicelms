@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.3.0-uat]
+
+## Added
+
+- [Feat: Spark app version save in backend CKYC branch](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/519)
+
 ## [v5.2.2-uat]
 
 ## Fixed
