@@ -1305,6 +1305,21 @@ def update_rzp_payment_transaction(data):
 
             loan_transaction.save(ignore_permissions=True)
             frappe.db.commit()
+
+            if loan_transaction.razorpay_event == "Captured":
+                frappe.db.sql(
+                    "update `tabLoan Transaction set workflow_state = 'Approved', status = 'Approved', docstatus = 1 where name = '{}'".format(
+                        loan_transaction.name
+                    )
+                )
+
+            elif loan_transaction.razorpay_event == "Failed":
+                frappe.db.sql(
+                    "update `tabLoan Transaction set workflow_state = 'Rejected', status = 'Rejected' where name = '{}'".format(
+                        loan_transaction.name
+                    )
+                )
+
             # Send notification depended on events
             if data["event"] == "payment.authorized":
                 # if data["event"] == "payment.authorized" or (loan_transaction.razorpay_event == "Captured" and data["event"] != "payment.authorized"):
