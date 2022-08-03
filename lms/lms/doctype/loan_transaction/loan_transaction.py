@@ -708,7 +708,7 @@ class LoanTransaction(Document):
                 self.workflow_state = "Approved"
                 self.status = "Approved"
                 self.docstatus = 1
-            else:
+            elif self.razorpay_event == "Failed":
                 self.workflow_state = "Rejected"
                 self.status = "Rejected"
                 self.docstatus = 0
