@@ -724,7 +724,7 @@ class LoanTransaction(Document):
         customer = frappe.get_doc("Loan Customer", loan.customer)
         user_kyc = customer.get_kyc()
         address = frappe.get_doc("Customer Address Details", user_kyc.address_details)
-        if address.perm_state == "Maharashtra":
+        if address.perm_state.lower() == "maharashtra":
             # CGST
             transac_cgst = "CGST on " + self.transaction_type
             trans_cgst = (
