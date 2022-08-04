@@ -503,7 +503,7 @@
    "fieldname": "dec_place",
    "fieldtype": "Data",
    "label": "Place of Declaration",
-   "length": 15
+   "length": 50
   },
   {
    "fieldname": "kyc_date",
@@ -691,7 +691,7 @@
   }
  ],
  "links": [],
- "modified": "2022-07-18 14:04:42.987516",
+ "modified": "2022-08-04 19:04:03.483423",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",

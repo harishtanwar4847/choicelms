@@ -10,7 +10,7 @@ import re
 from base64 import b64decode, b64encode
 from datetime import datetime, timedelta
 from itertools import groupby
-from random import choice, randint
+from random import choice, randint, randrange
 from traceback import format_exc
 
 import frappe
@@ -1775,16 +1775,16 @@ def upload_image_to_doctype(
     image_,
     img_format,
     img_folder="CKYC_IMG",
-    date_time=frappe.utils.now_datetime(),
 ):
     try:
+        extra_char = str(randrange(9999, 9999999999))
         img_dir_path = frappe.utils.get_files_path("{}".format(img_folder))
 
         if not os.path.exists(img_dir_path):
             os.mkdir(img_dir_path)
 
         picture_file = "{}/{}-{}-{}.{}".format(
-            img_folder, customer.full_name, seq_no, date_time, img_format
+            img_folder, customer.full_name, seq_no, extra_char, img_format
         ).replace(" ", "-")
 
         image_path = frappe.utils.get_files_path(picture_file)
@@ -1797,7 +1797,7 @@ def upload_image_to_doctype(
 
         ckyc_image_file_url = frappe.utils.get_url(
             "files/{}/{}-{}-{}.{}".format(
-                img_folder, customer.full_name, seq_no, date_time, img_format
+                img_folder, customer.full_name, seq_no, extra_char, img_format
             ).replace(" ", "-")
         )
 
