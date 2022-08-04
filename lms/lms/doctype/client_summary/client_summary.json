@@ -25,7 +25,6 @@
   {
    "fieldname": "loan_no",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "label": "Loan Name",
    "options": "Loan"
   },
@@ -56,13 +55,7 @@
    "fetch_from": "loan_name.drawing_power",
    "fieldname": "drawing_power",
    "fieldtype": "Float",
-   "in_list_view": 1,
    "label": "Drawing Power"
-  },
-  {
-   "fieldname": "creation_date",
-   "fieldtype": "Date",
-   "label": "Doc Creation Date"
   },
   {
    "fieldname": "column_break_7",
@@ -71,7 +64,6 @@
   {
    "fieldname": "loan_balance",
    "fieldtype": "Float",
-   "in_list_view": 1,
    "label": "Loan Balance"
   },
   {
@@ -81,7 +73,7 @@
   },
   {
    "fieldname": "roi_",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "ROI %"
   },
   {
@@ -98,20 +90,17 @@
    "fetch_from": "loan_name.expiry_date",
    "fieldname": "loan_expiry_date",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "Loan Expiry Date"
   },
   {
    "fetch_from": "loan_name.day_past_due",
    "fieldname": "dpd",
-   "fieldtype": "Data",
-   "in_list_view": 1,
+   "fieldtype": "Float",
    "label": "DPD"
   },
   {
    "fieldname": "loan_no",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "label": "Loan Name",
    "options": "Loan"
   },
@@ -121,13 +110,13 @@
   },
   {
    "fieldname": "creation_date",
-   "fieldtype": "Date",
-   "label": "Doc Creation Date"
+   "fieldtype": "Data",
+   "label": "Doc Creation"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-22 14:12:55.147412",
+ "modified": "2022-08-04 15:56:25.162319",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Client Summary",

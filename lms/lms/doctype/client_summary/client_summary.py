@@ -85,7 +85,7 @@ def color_negative_red(value):
 def excel_generator(doc_filters):
     if len(doc_filters) == 2:
         doc_filters = {
-            "creation_date": str(frappe.utils.now_datetime().date()) - timedelta(days=1)
+            "creation_date": str(frappe.utils.now_datetime().date() - timedelta(days=1))
         }
     client_summary_doc = frappe.get_all(
         "Client Summary",
