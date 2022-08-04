@@ -654,6 +654,10 @@ class LoanTransaction(Document):
         loan.save(ignore_permissions=True)
 
     def before_save(self):
+        loan = self.get_loan()
+        self.lender = loan.lender
+        self.instrument_type = loan.instrument_type
+        self.scheme_type = loan.scheme_type
         if (
             self.transaction_type == "Withdrawal"
             and self.allowable > self.requested
@@ -670,7 +674,7 @@ def reject_blank_transaction_and_settlement_recon_api():
             "Loan Transaction",
             {
                 "transaction_type": "Payment",
-                "razorpay_event": ["in", ["", "Payment Cancelled"]],
+                "razorpay_event": "",
                 "status": "Pending",
             },
         )

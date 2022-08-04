@@ -27,8 +27,7 @@
    "fieldname": "security_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Security Name",
-   "unique": 1
+   "label": "Security Name"
   },
   {
    "fieldname": "segment",
