@@ -710,6 +710,7 @@ class LoanTransaction(Document):
 
     def before_save(self):
         loan = self.get_loan()
+        self.lender = loan.lender
         self.instrument_type = loan.instrument_type
         self.scheme_type = loan.scheme_type
         if (
