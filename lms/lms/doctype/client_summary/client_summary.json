@@ -111,12 +111,12 @@
   {
    "fieldname": "creation_date",
    "fieldtype": "Data",
-   "label": "Doc Creation"
+   "label": "Doc Creation Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-08-04 15:56:25.162319",
+ "modified": "2022-08-04 17:12:35.807473",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Client Summary",

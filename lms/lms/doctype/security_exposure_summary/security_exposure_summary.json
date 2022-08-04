@@ -9,7 +9,6 @@
   "security_name",
   "quantity",
   "rate",
-  "column_break_5",
   "value",
   "exposure_",
   "creation_date"
@@ -18,19 +17,16 @@
   {
    "fieldname": "isin",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "ISIN"
   },
   {
    "fieldname": "security_name",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "Security Name"
   },
   {
    "fieldname": "quantity",
    "fieldtype": "Float",
-   "in_list_view": 1,
    "label": "Quantity"
   },
   {
@@ -46,23 +42,17 @@
   {
    "fieldname": "exposure_",
    "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Exposure %",
-   "precision": "2"
+   "label": "Exposure %"
   },
   {
    "fieldname": "creation_date",
    "fieldtype": "Date",
    "label": "Doc Creation Date"
-  },
-  {
-   "fieldname": "column_break_5",
-   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-22 18:34:48.154436",
+ "modified": "2022-08-04 17:06:22.047461",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Exposure Summary",

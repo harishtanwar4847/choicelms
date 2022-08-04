@@ -1889,7 +1889,6 @@ def system_report_enqueue():
 def download_file(dataframe, file_name, file_extention, sheet_name):
     file_name = "{}.{}".format(file_name, file_extention)
     file_path = frappe.utils.get_files_path(file_name)
-    print(file_path)
     if os.path.exists(file_path):
         os.remove(file_path)
     file_path = frappe.utils.get_files_path(file_name)

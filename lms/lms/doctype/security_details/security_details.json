@@ -22,7 +22,6 @@
    "fetch_from": "loan_no.customer_name",
    "fieldname": "client_name",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "Client Name"
   },
   {
@@ -33,13 +32,11 @@
   {
    "fieldname": "isin",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "ISIN"
   },
   {
    "fieldname": "security_name",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "Security Name"
   },
   {
@@ -65,7 +62,6 @@
   {
    "fieldname": "loan_no",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "label": "Loan Account No",
    "options": "Loan"
   },
@@ -81,7 +77,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-14 12:22:00.736088",
+ "modified": "2022-08-04 17:08:50.971096",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Details",
