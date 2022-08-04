@@ -1520,11 +1520,8 @@ def loan_payment(**kwargs):
                 loan_transaction.razorpay_payment_log = "\n".join(
                     "<b>{}</b> : {}".format(*i) for i in data.get("is_failed").items()
                 )
-                frappe.db.sql(
-                    "update `tabLoan Transaction` set workflow_state = 'Rejected', status = 'Rejected' where name = '{}'".format(
-                        loan_transaction.name
-                    )
-                )
+                loan_transaction.workflow_state = "Rejected"
+                loan_transaction.status = "Rejected"
                 loan_transaction.save(ignore_permissions=True)
                 frappe.db.commit()
                 msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(
