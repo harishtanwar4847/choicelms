@@ -109,13 +109,15 @@
   {
    "fieldname": "pan_no",
    "fieldtype": "Data",
-   "label": "PAN No"
+   "label": "PAN No",
+   "length": 10
   },
   {
    "fieldname": "kyc_type",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "KYC Type",
+   "length": 10,
    "options": "CHOICE\nCKYC",
    "read_only": 1,
    "reqd": 1
@@ -225,7 +227,7 @@
    "fieldname": "fullname",
    "fieldtype": "Data",
    "label": "Applicant Name Full Name",
-   "length": 50
+   "length": 158
   },
   {
    "fieldname": "maiden_prefix",
@@ -254,7 +256,8 @@
   {
    "fieldname": "maiden_fullname",
    "fieldtype": "Data",
-   "label": "Applicant Maiden Full Name"
+   "label": "Applicant Maiden Full Name",
+   "length": 158
   },
   {
    "fieldname": "fatherspouse_flag",
@@ -289,7 +292,8 @@
   {
    "fieldname": "father_fullname",
    "fieldtype": "Data",
-   "label": "Applicant Father/Spouse Full Name"
+   "label": "Applicant Father/Spouse Full Name",
+   "length": 158
   },
   {
    "fieldname": "mother_prefix",
@@ -318,7 +322,8 @@
   {
    "fieldname": "mother_fullname",
    "fieldtype": "Data",
-   "label": "Mother's Full Name"
+   "label": "Mother's Full Name",
+   "length": 158
   },
   {
    "fieldname": "gender",
@@ -520,17 +525,20 @@
   {
    "fieldname": "kyc_name",
    "fieldtype": "Data",
-   "label": "KYC Verification Name"
+   "label": "KYC Verification Name",
+   "length": 150
   },
   {
    "fieldname": "kyc_designation",
    "fieldtype": "Data",
-   "label": "KYC Verification Designation"
+   "label": "KYC Verification Designation",
+   "length": 50
   },
   {
    "fieldname": "kyc_branch",
    "fieldtype": "Data",
-   "label": "KYC Verification Branch"
+   "label": "KYC Verification Branch",
+   "length": 50
   },
   {
    "fieldname": "kyc_empcode",
@@ -542,7 +550,7 @@
    "fieldname": "org_name",
    "fieldtype": "Data",
    "label": "Organisation Name",
-   "length": 100
+   "length": 150
   },
   {
    "fieldname": "org_code",
@@ -566,7 +574,7 @@
    "fieldname": "num_images",
    "fieldtype": "Data",
    "label": "Number of Images",
-   "length": 3
+   "length": 2
   },
   {
    "fieldname": "related_person_details",
@@ -635,6 +643,7 @@
    "fieldname": "kyc_status",
    "fieldtype": "Select",
    "label": "Status",
+   "length": 10,
    "options": "Pending\nApproved\nRejected",
    "read_only": 1,
    "read_only_depends_on": "eval:doc.kyc_status != \"Pending\";"
@@ -681,7 +690,8 @@
    "depends_on": "eval:doc.consent_given == 1;",
    "fieldname": "choice_mob_no",
    "fieldtype": "Data",
-   "label": "Choice Mobile No."
+   "label": "Choice Mobile No.",
+   "length": 10
   },
   {
    "fieldname": "address_details",
@@ -691,7 +701,7 @@
   }
  ],
  "links": [],
- "modified": "2022-08-04 19:04:03.483423",
+ "modified": "2022-08-05 14:44:50.289832",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
