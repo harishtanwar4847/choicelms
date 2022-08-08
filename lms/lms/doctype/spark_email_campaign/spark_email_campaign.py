@@ -19,11 +19,11 @@ class SparkEmailCampaign(Document):
         if not len(self.sender_email):
             frappe.throw(frappe._("Please select at least on sender email account"))
 
-        for i in self.sender_email:
-            if not ("spark" in i.email_id or "choice" in i.email_id):
-                frappe.throw(frappe._("Please Enter Spark/Choice email id"))
+        # for i in self.sender_email:
+        #     if not ("spark" in i.email_id or "choice" in i.email_id):
+        #         frappe.throw(frappe._("Please Enter Spark/Choice email id"))
 
-        if self.schedule_time == "Scheduled":
+        if self.schedule_time == "Schedule":
             if self.schedule_datetime < frappe.utils.now_datetime().strftime(
                 "%Y-%m-%d %H:%M:%S"
             ):
