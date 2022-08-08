@@ -2,8 +2,6 @@ import frappe
 
 
 def execute():
-    frappe.reload_doc("Lms", "DocType", "Workflow")
-
     frappe.db.sql("TRUNCATE `tabWorkflow`")
     frappe.db.sql("TRUNCATE `tabWorkflow Document State`")
     frappe.db.sql("TRUNCATE `tabWorkflow Transition`")
