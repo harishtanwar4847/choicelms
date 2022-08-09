@@ -116,13 +116,6 @@ def excel_generator(doc_filters):
     report = final.iloc[:, 3:8].sum()
     final.loc["Total"] = report
     final.fillna("")
-    # final.set_index(['loan_no','client_name','pan_no','sanctioned_amount','pledged_value','drawing_power','loan_balance','adp_shortfall','roi_','client_demat_acc','customer_contact_no','loan_expiry_date','dpd'])
-    # report = final.groupby(['']).apply(lambda sub_df:  sub_df.pivot_table(index=['customer','customer_name','transaction_type'], values=['amount'],aggfunc=np.sum, margins=True,margins_name= 'TOTAL'))
-    # report.loc[('', 'Grand Total','',''), :] = report[report.index.get_level_values(1) != 'TOTAL'].sum()
-    # report=report.reset_index(level=0,drop=True)
-    # final
-    # report=report.reset_index(level=0,drop=True)
-    # final.to_excel("client_summary.xlsx", index=False)
     final.loc[final["Loan No"].isnull(), "Loan No"] = "Total"
     final = final.rename(
         columns={final.columns[7]: "Available Drawing Power/Shortfall"}

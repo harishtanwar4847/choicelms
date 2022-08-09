@@ -1845,7 +1845,7 @@ def client_sanction_details(loan):
                 end_date=loan.expiry_date,
                 sanctioned_amount=loan.sanctioned_limit,
                 roi=roi_,
-                # sanction_date = date
+                sanction_date=frappe.utils.now_datetime().date(),
             ),
         ).insert(ignore_permissions=True)
         frappe.db.commit()

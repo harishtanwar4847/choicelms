@@ -81,17 +81,9 @@ def excel_generator(doc_filters):
     )
     if seurity_details_doc == []:
         frappe.throw(("Record does not exist"))
-    print("abcd")
     final = pd.DataFrame([c.values() for c in seurity_details_doc], index=None)
     final.columns = seurity_details_doc[0].keys()
     final.columns = pd.Series(final.columns.str.replace("_", " ")).str.title()
-    # final.set_index(['loan_no','client_name','pan_no','sanctioned_amount','pledged_value','drawing_power','loan_balance','adp_shortfall','roi_','client_demat_acc','customer_contact_no','loan_expiry_date','dpd'])
-    # report = final.groupby(['']).apply(lambda sub_df:  sub_df.pivot_table(index=['customer','customer_name','transaction_type'], values=['amount'],aggfunc=np.sum, margins=True,margins_name= 'TOTAL'))
-    # report.loc[('', 'Grand Total','',''), :] = report[report.index.get_level_values(1) != 'TOTAL'].sum()
-    # report=report.reset_index(level=0,drop=True)
-    # final
-    # report=report.reset_index(level=0,drop=True)
-    # final.to_excel("security_details.xlsx", index=False)
     file_name = "security_details_{}".format(frappe.utils.now_datetime())
     sheet_name = "Security Details"
     return lms.download_file(

@@ -69,7 +69,6 @@ def excel_generator(doc_filters):
         doc_filters = {
             "creation_date": str(frappe.utils.now_datetime().date() - timedelta(days=1))
         }
-        print("Doc Filter", doc_filters)
     security_transaction_doc = frappe.get_all(
         "Security Transaction",
         filters=doc_filters,
@@ -88,42 +87,12 @@ def excel_generator(doc_filters):
             "value",
         ],
     )
-    print("Security Transaction", security_transaction_doc)
     if security_transaction_doc == []:
         frappe.throw(("Record does not exist"))
     final = pd.DataFrame([c.values() for c in security_transaction_doc], index=None)
     final.columns = security_transaction_doc[0].keys()
     final.columns = pd.Series(final.columns.str.replace("_", " ")).str.title()
 
-    # report =  pd.concat([final,
-    #          final.groupby(["Loan No"],as_index=False)['Qty','Value'].sum()]).sort_values('Loan No')
-    # report.loc[report['Client Name'].isnull(), 'Loan No']
-    # report.loc[report['Dpid'].isnull(), 'Loan No']
-    # report.loc[report['Date'].isnull(), 'Loan No']
-    # report.loc[report['Request Type'].isnull(), 'Loan No']
-    # report.loc[report['Isin'].isnull(), 'Loan No'] = 'Total'
-    # report.loc[report['Security Name'].isnull(), 'Loan No']
-    # report.loc[report['Psn'].isnull(), 'Loan No']
-    # report.loc[report['Qty'].isnull(), 'Loan No']
-    # report.loc[report['Rate'].isnull(), 'Loan No']
-
-    # final.loc[(final['Loan No'].duplicated() & final['Client Name'].duplicated()), ['Loan No','Client Name']] = ''
-    # final.loc[(final['Loan No'].duplicated() & final['Dpid'].duplicated()), ['Loan No','Dpid']] = ''
-
-    # for label, _final in final.groupby(['Loan No','Client Name','Dpid']):
-    #     print(label)
-    #     print(_final)
-    #     print()
-    # container = []
-    # for label, _final in final.groupby(['Loan No','Client Name','Dpid']):
-    #     _final.loc['{label[0]} {label[1]} {label[2]:.} Total'] = final[['Value']].sum()
-    #     container.append(_final)
-
-    # report = pd.concat(container)
-    # report.loc["Grand Total"] = final[['Value']].sum()
-    # report.fillna('')
-
-    # new code
     df_subtotal = final.groupby("Loan No", as_index=False)[["Qty", "Value"]].sum()
     # Join dataframes
     df_new = pd.concat([final, df_subtotal], axis=0, ignore_index=True)
@@ -139,7 +108,6 @@ def excel_generator(doc_filters):
         ["Loan No", "Client Name", "Dpid"],
     ] = ""
     df_new.loc[df_new["Isin"].isnull(), "Loan No"] = "Total"
-    # df_new.loc[df_new['Client Name'].isnull(), 'Loan No'] = ' Grand Total'
     df_new.loc[len(df_new)] = [
         "Grand Total",
         "",
