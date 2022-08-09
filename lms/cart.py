@@ -26,7 +26,7 @@ def validate_securities_for_cart(securities, lender, instrument_type="Shares"):
         allowed = "and allowed = 1"
 
     if not securities or (
-        type(securities) is not dict and "list" not in securities.keys()
+        type(securities) is not dict or "list" not in securities.keys()
     ):
         raise utils.exceptions.ValidationException(
             {
@@ -143,9 +143,6 @@ def upsert(**kwargs):
             # )
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
-        for security in data.get("securities")["list"]:
-            security["quantity"] = round(security["quantity"], 3)
-
         if not data.get("instrument_type"):
             data["instrument_type"] = "Shares"
 
@@ -185,6 +182,9 @@ def upsert(**kwargs):
             lender=data.get("lender"),
             instrument_type=data.get("instrument_type"),
         )
+
+        for security in securities:
+            security["quantity"] = round(security["quantity"], 3)
 
         # Min max sanctioned_limit
         lender = frappe.get_doc("Lender", data.get("lender"))

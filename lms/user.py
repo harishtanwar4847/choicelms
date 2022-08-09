@@ -3785,7 +3785,9 @@ def update_mycams_email(**kwargs):
         email_regex = (
             r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
         )
-        if re.search(email_regex, data.get("email")) is None:
+        if re.search(email_regex, data.get("email")) is None or (
+            len(data.get("email").split("@")) > 2
+        ):
             # return utils.respondWithFailure(
             #     status=422,
             #     message=frappe._("Please enter valid email ID"),
@@ -5311,9 +5313,12 @@ def get_bank_details():
                 user_kyc.email = data["emailId"]
                 user_kyc.choice_mob_no = data["mobileNum"]
                 user_kyc.bank_account = []
+                user_kyc.save(ignore_permissions=True)
+                frappe.db.commit()
+                user_kyc_doc = frappe.get_doc("User KYC", user_kyc.name)
 
                 for bank in data["banks"]:
-                    user_kyc.append(
+                    user_kyc_doc.append(
                         "bank_account",
                         {
                             "bank": bank["bank"],
@@ -5334,9 +5339,6 @@ def get_bank_details():
                             "bank_status": "",
                         },
                     )
-                user_kyc.save(ignore_permissions=True)
-                frappe.db.commit()
-                user_kyc_doc = frappe.get_doc("User KYC", user_kyc.name)
                 user_kyc_doc = lms.user_kyc_hashing(user_kyc_doc)
                 return utils.respondWithSuccess(data=user_kyc_doc)
             else:
@@ -5368,6 +5370,25 @@ def pincode(**kwargs):
         data_res = {"district": pincode.new_district, "state": pincode.state_name}
 
         return utils.respondWithSuccess(data=data_res)
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
+
+
+@frappe.whitelist()
+def get_app_version_details():
+    try:
+        utils.validator.validate_http_method("GET")
+
+        version_details = frappe.get_all(
+            "Spark App Version",
+            fields=["*"],
+            order_by="release_date desc",
+            page_length=1,
+        )
+        if not version_details:
+            raise lms.exceptions.NotFoundException(_("No Record found"))
+        return utils.respondWithSuccess(data=version_details[0])
     except utils.exceptions.APIException as e:
         lms.log_api_error()
         return e.respond()
