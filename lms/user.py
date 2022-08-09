@@ -5390,3 +5390,96 @@ def get_app_version_details():
     except utils.exceptions.APIException as e:
         lms.log_api_error()
         return e.respond()
+
+
+@frappe.whitelist()
+def get_demat_details():
+    try:
+        utils.validator.validate_http_method("GET")
+
+        user = lms.__user()
+        user_kyc = lms.__user_kyc(user.name)
+        customer = lms.__customer(user.name)
+
+        # get demat details from choice
+        las_settings = frappe.get_single("LAS Settings")
+        if user_kyc.kyc_type == "CHOICE":
+            payload = {
+                "UserID": las_settings.choice_user_id,
+                "ClientID": user_kyc.pan_no,
+            }
+
+            try:
+                res = requests.post(
+                    las_settings.choice_securities_list_api,
+                    json=payload,
+                    headers={"Accept": "application/json"},
+                )
+                if not res.ok:
+                    raise utils.exceptions.APIException(res.text)
+
+                res_json = res.json()
+                if res_json["Status"] != "Success":
+                    frappe.delete_doc(
+                        "Spark Demat Account",
+                        frappe.get_all(
+                            "Spark Demat Account",
+                            {"customer": customer.name, "is_choice": 1},
+                            pluck="name",
+                        ),
+                        ignore_permissions=True,
+                    )
+
+                if res_json.get("Response"):
+                    distinct_demats = list(
+                        {
+                            frozenset(item.items()): item
+                            for item in [
+                                {
+                                    "depository": i.get("Depository"),
+                                    "stock_at": i.get("Stock_At"),
+                                }
+                                for i in res_json["Response"]
+                            ]
+                        }.values()
+                    )
+
+                    frappe.delete_doc(
+                        "Spark Demat Account",
+                        frappe.get_all(
+                            "Spark Demat Account",
+                            {"customer": customer.name, "is_choice": 1},
+                            pluck="name",
+                        ),
+                        ignore_permissions=True,
+                    )
+
+                    for demat in distinct_demats:
+                        frappe.get_doc(
+                            {
+                                "doctype": "Spark Demat Account",
+                                "customer": customer.name,
+                                "depository": demat["depository"],
+                                "dpid": demat["stock_at"][:8],
+                                "client_id": demat["stock_at"][8:],
+                                "is_choice": 1,
+                            }
+                        ).insert(ignore_permissions=True)
+                        frappe.db.commit()
+
+            except requests.RequestException as e:
+                raise utils.exceptions.APIException(str(e))
+
+        demat_details = frappe.get_all(
+            "Spark Demat Account",
+            filters={"customer": customer.name},
+            fields=["customer", "depository", "dpid", "client_id", "is_choice"],
+        )
+        if not demat_details:
+            raise lms.exceptions.NotFoundException(_("No Record found"))
+        for d in demat_details:
+            d["stock_at"] = d.get("dpid") + d.get("client_id")
+        return utils.respondWithSuccess(data=demat_details)
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
