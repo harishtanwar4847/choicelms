@@ -61,8 +61,8 @@ class LoanCustomer(Document):
         email_regex = (
             r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
         )
-        if (
-            self.mycams_email_id
-            and re.search(email_regex, self.mycams_email_id) is None
-        ):
-            frappe.throw("Please enter a valid email id")
+        if self.mycams_email_id:
+            if re.search(email_regex, self.mycams_email_id) is None or (
+                len(self.mycams_email_id.split("@")) > 2
+            ):
+                frappe.throw("Please enter a valid email id")

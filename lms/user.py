@@ -3785,7 +3785,9 @@ def update_mycams_email(**kwargs):
         email_regex = (
             r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
         )
-        if re.search(email_regex, data.get("email")) is None:
+        if re.search(email_regex, data.get("email")) is None or (
+            len(data.get("email").split("@")) > 2
+        ):
             # return utils.respondWithFailure(
             #     status=422,
             #     message=frappe._("Please enter valid email ID"),
