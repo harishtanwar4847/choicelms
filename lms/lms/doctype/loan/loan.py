@@ -426,7 +426,6 @@ class Loan(Document):
             loan_transaction.charge_reference = charge_reference
         if gst_percent:
             loan_transaction.gst_percent = gst_percent
-        print("LOAN Transaction", loan_transaction.as_dict())
 
         loan_transaction.insert(ignore_permissions=True)
 
