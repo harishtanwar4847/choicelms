@@ -48,4 +48,5 @@ lms.patches.update_email_in_kyc
 lms.patches.update_ckyc_url_las_settings
 lms.patches.update_ckyc_spark_push_notification_content
 lms.patches.update_ckyc_doc
+lms.patches.update_spark_app_version
 lms.patches.update_workflow ###
