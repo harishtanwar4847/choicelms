@@ -17,7 +17,7 @@ class SparkEmailCampaign(Document):
         if len(self.sender_email) > 1:
             frappe.throw(frappe._("Maximum 1 level allowed."))
         if not len(self.sender_email):
-            frappe.throw(frappe._("Please select at least on sender email account"))
+            frappe.throw(frappe._("Please select at least one sender email account"))
 
         for i in self.sender_email:
             if not ("spark" in i.email_id or "choice" in i.email_id):
@@ -30,6 +30,7 @@ class SparkEmailCampaign(Document):
                 frappe.throw("Scheduled time cannot be less than current time")
 
     def on_cancel(self):
+        frappe.session.user = "Administrator"
         if self.schedule_time == "Immediate":
             frappe.throw("Immediate mails cannot be cancelled")
         final_list = []
@@ -40,12 +41,11 @@ class SparkEmailCampaign(Document):
                 "sender": self.sender_email[0].email_id,
                 "status": "Not Sent",
             },
-            fields=["*"],
             pluck="name",
         )
         for i in scheduled_mails_cancel:
             recipient_doc = frappe.get_all(
-                "Email Queue Recipient", filters={"parent": i}, fields=["*"]
+                "Email Queue Recipient", filters={"parent": i}
             )
             if recipient_doc:
                 final_list.append(i)
