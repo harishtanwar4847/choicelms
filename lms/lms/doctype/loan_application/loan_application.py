@@ -228,257 +228,330 @@ class LoanApplication(Document):
         }
 
     def after_insert(self):
-        if self.instrument_type == "Mutual Fund":
-            if self.drawing_power < self.minimum_sanctioned_limit:
-                self.remarks = "Rejected due to min/max range"
-                self.status = "Rejected"
-                self.workflow_state = "Rejected"
-                self.save(ignore_permissions=True)
-                frappe.db.commit()
-                doc = frappe.get_doc(
-                    "User KYC", self.get_customer().choice_kyc
-                ).as_dict()
-                doc["minimum_sanctioned_limit"] = self.minimum_sanctioned_limit
-                doc["maximum_sanctioned_limit"] = self.maximum_sanctioned_limit
-                # send sms/email/fcm to user for rejection of loan application
-                frappe.enqueue_doc(
-                    "Notification",
-                    "Lien not Approved by lender",
-                    method="send",
-                    doc=doc,
-                )
-                msg = "Dear Customer,\nSorry! Your loan application was turned down since the requested loan amount is not in the range of lender's minimum sanction limit (Rs.{}) and maximum sanction limit (Rs.{}) criteria. We regret the inconvenience caused. Please try again with the expected criteria or reach out to us through 'Contact Us' on the app  -Spark Loans".format(
-                    self.minimum_sanctioned_limit, self.maximum_sanctioned_limit
-                )
-                fcm_notification = frappe.get_doc(
-                    "Spark Push Notification", "Lien unsuccessful", fields=["*"]
-                )
-                fcm_message = fcm_notification.message.format(
-                    minimum_sanctioned_limit=self.minimum_sanctioned_limit,
-                    maximum_sanctioned_limit=self.maximum_sanctioned_limit,
-                )
-                receiver_list = [str(self.get_customer().phone)]
-                if doc.mob_num:
-                    receiver_list.append(str(doc.mob_num))
-                if doc.choice_mob_no:
-                    receiver_list.append(str(doc.choice_mob_no))
+        user_roles = frappe.db.get_values(
+            "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
+        )
+        if "Loan Customer" not in user_roles:
+            self.status = "Executing pledge"
+            self.workflow_state = "Executing pledge"
+            pledged_total = 0
+            isin = [i.isin for i in self.items]
+            allowed_securities = lms.get_allowed_securities(
+                isin, self.lender, self.instrument_type
+            )
+            for i in self.items:
+                security = allowed_securities.get(i.isin)
+                i.eligible_percentage = security.eligible_percentage
+                i.amount = i.price * i.pledged_quantity
+                if i.lender_approval_status == "Approved":
+                    i.pledge_executed = 1
+                pledged_total += i.amount
+            self.pledged_total_collateral_value = pledged_total
+            self.save(ignore_permissions=True)
+            frappe.db.commit()
 
-                receiver_list = list(set(receiver_list))
-                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+            self.status = "Pledge executed"
+            self.workflow_state = "Pledge executed"
+            self.save(ignore_permissions=True)
+            frappe.db.commit()
 
-                lms.send_spark_push_notification(
-                    fcm_notification=fcm_notification,
-                    message=fcm_message,
-                    customer=self.get_customer(),
-                )
-
-            elif self.drawing_power >= self.minimum_sanctioned_limit:
-                customer = self.get_customer()
-                frappe.session.user = "Administrator"
-                user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
-                las_settings = frappe.get_single("LAS Settings")
-                self.status = "Executing pledge"
-                self.workflow_state = "Executing pledge"
-                self.total_collateral_value = 0
-                # for i in self.items:
-                #     i.lender_approval_status = "Approved"
-                self.save(ignore_permissions=True)
-                frappe.db.commit()
-                lien_ref_no = self.items[0].get("prf_number")
-                schemedetails = []
-                for i in self.items:
-                    item = {
-                        "amccode": i.get("amc_code"),
-                        "amcname": i.get("amc_name"),
-                        "folio": i.get("folio"),
-                        "schemecode": i.get("scheme_code"),
-                        "schemename": i.get("security_name"),
-                        "isinno": i.get("isin"),
-                        "schemetype": i.get("type"),
-                        "schemecategory": "O",
-                        "lienunit": str(round(i.get("requested_quantity"), 3)),
-                        "lienapprovedunit": str(round(i.get("pledged_quantity"), 3)),
-                        "lienmarkno": "",
-                        "sanctionedamount": "",
-                    }
-                    schemedetails.append(item)
-
-                data = {
-                    "initiatereq": [
-                        {
-                            "lienrefno": lien_ref_no,
-                            "errorcode": "",
-                            "error": "",
-                            "sucessflag": "Y",
-                            "failurereason": "",
-                            "loginemail": customer.mycams_email_id,
-                            "netbankingemail": customer.user,
-                            "clientid": las_settings.client_id,
-                            "clientname": las_settings.client_name,
-                            "subclientid": "",
-                            "pan": user_kyc.pan_no,
-                            "bankschemetype": self.scheme_type,
-                            "bankrefno": las_settings.bank_reference_no,
-                            "bankname": las_settings.bank_name,
-                            "branchname": "Mumbai",
-                            "address1": "Address1",
-                            "address2": "Address2",
-                            "address3": "Address3",
-                            "city": "Mumbai",
-                            "state": "MH",
-                            "country": "india",
-                            "pincode": "400706",
-                            "phoneoff": "02212345678",
-                            "phoneres": "02221345678",
-                            "faxno": "02231245678",
-                            "faxres": "1357",
-                            "requestip": "",
-                            "addinfo1": self.name,
-                            "addinfo2": customer.name,
-                            "addinfo3": customer.full_name,
-                            "addinfo4": "4",
-                            "addinfo5": "5",
-                            "markid": "",
-                            "verifyid": "",
-                            "approveid": "",
-                        }
-                    ],
-                    "schemedetails": schemedetails,
+            expiry = frappe.utils.add_years(frappe.utils.now_datetime(), 1) - timedelta(
+                days=1
+            )
+            self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
+            for i in self.items:
+                collateral_ledger_data = {
+                    "prf": i.prf_number,
+                    "expiry": self.expiry_date,
+                    "pledgor_boid": self.pledgor_boid,
+                    "pledgee_boid": self.pledgee_boid,
+                    "amc_code": i.amc_code,
+                    "folio": i.folio,
+                    "scheme_code": i.scheme_code,
                 }
-
-                encrypted_data = lms.AESCBC(
-                    las_settings.encryption_key, las_settings.iv
-                ).encrypt(json.dumps(data))
-
-                url = las_settings.lien_initiate_api
-                datetime_signature = lms.create_signature_mycams()
-                headers = {
-                    "Content-Type": "application/json",
-                    "clientid": las_settings.client_id,
-                    "datetimestamp": datetime_signature[0],
-                    "signature": datetime_signature[1],
+                collateral_ledger_input = {
+                    "doctype": "Loan Application",
+                    "docname": self.name,
+                    "request_type": "Pledge",
+                    "isin": i.isin,
+                    "quantity": i.pledged_quantity,
+                    "price": i.price,
+                    "security_name": i.security_name,
+                    "security_category": i.security_category,
+                    "data": collateral_ledger_data,
+                    "psn": "",
+                    "requested_quantity": i.requested_quantity,
+                    "scheme_code": i.scheme_code,
+                    "folio": i.folio,
+                    "amc_code": i.amc_code,
                 }
+                CollateralLedger.create_entry(**collateral_ledger_input)
+            self.save(ignore_permissions=True)
+            frappe.db.commit()
 
-                response = requests.post(url=url, headers=headers, data=encrypted_data)
-                encrypted_response = response.text.replace("-", "+").replace("_", "/")
-                decrypted_data = lms.AESCBC(
-                    las_settings.decryption_key, las_settings.iv
-                ).decrypt(encrypted_response)
-                decrypted_json = json.loads(decrypted_data)
+        else:
+            if self.instrument_type == "Mutual Fund":
+                if self.drawing_power < self.minimum_sanctioned_limit:
+                    self.remarks = "Rejected due to min/max range"
+                    self.status = "Rejected"
+                    self.workflow_state = "Rejected"
+                    self.save(ignore_permissions=True)
+                    frappe.db.commit()
+                    doc = frappe.get_doc(
+                        "User KYC", self.get_customer().choice_kyc
+                    ).as_dict()
+                    doc["minimum_sanctioned_limit"] = self.minimum_sanctioned_limit
+                    doc["maximum_sanctioned_limit"] = self.maximum_sanctioned_limit
+                    # send sms/email/fcm to user for rejection of loan application
+                    frappe.enqueue_doc(
+                        "Notification",
+                        "Lien not Approved by lender",
+                        method="send",
+                        doc=doc,
+                    )
+                    msg = "Dear Customer,\nSorry! Your loan application was turned down since the requested loan amount is not in the range of lender's minimum sanction limit (Rs.{}) and maximum sanction limit (Rs.{}) criteria. We regret the inconvenience caused. Please try again with the expected criteria or reach out to us through 'Contact Us' on the app  -Spark Loans".format(
+                        self.minimum_sanctioned_limit, self.maximum_sanctioned_limit
+                    )
+                    fcm_notification = frappe.get_doc(
+                        "Spark Push Notification", "Lien unsuccessful", fields=["*"]
+                    )
+                    fcm_message = fcm_notification.message.format(
+                        minimum_sanctioned_limit=self.minimum_sanctioned_limit,
+                        maximum_sanctioned_limit=self.maximum_sanctioned_limit,
+                    )
+                    receiver_list = [str(self.get_customer().phone)]
+                    if doc.mob_num:
+                        receiver_list.append(str(doc.mob_num))
+                    if doc.choice_mob_no:
+                        receiver_list.append(str(doc.choice_mob_no))
 
-                lms.create_log(
-                    {
-                        "Customer name": customer.full_name,
-                        "json_payload": data,
-                        "encrypted_request": encrypted_data,
-                        "decrypted_json": decrypted_json,
-                    },
-                    "lien_initiate_request",
-                )
+                    receiver_list = list(set(receiver_list))
+                    frappe.enqueue(
+                        method=send_sms, receiver_list=receiver_list, msg=msg
+                    )
 
-                schemedetails = decrypted_json.get("schemedetails", None)
-                isin_details = {}
+                    lms.send_spark_push_notification(
+                        fcm_notification=fcm_notification,
+                        message=fcm_message,
+                        customer=self.get_customer(),
+                    )
 
-                if schemedetails and "Success" in [
-                    i["remarks"].title() for i in schemedetails
-                ]:
-                    total_successfull_lien = 0
-                    total_collateral_value = 0
-                    for i in schemedetails:
-                        isin_details[str(i.get("isinno")) + str(i.get("folio"))] = i
+                elif self.drawing_power >= self.minimum_sanctioned_limit:
+                    customer = self.get_customer()
+                    frappe.session.user = "Administrator"
+                    user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+                    las_settings = frappe.get_single("LAS Settings")
+                    self.status = "Executing pledge"
+                    self.workflow_state = "Executing pledge"
+                    self.total_collateral_value = 0
+                    # for i in self.items:
+                    #     i.lender_approval_status = "Approved"
+                    self.save(ignore_permissions=True)
+                    frappe.db.commit()
+                    lien_ref_no = self.items[0].get("prf_number")
+                    schemedetails = []
                     for i in self.items:
-                        isin_folio_combo = str(i.get("isin")) + str(i.get("folio"))
-                        if isin_folio_combo in isin_details:
-                            cur = isin_details.get(isin_folio_combo)
-                            i.pledge_executed = 1
-                            i.pledge_status = (
-                                "Success"
-                                if cur.get("remarks").title() == "Success"
-                                else "Failure"
+                        item = {
+                            "amccode": i.get("amc_code"),
+                            "amcname": i.get("amc_name"),
+                            "folio": i.get("folio"),
+                            "schemecode": i.get("scheme_code"),
+                            "schemename": i.get("security_name"),
+                            "isinno": i.get("isin"),
+                            "schemetype": i.get("type"),
+                            "schemecategory": "O",
+                            "lienunit": str(round(i.get("requested_quantity"), 3)),
+                            "lienapprovedunit": str(
+                                round(i.get("pledged_quantity"), 3)
+                            ),
+                            "lienmarkno": "",
+                            "sanctionedamount": "",
+                        }
+                        schemedetails.append(item)
+
+                    data = {
+                        "initiatereq": [
+                            {
+                                "lienrefno": lien_ref_no,
+                                "errorcode": "",
+                                "error": "",
+                                "sucessflag": "Y",
+                                "failurereason": "",
+                                "loginemail": customer.mycams_email_id,
+                                "netbankingemail": customer.user,
+                                "clientid": las_settings.client_id,
+                                "clientname": las_settings.client_name,
+                                "subclientid": "",
+                                "pan": user_kyc.pan_no,
+                                "bankschemetype": self.scheme_type,
+                                "bankrefno": las_settings.bank_reference_no,
+                                "bankname": las_settings.bank_name,
+                                "branchname": "Mumbai",
+                                "address1": "Address1",
+                                "address2": "Address2",
+                                "address3": "Address3",
+                                "city": "Mumbai",
+                                "state": "MH",
+                                "country": "india",
+                                "pincode": "400706",
+                                "phoneoff": "02212345678",
+                                "phoneres": "02221345678",
+                                "faxno": "02231245678",
+                                "faxres": "1357",
+                                "requestip": "",
+                                "addinfo1": self.name,
+                                "addinfo2": customer.name,
+                                "addinfo3": customer.full_name,
+                                "addinfo4": "4",
+                                "addinfo5": "5",
+                                "markid": "",
+                                "verifyid": "",
+                                "approveid": "",
+                            }
+                        ],
+                        "schemedetails": schemedetails,
+                    }
+
+                    encrypted_data = lms.AESCBC(
+                        las_settings.encryption_key, las_settings.iv
+                    ).encrypt(json.dumps(data))
+
+                    url = las_settings.lien_initiate_api
+                    datetime_signature = lms.create_signature_mycams()
+                    headers = {
+                        "Content-Type": "application/json",
+                        "clientid": las_settings.client_id,
+                        "datetimestamp": datetime_signature[0],
+                        "signature": datetime_signature[1],
+                    }
+
+                    response = requests.post(
+                        url=url, headers=headers, data=encrypted_data
+                    )
+                    encrypted_response = response.text.replace("-", "+").replace(
+                        "_", "/"
+                    )
+                    decrypted_data = lms.AESCBC(
+                        las_settings.decryption_key, las_settings.iv
+                    ).decrypt(encrypted_response)
+                    decrypted_json = json.loads(decrypted_data)
+
+                    lms.create_log(
+                        {
+                            "Customer name": customer.full_name,
+                            "json_payload": data,
+                            "encrypted_request": encrypted_data,
+                            "decrypted_json": decrypted_json,
+                        },
+                        "lien_initiate_request",
+                    )
+
+                    schemedetails = decrypted_json.get("schemedetails", None)
+                    isin_details = {}
+
+                    if schemedetails and "Success" in [
+                        i["remarks"].title() for i in schemedetails
+                    ]:
+                        total_successfull_lien = 0
+                        total_collateral_value = 0
+                        for i in schemedetails:
+                            isin_details[str(i.get("isinno")) + str(i.get("folio"))] = i
+                        for i in self.items:
+                            isin_folio_combo = str(i.get("isin")) + str(i.get("folio"))
+                            if isin_folio_combo in isin_details:
+                                cur = isin_details.get(isin_folio_combo)
+                                i.pledge_executed = 1
+                                i.pledge_status = (
+                                    "Success"
+                                    if cur.get("remarks").title() == "Success"
+                                    else "Failure"
+                                )
+                                if i.pledge_status == "Success":
+                                    total_successfull_lien += 1
+                                    i.lender_approval_status = "Approved"
+                                else:
+                                    i.lender_approval_status = "Rejected"
+                                collateral_ledger_data = {
+                                    "prf": i.get("prf_number"),
+                                    "expiry": self.expiry_date,
+                                }
+                                collateral_ledger_input = {
+                                    "doctype": "Loan Application",
+                                    "docname": self.name,
+                                    "request_type": "Pledge",
+                                    "isin": i.get("isin"),
+                                    "quantity": i.get("pledged_quantity"),
+                                    "price": i.get("price"),
+                                    "security_name": i.get("security_name"),
+                                    "security_category": i.get("security_category"),
+                                    "data": collateral_ledger_data,
+                                    "psn": cur.get("lienmarkno"),
+                                    "requested_quantity": i.get("requested_quantity"),
+                                    "scheme_code": i.get("scheme_code"),
+                                    "folio": i.get("folio"),
+                                    "amc_code": i.get("amc_code"),
+                                }
+                                CollateralLedger.create_entry(**collateral_ledger_input)
+                        pledge_securities = 0
+                        self.status = "Pledge executed"
+                        if total_successfull_lien == len(self.items):
+                            self.pledge_status = "Success"
+                            pledge_securities = 1
+                        elif total_successfull_lien == 0:
+                            self.status = "Pledge Failure"
+                            self.pledge_status = "Failure"
+                        else:
+                            self.pledge_status = "Partial Success"
+                            pledge_securities = 1
+                        self.workflow_state = "Pledge executed"
+                        self.total_collateral_value = round(total_collateral_value, 2)
+                        if self.instrument_type == "Shares":
+                            self.drawing_power = round(
+                                lms.round_down_amount_to_nearest_thousand(
+                                    (self.allowable_ltv / 100)
+                                    * self.total_collateral_value
+                                ),
+                                2,
                             )
-                            if i.pledge_status == "Success":
-                                total_successfull_lien += 1
-                                i.lender_approval_status = "Approved"
-                            else:
-                                i.lender_approval_status = "Rejected"
-                            collateral_ledger_data = {
-                                "prf": i.get("prf_number"),
-                                "expiry": self.expiry_date,
-                            }
-                            collateral_ledger_input = {
-                                "doctype": "Loan Application",
-                                "docname": self.name,
-                                "request_type": "Pledge",
-                                "isin": i.get("isin"),
-                                "quantity": i.get("pledged_quantity"),
-                                "price": i.get("price"),
-                                "security_name": i.get("security_name"),
-                                "security_category": i.get("security_category"),
-                                "data": collateral_ledger_data,
-                                "psn": cur.get("lienmarkno"),
-                                "requested_quantity": i.get("requested_quantity"),
-                                "scheme_code": i.get("scheme_code"),
-                                "folio": i.get("folio"),
-                                "amc_code": i.get("amc_code"),
-                            }
-                            CollateralLedger.create_entry(**collateral_ledger_input)
-                    pledge_securities = 0
-                    self.status = "Pledge executed"
-                    if total_successfull_lien == len(self.items):
-                        self.pledge_status = "Success"
-                        pledge_securities = 1
-                    elif total_successfull_lien == 0:
+                        else:
+                            drawing_power = 0
+                            for i in self.items:
+                                i.amount = i.price * i.pledged_quantity
+                                dp = (i.eligible_percentage / 100) * i.amount
+                                # self.total_collateral_value += i.amount
+                                drawing_power += dp
+
+                            drawing_power = round(
+                                lms.round_down_amount_to_nearest_thousand(
+                                    drawing_power
+                                ),
+                                2,
+                            )
+
+                        # self.save(ignore_permissions=True)
+
+                        if not customer.pledge_securities:
+                            customer.pledge_securities = pledge_securities
+                            customer.save(ignore_permissions=True)
+                        # frappe.db.commit()
+
+                    else:
+                        if schemedetails:
+                            isin_folio_combo = str(i.get("isin")) + str(i.get("folio"))
+                            for i in schemedetails:
+                                isin_details[isin_folio_combo] = i
+                            for i in self.items:
+                                if isin_folio_combo in isin_details:
+                                    i.pledge_executed = 1
+                                    i.pledge_status = "Failure"
+                                    i.lender_approval_status = "Rejected"
+
                         self.status = "Pledge Failure"
                         self.pledge_status = "Failure"
-                    else:
-                        self.pledge_status = "Partial Success"
-                        pledge_securities = 1
-                    self.workflow_state = "Pledge executed"
-                    self.total_collateral_value = round(total_collateral_value, 2)
-                    if self.instrument_type == "Shares":
-                        self.drawing_power = round(
-                            lms.round_down_amount_to_nearest_thousand(
-                                (self.allowable_ltv / 100) * self.total_collateral_value
-                            ),
-                            2,
-                        )
-                    else:
-                        drawing_power = 0
-                        for i in self.items:
-                            i.amount = i.price * i.pledged_quantity
-                            dp = (i.eligible_percentage / 100) * i.amount
-                            # self.total_collateral_value += i.amount
-                            drawing_power += dp
+                        self.workflow_state = "Pledge executed"
 
-                        drawing_power = round(
-                            lms.round_down_amount_to_nearest_thousand(drawing_power),
-                            2,
-                        )
-
-                    # self.save(ignore_permissions=True)
-
-                    if not customer.pledge_securities:
-                        customer.pledge_securities = pledge_securities
-                        customer.save(ignore_permissions=True)
-                    # frappe.db.commit()
-
-                else:
-                    if schemedetails:
-                        isin_folio_combo = str(i.get("isin")) + str(i.get("folio"))
-                        for i in schemedetails:
-                            isin_details[isin_folio_combo] = i
-                        for i in self.items:
-                            if isin_folio_combo in isin_details:
-                                i.pledge_executed = 1
-                                i.pledge_status = "Failure"
-                                i.lender_approval_status = "Rejected"
-
-                    self.status = "Pledge Failure"
-                    self.pledge_status = "Failure"
-                    self.workflow_state = "Pledge executed"
-
-                self.save(ignore_permissions=True)
-                frappe.db.commit()
+                    self.save(ignore_permissions=True)
+                    frappe.db.commit()
 
     def before_save(self):
         lender = self.get_lender()
@@ -841,7 +914,11 @@ class LoanApplication(Document):
                     lms.convert_list_to_tuple_string(loan_application_isin_list),
                 ),
             )
-        self.notify_customer()
+        user_roles = frappe.db.get_values(
+            "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
+        )
+        if "Loan Customer" in user_roles:
+            self.notify_customer()
 
     def create_loan(self):
         items = []

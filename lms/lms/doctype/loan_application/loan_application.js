@@ -4,7 +4,8 @@
 frappe.ui.form.on("Loan Application", {
   refresh: function (frm) {
     if (frm.doc.status != "Pledge executed") {
-      frm.set_df_property("items", "read_only", 1);
+      console.log("Read Only");
+      // frm.set_df_property("items", "read_only", 1);
     } else {
       frm.get_field("items").grid.only_sortable();
       $(".grid-add-row").hide();
