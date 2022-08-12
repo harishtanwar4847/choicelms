@@ -108,8 +108,7 @@
    "fieldname": "lender",
    "fieldtype": "Link",
    "label": "Lender",
-   "options": "Lender",
-   "set_only_once": 1
+   "options": "Lender"
   },
   {
    "fieldname": "additional_interest",
@@ -381,7 +380,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-07-20 15:00:39.317195",
+ "modified": "2022-08-04 10:47:55.889600",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
@@ -427,6 +426,12 @@
    "create": 1,
    "read": 1,
    "role": "Spark Manager",
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Razorpay User",
    "submit": 1,
    "write": 1
   }
