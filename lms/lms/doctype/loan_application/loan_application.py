@@ -235,6 +235,7 @@ class LoanApplication(Document):
             self.status = "Executing pledge"
             self.workflow_state = "Executing pledge"
             pledged_total = 0
+            eligible_percent = 0
             isin = [i.isin for i in self.items]
             allowed_securities = lms.get_allowed_securities(
                 isin, self.lender, self.instrument_type
@@ -242,10 +243,14 @@ class LoanApplication(Document):
             for i in self.items:
                 security = allowed_securities.get(i.isin)
                 i.eligible_percentage = security.eligible_percentage
+                print("AMC Code", security.amc_code)
+                i.amc_code = security.amc_code
+                eligible_percent += i.eligible_percentage
                 i.amount = i.price * i.pledged_quantity
+                pledged_total += i.amount
                 if i.lender_approval_status == "Approved":
                     i.pledge_executed = 1
-                pledged_total += i.amount
+            self.allowable_ltv = eligible_percent
             self.pledged_total_collateral_value = pledged_total
             self.save(ignore_permissions=True)
             frappe.db.commit()
@@ -259,6 +264,7 @@ class LoanApplication(Document):
                 days=1
             )
             self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
+            print("Before Collateral Ledger Entry ")
             for i in self.items:
                 collateral_ledger_data = {
                     "prf": i.prf_number,
@@ -269,6 +275,7 @@ class LoanApplication(Document):
                     "folio": i.folio,
                     "scheme_code": i.scheme_code,
                 }
+                print("Between Collateral ledger Data :", collateral_ledger_data)
                 collateral_ledger_input = {
                     "doctype": "Loan Application",
                     "docname": self.name,
@@ -286,6 +293,7 @@ class LoanApplication(Document):
                     "amc_code": i.amc_code,
                 }
                 CollateralLedger.create_entry(**collateral_ledger_input)
+                print("After Collateral Ledger : ", collateral_ledger_input)
             self.save(ignore_permissions=True)
             frappe.db.commit()
 

@@ -1841,3 +1841,9 @@ def user_kyc_hashing(user_kyc):
         i.ident_num = user_details_hashing(i.ident_num)
 
     return user_kyc
+
+
+@frappe.whitelist(allow_guest=True)
+def create_user_customer(first_name, last_name, email, mobile):
+    user = create_user(first_name, last_name, mobile, email, tester=0)
+    customer = create_customer(user)
