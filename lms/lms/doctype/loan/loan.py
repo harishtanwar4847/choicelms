@@ -1180,27 +1180,27 @@ class Loan(Document):
                     )
                     virtual_interest_doc.save(ignore_permissions=True)
                     # return virtual_interest_doc.as_dict()
+
+                    if frappe.utils.now_datetime().day == 1:
+                        interest_calculation = frappe.get_doc(
+                            dict(
+                                doctype="Interest Calculation",
+                                loan_no=self.name,
+                                client_name=self.customer_name,
+                                date=input_date.date(),
+                                transaction_type="-",
+                                crdr="-",
+                                debit="-",
+                                loan_balance=self.balance,
+                                interest_with_rebate=base_amount + rebate_amount,
+                                interest_without_rebate=base_amount,
+                                creation_date=frappe.utils.now_datetime().date(),
+                            ),
+                        ).insert(ignore_permissions=True)
             input_date += timedelta(days=1)
             self.day_past_due = self.calculate_day_past_due(input_date)
             self.map_loan_summary_values()
             self.save(ignore_permissions=True)
-            frappe.db.commit()
-
-            interest_calculation = frappe.get_doc(
-                dict(
-                    doctype="Interest Calculation",
-                    loan_no=self.name,
-                    client_name=self.customer_name,
-                    date=input_date.date(),
-                    transaction_type="-",
-                    crdr="-",
-                    debit="-",
-                    loan_balance=self.balance,
-                    interest_with_rebate=base_amount + rebate_amount,
-                    interest_without_rebate=base_amount,
-                    creation_date=frappe.utils.now_datetime().date(),
-                ),
-            ).insert(ignore_permissions=True)
             frappe.db.commit()
 
         except Exception:
