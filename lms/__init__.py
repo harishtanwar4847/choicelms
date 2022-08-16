@@ -1845,5 +1845,17 @@ def user_kyc_hashing(user_kyc):
 
 @frappe.whitelist(allow_guest=True)
 def create_user_customer(first_name, last_name, email, mobile):
+    # Validation for First name and Last name
+    reg = regex_special_characters(search=first_name + last_name)
+    if reg:
+        frappe.throw(_("Special Characters not allowed in First Name and Last Name."))
+    # Validation for Email
+    email_regex = r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
+    if re.search(email_regex, email) is None or (len(email.split("@")) > 2):
+        frappe.throw(_("Please enter valid email ID."))
+    # validation for mobile number
+    if len(mobile) > 10:
+        frappe.throw(_("Please enter valid Mobile Number."))
+
     user = create_user(first_name, last_name, mobile, email, tester=0)
     customer = create_customer(user)

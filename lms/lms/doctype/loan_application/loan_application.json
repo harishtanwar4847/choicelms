@@ -136,7 +136,8 @@
    "fieldname": "pledge_status",
    "fieldtype": "Select",
    "label": "Pledge Status",
-   "options": "Pending\nSuccess\nPartial Success\nFailure"
+   "options": "Pending\nSuccess\nPartial Success\nFailure",
+   "reqd": 1
   },
   {
    "fieldname": "loan_margin_shortfall",
@@ -174,13 +175,15 @@
    "depends_on": "eval:doc.instrument_type==\"Shares\";",
    "fieldname": "pledgor_boid",
    "fieldtype": "Data",
-   "label": "Pledgor BOID"
+   "label": "Pledgor BOID",
+   "mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";"
   },
   {
    "depends_on": "eval:doc.instrument_type==\"Shares\";",
    "fieldname": "pledgee_boid",
    "fieldtype": "Data",
-   "label": "Pledgee BOID"
+   "label": "Pledgee BOID",
+   "mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";"
   },
   {
    "default": "Shares",
@@ -237,7 +240,7 @@
   }
  ],
  "links": [],
- "modified": "2022-08-12 14:53:20.017101",
+ "modified": "2022-08-16 12:43:51.829550",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

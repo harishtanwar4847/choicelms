@@ -242,6 +242,7 @@ class LoanApplication(Document):
             )
             for i in self.items:
                 security = allowed_securities.get(i.isin)
+                i.security_category = security.security_category
                 i.eligible_percentage = security.eligible_percentage
                 print("AMC Code", security.amc_code)
                 i.amc_code = security.amc_code
@@ -250,7 +251,7 @@ class LoanApplication(Document):
                 pledged_total += i.amount
                 if i.lender_approval_status == "Approved":
                     i.pledge_executed = 1
-            self.allowable_ltv = eligible_percent
+            self.allowable_ltv = float(eligible_percent / len(self.items))
             self.pledged_total_collateral_value = pledged_total
             self.save(ignore_permissions=True)
             frappe.db.commit()
