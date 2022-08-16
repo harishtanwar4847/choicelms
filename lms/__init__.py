@@ -1814,7 +1814,7 @@ def ifsc_details(ifsc=""):
     return frappe.get_all("Spark Bank Branch", filters_arr, ["*"])
 
 
-def client_sanction_details(loan):
+def client_sanction_details(loan, date):
     try:
         loan = frappe.get_doc("Loan", loan.name)
         customer = frappe.get_doc("Loan Customer", loan.customer)
@@ -1845,7 +1845,7 @@ def client_sanction_details(loan):
                 end_date=loan.expiry_date,
                 sanctioned_amount=loan.sanctioned_limit,
                 roi=roi_,
-                sanction_date=frappe.utils.now_datetime().date(),
+                sanction_date=date,
             ),
         ).insert(ignore_permissions=True)
         frappe.db.commit()
