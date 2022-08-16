@@ -1,6 +1,7 @@
 # Copyright (c) 2022, Atrina Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
+import queue
 from datetime import datetime, timedelta
 
 # import frappe
@@ -96,15 +97,40 @@ class SparkEmailCampaign(Document):
 
     def mail_send(self):
         customer_list = self.user_data()
+        delayed = False
+        if self.schedule_time == "Schedule":
+            delayed = True
+        if len(customer_list) > 20:
+            customer_list_1, customer_list_2 = lms.split_list_into_half(customer_list)
+        else:
+            customer_list_1 = customer_list
+        if customer_list_1:
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=customer_list_1,
+                sender=self.sender_email[0].email_id,
+                subject=self.subject,
+                message=self.template_html,
+                send_after=self.schedule_datetime,
+                delayed=delayed,
+                queue="short",
+                timeout=5000,
+                job_name="Spark email campaign 1",
+            )
 
-        frappe.enqueue(
-            method=frappe.sendmail,
-            recipients=customer_list,
-            sender=self.sender_email[0].email_id,
-            subject=self.subject,
-            message=self.template_html,
-            send_after=self.schedule_datetime,
-        )
+        if customer_list_2:
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=customer_list_2,
+                sender=self.sender_email[0].email_id,
+                subject=self.subject,
+                message=self.template_html,
+                send_after=self.schedule_datetime,
+                delayed=delayed,
+                queue="short",
+                timeout=5000,
+                job_name="Spark email campaign 2",
+            )
 
     def on_submit(self):
         self.mail_send()

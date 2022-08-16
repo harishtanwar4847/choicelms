@@ -1856,3 +1856,8 @@ def cron_convertor(dt):
     print("dt", dt)
     print("obj", type(dt_obj))
     return f"{dt_obj.minute} {dt_obj.hour} {dt_obj.day} {dt_obj.month} *"
+
+
+def split_list_into_half(a_list):
+    half = len(a_list) // 2
+    return a_list[:half], a_list[half:]
