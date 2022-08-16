@@ -7,6 +7,7 @@
  "field_order": [
   "loan_no",
   "client_name",
+  "dpid",
   "date",
   "request_type",
   "isin",
@@ -79,11 +80,16 @@
    "fieldname": "creation_date",
    "fieldtype": "Date",
    "label": "Doc Creation Date"
+  },
+  {
+   "fieldname": "dpid",
+   "fieldtype": "Data",
+   "label": "Dpid"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-08-04 17:12:20.914878",
+ "modified": "2022-08-12 14:08:02.296273",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Transaction",

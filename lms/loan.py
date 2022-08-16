@@ -1561,6 +1561,9 @@ def loan_payment(**kwargs):
                 )
                 loan_transaction.save(ignore_permissions=True)
                 frappe.db.commit()
+                loan_transaction.db_set("workflow_state", "Rejected")
+                loan_transaction.db_set("status", "Rejected")
+                loan_transaction.run_post_save_methods()
                 msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(
                     data.get("amount"), loan.name
                 )

@@ -1247,22 +1247,28 @@ def update_rzp_payment_transaction(data):
             if loan_transaction.razorpay_event != "Captured":
                 loan_transaction.razorpay_event = razorpay_event
             # If RZP event is failed then update the log
+            if loan_transaction.razorpay_event == "Captured":
+                loan_transaction.workflow_state = "Approved"
+                loan_transaction.status = "Approved"
+                loan_transaction.docstatus = 1
             if loan_transaction.razorpay_event == "Failed":
+                loan_transaction.workflow_state = "Rejected"
+                loan_transaction.status = "Rejected"
                 loan_transaction.razorpay_payment_log = (
                     "<b>code</b> : "
-                    + webhook_main_object["error_code"]
+                    + webhook_main_object.get("error_code")
                     + "\n"
                     + "<b>description</b> : "
-                    + webhook_main_object["error_description"]
+                    + webhook_main_object.get("error_description")
                     + "\n"
                     + "<b>source</b> : "
-                    + webhook_main_object["error_source"]
+                    + webhook_main_object.get("error_source")
                     + "\n"
                     + "<b>step</b> : "
-                    + webhook_main_object["error_step"]
+                    + webhook_main_object.get("error_step")
                     + "\n"
                     + "<b>reason</b> : "
-                    + webhook_main_object["error_reason"]
+                    + webhook_main_object.get("error_reason")
                 )
             else:
                 loan_transaction.razorpay_payment_log = ""
@@ -1305,6 +1311,7 @@ def update_rzp_payment_transaction(data):
 
             loan_transaction.save(ignore_permissions=True)
             frappe.db.commit()
+
             # Send notification depended on events
             if data["event"] == "payment.authorized":
                 # if data["event"] == "payment.authorized" or (loan_transaction.razorpay_event == "Captured" and data["event"] != "payment.authorized"):
