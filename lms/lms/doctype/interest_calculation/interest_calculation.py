@@ -31,7 +31,6 @@ def interest_calculation(loan):
         as_dict=True,
     )
     for transaction in transactions:
-        frappe.logger().info(transaction.time)
         if transaction.record_type == "DR":
             credit = 0
             debit = (
@@ -59,7 +58,6 @@ def interest_calculation(loan):
             )
         )
     for interest in interests:
-        frappe.logger().info(interest.time)
         index = [
             i
             for i, _ in enumerate(interest_calculation_list)
