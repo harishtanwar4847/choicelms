@@ -247,7 +247,6 @@ class LoanApplication(Document):
                 i.eligible_percentage = security.eligible_percentage
                 i.amc_code = security.amc_code
                 i.requested_quantity = i.pledged_quantity
-                print("AMC Code", security.amc_code)
                 i.amc_code = security.amc_code
                 eligible_percent += i.eligible_percentage
                 i.amount = i.price * i.pledged_quantity
@@ -276,7 +275,6 @@ class LoanApplication(Document):
                 days=1
             )
             self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
-            print("Before Collateral Ledger Entry ")
             for i in self.items:
                 collateral_ledger_data = {
                     "prf": i.prf_number,
@@ -287,7 +285,6 @@ class LoanApplication(Document):
                     "folio": i.folio,
                     "scheme_code": i.scheme_code,
                 }
-                print("Between Collateral ledger Data :", collateral_ledger_data)
                 collateral_ledger_input = {
                     "doctype": "Loan Application",
                     "docname": self.name,
@@ -305,7 +302,6 @@ class LoanApplication(Document):
                     "amc_code": i.amc_code,
                 }
                 CollateralLedger.create_entry(**collateral_ledger_input)
-                print("After Collateral Ledger : ", collateral_ledger_input)
             self.save(ignore_permissions=True)
             frappe.db.commit()
 
