@@ -1297,3 +1297,8 @@ def update_rzp_payment_transaction(data):
             message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
             title=_("Payment Webhook Enqueue Error"),
         )
+
+
+def split_list_into_half(a_list):
+    half = len(a_list) // 2
+    return a_list[:half], a_list[half:]
