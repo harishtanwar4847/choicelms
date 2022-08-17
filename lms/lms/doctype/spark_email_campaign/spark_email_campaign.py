@@ -135,6 +135,7 @@ class SparkEmailCampaign(Document):
                 )
                 - timedelta(minutes=1),
                 delayed=delayed,
+                queue="short",
                 timeout=5000,
                 job_name="Spark email campaign 2",
             )
