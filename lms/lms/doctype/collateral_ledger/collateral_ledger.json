@@ -62,8 +62,7 @@
   {
    "fieldname": "psn",
    "fieldtype": "Data",
-   "label": "PSN/Lien Mark Number",
-   "read_only": 1
+   "label": "PSN/Lien Mark Number"
   },
   {
    "fieldname": "column_break_1",
@@ -211,7 +210,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-04-28 19:00:42.709432",
+ "modified": "2022-08-17 10:34:13.943523",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Collateral Ledger",

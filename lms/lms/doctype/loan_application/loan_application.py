@@ -236,6 +236,7 @@ class LoanApplication(Document):
             self.workflow_state = "Executing pledge"
             pledged_total = 0
             eligible_percent = 0
+            total_collateral = 0
             isin = [i.isin for i in self.items]
             allowed_securities = lms.get_allowed_securities(
                 isin, self.lender, self.instrument_type
@@ -244,14 +245,24 @@ class LoanApplication(Document):
                 security = allowed_securities.get(i.isin)
                 i.security_category = security.security_category
                 i.eligible_percentage = security.eligible_percentage
+                i.amc_code = security.amc_code
+                i.requested_quantity = i.pledged_quantity
                 print("AMC Code", security.amc_code)
                 i.amc_code = security.amc_code
                 eligible_percent += i.eligible_percentage
                 i.amount = i.price * i.pledged_quantity
+                i.eligible_amount = (
+                    round(i.pledged_quantity, 3)
+                    * i.price
+                    * security.eligible_percentage
+                ) / 100
                 pledged_total += i.amount
                 if i.lender_approval_status == "Approved":
                     i.pledge_executed = 1
+                    total_collateral += i.amount
+
             self.allowable_ltv = float(eligible_percent / len(self.items))
+            self.total_collateral_value = total_collateral
             self.pledged_total_collateral_value = pledged_total
             self.save(ignore_permissions=True)
             frappe.db.commit()
@@ -923,11 +934,7 @@ class LoanApplication(Document):
                     lms.convert_list_to_tuple_string(loan_application_isin_list),
                 ),
             )
-        user_roles = frappe.db.get_values(
-            "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
-        )
-        if "Loan Customer" in user_roles:
-            self.notify_customer()
+        self.notify_customer()
 
     def create_loan(self):
         items = []

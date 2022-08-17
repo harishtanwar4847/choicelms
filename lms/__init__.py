@@ -385,7 +385,7 @@ def get_allowed_securities(securities, lender, instrument_type="Shares"):
     select = "als.isin, als.security_name, als.eligible_percentage, sc.category_name as security_category, als.lender"
     allowed = ""
     if instrument_type == "Mutual Fund":
-        select += ", als.scheme_type, als.allowed"
+        select += ", als.scheme_type, als.amc_code, als.allowed"
         allowed = "and als.allowed = 1"
 
     if type(lender) == list:
