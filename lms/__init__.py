@@ -1853,9 +1853,12 @@ def create_user_customer(first_name, last_name, email, mobile):
     email_regex = r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
     if re.search(email_regex, email) is None or (len(email.split("@")) > 2):
         frappe.throw(_("Please enter valid email ID."))
-    # validation for mobile number
+
     if len(mobile) > 10:
         frappe.throw(_("Please enter valid Mobile Number."))
+    res = frappe.get_all("User", filters={"phone": mobile, "mobile_no": mobile})
+    if res:
+        frappe.throw(_("Mobile Number {} already exists".format(mobile)))
 
     user = create_user(first_name, last_name, mobile, email, tester=0)
     customer = create_customer(user)

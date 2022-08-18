@@ -8,6 +8,7 @@ import json
 import re
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 
 import lms
@@ -66,3 +67,11 @@ class LoanCustomer(Document):
                 len(self.mycams_email_id.split("@")) > 2
             ):
                 frappe.throw("Please enter a valid email id")
+
+    def before_save(self):
+        phone = frappe.get_all("Loan Customer", filters={"phone": self.phone})
+        if phone:
+            frappe.throw(_("Mobile Number {} already exists".format(self.phone)))
+        user = frappe.get_all("Loan Customer", filters={"user": self.user})
+        if user:
+            frappe.throw(_("User {} already exists".format(self.user)))
