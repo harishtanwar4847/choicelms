@@ -34,6 +34,39 @@ class UserToken(Document):
             #     app_hash_string=app_hash_string,
             #     expiry_in_minutes=expiry_in_minutes,
             # )
+            if self.token_type in [
+                "Pledge OTP",
+                "Unpledge OTP",
+            ]:
+                doc = frappe.get_all(
+                    "User KYC", filters={"user": frappe.session.user}, fields=["*"]
+                )[0]
+                doc["otp_info"] = {
+                    "token_type": self.token_type.replace(" ", ""),
+                    "token": self.token,
+                }
+                frappe.enqueue_doc(
+                    "Notification",
+                    "OTP for Spark Loans",
+                    method="send",
+                    doc=doc,
+                )
+            else:
+                doc = frappe.get_all(
+                    "User", filters={"username": self.entity}, fields=["*"]
+                )
+                if doc:
+                    doc[0]["otp_info"] = {
+                        "token_type": self.token_type.replace(" ", ""),
+                        "token": self.token,
+                    }
+                    frappe.enqueue_doc(
+                        "Notification",
+                        "Other OTP for Spark Loans",
+                        method="send",
+                        doc=doc[0],
+                    )
+
             mess = frappe._(
                 # "Dear Customer,\nYour {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
                 "Dear Customer,\nYour {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
@@ -94,6 +127,21 @@ class UserToken(Document):
             #     subject="Forgot Pin Notification",
             #     message=mess,
             # )
+            otp_email = frappe.db.sql(
+                "select message from `tabNotification` where name='Other OTP for Spark Loans';"
+            )[0][0]
+            otp_email = otp_email.replace("investor_name", doc.full_name)
+            otp_email = otp_email.replace("token_type", self.token_type)
+            otp_email = otp_email.replace("token", self.token)
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=[customer.user],
+                sender=None,
+                subject="OTP for {} for Spark Loans".format(self.token_type),
+                message=otp_email,
+                delayed=False,
+            )
+
             msg = frappe._(
                 # "Dear Customer,\nYour {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes. -Spark Loans"
                 "Dear Customer,\nYour {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
@@ -122,7 +170,7 @@ def validate_receiver_nos(receiver_list):
         validated_receiver_list.append(d)
 
     if not validated_receiver_list:
-        throw(_("Please enter valid mobile nos"))
+        frappe.throw(_("Please enter valid mobile nos"))
 
     return validated_receiver_list
 
