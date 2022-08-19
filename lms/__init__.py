@@ -670,6 +670,10 @@ def send_spark_push_notification(
     fcm_notification={}, message="", loan="", customer=None
 ):
     try:
+        frappe.log_error(
+            message="Inside send_spark_push_notification",
+            title=_("Razorpay FCM Notification"),
+        )
         fcm_payload = {}
         tokens = get_firebase_tokens(customer.user)
         if fcm_notification and tokens:
@@ -762,16 +766,42 @@ def send_spark_push_notification(
                         }
                     ).insert(ignore_permissions=True)
                     frappe.db.commit()
+                else:
+                    frappe.log_error(
+                        message=frappe.get_traceback() + "\nIF res not ok\n",
+                        title=_("Razorpay FCM Notification"),
+                    )
             except (
                 requests.RequestException,
                 TypeError,
                 KeyError,
                 ValueError,
                 FirebaseError,
+                Exception,
             ):
                 # To log fcm notification Exception into Frappe Error Log
+                frappe.log_error(
+                    message=frappe.get_traceback() + "\nInternal exception\n",
+                    title=_("Razorpay FCM Notification"),
+                )
                 raise Exception
+        else:
+            if not fcm_notification:
+                frappe.log_error(
+                    message=frappe.get_traceback() + "\nInside Main Else IF not Fcm \n",
+                    title=_("Razorpay FCM Notification"),
+                )
+            elif not tokens:
+                frappe.log_error(
+                    message=frappe.get_traceback() + "\nIF not Token  \n",
+                    title=_("Razorpay FCM Notification"),
+                )
+
     except Exception as e:
+        frappe.log_error(
+            message=frappe.get_traceback() + "\nExternal exception\n",
+            title=_("Razorpay FCM Notification"),
+        )
         frappe.log_error(
             message=frappe.get_traceback()
             + "\nNotification Info:\n"
