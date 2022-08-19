@@ -3,6 +3,7 @@
 
 import queue
 from datetime import datetime, timedelta
+from time import strptime
 from unicodedata import name
 
 import frappe
@@ -29,6 +30,7 @@ class SparkEmailCampaign(Document):
                 frappe.throw("Scheduled time cannot be less than current time")
 
     def on_cancel(self):
+        print("abcd")
         frappe.session.user = "Administrator"
         if self.schedule_time == "Immediate":
             frappe.throw("Immediate mails cannot be cancelled")
@@ -36,7 +38,11 @@ class SparkEmailCampaign(Document):
         scheduled_mails_cancel = frappe.get_all(
             "Email Queue",
             filters={
-                "send_after": self.schedule_datetime,
+                "send_after": datetime.strptime(
+                    self.schedule_datetime.strftime("%d-%m-%Y %H:%M:%S"),
+                    "%d-%m-%Y %H:%M:%S",
+                )
+                - timedelta(minutes=1),
                 "sender": self.sender_email[0].email_id,
                 "status": "Not Sent",
             },
@@ -96,8 +102,13 @@ class SparkEmailCampaign(Document):
     def mail_send(self):
         customer_list = self.user_data()
         delayed = False
+        scheduled = self.schedule_datetime
         if self.schedule_time == "Schedule":
             delayed = True
+            scheduled = (
+                datetime.strptime(self.schedule_datetime, "%Y-%m-%d %H:%M:%S")
+                - timedelta(minutes=1),
+            )
 
         customer_list_1 = []
         customer_list_2 = []
@@ -113,10 +124,7 @@ class SparkEmailCampaign(Document):
                 sender=self.sender_email[0].email_id,
                 subject=self.subject,
                 message=self.template_html,
-                send_after=datetime.strptime(
-                    self.schedule_datetime, "%Y-%m-%d %H:%M:%S"
-                )
-                - timedelta(minutes=1),
+                send_after=scheduled,
                 delayed=delayed,
                 queue="short",
                 timeout=5000,
@@ -130,10 +138,7 @@ class SparkEmailCampaign(Document):
                 sender=self.sender_email[0].email_id,
                 subject=self.subject,
                 message=self.template_html,
-                send_after=datetime.strptime(
-                    self.schedule_datetime, "%Y-%m-%d %H:%M:%S"
-                )
-                - timedelta(minutes=1),
+                send_after=scheduled,
                 delayed=delayed,
                 queue="short",
                 timeout=5000,
