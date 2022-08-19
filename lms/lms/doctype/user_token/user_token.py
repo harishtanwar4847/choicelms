@@ -107,6 +107,23 @@ class UserToken(Document):
                 "token": self.token,
                 "expiry_in_minutes": expiry_in_minutes,
             }
+            # doc["otp_info"] = {
+            #     "token_type": self.token_type,
+            #     "token": self.token,
+            #     "expiry_in_minutes": expiry_in_minutes,
+            # }
+            user_doc = frappe.get_doc("User", self.entity).as_dict()
+            user_doc["otp_info"] = {
+                "token_type": self.token_type.replace(" ", ""),
+                "token": self.token,
+            }
+
+            frappe.enqueue_doc(
+                "Notification",
+                "Other OTP for Spark Loans",
+                method="send",
+                doc=user_doc,
+            )
 
             """changes as per latest email notification list-sent by vinayak - email verification final 2.0"""
             # mess = _(
@@ -127,20 +144,6 @@ class UserToken(Document):
             #     subject="Forgot Pin Notification",
             #     message=mess,
             # )
-            otp_email = frappe.db.sql(
-                "select message from `tabNotification` where name='Other OTP for Spark Loans';"
-            )[0][0]
-            otp_email = otp_email.replace("investor_name", doc.full_name)
-            otp_email = otp_email.replace("token_type", self.token_type)
-            otp_email = otp_email.replace("token", self.token)
-            frappe.enqueue(
-                method=frappe.sendmail,
-                recipients=[customer.user],
-                sender=None,
-                subject="OTP for {} for Spark Loans".format(self.token_type),
-                message=otp_email,
-                delayed=False,
-            )
 
             msg = frappe._(
                 # "Dear Customer,\nYour {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes. -Spark Loans"
