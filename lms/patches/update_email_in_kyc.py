@@ -8,7 +8,7 @@ import lms
 
 def execute():
     frappe.reload_doc("Lms", "DocType", "User KYC")
-    user_kyc = frappe.get_all("User KYC", fields=["*"])
+    user_kyc = frappe.get_all("User KYC", {"kyc_type": "CHOICE"}, fields=["*"])
     for kyc in user_kyc:
         if not kyc["email"]:
             las_settings = frappe.get_single("LAS Settings")
