@@ -60,17 +60,17 @@ class UserToken(Document):
             else:
                 doc = frappe.get_all(
                     "User", filters={"username": self.entity}, fields=["*"]
-                )
+                )[0]
                 if doc:
                     email_otp = frappe.db.sql(
                         "select message from `tabNotification` where name='Other OTP for Spark Loans';"
                     )[0][0]
-                    email_otp = email_otp.replace("investor_name", doc[0].full_name)
+                    email_otp = email_otp.replace("investor_name", doc.full_name)
                     email_otp = email_otp.replace("token_type", token_type)
                     email_otp = email_otp.replace("token", self.token)
                     frappe.enqueue(
                         method=frappe.sendmail,
-                        recipients=[doc[0].email],
+                        recipients=[doc.email],
                         sender=None,
                         subject="{} for Spark Loans".format(token_type),
                         message=email_otp,
