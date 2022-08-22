@@ -31,7 +31,7 @@
           <td height="25">&nbsp;</td>
         </tr>
         <tr>
-          <td><strong><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#2c2a2b">Dear {{ doc.investor_name or doc.full_name }},</span></strong></td>
+          <td><strong><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#2c2a2b">Dear investor_name,</span></strong></td>
         </tr>
         <tr>
           <td>&nbsp;</td>
@@ -39,9 +39,9 @@
         <tr>
             <td>
                 <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
-                  Your {{doc.get("otp_info").get("token_type")}} for Spark Loans is {{doc.get("otp_info").get("token")}}.<br />
+                  Your token_type for Spark Loans is token.<br />
                   <br />
-                  Do not share your {{doc.get("otp_info").get("token_type")}} with anyone. Your OTP is valid for 10 minutes.<br />
+                  Do not share your token_type with anyone. Your OTP is valid for 10 minutes.<br />
                   <br />
                   You can reach to us through 'Contact Us' on the app.<br />
                   We look forward to serve you soon.<br />
