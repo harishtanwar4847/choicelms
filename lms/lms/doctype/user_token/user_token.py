@@ -54,6 +54,7 @@ class UserToken(Document):
                     sender=None,
                     subject="OTP for Spark Loans",
                     message=email_otp,
+                    queue="short",
                     delayed=False,
                     job_name="Spark OTP on Email",
                 )
@@ -74,6 +75,7 @@ class UserToken(Document):
                         sender=None,
                         subject="OTP for Spark Loans",
                         message=email_otp,
+                        queue="short",
                         delayed=False,
                         job_name="Spark OTP on Email",
                     )
@@ -130,6 +132,7 @@ class UserToken(Document):
                 sender=None,
                 subject="OTP for Spark Loans",
                 message=email_otp,
+                queue="short",
                 delayed=False,
                 job_name="Spark OTP on Email",
             )
