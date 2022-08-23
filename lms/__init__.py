@@ -35,7 +35,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.3.0-uat"
+__version__ = "5.4.0-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -1848,3 +1848,16 @@ def user_kyc_hashing(user_kyc):
         i.ident_num = user_details_hashing(i.ident_num)
 
     return user_kyc
+
+
+# Convert datetime into cron expression
+def cron_convertor(dt):
+    dt_obj = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
+    print("dt", dt)
+    print("obj", type(dt_obj))
+    return f"{dt_obj.minute} {dt_obj.hour} {dt_obj.day} {dt_obj.month} *"
+
+
+def split_list_into_half(a_list):
+    half = len(a_list) // 2
+    return a_list[:half], a_list[half:]
