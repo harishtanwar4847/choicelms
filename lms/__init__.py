@@ -15,11 +15,11 @@ import razorpay
 import requests
 import utils
 from frappe import _
-from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from razorpay.errors import SignatureVerificationError
 
 from lms.config import lms
 from lms.firebase import FirebaseAdmin
+from lms.lms.doctype.user_token.user_token import send_sms
 
 from .exceptions import *
 

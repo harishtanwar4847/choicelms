@@ -11,7 +11,6 @@ import frappe
 import requests
 import utils
 from frappe import _
-from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
 from num2words import num2words
 
@@ -19,6 +18,7 @@ import lms
 from lms.exceptions import PledgeSetupFailureException
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 class LoanApplication(Document):
@@ -943,7 +943,6 @@ class LoanApplication(Document):
         return total_successful_pledge
 
     def notify_customer(self):
-        from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
         doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
         doc["loan_application"] = {
@@ -1087,7 +1086,6 @@ class LoanApplication(Document):
             receiver_list = list(
                 set([str(self.get_customer().phone), str(doc.mobile_number)])
             )
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 

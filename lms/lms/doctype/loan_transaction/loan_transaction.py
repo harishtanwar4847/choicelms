@@ -12,12 +12,12 @@ import frappe
 import razorpay
 import requests
 from frappe import _
-from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
 
 import lms
 from lms import convert_sec_to_hh_mm_ss
 from lms.firebase import FirebaseAdmin
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 class LoanTransaction(Document):
@@ -249,7 +249,6 @@ class LoanTransaction(Document):
                         ]
                     )
                 )
-                from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
@@ -299,8 +298,6 @@ class LoanTransaction(Document):
                 message = fcm_notification.message.format(
                     requested=self.requested, disbursed=self.disbursed
                 )
-
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             if mess:
                 frappe.enqueue(
@@ -488,8 +485,6 @@ class LoanTransaction(Document):
             customer = self.get_loan().get_customer()
             if self.status == "Rejected":
                 mess = "Dear Customer,\nSorry! Your withdrawal request has been rejected by our lending partner for technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
-
-                from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
                 doc["withdrawal"] = {"status": self.status}
