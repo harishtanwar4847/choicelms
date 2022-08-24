@@ -2645,33 +2645,33 @@ def get_profile_set_alerts(**kwargs):
             filters={"customer": customer.name, "application_type": "New Loan"},
             fields=["*"],
         )
-        if loan_application[0].status == "Approved":
-            loan = frappe.get_all(
-                "Loan",
-                filters={"customer": customer.name},
-                fields=["*"],
-            )
-            res = {
-                "customer_details": customer,
-                "loan_application_status": loan_application[0].status,
-                "loan_name": loan[0].name,
-                "instrument_type": loan_application[0].instrument_type,
-                "pledgor_boid": loan_application[0].pledgor_boid,
-                "user_kyc": user_kyc,
-                "last_login": last_login_time,
-                "profile_picture_file_url": profile_picture_file_url,
-            }
+        loan = frappe.get_all(
+            "Loan",
+            filters={"customer": customer.name},
+            fields=["*"],
+        )
+        loan_name = ""
+        if loan_application:
+            status = loan_application[0].status
+            instrument_type = loan_application[0].instrument_type
+            pledgor_boid = loan_application[0].pledgor_boid
+            if status == "Approved":
+                if loan:
+                    loan_name = loan[0].name
         else:
-            res = {
-                "customer_details": customer,
-                "loan_application_status": loan_application[0].status,
-                "loan_name": "",
-                "instrument_type": loan_application[0].instrument_type,
-                "pledgor_boid": loan_application[0].pledgor_boid,
-                "user_kyc": user_kyc,
-                "last_login": last_login_time,
-                "profile_picture_file_url": profile_picture_file_url,
-            }
+            status = ""
+            instrument_type = ""
+            pledgor_boid = ""
+        res = {
+            "customer_details": customer,
+            "loan_application_status": status,
+            "loan_name": loan_name,
+            "instrument_type": instrument_type,
+            "pledgor_boid": pledgor_boid,
+            "user_kyc": user_kyc,
+            "last_login": last_login_time,
+            "profile_picture_file_url": profile_picture_file_url,
+        }
 
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
