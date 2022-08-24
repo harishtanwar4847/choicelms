@@ -35,7 +35,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.3.0-uat"
+__version__ = "5.4.0-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -1247,22 +1247,28 @@ def update_rzp_payment_transaction(data):
             if loan_transaction.razorpay_event != "Captured":
                 loan_transaction.razorpay_event = razorpay_event
             # If RZP event is failed then update the log
+            if loan_transaction.razorpay_event == "Captured":
+                loan_transaction.workflow_state = "Approved"
+                loan_transaction.status = "Approved"
+                loan_transaction.docstatus = 1
             if loan_transaction.razorpay_event == "Failed":
+                loan_transaction.workflow_state = "Rejected"
+                loan_transaction.status = "Rejected"
                 loan_transaction.razorpay_payment_log = (
                     "<b>code</b> : "
-                    + webhook_main_object["error_code"]
+                    + webhook_main_object.get("error_code")
                     + "\n"
                     + "<b>description</b> : "
-                    + webhook_main_object["error_description"]
+                    + webhook_main_object.get("error_description")
                     + "\n"
                     + "<b>source</b> : "
-                    + webhook_main_object["error_source"]
+                    + webhook_main_object.get("error_source")
                     + "\n"
                     + "<b>step</b> : "
-                    + webhook_main_object["error_step"]
+                    + webhook_main_object.get("error_step")
                     + "\n"
                     + "<b>reason</b> : "
-                    + webhook_main_object["error_reason"]
+                    + webhook_main_object.get("error_reason")
                 )
             else:
                 loan_transaction.razorpay_payment_log = ""
@@ -1305,6 +1311,7 @@ def update_rzp_payment_transaction(data):
 
             loan_transaction.save(ignore_permissions=True)
             frappe.db.commit()
+
             # Send notification depended on events
             if data["event"] == "payment.authorized":
                 # if data["event"] == "payment.authorized" or (loan_transaction.razorpay_event == "Captured" and data["event"] != "payment.authorized"):
@@ -1841,3 +1848,16 @@ def user_kyc_hashing(user_kyc):
         i.ident_num = user_details_hashing(i.ident_num)
 
     return user_kyc
+
+
+# Convert datetime into cron expression
+def cron_convertor(dt):
+    dt_obj = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
+    print("dt", dt)
+    print("obj", type(dt_obj))
+    return f"{dt_obj.minute} {dt_obj.hour} {dt_obj.day} {dt_obj.month} *"
+
+
+def split_list_into_half(a_list):
+    half = len(a_list) // 2
+    return a_list[:half], a_list[half:]

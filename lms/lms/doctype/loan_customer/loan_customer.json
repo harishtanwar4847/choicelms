@@ -216,7 +216,7 @@
   }
  ],
  "links": [],
- "modified": "2022-04-01 17:05:47.943258",
+ "modified": "2022-07-31 21:47:56.146865",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Customer",
@@ -270,6 +270,7 @@
    "write": 1
   }
  ],
+ "search_fields": "full_name",
  "sort_field": "modified",
  "sort_order": "DESC",
  "track_changes": 1
