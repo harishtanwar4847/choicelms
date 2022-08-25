@@ -25,7 +25,6 @@ def client_sanction_details():
             )
             int_config = frappe.get_doc("Interest Configuration", interest_config)
             roi_ = int_config.base_interest * 12
-            print("Loan Name", loan.name)
             start_date = frappe.db.sql(
                 """select cast(creation as date) from `tabLoan` where name = "{}" """.format(
                     loan.name
