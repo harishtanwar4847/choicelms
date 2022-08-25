@@ -21,11 +21,11 @@ import xmltodict
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from frappe import _
-from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from razorpay.errors import SignatureVerificationError
 
 from lms.config import lms
 from lms.firebase import FirebaseAdmin
+from lms.lms.doctype.user_token.user_token import send_sms
 
 from .exceptions import *
 
@@ -1853,8 +1853,6 @@ def user_kyc_hashing(user_kyc):
 # Convert datetime into cron expression
 def cron_convertor(dt):
     dt_obj = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
-    print("dt", dt)
-    print("obj", type(dt_obj))
     return f"{dt_obj.minute} {dt_obj.hour} {dt_obj.day} {dt_obj.month} *"
 
 

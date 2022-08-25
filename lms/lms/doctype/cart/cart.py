@@ -11,6 +11,7 @@ from frappe.model.document import Document
 
 import lms
 from lms.exceptions import PledgeSetupFailureException
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 class Cart(Document):
@@ -161,7 +162,6 @@ class Cart(Document):
                 receiver_list.append(str(self.get_customer().get_kyc().choice_mob_no))
 
             receiver_list = list(set(receiver_list))
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
@@ -200,7 +200,6 @@ class Cart(Document):
                     receiver_list.append(str(doc.choice_mob_no))
 
                 receiver_list = list(set(receiver_list))
-                from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
         return loan_application
