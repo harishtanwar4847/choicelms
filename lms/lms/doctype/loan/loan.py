@@ -8,7 +8,6 @@ import json
 from datetime import datetime, timedelta
 
 import frappe
-from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
 from num2words import num2words
 
@@ -16,6 +15,7 @@ import lms
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype import loan_transaction
 from lms.lms.doctype.loan_transaction.loan_transaction import LoanTransaction
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 class Loan(Document):
@@ -1356,9 +1356,6 @@ class Loan(Document):
                                 receiver_list.append(str(doc.choice_mob_no))
 
                             receiver_list = list(set(receiver_list))
-                            from frappe.core.doctype.sms_settings.sms_settings import (
-                                send_sms,
-                            )
 
                             frappe.enqueue(
                                 method=send_sms, receiver_list=receiver_list, msg=msg
@@ -1508,9 +1505,6 @@ class Loan(Document):
                                 receiver_list.append(str(doc.choice_mob_no))
 
                             receiver_list = list(set(receiver_list))
-                            from frappe.core.doctype.sms_settings.sms_settings import (
-                                send_sms,
-                            )
 
                             frappe.enqueue(
                                 method=send_sms, receiver_list=receiver_list, msg=msg
@@ -1659,9 +1653,6 @@ class Loan(Document):
                                     receiver_list.append(str(doc.choice_mob_no))
 
                                 receiver_list = list(set(receiver_list))
-                                from frappe.core.doctype.sms_settings.sms_settings import (
-                                    send_sms,
-                                )
 
                                 frappe.enqueue(
                                     method=send_sms,
@@ -1809,9 +1800,6 @@ class Loan(Document):
                                     receiver_list.append(str(doc.choice_mob_no))
 
                                 receiver_list = list(set(receiver_list))
-                                from frappe.core.doctype.sms_settings.sms_settings import (
-                                    send_sms,
-                                )
 
                                 frappe.enqueue(
                                     method=send_sms,

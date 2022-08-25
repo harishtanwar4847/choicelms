@@ -34,7 +34,6 @@ frappe.ui.form.on("Lender", {
 });
 frappe.ui.form.on("Concentration Rule", {
   concentration_rule_add(frm, cdt, cdn) {
-    console.log(frm.fields_dict["concentration_rule"].grid.wrapper);
     if (frm.doc.concentration_rule.length > 9) {
       $(".grid-add-row").hide();
       // frm.fields_dict["concentration_rule"].grid.wrapper.find(".grid-delete-row").hide();

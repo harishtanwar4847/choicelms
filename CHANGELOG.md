@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.4.0-uat]
+
+## Added
+
+- [Feat: Spark email campaign](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/521)
+
 ## [v5.3.0-uat]
 
 ## Added
