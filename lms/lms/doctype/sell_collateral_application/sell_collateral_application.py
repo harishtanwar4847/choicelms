@@ -706,6 +706,13 @@ def validate_invoc(sell_collateral_application_name):
                     )
                     data["invocvalidate"]["schemedetails"].append(schemedetails[0])
 
+                print("Data :", data)
+                lms.create_log(
+                    {
+                        "json_payload": data,
+                    },
+                    "invoke_validate_request",
+                )
                 encrypted_data = lms.AESCBC(
                     las_settings.encryption_key, las_settings.iv
                 ).encrypt(json.dumps(data))
@@ -715,6 +722,7 @@ def validate_invoc(sell_collateral_application_name):
                 resp = requests.post(
                     url=url, headers=headers, data=json.dumps(req_data)
                 ).text
+                print("resp :", resp)
 
                 encrypted_response = (
                     json.loads(resp).get("res").replace("-", "+").replace("_", "/")
@@ -726,12 +734,11 @@ def validate_invoc(sell_collateral_application_name):
 
                 lms.create_log(
                     {
-                        "json_payload": data,
                         "encrypted_request": encrypted_data,
                         "encrypred_response": json.loads(resp).get("res"),
                         "decrypted_response": dict_decrypted_response,
                     },
-                    "invoke_validate",
+                    "invoke_validate_response",
                 )
 
                 if dict_decrypted_response.get("invocvalidate"):
@@ -770,7 +777,7 @@ def validate_invoc(sell_collateral_application_name):
                 sell_collateral_application_doc.save(ignore_permissions=True)
                 frappe.db.commit()
 
-            except requests.RequestException as e:
+            except Exception as e:
                 raise utils.exceptions.APIException(str(e))
         else:
             frappe.throw(frappe._("Mycams Email ID is missing"))
@@ -845,6 +852,12 @@ def initiate_invoc(sell_collateral_application_name):
                     )
                     data["invocinitiate"]["schemedetails"].append(schemedetails[0])
 
+                lms.create_log(
+                    {
+                        "json_payload": data,
+                    },
+                    "invoke_initiate_request",
+                )
                 encrypted_data = lms.AESCBC(
                     las_settings.encryption_key, las_settings.iv
                 ).encrypt(json.dumps(data))
@@ -865,12 +878,11 @@ def initiate_invoc(sell_collateral_application_name):
 
                 lms.create_log(
                     {
-                        "json_payload": data,
                         "encrypted_request": encrypted_data,
                         "encrypred_response": json.loads(resp).get("res"),
                         "decrypted_response": dict_decrypted_response,
                     },
-                    "invoke_initiate",
+                    "invoke_initiate_response",
                 )
 
                 if dict_decrypted_response.get("invocinitiate"):
@@ -929,7 +941,7 @@ def initiate_invoc(sell_collateral_application_name):
                 sell_collateral_application_doc.save(ignore_permissions=True)
                 frappe.db.commit()
 
-            except requests.RequestException as e:
+            except Exception as e:
                 raise utils.exceptions.APIException(str(e))
         else:
             frappe.throw(frappe._("Mycams Email ID is missing"))
