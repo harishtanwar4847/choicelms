@@ -13,6 +13,7 @@ from rsa import decrypt
 import lms
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 class SellCollateralApplication(Document):
@@ -242,7 +243,6 @@ class SellCollateralApplication(Document):
                 receiver_list.append(str(self.get_customer().get_kyc().choice_mob_no))
 
             receiver_list = list(set(receiver_list))
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
@@ -583,7 +583,6 @@ class SellCollateralApplication(Document):
                 receiver_list.append(str(self.get_customer().get_kyc().choice_mob_no))
 
             receiver_list = list(set(receiver_list))
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
         # loan.update_loan_balance()
@@ -649,7 +648,6 @@ import requests
 @frappe.whitelist()
 def validate_invoc(sell_collateral_application_name):
     try:
-        print(sell_collateral_application_name, "sell_collateral_application_name")
         try:
             sell_collateral_application_doc = frappe.get_doc(
                 "Sell Collateral Application", sell_collateral_application_name

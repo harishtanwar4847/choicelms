@@ -11,6 +11,7 @@ from frappe.model.document import Document
 from num2words import num2words
 
 import lms
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 class TopupApplication(Document):
@@ -514,8 +515,6 @@ class TopupApplication(Document):
         }
 
     def notify_customer(self):
-        from frappe.core.doctype.sms_settings.sms_settings import send_sms
-
         doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
         doc["top_up_application"] = {
             "status": self.status,

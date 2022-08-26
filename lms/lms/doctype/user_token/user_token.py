@@ -8,7 +8,6 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-# from frappe.core.doctype.sms_settings.sms_settings import send_sms
 import lms
 
 
@@ -114,7 +113,6 @@ class UserToken(Document):
                 token=self.token,
                 # expiry_in_minutes=expiry_in_minutes,
             )
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=[self.entity], msg=mess)
         elif self.token_type == "Email Verification Token":
@@ -167,7 +165,6 @@ class UserToken(Document):
             #     doc=user_doc,
             # )
             if doc:
-                print("Doc", doc)
                 email_otp = frappe.db.sql(
                     "select message from `tabNotification` where name='Other OTP for Spark Loans';"
                 )[0][0]
@@ -220,7 +217,6 @@ class UserToken(Document):
                     receiver_list.append(str(mob_num))
 
                 receiver_list = list(set(receiver_list))
-                from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
@@ -328,20 +324,7 @@ def send_request(gateway_url, params, headers=None, use_post=False):
         "params": params,
         "response": response.json(),
     }
-    lms.create_log(log, "send_request")
-    import os
-
-    sms_log_file = frappe.utils.get_files_path("sms_log.json")
-    sms_log = None
-    if os.path.exists(sms_log_file):
-        with open(sms_log_file, "r") as f:
-            sms_log = f.read()
-        f.close()
-    sms_log = json.loads(sms_log or "[]")
-    sms_log.append(log)
-    with open(sms_log_file, "w") as f:
-        f.write(json.dumps(sms_log))
-    f.close()
+    lms.create_log(log, "sms_log")
     # SMS LOG end
     response.raise_for_status()
     return response.status_code

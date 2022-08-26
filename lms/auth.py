@@ -9,7 +9,6 @@ from frappe import _
 
 # from frappe.auth import LoginManager, get_login_failed_count
 from frappe.auth import LoginAttemptTracker, get_login_attempt_tracker
-from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.utils.password import (
     check_password,
     delete_login_failed_cache,
@@ -22,6 +21,7 @@ import lms
 # from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 from lms.exceptions import *
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 @frappe.whitelist(allow_guest=True)

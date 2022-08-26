@@ -11,7 +11,6 @@ import frappe
 import requests
 import utils
 from frappe import _
-from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
 from num2words import num2words
 
@@ -19,6 +18,7 @@ import lms
 from lms.exceptions import PledgeSetupFailureException
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 class LoanApplication(Document):
@@ -1495,8 +1495,6 @@ class LoanApplication(Document):
         return total_successful_pledge
 
     def notify_customer(self):
-        from frappe.core.doctype.sms_settings.sms_settings import send_sms
-
         msg_type = "pledge"
         if self.instrument_type == "Mutual Fund":
             msg_type = "lien"
@@ -1687,7 +1685,6 @@ class LoanApplication(Document):
                 receiver_list.append(str(doc.choice_mob_no))
 
             receiver_list = list(set(receiver_list))
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 

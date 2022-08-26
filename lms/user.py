@@ -12,7 +12,6 @@ import pandas as pd
 import requests
 import utils
 from frappe import _
-from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.exceptions import DoesNotExistError
 from frappe.utils.password import check_password, update_password
 from utils.responder import respondWithFailure, respondWithSuccess
@@ -24,6 +23,7 @@ from lms import convert_sec_to_hh_mm_ss, holiday_list
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 from lms.exceptions import *
 from lms.firebase import FirebaseAdmin
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 @frappe.whitelist()
