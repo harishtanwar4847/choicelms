@@ -380,7 +380,7 @@ def get_security_categories(securities, lender, instrument_type="Shares"):
     return security_map
 
 
-def get_allowed_securities(securities, lender, instrument_type="Shares"):
+def get_allowed_securities(securities, lender, instrument_type="Shares", level=None):
 
     select = "als.isin, als.security_name, als.eligible_percentage, sc.category_name as security_category, als.lender"
     allowed = ""
@@ -389,21 +389,29 @@ def get_allowed_securities(securities, lender, instrument_type="Shares"):
         allowed = "and als.allowed = 1"
 
     if type(lender) == list:
-        filter = "in {}".format(convert_list_to_tuple_string(lender))
+        lender = convert_list_to_tuple_string(lender)
+        filter = "in {}".format(lender)
     else:
         filter = "= '{}'".format(lender)
+
+    if level:
+        sub_query = "als.lender {lender_clause} and als.security_category in (select security_category from `tabConcentration Rule` where parent {lender} and idx in {level})".format(
+            lender_clause=filter, lender=filter, level=level
+        )
+    else:
+        sub_query = "als.lender {}".format(filter)
 
     query = """select
 				{select}
 				from `tabAllowed Security` als
                 LEFT JOIN `tabSecurity Category` sc
 				ON als.security_category = sc.name where
-				als.lender {lender}
+				{sub_query}
                 {allowed} and
                 als.instrument_type = '{instrument_type}' and
                 als.isin in {isin}""".format(
         select=select,
-        lender=filter,
+        sub_query=sub_query,
         allowed=allowed,
         instrument_type=instrument_type,
         isin=convert_list_to_tuple_string(securities),
