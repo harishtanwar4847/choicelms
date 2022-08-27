@@ -5427,15 +5427,21 @@ def get_demat_details():
         utils.validator.validate_http_method("GET")
 
         user = lms.__user()
-        user_kyc = lms.__user_kyc(user.name)
+        user_kyc = frappe.get_all(
+            "User KYC",
+            filters={"user": user.name, "kyc_status": ("!=", "Rejected")},
+            fields=["*"],
+        )
         customer = lms.__customer(user.name)
 
         # get demat details from choice
+        print("User kyc", user_kyc)
         las_settings = frappe.get_single("LAS Settings")
         if user_kyc:
+            print("User KYC Status", user_kyc[0].kyc_status)
             payload = {
                 "UserID": las_settings.choice_user_id,
-                "ClientID": user_kyc.pan_no,
+                "ClientID": user_kyc[0].pan_no,
             }
 
             try:

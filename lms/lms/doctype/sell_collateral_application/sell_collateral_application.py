@@ -706,6 +706,14 @@ def validate_invoc(sell_collateral_application_name):
                     )
                     data["invocvalidate"]["schemedetails"].append(schemedetails[0])
 
+                print("Data :", data)
+                lms.create_log(
+                    {
+                        "json_payload": data,
+                        "timestamp": str(frappe.utils.now_datetime()),
+                    },
+                    "invoke_validate_request",
+                )
                 encrypted_data = lms.AESCBC(
                     las_settings.encryption_key, las_settings.iv
                 ).encrypt(json.dumps(data))
@@ -715,6 +723,7 @@ def validate_invoc(sell_collateral_application_name):
                 resp = requests.post(
                     url=url, headers=headers, data=json.dumps(req_data)
                 ).text
+                print("Response :", resp)
 
                 encrypted_response = (
                     json.loads(resp).get("res").replace("-", "+").replace("_", "/")
@@ -726,12 +735,11 @@ def validate_invoc(sell_collateral_application_name):
 
                 lms.create_log(
                     {
-                        "json_payload": data,
                         "encrypted_request": encrypted_data,
                         "encrypred_response": json.loads(resp).get("res"),
                         "decrypted_response": dict_decrypted_response,
                     },
-                    "invoke_validate",
+                    "invoke_validate_response",
                 )
 
                 if dict_decrypted_response.get("invocvalidate"):
@@ -845,6 +853,13 @@ def initiate_invoc(sell_collateral_application_name):
                     )
                     data["invocinitiate"]["schemedetails"].append(schemedetails[0])
 
+                lms.create_log(
+                    {
+                        "json_payload": data,
+                        "timestamp": str(frappe.utils.now_datetime()),
+                    },
+                    "invoke_validate_request",
+                )
                 encrypted_data = lms.AESCBC(
                     las_settings.encryption_key, las_settings.iv
                 ).encrypt(json.dumps(data))
@@ -865,12 +880,11 @@ def initiate_invoc(sell_collateral_application_name):
 
                 lms.create_log(
                     {
-                        "json_payload": data,
                         "encrypted_request": encrypted_data,
                         "encrypred_response": json.loads(resp).get("res"),
                         "decrypted_response": dict_decrypted_response,
                     },
-                    "invoke_initiate",
+                    "invoke_initiate_response",
                 )
 
                 if dict_decrypted_response.get("invocinitiate"):

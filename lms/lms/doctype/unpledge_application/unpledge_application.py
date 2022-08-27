@@ -562,6 +562,14 @@ def validate_revoc(unpledge_application_name):
                     )
                     data["revocvalidate"]["schemedetails"].append(schemedetails[0])
 
+                print("Data :", data)
+                lms.create_log(
+                    {
+                        "json_payload": data,
+                        "timestamp": str(frappe.utils.now_datetime()),
+                    },
+                    "revoke_validate_request",
+                )
                 encrypted_data = lms.AESCBC(
                     las_settings.encryption_key, las_settings.iv
                 ).encrypt(json.dumps(data))
@@ -571,6 +579,7 @@ def validate_revoc(unpledge_application_name):
                 resp = requests.post(
                     url=url, headers=headers, data=json.dumps(req_data)
                 ).text
+                print("Response :", resp)
 
                 encrypted_response = (
                     json.loads(resp).get("res").replace("-", "+").replace("_", "/")
@@ -582,12 +591,11 @@ def validate_revoc(unpledge_application_name):
 
                 lms.create_log(
                     {
-                        "json_payload": data,
                         "encrypted_request": encrypted_data,
                         "encrypred_response": json.loads(resp).get("res"),
                         "decrypted_response": dict_decrypted_response,
                     },
-                    "revoke_validate",
+                    "revoke_validate_response",
                 )
 
                 if dict_decrypted_response.get("revocvalidate"):
@@ -697,6 +705,13 @@ def initiate_revoc(unpledge_application_name):
                     )
                     data["revocinitiate"]["schemedetails"].append(schemedetails[0])
 
+                lms.create_log(
+                    {
+                        "json_payload": data,
+                        "timestamp": str(frappe.utils.now_datetime()),
+                    },
+                    "revoke_initiate_request",
+                )
                 encrypted_data = lms.AESCBC(
                     las_settings.encryption_key, las_settings.iv
                 ).encrypt(json.dumps(data))
@@ -717,12 +732,11 @@ def initiate_revoc(unpledge_application_name):
 
                 lms.create_log(
                     {
-                        "json_payload": data,
                         "encrypted_request": encrypted_data,
                         "encrypred_response": json.loads(resp).get("res"),
                         "decrypted_response": dict_decrypted_response,
                     },
-                    "revoke_initiate",
+                    "revoke_initiate_response",
                 )
 
                 if dict_decrypted_response.get("revocinitiate"):
