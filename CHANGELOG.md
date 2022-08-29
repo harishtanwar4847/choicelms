@@ -6,7 +6,7 @@
 
 ### Added
 
-- [Feat : OTP SMS Template Change](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/453)
+- [Feat : OTP SMS Template Change](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/527)
 
 ## [v3.0.1] - 2022-03-08
 
