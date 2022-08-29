@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v3.1.0] - 2022-02-28
+
+### Added
+
+- [Feat : OTP SMS Template Change](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/453)
+
 ## [v3.0.1] - 2022-03-08
 
 ### Fixed
