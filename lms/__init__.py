@@ -1162,42 +1162,54 @@ def rzp_payment_webhook_callback(**kwargs):
         webhook_secret = frappe.get_single("LAS Settings").razorpay_webhook_secret
 
         headers = {k: v for k, v in frappe.local.request.headers.items()}
-        webhook_signature = headers.get("X-Razorpay-Signature")
-        log = {"rzp_payment_webhook_response": data}
-        create_log(log, "rzp_payment_webhook_log")
+        if frappe.utils.get_url() == "https://" + headers.get(
+            "Host"
+        ) or frappe.utils.get_url() == "https://www." + headers.get("Host"):
+            webhook_signature = headers.get("X-Razorpay-Signature")
+            log = {"rzp_payment_webhook_response": data}
+            create_log(log, "rzp_payment_webhook_log")
 
-        expected_signature = hmac.new(
-            digestmod="sha256",
-            msg=frappe.local.request.data,
-            key=bytes(webhook_secret, "utf-8"),
-        )
-        generated_signature = expected_signature.hexdigest()
-        result = hmac.compare_digest(generated_signature, webhook_signature)
-        if not result:
-            raise SignatureVerificationError("Razorpay Signature Verification Failed")
-
-        # Assign RZP user session for updating loan transaction
-        if rzp_user and result:
-            frappe.session.user = rzp_user[0]["name"]
-
-            if (
-                data
-                and len(data) > 0
-                and data["entity"] == "event"
-                and data["event"]
-                in ["payment.authorized", "payment.captured", "payment.failed"]
-            ):
-                frappe.enqueue(
-                    method="lms.update_rzp_payment_transaction",
-                    data=data,
-                    job_name="Payment Webhook",
+            expected_signature = hmac.new(
+                digestmod="sha256",
+                msg=frappe.local.request.data,
+                key=bytes(webhook_secret, "utf-8"),
+            )
+            generated_signature = expected_signature.hexdigest()
+            result = hmac.compare_digest(generated_signature, webhook_signature)
+            if not result:
+                raise SignatureVerificationError(
+                    "Razorpay Signature Verification Failed"
                 )
-        if not rzp_user:
+
+            # Assign RZP user session for updating loan transaction
+            if rzp_user and result:
+                frappe.session.user = rzp_user[0]["name"]
+
+                if (
+                    data
+                    and len(data) > 0
+                    and data["entity"] == "event"
+                    and data["event"]
+                    in ["payment.authorized", "payment.captured", "payment.failed"]
+                ):
+                    frappe.enqueue(
+                        method="lms.update_rzp_payment_transaction",
+                        data=data,
+                        job_name="Payment Webhook",
+                    )
+            if not rzp_user:
+                frappe.log_error(
+                    message=frappe.get_traceback()
+                    + "\nWebhook details:\n"
+                    + json.dumps(data),
+                    title=_("Payment Webhook RZP User not found Error"),
+                )
+        else:
             frappe.log_error(
                 message=frappe.get_traceback()
-                + "\nWebhook details:\n"
+                + "\nWebhook details:\nThis Webhook is not related to the given host.\n"
                 + json.dumps(data),
-                title=_("Payment Webhook RZP User not found Error"),
+                title=_("Payment Webhook Host Error"),
             )
     except Exception as e:
         frappe.log_error(
