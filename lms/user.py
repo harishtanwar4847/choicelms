@@ -2656,6 +2656,8 @@ def get_profile_set_alerts(**kwargs):
             status = loan_application[0].status
             instrument_type = loan_application[0].instrument_type
             pledgor_boid = loan_application[0].pledgor_boid
+            if status not in ["Approved", "Rejected"]:
+                status = "Pending"
             if status == "Approved":
                 if loan:
                     loan_name = loan[0].name
