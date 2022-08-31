@@ -173,30 +173,75 @@ class LoanApplication(Document):
         lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
-
+        values1 = {"value": "{} Inside before save outside if line 177".format(lender)}
+        lms.create_log(values1, "status_pledge_accepted_by_lender")
+        frappe.logger().info(values1)
         if (
             self.status == "Approved"
             and not self.lender_esigned_document
             and not self.loan_margin_shortfall
             and not self.application_type == "Pledge More"
         ):
+            values2 = {
+                "value": (
+                    self.status,
+                    self.lender_esigned_document,
+                    self.loan_margin_shortfall,
+                    self.application_type,
+                    "inside if line 185",
+                )
+            }
+            lms.create_log(values2, "status_pledge_accepted_by_lender ")
+            frappe.logger().info(values2)
             frappe.throw("Please upload Lender Esigned Document")
         elif self.status == "Approved":
+            values3 = {"value": (self.status, "inside elif2 before save line 189")}
+            lms.create_log(values3, "status_pledge_accepted_by_lender ")
+            frappe.logger().info(values3)
             current = frappe.utils.now_datetime()
             expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
             self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
         elif self.status == "Pledge accepted by Lender":
+            values4 = {"value": (self.status, "inside elif2 before save line 195")}
+            lms.create_log(values4, "status_pledge_accepted_by_lender")
+            frappe.logger().info(values4)
+
             if self.pledge_status == "Failure":
+                values5 = {
+                    "value": (
+                        self.pledge_status,
+                        "inside elif's if before save line 199",
+                    )
+                }
+                lms.create_log(values5, "status_pledge_accepted_by_lender")
+                frappe.logger().info(values5)
                 frappe.throw("Sorry! Pledge for this Loan Application is failed.")
 
             total_approved = 0
             total_collateral_value = 0
 
+            values6 = {"value": ("outside for before save line 206")}
+            lms.create_log(values6, "status_pledge_accepted_by_lender")
+            frappe.logger().info(values6)
+
             for i in self.items:
+                values7 = {"value": (i, "inside for before save line210")}
+                lms.create_log(values7, "status_pledge_accepted_by_lender")
+                frappe.logger().info(values7)
+
                 if i.get("pledge_status") == "Failure" and i.lender_approval_status in [
                     "Approved",
                     "Rejected",
                 ]:
+                    values8 = {
+                        "value": (
+                            i.get("pledge_status"),
+                            (i.lender_approval_status),
+                            "inside for's if before save line217",
+                        )
+                    }
+                    lms.create_log(values8, "status_pledge_accepted_by_lender")
+                    frappe.logger().info(values8)
                     frappe.throw(
                         "Pledge failed for ISIN - {}, can't Approve or Reject".format(
                             i.isin
@@ -204,7 +249,25 @@ class LoanApplication(Document):
                     )
 
                 elif i.get("pledge_status") == "Success":
+                    values9 = {
+                        "value": (
+                            i.get("pledge_status"),
+                            "inside for's elif before save line226",
+                        )
+                    }
+                    lms.create_log(values9, "status_pledge_accepted_by_lender")
+                    frappe.logger().info(values9)
+
                     if i.lender_approval_status == "Pledge Failure":
+                        values10 = {
+                            "value": (
+                                (i.lender_approval_status),
+                                "inside for's elif's if before save line230",
+                            )
+                        }
+                        lms.create_log(values10, "status_pledge_accepted_by_lender")
+                        frappe.logger().info(values10)
+
                         frappe.throw(
                             "Already pledge success for {}, not allowed to set Pledge Failure.".format(
                                 i.isin
@@ -212,13 +275,34 @@ class LoanApplication(Document):
                         )
 
                     elif i.lender_approval_status == "":
+                        values11 = {
+                            "value": (
+                                (i.lender_approval_status),
+                                "inside for's elif if before save line240",
+                            )
+                        }
+                        frappe.logger().info(values11)
+                        lms.create_log(values11, "status_pledge_accepted_by_lender")
                         frappe.throw("Please Approve/Reject {}".format(i.isin))
 
                     if i.lender_approval_status == "Approved":
+                        values31 = {
+                            "value": (
+                                (i.lender_approval_status),
+                                "inside for's elif's if before save line245",
+                            )
+                        }
+                        lms.create_log(values31, "status_pledge_accepted_by_lender")
+                        frappe.logger().info(values31)
                         total_approved += 1
                         total_collateral_value += i.amount
 
             if total_approved == 0:
+                values12 = {
+                    "value": ((total_approved), "inside if before save line251")
+                }
+                lms.create_log(values12, "status_pledge_accepted_by_lender")
+                frappe.logger().info(values12)
                 frappe.throw(
                     "Please Approve atleast one item or Reject the Loan Application"
                 )
@@ -254,19 +338,57 @@ class LoanApplication(Document):
             )
 
             if self.application_type in ["New Loan", "Increase Loan"]:
+                values13 = {
+                    "value": ((self.application_type), "inside if before save line288")
+                }
+                lms.create_log(values13, "status_pledge_accepted_by_lender")
+                frappe.logger().info(values13)
+
                 if drawing_power < self.minimum_sanctioned_limit:
+                    values14 = {
+                        "value": (
+                            drawing_power,
+                            self.minimum_sanctioned_limit,
+                            "inside if before save line292",
+                        )
+                    }
+                    lms.create_log(values14, "status_pledge_accepted_by_lender")
+                    frappe.logger().info(values14)
                     frappe.throw(
                         "Sorry! This Loan Application can not be Approved as its Drawing power is less than Minimum Sanctioned Limit."
                     )
 
         if self.status == "Pledge executed":
             total_collateral_value = 0
+            values15 = {"value": (self.status, "inside if before save line300")}
+            lms.create_log(values15, "status_pledge_accepted_by_lender")
+            frappe.logger().info(values15)
             for i in self.items:
+                values16 = {"value": (i, "inside if before save line303")}
+                lms.create_log(values16, "status_pledge_accepted_by_lender")
+                frappe.logger().info(values16)
+
                 if i.pledge_status == "Success" or i.pledge_status == "":
+                    values17 = {
+                        "value": (
+                            i.pledge_status,
+                            "inside second for's if before save line307",
+                        )
+                    }
+                    lms.create_log(values17, "status_pledge_accepted_by_lender")
+                    frappe.logger().info(values17)
                     if (
                         i.lender_approval_status == "Approved"
                         or i.lender_approval_status == ""
                     ):
+                        values18 = {
+                            "value": (
+                                i.lender_approval_status,
+                                "inside 2nd for's if before save line313",
+                            )
+                        }
+                        lms.create_log(values18, "status_pledge_accepted_by_lender")
+                        frappe.logger().info(values18)
                         total_collateral_value += i.amount
                         self.total_collateral_value = round(total_collateral_value, 2)
                         drawing_power = round(
@@ -280,6 +402,16 @@ class LoanApplication(Document):
                             if drawing_power < self.maximum_sanctioned_limit
                             else self.maximum_sanctioned_limit
                         )
+                        values19 = {
+                            "value": (
+                                total_collateral_value,
+                                self.total_collateral_value,
+                                self.drawing_power,
+                                "inside 2nd for's if before save line328",
+                            )
+                        }
+                        lms.create_log(values19, "status_pledge_accepted_by_lender")
+                        frappe.logger().info(values19)
 
                     # elif (
                     #     i.lender_approval_status == "Rejected"
@@ -300,7 +432,13 @@ class LoanApplication(Document):
 
         # On loan application rejection mark lender approvel status as rejected in loan application items
         if self.status == "Rejected":
+            values20 = {"value": (self.status, "inside if before save line350")}
+            lms.create_log(values20, "status_pledge_accepted_by_lender")
+            frappe.logger().info(values20)
             for i in self.items:
+                values21 = {"value": (i, "inside if before save")}
+                lms.create_log(values21, "status_pledge_accepted_by_lender line354")
+                frappe.logger().info(values21)
                 i.lender_approval_status = "Rejected"
 
         self.total_collateral_value_str = lms.amount_formatter(
@@ -314,24 +452,52 @@ class LoanApplication(Document):
     def on_update(self):
         if self.status == "Approved":
             if not self.loan:
+                values21 = {"value": (self.status, "inside if on update line368")}
+                lms.create_log(values21, "status_pledge_accepted_by_lender")
+                frappe.logger().info(values21)
                 loan = self.create_loan()
             else:
+                values21 = {"value": (self.status, "inside else on update line372")}
+                lms.create_log(values21, "status_pledge_accepted_by_lender")
+                frappe.logger().info(values21)
                 loan = self.update_existing_loan()
             frappe.db.commit()
 
             if not self.loan:
                 # new loan agreement mapping
+                values22 = {"value": (self.loan, "inside 2nd if  on update line379")}
+                lms.create_log(values22, "status_pledge_accepted_by_lender")
+                frappe.logger().info(values22)
                 self.map_loan_agreement_file(loan)
             elif (
                 self.loan
                 and self.lender_esigned_document
                 and not self.loan_margin_shortfall
             ):
+                values23 = {
+                    "value": (
+                        self.loan,
+                        self.lender_esigned_document,
+                        self.loan_margin_shortfall,
+                        "inside elif on update line387",
+                    )
+                }
+                lms.create_log(values23, "status_pledge_accepted_by_lender")
+                frappe.logger().info(values23)
                 # increase loan agreement mapping
                 self.map_loan_agreement_file(loan, increase_loan=True)
 
             if self.loan_margin_shortfall:
                 # if shortfall is not recoverd then margin shortfall status will change from request pending to pending
+                values24 = {
+                    "value": (
+                        self.loan_margin_shortfall,
+                        "inside if 3rd on update line394",
+                    )
+                }
+                lms.create_log(values24, "status_pledge_accepted_by_lender")
+                frappe.logger().info(values24)
+
                 loan_margin_shortfall = frappe.get_doc(
                     "Loan Margin Shortfall", self.loan_margin_shortfall
                 )
@@ -367,6 +533,18 @@ class LoanApplication(Document):
                         "loan_margin_shortfall": loan_margin_shortfall.name,
                     },
                 )
+
+                values25 = {
+                    "value": (
+                        loan_margin_shortfall,
+                        under_process_la,
+                        pending_loan_transaction,
+                        pending_sell_collateral_application,
+                        "inside if 3rd on update line433",
+                    )
+                }
+                lms.create_log(values25, "status_pledge_accepted_by_lender")
+                frappe.logger().info(values25)
                 if (
                     (
                         not pending_loan_transaction
@@ -376,6 +554,18 @@ class LoanApplication(Document):
                     and loan_margin_shortfall.status == "Request Pending"
                     and loan_margin_shortfall.shortfall_percentage > 0
                 ):
+                    values26 = {
+                        "value": (
+                            loan_margin_shortfall,
+                            under_process_la,
+                            pending_loan_transaction,
+                            pending_sell_collateral_application,
+                            "inside if 3rd on update line444",
+                        )
+                    }
+                    lms.create_log(values26, "status_pledge_accepted_by_lender")
+                    frappe.logger().info(values26)
+
                     loan_margin_shortfall.status = "Pending"
                     loan_margin_shortfall.save(ignore_permissions=True)
                     frappe.db.commit()
@@ -383,13 +573,40 @@ class LoanApplication(Document):
         elif self.status == "Pledge accepted by Lender":
             approved_isin_list = []
             rejected_isin_list = []
+            values27 = {"value": (self.status, "inside elif 3rd on update line454")}
+            lms.create_log(values27, "status_pledge_accepted_by_lender")
+            frappe.logger().info(values27)
             for i in self.items:
+                values27 = {"value": (i, "inside if 3rd on update line457")}
+                lms.create_log(values27, "status_pledge_accepted_by_lender")
+                frappe.logger().info(values27)
                 if i.lender_approval_status == "Approved":
+                    values28 = {
+                        "value": (
+                            i.lender_approval_status,
+                            "inside for's if 3rd on update line460",
+                        )
+                    }
+                    lms.create_log(values28, "status_pledge_accepted_by_lender")
+                    frappe.logger().info(values28)
                     approved_isin_list.append(i.isin)
                 elif i.lender_approval_status == "Rejected":
+                    values28 = {
+                        "value": (
+                            i.lender_approval_status,
+                            "inside elif 3rd on update line464",
+                        )
+                    }
+                    lms.create_log(values28, "status_pledge_accepted_by_lender")
+                    frappe.logger().info(values28)
                     rejected_isin_list.append(i.isin)
 
             if len(approved_isin_list) > 0:
+                values29 = {
+                    "value": (approved_isin_list, "inside len if 3rd on update line469")
+                }
+                lms.create_log(values29, "status_pledge_accepted_by_lender")
+                frappe.logger().info(values29)
                 self.update_collateral_ledger(
                     {"lender_approval_status": "Approved"},
                     "application_doctype = 'Loan Application' and application_name = '{}' and isin IN {}".format(
@@ -398,6 +615,14 @@ class LoanApplication(Document):
                 )
 
             if len(rejected_isin_list) > 0:
+                values29 = {
+                    "value": (
+                        rejected_isin_list,
+                        "inside len len if 3rd on update line479",
+                    )
+                }
+                lms.create_log(values29, "status_pledge_accepted_by_lender")
+                frappe.logger().info(values29)
                 self.update_collateral_ledger(
                     {"lender_approval_status": "Rejected"},
                     "application_doctype = 'Loan Application' and application_name = '{}' and isin IN {}".format(
@@ -412,6 +637,9 @@ class LoanApplication(Document):
                     },
                     tokens=lms.get_firebase_tokens(self.get_customer().user),
                 )
+                values30 = {"value": (fa, "inside len len if 3rd on update line495")}
+                lms.create_log(values30, "status_pledge_accepted_by_lender")
+                frappe.logger().info(values30)
             except Exception:
                 pass
             finally:
@@ -455,6 +683,16 @@ class LoanApplication(Document):
                         "loan_margin_shortfall": loan_margin_shortfall.name,
                     },
                 )
+                values30 = {
+                    "value": (
+                        loan_margin_shortfall,
+                        pending_sell_collateral_application,
+                        pending_loan_transaction,
+                        "inside len len if 3rd on update line540",
+                    )
+                }
+                lms.create_log(values30, "status_pledge_accepted_by_lender")
+                frappe.logger().info(values30)
                 if (
                     (
                         not pending_loan_transaction
@@ -469,14 +707,31 @@ class LoanApplication(Document):
                     frappe.db.commit()
 
             if not self.loan and not self.loan_margin_shortfall:
+                values30 = {"value": ("True inside len len if 3rd on update line556")}
+                lms.create_log(values30, "status_pledge_accepted_by_lender")
                 customer = self.get_customer()
                 if customer.pledge_securities:
                     customer.pledge_securities = 0
                     customer.save(ignore_permissions=True)
                     frappe.db.commit()
+                    values30 = {
+                        "value": (
+                            customer.pledge_securities,
+                            "inside len len if 3rd on update line495",
+                        )
+                    }
+                    lms.create_log(values30, "status_pledge_accepted_by_lender")
 
             # On loan application rejection mark lender approvel status as rejected in collateral ledger as well 23-09-2021 Poonam
             loan_application_isin_list = [i.isin for i in self.items]
+            values30 = {
+                "value": (
+                    loan_application_isin_list,
+                    "inside len len if 3rd on update line495",
+                )
+            }
+            lms.create_log(values30, "status_pledge_accepted_by_lender")
+            frappe.logger().info(values30)
 
             self.update_collateral_ledger(
                 {"lender_approval_status": "Rejected"},
@@ -1243,7 +1498,6 @@ def process_pledge(loan_application_name=""):
 
     current_hour = int(utils.nowtime().split(":")[0])
     las_settings = frappe.get_single("LAS Settings")
-
     if (
         las_settings.scheduler_from_time
         <= current_hour
@@ -1255,12 +1509,10 @@ def process_pledge(loan_application_name=""):
             fields=["count(name) as count", "status"],
             filters={"status": "Executing pledge"},
         )
-
         if is_pledge_executing[0].count == 0:
             filters_query = {"status": "Waiting to be pledged"}
             if loan_application_name:
                 filters_query["name"] = loan_application_name
-
             loan_application = frappe.get_all(
                 "Loan Application",
                 fields="name, creation",
@@ -1290,11 +1542,13 @@ def only_pdf_upload(doc, method):
 
 @frappe.whitelist()
 def actions_on_isin(loan_application):
+    print("Inside Actions on isin")
     loan_application = json.loads(loan_application)
     loan_application_doc = frappe.get_doc("Loan Application", loan_application["name"])
     if loan_application_doc.status == "Pledge executed":
         total_collateral_value = 0
         drawing_power = 0
+        print("inside internal if")
         for i in loan_application["items"]:
             if i["pledge_status"] == "Success" or i["pledge_status"] == "":
                 if (
@@ -1337,5 +1591,5 @@ def actions_on_isin(loan_application):
                 loan_application["pledged_total_collateral_value"]
             ),
         }
-
+        lms.create_log(response, "status_pledge_accepted_by_lender")
         return response
