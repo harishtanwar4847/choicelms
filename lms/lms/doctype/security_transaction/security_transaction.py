@@ -51,7 +51,7 @@ def security_transaction():
                         psn=i.psn,
                         qty=qty,
                         rate=i.price,
-                        value=i.value,
+                        value=-(i.value) if qty < 0 else i.value,
                         creation_date=frappe.utils.now_datetime().date(),
                     ),
                 ).insert(ignore_permissions=True)
@@ -61,6 +61,12 @@ def security_transaction():
             message=frappe.get_traceback(),
             title=frappe._("Security Transaction"),
         )
+
+
+def color_negative_red(objects):
+    if type(objects) in [int, float]:
+        color = "red" if objects < 0 else "black"
+        return "color: %s" % color
 
 
 @frappe.whitelist()
@@ -123,6 +129,10 @@ def excel_generator(doc_filters):
         float(val),
     ]
     df_new.drop("Creation Date", axis=1, inplace=True)
+    df_new = df_new.style.applymap(
+        color_negative_red,
+        subset=pd.IndexSlice[:, ["Value"]],
+    )
     file_name = "security_transaction_{}".format(frappe.utils.now_datetime())
     sheet_name = "Security Transaction"
     return lms.download_file(
