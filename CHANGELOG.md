@@ -2,11 +2,17 @@
 
 ## [Unreleased]
 
-## [v3.1.0] -
+## [v3.2.0] -
 
 ### Added
 
 - [Feat: Spark app version doctype and api changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/518)
+
+## [v3.1.0] - 2022-09-01
+
+### Added
+
+- [Feat : OTP SMS Template Change](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/527)
 
 ## [v3.0.1] - 2022-03-08
 
