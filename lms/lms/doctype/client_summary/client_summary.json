@@ -19,7 +19,8 @@
   "client_demat_acc",
   "customer_contact_no",
   "loan_expiry_date",
-  "dpd"
+  "dpd",
+  "amended_from"
  ],
  "fields": [
   {
@@ -42,19 +43,19 @@
   {
    "fetch_from": "loan_name.sanctioned_limit",
    "fieldname": "sanctioned_amount",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Sanctioned Amount"
   },
   {
    "fetch_from": "loan_name.total_collateral_value",
    "fieldname": "pledged_value",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Pledged Value"
   },
   {
    "fetch_from": "loan_name.drawing_power",
    "fieldname": "drawing_power",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Drawing Power"
   },
   {
@@ -63,17 +64,17 @@
   },
   {
    "fieldname": "loan_balance",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Loan Balance"
   },
   {
    "fieldname": "adp_shortfall",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Available Drawing Power /Shortfall "
   },
   {
    "fieldname": "roi_",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "ROI %"
   },
   {
@@ -112,11 +113,20 @@
    "fieldname": "creation_date",
    "fieldtype": "Date",
    "label": "Doc Creation Date"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Client Summary",
+   "print_hide": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-09-01 13:15:37.197580",
+ "modified": "2022-09-02 10:07:56.027203",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Client Summary",

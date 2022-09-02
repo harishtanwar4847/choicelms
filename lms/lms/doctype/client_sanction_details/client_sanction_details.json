@@ -41,13 +41,13 @@
   },
   {
    "fieldname": "start_date",
-   "fieldtype": "Date",
+   "fieldtype": "Data",
    "label": "Start Date"
   },
   {
    "fetch_from": "loan_no.expiry_date",
    "fieldname": "end_date",
-   "fieldtype": "Date",
+   "fieldtype": "Data",
    "label": "End Date"
   },
   {
@@ -73,7 +73,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-09-01 13:15:01.000590",
+ "modified": "2022-09-02 10:09:05.773508",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Client Sanction Details",
