@@ -450,7 +450,7 @@ class LoanApplication(Document):
         )
 
     def on_update(self):
-        print("print")
+        print("Prod")
         if self.status == "Approved":
             if not self.loan:
                 values21 = {"value": (self.status, "inside if on update line368")}
