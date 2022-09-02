@@ -7,6 +7,7 @@ frappe.ui.form.on("Loan Application", {
     if (!is_true || frappe.session.user == "Administrator") {
       if (["Approved", "Rejected"].includes(frm.doc.status)) {
         frm.set_df_property("items", "read_only", 1);
+        frm.set_df_property("expiry_date", "read_only", 1);
         frm.set_df_property("pledge_status", "read_only", 1);
         frm.set_df_property("instrument_type", "read_only", 1);
         frm.set_df_property("scheme_type", "read_only", 1);

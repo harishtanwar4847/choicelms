@@ -271,14 +271,14 @@ class LoanApplication(Document):
             self.save(ignore_permissions=True)
             frappe.db.commit()
 
-            expiry = frappe.utils.add_years(frappe.utils.now_datetime(), 1) - timedelta(
-                days=1
-            )
-            self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
+            # expiry = frappe.utils.add_years(frappe.utils.now_datetime(), 1) - timedelta(
+            #     days=1
+            # )
+            # self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
             for i in self.items:
                 collateral_ledger_data = {
                     "prf": i.prf_number,
-                    "expiry": self.expiry_date,
+                    # "expiry": self.expiry_date,
                     "pledgor_boid": self.pledgor_boid,
                     "pledgee_boid": self.pledgee_boid,
                     "amc_code": i.amc_code,
@@ -570,6 +570,9 @@ class LoanApplication(Document):
                     frappe.db.commit()
 
     def before_save(self):
+        user_roles = frappe.db.get_values(
+            "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
+        )
         lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
@@ -582,9 +585,10 @@ class LoanApplication(Document):
         ):
             frappe.throw("Please upload Lender Esigned Document")
         elif self.status == "Approved":
-            current = frappe.utils.now_datetime()
-            expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
-            self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
+            if "Loan Customer" in user_roles:
+                current = frappe.utils.now_datetime()
+                expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
+                self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
         elif self.status == "Pledge accepted by Lender":
             if self.pledge_status == "Failure":
                 frappe.throw("Sorry! Pledge for this Loan Application is failed.")
