@@ -14,6 +14,8 @@
   "account_renewal_charges",
   "security_selling_share",
   "cic_charges",
+  "requestor_name",
+  "pledgee_dp_id",
   "column_break_1",
   "gst_id",
   "registered_date",
@@ -22,6 +24,8 @@
   "rebait_threshold",
   "default_interest_threshold",
   "is_active",
+  "requestor_id",
+  "pledgee_client_id",
   "sanction_limit_values_section",
   "minimum_sanctioned_limit",
   "column_break_19",
@@ -899,10 +903,30 @@
    "fieldtype": "Float",
    "label": "IGST on Account renewal charges (Percent)",
    "precision": "2"
+  },
+  {
+   "fieldname": "requestor_name",
+   "fieldtype": "Data",
+   "label": "Requestor Name"
+  },
+  {
+   "fieldname": "requestor_id",
+   "fieldtype": "Data",
+   "label": "Requestor id"
+  },
+  {
+   "fieldname": "pledgee_dp_id",
+   "fieldtype": "Data",
+   "label": "Pledgee dp id"
+  },
+  {
+   "fieldname": "pledgee_client_id",
+   "fieldtype": "Data",
+   "label": "Pledgee client id"
   }
  ],
  "links": [],
- "modified": "2022-07-20 14:41:34.963293",
+ "modified": "2022-09-05 12:10:55.379194",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
