@@ -5692,7 +5692,6 @@ def securities_latest(**kwargs):
                         "request": payload,
                         "response": res_json,
                     }
-
                     lms.create_log(log, "securities_log")
                     frappe.logger().info(res_json)
                     if res_json["Status"] != "Success":
@@ -5777,10 +5776,11 @@ def securities_latest(**kwargs):
                 securities_category_map = lms.get_allowed_securities(
                     securities_list_, lender_list, instrument_type, levels
                 )
+
                 securities_category_map_list = []
+                for i in securities_category_map:
+                    securities_category_map_list.append(i)
                 if securities_category_map_list:
-                    for i in securities_category_map:
-                        securities_category_map_list.append(i)
                     pledge_waiting_securitites = frappe.db.sql(
                         """
                         SELECT GROUP_CONCAT(la.name) as loan_application, la.pledgor_boid,
