@@ -84,12 +84,12 @@
   {
    "fieldname": "dpid",
    "fieldtype": "Data",
-   "label": "dpid"
+   "label": "DPID"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-09-05 12:47:34.426191",
+ "modified": "2022-09-05 16:21:22.183427",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Transaction",
