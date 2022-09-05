@@ -5,5 +5,5 @@
 import unittest
 
 
-class TestInterestCalculations(unittest.TestCase):
+class TestInterestCalculation(unittest.TestCase):
     pass

@@ -10,7 +10,7 @@ import re
 from base64 import b64decode, b64encode
 from datetime import datetime, timedelta
 from itertools import groupby
-from random import choice, randint, randrange
+from random import choice, randint
 from traceback import format_exc
 
 import frappe
@@ -35,7 +35,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.4.0-uat"
+__version__ = "5.5.0-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -398,7 +398,7 @@ def get_allowed_securities(securities, lender, instrument_type="Shares"):
 				from `tabAllowed Security` als
                 LEFT JOIN `tabSecurity Category` sc
 				ON als.security_category = sc.name where
-				als.lender {lender}
+				als.lender {lender} 
                 {allowed} and
                 als.instrument_type = '{instrument_type}' and
                 als.isin in {isin}""".format(
@@ -1162,42 +1162,54 @@ def rzp_payment_webhook_callback(**kwargs):
         webhook_secret = frappe.get_single("LAS Settings").razorpay_webhook_secret
 
         headers = {k: v for k, v in frappe.local.request.headers.items()}
-        webhook_signature = headers.get("X-Razorpay-Signature")
-        log = {"rzp_payment_webhook_response": data}
-        create_log(log, "rzp_payment_webhook_log")
+        if frappe.utils.get_url() == "https://" + headers.get(
+            "Host"
+        ) or frappe.utils.get_url() == "https://www." + headers.get("Host"):
+            webhook_signature = headers.get("X-Razorpay-Signature")
+            log = {"rzp_payment_webhook_response": data}
+            create_log(log, "rzp_payment_webhook_log")
 
-        expected_signature = hmac.new(
-            digestmod="sha256",
-            msg=frappe.local.request.data,
-            key=bytes(webhook_secret, "utf-8"),
-        )
-        generated_signature = expected_signature.hexdigest()
-        result = hmac.compare_digest(generated_signature, webhook_signature)
-        if not result:
-            raise SignatureVerificationError("Razorpay Signature Verification Failed")
-
-        # Assign RZP user session for updating loan transaction
-        if rzp_user and result:
-            frappe.session.user = rzp_user[0]["name"]
-
-            if (
-                data
-                and len(data) > 0
-                and data["entity"] == "event"
-                and data["event"]
-                in ["payment.authorized", "payment.captured", "payment.failed"]
-            ):
-                frappe.enqueue(
-                    method="lms.update_rzp_payment_transaction",
-                    data=data,
-                    job_name="Payment Webhook",
+            expected_signature = hmac.new(
+                digestmod="sha256",
+                msg=frappe.local.request.data,
+                key=bytes(webhook_secret, "utf-8"),
+            )
+            generated_signature = expected_signature.hexdigest()
+            result = hmac.compare_digest(generated_signature, webhook_signature)
+            if not result:
+                raise SignatureVerificationError(
+                    "Razorpay Signature Verification Failed"
                 )
-        if not rzp_user:
+
+            # Assign RZP user session for updating loan transaction
+            if rzp_user and result:
+                frappe.session.user = rzp_user[0]["name"]
+
+                if (
+                    data
+                    and len(data) > 0
+                    and data["entity"] == "event"
+                    and data["event"]
+                    in ["payment.authorized", "payment.captured", "payment.failed"]
+                ):
+                    frappe.enqueue(
+                        method="lms.update_rzp_payment_transaction",
+                        data=data,
+                        job_name="Payment Webhook",
+                    )
+            if not rzp_user:
+                frappe.log_error(
+                    message=frappe.get_traceback()
+                    + "\nWebhook details:\n"
+                    + json.dumps(data),
+                    title=_("Payment Webhook RZP User not found Error"),
+                )
+        else:
             frappe.log_error(
                 message=frappe.get_traceback()
-                + "\nWebhook details:\n"
+                + "\nWebhook details:\nThis Webhook is not related to the given host.\n"
                 + json.dumps(data),
-                title=_("Payment Webhook RZP User not found Error"),
+                title=_("Payment Webhook Host Error"),
             )
     except Exception as e:
         frappe.log_error(
@@ -1822,17 +1834,86 @@ def ifsc_details(ifsc=""):
     return frappe.get_all("Spark Bank Branch", filters_arr, ["*"])
 
 
+def client_sanction_details(loan, date):
+    try:
+        customer = frappe.get_doc("Loan Customer", loan.customer)
+        user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+        interest_config = frappe.get_value(
+            "Interest Configuration",
+            {
+                "to_amount": [">=", loan.sanctioned_limit],
+            },
+            order_by="to_amount asc",
+        )
+        int_config = frappe.get_doc("Interest Configuration", interest_config)
+        roi_ = int_config.base_interest * 12
+        start_date = frappe.db.sql(
+            """select cast(creation as date) from `tabLoan` where name = "{}" """.format(
+                loan.name
+            )
+        )
+        client_sanction_details = frappe.get_doc(
+            dict(
+                doctype="Client Sanction Details",
+                client_code=customer.name,
+                loan_no=loan.name,
+                client_name=loan.customer_name,
+                pan_no=user_kyc.pan_no,
+                creation_date=frappe.utils.now_datetime().date(),
+                start_date=start_date,
+                end_date=loan.expiry_date,
+                sanctioned_amount=loan.sanctioned_limit,
+                roi=roi_,
+                sanction_date=date,
+            ),
+        ).insert(ignore_permissions=True)
+        frappe.db.commit()
+    except Exception:
+        frappe.log_error(
+            message=frappe.get_traceback(),
+            title=frappe._("Client Sanction Details"),
+        )
+
+
 @frappe.whitelist()
-def parent_enqueue():
+def system_report_enqueue():
     # daily
     frappe.enqueue(
         method="lms.lms.doctype.client_summary.client_summary.client_summary",
         queue="long",
-    ),
+    )
     frappe.enqueue(
-        method="lms.lms.doctype.client_sanction_details.client_sanction_details.client_sanction_details",
+        method="lms.lms.doctype.security_transaction.security_transaction.security_transaction",
         queue="long",
     )
+    frappe.enqueue(
+        method="lms.lms.doctype.security_exposure_summary.security_exposure_summary.security_exposure_summary",
+        queue="long",
+    )
+    frappe.enqueue(
+        method="lms.lms.doctype.security_details.security_details.security_details",
+        queue="long",
+    )
+    curr_date = frappe.utils.now_datetime().date()
+    last_date = (curr_date.replace(day=1) + timedelta(days=32)).replace(
+        day=1
+    ) - timedelta(days=1)
+    if curr_date == last_date:
+        frappe.enqueue(
+            method="lms.lms.doctype.interest_calculation.interest_calculation.interest_calculation_enqueue",
+            queue="long",
+        )
+
+
+def download_file(dataframe, file_name, file_extention, sheet_name):
+    file_name = "{}.{}".format(file_name, file_extention)
+    file_path = frappe.utils.get_files_path(file_name)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+    file_path = frappe.utils.get_files_path(file_name)
+    dataframe.to_excel(file_path, sheet_name=sheet_name, index=False)
+    file_url = frappe.utils.get_url("files/{}".format(file_name))
+    return file_url
 
 
 def user_kyc_hashing(user_kyc):

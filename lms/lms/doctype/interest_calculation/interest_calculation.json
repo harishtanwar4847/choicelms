@@ -10,6 +10,7 @@
   "date",
   "transaction_type",
   "crdr",
+  "creation_date",
   "column_break_6",
   "debit",
   "credit",
@@ -21,6 +22,7 @@
   {
    "fieldname": "loan_no",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Loan Account No",
    "options": "Loan"
   },
@@ -28,16 +30,18 @@
    "fetch_from": "loan_no.customer_name",
    "fieldname": "client_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Client Name"
   },
   {
    "fieldname": "date",
-   "fieldtype": "Date",
+   "fieldtype": "Data",
    "label": "Date"
   },
   {
    "fieldname": "transaction_type",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Transaction Type"
   },
   {
@@ -58,11 +62,13 @@
   {
    "fieldname": "loan_balance",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Loan Balance"
   },
   {
    "fieldname": "interest_with_rebate",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Interest (With Rebate)"
   },
   {
@@ -73,14 +79,19 @@
   {
    "fieldname": "column_break_6",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "creation_date",
+   "fieldtype": "Date",
+   "label": "Doc Creation Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-12 11:30:39.362226",
+ "modified": "2022-07-15 13:03:57.437533",
  "modified_by": "Administrator",
  "module": "Lms",
- "name": "Interest Calculations",
+ "name": "Interest Calculation",
  "owner": "Administrator",
  "permissions": [
   {
