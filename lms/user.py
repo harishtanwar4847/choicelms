@@ -5437,7 +5437,6 @@ def get_demat_details():
         customer = lms.__customer(user.name)
 
         # get demat details from choice
-        print("User kyc", user_kyc)
         las_settings = frappe.get_single("LAS Settings")
         if user_kyc:
             print("User KYC Status", user_kyc[0].kyc_status)
