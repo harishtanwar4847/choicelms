@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.5.1-uat]
+
+## Added
+
+- [Feat: sanction date field added](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/528)
+
 ## [v5.5.0-uat]
 
 ## Added
