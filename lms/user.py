@@ -5998,7 +5998,7 @@ def securities_latest(**kwargs):
                             i["Category"] = None
 
                         i.update(is_choice=is_choice)
-                        if i["Category"] != None:
+                        if i["Category"] != None and i["Stock_At"] == data.get("demat"):
                             final_securities_list.append(i)
                             image = frappe.get_all(
                                 "Allowed Security",
