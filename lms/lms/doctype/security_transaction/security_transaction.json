@@ -7,6 +7,7 @@
  "field_order": [
   "loan_no",
   "client_name",
+  "dpid",
   "date",
   "request_type",
   "isin",
@@ -15,7 +16,8 @@
   "psn",
   "qty",
   "rate",
-  "value"
+  "value",
+  "creation_date"
  ],
  "fields": [
   {
@@ -73,11 +75,21 @@
   {
    "fieldname": "column_break_6",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "creation_date",
+   "fieldtype": "Date",
+   "label": "Doc Creation Date"
+  },
+  {
+   "fieldname": "dpid",
+   "fieldtype": "Data",
+   "label": "DPID"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-12 11:39:48.317707",
+ "modified": "2022-09-05 16:21:22.183427",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Transaction",
