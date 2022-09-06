@@ -14,7 +14,8 @@
   "start_date",
   "end_date",
   "sanctioned_amount",
-  "roi"
+  "roi",
+  "sanction_date"
  ],
  "fields": [
   {
@@ -69,11 +70,16 @@
    "fieldname": "creation_date",
    "fieldtype": "Date",
    "label": "Doc Creation Date"
+  },
+  {
+   "fieldname": "sanction_date",
+   "fieldtype": "Data",
+   "label": "Sanction Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-09-02 10:09:05.773508",
+ "modified": "2022-09-06 13:16:15.148630",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Client Sanction Details",
