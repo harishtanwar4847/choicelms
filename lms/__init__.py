@@ -6,6 +6,7 @@ import json
 import os
 import re
 from datetime import datetime, timedelta
+from inspect import currentframe
 from itertools import groupby
 from random import choice, randint
 from traceback import format_exc
@@ -1302,3 +1303,8 @@ def update_rzp_payment_transaction(data):
 def split_list_into_half(a_list):
     half = len(a_list) // 2
     return a_list[:half], a_list[half:]
+
+
+def get_linenumber():
+    cf = currentframe()
+    return "line no" + str(cf.f_back.f_lineno)
