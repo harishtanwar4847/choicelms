@@ -6003,13 +6003,16 @@ def securities_latest(**kwargs):
                             image = frappe.get_all(
                                 "Allowed Security",
                                 filters={"isin": i["ISIN"]},
-                                fields=["amc_image"],
+                                fields=["amc_image", "eligible_percentage"],
                             )
                             if image[0].amc_image:
                                 image[0].amc_image = frappe.utils.get_url(
                                     image[0].amc_image
                                 )
-                            i.update(amc_image=image[0].amc_image)
+                            i.update(
+                                amc_image=image[0].amc_image,
+                                eligible_percentage=image[0].eligible_percentage,
+                            )
                 else:
                     final_securities_list = ()
                 lender = lms.convert_list_to_tuple_string(lender_list)
@@ -6041,7 +6044,7 @@ def get_distinct_securities(lender_list, levels):
         lender, levels
     )
     securities_list = frappe.db.sql(
-        """select als.isin as ISIN, sc.category_name as Category, als.security_name as Scrip_Name, round(s.price,4) as Price, group_concat(als.lender,'') as lenders, 
+        """select als.isin as ISIN, sc.category_name as Category, als.eligible_percentage, als.security_name as Scrip_Name, round(s.price,4) as Price, group_concat(als.lender,'') as lenders, 
             als.amc_image
             from `tabAllowed Security` als 
             LEFT JOIN `tabSecurity` s on s.isin = als.isin
