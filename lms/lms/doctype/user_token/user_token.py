@@ -264,7 +264,8 @@ def send_request(gateway_url, params, headers=None, use_post=False):
     import json
 
     frappe.logger().info(params)
-    params["sms"] = params["sms"].decode("ascii")
+    if type(params["sms"]) == bytes:
+        params["sms"] = params["sms"].decode("ascii")
     log = {
         "url": gateway_url,
         "params": params,
