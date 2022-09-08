@@ -5778,241 +5778,247 @@ def securities_latest(**kwargs):
                 )
 
                 securities_category_map_list = []
-                for i in securities_category_map:
-                    securities_category_map_list.append(i)
                 if securities_category_map_list:
-                    pledge_waiting_securitites = frappe.db.sql(
-                        """
-                        SELECT GROUP_CONCAT(la.name) as loan_application, la.pledgor_boid,
-                        lai.isin, sum(lai.pledged_quantity) as pledged_quantity,
-                        ch.name
-                        FROM `tabLoan Application` as la
-                        LEFT JOIN `tabLoan Application Item` lai ON lai.parent = la.name
-                        LEFT JOIN `tabClient Holding` ch ON ch.isin = lai.isin and ch.stock_at = la.pledgor_boid
-                        where la.status='Waiting to be pledged'
-                        AND ch.pan = '{}'
-                        AND lai.isin in {}
-                        AND la.customer = '{}'
-                        group by ch.stock_at, lai.isin
-                        order by la.pledgor_boid, lai.isin
-                    """.format(
-                            user_kyc.pan_no,
-                            lms.convert_list_to_tuple_string(
-                                securities_category_map_list
+                    for i in securities_category_map:
+                        securities_category_map_list.append(i)
+                        pledge_waiting_securitites = frappe.db.sql(
+                            """
+                            SELECT GROUP_CONCAT(la.name) as loan_application, la.pledgor_boid,
+                            lai.isin, sum(lai.pledged_quantity) as pledged_quantity,
+                            ch.name
+                            FROM `tabLoan Application` as la
+                            LEFT JOIN `tabLoan Application Item` lai ON lai.parent = la.name
+                            LEFT JOIN `tabClient Holding` ch ON ch.isin = lai.isin and ch.stock_at = la.pledgor_boid
+                            where la.status='Waiting to be pledged'
+                            AND ch.pan = '{}'
+                            AND lai.isin in {}
+                            AND la.customer = '{}'
+                            group by ch.stock_at, lai.isin
+                            order by la.pledgor_boid, lai.isin
+                        """.format(
+                                user_kyc.pan_no,
+                                lms.convert_list_to_tuple_string(
+                                    securities_category_map_list
+                                ),
+                                customer.name,
                             ),
-                            customer.name,
-                        ),
-                        as_dict=True,
-                        # debug=True,
-                    )
-                    if len(pledge_waiting_securitites) > 0:
-                        for i in pledge_waiting_securitites:
+                            as_dict=True,
+                            # debug=True,
+                        )
+                        if len(pledge_waiting_securitites) > 0:
+                            for i in pledge_waiting_securitites:
+                                try:
+                                    if not securities_category_map[i["isin"]].get(
+                                        "waiting_to_be_pledged_qty", None
+                                    ):
+                                        securities_category_map[i["isin"]][
+                                            "waiting_to_be_pledged_qty"
+                                        ] = {}
+                                        # if not securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"].get(i['pledgor_boid'], None):
+                                        #     securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][i['pledgor_boid']] = 0
+
+                                    securities_category_map[i["isin"]][
+                                        "waiting_to_be_pledged_qty"
+                                    ][i["pledgor_boid"]] = i["pledged_quantity"]
+                                except KeyError:
+                                    continue
+
+                        waiting_for_lender_approval_securities = frappe.db.sql(
+                            """
+                            SELECT GROUP_CONCAT(cl.application_name) as loan_application, GROUP_CONCAT(cl.loan) as loan,
+                            cl.pledgor_boid, cl.isin, sum(cl.quantity) as pledged_quantity,
+                            ch.name
+                            FROM `tabCollateral Ledger` as cl
+                            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
+                            WHERE (cl.lender_approval_status='' OR cl.lender_approval_status='Approved')
+                            AND cl.request_type = 'Pledge'
+                            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
+                            AND ch.pan = '{}'
+                            AND cl.isin in {}
+                            AND cl.customer = '{}'
+                            group by ch.stock_at, cl.isin
+                            order by cl.pledgor_boid, cl.isin;
+                        """.format(
+                                datetime.strftime(
+                                    frappe.utils.now_datetime(), "%Y-%m-%d"
+                                ),
+                                user_kyc.pan_no,
+                                lms.convert_list_to_tuple_string(
+                                    securities_category_map_list
+                                ),
+                                customer.name,
+                            ),
+                            as_dict=True,
+                        )
+                        if len(waiting_for_lender_approval_securities) > 0:
+                            for i in waiting_for_lender_approval_securities:
+                                try:
+                                    if not securities_category_map[i["isin"]].get(
+                                        "waiting_for_approval_pledged_qty", None
+                                    ):
+                                        securities_category_map[i["isin"]][
+                                            "waiting_for_approval_pledged_qty"
+                                        ] = {}
+                                        # if not securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"].get(i['pledgor_boid'], None):
+                                        #     securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"][i['pledgor_boid']] = 0
+
+                                    securities_category_map[i["isin"]][
+                                        "waiting_for_approval_pledged_qty"
+                                    ][i["pledgor_boid"]] = i["pledged_quantity"]
+                                except KeyError:
+                                    continue
+
+                        unpledge_approved_securities = frappe.db.sql(
+                            """
+                            SELECT GROUP_CONCAT(cl.loan) as loan,
+                            cl.pledgor_boid, cl.isin, sum(cl.quantity) as unpledged_quantity,
+                            ch.name
+                            FROM `tabCollateral Ledger` as cl
+                            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
+                            WHERE cl.lender_approval_status='Approved'
+                            AND cl.request_type = 'Unpledge'
+                            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
+                            AND ch.pan = '{}'
+                            AND cl.isin in {}
+                            AND cl.customer = '{}'
+                            group by ch.stock_at, cl.isin
+                            order by cl.pledgor_boid, cl.isin;
+                        """.format(
+                                datetime.strftime(
+                                    frappe.utils.now_datetime(), "%Y-%m-%d"
+                                ),
+                                user_kyc.pan_no,
+                                lms.convert_list_to_tuple_string(
+                                    securities_category_map_list
+                                ),
+                                customer.name,
+                            ),
+                            as_dict=True,
+                        )
+                        if len(unpledge_approved_securities) > 0:
+                            for i in unpledge_approved_securities:
+                                try:
+                                    if not securities_category_map[i["isin"]].get(
+                                        "unpledged_quantity", None
+                                    ):
+                                        securities_category_map[i["isin"]][
+                                            "unpledged_quantity"
+                                        ] = {}
+                                    # securities_category_map[i["isin"]]["unpledged_quantity"] = i[
+                                    #     "unpledged_quantity"
+                                    # ]
+
+                                    securities_category_map[i["isin"]][
+                                        "unpledged_quantity"
+                                    ][i["pledgor_boid"]] = i["unpledged_quantity"]
+                                except KeyError:
+                                    continue
+                        final_securities_list = []
+                        for i in securities_list:
+                            # process actual qty
+                            if i.get("Holding_As_On", None) and not isinstance(
+                                i["Holding_As_On"], str
+                            ):
+                                i["Holding_As_On"] = i["Holding_As_On"].strftime(
+                                    "%Y-%m-%dT%H:%M:%S"
+                                )
+
                             try:
-                                if not securities_category_map[i["isin"]].get(
+                                i["Category"] = securities_category_map[i["ISIN"]].get(
+                                    "security_category"
+                                )
+
+                                i["Is_Eligible"] = True
+                                i["Total_Qty"] = i["Quantity"]
+
+                                if not i.get("waiting_to_be_pledged_qty", None):
+                                    i["waiting_to_be_pledged_qty"] = 0
+
+                                if securities_category_map[i["ISIN"]].get(
                                     "waiting_to_be_pledged_qty", None
                                 ):
-                                    securities_category_map[i["isin"]][
-                                        "waiting_to_be_pledged_qty"
-                                    ] = {}
-                                    # if not securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"].get(i['pledgor_boid'], None):
-                                    #     securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][i['pledgor_boid']] = 0
+                                    if (
+                                        i["Stock_At"]
+                                        in securities_category_map[i["ISIN"]][
+                                            "waiting_to_be_pledged_qty"
+                                        ].keys()
+                                    ):
+                                        i["waiting_to_be_pledged_qty"] += float(
+                                            securities_category_map[i["ISIN"]][
+                                                "waiting_to_be_pledged_qty"
+                                            ][i["Stock_At"]]
+                                        )
 
-                                securities_category_map[i["isin"]][
-                                    "waiting_to_be_pledged_qty"
-                                ][i["pledgor_boid"]] = i["pledged_quantity"]
-                            except KeyError:
-                                continue
+                                if not i.get("waiting_for_approval_pledged_qty", None):
+                                    i["waiting_for_approval_pledged_qty"] = 0
 
-                    waiting_for_lender_approval_securities = frappe.db.sql(
-                        """
-                        SELECT GROUP_CONCAT(cl.application_name) as loan_application, GROUP_CONCAT(cl.loan) as loan,
-                        cl.pledgor_boid, cl.isin, sum(cl.quantity) as pledged_quantity,
-                        ch.name
-                        FROM `tabCollateral Ledger` as cl
-                        LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
-                        WHERE (cl.lender_approval_status='' OR cl.lender_approval_status='Approved')
-                        AND cl.request_type = 'Pledge'
-                        AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
-                        AND ch.pan = '{}'
-                        AND cl.isin in {}
-                        AND cl.customer = '{}'
-                        group by ch.stock_at, cl.isin
-                        order by cl.pledgor_boid, cl.isin;
-                    """.format(
-                            datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
-                            user_kyc.pan_no,
-                            lms.convert_list_to_tuple_string(
-                                securities_category_map_list
-                            ),
-                            customer.name,
-                        ),
-                        as_dict=True,
-                    )
-                    if len(waiting_for_lender_approval_securities) > 0:
-                        for i in waiting_for_lender_approval_securities:
-                            try:
-                                if not securities_category_map[i["isin"]].get(
+                                if securities_category_map[i["ISIN"]].get(
                                     "waiting_for_approval_pledged_qty", None
                                 ):
-                                    securities_category_map[i["isin"]][
-                                        "waiting_for_approval_pledged_qty"
-                                    ] = {}
-                                    # if not securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"].get(i['pledgor_boid'], None):
-                                    #     securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"][i['pledgor_boid']] = 0
+                                    if (
+                                        i["Stock_At"]
+                                        in securities_category_map[i["ISIN"]][
+                                            "waiting_for_approval_pledged_qty"
+                                        ].keys()
+                                    ):
+                                        i["waiting_for_approval_pledged_qty"] += float(
+                                            securities_category_map[i["ISIN"]][
+                                                "waiting_for_approval_pledged_qty"
+                                            ][i["Stock_At"]]
+                                        )
 
-                                securities_category_map[i["isin"]][
-                                    "waiting_for_approval_pledged_qty"
-                                ][i["pledgor_boid"]] = i["pledged_quantity"]
-                            except KeyError:
-                                continue
+                                if not i.get("unpledged_quantity", None):
+                                    i["unpledged_quantity"] = 0
 
-                    unpledge_approved_securities = frappe.db.sql(
-                        """
-                        SELECT GROUP_CONCAT(cl.loan) as loan,
-                        cl.pledgor_boid, cl.isin, sum(cl.quantity) as unpledged_quantity,
-                        ch.name
-                        FROM `tabCollateral Ledger` as cl
-                        LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
-                        WHERE cl.lender_approval_status='Approved'
-                        AND cl.request_type = 'Unpledge'
-                        AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
-                        AND ch.pan = '{}'
-                        AND cl.isin in {}
-                        AND cl.customer = '{}'
-                        group by ch.stock_at, cl.isin
-                        order by cl.pledgor_boid, cl.isin;
-                    """.format(
-                            datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
-                            user_kyc.pan_no,
-                            lms.convert_list_to_tuple_string(
-                                securities_category_map_list
-                            ),
-                            customer.name,
-                        ),
-                        as_dict=True,
-                    )
-                    if len(unpledge_approved_securities) > 0:
-                        for i in unpledge_approved_securities:
-                            try:
-                                if not securities_category_map[i["isin"]].get(
+                                if securities_category_map[i["ISIN"]].get(
                                     "unpledged_quantity", None
                                 ):
-                                    securities_category_map[i["isin"]][
-                                        "unpledged_quantity"
-                                    ] = {}
-                                # securities_category_map[i["isin"]]["unpledged_quantity"] = i[
-                                #     "unpledged_quantity"
-                                # ]
-
-                                securities_category_map[i["isin"]][
-                                    "unpledged_quantity"
-                                ][i["pledgor_boid"]] = i["unpledged_quantity"]
-                            except KeyError:
-                                continue
-                    final_securities_list = []
-                    for i in securities_list:
-                        # process actual qty
-                        if i.get("Holding_As_On", None) and not isinstance(
-                            i["Holding_As_On"], str
-                        ):
-                            i["Holding_As_On"] = i["Holding_As_On"].strftime(
-                                "%Y-%m-%dT%H:%M:%S"
-                            )
-
-                        try:
-                            i["Category"] = securities_category_map[i["ISIN"]].get(
-                                "security_category"
-                            )
-
-                            i["Is_Eligible"] = True
-                            i["Total_Qty"] = i["Quantity"]
-
-                            if not i.get("waiting_to_be_pledged_qty", None):
-                                i["waiting_to_be_pledged_qty"] = 0
-
-                            if securities_category_map[i["ISIN"]].get(
-                                "waiting_to_be_pledged_qty", None
-                            ):
-                                if (
-                                    i["Stock_At"]
-                                    in securities_category_map[i["ISIN"]][
-                                        "waiting_to_be_pledged_qty"
-                                    ].keys()
-                                ):
-                                    i["waiting_to_be_pledged_qty"] += float(
-                                        securities_category_map[i["ISIN"]][
-                                            "waiting_to_be_pledged_qty"
-                                        ][i["Stock_At"]]
-                                    )
-
-                            if not i.get("waiting_for_approval_pledged_qty", None):
-                                i["waiting_for_approval_pledged_qty"] = 0
-
-                            if securities_category_map[i["ISIN"]].get(
-                                "waiting_for_approval_pledged_qty", None
-                            ):
-                                if (
-                                    i["Stock_At"]
-                                    in securities_category_map[i["ISIN"]][
-                                        "waiting_for_approval_pledged_qty"
-                                    ].keys()
-                                ):
-                                    i["waiting_for_approval_pledged_qty"] += float(
-                                        securities_category_map[i["ISIN"]][
-                                            "waiting_for_approval_pledged_qty"
-                                        ][i["Stock_At"]]
-                                    )
-
-                            if not i.get("unpledged_quantity", None):
-                                i["unpledged_quantity"] = 0
-
-                            if securities_category_map[i["ISIN"]].get(
-                                "unpledged_quantity", None
-                            ):
-                                if (
-                                    i["Stock_At"]
-                                    in securities_category_map[i["ISIN"]][
-                                        "unpledged_quantity"
-                                    ].keys()
-                                ):
-                                    i["unpledged_quantity"] += float(
-                                        securities_category_map[i["ISIN"]][
+                                    if (
+                                        i["Stock_At"]
+                                        in securities_category_map[i["ISIN"]][
                                             "unpledged_quantity"
-                                        ][i["Stock_At"]]
-                                    )
+                                        ].keys()
+                                    ):
+                                        i["unpledged_quantity"] += float(
+                                            securities_category_map[i["ISIN"]][
+                                                "unpledged_quantity"
+                                            ][i["Stock_At"]]
+                                        )
 
-                            available_quantity = (
-                                i["Quantity"] + i["unpledged_quantity"]
-                            ) - (
-                                i["waiting_to_be_pledged_qty"]
-                                + i["waiting_for_approval_pledged_qty"]
-                            )
-                            i["Quantity"] = (
-                                available_quantity
-                                if available_quantity > 0
-                                else float(0)
-                            )
-
-                        except KeyError:
-                            i["Is_Eligible"] = False
-                            i["Category"] = None
-
-                        i.update(is_choice=is_choice)
-                        if i["Category"] != None and i["Stock_At"] == data.get("demat"):
-                            final_securities_list.append(i)
-                            image = frappe.get_all(
-                                "Allowed Security",
-                                filters={"isin": i["ISIN"]},
-                                fields=["amc_image", "eligible_percentage"],
-                            )
-                            if image[0].amc_image:
-                                image[0].amc_image = frappe.utils.get_url(
-                                    image[0].amc_image
+                                available_quantity = (
+                                    i["Quantity"] + i["unpledged_quantity"]
+                                ) - (
+                                    i["waiting_to_be_pledged_qty"]
+                                    + i["waiting_for_approval_pledged_qty"]
                                 )
-                            i.update(
-                                amc_image=image[0].amc_image,
-                                eligible_percentage=image[0].eligible_percentage,
-                            )
+                                i["Quantity"] = (
+                                    available_quantity
+                                    if available_quantity > 0
+                                    else float(0)
+                                )
+
+                            except KeyError:
+                                i["Is_Eligible"] = False
+                                i["Category"] = None
+
+                            i.update(is_choice=is_choice)
+                            if i["Category"] != None and i["Stock_At"] == data.get(
+                                "demat"
+                            ):
+                                final_securities_list.append(i)
+                                image = frappe.get_all(
+                                    "Allowed Security",
+                                    filters={"isin": i["ISIN"]},
+                                    fields=["amc_image", "eligible_percentage"],
+                                )
+                                if image[0].amc_image:
+                                    image[0].amc_image = frappe.utils.get_url(
+                                        image[0].amc_image
+                                    )
+                                i.update(
+                                    amc_image=image[0].amc_image,
+                                    eligible_percentage=image[0].eligible_percentage,
+                                )
                 else:
                     final_securities_list = ()
                 lender = lms.convert_list_to_tuple_string(lender_list)
