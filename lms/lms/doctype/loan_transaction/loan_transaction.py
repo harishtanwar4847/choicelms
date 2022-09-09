@@ -146,7 +146,6 @@ class LoanTransaction(Document):
                 frappe.throw(_("You are not permitted to perform this action"))
 
     def on_submit(self):
-        frappe.logger().info("inside on submit lt file")
         check_for_shortfall = True
         if self.transaction_type in [
             "Processing Fees",
@@ -211,7 +210,6 @@ class LoanTransaction(Document):
                 if type(self.time) == str
                 else (self.time).strftime("%d-%m-%Y %H:%M"),
             }
-            frappe.logger().info("before credited lt file")
             frappe.enqueue_doc("Notification", "Payment", method="send", doc=doc)
             msg = "Dear Customer,\nYou loan account {}  has been credited by payment of Rs. {} . Your loan balance is Rs. {}. {} Spark Loans".format(
                 self.loan,

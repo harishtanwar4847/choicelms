@@ -1222,15 +1222,12 @@ def update_rzp_payment_transaction(data):
 
             loan_transaction.save(ignore_permissions=True)
             frappe.db.commit()
-            frappe.logger().info("outside if init file")
             if loan_transaction.status == "Approved" and older_razorpay_event in [
                 "Failed",
                 "Authorized",
             ]:
-                frappe.logger().info("inside if init file")
                 loan_transaction.db_set("docstatus", 1)
                 loan_transaction.on_submit()
-                # loan_transaction.run_post_save_methods()
 
             # Send notification depended on events
             if data["event"] == "payment.authorized":
