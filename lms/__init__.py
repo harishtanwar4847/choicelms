@@ -1146,6 +1146,11 @@ def update_rzp_payment_transaction(data):
                 loan_transaction.razorpay_event = razorpay_event
             if loan_transaction.razorpay_event == "Captured":
                 if older_razorpay_event == "Failed":
+                    frappe.db.sql(
+                        "update `tabLoan Transaction` set status = 'Pending', workflow_state = 'Pending' where name = '{}'".format(
+                            payment_transaction_name
+                        )
+                    )
                     loan_transaction.db_set("workflow_state", "Approved")
                     loan_transaction.db_set("status", "Approved")
                     # loan_transaction.db_set("docstatus",1)
