@@ -5666,6 +5666,9 @@ def securities_latest(**kwargs):
                 },
                 fields=["customer", "depository", "dpid", "client_id", "is_choice"],
             )
+            if not spark_demat_acc:
+                raise lms.exceptions.NotFoundException(_("Demat account not found"))
+
             securities_list = []
             is_choice = spark_demat_acc[0].is_choice
             if spark_demat_acc[0].is_choice == 1:
