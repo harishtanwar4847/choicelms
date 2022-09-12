@@ -17,12 +17,14 @@
  ],
  "fields": [
   {
+   "bold": 1,
    "fieldname": "android_version",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Android Version"
   },
   {
+   "default": "https://play.google.com/store/apps/details?id=com.sparktechnologies.sparkloans&hl=en",
    "fieldname": "play_store_link",
    "fieldtype": "Data",
    "label": "Play Store Link"
@@ -38,12 +40,14 @@
    "fieldtype": "Column Break"
   },
   {
+   "bold": 1,
    "fieldname": "ios_version",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "IOS Version"
   },
   {
+   "default": "https://apps.apple.com/in/app/spark-loans/id1551799259?uo=4",
    "fieldname": "app_store_link",
    "fieldtype": "Data",
    "label": "App Store Link"
@@ -55,20 +59,22 @@
    "label": "Release Date"
   },
   {
+   "bold": 1,
    "fieldname": "backend_version",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Backend Version"
   },
   {
    "default": "0",
    "fieldname": "is_live",
    "fieldtype": "Check",
-   "label": "Is Live?"
+   "label": "Is Live"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-09-09 15:29:30.864310",
+ "modified": "2022-09-12 11:48:20.819440",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark App Version",

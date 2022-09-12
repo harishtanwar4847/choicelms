@@ -13,6 +13,7 @@ def execute():
             "whats_new": "Force update",
             "release_date": frappe.utils.now_datetime().date(),
             "backend_version": "v3.1.0",
+            "is_live": 1,
         }
     ).insert(ignore_permissions=True)
     frappe.db.commit()
