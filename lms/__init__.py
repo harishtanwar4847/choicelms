@@ -1232,7 +1232,7 @@ def update_rzp_payment_transaction(data):
                     "transaction_type": "Payment",
                     "order_id": webhook_main_object["order_id"],
                     "amount": float(webhook_main_object["notes"].get("amount")),
-                    "status": "Pending",
+                    "status": ["in", ["Pending", "Rejected"]],
                     "loan": webhook_main_object["notes"]["loan_name"],
                 },
                 "name",
@@ -1248,6 +1248,7 @@ def update_rzp_payment_transaction(data):
             loan_transaction = frappe.get_doc(
                 "Loan Transaction", payment_transaction_name
             )
+            older_razorpay_event = loan_transaction.razorpay_event
             # Assign RZP event to loan transaction
             if data["event"] == "payment.authorized":
                 razorpay_event = "Authorized"
@@ -1260,9 +1261,23 @@ def update_rzp_payment_transaction(data):
                 loan_transaction.razorpay_event = razorpay_event
             # If RZP event is failed then update the log
             if loan_transaction.razorpay_event == "Captured":
-                loan_transaction.workflow_state = "Approved"
-                loan_transaction.status = "Approved"
-                loan_transaction.docstatus = 1
+                if older_razorpay_event == "Failed" or (
+                    loan_transaction.workflow_state == "Rejected"
+                    and loan_transaction.razorpay_event == "Captured"
+                ):
+                    frappe.db.sql(
+                        "update `tabLoan Transaction` set status = 'Pending', workflow_state = 'Pending' where name = '{}'".format(
+                            payment_transaction_name
+                        )
+                    )
+                    loan_transaction.db_set("workflow_state", "Approved")
+                    loan_transaction.db_set("status", "Approved")
+                    # loan_transaction.db_set("docstatus",1)
+                else:
+                    loan_transaction.workflow_state = "Approved"
+                    loan_transaction.status = "Approved"
+                    loan_transaction.docstatus = 1
+            # If RZP event is failed then update the log
             if loan_transaction.razorpay_event == "Failed":
                 loan_transaction.workflow_state = "Rejected"
                 loan_transaction.status = "Rejected"
@@ -1323,6 +1338,13 @@ def update_rzp_payment_transaction(data):
 
             loan_transaction.save(ignore_permissions=True)
             frappe.db.commit()
+            if loan_transaction.status == "Approved" and older_razorpay_event in [
+                "Failed",
+                "Authorized",
+            ]:
+                loan_transaction.db_set("docstatus", 1)
+                loan_transaction.on_submit()
+                # loan_transaction.run_post_save_methods()
 
             # Send notification depended on events
             if data["event"] == "payment.authorized":
