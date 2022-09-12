@@ -5382,6 +5382,7 @@ def get_app_version_details():
 
         version_details = frappe.get_all(
             "Spark App Version",
+            filters={"is_live": 1},
             fields=["*"],
             order_by="release_date desc",
             page_length=1,
@@ -5390,5 +5391,7 @@ def get_app_version_details():
             raise lms.exceptions.NotFoundException(_("No Record found"))
         return utils.respondWithSuccess(data=version_details[0])
     except utils.exceptions.APIException as e:
-        lms.log_api_error()
+        frappe.log_error(
+            title="Get App Version Details API", message=frappe.get_traceback()
+        )
         return e.respond()
