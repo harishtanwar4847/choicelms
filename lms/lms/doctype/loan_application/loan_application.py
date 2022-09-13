@@ -587,6 +587,14 @@ class LoanApplication(Document):
                         self.name, lms.convert_list_to_tuple_string(approved_isin_list)
                     ),
                 )
+                val590 = {
+                    "value": [
+                        approved_isin_list,
+                        lms.get_linenumber(),
+                        "return from update collateral list",
+                    ]
+                }
+                lms.create_log(val590, "status_pledge_accepted_by_lender")
 
             if len(rejected_isin_list) > 0:
                 values29 = {
