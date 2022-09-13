@@ -3,6 +3,9 @@
 
 frappe.ui.form.on("Spark Email Campaign", {
   refresh: function (frm, cdt, cdn) {
+    if (frm.doc.docstatus == 1) {
+      frm.disable_save();
+    }
     $("div.grid-heading-row span.hidden-xs").html("Level");
     if (frm.doc.sender_email.length > 0) {
       $(".grid-add-row").hide();

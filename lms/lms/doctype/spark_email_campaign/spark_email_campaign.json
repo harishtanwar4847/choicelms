@@ -89,6 +89,7 @@
    "label": "Html"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "template_html",
    "fieldtype": "HTML Editor",
    "in_list_view": 1,
@@ -129,13 +130,6 @@
    "options": "Immediate\nSchedule"
   },
   {
-   "depends_on": "eval:doc.schedule_time == \"Schedule\";",
-   "fieldname": "schedule_datetime",
-   "fieldtype": "Datetime",
-   "label": "Datetime",
-   "mandatory_depends_on": "eval:doc.schedule_time == \"Schedule\";"
-  },
-  {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
@@ -143,12 +137,33 @@
    "options": "Spark Email Campaign",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "template_html",
+   "fieldtype": "HTML Editor",
+   "in_list_view": 1,
+   "label": "Html",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.schedule_time == \"Schedule\";",
+   "fieldname": "schedule_datetime",
+   "fieldtype": "Datetime",
+   "label": "Datetime",
+   "mandatory_depends_on": "eval:doc.schedule_time == \"Schedule\";"
+  },
+  {
+   "fieldname": "sender_email",
+   "fieldtype": "Table",
+   "label": "Sender Email",
+   "options": "User Email"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-08-17 12:42:17.443370",
+ "modified": "2022-09-13 16:15:10.236357",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Email Campaign",

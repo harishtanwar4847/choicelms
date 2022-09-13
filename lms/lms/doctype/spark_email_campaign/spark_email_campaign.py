@@ -30,32 +30,41 @@ class SparkEmailCampaign(Document):
                 frappe.throw("Scheduled time cannot be less than current time")
 
     def on_cancel(self):
-        print("abcd")
         frappe.session.user = "Administrator"
         if self.schedule_time == "Immediate":
             frappe.throw("Immediate mails cannot be cancelled")
-        final_list = []
-        scheduled_mails_cancel = frappe.get_all(
-            "Email Queue",
-            filters={
-                "send_after": datetime.strptime(
-                    self.schedule_datetime.strftime("%d-%m-%Y %H:%M:%S"),
-                    "%d-%m-%Y %H:%M:%S",
-                )
-                - timedelta(minutes=1),
-                "sender": self.sender_email[0].email_id,
-                "status": "Not Sent",
-            },
-            pluck="name",
-        )
-        for i in scheduled_mails_cancel:
-            recipient_doc = frappe.get_all(
-                "Email Queue Recipient", filters={"parent": i}
+        elif (
+            self.schedule_time == "Schedule"
+            and self.schedule_datetime
+            <= datetime.strptime(
+                frappe.utils.now_datetime().strftime("%d-%m-%Y %H:%M:%S"),
+                "%d-%m-%Y %H:%M:%S",
             )
-            if recipient_doc:
-                final_list.append(i)
+        ):
+            frappe.throw("This mails cannot be cancelled as the mails are already sent")
+        else:
+            final_list = []
+            scheduled_mails_cancel = frappe.get_all(
+                "Email Queue",
+                filters={
+                    "send_after": datetime.strptime(
+                        self.schedule_datetime.strftime("%d-%m-%Y %H:%M:%S"),
+                        "%d-%m-%Y %H:%M:%S",
+                    )
+                    - timedelta(minutes=1),
+                    "sender": self.sender_email[0].email_id,
+                    "status": "Not Sent",
+                },
+                pluck="name",
+            )
+            for i in scheduled_mails_cancel:
+                recipient_doc = frappe.get_all(
+                    "Email Queue Recipient", filters={"parent": i}
+                )
+                if recipient_doc:
+                    final_list.append(i)
 
-        frappe.delete_doc("Email Queue", final_list)
+            frappe.delete_doc("Email Queue", final_list)
 
     def user_data(self):
         doc_list = []
