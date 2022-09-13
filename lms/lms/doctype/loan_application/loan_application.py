@@ -1072,7 +1072,7 @@ class LoanApplication(Document):
             "PledgeeBOID": self.pledgee_boid,
             "PRFNumber": prf_number,
             "ExpiryDate": self.expiry_date.strftime("%d%m%Y"),
-            "ReasonCode": "06",
+            "ReasonCode": "05",
             "ISINDTLS": securities_array,
         }
 

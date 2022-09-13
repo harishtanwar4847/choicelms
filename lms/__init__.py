@@ -659,6 +659,19 @@ def create_log(log, file_name):
         with open(log_file, "w") as f:
             f.write(json.dumps(logs))
         f.close()
+    except json.decoder.JSONDecodeError:
+        log_text_file = (
+            log_file.replace(".json", "") + str(frappe.utils.now_datetime()) + ".txt"
+        ).replace(" ", "-")
+        with open(log_text_file, "w") as txt_f:
+            txt_f.write(logs + "\nLast Log \n" + str(log))
+        txt_f.close()
+        os.remove(log_file)
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\n\nFile name -\n{}\n\nLog details -\n{}".format(file_name, str(log)),
+            title="Create Log JSONDecodeError",
+        )
     except Exception as e:
         frappe.log_error(
             message=frappe.get_traceback()
