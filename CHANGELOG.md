@@ -6,7 +6,7 @@
 
 ### Added
 
-- [Feat: Spark app version doctype and api changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/518)
+- [Feat: Spark app version doctype and api changes, Payment auto approval, otp on email and Email Campaign](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/518)
 
 ## [v3.1.0] - 2022-09-01
 
