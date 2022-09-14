@@ -1135,6 +1135,7 @@ def update_rzp_payment_transaction(data):
                 },
                 "name",
             )
+            print("payment_transaction_name", payment_transaction_name)
         except frappe.DoesNotExistError:
             frappe.log_error(
                 message=frappe.get_traceback() + json.dumps(data),
@@ -1235,10 +1236,16 @@ def update_rzp_payment_transaction(data):
 
             loan_transaction.save(ignore_permissions=True)
             frappe.db.commit()
+            frappe.logger().info(
+                "outside if loan_transaction.status == 'Approved' and older_razorpay_event in 'Failed Authorized'"
+            )
             if loan_transaction.status == "Approved" and older_razorpay_event in [
                 "Failed",
                 "Authorized",
             ]:
+                frappe.logger().info(
+                    "inside if loan_transaction.status == 'Approved' and older_razorpay_event in 'Failed Authorized'"
+                )
                 loan_transaction.db_set("docstatus", 1)
                 loan_transaction.on_submit()
 
