@@ -125,6 +125,7 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "template_html",
    "fieldtype": "HTML Editor",
    "in_list_view": 1,
@@ -148,7 +149,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-08-02 12:38:41.670038",
+ "modified": "2022-09-13 11:45:23.069718",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Email Campaign",
