@@ -1135,7 +1135,6 @@ def update_rzp_payment_transaction(data):
                 },
                 "name",
             )
-            print("payment_transaction_name", payment_transaction_name)
         except frappe.DoesNotExistError:
             frappe.log_error(
                 message=frappe.get_traceback() + json.dumps(data),
