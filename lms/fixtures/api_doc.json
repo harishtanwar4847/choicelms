@@ -17692,7 +17692,7 @@
   "headers": [],
   "headers_example": [],
   "method": "GET",
-  "modified": "2022-05-02 14:51:56.058417",
+  "modified": "2022-09-09 14:08:39.368813",
   "name": "227ef993a2",
   "parameters": [
    {
@@ -17993,6 +17993,46 @@
     "default_value": null,
     "description": "Customer Doctype",
     "field": "data.customer_details.doctype",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Application Status",
+    "field": "data.loan_application_status",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Loan Name",
+    "field": "data.loan_name",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Instrument Type",
+    "field": "data.instrument_type",
+    "group": null,
+    "parent": "227ef993a2",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Pledgor BOID",
+    "field": "data.pledgor_boid",
     "group": null,
     "parent": "227ef993a2",
     "parentfield": "success",
@@ -21959,14 +21999,40 @@
   "headers": [],
   "headers_example": [],
   "method": "POST",
-  "modified": "2022-05-02 16:37:50.875693",
+  "modified": "2022-09-09 13:32:49.188102",
   "name": "d78a4d5831",
   "parameters": [
    {
     "allowed_values": null,
     "default_value": null,
+    "description": "Demat Object",
+    "field": "demat",
+    "group": null,
+    "optional": 0,
+    "parent": "d78a4d5831",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Object"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "List of Demat Account",
+    "field": "demat.list",
+    "group": null,
+    "optional": 0,
+    "parent": "d78a4d5831",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Array"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
     "description": "Depository",
-    "field": "depository",
+    "field": "demat.list.depository",
     "group": null,
     "optional": 0,
     "parent": "d78a4d5831",
@@ -21979,7 +22045,7 @@
     "allowed_values": null,
     "default_value": null,
     "description": "DPID",
-    "field": "dpid",
+    "field": "demat.list.dpid",
     "group": null,
     "optional": 0,
     "parent": "d78a4d5831",
@@ -21992,7 +22058,7 @@
     "allowed_values": null,
     "default_value": null,
     "description": "Client ID",
-    "field": "client_id",
+    "field": "demat.list.client_id",
     "group": null,
     "optional": 0,
     "parent": "d78a4d5831",
@@ -22000,11 +22066,37 @@
     "parenttype": "API Doc",
     "size": null,
     "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "demat.list.is_choice",
+    "group": null,
+    "optional": 0,
+    "parent": "d78a4d5831",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Time Stamp",
+    "field": "demat.list.time_stamp",
+    "group": null,
+    "optional": 0,
+    "parent": "d78a4d5831",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "Integer"
    }
   ],
   "parameters_example": [
    {
-    "example": "{\n\t\"depository\": \"CDSL\",\n\t\"dpid\": \"43232qwe\",\n\t\"client_id\": \"CF332\"\n}",
+    "example": "{\n\t\"demat\": {\n\t\t\"list\": [\n\t\t\t{\n\t\t\t\t\"depository\": \"CDSL\",\n\t\t\t\t\"dpid\": \"12066900\",\n\t\t\t\t\"client_id\": \"00760267\",\n\t\t\t\t\"is_choice\" : 1,\n\t\t\t\t\"time_stamp\" : 123456789127\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"depository\": \"CDSL\",\n\t\t\t\t\"dpid\": \"IN123455\",\n\t\t\t\t\"client_id\": \"CL123457\",\n\t\t\t\t\"is_choice\" : 0,\n\t\t\t\t\"time_stamp\" : 123456789123\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"depository\": \"CDSL\",\n\t\t\t\t\"dpid\": \"IN123455\",\n\t\t\t\t\"client_id\": \"C123457\",\n\t\t\t\t\"is_choice\" : 0,\n\t\t\t\t\"time_stamp\" : 123456789127\n\t\t\t}\n\t\t]\n\t}\n}",
     "parent": "d78a4d5831",
     "parentfield": "parameters_example",
     "parenttype": "API Doc",
@@ -22025,71 +22117,11 @@
     "parentfield": "success",
     "parenttype": "API Doc",
     "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": "List of multiple object of Bank details",
-    "field": "data",
-    "group": null,
-    "parent": "d78a4d5831",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "Object"
-   },
-   {
-    "default_value": null,
-    "description": "name of Spark Demat Account Entry",
-    "field": "data.name",
-    "group": null,
-    "parent": "d78a4d5831",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": "Depository",
-    "field": "data.depository",
-    "group": null,
-    "parent": "d78a4d5831",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": "DPID",
-    "field": "data.dpid",
-    "group": null,
-    "parent": "d78a4d5831",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": "Client ID",
-    "field": "data.client_id",
-    "group": null,
-    "parent": "d78a4d5831",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
-   },
-   {
-    "default_value": null,
-    "description": "doctype = Spark Demat Account",
-    "field": "data.doctype",
-    "group": null,
-    "parent": "d78a4d5831",
-    "parentfield": "success",
-    "parenttype": "API Doc",
-    "type": "String"
    }
   ],
   "success_example": [
    {
-    "example": "{\n\t\"message\": \"Success\",\n\t\"data\": {\n\t\t\"name\": \"d4c1c33f22\",\n\t\t\"owner\": \"choice.jiffy@gmail.com\",\n\t\t\"creation\": \"2022-03-23 15:52:05.088255\",\n\t\t\"modified\": \"2022-03-23 15:52:05.088255\",\n\t\t\"modified_by\": \"choice.jiffy@gmail.com\",\n\t\t\"idx\": 0,\n\t\t\"docstatus\": 0,\n\t\t\"customer\": \"CUST-03-2022-0114\",\n\t\t\"depository\": \"CDSL\",\n\t\t\"dpid\": \"43232qwe\",\n\t\t\"client_id\": \"CF332\",\n\t\t\"doctype\": \"Spark Demat Account\"\n\t}\n}",
+    "example": "{\n\t\"message\": \"Your details have been successfully saved\"\n}",
     "parent": "d78a4d5831",
     "parentfield": "success_example",
     "parenttype": "API Doc",
@@ -22457,6 +22489,548 @@
     "api_doc": "81c55fbdcc",
     "api_doc_title": "UserAuthorizationRequestandResponse",
     "parent": "1202edda8d",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.0.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2022-09-09 15:23:19.614521",
+  "name": "d5fc82a531",
+  "parameters": [],
+  "parameters_example": [],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.get_demat_details",
+  "success": [
+   {
+    "default_value": null,
+    "description": "Success or Validation message",
+    "field": "message",
+    "group": null,
+    "parent": "d5fc82a531",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "List of multiple object of Bank details",
+    "field": "data",
+    "group": null,
+    "parent": "d5fc82a531",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "Customer ID",
+    "field": "data.customer",
+    "group": null,
+    "parent": "d5fc82a531",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Despository",
+    "field": "data.depository",
+    "group": null,
+    "parent": "d5fc82a531",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "DPID ",
+    "field": "data.dpid",
+    "group": null,
+    "parent": "d5fc82a531",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Client ID",
+    "field": "data.client_id",
+    "group": null,
+    "parent": "d5fc82a531",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "",
+    "description": "0 or 1",
+    "field": "data.is_choice",
+    "group": null,
+    "parent": "d5fc82a531",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "Demat Account Number",
+    "field": "data.stock_at",
+    "group": null,
+    "parent": "d5fc82a531",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\n\t\"message\": \"Success\",\n\t\"data\": [\n\t\t{\n\t\t\t\"customer\": \"CUST-09-2022-0665\",\n\t\t\t\"depository\": \"CDSL\",\n\t\t\t\"dpid\": \"IN123455\",\n\t\t\t\"client_id\": \"C123457\",\n\t\t\t\"is_choice\": 0,\n\t\t\t\"stock_at\": \"IN123455C123457\"\n\t\t},\n\t\t{\n\t\t\t\"customer\": \"CUST-09-2022-0665\",\n\t\t\t\"depository\": \"CDSL\",\n\t\t\t\"dpid\": \"IN123455\",\n\t\t\t\"client_id\": \"CL123457\",\n\t\t\t\"is_choice\": 0,\n\t\t\t\"stock_at\": \"IN123455CL123457\"\n\t\t},\n\t]\n}",
+    "parent": "d5fc82a531",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "success"
+   }
+  ],
+  "title": "Get Demat Details",
+  "use_api_define": [
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "d5fc82a531",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "d5fc82a531",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "d5fc82a531",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "d5fc82a531",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   }
+  ],
+  "version": "1.1.0"
+ },
+ {
+  "api_define": 0,
+  "docstatus": 0,
+  "doctype": "API Doc",
+  "error": [],
+  "error_example": [],
+  "group": "User",
+  "headers": [],
+  "headers_example": [],
+  "method": "GET",
+  "modified": "2022-09-09 14:06:07.922639",
+  "name": "c27de88bb4",
+  "parameters": [
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "Lender name",
+    "field": "lender",
+    "group": null,
+    "optional": 0,
+    "parent": "c27de88bb4",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "level",
+    "field": "level",
+    "group": null,
+    "optional": 0,
+    "parent": "c27de88bb4",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   },
+   {
+    "allowed_values": null,
+    "default_value": null,
+    "description": "demat number",
+    "field": "demat",
+    "group": null,
+    "optional": 0,
+    "parent": "c27de88bb4",
+    "parentfield": "parameters",
+    "parenttype": "API Doc",
+    "size": null,
+    "type": "String"
+   }
+  ],
+  "parameters_example": [
+   {
+    "example": "{\n\t\"lender\": \"Choice Finserv\",\n\t\"level\": \"1,2,3,4,5\",\n\t\"demat\": \"1206690000760267\"\n}",
+    "parent": "c27de88bb4",
+    "parentfield": "parameters_example",
+    "parenttype": "API Doc",
+    "title": "Request Example"
+   }
+  ],
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "path": "/api/method/lms.user.securities_latest",
+  "success": [
+   {
+    "default_value": null,
+    "description": "Success or Validation message",
+    "field": "message",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "data Object",
+    "field": "data",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Object"
+   },
+   {
+    "default_value": null,
+    "description": "list of securities",
+    "field": "data.securities",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "isin number",
+    "field": "data.securities.ISIN",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "security category",
+    "field": "data.securities.Category",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "eligible Percentage",
+    "field": "data.securities.eligible_percentage",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Security Script Name",
+    "field": "data.securities.Scrip_name",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": "",
+    "description": "price of security",
+    "field": "data.securities.price",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "lender name",
+    "field": "data.securities.lender",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Amc Image",
+    "field": "data.securities.amc_image",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Branch number",
+    "field": "data.securities.branch",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Client Code",
+    "field": "data.securities.client_code",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String "
+   },
+   {
+    "default_value": null,
+    "description": "Client Name",
+    "field": "data.securities.client_name",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Depository",
+    "field": "data.securities.depository",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Demat Account Number",
+    "field": "data.securities.stock_at",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Quantity",
+    "field": "data.securities.quantity",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Scrip Value",
+    "field": "data.securities.Scrip_value",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Holding as on time",
+    "field": "data.securities.holding_as_on",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.securities.is_eligible",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "Total Quantity",
+    "field": "data.securities.total_qty",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.securities.waiting_to_be_pledged_qty",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.securities.waiting_for_approval_pledged_qty",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "Unpledged Quantity",
+    "field": "data.securities.unpledged_quantity",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "0 or 1",
+    "field": "data.securities.is_choice",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Integer"
+   },
+   {
+    "default_value": null,
+    "description": "Lender Info",
+    "field": "data.lender_info",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Array"
+   },
+   {
+    "default_value": null,
+    "description": "Name of Lender",
+    "field": "data.lender_info.name",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "String"
+   },
+   {
+    "default_value": null,
+    "description": "Minimum Sanctioned Limit",
+    "field": "data.lender_info.minimum_sanctioned_limit",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Maximum Sanctioned Limit",
+    "field": "data.lender_info.maximum_sanctioned_limit",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   },
+   {
+    "default_value": null,
+    "description": "Rate Of Interest",
+    "field": "data.lender_info.rate_of_interest",
+    "group": null,
+    "parent": "c27de88bb4",
+    "parentfield": "success",
+    "parenttype": "API Doc",
+    "type": "Float"
+   }
+  ],
+  "success_example": [
+   {
+    "example": "{\n\t\"message\": \"Success\",\n\t\"data\": {\n\t\t\"Securities\": [\n\t\t\t{\n\t\t\t\t\"ISIN\": \"INF179K01GE1\",\n\t\t\t\t\"Category\": \"Cat C\",\n\t\t\t\t\"eligible_percentage\": 50.0,\n\t\t\t\t\"Scrip_Name\": \"HDFC Infrastructure Fund - IDCW Plan\",\n\t\t\t\t\"Price\": 10.345,\n\t\t\t\t\"lenders\": \"Choice Finserv\",\n\t\t\t\t\"amc_image\": null,\n\t\t\t\t\"Branch\": null,\n\t\t\t\t\"Client_Code\": null,\n\t\t\t\t\"Client_Name\": null,\n\t\t\t\t\"Depository\": null,\n\t\t\t\t\"Stock_At\": null,\n\t\t\t\t\"Quantity\": null,\n\t\t\t\t\"Scrip_Value\": null,\n\t\t\t\t\"Holding_As_On\": null,\n\t\t\t\t\"Is_Eligible\": null,\n\t\t\t\t\"Total_Qty\": null,\n\t\t\t\t\"waiting_to_be_pledged_qty\": null,\n\t\t\t\t\"waiting_for_approval_pledged_qty\": null,\n\t\t\t\t\"unpledged_quantity\": null,\n\t\t\t\t\"is_choice\": 0\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ISIN\": \"INF179K01XX6\",\n\t\t\t\t\"Category\": \"Cat C\",\n\t\t\t\t\"eligible_percentage\": 50.0,\n\t\t\t\t\"Scrip_Name\": \"HDFC Hybrid Equity Fund - IDCW Option - Direct Plan\",\n\t\t\t\t\"Price\": 14.137,\n\t\t\t\t\"lenders\": \"Choice Finserv\",\n\t\t\t\t\"amc_image\": null,\n\t\t\t\t\"Branch\": null,\n\t\t\t\t\"Client_Code\": null,\n\t\t\t\t\"Client_Name\": null,\n\t\t\t\t\"Depository\": null,\n\t\t\t\t\"Stock_At\": null,\n\t\t\t\t\"Quantity\": null,\n\t\t\t\t\"Scrip_Value\": null,\n\t\t\t\t\"Holding_As_On\": null,\n\t\t\t\t\"Is_Eligible\": null,\n\t\t\t\t\"Total_Qty\": null,\n\t\t\t\t\"waiting_to_be_pledged_qty\": null,\n\t\t\t\t\"waiting_for_approval_pledged_qty\": null,\n\t\t\t\t\"unpledged_quantity\": null,\n\t\t\t\t\"is_choice\": 0\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ISIN\": \"INF179K01AC8\",\n\t\t\t\t\"Category\": \"Cat C\",\n\t\t\t\t\"eligible_percentage\": 50.0,\n\t\t\t\t\"Scrip_Name\": \"HDFC Hybrid Debt Fund - IDCW Quarterly\",\n\t\t\t\t\"Price\": 13.6235,\n\t\t\t\t\"lenders\": \"Choice Finserv\",\n\t\t\t\t\"amc_image\": null,\n\t\t\t\t\"Branch\": null,\n\t\t\t\t\"Client_Code\": null,\n\t\t\t\t\"Client_Name\": null,\n\t\t\t\t\"Depository\": null,\n\t\t\t\t\"Stock_At\": null,\n\t\t\t\t\"Quantity\": null,\n\t\t\t\t\"Scrip_Value\": null,\n\t\t\t\t\"Holding_As_On\": null,\n\t\t\t\t\"Is_Eligible\": null,\n\t\t\t\t\"Total_Qty\": null,\n\t\t\t\t\"waiting_to_be_pledged_qty\": null,\n\t\t\t\t\"waiting_for_approval_pledged_qty\": null,\n\t\t\t\t\"unpledged_quantity\": null,\n\t\t\t\t\"is_choice\": 0\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ISIN\": \"INF179K01XE6\",\n\t\t\t\t\"Category\": \"Cat C\",\n\t\t\t\t\"eligible_percentage\": 50.0,\n\t\t\t\t\"Scrip_Name\": \"HDFC Hybrid Debt Fund - Growth Option - Direct Plan\",\n\t\t\t\t\"Price\": 61.4128,\n\t\t\t\t\"lenders\": \"Choice Finserv\",\n\t\t\t\t\"amc_image\": null,\n\t\t\t\t\"Branch\": null,\n\t\t\t\t\"Client_Code\": null,\n\t\t\t\t\"Client_Name\": null,\n\t\t\t\t\"Depository\": null,\n\t\t\t\t\"Stock_At\": null,\n\t\t\t\t\"Quantity\": null,\n\t\t\t\t\"Scrip_Value\": null,\n\t\t\t\t\"Holding_As_On\": null,\n\t\t\t\t\"Is_Eligible\": null,\n\t\t\t\t\"Total_Qty\": null,\n\t\t\t\t\"waiting_to_be_pledged_qty\": null,\n\t\t\t\t\"waiting_for_approval_pledged_qty\": null,\n\t\t\t\t\"unpledged_quantity\": null,\n\t\t\t\t\"is_choice\": 0\n\t\t\t}\n\t\t],\n\t\t\"lender_info\": [\n\t\t\t{\n\t\t\t\t\"name\": \"Choice Finserv\",\n\t\t\t\t\"minimum_sanctioned_limit\": 1000.0,\n\t\t\t\t\"maximum_sanctioned_limit\": 500000.0,\n\t\t\t\t\"rate_of_interest\": 1.25\n\t\t\t}\n\t\t]\n\t}\n}",
+    "parent": "c27de88bb4",
+    "parentfield": "success_example",
+    "parenttype": "API Doc",
+    "title": "success"
+   }
+  ],
+  "title": "Security Latest",
+  "use_api_define": [
+   {
+    "api_doc": "81c55fbdcc",
+    "api_doc_title": "UserAuthorizationRequestandResponse",
+    "parent": "c27de88bb4",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "70b8cb66dd",
+    "api_doc_title": "AcceptJsonHeader",
+    "parent": "c27de88bb4",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "2c99d6bf6d",
+    "api_doc_title": "DataValidationErrorResponse",
+    "parent": "c27de88bb4",
+    "parentfield": "use_api_define",
+    "parenttype": "API Doc"
+   },
+   {
+    "api_doc": "5a72ab8655",
+    "api_doc_title": "APIResponse",
+    "parent": "c27de88bb4",
     "parentfield": "use_api_define",
     "parenttype": "API Doc"
    }
