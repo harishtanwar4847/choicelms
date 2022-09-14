@@ -14,8 +14,7 @@
   "column_break_5",
   "nse_symbol",
   "type",
-  "token_id",
-  "amended_from"
+  "token_id"
  ],
  "fields": [
   {
@@ -63,19 +62,10 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Price"
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Security",
-   "print_hide": 1,
-   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2022-09-07 18:32:07.881586",
+ "modified": "2022-09-14 19:12:39.350956",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security",
