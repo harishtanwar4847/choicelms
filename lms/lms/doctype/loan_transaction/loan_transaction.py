@@ -210,7 +210,6 @@ class LoanTransaction(Document):
                 if type(self.time) == str
                 else (self.time).strftime("%d-%m-%Y %H:%M"),
             }
-            frappe.logger().info("INside ltx on_submit")
             frappe.enqueue_doc("Notification", "Payment", method="send", doc=doc)
             msg = "Dear Customer,\nYou loan account {}  has been credited by payment of Rs. {} . Your loan balance is Rs. {}. {} Spark Loans".format(
                 self.loan,
