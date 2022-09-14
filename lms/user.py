@@ -5555,7 +5555,15 @@ def spark_demat_account(**kwargs):
                     }
                 }
             )
-
+        frappe.delete_doc(
+            "Spark Demat Account",
+            frappe.get_all(
+                "Spark Demat Account",
+                {"customer": customer.name},
+                pluck="name",
+            ),
+            ignore_permissions=True,
+        )
         demat = data.get("demat").get("list")
         demat_list = True
         for i in demat:
@@ -5594,6 +5602,7 @@ def spark_demat_account(**kwargs):
                     "customer": customer.name,
                     "depository": i["depository"],
                     "dpid": i["dpid"],
+                    "is_choice": i["is_choice"],
                     "client_id": i["client_id"],
                 }
             ).insert(ignore_permissions=True)
