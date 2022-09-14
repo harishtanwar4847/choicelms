@@ -3,8 +3,8 @@
 
 frappe.ui.form.on("Spark Email Campaign", {
   refresh: function (frm, cdt, cdn) {
-    if (frm.doc.docstatus == 1) {
-      frm.disable_save();
+    if (frm.doc.docstatus != 0) {
+      frm.get_field("preview_html").$wrapper.html(frm.doc.template_html);
     }
     $("div.grid-heading-row span.hidden-xs").html("Level");
     if (frm.doc.sender_email.length > 0) {
