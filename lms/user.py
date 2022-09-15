@@ -5437,10 +5437,8 @@ def get_demat_details():
         customer = lms.__customer(user.name)
 
         # get demat details from choice
-        print("User kyc", user_kyc)
         las_settings = frappe.get_single("LAS Settings")
         if user_kyc:
-            print("User KYC Status", user_kyc[0].kyc_status)
             payload = {
                 "UserID": las_settings.choice_user_id,
                 "ClientID": user_kyc[0].pan_no,
@@ -5512,10 +5510,11 @@ def get_demat_details():
             filters={"customer": customer.name},
             fields=["customer", "depository", "dpid", "client_id", "is_choice"],
         )
-        # if not demat_details:
-        #     raise lms.exceptions.NotFoundException(_("No Record found"))
-        for d in demat_details:
-            d["stock_at"] = d.get("dpid") + d.get("client_id")
+        if demat_details:
+            # if not demat_details:
+            #     raise lms.exceptions.NotFoundException(_("No Record found"))
+            for d in demat_details:
+                d["stock_at"] = d.get("dpid") + d.get("client_id")
         return utils.respondWithSuccess(data=demat_details)
     except utils.exceptions.APIException as e:
         lms.log_api_error()
