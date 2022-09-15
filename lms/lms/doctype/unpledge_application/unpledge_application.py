@@ -4,7 +4,10 @@
 
 from __future__ import unicode_literals
 
+import json
+
 import frappe
+import requests
 import utils
 from frappe.model.document import Document
 
@@ -88,9 +91,6 @@ class UnpledgeApplication(Document):
 
         application_type = "unpledge" if self.instrument_type == "Shares" else "revoke"
 
-        # price_map = {i.isin: i.price for i in self.items}
-        # unpledge_quantity_map = {i.isin: 0 for i in self.items}
-        # unpledge_requested_quantity_map = {i.isin: i.quantity for i in self.items}
         price_map = {
             "{}{}".format(
                 i.isin, "{}".format("-" + str(i.folio) if i.folio else "")
@@ -142,10 +142,7 @@ class UnpledgeApplication(Document):
             unpledge_quantity_map[isin_folio_combo] = (
                 unpledge_quantity_map[isin_folio_combo] + i.unpledge_quantity
             )
-            # i.price = price_map.get(i.isin)
-            # self.unpledge_collateral_value += i.unpledge_quantity * price_map.get(
-            #     i.isin
-            # )
+
             if self.instrument_type == "Shares":
                 i.price = price_map.get(isin_folio_combo)
             else:
@@ -166,13 +163,6 @@ class UnpledgeApplication(Document):
                         application_type, isin_folio_combo, i.quantity
                     )
                 )
-        # for i in self.items:
-        #     if unpledge_quantity_map.get(i.isin) < i.quantity:
-        #         frappe.throw(
-        #             "You need to {} all {} of isin {}".format(
-        #                 application_type, i.quantity, i.isin
-        #             )
-        #         )
 
     def before_submit(self):
         # check if all securities are sold
@@ -198,7 +188,6 @@ class UnpledgeApplication(Document):
             isin_folio_combo = "{}{}".format(
                 i.isin, "{}".format("-" + str(i.folio) if i.folio else "")
             )
-            # print(unpledge_quantity_map.get(i.isin), i.quantity)
             if unpledge_quantity_map.get(isin_folio_combo) < i.quantity:
                 frappe.throw(
                     "You need to {} all {} of isin {}".format(
@@ -281,39 +270,7 @@ class UnpledgeApplication(Document):
                         approve=True,
                     )
                 )
-                # if lender.cgst_on_dp_reimbursementunpledge_charges > 0:
-                #     cgst = total_dp_reimburse_unpledge_charges * (
-                #         lender.cgst_on_dp_reimbursementunpledge_charges / 100
-                #     )
-                #     loan.create_loan_transaction(
-                #         transaction_type="CGST on DP Reimbursement(Unpledge) Charges",
-                #         amount=cgst,
-                #         gst_percent=lender.cgst_on_dp_reimbursementunpledge_charges,
-                #         charge_reference=total_dp_reimburse_unpledge_charges_reference.name,
-                #         approve=True,
-                #     )
-                # if lender.sgst_on_dp_reimbursementunpledge_charges > 0:
-                #     sgst = total_dp_reimburse_unpledge_charges * (
-                #         lender.sgst_on_dp_reimbursementunpledge_charges / 100
-                #     )
-                #     loan.create_loan_transaction(
-                #         transaction_type="SGST on DP Reimbursement(Unpledge) Charges",
-                #         amount=sgst,
-                #         gst_percent=lender.sgst_on_dp_reimbursementunpledge_charges,
-                #         charge_reference=total_dp_reimburse_unpledge_charges_reference.name,
-                #         approve=True,
-                #     )
-                # if lender.igst_on_dp_reimbursementunpledge_charges > 0:
-                #     igst = total_dp_reimburse_unpledge_charges * (
-                #         lender.igst_on_dp_reimbursementunpledge_charges / 100
-                #     )
-                #     loan.create_loan_transaction(
-                #         transaction_type="IGST on DP Reimbursement(Unpledge) Charges",
-                #         amount=igst,
-                #         gst_percent=lender.igst_on_dp_reimbursementunpledge_charges,
-                #         charge_reference=total_dp_reimburse_unpledge_charges_reference.name,
-                #         approve=True,
-                #     )
+
         else:
             # revoke charges - Mutual Fund
             revoke_charges = lender.revoke_initiate_charges
@@ -335,33 +292,6 @@ class UnpledgeApplication(Document):
                     amount=revoke_charges,
                     approve=True,
                 )
-                # if lender.cgst_on_revocation_charges > 0:
-                #     cgst = revoke_charges * (lender.cgst_on_revocation_charges / 100)
-                #     loan.create_loan_transaction(
-                #         transaction_type="CGST on Revocation Charges",
-                #         amount=cgst,
-                #         gst_percent=lender.cgst_on_revocation_charges,
-                #         charge_reference=revoke_charges_reference.name,
-                #         approve=True,
-                #     )
-                # if lender.sgst_on_revocation_charges > 0:
-                #     sgst = revoke_charges * (lender.sgst_on_revocation_charges / 100)
-                #     loan.create_loan_transaction(
-                #         transaction_type="SGST on Revocation Charges",
-                #         amount=sgst,
-                #         gst_percent=lender.sgst_on_revocation_charges,
-                #         charge_reference=revoke_charges_reference.name,
-                #         approve=True,
-                #     )
-                # if lender.igst_on_revocation_charges > 0:
-                #     igst = revoke_charges * (lender.igst_on_revocation_charges / 100)
-                #     loan.create_loan_transaction(
-                #         transaction_type="IGST on Revocation Charges",
-                #         amount=igst,
-                #         gst_percent=lender.igst_on_revocation_charges,
-                #         charge_reference=revoke_charges_reference.name,
-                #         approve=True,
-                #     )
 
         self.notify_customer()
 
@@ -397,12 +327,6 @@ class UnpledgeApplication(Document):
                     fcm_notification["title"] = "Revoke application accepted"
             elif self.status == "Rejected":
                 if check == True:
-                    # msg = """Dear {},
-                    # Your unpledge request was rejected.
-                    # There is a margin shortfall.
-                    # You can send another unpledge request when there is no margin shortfall.""".format(
-                    #     self.get_loan().get_customer().first_name
-                    # )
                     msg = """Your {msg_type} request was rejected. There is a margin shortfall. You can send another {msg_type} request when there is no margin shortfall.""".format(
                         msg_type=msg_type
                     )
@@ -463,19 +387,6 @@ class UnpledgeApplication(Document):
     def get_lender(self):
         return frappe.get_doc("Lender", self.lender)
 
-    # def check(self):
-    #     loan = self.get_loan()
-    #     final_drawing_power = (loan.total_collateral_value - self.unpledge_collateral_value)*loan.allowable_ltv/100
-    #     print(loan.total_collateral_value,"loan.total_collateral_value")
-    #     print(self.unpledge_collateral_value,"self.unpledge_collateral_value")
-    #     print(final_drawing_power,"final_drawing_power")
-    #     if self.status == "Pending" and final_drawing_power < loan.balance:
-    #         self.status = "Rejected"
-    #         self.workflow_state = "Rejected"
-    #         self.save(ignore_permissions=True)
-    #         frappe.db.commit()
-    #         self.notify_customer(check=True)
-
 
 @frappe.whitelist()
 def get_collateral_details(unpledge_application_name):
@@ -496,11 +407,6 @@ def get_collateral_details(unpledge_application_name):
         ),
         having_clause=" HAVING quantity > 0",
     )
-
-
-import json
-
-import requests
 
 
 @frappe.whitelist()
@@ -562,7 +468,6 @@ def validate_revoc(unpledge_application_name):
                     )
                     data["revocvalidate"]["schemedetails"].append(schemedetails[0])
 
-                print("Data :", data)
                 lms.create_log(
                     {
                         "json_payload": data,
@@ -579,7 +484,6 @@ def validate_revoc(unpledge_application_name):
                 resp = requests.post(
                     url=url, headers=headers, data=json.dumps(req_data)
                 ).text
-                print("Response :", resp)
 
                 encrypted_response = (
                     json.loads(resp).get("res").replace("-", "+").replace("_", "/")
