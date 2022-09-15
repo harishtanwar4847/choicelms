@@ -1338,10 +1338,10 @@ def update_rzp_payment_transaction(data):
 
             loan_transaction.save(ignore_permissions=True)
             frappe.db.commit()
-            if loan_transaction.status == "Approved" and older_razorpay_event in [
-                "Failed",
-                "Authorized",
-            ]:
+            if (
+                loan_transaction.docstatus == 0
+                and loan_transaction.razorpay_event == "Captured"
+            ):
                 loan_transaction.db_set("docstatus", 1)
                 loan_transaction.on_submit()
                 # loan_transaction.run_post_save_methods()
