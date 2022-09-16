@@ -3,16 +3,18 @@ import json
 import os
 import re
 import time
+from ctypes import util
 from datetime import MINYEAR, date, datetime, timedelta
-from logging import debug
-from time import gmtime
+from random import choice, randint
 
 import frappe
 import pandas as pd
 import requests
 import utils
 from frappe import _
+from frappe.exceptions import DoesNotExistError
 from frappe.utils.password import check_password, update_password
+from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms
 from lms import convert_sec_to_hh_mm_ss, holiday_list
@@ -37,7 +39,7 @@ def set_pin(**kwargs):
             },
         )
 
-        frappe.db.begin()
+        # frappe.db.begin()
         update_password(frappe.session.user, data.get("pin"))
         frappe.db.commit()
 
@@ -55,6 +57,7 @@ def set_pin(**kwargs):
         return utils.respondWithSuccess(message=frappe._("User PIN has been set"))
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
 
 
@@ -75,17 +78,21 @@ def kyc_old(**kwargs):
         try:
             datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
         except ValueError:
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Incorrect date format, should be DD-MM-YYYY")
             )
 
         reg = lms.regex_special_characters(search=data.get("pan_no"))
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Character not allowed"))
 
         try:
             user_kyc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
@@ -95,13 +102,16 @@ def kyc_old(**kwargs):
         if not user_kyc:
 
             if not data.get("accept_terms"):
-                return utils.respondUnauthorized(
-                    message=frappe._("Please accept Terms and Conditions.")
+                # return utils.respondUnauthorized(
+                #     message=frappe._("Please accept Terms and Conditions.")
+                # )
+                raise lms.exceptions.UnauthorizedException(
+                    _("Please accept Terms and Conditions.")
                 )
 
             user = lms.__user()
 
-            frappe.db.begin()
+            # frappe.db.begin()
             # save user kyc consent
             kyc_consent_doc = frappe.get_doc(
                 {
@@ -142,9 +152,11 @@ def kyc_old(**kwargs):
         return utils.respondWithSuccess(data=data)
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
 
 
+@frappe.whitelist()
 def get_choice_kyc_old(pan_no, birth_date):
     try:
         las_settings = frappe.get_single("LAS Settings")
@@ -171,14 +183,14 @@ def get_choice_kyc_old(pan_no, birth_date):
 
         user_kyc = lms.__user_kyc(pan_no=pan_no, throw=False)
         user_kyc.kyc_type = "CHOICE"
-        user_kyc.investor_name = data["investorName"]
+        user_kyc.fullname = data["investorName"]
         user_kyc.father_name = data["fatherName"]
         user_kyc.mother_name = data["motherName"]
-        user_kyc.address = data["address"].replace("~", " ")
+        user_kyc.address_details = data["address"].replace("~", " ")
         user_kyc.city = data["addressCity"]
         user_kyc.state = data["addressState"]
         user_kyc.pincode = data["addressPinCode"]
-        user_kyc.mobile_number = data["mobileNum"]
+        user_kyc.choice_mob_no = data["mobileNum"]
         user_kyc.choice_client_id = data["clientId"]
         user_kyc.pan_no = data["panNum"]
         user_kyc.date_of_birth = datetime.strptime(
@@ -220,6 +232,7 @@ def get_choice_kyc_old(pan_no, birth_date):
     except UserKYCNotFoundException:
         raise
     except Exception as e:
+        lms.log_api_error()
         raise utils.exceptions.APIException(str(e))
 
 
@@ -241,16 +254,22 @@ def get_choice_kyc(**kwargs):
         )
 
         if not data.get("accept_terms"):
-            return utils.respondUnauthorized(
-                message=frappe._("Please accept Terms and Conditions.")
+            # return utils.respondUnauthorized(
+            #     message=frappe._("Please accept Terms and Conditions.")
+            # )
+            raise lms.exceptions.UnauthorizedException(
+                _("Please accept Terms and Conditions.")
             )
 
         try:
             datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
         except ValueError:
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Incorrect date format, should be DD-MM-YYYY")
             )
 
         reg = lms.regex_special_characters(
@@ -259,10 +278,11 @@ def get_choice_kyc(**kwargs):
         )
 
         if not reg or len(data.get("pan_no")) != 10:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Invalid PAN"),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Invalid PAN"),
+            # )
+            raise lms.exceptions.FailureException(_("Invalid PAN"))
 
         try:
             user_kyc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
@@ -294,20 +314,29 @@ def get_choice_kyc(**kwargs):
 
                 data = res.json()
 
+                log = {
+                    "url": las_settings.choice_pan_api,
+                    "headers": headers,
+                    "request": params,
+                    "response": data,
+                }
+
+                lms.create_log(log, "get_choice_kyc_log")
+
                 if not res.ok or "errorCode" in data:
                     raise UserKYCNotFoundException
                     raise utils.exceptions.APIException(res.text)
 
                 # user_kyc = lms.__user_kyc(pan_no=pan_no, throw=False)
                 user_kyc["kyc_type"] = "CHOICE"
-                user_kyc["investor_name"] = data["investorName"]
+                user_kyc["fullname"] = data["investorName"]
                 user_kyc["father_name"] = data["fatherName"]
                 user_kyc["mother_name"] = data["motherName"]
                 user_kyc["address"] = data["address"].replace("~", " ")
                 user_kyc["city"] = data["addressCity"]
                 user_kyc["state"] = data["addressState"]
                 user_kyc["pincode"] = data["addressPinCode"]
-                user_kyc["mobile_number"] = data["mobileNum"]
+                user_kyc["choice_mob_no"] = data["mobileNum"]
                 user_kyc["choice_client_id"] = data["clientId"]
                 user_kyc["pan_no"] = data["panNum"]
                 user_kyc["email"] = data["emailId"]
@@ -350,6 +379,7 @@ def get_choice_kyc(**kwargs):
         return utils.respondWithSuccess(data=data)
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         return e.respond()
 
 
@@ -391,6 +421,7 @@ def kyc(**kwargs):
                 "mobile_number",
                 "choice_client_id",
                 "pan_no",
+                "email",
                 "date_of_birth",
                 "email",
                 "bank_account",
@@ -413,45 +444,52 @@ def kyc(**kwargs):
         )
 
         if not reg or len(user_kyc.get("pan_no")) != 10:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Invalid PAN"),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Invalid PAN"),
+            # )
+            raise lms.exceptions.FailureException(_("Invalid PAN"))
 
         try:
             datetime.strptime(user_kyc.get("date_of_birth"), "%Y-%m-%d")
         except ValueError:
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._("Incorrect date of birth format"),
+            # raise utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._("Incorrect date of birth format"),
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Incorrect date of birth format")
             )
 
         try:
-            user_kyc_doc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
+            user_kyc_doc = lms.__user_kyc(frappe.session.user, user_kyc.get("pan_no"))
         except UserKYCNotFoundException:
             user_kyc_doc = None
 
         if not user_kyc_doc:
 
             if not data.get("accept_terms"):
-                return utils.respondUnauthorized(
-                    message=frappe._("Please accept Terms and Conditions.")
+                # return utils.respondUnauthorized(
+                #     message=frappe._("Please accept Terms and Conditions.")
+                # )
+                raise lms.exceptions.UnauthorizedException(
+                    _("Please accept Terms and Conditions.")
                 )
 
-            frappe.db.begin()
+            # frappe.db.begin()
 
-            # res = get_choice_kyc(data.get("pan_no"), data.get("birth_date"))
-            # user_kyc = res["user_kyc"]
+            # res = get_choice_kyc_old(data.get("pan_no"), data.get("date_of_birth"))
+            # user_kyc_doc = res["user_kyc"]
             user_kyc_doc = lms.__user_kyc(pan_no=user_kyc.get("pan_no"), throw=False)
             user_kyc_doc.kyc_type = "CHOICE"
-            user_kyc_doc.investor_name = user_kyc["investor_name"]
+            user_kyc_doc.fullname = user_kyc["investor_name"]
             user_kyc_doc.father_name = user_kyc["father_name"]
             user_kyc_doc.mother_name = user_kyc["mother_name"]
-            user_kyc_doc.address = user_kyc["address"]
+            user_kyc_doc.address_details = user_kyc["address"]
             user_kyc_doc.city = user_kyc["city"]
             user_kyc_doc.state = user_kyc["state"]
             user_kyc_doc.pincode = user_kyc["pincode"]
-            user_kyc_doc.mobile_number = user_kyc["mobile_number"]
+            user_kyc_doc.choice_mob_no = user_kyc["choice_mob_no"]
             user_kyc_doc.choice_client_id = user_kyc["choice_client_id"]
             user_kyc_doc.pan_no = user_kyc["pan_no"]
             user_kyc_doc.email = user_kyc["email"]
@@ -526,11 +564,12 @@ def kyc(**kwargs):
         return utils.respondWithSuccess(data=data)
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
 
 
 @frappe.whitelist()
-def securities_old(**kwargs):
+def securities_old_1(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
@@ -542,10 +581,11 @@ def securities_old(**kwargs):
         )
         reg = lms.regex_special_characters(search=data.get("lender"))
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Character not allowed."))
 
         if not data.get("lender", None):
             data["lender"] = frappe.get_last_doc("Lender").name
@@ -592,6 +632,7 @@ def securities_old(**kwargs):
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         return e.respond()
 
 
@@ -612,10 +653,11 @@ def securities(**kwargs):
 
         reg = lms.regex_special_characters(search=data.get("lender"))
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         if not data.get("lender", None):
             data["lender"] = frappe.get_last_doc("Lender").name
@@ -655,6 +697,14 @@ def securities(**kwargs):
                     raise utils.exceptions.APIException(res.text)
 
                 res_json = res.json()
+                log = {
+                    "url": las_settings.choice_securities_list_api,
+                    "headers": {"Accept": "application/json"},
+                    "request": payload,
+                    "response": res_json,
+                }
+
+                lms.create_log(log, "securities_log")
                 frappe.logger().info(res_json)
                 if res_json["Status"] != "Success":
                     raise utils.exceptions.APIException(res.text)
@@ -939,6 +989,497 @@ def securities(**kwargs):
         return utils.respondWithSuccess(data=securities_list)
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
+
+
+"""Changes as per Concentration rule BRE security selection screen"""
+
+
+@frappe.whitelist()
+def securities_new(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(
+            kwargs,
+            {"lender": "", "level": "", "demat_account": ""},
+        )
+
+        if data.get("demat_account"):
+            demat_ = [i["pledgor_boid"] for i in data.get("demat_account", {})["list"]]
+            demat = lms.convert_list_to_tuple_string(demat_)
+
+        reg = lms.regex_special_characters(search=data.get("lender"))
+        if reg:
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+
+        if not data.get("lender", None):
+            data["lender"] = frappe.get_last_doc("Lender").name
+
+        customer = lms.__customer()
+        user_kyc = lms.__user_kyc()
+
+        securities_list = frappe.db.sql(
+            """
+        SELECT `pan` as PAN, `isin` as ISIN, `branch` as Branch, `client_code` as Client_Code, `client_name` as Client_Name, `scrip_name` as Scrip_Name, `depository` as Depository, `stock_at` as Stock_At, `quantity` as Quantity, `price` as Price, `scrip_value` as Scrip_Value, `holding_as_on` as Holding_As_On
+        FROM `tabClient Holding` as ch
+        WHERE DATE_FORMAT(ch.creation, '%Y-%m-%d') = '{}'
+        AND ch.pan = '{}' {}
+        order by ch.`modified` DESC""".format(
+                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
+                user_kyc.pan_no,
+                "AND ch.stock_at in {}".format(demat)
+                if data.get("demat_account")
+                else "",
+            ),
+            as_dict=True,
+        )
+
+        if len(securities_list) == 0:
+
+            try:
+                las_settings = frappe.get_single("LAS Settings")
+
+                # get securities list from choice
+                payload = {
+                    "UserID": las_settings.choice_user_id,
+                    "ClientID": user_kyc.pan_no,
+                }
+                res = requests.post(
+                    url=las_settings.choice_securities_list_api,
+                    json=payload,
+                    headers={"Accept": "application/json"},
+                )
+                res_json = res.json()
+                log = {
+                    "url": las_settings.choice_securities_list_api,
+                    "headers": {"Accept": "application/json"},
+                    "request": payload,
+                    "response": res_json,
+                }
+
+                lms.create_log(log, "securities_new_log")
+
+                if not res.ok:
+                    raise utils.exceptions.APIException(res.text)
+                frappe.logger().info(res_json)
+
+                if res_json["Status"] != "Success":
+                    raise utils.exceptions.APIException(res.text)
+
+                # setting eligibility
+                securities_list = [
+                    i for i in res_json["Response"] if i.get("Price") > 0
+                ]
+
+                # bulk insert fields
+                fields = [
+                    "name",
+                    "pan",
+                    "isin",
+                    "branch",
+                    "client_code",
+                    "client_name",
+                    "scrip_name",
+                    "depository",
+                    "stock_at",
+                    "quantity",
+                    "price",
+                    "scrip_value",
+                    "holding_as_on",
+                    "creation",
+                    "modified",
+                    "owner",
+                    "modified_by",
+                ]
+
+                # bulk insert values
+                values = []
+                for i in securities_list:
+                    if i.get("Holding_As_On", None):
+                        Holding_As_On = datetime.strptime(
+                            i["Holding_As_On"], "%Y-%m-%dT%H:%M:%S"
+                        )
+                    else:
+                        Holding_As_On = frappe.utils.now_datetime()
+
+                    values.append(
+                        [
+                            i["Stock_At"] + "-" + i["ISIN"],
+                            user_kyc.pan_no,
+                            i["ISIN"],
+                            i["Branch"] if i.get("Branch", None) else "",
+                            i["Client_Code"] if i.get("Client_Code", None) else "",
+                            i["Client_Name"] if i.get("Client_Name", None) else "",
+                            i["Scrip_Name"],
+                            i["Depository"] if i.get("Depository", None) else "",
+                            i["Stock_At"],
+                            i["Quantity"],
+                            i["Price"],
+                            i["Scrip_Value"] if i.get("Scrip_Value", None) else "",
+                            Holding_As_On,
+                            frappe.utils.now(),
+                            frappe.utils.now(),
+                            frappe.session.user,
+                            frappe.session.user,
+                        ]
+                    )
+
+                # delete existng records
+                frappe.db.delete("Client Holding", {"pan": user_kyc.pan_no})
+
+                # bulk insert
+                frappe.db.bulk_insert(
+                    "Client Holding",
+                    fields=fields,
+                    values=values,
+                    ignore_duplicates=True,
+                )
+
+            except requests.RequestException as e:
+                raise utils.exceptions.APIException(str(e))
+
+        securities_list_ = [i["ISIN"] for i in securities_list]
+        securities_category_map = lms.get_allowed_securities(
+            securities_list_, data.get("lender")
+        )
+
+        pledge_waiting_securitites = frappe.db.sql(
+            """
+            SELECT GROUP_CONCAT(la.name) as loan_application, la.pledgor_boid,
+            lai.isin, sum(lai.pledged_quantity) as pledged_quantity,
+            ch.name
+            FROM `tabLoan Application` as la
+            LEFT JOIN `tabLoan Application Item` lai ON lai.parent = la.name
+            LEFT JOIN `tabClient Holding` ch ON ch.isin = lai.isin and ch.stock_at = la.pledgor_boid
+            where la.status='Waiting to be pledged'
+            AND ch.pan = '{}'
+            AND lai.isin in {}
+            AND la.customer = '{}'
+            group by ch.stock_at, lai.isin
+            order by la.pledgor_boid, lai.isin
+        """.format(
+                user_kyc.pan_no,
+                lms.convert_list_to_tuple_string(securities_list_),
+                customer.name,
+            ),
+            as_dict=True,
+            # debug=True,
+        )
+
+        if len(pledge_waiting_securitites) > 0:
+            for i in pledge_waiting_securitites:
+                try:
+                    if not securities_category_map[i["isin"]].get(
+                        "waiting_to_be_pledged_qty", None
+                    ):
+                        securities_category_map[i["isin"]][
+                            "waiting_to_be_pledged_qty"
+                        ] = {}
+                        # if not securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"].get(i['pledgor_boid'], None):
+                        #     securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][i['pledgor_boid']] = 0
+
+                    securities_category_map[i["isin"]]["waiting_to_be_pledged_qty"][
+                        i["pledgor_boid"]
+                    ] = i["pledged_quantity"]
+                except KeyError:
+                    continue
+
+        waiting_for_lender_approval_securities = frappe.db.sql(
+            """
+            SELECT GROUP_CONCAT(cl.application_name) as loan_application, GROUP_CONCAT(cl.loan) as loan,
+            cl.pledgor_boid, cl.isin, sum(cl.quantity) as pledged_quantity,
+            ch.name
+            FROM `tabCollateral Ledger` as cl
+            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
+            WHERE (cl.lender_approval_status='' OR cl.lender_approval_status='Approved')
+            AND cl.request_type = 'Pledge'
+            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
+            AND ch.pan = '{}'
+            AND cl.isin in {}
+            AND cl.customer = '{}'
+            group by ch.stock_at, cl.isin
+            order by cl.pledgor_boid, cl.isin;
+        """.format(
+                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
+                user_kyc.pan_no,
+                lms.convert_list_to_tuple_string(securities_list_),
+                customer.name,
+            ),
+            as_dict=True,
+        )
+
+        if len(waiting_for_lender_approval_securities) > 0:
+            for i in waiting_for_lender_approval_securities:
+                try:
+                    if not securities_category_map[i["isin"]].get(
+                        "waiting_for_approval_pledged_qty", None
+                    ):
+                        securities_category_map[i["isin"]][
+                            "waiting_for_approval_pledged_qty"
+                        ] = {}
+                        # if not securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"].get(i['pledgor_boid'], None):
+                        #     securities_category_map[i["isin"]]["waiting_for_approval_pledged_qty"][i['pledgor_boid']] = 0
+
+                    securities_category_map[i["isin"]][
+                        "waiting_for_approval_pledged_qty"
+                    ][i["pledgor_boid"]] = i["pledged_quantity"]
+                except KeyError:
+                    continue
+
+        unpledge_approved_securities = frappe.db.sql(
+            """
+            SELECT GROUP_CONCAT(cl.loan) as loan,
+            cl.pledgor_boid, cl.isin, sum(cl.quantity) as unpledged_quantity,
+            ch.name
+            FROM `tabCollateral Ledger` as cl
+            LEFT JOIN `tabClient Holding` ch ON ch.isin = cl.isin and ch.stock_at = cl.pledgor_boid
+            WHERE cl.lender_approval_status='Approved'
+            AND cl.request_type = 'Unpledge'
+            AND DATE_FORMAT(cl.creation, '%Y-%m-%d') = '{}'
+            AND ch.pan = '{}'
+            AND cl.isin in {}
+            AND cl.customer = '{}'
+            group by ch.stock_at, cl.isin
+            order by cl.pledgor_boid, cl.isin;
+        """.format(
+                datetime.strftime(frappe.utils.now_datetime(), "%Y-%m-%d"),
+                user_kyc.pan_no,
+                lms.convert_list_to_tuple_string(securities_list_),
+                customer.name,
+            ),
+            as_dict=True,
+        )
+
+        if len(unpledge_approved_securities) > 0:
+            for i in unpledge_approved_securities:
+                try:
+                    if not securities_category_map[i["isin"]].get(
+                        "unpledged_quantity", None
+                    ):
+                        securities_category_map[i["isin"]]["unpledged_quantity"] = {}
+                    # securities_category_map[i["isin"]]["unpledged_quantity"] = i[
+                    #     "unpledged_quantity"
+                    # ]
+
+                    securities_category_map[i["isin"]]["unpledged_quantity"][
+                        i["pledgor_boid"]
+                    ] = i["unpledged_quantity"]
+                except KeyError:
+                    continue
+
+        for i in securities_list:
+            # process actual qty
+            if i.get("Holding_As_On", None) and not isinstance(i["Holding_As_On"], str):
+                i["Holding_As_On"] = i["Holding_As_On"].strftime("%Y-%m-%dT%H:%M:%S")
+
+            try:
+                i["Category"] = securities_category_map[i["ISIN"]].get(
+                    "security_category"
+                )
+                i["Is_Eligible"] = True
+                i["Total_Qty"] = i["Quantity"]
+
+                if not i.get("waiting_to_be_pledged_qty", None):
+                    i["waiting_to_be_pledged_qty"] = 0
+
+                if securities_category_map[i["ISIN"]].get(
+                    "waiting_to_be_pledged_qty", None
+                ):
+                    if (
+                        i["Stock_At"]
+                        in securities_category_map[i["ISIN"]][
+                            "waiting_to_be_pledged_qty"
+                        ].keys()
+                    ):
+                        i["waiting_to_be_pledged_qty"] += float(
+                            securities_category_map[i["ISIN"]][
+                                "waiting_to_be_pledged_qty"
+                            ][i["Stock_At"]]
+                        )
+
+                if not i.get("waiting_for_approval_pledged_qty", None):
+                    i["waiting_for_approval_pledged_qty"] = 0
+
+                if securities_category_map[i["ISIN"]].get(
+                    "waiting_for_approval_pledged_qty", None
+                ):
+                    if (
+                        i["Stock_At"]
+                        in securities_category_map[i["ISIN"]][
+                            "waiting_for_approval_pledged_qty"
+                        ].keys()
+                    ):
+                        i["waiting_for_approval_pledged_qty"] += float(
+                            securities_category_map[i["ISIN"]][
+                                "waiting_for_approval_pledged_qty"
+                            ][i["Stock_At"]]
+                        )
+
+                if not i.get("unpledged_quantity", None):
+                    i["unpledged_quantity"] = 0
+
+                if securities_category_map[i["ISIN"]].get("unpledged_quantity", None):
+                    if (
+                        i["Stock_At"]
+                        in securities_category_map[i["ISIN"]][
+                            "unpledged_quantity"
+                        ].keys()
+                    ):
+                        i["unpledged_quantity"] += float(
+                            securities_category_map[i["ISIN"]]["unpledged_quantity"][
+                                i["Stock_At"]
+                            ]
+                        )
+
+                available_quantity = (i["Quantity"] + i["unpledged_quantity"]) - (
+                    i["waiting_to_be_pledged_qty"]
+                    + i["waiting_for_approval_pledged_qty"]
+                )
+                i["Quantity"] = (
+                    available_quantity if available_quantity > 0 else float(0)
+                )
+
+            except KeyError:
+                i["Is_Eligible"] = False
+                i["Category"] = None
+
+        return utils.respondWithSuccess(data=securities_list)
+
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
+
+
+@frappe.whitelist()
+def schemes(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(
+            kwargs,
+            {"scheme_type": "", "lender": "", "level": ""},
+        )
+
+        reg = lms.regex_special_characters(
+            search=data.get("scheme_type") + data.get("lender")
+            if data.get("lender")
+            else "" + data.get("level")
+            if data.get("level")
+            else ""
+        )
+        if reg:
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+
+        if data.get("scheme_type") not in ["Equity", "Debt"]:
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Scheme type should be either Equity or Debt."),
+            # )
+            raise lms.exceptions.FailureException(
+                _("Scheme type should be either Equity or Debt.")
+            )
+        if not data.get("lender", None):
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Atleast one lender required"),
+            )
+        else:
+            lender_list = data.get("lender").split(",")
+
+        if not data.get("level"):
+            return utils.respondWithFailure(
+                status=422,
+                message=frappe._("Atleast one level required"),
+            )
+            # data["level"] = []
+
+        if isinstance(data.get("level"), str):
+            data["level"] = data.get("level").split(",")
+
+        scheme = ""
+        lender = ""
+        sub_query = ""
+        lender_clause = lms.convert_list_to_tuple_string(lender_list)
+        lender = " and als.lender IN {}".format(lender_clause)
+
+        if data.get("scheme_type"):
+            scheme = " and als.scheme_type = '{}'".format(data.get("scheme_type"))
+        if data.get("level"):
+            levels = lms.convert_list_to_tuple_string(data.get("level"))
+            sub_query = " and als.security_category in (select security_category from `tabConcentration Rule` where parent in {} and idx in {})".format(
+                lender_clause, levels
+            )
+
+        schemes_list = frappe.db.sql(
+            """select als.isin, als.security_name as scheme_name, als.allowed, als.eligible_percentage as ltv, als.instrument_type, als.scheme_type, round(s.price,4) as price, group_concat(lender,'') as lenders, als.amc_code, am.amc_image
+            from `tabAllowed Security` als
+            LEFT JOIN `tabSecurity` s on s.isin = als.isin
+            LEFT JOIN `tabAMC Master` am on am.amc_code = als.amc_code
+            where als.instrument_type='Mutual Fund' and
+            als.allowed = 1 and  s.price > 0{}{}{}
+            group by als.isin
+            order by als.creation desc;""".format(
+                scheme, lender, sub_query
+            ),
+            as_dict=True,
+        )
+        # if not schemes_list:
+        #     return utils.respondWithSuccess(message=frappe._("No record found."))
+        for scheme in schemes_list:
+            if scheme.amc_image:
+                scheme.amc_image = frappe.utils.get_url(scheme.amc_image)
+
+        return utils.respondWithSuccess(
+            message=frappe._("Success"), data={"schemes_list": schemes_list}
+        )
+
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
+
+
+@frappe.whitelist()
+def isin_details(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(
+            kwargs,
+            {"isin": "required"},
+        )
+
+        reg = lms.regex_special_characters(search=data.get("isin"))
+        if reg:
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+
+        isin_details = frappe.db.sql(
+            """select als.isin, als.eligible_percentage as ltv, (select category_name from `tabSecurity Category` where name = als.security_category) as category, l.name, l.minimum_sanctioned_limit, l.maximum_sanctioned_limit, l.rate_of_interest from `tabAllowed Security` als LEFT JOIN `tabLender` l on l.name = als.lender where als.isin='{}'""".format(
+                data.get("isin")
+            ),
+            as_dict=True,
+        )
+
+        # if not isin_details:
+        #     return utils.respondWithSuccess(message=frappe._("No record found."))
+
+        return utils.respondWithSuccess(
+            message=frappe._("Success"), data={"isin_details": isin_details}
+        )
+    except utils.exceptions.APIException as e:
         return e.respond()
 
 
@@ -1016,7 +1557,7 @@ def dashboard_old():
 
 
 @frappe.whitelist()
-def approved_securities(**kwargs):
+def approved_securities_old(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
@@ -1039,10 +1580,11 @@ def approved_securities(**kwargs):
             search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
         )
         if reg or search_reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         if isinstance(data.get("is_download"), str):
             data["is_download"] = int(data.get("is_download"))
@@ -1089,7 +1631,8 @@ def approved_securities(**kwargs):
             )
 
             if not approved_security_list:
-                return utils.respondNotFound(message=_("No Record Found"))
+                # return utils.respondNotFound(message=_("No Record Found"))
+                raise lms.exceptions.NotFoundException(_("No Record found"))
 
             lt_list = []
 
@@ -1135,16 +1678,6 @@ def approved_securities(**kwargs):
             )
 
             pdf_file = open(approved_security_pdf_file_path, "wb")
-            # a = df.to_html()
-            # a = a.replace("<th></th>","<th>Sr.No.</th>")
-            # style = """<style>
-            # 	tr {
-            # 	page-break-inside: avoid;
-            # 	}
-            # 	</style>
-            # 	"""
-            # 	# th {text-align: center;}
-            # html_with_style = style + a
 
             from frappe.utils.pdf import get_pdf
 
@@ -1198,6 +1731,218 @@ def approved_securities(**kwargs):
         return e.respond()
 
 
+"""Changes as per Concentration rule BRE"""
+
+
+@frappe.whitelist()
+def approved_securities(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "lender": "required",
+                "start": "decimal|min:0",
+                "per_page": "decimal|min:0",
+                "search": "",
+                "category": "",
+                "is_download": "decimal|between:0,1",
+                "loan_type": "",
+            },
+        )
+
+        reg = lms.regex_special_characters(
+            search=data.get("lender") + data.get("category")
+        )
+        search_reg = lms.regex_special_characters(
+            search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
+        )
+        if reg or search_reg:
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+
+        if isinstance(data.get("is_download"), str):
+            data["is_download"] = int(data.get("is_download"))
+
+        if not data.get("loan_type") in [
+            "Equity",
+            "Mutual Fund - Equity",
+            "Mutual Fund - Debt",
+        ]:
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._(
+            #         "Loan type should be in Equity, Mutual Fund - Equity, Mutual Fund - Debt."
+            #     ),
+            # )
+            raise lms.exceptions.FailureException(
+                _(
+                    "Loan type should be in Equity, Mutual Fund - Equity, Mutual Fund - Debt."
+                )
+            )
+
+        if data.get("loan_type") == "Mutual Fund - Equity":
+            data["loan_type"] = "Equity"
+        elif data.get("loan_type") == "Mutual Fund - Debt":
+            data["loan_type"] = "Debt"
+        else:
+            data["loan_type"] = "Shares"
+
+        security_category_list_ = frappe.db.get_all(
+            "Security Category",
+            filters={"lender": data.get("lender")},
+            fields=["distinct(category_name)"],
+            order_by="category_name asc",
+        )
+        security_category_list = [i.category_name for i in security_category_list_]
+
+        data["instrument_type"] = (
+            "Shares" if data.get("loan_type") == "Shares" else "Mutual Fund"
+        )
+
+        filters = ""
+        if data.get("loan_type", None) != "Shares":
+            filters = "and scheme_type = '{}'".format(
+                data.get("loan_type")
+                if data.get("loan_type") in ["Equity", "Debt"]
+                else ""
+            )
+
+        if data.get("search", None):
+            search_key = "like " + str("'%" + data.get("search") + "%'")
+            filters += "and security_name {}".format(search_key)
+
+        if data.get("category", None):
+            filters += " and security_category like '{}_%'".format(data.get("category"))
+
+        approved_security_list = []
+        approved_security_pdf_file_url = ""
+        allowed = ""
+        if data.get("instrument_type") == "Mutual Fund":
+            allowed = "and alsc.allowed = 1"
+
+        if data.get("is_download"):
+            approved_security_list = frappe.db.sql(
+                """
+            select alsc.isin, alsc.security_name, alsc.allowed, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {allowed} and instrument_type = "{instrument_type}" {filters} order by security_name asc;""".format(
+                    instrument_type=data.get("instrument_type"),
+                    lender=data.get("lender"),
+                    filters=filters,
+                    allowed=allowed,
+                ),
+                as_dict=1,
+            )
+
+            approved_security_list.sort(
+                key=lambda item: (item["security_name"]).title(),
+            )
+
+            if not approved_security_list:
+                # return utils.respondNotFound(message=_("No Record Found"))
+                raise lms.exceptions.NotFoundException(_("No Record found"))
+
+            lt_list = []
+
+            for list in approved_security_list:
+                lt_list.append(list.values())
+            df = pd.DataFrame(lt_list)
+            df.columns = approved_security_list[0].keys()
+            df.drop("eligible_percentage", inplace=True, axis=1)
+            df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
+            df.index += 1
+            approved_security_pdf_file = "{}-approved-securities.pdf".format(
+                data.get("lender")
+            ).replace(" ", "-")
+
+            date_ = frappe.utils.now_datetime()
+            # formatting of date as 1 => 1st, 11 => 11th, 21 => 21st
+            formatted_date = lms.date_str_format(date=date_.day)
+
+            curr_date = formatted_date + date_.strftime(" %B, %Y")
+
+            approved_security_pdf_file_path = frappe.utils.get_files_path(
+                approved_security_pdf_file
+            )
+
+            lender = frappe.get_doc("Lender", data["lender"])
+            las_settings = frappe.get_single("LAS Settings")
+            logo_file_path_1 = lender.get_lender_logo_file()
+            logo_file_path_2 = las_settings.get_spark_logo_file()
+            approved_securities_template = lender.get_approved_securities_template()
+            doc = {
+                "column_name": df.columns,
+                "rows": df.iterrows(),
+                "date": curr_date,
+                "logo_file_path_1": logo_file_path_1.file_url
+                if logo_file_path_1
+                else "",
+                "logo_file_path_2": logo_file_path_2.file_url
+                if logo_file_path_2
+                else "",
+                "instrument_type": data.get("instrument_type"),
+                "scheme_type": data.get("loan_type"),
+            }
+            agreement = frappe.render_template(
+                approved_securities_template.get_content(), {"doc": doc}
+            )
+
+            pdf_file = open(approved_security_pdf_file_path, "wb")
+
+            from frappe.utils.pdf import get_pdf
+
+            # pdf = get_pdf(html_with_style)
+            pdf = get_pdf(
+                agreement,
+                options={
+                    "margin-right": "1mm",
+                    "margin-left": "1mm",
+                    "page-size": "A4",
+                },
+            )
+            pdf_file.write(pdf)
+            pdf_file.close()
+
+            approved_security_pdf_file_url = frappe.utils.get_url(
+                "files/{}-approved-securities.pdf".format(data.get("lender")).replace(
+                    " ", "-"
+                )
+            )
+        else:
+            if not data.get("per_page", None):
+                data["per_page"] = 20
+            if not data.get("start", None):
+                data["start"] = 0
+
+            approved_security_list = frappe.db.sql(
+                """
+            select alsc.isin, alsc.security_name, alsc.allowed, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {allowed} and instrument_type = "{instrument_type}" {filters} order by security_name asc limit {offset},{limit};""".format(
+                    instrument_type=data.get("instrument_type"),
+                    lender=data.get("lender"),
+                    filters=filters,
+                    allowed=allowed,
+                    limit=data.get("per_page"),
+                    offset=data.get("start"),
+                ),
+                as_dict=1,
+            )
+
+        res = {
+            "security_category_list": security_category_list,
+            "approved_securities_list": approved_security_list,
+            "pdf_file_url": approved_security_pdf_file_url,
+        }
+
+        return utils.respondWithSuccess(data=res)
+
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
+
+
 @frappe.whitelist()
 def all_loans_list(**kwargs):
     try:
@@ -1205,7 +1950,8 @@ def all_loans_list(**kwargs):
 
         customer = lms.__customer()
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         all_loans = frappe.get_all(
             "Loan", filters={"customer": customer.name}, order_by="creation desc"
@@ -1214,6 +1960,7 @@ def all_loans_list(**kwargs):
         return utils.respondWithSuccess(data=all_loans)
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         return e.respond()
 
 
@@ -1228,10 +1975,12 @@ def my_pledge_securities(**kwargs):
         customer = lms.__customer()
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+
         try:
             if data.get("loan_name"):
                 loan = frappe.get_doc("Loan", data.get("loan_name"))
@@ -1244,13 +1993,16 @@ def my_pledge_securities(**kwargs):
                 )
                 loan = frappe.get_doc("Loan", latest_loan[0].name)
         except frappe.DoesNotExistError:
-            return utils.respondNotFound(message=frappe._("Loan not found."))
+            # return utils.respondNotFound(message=frappe._("Loan not found."))
+            raise lms.exceptions.NotFoundException(_("Loan not found"))
 
         if loan.customer != customer.name:
-            return utils.respondForbidden(message=_("Please use your own Loan."))
+            # return utils.respondForbidden(message=_("Please use your own Loan."))
+            raise lms.exceptions.ForbiddenException(_("Please use your own Loan"))
 
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         all_pledged_securities = []
         for i in loan.get("items"):
@@ -1262,12 +2014,14 @@ def my_pledge_securities(**kwargs):
                     "security_category": i.get("security_category"),
                     "price": i.get("price"),
                     "amount": i.get("amount"),
+                    "folio": i.get("folio"),
                 }
             )
         all_pledged_securities.sort(key=lambda item: item["security_name"])
 
         res = {
             "loan_name": loan.name,
+            "instrument_type": loan.instrument_type,
             "total_value": loan.total_collateral_value,
             "drawing_power": loan.drawing_power,
             "balance": loan.balance,
@@ -1321,9 +2075,13 @@ def my_pledge_securities(**kwargs):
             res["unpledge"] = None
         else:
             # get amount_available_for_unpledge,min collateral value
+            msg_type = ["unpledge", "pledged securities"]
+            if loan.instrument_type == "Mutual Fund":
+                msg_type = ["revoke", "liened schemes"]
+
             res["unpledge"] = dict(
-                unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
-                    loan.get_customer().first_name
+                unpledge_msg_while_margin_shortfall="""OOPS! Dear {}, It seems you have a margin shortfall. You cannot {} any of the {} until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                    loan.get_customer().first_name, msg_type[0], msg_type[1]
                 )
                 if loan_margin_shortfall
                 else None,
@@ -1333,6 +2091,7 @@ def my_pledge_securities(**kwargs):
         return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         return e.respond()
 
 
@@ -1344,12 +2103,17 @@ def dashboard(**kwargs):
         user = lms.__user()
         try:
             user_kyc = lms.__user_kyc()
+            # user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
+            # for i in user_kyc.bank_account:
+            #     i.account_number = lms.user_details_hashing(i.account_number)
+            user_kyc = lms.user_kyc_hashing(user_kyc)
         except UserKYCNotFoundException:
             user_kyc = None
 
         customer = lms.__customer()
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         # actionable_loans = []
         # action_loans = []
@@ -1411,38 +2175,7 @@ def dashboard(**kwargs):
                         )  # if_prev_days_in_holidays then add those days in timer
                     )
 
-                    # if (
-                    #     mg_shortfall_doc.creation.date()
-                    #     < frappe.utils.now_datetime().date()
-                    #     and mg_shortfall_doc.creation.date() in holidays
-                    # ):
-                    #     hrs_difference += (
-                    #         mg_shortfall_doc.creation.replace(
-                    #             hour=23, minute=59, second=59, microsecond=999999
-                    #         )
-                    #         - mg_shortfall_doc.creation
-                    #     )
-
                     if frappe.utils.now_datetime().date() in holidays:
-                        # if_today_holiday then add those hours in timer
-                        # if mg_shortfall_action.sell_off_after_hours:
-                        # if (
-                        #     frappe.utils.now_datetime().date()
-                        #     == mg_shortfall_doc.creation.date()
-                        # ):
-                        #     if mg_shortfall_action.sell_off_after_hours:
-                        #         start_time = datetime.strptime(
-                        #             list(holidays)[-1].strftime("%Y-%m-%d %H:%M:%S.%f"),
-                        #             "%Y-%m-%d %H:%M:%S.%f",
-                        #         ).replace(hour=0, minute=0, second=0, microsecond=0)
-
-                        #     else:
-                        #         start_time = frappe.utils.now_datetime().replace(
-                        #             hour=0, minute=0, second=0, microsecond=0
-                        #         )
-
-                        # else:
-                        #     pass
                         start_time = frappe.utils.now_datetime().replace(
                             hour=0, minute=0, second=0, microsecond=0
                         )
@@ -1473,23 +2206,13 @@ def dashboard(**kwargs):
             }
         # Interest ##
         for dictionary in margin_shortfall_and_interest_loans[1]:
-            # if dictionary.get("name") not in action_loans:
-            #     actionable_loans.append(
-            #         {
-            #             "loan_name": dictionary.get("name"),
-            #             "drawing_power": dictionary.get("drawing_power"),
-            #             "drawing_power_str": dictionary.get("drawing_power_str"),
-            #             "balance": dictionary.get("balance"),
-            #             "balance_str": dictionary.get("balance_str"),
-            #         }
-            #     )
-
             if dictionary["interest_amount"]:
                 loan = frappe.get_doc("Loan", dictionary.get("name"))
                 current_date = frappe.utils.now_datetime()
                 due_date = ""
                 due_date_txt = "Pay By"
                 info_msg = ""
+                dpd = loan.day_past_due
 
                 rebate_threshold = int(loan.get_rebate_threshold())
                 default_threshold = int(loan.get_default_threshold())
@@ -1530,6 +2253,7 @@ def dashboard(**kwargs):
                         "%d.%m.%Y"
                     ),
                     "due_date_txt": dictionary["interest"]["due_date_txt"],
+                    "dpd": dpd,
                 }
             )
 
@@ -1544,33 +2268,6 @@ def dashboard(**kwargs):
                 "loans_interest_due_date": due_date_for_all_interest[0],
                 "interest_loan_list": interest_loan_list,
             }
-
-        ## Under process loan application ##
-        # under_process_la = frappe.get_all(
-        #     "Loan Application",
-        #     filters={
-        #         "customer": customer.name,
-        #         "status": ["not IN", ["Approved", "Rejected", "Pledge Failure"]],
-        #         "pledge_status": ["!=", "Failure"],
-        #     },
-        #     fields=["name", "status"],
-        # )
-
-        # ## Active loans ##
-        # active_loans = frappe.get_all(
-        #     "Loan",
-        #     filters={
-        #         "customer": customer.name,
-        #         "name": ["not in", [list["loan_name"] for list in actionable_loans]],
-        #     },
-        #     fields=[
-        #         "name",
-        #         "drawing_power",
-        #         "drawing_power_str",
-        #         "balance",
-        #         "balance_str",
-        #     ],
-        # )
 
         # pending esign object for loan application and topup application
         pending_loan_applications = frappe.get_all(
@@ -1686,162 +2383,6 @@ def dashboard(**kwargs):
             topup_pending_esigns=topup_pending_esigns,
         )
 
-        ## Topup ##
-        # topup = None
-        # topup_list = []
-        # sell_collateral_list = []
-        # increase_loan_list = []
-        # unpledge_application_list = []
-        # all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
-
-        # for loan in all_loans:
-        # loan = frappe.get_doc("Loan", loan.name)
-        # existing_topup_application = frappe.get_all(
-        #     "Top up Application",
-        #     filters={
-        #         "loan": loan.name,
-        #         "customer": customer.name,
-        #         "status": ["not IN", ["Approved", "Rejected"]],
-        #     },
-        #     fields=["count(name) as in_process"],
-        # )
-
-        # if existing_topup_application[0]["in_process"] == 0:
-        #     topup = loan.max_topup_amount()
-        #     if topup:
-        #         top_up = {
-        #             "loan": loan.name,
-        #             "top_up_amount": topup,
-        #         }
-        #         topup_list.append(top_up)
-        #     else:
-        #         top_up = None
-
-        # # Sell Collateral
-        # sell_collateral_application_exist = frappe.get_all(
-        #     "Sell Collateral Application",
-        #     filters={"loan": loan.name, "status": "Pending"},
-        #     fields=[
-        #         "name",
-        #         "creation",
-        #         "modified",
-        #         "modified_by",
-        #         "owner",
-        #         "docstatus",
-        #         "parent",
-        #         "parentfield",
-        #         "parenttype",
-        #         "idx",
-        #         "loan",
-        #         "total_collateral_value",
-        #         "lender",
-        #         "customer",
-        #         "selling_collateral_value",
-        #         "amended_from",
-        #         "status",
-        #         "workflow_state",
-        #         "loan_margin_shortfall",
-        #     ],
-        #     order_by="creation desc",
-        #     page_length=1,
-        # )
-        # if sell_collateral_application_exist:
-        #     sell_collateral_application_exist[0]["items"] = frappe.get_all(
-        #         "Sell Collateral Application Item",
-        #         filters={"parent": sell_collateral_application_exist[0].name},
-        #         fields=["*"],
-        #     )
-
-        # sell_collateral_list.append(
-        #     {
-        #         "loan_name": loan.name,
-        #         "sell_collateral_available": sell_collateral_application_exist[0]
-        #         if len(sell_collateral_application_exist)
-        #         else None,
-        #     }
-        # )
-
-        # Increase Loan
-        # existing_loan_application = frappe.get_all(
-        #     "Loan Application",
-        #     filters={
-        #         "loan": loan.name,
-        #         "customer": loan.customer,
-        #         "status": ["not IN", ["Approved", "Rejected"]],
-        #     },
-        #     fields=["count(name) as in_process"],
-        # )
-
-        # increase_loan_list.append(
-        #     {
-        #         "loan_name": loan.name,
-        #         "increase_loan_available": 1
-        #         if existing_loan_application[0]["in_process"] == 0
-        #         else None,
-        #     }
-        # )
-
-        # check if any pending unpledge application exist
-        #     loan_margin_shortfall = loan.get_margin_shortfall()
-        #     if loan_margin_shortfall.get("__islocal", None):
-        #         loan_margin_shortfall = None
-        #     unpledge_application_exist = frappe.get_all(
-        #         "Unpledge Application",
-        #         filters={"loan": loan.name, "status": "Pending"},
-        #         fields=[
-        #             "name",
-        #             "creation",
-        #             "modified",
-        #             "modified_by",
-        #             "owner",
-        #             "docstatus",
-        #             "parent",
-        #             "parentfield",
-        #             "parenttype",
-        #             "idx",
-        #             "loan",
-        #             "total_collateral_value",
-        #             "lender",
-        #             "customer",
-        #             "unpledge_collateral_value",
-        #             "amended_from",
-        #             "status",
-        #             "workflow_state",
-        #         ],
-        #         order_by="creation desc",
-        #         page_length=1,
-        #     )
-        #     if unpledge_application_exist:
-        #         unpledge_application_exist[0]["items"] = frappe.get_all(
-        #             "Unpledge Application Item",
-        #             filters={"parent": unpledge_application_exist[0].name},
-        #             fields=["*"],
-        #         )
-
-        #     unpledge_application_list.append(
-        #         {
-        #             "loan_name": loan.name,
-        #             "unpledge_application_available": unpledge_application_exist[0]
-        #             if unpledge_application_exist
-        #             else None,
-        #             "unpledge_msg_while_margin_shortfall": """OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
-        #                 loan.get_customer().first_name
-        #             )
-        #             if loan_margin_shortfall
-        #             else None,
-        #             "unpledge": None
-        #             if unpledge_application_exist or loan_margin_shortfall
-        #             else loan.max_unpledge_amount(),
-        #         }
-        #     )
-
-        # topup_list.sort(key=lambda item: (item["loan"]), reverse=True)
-        # sell_collateral_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
-        # increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
-        # unpledge_application_list.sort(
-        #     key=lambda item: (item["loan_name"]), reverse=True
-        # )
-
         number_of_user_login = frappe.get_all(
             "Activity Log",
             fields=["count(status) as status_count", "status"],
@@ -1919,6 +2460,7 @@ def dashboard(**kwargs):
         return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         return e.respond()
 
 
@@ -1929,7 +2471,8 @@ def weekly_pledged_security_dashboard(**kwargs):
 
         customer = lms.__customer()
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         ## sum_of_all_pledged_securities for 52 weeks
         all_loans = frappe.get_all("Loan", filters={"customer": customer.name})
@@ -1998,6 +2541,7 @@ def weekly_pledged_security_dashboard(**kwargs):
         return utils.respondWithSuccess(data=weekly_security_amount)
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2023,6 +2567,9 @@ def get_profile_set_alerts(**kwargs):
         # user_kyc details
         try:
             user_kyc = lms.__user_kyc(user.email)
+            user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
+            for i in user_kyc.bank_account:
+                i.account_number = lms.user_details_hashing(i.account_number)
         except UserKYCNotFoundException:
             user_kyc = None
 
@@ -2057,21 +2604,27 @@ def get_profile_set_alerts(**kwargs):
             and not data.get("percentage")
             and not data.get("amount")
         ):
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._(
-                    "Please select Amount or Percentage for setting Alerts"
-                ),
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._(
+            #         "Please select Amount or Percentage for setting Alerts"
+            #     ),
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Please select Amount or Percentage for setting Alerts.")
             )
 
         elif (
             data.get("is_for_alerts") and data.get("percentage") and data.get("amount")
         ):
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._(
-                    "Please choose one between Amount or Percentage for setting Alerts"
-                ),
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._(
+            #         "Please choose one between Amount or Percentage for setting Alerts"
+            #     ),
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Please choose one between Amount or Percentage for setting Alerts.")
             )
 
         elif data.get("is_for_alerts") and data.get("percentage"):
@@ -2097,6 +2650,7 @@ def get_profile_set_alerts(**kwargs):
 
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2169,9 +2723,10 @@ def update_profile_pic_and_pin(**kwargs):
             )
 
         elif data.get("is_for_profile_pic") and not data.get("image"):
-            return utils.respondWithFailure(
-                status=417, message=frappe._("Please upload image.")
-            )
+            # return utils.respondWithFailure(
+            #     status=417, message=frappe._("Please upload image.")
+            # )
+            raise lms.exceptions.RespondFailureException(_("Please upload image."))
 
         if (
             data.get("is_for_update_pin")
@@ -2185,9 +2740,10 @@ def update_profile_pic_and_pin(**kwargs):
                     frappe.session.user, data.get("old_pin")
                 )
             except frappe.AuthenticationError:
-                return utils.respondWithFailure(
-                    status=417, message=frappe._("Invalid current pin")
-                )
+                # raise utils.respondWithFailure(
+                #     status=417, message=frappe._("Invalid current pin")
+                # )
+                raise lms.exceptions.RespondFailureException(_("Invalid current pin."))
 
             if old_pass_check:
                 if data.get("retype_pin") == data.get("new_pin") and data.get(
@@ -2197,14 +2753,20 @@ def update_profile_pic_and_pin(**kwargs):
                     update_password(frappe.session.user, data.get("retype_pin"))
                     frappe.db.commit()
                 elif data.get("old_pin") == data.get("new_pin"):
-                    return utils.respondWithFailure(
-                        status=417,
-                        message=frappe._("New pin cannot be same as old pin"),
+                    # return utils.respondWithFailure(
+                    #     status=417,
+                    #     message=frappe._("New pin cannot be same as old pin"),
+                    # )
+                    raise lms.exceptions.RespondFailureException(
+                        _("New pin cannot be same as old pin.")
                     )
                 else:
-                    return utils.respondWithFailure(
-                        status=417,
-                        message=frappe._("Retyped pin does not match with new pin"),
+                    # return utils.respondWithFailure(
+                    #     status=417,
+                    #     message=frappe._("Retyped pin does not match with new pin"),
+                    # )
+                    raise lms.exceptions.RespondFailureException(
+                        _("Retyped pin does not match with new pin")
                     )
 
             return utils.respondWithSuccess(
@@ -2214,12 +2776,16 @@ def update_profile_pic_and_pin(**kwargs):
         elif data.get("is_for_update_pin") and (
             not data.get("old_pin") or not data.get("new_pin")
         ):
-            return utils.respondWithFailure(
-                status=417, message=frappe._("Please Enter old pin and new pin.")
+            # return utils.respondWithFailure(
+            #     status=417, message=frappe._("Please Enter old pin and new pin.")
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Please Enter old pin and new pin.")
             )
 
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2236,10 +2802,11 @@ def contact_us_old(**kwargs):
             search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
         )
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Charaters not allowed."))
 
         if isinstance(data.get("view_more"), str):
             data["view_more"] = int(data.get("view_more"))
@@ -2271,6 +2838,7 @@ def contact_us_old(**kwargs):
 
         return utils.respondWithSuccess(data=faq)
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2279,20 +2847,28 @@ def check_eligible_limit(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
-        data = utils.validator.validate(kwargs, {"lender": "", "search": ""})
+        data = utils.validator.validate(
+            kwargs, {"lender": "", "search": "", "instrument_type": ""}
+        )
 
-        reg = lms.regex_special_characters(search=data.get("lender"))
+        reg = lms.regex_special_characters(
+            search=data.get("lender") or "" + data.get("instrument_type") or ""
+        )
         search_reg = lms.regex_special_characters(
             search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
         )
         if reg or search_reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Charaters not allowed."))
 
         if not data.get("lender"):
             data["lender"] = frappe.get_last_doc("Lender").name
+
+        if not data.get("instrument_type"):
+            data["instrument_type"] = "Shares"
 
         eligible_limit_list = frappe.db.sql(
             """
@@ -2301,18 +2877,20 @@ def check_eligible_limit(**kwargs):
 			FROM `tabAllowed Security` als
 			LEFT JOIN `tabSecurity` s
 			ON als.isin = s.isin
-			where als.lender = '{}'
+			where als.lender = '{}' and
+            als.instrument_type = '{}'
             and s.price > 0
 			and als.security_name like '%{}%'
             order by als.security_name;
 			""".format(
-                data.get("lender"), data.get("search")
+                data.get("lender"), data.get("instrument_type"), data.get("search")
             ),
             as_dict=1,
         )
 
         if not eligible_limit_list:
-            return utils.respondNotFound(message=_("No Record Found"))
+            # return utils.respondNotFound(message=_("No Record Found"))
+            raise lms.exceptions.NotFoundException(_("No Record Found"))
 
         # for i in eligible_limit_list:
         #     i["Is_Eligible"] = True
@@ -2320,6 +2898,7 @@ def check_eligible_limit(**kwargs):
 
         return utils.respondWithSuccess(data=list)
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2328,11 +2907,24 @@ def all_lenders_list(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
-        all_lenders = frappe.get_all("Lender", order_by="creation desc")
+        all_lenders = []
+        lenders = frappe.get_all("Lender", order_by="creation asc")
+        for lender in lenders:
+            query = [
+                "Level {}".format(i.level)
+                for i in frappe.db.sql(
+                    "select idx as level from `tabConcentration Rule` where parent = '{}' order by idx asc".format(
+                        lender.name
+                    ),
+                    as_dict=True,
+                )
+            ]
+            all_lenders.append({"name": lender.name, "levels": query})
 
         return utils.respondWithSuccess(data=all_lenders)
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2358,10 +2950,11 @@ def feedback(**kwargs):
         customer = lms.__customer()
         reg = lms.regex_special_characters(search=data.get("comment"))
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Charaters not allowed."))
 
         if isinstance(data.get("do_not_show_again"), str):
             data["do_not_show_again"] = int(data.get("do_not_show_again"))
@@ -2386,18 +2979,16 @@ def feedback(**kwargs):
         if isinstance(data.get("from_more_menu"), str):
             data["from_more_menu"] = int(data.get("from_more_menu"))
 
-        # validation
-        # if data.get("do_not_show_again") or customer.feedback_submitted:
-        #     return utils.respondWithFailure(
-        #         message=frappe._("Dont show feedback popup again")
-        #     )
         if not data.get("do_not_show_again"):
             if (data.get("bulls_eye") and data.get("can_do_better")) or (
                 not data.get("bulls_eye") and not data.get("can_do_better")
             ):
-                return utils.respondWithFailure(
-                    status=417,
-                    message=frappe._("Please select atleast one option."),
+                # return utils.respondWithFailure(
+                #     status=417,
+                #     message=frappe._("Please select atleast one option."),
+                # )
+                raise lms.exceptions.RespondFailureException(
+                    _("Please select atleast one option.")
                 )
 
             if (
@@ -2406,15 +2997,21 @@ def feedback(**kwargs):
                 and not data.get("related_to_functionality")
                 and not data.get("others")
             ):
-                return utils.respondWithFailure(
-                    status=417,
-                    message=frappe._("Please select atleast one from below options."),
+                # return utils.respondWithFailure(
+                #     status=417,
+                #     message=frappe._("Please select atleast one from below options."),
+                # )
+                raise lms.exceptions.RespondFailureException(
+                    _("Please select atleast one from below options.")
                 )
 
             # if not data.get("do_not_show_again") or not customer.feedback_submitted:
             if not data.get("comment") or data.get("comment").isspace():
-                return utils.respondWithFailure(
-                    message=frappe._("Please write your suggestion to us.")
+                # return utils.respondWithFailure(
+                #     message=frappe._("Please write your suggestion to us.")
+                # )
+                raise lms.exceptions.RespondWithFailureException(
+                    _("Please write your suggestions to us.")
                 )
 
         number_of_user_login = frappe.get_all(
@@ -2480,10 +3077,15 @@ def feedback(**kwargs):
             )
 
         else:
-            return utils.respondWithFailure(
-                status=417, message=frappe._("Oops something went wrong.")
+            # return utils.respondWithFailure(
+            #     status=417, message=frappe._("Oops something went wrong.")
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Oops something went wrong.")
             )
+
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2499,7 +3101,8 @@ def loan_summary_dashboard(**kwargs):
 
         customer = lms.__customer()
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         mindate = datetime(MINYEAR, 1, 1)
         all_loans = frappe.get_all(
@@ -2684,13 +3287,16 @@ def loan_summary_dashboard(**kwargs):
                     }
                 )
             else:
+                msg_type = ["unpledge", "pledged securities"]
+                if loan.instrument_type == "Mutual Fund":
+                    msg_type = ["revoke", "liened schemes"]
                 unpledge_list.append(
                     {
                         "loan_name": loan.name,
                         # "creation": mindate,
                         "unpledge_application_available": None,
-                        "unpledge_msg_while_margin_shortfall": """OOPS! Dear {}, It seems you have a margin shortfall. You cannot unpledge any of the pledged securities until the margin shortfall is made good. Go to: Margin Shortfall""".format(
-                            loan.get_customer().first_name
+                        "unpledge_msg_while_margin_shortfall": """OOPS! Dear {}, It seems you have a margin shortfall. You cannot {} any of the {} until the margin shortfall is made good. Go to: Margin Shortfall""".format(
+                            loan.get_customer().first_name, msg_type[0], msg_type[1]
                         )
                         if loan_margin_shortfall
                         else None,
@@ -2759,6 +3365,22 @@ def loan_summary_dashboard(**kwargs):
         topup_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
 
+        instrument_type = ""
+        if under_process_la:
+            instrument_type = frappe.get_doc(
+                "Loan Application", under_process_la[0].name
+            ).instrument_type
+            for la in under_process_la:
+                la_doc = frappe.get_doc("Loan Application", la.name)
+                if (
+                    la_doc.instrument_type == "Mutual Fund"
+                    and "pledge" in la_doc.status.lower()
+                ):
+                    la.status = la_doc.status.lower().replace("pledge", "Lien")
+
+        elif all_loans:
+            instrument_type = frappe.get_doc("Loan", all_loans[0].name).instrument_type
+
         res = {
             "sell_collateral_topup_and_unpledge_list": sell_collateral_topup_and_unpledge_list,
             "actionable_loan": actionable_loan,
@@ -2768,11 +3390,13 @@ def loan_summary_dashboard(**kwargs):
             "unpledge_list": unpledge_list,
             "topup_list": topup_list,
             "increase_loan_list": increase_loan_list,
+            "instrument_type": instrument_type,
         }
 
         return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2824,10 +3448,11 @@ def otp_for_testing(**kwargs):
             "Sell Collateral OTP",
             "Forgot Pin OTP",
         ]:
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._("Incorrect OTP type."),
-            )
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._("Incorrect OTP type."),
+            # )
+            raise lms.exceptions.RespondFailureException(_("Incorrect OTP type."))
 
         customer = lms.__customer()
 
@@ -2847,11 +3472,12 @@ def otp_for_testing(**kwargs):
 
         if not tester:
             # Unauthorized user
-            return utils.respondUnauthorized(message="Unauthorized User")
+            # return utils.respondUnauthorized(message="Unauthorized User")
+            raise lms.exceptions.UnauthorizedException(_("Unauthorized User"))
 
         if tester:
             # Mark old token as Used
-            frappe.db.begin()
+            # frappe.db.begin()
             old_token_name = frappe.get_all(
                 "User Token",
                 filters={
@@ -2889,6 +3515,7 @@ def otp_for_testing(**kwargs):
             return utils.respondWithSuccess(data=token[0] if token else None)
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2899,7 +3526,8 @@ def push_notification_list(**kwargs):
 
         customer = lms.__customer()
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         # all_notifications = frappe.get_all(
         #     "Spark Push Notification Log",
@@ -2920,6 +3548,7 @@ def push_notification_list(**kwargs):
         return utils.respondWithSuccess(data=all_notifications)
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         return e.respond()
 
 
@@ -2945,17 +3574,24 @@ def read_or_clear_notifications(**kwargs):
 
         customer = lms.__customer()
         if not customer:
-            return utils.respondNotFound(message=frappe._("Customer not found."))
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         if data.get("is_for_read") and data.get("is_for_clear"):
-            return utils.respondForbidden(
-                message=_("Can not use both option at once, please use one.")
+            # return utils.respondForbidden(
+            #     message=_("Can not use both option at once, please use one.")
+            # )
+            raise lms.exceptions.ForbiddenException(
+                _("Can not use both option at once, please use one.")
             )
 
         if data.get("is_for_read") and not data.get("notification_name"):
-            return utils.respondWithFailure(
-                status=417,
-                message=frappe._("Notification name field empty"),
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._("Notification name field empty"),
+            # )
+            raise lms.exceptions.RespondFailureException(
+                _("Notification name field empty.")
             )
 
         if data.get("is_for_clear") and not data.get("notification_name"):
@@ -2974,8 +3610,11 @@ def read_or_clear_notifications(**kwargs):
                 "Spark Push Notification Log", data.get("notification_name")
             )
             if fcm_log.loan_customer != customer.name:
-                return utils.respondForbidden(
-                    message=_("Notification doesnt belong to this customer")
+                # return utils.respondForbidden(
+                #     message=_("Notification doesnt belong to this customer")
+                # )
+                raise lms.exceptions.ForbiddenException(
+                    _("Notification doesnt belong to this customer.")
                 )
 
             if data.get("is_for_clear"):
@@ -2984,9 +3623,12 @@ def read_or_clear_notifications(**kwargs):
                     fcm_log.save(ignore_permissions=True)
                     frappe.db.commit()
                 else:
-                    return utils.respondWithFailure(
-                        status=417,
-                        message=frappe._("Notification not found"),
+                    # return utils.respondWithFailure(
+                    #     status=417,
+                    #     message=frappe._("Notification not found"),
+                    # )
+                    raise lms.exceptions.RespondFailureException(
+                        _("Notification not found.")
                     )
             if data.get("is_for_read"):
                 if fcm_log.is_read == 0:
@@ -2997,6 +3639,7 @@ def read_or_clear_notifications(**kwargs):
         return utils.respondWithSuccess()
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         return e.respond()
 
 
@@ -3015,8 +3658,11 @@ def contact_us(**kwargs):
         #     )
 
         if not data.get("message") or data.get("message").isspace():
-            return utils.respondWithFailure(
-                message=frappe._("Please write your query to us.")
+            # return utils.respondWithFailure(
+            #     message=frappe._("Please write your query to us.")
+            # )
+            raise lms.exceptions.RespondWithFailureException(
+                _("Please write your query to us.")
             )
 
         try:
@@ -3067,6 +3713,1688 @@ def contact_us(**kwargs):
 
         return utils.respondWithSuccess()
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
+
+
+@frappe.whitelist()
+def spark_demat_account(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "depository": ["required"],
+                "dpid": ["required"],
+                "client_id": ["required"],
+            },
+        )
+
+        customer = lms.__customer()
+        if not customer:
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
+
+        # field alphanumeric validation
+        reg = lms.regex_special_characters(
+            search=data.get("dpid") + data.get("client_id")
+        )
+
+        if reg:
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Charaters not allowed."))
+
+        spark_demat_account = frappe.get_doc(
+            {
+                "doctype": "Spark Demat Account",
+                "customer": customer.name,
+                "depository": data.get("depository"),
+                "dpid": data.get("dpid"),
+                "client_id": data.get("client_id"),
+            }
+        ).insert(ignore_permissions=True)
+        frappe.db.commit()
+        return utils.respondWithSuccess(data=spark_demat_account)
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        frappe.log_error(
+            message=frappe.get_traceback() + json.dumps(data=spark_demat_account),
+            title=_("Demat Account Creation Error"),
+        )
+
+
+@frappe.whitelist()
+def update_mycams_email(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {"email": ["required"]},
+        )
+        customer = lms.__customer()
+        if not customer:
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
+
+        # email validation
+        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
+        email_regex = (
+            r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
+        )
+        if re.search(email_regex, data.get("email")) is None or (
+            len(data.get("email").split("@")) > 2
+        ):
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Please enter valid email ID"),
+            # )
+            raise lms.exceptions.FailureException(_("Please enter valid email ID"))
+        customer = lms.__customer()
+        customer.mycams_email_id = data.get("email").strip()
+        customer.save(ignore_permissions=True)
+        frappe.db.commit()
+        return utils.respondWithSuccess(data=customer)
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        frappe.log_error(
+            message=frappe.get_traceback() + json.dumps(data),
+            title=_("Loan Customer - MyCams Email Update Error"),
+        )
+        return e.respond()
+
+
+@frappe.whitelist()
+def get_bank_ifsc_details(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(kwargs, {"ifsc": ""})
+        if not data.get("ifsc"):
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Field is empty"),
+            # )
+            raise lms.exceptions.FailureException(_("Field is empty"))
+
+        is_alphanumeric = lms.regex_special_characters(
+            search=data.get("ifsc"), regex=re.compile("^[a-zA-Z0-9]*$")
+        )
+
+        if not is_alphanumeric:
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Only alphanumeric allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Only alphanumeric allowed."))
+
+        details = lms.ifsc_details(data.get("ifsc"))
+
+        if not details:
+            return utils.respondWithSuccess(message="Record not found.")
+
+        return utils.respondWithSuccess(data=details)
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
+
+
+@frappe.whitelist()
+def penny_create_contact(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        # check user
+        try:
+            user = lms.__user()
+        except UserNotFoundException:
+            # return utils.respondNotFound(message=frappe._("User not found."))
+            raise lms.exceptions.NotFoundException(_("User not found"))
+
+        # check Loan Customer
+        customer = lms.__customer(user.name)
+        if not customer:
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
+
+        # fetch rzp key secret from las settings and use Basic auth
+        las_settings = frappe.get_single("LAS Settings")
+        if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Create contact Error",
+                message="Penny Drop Create contact Error - Razorpay Key Secret Missing",
+            )
+            # return utils.respondWithFailure()
+            raise lms.exceptions.FailureException(
+                _("Penny Drop Create contact Error - Razorpay Key Secret Missing")
+            )
+
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(las_settings.razorpay_key_secret, "utf-8")
+        ).decode("ascii")
+
+        try:
+            data_rzp = {
+                "name": customer.full_name,
+                "email": customer.user,
+                "contact": customer.phone,
+                "type": "customer",
+                "reference_id": customer.name,
+                "notes": {},
+            }
+            raw_res = requests.post(
+                las_settings.pennydrop_create_contact,
+                headers={
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                },
+                data=json.dumps(data_rzp),
+            )
+            data_res = raw_res.json()
+
+            if data_res.get("error"):
+                log = {
+                    "request": data_rzp,
+                    "response": data_res.get("error"),
+                }
+                lms.create_log(log, "rzp_penny_contact_error_log")
+                # return utils.respondWithFailure(message=frappe._("failed"))
+                raise lms.exceptions.RespondWithFailureException(_("failed"))
+
+            # User KYC save
+            """since CKYC development not done yet, using existing user kyc to update contact ID"""
+            try:
+                user_kyc = lms.__user_kyc(user.name)
+            except UserKYCNotFoundException:
+                # return utils.respondWithFailure(message=frappe._("User KYC not found"))
+                raise lms.exceptions.NotFoundException(_("User KYC not found"))
+
+            # update contact ID
+            user_kyc.razorpay_contact_id = data_res.get("id")
+            user_kyc.save(ignore_permissions=True)
+            frappe.db.commit()
+
+            lms.create_log(data_res, "rzp_penny_contact_success_log")
+            return utils.respondWithSuccess(message=frappe._("success"))
+
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
+
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        frappe.log_error(
+            title="Penny Drop Create contact Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create contact Error: "
+            + str(e.args),
+        )
+        return e.respond()
+
+
+@frappe.whitelist()
+def penny_create_fund_account(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "ifsc": "required",
+                "account_holder_name": "required",
+                "account_number": ["required", "decimal"],
+            },
+        )
+
+        # ifsc and account holder name validation
+        reg = lms.regex_special_characters(
+            search=data.get("account_holder_name") + data.get("ifsc")
+        )
+        if reg:
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+
+        # check user
+        try:
+            user = lms.__user()
+        except UserNotFoundException:
+            # return utils.respondNotFound(message=frappe._("User not found."))
+            raise lms.exceptions.NotFoundException(_("User not found"))
+
+        # fetch rzp key secret from las settings and use Basic auth
+        las_settings = frappe.get_single("LAS Settings")
+        if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Fund Account Error",
+                message="Penny Drop Fund Account Error - Razorpay Key Secret Missing",
+            )
+            # return utils.respondWithFailure()
+            raise lms.exceptions.RespondWithFailureException(
+                _("Penny Drop Fund Account Error - Razorpay Key Secret Missing")
+            )
+
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(las_settings.razorpay_key_secret, "utf-8")
+        ).decode("ascii")
+
+        try:
+            user_kyc = lms.__user_kyc(user.name)
+        except UserKYCNotFoundException:
+            # return utils.respondWithFailure(message=frappe._("User KYC not found"))
+            raise lms.exceptions.RespondWithFailureException(_("User KYC not found"))
+
+        try:
+            data_rzp = {
+                "contact_id": user_kyc.razorpay_contact_id,
+                "account_type": "bank_account",
+                "bank_account": {
+                    "name": data.get("account_holder_name"),
+                    "ifsc": data.get("ifsc"),
+                    "account_number": data.get("account_number"),
+                },
+            }
+            raw_res = requests.post(
+                las_settings.pennydrop_create_fund_account,
+                headers={
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                },
+                data=json.dumps(data_rzp),
+            )
+            data_res = raw_res.json()
+
+            if data_res.get("error"):
+                log = {
+                    "request": data,
+                    "response": data_res.get("error"),
+                }
+                lms.create_log(log, "rzp_penny_fund_account_error_log")
+                # return utils.respondWithFailure(message=frappe._("failed"))
+                raise lms.exceptions.RespondWithFailureException(_("failed"))
+            # if not get error
+            data_resp = {"fa_id": data_res.get("id")}
+            lms.create_log(data_res, "rzp_penny_fund_account_success_log")
+            return utils.respondWithSuccess(message=frappe._("success"), data=data_resp)
+
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
+
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        frappe.log_error(
+            title="Penny Drop Create fund account Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create fund account Error: "
+            + str(e.args),
+        )
+        return e.respond()
+
+
+@frappe.whitelist()
+def penny_create_fund_account_validation(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "fa_id": "required",
+                "bank_account_type": "",
+                "branch": "required",
+                "city": "required",
+                "personalized_cheque": "required",
+            },
+        )
+
+        # check user
+        try:
+            user = lms.__user()
+        except UserNotFoundException:
+            # return utils.respondNotFound(message=frappe._("User not found."))
+            raise lms.exceptions.NotFoundException(_("User not found"))
+
+        # check Loan Customer
+        customer = lms.__customer(user.name)
+        if not customer:
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
+
+        # user KYC
+        try:
+            user_kyc = lms.__user_kyc(user.name)
+        except UserKYCNotFoundException:
+            # return utils.respondWithFailure(message=frappe._("User KYC not found"))
+            raise lms.exceptions.RespondWithFailureException(_("User KYC not found"))
+
+        # fetch rzp key secret from las settings and use Basic auth
+        las_settings = frappe.get_single("LAS Settings")
+        if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Fund Account Validation Error",
+                message="Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing",
+            )
+            # return utils.respondWithFailure()
+            raise lms.exceptions.RespondWithFailureException()
+
+        if not las_settings.razorpay_bank_account:
+            frappe.log_error(
+                title="Penny Drop Fund Account Validation Error",
+                message="Penny Drop Fund Account Validation Error - Razorpay Bank Account Missing",
+            )
+            # return utils.respondWithFailure()
+            raise lms.exceptions.RespondWithFailureException()
+
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(las_settings.razorpay_key_secret, "utf-8")
+        ).decode("ascii")
+
+        try:
+            data_rzp = {
+                "account_number": las_settings.razorpay_bank_account,
+                "fund_account": {"id": data.get("fa_id")},
+                "amount": 100,
+                "currency": "INR",
+                "notes": {
+                    "branch": data.get("branch"),
+                    "city": data.get("city"),
+                    "bank_account_type": data.get("bank_account_type"),
+                },
+            }
+            url = las_settings.pennydrop_create_fund_account_validation
+            headers = {
+                "Authorization": razorpay_key_secret_auth,
+                "content-type": "application/json",
+            }
+            raw_res = requests.post(
+                url=url,
+                headers=headers,
+                data=json.dumps(data_rzp),
+            )
+
+            data_res = raw_res.json()
+            log = {
+                "url": las_settings.pennydrop_create_fund_account_validation,
+                "headers": headers,
+                "request": data_rzp,
+                "response": data_res,
+            }
+
+            lms.create_log(log, "rzp_pennydrop_create_fund_account_validation")
+
+            penny_api_response_handle(
+                data,
+                user_kyc,
+                customer,
+                data_res,
+                personalized_cheque=data.get("personalized_cheque"),
+            )
+
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
+
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        frappe.log_error(
+            title="Penny Drop Create fund account validation Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create fund account validation Error: "
+            + str(e.args),
+        )
+        return e.respond()
+
+
+@frappe.whitelist()
+def penny_create_fund_account_validation_by_id(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "fav_id": "required",
+                "personalized_cheque": "required",
+            },
+        )
+        # check user
+        try:
+            user = lms.__user()
+        except UserNotFoundException:
+            # return utils.respondNotFound(message=frappe._("User not found."))
+            raise lms.exceptions.NotFoundException(_("User not found"))
+
+        # check Loan Customer
+        customer = lms.__customer(user.name)
+        if not customer:
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
+
+        # user KYC
+        try:
+            user_kyc = lms.__user_kyc(user.name)
+        except UserKYCNotFoundException:
+            # return utils.respondWithFailure(message=frappe._("User KYC not found"))
+            raise lms.exceptions.RespondWithFailureException(_("User KYC not found"))
+
+        # fetch rzp key secret from las settings and use Basic auth
+        las_settings = frappe.get_single("LAS Settings")
+        if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Fund Account Validation Error",
+                message="Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing",
+            )
+            # return utils.respondWithFailure()
+            raise lms.exceptions.RespondWithFailureException()
+
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(las_settings.razorpay_key_secret, "utf-8")
+        ).decode("ascii")
+
+        try:
+            url = (
+                las_settings.pennydrop_create_fund_account_validation_id
+                + "/{}".format(data.get("fav_id"))
+            )
+            headers = {
+                "Authorization": razorpay_key_secret_auth,
+                "content-type": "application/json",
+            }
+            raw_res = requests.get(
+                url=url,
+                headers=headers,
+            )
+
+            data_res = raw_res.json()
+            log = {
+                "url": url,
+                "headers": headers,
+                "request": data,
+                "response": data_res,
+            }
+
+            lms.create_log(log, "rzp_pennydrop_create_fund_account_validation_by_id")
+            penny_api_response_handle(
+                data,
+                user_kyc,
+                customer,
+                data_res,
+                personalized_cheque=data.get("personalized_cheque"),
+            )
+
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
+
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        frappe.log_error(
+            title="Penny Drop Create fund account validation Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create fund account validation Error: "
+            + str(e.args),
+        )
+        return e.respond()
+
+
+def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_cheque):
+    try:
+        data_resp = {
+            "fav_id": data_res.get("id"),
+            "status": data_res.get("status"),
+        }
+        if data_res.get("error"):
+            data_resp["status"] = "failed"
+            message = "Your account details have not been successfully verified"
+            log = {
+                "request": data,
+                "response": data_res,
+            }
+            lms.create_log(log, "rzp_penny_fund_account_validation_error_log")
+            # raise utils.respondWithFailure(message=message)
+            raise lms.exceptions.RespondWithFailureException(message=message)
+
+        if data_res.get("status") == "failed":
+            message = "Your account details have not been successfully verified"
+            # return utils.respondWithFailuremessage=message, data=data_resp)
+            # raise lms.exceptions.RespondFailureException(message, data_resp)
+
+        if data_res.get("status") == "created":
+            message = "waiting for response from bank"
+
+        account_status = data_res.get("results").get("account_status")
+        if data_res.get("status") == "completed" and account_status == "active":
+            # name validation - check user entered account holder name is same with registered name
+            account_holder_name = (
+                data_res.get("fund_account")
+                .get("bank_account")
+                .get("name")
+                .lower()
+                .split(" ")
+            )
+            registered_name = data_res.get("results").get("registered_name").lower()
+            account_status = data_res.get("results").get("account_status")
+            photos_ = lms.upload_image_to_doctype(
+                customer=customer,
+                seq_no=data_res.get("fund_account")
+                .get("bank_account")
+                .get("account_number")[-4:],
+                image_=personalized_cheque,
+                img_format="jpeg",
+                img_folder="personalized_cheque",
+            )
+
+            if (account_holder_name[0] in registered_name) or (
+                account_holder_name[1] in registered_name
+            ):
+
+                message = "Your account details have been successfully verified"
+
+                # check bank Entry existence. if not exist then create entry
+                if user_kyc.kyc_type == "CHOICE":
+                    bank_entry_name = frappe.db.get_value(
+                        "User Bank Account",
+                        {
+                            "parentfield": "bank_account",
+                            "razorpay_fund_account_id": data_res.get(
+                                "fund_account"
+                            ).get("id"),
+                            "account_number": data_res.get("fund_account")
+                            .get("bank_account")
+                            .get("account_number"),
+                        },
+                        "name",
+                    )
+
+                    if not bank_entry_name:
+                        bank_account_list = frappe.get_all(
+                            "User Bank Account",
+                            filters={"parent": user_kyc.name},
+                            fields="*",
+                        )
+                        for b in bank_account_list:
+                            if bank_entry_name != b.name:
+                                other_bank = frappe.get_doc("User Bank Account", b.name)
+                                if other_bank.is_default == 1:
+                                    other_bank.is_default = 0
+                                    other_bank.save(ignore_permissions=True)
+                        frappe.get_doc(
+                            {
+                                "doctype": "User Bank Account",
+                                "parentfield": "bank_account",
+                                "parenttype": "User KYC",
+                                "bank": data_res.get("fund_account")
+                                .get("bank_account")
+                                .get("bank_name"),
+                                "branch": data_res.get("notes").get("branch"),
+                                "account_type": data_res.get("notes").get(
+                                    "bank_account_type"
+                                ),
+                                "account_number": data_res.get("fund_account")
+                                .get("bank_account")
+                                .get("account_number"),
+                                "ifsc": data_res.get("fund_account")
+                                .get("bank_account")
+                                .get("ifsc"),
+                                "account_holder_name": data_res.get("fund_account")
+                                .get("bank_account")
+                                .get("name"),
+                                "personalized_cheque": photos_,
+                                "city": data_res.get("notes").get("city"),
+                                "parent": user_kyc.name,
+                                "is_default": True,
+                                "razorpay_fund_account_id": data_res.get(
+                                    "fund_account"
+                                ).get("id"),
+                                "razorpay_fund_account_validation_id": data_res.get(
+                                    "id"
+                                ),
+                                "bank_status": "Pending",
+                            }
+                        ).insert(ignore_permissions=True)
+                        frappe.db.commit()
+                    else:
+                        # For existing choice bank entries
+                        bank_account = frappe.get_doc(
+                            "User Bank Account", bank_entry_name
+                        )
+                        bank_account.account_holder_name = (
+                            data_res.get("fund_account").get("bank_account").get("name")
+                        )
+                        bank_account.personalized_cheque = photos_
+                        bank_account.bank_status = "Pending"
+                        bank_account.save(ignore_permissions=True)
+                        frappe.db.commit()
+                else:
+                    # For non choice user
+                    frappe.get_doc(
+                        {
+                            "doctype": "User Bank Account",
+                            "parentfield": "bank_account",
+                            "parenttype": "User KYC",
+                            "bank": data_res.get("fund_account")
+                            .get("bank_account")
+                            .get("bank_name"),
+                            "branch": data_res.get("notes").get("branch"),
+                            "account_type": data_res.get("notes").get(
+                                "bank_account_type"
+                            ),
+                            "account_number": data_res.get("fund_account")
+                            .get("bank_account")
+                            .get("account_number"),
+                            "ifsc": data_res.get("fund_account")
+                            .get("bank_account")
+                            .get("ifsc"),
+                            "account_holder_name": data_res.get("fund_account")
+                            .get("bank_account")
+                            .get("name"),
+                            "personalized_cheque": photos_,
+                            "city": data_res.get("notes").get("city"),
+                            "parent": user_kyc.name,
+                            "is_default": True,
+                            "razorpay_fund_account_id": data_res.get(
+                                "fund_account"
+                            ).get("id"),
+                            "razorpay_fund_account_validation_id": data_res.get("id"),
+                            "bank_status": "Pending",
+                        }
+                    ).insert(ignore_permissions=True)
+                    frappe.db.commit()
+            else:
+                data_resp["status"] = "failed"
+                message = "We have found a mismatch in the account holder name as per the fetched data"
+                # return utils.respondWithFailure(message=message, data=data_resp)
+                # raise lms.exceptions.RespondFailureException(message, data_resp)
+        else:
+            data_resp["status"] = "failed"
+            message = "Your account details have not been successfully verified"
+            # return utils.respondWithFailure(message=message, data=data_resp)
+            # raise lms.exceptions.RespondFailureException(message, data_resp)
+
+        lms.create_log(data_res, "rzp_penny_fund_account_validation_success_log")
+        return utils.respondWithSuccess(message=message, data=data_resp)
+    except utils.exceptions.APIException as e:
+        lms.log_api_error(
+            str(message if message else "")
+            + "\n"
+            + str(data_resp if data_resp else data_res)
+        )
+        return e.respond()
+
+
+@frappe.whitelist()
+def consent_details(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+
+        data = utils.validator.validate(kwargs, {"consent_name": "required"})
+
+        customer = lms.__customer()
+        if not customer:
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
+
+        consent_list = frappe.get_list("Consent", pluck="name", ignore_permissions=True)
+
+        if data.get("consent_name") not in consent_list:
+            raise lms.exceptions.NotFoundException(_("Consent not found"))
+        try:
+            consent_details = frappe.get_doc("Consent", data.get("consent_name"))
+        except frappe.DoesNotExistError:
+            raise lms.exceptions.NotFoundException(_("Consent not found"))
+        return utils.respondWithSuccess(data=consent_details)
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
+
+
+@frappe.whitelist()
+def ckyc_search(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "pan_no": "required",
+                "accept_terms": ["required", "between:0,1", "decimal"],
+            },
+        )
+
+        ckyc_no = {}
+
+        reg = lms.regex_special_characters(
+            search=data.get("pan_no"),
+            regex=re.compile("[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"),
+        )
+        if not reg or len(data.get("pan_no")) != 10:
+            raise lms.exceptions.FailureException(_("Invalid PAN"))
+
+        if not data.get("accept_terms"):
+            # return utils.respondUnauthorized(
+            #     message=frappe._("Please accept Terms and Conditions.")
+            # )
+            raise lms.exceptions.UnauthorizedException(
+                _("Please accept Terms and Conditions.")
+            )
+
+        customer = lms.__customer()
+
+        res_json = lms.ckyc_dot_net(customer, data.get("pan_no"), is_for_search=True)
+
+        if res_json.get("status") == 200 and not res_json.get("error"):
+            pid_data = (
+                json.loads(res_json.get("data"))
+                .get("PID_DATA")
+                .get("SearchResponsePID")
+            )
+            ckyc_no = {"ckyc_no": pid_data.get("CKYC_NO")}
+            kyc_consent_doc = frappe.get_doc(
+                {
+                    "doctype": "User Consent",
+                    "mobile": lms.__user().phone,
+                    "consent": "Kyc",
+                }
+            )
+            kyc_consent_doc.insert(ignore_permissions=True)
+            frappe.db.commit()
+        else:
+            lms.log_api_error(mess=str(res_json))
+            return utils.respondWithFailure(
+                status=res_json.get("status"),
+                message="Sorry! Our system has not been able to validate your KYC. Kindly check your input for any mismatch.",
+                data=res_json.get("error"),
+            )
+
+        return utils.respondWithSuccess(data=ckyc_no)
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
+
+
+@frappe.whitelist()
+def ckyc_download(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(
+            kwargs, {"pan_no": "required", "dob": "required", "ckyc_no": "required"}
+        )
+
+        reg = lms.regex_special_characters(
+            search=data.get("pan_no"),
+            regex=re.compile("[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"),
+        )
+        if not reg or len(data.get("pan_no")) != 10:
+            raise lms.exceptions.FailureException(_("Invalid PAN"))
+
+        pid_data = {}
+        customer = lms.__customer()
+        user_kyc_name = ""
+
+        res_json = lms.ckyc_dot_net(
+            cust=customer,
+            pan_no=data.get("pan_no"),
+            is_for_download=True,
+            dob=data.get("dob"),
+            ckyc_no=data.get("ckyc_no"),
+        )
+
+        if res_json.get("status") == 200 and not res_json.get("error"):
+            try:
+                pid_data = json.loads(res_json.get("data")).get("PID_DATA")
+
+                personal_details = pid_data.get("PERSONAL_DETAILS")
+                identity_details = pid_data.get("IDENTITY_DETAILS")
+                related_person_details = pid_data.get("RELATED_PERSON_DETAILS")
+                image_details = pid_data.get("IMAGE_DETAILS")
+
+                user_kyc = frappe.get_doc(
+                    {
+                        "doctype": "User KYC",
+                        "owner": customer.user,
+                        "user": customer.user,
+                        "kyc_type": "CKYC",
+                        "pan_no": personal_details.get("PAN"),
+                        "date_of_birth": datetime.strptime(data.get("dob"), "%d-%m-%Y"),
+                        "consti_type": personal_details.get("CONSTI_TYPE"),
+                        "acc_type": personal_details.get("ACC_TYPE"),
+                        "ckyc_no": personal_details.get("CKYC_NO"),
+                        "prefix": personal_details.get("PREFIX"),
+                        "fname": personal_details.get("FNAME"),
+                        "mname": personal_details.get("MNAME"),
+                        "lname": personal_details.get("LNAME"),
+                        "fullname": personal_details.get("FULLNAME"),
+                        "maiden_prefix": personal_details.get("MAIDEN_PREFIX"),
+                        "maiden_fname": personal_details.get("MAIDEN_FNAME"),
+                        "maiden_mname": personal_details.get("MAIDEN_MNAME"),
+                        "maiden_lname": personal_details.get("MAIDEN_LNAME"),
+                        "maiden_fullname": personal_details.get("MAIDEN_FULLNAME"),
+                        "fatherspouse_flag": personal_details.get("FATHERSPOUSE_FLAG"),
+                        "father_prefix": personal_details.get("FATHER_PREFIX"),
+                        "father_fname": personal_details.get("FATHER_FNAME"),
+                        "father_mname": personal_details.get("FATHER_MNAME"),
+                        "father_lname": personal_details.get("FATHER_LNAME"),
+                        "father_fullname": personal_details.get("FATHER_FULLNAME"),
+                        "mother_prefix": personal_details.get("MOTHER_PREFIX"),
+                        "mother_fname": personal_details.get("MOTHER_FNAME"),
+                        "mother_mname": personal_details.get("MOTHER_MNAME"),
+                        "mother_lname": personal_details.get("MOTHER_LNAME"),
+                        "mother_fullname": personal_details.get("MOTHER_FULLNAME"),
+                        "gender": personal_details.get("GENDER"),
+                        "dob": personal_details.get("DOB"),
+                        "pan": personal_details.get("PAN"),
+                        "form_60": personal_details.get("FORM_60"),
+                        "perm_line1": personal_details.get("PERM_LINE1"),
+                        "perm_line2": personal_details.get("PERM_LINE2"),
+                        "perm_line3": personal_details.get("PERM_LINE3"),
+                        "perm_city": personal_details.get("PERM_CITY"),
+                        "perm_dist": personal_details.get("PERM_DIST"),
+                        "perm_state": personal_details.get("PERM_STATE"),
+                        "perm_country": personal_details.get("PERM_COUNTRY"),
+                        "perm_state_name": frappe.db.get_value(
+                            "Pincode Master",
+                            {"state": personal_details.get("PERM_STATE")},
+                            "state_name",
+                        ),
+                        "perm_country_name": frappe.db.get_value(
+                            "Country Master",
+                            {"name": personal_details.get("PERM_COUNTRY")},
+                            "country",
+                        ),
+                        "perm_pin": personal_details.get("PERM_PIN"),
+                        "perm_poa": personal_details.get("PERM_POA"),
+                        "perm_corres_sameflag": personal_details.get(
+                            "PERM_CORRES_SAMEFLAG"
+                        ),
+                        "corres_line1": personal_details.get("CORRES_LINE1"),
+                        "corres_line2": personal_details.get("CORRES_LINE2"),
+                        "corres_line3": personal_details.get("CORRES_LINE3"),
+                        "corres_city": personal_details.get("CORRES_CITY"),
+                        "corres_dist": personal_details.get("CORRES_DIST"),
+                        "corres_state": personal_details.get("CORRES_STATE"),
+                        "corres_country": personal_details.get("CORRES_COUNTRY"),
+                        "corres_state_name": frappe.db.get_value(
+                            "Pincode Master",
+                            {"state": personal_details.get("CORRES_STATE")},
+                            "state_name",
+                        ),
+                        "corres_country_name": frappe.db.get_value(
+                            "Country Master",
+                            {"name": personal_details.get("CORRES_COUNTRY")},
+                            "country",
+                        ),
+                        "corres_pin": personal_details.get("CORRES_PIN"),
+                        "corres_poa": personal_details.get("CORRES_POA"),
+                        "resi_std_code": personal_details.get("RESI_STD_CODE"),
+                        "resi_tel_num": personal_details.get("RESI_TEL_NUM"),
+                        "off_std_code": personal_details.get("OFF_STD_CODE"),
+                        "off_tel_num": personal_details.get("OFF_TEL_NUM"),
+                        "mob_code": personal_details.get("MOB_CODE"),
+                        "mob_num": personal_details.get("MOB_NUM"),
+                        "email": personal_details.get("EMAIL"),
+                        "email_id": personal_details.get("EMAIL"),
+                        "remarks": personal_details.get("REMARKS"),
+                        "dec_date": personal_details.get("DEC_DATE"),
+                        "dec_place": personal_details.get("DEC_PLACE"),
+                        "kyc_date": personal_details.get("KYC_DATE"),
+                        "doc_sub": personal_details.get("DOC_SUB"),
+                        "kyc_name": personal_details.get("KYC_NAME"),
+                        "kyc_designation": personal_details.get("KYC_DESIGNATION"),
+                        "kyc_branch": personal_details.get("KYC_BRANCH"),
+                        "kyc_empcode": personal_details.get("KYC_EMPCODE"),
+                        "org_name": personal_details.get("ORG_NAME"),
+                        "org_code": personal_details.get("ORG_CODE"),
+                        "num_identity": personal_details.get("NUM_IDENTITY"),
+                        "num_related": personal_details.get("NUM_RELATED"),
+                        "num_images": personal_details.get("NUM_IMAGES"),
+                    }
+                )
+
+                if user_kyc.gender == "M":
+                    gender_full = "Male"
+                elif user_kyc.gender == "F":
+                    gender_full = "Female"
+                else:
+                    gender_full = "Transgender"
+
+                user_kyc.gender_full = gender_full
+
+                if identity_details:
+                    identity = identity_details.get("IDENTITY")
+                    if identity:
+                        if type(identity) != list:
+                            identity = [identity]
+
+                        for i in identity:
+                            user_kyc.append(
+                                "identity_details",
+                                {
+                                    "sequence_no": i.get("SEQUENCE_NO"),
+                                    "ident_type": i.get("IDENT_TYPE"),
+                                    "ident_num": i.get("IDENT_NUM"),
+                                    "idver_status": i.get("IDVER_STATUS"),
+                                    "ident_category": frappe.db.get_value(
+                                        "Identity Code",
+                                        {"name": i.get("IDENT_TYPE")},
+                                        "category",
+                                    ),
+                                },
+                            )
+
+                if related_person_details:
+                    related_person = related_person_details.get("RELATED_PERSON")
+                    if related_person:
+                        if type(related_person) != list:
+                            related_person = [related_person]
+
+                        for r in related_person:
+                            photos_ = lms.upload_image_to_doctype(
+                                customer=customer,
+                                seq_no=r.get("REL_TYPE"),
+                                image_=r.get("PHOTO_DATA"),
+                                img_format=r.get("PHOTO_TYPE"),
+                            )
+                            perm_poi_photos_ = lms.upload_image_to_doctype(
+                                customer=customer,
+                                seq_no=r.get("REL_TYPE"),
+                                image_=r.get("PERM_POI_DATA"),
+                                img_format=r.get("PERM_POI_IMAGE_TYPE"),
+                            )
+                            corres_poi_photos_ = lms.upload_image_to_doctype(
+                                customer=customer,
+                                seq_no=r.get("REL_TYPE"),
+                                image_=r.get("CORRES_POI_DATA"),
+                                img_format=r.get("CORRES_POI_IMAGE_TYPE"),
+                            )
+                            user_kyc.append(
+                                "related_person_details",
+                                {
+                                    "sequence_no": r.get("SEQUENCE_NO"),
+                                    "rel_type": r.get("REL_TYPE"),
+                                    "add_del_flag": r.get("ADD_DEL_FLAG"),
+                                    "ckyc_no": r.get("CKYC_NO"),
+                                    "prefix": r.get("PREFIX"),
+                                    "fname": r.get("FNAME"),
+                                    "mname": r.get("MNAME"),
+                                    "lname": r.get("LNAME"),
+                                    "maiden_prefix": r.get("MAIDEN_PREFIX"),
+                                    "maiden_fname": r.get("MAIDEN_FNAME"),
+                                    "maiden_mname": r.get("MAIDEN_MNAME"),
+                                    "maiden_lname": r.get("MAIDEN_LNAME"),
+                                    "fatherspouse_flag": r.get("FATHERSPOUSE_FLAG"),
+                                    "father_prefix": r.get("FATHER_PREFIX"),
+                                    "father_fname": r.get("FATHER_FNAME"),
+                                    "father_mname": r.get("FATHER_MNAME"),
+                                    "father_lname": r.get("FATHER_LNAME"),
+                                    "mother_prefix": r.get("MOTHER_PREFIX"),
+                                    "mother_fname": r.get("MOTHER_FNAME"),
+                                    "mother_mname": r.get("MOTHER_MNAME"),
+                                    "mother_lname": r.get("MOTHER_LNAME"),
+                                    "gender": r.get("GENDER"),
+                                    "dob": r.get("DOB"),
+                                    "nationality": r.get("NATIONALITY"),
+                                    "pan": r.get("PAN"),
+                                    "form_60": r.get("FORM_60"),
+                                    "add_line1": r.get("Add_LINE1"),
+                                    "add_line2": r.get("Add_LINE2"),
+                                    "add_line3": r.get("Add_LINE3"),
+                                    "add_city": r.get("Add_CITY"),
+                                    "add_dist": r.get("Add_DIST"),
+                                    "add_state": r.get("Add_STATE"),
+                                    "add_country": r.get("Add_COUNTRY"),
+                                    "add_pin": r.get("Add_PIN"),
+                                    "perm_poi_type": r.get("PERM_POI_TYPE"),
+                                    "same_as_perm_flag": r.get("SAME_AS_PERM_FLAG"),
+                                    "corres_add_line1": r.get("CORRES_ADD_LINE1"),
+                                    "corres_add_line2": r.get("CORRES_ADD_LINE2"),
+                                    "corres_add_line3": r.get("CORRES_ADD_LINE3"),
+                                    "corres_add_city": r.get("CORRES_ADD_CITY"),
+                                    "corres_add_dist": r.get("CORRES_ADD_DIST"),
+                                    "corres_add_state": r.get("CORRES_ADD_STATE"),
+                                    "corres_add_country": r.get("CORRES_ADD_COUNTRY"),
+                                    "corres_add_pin": r.get("CORRES_ADD_PIN"),
+                                    "corres_poi_type": r.get("CORRES_POI_TYPE"),
+                                    "resi_std_code": r.get("RESI_STD_CODE"),
+                                    "resi_tel_num": r.get("RESI_TEL_NUM"),
+                                    "off_std_code": r.get("OFF_STD_CODE"),
+                                    "off_tel_num": r.get("OFF_TEL_NUM"),
+                                    "mob_code": r.get("MOB_CODE"),
+                                    "mob_num": r.get("MOB_NUM"),
+                                    "email": r.get("EMAIL"),
+                                    "remarks": r.get("REMARKS"),
+                                    "dec_date": r.get("DEC_DATE"),
+                                    "dec_place": r.get("DEC_PLACE"),
+                                    "kyc_date": r.get("KYC_DATE"),
+                                    "doc_sub": r.get("DOC_SUB"),
+                                    "kyc_name": r.get("KYC_NAME"),
+                                    "kyc_designation": r.get("KYC_DESIGNATION"),
+                                    "kyc_branch": r.get("KYC_BRANCH"),
+                                    "kyc_empcode": r.get("KYC_EMPCODE"),
+                                    "org_name": r.get("ORG_NAME"),
+                                    "org_code": r.get("ORG_CODE"),
+                                    "photo_type": r.get("PHOTO_TYPE"),
+                                    "photo": photos_,
+                                    "perm_poi_image_type": r.get("PERM_POI_IMAGE_TYPE"),
+                                    "perm_poi": perm_poi_photos_,
+                                    "corres_poi_image_type": r.get(
+                                        "CORRES_POI_IMAGE_TYPE"
+                                    ),
+                                    "corres_poi": corres_poi_photos_,
+                                    "proof_of_possession_of_aadhaar": r.get(
+                                        "PROOF_OF_POSSESSION_OF_AADHAAR"
+                                    ),
+                                    "voter_id": r.get("VOTER_ID"),
+                                    "nrega": r.get("NREGA"),
+                                    "passport": r.get("PASSPORT"),
+                                    "driving_licence": r.get("DRIVING_LICENCE"),
+                                    "national_poplation_reg_letter": r.get(
+                                        "NATIONAL_POPLATION_REG_LETTER"
+                                    ),
+                                    "offline_verification_aadhaar": r.get(
+                                        "OFFLINE_VERIFICATION_AADHAAR"
+                                    ),
+                                    "e_kyc_authentication": r.get(
+                                        "E_KYC_AUTHENTICATION"
+                                    ),
+                                },
+                            )
+
+                if image_details:
+                    image_ = image_details.get("IMAGE")
+                    if image_:
+                        if type(image_) != list:
+                            image_ = [image_]
+
+                        for im in image_:
+                            image_data = lms.upload_image_to_doctype(
+                                customer=customer,
+                                seq_no=im.get("SEQUENCE_NO"),
+                                image_=im.get("IMAGE_DATA"),
+                                img_format=im.get("IMAGE_TYPE"),
+                            )
+                            user_kyc.append(
+                                "image_details",
+                                {
+                                    "sequence_no": im.get("SEQUENCE_NO"),
+                                    "image_type": im.get("IMAGE_TYPE"),
+                                    "image_code": im.get("IMAGE_CODE"),
+                                    "global_flag": im.get("GLOBAL_FLAG"),
+                                    "branch_code": im.get("BRANCH_CODE"),
+                                    "image_name": frappe.db.get_value(
+                                        "Document Master",
+                                        {"name": im.get("IMAGE_CODE")},
+                                        "document_name",
+                                    ),
+                                    "image": image_data,
+                                },
+                            )
+
+                user_kyc.insert(ignore_permissions=True)
+                user_kyc_name = user_kyc.name
+                frappe.db.commit()
+
+            except Exception:
+                raise lms.exceptions.RespondFailureException()
+        else:
+            frappe.db.rollback
+            lms.log_api_error(mess=str(res_json))
+            return utils.respondWithFailure(
+                status=res_json.get("status"),
+                message="Sorry! Our system has not been able to validate your KYC. Kindly check your input for any mismatch.",
+                data=res_json.get("error"),
+            )
+
+        return utils.respondWithSuccess(data={"user_kyc_name": user_kyc_name})
+    except utils.exceptions.APIException as e:
+        frappe.db.rollback
+        lms.log_api_error()
+        return e.respond()
+
+
+def validate_address(address):
+    if type(address) is not dict:
+        raise lms.exceptions.FailureException(
+            message=frappe._("address details should be dictionary.")
+        )
+
+    perm_add = address["permanent_address"]
+    corres_add = address["corresponding_address"]
+
+    add_details = [
+        "address_line1",
+        "address_line2",
+        "address_line3",
+        "city",
+        "pin_code",
+        "state",
+        "district",
+        "country",
+        "poa_type",
+        "address_proof_image",
+    ]
+
+    if not all(key in perm_add for key in add_details):
+        raise lms.exceptions.FailureException(
+            message=frappe._("Keys missing in Permanent address details")
+        )
+
+    if not all(key in corres_add for key in add_details):
+        raise lms.exceptions.FailureException(
+            message=frappe._("Keys missing in Corresponding address details")
+        )
+
+    if len(perm_add) == 0:
+        raise lms.exceptions.FailureException(
+            message=frappe._("Permanent Address Required")
+        )
+
+    address_valid = True
+    if type(perm_add) is not dict:
+        address_valid = False
+        message = frappe._("Permanent Address should be dictionary")
+
+    if address_valid:
+        for i in perm_add.values():
+            if type(i) is not str:
+                address_valid = False
+                message = frappe._("permanent address should be in string format")
+                break
+
+        for k, v in perm_add.items():
+            if (
+                k
+                in [
+                    "address_line1",
+                    "city",
+                    "pin_code",
+                    "state",
+                    "district",
+                    "country",
+                    "address_proof_image",
+                    "poa_type",
+                ]
+                and not v
+            ):
+                raise lms.exceptions.FailureException(
+                    message=frappe._(
+                        "{} field required permanent address".format(
+                            k.title().replace("_", " ")
+                        )
+                    )
+                )
+
+    if len(corres_add) == 0:
+        raise lms.exceptions.FailureException(
+            message=frappe._("Corresponding Address Required")
+        )
+
+    if type(corres_add) is not dict:
+        address_valid = False
+        message = frappe._("Corresponding Address should be dictionary")
+
+    if address_valid:
+        for i in corres_add.values():
+            if type(i) is not str:
+                address_valid = False
+                message = frappe._("Corresponding should be in string format")
+                break
+
+        for k, v in corres_add.items():
+            if (
+                k
+                in [
+                    "address_line1",
+                    "city",
+                    "pin_code",
+                    "state",
+                    "district",
+                    "country",
+                    "address_proof_image",
+                    "poa_type",
+                ]
+                and not v
+            ):
+                raise lms.exceptions.FailureException(
+                    message=frappe._(
+                        "{} field required in corresponding address".format(
+                            k.title().replace("_", " ")
+                        )
+                    )
+                )
+
+    if not address_valid:
+        raise lms.exceptions.FailureException(message=message)
+
+    return address
+
+
+@frappe.whitelist()
+def ckyc_consent_details(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "user_kyc_name": "required",
+                "address_details": "",
+                "accept_terms": "",
+            },
+        )
+
+        try:
+            user_kyc = frappe.get_doc("User KYC", data.get("user_kyc_name"))
+        except UserKYCNotFoundException:
+            user_kyc = None
+        try:
+            consent_details = frappe.get_doc("Consent", "Ckyc")
+        except frappe.DoesNotExistError:
+            raise lms.exceptions.NotFoundException(message=_("Consent not found"))
+
+        if data.get("address_details") and not data.get("accept_terms"):
+            raise lms.exceptions.UnauthorizedException(
+                message=_("Please accept Terms and Conditions.")
+            )
+
+        poa_type = frappe.get_list(
+            "Proof of Address Master", pluck="poa_name", ignore_permissions=True
+        )
+
+        country = frappe.get_all(
+            "Country Master",
+            fields=["country"],
+            pluck="country",
+            order_by="country asc",
+        )
+
+        # user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
+        # user_kyc.ckyc_no = lms.user_details_hashing(user_kyc.ckyc_no)
+        # user_kyc.email = lms.user_details_hashing(user_kyc.email)
+        # user_kyc.email_id = lms.user_details_hashing(user_kyc.email_id)
+        # user_kyc.mob_num = lms.user_details_hashing(user_kyc.mob_num)
+        user_kyc = lms.user_kyc_hashing(user_kyc)
+
+        data_res = {
+            "user_kyc_doc": user_kyc,
+            "consent_details": consent_details,
+            "poa_type": poa_type,
+            "country": country,
+        }
+        message = "Success"
+
+        if data.get("address_details") and data.get("accept_terms"):
+            validate_address(
+                address=data.get("address_details", {}),
+            )
+            user_kyc_doc = frappe.get_doc("User KYC", user_kyc.name)
+            address = []
+            address.append(
+                frappe.compare(
+                    user_kyc_doc.perm_line1,
+                    "=",
+                    data.get("address_details")
+                    .get("permanent_address")
+                    .get("address_line1"),
+                )
+            )
+            address.append(
+                frappe.compare(
+                    user_kyc_doc.perm_line2,
+                    "=",
+                    data.get("address_details")
+                    .get("permanent_address")
+                    .get("address_line2"),
+                )
+            )
+            address.append(
+                frappe.compare(
+                    user_kyc_doc.perm_line3,
+                    "=",
+                    data.get("address_details")
+                    .get("permanent_address")
+                    .get("address_line3"),
+                )
+            )
+            address.append(
+                frappe.compare(
+                    user_kyc_doc.perm_city,
+                    "=",
+                    data.get("address_details").get("permanent_address").get("city"),
+                )
+            )
+            address.append(
+                frappe.compare(
+                    user_kyc_doc.perm_dist,
+                    "=",
+                    data.get("address_details")
+                    .get("permanent_address")
+                    .get("district"),
+                )
+            )
+            address.append(
+                frappe.compare(
+                    user_kyc_doc.perm_state_name,
+                    "=",
+                    data.get("address_details").get("permanent_address").get("state"),
+                )
+            )
+            address.append(
+                frappe.compare(
+                    user_kyc_doc.perm_country_name,
+                    "=",
+                    data.get("address_details").get("permanent_address").get("country"),
+                )
+            )
+            address.append(
+                frappe.compare(
+                    user_kyc_doc.perm_pin,
+                    "=",
+                    data.get("address_details")
+                    .get("permanent_address")
+                    .get("pin_code"),
+                )
+            )
+            address.append(
+                frappe.compare(
+                    user_kyc_doc.corres_line1,
+                    "=",
+                    data.get("address_details")
+                    .get("corresponding_address")
+                    .get("address_line1"),
+                )
+            )
+            address.append(
+                frappe.compare(
+                    user_kyc_doc.corres_line2,
+                    "=",
+                    data.get("address_details")
+                    .get("corresponding_address")
+                    .get("address_line2"),
+                )
+            )
+            address.append(
+                frappe.compare(
+                    user_kyc_doc.corres_line3,
+                    "=",
+                    data.get("address_details")
+                    .get("corresponding_address")
+                    .get("address_line3"),
+                )
+            )
+            address.append(
+                frappe.compare(
+                    user_kyc_doc.corres_city,
+                    "=",
+                    data.get("address_details")
+                    .get("corresponding_address")
+                    .get("city"),
+                )
+            )
+            address.append(
+                frappe.compare(
+                    user_kyc_doc.corres_dist,
+                    "=",
+                    data.get("address_details")
+                    .get("corresponding_address")
+                    .get("district"),
+                )
+            )
+            address.append(
+                frappe.compare(
+                    user_kyc_doc.corres_state_name,
+                    "=",
+                    data.get("address_details")
+                    .get("corresponding_address")
+                    .get("state"),
+                )
+            )
+            address.append(
+                frappe.compare(
+                    user_kyc_doc.corres_country_name,
+                    "=",
+                    data.get("address_details")
+                    .get("corresponding_address")
+                    .get("country"),
+                )
+            )
+            address.append(
+                frappe.compare(
+                    user_kyc_doc.corres_pin,
+                    "=",
+                    data.get("address_details")
+                    .get("corresponding_address")
+                    .get("pin_code"),
+                )
+            )
+
+            perm_add_photos = lms.upload_image_to_doctype(
+                customer=lms.__customer(user_kyc_doc.user),
+                seq_no="perm-add",
+                image_=data.get("address_details")
+                .get("permanent_address")
+                .get("address_proof_image"),
+                img_format="jpeg",
+                img_folder="user_ckyc_address",
+            )
+            corres_add_photos = lms.upload_image_to_doctype(
+                customer=lms.__customer(user_kyc_doc.user),
+                seq_no="corres-add",
+                image_=data.get("address_details")
+                .get("corresponding_address")
+                .get("address_proof_image"),
+                img_format="jpeg",
+                img_folder="user_ckyc_address",
+            )
+
+            ckyc_address_doc = frappe.get_doc(
+                {
+                    "doctype": "Customer Address Details",
+                    "perm_line1": data.get("address_details")
+                    .get("permanent_address")
+                    .get("address_line1"),
+                    "perm_line2": data.get("address_details")
+                    .get("permanent_address")
+                    .get("address_line2"),
+                    "perm_line3": data.get("address_details")
+                    .get("permanent_address")
+                    .get("address_line3"),
+                    "perm_city": data.get("address_details")
+                    .get("permanent_address")
+                    .get("city"),
+                    "perm_dist": data.get("address_details")
+                    .get("permanent_address")
+                    .get("district"),
+                    "perm_state": data.get("address_details")
+                    .get("permanent_address")
+                    .get("state"),
+                    "perm_country": data.get("address_details")
+                    .get("permanent_address")
+                    .get("country"),
+                    "perm_pin": data.get("address_details")
+                    .get("permanent_address")
+                    .get("pin_code"),
+                    "perm_poa": data.get("address_details")
+                    .get("permanent_address")
+                    .get("poa_type"),
+                    "perm_image": perm_add_photos,
+                    "corres_poa_image": corres_add_photos,
+                    "perm_corres_flag": data.get("address_details").get(
+                        "perm_corres_flag"
+                    ),
+                    "corres_line1": data.get("address_details")
+                    .get("corresponding_address")
+                    .get("address_line1"),
+                    "corres_line2": data.get("address_details")
+                    .get("corresponding_address")
+                    .get("address_line2"),
+                    "corres_line3": data.get("address_details")
+                    .get("corresponding_address")
+                    .get("address_line3"),
+                    "corres_city": data.get("address_details")
+                    .get("corresponding_address")
+                    .get("city"),
+                    "corres_dist": data.get("address_details")
+                    .get("corresponding_address")
+                    .get("district"),
+                    "corres_state": data.get("address_details")
+                    .get("corresponding_address")
+                    .get("state"),
+                    "corres_country": data.get("address_details")
+                    .get("corresponding_address")
+                    .get("country"),
+                    "corres_pin": data.get("address_details")
+                    .get("corresponding_address")
+                    .get("pin_code"),
+                    "corres_poa": data.get("address_details")
+                    .get("corresponding_address")
+                    .get("poa_type"),
+                }
+            ).insert(ignore_permissions=True)
+            user_kyc_doc.address_details = ckyc_address_doc.name
+            user_kyc_doc.consent_given = 1
+            if False in address:
+                user_kyc_doc.is_edited = 1
+                ckyc_address_doc.is_edited = 1
+                ckyc_address_doc.save(ignore_permissions=True)
+            user_kyc_doc.save(ignore_permissions=True)
+            kyc_consent_doc = frappe.get_doc(
+                {
+                    "doctype": "User Consent",
+                    "mobile": lms.__user().phone,
+                    "consent": "Ckyc",
+                }
+            )
+            kyc_consent_doc.insert(ignore_permissions=True)
+
+            frappe.db.commit()
+            message = "Your KYC verification is in process, it will be executed in next 24 hours"
+
+        # responce all these for user kyc get request
+        return utils.respondWithSuccess(message=message, data=data_res)
+    except utils.exceptions.APIException as e:
+        frappe.db.rollback()
+        lms.log_api_error()
+        return e.respond()
+
+
+@frappe.whitelist()
+def get_bank_details():
+    try:
+        utils.validator.validate_http_method("POST")
+        las_settings = frappe.get_single("LAS Settings")
+        try:
+            user_kyc = lms.__user_kyc()
+        except UserKYCNotFoundException:
+            user_kyc = None
+        # if user_kyc and user_kyc.status == "Approved":
+        if user_kyc:
+            params = {
+                "PANNum": user_kyc.pan_no,
+                "dob": user_kyc.date_of_birth,
+            }
+            headers = {
+                "businessUnit": las_settings.choice_business_unit,
+                "userId": las_settings.choice_user_id,
+                "investorId": las_settings.choice_investor_id,
+                "ticket": las_settings.choice_ticket,
+            }
+
+            res = requests.get(
+                las_settings.choice_pan_api, params=params, headers=headers
+            )
+            if res.status_code != 200:
+                raise FailureException()
+            data = res.json()
+            log = {
+                "url": las_settings.choice_pan_api,
+                "headers": headers,
+                "request": params,
+                "response": data,
+            }
+            lms.create_log(log, "get_bank_details_log")
+            if res.ok and "errorCode" not in data and data.get("banks"):
+                user_kyc.kyc_type = "CHOICE"
+                user_kyc.email = data["emailId"]
+                user_kyc.choice_mob_no = data["mobileNum"]
+                user_kyc.bank_account = []
+                user_kyc.save(ignore_permissions=True)
+                frappe.db.commit()
+                user_kyc_doc = frappe.get_doc("User KYC", user_kyc.name)
+
+                for bank in data["banks"]:
+                    user_kyc_doc.append(
+                        "bank_account",
+                        {
+                            "bank": bank["bank"],
+                            "bank_address": bank["bankAddress"],
+                            "branch": bank["branch"],
+                            "contact": bank["contact"],
+                            "account_type": bank["accountType"],
+                            "account_number": bank["accountNumber"],
+                            "ifsc": bank["ifsc"],
+                            "micr": bank["micr"],
+                            "bank_mode": bank["bankMode"],
+                            "bank_code": bank["bankcode"],
+                            "bank_zip_code": bank["bankZipCode"],
+                            "city": bank["city"],
+                            "district": bank["district"],
+                            "state": bank["state"],
+                            "is_default": bank["defaultBank"] == "Y",
+                            "bank_status": "",
+                        },
+                    )
+                user_kyc_doc = lms.user_kyc_hashing(user_kyc_doc)
+                return utils.respondWithSuccess(data=user_kyc_doc)
+            else:
+                message = "Record does not exist."
+                return utils.respondWithSuccess(message=message)
+
+    except utils.exceptions.APIException as e:
+        frappe.db.rollback()
+        lms.log_api_error()
+        return e.respond()
+
+
+@frappe.whitelist()
+def pincode(**kwargs):
+    try:
+        utils.validator.validate_http_method("GET")
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "pincode": "required",
+            },
+        )
+
+        try:
+            pincode = frappe.get_doc("Pincode Master", data.get("pincode"))
+        except DoesNotExistError:
+            raise lms.exceptions.NotFoundException(_("Pincode not found"))
+
+        data_res = {"district": pincode.new_district, "state": pincode.state_name}
+
+        return utils.respondWithSuccess(data=data_res)
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
+
+
+@frappe.whitelist()
+def get_app_version_details():
+    try:
+        utils.validator.validate_http_method("GET")
+
+        version_details = frappe.get_all(
+            "Spark App Version",
+            filters={"is_live": 1},
+            fields=["*"],
+            order_by="release_date desc",
+            page_length=1,
+        )
+        if not version_details:
+            raise lms.exceptions.NotFoundException(_("No Record found"))
+        return utils.respondWithSuccess(data=version_details[0])
+    except utils.exceptions.APIException as e:
+        frappe.log_error(
+            title="Get App Version Details API", message=frappe.get_traceback()
+        )
         return e.respond()
 
 

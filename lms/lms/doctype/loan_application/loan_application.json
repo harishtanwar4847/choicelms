@@ -16,6 +16,7 @@
   "pledged_total_collateral_value",
   "pledged_total_collateral_value_str",
   "loan_margin_shortfall",
+  "remarks",
   "loan_application_column_break",
   "customer",
   "customer_name",
@@ -26,6 +27,8 @@
   "pledge_status",
   "pledgor_boid",
   "pledgee_boid",
+  "instrument_type",
+  "scheme_type",
   "items_section",
   "items",
   "section_break_23",
@@ -76,9 +79,11 @@
    "reqd": 1
   },
   {
+   "depends_on": "eval:doc.instrument_type==\"Shares\";",
    "fieldname": "allowable_ltv",
    "fieldtype": "Float",
    "label": "Allowable LTV",
+   "mandatory_depends_on": "doc.instrument_type==\"Shares\";",
    "read_only": 1,
    "reqd": 1
   },
@@ -183,6 +188,21 @@
    "read_only": 1
   },
   {
+   "default": "Shares",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "\nEquity\nDebt",
+   "read_only": 1
+  },
+  {
    "fieldname": "application_type",
    "fieldtype": "Select",
    "label": "Application Type",
@@ -215,10 +235,16 @@
    "fieldtype": "Currency",
    "label": "Increased Sanctioned Limit",
    "read_only": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks",
+   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2022-01-11 12:16:10.179013",
+ "modified": "2022-05-11 17:12:24.453836",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

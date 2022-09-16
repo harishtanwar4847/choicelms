@@ -81,15 +81,25 @@ class Cart(Document):
 
         items = []
         for item in self.items:
+            amount = round(item.pledged_quantity, 3) * item.price
             item = frappe.get_doc(
                 {
                     "doctype": "Loan Application Item",
                     "isin": item.isin,
                     "security_name": item.security_name,
                     "security_category": item.security_category,
-                    "pledged_quantity": item.pledged_quantity,
+                    "pledged_quantity": round(item.pledged_quantity, 3),
+                    "requested_quantity": round(item.requested_quantity, 3),
                     "price": item.price,
-                    "amount": item.amount,
+                    "amount": amount,
+                    "eligible_percentage": item.eligible_percentage,
+                    "eligible_amount": (amount * item.eligible_percentage) / 100,
+                    "type": item.type,
+                    "folio": item.folio,
+                    "amc_code": item.amc_code,
+                    "amc_name": item.amc_name,
+                    "scheme_code": item.scheme_code,
+                    "prf_number": self.lien_reference_number,
                 }
             )
             items.append(item)
@@ -113,9 +123,10 @@ class Cart(Document):
                 "items": items,
                 "application_type": application_type,
                 "increased_sanctioned_limit": self.increased_sanctioned_limit,
+                "instrument_type": self.instrument_type,
+                "scheme_type": self.scheme_type,
             }
-        )
-        loan_application.insert(ignore_permissions=True)
+        ).insert(ignore_permissions=True)
 
         # mark cart as processed
         self.is_processed = 1
@@ -144,14 +155,13 @@ class Cart(Document):
                 loan=self.loan,
                 customer=self.get_customer(),
             )
-            receiver_list = list(
-                set(
-                    [
-                        str(self.get_customer().phone),
-                        str(self.get_customer().get_kyc().mobile_number),
-                    ]
-                )
-            )
+            receiver_list = [str(self.get_customer().phone)]
+            if self.get_customer().get_kyc().mob_num:
+                receiver_list.append(str(self.get_customer().get_kyc().mob_num))
+            if self.get_customer().get_kyc().choice_mob_no:
+                receiver_list.append(str(self.get_customer().get_kyc().choice_mob_no))
+
+            receiver_list = list(set(receiver_list))
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
@@ -164,20 +174,34 @@ class Cart(Document):
             customer = frappe.get_doc("Loan Customer", self.customer)
             doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
             doc["loan_application_name"] = loan_application.name
+            doc["minimum_sanctioned_limit"] = loan_application.minimum_sanctioned_limit
             # frappe.enqueue_doc(
             #     "Notification", "Loan Application Creation", method="send", doc=doc
             # )
-            frappe.enqueue_doc(
-                "Notification", "Pledge Application Success", method="send", doc=doc
-            )
+            if not loan_application.remarks:
+                msg_type = "pledge"
+                email_subject = "Pledge Application Success"
+                if self.instrument_type == "Mutual Fund":
+                    application_type = "Lien"
+                    msg_type = "lien"
+                    email_subject = "Lien Application Successful"
 
-            mess = "Dear Customer,\nYour pledge request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans"
-            # if mess:
-            receiver_list = list(
-                set([str(self.get_customer().phone), str(doc.mobile_number)])
-            )
+                frappe.enqueue_doc(
+                    "Notification", email_subject, method="send", doc=doc
+                )
+                mess = "Dear Customer,\nYour {} request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans".format(
+                    msg_type
+                )
+                # if mess:
+                receiver_list = [str(self.get_customer().phone)]
+                if doc.mob_num:
+                    receiver_list.append(str(doc.mob_num))
+                if doc.choice_mob_no:
+                    receiver_list.append(str(doc.choice_mob_no))
 
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
+                receiver_list = list(set(receiver_list))
+
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
         return loan_application
 
     def create_tnc_file(self):
@@ -200,11 +224,35 @@ class Cart(Document):
 
         from num2words import num2words
 
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+            address = (
+                str(address_details.perm_line1)
+                + ", "
+                + str(address_details.perm_line2)
+                + ", "
+                + str(address_details.perm_line3)
+                + ", "
+                + str(address_details.perm_city)
+                + ", "
+                + str(address_details.perm_dist)
+                + ", "
+                + str(address_details.perm_state)
+                + ", "
+                + str(address_details.perm_country)
+                + ", "
+                + str(address_details.perm_pin)
+            )
+        else:
+            address = ""
+
         doc = {
             "esign_date": "__________",
             "loan_application_number": " ",
-            "borrower_name": user_kyc.investor_name,
-            "borrower_address": user_kyc.address,
+            "borrower_name": user_kyc.fullname,
+            "borrower_address": address,
             "sanctioned_amount": lms.validate_rupees(
                 self.increased_sanctioned_limit
                 if self.loan and not self.loan_margin_shortfall
@@ -269,8 +317,41 @@ class Cart(Document):
             "security_selling_share": lender.security_selling_share,
             "cic_charges": lms.validate_rupees(lender.cic_charges),
             "total_pages": lender.total_pages,
+            "lien_initiate_charge_type": lender.lien_initiate_charge_type,
+            "invoke_initiate_charge_type": lender.invoke_initiate_charge_type,
+            "revoke_initiate_charge_type": lender.revoke_initiate_charge_type,
+            "lien_initiate_charge_minimum_amount": lms.validate_rupees(
+                lender.lien_initiate_charge_minimum_amount
+            ),
+            "lien_initiate_charge_maximum_amount": lms.validate_rupees(
+                lender.lien_initiate_charge_maximum_amount
+            ),
+            "lien_initiate_charges": lms.validate_rupees(lender.lien_initiate_charges)
+            if lender.lien_initiate_charge_type == "Fix"
+            else lms.validate_percent(lender.lien_initiate_charges),
+            "invoke_initiate_charges_minimum_amount": lms.validate_rupees(
+                lender.invoke_initiate_charges_minimum_amount
+            ),
+            "invoke_initiate_charges_maximum_amount": lms.validate_rupees(
+                lender.invoke_initiate_charges_maximum_amount
+            ),
+            "invoke_initiate_charges": lms.validate_rupees(
+                lender.invoke_initiate_charges
+            )
+            if lender.invoke_initiate_charge_type == "Fix"
+            else lms.validate_percent(lender.invoke_initiate_charges),
+            "revoke_initiate_charges_minimum_amount": lms.validate_rupees(
+                lender.revoke_initiate_charges_minimum_amount
+            ),
+            "revoke_initiate_charges_maximum_amount": lms.validate_rupees(
+                lender.revoke_initiate_charges_maximum_amount
+            ),
+            "revoke_initiate_charges": lms.validate_rupees(
+                lender.revoke_initiate_charges
+            )
+            if lender.revoke_initiate_charge_type == "Fix"
+            else lms.validate_percent(lender.revoke_initiate_charges),
         }
-
         if self.loan and not self.loan_margin_shortfall:
             loan = frappe.get_doc("Loan", self.loan)
             doc["old_sanctioned_amount"] = lms.validate_rupees(loan.sanctioned_limit)
@@ -311,10 +392,13 @@ class Cart(Document):
 
     def process_cart_items(self):
         if not self.is_processed:
-            self.pledgee_boid = self.get_lender().demat_account_number
+            if self.instrument_type != "Mutual Fund":
+                self.pledgee_boid = self.get_lender().demat_account_number
             isin = [i.isin for i in self.items]
             price_map = lms.get_security_prices(isin)
-            allowed_securities = lms.get_allowed_securities(isin, self.lender)
+            allowed_securities = lms.get_allowed_securities(
+                isin, self.lender, self.instrument_type
+            )
 
             for i in self.items:
                 security = allowed_securities.get(i.isin)
@@ -323,25 +407,41 @@ class Cart(Document):
                 i.eligible_percentage = security.eligible_percentage
 
                 i.price = price_map.get(i.isin, 0)
-                i.amount = i.pledged_quantity * i.price
+                # i.amount = i.pledged_quantity * i.price
+                amount = i.pledged_quantity * i.price
+                i.amount = amount
+                if i.type != "Shares":
+                    i.amount = round(i.pledged_quantity, 3) * i.price
+                    i.eligible_amount = (
+                        round(i.pledged_quantity, 3)
+                        * i.price
+                        * security.eligible_percentage
+                    ) / 100
 
     def process_cart(self):
         if not self.is_processed:
             lender = self.get_lender()
             self.total_collateral_value = 0
-            self.allowable_ltv = 0
+            allowable_ltv = 0
+            eligible_loan = 0
             for item in self.items:
                 self.total_collateral_value += item.amount
-                self.allowable_ltv += item.eligible_percentage
+                allowable_ltv += item.eligible_percentage
 
             self.total_collateral_value = round(self.total_collateral_value, 2)
-            self.allowable_ltv = float(self.allowable_ltv) / len(self.items)
+            if self.instrument_type == "Shares":
+                self.allowable_ltv = float(allowable_ltv) / len(self.items)
+                eligible_loan = (self.allowable_ltv / 100) * self.total_collateral_value
+
+            else:
+                for i in self.items:
+                    eligible_loan += i.eligible_amount
+
             eligible_loan = round(
-                lms.round_down_amount_to_nearest_thousand(
-                    (self.allowable_ltv / 100) * self.total_collateral_value
-                ),
+                lms.round_down_amount_to_nearest_thousand(eligible_loan),
                 2,
             )
+
             self.eligible_loan = (
                 eligible_loan
                 if eligible_loan < lender.maximum_sanctioned_limit

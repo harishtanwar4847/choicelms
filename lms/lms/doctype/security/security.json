@@ -13,8 +13,9 @@
   "segment",
   "column_break_5",
   "nse_symbol",
-  "type",
-  "token_id"
+  "instrument_type",
+  "token_id",
+  "scheme_type"
  ],
  "fields": [
   {
@@ -28,7 +29,7 @@
    "fieldname": "security_name",
    "fieldtype": "Small Text",
    "in_list_view": 1,
-   "label": "Security Name"
+   "label": "Security/Scheme Name"
   },
   {
    "fieldname": "segment",
@@ -46,12 +47,6 @@
    "label": "NSE Symbol"
   },
   {
-   "fieldname": "type",
-   "fieldtype": "Select",
-   "label": "Type",
-   "options": "Share\nMutual Fund"
-  },
-  {
    "fieldname": "token_id",
    "fieldtype": "Data",
    "label": "Token ID"
@@ -61,7 +56,22 @@
    "fieldname": "price",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Price"
+   "label": "Price/NAV",
+   "precision": "9"
+  },
+  {
+   "default": "Shares",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund"
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "\nEquity\nDebt"
   }
  ],
  "links": [],

@@ -11,7 +11,7 @@ lms.patches.import_faq
 lms.patches.create_consents
 lms.patches.update_las_settings
 lms.patches.import_interest_configuration
-lms.patches.import_workflows #22.12.2021
+lms.patches.import_workflows #20.04.2022
 lms.patches.set_hostname_config
 lms.patches.create_spark_email_account
 lms.patches.redirect_to_root_page
@@ -26,6 +26,27 @@ lms.patches.update_loan_list #13-12-2021
 lms.patches.update_sell_collateral_application
 lms.patches.update_unpledge_application
 lms.patches.redirect_news_and_blog
+lms.patches.update_instrument_type_in_doctype
+lms.patches.sync_security_category_master_for_all_lender ##
+lms.patches.update_security_category_in_allowed_security ##
+lms.patches.update_instrument_type_security_allowed_security ##
+lms.patches.import_security_mutual_fund_for_choice_lender ##
+lms.patches.mutual_fund_config_las ##
+lms.patches.update_margin_shortfall_action_list
+lms.patches.update_spark_push_notification_content #
+lms.patches.import_amc_master
+lms.patches.import_state_master
+lms.patches.import_district_master
+lms.patches.import_pincode_master
+lms.patches.import_document_master ##############
+lms.patches.import_identity_code ###
+lms.patches.import_related_person_type ####
+lms.patches.import_country_master ####
+lms.patches.settlement_and_pennydrop_api_update_in_las
+lms.patches.import_proof_of_address_master
+lms.patches.update_email_in_kyc #ckyc
+lms.patches.update_ckyc_url_las_settings
+lms.patches.update_ckyc_spark_push_notification_content
+lms.patches.update_ckyc_doc
 lms.patches.update_spark_app_version
-lms.patches.update_workflow
-lms.patches.update_email_in_kyc
+lms.patches.update_workflow #CKYC

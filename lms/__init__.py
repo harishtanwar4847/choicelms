@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import base64
+import hashlib
 import hmac
 import json
 import os
 import re
+from base64 import b64decode, b64encode
 from datetime import datetime, timedelta
 from inspect import currentframe
 from itertools import groupby
@@ -15,6 +18,9 @@ import frappe
 import razorpay
 import requests
 import utils
+import xmltodict
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
 from frappe import _
 from razorpay.errors import SignatureVerificationError
 
@@ -30,7 +36,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "3.2.0"
+__version__ = "5.5.1-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -40,6 +46,9 @@ user_token_expiry_map = {
     "Unpledge OTP": 10,
     "Sell Collateral OTP": 10,
     "Forgot Pin OTP": 10,
+    "Lien OTP": 10,
+    "Invoke OTP": 10,
+    "Revoke OTP": 10,
 }
 
 
@@ -350,12 +359,16 @@ def get_security_prices(securities=None):
     return price_map
 
 
-def get_security_categories(securities, lender):
-    query = """select isin, category from `tabAllowed Security`
+def get_security_categories(securities, lender, instrument_type="Shares"):
+    select = "isin, security_category"
+    if instrument_type == "Mutual Fund":
+        select += ", scheme_type"
+    query = """select {} from `tabAllowed Security`
 				where
 				lender = '{}' and
+                instrument_type = '{}' and
 				isin in {}""".format(
-        lender, convert_list_to_tuple_string(securities)
+        select, lender, instrument_type, convert_list_to_tuple_string(securities)
     )
 
     results = frappe.db.sql(query, as_dict=1)
@@ -368,14 +381,33 @@ def get_security_categories(securities, lender):
     return security_map
 
 
-def get_allowed_securities(securities, lender):
+def get_allowed_securities(securities, lender, instrument_type="Shares"):
+
+    select = "als.isin, als.security_name, als.eligible_percentage, sc.category_name as security_category, als.lender"
+    allowed = ""
+    if instrument_type == "Mutual Fund":
+        select += ", als.scheme_type, als.allowed"
+        allowed = "and als.allowed = 1"
+
+    if type(lender) == list:
+        filter = "in {}".format(convert_list_to_tuple_string(lender))
+    else:
+        filter = "= '{}'".format(lender)
+
     query = """select
-				isin, security_name, eligible_percentage, security_category
-				from `tabAllowed Security`
-				where
-				lender = '{}' and
-				isin in {}""".format(
-        lender, convert_list_to_tuple_string(securities)
+				{select}
+				from `tabAllowed Security` als
+                LEFT JOIN `tabSecurity Category` sc
+				ON als.security_category = sc.name where
+				als.lender {lender} 
+                {allowed} and
+                als.instrument_type = '{instrument_type}' and
+                als.isin in {isin}""".format(
+        select=select,
+        lender=filter,
+        allowed=allowed,
+        instrument_type=instrument_type,
+        isin=convert_list_to_tuple_string(securities),
     )
 
     results = frappe.db.sql(query, as_dict=1)
@@ -405,7 +437,7 @@ def __customer(entity=None):
 
 
 def __user_kyc(entity=None, pan_no=None, throw=True):
-    filters = {"user": __user(entity).name}
+    filters = {"user": __user(entity).name, "consent_given": 1}
     if pan_no:
         filters["pan_no"] = pan_no
     res = frappe.get_all("User KYC", filters=filters, order_by="creation desc")
@@ -428,8 +460,11 @@ def __banks(user_kyc=None):
         fields=["*"],
         order_by="is_default desc",
     )
+    # for i in res:
+    #     i.account_number = user_details_hashing(i.account_number)
 
     for i in res:
+        i.account_number = user_details_hashing(i.account_number)
         i.creation = str(i.creation)
         i.modified = str(i.modified)
 
@@ -452,7 +487,7 @@ def delete_user(doc, method):
     frappe.db.commit()
 
 
-def add_firebase_token(firebase_token, user=None):
+def add_firebase_token(firebase_token, app_version_platform, user=None):
     if not user:
         user = frappe.session.user
 
@@ -474,10 +509,15 @@ def add_firebase_token(firebase_token, user=None):
     if get_user_token:
         return
 
-    create_user_token(entity=user, token=firebase_token, token_type="Firebase Token")
+    create_user_token(
+        entity=user,
+        token=firebase_token,
+        token_type="Firebase Token",
+        app_version_platform=app_version_platform,
+    )
 
 
-def create_user_token(entity, token, token_type="OTP"):
+def create_user_token(entity, token, token_type="OTP", app_version_platform=""):
     doc_data = {
         "doctype": "User Token",
         "entity": entity,
@@ -498,6 +538,12 @@ def create_user_token(entity, token, token_type="OTP"):
         )
         doc_data["expiry"] = frappe.utils.now_datetime() + timedelta(
             minutes=expiry_in_minutes
+        )
+
+    if app_version_platform:
+        doc_data["app_version_platform"] = app_version_platform
+        doc_data["customer_id"] = frappe.db.get_value(
+            "Loan Customer", {"user": entity}, "name"
         )
 
     user_token = frappe.get_doc(doc_data)
@@ -742,11 +788,21 @@ def send_spark_push_notification(
                     "Content-Type": "application/json",
                     "Authorization": "key=AAAAennLf7s:APA91bEoQFxqyBP87PXSVS3nXYGhVwh0-5CXQyOzEW8vwKiRqYw-5y2yPXIFWvQ9-Mr0rHeS2NWdq43ogeH76esO3GJyZCEQs2mOgUk6RStxW-hgsioIAJaaiidov8xDg1-yyTn_JCYQ",
                 }
+                url = "https://fcm.googleapis.com/fcm/send"
                 res = requests.post(
-                    url="https://fcm.googleapis.com/fcm/send",
+                    url=url,
                     data=json.dumps(fcm_payload),
                     headers=headers,
                 )
+                res_json = json.loads(res.text)
+                log = {
+                    "url": url,
+                    "headers": headers,
+                    "request": data,
+                    "response": res_json,
+                }
+
+                create_log(log, "Send_Spark_Push_Notification_Log")
 
                 # fa.send_android_message(
                 #     title=fcm_notification.title,
@@ -1058,6 +1114,53 @@ def validate_spark_dummy_account_token(mobile, token, token_type="OTP"):
     return frappe.get_doc("Spark Dummy Account", dummy_account_name)
 
 
+def log_api_error(mess=""):
+    try:
+        """
+        Log API error to Error Log
+
+        This method should be called before API responds the HTTP status code
+        """
+
+        # AI ALERT:
+        # the title and message may be swapped
+        # the better API for this is log_error(title, message), and used in many cases this way
+        # this hack tries to be smart about whats a title (single line ;-)) and fixes it
+        request_parameters = frappe.local.form_dict
+        headers = {k: v for k, v in frappe.local.request.headers.items()}
+        customer = frappe.get_all("Loan Customer", filters={"user": __user().name})
+
+        if len(customer) == 0:
+            message = "Request Parameters : {}\n\nHeaders : {}".format(
+                str(request_parameters), str(headers)
+            )
+        else:
+            message = (
+                "Customer ID : {}\n\nRequest Parameters : {}\n\nHeaders : {}".format(
+                    customer[0].name, str(request_parameters), str(headers)
+                )
+            )
+
+        title = (
+            request_parameters.get("cmd").split(".")[-1].replace("_", " ").title()
+            + " API Error"
+        )
+
+        error = frappe.get_traceback() + "\n\n" + str(mess) + "\n\n" + message
+        log = frappe.get_doc(
+            dict(doctype="API Error Log", error=frappe.as_unicode(error), method=title)
+        ).insert(ignore_permissions=True)
+        frappe.db.commit()
+
+        return log
+
+    except Exception:
+        frappe.log_error(
+            message=frappe.get_traceback(),
+            title=_("API Error Log Error"),
+        )
+
+
 @frappe.whitelist(allow_guest=True)
 def rzp_payment_webhook_callback(**kwargs):
     try:
@@ -1073,42 +1176,54 @@ def rzp_payment_webhook_callback(**kwargs):
         webhook_secret = frappe.get_single("LAS Settings").razorpay_webhook_secret
 
         headers = {k: v for k, v in frappe.local.request.headers.items()}
-        webhook_signature = headers.get("X-Razorpay-Signature")
-        log = {"rzp_payment_webhook_response": data, "headers": headers}
-        create_log(log, "rzp_payment_webhook_log")
+        if frappe.utils.get_url() == "https://" + headers.get(
+            "Host"
+        ) or frappe.utils.get_url() == "https://www." + headers.get("Host"):
+            webhook_signature = headers.get("X-Razorpay-Signature")
+            log = {"rzp_payment_webhook_response": data}
+            create_log(log, "rzp_payment_webhook_log")
 
-        expected_signature = hmac.new(
-            digestmod="sha256",
-            msg=frappe.local.request.data,
-            key=bytes(webhook_secret, "utf-8"),
-        )
-        generated_signature = expected_signature.hexdigest()
-        result = hmac.compare_digest(generated_signature, webhook_signature)
-        if not result:
-            raise SignatureVerificationError("Razorpay Signature Verification Failed")
-
-        # Assign RZP user session for updating loan transaction
-        if rzp_user and result:
-            frappe.session.user = rzp_user[0]["name"]
-
-            if (
-                data
-                and len(data) > 0
-                and data["entity"] == "event"
-                and data["event"]
-                in ["payment.authorized", "payment.captured", "payment.failed"]
-            ):
-                frappe.enqueue(
-                    method="lms.update_rzp_payment_transaction",
-                    data=data,
-                    job_name="Payment Webhook",
+            expected_signature = hmac.new(
+                digestmod="sha256",
+                msg=frappe.local.request.data,
+                key=bytes(webhook_secret, "utf-8"),
+            )
+            generated_signature = expected_signature.hexdigest()
+            result = hmac.compare_digest(generated_signature, webhook_signature)
+            if not result:
+                raise SignatureVerificationError(
+                    "Razorpay Signature Verification Failed"
                 )
-        if not rzp_user:
+
+            # Assign RZP user session for updating loan transaction
+            if rzp_user and result:
+                frappe.session.user = rzp_user[0]["name"]
+
+                if (
+                    data
+                    and len(data) > 0
+                    and data["entity"] == "event"
+                    and data["event"]
+                    in ["payment.authorized", "payment.captured", "payment.failed"]
+                ):
+                    frappe.enqueue(
+                        method="lms.update_rzp_payment_transaction",
+                        data=data,
+                        job_name="Payment Webhook",
+                    )
+            if not rzp_user:
+                frappe.log_error(
+                    message=frappe.get_traceback()
+                    + "\nWebhook details:\n"
+                    + json.dumps(data),
+                    title=_("Payment Webhook RZP User not found Error"),
+                )
+        else:
             frappe.log_error(
                 message=frappe.get_traceback()
-                + "\nWebhook details:\n"
+                + "\nWebhook details:\nThis Webhook is not related to the given host.\n"
                 + json.dumps(data),
-                title=_("Payment Webhook RZP User not found Error"),
+                title=_("Payment Webhook Host Error"),
             )
     except Exception as e:
         frappe.log_error(
@@ -1157,6 +1272,24 @@ def update_rzp_payment_transaction(data):
             loan_transaction.transaction_id = webhook_main_object["id"]
             if loan_transaction.razorpay_event != "Captured":
                 loan_transaction.razorpay_event = razorpay_event
+            if loan_transaction.razorpay_event == "Captured":
+                if older_razorpay_event == "Failed" or (
+                    loan_transaction.workflow_state == "Rejected"
+                    and loan_transaction.razorpay_event == "Captured"
+                ):
+                    frappe.db.sql(
+                        "update `tabLoan Transaction` set status = 'Pending', workflow_state = 'Pending' where name = '{}'".format(
+                            payment_transaction_name
+                        )
+                    )
+                    loan_transaction.db_set("workflow_state", "Approved")
+                    loan_transaction.db_set("status", "Approved")
+                    # loan_transaction.db_set("docstatus",1)
+                else:
+                    loan_transaction.workflow_state = "Approved"
+                    loan_transaction.status = "Approved"
+                    loan_transaction.docstatus = 1
+            # If RZP event is failed then update the log
             if loan_transaction.razorpay_event == "Captured":
                 if older_razorpay_event == "Failed" or (
                     loan_transaction.workflow_state == "Rejected"
@@ -1315,9 +1448,13 @@ def update_rzp_payment_transaction(data):
                     customer=customer,
                 )
             if msg:
-                receiver_list = list(
-                    set([str(customer.phone), str(customer.get_kyc().mobile_number)])
-                )
+                receiver_list = [str(customer.phone)]
+                if customer.get_kyc().mob_num:
+                    receiver_list.append(str(customer.get_kyc().mob_num))
+                if customer.get_kyc().choice_mob_no:
+                    receiver_list.append(str(customer.get_kyc().choice_mob_no))
+
+                receiver_list = list(set(receiver_list))
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
         if not payment_transaction_name:
@@ -1332,6 +1469,524 @@ def update_rzp_payment_transaction(data):
             message=frappe.get_traceback() + "\nWebhook details:\n" + json.dumps(data),
             title=_("Payment Webhook Enqueue Error"),
         )
+
+
+def cart_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    # todos that belong to user or assigned by user
+    # return "(`tabLender`.name = {lender})".format(lender=frappe.db.escape("Demo"))
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabCart`.lender = {lender} or `tabCart`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def loan_application_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabLoan Application`.lender = {lender} or `tabLoan Application`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def collateral_ledger_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    # todos that belong to user or assigned by user
+    # return "(`tabLender`.name = {lender})".format(lender=frappe.db.escape("Demo"))
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabCollateral Ledger`.lender = {lender} or `tabCollateral Ledger`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def loan_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabLoan`.lender = {lender} or `tabLoan`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def loan_transaction_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabLoan Transaction`.lender = {lender} or `tabLoan Transaction`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def unpledge_application_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabUnpledge Application`.lender = {lender} or `tabUnpledge Application`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def sell_collateral_application_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabSell Collateral Application`.lender = {lender} or `tabSell Collateral Application`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def top_up_application_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabTop up Application`.lender = {lender} or `tabTop up Application`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def lender_ledger_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabLender Ledger`.lender = {lender} or `tabLender Ledger`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def allowed_security_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabAllowed Security`.lender = {lender} or `tabAllowed Security`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def security_category_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabSecurity Category`.lender = {lender} or `tabSecurity Category`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def lender_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "(`tabLender`.name = {lender} or `tabLender`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def loan_margin_shortfall_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "((`tabLoan Margin Shortfall`.loan in (select name from `tabLoan` where `tabLoan`.lender = {lender})) or `tabLoan Margin Shortfall`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def virtual_interest_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "((`tabVirtual Interest`.loan in (select name from `tabLoan` where `tabLoan`.lender = {lender})) or `tabVirtual Interest`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def interest_configuration_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "((`tabInterest Configuration`.loan in (select name from `tabLoan` where `tabLoan`.lender = {lender})) or `tabInterest Configuration`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+def loan_payment_log_permission_query(user):
+    if not user:
+        user = frappe.session.user
+    user_doc = frappe.get_doc("User", user).as_dict()
+    if "Lender" in [r.role for r in user_doc.roles]:
+        if user_doc.get("lender"):
+            return "((`tabLoan Payment Log`.loan in (select name from `tabLoan` where `tabLoan`.lender = {lender})) or `tabLoan Payment Log`._assign like '%{user_session}%')".format(
+                lender=frappe.db.escape(user_doc.lender), user_session=user
+            )
+
+
+@frappe.whitelist(allow_guest=True)
+def decrypt_lien_marking_response():
+    try:
+        data = frappe.local.form_dict
+        las_settings = frappe.get_single("LAS Settings")
+        encrypted_response = (
+            data.get("lienresponse").replace("-", "+").replace("_", "/")
+        )
+
+        decrypted_response = AESCBC(
+            las_settings.decryption_key, las_settings.iv
+        ).decrypt(encrypted_response)
+
+        data = xmltodict.parse(decrypted_response)
+        dict_payload = json.loads(json.dumps(data))
+        res = dict_payload.get("response")
+
+        log = {
+            "encrypted_response": str(encrypted_response),
+            "decrypted_response": res,
+        }
+        create_log(log, "lien_marking_response")
+        if (
+            res.get("errorcode") == "S000"
+            and res.get("error") == "Lien marked sucessfully"
+        ):
+            frappe.session.user = frappe.get_doc(
+                "Loan Customer", res.get("addinfo2")
+            ).user
+            cart = frappe.get_doc("Cart", res.get("addinfo1"))
+            cart.reload()
+            # frappe.db.begin()
+            cart.lien_reference_number = res.get("lienrefno")
+            cart.items = []
+            schemes = res.get("schemedetails").get("scheme")
+            if type(schemes) != list:
+                schemes = [schemes]
+            # print(schemes)
+
+            for i in schemes:
+                cart.append(
+                    "items",
+                    {
+                        "isin": i["isinno"],
+                        "folio": i["folio"],
+                        "scheme_code": i["schemecode"],
+                        "security_name": i["schemename"],
+                        "amc_code": i["amccode"],
+                        "pledged_quantity": float(i["lienapprovedunit"]),
+                        "requested_quantity": float(i["lienunit"]),
+                        "type": res.get("bankschemetype"),
+                    },
+                )
+            cart.save(ignore_permissions=True)
+            cart.create_loan_application()
+            frappe.db.commit()
+            return utils.respondWithSuccess()
+        else:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\nLien Marking Response Details:\n"
+                + json.dumps(data),
+                title=_("Lien Marking Response Error"),
+            )
+            return utils.respondWithFailure()
+    except Exception as e:
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\nLien Marking Response Details:\n"
+            + json.dumps(data),
+            title=_("Lien Marking Response Error"),
+        )
+
+
+def create_signature_mycams():
+    try:
+        las_settings = frappe.get_single("LAS Settings")
+        CLIENT_ID = las_settings.client_id
+        SECRET_KEY = las_settings.secret_key
+        hmac_key = las_settings.hmac_key
+        DATE_TIMESTAMP = frappe.utils.now_datetime().strftime("%Y%m%d%H%M%S")
+
+        SIGNATURE = "{}::{}::{}".format(CLIENT_ID, SECRET_KEY, DATE_TIMESTAMP)
+
+        expected_signature = hmac.new(
+            digestmod="sha256",
+            msg=bytes(SIGNATURE, "utf-8"),
+            key=bytes(hmac_key, "utf-8"),
+        )
+        return DATE_TIMESTAMP, expected_signature.hexdigest()
+    except Exception as e:
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\nSignature Details:\n"
+            + frappe.session.user
+            + str(DATE_TIMESTAMP),
+            title=_("MyCAMS Signature Error"),
+        )
+
+
+class AESCBC:
+    def __init__(self, key, iv):
+        self.key = hashlib.sha256(key.encode("utf-8")).hexdigest()
+        if len(self.key) > 32:
+            self.key = self.key[:32].encode("utf-8")
+        self.iv = bytes(iv, "utf-8")
+
+    def encrypt(self, data):
+        self.cipher = AES.new(self.key, AES.MODE_CBC, self.iv)
+        return (
+            b64encode(self.cipher.encrypt(pad(data.encode("utf-8"), AES.block_size)))
+            .decode("utf-8")
+            .replace("+", "-")
+            .replace("/", "_")
+        )
+
+    def decrypt(self, data):
+        raw = b64decode(data)
+        self.cipher = AES.new(self.key, AES.MODE_CBC, self.iv)
+        return unpad(self.cipher.decrypt(raw), AES.block_size).decode("utf-8")
+
+
+def user_details_hashing(value):
+    if len(value) > 4:
+        value = value[:2] + len(value[1:-3]) * "X" + value[-2:]
+    elif len(value) <= 4 and len(value) > 2:
+        value = value[:2] + len(value[2:]) * "X"
+    else:
+        value = value[:1] + len(value[1:]) * "X"
+
+    return value
+
+
+def ckyc_dot_net(
+    cust, pan_no, is_for_search=False, is_for_download=False, dob="", ckyc_no=""
+):
+    try:
+        req_data = {
+            "idType": "C",
+            "idNumber": pan_no,
+            "dateTime": datetime.strftime(
+                frappe.utils.now_datetime(), "%d-%m-%Y %H:%M:%S"
+            ),
+            "requestId": datetime.strftime(frappe.utils.now_datetime(), "%d%m")
+            + str(abs(randint(0, 9999) - randint(1, 99))),
+        }
+
+        las_settings = frappe.get_single("LAS Settings")
+
+        if is_for_search:
+            url = las_settings.ckyc_search_api
+            log_name = "CKYC_search_api"
+            api_type = "CKYC Search"
+
+        if is_for_download and dob and ckyc_no:
+            req_data.update({"dob": dob, "ckycNumber": ckyc_no})
+            url = las_settings.ckyc_download_api
+            log_name = "CKYC_download_api"
+            api_type = "CKYC Download"
+
+        headers = {"Content-Type": "application/json"}
+
+        res = requests.post(url=url, headers=headers, data=json.dumps(req_data))
+        res_json = json.loads(res.text)
+
+        log = {"url": url, "headers": headers, "request": req_data}
+        frappe.get_doc(
+            {
+                "doctype": "CKYC API Response",
+                "ckyc_api_type": api_type,
+                "parameters": str(log),
+                "response_status": "Success"
+                if res_json.get("status") == 200 and not res_json.get("error")
+                else "Failure",
+                "error": res_json.get("error"),
+                "customer": cust.name,
+            }
+        ).insert(ignore_permissions=True)
+        frappe.db.commit()
+        log["response"] = res_json
+
+        create_log(log, log_name)
+
+        return res_json
+    except Exception:
+        log_api_error(res.text)
+        raise Exception
+
+
+def upload_image_to_doctype(
+    customer,
+    seq_no,
+    image_,
+    img_format,
+    img_folder="CKYC_IMG",
+):
+    try:
+        extra_char = str(randrange(9999, 9999999999))
+        img_dir_path = frappe.utils.get_files_path("{}".format(img_folder))
+
+        if not os.path.exists(img_dir_path):
+            os.mkdir(img_dir_path)
+
+        picture_file = "{}/{}-{}-{}.{}".format(
+            img_folder, customer.full_name, seq_no, extra_char, img_format
+        ).replace(" ", "-")
+
+        image_path = frappe.utils.get_files_path(picture_file)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+        ckyc_image_file_path = frappe.utils.get_files_path(picture_file)
+        image_decode = base64.decodestring(bytes(str(image_), encoding="utf8"))
+        image_file = open(ckyc_image_file_path, "wb").write(image_decode)
+
+        ckyc_image_file_url = frappe.utils.get_url(
+            "files/{}/{}-{}-{}.{}".format(
+                img_folder, customer.full_name, seq_no, extra_char, img_format
+            ).replace(" ", "-")
+        )
+
+        return ckyc_image_file_url
+    except Exception:
+        log_api_error()
+
+
+def ifsc_details(ifsc=""):
+    filters_arr = {}
+    if ifsc:
+        search_key = str("%" + ifsc + "%")
+        filters_arr = {"ifsc": ["like", search_key], "is_active": True}
+
+    return frappe.get_all("Spark Bank Branch", filters_arr, ["*"])
+
+
+def client_sanction_details(loan, date):
+    try:
+        customer = frappe.get_doc("Loan Customer", loan.customer)
+        user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+        interest_config = frappe.get_value(
+            "Interest Configuration",
+            {
+                "to_amount": [">=", loan.sanctioned_limit],
+            },
+            order_by="to_amount asc",
+        )
+        int_config = frappe.get_doc("Interest Configuration", interest_config)
+        roi_ = int_config.base_interest * 12
+        start_date = frappe.db.sql(
+            """select cast(creation as date) from `tabLoan` where name = "{}" """.format(
+                loan.name
+            )
+        )
+        client_sanction_details = frappe.get_doc(
+            dict(
+                doctype="Client Sanction Details",
+                client_code=customer.name,
+                loan_no=loan.name,
+                client_name=loan.customer_name,
+                pan_no=user_kyc.pan_no,
+                creation_date=frappe.utils.now_datetime().date(),
+                start_date=start_date,
+                end_date=loan.expiry_date,
+                sanctioned_amount=loan.sanctioned_limit,
+                roi=roi_,
+                sanction_date=date,
+            ),
+        ).insert(ignore_permissions=True)
+        frappe.db.commit()
+    except Exception:
+        frappe.log_error(
+            message=frappe.get_traceback(),
+            title=frappe._("Client Sanction Details"),
+        )
+
+
+@frappe.whitelist()
+def system_report_enqueue():
+    # daily
+    frappe.enqueue(
+        method="lms.lms.doctype.client_summary.client_summary.client_summary",
+        queue="long",
+    )
+    frappe.enqueue(
+        method="lms.lms.doctype.security_transaction.security_transaction.security_transaction",
+        queue="long",
+    )
+    frappe.enqueue(
+        method="lms.lms.doctype.security_exposure_summary.security_exposure_summary.security_exposure_summary",
+        queue="long",
+    )
+    frappe.enqueue(
+        method="lms.lms.doctype.security_details.security_details.security_details",
+        queue="long",
+    )
+    curr_date = frappe.utils.now_datetime().date()
+    last_date = (curr_date.replace(day=1) + timedelta(days=32)).replace(
+        day=1
+    ) - timedelta(days=1)
+    if curr_date == last_date:
+        frappe.enqueue(
+            method="lms.lms.doctype.interest_calculation.interest_calculation.interest_calculation_enqueue",
+            queue="long",
+        )
+
+
+def download_file(dataframe, file_name, file_extention, sheet_name):
+    file_name = "{}.{}".format(file_name, file_extention)
+    file_path = frappe.utils.get_files_path(file_name)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+    file_path = frappe.utils.get_files_path(file_name)
+    dataframe.to_excel(file_path, sheet_name=sheet_name, index=False)
+    file_url = frappe.utils.get_url("files/{}".format(file_name))
+    return file_url
+
+
+def user_kyc_hashing(user_kyc):
+    user_kyc.pan_no = user_details_hashing(user_kyc.pan_no)
+    user_kyc.ckyc_no = user_details_hashing(user_kyc.ckyc_no)
+    user_kyc.pan = user_details_hashing(user_kyc.pan)
+    for i in user_kyc.bank_account:
+        i.account_number = user_details_hashing(i.account_number)
+    for i in user_kyc.related_person_details:
+        i.pan = user_details_hashing(i.pan)
+        i.ckyc_no = user_details_hashing(i.ckyc_no)
+    for i in user_kyc.identity_details:
+        i.ident_num = user_details_hashing(i.ident_num)
+
+    return user_kyc
+
+
+# Convert datetime into cron expression
+def cron_convertor(dt):
+    dt_obj = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
+    return f"{dt_obj.minute} {dt_obj.hour} {dt_obj.day} {dt_obj.month} *"
 
 
 def split_list_into_half(a_list):

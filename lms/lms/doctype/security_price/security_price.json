@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "autoname": "format:{security}-{#######}",
  "creation": "2020-07-28 18:34:38.302925",
  "doctype": "DocType",
@@ -7,6 +8,7 @@
  "field_order": [
   "security",
   "security_name",
+  "navdate",
   "column_break_1",
   "price",
   "time"
@@ -24,7 +26,8 @@
    "fieldname": "price",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Price",
+   "label": "Price/NAV",
+   "precision": "9",
    "reqd": 1
   },
   {
@@ -36,17 +39,25 @@
   },
   {
    "fieldname": "security_name",
-   "fieldtype": "Read Only",
+   "fieldtype": "Small Text",
    "in_global_search": 1,
    "in_list_view": 1,
-   "label": "Security Name"
+   "label": "Security/Scheme Name",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_1",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "navdate",
+   "fieldtype": "Date",
+   "label": "NavDate",
+   "read_only": 1
   }
  ],
- "modified": "2021-06-09 11:28:52.127903",
+ "links": [],
+ "modified": "2022-04-28 12:58:43.132019",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Price",

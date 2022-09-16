@@ -1,5 +1,7 @@
 import frappe
 
+import lms
+
 
 def execute():
     frappe.reload_doc("Lms", "DocType", "Spark App Version")
@@ -12,7 +14,7 @@ def execute():
             "app_store_link": "https://apps.apple.com/in/app/spark-loans/id1551799259?uo=4",
             "whats_new": "Force update",
             "release_date": frappe.utils.now_datetime().date(),
-            "backend_version": "v3.1.0",
+            "backend_version": lms.__version__,
             "is_live": 1,
         }
     ).insert(ignore_permissions=True)

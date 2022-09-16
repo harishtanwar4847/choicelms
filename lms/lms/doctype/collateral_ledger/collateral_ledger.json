@@ -7,6 +7,8 @@
  "field_order": [
   "application_doctype",
   "lender",
+  "instrument_type",
+  "scheme_type",
   "column_break_3",
   "application_name",
   "customer",
@@ -14,9 +16,11 @@
   "section_break_4",
   "isin",
   "quantity",
+  "requested_quantity",
   "pledgor_boid",
   "psn",
   "security_category",
+  "amc_code",
   "expiry",
   "column_break_1",
   "request_type",
@@ -24,6 +28,8 @@
   "pledgee_boid",
   "lender_approval_status",
   "security_name",
+  "scheme_code",
+  "folio",
   "price",
   "value"
  ],
@@ -56,7 +62,7 @@
   {
    "fieldname": "psn",
    "fieldtype": "Data",
-   "label": "PSN",
+   "label": "PSN/Lien Mark Number",
    "read_only": 1
   },
   {
@@ -78,9 +84,10 @@
   },
   {
    "fieldname": "quantity",
-   "fieldtype": "Int",
+   "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Quantity",
+   "label": "Quantity/Unit",
+   "precision": "3",
    "reqd": 1
   },
   {
@@ -116,10 +123,10 @@
    "read_only": 1
   },
   {
-   "depends_on": "eval:doc.request_type=='Pledge'",
+   "depends_on": "eval:doc.request_type=='Pledge' || doc.instrument_type == 'Mutual Fund'",
    "fieldname": "prf",
    "fieldtype": "Data",
-   "label": "PRF",
+   "label": "PRF/Lien Reference Number",
    "read_only": 1
   },
   {
@@ -138,15 +145,15 @@
   },
   {
    "fieldname": "security_name",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
-   "label": "Security Name"
+   "label": "Security/Scheme Name"
   },
   {
    "fieldname": "security_category",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Security Category",
+   "label": "Security/Scheme Category",
    "read_only": 1
   },
   {
@@ -160,11 +167,51 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Value"
+  },
+  {
+   "default": "Shares",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "\nEquity\nDebt",
+   "read_only": 1
+  },
+  {
+   "fieldname": "requested_quantity",
+   "fieldtype": "Float",
+   "label": "Requested Quantity/Unit",
+   "precision": "3",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scheme_code",
+   "fieldtype": "Data",
+   "label": "Scheme Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amc_code",
+   "fieldtype": "Data",
+   "label": "AMC Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "folio",
+   "fieldtype": "Data",
+   "label": "Folio",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-12-21 12:51:43.958175",
+ "modified": "2022-04-28 19:00:42.709432",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Collateral Ledger",

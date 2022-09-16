@@ -1,0 +1,77 @@
+{
+ "actions": [],
+ "creation": "2022-07-11 16:25:13.798108",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "isin",
+  "security_name",
+  "quantity",
+  "rate",
+  "value",
+  "exposure_",
+  "creation_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "isin",
+   "fieldtype": "Data",
+   "label": "ISIN"
+  },
+  {
+   "fieldname": "security_name",
+   "fieldtype": "Data",
+   "label": "Security Name"
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "label": "Quantity"
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Float",
+   "label": "Rate"
+  },
+  {
+   "fieldname": "value",
+   "fieldtype": "Float",
+   "label": "Value"
+  },
+  {
+   "fieldname": "exposure_",
+   "fieldtype": "Float",
+   "label": "Exposure %"
+  },
+  {
+   "fieldname": "creation_date",
+   "fieldtype": "Date",
+   "label": "Doc Creation Date"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-09-01 13:14:28.800569",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Security Exposure Summary",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

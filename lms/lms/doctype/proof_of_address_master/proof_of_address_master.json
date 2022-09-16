@@ -1,0 +1,69 @@
+{
+ "actions": [],
+ "autoname": "field:id",
+ "creation": "2022-06-09 14:31:23.679989",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "id",
+  "poa_name",
+  "constitution_type",
+  "description",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "id",
+   "fieldtype": "Data",
+   "label": "ID",
+   "unique": 1
+  },
+  {
+   "fieldname": "constitution_type",
+   "fieldtype": "Data",
+   "label": "Constitution Type"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "poa_name",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "POA Name"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-06-24 18:57:00.740351",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Proof of Address Master",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

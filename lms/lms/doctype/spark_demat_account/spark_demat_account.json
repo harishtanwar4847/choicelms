@@ -1,0 +1,67 @@
+{
+ "actions": [],
+ "creation": "2022-03-15 17:15:19.519547",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "customer",
+  "depository",
+  "dpid",
+  "client_id"
+ ],
+ "fields": [
+  {
+   "fieldname": "depository",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Depository",
+   "options": "CDSL\nNSDL"
+  },
+  {
+   "fieldname": "dpid",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "DPID",
+   "reqd": 1
+  },
+  {
+   "fieldname": "client_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Client ID",
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer ID",
+   "options": "Loan Customer",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-03-17 12:34:40.450943",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Spark Demat Account",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

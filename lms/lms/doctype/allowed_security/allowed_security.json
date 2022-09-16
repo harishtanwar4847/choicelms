@@ -9,16 +9,23 @@
   "isin",
   "lender",
   "eligible_percentage",
+  "instrument_type",
+  "amc_code",
+  "amc_name",
   "column_break_5",
   "security_name",
-  "security_category"
+  "security_category",
+  "scheme_type",
+  "allowed",
+  "res_status",
+  "remark"
  ],
  "fields": [
   {
    "fieldname": "security_name",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
-   "label": "Security Name",
+   "label": "Security/Scheme Name",
    "read_only": 1
   },
   {
@@ -48,15 +55,66 @@
   },
   {
    "fieldname": "security_category",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Security Category",
+   "label": "Security/Scheme Category",
+   "options": "Security Category",
    "reqd": 1
+  },
+  {
+   "default": "Shares",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund"
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "\nEquity\nDebt"
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
+   "fieldname": "amc_code",
+   "fieldtype": "Link",
+   "label": "AMC Code",
+   "options": "AMC Master"
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
+   "fetch_from": "amc_code.amc_name",
+   "fieldname": "amc_name",
+   "fieldtype": "Data",
+   "label": "AMC Name"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
+   "fieldname": "allowed",
+   "fieldtype": "Check",
+   "label": "Allowed"
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
+   "fieldname": "remark",
+   "fieldtype": "Data",
+   "label": "Remark",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\"",
+   "fieldname": "res_status",
+   "fieldtype": "Check",
+   "label": "Status",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-09-03 21:47:30.156905",
+ "modified": "2022-06-08 17:58:39.524667",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Allowed Security",

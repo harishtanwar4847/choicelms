@@ -2,6 +2,111 @@
 
 ## [Unreleased]
 
+## [v5.5.1-uat]
+
+## Added
+
+- [Feat: sanction date field added](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/528)
+
+## [v5.5.0-uat]
+
+## Added
+
+- [Feat: System Report excel generator](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/525)
+
+## [v5.4.0-uat]
+
+## Added
+
+- [Feat: Spark email campaign](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/521)
+
+## [v5.3.0-uat]
+
+## Added
+
+- [Feat: Spark app version save in backend CKYC branch](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/519)
+
+## [v5.2.2-uat]
+
+## Fixed
+
+- [Fix: User bank account display depends on fix](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/520)
+
+## [v5.2.1-uat]
+
+## Fixed
+
+- [Fix: Login with pin user KYC hashing fixes and Loan transaction backend (withdraw transaction bank details update)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/517)
+
+## [v5.2.0-uat]
+
+## Added
+
+- [Feat: PII Changes for CKYC details](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/516)
+
+## [v5.1.0-uat]
+
+## Added
+
+- [Feat: Loan Transaction created from backend](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/515)
+
+## [v5.0.1-uat]
+
+## Fixed
+
+- [Fix: Bug fixes provided by client for mycams, internal qa fixes and code review fixes for ckyc](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/514)
+
+## [v5.0.0-uat]
+
+## Added
+
+- [Feat: CKYC Integration](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/512)
+- [API Doc Changes for CKYC]()
+- [Feild name change of mobile_num to mob_num]()
+- [Feild name change of investor_name to fullname]()
+- [Store Choice Email id, mobile no ,bank details]()
+- [Change penny flow to store bank cheque image]()
+- [Added doctypes for ckyc master files]()
+- [Stopped using KYC , Get_Choice_KYC API's]()
+- [GST on Charges]()
+- [OTP on emails]()
+- [New notification,email and fcm were added for ckcy and bank approval/rejection]()
+- [In Loan Aggrement ,Loan Enhancement Aggrement and TNC HTML address is fetched from ckyc address details doctype]()
+
+## [v4.0.2-uat]
+
+## Fixed
+
+- [Fix: PII changes in kyc and get choice kyc api for esign audit](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/511)
+
+## [v4.0.1-uat]
+
+## Added
+
+- [Mutual Fund for new loan(Initial changes)]()
+- [LTV changes for mutual fund]()
+- [AMC changes]()
+- [DUPlICATE ISIN]()
+- [Loan agreement changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/492)
+- [Mutual fund client CR]()
+- [Mutual fund client bug]()
+- [Revoke LTV](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/490)
+- [Invoke LTV](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/490)
+- [Margin shortfall changes]()
+- [DPD]()
+- [Mf Product page](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/497)
+- [API Error Logging](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/502)
+- [MF-Approved/allowed Security Update](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/505)
+- [Sell triggered in margin shortfall]()
+- [PII changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/510)
+- [API Doc changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/491)
+
+## [v3.3.0-uat]
+
+### Added
+
+- [Feat: Mutual Fund Implementation](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/489)
+
 ## [v3.2.0] - 2022-09-16
 
 ### Added
