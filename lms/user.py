@@ -5615,7 +5615,7 @@ def spark_demat_account(**kwargs):
 
 
 @frappe.whitelist()
-def securities_latest(**kwargs):
+def shares_eligibility(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
