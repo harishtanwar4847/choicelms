@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "allow_import": 1,
  "autoname": "field:isin",
  "creation": "2020-10-24 11:16:44.505259",
@@ -25,10 +26,9 @@
   },
   {
    "fieldname": "security_name",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
-   "label": "Security Name",
-   "unique": 1
+   "label": "Security Name"
   },
   {
    "fieldname": "segment",
@@ -64,7 +64,8 @@
    "label": "Price"
   }
  ],
- "modified": "2021-06-15 18:53:13.418223",
+ "links": [],
+ "modified": "2022-09-14 19:12:39.350956",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security",

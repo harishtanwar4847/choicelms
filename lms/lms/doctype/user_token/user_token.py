@@ -8,7 +8,6 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-# from frappe.core.doctype.sms_settings.sms_settings import send_sms
 import lms
 
 
@@ -34,16 +33,59 @@ class UserToken(Document):
             #     app_hash_string=app_hash_string,
             #     expiry_in_minutes=expiry_in_minutes,
             # )
+            token_type = self.token_type.replace(" ", "")
+            if self.token_type in [
+                "Pledge OTP",
+                "Unpledge OTP",
+            ]:
+                doc = frappe.get_all(
+                    "User KYC", filters={"user": frappe.session.user}, fields=["*"]
+                )[0]
+                email_otp = frappe.db.sql(
+                    "select message from `tabNotification` where name='OTP for Spark Loans';"
+                )[0][0]
+                email_otp = email_otp.replace("investor_name", doc.investor_name)
+                email_otp = email_otp.replace("token_type", token_type)
+                email_otp = email_otp.replace("token", self.token)
+                frappe.enqueue(
+                    method=frappe.sendmail,
+                    recipients=[doc.email],
+                    sender=None,
+                    subject="OTP for Spark Loans",
+                    message=email_otp,
+                    queue="short",
+                    delayed=False,
+                    job_name="Spark OTP on Email",
+                )
+            else:
+                doc = frappe.get_all(
+                    "User", filters={"phone": self.entity}, fields=["*"]
+                )
+                if doc:
+                    email_otp = frappe.db.sql(
+                        "select message from `tabNotification` where name='Other OTP for Spark Loans';"
+                    )[0][0]
+                    email_otp = email_otp.replace("investor_name", doc[0].full_name)
+                    email_otp = email_otp.replace("token_type", token_type)
+                    email_otp = email_otp.replace("token", self.token)
+                    frappe.enqueue(
+                        method=frappe.sendmail,
+                        recipients=[doc[0].email],
+                        sender=None,
+                        subject="OTP for Spark Loans",
+                        message=email_otp,
+                        queue="short",
+                        delayed=False,
+                        job_name="Spark OTP on Email",
+                    )
+
             mess = frappe._(
-                # "Dear Customer,\nYour {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
-                # "Dear Customer,\nYour {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
                 "Dear Customer, Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
             ).format(
                 token_type=self.token_type.replace(" ", ""),
                 token=self.token,
                 # expiry_in_minutes=expiry_in_minutes,
             )
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=[self.entity], msg=mess)
         elif self.token_type == "Email Verification Token":
@@ -70,11 +112,27 @@ class UserToken(Document):
                 doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
             else:
                 doc = frappe.get_doc("User", self.entity).as_dict()
-            doc["otp_info"] = {
-                "token_type": self.token_type,
-                "token": self.token,
-                "expiry_in_minutes": expiry_in_minutes,
-            }
+            # user_doc["otp_info"] = {
+            #     "token_type": self.token_type.replace(" ", ""),
+            #     "token": self.token,
+            # }
+            token_type = self.token_type.replace(" ", "")
+            email_otp = frappe.db.sql(
+                "select message from `tabNotification` where name='Other OTP for Spark Loans';"
+            )[0][0]
+            email_otp = email_otp.replace("investor_name", doc.investor_name)
+            email_otp = email_otp.replace("token_type", token_type)
+            email_otp = email_otp.replace("token", self.token)
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=[doc.email],
+                sender=None,
+                subject="OTP for Spark Loans",
+                message=email_otp,
+                queue="short",
+                delayed=False,
+                job_name="Spark OTP on Email",
+            )
 
             """changes as per latest email notification list-sent by vinayak - email verification final 2.0"""
             # mess = _(
@@ -95,9 +153,8 @@ class UserToken(Document):
             #     subject="Forgot Pin Notification",
             #     message=mess,
             # )
+
             msg = frappe._(
-                # "Dear Customer,\nYour {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes. -Spark Loans"
-                # "Dear Customer,\nYour {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
                 "Dear Customer, Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
             ).format(
                 token_type=self.token_type.replace(" ", ""),
@@ -106,7 +163,6 @@ class UserToken(Document):
             )
             if msg:
                 receiver_list = list(set([str(customer.phone), str(doc.mobile_number)]))
-                from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
@@ -124,7 +180,7 @@ def validate_receiver_nos(receiver_list):
         validated_receiver_list.append(d)
 
     if not validated_receiver_list:
-        throw(_("Please enter valid mobile nos"))
+        frappe.throw(_("Please enter valid mobile nos"))
 
     return validated_receiver_list
 
@@ -208,25 +264,14 @@ def send_request(gateway_url, params, headers=None, use_post=False):
     import json
 
     frappe.logger().info(params)
-    params["sms"] = params["sms"].decode("ascii")
+    if type(params["sms"]) == bytes:
+        params["sms"] = params["sms"].decode("ascii")
     log = {
         "url": gateway_url,
         "params": params,
         "response": response.json(),
     }
-    import os
-
-    sms_log_file = frappe.utils.get_files_path("sms_log.json")
-    sms_log = None
-    if os.path.exists(sms_log_file):
-        with open(sms_log_file, "r") as f:
-            sms_log = f.read()
-        f.close()
-    sms_log = json.loads(sms_log or "[]")
-    sms_log.append(log)
-    with open(sms_log_file, "w") as f:
-        f.write(json.dumps(sms_log))
-    f.close()
+    lms.create_log(log, "sms_log")
     # SMS LOG end
     response.raise_for_status()
     return response.status_code

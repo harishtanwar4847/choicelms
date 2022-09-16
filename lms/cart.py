@@ -8,7 +8,6 @@ import frappe
 import requests
 import utils
 from frappe import _
-from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from num2words import num2words
 
 import lms
@@ -16,6 +15,7 @@ from lms.exceptions import PledgeSetupFailureException
 from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions import (
     ApprovedTermsandConditions,
 )
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 def validate_securities_for_cart(securities, lender):
@@ -643,7 +643,7 @@ def get_tnc(**kwargs):
             # receiver_list = list(
             #     set([str(customer.phone), str(customer.get_kyc().mobile_number)])
             # )
-            # from frappe.core.doctype.sms_settings.sms_settings import send_sms
+            # from lms.lms.doctype.user_token.user_token import send_sms
 
             # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 

@@ -11,6 +11,7 @@ from frappe.model.document import Document
 import lms
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 class SellCollateralApplication(Document):
@@ -151,7 +152,6 @@ class SellCollateralApplication(Document):
                     ]
                 )
             )
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
@@ -330,7 +330,6 @@ class SellCollateralApplication(Document):
                     ]
                 )
             )
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
         # loan.update_loan_balance()

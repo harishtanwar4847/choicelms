@@ -26,3 +26,6 @@ lms.patches.update_loan_list #13-12-2021
 lms.patches.update_sell_collateral_application
 lms.patches.update_unpledge_application
 lms.patches.redirect_news_and_blog
+lms.patches.update_spark_app_version
+lms.patches.update_workflow
+lms.patches.update_email_in_kyc

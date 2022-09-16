@@ -3,6 +3,6 @@
 
 frappe.ui.form.on("User KYC", {
   refresh: function (frm) {
-    frm.disable_save();
+    // frm.disable_save();
   },
 });

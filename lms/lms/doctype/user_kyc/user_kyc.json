@@ -17,6 +17,7 @@
   "mobile_number",
   "mother_name",
   "date_of_birth",
+  "email",
   "address_section_break",
   "address",
   "city",
@@ -111,10 +112,16 @@
    "label": "Bank Account",
    "options": "User Bank Account",
    "reqd": 1
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email"
   }
  ],
  "links": [],
- "modified": "2021-10-05 10:31:12.822546",
+ "modified": "2022-08-19 16:54:58.836062",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",

@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v3.2.0] - 2022-09-16
+
+### Added
+
+- [Feat: Spark app version doctype and api changes, Payment auto approval, otp on email, ReasonCode=06 changes and Email Campaign](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/518)
+
 ## [v3.1.0] - 2022-09-01
 
 ### Added

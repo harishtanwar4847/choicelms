@@ -12,7 +12,6 @@ import pandas as pd
 import requests
 import utils
 from frappe import _
-from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.utils.password import check_password, update_password
 
 import lms
@@ -22,6 +21,7 @@ from lms import convert_sec_to_hh_mm_ss, holiday_list
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 from lms.exceptions import *
 from lms.firebase import FirebaseAdmin
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 @frappe.whitelist()
@@ -310,6 +310,7 @@ def get_choice_kyc(**kwargs):
                 user_kyc["mobile_number"] = data["mobileNum"]
                 user_kyc["choice_client_id"] = data["clientId"]
                 user_kyc["pan_no"] = data["panNum"]
+                user_kyc["email"] = data["emailId"]
                 user_kyc["date_of_birth"] = datetime.strptime(
                     data["dateOfBirth"], "%Y-%m-%dT%H:%M:%S.%f%z"
                 ).strftime("%Y-%m-%d")
@@ -391,6 +392,7 @@ def kyc(**kwargs):
                 "choice_client_id",
                 "pan_no",
                 "date_of_birth",
+                "email",
                 "bank_account",
             ]
         ):
@@ -452,6 +454,7 @@ def kyc(**kwargs):
             user_kyc_doc.mobile_number = user_kyc["mobile_number"]
             user_kyc_doc.choice_client_id = user_kyc["choice_client_id"]
             user_kyc_doc.pan_no = user_kyc["pan_no"]
+            user_kyc_doc.email = user_kyc["email"]
             user_kyc_doc.date_of_birth = datetime.strptime(
                 user_kyc["date_of_birth"], "%Y-%m-%d"
             ).strftime("%Y-%m-%d")
@@ -3064,4 +3067,25 @@ def contact_us(**kwargs):
 
         return utils.respondWithSuccess()
     except utils.exceptions.APIException as e:
+        return e.respond()
+
+
+@frappe.whitelist()
+def get_app_version_details():
+    try:
+        utils.validator.validate_http_method("GET")
+
+        version_details = frappe.get_all(
+            "Spark App Version",
+            filters={"is_live": 1},
+            fields=["*"],
+            page_length=1,
+        )
+        if not version_details:
+            return utils.respondNotFound(message=_("No Record found"))
+        return utils.respondWithSuccess(data=version_details[0])
+    except utils.exceptions.APIException as e:
+        frappe.log_error(
+            title="Get App Version Details API", message=frappe.get_traceback()
+        )
         return e.respond()
