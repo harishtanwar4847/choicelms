@@ -16,6 +16,7 @@
   "inst_icon",
   "html_section",
   "template_html",
+  "preview_html",
   "section_break_1",
   "customer_selection",
   "customer_email",
@@ -125,6 +126,7 @@
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.docstatus == 0",
    "fieldname": "template_html",
    "fieldtype": "HTML Editor",
    "in_list_view": 1,
@@ -143,12 +145,18 @@
    "fieldtype": "Table",
    "label": "Sender Email",
    "options": "User Email"
+  },
+  {
+   "depends_on": "eval:doc.docstatus != 0",
+   "fieldname": "preview_html",
+   "fieldtype": "HTML",
+   "label": "Preview HTML"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-08-02 12:38:41.670038",
+ "modified": "2022-09-15 18:11:37.938428",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Email Campaign",

@@ -3,8 +3,7 @@
 
 import queue
 from datetime import datetime, timedelta
-
-# import frappe
+from time import strptime
 from unicodedata import name
 
 import frappe
@@ -34,24 +33,38 @@ class SparkEmailCampaign(Document):
         frappe.session.user = "Administrator"
         if self.schedule_time == "Immediate":
             frappe.throw("Immediate mails cannot be cancelled")
-        final_list = []
-        scheduled_mails_cancel = frappe.get_all(
-            "Email Queue",
-            filters={
-                "send_after": self.schedule_datetime,
-                "sender": self.sender_email[0].email_id,
-                "status": "Not Sent",
-            },
-            pluck="name",
-        )
-        for i in scheduled_mails_cancel:
-            recipient_doc = frappe.get_all(
-                "Email Queue Recipient", filters={"parent": i}
+        elif (
+            self.schedule_time == "Schedule"
+            and self.schedule_datetime
+            <= datetime.strptime(
+                frappe.utils.now_datetime().strftime("%d-%m-%Y %H:%M:%S"),
+                "%d-%m-%Y %H:%M:%S",
             )
-            if recipient_doc:
-                final_list.append(i)
+        ):
+            frappe.throw("This mails cannot be cancelled as the mails are already sent")
+        else:
+            final_list = []
+            scheduled_mails_cancel = frappe.get_all(
+                "Email Queue",
+                filters={
+                    "send_after": datetime.strptime(
+                        self.schedule_datetime.strftime("%d-%m-%Y %H:%M:%S"),
+                        "%d-%m-%Y %H:%M:%S",
+                    )
+                    - timedelta(minutes=1),
+                    "sender": self.sender_email[0].email_id,
+                    "status": "Not Sent",
+                },
+                pluck="name",
+            )
+            for i in scheduled_mails_cancel:
+                recipient_doc = frappe.get_all(
+                    "Email Queue Recipient", filters={"parent": i}
+                )
+                if recipient_doc:
+                    final_list.append(i)
 
-        frappe.delete_doc("Email Queue", final_list)
+            frappe.delete_doc("Email Queue", final_list)
 
     def user_data(self):
         doc_list = []
@@ -98,8 +111,17 @@ class SparkEmailCampaign(Document):
     def mail_send(self):
         customer_list = self.user_data()
         delayed = False
+        scheduled = self.schedule_datetime
         if self.schedule_time == "Schedule":
             delayed = True
+            scheduled = (
+                datetime.strptime(self.schedule_datetime, "%Y-%m-%d %H:%M:%S")
+                - timedelta(minutes=1),
+            )
+
+        customer_list_1 = []
+        customer_list_2 = []
+
         if len(customer_list) > 20:
             customer_list_1, customer_list_2 = lms.split_list_into_half(customer_list)
         else:
@@ -111,7 +133,7 @@ class SparkEmailCampaign(Document):
                 sender=self.sender_email[0].email_id,
                 subject=self.subject,
                 message=self.template_html,
-                send_after=self.schedule_datetime,
+                send_after=scheduled,
                 delayed=delayed,
                 queue="short",
                 timeout=5000,
@@ -125,7 +147,7 @@ class SparkEmailCampaign(Document):
                 sender=self.sender_email[0].email_id,
                 subject=self.subject,
                 message=self.template_html,
-                send_after=self.schedule_datetime,
+                send_after=scheduled,
                 delayed=delayed,
                 queue="short",
                 timeout=5000,
