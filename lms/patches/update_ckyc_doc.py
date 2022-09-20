@@ -94,7 +94,6 @@ def execute():
                 lms.create_log(log, "ckyc_download_patch")
 
                 pid_data = {}
-
                 if res_json.get("status") == 200 and not res_json.get("error"):
                     pid_data = json.loads(res_json.get("data")).get("PID_DATA")
 
@@ -104,7 +103,6 @@ def execute():
                     image_details = pid_data.get("IMAGE_DETAILS")
 
                     user_kyc = frappe.get_doc("User KYC", kyc.name)
-
                     user_kyc.update(
                         {
                             "consti_type": personal_details.get("CONSTI_TYPE"),
@@ -394,7 +392,11 @@ def execute():
                             "perm_line3": user_kyc.perm_line3,
                             "perm_city": user_kyc.perm_city,
                             "perm_dist": user_kyc.perm_dist,
-                            "perm_state": user_kyc.perm_state_name,
+                            "perm_state": frappe.db.get_value(
+                                "Pincode Master",
+                                {"state": user_kyc.perm_state_name},
+                                "state_name",
+                            ),
                             "perm_country": user_kyc.perm_country_name,
                             "perm_pin": user_kyc.perm_pin,
                             "perm_poa": frappe.db.get_value(
@@ -408,7 +410,11 @@ def execute():
                             "corres_line3": user_kyc.corres_line3,
                             "corres_city": user_kyc.corres_city,
                             "corres_dist": user_kyc.corres_dist,
-                            "corres_state": user_kyc.corres_state_name,
+                            "corres_state": frappe.db.get_value(
+                                "Pincode Master",
+                                {"state": user_kyc.corres_state_name},
+                                "state_name",
+                            ),
                             "corres_country": user_kyc.corres_country_name,
                             "corres_pin": user_kyc.corres_pin,
                             "corres_poa": frappe.db.get_value(
