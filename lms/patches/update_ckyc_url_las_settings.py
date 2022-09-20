@@ -4,6 +4,12 @@ import frappe
 def execute():
     frappe.reload_doc("Lms", "DocType", "LAS Settings")
     las_settings = frappe.get_single("LAS Settings")
+    user_consent = frappe.get_all(
+        "User Consent", filters={"consent": "Ckyc"}, pluck="name"
+    )
+    if user_consent:
+        frappe.delete_doc("User Consent", user_consent)
+    frappe.delete_doc_if_exists("Consent", "Ckyc")
 
     if frappe.utils.get_url() == "https://spark.loans":
         las_settings.ckyc_search_api = "https://kyc.spark.loans/api/ckyc/search"
