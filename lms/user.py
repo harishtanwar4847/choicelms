@@ -5541,18 +5541,9 @@ def spark_demat_account(**kwargs):
             raise utils.exceptions.ValidationException(
                 {"demat": {"required": frappe._("Demat required.")}}
             )
-        if (
-            type(data.get("demat").get("list")) is not list
-            or len(data.get("demat").get("list")) == 0
-        ):
+        if type(data.get("demat").get("list")) is not list:
             raise utils.exceptions.ValidationException(
-                {
-                    "demat": {
-                        "required": frappe._(
-                            "list should be in list format or list cannot be empty."
-                        )
-                    }
-                }
+                {"demat": {"required": frappe._("list should be in list format.")}}
             )
         frappe.delete_doc(
             "Spark Demat Account",
