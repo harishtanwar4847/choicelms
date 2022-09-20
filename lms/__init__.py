@@ -22,6 +22,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from frappe import _
 from frappe.core.doctype.sms_settings.sms_settings import send_sms
+from frappe.utils.csvutils import read_csv_content
 from razorpay.errors import SignatureVerificationError
 
 from lms.config import lms
@@ -1844,21 +1845,383 @@ def user_kyc_hashing(user_kyc):
 
 
 @frappe.whitelist(allow_guest=True)
-def create_user_customer(first_name, last_name, email, mobile):
-    # Validation for First name and Last name
-    reg = regex_special_characters(search=first_name + last_name)
-    if reg:
-        frappe.throw(_("Special Characters not allowed in First Name and Last Name."))
-    # Validation for Email
-    email_regex = r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
-    if re.search(email_regex, email) is None or (len(email.split("@")) > 2):
-        frappe.throw(_("Please enter valid email ID."))
+def create_user_customer(upload_file):
+    # # Validation for First name and Last name
+    # reg = regex_special_characters(search=first_name + last_name)
+    # if reg:
+    #     frappe.throw(_("Special Characters not allowed in First Name and Last Name."))
+    # # Validation for Email
+    # email_regex = r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
+    # if re.search(email_regex, email) is None or (len(email.split("@")) > 2):
+    #     frappe.throw(_("Please enter valid email ID."))
 
-    if len(mobile) > 10:
-        frappe.throw(_("Please enter valid Mobile Number."))
-    res = frappe.get_all("User", filters={"phone": mobile, "mobile_no": mobile})
-    if res:
-        frappe.throw(_("Mobile Number {} already exists".format(mobile)))
+    # if len(mobile) > 10:
+    #     frappe.throw(_("Please enter valid Mobile Number."))
+    # res = frappe.get_all("User", filters={"phone": mobile, "mobile_no": mobile})
+    # if res:
+    #     frappe.throw(_("Mobile Number {} already exists".format(mobile)))
 
-    user = create_user(first_name, last_name, mobile, email, tester=0)
-    customer = create_customer(user)
+    # user = create_user(first_name, last_name, mobile, email, tester=0)
+    # customer = create_customer(user)
+
+    files = frappe.get_all("File", filters={"file_url": upload_file}, page_length=1)
+    file = frappe.get_doc("File", files[0].name)
+    file_path = file.get_full_path()
+    with open(file_path, "r") as upfile:
+        fcontent = upfile.read()
+
+    csv_data = read_csv_content(fcontent)
+    print("CSV Data :", csv_data[1])
+
+    # exists_scheme = []
+    # schemedetails = []
+    for i in csv_data[1:]:
+        print(i)
+        print(i[0])
+        reg = regex_special_characters(search=i[0] + i[1])
+        if reg:
+            frappe.throw(
+                _("Special Characters not allowed in First Name and Last Name.")
+            )
+        # Validation for Email
+        email_regex = (
+            r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
+        )
+        if re.search(email_regex, i[2]) is None or (len(i[2].split("@")) > 2):
+            frappe.throw(_("Please enter valid email ID."))
+
+        if len(i[3]) > 10:
+            frappe.throw(_("Please enter valid Mobile Number."))
+        res = frappe.get_all("User", filters={"phone": i[3], "mobile_no": i[3]})
+        if res:
+            frappe.throw(_("Mobile Number {} already exists".format(i[3])))
+        user = create_user(i[0], i[1], i[3], i[2], tester=0)
+        print("User", user)
+        customer = create_customer(user)
+        print("Customer :", customer)
+        print("Customer ID :", customer.name)
+
+        res_json = ckyc_dot_net(
+            cust=customer, pan_no=i[4], is_for_download=True, dob=i[5], ckyc_no=i[6]
+        )
+        print("CKYC Dot Net Done")
+
+        if res_json.get("status") == 200 and not res_json.get("error"):
+            try:
+                pid_data = json.loads(res_json.get("data")).get("PID_DATA")
+
+                personal_details = pid_data.get("PERSONAL_DETAILS")
+                print("Personal Details Done")
+                identity_details = pid_data.get("IDENTITY_DETAILS")
+                print("Identity Details Done")
+                related_person_details = pid_data.get("RELATED_PERSON_DETAILS")
+                print("Related Person Details Done")
+                image_details = pid_data.get("IMAGE_DETAILS")
+                print("Image Details Done")
+
+                user_kyc = frappe.get_doc(
+                    {
+                        "doctype": "User KYC",
+                        "owner": customer.user,
+                        "user": customer.user,
+                        "kyc_type": "CKYC",
+                        "pan_no": personal_details.get("PAN"),
+                        "date_of_birth": datetime.strptime(i[5], "%d-%m-%Y"),
+                        "consti_type": personal_details.get("CONSTI_TYPE"),
+                        "acc_type": personal_details.get("ACC_TYPE"),
+                        "ckyc_no": personal_details.get("CKYC_NO"),
+                        "prefix": personal_details.get("PREFIX"),
+                        "fname": personal_details.get("FNAME"),
+                        "mname": personal_details.get("MNAME"),
+                        "lname": personal_details.get("LNAME"),
+                        "fullname": personal_details.get("FULLNAME"),
+                        "maiden_prefix": personal_details.get("MAIDEN_PREFIX"),
+                        "maiden_fname": personal_details.get("MAIDEN_FNAME"),
+                        "maiden_mname": personal_details.get("MAIDEN_MNAME"),
+                        "maiden_lname": personal_details.get("MAIDEN_LNAME"),
+                        "maiden_fullname": personal_details.get("MAIDEN_FULLNAME"),
+                        "fatherspouse_flag": personal_details.get("FATHERSPOUSE_FLAG"),
+                        "father_prefix": personal_details.get("FATHER_PREFIX"),
+                        "father_fname": personal_details.get("FATHER_FNAME"),
+                        "father_mname": personal_details.get("FATHER_MNAME"),
+                        "father_lname": personal_details.get("FATHER_LNAME"),
+                        "father_fullname": personal_details.get("FATHER_FULLNAME"),
+                        "mother_prefix": personal_details.get("MOTHER_PREFIX"),
+                        "mother_fname": personal_details.get("MOTHER_FNAME"),
+                        "mother_mname": personal_details.get("MOTHER_MNAME"),
+                        "mother_lname": personal_details.get("MOTHER_LNAME"),
+                        "mother_fullname": personal_details.get("MOTHER_FULLNAME"),
+                        "gender": personal_details.get("GENDER"),
+                        "dob": personal_details.get("DOB"),
+                        "pan": personal_details.get("PAN"),
+                        "form_60": personal_details.get("FORM_60"),
+                        "perm_line1": personal_details.get("PERM_LINE1"),
+                        "perm_line2": personal_details.get("PERM_LINE2"),
+                        "perm_line3": personal_details.get("PERM_LINE3"),
+                        "perm_city": personal_details.get("PERM_CITY"),
+                        "perm_dist": personal_details.get("PERM_DIST"),
+                        "perm_state": personal_details.get("PERM_STATE"),
+                        "perm_country": personal_details.get("PERM_COUNTRY"),
+                        "perm_state_name": frappe.db.get_value(
+                            "Pincode Master",
+                            {"state": personal_details.get("PERM_STATE")},
+                            "state_name",
+                        ),
+                        "perm_country_name": frappe.db.get_value(
+                            "Country Master",
+                            {"name": personal_details.get("PERM_COUNTRY")},
+                            "country",
+                        ),
+                        "perm_pin": personal_details.get("PERM_PIN"),
+                        "perm_poa": personal_details.get("PERM_POA"),
+                        "perm_corres_sameflag": personal_details.get(
+                            "PERM_CORRES_SAMEFLAG"
+                        ),
+                        "corres_line1": personal_details.get("CORRES_LINE1"),
+                        "corres_line2": personal_details.get("CORRES_LINE2"),
+                        "corres_line3": personal_details.get("CORRES_LINE3"),
+                        "corres_city": personal_details.get("CORRES_CITY"),
+                        "corres_dist": personal_details.get("CORRES_DIST"),
+                        "corres_state": personal_details.get("CORRES_STATE"),
+                        "corres_country": personal_details.get("CORRES_COUNTRY"),
+                        "corres_state_name": frappe.db.get_value(
+                            "Pincode Master",
+                            {"state": personal_details.get("CORRES_STATE")},
+                            "state_name",
+                        ),
+                        "corres_country_name": frappe.db.get_value(
+                            "Country Master",
+                            {"name": personal_details.get("CORRES_COUNTRY")},
+                            "country",
+                        ),
+                        "corres_pin": personal_details.get("CORRES_PIN"),
+                        "corres_poa": personal_details.get("CORRES_POA"),
+                        "resi_std_code": personal_details.get("RESI_STD_CODE"),
+                        "resi_tel_num": personal_details.get("RESI_TEL_NUM"),
+                        "off_std_code": personal_details.get("OFF_STD_CODE"),
+                        "off_tel_num": personal_details.get("OFF_TEL_NUM"),
+                        "mob_code": personal_details.get("MOB_CODE"),
+                        "mob_num": personal_details.get("MOB_NUM"),
+                        "email": personal_details.get("EMAIL"),
+                        "email_id": personal_details.get("EMAIL"),
+                        "remarks": personal_details.get("REMARKS"),
+                        "dec_date": personal_details.get("DEC_DATE"),
+                        "dec_place": personal_details.get("DEC_PLACE"),
+                        "kyc_date": personal_details.get("KYC_DATE"),
+                        "doc_sub": personal_details.get("DOC_SUB"),
+                        "kyc_name": personal_details.get("KYC_NAME"),
+                        "kyc_designation": personal_details.get("KYC_DESIGNATION"),
+                        "kyc_branch": personal_details.get("KYC_BRANCH"),
+                        "kyc_empcode": personal_details.get("KYC_EMPCODE"),
+                        "org_name": personal_details.get("ORG_NAME"),
+                        "org_code": personal_details.get("ORG_CODE"),
+                        "num_identity": personal_details.get("NUM_IDENTITY"),
+                        "num_related": personal_details.get("NUM_RELATED"),
+                        "num_images": personal_details.get("NUM_IMAGES"),
+                    }
+                )
+                print("Below USER KYC :", personal_details.get("FNAME"))
+
+                if user_kyc.gender == "M":
+                    gender_full = "Male"
+                elif user_kyc.gender == "F":
+                    gender_full = "Female"
+                else:
+                    gender_full = "Transgender"
+
+                user_kyc.gender_full = gender_full
+
+                if identity_details:
+                    identity = identity_details.get("IDENTITY")
+                    if identity:
+                        if type(identity) != list:
+                            identity = [identity]
+
+                        for i in identity:
+                            user_kyc.append(
+                                "identity_details",
+                                {
+                                    "sequence_no": i.get("SEQUENCE_NO"),
+                                    "ident_type": i.get("IDENT_TYPE"),
+                                    "ident_num": i.get("IDENT_NUM"),
+                                    "idver_status": i.get("IDVER_STATUS"),
+                                    "ident_category": frappe.db.get_value(
+                                        "Identity Code",
+                                        {"name": i.get("IDENT_TYPE")},
+                                        "category",
+                                    ),
+                                },
+                            )
+                            print("IF Identity :", i.get("IDENT_TYPE"))
+
+                if related_person_details:
+                    related_person = related_person_details.get("RELATED_PERSON")
+                    if related_person:
+                        if type(related_person) != list:
+                            related_person = [related_person]
+
+                        for r in related_person:
+                            photos_ = upload_image_to_doctype(
+                                customer=customer,
+                                seq_no=r.get("REL_TYPE"),
+                                image_=r.get("PHOTO_DATA"),
+                                img_format=r.get("PHOTO_TYPE"),
+                            )
+                            perm_poi_photos_ = upload_image_to_doctype(
+                                customer=customer,
+                                seq_no=r.get("REL_TYPE"),
+                                image_=r.get("PERM_POI_DATA"),
+                                img_format=r.get("PERM_POI_IMAGE_TYPE"),
+                            )
+                            corres_poi_photos_ = upload_image_to_doctype(
+                                customer=customer,
+                                seq_no=r.get("REL_TYPE"),
+                                image_=r.get("CORRES_POI_DATA"),
+                                img_format=r.get("CORRES_POI_IMAGE_TYPE"),
+                            )
+                            user_kyc.append(
+                                "related_person_details",
+                                {
+                                    "sequence_no": r.get("SEQUENCE_NO"),
+                                    "rel_type": r.get("REL_TYPE"),
+                                    "add_del_flag": r.get("ADD_DEL_FLAG"),
+                                    "ckyc_no": r.get("CKYC_NO"),
+                                    "prefix": r.get("PREFIX"),
+                                    "fname": r.get("FNAME"),
+                                    "mname": r.get("MNAME"),
+                                    "lname": r.get("LNAME"),
+                                    "maiden_prefix": r.get("MAIDEN_PREFIX"),
+                                    "maiden_fname": r.get("MAIDEN_FNAME"),
+                                    "maiden_mname": r.get("MAIDEN_MNAME"),
+                                    "maiden_lname": r.get("MAIDEN_LNAME"),
+                                    "fatherspouse_flag": r.get("FATHERSPOUSE_FLAG"),
+                                    "father_prefix": r.get("FATHER_PREFIX"),
+                                    "father_fname": r.get("FATHER_FNAME"),
+                                    "father_mname": r.get("FATHER_MNAME"),
+                                    "father_lname": r.get("FATHER_LNAME"),
+                                    "mother_prefix": r.get("MOTHER_PREFIX"),
+                                    "mother_fname": r.get("MOTHER_FNAME"),
+                                    "mother_mname": r.get("MOTHER_MNAME"),
+                                    "mother_lname": r.get("MOTHER_LNAME"),
+                                    "gender": r.get("GENDER"),
+                                    "dob": r.get("DOB"),
+                                    "nationality": r.get("NATIONALITY"),
+                                    "pan": r.get("PAN"),
+                                    "form_60": r.get("FORM_60"),
+                                    "add_line1": r.get("Add_LINE1"),
+                                    "add_line2": r.get("Add_LINE2"),
+                                    "add_line3": r.get("Add_LINE3"),
+                                    "add_city": r.get("Add_CITY"),
+                                    "add_dist": r.get("Add_DIST"),
+                                    "add_state": r.get("Add_STATE"),
+                                    "add_country": r.get("Add_COUNTRY"),
+                                    "add_pin": r.get("Add_PIN"),
+                                    "perm_poi_type": r.get("PERM_POI_TYPE"),
+                                    "same_as_perm_flag": r.get("SAME_AS_PERM_FLAG"),
+                                    "corres_add_line1": r.get("CORRES_ADD_LINE1"),
+                                    "corres_add_line2": r.get("CORRES_ADD_LINE2"),
+                                    "corres_add_line3": r.get("CORRES_ADD_LINE3"),
+                                    "corres_add_city": r.get("CORRES_ADD_CITY"),
+                                    "corres_add_dist": r.get("CORRES_ADD_DIST"),
+                                    "corres_add_state": r.get("CORRES_ADD_STATE"),
+                                    "corres_add_country": r.get("CORRES_ADD_COUNTRY"),
+                                    "corres_add_pin": r.get("CORRES_ADD_PIN"),
+                                    "corres_poi_type": r.get("CORRES_POI_TYPE"),
+                                    "resi_std_code": r.get("RESI_STD_CODE"),
+                                    "resi_tel_num": r.get("RESI_TEL_NUM"),
+                                    "off_std_code": r.get("OFF_STD_CODE"),
+                                    "off_tel_num": r.get("OFF_TEL_NUM"),
+                                    "mob_code": r.get("MOB_CODE"),
+                                    "mob_num": r.get("MOB_NUM"),
+                                    "email": r.get("EMAIL"),
+                                    "remarks": r.get("REMARKS"),
+                                    "dec_date": r.get("DEC_DATE"),
+                                    "dec_place": r.get("DEC_PLACE"),
+                                    "kyc_date": r.get("KYC_DATE"),
+                                    "doc_sub": r.get("DOC_SUB"),
+                                    "kyc_name": r.get("KYC_NAME"),
+                                    "kyc_designation": r.get("KYC_DESIGNATION"),
+                                    "kyc_branch": r.get("KYC_BRANCH"),
+                                    "kyc_empcode": r.get("KYC_EMPCODE"),
+                                    "org_name": r.get("ORG_NAME"),
+                                    "org_code": r.get("ORG_CODE"),
+                                    "photo_type": r.get("PHOTO_TYPE"),
+                                    "photo": photos_,
+                                    "perm_poi_image_type": r.get("PERM_POI_IMAGE_TYPE"),
+                                    "perm_poi": perm_poi_photos_,
+                                    "corres_poi_image_type": r.get(
+                                        "CORRES_POI_IMAGE_TYPE"
+                                    ),
+                                    "corres_poi": corres_poi_photos_,
+                                    "proof_of_possession_of_aadhaar": r.get(
+                                        "PROOF_OF_POSSESSION_OF_AADHAAR"
+                                    ),
+                                    "voter_id": r.get("VOTER_ID"),
+                                    "nrega": r.get("NREGA"),
+                                    "passport": r.get("PASSPORT"),
+                                    "driving_licence": r.get("DRIVING_LICENCE"),
+                                    "national_poplation_reg_letter": r.get(
+                                        "NATIONAL_POPLATION_REG_LETTER"
+                                    ),
+                                    "offline_verification_aadhaar": r.get(
+                                        "OFFLINE_VERIFICATION_AADHAAR"
+                                    ),
+                                    "e_kyc_authentication": r.get(
+                                        "E_KYC_AUTHENTICATION"
+                                    ),
+                                },
+                            )
+                            print("Related Person :", r.get("REL_TYPE"))
+
+                if image_details:
+                    image_ = image_details.get("IMAGE")
+                    if image_:
+                        if type(image_) != list:
+                            image_ = [image_]
+
+                        for im in image_:
+                            image_data = upload_image_to_doctype(
+                                customer=customer,
+                                seq_no=im.get("SEQUENCE_NO"),
+                                image_=im.get("IMAGE_DATA"),
+                                img_format=im.get("IMAGE_TYPE"),
+                            )
+                            user_kyc.append(
+                                "image_details",
+                                {
+                                    "sequence_no": im.get("SEQUENCE_NO"),
+                                    "image_type": im.get("IMAGE_TYPE"),
+                                    "image_code": im.get("IMAGE_CODE"),
+                                    "global_flag": im.get("GLOBAL_FLAG"),
+                                    "branch_code": im.get("BRANCH_CODE"),
+                                    "image_name": frappe.db.get_value(
+                                        "Document Master",
+                                        {"name": im.get("IMAGE_CODE")},
+                                        "document_name",
+                                    ),
+                                    "image": image_data,
+                                },
+                            )
+                            print("Image details inside :", im.get("SEQUENCE_NO"))
+
+                user_kyc.insert(ignore_permissions=True)
+                user_kyc_name = user_kyc.name
+                print("User KYC", user_kyc)
+                frappe.db.commit()
+
+            except Exception as e:
+                return utils.respondWithFailure(
+                    status=res_json.get("status"),
+                    message="Something went wrong",
+                    data=str(e),
+                )
+        else:
+            frappe.db.rollback
+            log_api_error(mess=str(res_json))
+            return utils.respondWithFailure(
+                status=res_json.get("status"),
+                message="Sorry! Our system has not been able to validate your KYC. Kindly check your input for any mismatch.",
+                data=res_json.get("error"),
+            )
+
+        return utils.respondWithSuccess(data={"user_kyc_name": user_kyc_name})
