@@ -11,7 +11,7 @@ from base64 import b64decode, b64encode
 from datetime import datetime, timedelta
 from inspect import currentframe
 from itertools import groupby
-from random import choice, randint
+from random import choice, randint, randrange
 from traceback import format_exc
 
 import frappe
