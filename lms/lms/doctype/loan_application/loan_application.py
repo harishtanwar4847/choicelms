@@ -234,6 +234,8 @@ class LoanApplication(Document):
         if "Loan Customer" not in user_roles:
             self.status = "Executing pledge"
             self.workflow_state = "Executing pledge"
+            self.pledge_status = "Success"
+            instrument_type = []
             pledged_total = 0
             eligible_percent = 0
             total_collateral = 0
@@ -243,9 +245,12 @@ class LoanApplication(Document):
             )
             for i in self.items:
                 security = allowed_securities.get(i.isin)
+                print("Security :", security)
                 i.security_category = security.security_category
                 i.eligible_percentage = security.eligible_percentage
                 i.amc_code = security.amc_code
+                i.pledge_status = "Success"
+                i.lender_approval_status = "Approved"
                 i.requested_quantity = i.pledged_quantity
                 i.amc_code = security.amc_code
                 eligible_percent += i.eligible_percentage
@@ -256,9 +261,19 @@ class LoanApplication(Document):
                     * security.eligible_percentage
                 ) / 100
                 pledged_total += i.amount
+
+                i.type = security.scheme_type if security.scheme_type else "Shares"
+
                 if i.lender_approval_status == "Approved":
                     i.pledge_executed = 1
                     total_collateral += i.amount
+                instrument_type.append(i.type)
+            print("Type List :", instrument_type)
+            print("Set of Instrument Type :", set(instrument_type))
+            if len(set(instrument_type)) == 1 and (
+                "Equity" in set(instrument_type) or "Debt" in set(instrument_type)
+            ):
+                self.scheme_type = instrument_type[0]
 
             self.allowable_ltv = float(eligible_percent / len(self.items))
             self.total_collateral_value = total_collateral
