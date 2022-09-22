@@ -36,7 +36,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.5.1-uat"
+__version__ = "5.5.2-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
