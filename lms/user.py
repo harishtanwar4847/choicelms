@@ -5230,15 +5230,9 @@ def ckyc_consent_details(**kwargs):
                     "perm_dist": data.get("address_details")
                     .get("permanent_address")
                     .get("district"),
-                    "perm_state": frappe.db.get_value(
-                        "Pincode Master",
-                        {
-                            "state": data.get("address_details")
-                            .get("permanent_address")
-                            .get("state")
-                        },
-                        "state_name",
-                    ),
+                    "perm_state": data.get("address_details")
+                    .get("permanent_address")
+                    .get("state"),
                     "perm_country": data.get("address_details")
                     .get("permanent_address")
                     .get("country"),
@@ -5268,15 +5262,9 @@ def ckyc_consent_details(**kwargs):
                     "corres_dist": data.get("address_details")
                     .get("corresponding_address")
                     .get("district"),
-                    "corres_state": frappe.db.get_value(
-                        "Pincode Master",
-                        {
-                            "state": data.get("address_details")
-                            .get("corresponding_address")
-                            .get("state")
-                        },
-                        "state_name",
-                    ),
+                    "corres_state": data.get("address_details")
+                    .get("corresponding_address")
+                    .get("state"),
                     "corres_country": data.get("address_details")
                     .get("corresponding_address")
                     .get("country"),

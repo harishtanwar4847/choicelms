@@ -392,11 +392,7 @@ def execute():
                             "perm_line3": user_kyc.perm_line3,
                             "perm_city": user_kyc.perm_city,
                             "perm_dist": user_kyc.perm_dist,
-                            "perm_state": frappe.db.get_value(
-                                "Pincode Master",
-                                {"state": user_kyc.perm_state_name},
-                                "state_name",
-                            ),
+                            "perm_state": user_kyc.perm_state_name,
                             "perm_country": user_kyc.perm_country_name,
                             "perm_pin": user_kyc.perm_pin,
                             "perm_poa": frappe.db.get_value(
@@ -410,11 +406,7 @@ def execute():
                             "corres_line3": user_kyc.corres_line3,
                             "corres_city": user_kyc.corres_city,
                             "corres_dist": user_kyc.corres_dist,
-                            "corres_state": frappe.db.get_value(
-                                "Pincode Master",
-                                {"state": user_kyc.corres_state_name},
-                                "state_name",
-                            ),
+                            "corres_state": user_kyc.corres_state_name,
                             "corres_country": user_kyc.corres_country_name,
                             "corres_pin": user_kyc.corres_pin,
                             "corres_poa": frappe.db.get_value(
