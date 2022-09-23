@@ -5201,15 +5201,9 @@ def ckyc_consent_details(**kwargs):
                     "perm_dist": data.get("address_details")
                     .get("permanent_address")
                     .get("district"),
-                    "perm_state": frappe.db.get_value(
-                        "Pincode Master",
-                        {
-                            "state": data.get("address_details")
-                            .get("permanent_address")
-                            .get("state")
-                        },
-                        "state_name",
-                    ),
+                    "perm_state": data.get("address_details")
+                    .get("permanent_address")
+                    .get("state"),
                     "perm_country": data.get("address_details")
                     .get("permanent_address")
                     .get("country"),
@@ -5239,15 +5233,9 @@ def ckyc_consent_details(**kwargs):
                     "corres_dist": data.get("address_details")
                     .get("corresponding_address")
                     .get("district"),
-                    "corres_state": frappe.db.get_value(
-                        "Pincode Master",
-                        {
-                            "state": data.get("address_details")
-                            .get("corresponding_address")
-                            .get("state")
-                        },
-                        "state_name",
-                    ),
+                    "corres_state": data.get("address_details")
+                    .get("corresponding_address")
+                    .get("state"),
                     "corres_country": data.get("address_details")
                     .get("corresponding_address")
                     .get("country"),
@@ -5402,27 +5390,6 @@ def get_app_version_details():
         )
         if not version_details:
             raise lms.exceptions.NotFoundException(_("No Record found"))
-        return utils.respondWithSuccess(data=version_details[0])
-    except utils.exceptions.APIException as e:
-        frappe.log_error(
-            title="Get App Version Details API", message=frappe.get_traceback()
-        )
-        return e.respond()
-
-
-@frappe.whitelist()
-def get_app_version_details():
-    try:
-        utils.validator.validate_http_method("GET")
-
-        version_details = frappe.get_all(
-            "Spark App Version",
-            filters={"is_live": 1},
-            fields=["*"],
-            page_length=1,
-        )
-        if not version_details:
-            return utils.respondNotFound(message=_("No Record found"))
         return utils.respondWithSuccess(data=version_details[0])
     except utils.exceptions.APIException as e:
         frappe.log_error(
