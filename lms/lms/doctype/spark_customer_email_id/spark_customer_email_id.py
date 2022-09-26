@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class InterestCalculations(Document):
+class SparkCustomerEmailID(Document):
     pass

@@ -10,7 +10,8 @@
   "quantity",
   "rate",
   "value",
-  "exposure_"
+  "exposure_",
+  "creation_date"
  ],
  "fields": [
   {
@@ -42,11 +43,16 @@
    "fieldname": "exposure_",
    "fieldtype": "Float",
    "label": "Exposure %"
+  },
+  {
+   "fieldname": "creation_date",
+   "fieldtype": "Date",
+   "label": "Doc Creation Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-12 11:32:28.520587",
+ "modified": "2022-09-01 13:14:28.800569",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Exposure Summary",

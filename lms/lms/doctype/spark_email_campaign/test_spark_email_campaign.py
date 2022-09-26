@@ -5,5 +5,5 @@
 import unittest
 
 
-class TestInterestCalculations(unittest.TestCase):
+class TestSparkEmailCampaign(unittest.TestCase):
     pass

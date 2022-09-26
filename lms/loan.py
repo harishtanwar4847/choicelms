@@ -20,6 +20,7 @@ from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions import (
     ApprovedTermsandConditions,
 )
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 @frappe.whitelist()
@@ -390,7 +391,6 @@ def esign_done(**kwargs):
                         receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
                     receiver_list = list(set(receiver_list))
-                    from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                     frappe.enqueue(
                         method=send_sms, receiver_list=receiver_list, msg=msg
@@ -790,7 +790,6 @@ def create_topup(**kwargs):
                 receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
             receiver_list = list(set(receiver_list))
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
@@ -1481,7 +1480,6 @@ def loan_withdraw_request(**kwargs):
                 receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
             receiver_list = list(set(receiver_list))
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
@@ -1561,6 +1559,9 @@ def loan_payment(**kwargs):
                 )
                 loan_transaction.save(ignore_permissions=True)
                 frappe.db.commit()
+                loan_transaction.db_set("workflow_state", "Rejected")
+                loan_transaction.db_set("status", "Rejected")
+                loan_transaction.run_post_save_methods()
                 msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(
                     data.get("amount"), loan.name
                 )
@@ -1580,7 +1581,6 @@ def loan_payment(**kwargs):
                     receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
                 receiver_list = list(set(receiver_list))
-                from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
@@ -1646,7 +1646,6 @@ def loan_payment(**kwargs):
                 receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
             receiver_list = list(set(receiver_list))
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
         return utils.respondWithSuccess(
@@ -2718,7 +2717,6 @@ def loan_unpledge_request(**kwargs):
             receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
         receiver_list = list(set(receiver_list))
-        from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
         frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
@@ -2964,7 +2962,6 @@ def sell_collateral_request(**kwargs):
                 receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
             receiver_list = list(set(receiver_list))
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 

@@ -65,7 +65,6 @@ class VerifyOTP(utils.APITestCase):
             "lms.auth.verify_otp",
             {"otp": 1234, "firebase_token": "asdf", "mobile": self.mobile},
         )
-        print(res.text)
         self.assertUnauthorized(res)
         self.assertRegex(res.text, "Invalid OTP.")
 
@@ -88,7 +87,6 @@ class Register(utils.APITestCase):
 
     def test_validation_error(self):
         res = self.client.post_api("lms.auth.register", {"email": ""})
-        print("test_validation_error", res.text)
         self.assertValidationError(res)
 
     def test_mobile_exist(self):
@@ -130,7 +128,6 @@ class Register(utils.APITestCase):
                 "email": self.email,
             },
         )
-        print("test_register_success", res.text)
         self.assertSuccess(res)
 
     @classmethod

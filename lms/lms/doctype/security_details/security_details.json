@@ -10,6 +10,7 @@
   "security_category",
   "isin",
   "security_name",
+  "creation_date",
   "column_break_6",
   "quantity",
   "rate",
@@ -67,11 +68,16 @@
   {
    "fieldname": "column_break_6",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "creation_date",
+   "fieldtype": "Date",
+   "label": "Doc Creation Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-12 11:31:58.482434",
+ "modified": "2022-09-01 13:12:42.156756",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security Details",

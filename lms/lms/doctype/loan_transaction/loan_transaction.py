@@ -12,12 +12,12 @@ import frappe
 import razorpay
 import requests
 from frappe import _
-from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
 
 import lms
 from lms import convert_sec_to_hh_mm_ss
 from lms.firebase import FirebaseAdmin
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 class LoanTransaction(Document):
@@ -287,7 +287,6 @@ class LoanTransaction(Document):
                     )
 
                 receiver_list = list(set(receiver_list))
-                from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
@@ -337,8 +336,6 @@ class LoanTransaction(Document):
                 message = fcm_notification.message.format(
                     requested=self.requested, disbursed=self.disbursed
                 )
-
-            from frappe.core.doctype.sms_settings.sms_settings import send_sms
 
             if mess:
                 frappe.enqueue(
@@ -527,8 +524,6 @@ class LoanTransaction(Document):
             if self.status == "Rejected":
                 mess = "Dear Customer,\nSorry! Your withdrawal request has been rejected by our lending partner for technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
 
-                from frappe.core.doctype.sms_settings.sms_settings import send_sms
-
                 doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
                 doc["withdrawal"] = {"status": self.status}
                 frappe.enqueue_doc("Notification", "Withdrawal", method="send", doc=doc)
@@ -693,6 +688,7 @@ class LoanTransaction(Document):
 
     def before_save(self):
         loan = self.get_loan()
+        self.lender = loan.lender
         self.instrument_type = loan.instrument_type
         self.scheme_type = loan.scheme_type
         if (
@@ -764,7 +760,7 @@ def reject_blank_transaction_and_settlement_recon_api():
             "Loan Transaction",
             {
                 "transaction_type": "Payment",
-                "razorpay_event": ["in", ["", "Payment Cancelled"]],
+                "razorpay_event": "",
                 "status": "Pending",
             },
         )

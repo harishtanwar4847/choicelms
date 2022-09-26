@@ -12,7 +12,6 @@ import pandas as pd
 import requests
 import utils
 from frappe import _
-from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.exceptions import DoesNotExistError
 from frappe.utils.password import check_password, update_password
 from utils.responder import respondWithFailure, respondWithSuccess
@@ -24,6 +23,7 @@ from lms import convert_sec_to_hh_mm_ss, holiday_list
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 from lms.exceptions import *
 from lms.firebase import FirebaseAdmin
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 @frappe.whitelist()
@@ -423,6 +423,7 @@ def kyc(**kwargs):
                 "pan_no",
                 "email",
                 "date_of_birth",
+                "email",
                 "bank_account",
             ]
         ):
@@ -5200,9 +5201,15 @@ def ckyc_consent_details(**kwargs):
                     "perm_dist": data.get("address_details")
                     .get("permanent_address")
                     .get("district"),
-                    "perm_state": data.get("address_details")
-                    .get("permanent_address")
-                    .get("state"),
+                    "perm_state": frappe.db.get_value(
+                        "Pincode Master",
+                        {
+                            "state": data.get("address_details")
+                            .get("permanent_address")
+                            .get("state")
+                        },
+                        "state_name",
+                    ),
                     "perm_country": data.get("address_details")
                     .get("permanent_address")
                     .get("country"),
@@ -5232,9 +5239,15 @@ def ckyc_consent_details(**kwargs):
                     "corres_dist": data.get("address_details")
                     .get("corresponding_address")
                     .get("district"),
-                    "corres_state": data.get("address_details")
-                    .get("corresponding_address")
-                    .get("state"),
+                    "corres_state": frappe.db.get_value(
+                        "Pincode Master",
+                        {
+                            "state": data.get("address_details")
+                            .get("corresponding_address")
+                            .get("state")
+                        },
+                        "state_name",
+                    ),
                     "corres_country": data.get("address_details")
                     .get("corresponding_address")
                     .get("country"),
@@ -5382,6 +5395,7 @@ def get_app_version_details():
 
         version_details = frappe.get_all(
             "Spark App Version",
+            filters={"is_live": 1},
             fields=["*"],
             order_by="release_date desc",
             page_length=1,
@@ -5390,5 +5404,28 @@ def get_app_version_details():
             raise lms.exceptions.NotFoundException(_("No Record found"))
         return utils.respondWithSuccess(data=version_details[0])
     except utils.exceptions.APIException as e:
-        lms.log_api_error()
+        frappe.log_error(
+            title="Get App Version Details API", message=frappe.get_traceback()
+        )
+        return e.respond()
+
+
+@frappe.whitelist()
+def get_app_version_details():
+    try:
+        utils.validator.validate_http_method("GET")
+
+        version_details = frappe.get_all(
+            "Spark App Version",
+            filters={"is_live": 1},
+            fields=["*"],
+            page_length=1,
+        )
+        if not version_details:
+            return utils.respondNotFound(message=_("No Record found"))
+        return utils.respondWithSuccess(data=version_details[0])
+    except utils.exceptions.APIException as e:
+        frappe.log_error(
+            title="Get App Version Details API", message=frappe.get_traceback()
+        )
         return e.respond()
