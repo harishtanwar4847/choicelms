@@ -105,51 +105,6 @@ class UserToken(Document):
             #     app_hash_string=app_hash_string,
             #     expiry_in_minutes=expiry_in_minutes,
             # )
-            token_type = self.token_type.replace(" ", "")
-            if self.token_type in [
-                "Pledge OTP",
-                "Unpledge OTP",
-            ]:
-                doc = frappe.get_all(
-                    "User KYC", filters={"user": frappe.session.user}, fields=["*"]
-                )[0]
-                email_otp = frappe.db.sql(
-                    "select message from `tabNotification` where name='OTP for Spark Loans';"
-                )[0][0]
-                email_otp = email_otp.replace("investor_name", doc.fullname)
-                email_otp = email_otp.replace("token_type", token_type)
-                email_otp = email_otp.replace("token", self.token)
-                frappe.enqueue(
-                    method=frappe.sendmail,
-                    recipients=[doc.email],
-                    sender=None,
-                    subject="OTP for Spark Loans",
-                    message=email_otp,
-                    queue="short",
-                    delayed=False,
-                    job_name="Spark OTP on Email",
-                )
-            else:
-                doc = frappe.get_all(
-                    "User", filters={"phone": self.entity}, fields=["*"]
-                )
-                if doc:
-                    email_otp = frappe.db.sql(
-                        "select message from `tabNotification` where name='Other OTP for Spark Loans';"
-                    )[0][0]
-                    email_otp = email_otp.replace("investor_name", doc[0].full_name)
-                    email_otp = email_otp.replace("token_type", token_type)
-                    email_otp = email_otp.replace("token", self.token)
-                    frappe.enqueue(
-                        method=frappe.sendmail,
-                        recipients=[doc[0].email],
-                        sender=None,
-                        subject="OTP for Spark Loans",
-                        message=email_otp,
-                        queue="short",
-                        delayed=False,
-                        job_name="Spark OTP on Email",
-                    )
 
             mess = frappe._(
                 "Dear Customer, Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"

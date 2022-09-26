@@ -36,7 +36,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.5.1-uat"
+__version__ = "5.5.2-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -2015,3 +2015,17 @@ def split_list_into_half(a_list):
 def get_linenumber():
     cf = currentframe()
     return "line no" + str(cf.f_back.f_lineno)
+
+
+@frappe.whitelist(allow_guest=True)
+def penny_validate_fund_account():
+    try:
+        log = {
+            "request": frappe.local.form_dict,
+            "headers": {k: v for k, v in frappe.local.request.headers.items()},
+        }
+        create_log(log, "penny_validate_fund_account")
+        return log
+
+    except Exception:
+        log_api_error()
