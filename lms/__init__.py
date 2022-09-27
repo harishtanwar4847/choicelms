@@ -2020,12 +2020,39 @@ def get_linenumber():
 @frappe.whitelist(allow_guest=True)
 def penny_validate_fund_account():
     try:
-        log = {
-            "request": frappe.local.form_dict,
-            "headers": {k: v for k, v in frappe.local.request.headers.items()},
-        }
-        create_log(log, "penny_validate_fund_account")
-        return log
+        log = (frappe.local.form_dict,)
+        # log = log
+        rzp_user = frappe.db.sql(
+            "select u.name from `tabUser` as u left join `tabHas Role` as r on u.email=r.parent where role='Razorpay User'",
+            as_dict=1,
+        )
+        frappe.session.user = rzp_user[0]["name"]
+
+        penny = log["payload"]["fund_account.validation"]["entity"]
+        try:
+            if penny["status"] == "completed":
+                user_kyc = frappe.get_doc("User KYC", penny["notes"]["user_kyc_no"])
+                user_kyc.append(
+                    "bank_account",
+                    {
+                        "bank": penny["fund_account"]["bank_account"]["bank_name"],
+                        "branch": penny["notes"]["branch"],
+                        "account_type": penny["notes"]["bank_account_type"],
+                        "account_number": penny["fund_account"]["bank_account"][
+                            "account_number"
+                        ],
+                        "ifsc": penny["fund_account"]["bank_account"]["ifsc"],
+                        "city": penny["notes"]["city"],
+                        "is_default": 1,
+                        "personalized_cheque": penny["notes"]["personalized_cheque"],
+                    },
+                )
+                user_kyc.insert(ignore_permissions=True)
+                frappe.db.commit()
+            else:
+                log_api_error(penny)
+        except Exception:
+            log_api_error(penny)
 
     except Exception:
         log_api_error()

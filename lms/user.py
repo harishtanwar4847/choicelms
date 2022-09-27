@@ -4120,7 +4120,6 @@ def penny_create_fund_account_validation(**kwargs):
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
             bytes(las_settings.razorpay_key_secret, "utf-8")
         ).decode("ascii")
-        print("razorpay_key_secret_auth", razorpay_key_secret_auth)
         try:
             data_rzp = {
                 "account_number": las_settings.razorpay_bank_account,
@@ -4131,11 +4130,12 @@ def penny_create_fund_account_validation(**kwargs):
                     "branch": data.get("branch"),
                     "city": data.get("city"),
                     "bank_account_type": data.get("bank_account_type"),
+                    "user_kyc_no": user_kyc.name,
+                    "user_email": user.name,
+                    "personalized_cheque": "http://localhost:8000/files/personalized_cheque/fcm-changes-2505.jpeg",
                 },
             }
-            print("data_rzp", data_rzp)
             url = las_settings.pennydrop_create_fund_account_validation
-            print("url", url)
             headers = {
                 "Authorization": razorpay_key_secret_auth,
                 "content-type": "application/json",
