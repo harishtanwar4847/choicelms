@@ -4120,7 +4120,7 @@ def penny_create_fund_account_validation(**kwargs):
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
             bytes(las_settings.razorpay_key_secret, "utf-8")
         ).decode("ascii")
-
+        print("razorpay_key_secret_auth", razorpay_key_secret_auth)
         try:
             data_rzp = {
                 "account_number": las_settings.razorpay_bank_account,
@@ -4133,7 +4133,9 @@ def penny_create_fund_account_validation(**kwargs):
                     "bank_account_type": data.get("bank_account_type"),
                 },
             }
+            print("data_rzp", data_rzp)
             url = las_settings.pennydrop_create_fund_account_validation
+            print("url", url)
             headers = {
                 "Authorization": razorpay_key_secret_auth,
                 "content-type": "application/json",
@@ -5570,6 +5572,7 @@ def spark_demat_account(**kwargs):
             raise utils.exceptions.ValidationException(
                 {"demat": {"required": frappe._("list should be in list format.")}}
             )
+        print("customer.name", customer.name)
         frappe.delete_doc(
             "Spark Demat Account",
             frappe.get_all(
@@ -5726,7 +5729,9 @@ def shares_eligibility(**kwargs):
 
                     # setting eligibility
                     securities_list = [
-                        i for i in res_json["Response"] if i.get("Price") > 0
+                        i
+                        for i in res_json["Response"]
+                        if i.get("Price") > 0 and i.get("Quantity") > 0
                     ]
 
                     # bulk insert fields
