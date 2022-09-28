@@ -1,0 +1,259 @@
+{
+ "actions": [],
+ "creation": "2022-09-29 00:50:00.492042",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "doc_status_section",
+  "status",
+  "user_details_section",
+  "first_name",
+  "last_name",
+  "user_status",
+  "column_break_7",
+  "mobile_no",
+  "email_id",
+  "customer_details_section",
+  "customer_first_name",
+  "customer_last_name",
+  "customer_status",
+  "column_break_14",
+  "customer_mobile",
+  "customer_email",
+  "ckyc_details_section",
+  "pan_no",
+  "dob",
+  "column_break_20",
+  "ckyc_no",
+  "ckyc_status",
+  "bank_details_section",
+  "bank",
+  "branch",
+  "account_no",
+  "ifsc",
+  "city",
+  "bank_status",
+  "column_break_29",
+  "account_holder_name",
+  "bank_address",
+  "account_type"
+ ],
+ "fields": [
+  {
+   "fieldname": "doc_status_section",
+   "fieldtype": "Section Break",
+   "label": "Doc Status"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Success\nPartial Success\nFailure"
+  },
+  {
+   "fieldname": "user_details_section",
+   "fieldtype": "Section Break",
+   "label": "User Details"
+  },
+  {
+   "fieldname": "first_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "First Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "last_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Last Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "user_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "User Status",
+   "options": "Pending\nSuccess\nFailure",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mobile_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Mobile No",
+   "reqd": 1
+  },
+  {
+   "fieldname": "email_id",
+   "fieldtype": "Data",
+   "label": "Email ID",
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer_details_section",
+   "fieldtype": "Section Break",
+   "label": "Customer Details"
+  },
+  {
+   "fieldname": "customer_first_name",
+   "fieldtype": "Data",
+   "label": "First Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer_last_name",
+   "fieldtype": "Data",
+   "label": "Last Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer_status",
+   "fieldtype": "Select",
+   "label": "Customer Status",
+   "options": "Pending\nSuccess\nFailure",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_14",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customer_mobile",
+   "fieldtype": "Data",
+   "label": "Mobile No",
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer_email",
+   "fieldtype": "Data",
+   "label": "Email ID",
+   "reqd": 1
+  },
+  {
+   "fieldname": "ckyc_details_section",
+   "fieldtype": "Section Break",
+   "label": "CKYC Details"
+  },
+  {
+   "fieldname": "pan_no",
+   "fieldtype": "Data",
+   "label": "Pan No",
+   "reqd": 1
+  },
+  {
+   "fieldname": "dob",
+   "fieldtype": "Data",
+   "label": "DOB",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_20",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ckyc_no",
+   "fieldtype": "Data",
+   "label": "CKYC No",
+   "reqd": 1
+  },
+  {
+   "fieldname": "ckyc_status",
+   "fieldtype": "Select",
+   "label": "CKYC Status",
+   "options": "Pending\nSuccess\nFailure",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bank_details_section",
+   "fieldtype": "Section Break",
+   "label": "Bank Details"
+  },
+  {
+   "fieldname": "bank",
+   "fieldtype": "Data",
+   "label": "Bank",
+   "reqd": 1
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Data",
+   "label": "Branch",
+   "reqd": 1
+  },
+  {
+   "fieldname": "account_no",
+   "fieldtype": "Data",
+   "label": "Account No",
+   "reqd": 1
+  },
+  {
+   "fieldname": "ifsc",
+   "fieldtype": "Data",
+   "label": "IFSC",
+   "reqd": 1
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City"
+  },
+  {
+   "fieldname": "column_break_29",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "account_holder_name",
+   "fieldtype": "Data",
+   "label": "Account Holder Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bank_address",
+   "fieldtype": "Small Text",
+   "label": "Bank Address"
+  },
+  {
+   "fieldname": "account_type",
+   "fieldtype": "Data",
+   "label": "Account Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bank_status",
+   "fieldtype": "Select",
+   "label": "Bank Status",
+   "options": "Pending\nSuccess\nFailure",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-09-29 01:28:25.189284",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Spark Offline Customer Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

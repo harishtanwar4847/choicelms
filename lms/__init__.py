@@ -2356,20 +2356,31 @@ def create_user_customer(upload_file):
             )
         ).insert(ignore_permissions=True)
         frappe.db.commit()
+        print("Offline Customer User Status :", offline_customer.user_status)
 
-        if reg or email_regex or len(i[2]) > 10:
+        if (
+            reg
+            or re.search(email_regex, i[3]) is None
+            or (len(i[3].split("@")) > 2)
+            or len(i[2]) > 10
+        ):
+            print("Reg:", reg)
+            print("Email Regex :", email_regex)
+            print("Mobile Length :", len(i[2]))
             offline_customer.user_status = "Failure"
             offline_customer.customer_status = "Failure"
             offline_customer.ckyc_status = "Failure"
             offline_customer.bank_status = "Failure"
-            offline_customer.insert(ignore_permissions=True)
-            frappe.db.commit()
+            # offline_customer.insert(ignore_permissions=True)
+            # frappe.db.commit()
             print("XYZ")
 
         else:
             # user creation
             res = frappe.get_all("User", filters={"phone": i[2], "mobile_no": i[2]})
-            cust = frappe.get_all("Loan Customer", filters={"phone": res[0]["name"]})
+            print("RES")
+            cust = frappe.get_all("Loan Customer", filters={"phone": i[2]})
+            print("CUST")
             if res:
                 frappe.throw(_("Mobile Number {} already exists".format(i[2])))
             elif res and cust:
@@ -2379,10 +2390,11 @@ def create_user_customer(upload_file):
                 offline_customer.customer_status = "Failure"
                 offline_customer.ckyc_status = "Failure"
                 offline_customer.bank_status = "Failure"
-                offline_customer.insert(ignore_permissions=True)
-                frappe.db.commit()
+                # offline_customer.insert(ignore_permissions=True)
+                # frappe.db.commit()
             else:
                 user = create_user(i[0], i[1], i[2], i[3], tester=0)
+                print("Offline User", offline_customer)
                 offline_customer.user_status = "Success"
                 print("User", user)
 
@@ -2391,18 +2403,21 @@ def create_user_customer(upload_file):
                 res_user = frappe.get_all("Loan Customer", filters={"user": user.name})
                 if res or res_user:
                     frappe.throw(_("Loan Customer already exists".format(i[2])))
+                    print("OFFLINE CUstomer")
                     offline_customer.customer_status = "Success"
+                    print("OFFLINE CUstomer", offline_customer.customer_status)
                 else:
                     customer = create_customer(user)
                     customer.offline_customer = 1
                     print("Customer :", customer)
                     offline_customer.customer_status = "Success"
+                    print("OFFLINE CUstomer", offline_customer.customer_status)
 
                 # User Kyc creation
                 res_kyc = frappe.get_all("User KYC", filters={"user": user.name})
                 if res_kyc:
                     frappe.throw(_("User KYC already exists"))
-                    offline_customer.kyc_details_status = "Success"
+                    offline_customer.ckyc_status = "Success"
 
                 else:
                     res_json = ckyc_dot_net(
@@ -2439,9 +2454,9 @@ def create_user_customer(upload_file):
                                     "account_number": i[9],
                                     "ifsc": i[10],
                                     "city": i[11],
-                                    "account_holder_name": i[12],
+                                    "account_holder_name": i[13],
                                     "bank_address": i[12],
-                                    "account_type": i[13],
+                                    "account_type": i[14],
                                 },
                             ).insert(ignore_permissions=True)
                             print("Customer :", customer)
@@ -2471,6 +2486,6 @@ def create_user_customer(upload_file):
                             data=res_json.get("error"),
                         )
 
-    return utils.respondWithSuccess(
-        data={"user": user, "customer": customer, "user_kyc": user_kyc}
-    )
+    # return utils.respondWithSuccess(
+    #     data={"user": user, "customer": customer, "user_kyc": user_kyc}
+    # )

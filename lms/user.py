@@ -44,11 +44,11 @@ def set_pin(**kwargs):
         frappe.db.commit()
 
         doc = frappe.get_doc("User", frappe.session.user)
-        customer = frappe.get_doc("Loan Customer", frappe.session.user)
-        print("customer :", customer)
-        customer.set_pin = 1
-        customer.insert(ignore_permissions=True)
-        frappe.db.commit
+        customer = lms.__customer()
+        if customer.set_pin == 0:
+            customer.set_pin = 1
+            customer.insert(ignore_permissions=True)
+            frappe.db.commit
 
         # mess = frappe._(
         #     "Dear "
