@@ -88,4 +88,21 @@ frappe.listview_settings["Loan Customer"] = {
       d.show();
     });
   },
+  onload: function (listview) {
+    listview.page.add_inner_button(__("Download Template"), function () {
+      frappe.call({
+        method:
+          "lms.lms.doctype.loan_customer.loan_customer.loan_customer_template",
+        freeze: true,
+        args: {
+          doc_filters: frappe
+            .get_user_settings("Loan Customer")
+            ["List"].filters.map((filter) => filter.slice(1, 4)),
+        },
+        callback: (res) => {
+          window.open(res.message);
+        },
+      });
+    });
+  },
 };

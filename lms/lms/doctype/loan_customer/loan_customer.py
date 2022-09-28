@@ -8,6 +8,7 @@ import json
 import re
 
 import frappe
+import pandas as pd
 from frappe import _
 from frappe.model.document import Document
 
@@ -70,8 +71,42 @@ class LoanCustomer(Document):
 
     def before_save(self):
         phone = frappe.get_all("Loan Customer", filters={"phone": self.phone})
-        if phone:
-            frappe.throw(_("Mobile Number {} already exists".format(self.phone)))
-        user = frappe.get_all("Loan Customer", filters={"user": self.user})
-        if user:
-            frappe.throw(_("User {} already exists".format(self.user)))
+        if self.registeration == 0:
+            if phone:
+                frappe.throw(_("Mobile Number {} already exists".format(self.phone)))
+            user = frappe.get_all("Loan Customer", filters={"user": self.user})
+            if user:
+                frappe.throw(_("User {} already exists".format(self.user)))
+
+
+@frappe.whitelist()
+def loan_customer_template():
+    data = []
+    df = pd.DataFrame(
+        data,
+        columns=[
+            "First Name",
+            "Last Name",
+            "Mobile Number",
+            "Email id",
+            "Pan No",
+            "DOB",
+            "CKYC No",
+            "Bank",
+            "Branch",
+            "Account No",
+            "IFSC",
+            "City",
+            "Account Holder Name",
+            "Bank Address",
+            "Account Type",
+        ],
+    )
+    file_name = "Customer_Details_{}".format(frappe.utils.now_datetime())
+    sheet_name = "Customer Details"
+    return lms.download_file(
+        dataframe=df,
+        file_name=file_name,
+        file_extention="xlsx",
+        sheet_name=sheet_name,
+    )

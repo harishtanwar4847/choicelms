@@ -268,8 +268,6 @@ class LoanApplication(Document):
                     i.pledge_executed = 1
                     total_collateral += i.amount
                 instrument_type.append(i.type)
-            print("Type List :", instrument_type)
-            print("Set of Instrument Type :", set(instrument_type))
             if len(set(instrument_type)) == 1 and (
                 "Equity" in set(instrument_type) or "Debt" in set(instrument_type)
             ):
