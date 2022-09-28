@@ -2306,12 +2306,8 @@ def create_user_customer(upload_file):
         fcontent = upfile.read()
 
     csv_data = read_csv_content(fcontent)
-    print("CSV Data :", csv_data[1])
 
     for i in csv_data[1:]:
-        print(i)
-        print(i[0])
-
         # validation for name
         reg = regex_special_characters(search=i[0] + i[1])
         if reg:
@@ -2356,7 +2352,6 @@ def create_user_customer(upload_file):
             )
         ).insert(ignore_permissions=True)
         frappe.db.commit()
-        print("Offline Customer User Status :", offline_customer.user_status)
 
         if (
             reg
@@ -2364,60 +2359,58 @@ def create_user_customer(upload_file):
             or (len(i[3].split("@")) > 2)
             or len(i[2]) > 10
         ):
-            print("Reg:", reg)
-            print("Email Regex :", email_regex)
-            print("Mobile Length :", len(i[2]))
             offline_customer.user_status = "Failure"
             offline_customer.customer_status = "Failure"
             offline_customer.ckyc_status = "Failure"
             offline_customer.bank_status = "Failure"
-            # offline_customer.insert(ignore_permissions=True)
-            # frappe.db.commit()
-            print("XYZ")
+            offline_customer.save(ignore_permissions=True)
+            frappe.db.commit()
 
         else:
             # user creation
             res = frappe.get_all("User", filters={"phone": i[2], "mobile_no": i[2]})
-            print("RES")
             cust = frappe.get_all("Loan Customer", filters={"phone": i[2]})
-            print("CUST")
             if res:
                 frappe.throw(_("Mobile Number {} already exists".format(i[2])))
             elif res and cust:
                 offline_customer.user_status = "Success"
+                offline_customer.save(ignore_permissions=True)
+                frappe.db.commit()
             elif res and not cust:
                 offline_customer.user_status = "Failure"
                 offline_customer.customer_status = "Failure"
                 offline_customer.ckyc_status = "Failure"
                 offline_customer.bank_status = "Failure"
-                # offline_customer.insert(ignore_permissions=True)
-                # frappe.db.commit()
+                offline_customer.save(ignore_permissions=True)
+                frappe.db.commit()
             else:
                 user = create_user(i[0], i[1], i[2], i[3], tester=0)
-                print("Offline User", offline_customer)
                 offline_customer.user_status = "Success"
-                print("User", user)
+                offline_customer.save(ignore_permissions=True)
+                frappe.db.commit()
 
                 # loan customer creation
                 res = frappe.get_all("Loan Customer", filters={"phone": i[2]})
                 res_user = frappe.get_all("Loan Customer", filters={"user": user.name})
                 if res or res_user:
                     frappe.throw(_("Loan Customer already exists".format(i[2])))
-                    print("OFFLINE CUstomer")
                     offline_customer.customer_status = "Success"
-                    print("OFFLINE CUstomer", offline_customer.customer_status)
+                    offline_customer.save(ignore_permissions=True)
+                    frappe.db.commit()
                 else:
                     customer = create_customer(user)
                     customer.offline_customer = 1
-                    print("Customer :", customer)
                     offline_customer.customer_status = "Success"
-                    print("OFFLINE CUstomer", offline_customer.customer_status)
+                    offline_customer.save(ignore_permissions=True)
+                    frappe.db.commit()
 
                 # User Kyc creation
                 res_kyc = frappe.get_all("User KYC", filters={"user": user.name})
                 if res_kyc:
                     frappe.throw(_("User KYC already exists"))
                     offline_customer.ckyc_status = "Success"
+                    offline_customer.save(ignore_permissions=True)
+                    frappe.db.commit()
 
                 else:
                     res_json = ckyc_dot_net(
@@ -2427,23 +2420,17 @@ def create_user_customer(upload_file):
                         dob=i[5],
                         ckyc_no=i[6],
                     )
-                    print("CKYC Dot Net Done")
-                    frappe.logger().info(
-                        {
-                            "res_json": res_json,
-                            "time_stamp": frappe.utils.now_datetime(),
-                        }
-                    )
+                    print(res_json.get("status"))
 
                     if res_json.get("status") == 200 and not res_json.get("error"):
                         try:
                             user_kyc = ckyc_commit(
                                 res_json=res_json, customer=customer, dob=i[5]
                             )
-                            print("User KYC Done :", user_kyc.name)
-                            offline_customer.kyc_details_status = "Success"
+                            offline_customer.ckyc_status = "Success"
+                            offline_customer.save(ignore_permissions=True)
+                            frappe.db.commit()
                             user_kyc_doc = frappe.get_doc("User KYC", user_kyc.name)
-                            print("User KYC DOc :", user_kyc_doc)
 
                             # bank details
                             user_kyc_doc.append(
@@ -2459,17 +2446,16 @@ def create_user_customer(upload_file):
                                     "account_type": i[14],
                                 },
                             ).insert(ignore_permissions=True)
-                            print("Customer :", customer)
                             customer.kyc_update = 1
-                            print("Customer kyc update checkbox")
                             customer.choice_kyc = user_kyc.name
                             customer.offline_customer = 1
-                            print("Customer KYC name update")
                             customer.save(ignore_permissions=True)
                             frappe.db.commit()
 
                         except Exception as e:
-                            offline_customer.kyc_details_status = "Failure"
+                            offline_customer.ckyc_status = "Failure"
+                            offline_customer.save(ignore_permissions=True)
+                            frappe.db.commit()
                             log_api_error(mess=str(res_json))
                             return utils.respondWithFailure(
                                 status=res_json.get("status"),
@@ -2477,8 +2463,10 @@ def create_user_customer(upload_file):
                                 data=str(e),
                             )
                     else:
+                        offline_customer.ckyc_status = "Failure"
+                        offline_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
                         frappe.db.rollback
-                        offline_customer.kyc_details_status = "Failure"
                         log_api_error(mess=str(res_json))
                         return utils.respondWithFailure(
                             status=res_json.get("status"),
