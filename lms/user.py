@@ -4161,7 +4161,7 @@ def penny_create_fund_account_validation(**kwargs):
                 user_kyc,
                 customer,
                 data_res,
-                # personalized_cheque=data.get("personalized_cheque"),
+                personalized_cheque=data.get("personalized_cheque"),
             )
 
         except requests.RequestException as e:
