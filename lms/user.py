@@ -4161,7 +4161,7 @@ def penny_create_fund_account_validation(**kwargs):
                 user_kyc,
                 customer,
                 data_res,
-                personalized_cheque=data.get("personalized_cheque"),
+                # personalized_cheque=data.get("personalized_cheque"),
             )
 
         except requests.RequestException as e:
@@ -4180,92 +4180,93 @@ def penny_create_fund_account_validation(**kwargs):
 
 @frappe.whitelist()
 def penny_create_fund_account_validation_by_id(**kwargs):
-    try:
-        utils.validator.validate_http_method("POST")
-        data = utils.validator.validate(
-            kwargs,
-            {
-                "fav_id": "required",
-                "personalized_cheque": "required",
-            },
-        )
-        # check user
-        try:
-            user = lms.__user()
-        except UserNotFoundException:
-            # return utils.respondNotFound(message=frappe._("User not found."))
-            raise lms.exceptions.NotFoundException(_("User not found"))
+    pass
+    # try:
+    #     utils.validator.validate_http_method("POST")
+    #     data = utils.validator.validate(
+    #         kwargs,
+    #         {
+    #             "fav_id": "required",
+    #             "personalized_cheque": "required",
+    #         },
+    #     )
+    #     # check user
+    #     try:
+    #         user = lms.__user()
+    #     except UserNotFoundException:
+    #         # return utils.respondNotFound(message=frappe._("User not found."))
+    #         raise lms.exceptions.NotFoundException(_("User not found"))
 
-        # check Loan Customer
-        customer = lms.__customer(user.name)
-        if not customer:
-            # return utils.respondNotFound(message=frappe._("Customer not found."))
-            raise lms.exceptions.NotFoundException(_("Customer not found"))
+    #     # check Loan Customer
+    #     customer = lms.__customer(user.name)
+    #     if not customer:
+    #         # return utils.respondNotFound(message=frappe._("Customer not found."))
+    #         raise lms.exceptions.NotFoundException(_("Customer not found"))
 
-        # user KYC
-        try:
-            user_kyc = lms.__user_kyc(user.name)
-        except UserKYCNotFoundException:
-            # return utils.respondWithFailure(message=frappe._("User KYC not found"))
-            raise lms.exceptions.RespondWithFailureException(_("User KYC not found"))
+    #     # user KYC
+    #     try:
+    #         user_kyc = lms.__user_kyc(user.name)
+    #     except UserKYCNotFoundException:
+    #         # return utils.respondWithFailure(message=frappe._("User KYC not found"))
+    #         raise lms.exceptions.RespondWithFailureException(_("User KYC not found"))
 
-        # fetch rzp key secret from las settings and use Basic auth
-        las_settings = frappe.get_single("LAS Settings")
-        if not las_settings.razorpay_key_secret:
-            frappe.log_error(
-                title="Penny Drop Fund Account Validation Error",
-                message="Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing",
-            )
-            # return utils.respondWithFailure()
-            raise lms.exceptions.RespondWithFailureException()
+    #     # fetch rzp key secret from las settings and use Basic auth
+    #     las_settings = frappe.get_single("LAS Settings")
+    #     if not las_settings.razorpay_key_secret:
+    #         frappe.log_error(
+    #             title="Penny Drop Fund Account Validation Error",
+    #             message="Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing",
+    #         )
+    #         # return utils.respondWithFailure()
+    #         raise lms.exceptions.RespondWithFailureException()
 
-        razorpay_key_secret_auth = "Basic " + base64.b64encode(
-            bytes(las_settings.razorpay_key_secret, "utf-8")
-        ).decode("ascii")
+    #     razorpay_key_secret_auth = "Basic " + base64.b64encode(
+    #         bytes(las_settings.razorpay_key_secret, "utf-8")
+    #     ).decode("ascii")
 
-        try:
-            url = (
-                las_settings.pennydrop_create_fund_account_validation_id
-                + "/{}".format(data.get("fav_id"))
-            )
-            headers = {
-                "Authorization": razorpay_key_secret_auth,
-                "content-type": "application/json",
-            }
-            raw_res = requests.get(
-                url=url,
-                headers=headers,
-            )
+    #     try:
+    #         url = (
+    #             las_settings.pennydrop_create_fund_account_validation_id
+    #             + "/{}".format(data.get("fav_id"))
+    #         )
+    #         headers = {
+    #             "Authorization": razorpay_key_secret_auth,
+    #             "content-type": "application/json",
+    #         }
+    #         raw_res = requests.get(
+    #             url=url,
+    #             headers=headers,
+    #         )
 
-            data_res = raw_res.json()
-            log = {
-                "url": url,
-                "headers": headers,
-                "request": data,
-                "response": data_res,
-            }
+    #         data_res = raw_res.json()
+    #         log = {
+    #             "url": url,
+    #             "headers": headers,
+    #             "request": data,
+    #             "response": data_res,
+    #         }
 
-            lms.create_log(log, "rzp_pennydrop_create_fund_account_validation_by_id")
-            penny_api_response_handle(
-                data,
-                user_kyc,
-                customer,
-                data_res,
-                personalized_cheque=data.get("personalized_cheque"),
-            )
+    #         lms.create_log(log, "rzp_pennydrop_create_fund_account_validation_by_id")
+    #         penny_api_response_handle(
+    #             data,
+    #             user_kyc,
+    #             customer,
+    #             data_res,
+    #             personalized_cheque=data.get("personalized_cheque"),
+    #         )
 
-        except requests.RequestException as e:
-            raise utils.exceptions.APIException(str(e))
+    #     except requests.RequestException as e:
+    #         raise utils.exceptions.APIException(str(e))
 
-    except utils.exceptions.APIException as e:
-        lms.log_api_error()
-        frappe.log_error(
-            title="Penny Drop Create fund account validation Error",
-            message=frappe.get_traceback()
-            + "\n\nPenny Drop Create fund account validation Error: "
-            + str(e.args),
-        )
-        return e.respond()
+    # except utils.exceptions.APIException as e:
+    #     lms.log_api_error()
+    #     frappe.log_error(
+    #         title="Penny Drop Create fund account validation Error",
+    #         message=frappe.get_traceback()
+    #         + "\n\nPenny Drop Create fund account validation Error: "
+    #         + str(e.args),
+    #     )
+    #     return e.respond()
 
 
 def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_cheque):
@@ -4349,41 +4350,41 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                                 if other_bank.is_default == 1:
                                     other_bank.is_default = 0
                                     other_bank.save(ignore_permissions=True)
-                        frappe.get_doc(
-                            {
-                                "doctype": "User Bank Account",
-                                "parentfield": "bank_account",
-                                "parenttype": "User KYC",
-                                "bank": data_res.get("fund_account")
-                                .get("bank_account")
-                                .get("bank_name"),
-                                "branch": data_res.get("notes").get("branch"),
-                                "account_type": data_res.get("notes").get(
-                                    "bank_account_type"
-                                ),
-                                "account_number": data_res.get("fund_account")
-                                .get("bank_account")
-                                .get("account_number"),
-                                "ifsc": data_res.get("fund_account")
-                                .get("bank_account")
-                                .get("ifsc"),
-                                "account_holder_name": data_res.get("fund_account")
-                                .get("bank_account")
-                                .get("name"),
-                                "personalized_cheque": photos_,
-                                "city": data_res.get("notes").get("city"),
-                                "parent": user_kyc.name,
-                                "is_default": True,
-                                "razorpay_fund_account_id": data_res.get(
-                                    "fund_account"
-                                ).get("id"),
-                                "razorpay_fund_account_validation_id": data_res.get(
-                                    "id"
-                                ),
-                                "bank_status": "Pending",
-                            }
-                        ).insert(ignore_permissions=True)
-                        frappe.db.commit()
+                        # frappe.get_doc(
+                        #     {
+                        #         "doctype": "User Bank Account",
+                        #         "parentfield": "bank_account",
+                        #         "parenttype": "User KYC",
+                        #         "bank": data_res.get("fund_account")
+                        #         .get("bank_account")
+                        #         .get("bank_name"),
+                        #         "branch": data_res.get("notes").get("branch"),
+                        #         "account_type": data_res.get("notes").get(
+                        #             "bank_account_type"
+                        #         ),
+                        #         "account_number": data_res.get("fund_account")
+                        #         .get("bank_account")
+                        #         .get("account_number"),
+                        #         "ifsc": data_res.get("fund_account")
+                        #         .get("bank_account")
+                        #         .get("ifsc"),
+                        #         "account_holder_name": data_res.get("fund_account")
+                        #         .get("bank_account")
+                        #         .get("name"),
+                        #         "personalized_cheque": photos_,
+                        #         "city": data_res.get("notes").get("city"),
+                        #         "parent": user_kyc.name,
+                        #         "is_default": True,
+                        #         "razorpay_fund_account_id": data_res.get(
+                        #             "fund_account"
+                        #         ).get("id"),
+                        #         "razorpay_fund_account_validation_id": data_res.get(
+                        #             "id"
+                        #         ),
+                        #         "bank_status": "Pending",
+                        #     }
+                        # ).insert(ignore_permissions=True)
+                        # frappe.db.commit()
                     else:
                         # For existing choice bank entries
                         bank_account = frappe.get_doc(
@@ -4397,40 +4398,41 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                         bank_account.save(ignore_permissions=True)
                         frappe.db.commit()
                 else:
+                    pass
                     # For non choice user
-                    frappe.get_doc(
-                        {
-                            "doctype": "User Bank Account",
-                            "parentfield": "bank_account",
-                            "parenttype": "User KYC",
-                            "bank": data_res.get("fund_account")
-                            .get("bank_account")
-                            .get("bank_name"),
-                            "branch": data_res.get("notes").get("branch"),
-                            "account_type": data_res.get("notes").get(
-                                "bank_account_type"
-                            ),
-                            "account_number": data_res.get("fund_account")
-                            .get("bank_account")
-                            .get("account_number"),
-                            "ifsc": data_res.get("fund_account")
-                            .get("bank_account")
-                            .get("ifsc"),
-                            "account_holder_name": data_res.get("fund_account")
-                            .get("bank_account")
-                            .get("name"),
-                            "personalized_cheque": photos_,
-                            "city": data_res.get("notes").get("city"),
-                            "parent": user_kyc.name,
-                            "is_default": True,
-                            "razorpay_fund_account_id": data_res.get(
-                                "fund_account"
-                            ).get("id"),
-                            "razorpay_fund_account_validation_id": data_res.get("id"),
-                            "bank_status": "Pending",
-                        }
-                    ).insert(ignore_permissions=True)
-                    frappe.db.commit()
+                    # frappe.get_doc(
+                    #     {
+                    #         "doctype": "User Bank Account",
+                    #         "parentfield": "bank_account",
+                    #         "parenttype": "User KYC",
+                    #         "bank": data_res.get("fund_account")
+                    #         .get("bank_account")
+                    #         .get("bank_name"),
+                    #         "branch": data_res.get("notes").get("branch"),
+                    #         "account_type": data_res.get("notes").get(
+                    #             "bank_account_type"
+                    #         ),
+                    #         "account_number": data_res.get("fund_account")
+                    #         .get("bank_account")
+                    #         .get("account_number"),
+                    #         "ifsc": data_res.get("fund_account")
+                    #         .get("bank_account")
+                    #         .get("ifsc"),
+                    #         "account_holder_name": data_res.get("fund_account")
+                    #         .get("bank_account")
+                    #         .get("name"),
+                    #         "personalized_cheque": photos_,
+                    #         "city": data_res.get("notes").get("city"),
+                    #         "parent": user_kyc.name,
+                    #         "is_default": True,
+                    #         "razorpay_fund_account_id": data_res.get(
+                    #             "fund_account"
+                    #         ).get("id"),
+                    #         "razorpay_fund_account_validation_id": data_res.get("id"),
+                    #         "bank_status": "Pending",
+                    #     }
+                    # ).insert(ignore_permissions=True)
+                    # frappe.db.commit()
             else:
                 data_resp["status"] = "failed"
                 message = "We have found a mismatch in the account holder name as per the fetched data"

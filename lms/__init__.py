@@ -2021,6 +2021,7 @@ def get_linenumber():
 def penny_validate_fund_account():
     try:
         log = frappe.local.form_dict
+        print("log", log)
         # log = log
         rzp_user = frappe.db.sql(
             "select u.name from `tabUser` as u left join `tabHas Role` as r on u.email=r.parent where role='Razorpay User'",
