@@ -231,7 +231,10 @@ class LoanApplication(Document):
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
         )
-        if "Loan Customer" not in user_roles:
+        user_role = []
+        for i in list(user_roles):
+            user_role.append(i[0])
+        if "Loan Customer" not in user_role:
             self.status = "Executing pledge"
             self.workflow_state = "Executing pledge"
             self.pledge_status = "Success"
@@ -586,6 +589,9 @@ class LoanApplication(Document):
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
         )
+        user_role = []
+        for i in list(user_roles):
+            user_role.append(i[0])
         lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
@@ -610,7 +616,7 @@ class LoanApplication(Document):
             lms.create_log(values2, "status_pledge_accepted_by_lender ")
             frappe.throw("Please upload Lender Esigned Document")
         elif self.status == "Approved":
-            if "Loan Customer" in user_roles:
+            if "Loan Customer" in user_role:
                 current = frappe.utils.now_datetime()
                 expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
                 self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
