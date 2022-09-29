@@ -2355,8 +2355,7 @@ def create_user_customer(upload_file):
 
         if (
             reg
-            or re.search(email_regex, i[3]) is None
-            or (len(i[3].split("@")) > 2)
+            or (re.search(email_regex, i[3]) is None or (len(i[3].split("@")) > 2))
             or len(i[2]) > 10
         ):
             offline_customer.user_status = "Failure"
@@ -2468,11 +2467,11 @@ def create_user_customer(upload_file):
                         frappe.db.commit()
                         frappe.db.rollback
                         log_api_error(mess=str(res_json))
-                        return utils.respondWithFailure(
-                            status=res_json.get("status"),
-                            message="Sorry! Our system has not been able to validate your KYC. Kindly check your input for any mismatch.",
-                            data=res_json.get("error"),
-                        )
+                        # return utils.respondWithFailure(
+                        #     status=res_json.get("status"),
+                        #     message="Sorry! Our system has not been able to validate your KYC. Kindly check your input for any mismatch.",
+                        #     data=res_json.get("error"),
+                        # )
 
     # return utils.respondWithSuccess(
     #     data={"user": user, "customer": customer, "user_kyc": user_kyc}
