@@ -32,7 +32,7 @@ frappe.listview_settings["Loan Customer"] = {
             args: {
               upload_file: values.file,
             },
-            freeze: true,
+            freeze: false,
           });
           d.hide();
         },

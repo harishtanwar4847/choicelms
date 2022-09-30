@@ -27,7 +27,11 @@ class UserKYC(Document):
         cust_name = frappe.db.get_value("Loan Customer", {"user": self.user}, "name")
         loan_customer = frappe.get_doc("Loan Customer", cust_name)
         doc = self.as_dict()
-        if self.notification_sent == 0 and self.kyc_status in ["Approved", "Rejected"]:
+        if (
+            self.notification_sent == 0
+            and self.kyc_status in ["Approved", "Rejected"]
+            and not loan_customer.offline_customer
+        ):
             if self.kyc_status == "Approved":
                 if not loan_customer.kyc_update and not loan_customer.choice_kyc:
                     loan_customer.kyc_update = 1

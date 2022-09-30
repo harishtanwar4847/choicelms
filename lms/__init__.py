@@ -2006,13 +2006,9 @@ def ckyc_commit(res_json, customer, dob):
     pid_data = json.loads(res_json.get("data")).get("PID_DATA")
 
     personal_details = pid_data.get("PERSONAL_DETAILS")
-    print("Personal Details Done")
     identity_details = pid_data.get("IDENTITY_DETAILS")
-    print("Identity Details Done")
     related_person_details = pid_data.get("RELATED_PERSON_DETAILS")
-    print("Related Person Details Done")
     image_details = pid_data.get("IMAGE_DETAILS")
-    print("Image Details Done")
 
     user_kyc = frappe.get_doc(
         {
@@ -2144,7 +2140,6 @@ def ckyc_commit(res_json, customer, dob):
                         ),
                     },
                 )
-                print("IF Identity :", i.get("IDENT_TYPE"))
 
     if related_person_details:
         related_person = related_person_details.get("RELATED_PERSON")
@@ -2259,7 +2254,6 @@ def ckyc_commit(res_json, customer, dob):
                         "e_kyc_authentication": r.get("E_KYC_AUTHENTICATION"),
                     },
                 )
-                print("Related Person :", r.get("REL_TYPE"))
 
     if image_details:
         image_ = image_details.get("IMAGE")
@@ -2290,7 +2284,6 @@ def ckyc_commit(res_json, customer, dob):
                         "image": image_data,
                     },
                 )
-                print("Image details inside :", im.get("SEQUENCE_NO"))
 
     user_kyc.insert(ignore_permissions=True)
     frappe.db.commit()
@@ -2313,38 +2306,17 @@ def ckyc_offline(customer, offline_customer):
             )
 
             user_kyc_doc = frappe.get_doc("User KYC", user_kyc.name)
-            print("User KYC :", user_kyc_doc)
 
-            # perm_poa_type = frappe.db.get_value(
-            #             "Proof of Address Master",
-            #             {
-            #                 "name": user_kyc.perm_poa
-            #             },
-            #             "poa_name",
-            #         ),
-            # perm_image = frappe.db.sql("select image from `tabCKYC Image Details` where parent = {parent} and image_name = {name}".format(parent=user_kyc.name, name=perm_poa_type ))
-            # perm_add_photos = lms.upload_image_to_doctype(
-            # customer=lms.__customer(user_kyc_doc.user),
-            # seq_no="perm-add",
-            # image_= perm_image,
-            # img_format="jpeg",
-            # img_folder="user_ckyc_address",
-            # )
-            # corres_poa_type = frappe.db.get_value(
-            #             "Proof of Address Master",
-            #             {
-            #                 "name": user_kyc.corres_poa
-            #             },
-            #             "poa_name",
-            #         ),
-            # corres_image = frappe.db.sql("select image from `tabCKYC Image Details` where parent = {parent} and image_name = {name}".format(parent=user_kyc.name, name=corres_poa_type ))
-            # corres_add_photos = lms.upload_image_to_doctype(
-            #     customer=lms.__customer(user_kyc_doc.user),
-            #     seq_no="corres-add",
-            #     image_=corres_image,
-            #     img_format="jpeg",
-            #     img_folder="user_ckyc_address",
-            # )
+            perm_poa = frappe.db.get_value(
+                "Proof of Address Master",
+                {"name": user_kyc.perm_poa},
+                "poa_name",
+            )
+            corres_poa = frappe.db.get_value(
+                "Proof of Address Master",
+                {"name": user_kyc.corres_poa},
+                "poa_name",
+            )
 
             ckyc_address_doc = frappe.get_doc(
                 {
@@ -2357,13 +2329,17 @@ def ckyc_offline(customer, offline_customer):
                     "perm_state": user_kyc.perm_state_name,
                     "perm_country": user_kyc.perm_country_name,
                     "perm_pin": user_kyc.perm_pin,
-                    "perm_poa": frappe.db.get_value(
-                        "Proof of Address Master",
-                        {"name": user_kyc.perm_poa},
-                        "poa_name",
+                    "perm_poa": perm_poa,
+                    "perm_image": frappe.db.get_value(
+                        "CKYC Image Details",
+                        {"parent": user_kyc.name, "image_name": perm_poa},
+                        "image",
                     ),
-                    "perm_image": "",
-                    "corres_poa_image": "",
+                    "corres_poa_image": frappe.db.get_value(
+                        "CKYC Image Details",
+                        {"parent": user_kyc.name, "image_name": corres_poa},
+                        "image",
+                    ),
                     "perm_corres_flag": user_kyc.perm_corres_sameflag,
                     "corres_line1": user_kyc.corres_line1,
                     "corres_line2": user_kyc.corres_line2,
@@ -2373,14 +2349,9 @@ def ckyc_offline(customer, offline_customer):
                     "corres_state": user_kyc.corres_state_name,
                     "corres_country": user_kyc.corres_country_name,
                     "corres_pin": user_kyc.corres_pin,
-                    "corres_poa": frappe.db.get_value(
-                        "Proof of Address Master",
-                        {"name": user_kyc.corres_poa},
-                        "poa_name",
-                    ),
+                    "corres_poa": corres_poa,
                 }
             ).insert(ignore_permissions=True)
-            print("CKYC Address DOC :", ckyc_address_doc)
             user_kyc_doc.address_details = ckyc_address_doc.name
             user_kyc_doc.consent_given = 1
             user_kyc_doc.save(ignore_permissions=True)
@@ -2392,11 +2363,6 @@ def ckyc_offline(customer, offline_customer):
                 }
             )
             kyc_consent_doc.insert(ignore_permissions=True)
-
-            offline_customer.ckyc_status = "Success"
-            offline_customer.save(ignore_permissions=True)
-            frappe.db.commit()
-            print("KYC Consent Doc :", kyc_consent_doc)
 
             # bank details
             user_kyc_doc.append(
@@ -2416,8 +2382,11 @@ def ckyc_offline(customer, offline_customer):
             customer.choice_kyc = user_kyc.name
             customer.offline_customer = 1
             customer.save(ignore_permissions=True)
+            offline_customer.ckyc_status = "Success"
+            offline_customer.save(ignore_permissions=True)
             frappe.db.commit()
-            print("Final KYC ended doc :", user_kyc_doc)
+
+            return offline_customer.ckyc_status
 
         except Exception as e:
             offline_customer.ckyc_status = "Failure"
@@ -2464,8 +2433,9 @@ def customer_file_upload(upload_file):
 
         # Validation for Alphanumeric
         alphanum_regex = "^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]+$"
+        pan_regex = "[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"
         if (
-            re.search(alphanum_regex, i[4]) is None
+            re.search(pan_regex, i[4]) is None
             or re.search(alphanum_regex, i[10]) is None
         ):
             frappe.throw(_("Please enter valid Pan No or IFSC code."))
@@ -2604,5 +2574,6 @@ def create_user_customer(upload_file):
     frappe.enqueue(
         method=customer_file_upload(upload_file=upload_file),
         queue="long",
+        # delayed = False,
         job_name="Offline Customer File Processing",
     )

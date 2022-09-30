@@ -17,7 +17,7 @@ frappe.ui.form.on("Spark Offline Customer Log", {
           method:
             "lms.lms.doctype.spark_offline_customer_log.spark_offline_customer_log.retry_process",
           freeze: true,
-          args: { doc: frm.doc },
+          args: { doc_name: frm.doc.name },
         });
       });
     }
