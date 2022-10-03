@@ -2696,6 +2696,20 @@ def loan_unpledge_request(**kwargs):
             )
             items.append(temp)
 
+            pledged_quantity = frappe.get_all(
+                "Collateral Ledger",
+                filters={
+                    "loan": loan.name,
+                    "isin": i["isin"],
+                    "application_doctype": "Loan Application",
+                },
+                fields=["date_of_pledge", "isin", "quantity"],
+            )
+            a = 0
+            for date in pledged_quantity:
+                a += date.quantity
+            print("quantity", a)
+
         unpledge_application = frappe.get_doc(
             {
                 "doctype": "Unpledge Application",

@@ -92,18 +92,27 @@ class UnpledgeApplication(Document):
         # unpledge_quantity_map = {i.isin: 0 for i in self.items}
         # unpledge_requested_quantity_map = {i.isin: i.quantity for i in self.items}
         price_map = {
-            "{}{}".format(
-                i.isin, "{}".format("-" + str(i.folio) if i.folio else "")
+            "{}{}{}".format(
+                i.isin,
+                "{}".format("-" + str(i.folio) if i.folio else ""),
+                i.date_of_pledge if i.date_of_pledge else "",
             ): i.price
             for i in self.items
         }
         unpledge_quantity_map = {
-            "{}{}".format(i.isin, "{}".format("-" + str(i.folio) if i.folio else "")): 0
+            "{}{}{}".format(
+                i.isin,
+                "{}".format("-" + str(i.folio) if i.folio else ""),
+                i.date_of_pledge if i.date_of_pledge else "",
+            ): 0
             for i in self.items
         }
+
         unpledge_requested_quantity_map = {
-            "{}{}".format(
-                i.isin, "{}".format("-" + str(i.folio) if i.folio else "")
+            "{}{}{}".format(
+                i.isin,
+                "{}".format("-" + str(i.folio) if i.folio else ""),
+                i.date_of_pledge if i.date_of_pledge else "",
             ): i.quantity
             for i in self.items
         }
@@ -115,8 +124,10 @@ class UnpledgeApplication(Document):
         )
 
         for i in self.unpledge_items:
-            isin_folio_combo = "{}{}".format(
-                i.isin, "{}".format("-" + str(i.folio) if i.folio else "")
+            isin_folio_combo = "{}{}{}".format(
+                i.isin,
+                "{}".format("-" + str(i.folio) if i.folio else ""),
+                i.date_of_pledge if i.date_of_pledge else "",
             )
             if i.unpledge_quantity > i.quantity:
                 frappe.throw(
@@ -139,6 +150,7 @@ class UnpledgeApplication(Document):
                             isin_folio_combo,
                         )
                     )
+            print("unpledge_quantity_map", unpledge_quantity_map)
             unpledge_quantity_map[isin_folio_combo] = (
                 unpledge_quantity_map[isin_folio_combo] + i.unpledge_quantity
             )
@@ -157,8 +169,10 @@ class UnpledgeApplication(Document):
             self.unpledge_collateral_value += i.unpledge_quantity * i.price
 
         for i in self.items:
-            isin_folio_combo = "{}{}".format(
-                i.isin, "{}".format("-" + str(i.folio) if i.folio else "")
+            isin_folio_combo = "{}{}{}".format(
+                i.isin,
+                "{}".format("-" + str(i.folio) if i.folio else ""),
+                i.date_of_pledge if i.date_of_pledge else "",
             )
             if unpledge_quantity_map.get(isin_folio_combo) > i.quantity:
                 frappe.throw(
@@ -177,7 +191,11 @@ class UnpledgeApplication(Document):
     def before_submit(self):
         # check if all securities are sold
         unpledge_quantity_map = {
-            "{}{}".format(i.isin, "{}".format("-" + str(i.folio) if i.folio else "")): 0
+            "{}{}{}".format(
+                i.isin,
+                "{}".format("-" + str(i.folio) if i.folio else ""),
+                i.date_of_pledge if i.date_of_pledge else "",
+            ): 0
             for i in self.items
         }
 
@@ -185,8 +203,10 @@ class UnpledgeApplication(Document):
 
         if len(self.unpledge_items):
             for i in self.unpledge_items:
-                isin_folio_combo = "{}{}".format(
-                    i.isin, "{}".format("-" + str(i.folio) if i.folio else "")
+                isin_folio_combo = "{}{}{}".format(
+                    i.isin,
+                    "{}".format("-" + str(i.folio) if i.folio else ""),
+                    i.date_of_pledge if i.date_of_pledge else "",
                 )
                 unpledge_quantity_map[isin_folio_combo] = (
                     unpledge_quantity_map[isin_folio_combo] + i.unpledge_quantity
@@ -195,8 +215,10 @@ class UnpledgeApplication(Document):
             frappe.throw("Please add items to {}".format(application_type))
 
         for i in self.items:
-            isin_folio_combo = "{}{}".format(
-                i.isin, "{}".format("-" + str(i.folio) if i.folio else "")
+            isin_folio_combo = "{}{}{}".format(
+                i.isin,
+                "{}".format("-" + str(i.folio) if i.folio else ""),
+                i.date_of_pledge if i.date_of_pledge else "",
             )
             # print(unpledge_quantity_map.get(i.isin), i.quantity)
             if unpledge_quantity_map.get(isin_folio_combo) < i.quantity:
@@ -482,6 +504,7 @@ def get_collateral_details(unpledge_application_name):
     doc = frappe.get_doc("Unpledge Application", unpledge_application_name)
     loan = doc.get_loan()
     isin_list = [i.isin for i in doc.items]
+    print("isin_list", isin_list)
     folio_clause = (
         " and cl.folio IN {}".format(
             lms.convert_list_to_tuple_string([i.folio for i in doc.items])
@@ -489,6 +512,7 @@ def get_collateral_details(unpledge_application_name):
         if doc.instrument_type == "Mutual Fund"
         else ""
     )
+    print("folio_clause", folio_clause)
     return loan.get_collateral_list(
         group_by_psn=True,
         where_clause="and cl.isin IN {}{}".format(
@@ -604,9 +628,15 @@ def validate_revoc(unpledge_application_name):
                     ).get("schemedetails")
 
                     for i in schemedetails_res:
-                        isin_details["{}{}".format(i.get("isinno"), i.get("folio"))] = i
+                        isin_details[
+                            "{}{}{}".format(
+                                i.get("isinno"), i.get("folio"), i.get("date_of_pledge")
+                            )
+                        ] = i
                     for i in unpledge_application_doc.unpledge_items:
-                        isin_folio_combo = "{}{}".format(i.get("isin"), i.get("folio"))
+                        isin_folio_combo = "{}{}{}".format(
+                            i.get("isin"), i.get("folio"), i.get("date_of_pledge")
+                        )
                         if isin_folio_combo in isin_details:
                             i.revoke_validate_remarks = isin_details.get(
                                 isin_folio_combo
@@ -735,10 +765,16 @@ def initiate_revoc(unpledge_application_name):
                     ).get("schemedetails")
                     isin_details = {}
                     for i in schemedetails_res:
-                        isin_details["{}{}".format(i.get("isinno"), i.get("folio"))] = i
+                        isin_details[
+                            "{}{}{}".format(
+                                i.get("isinno"), i.get("folio"), i.get("date_of_pledge")
+                            )
+                        ] = i
 
                     for i in unpledge_application_doc.unpledge_items:
-                        isin_folio_combo = "{}{}".format(i.get("isin"), i.get("folio"))
+                        isin_folio_combo = "{}{}{}".format(
+                            i.get("isin"), i.get("folio"), i.get("date_of_pledge")
+                        )
                         if isin_folio_combo in isin_details:
                             i.revoke_initiate_remarks = isin_details.get(
                                 isin_folio_combo

@@ -569,7 +569,11 @@ class LoanApplication(Document):
 
                     else:
                         if schemedetails:
-                            isin_folio_combo = str(i.get("isin")) + str(i.get("folio"))
+                            isin_folio_combo = (
+                                str(i.get("isin"))
+                                + str(i.get("folio"))
+                                + str(i.get("date"))
+                            )
                             for i in schemedetails:
                                 isin_details[isin_folio_combo] = i
                             for i in self.items:
