@@ -292,6 +292,7 @@ class LoanApplication(Document):
             # )
             # self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
             for i in self.items:
+                i.date_of_pledge = frappe.utils.now_datetime().strftime("%d-%m-%Y")
                 collateral_ledger_data = {
                     "prf": i.prf_number,
                     # "expiry": self.expiry_date,
@@ -487,9 +488,17 @@ class LoanApplication(Document):
                         total_successfull_lien = 0
                         total_collateral_value = 0
                         for i in schemedetails:
-                            isin_details[str(i.get("isinno")) + str(i.get("folio"))] = i
+                            isin_details[
+                                str(i.get("isinno"))
+                                + str(i.get("folio"))
+                                + str(i.get("date_of_pledge"))
+                            ] = i
                         for i in self.items:
-                            isin_folio_combo = str(i.get("isin")) + str(i.get("folio"))
+                            isin_folio_combo = (
+                                str(i.get("isin"))
+                                + str(i.get("folio"))
+                                + str(i.get("date_of_pledge"))
+                            )
                             if isin_folio_combo in isin_details:
                                 cur = isin_details.get(isin_folio_combo)
                                 i.pledge_executed = 1
@@ -801,11 +810,9 @@ class LoanApplication(Document):
 
         if self.status == "Pledge executed":
             total_collateral_value = 0
-            values15 = {"value": [self.status, lms.get_linenumber()]}
-            lms.create_log(values15, "status_pledge_accepted_by_lender")
+
             for i in self.items:
-                values16 = {"value": [i, lms.get_linenumber()]}
-                lms.create_log(values16, "status_pledge_accepted_by_lender")
+                i.date_of_pledge = frappe.utils.now_datetime().strftime("%d-%m-%Y")
 
                 if i.pledge_status == "Success" or i.pledge_status == "":
                     values17 = {
@@ -903,7 +910,6 @@ class LoanApplication(Document):
         )
 
     def on_update(self):
-        print("Prod")
         if self.status == "Approved":
             if not self.loan:
                 values21 = {"value": [self.status, lms.get_linenumber()]}
@@ -1028,12 +1034,8 @@ class LoanApplication(Document):
         elif self.status == "Pledge accepted by Lender":
             approved_isin_list = []
             rejected_isin_list = []
-            values27 = {"value": [self.status, lms.get_linenumber()]}
-            lms.create_log(values27, "status_pledge_accepted_by_lender")
             for i in self.items:
-                values27 = {"value": [i, lms.get_linenumber()]}
-                lms.create_log(values27, "status_pledge_accepted_by_lender")
-
+                i.date_of_pledge = frappe.utils.now_datetime().strftime("%d-%m-%Y")
                 if i.lender_approval_status == "Approved":
                     values28 = {
                         "value": [
@@ -1206,6 +1208,7 @@ class LoanApplication(Document):
 
         for item in self.items:
             if item.lender_approval_status == "Approved":
+                print("item date of pledge", item.date_of_pledge)
                 temp = frappe.get_doc(
                     {
                         "doctype": "Loan Item",
@@ -1223,6 +1226,7 @@ class LoanApplication(Document):
                         "scheme_code": item.scheme_code,
                         "type": item.type,
                         "folio": item.folio,
+                        "date_of_pledge": item.date_of_pledge,
                     }
                 )
 

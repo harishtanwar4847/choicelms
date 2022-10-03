@@ -512,11 +512,16 @@ def get_collateral_details(unpledge_application_name):
         if doc.instrument_type == "Mutual Fund"
         else ""
     )
-    print("folio_clause", folio_clause)
+    date_of_pledge = lms.convert_list_to_tuple_string(
+        [i.date_of_pledge for i in doc.items]
+    )
+    print("date_of_pledge", date_of_pledge)
     return loan.get_collateral_list(
         group_by_psn=True,
-        where_clause="and cl.isin IN {}{}".format(
-            lms.convert_list_to_tuple_string(isin_list), folio_clause
+        where_clause="and cl.isin IN {}{} and cl.date_of_pledge IN {date_of_pledge}".format(
+            lms.convert_list_to_tuple_string(isin_list),
+            folio_clause,
+            date_of_pledge=date_of_pledge,
         ),
         having_clause=" HAVING quantity > 0",
     )

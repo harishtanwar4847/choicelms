@@ -2479,6 +2479,11 @@ def validate_securities_for_unpledge(securities, loan):
     folio_list = []
     folio_clause = ""
     for i in securities:
+        if "date_of_pledge" not in i.keys() or not i.get("date_of_pledge"):
+            securities_valid = False
+            message = frappe._("Pledge date not present")
+            break
+
         if loan.instrument_type == "Mutual Fund":
             if "folio" not in i.keys() or not i.get("folio"):
                 securities_valid = False
@@ -2692,6 +2697,7 @@ def loan_unpledge_request(**kwargs):
                     "isin": i["isin"],
                     "quantity": i["quantity"],
                     "folio": i["folio"],
+                    "date_of_pledge": i["date_of_pledge"],
                 }
             )
             items.append(temp)
@@ -2886,6 +2892,7 @@ def sell_collateral_request(**kwargs):
                     "isin": i["isin"],
                     "quantity": i["quantity"],
                     "folio": i["folio"],
+                    "date_of_pledge": i["date_of_pledge"],
                 }
             )
             items.append(temp)
@@ -3029,6 +3036,11 @@ def validate_securities_for_sell_collateral(securities, loan_name):
     folio_list = []
     folio_clause = ""
     for i in securities:
+        if "date_of_pledge" not in i.keys() or not i.get("date_of_pledge"):
+            securities_valid = False
+            message = frappe._("Pledge date not present")
+            break
+
         if loan.instrument_type == "Mutual Fund":
             if "folio" not in i.keys() or not i.get("folio"):
                 securities_valid = False

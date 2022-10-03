@@ -660,6 +660,9 @@ def get_collateral_details(sell_collateral_application_name):
     )
     loan = doc.get_loan()
     isin_list = [i.isin for i in doc.items]
+    date_of_pledge = lms.convert_list_to_tuple_string(
+        [i.date_of_pledge for i in doc.items]
+    )
     folio_clause = (
         " and cl.folio IN {}".format(
             lms.convert_list_to_tuple_string([i.folio for i in doc.items])
@@ -669,8 +672,10 @@ def get_collateral_details(sell_collateral_application_name):
     )
     return loan.get_collateral_list(
         group_by_psn=True,
-        where_clause="and cl.isin IN {}{}".format(
-            lms.convert_list_to_tuple_string(isin_list), folio_clause
+        where_clause="and cl.isin IN {}{} and cl.date_of_pledge IN {date_of_pledge}".format(
+            lms.convert_list_to_tuple_string(isin_list),
+            folio_clause,
+            date_of_pledge=date_of_pledge,
         ),
         having_clause=" HAVING quantity > 0",
     )
