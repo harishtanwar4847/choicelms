@@ -50,3 +50,4 @@ lms.patches.update_ckyc_doc
 lms.patches.update_email_in_kyc #ckyc
 lms.patches.update_spark_app_version
 lms.patches.update_workflow ##CKYC
+lms.patches.update_date_of_pledge #########
