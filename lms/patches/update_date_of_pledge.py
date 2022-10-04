@@ -9,6 +9,8 @@ import lms
 def execute():
     try:
         frappe.reload_doc("Lms", "DocType", "Collateral Ledger")
+        frappe.reload_doc("Lms", "DocType", "Loan Application")
+        frappe.reload_doc("Lms", "DocType", "Loan")
         collateral_ledger = frappe.get_all(
             "Collateral Ledger",
             filters={"application_doctype": "Loan Application"},
@@ -37,8 +39,8 @@ def execute():
                                     )
                                     j.save(ignore_permissions=True)
                                     frappe.db.commit()
-                    if i.loan:
-                        loan = frappe.get_doc("Loan", i.loan)
+                    if collateral_ledger_doc.loan:
+                        loan = frappe.get_doc("Loan", collateral_ledger_doc.loan)
                         for k in loan.items:
                             if k.isin == collateral_ledger_doc.isin:
                                 k.date_of_pledge = (
@@ -46,6 +48,8 @@ def execute():
                                         "%d-%m-%Y"
                                     )
                                 )
+                                k.save(ignore_permissions=True)
+                                frappe.db.commit()
 
                 else:
                     frappe.log_error(

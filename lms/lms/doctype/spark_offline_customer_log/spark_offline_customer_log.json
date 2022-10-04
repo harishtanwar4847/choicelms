@@ -14,6 +14,7 @@
   "column_break_7",
   "mobile_no",
   "email_id",
+  "user_remarks",
   "customer_details_section",
   "customer_first_name",
   "customer_last_name",
@@ -21,9 +22,11 @@
   "column_break_14",
   "customer_mobile",
   "customer_email",
+  "customer_remarks",
   "ckyc_details_section",
   "pan_no",
   "dob",
+  "ckyc_remarks",
   "column_break_20",
   "ckyc_no",
   "ckyc_status",
@@ -33,11 +36,12 @@
   "account_no",
   "ifsc",
   "city",
-  "bank_status",
+  "bank_remarks",
   "column_break_29",
   "account_holder_name",
   "bank_address",
-  "account_type"
+  "account_type",
+  "bank_status"
  ],
  "fields": [
   {
@@ -230,11 +234,31 @@
    "label": "Bank Status",
    "options": "Pending\nSuccess\nFailure",
    "reqd": 1
+  },
+  {
+   "fieldname": "user_remarks",
+   "fieldtype": "Small Text",
+   "label": "User Remarks"
+  },
+  {
+   "fieldname": "customer_remarks",
+   "fieldtype": "Small Text",
+   "label": "Customer Remarks"
+  },
+  {
+   "fieldname": "ckyc_remarks",
+   "fieldtype": "Small Text",
+   "label": "CKYC Remarks"
+  },
+  {
+   "fieldname": "bank_remarks",
+   "fieldtype": "Small Text",
+   "label": "Bank Remarks"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-09-29 01:28:25.189284",
+ "modified": "2022-10-03 12:17:34.171568",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Offline Customer Log",

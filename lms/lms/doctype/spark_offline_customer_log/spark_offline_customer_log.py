@@ -12,13 +12,23 @@ import lms
 
 class SparkOfflineCustomerLog(Document):
     def before_save(self):
-        if (
+        if self.ckyc_status == "Success":
+            self.ckyc_remarks = ""
+            self.save(ignore_permissions=True)
+            frappe.db.commit()
+        elif (
             self.user_status == "Success"
             and self.customer_status == "Success"
             and self.ckyc_status == "Success"
             and self.bank_status == "Success"
         ):
+            self.user_remarks = ""
+            self.customer_remarks = ""
+            self.ckyc_remarks = ""
+            self.bank_remarks = ""
             self.status = "Success"
+            self.save(ignore_permissions=True)
+            frappe.db.commit()
         elif (
             self.user_status == "Failure"
             and self.customer_status == "Failure"
@@ -26,14 +36,19 @@ class SparkOfflineCustomerLog(Document):
             and self.bank_status == "Failure"
         ):
             self.status = "Failure"
+            self.save(ignore_permissions=True)
+            frappe.db.commit()
         else:
             self.status = "Partial Success"
+            self.save(ignore_permissions=True)
+            frappe.db.commit()
 
 
 @frappe.whitelist()
 def retry_process(doc_name):
     try:
         doc = frappe.get_doc("Spark Offline Customer Log", doc_name)
+        message = ""
         if (doc.user_status == "Failure" and doc.customer_status == "Failure") or (
             doc.user_status == "Pending" and doc.customer_status == "Pending"
         ):
@@ -43,32 +58,31 @@ def retry_process(doc_name):
                 r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
             )
             if reg:
-                frappe.throw(
-                    frappe._(
-                        "Special Characters not allowed in First Name and Last Name."
-                    )
+                message += (
+                    "Special Characters not allowed in First Name and Last Name.\n"
                 )
-                doc.user_status = "Failure"
-                doc.customer_status = "Failure"
-                doc.save(ignore_permissions=True)
-                frappe.db.commit()
 
             # Validation for Email
-
-            elif re.search(email_regex, doc.email_id) is None or (
+            if (re.search(email_regex, doc.email_id)) is None or (
                 len(doc.email_id.split("@")) > 2
             ):
-                frappe.throw(frappe._("Please enter valid email ID."))
-                doc.user_status = "Failure"
-                doc.customer_status = "Failure"
-                doc.save(ignore_permissions=True)
-                frappe.db.commit()
+                message += "Please enter valid email ID.\n"
 
             # validation for mobile number
-            elif len(doc.mobile) > 10:
-                frappe.throw(frappe._("Please enter valid Mobile Number."))
+            if (len(doc.mobile_no) > 10) or (doc.mobile_no.isnumeric() == False):
+                message += "Please enter valid Mobile Number.\n"
+
+            if (
+                (reg)
+                or (
+                    (re.search(email_regex, doc.email_id)) is None
+                    or (len(doc.email_id.split("@")) > 2)
+                )
+                or ((len(doc.mobile_no) > 10) or (doc.mobile_no.isnumeric() == False))
+            ):
                 doc.user_status = "Failure"
                 doc.customer_status = "Failure"
+                doc.user_remarks = message
                 doc.save(ignore_permissions=True)
                 frappe.db.commit()
 
@@ -76,17 +90,48 @@ def retry_process(doc_name):
                 user = lms.create_user(
                     doc.first_name,
                     doc.last_name,
-                    doc.mobile,
+                    doc.mobile_no,
                     doc.email_id,
                     tester=0,
                 )
                 customer = lms.create_customer(user)
                 doc.user_status = "Success"
                 doc.customer_status = "Success"
+                doc.user_remarks = message
                 doc.save(ignore_permissions=True)
                 frappe.db.commit()
 
-        if doc.ckyc_status == "Failure" or doc.ckyc_status == "Pending":
+        # Pan and IFSC code regex
+        message = ""
+        alphanum_regex = "^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]+$"
+        pan_regex = "[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"
+        print("PAn")
+        if (re.search(pan_regex, doc.pan_no) is None) or (
+            re.search(alphanum_regex, doc.ifsc) is None
+        ):
+            print("Inside pan")
+            message += "Please enter valid Pan No or IFSC code.\n"
+
+        # Validation for CKYC number and IFSC code
+        print("Account")
+        if (doc.ckyc_no.isnumeric() == False) or (doc.account_no.isnumeric() == False):
+            print("INside ccount")
+            message += "Please enter valid CKYC Number or Account Number.\n"
+
+        print("BEfor if")
+        if (
+            (
+                (re.search(pan_regex, doc.pan_no) is None)
+                or (re.search(alphanum_regex, doc.ifsc) is None)
+            )
+            or (doc.ckyc_no.isnumeric() == False)
+            or (doc.account_no.isnumeric() == False)
+        ):
+            doc.ckyc_remarks = message
+            doc.save(ignore_permissions=True)
+            frappe.db.commit()
+
+        elif doc.ckyc_status == "Failure" or doc.ckyc_status == "Pending":
             cust_name = frappe.get_value(
                 "Loan Customer", {"phone": doc.mobile_no, "user": doc.email_id}, "name"
             )
