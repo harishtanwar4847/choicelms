@@ -264,6 +264,12 @@ class TopupApplication(Document):
         self.notify_customer()
 
     def before_submit(self):
+        user_roles = frappe.db.get_values(
+            "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
+        )
+        user_role = []
+        for i in list(user_roles):
+            user_role.append(i[0])
         if not self.lender_esigned_document:
             frappe.throw("Please upload Lender Esigned Document")
 
@@ -277,7 +283,7 @@ class TopupApplication(Document):
             frappe.throw("Top up not available")
         if self.top_up_amount <= 0:
             frappe.throw("Top up can not be approved with Amount Rs. 0")
-        if self.status == "Approved":
+        if self.status == "Approved" and "Loan Customer" in user_role:
             current = frappe.utils.now_datetime()
             expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
             self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
