@@ -20,6 +20,17 @@ class UnpledgeApplication(Document):
 
     def before_insert(self):
         self.process_items()
+        user_roles = frappe.db.get_values(
+            "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
+        )
+        user_role = []
+        for i in list(user_roles):
+            user_role.append(i[0])
+        if "Loan Customer" not in user_role:
+            loan = self.get_loan()
+            self.instrument_type = loan.instrument_type
+            if self.instrument_type == "Mutual Fund":
+                self.scheme_type = loan.scheme_type
 
     def before_save(self):
         loan = self.get_loan()

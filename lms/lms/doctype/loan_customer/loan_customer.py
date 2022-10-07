@@ -82,52 +82,52 @@ class LoanCustomer(Document):
 @frappe.whitelist()
 def loan_customer_template():
     try:
-        import random
-        import string
+        # import random
+        # import string
 
-        counter = 1
-        cust_data = []
-        while counter <= 500:
-            mob_no = str(random.randint(1000000000, 9999999999))
-            first_name = "".join(random.choice(string.ascii_letters) for x in range(10))
-            last_name = "".join(random.choice(string.ascii_letters) for x in range(10))
-            email = first_name + mob_no[:5] + "@gmail.com"
-            pan_no = "CEFPC3206R"
-            dob = "04-08-2001"
-            ckyc_no = "50088727998324"
-            bank = "HDFC BANK"
-            branch = "ROURKELA PANPOSH ROAD ORISSA"
-            acc_no = "3621000042135"
-            ifsc = "HDFC0000362"
-            city = "RAURKELA"
-            address = "CHOUDHURY COMPLEX PANPOSH ROAD ROURKELAROURKELAORISSA769004"
-            account_holder_name = first_name
-            acc_type = "Saving"
+        # counter = 1
+        # cust_data = []
+        # while counter <= 500:
+        #     mob_no = str(random.randint(1000000000, 9999999999))
+        #     first_name = "".join(random.choice(string.ascii_letters) for x in range(10))
+        #     last_name = "".join(random.choice(string.ascii_letters) for x in range(10))
+        #     email = first_name + mob_no[:5] + "@gmail.com"
+        #     pan_no = "CEFPC3206R"
+        #     dob = "04-08-2001"
+        #     ckyc_no = "50088727998324"
+        #     bank = "HDFC BANK"
+        #     branch = "ROURKELA PANPOSH ROAD ORISSA"
+        #     acc_no = "3621000042135"
+        #     ifsc = "HDFC0000362"
+        #     city = "RAURKELA"
+        #     address = "CHOUDHURY COMPLEX PANPOSH ROAD ROURKELAROURKELAORISSA769004"
+        #     account_holder_name = first_name
+        #     acc_type = "Saving"
 
-            cust_data.append(
-                [
-                    first_name,
-                    last_name,
-                    mob_no,
-                    email,
-                    pan_no,
-                    dob,
-                    ckyc_no,
-                    bank,
-                    branch,
-                    acc_no,
-                    ifsc,
-                    city,
-                    address,
-                    account_holder_name,
-                    acc_type,
-                ]
-            )
-            counter += 1
-        print(cust_data)
-        # data = []
+        #     cust_data.append(
+        #         [
+        #             first_name,
+        #             last_name,
+        #             mob_no,
+        #             email,
+        #             pan_no,
+        #             dob,
+        #             ckyc_no,
+        #             bank,
+        #             branch,
+        #             acc_no,
+        #             ifsc,
+        #             city,
+        #             address,
+        #             account_holder_name,
+        #             acc_type,
+        #         ]
+        #     )
+        #     counter += 1
+        # print(cust_data)
+        data = []
         df = pd.DataFrame(
-            cust_data,
+            data,
             columns=[
                 "First Name",
                 "Last Name",
