@@ -1207,6 +1207,16 @@ class LoanApplication(Document):
         items = []
 
         for item in self.items:
+            psn_no = frappe.get_all(
+                "Collateral Ledger",
+                fields="*",
+                filters={
+                    "application_name": self.name,
+                    "request_type": "Pledge",
+                    "isin": item.isin,
+                },
+            )
+            psn_no[0].psn
             if item.lender_approval_status == "Approved":
                 print("item date of pledge", item.date_of_pledge)
                 temp = frappe.get_doc(
@@ -1226,7 +1236,7 @@ class LoanApplication(Document):
                         "scheme_code": item.scheme_code,
                         "type": item.type,
                         "folio": item.folio,
-                        "date_of_pledge": item.date_of_pledge,
+                        "psn": psn_no[0].psn,
                     }
                 )
 

@@ -828,6 +828,21 @@ def loan_details(**kwargs):
         customer = lms.__customer()
         try:
             loan = frappe.get_doc("Loan", data.get("loan_name"))
+            print("akash", loan.items)
+            for i in loan.items:
+                print("i", i.isin)
+                psn_no = frappe.db.sql(
+                    """select psn from `tabCollateral Ledger` where isin = '{isin}' and loan = '{loan}' and 
+                      application_doctype = '{application_doctype}' and request_type = '{request_type}'""".format(
+                        isin=i.isin,
+                        loan=loan.name,
+                        application_doctype="Loan Application",
+                        request_type="Pledge",
+                    ),
+                    as_dict=True,
+                    debug=True,
+                )
+                # i["psn"] = psn_no
         except frappe.DoesNotExistError:
             # return utils.respondNotFound(message=frappe._("Loan not found."))
             raise lms.exceptions.NotFoundException(_("Loan not found"))
@@ -2479,11 +2494,6 @@ def validate_securities_for_unpledge(securities, loan):
     folio_list = []
     folio_clause = ""
     for i in securities:
-        if "date_of_pledge" not in i.keys() or not i.get("date_of_pledge"):
-            securities_valid = False
-            message = frappe._("Pledge date not present")
-            break
-
         if loan.instrument_type == "Mutual Fund":
             if "folio" not in i.keys() or not i.get("folio"):
                 securities_valid = False
@@ -2491,6 +2501,11 @@ def validate_securities_for_unpledge(securities, loan):
                 break
             duplicate_securities_list.append("{}{}".format(i["isin"], i["folio"]))
             folio_list.append(i["folio"])
+        else:
+            if "psn" not in i.keys() or not i.get("psn"):
+                securities_valid = False
+                message = frappe._("psn not present")
+                break
 
     if folio_list:
         folio_clause = " and folio in {}".format(
@@ -2697,7 +2712,7 @@ def loan_unpledge_request(**kwargs):
                     "isin": i["isin"],
                     "quantity": i["quantity"],
                     "folio": i["folio"],
-                    "date_of_pledge": i["date_of_pledge"],
+                    "psn": i["psn"],
                 }
             )
             items.append(temp)
@@ -2709,7 +2724,7 @@ def loan_unpledge_request(**kwargs):
                     "isin": i["isin"],
                     "application_doctype": "Loan Application",
                 },
-                fields=["date_of_pledge", "isin", "quantity"],
+                fields=["psn", "isin", "quantity"],
             )
             a = 0
             for date in pledged_quantity:
@@ -2892,7 +2907,7 @@ def sell_collateral_request(**kwargs):
                     "isin": i["isin"],
                     "quantity": i["quantity"],
                     "folio": i["folio"],
-                    "date_of_pledge": i["date_of_pledge"],
+                    "psn": i["psn"],
                 }
             )
             items.append(temp)
@@ -3036,11 +3051,6 @@ def validate_securities_for_sell_collateral(securities, loan_name):
     folio_list = []
     folio_clause = ""
     for i in securities:
-        if "date_of_pledge" not in i.keys() or not i.get("date_of_pledge"):
-            securities_valid = False
-            message = frappe._("Pledge date not present")
-            break
-
         if loan.instrument_type == "Mutual Fund":
             if "folio" not in i.keys() or not i.get("folio"):
                 securities_valid = False
@@ -3048,6 +3058,11 @@ def validate_securities_for_sell_collateral(securities, loan_name):
                 break
             duplicate_securities_list.append("{}{}".format(i["isin"], i["folio"]))
             folio_list.append(i["folio"])
+        else:
+            if "psn" not in i.keys() or not i.get("psn"):
+                securities_valid = False
+                message = frappe._("psn not present")
+                break
 
     if folio_list:
         folio_clause = " and folio in {}".format(
