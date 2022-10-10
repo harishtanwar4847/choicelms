@@ -3,7 +3,7 @@
 
 frappe.ui.form.on("Spark Offline Customer Log", {
   refresh: function (frm) {
-    if (frm.doc.status != "Success") {
+    if (frm.doc.status == "Success") {
       frm.set_df_property("doc_status_section", "read_only", 1);
       frm.set_df_property("user_details_section", "read_only", 1);
       frm.set_df_property("customer_details_section", "read_only", 1);

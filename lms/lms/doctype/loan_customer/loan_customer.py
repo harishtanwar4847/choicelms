@@ -134,7 +134,7 @@ def loan_customer_template():
                 "Mobile Number",
                 "Email id",
                 "Pan No",
-                "DOB",
+                "DOB (dd-mm-yyyy)",
                 "CKYC No",
                 "Bank",
                 "Branch",

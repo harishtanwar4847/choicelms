@@ -105,20 +105,15 @@ def retry_process(doc_name):
         message = ""
         alphanum_regex = "^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]+$"
         pan_regex = "[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"
-        print("PAn")
         if (re.search(pan_regex, doc.pan_no) is None) or (
             re.search(alphanum_regex, doc.ifsc) is None
         ):
-            print("Inside pan")
             message += "Please enter valid Pan No or IFSC code.\n"
 
         # Validation for CKYC number and IFSC code
-        print("Account")
         if (doc.ckyc_no.isnumeric() == False) or (doc.account_no.isnumeric() == False):
-            print("INside ccount")
             message += "Please enter valid CKYC Number or Account Number.\n"
 
-        print("BEfor if")
         if (
             (
                 (re.search(pan_regex, doc.pan_no) is None)
