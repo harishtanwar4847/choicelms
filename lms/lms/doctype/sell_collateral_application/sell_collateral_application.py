@@ -104,7 +104,7 @@ class SellCollateralApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.date_of_pledge if i.date_of_pledge else "",
+                i.psn if i.psn else "",
             ): i.price
             for i in self.items
         }
@@ -112,7 +112,7 @@ class SellCollateralApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.date_of_pledge if i.date_of_pledge else "",
+                i.psn if i.psn else "",
             ): 0
             for i in self.items
         }
@@ -121,7 +121,7 @@ class SellCollateralApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.date_of_pledge if i.date_of_pledge else "",
+                i.psn if i.psn else "",
             ): i.quantity
             for i in self.items
         }
@@ -136,7 +136,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.date_of_pledge if i.date_of_pledge else "",
+                i.psn if i.psn else "",
             )
             if i.sell_quantity > i.quantity:
                 frappe.throw(
@@ -177,7 +177,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.date_of_pledge if i.date_of_pledge else "",
+                i.psn if i.psn else "",
             )
             if sell_quantity_map.get(isin_folio_combo) > i.quantity:
                 frappe.throw(
@@ -202,7 +202,7 @@ class SellCollateralApplication(Document):
             "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.date_of_pledge if i.date_of_pledge else "",
+                i.psn if i.psn else "",
             ): 0
             for i in self.items
         }
@@ -213,7 +213,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.date_of_pledge if i.date_of_pledge else "",
+                i.psn if i.psn else "",
             )
             sell_quantity_map[isin_folio_combo] = (
                 sell_quantity_map[isin_folio_combo] + i.sell_quantity
@@ -223,7 +223,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.date_of_pledge if i.date_of_pledge else "",
+                i.psn if i.psn else "",
             )
             # print(sell_quantity_map.get(i.isin), i.quantity)
             if sell_quantity_map.get(isin_folio_combo) < i.quantity:
@@ -660,9 +660,7 @@ def get_collateral_details(sell_collateral_application_name):
     )
     loan = doc.get_loan()
     isin_list = [i.isin for i in doc.items]
-    date_of_pledge = lms.convert_list_to_tuple_string(
-        [i.date_of_pledge for i in doc.items]
-    )
+    psn = lms.convert_list_to_tuple_string([i.psn for i in doc.items])
     folio_clause = (
         " and cl.folio IN {}".format(
             lms.convert_list_to_tuple_string([i.folio for i in doc.items])
@@ -672,10 +670,10 @@ def get_collateral_details(sell_collateral_application_name):
     )
     return loan.get_collateral_list(
         group_by_psn=True,
-        where_clause="and cl.isin IN {}{} and cl.date_of_pledge IN {date_of_pledge}".format(
+        where_clause="and cl.isin IN {}{} and cl.psn IN {psn}".format(
             lms.convert_list_to_tuple_string(isin_list),
             folio_clause,
-            date_of_pledge=date_of_pledge,
+            psn=psn,
         ),
         having_clause=" HAVING quantity > 0",
     )
@@ -793,7 +791,7 @@ def validate_invoc(sell_collateral_application_name):
 
                     for i in sell_collateral_application_doc.sell_items:
                         isin_folio_combo = "{}{}{}".format(
-                            i.get("isin"), i.get("folio"), i.get("date_of_pledge")
+                            i.get("isin"), i.get("folio"), i.get("psn")
                         )
                         if isin_folio_combo in isin_details:
                             i.invoke_validate_remarks = isin_details.get(
@@ -931,7 +929,7 @@ def initiate_invoc(sell_collateral_application_name):
 
                     for i in sell_collateral_application_doc.sell_items:
                         isin_folio_combo = "{}{}".format(
-                            i.get("isin"), i.get("folio"), i.get("date_of_pledge")
+                            i.get("isin"), i.get("folio"), i.get("psn")
                         )
                         if isin_folio_combo in isin_details:
                             i.invoke_initiate_remarks = isin_details.get(

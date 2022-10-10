@@ -540,7 +540,7 @@ class Loan(Document):
         # sauce: https://stackoverflow.com/a/23827026/9403680
         sql = """
 			SELECT
-				cl.loan, cl.isin, cl.psn, cl.pledgor_boid, cl.pledgee_boid , cl.date_of_pledge, cl.prf, cl.scheme_code, cl.folio, cl.amc_code,
+				cl.loan, cl.isin, cl.psn, cl.pledgor_boid, cl.pledgee_boid , cl.prf, cl.scheme_code, cl.folio, cl.amc_code,
 				s.price, s.security_name,
                 (select sc.category_name from `tabSecurity Category` sc  where sc.name = als.security_category) as security_category
 				, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
