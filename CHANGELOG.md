@@ -6,13 +6,13 @@
 
 ## Fixed
 
-- [Fix: Name match with penny registered name fix](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/533)
+- [Fix: Name match with penny registered name fix](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/536)
 
 ## [v5.5.2-uat]
 
 ## Fixed
 
-- [Fix: OTP on Email fixed](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/536)
+- [Fix: OTP on Email fixed](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/533)
 
 ## [v5.5.1-uat]
 
