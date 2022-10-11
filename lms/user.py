@@ -4265,13 +4265,13 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
         account_status = data_res.get("results").get("account_status")
         if data_res.get("status") == "completed" and account_status == "active":
             # name validation - check user entered account holder name is same with registered name
-            account_holder_name = (
-                data_res.get("fund_account")
-                .get("bank_account")
-                .get("name")
-                .lower()
-                .split(" ")
-            )
+            # account_holder_name = (
+            #     data_res.get("fund_account")
+            #     .get("bank_account")
+            #     .get("name")
+            #     .lower()
+            #     .split(" ")
+            # )
             registered_name = data_res.get("results").get("registered_name").lower()
             account_status = data_res.get("results").get("account_status")
             photos_ = lms.upload_image_to_doctype(
@@ -4284,9 +4284,7 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                 img_folder="personalized_cheque",
             )
 
-            if (account_holder_name[0] in registered_name) or (
-                account_holder_name[1] in registered_name
-            ):
+            if user_kyc.fname.lower().split(" ")[0] in registered_name:
 
                 message = "Your account details have been successfully verified"
 
