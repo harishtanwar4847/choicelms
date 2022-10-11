@@ -110,7 +110,8 @@
    "fieldname": "pan_no",
    "fieldtype": "Data",
    "label": "PAN No",
-   "length": 10
+   "length": 10,
+   "reqd": 1
   },
   {
    "fieldname": "kyc_type",
@@ -149,7 +150,8 @@
   {
    "fieldname": "date_of_birth",
    "fieldtype": "Date",
-   "label": "Date Of Birth"
+   "label": "Date Of Birth",
+   "reqd": 1
   },
   {
    "fieldname": "bank_account_section_break",
@@ -701,7 +703,7 @@
   }
  ],
  "links": [],
- "modified": "2022-08-05 14:44:50.289832",
+ "modified": "2022-10-03 17:07:55.582515",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
