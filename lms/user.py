@@ -4120,41 +4120,83 @@ def penny_create_fund_account_validation(**kwargs):
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
             bytes(las_settings.razorpay_key_secret, "utf-8")
         ).decode("ascii")
-        print("razorpay_key_secret_auth", razorpay_key_secret_auth)
         try:
-            data_rzp = {
-                "account_number": las_settings.razorpay_bank_account,
-                "fund_account": {"id": data.get("fa_id")},
-                "amount": 100,
-                "currency": "INR",
-                "notes": {
-                    "branch": data.get("branch"),
-                    "city": data.get("city"),
-                    "bank_account_type": data.get("bank_account_type"),
-                },
-            }
-            print("data_rzp", data_rzp)
-            url = las_settings.pennydrop_create_fund_account_validation
-            print("url", url)
-            headers = {
-                "Authorization": razorpay_key_secret_auth,
-                "content-type": "application/json",
-            }
-            raw_res = requests.post(
-                url=url,
-                headers=headers,
-                data=json.dumps(data_rzp),
-            )
+            # For penny Dummy testing of success flow
+            if "rzp_test_" in las_settings.razorpay_key_secret:
+                data_res = {
+                    "id": "fav_JpHg4DC2VJ80Zw",
+                    "entity": "fund_account.validation",
+                    "fund_account": {
+                        "id": data.get("fa_id"),
+                        "entity": "fund_account",
+                        "contact_id": "cont_JpHHIYu00BTzNL",
+                        "account_type": "bank_account",
+                        "bank_account": {
+                            "ifsc": "ICIC0000004",
+                            "bank_name": "ICICI Bank",
+                            "name": "Choice Finserv private limited",
+                            "notes": [],
+                            "account_number": "000405112505",
+                        },
+                        "batch_id": None,
+                        "active": True,
+                        "created_at": 1656935250,
+                        "details": {
+                            "ifsc": "ICIC0000004",
+                            "bank_name": "ICICI Bank",
+                            "name": "Choice Finserv private limited",
+                            "notes": [],
+                            "account_number": "000405112505",
+                        },
+                    },
+                    "status": "completed",
+                    "amount": 100,
+                    "currency": "INR",
+                    "notes": {
+                        "branch": data.get("branch"),
+                        "city": data.get("city"),
+                        "bank_account_type": data.get("bank_account_type"),
+                    },
+                    "results": {
+                        "account_status": "active",
+                        "registered_name": user_kyc.fname,
+                    },
+                    "created_at": 1656936646,
+                    "utr": None,
+                }
+            else:
+                # for live penny account validation
+                data_rzp = {
+                    "account_number": las_settings.razorpay_bank_account,
+                    "fund_account": {"id": data.get("fa_id")},
+                    "amount": 100,
+                    "currency": "INR",
+                    "notes": {
+                        "branch": data.get("branch"),
+                        "city": data.get("city"),
+                        "bank_account_type": data.get("bank_account_type"),
+                    },
+                }
+                url = las_settings.pennydrop_create_fund_account_validation
+                headers = {
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                }
+                raw_res = requests.post(
+                    url=url,
+                    headers=headers,
+                    data=json.dumps(data_rzp),
+                )
 
-            data_res = raw_res.json()
-            log = {
-                "url": las_settings.pennydrop_create_fund_account_validation,
-                "headers": headers,
-                "request": data_rzp,
-                "response": data_res,
-            }
+                data_res = raw_res.json()
+                log = {
+                    "url": las_settings.pennydrop_create_fund_account_validation,
+                    "headers": headers,
+                    "request": data_rzp,
+                    "response": data_res,
+                }
 
-            lms.create_log(log, "rzp_pennydrop_create_fund_account_validation")
+                lms.create_log(log, "rzp_pennydrop_create_fund_account_validation")
 
             penny_api_response_handle(
                 data,
@@ -4296,13 +4338,13 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
         account_status = data_res.get("results").get("account_status")
         if data_res.get("status") == "completed" and account_status == "active":
             # name validation - check user entered account holder name is same with registered name
-            account_holder_name = (
-                data_res.get("fund_account")
-                .get("bank_account")
-                .get("name")
-                .lower()
-                .split(" ")
-            )
+            # account_holder_name = (
+            #     data_res.get("fund_account")
+            #     .get("bank_account")
+            #     .get("name")
+            #     .lower()
+            #     .split(" ")
+            # )
             registered_name = data_res.get("results").get("registered_name").lower()
             account_status = data_res.get("results").get("account_status")
             photos_ = lms.upload_image_to_doctype(
@@ -4315,10 +4357,7 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                 img_folder="personalized_cheque",
             )
 
-            if (account_holder_name[0] in registered_name) or (
-                account_holder_name[1] in registered_name
-            ):
-
+            if user_kyc.fname.lower() in registered_name:
                 message = "Your account details have been successfully verified"
 
                 # check bank Entry existence. if not exist then create entry
