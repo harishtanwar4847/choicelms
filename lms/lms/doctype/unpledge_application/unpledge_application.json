@@ -34,7 +34,8 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Loan Account No.",
-   "options": "Loan"
+   "options": "Loan",
+   "reqd": 1
   },
   {
    "fieldname": "items",
@@ -54,7 +55,8 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Lender",
-   "options": "Lender"
+   "options": "Lender",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_1",
@@ -78,7 +80,8 @@
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
-   "options": "Loan Customer"
+   "options": "Loan Customer",
+   "reqd": 1
   },
   {
    "fieldname": "amended_from",
@@ -100,6 +103,7 @@
    "options": "Unpledge Application Unpledged Item"
   },
   {
+   "fetch_from": "customer.full_name",
    "fieldname": "customer_name",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -124,7 +128,8 @@
    "fieldtype": "Select",
    "label": "Instrument Type",
    "options": "Shares\nMutual Fund",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "default": "0",
@@ -139,6 +144,7 @@
    "fieldname": "scheme_type",
    "fieldtype": "Select",
    "label": "Scheme Type",
+   "mandatory_depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
    "options": "\nEquity\nDebt",
    "read_only": 1
   },
@@ -181,7 +187,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-10-04 18:03:14.709175",
+ "modified": "2022-10-11 15:07:35.653231",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Unpledge Application",

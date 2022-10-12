@@ -28,12 +28,24 @@ class UnpledgeApplication(Document):
             user_role.append(i[0])
         if "Loan Customer" not in user_role:
             loan = self.get_loan()
+            print("Loan Nno.", loan)
             self.instrument_type = loan.instrument_type
             if self.instrument_type == "Mutual Fund":
                 self.scheme_type = loan.scheme_type
 
     def before_save(self):
         loan = self.get_loan()
+        # user_roles = frappe.db.get_values(
+        #     "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
+        # )
+        # user_role = []
+        # for i in list(user_roles):
+        #     user_role.append(i[0])
+        # if "Loan Customer" not in user_role:
+        #     sell_doc = frappe.get_all("Sell Collateral Application", filters = {"status": "Pending", "loan" : loan.name}, fields = ["*"])
+        #     for i in sell_doc:
+        #         for j in i.items:
+        #             if j.isin ==
         self.actual_drawing_power = loan.actual_drawing_power
         loan_margin_shortfall = frappe.get_all(
             "Loan Margin Shortfall",
@@ -523,11 +535,14 @@ def get_collateral_details(unpledge_application_name):
         if doc.instrument_type == "Mutual Fund"
         else ""
     )
-    psn = lms.convert_list_to_tuple_string([i.psn for i in doc.items])
+    psn = "and cl.psn IN {}".format(
+        lms.convert_list_to_tuple_string([i.psn for i in doc.items])
+    )
+    psn = psn if doc.instrument_type == "Shares" else ""
     print("psn", psn)
     return loan.get_collateral_list(
         group_by_psn=True,
-        where_clause="and cl.isin IN {}{} and cl.psn IN {psn}".format(
+        where_clause="and cl.isin IN {}{}{psn}".format(
             lms.convert_list_to_tuple_string(isin_list),
             folio_clause,
             psn=psn,
