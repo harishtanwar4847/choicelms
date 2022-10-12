@@ -2576,7 +2576,7 @@ def create_user_customer(upload_file):
 def penny_call_create_contact(user=None, customer=None, user_kyc=None):
     try:
         try:
-            print("user", user)
+            # print("user", user)
             # print("customer1",customer)
             # print("kyc",user_kyc)
             user_name = user
@@ -2648,7 +2648,7 @@ def penny_call_create_contact(user=None, customer=None, user_kyc=None):
 
             # update contact ID
             contact_id = data_res.get("id")
-            print("user_kyc", contact_id)
+            # print("user_kyc", contact_id)
             create_log(data_res, "rzp_penny_contact_success_log")
             return contact_id
             # user_kyc.save(ignore_permissions=True)
@@ -2695,9 +2695,9 @@ def call_penny_create_fund_account(
 
         # check user
         try:
-            print("user", user)
+            # print("user", user)
             user_name = user
-            print("user_name", user_name)
+            # print("user_name", user_name)
             if not user:
                 user = __user()
                 user_name = user.name
@@ -2722,7 +2722,7 @@ def call_penny_create_fund_account(
 
         try:
             user_kyc = __user_kyc(user_name)
-            print("user_kyc", user_kyc)
+            # print("user_kyc", user_kyc)
         except UserKYCNotFoundException:
             # return utils.respondWithFailure(message=frappe._("User KYC not found"))
             return "User KYC not found"
@@ -2782,6 +2782,7 @@ def call_penny_create_fund_account_validation(
     city=None,
     personalized_cheque=None,
 ):
+    # print("inside call_penny_create_fund_account_validation")
     try:
         # utils.validator.validate_http_method("POST")
         # data = utils.validator.validate(
@@ -2797,9 +2798,9 @@ def call_penny_create_fund_account_validation(
 
         # check user
         try:
-            print("user", user)
+            # print("user", user)
             user_name = user
-            print("user_name", user_name)
+            # print("user_name", user_name)
             if not user:
                 user = __user()
                 user_name = user.name
@@ -2811,14 +2812,15 @@ def call_penny_create_fund_account_validation(
         customer = __customer(user_name)
         if not customer:
             # return utils.respondNotFound(message=frappe._("Customer not found."))
-            raise exceptions.NotFoundException(_("Customer not found"))
+            return "Customer not found"
 
         # user KYC
         try:
             user_kyc = __user_kyc(user_name)
         except UserKYCNotFoundException:
             # return utils.respondWithFailure(message=frappe._("User KYC not found"))
-            raise exceptions.RespondWithFailureException(_("User KYC not found"))
+            # raise exceptions.RespondWithFailureException(_("User KYC not found"))
+            return "User KYC not found"
 
         # fetch rzp key secret from las settings and use Basic auth
         las_settings = frappe.get_single("LAS Settings")
@@ -2842,53 +2844,261 @@ def call_penny_create_fund_account_validation(
             bytes(las_settings.razorpay_key_secret, "utf-8")
         ).decode("ascii")
 
+        data = {
+            "fa_id": create_fund_acc,
+            "bank_account_type": account_type,
+            "branch": branch,
+            "city": city,
+            "personalized_cheque": personalized_cheque,
+        }
         try:
-            data_rzp = {
-                "account_number": las_settings.razorpay_bank_account,
-                "fund_account": {"id": create_fund_acc},
-                "amount": 100,
-                "currency": "INR",
-                "notes": {
-                    "branch": branch,
-                    "city": city,
-                    "bank_account_type": account_type,
-                },
-            }
-            url = las_settings.pennydrop_create_fund_account_validation
-            headers = {
-                "Authorization": razorpay_key_secret_auth,
-                "content-type": "application/json",
-            }
-            raw_res = requests.post(
-                url=url,
-                headers=headers,
-                data=json.dumps(data_rzp),
-            )
+            # print("inside try")
+            if "rzp_test_" in las_settings.razorpay_key_secret:
+                # print("inside try if")
+                data_res = {
+                    "id": "fav_JpHg4DC2VJ80Zw",
+                    "entity": "fund_account.validation",
+                    "fund_account": {
+                        "id": data.get("fa_id"),
+                        "entity": "fund_account",
+                        "contact_id": "cont_JpHHIYu00BTzNL",
+                        "account_type": "bank_account",
+                        "bank_account": {
+                            "ifsc": "ICIC0000004",
+                            "bank_name": "ICICI Bank",
+                            "name": "Choice Finserv private limited",
+                            "notes": [],
+                            "account_number": "000405112505",
+                        },
+                        "batch_id": None,
+                        "active": True,
+                        "created_at": 1656935250,
+                        "details": {
+                            "ifsc": "ICIC0000004",
+                            "bank_name": "ICICI Bank",
+                            "name": "Choice Finserv private limited",
+                            "notes": [],
+                            "account_number": "000405112505",
+                        },
+                    },
+                    "status": "created",
+                    "amount": 100,
+                    "currency": "INR",
+                    "notes": {
+                        "branch": data.get("branch"),
+                        "city": data.get("city"),
+                        "bank_account_type": data.get("bank_account_type"),
+                    },
+                    "results": {
+                        "account_status": "active",
+                        "registered_name": user_kyc.fname,
+                    },
+                    "created_at": 1656936646,
+                    "utr": None,
+                }
 
-            data_res = raw_res.json()
-            log = {
-                "url": las_settings.pennydrop_create_fund_account_validation,
-                "headers": headers,
-                "request": data_rzp,
-                "response": data_res,
-            }
+            else:
+                data_rzp = {
+                    "account_number": las_settings.razorpay_bank_account,
+                    "fund_account": {"id": create_fund_acc},
+                    "amount": 100,
+                    "currency": "INR",
+                    "notes": {
+                        "branch": branch,
+                        "city": city,
+                        "bank_account_type": account_type,
+                    },
+                }
+                url = las_settings.pennydrop_create_fund_account_validation
+                headers = {
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                }
+                raw_res = requests.post(
+                    url=url,
+                    headers=headers,
+                    data=json.dumps(data_rzp),
+                )
 
-            create_log(log, "rzp_pennydrop_create_fund_account_validation")
-            data = {
-                "fa_id": create_fund_acc,
-                "bank_account_type": account_type,
-                "branch": branch,
-                "city": city,
-                "personalized_cheque": personalized_cheque,
-            }
+                data_res = raw_res.json()
+                log = {
+                    "url": las_settings.pennydrop_create_fund_account_validation,
+                    "headers": headers,
+                    "request": data_rzp,
+                    "response": data_res,
+                }
 
-            penny_api_response_handle(
+                create_log(log, "rzp_pennydrop_create_fund_account_validation")
+
+            penny_handle = penny_api_response_handle(
                 data,
                 user_kyc,
                 customer,
                 data_res,
                 personalized_cheque=personalized_cheque,
             )
+            # print("penny_handle",penny_handle)
+            return penny_handle
+        except requests.RequestException as e:
+            raise utils.exceptions.APIException(str(e))
+
+    except utils.exceptions.APIException as e:
+        log_api_error()
+        frappe.log_error(
+            title="Penny Drop Create fund account validation Error",
+            message=frappe.get_traceback()
+            + "\n\nPenny Drop Create fund account validation Error: "
+            + str(e.args),
+        )
+        return e.respond()
+
+
+def call_penny_create_fund_account_validation_by_id(
+    user=None,
+    fav_id=None,
+    personalized_cheque=None,
+):
+    try:
+        print("user", user)
+        print("fav_id", fav_id)
+        print("personalized_cheque", personalized_cheque)
+        # utils.validator.validate_http_method("POST")
+        # data = utils.validator.validate(
+        #     kwargs,
+        #     {
+        #         "fav_id": "required",
+        #         "personalized_cheque": "required",
+        #     },
+        # )
+        # check user
+        # try:
+        #     user = lms.__user()
+        # except UserNotFoundException:
+        #     # return utils.respondNotFound(message=frappe._("User not found."))
+        #     raise lms.exceptions.NotFoundException(_("User not found"))
+
+        try:
+            # print("user", user)
+            user_name = user
+            # print("user_name", user_name)
+            if not user:
+                user = __user()
+                user_name = user.name
+        except UserNotFoundException:
+            # return utils.respondNotFound(message=frappe._("User not found."))
+            data = {"message": "User not found"}
+            return data
+
+        # check Loan Customer
+        customer = __customer(user_name)
+        if not customer:
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            # raise exceptions.NotFoundException(_("Customer not found"))
+            data = {"message": "Customer not found"}
+            return data
+
+        # user KYC
+        try:
+            user_kyc = __user_kyc(user_name)
+        except UserKYCNotFoundException:
+            # return utils.respondWithFailure(message=frappe._("User KYC not found"))
+            # raise exceptions.RespondWithFailureException(_("User KYC not found"))
+            data = {"message": "User KYC not found"}
+            return data
+
+        # fetch rzp key secret from las settings and use Basic auth
+        las_settings = frappe.get_single("LAS Settings")
+        if not las_settings.razorpay_key_secret:
+            frappe.log_error(
+                title="Penny Drop Fund Account Validation Error",
+                message="Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing",
+            )
+            # return utils.respondWithFailure()
+            # raise exceptions.RespondWithFailureException()
+            return (
+                "Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing"
+            )
+
+        razorpay_key_secret_auth = "Basic " + base64.b64encode(
+            bytes(las_settings.razorpay_key_secret, "utf-8")
+        ).decode("ascii")
+
+        try:
+            data = {"fav_id": fav_id}
+            if "rzp_test_" in las_settings.razorpay_key_secret:
+                data_res = {
+                    "id": "fav_JpHg4DC2VJ80Zw",
+                    "entity": "fund_account.validation",
+                    "fund_account": {
+                        # "id": data.get("fa_id"),
+                        "entity": "fund_account",
+                        "contact_id": "cont_JpHHIYu00BTzNL",
+                        "account_type": "bank_account",
+                        "bank_account": {
+                            "ifsc": "ICIC0000004",
+                            "bank_name": "ICICI Bank",
+                            "name": "Choice Finserv private limited",
+                            "notes": [],
+                            "account_number": "000405112505",
+                        },
+                        "batch_id": None,
+                        "active": True,
+                        "created_at": 1656935250,
+                        "details": {
+                            "ifsc": "ICIC0000004",
+                            "bank_name": "ICICI Bank",
+                            "name": "Choice Finserv private limited",
+                            "notes": [],
+                            "account_number": "000405112505",
+                        },
+                    },
+                    "status": "completed",
+                    "amount": 100,
+                    "currency": "INR",
+                    "notes": {
+                        # "branch": data.get("branch"),
+                        # "city": data.get("city"),
+                        # "bank_account_type": data.get("bank_account_type"),
+                    },
+                    "results": {
+                        "account_status": "active",
+                        "registered_name": user_kyc.fname,
+                    },
+                    "created_at": 1656936646,
+                    "utr": None,
+                }
+            else:
+                url = (
+                    las_settings.pennydrop_create_fund_account_validation_id
+                    + "/{}".format(data.get("fav_id"))
+                )
+                headers = {
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                }
+                raw_res = requests.get(
+                    url=url,
+                    headers=headers,
+                )
+
+                data_res = raw_res.json()
+                log = {
+                    "url": url,
+                    "headers": headers,
+                    "request": data,
+                    "response": data_res,
+                }
+
+                # create_log(log, "rzp_pennydrop_create_fund_account_validation_by_id")
+            validation_by_id = penny_api_response_handle(
+                data,
+                user_kyc,
+                customer,
+                data_res,
+                personalized_cheque=personalized_cheque,
+            )
+            print("validation_by_id", validation_by_id)
+            return validation_by_id
 
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
@@ -2907,6 +3117,7 @@ def call_penny_create_fund_account_validation(
 def penny_api_response_handle(
     data, user_kyc, customer, data_res, personalized_cheque=None
 ):
+    print("penny_api_response_handle", personalized_cheque)
     try:
         data_resp = {
             "fav_id": data_res.get("id"),
@@ -2921,26 +3132,31 @@ def penny_api_response_handle(
             }
             create_log(log, "rzp_penny_fund_account_validation_error_log")
             # raise utils.respondWithFailure(message=message)
-            raise exceptions.RespondWithFailureException(message=message)
+            # raise exceptions.RespondWithFailureException(message=message)
+            return "Your account details have not been successfully verified"
 
         if data_res.get("status") == "failed":
-            message = "Your account details have not been successfully verified"
+            data = {
+                "message": "Your account details have not been successfully verified"
+            }
+            return data
             # return utils.respondWithFailuremessage=message, data=data_resp)
             # raise exceptions.RespondFailureException(message, data_resp)
 
         if data_res.get("status") == "created":
-            message = "waiting for response from bank"
+            data = {"message": "waiting for response from bank"}
+            return data
 
         account_status = data_res.get("results").get("account_status")
         if data_res.get("status") == "completed" and account_status == "active":
             # name validation - check user entered account holder name is same with registered name
-            account_holder_name = (
-                data_res.get("fund_account")
-                .get("bank_account")
-                .get("name")
-                .lower()
-                .split(" ")
-            )
+            # account_holder_name = (
+            #     data_res.get("fund_account")
+            #     .get("bank_account")
+            #     .get("name")
+            #     .lower()
+            #     .split(" ")
+            # )
             registered_name = data_res.get("results").get("registered_name").lower()
             account_status = data_res.get("results").get("account_status")
             photos_ = personalized_cheque
@@ -2955,9 +3171,7 @@ def penny_api_response_handle(
                     img_folder="personalized_cheque",
                 )
 
-            if (account_holder_name[0] in registered_name) or (
-                account_holder_name[1] in registered_name
-            ):
+            if user_kyc.fname.lower() in registered_name:
 
                 message = "Your account details have been successfully verified"
 
@@ -3023,7 +3237,7 @@ def penny_api_response_handle(
                                 "bank_status": "Pending",
                             }
                         ).insert(ignore_permissions=True)
-                        frappe.db.commit()
+                        # frappe.db.commit()
                     else:
                         # For existing choice bank entries
                         bank_account = frappe.get_doc(
@@ -3072,19 +3286,32 @@ def penny_api_response_handle(
                     ).insert(ignore_permissions=True)
                     frappe.db.commit()
             else:
+                print("inside inside else")
                 data_resp["status"] = "failed"
-                message = "We have found a mismatch in the account holder name as per the fetched data"
-                return data_resp
+                data = {
+                    # "fav_id":data_res.get("id"),
+                    # "status":data_resp["status"],
+                    "data_resp": data_resp,
+                    "message": "We have found a mismatch in the account holder name as per the fetched data",
+                }
+                return data
                 # raise exceptions.RespondFailureException(message, data_resp)
         else:
+            print("inside else")
             data_resp["status"] = "failed"
-            message = "Your account details have not been successfully verified"
-            return data_resp
+            data = {
+                "data_resp": data_resp,
+                "message": "Your account details have not been successfully verified",
+            }
+            # message = "Your account details have not been successfully verified"
+            return data
             # raise exceptions.RespondFailureException(message, data_resp)
 
         create_log(data_res, "rzp_penny_fund_account_validation_success_log")
-        print("return", data_resp)
-        return data_resp
+        print("data_res", data_res)
+        akask = "akash"
+        # return utils.respondWithSuccess(message=message, data=data_res)
+        return data_res
     except utils.exceptions.APIException as e:
         log_api_error(
             str(message if message else "")
