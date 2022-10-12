@@ -37,13 +37,15 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Loan Account No.",
-   "options": "Loan"
+   "options": "Loan",
+   "reqd": 1
   },
   {
    "fieldname": "top_up_amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Top up Amount"
+   "label": "Top up Amount",
+   "reqd": 1
   },
   {
    "fieldname": "time",
@@ -65,7 +67,8 @@
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
-   "options": "Loan Customer"
+   "options": "Loan Customer",
+   "reqd": 1
   },
   {
    "fetch_from": "customer.full_name",
@@ -123,7 +126,8 @@
   {
    "fieldname": "expiry_date",
    "fieldtype": "Date",
-   "label": "Expiry Date"
+   "label": "Expiry Date",
+   "reqd": 1
   },
   {
    "fieldname": "section_break_17",
@@ -133,7 +137,8 @@
    "fieldname": "lender",
    "fieldtype": "Link",
    "label": "Lender",
-   "options": "Lender"
+   "options": "Lender",
+   "reqd": 1
   },
   {
    "fieldname": "minimum_sanctioned_limit",
@@ -156,13 +161,15 @@
    "fieldname": "instrument_type",
    "fieldtype": "Select",
    "label": "Instrument Type",
-   "options": "Shares\nMutual Fund"
+   "options": "Shares\nMutual Fund",
+   "read_only": 1
   },
   {
    "depends_on": "eval:doc.instrument_type==\"Mutual Fund\";",
    "fieldname": "scheme_type",
    "fieldtype": "Select",
    "label": "Scheme Type",
+   "mandatory_depends_on": "eval:doc.instrument_type==\"Mutual Fund\";",
    "options": "\nEquity\nDebt"
   },
   {
@@ -175,7 +182,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-10-04 12:33:03.573350",
+ "modified": "2022-10-12 12:16:23.032230",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Top up Application",

@@ -28,7 +28,6 @@ class UnpledgeApplication(Document):
             user_role.append(i[0])
         if "Loan Customer" not in user_role:
             loan = self.get_loan()
-            print("Loan Nno.", loan)
             self.instrument_type = loan.instrument_type
             if self.instrument_type == "Mutual Fund":
                 self.scheme_type = loan.scheme_type
