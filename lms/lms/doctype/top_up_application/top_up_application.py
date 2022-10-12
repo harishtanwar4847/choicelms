@@ -636,6 +636,18 @@ class TopupApplication(Document):
         lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
+        user_roles = frappe.db.get_values(
+            "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
+        )
+        user_role = []
+        for i in list(user_roles):
+            user_role.append(i[0])
+        if "Loan Customer" not in user_role:
+            updated_top_up_amt = loan.max_topup_amount()
+            if not updated_top_up_amt or updated_top_up_amt < self.top_up_amount:
+                frappe.throw("Top up not available")
+            if self.top_up_amount <= 0:
+                frappe.throw("Top up can not be approved with Amount Rs. 0")
 
 
 def only_pdf_upload(doc, method):
