@@ -644,6 +644,8 @@ class TopupApplication(Document):
             user_role.append(i[0])
         if "Loan Customer" not in user_role:
             updated_top_up_amt = loan.max_topup_amount()
+            self.customer = loan.customer
+            self.customer_name = loan.customer_name
             if not updated_top_up_amt or updated_top_up_amt < self.top_up_amount:
                 frappe.throw("Top up not available")
             if self.top_up_amount <= 0:

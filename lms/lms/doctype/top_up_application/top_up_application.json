@@ -68,14 +68,15 @@
    "fieldtype": "Link",
    "label": "Customer",
    "options": "Loan Customer",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fetch_from": "customer.full_name",
    "fieldname": "customer_name",
    "fieldtype": "Read Only",
    "in_list_view": 1,
-   "label": "Customer Name"
+   "label": "Customer Name",
+   "read_only": 1
   },
   {
    "fieldname": "customer_esigned_document",
@@ -182,7 +183,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-10-12 12:16:23.032230",
+ "modified": "2022-10-12 16:54:50.933606",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Top up Application",
