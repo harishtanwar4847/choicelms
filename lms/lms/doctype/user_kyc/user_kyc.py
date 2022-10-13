@@ -146,8 +146,14 @@ class UserKYC(Document):
                 contact_id = lms.penny_call_create_contact(user[0].name)
                 if contact_id == "failed":
                     frappe.throw("failed")
+                elif contact_id.get("message") == "User not found":
+                    frappe.throw("User not found")
+
+                elif contact_id.get("message") == "Customer not found":
+                    frappe.throw("Customer not found")
+
                 elif (
-                    contact_id
+                    contact_id.get("message")
                     == "Penny Drop Create contact Error - Razorpay Key Secret Missing"
                 ):
                     frappe.throw(
@@ -161,10 +167,17 @@ class UserKYC(Document):
                 create_fund_acc = lms.call_penny_create_fund_account(
                     user[0].name, ifsc, account_number, account_holder_name
                 )
-                if create_fund_acc == "failed":
+                if create_fund_acc.get("message") == "failed":
                     frappe.throw("failed")
+
+                elif create_fund_acc.get("message") == "Special Characters not allowed":
+                    frappe.throw("Special Characters not allowed")
+
+                elif create_fund_acc.get("message") == "User not found":
+                    frappe.throw("User not found")
+
                 elif (
-                    create_fund_acc
+                    create_fund_acc.get("message")
                     == "Penny Drop Fund Account Error - Razorpay Key Secret Missing"
                 ):
                     frappe.throw(
@@ -179,10 +192,17 @@ class UserKYC(Document):
                 create_fund_acc = lms.call_penny_create_fund_account(
                     user[0].name, ifsc, account_number, account_holder_name
                 )
-                if create_fund_acc == "failed":
+                if create_fund_acc.get("message") == "failed":
                     frappe.throw("failed")
+
+                elif create_fund_acc.get("message") == "Special Characters not allowed":
+                    frappe.throw("Special Characters not allowed")
+
+                elif create_fund_acc.get("message") == "User not found":
+                    frappe.throw("User not found")
+
                 elif (
-                    create_fund_acc
+                    create_fund_acc.get("message")
                     == "Penny Drop Fund Account Error - Razorpay Key Secret Missing"
                 ):
                     frappe.throw(
@@ -198,18 +218,26 @@ class UserKYC(Document):
                         city,
                     )
                     print("fund_acc_validation", fund_acc_validation)
-                    if fund_acc_validation == "failed":
+                    if fund_acc_validation.get("message") == "failed":
                         frappe.throw("Failed")
 
                     # elif (fund_acc_validation == "waiting for response from bank"):
                     #     frappe.throw("waiting for response from bank")
 
                     elif (
-                        fund_acc_validation
+                        fund_acc_validation.get("message")
                         == "Penny Drop Fund Account Error - Razorpay Key Secret Missing"
                     ):
                         frappe.throw(
                             "Penny Drop Fund Account Error - Razorpay Key Secret Missing"
+                        )
+
+                    elif (
+                        fund_acc_validation.get("message")
+                        == "Penny Drop Fund Account Validation Error - Razorpay Bank Account Missing"
+                    ):
+                        frappe.throw(
+                            "Penny Drop Fund Account Validation Error - Razorpay Bank Account Missing"
                         )
 
                     elif (
@@ -241,6 +269,20 @@ class UserKYC(Document):
                             i.bank_status = "Pending"
                             i.save(ignore_permissions=True)
                             frappe.db.commit()
+                            offline_cust = frappe.get_all(
+                                "Spark Offline Customer Log",
+                                filters={
+                                    "ckyc_status": "Success",
+                                    "email_id": user[0].name,
+                                },
+                                fields=["name"],
+                            )
+                            doc = frappe.get_doc(
+                                "Spark Offline Customer Log", offline_cust[0].name
+                            )
+                            doc.bank_status = "Success"
+                            doc.save(ignore_permissions=True)
+                            frappe.db.commit()
 
                         else:
                             validation_by_id = (
@@ -255,12 +297,13 @@ class UserKYC(Document):
                                 frappe.throw("Failed")
 
                             elif (
-                                fund_acc_validation == "waiting for response from bank"
+                                fund_acc_validation.get("message")
+                                == "waiting for response from bank"
                             ):
                                 frappe.throw("waiting for response from bank")
 
                             elif (
-                                validation_by_id
+                                fund_acc_validation.get("message")
                                 == "Penny Drop Fund Account Error - Razorpay Key Secret Missing"
                             ):
                                 frappe.throw(

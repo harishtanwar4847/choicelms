@@ -3919,12 +3919,15 @@ def penny_create_contact(**kwargs):
         #     frappe.db.commit()
 
         # lms.create_log(data_res, "rzp_penny_contact_success_log")
-        if contact_id == "User KYC not found":
+        if contact_id.get("message") == "User KYC not found":
             raise lms.exceptions.NotFoundException(_("User KYC not found"))
-        elif contact_id == "failed":
+        elif contact_id.get("message") == "Customer not found":
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
+
+        elif contact_id.get("message") == "failed":
             raise lms.exceptions.RespondWithFailureException(_("failed"))
         elif (
-            contact_id
+            contact_id.get("message")
             == "Penny Drop Create contact Error - Razorpay Key Secret Missing"
         ):
             raise lms.exceptions.FailureException(
@@ -4060,11 +4063,16 @@ def penny_create_fund_account(**kwargs):
 
         print("create_fund_acc", create_fund_acc)
 
-        if create_fund_acc == "failed":
+        if create_fund_acc.get("message") == "failed":
             raise lms.exceptions.RespondWithFailureException(_("failed"))
 
+        elif create_fund_acc.get("message") == "Special Characters not allowed":
+            raise lms.exceptions.RespondWithFailureException(
+                _("Special Characters not allowed")
+            )
+
         elif (
-            create_fund_acc
+            create_fund_acc.get("message")
             == "Penny Drop Fund Account Error - Razorpay Key Secret Missing"
         ):
             raise lms.exceptions.RespondWithFailureException(
@@ -4127,26 +4135,44 @@ def penny_create_fund_account_validation(**kwargs):
             data.get("bank_account_type"),
             data.get("branch"),
             data.get("city"),
+            data.get("personalized_cheque"),
         )
         # print("fund_acc_validation",fund_acc_validation)
-        if fund_acc_validation == "failed":
-            raise lms.exceptions.RespondWithFailureException(_("Failed"))
+        # if fund_acc_validation == "failed":
+        #     raise lms.exceptions.RespondWithFailureException(_("Failed"))
 
-        elif fund_acc_validation == "User not found":
-            raise lms.exceptions.NotFoundException(_("User not found"))
+        # elif fund_acc_validation == "User not found":
+        #     raise lms.exceptions.NotFoundException(_("User not found"))
 
-        elif fund_acc_validation == "Customer not found":
-            raise lms.exceptions.NotFoundException(_("Customer not found"))
+        # elif fund_acc_validation == "Customer not found":
+        #     raise lms.exceptions.NotFoundException(_("Customer not found"))
 
-        elif fund_acc_validation == "User KYC not found":
-            raise lms.exceptions.RespondWithFailureException(_("User KYC not found"))
+        # elif fund_acc_validation == "User KYC not found":
+        #     raise lms.exceptions.RespondWithFailureException(_("User KYC not found"))
 
-        elif (
-            fund_acc_validation
-            == "Penny Drop Fund Account Error - Razorpay Key Secret Missing"
+        if (
+            fund_acc_validation.get("message")
+            == "Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing"
         ):
             raise lms.exceptions.RespondWithFailureException(
-                _("Penny Drop Fund Account Error - Razorpay Key Secret Missing")
+                _(
+                    "Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing"
+                )
+            )
+
+        elif (
+            fund_acc_validation.get("message")
+            == "Penny Drop Fund Account Validation Error - Razorpay Bank Account Missing"
+        ):
+            raise lms.exceptions.RespondWithFailureException(
+                _(
+                    "Penny Drop Fund Account Validation Error - Razorpay Bank Account Missing"
+                )
+            )
+
+        elif fund_acc_validation.get("message") == "waiting for response from bank":
+            raise lms.exceptions.RespondWithFailureException(
+                _("waiting for response from bank")
             )
 
         elif (
@@ -4264,25 +4290,28 @@ def penny_create_fund_account_validation_by_id(**kwargs):
             personalized_cheque=data.get("personalized_cheque"),
         )
         # print("validation_by_id",validation_by_id)
-        if validation_by_id == "failed":
+        if validation_by_id.get("message") == "failed":
             raise lms.exceptions.RespondWithFailureException(_("Failed"))
 
-        elif validation_by_id == "User not found":
+        elif validation_by_id.get("message") == "User not found":
             raise lms.exceptions.NotFoundException(_("User not found"))
 
-        elif validation_by_id == "Customer not found":
+        elif validation_by_id.get("message") == "Customer not found":
             raise lms.exceptions.NotFoundException(_("Customer not found"))
 
-        elif validation_by_id == "User KYC not found":
+        elif validation_by_id.get("message") == "User KYC not found":
             raise lms.exceptions.RespondWithFailureException(_("User KYC not found"))
 
         elif (
-            validation_by_id
+            validation_by_id.get("message")
             == "Penny Drop Fund Account Error - Razorpay Key Secret Missing"
         ):
             raise lms.exceptions.RespondWithFailureException(
                 _("Penny Drop Fund Account Error - Razorpay Key Secret Missing")
             )
+
+        elif validation_by_id.get("message") == "waiting for response from bank":
+            raise lms.exceptions.respondWithSuccess(_("waiting for response from bank"))
 
         elif (
             validation_by_id.get("message")
