@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 
 import frappe
 from frappe.model.document import Document
+from isort import code
 from num2words import num2words
 
 import lms
@@ -1830,12 +1831,45 @@ class Loan(Document):
             )
 
     def before_save(self):
+        print("inside before save")
         self.total_collateral_value_str = lms.amount_formatter(
             self.total_collateral_value
         )
         self.drawing_power_str = lms.amount_formatter(self.drawing_power)
         self.sanctioned_limit_str = lms.amount_formatter(self.sanctioned_limit)
         self.balance_str = lms.amount_formatter(self.balance)
+        for items in self.items:
+            if self.instrument_type == "Shares":
+                image = frappe.get_all(
+                    "Allowed Security",
+                    filters={
+                        "isin": items.isin,
+                    },
+                    fields=["amc_image"],
+                )
+            else:
+                code = frappe.get_all(
+                    "Allowed Security",
+                    filters={
+                        "isin": items.isin,
+                    },
+                    fields=["amc_code"],
+                )
+                image = frappe.get_all(
+                    "AMC Master",
+                    filters={
+                        "name": code[0].amc_code,
+                    },
+                    fields=["amc_image"],
+                )
+
+            print("amc_image", image[0].amc_image)
+            if image[0].amc_image:
+                amc_image = frappe.utils.get_url(image[0].amc_image)
+                items.amc_image = amc_image
+            print("code", code[0].amc_code)
+            if code[0].amc_code:
+                items.amc_code = code[0].amc_code
 
     def save_loan_sanction_history(self, agreement_file, event="New loan"):
         loan_sanction_history = frappe.get_doc(
