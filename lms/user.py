@@ -4093,37 +4093,71 @@ def penny_create_fund_account_validation(**kwargs):
         ).decode("ascii")
 
         try:
-            data_rzp = {
-                "account_number": las_settings.razorpay_bank_account,
-                "fund_account": {"id": data.get("fa_id")},
-                "amount": 100,
-                "currency": "INR",
-                "notes": {
-                    "branch": data.get("branch"),
-                    "city": data.get("city"),
-                    "bank_account_type": data.get("bank_account_type"),
-                },
-            }
-            url = las_settings.pennydrop_create_fund_account_validation
-            headers = {
-                "Authorization": razorpay_key_secret_auth,
-                "content-type": "application/json",
-            }
-            raw_res = requests.post(
-                url=url,
-                headers=headers,
-                data=json.dumps(data_rzp),
-            )
-
-            data_res = raw_res.json()
-            log = {
-                "url": las_settings.pennydrop_create_fund_account_validation,
-                "headers": headers,
-                "request": data_rzp,
-                "response": data_res,
-            }
-
-            lms.create_log(log, "rzp_pennydrop_create_fund_account_validation")
+            if "rzp_test_" in las_settings.razorpay_key_secret:
+                data_res = {
+                    "id": "fav_JpHg4DC2VJ80Zw",
+                    "entity": "fund_account.validation",
+                    "fund_account": {
+                        "id": data.get("fa_id"),
+                        "entity": "fund_account",
+                        "contact_id": "cont_JpHHIYu00BTzNL",
+                        "account_type": "bank_account",
+                        "bank_account": {
+                            "ifsc": "ICIC0000004",
+                            "bank_name": "ICICI Bank",
+                            "name": "Choice Finserv private limited",
+                            "notes": [],
+                            "account_number": "000405112505",
+                        },
+                        "batch_id": None,
+                        "active": True,
+                        "created_at": 1656935250,
+                        "details": {
+                            "ifsc": "ICIC0000004",
+                            "bank_name": "ICICI Bank",
+                            "name": "Choice Finserv private limited",
+                            "notes": [],
+                            "account_number": "000405112505",
+                        },
+                    },
+                    "status": "completed",
+                    "amount": 100,
+                    "currency": "INR",
+                    "notes": {
+                        "branch": data.get("branch"),
+                        "city": data.get("city"),
+                        "bank_account_type": data.get("bank_account_type"),
+                    },
+                    "results": {
+                        "account_status": "active",
+                        "registered_name": user_kyc.fname,
+                    },
+                    "created_at": 1656936646,
+                    "utr": None,
+                }
+            else:
+                # for live penny account validation
+                data_rzp = {
+                    "account_number": las_settings.razorpay_bank_account,
+                    "fund_account": {"id": data.get("fa_id")},
+                    "amount": 100,
+                    "currency": "INR",
+                    "notes": {
+                        "branch": data.get("branch"),
+                        "city": data.get("city"),
+                        "bank_account_type": data.get("bank_account_type"),
+                    },
+                }
+                url = las_settings.pennydrop_create_fund_account_validation
+                headers = {
+                    "Authorization": razorpay_key_secret_auth,
+                    "content-type": "application/json",
+                }
+                raw_res = requests.post(
+                    url=url,
+                    headers=headers,
+                    data=json.dumps(data_rzp),
+                )
 
             penny_api_response_handle(
                 data,
