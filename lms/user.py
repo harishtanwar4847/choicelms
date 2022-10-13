@@ -4159,6 +4159,16 @@ def penny_create_fund_account_validation(**kwargs):
                     data=json.dumps(data_rzp),
                 )
 
+                data_res = raw_res.json()
+                log = {
+                    "url": las_settings.pennydrop_create_fund_account_validation,
+                    "headers": headers,
+                    "request": data_rzp,
+                    "response": data_res,
+                }
+
+                lms.create_log(log, "rzp_pennydrop_create_fund_account_validation")
+
             penny_api_response_handle(
                 data,
                 user_kyc,
