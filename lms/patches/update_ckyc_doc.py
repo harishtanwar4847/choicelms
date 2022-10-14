@@ -21,7 +21,9 @@ def execute():
         frappe.reload_doc("Lms", "DocType", "Related Person Details")
         frappe.reload_doc("Lms", "DocType", "CKYC Identity Details")
 
-        user_kyc = frappe.get_all("User KYC", fields=["*"])
+        user_kyc = frappe.get_all(
+            "User KYC", filters={"consent_given": 0}, fields=["*"]
+        )
         for kyc in user_kyc:
             cust = frappe.db.get_value("Loan Customer", {"user": kyc.user}, "name")
             customer = frappe.get_doc("Loan Customer", cust)
@@ -57,9 +59,6 @@ def execute():
             frappe.db.commit()
             log["response"] = res_json
             lms.create_log(log, "ckyc_search_patch")
-            print("res", str(res_json))
-            print("res_json status", res_json.get("status"))
-            print("res json error", res_json.get("error"))
             if res_json.get("status") == 200 and not res_json.get("error"):
                 req_data.update(
                     {
@@ -433,8 +432,6 @@ def execute():
                         filters={"parent": user_kyc.name},
                         fields=["*"],
                     )
-                    print("bank_doc", bank_doc)
-                    print("loan_doc", loan_doc)
                     if loan_doc[0].loan_open == 1:
                         if len(bank_doc) != 0:
                             frappe.db.sql(
@@ -449,17 +446,28 @@ def execute():
                             )
 
                 else:
-                    print("lets go")
                     frappe.db.rollback()
-                    lms.log_api_error(mess=str(res_json))
+                    frappe.log_error(
+                        message=str(res_json)
+                        + "\n\nuser_kyc  -\n{}\n\ncustomer - {} ".format(
+                            kyc.name, customer.name
+                        ),
+                        title="ckyc download",
+                    )
+                    # frappe.(mess=)
             else:
-                print("lets go")
-                lms.log_api_error(mess=str(res_json))
+                # lms.log_api_error(mess=str(res_json))
+                frappe.log_error(
+                    message=str(res_json)
+                    + "\n\nuser_kyc  -\n{}\n\ncustomer - {} ".format(
+                        kyc.name, customer.name
+                    ),
+                    title="ckyc download",
+                )
         frappe.db.sql(
             "update `tabUser KYC` set kyc_status='Approved',notification_sent=1, consent_given=1 where name in {}".format(
                 lms.convert_list_to_tuple_string(all_kyc)
             )
         )
     except Exception as e:
-        print(str(e.args))
         lms.log_api_error(str(e.args))

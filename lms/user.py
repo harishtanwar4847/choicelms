@@ -4338,9 +4338,9 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                         "User Bank Account",
                         {
                             "parentfield": "bank_account",
-                            "razorpay_fund_account_id": data_res.get(
-                                "fund_account"
-                            ).get("id"),
+                            # "razorpay_fund_account_id": data_res.get(
+                            #     "fund_account"
+                            # ).get("id"),
                             "account_number": data_res.get("fund_account")
                             .get("bank_account")
                             .get("account_number"),
@@ -4402,6 +4402,12 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                         )
                         bank_account.account_holder_name = (
                             data_res.get("fund_account").get("bank_account").get("name")
+                        )
+                        bank_account.razorpay_fund_account_id = (
+                            (data_res.get("fund_account").get("id")),
+                        )
+                        bank_account.razorpay_fund_account_validation_id = (
+                            data_res.get("id"),
                         )
                         bank_account.personalized_cheque = photos_
                         bank_account.bank_status = "Pending"
