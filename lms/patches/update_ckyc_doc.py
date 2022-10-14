@@ -94,7 +94,6 @@ def execute():
                 lms.create_log(log, "ckyc_download_patch")
 
                 pid_data = {}
-
                 if res_json.get("status") == 200 and not res_json.get("error"):
                     pid_data = json.loads(res_json.get("data")).get("PID_DATA")
 
@@ -104,7 +103,6 @@ def execute():
                     image_details = pid_data.get("IMAGE_DETAILS")
 
                     user_kyc = frappe.get_doc("User KYC", kyc.name)
-
                     user_kyc.update(
                         {
                             "consti_type": personal_details.get("CONSTI_TYPE"),
@@ -422,8 +420,31 @@ def execute():
                     user_kyc.save(ignore_permissions=True)
                     frappe.db.commit()
                     all_kyc.append(user_kyc.name)
+                    loan_doc = frappe.get_all(
+                        "Loan Customer",
+                        filters={"user": user_kyc.user},
+                        fields=["loan_open", "bank_update"],
+                    )
+                    bank_doc = frappe.get_all(
+                        "User Bank Account",
+                        filters={"parent": user_kyc.name},
+                        fields=["*"],
+                    )
+                    if loan_doc[0].loan_open == 1:
+                        if len(bank_doc) != 0:
+                            frappe.db.sql(
+                                "update `tabUser Bank Account` set bank_status='Approved',notification_sent=1 where name = '{}'".format(
+                                    (bank_doc[0].name)
+                                )
+                            )
+                            frappe.db.sql(
+                                "update `tabLoan Customer` set bank_update=1 where user = '{}'".format(
+                                    (user_kyc.user)
+                                )
+                            )
+
                 else:
-                    frappe.db.rollback
+                    frappe.db.rollback()
                     lms.log_api_error(mess=str(res_json))
             else:
                 lms.log_api_error(mess=str(res_json))
