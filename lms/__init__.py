@@ -2830,7 +2830,7 @@ def call_penny_create_fund_account_validation(
                 message="Penny Drop Fund Account Validation Error - Razorpay Key Secret Missing",
             )
             # return utils.respondWithFailure()
-            raise lms.exceptions.RespondWithFailureException()
+            raise exceptions.RespondWithFailureException()
 
         if not las_settings.razorpay_bank_account:
             frappe.log_error(
@@ -2838,7 +2838,7 @@ def call_penny_create_fund_account_validation(
                 message="Penny Drop Fund Account Validation Error - Razorpay Bank Account Missing",
             )
             # return utils.respondWithFailure()
-            raise lms.exceptions.RespondWithFailureException()
+            raise exceptions.RespondWithFailureException()
 
         razorpay_key_secret_auth = "Basic " + base64.b64encode(
             bytes(las_settings.razorpay_key_secret, "utf-8")
