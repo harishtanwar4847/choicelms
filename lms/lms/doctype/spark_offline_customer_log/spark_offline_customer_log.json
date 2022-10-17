@@ -53,7 +53,8 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Success\nPartial Success\nFailure"
+   "options": "Success\nPartial Success\nFailure",
+   "read_only": 1
   },
   {
    "fieldname": "user_details_section",
@@ -80,6 +81,7 @@
    "in_list_view": 1,
    "label": "User Status",
    "options": "Pending\nSuccess\nFailure",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -121,6 +123,7 @@
    "fieldtype": "Select",
    "label": "Customer Status",
    "options": "Pending\nSuccess\nFailure",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -171,6 +174,7 @@
    "fieldtype": "Select",
    "label": "CKYC Status",
    "options": "Pending\nSuccess\nFailure",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -233,32 +237,37 @@
    "fieldtype": "Select",
    "label": "Bank Status",
    "options": "Pending\nSuccess\nFailure",
+   "read_only": 1,
    "reqd": 1
   },
   {
    "fieldname": "user_remarks",
    "fieldtype": "Small Text",
-   "label": "User Remarks"
+   "label": "User Remarks",
+   "read_only": 1
   },
   {
    "fieldname": "customer_remarks",
    "fieldtype": "Small Text",
-   "label": "Customer Remarks"
+   "label": "Customer Remarks",
+   "read_only": 1
   },
   {
    "fieldname": "ckyc_remarks",
    "fieldtype": "Small Text",
-   "label": "CKYC Remarks"
+   "label": "CKYC Remarks",
+   "read_only": 1
   },
   {
    "fieldname": "bank_remarks",
    "fieldtype": "Small Text",
-   "label": "Bank Remarks"
+   "label": "Bank Remarks",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-03 12:17:34.171568",
+ "modified": "2022-10-17 13:04:10.594380",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Offline Customer Log",

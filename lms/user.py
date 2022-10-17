@@ -3940,10 +3940,13 @@ def penny_create_contact(**kwargs):
                 raise lms.exceptions.NotFoundException(_("Customer not found"))
             try:
                 user_kyc = lms.__user_kyc(user.name)
+                print("user kyc", user_kyc)
             except UserKYCNotFoundException:
                 # return utils.respondWithFailure(message=frappe._("User KYC not found"))
                 raise lms.exceptions.NotFoundException(_("User KYC not found"))
 
+            user_kyc.razorpay_contact_id = contact_id.get("message")
+            print("inside else", contact_id.get("message"))
             user_kyc.save(ignore_permissions=True)
             frappe.db.commit()
             return utils.respondWithSuccess(message=frappe._("success"))

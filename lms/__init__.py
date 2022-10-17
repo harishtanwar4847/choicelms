@@ -2659,7 +2659,8 @@ def penny_call_create_contact(user=None, customer=None, user_kyc=None):
             contact_id = data_res.get("id")
             # print("user_kyc", contact_id)
             create_log(data_res, "rzp_penny_contact_success_log")
-            return contact_id
+            data = {"message": contact_id}
+            return data
             # user_kyc.save(ignore_permissions=True)
             # frappe.db.commit()
 
@@ -3194,7 +3195,7 @@ def penny_api_response_handle(
             # )
             registered_name = data_res.get("results").get("registered_name").lower()
             account_status = data_res.get("results").get("account_status")
-            # photos_ = personalized_cheque
+            photos_ = personalized_cheque
             if personalized_cheque:
                 photos_ = upload_image_to_doctype(
                     customer=customer,
@@ -3205,7 +3206,6 @@ def penny_api_response_handle(
                     img_format="jpeg",
                     img_folder="personalized_cheque",
                 )
-            print("photos", photos_)
 
             if user_kyc.fname.lower() in registered_name:
 
@@ -3217,30 +3217,22 @@ def penny_api_response_handle(
                         "User Bank Account",
                         {
                             "parentfield": "bank_account",
-                            "razorpay_fund_account_id": data_res.get(
-                                "fund_account"
-                            ).get("id"),
+                            # "razorpay_fund_account_id": data_res.get(
+                            #     "fund_account"
+                            # ).get("id"),
                             "account_number": data_res.get("fund_account")
                             .get("bank_account")
                             .get("account_number"),
                         },
                         "name",
                     )
-                    print("id", data_res.get("fund_account").get("id"))
-                    print(
-                        "account_number",
-                        data_res.get("fund_account")
-                        .get("bank_account")
-                        .get("account_number"),
-                    )
-                    print("bank_entry_name", bank_entry_name)
+
                     if not bank_entry_name:
                         bank_account_list = frappe.get_all(
                             "User Bank Account",
                             filters={"parent": user_kyc.name},
                             fields="*",
                         )
-                        print("bank_account_list", bank_account_list)
                         for b in bank_account_list:
                             if bank_entry_name != b.name:
                                 other_bank = frappe.get_doc("User Bank Account", b.name)
@@ -3289,6 +3281,12 @@ def penny_api_response_handle(
                         )
                         bank_account.account_holder_name = (
                             data_res.get("fund_account").get("bank_account").get("name")
+                        )
+                        bank_account.razorpay_fund_account_id = (
+                            (data_res.get("fund_account").get("id")),
+                        )
+                        bank_account.razorpay_fund_account_validation_id = (
+                            data_res.get("id"),
                         )
                         bank_account.personalized_cheque = photos_
                         bank_account.bank_status = "Pending"

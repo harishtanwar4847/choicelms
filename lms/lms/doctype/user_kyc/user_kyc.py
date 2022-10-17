@@ -29,11 +29,20 @@ class UserKYC(Document):
             check = 1
         print("razorpay_contact_id", self.razorpay_contact_id)
         self.kyc_update_and_notify_customer(check)
-        for i in self.bank_account:
-            print("outside on_update if")
-            if i.personalized_cheque:
-                print("inside on_update if")
-                self.offline_customer_bank_verification()
+        user_roles = frappe.db.get_values(
+            "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
+        )
+        user_role = []
+        for i in list(user_roles):
+            user_role.append(i[0])
+        print("user role", user_role)
+        if "Loan Customer" not in user_role:
+            print("inside loan customer")
+            for i in self.bank_account:
+                print("outside on_update if")
+                if i.personalized_cheque:
+                    print("inside on_update if")
+                    self.offline_customer_bank_verification()
 
     def kyc_update_and_notify_customer(self, check):
         print("inside kyc")
@@ -144,6 +153,9 @@ class UserKYC(Document):
             account_type = i.account_type
             if i.personalized_cheque and not self.razorpay_contact_id:
                 contact_id = lms.penny_call_create_contact(user[0].name)
+                print(
+                    "Contact Id",
+                )
                 if contact_id == "failed":
                     frappe.throw("failed")
                 elif contact_id.get("message") == "User not found":
@@ -160,7 +172,7 @@ class UserKYC(Document):
                         "Penny Drop Create contact Error - Razorpay Key Secret Missing"
                     )
                 else:
-                    self.razorpay_contact_id = contact_id
+                    self.razorpay_contact_id = contact_id.get("message")
                     self.save(ignore_permissions=True)
                     frappe.db.commit()
 
