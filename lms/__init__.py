@@ -2576,9 +2576,6 @@ def create_user_customer(upload_file):
 def penny_call_create_contact(user=None, customer=None, user_kyc=None):
     try:
         try:
-            # print("user", user)
-            # print("customer1",customer)
-            # print("kyc",user_kyc)
             user_name = user
             if not user:
                 user = __user()
@@ -2706,9 +2703,7 @@ def call_penny_create_fund_account(
 
         # check user
         try:
-            # print("user", user)
             user_name = user
-            # print("user_name", user_name)
             if not user:
                 user = __user()
                 user_name = user.name
@@ -2799,13 +2794,6 @@ def call_penny_create_fund_account_validation(
     city=None,
     personalized_cheque=None,
 ):
-    print("user", user)
-    print("create_fund_acc", create_fund_acc)
-    print("account_type", account_type)
-    print("branch", branch)
-    print("city", city)
-    print("personalized_cheque", personalized_cheque)
-    # print("inside call_penny_create_fund_account_validation")
     try:
         # utils.validator.validate_http_method("POST")
         # data = utils.validator.validate(
@@ -2821,9 +2809,7 @@ def call_penny_create_fund_account_validation(
 
         # check user
         try:
-            # print("user", user)
             user_name = user
-            # print("user_name", user_name)
             if not user:
                 user = __user()
                 user_name = user.name
@@ -2882,9 +2868,7 @@ def call_penny_create_fund_account_validation(
             "personalized_cheque": personalized_cheque,
         }
         try:
-            # print("inside try")
             if "rzp_test_" in las_settings.razorpay_key_secret:
-                # print("inside try if")
                 data_res = {
                     "id": "fav_JpHg4DC2VJ80Zw",
                     "entity": "fund_account.validation",
@@ -2989,9 +2973,6 @@ def call_penny_create_fund_account_validation_by_id(
     personalized_cheque=None,
 ):
     try:
-        print("user", user)
-        print("fav_id", fav_id)
-        print("personalized_cheque", personalized_cheque)
         # utils.validator.validate_http_method("POST")
         # data = utils.validator.validate(
         #     kwargs,
@@ -3130,7 +3111,6 @@ def call_penny_create_fund_account_validation_by_id(
                 data_res,
                 personalized_cheque=personalized_cheque,
             )
-            print("validation_by_id", validation_by_id)
             return validation_by_id
 
         except requests.RequestException as e:
@@ -3150,7 +3130,6 @@ def call_penny_create_fund_account_validation_by_id(
 def penny_api_response_handle(
     data, user_kyc, customer, data_res, personalized_cheque=None
 ):
-    print("penny_api_response_handle", personalized_cheque)
     try:
         data_resp = {
             "fav_id": data_res.get("id"),
@@ -3328,7 +3307,6 @@ def penny_api_response_handle(
                     ).insert(ignore_permissions=True)
                     frappe.db.commit()
             else:
-                print("inside inside else")
                 data_resp["status"] = "failed"
                 data = {
                     # "fav_id":data_res.get("id"),
@@ -3339,7 +3317,6 @@ def penny_api_response_handle(
                 return data
                 # raise exceptions.RespondFailureException(message, data_resp)
         else:
-            print("inside else")
             data_resp["status"] = "failed"
             data = {
                 "data_resp": data_resp,
@@ -3350,7 +3327,6 @@ def penny_api_response_handle(
             # raise exceptions.RespondFailureException(message, data_resp)
 
         create_log(data_res, "rzp_penny_fund_account_validation_success_log")
-        print("data_res", data_res)
         # return utils.respondWithSuccess(message=message, data=data_res)
         return data_res
     except utils.exceptions.APIException as e:

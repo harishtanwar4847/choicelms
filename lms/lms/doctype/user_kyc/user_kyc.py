@@ -22,12 +22,10 @@ class UserKYC(Document):
     def on_update(self):
         status = []
         check = 0
-        print("akash")
         for i in self.bank_account:
             status.append(i.bank_status)
         if "Approved" in status:
             check = 1
-        print("razorpay_contact_id", self.razorpay_contact_id)
         self.kyc_update_and_notify_customer(check)
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
@@ -35,17 +33,10 @@ class UserKYC(Document):
         user_role = []
         for i in list(user_roles):
             user_role.append(i[0])
-        print("user role", user_role)
         if "Loan Customer" not in user_role:
-            print("inside loan customer")
-            for i in self.bank_account:
-                print("outside on_update if")
-                if i.personalized_cheque:
-                    print("inside on_update if")
-                    self.offline_customer_bank_verification()
+            self.offline_customer_bank_verification()
 
     def kyc_update_and_notify_customer(self, check):
-        print("inside kyc")
         cust_name = frappe.db.get_value("Loan Customer", {"user": self.user}, "name")
         loan_customer = frappe.get_doc("Loan Customer", cust_name)
         doc = self.as_dict()
@@ -153,9 +144,6 @@ class UserKYC(Document):
             account_type = i.account_type
             if i.personalized_cheque and not self.razorpay_contact_id:
                 contact_id = lms.penny_call_create_contact(user[0].name)
-                print(
-                    "Contact Id",
-                )
                 if contact_id == "failed":
                     frappe.throw("failed")
                 elif contact_id.get("message") == "User not found":
@@ -229,7 +217,6 @@ class UserKYC(Document):
                         branch,
                         city,
                     )
-                    print("fund_acc_validation", fund_acc_validation)
                     if fund_acc_validation.get("message") == "failed":
                         frappe.throw("Failed")
 
@@ -270,7 +257,6 @@ class UserKYC(Document):
 
                     else:
                         if fund_acc_validation.get("status") == "completed":
-                            print("inside else of userk kyc")
                             # For non choice user
                             i.razorpay_fund_account_id = fund_acc_validation.get(
                                 "fund_account"
@@ -304,7 +290,6 @@ class UserKYC(Document):
                                     personalized_cheque="abcd",
                                 )
                             )
-                            print("validation_by_id", validation_by_id)
                             if validation_by_id == "failed":
                                 frappe.throw("Failed")
 
@@ -339,7 +324,6 @@ class UserKYC(Document):
                                 )
 
                             else:
-                                print("inside else of userk kyc")
                                 # For non choice user
                                 i.razorpay_fund_account_id = validation_by_id.get(
                                     "fund_account"
@@ -358,7 +342,6 @@ class UserKYC(Document):
                                     },
                                     fields=["name"],
                                 )
-                                print("offline_cust", offline_cust)
                                 doc = frappe.get_doc(
                                     "Spark Offline Customer Log", offline_cust[0].name
                                 )
