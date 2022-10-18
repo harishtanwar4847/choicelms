@@ -431,7 +431,7 @@ def execute():
                     )
                     bank_doc = frappe.get_all(
                         "User Bank Account",
-                        filters={"parent": user_kyc.name},
+                        filters={"parent": user_kyc.name, "is_default": 1},
                         fields=["*"],
                     )
                     if loan_doc[0].loan_open == 1:

@@ -4397,6 +4397,18 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                         frappe.db.commit()
                     else:
                         # For existing choice bank entries
+                        bank_account_list = frappe.get_all(
+                            "User Bank Account",
+                            filters={"parent": user_kyc.name},
+                            fields="*",
+                        )
+                        for b in bank_account_list:
+                            other_bank = frappe.get_doc("User Bank Account", b.name)
+                            if other_bank.is_default == 1:
+                                other_bank.is_default = 0
+                                other_bank.save(ignore_permissions=True)
+                                frappe.db.commit()
+
                         bank_account = frappe.get_doc(
                             "User Bank Account", bank_entry_name
                         )
@@ -4411,6 +4423,7 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                         )
                         bank_account.personalized_cheque = photos_
                         bank_account.bank_status = "Pending"
+                        bank_account.is_default = 1
                         bank_account.save(ignore_permissions=True)
                         frappe.db.commit()
                 else:
