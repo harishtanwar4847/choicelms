@@ -22,7 +22,9 @@ def execute():
         frappe.reload_doc("Lms", "DocType", "CKYC Identity Details")
 
         user_kyc = frappe.get_all(
-            "User KYC", filters={"consent_given": 0}, fields=["*"]
+            "User KYC",
+            filters={"consent_given": 0, "pan_no": "CEFPC3206R"},
+            fields=["*"],
         )
         for kyc in user_kyc:
             cust = frappe.db.get_value("Loan Customer", {"user": kyc.user}, "name")
