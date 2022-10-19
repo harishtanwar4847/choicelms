@@ -1958,6 +1958,10 @@ def system_report_enqueue():
             method="lms.lms.doctype.interest_calculation.interest_calculation.interest_calculation_enqueue",
             queue="long",
         )
+    frappe.enqueue(
+        method="lms.lms.doctype.loan.loan.available_top_up_update",
+        queue="long",
+    )
 
 
 def download_file(dataframe, file_name, file_extention, sheet_name):
