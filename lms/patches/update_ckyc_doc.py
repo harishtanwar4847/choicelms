@@ -21,11 +21,19 @@ def execute():
         frappe.reload_doc("Lms", "DocType", "Related Person Details")
         frappe.reload_doc("Lms", "DocType", "CKYC Identity Details")
 
-        user_kyc = frappe.get_all(
-            "User KYC",
-            filters={"consent_given": 0, "pan_no": "CEFPC3206R"},
-            fields=["*"],
-        )
+        if frappe.utils.get_url() == "https://spark.loans":
+            user_kyc = frappe.get_all(
+                "User KYC",
+                filters={"consent_given": 0},
+                fields=["*"],
+            )
+        else:
+            user_kyc = frappe.get_all(
+                "User KYC",
+                filters={"consent_given": 0, "pan_no": "CEFPC3206R"},
+                fields=["*"],
+            )
+
         for kyc in user_kyc:
             cust = frappe.db.get_value("Loan Customer", {"user": kyc.user}, "name")
             customer = frappe.get_doc("Loan Customer", cust)
