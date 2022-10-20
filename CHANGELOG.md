@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.6.0-uat]
+
+## Added
+
+- [Feat: Bank patch and dynamic link changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/538)
+
 ## [v5.5.3-uat]
 
 ## Fixed
