@@ -1218,7 +1218,6 @@ class LoanApplication(Document):
             )
             psn_no[0].psn
             if item.lender_approval_status == "Approved":
-                print("item date of pledge", item.date_of_pledge)
                 temp = frappe.get_doc(
                     {
                         "doctype": "Loan Item",
