@@ -3863,7 +3863,6 @@ def penny_create_contact(**kwargs):
 
         if user:
             contact_id = lms.penny_call_create_contact(user.name)
-            print("contact_id", contact_id)
             # check Loan Customer
 
             # # fetch rzp key secret from las settings and use Basic auth
@@ -3944,6 +3943,7 @@ def penny_create_contact(**kwargs):
                 # return utils.respondWithFailure(message=frappe._("User KYC not found"))
                 raise lms.exceptions.NotFoundException(_("User KYC not found"))
 
+            user_kyc.razorpay_contact_id = contact_id.get("message")
             user_kyc.save(ignore_permissions=True)
             frappe.db.commit()
             return utils.respondWithSuccess(message=frappe._("success"))
@@ -4061,8 +4061,6 @@ def penny_create_fund_account(**kwargs):
             data.get("account_holder_name"),
         )
 
-        print("create_fund_acc", create_fund_acc)
-
         if create_fund_acc.get("message") == "failed":
             raise lms.exceptions.RespondWithFailureException(_("failed"))
 
@@ -4137,7 +4135,6 @@ def penny_create_fund_account_validation(**kwargs):
             data.get("city"),
             data.get("personalized_cheque"),
         )
-        # print("fund_acc_validation",fund_acc_validation)
         # if fund_acc_validation == "failed":
         #     raise lms.exceptions.RespondWithFailureException(_("Failed"))
 
@@ -4289,7 +4286,6 @@ def penny_create_fund_account_validation_by_id(**kwargs):
             fav_id=data.get("fav_id"),
             personalized_cheque=data.get("personalized_cheque"),
         )
-        # print("validation_by_id",validation_by_id)
         if validation_by_id.get("message") == "failed":
             raise lms.exceptions.RespondWithFailureException(_("Failed"))
 

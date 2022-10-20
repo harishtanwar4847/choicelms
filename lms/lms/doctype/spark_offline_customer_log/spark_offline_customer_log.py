@@ -12,11 +12,12 @@ import lms
 
 class SparkOfflineCustomerLog(Document):
     def before_save(self):
+        print("ABCFGShgsv")
         if self.ckyc_status == "Success":
             self.ckyc_remarks = ""
             # self.save(ignore_permissions=True)
             # frappe.db.commit()
-        elif (
+        if (
             self.user_status == "Success"
             and self.customer_status == "Success"
             and self.ckyc_status == "Success"

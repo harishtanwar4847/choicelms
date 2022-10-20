@@ -828,9 +828,7 @@ def loan_details(**kwargs):
         customer = lms.__customer()
         try:
             loan = frappe.get_doc("Loan", data.get("loan_name"))
-            print("akash", loan.items)
             for i in loan.items:
-                print("i", i.isin)
                 psn_no = frappe.db.sql(
                     """select psn from `tabCollateral Ledger` where isin = '{isin}' and loan = '{loan}' and 
                       application_doctype = '{application_doctype}' and request_type = '{request_type}'""".format(
@@ -2501,11 +2499,11 @@ def validate_securities_for_unpledge(securities, loan):
                 break
             duplicate_securities_list.append("{}{}".format(i["isin"], i["folio"]))
             folio_list.append(i["folio"])
-        else:
-            if "psn" not in i.keys() or not i.get("psn"):
-                securities_valid = False
-                message = frappe._("psn not present")
-                break
+        # else:
+        #     if "psn" not in i.keys() or not i.get("psn"):
+        #         securities_valid = False
+        #         message = frappe._("psn not present")
+        #         break
 
     if folio_list:
         folio_clause = " and folio in {}".format(
@@ -2570,9 +2568,9 @@ def validate_securities_for_unpledge(securities, loan):
                 break
 
             keys = i.keys()
-            if "isin" not in keys or "quantity" not in keys:
+            if "isin" not in keys or "quantity" not in keys or "psn" not in keys:
                 securities_valid = False
-                message = frappe._("isin or quantity not present")
+                message = frappe._("isin or quantity or psn not present")
                 break
 
             if i.get("quantity") <= 0:
@@ -3058,11 +3056,6 @@ def validate_securities_for_sell_collateral(securities, loan_name):
                 break
             duplicate_securities_list.append("{}{}".format(i["isin"], i["folio"]))
             folio_list.append(i["folio"])
-        else:
-            if "psn" not in i.keys() or not i.get("psn"):
-                securities_valid = False
-                message = frappe._("psn not present")
-                break
 
     if folio_list:
         folio_clause = " and folio in {}".format(
@@ -3103,9 +3096,9 @@ def validate_securities_for_sell_collateral(securities, loan_name):
                 break
 
             keys = i.keys()
-            if "isin" not in keys or "quantity" not in keys:
+            if "isin" not in keys or "quantity" not in keys or "psn" not in keys:
                 securities_valid = False
-                message = frappe._("isin or quantity not present")
+                message = frappe._("isin or quantity or psn not present")
                 break
 
             if i.get("quantity") <= 0:
