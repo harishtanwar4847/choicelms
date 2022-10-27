@@ -828,7 +828,11 @@ def settlement_recon_api(input_date=None):
             res = raw_res.json()
 
             # create log for settlement recon api
-            lms.create_log(res, "settlement_recon_api_log")
+            log = {
+                "request": params,
+                "response": res,
+            }
+            lms.create_log(log, "settlement_recon_api_log")
 
             if res["count"] and res["items"]:
                 # iterate through all settled items
