@@ -31,6 +31,7 @@ class TopupApplication(Document):
         loan.drawing_power += self.top_up_amount
         loan.sanctioned_limit += self.top_up_amount
         loan.expiry_date = self.expiry_date
+        loan.available_topup_amt = loan.max_topup_amount()
         loan.save(ignore_permissions=True)
         frappe.db.commit()
 
