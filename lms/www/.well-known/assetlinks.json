@@ -3,7 +3,7 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "com.sparktechnologies.sparkloans.dev",
+      "package_name": "com.sparktechnologies.sparkloans",
       "sha256_cert_fingerprints": [
         "20:BC:75:B6:43:2B:6D:B4:AE:31:5B:73:C8:18:11:F9:13:A2:A1:08:A5:52:2A:A0:7A:D7:7E:C6:02:DA:92:F0"
       ]
