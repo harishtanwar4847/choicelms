@@ -1831,7 +1831,6 @@ class Loan(Document):
             )
 
     def before_save(self):
-        print("inside before save")
         self.total_collateral_value_str = lms.amount_formatter(
             self.total_collateral_value
         )
@@ -1847,6 +1846,7 @@ class Loan(Document):
                     },
                     fields=["amc_image"],
                 )
+                code = ""
             else:
                 code = frappe.get_all(
                     "Allowed Security",
@@ -1863,12 +1863,10 @@ class Loan(Document):
                     fields=["amc_image"],
                 )
 
-            print("amc_image", image[0].amc_image)
             if image[0].amc_image:
                 amc_image = frappe.utils.get_url(image[0].amc_image)
                 items.amc_image = amc_image
-            print("code", code[0].amc_code)
-            if code[0].amc_code:
+            if code:
                 items.amc_code = code[0].amc_code
 
     def save_loan_sanction_history(self, agreement_file, event="New loan"):
