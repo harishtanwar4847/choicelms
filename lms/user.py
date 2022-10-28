@@ -3918,7 +3918,11 @@ def penny_create_contact(**kwargs):
             user_kyc.save(ignore_permissions=True)
             frappe.db.commit()
 
-            lms.create_log(data_res, "rzp_penny_contact_success_log")
+            log = {
+                "request": data_rzp,
+                "response": data_res,
+            }
+            lms.create_log(log, "rzp_penny_contact_success_log")
             return utils.respondWithSuccess(message=frappe._("success"))
 
         except requests.RequestException as e:
@@ -4010,7 +4014,7 @@ def penny_create_fund_account(**kwargs):
 
             if data_res.get("error"):
                 log = {
-                    "request": data,
+                    "request": data_rzp,
                     "response": data_res.get("error"),
                 }
                 lms.create_log(log, "rzp_penny_fund_account_error_log")
@@ -4018,6 +4022,10 @@ def penny_create_fund_account(**kwargs):
                 raise lms.exceptions.RespondWithFailureException(_("failed"))
             # if not get error
             data_resp = {"fa_id": data_res.get("id")}
+            log = {
+                "request": data_rzp,
+                "response": data_res,
+            }
             lms.create_log(data_res, "rzp_penny_fund_account_success_log")
             return utils.respondWithSuccess(message=frappe._("success"), data=data_resp)
 
@@ -4508,7 +4516,12 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
             message = "Your account details have not been successfully verified"
             # return utils.respondWithFailure(message=message, data=data_resp)
             # raise lms.exceptions.RespondFailureException(message, data_resp)
-        lms.create_log(data_res, "rzp_penny_fund_account_validation_success_log")
+
+        log = {
+            "request": data,
+            "response": data_res,
+        }
+        lms.create_log(log, "rzp_penny_fund_account_validation_success_log")
         return utils.respondWithSuccess(message=message, data=data_resp)
     except utils.exceptions.APIException as e:
         lms.log_api_error(

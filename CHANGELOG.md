@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.7.0-uat]
+
+## Added
+
+- [Feat: agreement changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/539)
+
 ## [v5.6.0-uat]
 
 ## Added
