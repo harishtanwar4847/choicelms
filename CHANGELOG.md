@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.7.1-uat]
+
+## Fixed
+
+- [Fix: Address in get tnc fix](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/540)
+
 ## [v5.7.0-uat]
 
 ## Added
