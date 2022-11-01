@@ -6,7 +6,7 @@
 
 ## Fixed
 
-- [Fix: Address in get tnc fix](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/540)
+- [Fix: Address in get tnc fix](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/541)
 
 ## [v5.7.0-uat]
 
