@@ -4304,7 +4304,7 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
             }
             lms.create_log(log, "rzp_penny_fund_account_validation_error_log")
             # raise utils.respondWithFailure(message=message)
-            raise lms.exceptions.RespondWithFailureException(message=message)
+            # raise lms.exceptions.RespondWithFailureException(message=message)
 
         if data_res.get("status") == "failed":
             message = "Your account details have not been successfully verified"
@@ -4314,8 +4314,11 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
         if data_res.get("status") == "created":
             message = "waiting for response from bank"
 
-        account_status = data_res.get("results").get("account_status")
-        if data_res.get("status") == "completed" and account_status == "active":
+        # account_status = data_res.get("results").get("account_status")
+        if (
+            data_res.get("status") == "completed"
+            and data_res.get("results").get("account_status") == "active"
+        ):
             # name validation - check user entered account holder name is same with registered name
             # account_holder_name = (
             #     data_res.get("fund_account")
