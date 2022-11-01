@@ -4304,7 +4304,7 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
             }
             lms.create_log(log, "rzp_penny_fund_account_validation_error_log")
             # raise utils.respondWithFailure(message=message)
-            # raise lms.exceptions.RespondWithFailureException(message=message)
+            raise lms.exceptions.RespondWithFailureException(message=message)
 
         if data_res.get("status") == "failed":
             message = "Your account details have not been successfully verified"
