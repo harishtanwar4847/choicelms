@@ -66,10 +66,20 @@ class LoanMarginShortfall(Document):
             else 0
         )
         if self.instrument_type == "Mutual Fund":
-            self.minimum_cash_amount = self.loan_balance - self.drawing_power
+            min_cash_amt = self.loan_balance - self.drawing_power
+            self.minimum_cash_amount = (
+                min_cash_amt if self.loan_balance > self.drawing_power else 0
+            )
         else:
-            self.minimum_cash_amount = (self.allowable_ltv / 100) * self.shortfall_c
-        self.advisable_cash_amount = self.minimum_cash_amount * 1.1
+            min_cash_amt = (self.allowable_ltv / 100) * self.shortfall_c
+            self.minimum_cash_amount = (
+                min_cash_amt if self.loan_balance > self.drawing_power else 0
+            )
+        self.advisable_cash_amount = (
+            (self.minimum_cash_amount * 1.1)
+            if self.loan_balance > self.drawing_power
+            else 0
+        )
 
         self.set_shortfall_action()
 
@@ -169,6 +179,8 @@ class LoanMarginShortfall(Document):
             self.shortfall_c
             if self.instrument_type == "Shares"
             else self.minimum_cash_amount
+            if self.loan_balance > self.drawing_power
+            else 0
         )
         loan.save(ignore_permissions=True)
         frappe.db.commit()
