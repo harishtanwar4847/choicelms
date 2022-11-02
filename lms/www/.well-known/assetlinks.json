@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.sparktechnologies.sparkloans",
+      "sha256_cert_fingerprints": [
+        "20:BC:75:B6:43:2B:6D:B4:AE:31:5B:73:C8:18:11:F9:13:A2:A1:08:A5:52:2A:A0:7A:D7:7E:C6:02:DA:92:F0",
+        "29:D1:5C:A4:BA:50:86:00:B9:D5:37:CD:EF:9B:39:18:93:C2:57:53:B7:27:FC:1F:24:3D:72:BA:E3:40:EC:A9"
+      ]
+    }
+  }
+]

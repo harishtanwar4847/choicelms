@@ -1,0 +1,15 @@
+<script type="text/javascript">
+  if (
+    navigator.userAgent.match(/iPhone/i) ||
+    navigator.userAgent.match(/iPod/i) ||
+    navigator.userAgent.match(/iPad/i)
+  ) {
+    window.location.href =
+      "https://apps.apple.com/in/app/spark-loans/id1551799259?uo=4";
+  } else if (navigator.userAgent.match(/android/i)) {
+    window.location.href =
+      "market://details?id=com.sparktechnologies.sparkloans";
+  } else {
+    window.location.href = "https://spark.loans/";
+  }
+</script>

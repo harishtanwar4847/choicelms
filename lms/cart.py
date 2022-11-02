@@ -838,12 +838,21 @@ def get_tnc(**kwargs):
                 "Customer Address Details", user_kyc.address_details
             )
             address = (
-                str(address_details.perm_line1)
-                + ", "
-                + str(address_details.perm_line2)
-                + ", "
-                + str(address_details.perm_line3)
-                + ", "
+                (
+                    (str(address_details.perm_line1) + ", ")
+                    if address_details.perm_line1
+                    else ""
+                )
+                + (
+                    (str(address_details.perm_line2) + ", ")
+                    if address_details.perm_line2
+                    else ""
+                )
+                + (
+                    (str(address_details.perm_line3) + ", ")
+                    if address_details.perm_line3
+                    else ""
+                )
                 + str(address_details.perm_city)
                 + ", "
                 + str(address_details.perm_dist)
@@ -856,7 +865,6 @@ def get_tnc(**kwargs):
             )
         else:
             address = ""
-
         tnc_ul = ["<ul>"]
         tnc_ul.append(
             "<li><strong> Name of borrower : {} </strong>".format(user_kyc.fullname)

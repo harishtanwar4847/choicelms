@@ -2,6 +2,30 @@
 
 ## [Unreleased]
 
+## [v5.7.1-uat]
+
+## Fixed
+
+- [Fix: Address in get tnc fix](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/540)
+
+## [v5.7.0-uat]
+
+## Added
+
+- [Feat: agreement changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/539)
+
+## [v5.6.0-uat]
+
+## Added
+
+- [Feat: Bank patch and dynamic link changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/538)
+
+## [v5.5.3-uat]
+
+## Fixed
+
+- [Fix: Name match with penny registered name fix](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/536)
+
 ## [v5.5.2-uat]
 
 ## Fixed

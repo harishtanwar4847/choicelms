@@ -21,7 +21,19 @@ def execute():
         frappe.reload_doc("Lms", "DocType", "Related Person Details")
         frappe.reload_doc("Lms", "DocType", "CKYC Identity Details")
 
-        user_kyc = frappe.get_all("User KYC", fields=["*"])
+        if frappe.utils.get_url() == "https://spark.loans":
+            user_kyc = frappe.get_all(
+                "User KYC",
+                filters={"consent_given": 0},
+                fields=["*"],
+            )
+        else:
+            user_kyc = frappe.get_all(
+                "User KYC",
+                filters={"consent_given": 0, "pan_no": "CEFPC3206R"},
+                fields=["*"],
+            )
+
         for kyc in user_kyc:
             cust = frappe.db.get_value("Loan Customer", {"user": kyc.user}, "name")
             customer = frappe.get_doc("Loan Customer", cust)
@@ -420,16 +432,52 @@ def execute():
                     user_kyc.save(ignore_permissions=True)
                     frappe.db.commit()
                     all_kyc.append(user_kyc.name)
+                    loan_doc = frappe.get_all(
+                        "Loan Customer",
+                        filters={"user": user_kyc.user},
+                        fields=["loan_open", "bank_update"],
+                    )
+                    bank_doc = frappe.get_all(
+                        "User Bank Account",
+                        filters={"parent": user_kyc.name, "is_default": 1},
+                        fields=["*"],
+                    )
+                    if loan_doc[0].loan_open == 1:
+                        if len(bank_doc) != 0:
+                            frappe.db.sql(
+                                "update `tabUser Bank Account` set bank_status='Approved',notification_sent=1 where name = '{}'".format(
+                                    (bank_doc[0].name)
+                                )
+                            )
+                            frappe.db.sql(
+                                "update `tabLoan Customer` set bank_update=1 where user = '{}'".format(
+                                    (user_kyc.user)
+                                )
+                            )
+
                 else:
-                    frappe.db.rollback
-                    lms.log_api_error(mess=str(res_json))
+                    frappe.db.rollback()
+                    frappe.log_error(
+                        message=str(res_json)
+                        + "\n\nuser_kyc  -\n{}\n\ncustomer - {} ".format(
+                            kyc.name, customer.name
+                        ),
+                        title="ckyc download",
+                    )
+                    # frappe.(mess=)
             else:
-                lms.log_api_error(mess=str(res_json))
+                # lms.log_api_error(mess=str(res_json))
+                frappe.log_error(
+                    message=str(res_json)
+                    + "\n\nuser_kyc  -\n{}\n\ncustomer - {} ".format(
+                        kyc.name, customer.name
+                    ),
+                    title="ckyc download",
+                )
         frappe.db.sql(
             "update `tabUser KYC` set kyc_status='Approved',notification_sent=1, consent_given=1 where name in {}".format(
                 lms.convert_list_to_tuple_string(all_kyc)
             )
         )
     except Exception as e:
-        print(str(e.args))
         lms.log_api_error(str(e.args))

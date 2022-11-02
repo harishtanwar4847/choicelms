@@ -46,7 +46,7 @@ lms.patches.settlement_and_pennydrop_api_update_in_las
 lms.patches.import_proof_of_address_master
 lms.patches.update_ckyc_url_las_settings #ckyc
 lms.patches.update_ckyc_spark_push_notification_content
-lms.patches.update_ckyc_doc 
+lms.patches.update_ckyc_doc ######ckyc#######################
 lms.patches.update_email_in_kyc #ckyc
 lms.patches.update_spark_app_version
 lms.patches.update_workflow #CKYC
