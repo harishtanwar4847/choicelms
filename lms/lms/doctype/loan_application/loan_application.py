@@ -1801,7 +1801,8 @@ class LoanApplication(Document):
                 else (
                     """Dear Customer,
 Sorry! Your loan application was turned down since the lien was not successful due to technical reasons. We regret the inconvenience caused. Please try again after a while, or reach out via the 'Contact Us' section of the app- https://bit.ly/3gln78X -Spark Loans"""
-                )
+                ),
+                "Pledge rejected",
             )
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", fcm_title, fields=["*"]
@@ -1868,9 +1869,13 @@ Sorry! Your loan application was turned down since the lien was not successful d
                     "Increase loan application turned down",
                 )
                 if self.loan and not self.loan_margin_shortfall
+                # else (
+                #     "Dear Customer,\nSorry! Your loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans",
+                #     "Loan rejected",
+                # )
                 else (
-                    "Dear Customer,\nSorry! Your loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans",
-                    "Loan rejected",
+                    """Dear Customer,
+Sorry! Your loan application was turned down since the lien was not successful due to technical reasons. We regret the inconvenience caused. Please try again after a while, or reach out via the 'Contact Us' section of the app- https://bit.ly/3gln78X -Spark Loans"""
                 )
             )
             fcm_notification = frappe.get_doc(
