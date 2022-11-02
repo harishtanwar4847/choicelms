@@ -192,10 +192,6 @@ class Cart(Document):
                 mess = "Dear Customer,\nYour {} request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans".format(
                     msg_type
                 )
-                mess = """Dear Customer,
-Your {} request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans""".format(
-                    msg_type
-                )
                 # if mess:
                 receiver_list = [str(self.get_customer().phone)]
                 if doc.mob_num:

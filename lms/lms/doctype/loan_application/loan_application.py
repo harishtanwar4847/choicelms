@@ -1799,8 +1799,7 @@ class LoanApplication(Document):
                 #     "Pledge rejected",
                 # )
                 else (
-                    """Dear Customer,
-Sorry! Your loan application was turned down since the lien was not successful due to technical reasons. We regret the inconvenience caused. Please try again after a while, or reach out via the 'Contact Us' section of the app- https://bit.ly/3gln78X -Spark Loans""",
+                    "Dear Customer,\nSorry! Your loan application was turned down since the lien was not successful due to technical reasons. We regret the inconvenience caused. Please try again after a while, or reach out via the 'Contact Us' section of the app- https://bit.ly/3gln78X -Spark Loans",
                     "Pledge rejected",
                 )
             )
@@ -1874,8 +1873,7 @@ Sorry! Your loan application was turned down since the lien was not successful d
                 #     "Loan rejected",
                 # )
                 else (
-                    """Dear Customer,
-Sorry! Your loan application was turned down since the lien was not successful due to technical reasons. We regret the inconvenience caused. Please try again after a while, or reach out via the 'Contact Us' section of the app- https://bit.ly/3gln78X -Spark Loans""",
+                    "Dear Customer,\nSorry! Your loan application was turned down since the lien was not successful due to technical reasons. We regret the inconvenience caused. Please try again after a while, or reach out via the 'Contact Us' section of the app- https://bit.ly/3gln78X -Spark Loans",
                     "Loan rejected",
                 )
             )
