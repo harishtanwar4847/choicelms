@@ -60,6 +60,7 @@ class LoanMarginShortfall(Document):
             )
             self.minimum_pledge_amount = self.shortfall_c
             self.advisable_pledge_amount = self.minimum_pledge_amount * 1.1
+
         self.shortfall_percentage = (
             ((self.loan_balance - self.drawing_power) / self.loan_balance) * 100
             if self.loan_balance > self.drawing_power
@@ -179,8 +180,6 @@ class LoanMarginShortfall(Document):
             self.shortfall_c
             if self.instrument_type == "Shares"
             else self.minimum_cash_amount
-            if self.loan_balance > self.drawing_power
-            else 0
         )
         loan.save(ignore_permissions=True)
         frappe.db.commit()
