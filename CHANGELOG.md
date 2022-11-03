@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.7.2-uat]
+
+## Fixed
+
+- [Fix: Margin Shortfall Amount update in Loan](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/542)
+
 ## [v5.7.1-uat]
 
 ## Fixed
