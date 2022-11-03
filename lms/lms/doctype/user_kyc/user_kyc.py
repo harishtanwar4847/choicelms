@@ -27,6 +27,7 @@ class UserKYC(Document):
         cust_name = frappe.db.get_value("Loan Customer", {"user": self.user}, "name")
         loan_customer = frappe.get_doc("Loan Customer", cust_name)
         doc = self.as_dict()
+        las_settings = frappe.get_single("LAS Settings")
         if self.notification_sent == 0 and self.kyc_status in ["Approved", "Rejected"]:
             if self.kyc_status == "Approved":
                 if not loan_customer.kyc_update and not loan_customer.choice_kyc:
@@ -37,7 +38,9 @@ class UserKYC(Document):
                 frappe.enqueue_doc(
                     "Notification", "Ckyc Approved", method="send", doc=doc
                 )
-                msg = "Your KYC Request has been approved, please visit spark.loans to continue the further journey."
+                msg = "Your KYC Request has been approved, please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
+                    las_settings.app_login_dashboard
+                )
                 fcm_notification = frappe.get_doc(
                     "Spark Push Notification", "Ckyc Approved", fields=["*"]
                 )
@@ -45,7 +48,9 @@ class UserKYC(Document):
                 frappe.enqueue_doc(
                     "Notification", "Ckyc Rejected", method="send", doc=doc
                 )
-                msg = "Your KYC Request has been rejected due to mismatch in details. Please visit spark.loans in order to reapply."
+                msg = "Your KYC Request has been rejected due to mismatch in details.  Please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
+                    las_settings.app_login_dashboard
+                )
                 fcm_notification = frappe.get_doc(
                     "Spark Push Notification", "Ckyc Rejected", fields=["*"]
                 )
@@ -73,7 +78,9 @@ class UserKYC(Document):
         for i in self.bank_account:
             if i.notification_sent == 0 and i.bank_status in ["Approved", "Rejected"]:
                 if i.bank_status == "Approved":
-                    msg = "Your Bank details request has been approved; please visit spark.loans to continue the further journey to avail loan."
+                    msg = "Your Bank details request has been approved; please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
+                        las_settings.app_login_dashboard
+                    )
                     frappe.enqueue_doc(
                         "Notification", "Bank Approved", method="send", doc=doc
                     )
@@ -85,7 +92,9 @@ class UserKYC(Document):
                     frappe.db.commit()
 
                 elif i.bank_status == "Rejected":
-                    msg = "Your Bank request has been rejected due to mismatch in the details; please visit spark.loans in order to reapply."
+                    msg = "Your Bank request has been rejected due to mismatch in the details;  please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
+                        las_settings.app_login_dashboard
+                    )
                     frappe.enqueue_doc(
                         "Notification", "Bank Rejected", method="send", doc=doc
                     )

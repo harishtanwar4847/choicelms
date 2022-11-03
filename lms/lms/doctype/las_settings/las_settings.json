@@ -68,9 +68,13 @@
   "mf_equity_ltv",
   "column_break_50",
   "mf_debt_ltv",
-  "section_break_33",
   "app_identification_hash_string",
+  "dlt_section_break_33",
+  "app_login_dashboard",
+  "my_securities",
   "column_break_35",
+  "my_loans",
+  "contact_us",
   "terms_of_use_privacy_policy_section_break",
   "terms_of_use_document",
   "tnc_column_break",
@@ -218,11 +222,6 @@
    "fieldname": "app_identification_hash_string",
    "fieldtype": "Data",
    "label": "App Identification Hash String"
-  },
-  {
-   "fieldname": "section_break_33",
-   "fieldtype": "Section Break",
-   "permlevel": 1
   },
   {
    "fieldname": "terms_of_use_privacy_policy_section_break",
@@ -553,11 +552,37 @@
    "fieldname": "ckyc_download_api",
    "fieldtype": "Data",
    "label": "CKYC Download API"
+  },
+  {
+   "fieldname": "dlt_section_break_33",
+   "fieldtype": "Section Break",
+   "label": "DLT  Links",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "app_login_dashboard",
+   "fieldtype": "Data",
+   "label": "App Login / Dashboard"
+  },
+  {
+   "fieldname": "my_securities",
+   "fieldtype": "Data",
+   "label": "My Securities"
+  },
+  {
+   "fieldname": "my_loans",
+   "fieldtype": "Data",
+   "label": "My Loans"
+  },
+  {
+   "fieldname": "contact_us",
+   "fieldtype": "Data",
+   "label": "Contact Us"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2022-06-29 15:17:20.676282",
+ "modified": "2022-11-03 18:45:19.515032",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
