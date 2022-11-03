@@ -556,7 +556,7 @@
   {
    "fieldname": "dlt_section_break_33",
    "fieldtype": "Section Break",
-   "label": "DLT  Links",
+   "label": "DLT Links",
    "permlevel": 1
   },
   {
@@ -582,7 +582,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2022-11-03 18:45:19.515032",
+ "modified": "2022-11-03 19:02:18.425841",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

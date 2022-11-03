@@ -1648,6 +1648,7 @@ class LoanApplication(Document):
                 + "\nPledge Details:\n{security_list}".format(
                     security_list=security_list
                 ),
+                title="Pledge Request Error",
                 # title=frappe.local.form_dict.get("cmd")
                 # .split(".")[-1]
                 # .replace("_", " ")

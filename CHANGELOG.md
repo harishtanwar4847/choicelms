@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.8.0-uat]
+
+## Added
+
+- [Feat: DLT sms changes and 4 fields added in las settings for dlt](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/544)
+
 ## [v5.7.2-uat]
 
 ## Fixed
