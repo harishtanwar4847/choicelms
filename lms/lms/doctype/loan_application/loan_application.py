@@ -1791,12 +1791,22 @@ class LoanApplication(Document):
         if doc.get("loan_application").get("status") == "Pledge Failure":
             msg, fcm_title = (
                 (
+                    "Dear Customer,\nSorry! Your Increase loan application was turned down since the pledge was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app -Spark Loans",
+                    "Increase loan application rejected",
+                )
+                if not self.instrument_type == "Mutual Fund"
+                else (
                     "Dear Customer,\nSorry! Your Increase loan application was turned down since the {} was not successful due to technical reasons. We regret the inconvenience caused. You can reach out via the 'Contact Us' section of the app or please try again later using this link- {link} -Spark Loans".format(
                         msg_type, link=las_settings.my_loans
                     ),
                     "Increase loan application rejected",
                 )
                 if self.loan and not self.loan_margin_shortfall
+                else (
+                    "Dear Customer,\nCongratulations! Your loan account is open. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
+                    "Pledge rejected",
+                )
+                if not self.instrument_type == "Mutual Fund"
                 else (
                     "Dear Customer,\nSorry! Your loan application was turned down since the {} was not successful due to technical reasons. We regret the inconvenience caused. Please try again after a while, or reach out via the 'Contact Us' section of the app- {link} -Spark Loans".format(
                         msg_type, link=las_settings.contact_us
