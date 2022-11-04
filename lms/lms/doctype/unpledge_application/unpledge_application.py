@@ -332,7 +332,7 @@ class UnpledgeApplication(Document):
                         msg_type=msg_type
                     )
                 else:
-                    msg = "Dear Customer,Sorry! Your {} application was turned down due to technical reasons. You can reach out via the 'Contact Us' section of the app or please try again later using this link- {link} -Spark Loans".format(
+                    msg = "Dear Customer,\nSorry! Your {} application was turned down due to technical reasons. You can reach out via the 'Contact Us' section of the app or please try again later using this link- {link} -Spark Loans".format(
                         msg_type, link=las_settings.my_securities
                     )
                     fcm_notification = frappe.get_doc(

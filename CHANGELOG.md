@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.8.2-uat]
+
+## Added
+
+- [Feat: \n added in unpledge application msg](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/547)
+
 ## [v5.8.1-uat]
 
 ## Added
