@@ -6,6 +6,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "updated_kyc",
   "basic_details_section_break",
   "user",
   "pan_no",
@@ -698,10 +699,17 @@
    "fieldtype": "Link",
    "label": "Address",
    "options": "Customer Address Details"
+  },
+  {
+   "default": "0",
+   "fieldname": "updated_kyc",
+   "fieldtype": "Check",
+   "label": "Updated KYC",
+   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2022-08-05 14:44:50.289832",
+ "modified": "2022-11-04 15:53:58.460489",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
