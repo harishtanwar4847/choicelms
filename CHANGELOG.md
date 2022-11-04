@@ -6,7 +6,7 @@
 
 ## Added
 
-- [Feat: update dlt links patch changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/545)
+- [Feat: update dlt links patch changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/546)
 
 ## [v5.8.0-uat]
 
