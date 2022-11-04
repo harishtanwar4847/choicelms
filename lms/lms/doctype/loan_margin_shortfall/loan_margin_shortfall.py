@@ -60,7 +60,6 @@ class LoanMarginShortfall(Document):
             )
             self.minimum_pledge_amount = self.shortfall_c
             self.advisable_pledge_amount = self.minimum_pledge_amount * 1.1
-
         self.shortfall_percentage = (
             ((self.loan_balance - self.drawing_power) / self.loan_balance) * 100
             if self.loan_balance > self.drawing_power
@@ -307,6 +306,7 @@ class LoanMarginShortfall(Document):
         eod_time = ""
         eod_sell_off = []
 
+        las_settings = frappe.get_single("LAS Settings")
         msg_type = ["sale", "sell"]
         if self.instrument_type == "Mutual Fund":
             msg_type = ["invoke", "invoke"]
@@ -336,8 +336,12 @@ class LoanMarginShortfall(Document):
             if self.instrument_type == "Mutual Fund":
                 email_subject = "MF Sale triggered"
             frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
-            mess = "Dear Customer,\nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {}% of portfolio value. Therefore {} has been triggered in your loan account {}.The lender will {} required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
-                hrs_sell_off[0].max_threshold, msg_type[0], self.loan, msg_type[1]
+            mess = "Dear Customer,\nURGENT NOTICE. There is a margin shortfall in your loan account which exceeds {}% of portfolio value. Therefore {} has been triggered in your loan account {}.The lender will {} required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details - {link} - Spark Loans".format(
+                hrs_sell_off[0].max_threshold,
+                msg_type[0],
+                self.loan,
+                msg_type[1],
+                link=las_settings.app_login_dashboard,
             )
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Sale triggerred immediate", fields=["*"]
@@ -551,11 +555,12 @@ def send_notification_for_sell_triggered(single_shortfall):
         loan = single_shortfall.get_loan()
 
         msg_type = ["A sale", "sell"]
+        las_settings = frappe.get_single("LAS Settings")
         if loan.instrument_type == "Mutual Fund":
             msg_type = ["An invoke", "invoke"]
 
-        mess = "Dear Customer,\nURGENT NOTICE. {} has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will {} required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details. Spark Loans".format(
-            msg_type[0], loan.name, msg_type[1]
+        mess = "Dear Customer,\nURGENT NOTICE. {} has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will {} required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details - {link} - Spark Loans".format(
+            msg_type[0], loan.name, msg_type[1], link=las_settings.app_login_dashboard
         )
         fcm_notification = frappe.get_doc(
             "Spark Push Notification",
