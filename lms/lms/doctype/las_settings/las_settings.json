@@ -556,7 +556,7 @@
   {
    "fieldname": "dlt_section_break_33",
    "fieldtype": "Section Break",
-   "label": "DLT Links",
+   "label": "SMS Dynamic Links",
    "permlevel": 1
   },
   {
@@ -582,7 +582,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2022-11-04 12:12:37.177893",
+ "modified": "2022-11-04 12:21:12.662120",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
