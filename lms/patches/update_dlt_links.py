@@ -10,7 +10,7 @@ def execute():
         my_securities = "https://bit.ly/3TAhrXh"
         my_loans = "https://bit.ly/3DacSgE"
     # for new_uat
-    elif frappe.utils.get_url() == "https://uat.spark.loans/":
+    elif frappe.utils.get_url() == "https://uat.spark.loans":
         app_Login_Dashboard = "https://bit.ly/3DE6P4A"
         contact_us = "https://bit.ly/3TXzarG"
         my_securities = "https://bit.ly/3FliohZ"
