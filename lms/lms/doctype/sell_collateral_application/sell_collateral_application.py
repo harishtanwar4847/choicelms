@@ -214,14 +214,15 @@ class SellCollateralApplication(Document):
 
     def on_update(self):
         las_settings = frappe.get_single("LAS Settings")
-        msg_type = "sell collateral"
-        if self.instrument_type == "Mutual Fund":
-            msg_type = "invoke"
 
         if self.status == "Rejected":
-            msg = "Dear Customer,\nSorry! Your {} request was turned down due to technical reasons. You can reach out via the 'Contact Us' section of the app or please try again later using this link- {link} -Spark Loans".format(
-                msg_type, link=las_settings.my_securities
-            )
+            if self.instrument_type == "Mutual Fund":
+                msg = "Dear Customer,\nSorry! Your invoke request was turned down due to technical reasons. You can reach out via the 'Contact Us' section of the app or please try again later using this link- {link} -Spark Loans".format(
+                    link=las_settings.my_securities
+                )
+
+            else:
+                msg = "Dear Customer,\nSorry! Your sell collateral request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
 
             receiver_list = [str(self.get_customer().phone)]
             if self.get_customer().get_kyc().mob_num:
@@ -403,11 +404,9 @@ class SellCollateralApplication(Document):
             frappe.throw(_("Invalid User"))
         user_roles = [role[0] for role in user_roles]
 
-        msg_type = ["Sale of securities", "sale"]
         email_subject = "Sale Triggered Completion"
         application_type = "sell collateral"
         if loan.instrument_type == "Mutual Fund":
-            msg_type = ["Invoke", "invoke"]
             email_subject = "MF Sale Triggered Completion"
             application_type = "invoke"
 
@@ -416,9 +415,15 @@ class SellCollateralApplication(Document):
             doc["sell_triggered_completion"] = {"loan": self.loan}
 
             frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
-            msg = "Dear Customer,\n{} initiated by the lending partner for your loan account  {} is now completed .The {} proceeds have been credited to your loan account and collateral value updated. Please check the app for details - {link} -Spark Loans".format(
-                msg_type[0], self.loan, msg_type[1], link=las_settings.my_loans
-            )
+            if loan.instrument_type == "Mutual Fund":
+                msg = "Dear Customer,\nInvoke initiated by the lending partner for your loan account  {} is now completed .The invoke proceeds have been credited to your loan account and collateral value updated. Please check the app for details - {link} -Spark Loans".format(
+                    self.loan, link=las_settings.my_loans
+                )
+            else:
+                msg = "Dear Customer,\nSale of securities initiated by the lending partner for your loan account  {} is now completed .The sale proceeds have been credited to your loan account and collateral value updated. Please check the app for details. Spark Loans".format(
+                    self.loan
+                )
+
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Sale triggerred completed", fields=["*"]
             )
@@ -430,9 +435,14 @@ class SellCollateralApplication(Document):
                 fcm_notification = fcm_notification.as_dict()
                 fcm_notification["title"] = "Invoke triggerred completed "
         else:
-            msg = "Dear Customer,\nCongratulations! Your {} request has been successfully executed and sale proceeds credited to your loan account. Kindly check the app for details - {link} -Spark Loans".format(
-                application_type, link=las_settings.my_loans
-            )
+            if loan.instrument_type == "Mutual Fund":
+                msg = "Dear Customer,\nCongratulations! Your {} request has been successfully executed and sale proceeds credited to your loan account. Kindly check the app for details - {link} -Spark Loans".format(
+                    application_type, link=las_settings.my_loans
+                )
+            else:
+                msg = "Dear Customer,\nCongratulations! Your {} request has been successfully executed and sale proceeds credited to your loan account. Kindly check the app for details -Spark Loans".format(
+                    application_type
+                )
 
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Sell request executed", fields=["*"]
