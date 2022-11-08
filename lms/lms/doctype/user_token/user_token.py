@@ -22,6 +22,7 @@ class UserToken(Document):
             "Lien OTP",
             "Invoke OTP",
             "Revoke OTP",
+            "Loan Renewal OTP",
         ]:
             token_type = self.token_type.replace(" ", "")
             if self.token_type in [

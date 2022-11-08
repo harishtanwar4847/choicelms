@@ -1,0 +1,65 @@
+Workflow Name,Document Type,Workflow State Field,Is Active,Don't Override Status,Send Email Alert,ID (Document States),State (Document States),Only Allow Edit For (Document States),Doc Status (Document States),Update Field (Document States),Update Value (Document States),Is Optional State (Document States),Next Action Email Template (Document States),Message (Document States),ID (Transitions),State (Transitions),Action (Transitions),Next State (Transitions),Allowed (Transitions),Allow Self Approval (Transitions),Condition (Transitions)
+Loan Renewal Application Approval,Spark Loan Renewal Application,workflow_state,1,0,0,c39b051efe,Pending,Administrator,0,status,Pending,0,,,0ba6a4198c,Pending,Execute,Loan Renewal executed,Administrator,1,
+,,,,,,9d8e005dbd,Loan Renewal executed,Lender,0,status,Loan Renewal executed,0,,,7dd97dfc32,Loan Renewal executed,Approve,Loan Renewal accepted by Lender,Lender,1,
+,,,,,,160c61f4b3,Loan Renewal accepted by Lender,Lender,0,status,Loan Renewal accepted by Lender,0,,,426f46b015,Loan Renewal executed,Approve,Loan Renewal accepted by Lender,System Manager,1,
+,,,,,,87d45c080c,Esign Done,Lender,0,status,Esign Done,0,,,361cab335f,Loan Renewal executed,Reject,Rejected,Administrator,1,
+,,,,,,f27878c410,Approved,Lender,0,status,Approved,0,,,3f5da00bfa,Loan Renewal executed,Reject,Rejected,Lender,1,
+,,,,,,100e02afbd,Rejected,Lender,0,status,Rejected,0,,,1464f4bed4,Loan Renewal accepted by Lender,Esign,Esign Done,Lender,1,doc.get('loan_margin_shortfall') == None
+,,,,,,,,,,,,,,,fa8d4d74c6,Loan Renewal accepted by Lender,Reject,Rejected,Lender,1,doc.get('loan_margin_shortfall') == None
+,,,,,,,,,,,,,,,eb03ca9085,Loan Renewal accepted by Lender,Reject,Rejected,Loan Customer,1,doc.get('loan_margin_shortfall') == None
+,,,,,,,,,,,,,,,cb35d975f2,Loan Renewal accepted by Lender,Reject,Rejected,Lender,1,doc.get('loan_margin_shortfall') == None
+,,,,,,,,,,,,,,,3cb6e14795,Loan Renewal accepted by Lender,Esign,Esign Done,Loan Customer,1,doc.get('loan_margin_shortfall') == None
+,,,,,,,,,,,,,,,0c49237cdd,Loan Renewal accepted by Lender,Esign,Esign Done,System Manager,1,doc.get('loan_margin_shortfall') == None
+,,,,,,,,,,,,,,,ee5f11c2d4,Esign Done,Approve,Approved,Lender,1,
+,,,,,,,,,,,,,,,2aa51eee62,Esign Done,Approve,Approved,System Manager,1,
+,,,,,,,,,,,,,,,58e6608b43,Esign Done,Reject,Rejected,System Manager,1,
+,,,,,,,,,,,,,,,70c8073d50,Esign Done,Reject,Rejected,Lender,1,
+Sell Collateral Application Workflow,Sell Collateral Application,workflow_state,1,0,0,49bb714904,Pending,Lender,0,status,Pending,0,,,a282af1887,Pending,Approve,Approved,Lender,1,"(doc.instrument_type == ""Shares"") or (doc.instrument_type == ""Mutual Fund"" and doc.is_validated and doc.is_initiated)"
+,,,,,,f1d76232bf,Approved,Lender,1,status,Approved,0,,,f4ba0cd840,Pending,Reject,Rejected,Lender,1,
+,,,,,,fee26bc662,Rejected,Lender,0,status,Rejected,0,,,,,,,,,
+Unpledge Application Approval,Unpledge Application,workflow_state,1,0,0,6808c8d862,Pending,Lender,0,status,Pending,0,,,206dbcee2a,Pending,Approve,Approved,System Manager,1,"(doc.instrument_type == ""Shares"") or (doc.instrument_type == ""Mutual Fund"" and doc.is_validated and doc.is_initiated)"
+,,,,,,b53a5fb371,Approved,Lender,1,status,Approved,0,,,867494da3a,Pending,Approve,Approved,Lender,1,"(doc.instrument_type == ""Shares"") or (doc.instrument_type == ""Mutual Fund"" and doc.is_validated and doc.is_initiated)"
+,,,,,,de9467db72,Rejected,Lender,0,status,Rejected,0,,,04e0040dfe,Pending,Reject,Rejected,System Manager,1,
+,,,,,,,,,,,,,,,c1a2f5b3cc,Pending,Reject,Rejected,Lender,1,
+Loan Transaction Approval,Loan Transaction,workflow_state,1,0,0,a317c762fd,Pending,Lender,0,status,Pending,0,,,b9571670a6,Pending,Approve,Approved,System Manager,1,doc.allowable >= doc.requested
+,,,,,,9f9263cd29,Approved,Lender,1,status,Approved,0,,,0969e49faa,Pending,Approve,Approved,Lender,1,doc.allowable >= doc.requested
+,,,,,,c79d475f73,Rejected,Lender,0,status,Rejected,0,,,eed47d5a46,Pending,Approve,Approved,Razorpay User,1,"doc.transaction_type == ""Payment"" and doc.allowable >= doc.requested"
+,,,,,,fe891de415,Pending,Lender,0,status,Pending,0,,,ee10e3eda0,Pending,Send for Approval,Ready for Approval,System Manager,1,"doc.transaction_type == ""Withdrawal"" and doc.allowable < doc.requested"
+,,,,,,24388d71d6,Ready for Approval,Spark Transaction Approver,0,status,Ready for Approval,0,,,60ad0315d5,Pending,Send for Approval,Ready for Approval,Lender,1,"doc.transaction_type == ""Withdrawal"" and doc.allowable < doc.requested"
+,,,,,,692586b67a,Ready for Approval,System Manager,0,status,Ready for Approval,0,,,79977cdaa5,Pending,Reject,Rejected,System Manager,1,
+,,,,,,,,,,,,,,,b823e476a5,Pending,Reject,Rejected,Lender,1,
+,,,,,,,,,,,,,,,593dfcf802,Pending,Reject,Rejected,Razorpay User,1,"doc.transaction_type == ""Payment"""
+,,,,,,,,,,,,,,,c7fd4e26a3,Ready for Approval,Approve,Approved,Spark Transaction Approver,1,
+,,,,,,,,,,,,,,,11666255b2,Ready for Approval,Reject,Rejected,Spark Transaction Approver,1,
+Top up Application Approval,Top up Application,workflow_state,1,0,0,66fb61d917,Pending,Lender,0,status,Pending,0,,,1453cf20ef,Pending,Esign,Esign Done,Loan Customer,1,
+,,,,,,d51864126a,Esign Done,Lender,0,status,Esign Done,0,,,fdd3882817,Pending,Esign,Esign Done,Lender,1,
+,,,,,,9b1686752f,Approved,Lender,1,status,Approved,0,,,3abe425bc7,Pending,Esign,Esign Done,System Manager,1,
+,,,,,,82193634f0,Rejected,Lender,0,status,Rejected,0,,,00b2dae76e,Pending,Reject,Rejected,System Manager,1,
+,,,,,,,,,,,,,,,5fde6ddcc0,Pending,Reject,Rejected,Lender,1,
+,,,,,,,,,,,,,,,6c434f4812,Esign Done,Approve,Approved,Lender,1,
+,,,,,,,,,,,,,,,712a651cb7,Esign Done,Approve,Approved,System Manager,1,
+,,,,,,,,,,,,,,,14b071ff9f,Esign Done,Reject,Rejected,Lender,1,
+,,,,,,,,,,,,,,,8536c266c7,Esign Done,Reject,Rejected,System Manager,1,
+Loan Application Approval,Loan Application,workflow_state,1,0,0,204e8d58a9,Waiting to be pledged,Administrator,0,,,1,,,775a96129e,Waiting to be pledged,Pending pledge,Executing pledge,Administrator,1,
+,,,,,,e778a7e231,Executing pledge,Administrator,0,,,0,,,e04a071074,Waiting to be pledged,Reject,Rejected,Administrator,1,
+,,,,,,3f4c24a695,Pledge executed,Lender,0,status,Pledge executed,0,,,a43cd69407,Waiting to be pledged,Reject,Rejected,Lender,1,
+,,,,,,4499daed4e,Pledge accepted by Lender,Lender,0,status,Pledge accepted by Lender,0,,,879dd29bbb,Waiting to be pledged,Reject,Rejected,Loan Customer,1,
+,,,,,,3f4986ab1c,Esign Done,Lender,0,status,Esign Done,0,,,e8b660076d,Executing pledge,Pending pledge,Pledge executed,Administrator,1,
+,,,,,,c448cfe450,Ready for Approval,Lender,0,status,Ready for Approval,0,,,61c1ea3cea,Pledge executed,Approve,Pledge accepted by Lender,Lender,1,
+,,,,,,99a61c7814,Approved,Lender,0,status,Approved,0,,,b7a71215b6,Pledge executed,Approve,Pledge accepted by Lender,System Manager,1,
+,,,,,,743e3eb210,Rejected,Lender,0,status,Rejected,0,,,03f310c21e,Pledge executed,Reject,Rejected,Administrator,1,
+,,,,,,,,,,,,,,,d3178d1623,Pledge executed,Reject,Rejected,Lender,1,
+,,,,,,,,,,,,,,,38e0c9ec29,Pledge accepted by Lender,Esign,Esign Done,Lender,1,doc.get('loan_margin_shortfall') == None
+,,,,,,,,,,,,,,,4a2e012f20,Pledge accepted by Lender,Esign,Esign Done,Loan Customer,1,doc.get('loan_margin_shortfall') == None
+,,,,,,,,,,,,,,,8a437def45,Pledge accepted by Lender,Esign,Esign Done,System Manager,1,doc.get('loan_margin_shortfall') == None
+,,,,,,,,,,,,,,,1ea09076e8,Pledge accepted by Lender,Send for Approval,Ready for Approval,System Manager,1,doc.get('loan_margin_shortfall') != None
+,,,,,,,,,,,,,,,855ac3934d,Pledge accepted by Lender,Send for Approval,Ready for Approval,Loan Customer,1,doc.get('loan_margin_shortfall') != None
+,,,,,,,,,,,,,,,75f9182259,Pledge accepted by Lender,Send for Approval,Ready for Approval,Lender,1,doc.get('loan_margin_shortfall') != None
+,,,,,,,,,,,,,,,b73934d155,Esign Done,Approve,Approved,Lender,1,
+,,,,,,,,,,,,,,,2fe0328a0c,Esign Done,Approve,Approved,System Manager,1,
+,,,,,,,,,,,,,,,7ff1898700,Ready for Approval,Approve,Approved,System Manager,1,
+,,,,,,,,,,,,,,,9b832e3d68,Ready for Approval,Approve,Approved,Lender,1,
+,,,,,,,,,,,,,,,46acbee090,Esign Done,Reject,Rejected,System Manager,1,
+,,,,,,,,,,,,,,,ccd6fcc3fc,Esign Done,Reject,Rejected,Lender,1,
+,,,,,,,,,,,,,,,c38cdbcc6b,Ready for Approval,Reject,Rejected,System Manager,1,
+,,,,,,,,,,,,,,,f37f6267c1,Ready for Approval,Reject,Rejected,Lender,1,

@@ -7,6 +7,7 @@
  "field_order": [
   "loan_details_section",
   "loan",
+  "lender",
   "old_kyc_name",
   "new_kyc_name",
   "updated_kyc_status",
@@ -33,6 +34,7 @@
    "label": "Loan Details"
   },
   {
+   "fetch_from": "customer.choice_kyc",
    "fieldname": "old_kyc_name",
    "fieldtype": "Link",
    "label": "Old KYC Name",
@@ -139,17 +141,26 @@
   {
    "fieldname": "remarks",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Remarks",
-   "mandatory_depends_on": "doc.status==\"Rejected\";"
+   "mandatory_depends_on": "eval:doc.status==\"Rejected\";",
+   "reqd": 1
   },
   {
    "fieldname": "section_break_19",
    "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "loan.lender",
+   "fieldname": "lender",
+   "fieldtype": "Link",
+   "label": "Lender",
+   "options": "Lender"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-11-04 16:39:48.733986",
+ "modified": "2022-11-08 15:59:52.724038",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Loan Renewal Application",

@@ -88,12 +88,17 @@ def esign(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {"loan_application_name": "", "topup_application_name": ""},
+            {
+                "loan_application_name": "",
+                "topup_application_name": "",
+                "loan_renewal_application_name": "",
+            },
         )
 
         reg = lms.regex_special_characters(
             search=data.get("loan_application_name")
             + data.get("topup_application_name")
+            + data.get("loan_renewal_application_name")
         )
         if reg:
             # return utils.respondWithFailure(
@@ -103,16 +108,28 @@ def esign(**kwargs):
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         customer = lms.__customer()
-        if data.get("loan_application_name") and data.get("topup_application_name"):
+        if (
+            data.get("loan_application_name")
+            and data.get("topup_application_name")
+            and data.get("loan_renewal_application_name")
+            or data.get("loan_application_name")
+            and data.get("topup_application_name")
+            or data.get("topup_application_name")
+            and data.get("loan_renewal_application_name")
+            or data.get("loan_application_name")
+            and data.get("loan_renewal_application_name")
+        ):
             # return utils.respondForbidden(
             #     message=_("Can not use both application at once, please use one.")
             # )
             raise lms.exceptions.ForbiddenException(
-                _("Can not use both application at once, please use one.")
+                _("Can not use multiple application at once, please use one.")
             )
 
-        elif not data.get("loan_application_name") and not data.get(
-            "topup_application_name"
+        elif (
+            not data.get("loan_application_name")
+            and not data.get("topup_application_name")
+            and not data.get("loan_renewal_application_name")
         ):
             # return utils.respondForbidden(
             #     message=_(
@@ -121,7 +138,7 @@ def esign(**kwargs):
             # )
             raise lms.exceptions.ForbiddenException(
                 _(
-                    "Loan Application and Top up Application not found. Please use atleast one."
+                    "Loan Application , Top up Application and Loan Renewal Application not found. Please use atleast one."
                 )
             )
 
@@ -145,7 +162,7 @@ def esign(**kwargs):
             esign_request = loan_application.esign_request(increase_loan)
             application = loan_application
 
-        else:
+        elif data.get("topup_application_name"):
             topup_application = frappe.get_doc(
                 "Top up Application", data.get("topup_application_name")
             )
@@ -161,6 +178,22 @@ def esign(**kwargs):
                 )
             esign_request = topup_application.esign_request()
             application = topup_application
+
+        else:
+            loan_renewal_application = frappe.get_doc(
+                "Spark Loan Renewal Application",
+                data.get("loan_renewal_application_name"),
+            )
+            if not loan_renewal_application:
+                raise lms.exceptions.NotFoundException(
+                    _("Loan Renewal Application not found")
+                )
+            if loan_renewal_application.customer != customer.name:
+                raise lms.exceptions.ForbiddenException(
+                    _("Please use yor own Loan Renewal Application")
+                )
+            esign_request = loan_renewal_application.esign_request()
+            application = loan_renewal_application
 
         user = lms.__user()
 
@@ -199,6 +232,9 @@ def esign(**kwargs):
                 "headers": esign_request.get("headers"),
                 "loan_application_name": data.get("loan_application_name"),
                 "topup_application_name": data.get("topup_application_name"),
+                "loan_renewal_application_name": data.get(
+                    "loan_renewal_application_name"
+                ),
                 "esign_response": res.json(),
                 "res_url": url,
                 "before_esign_file_url": before_esign_file_url,
@@ -237,6 +273,7 @@ def esign_done(**kwargs):
             {
                 "loan_application_name": "",
                 "topup_application_name": "",
+                "loan_renewal_application_name": "",
                 "file_id": "required",
             },
         )
@@ -244,6 +281,7 @@ def esign_done(**kwargs):
         reg = lms.regex_special_characters(
             search=data.get("loan_application_name")
             + data.get("topup_application_name")
+            + data.get("loan_renewal_application_name")
             + data.get("file_id")
         )
         if reg:
@@ -263,23 +301,35 @@ def esign_done(**kwargs):
         customer = lms.__customer()
         las_settings = frappe.get_single("LAS Settings")
 
-        if data.get("loan_application_name") and data.get("topup_application_name"):
+        if (
+            data.get("loan_application_name")
+            and data.get("topup_application_name")
+            and data.get("loan_renewal_application_name")
+            or data.get("loan_application_name")
+            and data.get("topup_application_name")
+            or data.get("topup_application_name")
+            and data.get("loan_renewal_application_name")
+            or data.get("loan_application_name")
+            and data.get("loan_renewal_application_name")
+        ):
             # return utils.respondForbidden(
             #     message=_("Can not use both application at once, please use one.")
             # )
             raise lms.exceptions.ForbiddenException(
-                _("Can not use both application at once, please use one.")
+                _("Can not use multiple application at once, please use one.")
             )
 
-        elif not data.get("loan_application_name") and not data.get(
-            "topup_application_name"
+        elif (
+            not data.get("loan_application_name")
+            and not data.get("topup_application_name")
+            and data.get("loan_renewal_application_name")
         ):
             # return utils.respondForbidden(
             #     "Loan Application and Top up Application not found. Please use atleast one."
             # )
             raise lms.exceptions.ForbiddenException(
                 _(
-                    "Loan Application and Top up Application not found. Please use atleast one."
+                    "Loan Application, Top up Application and Loan Renewal Application not found. Please use atleast one."
                 )
             )
 
@@ -296,7 +346,7 @@ def esign_done(**kwargs):
                 #     message=_("Please use your own Loan Application.")
                 # )
                 raise lms.exceptions.ForbiddenException(
-                    _("P;ease use your own Loan Application")
+                    _("Please use your own Loan Application")
                 )
 
             increase_loan = 0
@@ -312,7 +362,7 @@ def esign_done(**kwargs):
                     las_settings.esign_host, las_settings.esign_download_signed_file_uri
                 ).format(file_id=data.get("file_id"))
 
-        else:
+        elif data.get("topup_application_name"):
             topup_application = frappe.get_doc(
                 "Top up Application", data.get("topup_application_name")
             )
@@ -332,6 +382,25 @@ def esign_done(**kwargs):
                 las_settings.enhancement_esign_download_signed_file_uri,
             ).format(file_id=data.get("file_id"))
 
+        else:
+            loan_renewal_application = frappe.get_doc(
+                "Spark Loan Renewal Application",
+                data.get("loan_renewal_application_name"),
+            )
+            if not loan_renewal_application:
+                raise lms.exceptions.NotFoundException(
+                    _("Loan Renewal Application not found")
+                )
+
+            if loan_renewal_application.customer != customer.name:
+                raise lms.exceptions.ForbiddenException(
+                    _("Please use your own Loan Renewal Application.")
+                )
+            esigned_pdf_url = "{}{}".format(
+                las_settings.esign_host,
+                las_settings.enhancement_esign_download_signed_file_uri,
+            ).format(file_id=data.get("file_id"))
+
         try:
             res = requests.get(esigned_pdf_url, allow_redirects=True)
             # frappe.db.begin()
@@ -339,6 +408,9 @@ def esign_done(**kwargs):
                 "timestamp": str(frappe.utils.now_datetime()),
                 "loan_application_name": data.get("loan_application_name"),
                 "topup_application_name": data.get("topup_application_name"),
+                "loan_renewal_application_name": data.get(
+                    "loan_renewal_application_name"
+                ),
                 "esign_done_request": esigned_pdf_url,
                 "esign_done_response_status": "Success"
                 if (str(res.content)).startswith("b'%PDF-")
@@ -387,7 +459,7 @@ def esign_done(**kwargs):
                         method="send",
                         doc=doc,
                     )
-                else:
+                elif data.get("topup_application_name"):
                     esigned_file = frappe.get_doc(
                         {
                             "doctype": "File",
@@ -424,6 +496,60 @@ def esign_done(**kwargs):
                     fcm_notification = frappe.get_doc(
                         "Spark Push Notification",
                         "Topup E-signing was successful",
+                        fields=["*"],
+                    )
+                    lms.send_spark_push_notification(
+                        fcm_notification=fcm_notification, customer=customer
+                    )
+
+                else:
+                    esigned_file = frappe.get_doc(
+                        {
+                            "doctype": "File",
+                            "file_name": "{}-aggrement.pdf".format(
+                                data.get("loan_renewal_application_name")
+                            ),
+                            "content": res.content,
+                            "attached_to_doctype": "Spark Loan Renewal Application",
+                            "attached_to_name": data.get(
+                                "loan_renewal_application_name"
+                            ),
+                            "attached_to_field": "customer_esigned_document",
+                            "folder": "Home",
+                        }
+                    )
+                    esigned_file.save(ignore_permissions=True)
+
+                    loan_renewal_application.status = "Esign Done"
+                    loan_renewal_application.workflow_state = "Esign Done"
+                    loan_renewal_application.customer_esigned_document = (
+                        esigned_file.file_url
+                    )
+                    loan_renewal_application.save(ignore_permissions=True)
+                    frappe.db.commit()
+                    doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+                    frappe.enqueue_doc(
+                        "Notification",
+                        "Loan Renewal Application Esign Done",
+                        method="send",
+                        doc=doc,
+                    )
+                    msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan renew approval.\nThank you for your patience. - Spark Loans"
+                    receiver_list = [str(customer.phone)]
+                    if customer.get_kyc().mob_num:
+                        receiver_list.append(str(customer.get_kyc().mob_num))
+                    if customer.get_kyc().choice_mob_no:
+                        receiver_list.append(str(customer.get_kyc().choice_mob_no))
+
+                    receiver_list = list(set(receiver_list))
+
+                    frappe.enqueue(
+                        method=send_sms, receiver_list=receiver_list, msg=msg
+                    )
+
+                    fcm_notification = frappe.get_doc(
+                        "Spark Push Notification",
+                        "Loan Renewal E-signing was successful",
                         fields=["*"],
                     )
                     lms.send_spark_push_notification(
@@ -504,6 +630,18 @@ def my_loans():
             sum([i.total_collateral_value for i in loans])
         )
         data["total_margin_shortfall"] = float(sum([i.shortfall_c for i in loans]))
+        loan_renewal_list = [
+            frappe.get_all(
+                "Spark Loan Renewal Application",
+                filters={"loan": i.name},
+                fields=["name"],
+            )
+            for i in loans
+        ]
+        data["loan_renewal_applications"] = [
+            frappe.get_doc("Spark Loan Renewal Application", i.name)
+            for i in loan_renewal_list
+        ]
         return lms.generateResponse(message=_("Loan"), data=data)
 
     except (lms.ValidationError, lms.ServerError) as e:
@@ -3164,3 +3302,94 @@ def create_df(html_table_rows):
     df = pd.DataFrame(list_data)
 
     return df
+
+
+@frappe.whitelist()
+def request_loan_renewal_otp():
+    try:
+        utils.validator.validate_http_method("POST")
+
+        user = lms.__user()
+        is_dummy_account = lms.validate_spark_dummy_account(
+            user.username, user.name, check_valid=True
+        )
+        if not is_dummy_account:
+            # frappe.db.begin()
+            lms.create_user_token(
+                entity=user.username,
+                token_type="Loan Renewal OTP",
+                token=lms.random_token(length=4, is_numeric=True),
+            )
+            frappe.db.commit()
+        return utils.respondWithSuccess(message="Loan Renewal OTP sent")
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
+
+
+@frappe.whitelist()
+def verify_loan_renewal_otp(**kwargs):
+    try:
+        utils.validator.validate_http_method("POST")
+
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "loan_renewal_application_name": "required",
+                "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
+            },
+        )
+
+        reg = lms.regex_special_characters(
+            search=data.get("loan_renewal_application_name")
+        )
+        if reg:
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+
+        customer = lms.__customer()
+        print("Customer :", customer)
+        user = lms.__user()
+
+        is_dummy_account = lms.validate_spark_dummy_account(
+            user.username, user.name, check_valid=True
+        )
+        if not is_dummy_account:
+            token = lms.verify_user_token(
+                entity=user.username,
+                token=data.get("otp"),
+                token_type="Loan Renewal OTP",
+            )
+
+            # if token.expiry <= frappe.utils.now_datetime():
+            #     raise lms.exceptions.UnauthorizedException("Loan Renewal OTP Expired.")
+
+            lms.token_mark_as_used(token)
+        else:
+            token = lms.validate_spark_dummy_account_token(
+                user.username, data.get("otp"), token_type="Loan Renewal OTP"
+            )
+
+        loan_renewal_app = frappe.get_doc(
+            "Spark Loan Renewal Application", data.get("loan_renewal_application_name")
+        )
+
+        if not loan_renewal_app:
+            raise lms.exceptions.NotFoundException(_("Loan Renewal not found"))
+
+        if loan_renewal_app.customer != customer.name:
+            raise lms.exceptions.ForbiddenException(
+                _("Loan Renewal Application not found")
+            )
+
+        if token:
+            loan_renewal_app.status = "Loan Renewal executed"
+            loan_renewal_app.workflow_state = "Loan Renewal executed"
+            loan_renewal_app.save(ignore_permissions=True)
+            frappe.db.commit()
+
+        return utils.respondWithSuccess(
+            data={"loan_renewal_application": loan_renewal_app}
+        )
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()

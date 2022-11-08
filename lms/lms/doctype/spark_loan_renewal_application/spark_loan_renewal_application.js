@@ -7,10 +7,10 @@ frappe.ui.form.on("Spark Loan Renewal Application", {
       frm.add_custom_button(__("Notify Customer"), function () {
         frappe.call({
           method:
-            "lms.lms.doctype.loan_application.loan_application.actions_on_isin",
+            "lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.customer_reminder",
           freeze: true,
           args: {
-            loan_application: frm.doc,
+            doc: frm.doc,
           },
         });
       });
