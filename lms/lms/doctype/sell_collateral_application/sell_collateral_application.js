@@ -39,6 +39,7 @@ frappe.ui.form.on("Sell Collateral Application", {
             var d = frm.add_child("items");
             d.isin = row.isin;
             d.quantity = row.pledged_quantity;
+            d.folio = row.folio;
             frm.refresh_field("items");
           }
         });
