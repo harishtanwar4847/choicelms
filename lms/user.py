@@ -3407,14 +3407,18 @@ def loan_summary_dashboard(**kwargs):
         elif all_loans:
             instrument_type = frappe.get_doc("Loan", all_loans[0].name).instrument_type
 
-        loan_renewal_list = frappe.get_all(
-            "Spark Loan Renewal Application",
-            filters={"loan": loan.set_name_in_children},
-            fields=["name"],
-        )
-        loan_renewal_doc = frappe.get_doc(
-            "Spark Loan Renewal Application", loan_renewal_list[0]
-        )
+        loan_renewal_doc_list = []
+        for loan in all_loans:
+            loan_renewal_list = frappe.get_all(
+                "Spark Loan Renewal Application",
+                filters={"loan": loan.name},
+                fields=["name"],
+            )
+            if loan_renewal_list:
+                loan_renewal_doc = frappe.get_doc(
+                    "Spark Loan Renewal Application", loan_renewal_list[0]
+                )
+            loan_renewal_doc_list.append(loan_renewal_doc)
 
         res = {
             "sell_collateral_topup_and_unpledge_list": sell_collateral_topup_and_unpledge_list,
@@ -3426,7 +3430,7 @@ def loan_summary_dashboard(**kwargs):
             "topup_list": topup_list,
             "increase_loan_list": increase_loan_list,
             "instrument_type": instrument_type,
-            "loan_renewal_application": loan_renewal_doc,
+            "loan_renewal_application": loan_renewal_doc_list,
         }
 
         return utils.respondWithSuccess(data=res)
@@ -5132,6 +5136,9 @@ def ckyc_consent_details(**kwargs):
         if data.get("user_kyc_name") and data.get("is_loan_renewal") == 1:
             customer = lms.__customer()
             user_kyc_doc = frappe.get_doc("User KYC", customer.choice_kyc)
+            banks = []
+            for i in user_kyc_doc.bank_account:
+                banks.append(i)
             res_json = lms.ckyc_dot_net(
                 cust=customer,
                 pan_no=user_kyc_doc.pan_no,
@@ -5139,7 +5146,7 @@ def ckyc_consent_details(**kwargs):
                 dob=user_kyc_doc.dob,
                 ckyc_no=user_kyc_doc.ckyc_no,
             )
-            print("CKYC Dot Net Done")
+
             frappe.logger().info(
                 {
                     "res_json": res_json,
@@ -5152,9 +5159,9 @@ def ckyc_consent_details(**kwargs):
                     new_user_kyc = lms.ckyc_commit(
                         res_json=res_json, customer=customer, dob=user_kyc_doc.dob
                     )
-                    print("New User KYC Done :", new_user_kyc.name)
                     new_user_kyc_doc = frappe.get_doc("User KYC", new_user_kyc.name)
                     new_user_kyc_doc.updated_kyc = 1
+                    new_user_kyc_doc.bank_account = banks
                     new_user_kyc_doc.save(ignore_permissions=True)
                     frappe.db.commit()
 
@@ -5186,7 +5193,7 @@ def ckyc_consent_details(**kwargs):
                     ).insert(ignore_permissions=True)
                     frappe.db.commit()
 
-                    return utils.respondWithSuccess(data=new_user_kyc_doc.name)
+                    return utils.respondWithSuccess(data=new_user_kyc_doc)
 
                 except Exception as e:
                     lms.log_api_error(mess=str(res_json))

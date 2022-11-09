@@ -26,59 +26,63 @@ class UserKYC(Document):
     def kyc_update_and_notify_customer(self, check):
         cust_name = frappe.db.get_value("Loan Customer", {"user": self.user}, "name")
         loan_customer = frappe.get_doc("Loan Customer", cust_name)
-        renewal_list = frappe.db.get_value(
-            "Spark Loan Renewal Application",
-            {"customer": cust_name, "status": "Pending"},
-            "name",
-        )
-        loan_renewal_doc = frappe.get_doc(
-            "Spark Loan Renewal Application", renewal_list
-        )
         doc = self.as_dict()
-        old_kyc = frappe.get_doc("User KYC", loan_renewal_doc.old_kyc_name)
         las_settings = frappe.get_single("LAS Settings")
         if self.notification_sent == 0 and self.kyc_status in ["Approved", "Rejected"]:
             if self.updated_kyc == 1:
-                if self.kyc_status == "Approved":
-                    loan_renewal_doc.new_kyc_name = self.name
-                    banks = []
-                    for i in old_kyc.bank_account:
-                        banks.append(i)
-                    self.bank_account = banks
-                    loan_renewal_doc.save(ignore_permissions=True)
-                    loan_customer.choice_kyc = self.name
-                    loan_customer.save(ignore_permissions=True)
-                    frappe.db.commit()
-                    frappe.enqueue_doc(
-                        "Notification", "CKYC Approved", method="send", doc=doc
-                    )
-                    msg = "Your KYC Request has been approved, please visit spark.loans to continue the further journey."
-                    fcm_notification = frappe.get_doc(
-                        "Spark Push Notification", "Ckyc Approved", fields=["*"]
-                    )
-                else:
-                    frappe.enqueue_doc(
-                        "Notification", "CKYC Rejected", method="send", doc=doc
-                    )
-                    msg = "Your KYC Request has been rejected due to mismatch in details. Please visit spark.loans in order to reapply."
-                    fcm_notification = frappe.get_doc(
-                        "Spark Push Notification", "Ckyc Rejected", fields=["*"]
-                    )
-
-                receiver_list = [str(loan_customer.phone)]
-                if self.mob_num:
-                    receiver_list.append(str(self.mob_num))
-                if self.choice_mob_no:
-                    receiver_list.append(str(self.choice_mob_no))
-
-                receiver_list = list(set(receiver_list))
-                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-                lms.send_spark_push_notification(
-                    fcm_notification=fcm_notification, customer=loan_customer
+                renewal_list = frappe.db.get_value(
+                    "Spark Loan Renewal Application",
+                    {"customer": cust_name, "status": "Pending"},
+                    "name",
                 )
-                self.notification_sent = 1
-                self.save(ignore_permissions=True)
-                frappe.db.commit()
+                print("renewal List :", renewal_list)
+                if renewal_list:
+                    loan_renewal_doc = frappe.get_doc(
+                        "Spark Loan Renewal Application", renewal_list
+                    )
+                    if self.kyc_status == "Approved":
+                        loan_renewal_doc.new_kyc_name = self.name
+                        loan_renewal_doc.save(ignore_permissions=True)
+                        loan_customer.choice_kyc = self.name
+                        loan_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
+
+                        frappe.enqueue_doc(
+                            "Notification", "CKYC Approved", method="send", doc=doc
+                        )
+                        msg = "Your KYC Request has been approved, please visit spark.loans to continue the further journey."
+                        fcm_notification = frappe.get_doc(
+                            "Spark Push Notification", "Ckyc Approved", fields=["*"]
+                        )
+                    else:
+                        frappe.enqueue_doc(
+                            "Notification", "CKYC Rejected", method="send", doc=doc
+                        )
+                        msg = "Your KYC Request has been rejected due to mismatch in details. Please visit spark.loans in order to reapply."
+                        fcm_notification = frappe.get_doc(
+                            "Spark Push Notification", "Ckyc Rejected", fields=["*"]
+                        )
+
+                    receiver_list = [str(loan_customer.phone)]
+                    if self.mob_num:
+                        receiver_list.append(str(self.mob_num))
+                    if self.choice_mob_no:
+                        receiver_list.append(str(self.choice_mob_no))
+
+                    receiver_list = list(set(receiver_list))
+                    frappe.enqueue(
+                        method=send_sms, receiver_list=receiver_list, msg=msg
+                    )
+                    lms.send_spark_push_notification(
+                        fcm_notification=fcm_notification, customer=loan_customer
+                    )
+                    self.notification_sent = 1
+                    self.save(ignore_permissions=True)
+                    frappe.db.commit()
+                else:
+                    return lms.exceptions.NotFoundException(
+                        _("Loan Renewal Application not found")
+                    )
 
             else:
                 if self.kyc_status == "Approved":

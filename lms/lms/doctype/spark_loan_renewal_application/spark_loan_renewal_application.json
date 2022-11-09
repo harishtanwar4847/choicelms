@@ -15,6 +15,7 @@
   "sanctioned_limit",
   "column_break_8",
   "tnc_complete",
+  "reminders",
   "status",
   "customer",
   "customer_name",
@@ -36,10 +37,10 @@
   {
    "fetch_from": "customer.choice_kyc",
    "fieldname": "old_kyc_name",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "label": "Old KYC Name",
-   "options": "User KYC",
-   "read_only": 1
+   "read_only": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "new_kyc_name",
@@ -156,11 +157,18 @@
    "fieldtype": "Link",
    "label": "Lender",
    "options": "Lender"
+  },
+  {
+   "default": "0",
+   "fieldname": "reminders",
+   "fieldtype": "Int",
+   "label": "Reminders",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-11-08 15:59:52.724038",
+ "modified": "2022-11-08 23:43:55.635447",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Loan Renewal Application",
