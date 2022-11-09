@@ -414,9 +414,65 @@ def loan_renewal_cron():
                         renewal_doc.reminder = 4
                         renewal_doc.save(ignore_permissions=True)
                         frappe.db.commit()
+        frappe.enqueue(
+            method="lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.renewal_penal_interest",
+            queue="long",
+            job_name="renewal penal interest",
+        )
 
     except Exception as e:
         frappe.log_error(
             message=frappe.get_traceback(),
             title=_("Loan Renewal Application  - Cron Function"),
         )
+
+
+@frappe.whitelist()
+def renewal_penal_interest():
+    loans = frappe.get_all("Loan", fields=["*"])
+
+    for loan in loans:
+        existing_renewal_doc_list = frappe.get_all(
+            "Spark Loan Renewal Application",
+            filters={"loan": loan.name, "status": ["not IN", ["Rejected"]]},
+            fields=["*"],
+        )
+        customer = frappe.get_doc("Loan Customer", loan.customer)
+        user_kyc = frappe.get_all(
+            "User KYC",
+            filters={
+                "user": customer.user,
+                "updated_kyc": 1,
+                "status": ["IN", ["Approved", "Pending"]],
+            },
+            feilds=["*"],
+        )
+        current_date = frappe.utils.now_datetime().date()
+        greater_than_7 = frappe.utils.now_datetime().date() + timedelta(days=7)
+        if greater_than_7 > loan.expiry_date > current_date:
+            if not existing_renewal_doc_list and not user_kyc:
+                renewal_penal_interest = frappe.get_doc("Lender", loan.lender)
+                daily_penal_interest = renewal_penal_interest / 365
+                amount = loan.balance * (daily_penal_interest / 100)
+                penal_interest_transaction = frappe.get_doc(
+                    {
+                        "doctype": "Loan Transaction",
+                        "loan": loan.name,
+                        "lender": loan.lender,
+                        "transaction_type": "Penal Interest",
+                        "record_type": "DR",
+                        "amount": round(amount, 2),
+                        "unpaid_interest": round(amount, 2),
+                        "time": current_date,
+                    }
+                )
+                penal_interest_transaction.insert(ignore_permissions=True)
+                penal_interest_transaction.transaction_id = (
+                    penal_interest_transaction.name
+                )
+                penal_interest_transaction.status = "Approved"
+                penal_interest_transaction.workflow_state = "Approved"
+                penal_interest_transaction.docstatus = 1
+                penal_interest_transaction.save(ignore_permissions=True)
+
+                frappe.db.commit()

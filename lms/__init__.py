@@ -1934,18 +1934,22 @@ def system_report_enqueue():
     frappe.enqueue(
         method="lms.lms.doctype.client_summary.client_summary.client_summary",
         queue="long",
+        job_name="client summary",
     )
     frappe.enqueue(
         method="lms.lms.doctype.security_transaction.security_transaction.security_transaction",
         queue="long",
+        job_name="security transaction",
     )
     frappe.enqueue(
         method="lms.lms.doctype.security_exposure_summary.security_exposure_summary.security_exposure_summary",
         queue="long",
+        job_name="security exposure summary",
     )
     frappe.enqueue(
         method="lms.lms.doctype.security_details.security_details.security_details",
         queue="long",
+        job_name="security details",
     )
     curr_date = frappe.utils.now_datetime().date()
     last_date = (curr_date.replace(day=1) + timedelta(days=32)).replace(
@@ -1955,10 +1959,12 @@ def system_report_enqueue():
         frappe.enqueue(
             method="lms.lms.doctype.interest_calculation.interest_calculation.interest_calculation_enqueue",
             queue="long",
+            job_name="interest calculation enqueue",
         )
     frappe.enqueue(
         method="lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.loan_renewal_cron",
         queue="long",
+        job_name="loan renewal cron",
     )
 
 

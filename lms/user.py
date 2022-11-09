@@ -5193,7 +5193,47 @@ def ckyc_consent_details(**kwargs):
                     ).insert(ignore_permissions=True)
                     frappe.db.commit()
 
-                    return utils.respondWithSuccess(data=new_user_kyc_doc)
+                    try:
+                        if new_user_kyc_doc.updated_kyc == 1:
+                            consent_details = frappe.get_doc("Consent", "Re-Ckyc")
+                        else:
+                            consent_details = frappe.get_doc("Consent", "Ckyc")
+                    except frappe.DoesNotExistError:
+                        raise lms.exceptions.NotFoundException(
+                            message=_("Consent not found")
+                        )
+
+                    poa_type = frappe.get_list(
+                        "Proof of Address Master",
+                        pluck="poa_name",
+                        ignore_permissions=True,
+                    )
+
+                    country = frappe.get_all(
+                        "Country Master",
+                        fields=["country"],
+                        pluck="country",
+                        order_by="country asc",
+                    )
+
+                    user_kyc = lms.user_kyc_hashing(new_user_kyc_doc)
+                    if user_kyc.address_details:
+                        address = frappe.get_doc(
+                            "Customer Address Details", user_kyc.address_details
+                        )
+                    else:
+                        address = ""
+
+                    data_res = {
+                        "user_kyc_doc": user_kyc,
+                        "consent_details": consent_details,
+                        "poa_type": poa_type,
+                        "country": country,
+                        "address": address,
+                    }
+                    message = "Success"
+
+                    return utils.respondWithSuccess(message=message, data=data_res)
 
                 except Exception as e:
                     lms.log_api_error(mess=str(res_json))
@@ -5242,14 +5282,17 @@ def ckyc_consent_details(**kwargs):
                     "Customer Address Details", user_kyc.address_details
                 )
 
-                data_res = {
-                    "user_kyc_doc": user_kyc,
-                    "consent_details": consent_details,
-                    "poa_type": poa_type,
-                    "country": country,
-                    "address": address,
-                }
-                message = "Success"
+            else:
+                address = ""
+
+            data_res = {
+                "user_kyc_doc": user_kyc,
+                "consent_details": consent_details,
+                "poa_type": poa_type,
+                "country": country,
+                "address": address,
+            }
+            message = "Success"
 
             if data.get("address_details") and data.get("accept_terms"):
                 validate_address(
