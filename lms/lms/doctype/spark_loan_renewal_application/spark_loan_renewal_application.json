@@ -143,9 +143,7 @@
    "fieldname": "remarks",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Remarks",
-   "mandatory_depends_on": "eval:doc.status==\"Rejected\";",
-   "reqd": 1
+   "label": "Remarks"
   },
   {
    "fieldname": "section_break_19",
@@ -168,7 +166,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-11-08 23:43:55.635447",
+ "modified": "2022-11-09 18:20:06.834356",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Loan Renewal Application",

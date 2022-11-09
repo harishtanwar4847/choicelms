@@ -15,11 +15,16 @@ class SparkLoanRenewalApplication(Document):
     def before_save(self):
         loan = frappe.get_doc("Loan", self.loan)
         if self.status == "Approved" and not self.expiry_date:
-            expiry = frappe.utils.now_datetime().date() + timedelta(days=365)
-            self.expiry_date = expiry
-            loan.expiry_date = expiry
-            loan.save(ignore_permissions=True)
-            frappe.db.commit()
+            if not self.lender_esigned_document:
+                frappe.throw(_("Please upload Lender esigned document."))
+            else:
+                expiry = frappe.utils.now_datetime().date() + timedelta(days=365)
+                self.expiry_date = expiry
+                loan.expiry_date = expiry
+                loan.save(ignore_permissions=True)
+                frappe.db.commit()
+        if self.status == "Rejected" and not self.remarks:
+            frappe.throw(_("Remarks field cannot be empty."))
         try:
             loan = frappe.get_doc("Loan", self.loan)
             customer = frappe.get_doc("Loan Customer", self.customer)
