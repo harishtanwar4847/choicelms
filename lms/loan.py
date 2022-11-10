@@ -2562,19 +2562,19 @@ def validate_securities_for_unpledge(securities, loan):
         if diff:
             securities_valid = False
             message = frappe._("{} isin not found".format(",".join(diff)))
-        else:
-            securities_obj = {}
-            for i in securities_list_from_db_:
-                securities_obj[i[0]] = i[1]
-            for i in securities:
-                if i["quantity"] > securities_obj[i["isin"]]:
-                    securities_valid = False
-                    message = frappe._(
-                        "{} quantity for isin {} should not be greater than {}".format(
-                            applicaion_type, i["isin"], securities_obj[i["isin"]]
-                        )
-                    )
-                    break
+        # else:
+        #     securities_obj = {}
+        #     for i in securities_list_from_db_:
+        #         securities_obj[i[0]] = i[1]
+        #     for i in securities:
+        #         if i["quantity"] > securities_obj[i["isin"]]:
+        #             securities_valid = False
+        #             message = frappe._(
+        #                 "{} quantity for isin {} should not be greater than {}".format(
+        #                     applicaion_type, i["isin"], securities_obj[i["isin"]]
+        #                 )
+        #             )
+        #             break
 
     if securities_valid:
         for i in securities:
