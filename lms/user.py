@@ -3185,7 +3185,7 @@ def loan_summary_dashboard(**kwargs):
             "Spark Loan Renewal Application",
             filters={
                 "customer": customer.name,
-                "status": ["not IN", ["Approved", "Rejected"]],
+                "status": ["not IN", ["Approved", "Rejected", "Pending"]],
             },
             fields=["name", "status", "creation"],
             order_by="creation desc",
