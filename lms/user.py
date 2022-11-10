@@ -2396,10 +2396,12 @@ def dashboard(**kwargs):
                 loan_renewal_application_doc.top_up_amount = lms.amount_formatter(
                     loan_renewal_application_doc.top_up_amount
                 )
+                loan_doc = frappe.get_doc("Loan", loan_renewal_application.loan)
                 lra_pending_esigns.append(
                     {
                         "loan_renewal_application_doc": loan_renewal_application_doc,
                         "mess": "Congratulations! Your loan renewal application is being considered favourably by our lending partner. Please e-sign the loan agreement to avail the increased sanctioned limit now.",
+                        "loan_items": loan_doc.items,
                     }
                 )
 
