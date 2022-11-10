@@ -48,7 +48,7 @@ class UserKYC(Document):
                 frappe.enqueue_doc(
                     "Notification", "Ckyc Rejected", method="send", doc=doc
                 )
-                msg = "Your KYC Request has been rejected due to mismatch in details.  Please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
+                msg = "Your KYC Request has been rejected due to mismatch in details. Please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
                     las_settings.app_login_dashboard
                 )
                 fcm_notification = frappe.get_doc(
