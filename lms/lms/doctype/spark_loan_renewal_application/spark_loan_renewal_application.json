@@ -13,6 +13,7 @@
   "updated_kyc_status",
   "total_collateral_value",
   "sanctioned_limit",
+  "expiry_date",
   "column_break_8",
   "tnc_complete",
   "reminders",
@@ -20,7 +21,7 @@
   "customer",
   "customer_name",
   "drawing_power",
-  "expiry_date",
+  "is_expired",
   "section_break_15",
   "customer_esigned_document",
   "column_break_17",
@@ -162,11 +163,17 @@
    "fieldtype": "Int",
    "label": "Reminders",
    "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_expired",
+   "fieldtype": "Check",
+   "label": "Is Expired"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-11-09 18:20:06.834356",
+ "modified": "2022-11-09 21:17:22.409060",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Loan Renewal Application",

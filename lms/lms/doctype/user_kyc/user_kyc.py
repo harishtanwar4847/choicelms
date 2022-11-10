@@ -28,20 +28,24 @@ class UserKYC(Document):
         loan_customer = frappe.get_doc("Loan Customer", cust_name)
         doc = self.as_dict()
         las_settings = frappe.get_single("LAS Settings")
+        renewal_list = frappe.db.get_value(
+            "Spark Loan Renewal Application",
+            {"customer": cust_name, "status": "Pending"},
+            "name",
+        )
+        if renewal_list:
+            loan_renewal_doc = frappe.get_doc(
+                "Spark Loan Renewal Application", renewal_list
+            )
+            loan_renewal_doc.updated_kyc_status = self.kyc_status
+            loan_renewal_doc.save(ignore_permissions=True)
+            frappe.db.commit()
         if self.notification_sent == 0 and self.kyc_status in ["Approved", "Rejected"]:
             if self.updated_kyc == 1:
-                renewal_list = frappe.db.get_value(
-                    "Spark Loan Renewal Application",
-                    {"customer": cust_name, "status": "Pending"},
-                    "name",
-                )
-                print("renewal List :", renewal_list)
                 if renewal_list:
-                    loan_renewal_doc = frappe.get_doc(
-                        "Spark Loan Renewal Application", renewal_list
-                    )
                     if self.kyc_status == "Approved":
                         loan_renewal_doc.new_kyc_name = self.name
+                        loan_renewal_doc.updated_kyc_status = self.kyc_status
                         loan_renewal_doc.save(ignore_permissions=True)
                         loan_customer.choice_kyc = self.name
                         loan_customer.save(ignore_permissions=True)
@@ -55,6 +59,9 @@ class UserKYC(Document):
                             "Spark Push Notification", "Ckyc Approved", fields=["*"]
                         )
                     else:
+                        loan_renewal_doc.updated_kyc_status = self.kyc_status
+                        loan_renewal_doc.save(ignore_permissions=True)
+                        frappe.db.commit()
                         frappe.enqueue_doc(
                             "Notification", "CKYC Rejected", method="send", doc=doc
                         )

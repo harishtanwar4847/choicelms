@@ -3179,6 +3179,16 @@ def loan_summary_dashboard(**kwargs):
             order_by="creation desc",
         )
 
+        under_process_lr = frappe.get_all(
+            "Spark Loan Renewal Application",
+            filters={
+                "customer": customer.name,
+                "status": ["not IN", ["Approved", "Rejected"]],
+            },
+            fields=["name", "status", "creation"],
+            order_by="creation desc",
+        )
+
         ## Active loans ##
         active_loans = frappe.get_all(
             "Loan",
@@ -3418,12 +3428,13 @@ def loan_summary_dashboard(**kwargs):
                 loan_renewal_doc = frappe.get_doc(
                     "Spark Loan Renewal Application", loan_renewal_list[0]
                 )
-            loan_renewal_doc_list.append(loan_renewal_doc)
+                loan_renewal_doc_list.append(loan_renewal_doc)
 
         res = {
             "sell_collateral_topup_and_unpledge_list": sell_collateral_topup_and_unpledge_list,
             "actionable_loan": actionable_loan,
             "under_process_la": under_process_la,
+            "under_process_loan_renewal_app": under_process_lr,
             "active_loans": active_loans,
             "sell_collateral_list": sell_collateral_list,
             "unpledge_list": unpledge_list,
@@ -5129,7 +5140,7 @@ def ckyc_consent_details(**kwargs):
                 "user_kyc_name": "required",
                 "address_details": "",
                 "accept_terms": "",
-                "is_loan_renewal": "",
+                "is_loan_renewal": "required",
             },
         )
 
