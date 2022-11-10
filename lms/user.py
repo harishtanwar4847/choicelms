@@ -141,11 +141,15 @@ def kyc_old(**kwargs):
             # mess = frappe._(
             #     "Congratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
             # )
-            mess = frappe._(
-                # "Dear Customer,\nCongratulations! Your KYC verification is completed. -Spark Loans"
-                "Dear Customer, \nCongratulations! \nYour KYC verification is completed.  -Spark Loans"
-            )
-            frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
+
+            mess = frappe.get_doc("Spark SMS Notification","User Kyc").message
+            lms.send_sms_notification(customer=customer,msg=mess)
+
+            # mess = frappe._(
+            #     # "Dear Customer,\nCongratulations! Your KYC verification is completed. -Spark Loans"
+            #     "Dear Customer, \nCongratulations! \nYour KYC verification is completed.  -Spark Loans"
+            # )
+            # frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
 
         data = {"user_kyc": user_kyc}
 
@@ -553,11 +557,13 @@ def kyc(**kwargs):
             # mess = frappe._(
             #     "Congratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
             # )
-            mess = frappe._(
-                # "Dear Customer,\nCongratulations! Your KYC verification is completed. -Spark Loans"
-                "Dear Customer, \nCongratulations! \nYour KYC verification is completed.  -Spark Loans"
-            )
-            frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
+            mess = frappe.get_doc("Spark SMS Notification","User Kyc").message
+            lms.send_sms_notification(customer=customer,msg=mess)
+            # mess = frappe._(
+            #     # "Dear Customer,\nCongratulations! Your KYC verification is completed. -Spark Loans"
+            #     "Dear Customer, \nCongratulations! \nYour KYC verification is completed.  -Spark Loans"
+            # )
+            # frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
 
         data = {"user_kyc": user_kyc_doc}
 

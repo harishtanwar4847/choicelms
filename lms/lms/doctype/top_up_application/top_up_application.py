@@ -558,7 +558,8 @@ class TopupApplication(Document):
         if doc.get("top_up_application").get("status") == "Rejected":
             # mess = "Sorry! Your Top up application was turned down. We regret the inconvenience caused."
 
-            mess = "Dear Customer,\nSorry! Your top up request could not be executed due to technical reasons. We regret the inconvenience caused.Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
+            mess = frappe.get_doc("Spark SMS Notification","Top Up rejected").message
+            # mess = "Dear Customer,\nSorry! Your top up request could not be executed due to technical reasons. We regret the inconvenience caused.Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
 
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Top up rejected", fields=["*"]
@@ -566,15 +567,16 @@ class TopupApplication(Document):
             loan = self.loan
 
         if mess:
-            receiver_list = [str(self.get_customer().phone)]
-            if doc.mob_num:
-                receiver_list.append(str(doc.mob_num))
-            if doc.choice_mob_no:
-                receiver_list.append(str(doc.choice_mob_no))
+            lms.send_sms_notification(customer=self.get_customer,msg=msg)
+            # receiver_list = [str(self.get_customer().phone)]
+            # if doc.mob_num:
+            #     receiver_list.append(str(doc.mob_num))
+            # if doc.choice_mob_no:
+            #     receiver_list.append(str(doc.choice_mob_no))
 
-            receiver_list = list(set(receiver_list))
+            # receiver_list = list(set(receiver_list))
 
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
+            # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
 
         if fcm_notification:
             lms.send_spark_push_notification(

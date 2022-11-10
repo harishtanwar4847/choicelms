@@ -313,9 +313,12 @@ class UnpledgeApplication(Document):
             doc["unpledge_application"] = {"status": self.status}
             frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
             if self.status == "Approved":
-                msg = "Dear Customer,\nCongratulations! Your {} request has been successfully executed. Kindly check the app now. -Spark Loans".format(
+                msg = frappe.get_doc("Spark SMS Notification","Unpledge application accepted").message.format(
                     msg_type
                 )
+                # msg = "Dear Customer,\nCongratulations! Your {} request has been successfully executed. Kindly check the app now. -Spark Loans".format(
+                #     msg_type
+                # )
                 fcm_notification = frappe.get_doc(
                     "Spark Push Notification",
                     "Unpledge application accepted",
@@ -328,14 +331,20 @@ class UnpledgeApplication(Document):
                     fcm_notification["title"] = "Revoke application accepted"
             elif self.status == "Rejected":
                 if check == True:
-                    msg = """Your {msg_type} request was rejected. There is a margin shortfall. You can send another {msg_type} request when there is no margin shortfall.""".format(
+                    msg = frappe.get_doc("Spark SMS Notification","Rejected").message.format(
                         msg_type=msg_type
                     )
+                    # msg = """Your {msg_type} request was rejected. There is a margin shortfall. You can send another {msg_type} request when there is no margin shortfall.""".format(
+                    #     msg_type=msg_type
+                    # )
                 else:
                     if self.instrument_type == "Mutual Fund":
-                        msg = "Dear Customer,\nSorry! Your {} application was turned down due to technical reasons. You can reach out via the 'Contact Us' section of the app or please try again later using this link- {link} -Spark Loans".format(
+                        msg = ("Spark SMS Notification","Unpledge application rejected").message.format(
                             msg_type, link=las_settings.my_securities
                         )
+                        # msg = "Dear Customer,\nSorry! Your {} application was turned down due to technical reasons. You can reach out via the 'Contact Us' section of the app or please try again later using this link- {link} -Spark Loans".format(
+                        #     msg_type, link=las_settings.my_securities
+                        # )
                     else:
                         msg = "Dear Customer,\nSorry! Your {} application was turned down due to technical reasons. Please try again after sometime or reach us through 'Contact Us' on the app  -Spark Loans".format(
                             msg_type

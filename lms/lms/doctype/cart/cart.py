@@ -144,7 +144,9 @@ class Cart(Document):
             frappe.enqueue_doc(
                 "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
             )
-            msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
+            msg = frappe.get_doc("Spark SMS Notification","Margin short fall - action taken").message
+
+            # msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification",
                 "Margin shortfall – Action taken",
@@ -155,15 +157,16 @@ class Cart(Document):
                 loan=self.loan,
                 customer=self.get_customer(),
             )
-            receiver_list = [str(self.get_customer().phone)]
-            if self.get_customer().get_kyc().mob_num:
-                receiver_list.append(str(self.get_customer().get_kyc().mob_num))
-            if self.get_customer().get_kyc().choice_mob_no:
-                receiver_list.append(str(self.get_customer().get_kyc().choice_mob_no))
+            lms.send_sms_notification(customer=customer,msg=msg)
+            # receiver_list = [str(self.get_customer().phone)]
+            # if self.get_customer().get_kyc().mob_num:
+            #     receiver_list.append(str(self.get_customer().get_kyc().mob_num))
+            # if self.get_customer().get_kyc().choice_mob_no:
+            #     receiver_list.append(str(self.get_customer().get_kyc().choice_mob_no))
 
-            receiver_list = list(set(receiver_list))
+            # receiver_list = list(set(receiver_list))
 
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+            # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         # if self.loan_margin_shortfall:
         #     loan_application.status = "Ready for Approval"
@@ -189,19 +192,23 @@ class Cart(Document):
                 frappe.enqueue_doc(
                     "Notification", email_subject, method="send", doc=doc
                 )
-                mess = "Dear Customer,\nYour {} request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans".format(
+                mess = frappe.get_doc("Spark SMS Notification","Confirmation").message.format(
                     msg_type
                 )
-                # if mess:
-                receiver_list = [str(self.get_customer().phone)]
-                if doc.mob_num:
-                    receiver_list.append(str(doc.mob_num))
-                if doc.choice_mob_no:
-                    receiver_list.append(str(doc.choice_mob_no))
+                # mess = "Dear Customer,\nYour {} request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans".format(
+                #     msg_type
+                # )
+                lms.send_sms_notification(customer=customer,msg=mess)
+                # # if mess:
+                # receiver_list = [str(self.get_customer().phone)]
+                # if doc.mob_num:
+                #     receiver_list.append(str(doc.mob_num))
+                # if doc.choice_mob_no:
+                #     receiver_list.append(str(doc.choice_mob_no))
 
-                receiver_list = list(set(receiver_list))
+                # receiver_list = list(set(receiver_list))
 
-                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
+                # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
         return loan_application
 
     def create_tnc_file(self):

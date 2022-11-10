@@ -909,9 +909,10 @@ class Loan(Document):
                 fields=["*"],
             )
             message = fcm_notification.message.format(loan=self.name)
-            msg = "Dear Customer,The margin shortfall timer has been resumed on your loan account {loan} Please check the app and take appropriate action. -Spark Loans".format(
-                loan=self.name
-            )
+            msg = frappe.get_doc("Spark SMS Notification","Margin short fall - timer resumed").message.format(loan=self.name)
+            # msg = "Dear Customer,The margin shortfall timer has been resumed on your loan account {loan} Please check the app and take appropriate action. -Spark Loans".format(
+            #     loan=self.name
+            # )
             doc["loan_margin_shortfall"] = {"loan": self.name}
             frappe.enqueue_doc(
                 "Notification",
@@ -921,9 +922,10 @@ class Loan(Document):
             )
 
         if message and msg:
-            frappe.enqueue(
-                method=send_sms, receiver_list=[self.get_customer().phone], msg=msg
-            )
+            lms.send_sms_notification(customer=self.get_customer,msg=msg)
+            # frappe.enqueue(
+            #     method=send_sms, receiver_list=[self.get_customer().phone], msg=msg
+            # )
             lms.send_spark_push_notification(
                 fcm_notification=fcm_notification,
                 message=message,
@@ -1334,10 +1336,14 @@ class Loan(Document):
                             "Notification", "Interest Due", method="send", doc=doc
                         )
 
-                        msg = "Dear Customer,\nRebate of Rs.  {}  was reversed in your loan account {}. This will appear as 'Addl Interest' in your loan account. \nPlease pay the interest due before the 15th of this month in order to avoid the penal interest/charges.Kindly check the app for details - Spark Loans".format(
+                        msg = frappe.get_doc("Spark SMS Notification","Rebate reversed").message.format(
                             round(additional_interest_transaction.unpaid_interest, 2),
                             self.name,
                         )
+                        # msg = "Dear Customer,\nRebate of Rs.  {}  was reversed in your loan account {}. This will appear as 'Addl Interest' in your loan account. \nPlease pay the interest due before the 15th of this month in order to avoid the penal interest/charges.Kindly check the app for details - Spark Loans".format(
+                        #     round(additional_interest_transaction.unpaid_interest, 2),
+                        #     self.name,
+                        # )
                         fcm_notification = frappe.get_doc(
                             "Spark Push Notification", "Rebate reversed", fields=["*"]
                         )
@@ -1349,17 +1355,18 @@ class Loan(Document):
                         )
 
                         if msg:
-                            receiver_list = [str(self.get_customer().phone)]
-                            if doc.mob_num:
-                                receiver_list.append(str(doc.mob_num))
-                            if doc.choice_mob_no:
-                                receiver_list.append(str(doc.choice_mob_no))
+                            lms.send_sms_notification(customer=self.get_customer,msg=msg)
+                            # receiver_list = [str(self.get_customer().phone)]
+                            # if doc.mob_num:
+                            #     receiver_list.append(str(doc.mob_num))
+                            # if doc.choice_mob_no:
+                            #     receiver_list.append(str(doc.choice_mob_no))
 
-                            receiver_list = list(set(receiver_list))
+                            # receiver_list = list(set(receiver_list))
 
-                            frappe.enqueue(
-                                method=send_sms, receiver_list=receiver_list, msg=msg
-                            )
+                            # frappe.enqueue(
+                            #     method=send_sms, receiver_list=receiver_list, msg=msg
+                            # )
 
                         lms.send_spark_push_notification(
                             fcm_notification=fcm_notification,
@@ -1486,9 +1493,12 @@ class Loan(Document):
                             "Notification", "Interest Due", method="send", doc=doc
                         )
 
-                        msg = "Dear Customer,\nAn interest of Rs.  {} is due on your loan account {}.\nPlease pay the interest due before the 7th of this month in order to continue to enjoy the rebate provided on the interest rate. Kindly check the app for details. - Spark Loans".format(
+                        msg = frappe.get_doc("Spark SMS Notification","Interest Due").message.format(
                             round(loan_transaction.unpaid_interest, 2), self.name
                         )
+                        # msg = "Dear Customer,\nAn interest of Rs.  {} is due on your loan account {}.\nPlease pay the interest due before the 7th of this month in order to continue to enjoy the rebate provided on the interest rate. Kindly check the app for details. - Spark Loans".format(
+                        #     round(loan_transaction.unpaid_interest, 2), self.name
+                        # )
 
                         fcm_notification = frappe.get_doc(
                             "Spark Push Notification", "Interest due", fields=["*"]
@@ -1498,17 +1508,18 @@ class Loan(Document):
                             loan=self.name,
                         )
                         if msg:
-                            receiver_list = [str(self.get_customer().phone)]
-                            if doc.mob_num:
-                                receiver_list.append(str(doc.mob_num))
-                            if doc.choice_mob_no:
-                                receiver_list.append(str(doc.choice_mob_no))
+                            lms.send_sms_notification(customer=self.get_customer,msg=msg)
+                            # receiver_list = [str(self.get_customer().phone)]
+                            # if doc.mob_num:
+                            #     receiver_list.append(str(doc.mob_num))
+                            # if doc.choice_mob_no:
+                            #     receiver_list.append(str(doc.choice_mob_no))
 
-                            receiver_list = list(set(receiver_list))
+                            # receiver_list = list(set(receiver_list))
 
-                            frappe.enqueue(
-                                method=send_sms, receiver_list=receiver_list, msg=msg
-                            )
+                            # frappe.enqueue(
+                            #     method=send_sms, receiver_list=receiver_list, msg=msg
+                            # )
 
                         lms.send_spark_push_notification(
                             fcm_notification=fcm_notification,
@@ -1629,10 +1640,14 @@ class Loan(Document):
                             frappe.enqueue_doc(
                                 "Notification", "Interest Due", method="send", doc=doc
                             )
-                            msg = "Dear Customer,\nPenal interest of Rs.{}  has been debited to your loan account {} .\nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details - Spark Loans".format(
+                            msg = frappe.get_doc("Spark SMS Notification","Penal interest charged").message.format(
                                 round(penal_interest_transaction.unpaid_interest, 2),
                                 self.name,
                             )
+                            # msg = "Dear Customer,\nPenal interest of Rs.{}  has been debited to your loan account {} .\nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details - Spark Loans".format(
+                            #     round(penal_interest_transaction.unpaid_interest, 2),
+                            #     self.name,
+                            # )
                             fcm_notification = frappe.get_doc(
                                 "Spark Push Notification",
                                 "Penal interest charged",
@@ -1646,19 +1661,20 @@ class Loan(Document):
                             )
 
                             if msg:
-                                receiver_list = [str(self.get_customer().phone)]
-                                if doc.mob_num:
-                                    receiver_list.append(str(doc.mob_num))
-                                if doc.choice_mob_no:
-                                    receiver_list.append(str(doc.choice_mob_no))
+                                lms.send_sms_notification(customer=self.get_customer,msg=msg)
+                                # receiver_list = [str(self.get_customer().phone)]
+                                # if doc.mob_num:
+                                #     receiver_list.append(str(doc.mob_num))
+                                # if doc.choice_mob_no:
+                                #     receiver_list.append(str(doc.choice_mob_no))
 
-                                receiver_list = list(set(receiver_list))
+                                # receiver_list = list(set(receiver_list))
 
-                                frappe.enqueue(
-                                    method=send_sms,
-                                    receiver_list=receiver_list,
-                                    msg=msg,
-                                )
+                                # frappe.enqueue(
+                                #     method=send_sms,
+                                #     receiver_list=receiver_list,
+                                #     msg=msg,
+                                # )
 
                             lms.send_spark_push_notification(
                                 fcm_notification=fcm_notification,
@@ -1776,10 +1792,14 @@ class Loan(Document):
                             frappe.enqueue_doc(
                                 "Notification", "Interest Due", method="send", doc=doc
                             )
-                            msg = "Dear Customer,\nPenal interest of Rs.{}  has been debited to your loan account {} .\nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details - Spark Loans".format(
+                            msg = frappe.get_doc("Spark SMS Notification","Penal interest charged").message.format(
                                 round(penal_interest_transaction.unpaid_interest, 2),
                                 self.name,
                             )
+                            # msg = "Dear Customer,\nPenal interest of Rs.{}  has been debited to your loan account {} .\nPlease pay the total interest due immediately in order to avoid further penal interest / charges. Kindly check the app for details - Spark Loans".format(
+                            #     round(penal_interest_transaction.unpaid_interest, 2),
+                            #     self.name,
+                            # )
                             fcm_notification = frappe.get_doc(
                                 "Spark Push Notification",
                                 "Penal interest charged",
@@ -1793,19 +1813,20 @@ class Loan(Document):
                             )
 
                             if msg:
-                                receiver_list = [str(self.get_customer().phone)]
-                                if doc.mob_num:
-                                    receiver_list.append(str(doc.mob_num))
-                                if doc.choice_mob_no:
-                                    receiver_list.append(str(doc.choice_mob_no))
+                                lms.send_sms_notification(customer=self.get_customer,msg=msg)
+                                # receiver_list = [str(self.get_customer().phone)]
+                                # if doc.mob_num:
+                                #     receiver_list.append(str(doc.mob_num))
+                                # if doc.choice_mob_no:
+                                #     receiver_list.append(str(doc.choice_mob_no))
 
-                                receiver_list = list(set(receiver_list))
+                                # receiver_list = list(set(receiver_list))
 
-                                frappe.enqueue(
-                                    method=send_sms,
-                                    receiver_list=receiver_list,
-                                    msg=msg,
-                                )
+                                # frappe.enqueue(
+                                #     method=send_sms,
+                                #     receiver_list=receiver_list,
+                                #     msg=msg,
+                                # )
 
                             lms.send_spark_push_notification(
                                 fcm_notification=fcm_notification,
