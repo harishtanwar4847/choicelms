@@ -6,10 +6,10 @@ from __future__ import unicode_literals
 
 import frappe
 from frappe import _
-from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
 
 import lms
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 class UserKYC(Document):
