@@ -17,6 +17,7 @@ import lms
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
 from lms.lms.doctype.user_token.user_token import send_sms
+from lms.lms.doctype.__init__ import send_sms_notification
 
 
 class SellCollateralApplication(Document):

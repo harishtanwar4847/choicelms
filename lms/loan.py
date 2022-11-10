@@ -1505,10 +1505,11 @@ def loan_withdraw_request(**kwargs):
         frappe.enqueue_doc("Notification", "Withdrawal Request", method="send", doc=doc)
         
         msg = frappe.get_doc("Spark SMS Notification","Withdrawal Request").message
-        lms.send_sms_notification(customer=customer,msg=msg)
+        
 
         # msg = "Dear Customer,\nYour withdrawal request has been received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans"
-        # if msg:
+        if msg:
+            lms.send_sms_notification(customer=customer,msg=msg)
         #     receiver_list = [str(customer.phone)]
         #     if customer.get_kyc().mob_num:
         #         receiver_list.append(str(customer.get_kyc().mob_num))

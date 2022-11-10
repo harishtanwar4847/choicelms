@@ -18,6 +18,7 @@ import lms
 from lms import convert_sec_to_hh_mm_ss
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.user_token.user_token import send_sms
+from lms.lms.doctype.user_token.user_token import send_sms_notification
 
 
 
@@ -321,7 +322,7 @@ class LoanTransaction(Document):
             }
             frappe.enqueue_doc("Notification", "Withdrawal", method="send", doc=doc)
             if self.requested == self.disbursed:
-                print("xcvg")
+                
                 mess = frappe.get_doc("Spark SMS Notification","Withdrawal succesful").message.format(
                     amount=self.amount,
                     disbursed=self.disbursed,

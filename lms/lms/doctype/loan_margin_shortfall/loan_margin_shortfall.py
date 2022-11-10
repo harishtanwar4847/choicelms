@@ -16,6 +16,7 @@ import lms
 from lms import convert_sec_to_hh_mm_ss, holiday_list
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.user_token.user_token import send_sms
+from lms.lms.__init__ import send_sms_notification
 
 
 class LoanMarginShortfall(Document):

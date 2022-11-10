@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe import _
 from frappe.model.document import Document
-
+from lms.lms.doctype.user_token.user_token import send_sms_notification
 import lms
 
 
@@ -109,7 +109,6 @@ class UserToken(Document):
             mess = frappe.get_doc("Spark SMS Notification","OTP").message.format(
                 token_type=self.token_type.replace(" ", ""),
                 token=self.token,
-                # expiry_in_minutes=expiry_in_minutes,
             )
             lms.send_sms_notification(customer=customer,msg=mess)
             # mess = frappe._(
@@ -120,7 +119,7 @@ class UserToken(Document):
             #     # expiry_in_minutes=expiry_in_minutes,
             # )
 
-            frappe.enqueue(method=send_sms, receiver_list=[self.entity], msg=mess)
+            # frappe.enqueue(method=send_sms, receiver_list=[self.entity], msg=mess)
         elif self.token_type == "Email Verification Token":
             doc = frappe.get_doc("User", self.entity).as_dict()
             doc["url"] = frappe.utils.get_url(
@@ -213,9 +212,8 @@ class UserToken(Document):
             msg = frappe.get_doc("Spark SMS Notification","OTP").message.format(
                 token_type=self.token_type.replace(" ", ""),
                 token=self.token,
-                # expiry_in_minutes=expiry_in_minutes,
             )
-            lms.send_sms_notification(customer=customer,msg=msg)
+            # lms.send_sms_notification(customer=customer,msg=msg)
             # msg = frappe._(
             #     "Dear Customer, Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
             # ).format(
