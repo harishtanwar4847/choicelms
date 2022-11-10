@@ -19,8 +19,8 @@ class SparkLoanRenewalApplication(Document):
                 frappe.throw(_("Please upload Lender esigned document."))
             else:
                 expiry = frappe.utils.now_datetime().date() + timedelta(days=365)
-                self.expiry_date = expiry
-                loan.expiry_date = expiry
+                self.expiry_date = expiry - timedelta(days=1)
+                loan.expiry_date = expiry - timedelta(days=1)
                 loan.save(ignore_permissions=True)
                 frappe.db.commit()
         if self.status == "Rejected" and not self.remarks:
@@ -103,7 +103,26 @@ class SparkLoanRenewalApplication(Document):
                     loan=loan.name,
                     customer=customer,
                 )
-
+                if loan.expiry_date > frappe.utils.now_datetime.date():
+                    self.tnc_complete = 0
+                    self.updated_kyc_status = ""
+                    kyc_doc = frappe.get_doc("User KYC", self.new_kyc_name)
+                    kyc_doc.updated_kyc = 0
+                    kyc_doc.save(ignore_pernissions=True)
+                    frappe.get_doc(
+                        dict(
+                            doctype="Spark Loan Renewal Application",
+                            loan=loan.name,
+                            lender=loan.lender,
+                            old_kyc_name=customer.choice_kyc,
+                            total_collateral_value=loan.total_collateral_value,
+                            sanctioned_limit=loan.sanctioned_limit,
+                            drawing_power=loan.drawing_power,
+                            customer=customer.name,
+                            customer_name=customer.full_name,
+                        )
+                    ).insert(ignore_permissions=True)
+                    frappe.db.commit()
             if msg:
                 receiver_list = [str(customer.phone)]
                 if customer.get_kyc().mob_num:
@@ -132,7 +151,8 @@ def customer_reminder(document):
 
         if document.status in [
             "Loan Renewal accepted by Lender",
-            "Esign Done" "Approved",
+            "Esign Done",
+            "Approved",
             "Rejected",
         ]:
             frappe.enqueue_doc(
@@ -166,20 +186,20 @@ def customer_reminder(document):
                 loan=loan.name,
                 customer=customer,
             )
-        if msg:
-            receiver_list = [str(customer.phone)]
-            if customer.get_kyc().mob_num:
-                receiver_list.append(str(customer.get_kyc().mob_num))
-            if customer.get_kyc().choice_mob_no:
-                receiver_list.append(str(customer.get_kyc().choice_mob_no))
+            if msg:
+                receiver_list = [str(customer.phone)]
+                if customer.get_kyc().mob_num:
+                    receiver_list.append(str(customer.get_kyc().mob_num))
+                if customer.get_kyc().choice_mob_no:
+                    receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-            receiver_list = list(set(receiver_list))
+                receiver_list = list(set(receiver_list))
 
-            frappe.enqueue(
-                method=send_sms,
-                receiver_list=receiver_list,
-                msg=msg.format(loan.expiry_date),
-            )
+                frappe.enqueue(
+                    method=send_sms,
+                    receiver_list=receiver_list,
+                    msg=msg.format(loan.expiry_date),
+                )
     except Exception as e:
         frappe.log_error(
             message=frappe.get_traceback(),
@@ -509,4 +529,35 @@ def renewal_penal_interest():
                     doc.workflow_state = "Rejected"
                     doc.remarks = "Is Expired"
                     doc.save(ignore_permissions=True)
+                    frappe.db.commit()
+
+        renewal_list_expiring = frappe.get_all(
+            "Spark Loan Renewal Application", filters={"loan": loan.name}, fields=["*"]
+        )
+        status_list = [i["status"] for i in renewal_list_expiring]
+        renewal_accepted_status = [
+            "Approved",
+            "Loan Renewal executed",
+            "Loan Renewal accepted by Lender",
+            "Esign Done",
+        ]
+        status_check = 0
+        for i in renewal_accepted_status:
+            if i in status_list:
+                status_check += 1
+        if (
+            loan.expiry_date < frappe.utils.now_datetime.date()
+            and "Rejected" in status_list
+            and "Pending" in status_list
+            and status_check == 0
+        ):
+            for i in renewal_list_expiring:
+                if i.status == "Pending":
+                    renewal_doc = frappe.get_doc(
+                        "Spark Loan Renewal Application", i.name
+                    )
+                    renewal_doc.is_expired = 1
+                    renewal_doc.status = "Rejected"
+                    renewal_doc.workflow_state = "Rejected"
+                    renewal_doc.save(ignore_permissions=True)
                     frappe.db.commit()

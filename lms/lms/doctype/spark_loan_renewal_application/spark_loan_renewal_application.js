@@ -10,7 +10,7 @@ frappe.ui.form.on("Spark Loan Renewal Application", {
             "lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.customer_reminder",
           freeze: true,
           args: {
-            doc: frm.doc,
+            document: frm.doc,
           },
         });
       });

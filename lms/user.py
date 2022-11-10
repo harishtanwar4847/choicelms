@@ -3423,7 +3423,7 @@ def loan_summary_dashboard(**kwargs):
         for loan in all_loans:
             loan_renewal_list = frappe.get_all(
                 "Spark Loan Renewal Application",
-                filters={"loan": loan.name},
+                filters={"loan": loan.name, "status": ["!=", "Rejected"]},
                 fields=["name"],
             )
             if loan_renewal_list:
