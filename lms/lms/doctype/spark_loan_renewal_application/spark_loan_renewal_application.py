@@ -151,30 +151,23 @@ class SparkLoanRenewalApplication(Document):
 
 
 @frappe.whitelist()
-def customer_reminder(document):
+def customer_reminder(doc_name):
     try:
-        loan = frappe.get_doc("Loan", document.loan)
-        customer = frappe.get_doc("Loan Customer", document.customer)
+        renewal_doc = frappe.get_doc("Spark Loan Renewal Application", doc_name)
+        print("Document :", renewal_doc)
+        print("Document loan :", renewal_doc.loan)
+        loan = frappe.get_doc("Loan", renewal_doc.loan)
+        customer = frappe.get_doc("Loan Customer", renewal_doc.customer)
 
         doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-        doc["loan_renewal_application"] = {"status": document.status}
+        doc["loan_renewal_application"] = {"status": renewal_doc.status}
 
-        if document.status in [
-            "Loan Renewal accepted by Lender",
-            "Esign Done",
-            "Approved",
-            "Rejected",
-        ]:
-            frappe.enqueue_doc(
-                "Notification", "Loan Renewal Application", method="send", doc=doc
-            )
-
-        if document.status == "Pending":
+        if renewal_doc.status == "Pending":
             kyc_doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
             email_expiry = frappe.db.sql(
                 "select message from `tabNotification` where name='Loan Renewal Reminder';"
             )[0][0]
-            email_expiry = email_expiry.replace("expiry_date", loan.expiry_date)
+            email_expiry = email_expiry.replace("expiry_date", str(loan.expiry_date))
             frappe.enqueue(
                 method=frappe.sendmail,
                 recipients=[customer.user],
@@ -230,7 +223,11 @@ def loan_renewal_cron():
             )
             customer = frappe.get_doc("Loan Customer", loan.customer)
             expiry_date = frappe.utils.now_datetime().date() + timedelta(days=30)
-            if loan.expiry_date == expiry_date:
+            if (
+                loan.expiry_date == expiry_date
+                and loan.total_collateral_value > 0
+                and len(loan.items) > 0
+            ):
                 renewal_doc = frappe.get_doc(
                     dict(
                         doctype="Spark Loan Renewal Application",
@@ -297,7 +294,7 @@ def loan_renewal_cron():
                             "select message from `tabNotification` where name='Loan Renewal Reminder';"
                         )[0][0]
                         email_expiry = email_expiry.replace(
-                            "expiry_date", loan.expiry_date
+                            "expiry_date", str(loan.expiry_date)
                         )
                         frappe.enqueue(
                             method=frappe.sendmail,
@@ -350,7 +347,7 @@ def loan_renewal_cron():
                             "select message from `tabNotification` where name='Loan Renewal Reminder';"
                         )[0][0]
                         email_expiry = email_expiry.replace(
-                            "expiry_date", loan.expiry_date
+                            "expiry_date", str(loan.expiry_date)
                         )
                         frappe.enqueue(
                             method=frappe.sendmail,
@@ -403,7 +400,7 @@ def loan_renewal_cron():
                             "select message from `tabNotification` where name='Loan Renewal Reminder';"
                         )[0][0]
                         email_expiry = email_expiry.replace(
-                            "expiry_date", loan.expiry_date
+                            "expiry_date", str(loan.expiry_date)
                         )
                         frappe.enqueue(
                             method=frappe.sendmail,

@@ -630,18 +630,20 @@ def my_loans():
             sum([i.total_collateral_value for i in loans])
         )
         data["total_margin_shortfall"] = float(sum([i.shortfall_c for i in loans]))
-        loan_renewal_list = [
-            frappe.get_all(
+        renewal_app_list = []
+        for i in loans:
+            loan_renewal_list = frappe.get_all(
                 "Spark Loan Renewal Application",
                 filters={"loan": i.name},
                 fields=["name"],
             )
-            for i in loans
-        ]
-        data["loan_renewal_applications"] = [
-            frappe.get_doc("Spark Loan Renewal Application", i.name)
-            for i in loan_renewal_list
-        ]
+            if loan_renewal_list:
+                for i in loan_renewal_list:
+                    renewal_doc = frappe.get_doc(
+                        "Spark Loan Renewal Application", i.name
+                    )
+                    renewal_app_list.append(renewal_doc)
+        data["loan_renewal_applications"] = renewal_app_list
         return lms.generateResponse(message=_("Loan"), data=data)
 
     except (lms.ValidationError, lms.ServerError) as e:
