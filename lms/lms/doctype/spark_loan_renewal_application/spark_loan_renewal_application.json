@@ -36,11 +36,10 @@
    "label": "Loan Details"
   },
   {
-   "fetch_from": "customer.choice_kyc",
    "fieldname": "old_kyc_name",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "Old KYC Name",
-   "read_only": 1,
+   "options": "User KYC",
    "set_only_once": 1
   },
   {
@@ -173,7 +172,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-11-09 21:17:22.409060",
+ "modified": "2022-11-11 13:50:30.313316",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Loan Renewal Application",

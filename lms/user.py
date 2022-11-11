@@ -2101,19 +2101,18 @@ def dashboard(**kwargs):
         utils.validator.validate_http_method("GET")
 
         user = lms.__user()
+        customer = lms.__customer()
+        if not customer:
+            # return utils.respondNotFound(message=frappe._("Customer not found."))
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
         try:
-            user_kyc = lms.__user_kyc()
+            user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
             # user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
             # for i in user_kyc.bank_account:
             #     i.account_number = lms.user_details_hashing(i.account_number)
             user_kyc = lms.user_kyc_hashing(user_kyc)
         except UserKYCNotFoundException:
             user_kyc = None
-
-        customer = lms.__customer()
-        if not customer:
-            # return utils.respondNotFound(message=frappe._("Customer not found."))
-            raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         # actionable_loans = []
         # action_loans = []
@@ -5151,7 +5150,27 @@ def ckyc_consent_details(**kwargs):
             user_kyc_doc = frappe.get_doc("User KYC", customer.choice_kyc)
             banks = []
             for i in user_kyc_doc.bank_account:
-                banks.append(i)
+                bank = frappe.get_doc(
+                    {
+                        "bank_status": i.get("bank_status"),
+                        "bank": i.get("bank"),
+                        "branch": i.get("branch"),
+                        "account_number": i.get("account_number"),
+                        "ifsc": i.get("ifsc"),
+                        "city": i.get("city"),
+                        "is_default": i.get("is_default"),
+                        "razorpay_fund_account_id": i.get("razorpay_fund_account_id"),
+                        "account_holder_name": i.get("account_holder_name"),
+                        "personalized_cheque": i.get("personalized_cheque"),
+                        "account_type": i.get("account_type"),
+                        "razorpay_fund_account_validation_id": i.get(
+                            "razorpay_fund_account_validation_id"
+                        ),
+                        "notification_sent": i.get("notification_sent"),
+                        "doctype": "User Bank Account",
+                    }
+                )
+                banks.append(bank)
             res_json = lms.ckyc_dot_net(
                 cust=customer,
                 pan_no=user_kyc_doc.pan_no,

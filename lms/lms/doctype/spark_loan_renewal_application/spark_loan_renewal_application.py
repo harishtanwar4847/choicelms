@@ -123,6 +123,16 @@ class SparkLoanRenewalApplication(Document):
                         )
                     ).insert(ignore_permissions=True)
                     frappe.db.commit()
+                if loan.expiry_date < frappe.utils.now_datetime.date():
+                    renewal_list_expiring = frappe.get_all(
+                        "Spark Loan Renewal Application",
+                        filters={"loan": loan.name},
+                        fields=["*"],
+                    )
+                    status_list = [i["status"] for i in renewal_list_expiring]
+                    if status_list.count("Rejected") >= 2:
+                        self.is_expired = 1
+
             if msg:
                 receiver_list = [str(customer.phone)]
                 if customer.get_kyc().mob_num:
@@ -529,35 +539,4 @@ def renewal_penal_interest():
                     doc.workflow_state = "Rejected"
                     doc.remarks = "Is Expired"
                     doc.save(ignore_permissions=True)
-                    frappe.db.commit()
-
-        renewal_list_expiring = frappe.get_all(
-            "Spark Loan Renewal Application", filters={"loan": loan.name}, fields=["*"]
-        )
-        status_list = [i["status"] for i in renewal_list_expiring]
-        renewal_accepted_status = [
-            "Approved",
-            "Loan Renewal executed",
-            "Loan Renewal accepted by Lender",
-            "Esign Done",
-        ]
-        status_check = 0
-        for i in renewal_accepted_status:
-            if i in status_list:
-                status_check += 1
-        if (
-            loan.expiry_date < frappe.utils.now_datetime.date()
-            and "Rejected" in status_list
-            and "Pending" in status_list
-            and status_check == 0
-        ):
-            for i in renewal_list_expiring:
-                if i.status == "Pending":
-                    renewal_doc = frappe.get_doc(
-                        "Spark Loan Renewal Application", i.name
-                    )
-                    renewal_doc.is_expired = 1
-                    renewal_doc.status = "Rejected"
-                    renewal_doc.workflow_state = "Rejected"
-                    renewal_doc.save(ignore_permissions=True)
                     frappe.db.commit()
