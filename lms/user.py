@@ -5157,42 +5157,13 @@ def ckyc_consent_details(**kwargs):
         if data.get("user_kyc_name") and data.get("is_loan_renewal") == 1:
             customer = lms.__customer()
             user_kyc_doc = frappe.get_doc("User KYC", customer.choice_kyc)
-            banks = []
-            for i in user_kyc_doc.bank_account:
-                bank = frappe.get_doc(
-                    {
-                        "bank_status": i.get("bank_status"),
-                        "bank": i.get("bank"),
-                        "branch": i.get("branch"),
-                        "account_number": i.get("account_number"),
-                        "ifsc": i.get("ifsc"),
-                        "city": i.get("city"),
-                        "is_default": i.get("is_default"),
-                        "razorpay_fund_account_id": i.get("razorpay_fund_account_id"),
-                        "account_holder_name": i.get("account_holder_name"),
-                        "personalized_cheque": i.get("personalized_cheque"),
-                        "account_type": i.get("account_type"),
-                        "razorpay_fund_account_validation_id": i.get(
-                            "razorpay_fund_account_validation_id"
-                        ),
-                        "notification_sent": i.get("notification_sent"),
-                        "doctype": "User Bank Account",
-                    }
-                )
-                banks.append(bank)
+
             res_json = lms.ckyc_dot_net(
                 cust=customer,
                 pan_no=user_kyc_doc.pan_no,
                 is_for_download=True,
                 dob=user_kyc_doc.dob,
                 ckyc_no=user_kyc_doc.ckyc_no,
-            )
-
-            frappe.logger().info(
-                {
-                    "res_json": res_json,
-                    "time_stamp": frappe.utils.now_datetime(),
-                }
             )
 
             if res_json.get("status") == 200 and not res_json.get("error"):
@@ -5202,6 +5173,34 @@ def ckyc_consent_details(**kwargs):
                     )
                     new_user_kyc_doc = frappe.get_doc("User KYC", new_user_kyc.name)
                     new_user_kyc_doc.updated_kyc = 1
+                    banks = []
+                    for i in user_kyc_doc.bank_account:
+                        bank = frappe.get_doc(
+                            {
+                                "parent": new_user_kyc_doc.name,
+                                "parenttype": "User KYC",
+                                "parentfield": "bank_account",
+                                "bank_status": i.get("bank_status"),
+                                "bank": i.get("bank"),
+                                "branch": i.get("branch"),
+                                "account_number": i.get("account_number"),
+                                "ifsc": i.get("ifsc"),
+                                "city": i.get("city"),
+                                "is_default": i.get("is_default"),
+                                "razorpay_fund_account_id": i.get(
+                                    "razorpay_fund_account_id"
+                                ),
+                                "account_holder_name": i.get("account_holder_name"),
+                                "personalized_cheque": i.get("personalized_cheque"),
+                                "account_type": i.get("account_type"),
+                                "razorpay_fund_account_validation_id": i.get(
+                                    "razorpay_fund_account_validation_id"
+                                ),
+                                "notification_sent": i.get("notification_sent"),
+                                "doctype": "User Bank Account",
+                            }
+                        ).insert(ignore_permissions=True)
+                        banks.append(bank)
                     new_user_kyc_doc.bank_account = banks
                     new_user_kyc_doc.save(ignore_permissions=True)
                     frappe.db.commit()
