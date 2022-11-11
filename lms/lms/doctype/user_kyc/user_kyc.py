@@ -92,7 +92,7 @@ class UserKYC(Document):
                     frappe.db.commit()
 
                 elif i.bank_status == "Rejected":
-                    msg = "Your Bank request has been rejected due to mismatch in the details;  please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
+                    msg = "Your Bank request has been rejected due to mismatch in the details; please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
                         las_settings.app_login_dashboard
                     )
                     frappe.enqueue_doc(
