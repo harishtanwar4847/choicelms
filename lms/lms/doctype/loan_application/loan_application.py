@@ -257,7 +257,8 @@ class LoanApplication(Document):
                     method="send",
                     doc=doc,
                 )
-                msg = "Dear Customer,\nSorry! Your loan application was turned down since the requested loan amount is not in the range of lender's minimum sanction limit (Rs.{}) and maximum sanction limit (Rs.{}) criteria. We regret the inconvenience caused. Please try again with the expected criteria or reach out via the 'Contact Us' section of the app- {link} -Spark Loans".format(
+                msg = """Dear Customer,
+                Sorry! Your loan application was turned down since the requested loan amount is not in the range of lender's minimum sanction limit (Rs.{}) and maximum sanction limit (Rs.{}) criteria. We regret the inconvenience caused. Please try again with the expected criteria or reach out via the 'Contact Us' section of the app- {link} -Spark Loans""".format(
                     self.minimum_sanctioned_limit,
                     self.maximum_sanctioned_limit,
                     link=las_settings.app_login_dashboard,
