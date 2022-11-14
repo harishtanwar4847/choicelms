@@ -146,7 +146,7 @@ class SparkLoanRenewalApplication(Document):
         except Exception as e:
             frappe.log_error(
                 message=frappe.get_traceback(),
-                title=_("Loan Renewal Application - Notify Customer"),
+                title=_("Loan Renewal Application - Customer Notification "),
             )
 
 
@@ -154,8 +154,6 @@ class SparkLoanRenewalApplication(Document):
 def customer_reminder(doc_name):
     try:
         renewal_doc = frappe.get_doc("Spark Loan Renewal Application", doc_name)
-        print("Document :", renewal_doc)
-        print("Document loan :", renewal_doc.loan)
         loan = frappe.get_doc("Loan", renewal_doc.loan)
         customer = frappe.get_doc("Loan Customer", renewal_doc.customer)
 
@@ -222,7 +220,7 @@ def loan_renewal_cron():
                 fields=["*"],
             )
             customer = frappe.get_doc("Loan Customer", loan.customer)
-            expiry_date = frappe.utils.now_datetime().date() + timedelta(days=30)
+            expiry_date = frappe.utils.now_datetime().date() + timedelta(days=31)
             if (
                 loan.expiry_date == expiry_date
                 and loan.total_collateral_value > 0
