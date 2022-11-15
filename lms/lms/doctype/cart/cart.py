@@ -144,7 +144,7 @@ class Cart(Document):
             frappe.enqueue_doc(
                 "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
             )
-            msg = frappe.get_doc("Spark SMS Notification","Margin short fall - action taken").message
+            msg = frappe.get_doc("Spark SMS Notification","Margin shortfall - action taken").message
 
             # msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
             fcm_notification = frappe.get_doc(
@@ -198,8 +198,9 @@ class Cart(Document):
                 # mess = "Dear Customer,\nYour {} request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans".format(
                 #     msg_type
                 # )
-                lms.send_sms_notification(customer=customer,msg=mess)
-                # # if mess:
+                # lms.send_sms_notification(customer=customer,msg=mess)
+                if mess:
+                    lms.send_sms_notification(customer=customer,msg=mess)
                 # receiver_list = [str(self.get_customer().phone)]
                 # if doc.mob_num:
                 #     receiver_list.append(str(doc.mob_num))

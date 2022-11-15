@@ -16,7 +16,7 @@ import lms
 from lms import convert_sec_to_hh_mm_ss, holiday_list
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.user_token.user_token import send_sms
-from lms.lms.__init__ import send_sms_notification
+
 
 
 class LoanMarginShortfall(Document):
@@ -348,7 +348,7 @@ class LoanMarginShortfall(Document):
                 )
 
             frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
-            mess = frappe.get_doc("Spark SMS Notification","Sale triggerred immediate(loan margin shortfall- 328)").message.format(
+            mess = frappe.get_doc("Spark SMS Notification","Sale triggerred immediate").message.format(
                     hrs_sell_off[0].max_threshold, msg_type[0], self.loan, msg_type[1]
                 )
             # send_sms_notification(customer=customer,msg=mess)
@@ -371,7 +371,7 @@ class LoanMarginShortfall(Document):
             #     max_threshold=hrs_sell_off[0].max_threshold
             # )
         elif margin_shortfall_action.sell_off_after_hours:
-            mess = frappe.get_doc("Spark SMS Notification","Margin shortfall – Action required after hours(loan margin shortfall - 347)").message.format(
+            mess = frappe.get_doc("Spark SMS Notification","Margin shortfall – Action required after hours").message.format(
                     hrs_sell_off[0].max_threshold, msg_type[0], self.loan, msg_type[1]
                 )
             # mess = "Dear Customer,\nURGENT ACTION REQUIRED. There is a margin shortfall in your loan account {}. Please check the app and take an appropriate action within {} hours; else {} will be triggered. Spark Loans".format(
@@ -414,7 +414,7 @@ class LoanMarginShortfall(Document):
                     str(margin_shortfall_action.sell_off_deadline_eod), "%H"
                 ).strftime("%I:%M%P")
 
-            mess = frappe.get_doc("Spark SMS Notification","Margin short fall - Action required at eod(loan margin shortfall - 387)").message.format(
+            mess = frappe.get_doc("Spark SMS Notification","Margin shortfall - Action required at eod").message.format(
                     self.loan, eod_sell_off[0].max_threshold, eod_time, msg_type[0]
                 ) 
              
@@ -464,11 +464,12 @@ class LoanMarginShortfall(Document):
             frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
 
         if mess:
-            frappe.enqueue(
-                method=send_sms,
-                receiver_list=[self.get_loan().get_customer().phone],
-                msg=mess,
-            )
+            lms.send_sms_notification(customer=self.get_customer(),msg=mess)
+            # frappe.enqueue(
+            #     method=send_sms,
+            #     receiver_list=[self.get_loan().get_customer().phone],
+            #     msg=mess,
+            # )
 
         if fcm_notification:
             lms.send_spark_push_notification(

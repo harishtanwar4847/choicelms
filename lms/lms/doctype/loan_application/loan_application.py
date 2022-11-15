@@ -1791,7 +1791,7 @@ class LoanApplication(Document):
         fcm_notification = {}
         fcm_message = ""
         if doc.get("loan_application").get("status") == "Pledge Failure":
-            msg = frappe.get_doc("Spark SMS Notification","Loan Increase application reject").message.format(msg_type)
+            
             msg, fcm_title = (
                 (
                     frappe.get_doc("Spark SMS Notification","Loan Increase application reject").message.format(msg_type),

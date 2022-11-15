@@ -2983,7 +2983,7 @@ def sell_collateral_request(**kwargs):
             frappe.enqueue_doc(
                 "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
             )
-            msg = frappe.get_doc("Spark SMS Notification","Margin short fall - action taken").message
+            msg = frappe.get_doc("Spark SMS Notification","Margin shortfall - action taken").message
             # msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification",

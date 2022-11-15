@@ -909,7 +909,7 @@ class Loan(Document):
                 fields=["*"],
             )
             message = fcm_notification.message.format(loan=self.name)
-            msg = frappe.get_doc("Spark SMS Notification","Margin short fall - timer resumed").message.format(loan=self.name)
+            msg = frappe.get_doc("Spark SMS Notification","Margin shortfall - timer resumed").message.format(loan=self.name)
             # msg = "Dear Customer,The margin shortfall timer has been resumed on your loan account {loan} Please check the app and take appropriate action. -Spark Loans".format(
             #     loan=self.name
             # )

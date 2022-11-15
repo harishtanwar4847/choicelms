@@ -1395,7 +1395,7 @@ def update_rzp_payment_transaction(data):
                         method="send",
                         doc=doc,
                     )
-                    msg = frappe.get_doc("Spark SMS Notification","Margin short fall - action taken").message
+                    msg = frappe.get_doc("Spark SMS Notification","Margin shortfall - action taken").message
                     lms.send_sms_notification(customer=customer,msg=msg)
 
                     # msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"

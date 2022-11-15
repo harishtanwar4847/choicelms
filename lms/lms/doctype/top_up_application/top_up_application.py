@@ -548,7 +548,8 @@ class TopupApplication(Document):
             )
 
         if doc.get("top_up_application").get("status") == "Approved":
-            mess = "Dear Customer,\nCongratulations! Your loan account has been topped up. Please check the app for details. -Spark Loans"
+            mess = frappe.get_doc("Spark SMS Notification","Loan account topped up").message
+            # mess = "Dear Customer,\nCongratulations! Your loan account has been topped up. Please check the app for details. -Spark Loans"
 
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Loan account topped up", fields=["*"]
@@ -567,7 +568,7 @@ class TopupApplication(Document):
             loan = self.loan
 
         if mess:
-            lms.send_sms_notification(customer=self.get_customer,msg=msg)
+            lms.send_sms_notification(customer=self.get_customer,msg=mess)
             # receiver_list = [str(self.get_customer().phone)]
             # if doc.mob_num:
             #     receiver_list.append(str(doc.mob_num))
