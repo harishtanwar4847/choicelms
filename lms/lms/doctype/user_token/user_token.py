@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from lms.lms.doctype.user_token.user_token import send_sms_notification
+
 import lms
 
 
@@ -105,7 +105,7 @@ class UserToken(Document):
             #     app_hash_string=app_hash_string,
             #     expiry_in_minutes=expiry_in_minutes,
             # )
-
+            customer = [self.entity]
             mess = frappe.get_doc("Spark SMS Notification","OTP").message.format(
                 token_type=self.token_type.replace(" ", ""),
                 token=self.token,
@@ -120,6 +120,7 @@ class UserToken(Document):
             # )
 
             # frappe.enqueue(method=send_sms, receiver_list=[self.entity], msg=mess)
+            print("token_type",token_type)
         elif self.token_type == "Email Verification Token":
             doc = frappe.get_doc("User", self.entity).as_dict()
             doc["url"] = frappe.utils.get_url(

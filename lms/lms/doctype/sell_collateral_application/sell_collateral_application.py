@@ -218,13 +218,18 @@ class SellCollateralApplication(Document):
 
         if self.status == "Rejected":
             if self.instrument_type == "Mutual Fund":
-                # msg =
-                msg = "Dear Customer,\nSorry! Your invoke request was turned down due to technical reasons. You can reach out via the 'Contact Us' section of the app or please try again later using this link- {link} -Spark Loans".format(
+                msg = frappe.get_doc("Spark SMS Notification","Invoke request").message.format(
                     link=las_settings.my_securities
                 )
+                # msg = "Dear Customer,\nSorry! Your invoke request was turned down due to technical reasons. You can reach out via the 'Contact Us' section of the app or please try again later using this link- {link} -Spark Loans".format(
+                #     link=las_settings.my_securities
+                # )
 
             else:
-                msg = "Dear Customer,\nSorry! Your sell collateral request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
+                msg = frappe.get_doc("Spark SMS Notification","Sell Request Turn Down").message
+
+                # msg = "Dear Customer,\nSorry! Your sell collateral request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
+
             msg = frappe.get_doc("Spark SMS Notification","Top Up rejected").message
 
             lms.send_sms_notification(customer=self.get_customer(),msg=msg)
@@ -431,9 +436,9 @@ class SellCollateralApplication(Document):
                 fcm_notification = fcm_notification.as_dict()
                 fcm_notification["title"] = "Invoke triggerred completed "
         else:
-            # msg_type = "sell collateral"
-            # if loan.instrument_type == "Mutual Fund":
-            #     msg_type = "invoke"
+            msg_type = "sell collateral"
+            if loan.instrument_type == "Mutual Fund":
+                msg_type = "invoke"
 
             msg = frappe.get_doc("Spark SMS Notification","Sell request executed").message.format(
                 application_type
