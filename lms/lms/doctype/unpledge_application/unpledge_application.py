@@ -32,6 +32,7 @@ class UnpledgeApplication(Document):
         for i in self.items:
             security = allowed_securities.get(i.isin)
             i.eligible_percentage = security.eligible_percentage
+            i.security_category = security.security_category
         loan = self.get_loan()
         self.actual_drawing_power = loan.actual_drawing_power
         loan_margin_shortfall = frappe.get_all(

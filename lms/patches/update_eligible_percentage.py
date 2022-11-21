@@ -11,13 +11,17 @@ def execute():
     )
     for i in unpledeg_application_item:
         eligible_percentage = frappe.get_all(
-            "Allowed Security", filters={"isin": i.isin}, fields=["eligible_percentage"]
+            "Allowed Security",
+            filters={"isin": i.isin},
+            fields=["eligible_percentage", "security_category"],
         )
         frappe.db.set_value(
             "Unpledge Application Item",
             i.name,
-            "eligible_percentage",
-            eligible_percentage[0].eligible_percentage,
+            {
+                "eligible_percentage": eligible_percentage[0].eligible_percentage,
+                "security_category": eligible_percentage[0].security_category,
+            },
         )
         frappe.db.commit()
 
@@ -31,7 +35,9 @@ def execute():
         frappe.db.set_value(
             "Sell Collateral Application Item",
             i.name,
-            "eligible_percentage",
-            eligible_percentage[0].eligible_percentage,
+            {
+                "eligible_percentage": eligible_percentage[0].eligible_percentage,
+                "security_category": eligible_percentage[0].security_category,
+            },
         )
         frappe.db.commit()

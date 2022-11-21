@@ -34,6 +34,7 @@ class SellCollateralApplication(Document):
         for i in self.items:
             security = allowed_securities.get(i.isin)
             i.eligible_percentage = security.eligible_percentage
+            i.security_category = security.security_category
         self.process_items()
         self.process_sell_items()
         if self.status == "Rejected":
