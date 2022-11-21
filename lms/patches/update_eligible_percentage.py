@@ -1,7 +1,5 @@
 import frappe
 
-import lms
-
 
 def execute():
     frappe.reload_doc("Lms", "DocType", "Unpledge Application")
@@ -12,9 +10,6 @@ def execute():
         "Unpledge Application Item", fields=["*"]
     )
     for i in unpledeg_application_item:
-        unpledeg_application_item_doc = frappe.get_doc(
-            "Unpledge Application Item", i.name
-        )
         eligible_percentage = frappe.get_all(
             "Allowed Security", filters={"isin": i.isin}, fields=["eligible_percentage"]
         )
@@ -24,16 +19,12 @@ def execute():
             "eligible_percentage",
             eligible_percentage[0].eligible_percentage,
         )
-        unpledeg_application_item_doc.save(ignore_permissions=True)
         frappe.db.commit()
 
     sell_collateral_application_item = frappe.get_all(
         "Sell Collateral Application Item", fields=["*"]
     )
     for i in sell_collateral_application_item:
-        sell_collateral_application_item_doc = frappe.get_doc(
-            "Sell Collateral Application Item", i.name
-        )
         eligible_percentage = frappe.get_all(
             "Allowed Security", filters={"isin": i.isin}, fields=["eligible_percentage"]
         )
@@ -43,5 +34,4 @@ def execute():
             "eligible_percentage",
             eligible_percentage[0].eligible_percentage,
         )
-        sell_collateral_application_item_doc.save(ignore_permissions=True)
         frappe.db.commit()
