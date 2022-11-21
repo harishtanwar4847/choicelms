@@ -25,6 +25,13 @@ class UnpledgeApplication(Document):
         self.process_items()
 
     def before_save(self):
+        isin = [i.isin for i in self.items]
+        allowed_securities = lms.get_allowed_securities(
+            isin, self.lender, self.instrument_type
+        )
+        for i in self.items:
+            security = allowed_securities.get(i.isin)
+            i.eligible_percentage = security.eligible_percentage
         loan = self.get_loan()
         self.actual_drawing_power = loan.actual_drawing_power
         loan_margin_shortfall = frappe.get_all(
