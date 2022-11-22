@@ -24,6 +24,7 @@
   "lender_selling_amount",
   "scheme_type",
   "initiate_message",
+  "invoke_initiate_request_timestamp",
   "is_initiated",
   "section_break_4",
   "items",
@@ -199,11 +200,18 @@
    "fieldtype": "Currency",
    "label": "Actual Drawing Power",
    "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
+   "fieldname": "invoke_initiate_request_timestamp",
+   "fieldtype": "Datetime",
+   "label": "Invoke Initiate Request Timestamp",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-05-23 15:49:56.310664",
+ "modified": "2022-11-22 14:11:25.414351",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",
