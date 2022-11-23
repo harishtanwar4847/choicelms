@@ -294,6 +294,7 @@ class LoanApplication(Document):
             for i in self.items:
                 i.date_of_pledge = frappe.utils.now_datetime().strftime("%d-%m-%Y")
                 collateral_ledger_data = {
+                    "psn": i.psn,
                     "prf": i.prf_number,
                     # "expiry": self.expiry_date,
                     "pledgor_boid": self.pledgor_boid,

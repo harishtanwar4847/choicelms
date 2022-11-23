@@ -31,6 +31,7 @@ class TopupApplication(Document):
         loan.drawing_power += self.top_up_amount
         loan.sanctioned_limit += self.top_up_amount
         loan.expiry_date = self.expiry_date
+        loan.available_topup_amt = loan.max_topup_amount()
         loan.save(ignore_permissions=True)
         frappe.db.commit()
 
@@ -268,6 +269,7 @@ class TopupApplication(Document):
             "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
         )
         user_role = []
+        loan = self.get_loan()
         for i in list(user_roles):
             user_role.append(i[0])
         if "Loan Customer" not in user_role:
@@ -277,7 +279,6 @@ class TopupApplication(Document):
         if not self.lender_esigned_document:
             frappe.throw("Please upload Lender Esigned Document")
 
-        loan = self.get_loan()
         updated_top_up_amt = loan.max_topup_amount()
         if (self.top_up_amount + loan.sanctioned_limit) > self.maximum_sanctioned_limit:
             frappe.throw(
