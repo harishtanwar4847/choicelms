@@ -141,8 +141,8 @@ def loan_customer_template():
                 "Account No",
                 "IFSC",
                 "City",
-                "Bank Address",
                 "Account Holder Name",
+                "Bank Address",
                 "Account Type",
             ],
         )

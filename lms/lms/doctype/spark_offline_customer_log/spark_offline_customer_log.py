@@ -70,8 +70,12 @@ def retry_process(doc_name):
                 message += "Please enter valid email ID.\n"
 
             # validation for mobile number
-            if (len(doc.mobile_no) > 10) or (doc.mobile_no.isnumeric() == False):
+            if (len(doc.mobile_no) != 10) or (doc.mobile_no.isnumeric() == False):
+                print("zkjvzlkj")
                 message += "Please enter valid Mobile Number.\n"
+
+            if doc.city.isaplha() == False:
+                message += "Please enter valid city name.\n"
 
             if (
                 (reg)
@@ -79,7 +83,7 @@ def retry_process(doc_name):
                     (re.search(email_regex, doc.email_id)) is None
                     or (len(doc.email_id.split("@")) > 2)
                 )
-                or ((len(doc.mobile_no) > 10) or (doc.mobile_no.isnumeric() == False))
+                or ((len(doc.mobile_no) != 10) or (doc.mobile_no.isnumeric() == False))
             ):
                 doc.user_status = "Failure"
                 doc.customer_status = "Failure"
