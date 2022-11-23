@@ -193,7 +193,6 @@ def esign(**kwargs):
             )
 
             res_params = {
-                "timestamp": str(frappe.utils.now_datetime()),
                 "esign_url_dict": esign_request.get("esign_url_dict"),
                 "esign_file_upload_url": esign_request.get("file_upload_url"),
                 "headers": esign_request.get("headers"),
@@ -336,7 +335,6 @@ def esign_done(**kwargs):
             res = requests.get(esigned_pdf_url, allow_redirects=True)
             # frappe.db.begin()
             res_params = {
-                "timestamp": str(frappe.utils.now_datetime()),
                 "loan_application_name": data.get("loan_application_name"),
                 "topup_application_name": data.get("topup_application_name"),
                 "esign_done_request": esigned_pdf_url,

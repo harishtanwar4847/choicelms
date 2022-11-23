@@ -581,7 +581,6 @@ def validate_invoc(sell_collateral_application_name):
                 lms.create_log(
                     {
                         "json_payload": data,
-                        "timestamp": str(frappe.utils.now_datetime()),
                     },
                     "invoke_validate_request",
                 )
@@ -726,7 +725,6 @@ def initiate_invoc(sell_collateral_application_name):
                 lms.create_log(
                     {
                         "json_payload": data,
-                        "timestamp": str(frappe.utils.now_datetime()),
                     },
                     "invoke_initiate_request",
                 )
