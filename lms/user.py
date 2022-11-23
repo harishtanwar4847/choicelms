@@ -5621,7 +5621,7 @@ def au_penny_drop(**kwargs):
                         img_format="jpeg",
                         img_folder="personalized_cheque",
                     )
-                    if user_kyc.kyc_type == "Choice":
+                    if user_kyc.kyc_type == "CHOICE":
                         bank_entry_name = frappe.db.get_value(
                             "User Bank Account",
                             {
@@ -5631,7 +5631,6 @@ def au_penny_drop(**kwargs):
                             },
                             "name",
                         )
-
                         if not bank_entry_name:
                             bank_account_list = frappe.get_all(
                                 "User Bank Account",
