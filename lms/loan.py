@@ -1412,6 +1412,11 @@ def loan_details(**kwargs):
             )
         )
 
+        renewal_doc_list = frappe.get_last_doc(
+            "Spark Loan Renewal Application", filters={"loan": loan.name}
+        )
+        res["loan_renewal_is_expired"] = renewal_doc_list.is_expired
+
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
         lms.log_api_error()

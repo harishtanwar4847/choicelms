@@ -1961,11 +1961,6 @@ def system_report_enqueue():
             queue="long",
             job_name="interest calculation enqueue",
         )
-    frappe.enqueue(
-        method="lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.loan_renewal_cron",
-        queue="long",
-        job_name="loan renewal cron",
-    )
 
 
 def download_file(dataframe, file_name, file_extention, sheet_name):
