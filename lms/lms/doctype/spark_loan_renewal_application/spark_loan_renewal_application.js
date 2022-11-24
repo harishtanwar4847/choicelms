@@ -15,5 +15,10 @@ frappe.ui.form.on("Spark Loan Renewal Application", {
         });
       });
     }
+    frappe.call({
+      type: "POST",
+      method:
+        "lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.renewal_timer",
+    });
   },
 });

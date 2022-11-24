@@ -13,6 +13,7 @@
   "updated_kyc_status",
   "total_collateral_value",
   "sanctioned_limit",
+  "loan_balance",
   "expiry_date",
   "column_break_8",
   "tnc_complete",
@@ -27,7 +28,11 @@
   "column_break_17",
   "lender_esigned_document",
   "section_break_19",
-  "remarks"
+  "time_remaining",
+  "action_status",
+  "section_break_26",
+  "remarks",
+  "amended_from"
  ],
  "fields": [
   {
@@ -106,7 +111,8 @@
   {
    "fieldname": "expiry_date",
    "fieldtype": "Data",
-   "label": "Expiry Date"
+   "label": "Expiry Date",
+   "read_only": 1
   },
   {
    "fieldname": "section_break_15",
@@ -167,12 +173,46 @@
    "default": "0",
    "fieldname": "is_expired",
    "fieldtype": "Check",
-   "label": "Is Expired"
+   "label": "Is Expired",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "loan.balance",
+   "fieldname": "loan_balance",
+   "fieldtype": "Currency",
+   "label": "Loan Balance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "time_remaining",
+   "fieldtype": "Data",
+   "label": "Time Remaining",
+   "read_only": 1
+  },
+  {
+   "fieldname": "action_status",
+   "fieldtype": "Select",
+   "label": "Action Status",
+   "options": "\nPending",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_26",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Spark Loan Renewal Application",
+   "print_hide": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-11-11 13:50:30.313316",
+ "modified": "2022-11-24 16:13:23.395918",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Loan Renewal Application",
