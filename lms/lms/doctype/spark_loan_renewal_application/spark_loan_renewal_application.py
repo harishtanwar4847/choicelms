@@ -462,6 +462,11 @@ def loan_renewal_cron():
             queue="long",
             job_name="Renewal Penal Interest",
         )
+        frappe.enqueue(
+            method="lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.renewal_timer",
+            queue="long",
+            job_name="Renewal Time Remaining Addition",
+        )
 
     except Exception as e:
         frappe.log_error(
