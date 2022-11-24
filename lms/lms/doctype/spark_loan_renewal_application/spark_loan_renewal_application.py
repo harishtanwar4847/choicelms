@@ -15,6 +15,7 @@ from lms.lms.doctype.user_token.user_token import send_sms
 class SparkLoanRenewalApplication(Document):
     def before_save(self):
         loan = frappe.get_doc("Loan", self.loan)
+        msg = ""
         if self.status == "Approved" and not self.expiry_date:
             if not self.lender_esigned_document:
                 frappe.throw(_("Please upload Lender esigned document."))
