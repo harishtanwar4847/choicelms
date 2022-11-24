@@ -12,11 +12,8 @@ import lms
 
 class SparkOfflineCustomerLog(Document):
     def before_save(self):
-        print("ABCFGShgsv")
         if self.ckyc_status == "Success":
             self.ckyc_remarks = ""
-            # self.save(ignore_permissions=True)
-            # frappe.db.commit()
         if (
             self.user_status == "Success"
             and self.customer_status == "Success"
@@ -28,8 +25,6 @@ class SparkOfflineCustomerLog(Document):
             self.ckyc_remarks = ""
             self.bank_remarks = ""
             self.status = "Success"
-            # self.save(ignore_permissions=True)
-            # frappe.db.commit()
         elif (
             self.user_status == "Failure"
             and self.customer_status == "Failure"
@@ -37,12 +32,8 @@ class SparkOfflineCustomerLog(Document):
             and self.bank_status == "Failure"
         ):
             self.status = "Failure"
-            # self.save(ignore_permissions=True)
-            # frappe.db.commit()
         else:
             self.status = "Partial Success"
-            # self.save(ignore_permissions=True)
-            # frappe.db.commit()
 
 
 @frappe.whitelist()
@@ -71,7 +62,6 @@ def retry_process(doc_name):
 
             # validation for mobile number
             if (len(doc.mobile_no) != 10) or (doc.mobile_no.isnumeric() == False):
-                print("zkjvzlkj")
                 message += "Please enter valid Mobile Number.\n"
 
             if doc.city.isaplha() == False:

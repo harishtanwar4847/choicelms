@@ -196,7 +196,6 @@ def get_user(input, throw=False):
         (input, input),
         as_dict=1,
     )
-    # print("get_user", frappe.as_json(user_data))
     if len(user_data) >= 1:
         return user_data[0].name
     else:
@@ -1692,7 +1691,6 @@ def decrypt_lien_marking_response():
             schemes = res.get("schemedetails").get("scheme")
             if type(schemes) != list:
                 schemes = [schemes]
-            # print(schemes)
 
             for i in schemes:
                 cart.append(
@@ -2662,7 +2660,6 @@ def penny_call_create_contact(user=None, customer=None, user_kyc=None):
 
             # update contact ID
             contact_id = data_res.get("id")
-            # print("user_kyc", contact_id)
             create_log(data_res, "rzp_penny_contact_success_log")
             data = {"message": contact_id}
             return data
@@ -2740,7 +2737,6 @@ def call_penny_create_fund_account(
 
         try:
             user_kyc = __user_kyc(user_name)
-            # print("user_kyc", user_kyc)
         except UserKYCNotFoundException:
             # return utils.respondWithFailure(message=frappe._("User KYC not found"))
             data = {"message": "User KYC not found"}
@@ -2959,7 +2955,6 @@ def call_penny_create_fund_account_validation(
                 data_res,
                 personalized_cheque=personalized_cheque,
             )
-            # print("penny_handle",penny_handle)
             return penny_handle
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
@@ -2997,9 +2992,7 @@ def call_penny_create_fund_account_validation_by_id(
         #     raise lms.exceptions.NotFoundException(_("User not found"))
 
         try:
-            # print("user", user)
             user_name = user
-            # print("user_name", user_name)
             if not user:
                 user = __user()
                 user_name = user.name
@@ -3317,25 +3310,19 @@ def penny_api_response_handle(
             else:
                 data_resp["status"] = "failed"
                 data = {
-                    # "fav_id":data_res.get("id"),
-                    # "status":data_resp["status"],
                     "data_resp": data_resp,
                     "message": "We have found a mismatch in the account holder name as per the fetched data",
                 }
                 return data
-                # raise exceptions.RespondFailureException(message, data_resp)
         else:
             data_resp["status"] = "failed"
             data = {
                 "data_resp": data_resp,
                 "message": "Your account details have not been successfully verified",
             }
-            # message = "Your account details have not been successfully verified"
             return data
-            # raise exceptions.RespondFailureException(message, data_resp)
 
         create_log(data_res, "rzp_penny_fund_account_validation_success_log")
-        # return utils.respondWithSuccess(message=message, data=data_res)
         return data_res
     except utils.exceptions.APIException as e:
         log_api_error(

@@ -157,7 +157,6 @@ class SellCollateralApplication(Document):
                             "{}".format("-" + str(i.folio) if i.folio else ""),
                         )
                     )
-            print("sell_quantity_map", sell_quantity_map)
             sell_quantity_map[isin_folio_combo] = (
                 sell_quantity_map[isin_folio_combo] + i.sell_quantity
             )
@@ -216,7 +215,6 @@ class SellCollateralApplication(Document):
                 i.folio if i.folio else "",
                 i.psn if i.psn else "",
             )
-            # print(sell_quantity_map.get(i.isin), i.quantity)
             if sell_quantity_map.get(isin_folio_combo) < i.quantity:
                 frappe.throw(
                     "You need to {} all {} of isin {}{}".format(

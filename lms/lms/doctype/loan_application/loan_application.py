@@ -295,10 +295,6 @@ class LoanApplication(Document):
             self.save(ignore_permissions=True)
             frappe.db.commit()
 
-            # expiry = frappe.utils.add_years(frappe.utils.now_datetime(), 1) - timedelta(
-            #     days=1
-            # )
-            # self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
             for i in self.items:
                 i.date_of_pledge = frappe.utils.now_datetime().strftime("%d-%m-%Y")
                 collateral_ledger_data = {
@@ -388,8 +384,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     self.status = "Executing pledge"
                     self.workflow_state = "Executing pledge"
                     self.total_collateral_value = 0
-                    # for i in self.items:
-                    #     i.lender_approval_status = "Approved"
                     self.save(ignore_permissions=True)
                     frappe.db.commit()
                     lien_ref_no = self.items[0].get("prf_number")
@@ -570,7 +564,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                             for i in self.items:
                                 i.amount = i.price * i.pledged_quantity
                                 dp = (i.eligible_percentage / 100) * i.amount
-                                # self.total_collateral_value += i.amount
                                 drawing_power += dp
 
                             drawing_power = round(
@@ -580,12 +573,9 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                                 2,
                             )
 
-                        # self.save(ignore_permissions=True)
-
                         if not customer.pledge_securities:
                             customer.pledge_securities = pledge_securities
                             customer.save(ignore_permissions=True)
-                        # frappe.db.commit()
 
                     else:
                         if schemedetails:
@@ -685,7 +675,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 for i in self.items:
                     i.amount = i.price * i.pledged_quantity
                     dp = (i.eligible_percentage / 100) * i.amount
-                    # self.total_collateral_value += i.amount
                     drawing_power += dp
 
                 drawing_power = round(
@@ -722,7 +711,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 for i in self.items:
                     i.amount = i.price * i.pledged_quantity
                     dp = (i.eligible_percentage / 100) * i.amount
-                    # self.total_collateral_value += i.amount
                     drawing_power += dp
 
                 drawing_power = round(
@@ -761,7 +749,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                             for i in self.items:
                                 i.amount = i.price * i.pledged_quantity
                                 dp = (i.eligible_percentage / 100) * i.amount
-                                # self.total_collateral_value += i.amount
                                 drawing_power += dp
 
                             drawing_power = round(

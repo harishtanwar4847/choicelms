@@ -37,17 +37,6 @@ class UnpledgeApplication(Document):
 
     def before_save(self):
         loan = self.get_loan()
-        # user_roles = frappe.db.get_values(
-        #     "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
-        # )
-        # user_role = []
-        # for i in list(user_roles):
-        #     user_role.append(i[0])
-        # if "Loan Customer" not in user_role:
-        #     sell_doc = frappe.get_all("Sell Collateral Application", filters = {"status": "Pending", "loan" : loan.name}, fields = ["*"])
-        #     for i in sell_doc:
-        #         for j in i.items:
-        #             if j.isin ==
         self.actual_drawing_power = loan.actual_drawing_power
         loan_margin_shortfall = frappe.get_all(
             "Loan Margin Shortfall",
@@ -172,7 +161,6 @@ class UnpledgeApplication(Document):
                             isin_folio_combo,
                         )
                     )
-            print("unpledge_quantity_map", unpledge_quantity_map)
             unpledge_quantity_map[isin_folio_combo] = (
                 unpledge_quantity_map[isin_folio_combo] + i.unpledge_quantity
             )
@@ -444,7 +432,6 @@ def get_collateral_details(unpledge_application_name):
     doc = frappe.get_doc("Unpledge Application", unpledge_application_name)
     loan = doc.get_loan()
     isin_list = [i.isin for i in doc.items]
-    # print("isin_list", isin_list)
     folio_clause = (
         " and cl.folio IN {}".format(
             lms.convert_list_to_tuple_string([i.folio for i in doc.items])
@@ -455,8 +442,6 @@ def get_collateral_details(unpledge_application_name):
     psn = "and cl.psn IN {}".format(
         lms.convert_list_to_tuple_string([i.psn for i in doc.items])
     )
-    # psn = psn if doc.instrument_type == "Shares" else ""
-    # print("psn", psn)
     return loan.get_collateral_list(
         group_by_psn=True,
         where_clause="and cl.isin IN {}{}{psn}".format(
