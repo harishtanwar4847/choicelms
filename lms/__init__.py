@@ -39,7 +39,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.5.1-uat"
+__version__ = "5.9.0-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -704,6 +704,7 @@ def create_log(log, file_name):
                 logs = f.read()
             f.close()
         logs = json.loads(logs or "[]")
+        log["req_time"] = str(frappe.utils.now_datetime())
         logs.append(log)
         with open(log_file, "w") as f:
             f.write(json.dumps(logs))
@@ -3343,3 +3344,17 @@ def penny_api_response_handle(
             + str(data_resp if data_resp else data_res)
         )
         return e.respond()
+
+
+@frappe.whitelist(allow_guest=True)
+def penny_validate_fund_account():
+    try:
+        log = {
+            "request": frappe.local.form_dict,
+            "headers": {k: v for k, v in frappe.local.request.headers.items()},
+        }
+        create_log(log, "penny_validate_fund_account")
+        return log
+
+    except Exception:
+        log_api_error()

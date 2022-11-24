@@ -16,6 +16,9 @@ def execute():
         las_settings.lien_allowed_scheme_update_api = (
             "https://mycams.camsonline.com/lamfapi/trxn/v1/lienscheme"
         )
+        las_settings.secret_key = "T4WzBXISjp19fY4JmVoc8Xcl2y4tv7d+ESG8rwUSg+4="
+        las_settings.hmac_key = "TEFNRi1DRklOUExURGhtYWM="
+        las_settings.client_id = "LAMF-CFINPLTD"
 
     else:
         las_settings.lien_marking_api = (
@@ -33,14 +36,14 @@ def execute():
         las_settings.lien_allowed_scheme_update_api = (
             "https://mycamsuat.camsonline.com/lamfapi/trxn/v1/lienscheme"
         )
+        las_settings.secret_key = "HakUx7K9JlfUBE/eL+YES1MAW1EscwI+NOgoIaXVwGU="
+        las_settings.hmac_key = "TEFNRi1UQ0ZJTlBMVERobWFj"
+        las_settings.client_id = "LAMF-TCFINPLTD"
 
     las_settings.investica_api = "https://api.choiceindia.com/api/bo/Scheme/SchemeNav"
     las_settings.encryption_key = "TkVJTEhobWFj"
     las_settings.decryption_key = "SExJRU5obWFj"
-    las_settings.secret_key = "HakUx7K9JlfUBE/eL+YES1MAW1EscwI+NOgoIaXVwGU="
-    las_settings.hmac_key = "TEFNRi1UQ0ZJTlBMVERobWFj"
     las_settings.iv = "globalaesvectors"
-    las_settings.client_id = "LAMF-TCFINPLTD"
     las_settings.client_name = "Choice Finserv Pvt Ltd"
     las_settings.bank_reference_no = "1001"
     las_settings.bank_name = "Choice Finserv Pvt Ltd"

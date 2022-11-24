@@ -1,0 +1,11 @@
+{
+    "applinks": {
+        "apps": [],
+        "details": [
+            {
+                "appID": "C68Y6UD2J7.loans.sparktechnologies.spark.loans",
+                "paths": ["/open/*"]
+            }
+        ]
+    }
+}

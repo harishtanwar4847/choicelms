@@ -2,6 +2,66 @@
 
 ## [Unreleased]
 
+## [v5.9.0-uat]
+
+## Added
+
+- [Feat: AU Bank Penny Drop Api integration](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/552)
+
+## [v5.8.2-uat]
+
+## Added
+
+- [Feat: \n added in unpledge application msg](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/547)
+
+## [v5.8.1-uat]
+
+## Added
+
+- [Feat: update dlt links patch changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/546)
+
+## [v5.8.0-uat]
+
+## Added
+
+- [Feat: DLT sms changes and 4 fields added in las settings for dlt](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/544)
+
+## [v5.7.2-uat]
+
+## Fixed
+
+- [Fix: Margin Shortfall Amount update in Loan](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/542)
+
+## [v5.7.1-uat]
+
+## Fixed
+
+- [Fix: Address in get tnc fix](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/540)
+
+## [v5.7.0-uat]
+
+## Added
+
+- [Feat: agreement changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/539)
+
+## [v5.6.0-uat]
+
+## Added
+
+- [Feat: Bank patch and dynamic link changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/538)
+
+## [v5.5.3-uat]
+
+## Fixed
+
+- [Fix: Name match with penny registered name fix](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/536)
+
+## [v5.5.2-uat]
+
+## Fixed
+
+- [Fix: OTP on Email fixed](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/533)
+
 ## [v5.5.1-uat]
 
 ## Added

@@ -126,7 +126,6 @@ def update_all_security_prices():
             response = requests.get(session_id_generator_url)
             response_json = response.json()
             log = {
-                "timestamp": str(frappe.utils.now_datetime()),
                 "request_url": session_id_generator_url,
                 "response": response_json,
             }
