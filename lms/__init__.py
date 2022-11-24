@@ -36,7 +36,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.8.2-uat"
+__version__ = "5.9.0-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -701,6 +701,7 @@ def create_log(log, file_name):
                 logs = f.read()
             f.close()
         logs = json.loads(logs or "[]")
+        log["req_time"] = str(frappe.utils.now_datetime())
         logs.append(log)
         with open(log_file, "w") as f:
             f.write(json.dumps(logs))

@@ -581,7 +581,6 @@ def validate_invoc(sell_collateral_application_name):
                 lms.create_log(
                     {
                         "json_payload": data,
-                        "timestamp": str(frappe.utils.now_datetime()),
                     },
                     "invoke_validate_request",
                 )
@@ -726,7 +725,6 @@ def initiate_invoc(sell_collateral_application_name):
                 lms.create_log(
                     {
                         "json_payload": data,
-                        "timestamp": str(frappe.utils.now_datetime()),
                     },
                     "invoke_initiate_request",
                 )
@@ -735,6 +733,10 @@ def initiate_invoc(sell_collateral_application_name):
                 ).encrypt(json.dumps(data))
 
                 req_data = {"req": str(encrypted_data)}
+
+                sell_collateral_application_doc.db_set(
+                    "invoke_initiate_request_timestamp", frappe.utils.now_datetime()
+                )
 
                 resp = requests.post(
                     url=url, headers=headers, data=json.dumps(req_data)
@@ -818,6 +820,12 @@ def initiate_invoc(sell_collateral_application_name):
         else:
             frappe.throw(frappe._("Mycams Email ID is missing"))
     except utils.exceptions.APIException as e:
+        sell_collateral_application_doc = frappe.get_doc(
+            "Sell Collateral Application", sell_collateral_application_name
+        )
+        sell_collateral_application_doc.db_set(
+            "invoke_initiate_request_timestamp", frappe.utils.now_datetime()
+        )
         frappe.log_error(
             title="Invocation - Initiate - Error",
             message=frappe.get_traceback()

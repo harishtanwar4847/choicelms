@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.9.0-uat]
+
+## Added
+
+- [Feat: AU Bank Penny Drop Api integration](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/552)
+
 ## [v5.8.2-uat]
 
 ## Added

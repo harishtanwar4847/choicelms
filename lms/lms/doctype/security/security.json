@@ -74,8 +74,13 @@
    "options": "\nEquity\nDebt"
   }
  ],
- "links": [],
- "modified": "2022-09-14 19:12:39.350956",
+ "links": [
+  {
+   "link_doctype": "Allowed Security",
+   "link_fieldname": "isin"
+  }
+ ],
+ "modified": "2022-11-22 14:34:45.248165",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Security",

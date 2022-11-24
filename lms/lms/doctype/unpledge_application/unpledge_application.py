@@ -478,7 +478,6 @@ def validate_revoc(unpledge_application_name):
                 lms.create_log(
                     {
                         "json_payload": data,
-                        "timestamp": str(frappe.utils.now_datetime()),
                     },
                     "revoke_validate_request",
                 )
@@ -619,7 +618,6 @@ def initiate_revoc(unpledge_application_name):
                 lms.create_log(
                     {
                         "json_payload": data,
-                        "timestamp": str(frappe.utils.now_datetime()),
                     },
                     "revoke_initiate_request",
                 )
