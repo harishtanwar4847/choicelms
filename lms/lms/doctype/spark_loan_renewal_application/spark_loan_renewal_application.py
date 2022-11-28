@@ -513,7 +513,7 @@ def renewal_penal_interest():
 
         current_date = frappe.utils.now_datetime().date()
         greater_than_7 = loan.expiry_date + timedelta(days=7)
-        if greater_than_7 > current_date or loan.expiry_date < current_date:
+        if greater_than_7 > current_date and loan.expiry_date < current_date:
             if (not existing_renewal_doc_list and not user_kyc) or (
                 user_kyc_approved and pending_renewal_doc_list
             ):
@@ -525,7 +525,8 @@ def renewal_penal_interest():
                     },
                     fields=["name"],
                 )
-                applications.append(top_up_application)
+                for i in top_up_application:
+                    applications.append(i)
                 loan_application = frappe.get_all(
                     "Loan Application",
                     filters={
@@ -534,46 +535,48 @@ def renewal_penal_interest():
                     },
                     fields=["name"],
                 )
-                applications.append(loan_application)
-                if not applications:
-                    current_year = frappe.utils.now_datetime().strftime("%Y")
-                    current_year = int(current_year)
-                    if (
-                        (current_year % 400 == 0)
-                        or (current_year % 100 != 0)
-                        and (current_year % 4 == 0)
-                    ):
-                        no_of_days = 366
-                    # Else it is not a leap year
-                    else:
-                        no_of_days = 365
-                    renewal_penal_interest = frappe.get_doc("Lender", loan.lender)
-                    daily_penal_interest = (
-                        float(renewal_penal_interest.renewal_penal_interest)
-                        / no_of_days
-                    )
-                    amount = loan.balance * (daily_penal_interest / 100)
-                    penal_interest_transaction = frappe.get_doc(
-                        {
-                            "doctype": "Loan Transaction",
-                            "loan": loan.name,
-                            "lender": loan.lender,
-                            "transaction_type": "Penal Interest",
-                            "record_type": "DR",
-                            "amount": round(amount, 2),
-                            "unpaid_interest": round(amount, 2),
-                            "time": current_date,
-                        }
-                    )
-                    penal_interest_transaction.insert(ignore_permissions=True)
-                    penal_interest_transaction.transaction_id = (
-                        penal_interest_transaction.name
-                    )
-                    penal_interest_transaction.status = "Approved"
-                    penal_interest_transaction.workflow_state = "Approved"
-                    penal_interest_transaction.docstatus = 1
-                    penal_interest_transaction.save(ignore_permissions=True)
-                    frappe.db.commit()
+                for i in loan_application:
+                    applications.append(i)
+                if not top_up_application:
+                    if not loan_application:
+                        current_year = frappe.utils.now_datetime().strftime("%Y")
+                        current_year = int(current_year)
+                        if (
+                            (current_year % 400 == 0)
+                            or (current_year % 100 != 0)
+                            and (current_year % 4 == 0)
+                        ):
+                            no_of_days = 366
+                        # Else it is not a leap year
+                        else:
+                            no_of_days = 365
+                        renewal_penal_interest = frappe.get_doc("Lender", loan.lender)
+                        daily_penal_interest = (
+                            float(renewal_penal_interest.renewal_penal_interest)
+                            / no_of_days
+                        )
+                        amount = loan.balance * (daily_penal_interest / 100)
+                        penal_interest_transaction = frappe.get_doc(
+                            {
+                                "doctype": "Loan Transaction",
+                                "loan": loan.name,
+                                "lender": loan.lender,
+                                "transaction_type": "Penal Interest",
+                                "record_type": "DR",
+                                "amount": round(amount, 2),
+                                "unpaid_interest": round(amount, 2),
+                                "time": current_date,
+                            }
+                        )
+                        penal_interest_transaction.insert(ignore_permissions=True)
+                        penal_interest_transaction.transaction_id = (
+                            penal_interest_transaction.name
+                        )
+                        penal_interest_transaction.status = "Approved"
+                        penal_interest_transaction.workflow_state = "Approved"
+                        penal_interest_transaction.docstatus = 1
+                        penal_interest_transaction.save(ignore_permissions=True)
+                        frappe.db.commit()
 
         pending_renewal_doc_list = frappe.get_all(
             "Spark Loan Renewal Application",
