@@ -509,6 +509,7 @@ def renewal_penal_interest():
             },
             fields=["*"],
         )
+        applications = []
 
         current_date = frappe.utils.now_datetime().date()
         greater_than_7 = loan.expiry_date + timedelta(days=7)
@@ -518,9 +519,13 @@ def renewal_penal_interest():
             ):
                 top_up_application = frappe.get_all(
                     "Top up Application",
-                    filters={"loan": loan.name, "status": "Pending"},
+                    filters={
+                        "loan": loan.name,
+                        "status": ["IN", ["Pending", "Esign Done"]],
+                    },
                     fields=["name"],
                 )
+                applications.append(top_up_application)
                 loan_application = frappe.get_all(
                     "Loan Application",
                     filters={
@@ -529,7 +534,8 @@ def renewal_penal_interest():
                     },
                     fields=["name"],
                 )
-                if not top_up_application or not loan_application:
+                applications.append(loan_application)
+                if not applications:
                     current_year = frappe.utils.now_datetime().strftime("%Y")
                     current_year = int(current_year)
                     if (

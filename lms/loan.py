@@ -3354,7 +3354,6 @@ def verify_loan_renewal_otp(**kwargs):
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         customer = lms.__customer()
-        print("Customer :", customer)
         user = lms.__user()
 
         is_dummy_account = lms.validate_spark_dummy_account(

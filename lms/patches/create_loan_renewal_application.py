@@ -11,13 +11,9 @@ def execute():
         loans = frappe.get_all("Loan", fields=["*"])
         for loan in loans:
             customer = frappe.get_doc("Loan Customer", loan.customer)
-            print(
-                "Loan name : {},, Loan expiry : {} ".format(loan.name, loan.expiry_date)
-            )
             month_to_expiry = loan.expiry_date - timedelta(days=30)
             curr_date = frappe.utils.now_datetime().date()
             if curr_date < loan.expiry_date and curr_date >= month_to_expiry:
-                print("Inside if loan name :", loan.name)
                 renewal_doc = frappe.get_doc(
                     dict(
                         doctype="Spark Loan Renewal Application",
@@ -32,7 +28,6 @@ def execute():
                     )
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
-                print("Renewal doc name :", renewal_doc.name)
                 email_expiry = frappe.db.sql(
                     "select message from `tabNotification` where name='Loan Renewal Reminder';"
                 )[0][0]

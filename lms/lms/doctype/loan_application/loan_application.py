@@ -796,7 +796,6 @@ class LoanApplication(Document):
         )
 
     def on_update(self):
-        print("Prod")
         if self.status == "Approved":
             if not self.loan:
                 values21 = {"value": [self.status, lms.get_linenumber()]}
@@ -2144,13 +2143,11 @@ def only_pdf_upload(doc, method):
 
 @frappe.whitelist()
 def actions_on_isin(loan_application):
-    print("Inside Actions on isin")
     loan_application = json.loads(loan_application)
     loan_application_doc = frappe.get_doc("Loan Application", loan_application["name"])
     if loan_application_doc.status == "Pledge executed":
         total_collateral_value = 0
         drawing_power = 0
-        print("inside internal if")
         for i in loan_application["items"]:
             if i["pledge_status"] == "Success" or i["pledge_status"] == "":
                 if (

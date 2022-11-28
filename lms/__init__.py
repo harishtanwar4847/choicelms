@@ -1831,7 +1831,6 @@ def ckyc_dot_net(
         ).insert(ignore_permissions=True)
         frappe.db.commit()
         log["response"] = res_json
-        print("Response :", res.text)
 
         create_log(log, log_name)
 
