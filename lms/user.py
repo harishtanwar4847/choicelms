@@ -5560,131 +5560,157 @@ def au_penny_drop(**kwargs):
         except UserKYCNotFoundException:
             raise lms.exceptions.RespondWithFailureException(_("User KYC not found"))
 
-        ReqId = datetime.strftime(datetime.now(), "%d%m") + str(
-            abs(randint(0, 9999) - randint(1, 99))
-        )
         las_settings = frappe.get_single("LAS Settings")
-        SECRET_KEY = las_settings.penny_secret_key
+        res_json = {}
+        bank_acc = frappe.get_all(
+            "User Bank Account", {"account_number": data.get("account_number")}, "*"
+        )
 
-        # ReqId + IFSCCode + AccNum
-
-        hash_text = "{}{}{}".format(ReqId, data.get("ifsc"), data.get("account_number"))
-
-        final_hash = hmac.new(
-            key=bytes(SECRET_KEY, "utf-8"),
-            msg=bytes(hash_text, "utf-8"),
-            digestmod="sha512",
-        ).digest()
-
-        payload = {
-            "ReqId": ReqId,
-            "IFSCCode": data.get("ifsc"),
-            "AccNum": data.get("account_number"),
-            "HashValue": base64.b64encode(final_hash).decode("ascii"),
-        }
-
-        url = las_settings.penny_drop_api
-
-        headers = {
-            "Content-Type": "application/json",
-        }
-        res = requests.post(url=url, json=payload, headers=headers)
-
-        res_json = res.json()
-
-        lms.create_log(res_json, "au_penny_drop")
-
-        if res_json.get("StatusCode") == 200 and res_json.get("Message") == "Success":
-            result_ = res_json.get("Body").get("pennyResponse").get("Result")
-            if result_.get("bankTxnStatus") == True:
-                fullname = (
-                    user_kyc.fname
-                    if user_kyc.fname
-                    else "" + user_kyc.mname
-                    if user_kyc.mname
-                    else "" + user_kyc.lname
-                    if user_kyc.lname
-                    else ""
-                ).split()
-                if not result_.get("accountName").lower():
-                    # if not user_kyc.fname.lower().split(" ")[0] in result_.get("accountName").lower():
-                    raise lms.exceptions.RespondFailureException(
-                        _(
-                            "We have found a mismatch in the account holder name as per the fetched data"
-                        )
-                    )
+        if bank_acc:
+            if bank_acc[0].ifsc == data.get("ifsc"):
+                if frappe.utils.now_datetime().date() >= (
+                    bank_acc[0].creation.date()
+                    + timedelta(days=las_settings.pennydrop_days_passed)
+                ):
+                    res_json = lms.au_pennydrop_api(data)
                 else:
-                    photos_ = lms.upload_image_to_doctype(
-                        customer=customer,
-                        seq_no=result_.get("accountNumber")[-4:],
-                        image_=data.get("personalized_cheque"),
-                        img_format="jpeg",
-                        img_folder="personalized_cheque",
-                    )
-                    if user_kyc.kyc_type == "CHOICE":
-                        bank_entry_name = frappe.db.get_value(
-                            "User Bank Account",
-                            {
-                                "parentfield": "bank_account",
-                                "parent": user_kyc.name,
-                                "account_number": result_.get("accountNumber"),
-                            },
-                            "name",
-                        )
-                        if not bank_entry_name:
-                            bank_account_list = frappe.get_all(
-                                "User Bank Account",
-                                filters={"parent": user_kyc.name},
-                                fields="*",
+                    return utils.respondWithSuccess(message="hi")
+            else:
+                res_json = lms.au_pennydrop_api(data)
+        else:
+            res_json = lms.au_pennydrop_api(data)
+
+        if res_json:
+            if (
+                res_json.get("StatusCode") == 200
+                and res_json.get("Message") == "Success"
+            ):
+                result_ = res_json.get("Body").get("pennyResponse").get("Result")
+                if result_.get("bankTxnStatus") == True:
+                    ######################################################
+                    fullname = (
+                        user_kyc.fname + " "
+                        if user_kyc.fname
+                        else "" + user_kyc.mname + " "
+                        if user_kyc.mname
+                        else "" + user_kyc.lname + " "
+                        if user_kyc.lname
+                        else ""
+                    ).split()
+                    if not result_.get("accountName").lower():
+                        # if not user_kyc.fname.lower().split(" ")[0] in result_.get("accountName").lower():
+                        raise lms.exceptions.RespondFailureException(
+                            _(
+                                "We have found a mismatch in the account holder name as per the fetched data"
                             )
-                            for b in bank_account_list:
-                                if bank_entry_name != b.name:
+                        )
+                    ######################################################
+                    else:
+                        photos_ = lms.upload_image_to_doctype(
+                            customer=customer,
+                            seq_no=result_.get("accountNumber")[-4:],
+                            image_=data.get("personalized_cheque"),
+                            img_format="jpeg",
+                            img_folder="personalized_cheque",
+                        )
+                        if user_kyc.kyc_type == "CHOICE":
+                            bank_entry_name = frappe.db.get_value(
+                                "User Bank Account",
+                                {
+                                    "parentfield": "bank_account",
+                                    "parent": user_kyc.name,
+                                    "account_number": result_.get("accountNumber"),
+                                },
+                                "name",
+                            )
+                            if not bank_entry_name:
+                                bank_account_list = frappe.get_all(
+                                    "User Bank Account",
+                                    filters={"parent": user_kyc.name},
+                                    fields="*",
+                                )
+                                for b in bank_account_list:
+                                    if bank_entry_name != b.name:
+                                        other_bank = frappe.get_doc(
+                                            "User Bank Account", b.name
+                                        )
+                                        if other_bank.is_default == 1:
+                                            other_bank.is_default = 0
+                                            other_bank.save(ignore_permissions=True)
+                                frappe.get_doc(
+                                    {
+                                        "doctype": "User Bank Account",
+                                        "parentfield": "bank_account",
+                                        "parenttype": "User KYC",
+                                        "bank": data.get("bank"),
+                                        "branch": data.get("branch"),
+                                        "account_type": data.get("bank_account_type"),
+                                        "account_number": result_.get("accountNumber"),
+                                        "ifsc": data.get("ifsc"),
+                                        "account_holder_name": result_.get(
+                                            "accountName"
+                                        ),
+                                        "personalized_cheque": photos_,
+                                        "city": data.get("city"),
+                                        "parent": user_kyc.name,
+                                        "is_default": True,
+                                        "bank_status": "Pending",
+                                        "penny_request_id": res_json.get("Body")
+                                        .get("pennyResponse")
+                                        .get("request_id"),
+                                        "bank_transaction_status": result_.get(
+                                            "bankTxnStatus"
+                                        ),
+                                    }
+                                ).insert(ignore_permissions=True)
+                                frappe.db.commit()
+                            else:
+                                # For existing choice bank entries
+                                bank_account_list = frappe.get_all(
+                                    "User Bank Account",
+                                    filters={"parent": user_kyc.name},
+                                    fields="*",
+                                )
+                                for b in bank_account_list:
                                     other_bank = frappe.get_doc(
                                         "User Bank Account", b.name
                                     )
                                     if other_bank.is_default == 1:
                                         other_bank.is_default = 0
                                         other_bank.save(ignore_permissions=True)
-                            frappe.get_doc(
-                                {
-                                    "doctype": "User Bank Account",
-                                    "parentfield": "bank_account",
-                                    "parenttype": "User KYC",
-                                    "bank": data.get("bank"),
-                                    "branch": data.get("branch"),
-                                    "account_type": data.get("bank_account_type"),
-                                    "account_number": result_.get("accountNumber"),
-                                    "ifsc": data.get("ifsc"),
-                                    "account_holder_name": result_.get("accountName"),
-                                    "personalized_cheque": photos_,
-                                    "city": data.get("city"),
-                                    "parent": user_kyc.name,
-                                    "is_default": True,
-                                    "bank_status": "Pending",
-                                    "penny_request_id": res_json.get("Body")
-                                    .get("pennyResponse")
-                                    .get("request_id"),
-                                    "bank_transaction_status": result_.get(
-                                        "bankTxnStatus"
-                                    ),
-                                }
-                            ).insert(ignore_permissions=True)
-                            frappe.db.commit()
+
+                                frappe.delete_doc("User Bank Account", bank_entry_name)
+
+                                frappe.get_doc(
+                                    {
+                                        "doctype": "User Bank Account",
+                                        "parentfield": "bank_account",
+                                        "parenttype": "User KYC",
+                                        "bank": data.get("bank"),
+                                        "branch": data.get("branch"),
+                                        "account_type": data.get("bank_account_type"),
+                                        "account_number": result_.get("accountNumber"),
+                                        "ifsc": data.get("ifsc"),
+                                        "account_holder_name": result_.get(
+                                            "accountName"
+                                        ),
+                                        "personalized_cheque": photos_,
+                                        "city": data.get("city"),
+                                        "parent": user_kyc.name,
+                                        "is_default": True,
+                                        "bank_status": "Pending",
+                                        "penny_request_id": res_json.get("Body")
+                                        .get("pennyResponse")
+                                        .get("request_id"),
+                                        "bank_transaction_status": result_.get(
+                                            "bankTxnStatus"
+                                        ),
+                                    }
+                                ).insert(ignore_permissions=True)
+                                frappe.db.commit()
+
                         else:
-                            # For existing choice bank entries
-                            bank_account_list = frappe.get_all(
-                                "User Bank Account",
-                                filters={"parent": user_kyc.name},
-                                fields="*",
-                            )
-                            for b in bank_account_list:
-                                other_bank = frappe.get_doc("User Bank Account", b.name)
-                                if other_bank.is_default == 1:
-                                    other_bank.is_default = 0
-                                    other_bank.save(ignore_permissions=True)
-
-                            frappe.delete_doc("User Bank Account", bank_entry_name)
-
+                            # For non choice user
                             frappe.get_doc(
                                 {
                                     "doctype": "User Bank Account",
@@ -5710,44 +5736,21 @@ def au_penny_drop(**kwargs):
                                 }
                             ).insert(ignore_permissions=True)
                             frappe.db.commit()
-
-                    else:
-                        # For non choice user
-                        frappe.get_doc(
-                            {
-                                "doctype": "User Bank Account",
-                                "parentfield": "bank_account",
-                                "parenttype": "User KYC",
-                                "bank": data.get("bank"),
-                                "branch": data.get("branch"),
-                                "account_type": data.get("bank_account_type"),
-                                "account_number": result_.get("accountNumber"),
-                                "ifsc": data.get("ifsc"),
-                                "account_holder_name": result_.get("accountName"),
-                                "personalized_cheque": photos_,
-                                "city": data.get("city"),
-                                "parent": user_kyc.name,
-                                "is_default": True,
-                                "bank_status": "Pending",
-                                "penny_request_id": res_json.get("Body")
-                                .get("pennyResponse")
-                                .get("request_id"),
-                                "bank_transaction_status": result_.get("bankTxnStatus"),
-                            }
-                        ).insert(ignore_permissions=True)
-                        frappe.db.commit()
-
-                    return utils.respondWithSuccess(
-                        message="Your account details have been successfully verified"
+                        # print("Hello world", user_kyc.name)
+                        # user_kyc.validate()
+                        # user_kyc.save(ignore_permissions=True)
+                        # frappe.db.commit()
+                        return utils.respondWithSuccess(
+                            message="Your account details have been successfully verified"
+                        )
+                else:
+                    raise lms.exceptions.RespondFailureException(
+                        _("Your account details have not been successfully verified")
                     )
             else:
                 raise lms.exceptions.RespondFailureException(
                     _("Your account details have not been successfully verified")
                 )
-        else:
-            raise lms.exceptions.RespondFailureException(
-                _("Your account details have not been successfully verified")
-            )
 
     except utils.exceptions.APIException as e:
         lms.log_api_error()

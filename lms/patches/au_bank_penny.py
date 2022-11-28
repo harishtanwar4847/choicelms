@@ -17,6 +17,7 @@ def execute():
             las_settings.penny_secret_key = (
                 "&kGh#jqCfMESLVFH5@xI7yw^HaRpgDqUCR56dttyS)J7cPGJ9pxB6c*BFunH*9ZM"
             )
+        las_settings.pennydrop_days_passed = 90
         las_settings.save(ignore_permissions=True)
         frappe.db.commit()
     except Exception:
