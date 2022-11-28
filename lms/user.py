@@ -5574,7 +5574,9 @@ def au_penny_drop(**kwargs):
                 ):
                     res_json = lms.au_pennydrop_api(data)
                 else:
-                    return utils.respondWithSuccess(message="hi")
+                    return utils.respondWithSuccess(
+                        message="Your account details have been successfully verified"
+                    )
             else:
                 res_json = lms.au_pennydrop_api(data)
         else:
