@@ -95,6 +95,7 @@
   "razorpay_webhook_secret",
   "penny_drop_section",
   "penny_drop_api",
+  "pennydrop_days_passed",
   "column_break_91",
   "penny_secret_key"
  ],
@@ -571,11 +572,16 @@
    "fieldname": "penny_secret_key",
    "fieldtype": "Data",
    "label": "Penny Secret Key"
+  },
+  {
+   "fieldname": "pennydrop_days_passed",
+   "fieldtype": "Int",
+   "label": "Pennydrop Days Passed"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2022-11-21 15:28:08.890804",
+ "modified": "2022-11-28 16:25:33.122499",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

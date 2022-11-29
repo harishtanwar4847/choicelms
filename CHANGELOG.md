@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.9.0+1-uat]
+
+## Added
+
+- [Feat: penny drop hit with same account number](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/554)
+
 ## [v5.9.0-uat]
 
 ## Added
