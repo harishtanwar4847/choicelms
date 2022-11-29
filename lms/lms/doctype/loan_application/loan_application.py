@@ -794,6 +794,27 @@ class LoanApplication(Document):
         self.pledged_total_collateral_value_str = lms.amount_formatter(
             self.pledged_total_collateral_value
         )
+        if (
+            self.application_type
+            in ["Increase Loan", "Pledge More", "Margin Shortfall"]
+            and self.status == "Approved"
+        ):
+            renewal_list = frappe.get_all(
+                "Spark Loan Renewal Application",
+                filters={"loan": self.loan, "status": ["Not IN", "Rejected"]},
+                fields=["name"],
+            )
+            if renewal_list:
+                renewal_doc = frappe.get_doc(
+                    "Spark Loan Renewal Application", renewal_list[0].name
+                )
+                renewal_doc.status = "Rejected"
+                renewal_doc.workflow_state = "Rejected"
+                renewal_doc.remarks = (
+                    "Rejected due to Approval of Top-up/Increase Loan Application"
+                )
+                renewal_doc.save(ignore_permissions=True)
+                frappe.db.commit()
 
     def on_update(self):
         if self.status == "Approved":

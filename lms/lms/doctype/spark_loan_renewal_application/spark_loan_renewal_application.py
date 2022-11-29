@@ -106,7 +106,11 @@ class SparkLoanRenewalApplication(Document):
                     loan=loan.name,
                     customer=customer,
                 )
-                if loan.expiry_date > frappe.utils.now_datetime.date():
+                if (
+                    loan.expiry_date > frappe.utils.now_datetime.date()
+                    and self.remarks
+                    != "Rejected due to Approval of Top-up/Increase Loan Application"
+                ):
                     self.tnc_complete = 0
                     self.updated_kyc_status = ""
                     kyc_doc = frappe.get_doc("User KYC", self.new_kyc_name)
@@ -532,7 +536,10 @@ def renewal_penal_interest():
                     "Loan Application",
                     filters={
                         "loan": loan.name,
-                        "application_type": ["IN", ["Increase Loan", "Pledge More"]],
+                        "application_type": [
+                            "IN",
+                            ["Increase Loan", "Pledge More", "Margin Shortfall"],
+                        ],
                     },
                     fields=["name"],
                 )
@@ -629,12 +636,19 @@ def renewal_timer(loan_renewal_name):
                 "Loan Application",
                 filters={
                     "loan": loan.name,
-                    "application_type": ["IN", ["Increase Loan", "Pledge More"]],
+                    "application_type": [
+                        "IN",
+                        ["Increase Loan", "Pledge More", "Margin Shortfall"],
+                    ],
                 },
                 fields=["name"],
             )
             if top_up_application or loan_application:
                 renewal_doc.action_status = "Pending"
+                renewal_doc.save(ignore_permissions=True)
+                frappe.db.commit()
+            else:
+                renewal_doc.action_status = ""
                 renewal_doc.save(ignore_permissions=True)
                 frappe.db.commit()
             date_7after_expiry = loan_expiry + timedelta(days=7)
@@ -675,7 +689,10 @@ def renewal_timer(loan_renewal_name):
                     "Loan Application",
                     filters={
                         "loan": loan.name,
-                        "application_type": ["IN", ["Increase Loan", "Pledge More"]],
+                        "application_type": [
+                            "IN",
+                            ["Increase Loan", "Pledge More", "Margin Shortfall"],
+                        ],
                     },
                     fields=["name"],
                 )
@@ -696,6 +713,11 @@ def renewal_timer(loan_renewal_name):
                 if top_up_application or loan_application:
                     if renewal_doc_list:
                         renewal_doc.action_status = "Pending"
+                        renewal_doc.save(ignore_permissions=True)
+                        frappe.db.commit()
+                else:
+                    if renewal_doc_list:
+                        renewal_doc.action_status = ""
                         renewal_doc.save(ignore_permissions=True)
                         frappe.db.commit()
 

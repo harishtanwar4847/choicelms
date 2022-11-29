@@ -635,6 +635,23 @@ class TopupApplication(Document):
         lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
+        if self.status == "Approved":
+            renewal_list = frappe.get_all(
+                "Spark Loan Renewal Application",
+                filters={"loan": loan.name, "status": ["Not IN", "Rejected"]},
+                fields=["name"],
+            )
+            if renewal_list:
+                renewal_doc = frappe.get_doc(
+                    "Spark Loan Renewal Application", renewal_list[0].name
+                )
+                renewal_doc.status = "Rejected"
+                renewal_doc.workflow_state = "Rejected"
+                renewal_doc.remarks = (
+                    "Rejected due to Approval of Top-up/Increase Loan Application"
+                )
+                renewal_doc.save(ignore_permissions=True)
+                frappe.db.commit()
 
 
 def only_pdf_upload(doc, method):
