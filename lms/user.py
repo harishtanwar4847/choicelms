@@ -4,7 +4,7 @@ import os
 import re
 import time
 from ctypes import util
-from datetime import MINYEAR, date, datetime, timedelta
+from datetime import MINYEAR, date, datetime, time, timedelta
 from random import choice, randint
 
 import frappe
@@ -3438,6 +3438,31 @@ def loan_summary_dashboard(**kwargs):
                 loan_renewal_doc = frappe.get_doc(
                     "Spark Loan Renewal Application", loan_renewal_list[0]
                 )
+                user_kyc = frappe.get_all(
+                    "User KYC",
+                    filters={
+                        "user": customer.user,
+                        "updated_kyc": 1,
+                    },
+                    fields=["*"],
+                )
+                loan_expiry = datetime.combine(loan.expiry_date, time.min)
+                date_7after_expiry = loan_expiry + timedelta(days=7)
+                if (
+                    frappe.utils.now_datetime().date() > loan.expiry_date
+                    and frappe.utils.now_datetime().date()
+                    < (loan.expiry_date + timedelta(days=7))
+                    and loan_renewal_doc.status != "Approved"
+                    and user_kyc
+                ):
+                    seconds = abs(
+                        date_7after_expiry - frappe.utils.now_datetime()
+                    ).total_seconds()
+                    renewal_timer = lms.convert_sec_to_hh_mm_ss(
+                        seconds, is_for_days=True
+                    )
+                    loan_renewal_doc.time_remaining = renewal_timer
+
                 loan_renewal_doc_list.append(loan_renewal_doc)
 
         res = {
