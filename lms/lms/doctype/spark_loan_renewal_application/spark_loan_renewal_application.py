@@ -640,6 +640,7 @@ def renewal_timer(loan_renewal_name):
                         "IN",
                         ["Increase Loan", "Pledge More", "Margin Shortfall"],
                     ],
+                    "status": ["Not IN", ["Approved", "Rejected"]],
                 },
                 fields=["name"],
             )
