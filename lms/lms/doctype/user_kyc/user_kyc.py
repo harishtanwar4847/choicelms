@@ -195,7 +195,7 @@ class UserKYC(Document):
             item.idx = i
 
     def before_save(self):
-        if self.updated_kyc == 1 and self.status == "Rejected":
+        if self.updated_kyc == 1 and self.kyc_status == "Rejected":
             cust_name = frappe.db.get_value(
                 "Loan Customer", {"user": self.user}, "name"
             )
