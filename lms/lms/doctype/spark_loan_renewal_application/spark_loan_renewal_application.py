@@ -619,6 +619,24 @@ def renewal_timer(loan_renewal_name):
                 },
                 fields=["*"],
             )
+            top_up_application = frappe.get_all(
+                "Top up Application",
+                filters={"loan": loan.name, "status": "Pending"},
+                fields=["name"],
+            )
+
+            loan_application = frappe.get_all(
+                "Loan Application",
+                filters={
+                    "loan": loan.name,
+                    "application_type": ["IN", ["Increase Loan", "Pledge More"]],
+                },
+                fields=["name"],
+            )
+            if top_up_application or loan_application:
+                renewal_doc.action_status = "Pending"
+                renewal_doc.save(ignore_permissions=True)
+                frappe.db.commit()
             date_7after_expiry = loan_expiry + timedelta(days=7)
             if (
                 frappe.utils.now_datetime().date() > loan.expiry_date
