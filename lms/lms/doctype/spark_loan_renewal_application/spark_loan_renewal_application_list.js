@@ -5,10 +5,10 @@ frappe.listview_settings["Spark Loan Renewal Application"] = {
   hide_name_column: true,
   before_render() {
     frappe.call({
-      type: "POST",
+      ttype: "POST",
       method:
-        "lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.set_timer",
-      args: { loan_margin_shortfall_name: "" },
+        "lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.renewal_timer",
+      args: { loan_renewal_name: "" },
     });
   },
 };
