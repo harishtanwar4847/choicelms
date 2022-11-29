@@ -676,7 +676,7 @@ def renewal_timer():
                 filters={
                     "user": customer.user,
                     "updated_kyc": 1,
-                    "status": "Pending",
+                    "kyc_status": "Pending",
                 },
                 fields=["*"],
             )
