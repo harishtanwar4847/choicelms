@@ -47,7 +47,10 @@ class SparkLoanRenewalApplication(Document):
                     "Notification", "Loan Renewal Application", method="send", doc=doc
                 )
 
-            if self.status == "Loan Renewal accepted by Lender":
+            if (
+                self.status == "Loan Renewal accepted by Lender"
+                and self.pledge_accepted_by_lender == 0
+            ):
                 msg = 'Dear Customer,\nCongratulations! Your loan renewal application has been accepted.\nKindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement.\nFor any help on e-sign, please view our tutorial videos or reach out to us under "Contact Us" on the app\n-Spark Loans'
                 fcm_notification = frappe.get_doc(
                     "Spark Push Notification",
@@ -59,8 +62,9 @@ class SparkLoanRenewalApplication(Document):
                     loan=loan.name,
                     customer=customer,
                 )
+                self.pledge_accepted_by_lender = 1
 
-            elif self.status == "Esign Done":
+            elif self.status == "Esign Done" and self.esign_done == 0:
                 msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan renew approval.\nThank you for your patience.\n-Spark Loans"
 
                 fcm_notification = frappe.get_doc(
@@ -73,8 +77,9 @@ class SparkLoanRenewalApplication(Document):
                     loan=loan.name,
                     customer=customer,
                 )
+                self.esign_done = 1
 
-            elif self.status == "Approved":
+            elif self.status == "Approved" and self.approved == 0:
                 expiry = frappe.utils.now_datetime().date() + timedelta(days=365)
                 self.expiry_date = expiry
                 loan.expiry_date = expiry
@@ -92,8 +97,9 @@ class SparkLoanRenewalApplication(Document):
                     loan=loan.name,
                     customer=customer,
                 )
+                self.approved = 1
 
-            elif self.status == "Rejected":
+            elif self.status == "Rejected" and self.rejected == 0:
                 msg = "Dear Customer,\nSorry! Your loan renewal application was turned down. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app.\n-SparkLoans"
 
                 fcm_notification = frappe.get_doc(
@@ -106,6 +112,7 @@ class SparkLoanRenewalApplication(Document):
                     loan=loan.name,
                     customer=customer,
                 )
+                self.rejected = 1
                 if (
                     loan.expiry_date > frappe.utils.now_datetime.date()
                     and self.remarks
@@ -617,7 +624,11 @@ def renewal_timer(loan_renewal_name):
             )
             loan = frappe.get_doc("Loan", renewal_doc.loan)
             customer = frappe.get_doc("Loan Customer", loan.customer)
-            loan_expiry = datetime.combine(loan.expiry_date, time.min)
+            if type(loan.expiry_date) is str:
+                exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d")
+            else:
+                exp = loan.expiry_date
+            loan_expiry = datetime.combine(exp, time.min)
             user_kyc = frappe.get_all(
                 "User KYC",
                 filters={
@@ -724,7 +735,7 @@ def renewal_timer(loan_renewal_name):
 
                 # loan_expiry = pd.Timestamp(loan.expiry_date)
                 if type(loan.expiry_date) is str:
-                    exp = (datetime.strptime(loan.expiry_date, "%Y-%m-%d")).date()
+                    exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d")
                 else:
                     exp = loan.expiry_date
                 loan_expiry = datetime.combine(exp, time.min)

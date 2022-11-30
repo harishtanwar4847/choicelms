@@ -25,8 +25,13 @@
   "is_expired",
   "section_break_15",
   "customer_esigned_document",
+  "pledge_executed",
+  "pledge_accepted_by_lender",
+  "esign_done",
   "column_break_17",
   "lender_esigned_document",
+  "approved",
+  "rejected",
   "section_break_19",
   "time_remaining",
   "action_status",
@@ -208,11 +213,51 @@
    "options": "Spark Loan Renewal Application",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "pledge_executed",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Pledge Executed",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "pledge_accepted_by_lender",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Pledge accepted by Lender",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "esign_done",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Esign Done",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "approved",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Approved",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "rejected",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Rejected",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-11-24 16:13:23.395918",
+ "modified": "2022-11-30 14:54:59.430917",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Loan Renewal Application",
