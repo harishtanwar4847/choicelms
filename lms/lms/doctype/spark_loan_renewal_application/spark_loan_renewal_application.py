@@ -724,9 +724,7 @@ def renewal_timer(loan_renewal_name):
 
                 # loan_expiry = pd.Timestamp(loan.expiry_date)
                 if type(loan.expiry_date) is str:
-                    exp = (
-                        datetime.strptime(loan.expiry_date, "%Y-%m-%d %H:%M:%S.%f")
-                    ).date()
+                    exp = (datetime.strptime(loan.expiry_date, "%Y-%m-%d")).date()
                 else:
                     exp = loan.expiry_date
                 loan_expiry = datetime.combine(exp, time.min)
