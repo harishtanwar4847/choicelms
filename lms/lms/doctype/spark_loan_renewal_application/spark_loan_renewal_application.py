@@ -723,7 +723,13 @@ def renewal_timer(loan_renewal_name):
                         frappe.db.commit()
 
                 # loan_expiry = pd.Timestamp(loan.expiry_date)
-                loan_expiry = datetime.combine(loan.expiry_date, time.min)
+                if type(loan.expiry_date) is str:
+                    exp = (
+                        datetime.strptime(loan.expiry_date, "%Y-%m-%d %H:%M:%S.%f")
+                    ).date()
+                else:
+                    exp = loan.expiry_date
+                loan_expiry = datetime.combine(exp, time.min)
                 date_7after_expiry = loan_expiry + timedelta(days=7)
                 if (
                     frappe.utils.now_datetime().date() > loan.expiry_date
