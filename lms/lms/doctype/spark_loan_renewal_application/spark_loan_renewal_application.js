@@ -15,6 +15,8 @@ frappe.ui.form.on("Spark Loan Renewal Application", {
         });
       });
     }
+  },
+  before_load: function (frm) {
     frappe.call({
       type: "POST",
       method:

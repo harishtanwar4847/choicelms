@@ -656,13 +656,16 @@ def renewal_timer(loan_renewal_name):
                 fields=["name"],
             )
             if top_up_application or loan_application:
-                renewal_doc.action_status = "Pending"
-                renewal_doc.save(ignore_permissions=True)
-                frappe.db.commit()
+                action_status = "Pending"
             else:
-                renewal_doc.action_status = ""
-                renewal_doc.save(ignore_permissions=True)
-                frappe.db.commit()
+                action_status = ""
+            frappe.db.set_value(
+                "Spark Loan Renewal Application",
+                renewal_doc.name,
+                "action_status",
+                action_status,
+                update_modified=False,
+            )
             date_7after_expiry = loan_expiry + timedelta(days=7)
             if (
                 frappe.utils.now_datetime().date() > loan.expiry_date
@@ -675,9 +678,16 @@ def renewal_timer(loan_renewal_name):
                     date_7after_expiry - frappe.utils.now_datetime()
                 ).total_seconds()
                 renewal_timer = lms.convert_sec_to_hh_mm_ss(seconds, is_for_days=True)
-                renewal_doc.time_remaining = renewal_timer
-                renewal_doc.save(ignore_permissions=True)
-                frappe.db.commit()
+            else:
+                seconds = 0
+                renewal_timer = lms.convert_sec_to_hh_mm_ss(seconds, is_for_days=True)
+            frappe.db.set_value(
+                "Spark Loan Renewal Application",
+                renewal_doc.name,
+                "time_remaining",
+                renewal_timer,
+                update_modified=False,
+            )
 
         else:
             loans = frappe.get_all("Loan", fields=["*"])
@@ -722,18 +732,22 @@ def renewal_timer(loan_renewal_name):
                         "Spark Loan Renewal Application", renewal_doc_list[0].name
                     )
 
-                if top_up_application or loan_application:
-                    if renewal_doc_list:
-                        renewal_doc.action_status = "Pending"
-                        renewal_doc.save(ignore_permissions=True)
-                        frappe.db.commit()
+                if top_up_application or loan_application and renewal_doc_list:
+                    action_status = "Pending"
                 else:
-                    if renewal_doc_list:
-                        renewal_doc.action_status = ""
-                        renewal_doc.save(ignore_permissions=True)
-                        frappe.db.commit()
+                    action_status = ""
+                frappe.db.set_value(
+                    "Spark Loan Renewal Application",
+                    renewal_doc.name,
+                    "action_status",
+                    action_status,
+                    update_modified=False,
+                )
 
-                # loan_expiry = pd.Timestamp(loan.expiry_date)
+                frappe.create_log(
+                    datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date(),
+                    "loan_renewal_log",
+                )
                 if type(loan.expiry_date) is str:
                     exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
                 else:
@@ -752,9 +766,13 @@ def renewal_timer(loan_renewal_name):
                         seconds, is_for_days=True
                     )
                     if renewal_doc_list:
-                        renewal_doc.time_remaining = renewal_timer
-                        renewal_doc.save(ignore_permissions=True)
-                        frappe.db.commit()
+                        frappe.db.set_value(
+                            "Spark Loan Renewal Application",
+                            renewal_doc.name,
+                            "time_remaining",
+                            renewal_timer,
+                            update_modified=False,
+                        )
 
                 user_kyc_pending = frappe.get_all(
                     "User KYC",
@@ -790,9 +808,13 @@ def renewal_timer(loan_renewal_name):
                         seconds, is_for_days=True
                     )
                     if renewal_doc_list:
-                        renewal_doc.time_remaining = renewal_timer
-                        renewal_doc.save(ignore_permissions=True)
-                        frappe.db.commit()
+                        frappe.db.set_value(
+                            "Spark Loan Renewal Application",
+                            renewal_doc.name,
+                            "time_remaining",
+                            renewal_timer,
+                            update_modified=False,
+                        )
 
     except Exception as e:
         frappe.log_error(
