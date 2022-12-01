@@ -624,7 +624,7 @@ def renewal_timer(loan_renewal_name):
             )
             loan = frappe.get_doc("Loan", renewal_doc.loan)
             customer = frappe.get_doc("Loan Customer", loan.customer)
-            frappe.create_log(
+            lms.create_log(
                 datetime.strptime(str(loan.expiry_date), "%Y-%m-%d"),
                 "loan_renewal_log",
             )
@@ -748,7 +748,7 @@ def renewal_timer(loan_renewal_name):
                     update_modified=False,
                 )
 
-                frappe.create_log(
+                lms.create_log(
                     datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date(),
                     "loan_renewal_log",
                 )
