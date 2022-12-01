@@ -624,8 +624,12 @@ def renewal_timer(loan_renewal_name):
             )
             loan = frappe.get_doc("Loan", renewal_doc.loan)
             customer = frappe.get_doc("Loan Customer", loan.customer)
+            frappe.create_log(
+                datetime.strptime(str(loan.expiry_date), "%Y-%m-%d"),
+                "loan_renewal_log",
+            )
             if type(loan.expiry_date) is str:
-                exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d")
+                exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
             else:
                 exp = loan.expiry_date
             loan_expiry = datetime.combine(exp, time.min)
