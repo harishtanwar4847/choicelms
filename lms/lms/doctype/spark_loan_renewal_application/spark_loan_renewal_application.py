@@ -235,6 +235,7 @@ def loan_renewal_cron():
             )
             for i in renewal_doc_list:
                 exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
+                print("Expiry :", exp)
                 if exp < frappe.utils.now_datetime().date() and i.is_expired == 0:
                     doc = frappe.get_doc("Spark Loan Renewal Application", i.name)
                     doc.is_expired = 1
