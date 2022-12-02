@@ -234,10 +234,8 @@ def loan_renewal_cron():
                 fields=["name"],
             )
             for i in renewal_doc_list:
-                if (
-                    loan.expiry_date < frappe.utils.now_datetime().date()
-                    and i.is_expired == 0
-                ):
+                exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
+                if exp < frappe.utils.now_datetime().date() and i.is_expired == 0:
                     doc = frappe.get_doc("Spark Loan Renewal Application", i.name)
                     doc.is_expired = 1
                     doc.save(ignore_permissions=True)
@@ -250,8 +248,9 @@ def loan_renewal_cron():
             )
             customer = frappe.get_doc("Loan Customer", loan.customer)
             expiry_date = frappe.utils.now_datetime().date() + timedelta(days=31)
+            exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
             if (
-                loan.expiry_date == expiry_date
+                exp == expiry_date
                 and loan.total_collateral_value > 0
                 and len(loan.items) > 0
             ):
@@ -312,9 +311,7 @@ def loan_renewal_cron():
                 renewal_doc.save(ignore_permissions=True)
                 frappe.db.commit()
 
-            elif loan.expiry_date == frappe.utils.now_datetime().date() + timedelta(
-                days=19
-            ):
+            elif exp == frappe.utils.now_datetime().date() + timedelta(days=19):
                 for doc in existing_renewal_doc_list:
                     if doc.reminders == 1:
                         email_expiry = frappe.db.sql(
@@ -365,9 +362,7 @@ def loan_renewal_cron():
                         renewal_doc.save(ignore_permissions=True)
                         frappe.db.commit()
 
-            elif loan.expiry_date == frappe.utils.now_datetime().date() + timedelta(
-                days=9
-            ):
+            elif exp == frappe.utils.now_datetime().date() + timedelta(days=9):
                 for doc in existing_renewal_doc_list:
                     if doc.reminders == 2:
                         email_expiry = frappe.db.sql(
@@ -418,9 +413,7 @@ def loan_renewal_cron():
                         renewal_doc.save(ignore_permissions=True)
                         frappe.db.commit()
 
-            elif loan.expiry_date == frappe.utils.now_datetime().date() + timedelta(
-                days=2
-            ):
+            elif exp == frappe.utils.now_datetime().date() + timedelta(days=2):
                 for doc in existing_renewal_doc_list:
                     if doc.reminders == 3:
                         email_expiry = frappe.db.sql(
@@ -524,8 +517,9 @@ def renewal_penal_interest():
         applications = []
 
         current_date = frappe.utils.now_datetime().date()
-        greater_than_7 = loan.expiry_date + timedelta(days=7)
-        if greater_than_7 > current_date and loan.expiry_date < current_date:
+        exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
+        greater_than_7 = exp + timedelta(days=7)
+        if greater_than_7 > current_date and exp < current_date:
             if (not existing_renewal_doc_list and not user_kyc) or (
                 user_kyc_approved and pending_renewal_doc_list
             ):
@@ -598,7 +592,7 @@ def renewal_penal_interest():
             filters={"loan": loan.name, "status": "Pending"},
             fields=["*"],
         )
-        is_expired_date = loan.expiry_date + timedelta(days=7)
+        is_expired_date = exp + timedelta(days=7)
         if pending_renewal_doc_list:
             for renewal_doc in pending_renewal_doc_list:
                 if (
@@ -624,10 +618,6 @@ def renewal_timer(loan_renewal_name):
             )
             loan = frappe.get_doc("Loan", renewal_doc.loan)
             customer = frappe.get_doc("Loan Customer", loan.customer)
-            lms.create_log(
-                datetime.strptime(str(loan.expiry_date), "%Y-%m-%d"),
-                "loan_renewal_log",
-            )
             if type(loan.expiry_date) is str:
                 exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
             else:
@@ -672,9 +662,8 @@ def renewal_timer(loan_renewal_name):
             )
             date_7after_expiry = loan_expiry + timedelta(days=7)
             if (
-                frappe.utils.now_datetime().date() > loan.expiry_date
-                and frappe.utils.now_datetime().date()
-                < (loan.expiry_date + timedelta(days=7))
+                frappe.utils.now_datetime().date() > exp
+                and frappe.utils.now_datetime().date() < (exp + timedelta(days=7))
                 and renewal_doc.status not in ["Approved", "Rejected"]
                 and user_kyc
             ):
@@ -692,6 +681,32 @@ def renewal_timer(loan_renewal_name):
                 renewal_timer,
                 update_modified=False,
             )
+
+            user_kyc_pending = frappe.get_all(
+                "User KYC",
+                filters={
+                    "user": customer.user,
+                    "updated_kyc": 1,
+                    "kyc_status": "Pending",
+                },
+                fields=["*"],
+            )
+            if (
+                frappe.utils.now_datetime().date() > (exp + timedelta(days=7))
+                and user_kyc_pending
+            ):
+                seconds = abs(
+                    (date_7after_expiry + timedelta(days=7))
+                    - frappe.utils.now_datetime()
+                ).total_seconds()
+                renewal_timer = lms.convert_sec_to_hh_mm_ss(seconds, is_for_days=True)
+                frappe.db.set_value(
+                    "Spark Loan Renewal Application",
+                    renewal_doc.name,
+                    "time_remaining",
+                    renewal_timer,
+                    update_modified=False,
+                )
 
         else:
             loans = frappe.get_all("Loan", fields=["*"])
@@ -748,10 +763,6 @@ def renewal_timer(loan_renewal_name):
                     update_modified=False,
                 )
 
-                lms.create_log(
-                    datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date(),
-                    "loan_renewal_log",
-                )
                 if type(loan.expiry_date) is str:
                     exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
                 else:
