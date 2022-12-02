@@ -3454,7 +3454,11 @@ def loan_summary_dashboard(**kwargs):
             )
             user_kyc_pending = frappe.get_all(
                 "User KYC",
-                filters={"user": customer.user, "updated_kyc": 1, "status": "Pending"},
+                filters={
+                    "user": customer.user,
+                    "updated_kyc": 1,
+                    "kyc_status": "Pending",
+                },
                 fields=["*"],
             )
             if top_up_application or loan_application or user_kyc_pending:
