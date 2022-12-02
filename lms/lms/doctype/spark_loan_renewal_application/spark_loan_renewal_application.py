@@ -250,7 +250,7 @@ def loan_renewal_cron():
             customer = frappe.get_doc("Loan Customer", loan.customer)
             expiry_date = frappe.utils.now_datetime().date() + timedelta(days=31)
             data = {"loan": loan.name, "expiry": loan.expiry_date}
-            frappe.error_log(message=data, title="Loan Renewal Cron")
+            frappe.log_error(message=data, title="Loan Renewal Cron")
             exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
             if (
                 exp == expiry_date
