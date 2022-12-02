@@ -233,6 +233,7 @@ def loan_renewal_cron():
                 filters={"loan": loan.name, "status": ["!=", "Rejected"]},
                 fields=["name"],
             )
+
             for i in renewal_doc_list:
                 exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
                 if exp < frappe.utils.now_datetime().date() and i.is_expired == 0:
