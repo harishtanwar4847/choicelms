@@ -235,14 +235,11 @@ def loan_renewal_cron():
             )
             for i in renewal_doc_list:
                 data = {
+                    "Loan": loan.name,
                     "loan expiry": loan.expiry_date,
                     "Type of Loan Expiry": type(loan.expiry_date),
-                    "exp": datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date(),
-                    "Type of exp": type(
-                        datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
-                    ),
                 }
-                lms.create_log(data, "loan_renewal_cron_log")
+                frappe.log_error(message=data, title="loan_renewal_cron_log")
                 exp = datetime.strptime(
                     loan.expiry_date.strftime("%Y-%m-%d"), "%Y-%m-%d"
                 ).date()
