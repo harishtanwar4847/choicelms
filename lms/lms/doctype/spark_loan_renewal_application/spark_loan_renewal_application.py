@@ -226,8 +226,9 @@ def customer_reminder(doc_name):
 def loan_renewal_cron():
     try:
         # Renewal Doc creation and 1st reminder
-        loans = frappe.get_all("Loan", fields=["*"])
-        for loan in loans:
+        loans = frappe.get_all("Loan", fields=["name"])
+        for l in loans:
+            loan = frappe.get_doc("Loan", l.name)
             renewal_doc_list = frappe.get_all(
                 "Spark Loan Renewal Application",
                 filters={"loan": loan.name, "status": ["!=", "Rejected"]},
@@ -250,8 +251,6 @@ def loan_renewal_cron():
             customer = frappe.get_doc("Loan Customer", loan.customer)
             expiry_date = frappe.utils.now_datetime().date() + timedelta(days=30)
             exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
-            data = {"loan name": loan.name, "loan items": [i for i in loan.items]}
-            frappe.log_error(message=data, title="loan_renewal_cron")
             if (
                 exp == expiry_date
                 and loan.total_collateral_value > 0
