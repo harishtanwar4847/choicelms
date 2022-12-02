@@ -3434,6 +3434,33 @@ def loan_summary_dashboard(**kwargs):
                 filters={"loan": loan.name, "status": ["!=", "Rejected"]},
                 fields=["name"],
             )
+            top_up_application = frappe.get_all(
+                "Top up Application",
+                filters={"loan": loan.name, "status": "Pending"},
+                fields=["name"],
+            )
+
+            loan_application = frappe.get_all(
+                "Loan Application",
+                filters={
+                    "loan": loan.name,
+                    "application_type": [
+                        "IN",
+                        ["Increase Loan", "Pledge More", "Margin Shortfall"],
+                    ],
+                    "status": ["Not IN", ["Approved", "Rejected"]],
+                },
+                fields=["name"],
+            )
+            user_kyc_pending = frappe.get_all(
+                "User KYC",
+                filters={"user": customer.user, "updated_kyc": 1, "status": "Pending"},
+                fields=["*"],
+            )
+            if top_up_application or loan_application or user_kyc_pending:
+                action_status = "Pending"
+            else:
+                action_status = ""
             if loan_renewal_list:
                 loan_renewal_doc = frappe.get_doc(
                     "Spark Loan Renewal Application", loan_renewal_list[0]
@@ -3462,6 +3489,25 @@ def loan_summary_dashboard(**kwargs):
                         seconds, is_for_days=True
                     )
                     loan_renewal_doc.time_remaining = renewal_timer
+                    loan_renewal_doc.action_status = action_status
+
+                elif (
+                    frappe.utils.now_datetime().date()
+                    > (loan.expiry_date + timedelta(days=7))
+                    and frappe.utils.now_datetime().date()
+                    < (loan.expiry_date + timedelta(days=14))
+                    and loan_renewal_doc.status != "Approved"
+                    and user_kyc_pending
+                ):
+                    seconds = abs(
+                        (loan.expiry_date + timedelta(days=14))
+                        - frappe.utils.now_datetime()
+                    ).total_seconds()
+                    renewal_timer = lms.convert_sec_to_hh_mm_ss(
+                        seconds, is_for_days=True
+                    )
+                    loan_renewal_doc.time_remaining = renewal_timer
+                    loan_renewal_doc.action_status = action_status
 
                 loan_renewal_doc_list.append(loan_renewal_doc)
 
