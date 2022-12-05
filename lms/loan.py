@@ -2044,7 +2044,8 @@ def loan_statement(**kwargs):
                 else ""
             )
             pledged_securities_transactions = frappe.db.sql(
-                """select DATE_FORMAT(`tabCollateral Ledger`.creation, '%Y-%m-%d %H:%i') as creation, `tabCollateral Ledger`.isin, `tabSecurity`.security_name, `tabCollateral Ledger`.quantity, `tabCollateral Ledger`.request_type, `tabCollateral Ledger`.folio from `tabCollateral Ledger`
+                """select DATE_FORMAT(`tabCollateral Ledger`.creation, '%Y-%m-%d %H:%i') as creation, `tabCollateral Ledger`.isin, `tabSecurity`.security_name,`tabAllowed Security`.eligible_percentage, `tabCollateral Ledger`.quantity, `tabCollateral Ledger`.request_type,`tabCollateral Ledger`.security_category, `tabCollateral Ledger`.folio from `tabCollateral Ledger`
+                left join `tabAllowed Security`on `tabAllowed Security`.isin = `tabCollateral Ledger`.isin
             left join `tabSecurity`
             on `tabSecurity`.name = `tabCollateral Ledger`.isin
             where `tabCollateral Ledger`.loan = '{}'
