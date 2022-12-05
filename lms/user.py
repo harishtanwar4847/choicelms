@@ -2106,7 +2106,7 @@ def dashboard(**kwargs):
             # return utils.respondNotFound(message=frappe._("Customer not found."))
             raise lms.exceptions.NotFoundException(_("Customer not found"))
         try:
-            user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+            user_kyc = lms.__user_kyc()
             # user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
             # for i in user_kyc.bank_account:
             #     i.account_number = lms.user_details_hashing(i.account_number)
