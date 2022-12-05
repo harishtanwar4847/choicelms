@@ -47,10 +47,7 @@ class SparkLoanRenewalApplication(Document):
                     "Notification", "Loan Renewal Application", method="send", doc=doc
                 )
 
-            if (
-                self.status == "Loan Renewal accepted by Lender"
-                and self.pledge_accepted_by_lender == 0
-            ):
+            if self.status == "Loan Renewal accepted by Lender":
                 msg = 'Dear Customer,\nCongratulations! Your loan renewal application has been accepted.\nKindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement.\nFor any help on e-sign, please view our tutorial videos or reach out to us under "Contact Us" on the app\n-Spark Loans'
                 fcm_notification = frappe.get_doc(
                     "Spark Push Notification",
@@ -62,9 +59,8 @@ class SparkLoanRenewalApplication(Document):
                     loan=loan.name,
                     customer=customer,
                 )
-                self.pledge_accepted_by_lender = 1
 
-            elif self.status == "Esign Done" and self.esign_done == 0:
+            elif self.status == "Esign Done":
                 msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan renew approval.\nThank you for your patience.\n-Spark Loans"
 
                 fcm_notification = frappe.get_doc(
@@ -77,9 +73,8 @@ class SparkLoanRenewalApplication(Document):
                     loan=loan.name,
                     customer=customer,
                 )
-                self.esign_done = 1
 
-            elif self.status == "Approved" and self.approved == 0:
+            elif self.status == "Approved":
                 expiry = frappe.utils.now_datetime().date() + timedelta(days=365)
                 self.expiry_date = expiry
                 loan.expiry_date = expiry
@@ -97,9 +92,8 @@ class SparkLoanRenewalApplication(Document):
                     loan=loan.name,
                     customer=customer,
                 )
-                self.approved = 1
 
-            elif self.status == "Rejected" and self.rejected == 0:
+            elif self.status == "Rejected":
                 msg = "Dear Customer,\nSorry! Your loan renewal application was turned down. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app.\n-SparkLoans"
 
                 fcm_notification = frappe.get_doc(
@@ -112,9 +106,17 @@ class SparkLoanRenewalApplication(Document):
                     loan=loan.name,
                     customer=customer,
                 )
-                self.rejected = 1
+                existing_renewal_doc = frappe.get_all(
+                    "Spark Loan Renewal Application",
+                    filters={
+                        "loan": self.loan,
+                        "status": ["Not IN", ["Approved", "Rejected"]],
+                    },
+                    fields=["name"],
+                )
                 if (
-                    loan.expiry_date > frappe.utils.now_datetime.date()
+                    loan.expiry_date > frappe.utils.now_datetime().date()
+                    and not existing_renewal_doc
                     and self.remarks
                     != "Rejected due to Approval of Top-up/Increase Loan Application"
                 ):
@@ -122,7 +124,7 @@ class SparkLoanRenewalApplication(Document):
                     self.updated_kyc_status = ""
                     kyc_doc = frappe.get_doc("User KYC", self.new_kyc_name)
                     kyc_doc.updated_kyc = 0
-                    kyc_doc.save(ignore_pernissions=True)
+                    kyc_doc.save(ignore_permissions=True)
                     frappe.get_doc(
                         dict(
                             doctype="Spark Loan Renewal Application",
@@ -137,7 +139,7 @@ class SparkLoanRenewalApplication(Document):
                         )
                     ).insert(ignore_permissions=True)
                     frappe.db.commit()
-                if loan.expiry_date < frappe.utils.now_datetime.date():
+                if loan.expiry_date < frappe.utils.now_datetime().date():
                     renewal_list_expiring = frappe.get_all(
                         "Spark Loan Renewal Application",
                         filters={"loan": loan.name},
@@ -612,7 +614,7 @@ def renewal_penal_interest():
 
 
 @frappe.whitelist()
-def renewal_timer(loan_renewal_name):
+def renewal_timer(loan_renewal_name=None):
     try:
         if loan_renewal_name:
             renewal_doc = frappe.get_doc(
@@ -748,22 +750,22 @@ def renewal_timer(loan_renewal_name):
                     },
                     fields=["*"],
                 )
+                if top_up_application or loan_application and renewal_doc_list:
+                    action_status = "Pending"
+                else:
+                    action_status = ""
                 if renewal_doc_list:
                     renewal_doc = frappe.get_doc(
                         "Spark Loan Renewal Application", renewal_doc_list[0].name
                     )
 
-                if top_up_application or loan_application and renewal_doc_list:
-                    action_status = "Pending"
-                else:
-                    action_status = ""
-                frappe.db.set_value(
-                    "Spark Loan Renewal Application",
-                    renewal_doc.name,
-                    "action_status",
-                    action_status,
-                    update_modified=False,
-                )
+                    frappe.db.set_value(
+                        "Spark Loan Renewal Application",
+                        renewal_doc.name,
+                        "action_status",
+                        action_status,
+                        update_modified=False,
+                    )
 
                 if type(loan.expiry_date) is str:
                     exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
