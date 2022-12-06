@@ -3505,7 +3505,7 @@ def loan_summary_dashboard(**kwargs):
                 ):
                     seconds = abs(
                         (loan.expiry_date + timedelta(days=14))
-                        - frappe.utils.now_datetime()
+                        - frappe.utils.now_datetime().date()
                     ).total_seconds()
                     renewal_timer = lms.convert_sec_to_hh_mm_ss(
                         seconds, is_for_days=True
