@@ -110,7 +110,7 @@ class SparkLoanRenewalApplication(Document):
                     "Spark Loan Renewal Application",
                     filters={
                         "loan": self.loan,
-                        "status": ["Not IN", ["Approved", "Rejected"]],
+                        "status": ["not IN", ["Approved", "Rejected"]],
                     },
                     fields=["name"],
                 )
@@ -652,7 +652,7 @@ def renewal_timer(loan_renewal_name=None):
                         "IN",
                         ["Increase Loan", "Pledge More", "Margin Shortfall"],
                     ],
-                    "status": ["Not IN", ["Approved", "Rejected"]],
+                    "status": ["not IN", ["Approved", "Rejected"]],
                 },
                 fields=["name"],
             )
@@ -700,6 +700,7 @@ def renewal_timer(loan_renewal_name=None):
             )
             if (
                 frappe.utils.now_datetime().date() > (exp + timedelta(days=7))
+                and frappe.utils.now_datetime().date() < (exp + timedelta(days=14))
                 and user_kyc_pending
             ):
                 seconds = abs(
