@@ -109,17 +109,29 @@ class SparkLoanRenewalApplication(Document):
                 existing_renewal_doc = frappe.get_all(
                     "Spark Loan Renewal Application",
                     filters={
-                        "loan": self.loan,
+                        "loan": loan.name,
                         "status": ["not IN", ["Approved", "Rejected"]],
                     },
                     fields=["name"],
                 )
+                data = {
+                    "loan expiry": loan.expiry_date,
+                    "existing renewal_doc": existing_renewal_doc,
+                    "remarks": self.remarks,
+                }
+                frappe.log_error(message=data, title="Renewal before save before if")
                 if (
                     loan.expiry_date > frappe.utils.now_datetime().date()
                     and not existing_renewal_doc
                     and self.remarks
                     != "Rejected due to Approval of Top-up/Increase Loan Application"
                 ):
+                    data = {
+                        "loan expiry": loan.expiry_date,
+                        "existing renewal_doc": existing_renewal_doc,
+                        "remarks": self.remarks,
+                    }
+                    frappe.log_error(message=data, title="Renewal before save after if")
                     self.tnc_complete = 0
                     self.updated_kyc_status = ""
                     kyc_doc = frappe.get_doc("User KYC", self.new_kyc_name)
