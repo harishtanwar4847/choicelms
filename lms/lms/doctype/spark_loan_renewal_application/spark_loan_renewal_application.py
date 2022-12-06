@@ -109,6 +109,7 @@ class SparkLoanRenewalApplication(Document):
                 existing_renewal_doc = frappe.get_all(
                     "Spark Loan Renewal Application",
                     filters={
+                        "name": ["!=", self.name],
                         "loan": loan.name,
                         "status": ["not IN", ["Approved", "Rejected"]],
                     },
