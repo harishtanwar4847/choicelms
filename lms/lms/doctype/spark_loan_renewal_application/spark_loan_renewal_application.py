@@ -523,7 +523,10 @@ def renewal_penal_interest():
         current_date = frappe.utils.now_datetime().date()
         exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
         greater_than_7 = exp + timedelta(days=7)
-        if greater_than_7 > current_date and exp < current_date:
+        more_than_7 = greater_than_7 + timedelta(days=7)
+        if (
+            greater_than_7 > current_date or more_than_7 > current_date
+        ) and exp < current_date:
             if (not existing_renewal_doc_list and not user_kyc) or (
                 user_kyc_approved and pending_renewal_doc_list
             ):
