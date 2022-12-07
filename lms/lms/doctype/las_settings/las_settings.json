@@ -68,9 +68,13 @@
   "mf_equity_ltv",
   "column_break_50",
   "mf_debt_ltv",
-  "section_break_33",
+  "dlt_section_break_33",
+  "app_login_dashboard",
+  "my_securities",
   "app_identification_hash_string",
   "column_break_35",
+  "my_loans",
+  "contact_us",
   "terms_of_use_privacy_policy_section_break",
   "terms_of_use_document",
   "tnc_column_break",
@@ -86,14 +90,14 @@
   "og_code_enabled",
   "razorpay_section_section",
   "razorpay_key_secret",
-  "razorpay_bank_account",
-  "pennydrop_create_contact",
-  "pennydrop_create_fund_account",
+  "settlement_recon_api",
   "column_break_49",
   "razorpay_webhook_secret",
-  "settlement_recon_api",
-  "pennydrop_create_fund_account_validation",
-  "pennydrop_create_fund_account_validation_id"
+  "penny_drop_section",
+  "penny_drop_api",
+  "pennydrop_days_passed",
+  "column_break_91",
+  "penny_secret_key"
  ],
  "fields": [
   {
@@ -218,11 +222,6 @@
    "fieldname": "app_identification_hash_string",
    "fieldtype": "Data",
    "label": "App Identification Hash String"
-  },
-  {
-   "fieldname": "section_break_33",
-   "fieldtype": "Section Break",
-   "permlevel": 1
   },
   {
    "fieldname": "terms_of_use_privacy_policy_section_break",
@@ -377,11 +376,6 @@
    "label": "Razorpay Key Secret"
   },
   {
-   "fieldname": "razorpay_bank_account",
-   "fieldtype": "Data",
-   "label": "Razorpay Bank Account"
-  },
-  {
    "fieldname": "column_break_49",
    "fieldtype": "Column Break"
   },
@@ -510,26 +504,6 @@
    "label": "Lien Allowed Scheme Update API"
   },
   {
-   "fieldname": "pennydrop_create_contact",
-   "fieldtype": "Data",
-   "label": "PennyDrop Create Contact"
-  },
-  {
-   "fieldname": "pennydrop_create_fund_account",
-   "fieldtype": "Data",
-   "label": "PennyDrop Create Fund Account"
-  },
-  {
-   "fieldname": "pennydrop_create_fund_account_validation",
-   "fieldtype": "Data",
-   "label": "PennyDrop Create Fund Account Validation"
-  },
-  {
-   "fieldname": "pennydrop_create_fund_account_validation_id",
-   "fieldtype": "Data",
-   "label": "PennyDrop Create Fund Account Validation Id"
-  },
-  {
    "fieldname": "settlement_recon_api",
    "fieldtype": "Data",
    "label": "Settlement recon API"
@@ -553,11 +527,61 @@
    "fieldname": "ckyc_download_api",
    "fieldtype": "Data",
    "label": "CKYC Download API"
+  },
+  {
+   "fieldname": "dlt_section_break_33",
+   "fieldtype": "Section Break",
+   "label": "SMS Dynamic Links",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "app_login_dashboard",
+   "fieldtype": "Data",
+   "label": "App Login / Dashboard"
+  },
+  {
+   "fieldname": "my_securities",
+   "fieldtype": "Data",
+   "label": "My Securities"
+  },
+  {
+   "fieldname": "my_loans",
+   "fieldtype": "Data",
+   "label": "My Loans"
+  },
+  {
+   "fieldname": "contact_us",
+   "fieldtype": "Data",
+   "label": "Contact Us"
+  },
+  {
+   "fieldname": "penny_drop_section",
+   "fieldtype": "Section Break",
+   "label": "Penny Drop"
+  },
+  {
+   "fieldname": "penny_drop_api",
+   "fieldtype": "Data",
+   "label": "Penny Drop API"
+  },
+  {
+   "fieldname": "column_break_91",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "penny_secret_key",
+   "fieldtype": "Data",
+   "label": "Penny Secret Key"
+  },
+  {
+   "fieldname": "pennydrop_days_passed",
+   "fieldtype": "Int",
+   "label": "Pennydrop Days Passed"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2022-06-29 15:17:20.676282",
+ "modified": "2022-11-28 16:25:33.122499",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
