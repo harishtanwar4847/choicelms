@@ -36,7 +36,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.5.2-uat"
+__version__ = "5.9.0+1-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -709,6 +709,7 @@ def create_log(log, file_name):
                 logs = f.read()
             f.close()
         logs = json.loads(logs or "[]")
+        log["req_time"] = str(frappe.utils.now_datetime())
         logs.append(log)
         with open(log_file, "w") as f:
             f.write(json.dumps(logs))
@@ -2029,3 +2030,49 @@ def penny_validate_fund_account():
 
     except Exception:
         log_api_error()
+
+
+def au_pennydrop_api(data):
+    try:
+        ReqId = datetime.strftime(datetime.now(), "%d%m") + str(
+            abs(randint(0, 9999) - randint(1, 99))
+        )
+        las_settings = frappe.get_single("LAS Settings")
+        SECRET_KEY = las_settings.penny_secret_key
+
+        # ReqId + IFSCCode + AccNum
+
+        hash_text = "{}{}{}".format(ReqId, data.get("ifsc"), data.get("account_number"))
+
+        final_hash = hmac.new(
+            key=bytes(SECRET_KEY, "utf-8"),
+            msg=bytes(hash_text, "utf-8"),
+            digestmod="sha512",
+        ).digest()
+
+        payload = {
+            "ReqId": ReqId,
+            "IFSCCode": data.get("ifsc"),
+            "AccNum": data.get("account_number"),
+            "HashValue": base64.b64encode(final_hash).decode("ascii"),
+        }
+
+        url = las_settings.penny_drop_api
+
+        headers = {
+            "Content-Type": "application/json",
+        }
+        res = requests.post(url=url, json=payload, headers=headers)
+
+        res_json = res.json()
+
+        create_log(
+            {"url": url, "headers": headers, "request": payload, "response": res_json},
+            "au_penny_drop",
+        )
+        return res_json
+    except Exception:
+        frappe.log_error(
+            title="AU Penny Drop API Error",
+            message=frappe.get_traceback() + "\n\n" + data,
+        )

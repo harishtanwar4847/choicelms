@@ -143,6 +143,7 @@ def esign(**kwargs):
             if loan_application.loan and not loan_application.loan_margin_shortfall:
                 increase_loan = 1
             esign_request = loan_application.esign_request(increase_loan)
+            application = loan_application
 
         else:
             topup_application = frappe.get_doc(
@@ -159,6 +160,7 @@ def esign(**kwargs):
                     _("Please use yor own Topup Application")
                 )
             esign_request = topup_application.esign_request()
+            application = topup_application
 
         user = lms.__user()
 
@@ -167,18 +169,6 @@ def esign(**kwargs):
                 esign_request.get("file_upload_url"),
                 files=esign_request.get("files"),
                 headers=esign_request.get("headers"),
-            )
-            res_params = {
-                "timestamp": str(frappe.utils.now_datetime()),
-                "esign_file_upload_url": esign_request.get("file_upload_url"),
-                "headers": esign_request.get("headers"),
-                "loan_application_name": data.get("loan_application_name"),
-                "topup_application_name": data.get("topup_application_name"),
-                "esign_response": res.json(),
-            }
-            lms.create_log(
-                res_params,
-                "esign_log",
             )
 
             if not res.ok:
@@ -189,6 +179,40 @@ def esign(**kwargs):
             esign_url_dict = esign_request.get("esign_url_dict")
             esign_url_dict["id"] = data.get("id")
             url = esign_request.get("esign_url").format(**esign_url_dict)
+
+            before_esign_file_name = "{}-{}-before-esign.pdf".format(
+                application.name, data.get("id")
+            )
+            before_esign_file_path = frappe.utils.get_files_path(before_esign_file_name)
+            before_esign_file_url = frappe.utils.get_url(
+                "files/" + before_esign_file_name
+            )
+
+            open(before_esign_file_path, "wb").write(
+                esign_request.get("files").get("file")[1]
+            )
+
+            res_params = {
+                "esign_url_dict": esign_request.get("esign_url_dict"),
+                "esign_file_upload_url": esign_request.get("file_upload_url"),
+                "headers": esign_request.get("headers"),
+                "loan_application_name": data.get("loan_application_name"),
+                "topup_application_name": data.get("topup_application_name"),
+                "esign_response": res.json(),
+                "res_url": url,
+                "before_esign_file_url": before_esign_file_url,
+            }
+
+            lms.create_log(
+                res_params,
+                "esign_log",
+            )
+
+            application.add_comment(
+                text=before_esign_file_url,
+                comment_email=customer.user,
+                comment_by=customer.full_name,
+            )
 
             return utils.respondWithSuccess(
                 message=_("Esign URL."),
@@ -311,7 +335,6 @@ def esign_done(**kwargs):
             res = requests.get(esigned_pdf_url, allow_redirects=True)
             # frappe.db.begin()
             res_params = {
-                "timestamp": str(frappe.utils.now_datetime()),
                 "loan_application_name": data.get("loan_application_name"),
                 "topup_application_name": data.get("topup_application_name"),
                 "esign_done_request": esigned_pdf_url,
@@ -1920,12 +1943,21 @@ def loan_statement(**kwargs):
                 "Customer Address Details", user_kyc.address_details
             )
             address = (
-                str(address_details.perm_line1)
-                + ", "
-                + str(address_details.perm_line2)
-                + ", "
-                + str(address_details.perm_line3)
-                + ", "
+                (
+                    (str(address_details.perm_line1) + ", ")
+                    if address_details.perm_line1
+                    else ""
+                )
+                + (
+                    (str(address_details.perm_line2) + ", ")
+                    if address_details.perm_line2
+                    else ""
+                )
+                + (
+                    (str(address_details.perm_line3) + ", ")
+                    if address_details.perm_line3
+                    else ""
+                )
                 + str(address_details.perm_city)
                 + ", "
                 + str(address_details.perm_dist)
@@ -2529,19 +2561,19 @@ def validate_securities_for_unpledge(securities, loan):
         if diff:
             securities_valid = False
             message = frappe._("{} isin not found".format(",".join(diff)))
-        else:
-            securities_obj = {}
-            for i in securities_list_from_db_:
-                securities_obj[i[0]] = i[1]
-            for i in securities:
-                if i["quantity"] > securities_obj[i["isin"]]:
-                    securities_valid = False
-                    message = frappe._(
-                        "{} quantity for isin {} should not be greater than {}".format(
-                            applicaion_type, i["isin"], securities_obj[i["isin"]]
-                        )
-                    )
-                    break
+        # else:
+        #     securities_obj = {}
+        #     for i in securities_list_from_db_:
+        #         securities_obj[i[0]] = i[1]
+        #     for i in securities:
+        #         if i["quantity"] > securities_obj[i["isin"]]:
+        #             securities_valid = False
+        #             message = frappe._(
+        #                 "{} quantity for isin {} should not be greater than {}".format(
+        #                     applicaion_type, i["isin"], securities_obj[i["isin"]]
+        #                 )
+        #             )
+        #             break
 
     if securities_valid:
         for i in securities:
