@@ -5019,10 +5019,11 @@ def shares_eligibility(**kwargs):
                 }
 
                 try:
+                    headers = {"Accept": "application/json"}
                     res = requests.post(
                         las_settings.choice_securities_list_api,
                         json=payload,
-                        headers={"Accept": "application/json"},
+                        headers=headers,
                     )
                     if not res.ok:
                         raise utils.exceptions.APIException(res.text)
@@ -5030,12 +5031,11 @@ def shares_eligibility(**kwargs):
                     res_json = res.json()
                     log = {
                         "url": las_settings.choice_securities_list_api,
-                        "headers": {"Accept": "application/json"},
+                        "headers": headers,
                         "request": payload,
                         "response": res_json,
                     }
-                    lms.create_log(log, "securities_log")
-                    frappe.logger().info(res_json)
+                    lms.create_log(log, "shares_eligibility_log")
                     if res_json["Status"] != "Success":
                         raise utils.exceptions.APIException(res.text)
 
@@ -5344,18 +5344,20 @@ def shares_eligibility(**kwargs):
                         i.update(is_choice=is_choice)
                         if i["Category"] != None and i["Stock_At"] == data.get("demat"):
                             final_securities_list.append(i)
-                            image = frappe.get_all(
-                                "Allowed Security",
-                                filters={"isin": i["ISIN"]},
-                                fields=["amc_image", "eligible_percentage"],
+                            allowed_sec = frappe.db.sql(
+                                "select amc_image, GROUP_CONCAT(CONVERT(eligible_percentage, CHAR), '') as eligible_percentage, group_concat(lender,'') as lenders from `tabAllowed Security` where isin = '{}' order by creation DESC".format(
+                                    i["ISIN"]
+                                ),
+                                as_dict=True,
                             )
-                            if image[0].amc_image:
-                                image[0].amc_image = frappe.utils.get_url(
-                                    image[0].amc_image
+                            if allowed_sec[0].amc_image:
+                                allowed_sec[0].amc_image = frappe.utils.get_url(
+                                    allowed_sec[0].amc_image
                                 )
                             i.update(
-                                amc_image=image[0].amc_image,
-                                eligible_percentage=image[0].eligible_percentage,
+                                amc_image=allowed_sec[0].amc_image,
+                                eligible_percentage=allowed_sec[0].eligible_percentage,
+                                lenders=allowed_sec[0].lenders,
                             )
                 else:
                     final_securities_list = ()
@@ -5387,8 +5389,7 @@ def get_distinct_securities(lender_list, levels):
     sub_query = " and als.security_category in (select security_category from `tabConcentration Rule` where parent in {} and idx in {})".format(
         lender, levels
     )
-    securities_list = frappe.db.sql(
-        """select als.isin as ISIN, sc.category_name as Category, als.eligible_percentage, als.security_name as Scrip_Name, round(s.price,4) as Price, group_concat(als.lender,'') as lenders, 
+    query = """select als.isin as ISIN, sc.category_name as Category, GROUP_CONCAT(CONVERT(als.eligible_percentage, CHAR), '') as eligible_percentage, als.security_name as Scrip_Name, round(s.price,4) as Price, group_concat(als.lender,'') as lenders, 
             als.amc_image
             from `tabAllowed Security` als 
             LEFT JOIN `tabSecurity` s on s.isin = als.isin
@@ -5397,8 +5398,10 @@ def get_distinct_securities(lender_list, levels):
             s.price > 0{}{}
             group by als.isin
             order by als.creation desc;""".format(
-            lender_query, sub_query
-        ),
+        lender_query, sub_query
+    )
+    securities_list = frappe.db.sql(
+        query,
         as_dict=True,
     )
     lender_info = frappe.db.sql(
