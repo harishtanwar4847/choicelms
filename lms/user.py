@@ -4717,37 +4717,13 @@ def get_app_version_details():
             "Spark App Version",
             filters={"is_live": 1},
             fields=["*"],
-            order_by="release_date desc",
-            page_length=1,
-        )
-        if not version_details:
-            raise lms.exceptions.NotFoundException(_("No Record found"))
-        return utils.respondWithSuccess(data=version_details[0])
-    except utils.exceptions.APIException as e:
-        frappe.log_error(
-            title="Get App Version Details API", message=frappe.get_traceback()
-        )
-        return e.respond()
-
-
-@frappe.whitelist()
-def get_app_version_details():
-    try:
-        utils.validator.validate_http_method("GET")
-
-        version_details = frappe.get_all(
-            "Spark App Version",
-            filters={"is_live": 1},
-            fields=["*"],
             page_length=1,
         )
         if not version_details:
             return utils.respondNotFound(message=_("No Record found"))
         return utils.respondWithSuccess(data=version_details[0])
     except utils.exceptions.APIException as e:
-        frappe.log_error(
-            title="Get App Version Details API", message=frappe.get_traceback()
-        )
+        lms.log_api_error()
         return e.respond()
 
 
