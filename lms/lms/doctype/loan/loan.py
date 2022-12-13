@@ -522,12 +522,13 @@ class Loan(Document):
             drawing_power,
             2,
         )
-
+        print("drawing_power", drawing_power)
         self.drawing_power = (
             drawing_power
             if drawing_power <= self.sanctioned_limit
             else self.sanctioned_limit
         )
+        print("drawing_power", self.drawing_power)
         # Updating actual drawing power
         self.actual_drawing_power = round(
             (drawing_power),
@@ -1870,9 +1871,15 @@ class Loan(Document):
                     actual_drawing_power += i.eligible_amount
             max_topup_amount = actual_drawing_power - self.sanctioned_limit
         else:
-            max_topup_amount = (
-                self.total_collateral_value * (self.allowable_ltv / 100)
-            ) - self.sanctioned_limit
+            # max_topup_amount = (
+            #     self.total_collateral_value * (self.allowable_ltv / 100)
+            # ) - self.sanctioned_limit
+            for i in self.items:
+                i.amount = i.price * i.pledged_quantity
+                i.eligible_amount = (i.eligible_percentage / 100) * i.amount
+                total_collateral_value += i.amount
+                actual_drawing_power += i.eligible_amount
+            max_topup_amount = actual_drawing_power - self.sanctioned_limit
 
         # show available top up amount only if topup amount is greater than 10% of sanctioned limit
         # if self.instrument_type == "Mutual Fund":  # for Mutual Fund Topup

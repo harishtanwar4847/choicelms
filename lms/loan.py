@@ -1020,10 +1020,7 @@ def loan_details(**kwargs):
                         loan_margin_shortfall.shortfall
                         - pledged_paid_shortfall
                         - sell_off_shortfall
-                        - (
-                            cash_paid_shortfall
-                            * (100 / loan_margin_shortfall.allowable_ltv)
-                        )
+                        - cash_paid_shortfall
                     )
                 else:
                     remaining_shortfall = (
@@ -1256,7 +1253,7 @@ def loan_details(**kwargs):
                 )
                 if loan_margin_shortfall
                 else None,
-                unpledge=loan.max_unpledge_amount(),
+                # unpledge=loan.max_unpledge_amount(),
             )
 
         res["amount_available_for_withdrawal"] = loan.maximum_withdrawable_amount()
@@ -2457,7 +2454,7 @@ def loan_unpledge_details(**kwargs):
                 )
                 if loan_margin_shortfall
                 else None,
-                unpledge=loan.max_unpledge_amount(),
+                # unpledge=loan.max_unpledge_amount(),
             )
         # data = {"loan": loan, "unpledge": unpledge}
 

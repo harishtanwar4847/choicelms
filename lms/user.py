@@ -1529,18 +1529,21 @@ def dashboard(**kwargs):
                     and not loan_application_doc.application_type == "Pledge More"
                 ):
                     loan = frappe.get_doc("Loan", loan_application_doc.loan)
-
                     increase_loan_mess = dict(
                         existing_limit=loan.sanctioned_limit,
                         existing_collateral_value=loan.total_collateral_value,
+                        new_dp=loan.drawing_power + loan_application_doc.drawing_power,
                         new_limit=lms.round_down_amount_to_nearest_thousand(
-                            (
-                                loan_application_doc.total_collateral_value
-                                + loan.total_collateral_value
-                            )
-                            * loan_application_doc.allowable_ltv
-                            / 100
+                            loan.drawing_power + loan_application_doc.drawing_power
                         ),
+                        # new_limit=lms.round_down_amount_to_nearest_thousand(
+                        #     (
+                        #         loan_application_doc.total_collateral_value
+                        #         + loan.total_collateral_value
+                        #     )
+                        #     * loan_application_doc.allowable_ltv
+                        #     / 100
+                        # ),
                         new_collateral_value=loan_application_doc.total_collateral_value
                         + loan.total_collateral_value,
                     )
