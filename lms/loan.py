@@ -88,12 +88,17 @@ def esign(**kwargs):
 
         data = utils.validator.validate(
             kwargs,
-            {"loan_application_name": "", "topup_application_name": ""},
+            {
+                "loan_application_name": "",
+                "topup_application_name": "",
+                "loan_name": "",
+            },
         )
 
         reg = lms.regex_special_characters(
             search=data.get("loan_application_name")
             + data.get("topup_application_name")
+            + data.get("loan_name")
         )
         if reg:
             # return utils.respondWithFailure(
@@ -103,16 +108,29 @@ def esign(**kwargs):
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         customer = lms.__customer()
-        if data.get("loan_application_name") and data.get("topup_application_name"):
+        if (
+            (
+                data.get("loan_application_name")
+                and data.get("topup_application_name")
+                and data.get("loan_name")
+            )
+            or (
+                data.get("loan_application_name") and data.get("topup_application_name")
+            )
+            or (data.get("loan_application_name") and data.get("loan_name"))
+            or (data.get("topup_application_name") and data.get("loan_name"))
+        ):
             # return utils.respondForbidden(
             #     message=_("Can not use both application at once, please use one.")
             # )
             raise lms.exceptions.ForbiddenException(
-                _("Can not use both application at once, please use one.")
+                _("Can not use multiple application at once, please use one.")
             )
 
-        elif not data.get("loan_application_name") and not data.get(
-            "topup_application_name"
+        elif (
+            not data.get("loan_application_name")
+            and not data.get("topup_application_name")
+            and not data.get("loan_name")
         ):
             # return utils.respondForbidden(
             #     message=_(
@@ -121,7 +139,7 @@ def esign(**kwargs):
             # )
             raise lms.exceptions.ForbiddenException(
                 _(
-                    "Loan Application and Top up Application not found. Please use atleast one."
+                    "Loan Application , Top up Application and Loan Name not found. Please use atleast one."
                 )
             )
 
@@ -145,7 +163,7 @@ def esign(**kwargs):
             esign_request = loan_application.esign_request(increase_loan)
             application = loan_application
 
-        else:
+        elif data.get("topup_application_name"):
             topup_application = frappe.get_doc(
                 "Top up Application", data.get("topup_application_name")
             )
@@ -161,6 +179,15 @@ def esign(**kwargs):
                 )
             esign_request = topup_application.esign_request()
             application = topup_application
+
+        else:
+            loan = frappe.get_doc("Loan", data.get("loan_name"))
+            if not loan:
+                raise lms.exceptions.NotFoundException(_("Loan not found"))
+            if loan.customer != customer.name:
+                raise lms.exceptions.ForbiddenException(_("Please use yor own Loan"))
+            esign_request = loan.esign_request()
+            application = loan
 
         user = lms.__user()
 
@@ -236,6 +263,7 @@ def esign_done(**kwargs):
             {
                 "loan_application_name": "",
                 "topup_application_name": "",
+                "loan_name": "",
                 "file_id": "required",
             },
         )
@@ -243,6 +271,7 @@ def esign_done(**kwargs):
         reg = lms.regex_special_characters(
             search=data.get("loan_application_name")
             + data.get("topup_application_name")
+            + data.get("loan_name")
             + data.get("file_id")
         )
         if reg:
@@ -262,7 +291,18 @@ def esign_done(**kwargs):
         customer = lms.__customer()
         las_settings = frappe.get_single("LAS Settings")
 
-        if data.get("loan_application_name") and data.get("topup_application_name"):
+        if (
+            (
+                data.get("loan_application_name")
+                and data.get("topup_application_name")
+                and data.get("loan_name")
+            )
+            or (
+                data.get("loan_application_name") and data.get("topup_application_name")
+            )
+            or (data.get("loan_application_name") and data.get("loan_name"))
+            or (data.get("topup_application_name") and data.get("loan_name"))
+        ):
             # return utils.respondForbidden(
             #     message=_("Can not use both application at once, please use one.")
             # )
@@ -270,8 +310,10 @@ def esign_done(**kwargs):
                 _("Can not use both application at once, please use one.")
             )
 
-        elif not data.get("loan_application_name") and not data.get(
-            "topup_application_name"
+        elif (
+            not data.get("loan_application_name")
+            and not data.get("topup_application_name")
+            and not data.get("loan_name")
         ):
             # return utils.respondForbidden(
             #     "Loan Application and Top up Application not found. Please use atleast one."
@@ -295,7 +337,7 @@ def esign_done(**kwargs):
                 #     message=_("Please use your own Loan Application.")
                 # )
                 raise lms.exceptions.ForbiddenException(
-                    _("P;ease use your own Loan Application")
+                    _("Please use your own Loan Application")
                 )
 
             increase_loan = 0
@@ -311,7 +353,7 @@ def esign_done(**kwargs):
                     las_settings.esign_host, las_settings.esign_download_signed_file_uri
                 ).format(file_id=data.get("file_id"))
 
-        else:
+        elif data.get("topup_application_name"):
             topup_application = frappe.get_doc(
                 "Top up Application", data.get("topup_application_name")
             )
@@ -326,6 +368,18 @@ def esign_done(**kwargs):
                 raise lms.exceptions.ForbiddenException(
                     _("Please use your own Topup Application.")
                 )
+            esigned_pdf_url = "{}{}".format(
+                las_settings.esign_host,
+                las_settings.enhancement_esign_download_signed_file_uri,
+            ).format(file_id=data.get("file_id"))
+
+        else:
+            loan = frappe.get_doc("Loan", data.get("loan_name"))
+            if not loan:
+                raise lms.exceptions.NotFoundException(_("Loan not found"))
+
+            if loan.customer != customer.name:
+                raise lms.exceptions.ForbiddenException(_("Please use your own Loan."))
             esigned_pdf_url = "{}{}".format(
                 las_settings.esign_host,
                 las_settings.enhancement_esign_download_signed_file_uri,
@@ -385,7 +439,7 @@ def esign_done(**kwargs):
                         method="send",
                         doc=doc,
                     )
-                else:
+                elif data.get("topup_application_name"):
                     esigned_file = frappe.get_doc(
                         {
                             "doctype": "File",
@@ -427,6 +481,73 @@ def esign_done(**kwargs):
                     lms.send_spark_push_notification(
                         fcm_notification=fcm_notification, customer=customer
                     )
+
+                else:
+                    loan = frappe.get_doc("Loan", data.get("loan_name"))
+                    cial_doc = frappe.get_doc(
+                        {
+                            "parent": loan.sl_cial_entries,
+                            "parenttype": "Sanction Letter and CIAL Log",
+                            "parentfield": "cial_table",
+                            "date_of_acceptance": frappe.utils.now_datetime().date(),
+                            "cial": "",
+                            "doctype": "CIAL Entries",
+                        }
+                    ).insert(ignore_permissions=True)
+
+                    cial_file_name = "{}-{}".format(
+                        data.get("loan_name"), frappe.utils.now_datetime().date()
+                    )
+                    esigned_file = frappe.get_doc(
+                        {
+                            "doctype": "File",
+                            "file_name": "{}-aggrement.pdf".format(cial_file_name),
+                            "content": res.content,
+                            "attached_to_doctype": "CIAL Entries",
+                            "attached_to_name": cial_doc.name,
+                            "attached_to_field": "cial",
+                            "folder": "Home",
+                        }
+                    )
+                    esigned_file.save(ignore_permissions=True)
+
+                    loan.interest_status = "Accepted"
+                    cial_doc.cial = esigned_file.file_url
+                    loan_application.save(ignore_permissions=True)
+                    frappe.db.commit()
+                    doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+                    frappe.enqueue_doc(
+                        "Notification",
+                        "Loan Application Esign Done",
+                        method="send",
+                        doc=doc,
+                    )
+                    msg = "Dear Customer,\nYour E-sign process for custom is completed. You shall soon receive a confirmation of your new OD limit. Thank you for your patience. - Spark Loans"
+                    receiver_list = [str(customer.phone)]
+                    if customer.get_kyc().mob_num:
+                        receiver_list.append(str(customer.get_kyc().mob_num))
+                    if customer.get_kyc().choice_mob_no:
+                        receiver_list.append(str(customer.get_kyc().choice_mob_no))
+
+                    receiver_list = list(set(receiver_list))
+
+                    frappe.enqueue(
+                        method=send_sms, receiver_list=receiver_list, msg=msg
+                    )
+
+                    fcm_notification = frappe.get_doc(
+                        "Spark Push Notification",
+                        "Topup E-signing was successful",
+                        fields=["*"],
+                    )
+                    lms.send_spark_push_notification(
+                        fcm_notification=fcm_notification, customer=customer
+                    )
+                    if loan.wef_date <= frappe.utils.now_datetime().date():
+                        loan.base_interest = loan.custom_base_interest
+                        loan.rebate_interest = loan.custom_rebate_interest
+                        loan.save(ignore_permission=True)
+                        frappe.db.commit()
 
                 return utils.respondWithSuccess()
             else:

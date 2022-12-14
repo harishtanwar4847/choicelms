@@ -1,0 +1,37 @@
+{
+ "actions": [],
+ "creation": "2022-12-08 14:27:28.407661",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "date_of_acceptance",
+  "cial"
+ ],
+ "fields": [
+  {
+   "fieldname": "cial",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "CIAL"
+  },
+  {
+   "fieldname": "date_of_acceptance",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date of Acceptance"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2022-12-14 12:43:26.857982",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "CIAL Entries",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

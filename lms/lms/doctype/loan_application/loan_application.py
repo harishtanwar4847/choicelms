@@ -661,6 +661,24 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             self.pledged_total_collateral_value
         )
 
+        interest_configuration = frappe.db.get_value(
+            "Interest Configuration",
+            {
+                "lender": self.lender,
+                "from_amount": ["<=", self.drawing_power],
+                "to_amount": [">=", self.drawing_power],
+            },
+            ["name", "base_interest", "rebait_interest"],
+            as_dict=1,
+        )
+        if (
+            self.is_default == 1
+            and self.base_interest != interest_configuration["base_interest"]
+            and self.rebate_interest != interest_configuration["rebait_interest"]
+        ):
+            self.base_interest = interest_configuration["base_interest"]
+            self.rebate_interest = interest_configuration["rebait_interest"]
+
     def on_update(self):
         if self.status == "Approved":
             if not self.loan:
@@ -884,10 +902,33 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 "is_eligible_for_interest": 1,
                 "instrument_type": self.instrument_type,
                 "scheme_type": self.scheme_type,
+                "is_default": self.is_default,
+                "base_interest": self.base_interest,
+                "rebate_interest": self.rebate_interest,
             }
         )
         loan.insert(ignore_permissions=True)
         loan.create_loan_charges()
+
+        sl_cial_doc = frappe.get_doc(
+            {"doctype": "Sanction Letter and CIAL Log", "loan": loan.name}
+        ).insert(ignore_permissions=True)
+
+        loan.sl_cial_entries = sl_cial_doc.name
+
+        cial_doc = frappe.get_doc(
+            {
+                "parent": loan.sl_cial_entries,
+                "parenttype": "Sanction Letter and CIAL Log",
+                "parentfield": "sl_table",
+                "sanction_letter": "",
+                "date_of_acceptance": frappe.utils.now_datetime().date(),
+                "base_interest": self.base_interest,
+                "rebate_interest": self.rebate_interest,
+                "doctype": "Sanction Letter Entries",
+            }
+        ).insert(ignore_permissions=True)
+        frappe.db.commit()
         # self.map_loan_agreement_file(loan)
 
         # File code here #S

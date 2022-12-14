@@ -1,0 +1,51 @@
+{
+ "actions": [],
+ "creation": "2022-12-08 14:25:24.414191",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "sanction_letter",
+  "date_of_acceptance",
+  "base_interest",
+  "rebate_interest"
+ ],
+ "fields": [
+  {
+   "fieldname": "sanction_letter",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "Sanction Letter"
+  },
+  {
+   "fieldname": "date_of_acceptance",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Date of Acceptance"
+  },
+  {
+   "fieldname": "base_interest",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Base Interest"
+  },
+  {
+   "fieldname": "rebate_interest",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Rebate  Interest"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2022-12-14 14:18:18.001782",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Sanction Letter Entries",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

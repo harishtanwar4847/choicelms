@@ -36,7 +36,13 @@
   "application_type",
   "column_break_25",
   "maximum_sanctioned_limit",
-  "increased_sanctioned_limit"
+  "increased_sanctioned_limit",
+  "interest_details_section",
+  "is_default",
+  "base_interest",
+  "column_break_35",
+  "rebate_interest",
+  "interest_status"
  ],
  "fields": [
   {
@@ -241,10 +247,44 @@
    "fieldtype": "Data",
    "label": "Remarks",
    "read_only": 1
+  },
+  {
+   "fieldname": "interest_details_section",
+   "fieldtype": "Section Break",
+   "label": "Interest Details"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "label": "Is Default"
+  },
+  {
+   "fieldname": "column_break_35",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rebate_interest",
+   "fieldtype": "Float",
+   "label": "Rebate Interest",
+   "read_only_depends_on": "eval:doc.is_default == 1;"
+  },
+  {
+   "depends_on": "eval:doc.is_default == 0;",
+   "fieldname": "interest_status",
+   "fieldtype": "Data",
+   "label": "Interest Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "base_interest",
+   "fieldtype": "Float",
+   "label": "Base Interest (Per Month)",
+   "read_only_depends_on": "eval:doc.is_default == 1;"
   }
  ],
  "links": [],
- "modified": "2022-05-11 17:12:24.453836",
+ "modified": "2022-12-08 18:03:48.446709",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

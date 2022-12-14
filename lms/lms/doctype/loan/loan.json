@@ -22,6 +22,7 @@
   "actual_drawing_power",
   "expiry_date",
   "loan_agreement",
+  "sl_cial_entries",
   "margin_shortfall_amount",
   "instrument_type",
   "scheme_type",
@@ -32,14 +33,23 @@
   "is_irregular",
   "is_penalize",
   "interest_details_section",
+  "base_interest",
   "base_interest_amount",
   "interest_due",
   "penal_interest_charges",
   "total_interest_incl_penal_due",
   "column_break_28",
+  "rebate_interest",
   "rebate_interest_amount",
   "interest_overdue",
-  "day_past_due"
+  "day_past_due",
+  "custom_roi_section",
+  "custom_base_interest",
+  "wef_date",
+  "is_default",
+  "column_break_40",
+  "custom_rebate_interest",
+  "interest_status"
  ],
  "fields": [
   {
@@ -256,11 +266,68 @@
    "fieldtype": "Currency",
    "label": "Actual Drawing Power",
    "read_only": 1
+  },
+  {
+   "fieldname": "base_interest",
+   "fieldtype": "Float",
+   "label": "Base Interest (Per Month)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rebate_interest",
+   "fieldtype": "Float",
+   "label": "Rebate Interest",
+   "read_only": 1
+  },
+  {
+   "fieldname": "custom_roi_section",
+   "fieldtype": "Section Break",
+   "label": "Custom ROI"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "label": "Is Default"
+  },
+  {
+   "fieldname": "column_break_40",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "interest_status",
+   "fieldtype": "Select",
+   "label": "Interest Status",
+   "options": "\nPending\nAccepted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sl_cial_entries",
+   "fieldtype": "Link",
+   "label": "SL CIAL Entries",
+   "options": "Sanction Letter and CIAL Log"
+  },
+  {
+   "fieldname": "wef_date",
+   "fieldtype": "Date",
+   "label": "w.e.f date"
+  },
+  {
+   "fieldname": "custom_base_interest",
+   "fieldtype": "Float",
+   "label": "Custom Base Interest",
+   "read_only_depends_on": "eval:doc.is_default == 1;"
+  },
+  {
+   "fieldname": "custom_rebate_interest",
+   "fieldtype": "Float",
+   "label": "Custom Rebate Interest",
+   "read_only_depends_on": "eval:doc.is_default == 1;"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-05-11 17:11:57.043855",
+ "modified": "2022-12-14 14:08:01.485985",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

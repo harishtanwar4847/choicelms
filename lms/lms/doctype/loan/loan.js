@@ -2,6 +2,13 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("Loan", {
+  is_default: function (frm) {
+    if (frm.doc.is_default == 0) {
+      frm.set_value("custom_base_interest", 0);
+      frm.set_value("custom_rebate_interest", 0);
+    }
+  },
+
   refresh: function (frm) {
     frm.set_df_property("items", "read_only", 1);
     frm.attachments.parent.hide();
