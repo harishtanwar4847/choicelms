@@ -634,7 +634,7 @@ def schemes(**kwargs):
             )
 
         schemes_list = frappe.db.sql(
-            """select als.isin, als.security_name as scheme_name, als.allowed, als.eligible_percentage as ltv, als.instrument_type, als.scheme_type, round(s.price,4) as price, group_concat(lender,'') as lenders, als.amc_code, am.amc_image
+            """select als.isin, als.security_name as scheme_name, als.allowed, GROUP_CONCAT(CONVERT(als.eligible_percentage, CHAR), '' ORDER BY lender) as ltv, als.instrument_type, als.scheme_type, round(s.price,4) as price, group_concat(lender,'' ORDER BY lender) as lenders, als.amc_code, am.amc_image
             from `tabAllowed Security` als
             LEFT JOIN `tabSecurity` s on s.isin = als.isin
             LEFT JOIN `tabAMC Master` am on am.amc_code = als.amc_code
@@ -680,7 +680,7 @@ def isin_details(**kwargs):
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         isin_details = frappe.db.sql(
-            """select als.isin, als.eligible_percentage as ltv, (select category_name from `tabSecurity Category` where name = als.security_category) as category, l.name, l.minimum_sanctioned_limit, l.maximum_sanctioned_limit, l.rate_of_interest from `tabAllowed Security` als LEFT JOIN `tabLender` l on l.name = als.lender where als.isin='{}'""".format(
+            """select als.isin, als.eligible_percentage as ltv, (select category_name from `tabSecurity Category` where name = als.security_category) as category, l.name, l.minimum_sanctioned_limit, l.maximum_sanctioned_limit, l.rate_of_interest from `tabAllowed Security` als LEFT JOIN `tabLender` l on l.name = als.lender where als.isin='{}' Order by l.name""".format(
                 data.get("isin")
             ),
             as_dict=True,
@@ -5260,7 +5260,7 @@ def shares_eligibility(**kwargs):
                         if i["Category"] != None and i["Stock_At"] == data.get("demat"):
                             final_securities_list.append(i)
                             allowed_sec = frappe.db.sql(
-                                "select amc_image, GROUP_CONCAT(CONVERT(eligible_percentage, CHAR), '') as eligible_percentage, group_concat(lender,'') as lenders from `tabAllowed Security` where isin = '{}' order by creation DESC".format(
+                                "select amc_image, GROUP_CONCAT(CONVERT(eligible_percentage, CHAR), '' ORDER BY lender) as eligible_percentage, group_concat(lender,'' ORDER BY lender) as lenders from `tabAllowed Security` where isin = '{}' order by creation DESC".format(
                                     i["ISIN"]
                                 ),
                                 as_dict=True,
@@ -5304,7 +5304,7 @@ def get_distinct_securities(lender_list, levels):
     sub_query = " and als.security_category in (select security_category from `tabConcentration Rule` where parent in {} and idx in {})".format(
         lender, levels
     )
-    query = """select als.isin as ISIN, sc.category_name as Category, GROUP_CONCAT(CONVERT(als.eligible_percentage, CHAR), '') as eligible_percentage, als.security_name as Scrip_Name, round(s.price,4) as Price, group_concat(als.lender,'') as lenders, 
+    query = """select als.isin as ISIN, sc.category_name as Category, GROUP_CONCAT(CONVERT(als.eligible_percentage, CHAR), '' ORDER BY als.lender) as eligible_percentage, als.security_name as Scrip_Name, round(s.price,4) as Price, group_concat(als.lender,'' ORDER BY als.lender) as lenders, 
             als.amc_image
             from `tabAllowed Security` als 
             LEFT JOIN `tabSecurity` s on s.isin = als.isin
