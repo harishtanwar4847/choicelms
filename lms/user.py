@@ -2120,9 +2120,8 @@ def all_lenders_list(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
-        all_lenders = []
         all_levels = []
-        lenders = frappe.get_all("Lender", pluck="name", order_by="creation asc")
+        lenders = frappe.get_all("Lender", pluck="name", order_by="name asc")
         for lender in lenders:
             query = [
                 "Level {}".format(i.level)
@@ -5278,7 +5277,7 @@ def shares_eligibility(**kwargs):
                     final_securities_list = ()
                 lender = lms.convert_list_to_tuple_string(lender_list)
                 lender_info = frappe.db.sql(
-                    """select name, minimum_sanctioned_limit, maximum_sanctioned_limit, rate_of_interest from `tabLender` where name in {} """.format(
+                    """select name, minimum_sanctioned_limit, maximum_sanctioned_limit, rate_of_interest from `tabLender` where name in {} ORDER BY name""".format(
                         lender
                     ),
                     as_dict=True,
