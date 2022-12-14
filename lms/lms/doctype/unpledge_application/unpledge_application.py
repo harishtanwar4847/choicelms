@@ -47,9 +47,10 @@ class UnpledgeApplication(Document):
         self.customer = loan.customer
         if not self.customer_name:
             self.customer_name = loan.customer_name
-        if self.instrument_type == "Shares":
-            allowable_value = loan.max_unpledge_amount()
-            self.max_unpledge_amount = allowable_value["maximum_unpledge_amount"]
+        # For ltv on shares
+        # if self.instrument_type == "Shares":
+        #     allowable_value = loan.max_unpledge_amount()
+        #     self.max_unpledge_amount = allowable_value["maximum_unpledge_amount"]
 
         pending_sell_request_id = frappe.db.get_value(
             "Sell Collateral Application",

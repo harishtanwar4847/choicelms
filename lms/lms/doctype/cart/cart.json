@@ -11,7 +11,6 @@
   "total_collateral_value",
   "total_collateral_value_str",
   "pledgor_boid",
-  "allowable_ltv",
   "loan_margin_shortfall",
   "client_id",
   "client_name",
@@ -60,14 +59,6 @@
   {
    "fieldname": "section_break_4",
    "fieldtype": "Section Break"
-  },
-  {
-   "depends_on": "eval:doc.instrument_type==\"Shares\";",
-   "fieldname": "allowable_ltv",
-   "fieldtype": "Float",
-   "label": "Allowable LTV",
-   "mandatory_depends_on": "doc.instrument_type==\"Shares\";",
-   "read_only": 1
   },
   {
    "default": "0",
@@ -190,7 +181,7 @@
   }
  ],
  "links": [],
- "modified": "2022-05-10 17:44:23.406606",
+ "modified": "2022-12-14 15:52:32.188629",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Cart",

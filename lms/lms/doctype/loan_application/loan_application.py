@@ -38,10 +38,13 @@ class LoanApplication(Document):
         lender = self.get_lender()
         if self.loan:
             loan = self.get_loan()
+            # increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+            #     (self.total_collateral_value + loan.total_collateral_value)
+            #     * self.allowable_ltv
+            #     / 100
+            # )
             increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                (self.total_collateral_value + loan.total_collateral_value)
-                * self.allowable_ltv
-                / 100
+                loan.drawing_power + self.drawing_power
             )
             new_increased_sanctioned_limit = (
                 increased_sanctioned_limit
@@ -492,7 +495,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 frappe.db.commit()
 
     def before_save(self):
-        print("abcd")
         lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
@@ -875,7 +877,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 "drawing_power": self.drawing_power,
                 "sanctioned_limit": self.drawing_power,
                 "expiry_date": self.expiry_date,
-                "allowable_ltv": self.allowable_ltv,
+                # "allowable_ltv": self.allowable_ltv,
                 "customer": self.customer,
                 "customer_name": self.customer_name,
                 "lender": self.lender,
@@ -970,9 +972,19 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         loan.update_items()
         loan.fill_items()
 
-        loan.drawing_power = (
-            loan.allowable_ltv / 100
-        ) * loan.total_collateral_value  # can be altered later for MF
+        # loan.drawing_power = (loan.allowable_ltv / 100) * loan.total_collateral_value  # can be altered later for MF
+        drawing_power = 0
+        for i in loan.items:
+            i.amount = i.price * i.pledged_quantity
+            i.eligible_amount = (i.eligible_percentage / 100) * i.amount
+            self.total_collateral_value += i.amount
+            drawing_power += i.eligible_amount
+
+        drawing_power = round(
+            drawing_power,
+            2,
+        )
+        loan.drawing_power = drawing_power
         loan.save(ignore_permissions=True)
 
         if self.application_type == "Increase Loan":
@@ -1636,8 +1648,6 @@ def check_for_pledge(loan_application_doc):
         lms.round_down_amount_to_nearest_thousand(drawing_power),
         2,
     )
-    print("drawing_power", drawing_power)
-    print("loan_application_doc.drawing_power", loan_application_doc.drawing_power)
 
     loan_application_doc.save(ignore_permissions=True)
     # loan_application_doc.save_collateral_ledger()

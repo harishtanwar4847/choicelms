@@ -522,13 +522,11 @@ class Loan(Document):
             drawing_power,
             2,
         )
-        print("drawing_power", drawing_power)
         self.drawing_power = (
             drawing_power
             if drawing_power <= self.sanctioned_limit
             else self.sanctioned_limit
         )
-        print("drawing_power", self.drawing_power)
         # Updating actual drawing power
         self.actual_drawing_power = round(
             (drawing_power),
@@ -1879,6 +1877,7 @@ class Loan(Document):
                 i.eligible_amount = (i.eligible_percentage / 100) * i.amount
                 total_collateral_value += i.amount
                 actual_drawing_power += i.eligible_amount
+
             max_topup_amount = actual_drawing_power - self.sanctioned_limit
 
         # show available top up amount only if topup amount is greater than 10% of sanctioned limit
@@ -1886,14 +1885,13 @@ class Loan(Document):
         if self.sanctioned_limit > lender.maximum_sanctioned_limit:
             max_topup_amount = 0
         elif (
-            (actual_drawing_power / self.sanctioned_limit * 100) - 100 >= 10
-            and max_topup_amount >= 1000
-            and self.instrument_type == "Mutual Fund"
-        ) or (
-            max_topup_amount > (self.sanctioned_limit * 0.1)
-            and max_topup_amount >= 1000
-            and self.instrument_type == "Shares"
-        ):
+            actual_drawing_power / self.sanctioned_limit * 100
+        ) - 100 >= 10 and max_topup_amount >= 1000:
+            # ) or (
+            #     actual_drawing_power > (self.sanctioned_limit * 0.1)
+            #     and max_topup_amount >= 1000
+            #     and self.instrument_type == "Shares"
+            # ):
             if (
                 max_topup_amount + self.sanctioned_limit
             ) > lender.maximum_sanctioned_limit:
@@ -1951,23 +1949,23 @@ class Loan(Document):
                 topup_doc.db_set("top_up_amount", 0)
             frappe.db.commit()
 
-    def max_unpledge_amount(self):
-        if self.instrument_type == "Shares":
-            minimum_collateral_value = (100 / self.allowable_ltv) * self.balance
-            maximum_unpledge_amount = (
-                self.total_collateral_value - minimum_collateral_value
-            )
+    # def max_unpledge_amount(self):
+    #     if self.instrument_type == "Shares":
+    #         minimum_collateral_value = (100 / self.allowable_ltv) * self.balance
+    #         maximum_unpledge_amount = (
+    #             self.total_collateral_value - minimum_collateral_value
+    #         )
 
-            return {
-                "minimum_collateral_value": round(minimum_collateral_value, 2)
-                if minimum_collateral_value > 0
-                else 0.0,
-                "maximum_unpledge_amount": round(maximum_unpledge_amount, 2)
-                if maximum_unpledge_amount > 0
-                else 0.0,
-            }
-        else:
-            return {}
+    #         return {
+    #             "minimum_collateral_value": round(minimum_collateral_value, 2)
+    #             if minimum_collateral_value > 0
+    #             else 0.0,
+    #             "maximum_unpledge_amount": round(maximum_unpledge_amount, 2)
+    #             if maximum_unpledge_amount > 0
+    #             else 0.0,
+    #         }
+    #     else:
+    #         return {}
 
     def update_pending_sell_collateral_amount(self):
         all_pending_sell_collateral_applications = frappe.get_all(

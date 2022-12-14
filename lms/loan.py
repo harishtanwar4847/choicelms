@@ -449,10 +449,10 @@ def my_loans():
             """select
 			loan.total_collateral_value, loan.name, loan.sanctioned_limit, loan.drawing_power,
 
-			if ((loan.total_collateral_value * loan.allowable_ltv / 100 - loan.sanctioned_limit) > (loan.sanctioned_limit * 0.1), 1, 0) as top_up_available,
+			if (((loan.actual_drawing_power / loan.sanctioned_limit * 100) -100) >=10 , 1, 0) as top_up_available,
 
-			if ((loan.total_collateral_value * loan.allowable_ltv / 100) - loan.sanctioned_limit > (loan.sanctioned_limit * 0.1),
-			loan.total_collateral_value * loan.allowable_ltv / 100 - loan.sanctioned_limit, 0.0) as top_up_amount,
+			if (loan.actual_drawing_power - loan.sanctioned_limit > (loan.sanctioned_limit * 0.1),
+			loan.actual_drawing_power - loan.sanctioned_limit, 0.0) as top_up_amount,
 
 			IFNULL(mrgloan.shortfall_percentage, 0.0) as shortfall_percentage,
 			IFNULL(mrgloan.shortfall_c, 0.0) as shortfall_c,
@@ -470,6 +470,7 @@ def my_loans():
                 customer.name
             ),
             as_dict=1,
+            debug=True,
         )
 
         data = {"loans": loans}

@@ -1298,7 +1298,7 @@ def my_pledge_securities(**kwargs):
                 )
                 if loan_margin_shortfall
                 else None,
-                unpledge=loan.max_unpledge_amount(),
+                # unpledge=loan.max_unpledge_amount(),
             )
 
         return utils.respondWithSuccess(data=res)
@@ -2524,7 +2524,8 @@ def loan_summary_dashboard(**kwargs):
                         else None,
                         "unpledge": None
                         if unpledge_application_exist or loan_margin_shortfall
-                        else loan.max_unpledge_amount(),
+                        # else loan.max_unpledge_amount(),
+                        else None
                         # "sell_collateral_available": None,
                         # "top_up_amount": 0.0,
                         # "existing_topup_application": None

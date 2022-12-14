@@ -12,7 +12,6 @@
   "instrument_type",
   "scheme_type",
   "section_break_4",
-  "allowable_ltv",
   "column_break_6",
   "drawing_power",
   "actual_drawing_power",
@@ -54,12 +53,6 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Total Collateral Value",
-   "read_only": 1
-  },
-  {
-   "fieldname": "allowable_ltv",
-   "fieldtype": "Float",
-   "label": "Allowable LTV",
    "read_only": 1
   },
   {
@@ -235,7 +228,7 @@
   }
  ],
  "links": [],
- "modified": "2022-05-23 15:51:13.986820",
+ "modified": "2022-12-14 15:56:05.271372",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Margin Shortfall",

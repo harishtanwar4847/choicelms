@@ -113,7 +113,7 @@ class Cart(Document):
                 "drawing_power": self.eligible_loan,
                 "lender": self.lender,
                 "expiry_date": expiry,
-                "allowable_ltv": self.allowable_ltv,
+                # "allowable_ltv": self.allowable_ltv,
                 "customer": self.customer,
                 "customer_name": self.customer_name,
                 "pledgor_boid": self.pledgor_boid,
@@ -210,10 +210,13 @@ class Cart(Document):
         user_kyc = customer.get_kyc()
         if self.loan:
             loan = frappe.get_doc("Loan", self.loan)
+            # increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+            #     (self.total_collateral_value + loan.total_collateral_value)
+            #     * self.allowable_ltv
+            #     / 100
+            # )
             increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                (self.total_collateral_value + loan.total_collateral_value)
-                * self.allowable_ltv
-                / 100
+                loan.drawing_power + self.eligible_loan
             )
             self.increased_sanctioned_limit = (
                 increased_sanctioned_limit
