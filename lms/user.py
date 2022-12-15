@@ -5303,11 +5303,10 @@ def get_distinct_securities(lender_list, levels):
     sub_query = " and als.security_category in (select security_category from `tabConcentration Rule` where parent in {} and idx in {})".format(
         lender, levels
     )
-    query = """select als.isin as ISIN, sc.category_name as Category, GROUP_CONCAT(CONVERT(als.eligible_percentage, CHAR), '' ORDER BY als.lender) as eligible_percentage, als.security_name as Scrip_Name, round(s.price,4) as Price, group_concat(als.lender,'' ORDER BY als.lender) as lenders, 
+    query = """select als.isin as ISIN, GROUP_CONCAT(als.category_name,'' ORDER BY als.lender) as Category, GROUP_CONCAT(CONVERT(als.eligible_percentage, CHAR), '' ORDER BY als.lender) as eligible_percentage, als.security_name as Scrip_Name, round(s.price,4) as Price, group_concat(als.lender,'' ORDER BY als.lender) as lenders, 
             als.amc_image
             from `tabAllowed Security` als 
             LEFT JOIN `tabSecurity` s on s.isin = als.isin
-            LEFT JOIN `tabSecurity Category` sc ON als.security_category = sc.name 
             where als.instrument_type='Shares' and
             s.price > 0{}{}
             group by als.isin

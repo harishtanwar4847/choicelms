@@ -382,12 +382,12 @@ def get_security_categories(securities, lender, instrument_type="Shares"):
 
 
 def get_allowed_securities(securities, lender, instrument_type="Shares", level=None):
-
-    select = "als.isin, als.security_name, als.eligible_percentage, sc.category_name as security_category, als.lender"
+    group_by = ""
+    select = "isin, security_name, eligible_percentage, GROUP_CONCAT(category_name, '' order by lender) as security_category, lender"
     allowed = ""
     if instrument_type == "Mutual Fund":
-        select += ", als.scheme_type, als.allowed"
-        allowed = "and als.allowed = 1"
+        select += ", scheme_type, allowed"
+        allowed = "and allowed = 1"
 
     if type(lender) == list:
         lender = convert_list_to_tuple_string(lender)
@@ -396,26 +396,27 @@ def get_allowed_securities(securities, lender, instrument_type="Shares", level=N
         filter = "= '{}'".format(lender)
 
     if level:
-        sub_query = "als.lender {lender_clause} and als.security_category in (select security_category from `tabConcentration Rule` where parent {lender} and idx in {level})".format(
+        group_by = " group by isin"
+        sub_query = "lender {lender_clause} and security_category in (select security_category from `tabConcentration Rule` where parent {lender} and idx in {level})".format(
             lender_clause=filter, lender=filter, level=level
         )
     else:
-        sub_query = "als.lender {}".format(filter)
+        sub_query = "lender {}".format(filter)
 
     query = """select
 				{select}
-				from `tabAllowed Security` als
-                LEFT JOIN `tabSecurity Category` sc
-				ON als.security_category = sc.name where
+				from `tabAllowed Security`
+				where
 				{sub_query} 
                 {allowed} and
-                als.instrument_type = '{instrument_type}' and
-                als.isin in {isin}""".format(
+                instrument_type = '{instrument_type}' and
+                isin in {isin}{group_by}""".format(
         select=select,
         sub_query=sub_query,
         allowed=allowed,
         instrument_type=instrument_type,
         isin=convert_list_to_tuple_string(securities),
+        group_by=group_by,
     )
 
     results = frappe.db.sql(query, as_dict=1)
