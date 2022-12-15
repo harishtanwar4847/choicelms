@@ -542,7 +542,7 @@ class Loan(Document):
 			SELECT
 				cl.loan, cl.isin, cl.psn, cl.pledgor_boid, cl.pledgee_boid, cl.prf, cl.scheme_code, cl.folio, cl.amc_code,
 				s.price, s.security_name,
-                (select sc.category_name from `tabSecurity Category` sc  where sc.name = als.security_category) as security_category
+                als.category_name as security_category
 				, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
 				- SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
 				- SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) quantity

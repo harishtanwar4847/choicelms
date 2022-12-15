@@ -680,7 +680,7 @@ def isin_details(**kwargs):
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         isin_details = frappe.db.sql(
-            """select als.isin, als.eligible_percentage as ltv, (select category_name from `tabSecurity Category` where name = als.security_category) as category, l.name, l.minimum_sanctioned_limit, l.maximum_sanctioned_limit, l.rate_of_interest from `tabAllowed Security` als LEFT JOIN `tabLender` l on l.name = als.lender where als.isin='{}' Order by l.name""".format(
+            """select als.isin, als.eligible_percentage as ltv, als.category_name as category, l.name, l.minimum_sanctioned_limit, l.maximum_sanctioned_limit, l.rate_of_interest from `tabAllowed Security` als LEFT JOIN `tabLender` l on l.name = als.lender where als.isin='{}' Order by l.name""".format(
                 data.get("isin")
             ),
             as_dict=True,
@@ -1041,7 +1041,7 @@ def approved_securities(**kwargs):
         if data.get("is_download"):
             approved_security_list = frappe.db.sql(
                 """
-            select alsc.isin, alsc.security_name, alsc.allowed, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {allowed} and instrument_type = "{instrument_type}" {filters} order by security_name asc;""".format(
+            select alsc.isin, alsc.security_name, alsc.allowed, alsc.eligible_percentage, alsc.category_name as security_category from `tabAllowed Security` alsc where lender = "{lender}" {allowed} and instrument_type = "{instrument_type}" {filters} order by security_name asc;""".format(
                     instrument_type=data.get("instrument_type"),
                     lender=data.get("lender"),
                     filters=filters,
