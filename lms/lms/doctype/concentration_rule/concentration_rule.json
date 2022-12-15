@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "security_category",
+  "category_name",
   "single_scrip_numerical_limit",
   "single_scrip_percentage_limit",
   "category_numerical_limit",
@@ -76,12 +77,18 @@
   {
    "fieldname": "column_break_8",
    "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "security_category.category_name",
+   "fieldname": "category_name",
+   "fieldtype": "Data",
+   "label": "Category Name"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-03-01 13:52:38.582564",
+ "modified": "2022-12-13 12:09:51.751832",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Concentration Rule",

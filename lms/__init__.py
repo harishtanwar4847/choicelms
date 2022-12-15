@@ -381,33 +381,42 @@ def get_security_categories(securities, lender, instrument_type="Shares"):
     return security_map
 
 
-def get_allowed_securities(securities, lender, instrument_type="Shares"):
-
-    select = "als.isin, als.security_name, als.eligible_percentage, sc.category_name as security_category, als.lender"
+def get_allowed_securities(securities, lender, instrument_type="Shares", level=None):
+    group_by = ""
+    select = "isin, security_name, eligible_percentage, GROUP_CONCAT(category_name, '' order by lender) as security_category, lender"
     allowed = ""
     if instrument_type == "Mutual Fund":
-        select += ", als.scheme_type, als.allowed"
-        allowed = "and als.allowed = 1"
+        select += ", scheme_type, allowed"
+        allowed = "and allowed = 1"
 
     if type(lender) == list:
-        filter = "in {}".format(convert_list_to_tuple_string(lender))
+        lender = convert_list_to_tuple_string(lender)
+        filter = "in {}".format(lender)
     else:
         filter = "= '{}'".format(lender)
 
+    if level:
+        group_by = " group by isin"
+        sub_query = "lender {lender_clause} and security_category in (select security_category from `tabConcentration Rule` where parent {lender} and idx in {level})".format(
+            lender_clause=filter, lender=filter, level=level
+        )
+    else:
+        sub_query = "lender {}".format(filter)
+
     query = """select
 				{select}
-				from `tabAllowed Security` als
-                LEFT JOIN `tabSecurity Category` sc
-				ON als.security_category = sc.name where
-				als.lender {lender} 
+				from `tabAllowed Security`
+				where
+				{sub_query} 
                 {allowed} and
-                als.instrument_type = '{instrument_type}' and
-                als.isin in {isin}""".format(
+                instrument_type = '{instrument_type}' and
+                isin in {isin}{group_by}""".format(
         select=select,
-        lender=filter,
+        sub_query=sub_query,
         allowed=allowed,
         instrument_type=instrument_type,
         isin=convert_list_to_tuple_string(securities),
+        group_by=group_by,
     )
 
     results = frappe.db.sql(query, as_dict=1)
@@ -1997,7 +2006,7 @@ def split_list_into_half(a_list):
 
 def get_linenumber():
     cf = currentframe()
-    return "line no" + str(cf.f_back.f_lineno)
+    return "Reached on line no " + str(cf.f_back.f_lineno)
 
 
 @frappe.whitelist(allow_guest=True)
