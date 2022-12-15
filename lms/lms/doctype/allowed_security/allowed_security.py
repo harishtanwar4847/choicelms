@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 
 import json
 import random
+import re
 import string
 
 import frappe
@@ -23,6 +24,12 @@ class AllowedSecurity(Document):
         self.security_name = frappe.db.get_value("Security", self.isin, "security_name")
         if self.instrument_type == "Mutual Fund":
             self.update_mycams_scheme()
+        # if self.amc_image:
+        #     img=self.amc_image
+        #     print(img)
+        #     if  bool(re.search(r"\s",img)) == True:
+        #         print("It contains space")
+        #         frappe.throw("Image name cannot contain space")
 
     def before_insert(self):
         exists_security = frappe.db.exists(
