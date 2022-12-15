@@ -634,7 +634,7 @@ def schemes(**kwargs):
             )
 
         schemes_list = frappe.db.sql(
-            """select als.isin, als.security_name as scheme_name, als.allowed, GROUP_CONCAT(CONVERT(als.eligible_percentage, CHAR), '' ORDER BY lender) as ltv, als.instrument_type, als.scheme_type, round(s.price,4) as price, group_concat(lender,'' ORDER BY lender) as lenders, als.amc_code, am.amc_image
+            """select als.isin, als.security_name as scheme_name, als.allowed, GROUP_CONCAT(CONVERT(als.eligible_percentage, CHAR), '' ORDER BY lender) as ltv, als.instrument_type, als.scheme_type, round(s.price,4) as price, group_concat(lender,'' ORDER BY lender) as lenders, group_concat(category_name,'' ORDER BY lender) as category, als.amc_code, am.amc_image
             from `tabAllowed Security` als
             LEFT JOIN `tabSecurity` s on s.isin = als.isin
             LEFT JOIN `tabAMC Master` am on am.amc_code = als.amc_code
@@ -1132,7 +1132,7 @@ def approved_securities(**kwargs):
 
             approved_security_list = frappe.db.sql(
                 """
-            select alsc.isin, alsc.security_name, alsc.allowed, alsc.eligible_percentage, (select sc.category_name from `tabSecurity Category` sc  where sc.name = alsc.security_category) as security_category from `tabAllowed Security` alsc where lender = "{lender}" {allowed} and instrument_type = "{instrument_type}" {filters} order by security_name asc limit {offset},{limit};""".format(
+            select alsc.isin, alsc.security_name, alsc.allowed, alsc.eligible_percentage, alsc.category_name as security_category from `tabAllowed Security` alsc where lender = "{lender}" {allowed} and instrument_type = "{instrument_type}" {filters} order by security_name asc limit {offset},{limit};""".format(
                     instrument_type=data.get("instrument_type"),
                     lender=data.get("lender"),
                     filters=filters,
@@ -2086,7 +2086,7 @@ def check_eligible_limit(**kwargs):
         eligible_limit_list = frappe.db.sql(
             """
 			SELECT
-			als.security_name as Scrip_Name, als.eligible_percentage, als.lender, als.security_category as Category, s.price as Price
+			als.security_name as Scrip_Name, als.eligible_percentage, als.lender, als.category_name as Category, s.price as Price
 			FROM `tabAllowed Security` als
 			LEFT JOIN `tabSecurity` s
 			ON als.isin = s.isin
