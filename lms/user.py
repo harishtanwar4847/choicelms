@@ -2379,9 +2379,28 @@ def dashboard(**kwargs):
                     }
                 )
 
+        loans = frappe.get_all(
+            "Loan",
+            filters={"customer": customer.name, "interest_status": "Pending"},
+            fields=["*"],
+        )
+
+        loan_esigns = []
+        if loans:
+            for loan in loans:
+                loan_doc = frappe.get_doc("Loan", loan.name).as_dict()
+
+                loan_esigns.append(
+                    {
+                        "loan_doc": loan_doc,
+                        "mess": "Your ROI is updated by our lending partner. Please e-sign the loan agreement to avail the new ROI now.",
+                    }
+                )
+
         pending_esigns_list = dict(
             la_pending_esigns=la_pending_esigns,
             topup_pending_esigns=topup_pending_esigns,
+            loan_esigns=loan_esigns,
         )
 
         number_of_user_login = frappe.get_all(
