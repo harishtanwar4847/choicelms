@@ -23,6 +23,33 @@ class AllowedSecurity(Document):
         self.security_name = frappe.db.get_value("Security", self.isin, "security_name")
         if self.instrument_type == "Mutual Fund":
             self.update_mycams_scheme()
+        loan_app_list = frappe.get_all(
+            "Loan Application",
+            filters={
+                "status": [
+                    "IN",
+                    [
+                        "Waiting to be pledged",
+                        "Pledge executed",
+                        "Pledge accepted by Lender",
+                    ],
+                ]
+            },
+            fields="name",
+        )
+        for doc_name in loan_app_list:
+            try:
+                Loan_app_doc = frappe.get_doc("Loan Application", doc_name.name)
+                for i in Loan_app_doc.items:
+                    if i.isin in self.isin:
+                        i.eligible_percentage = self.eligible_percentage
+                Loan_app_doc.save(ignore_permissions=True)
+                frappe.db.commit()
+            except frappe.DoesNotExistError:
+                frappe.log_error(
+                    message="Not found",
+                    title=("Allowed Security"),
+                )
 
     def before_insert(self):
         exists_security = frappe.db.exists(

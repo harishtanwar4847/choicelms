@@ -513,6 +513,11 @@ class Loan(Document):
         #     )
         # else:  # for Drawing power Calculation
         for i in self.items:
+            i.eligible_percentage = frappe.db.get_value(
+                "Allowed Security",
+                {"isin": i.isin, "lender": self.lender},
+                "eligible_percentage",
+            )
             i.amount = i.price * i.pledged_quantity
             i.eligible_amount = (i.eligible_percentage / 100) * i.amount
             self.total_collateral_value += i.amount
