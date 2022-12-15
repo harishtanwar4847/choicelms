@@ -135,57 +135,55 @@ class UserKYC(Document):
                 self.save(ignore_permissions=True)
                 frappe.db.commit()
 
-                if check and not loan_customer.bank_update:
-                    loan_customer.bank_update = 1
-                    loan_customer.save(ignore_permissions=True)
+        if check and not loan_customer.bank_update:
+            loan_customer.bank_update = 1
+            loan_customer.save(ignore_permissions=True)
+            frappe.db.commit()
+
+        for i in self.bank_account:
+            if i.notification_sent == 0 and i.bank_status in [
+                "Approved",
+                "Rejected",
+            ]:
+                if i.bank_status == "Approved":
+                    msg = "Your Bank details request has been approved; please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
+                        las_settings.app_login_dashboard
+                    )
+                    frappe.enqueue_doc(
+                        "Notification", "Bank Approved", method="send", doc=doc
+                    )
+                    fcm_notification = frappe.get_doc(
+                        "Spark Push Notification", "Bank Approved", fields=["*"]
+                    )
+                    i.notification_sent = 1
+                    i.save(ignore_permissions=True)
                     frappe.db.commit()
 
-                for i in self.bank_account:
-                    if i.notification_sent == 0 and i.bank_status in [
-                        "Approved",
-                        "Rejected",
-                    ]:
-                        if i.bank_status == "Approved":
-                            msg = "Your Bank details request has been approved; please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
-                                las_settings.app_login_dashboard
-                            )
-                            frappe.enqueue_doc(
-                                "Notification", "Bank Approved", method="send", doc=doc
-                            )
-                            fcm_notification = frappe.get_doc(
-                                "Spark Push Notification", "Bank Approved", fields=["*"]
-                            )
-                            i.notification_sent = 1
-                            i.save(ignore_permissions=True)
-                            frappe.db.commit()
+                elif i.bank_status == "Rejected":
+                    msg = "Your Bank request has been rejected due to mismatch in the details;  please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
+                        las_settings.app_login_dashboard
+                    )
+                    frappe.enqueue_doc(
+                        "Notification", "Bank Rejected", method="send", doc=doc
+                    )
+                    fcm_notification = frappe.get_doc(
+                        "Spark Push Notification", "Bank Rejected", fields=["*"]
+                    )
+                    i.notification_sent = 1
+                    i.save(ignore_permissions=True)
+                    frappe.db.commit()
 
-                        elif i.bank_status == "Rejected":
-                            msg = "Your Bank request has been rejected due to mismatch in the details;  please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
-                                las_settings.app_login_dashboard
-                            )
-                            frappe.enqueue_doc(
-                                "Notification", "Bank Rejected", method="send", doc=doc
-                            )
-                            fcm_notification = frappe.get_doc(
-                                "Spark Push Notification", "Bank Rejected", fields=["*"]
-                            )
-                            i.notification_sent = 1
-                            i.save(ignore_permissions=True)
-                            frappe.db.commit()
+                receiver_list = [str(loan_customer.phone)]
+                if self.mob_num:
+                    receiver_list.append(str(self.mob_num))
+                if self.choice_mob_no:
+                    receiver_list.append(str(self.choice_mob_no))
 
-                        receiver_list = [str(loan_customer.phone)]
-                        if self.mob_num:
-                            receiver_list.append(str(self.mob_num))
-                        if self.choice_mob_no:
-                            receiver_list.append(str(self.choice_mob_no))
-
-                        receiver_list = list(set(receiver_list))
-                        frappe.enqueue(
-                            method=send_sms, receiver_list=receiver_list, msg=msg
-                        )
-                        lms.send_spark_push_notification(
-                            fcm_notification=fcm_notification, customer=loan_customer
-                        )
+                receiver_list = list(set(receiver_list))
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                lms.send_spark_push_notification(
+                    fcm_notification=fcm_notification, customer=loan_customer
+                )
 
     def validate(self):
         for i, item in enumerate(
