@@ -1834,29 +1834,28 @@ class Loan(Document):
         self.balance_str = lms.amount_formatter(self.balance)
         if self.custom_base_interest <= 0 or self.custom_rebate_interest <= 0:
             frappe.throw("Base interest and Rebate Interest should be greater than 0")
-        interest_configuration = frappe.db.get_value(
-            "Interest Configuration",
-            {
-                "lender": self.lender,
-                "from_amount": ["<=", self.balance],
-                "to_amount": [">=", self.balance],
-            },
-            ["name", "base_interest", "rebait_interest"],
-            as_dict=1,
-        )
-        if (
-            self.is_default == 1
-            and self.base_interest != interest_configuration["base_interest"]
-            and self.rebate_interest != interest_configuration["rebait_interest"]
-        ):
-            self.custom_base_interest = interest_configuration["base_interest"]
-            self.custom_rebate_interest = interest_configuration["rebait_interest"]
+        if self.balance > 0:
+            interest_configuration = frappe.db.get_value(
+                "Interest Configuration",
+                {
+                    "lender": self.lender,
+                    "from_amount": ["<=", self.balance],
+                    "to_amount": [">=", self.balance],
+                },
+                ["name", "base_interest", "rebait_interest"],
+                as_dict=1,
+            )
+            if self.is_default == 1:
+                self.custom_base_interest = interest_configuration["base_interest"]
+                self.custom_rebate_interest = interest_configuration["rebait_interest"]
 
-        if (
-            self.custom_base_interest != self.base_interest
-            and self.custom_rebate_interest != self.rebate_interest
-        ):
-            self.interest_status = "Pending"
+            if (
+                self.custom_base_interest != self.base_interest
+                and self.custom_rebate_interest != self.rebate_interest
+            ):
+                self.interest_status = "Pending"
+            else:
+                self.interest_status = ""
 
     def save_loan_sanction_history(self, agreement_file, event="New loan"):
         loan_sanction_history = frappe.get_doc(

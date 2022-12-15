@@ -2389,6 +2389,10 @@ def dashboard(**kwargs):
         if loans:
             for loan in loans:
                 loan_doc = frappe.get_doc("Loan", loan.name).as_dict()
+                for i in loan_doc["items"]:
+                    i["lender_approval_status"] = (
+                        "Pledged" if i["type"] == "Shares" else "Lien"
+                    )
 
                 loan_esigns.append(
                     {
