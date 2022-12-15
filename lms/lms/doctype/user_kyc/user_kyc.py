@@ -195,43 +195,27 @@ class UserKYC(Document):
             item.idx = i
 
     def before_save(self):
-        if self.updated_kyc == 1 and self.kyc_status == "Rejected":
-            cust_name = frappe.db.get_value(
-                "Loan Customer", {"user": self.user}, "name"
+        cust_name = frappe.db.get_value("Loan Customer", {"user": self.user}, "name")
+        customer = frappe.get_doc("Loan Customer", cust_name)
+        loan_name = frappe.db.get_value("Loan", {"customer": cust_name}, "name")
+        loan = frappe.get_doc("Loan", loan_name)
+        date_7after_expiry = loan.expiry_date + timedelta(days=7)
+        if (
+            self.updated_kyc == 1
+            and self.kyc_status == "Rejected"
+            and self.creation > date_7after_expiry
+        ):
+            renewal_list = frappe.get_all(
+                "Spark Loan Renewal Application",
+                filters={"loan": loan_name, "status": "Pending"},
+                fields=["*"],
             )
-            customer = frappe.get_doc("Loan Customer", cust_name)
-            loan_name = frappe.db.get_value("Loan", {"customer": cust_name}, "name")
-            loan = frappe.get_doc("Loan", loan_name)
-            date_7after_expiry = loan.expiry_date - timedelta(days=1)
-            status = []
-            user_kyc = frappe.get_all(
-                "User KYC",
-                filters={
-                    "user": self.user,
-                    "updated_kyc": 1,
-                    "creation": [">=", date_7after_expiry],
-                },
-                fields=["kyc_status"],
+            renewal_doc = frappe.get_doc(
+                "Spark Loan Renewal Application", renewal_list[0].name
             )
-            for i in user_kyc:
-                status.append(i.kyc_status)
-            status = set(status)
-            if (
-                "Rejected" in status
-                and "Approved" not in status
-                and "Pending" not in status
-            ):
-                renewal_list = frappe.get_all(
-                    "Spark Loan Renewal Application",
-                    filters={"loan": loan_name, "status": "Pending"},
-                    fields=["*"],
-                )
-                renewal_doc = frappe.get_doc(
-                    "Spark Loan Renewal Application", renewal_list[0].name
-                )
 
-                renewal_doc.status = "Rejected"
-                renewal_doc.workflowstate = "Rejected"
-                renewal_doc.remarks = "KYC Rejected"
-                renewal_doc.save(ignore_permissions=True)
-                frappe.db.commit()
+            renewal_doc.status = "Rejected"
+            renewal_doc.workflowstate = "Rejected"
+            renewal_doc.remarks = "KYC Rejected"
+            renewal_doc.save(ignore_permissions=True)
+            frappe.db.commit()

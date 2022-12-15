@@ -123,9 +123,10 @@ class SparkLoanRenewalApplication(Document):
                 ):
                     self.tnc_complete = 0
                     self.updated_kyc_status = ""
-                    kyc_doc = frappe.get_doc("User KYC", self.new_kyc_name)
-                    kyc_doc.updated_kyc = 0
-                    kyc_doc.save(ignore_permissions=True)
+                    if self.new_kyc_name:
+                        kyc_doc = frappe.get_doc("User KYC", self.new_kyc_name)
+                        kyc_doc.updated_kyc = 0
+                        kyc_doc.save(ignore_permissions=True)
                     frappe.get_doc(
                         dict(
                             doctype="Spark Loan Renewal Application",
@@ -259,7 +260,7 @@ def loan_renewal_update_doc():
                     title=(_("Loan Customer {} not found".format(loan.customer))),
                 )
 
-            expiry_date = frappe.utils.now_datetime().date() + timedelta(days=30)
+            expiry_date = frappe.utils.now_datetime().date() + timedelta(days=29)
             exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
             if (
                 exp == expiry_date
