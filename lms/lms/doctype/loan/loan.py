@@ -513,11 +513,6 @@ class Loan(Document):
         #     )
         # else:  # for Drawing power Calculation
         for i in self.items:
-            i.eligible_percentage = frappe.db.get_value(
-                "Allowed Security",
-                {"isin": i.isin, "lender": self.lender},
-                "eligible_percentage",
-            )
             i.amount = i.price * i.pledged_quantity
             i.eligible_amount = (i.eligible_percentage / 100) * i.amount
             self.total_collateral_value += i.amount
@@ -698,6 +693,7 @@ class Loan(Document):
 
             securities_price_map = lms.get_security_prices([i.isin for i in self.items])
             check = self.update_items()
+            self.update_ltv()
 
             msg_type = ["A sale", "sell"]
             if self.instrument_type == "Mutual Fund":
@@ -2203,6 +2199,15 @@ class Loan(Document):
             ),
             as_dict=1,
         )[0]["amount"]
+
+    def update_ltv(self):
+        for i in self.items:
+            i.eligible_percentage = frappe.db.get_value(
+                "Allowed Security",
+                {"isin": i.isin, "lender": self.lender},
+                "eligible_percentage",
+            )
+        return
 
 
 def check_loans_for_shortfall(loans):
