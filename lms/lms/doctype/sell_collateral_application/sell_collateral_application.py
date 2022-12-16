@@ -27,6 +27,14 @@ class SellCollateralApplication(Document):
         self.process_items()
 
     def before_save(self):
+        isin = [i.isin for i in self.items]
+        allowed_securities = lms.get_allowed_securities(
+            isin, self.lender, self.instrument_type
+        )
+        for i in self.items:
+            security = allowed_securities.get(i.isin)
+            i.eligible_percentage = security.eligible_percentage
+            i.security_category = security.security_category
         self.process_items()
         self.process_sell_items()
         if self.status == "Rejected":

@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 
 import json
 import random
+import re
 import string
 
 import frappe
@@ -50,6 +51,12 @@ class AllowedSecurity(Document):
                     message="Not found",
                     title=("Allowed Security"),
                 )
+        # if self.amc_image:
+        #     img=self.amc_image
+        #     print(img)
+        #     if  bool(re.search(r"\s",img)) == True:
+        #         print("It contains space")
+        #         frappe.throw("Image name cannot contain space")
 
     def before_insert(self):
         exists_security = frappe.db.exists(
