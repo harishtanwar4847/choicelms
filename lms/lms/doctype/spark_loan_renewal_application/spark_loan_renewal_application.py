@@ -173,8 +173,13 @@ def customer_reminder(doc_name):
     try:
         renewal_doc = frappe.get_doc("Spark Loan Renewal Application", doc_name)
         loan = frappe.get_doc("Loan", renewal_doc.loan)
-        customer = frappe.get_doc("Loan Customer", renewal_doc.customer)
-
+        try:
+            customer = frappe.get_doc("Loan Customer", renewal_doc.customer)
+        except Exception as e:
+            frappe.log_error(
+                message=frappe.get_traceback(),
+                title=(_("Loan Customer {} not found".format(renewal_doc.customer))),
+            )
         doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
         doc["loan_renewal_application"] = {"status": renewal_doc.status}
 
@@ -754,7 +759,13 @@ def renewal_timer(loan_renewal_name=None):
         else:
             loans = frappe.get_all("Loan", fields=["*"])
             for loan in loans:
-                customer = frappe.get_doc("Loan Customer", loan.customer)
+                try:
+                    customer = frappe.get_doc("Loan Customer", loan.customer)
+                except Exception as e:
+                    frappe.log_error(
+                        message=frappe.get_traceback(),
+                        title=(_("Loan Customer {} not found".format(loan.customer))),
+                    )
                 user_kyc = frappe.get_all(
                     "User KYC",
                     filters={
