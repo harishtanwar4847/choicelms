@@ -49,7 +49,8 @@
   "is_default",
   "column_break_40",
   "custom_rebate_interest",
-  "interest_status"
+  "interest_status",
+  "amended_from"
  ],
  "fields": [
   {
@@ -326,11 +327,20 @@
    "label": "Custom Rebate Interest",
    "mandatory_depends_on": "eval:doc.is_default == 0;",
    "read_only_depends_on": "eval:doc.is_default == 1;"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Loan",
+   "print_hide": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-12-16 13:04:04.925778",
+ "modified": "2022-12-16 16:48:37.192189",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
