@@ -310,24 +310,27 @@
   {
    "fieldname": "wef_date",
    "fieldtype": "Date",
-   "label": "w.e.f date"
+   "label": "w.e.f date",
+   "reqd": 1
   },
   {
    "fieldname": "custom_base_interest",
    "fieldtype": "Float",
    "label": "Custom Base Interest",
+   "mandatory_depends_on": "eval:doc.is_default == 0;",
    "read_only_depends_on": "eval:doc.is_default == 1;"
   },
   {
    "fieldname": "custom_rebate_interest",
    "fieldtype": "Float",
    "label": "Custom Rebate Interest",
+   "mandatory_depends_on": "eval:doc.is_default == 0;",
    "read_only_depends_on": "eval:doc.is_default == 1;"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-12-14 14:08:01.485985",
+ "modified": "2022-12-16 13:04:04.925778",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
