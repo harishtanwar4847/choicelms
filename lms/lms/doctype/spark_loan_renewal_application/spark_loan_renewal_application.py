@@ -245,9 +245,9 @@ def loan_renewal_update_doc():
             )
 
             for i in renewal_doc_list:
+                doc = frappe.get_doc("Spark Loan Renewal Application", i.name)
                 exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
-                if exp < frappe.utils.now_datetime().date() and i.is_expired == 0:
-                    doc = frappe.get_doc("Spark Loan Renewal Application", i.name)
+                if exp < frappe.utils.now_datetime().date() and doc.is_expired == 0:
                     doc.is_expired = 1
                     doc.save(ignore_permissions=True)
                     frappe.db.commit()
