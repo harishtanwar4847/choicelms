@@ -4,7 +4,7 @@
 
 from __future__ import unicode_literals
 
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 
 import frappe
 from frappe import _
@@ -193,6 +193,7 @@ class UserKYC(Document):
             item.idx = i
 
     def before_save(self):
+        creation_date = datetime.strptime(self.creation, "%Y-%m-%d %H:%M:%S.%f").date()
         cust_name = frappe.db.get_value("Loan Customer", {"user": self.user}, "name")
         customer = frappe.get_doc("Loan Customer", cust_name)
         loan_name = frappe.db.get_value("Loan", {"customer": cust_name}, "name")
@@ -202,7 +203,7 @@ class UserKYC(Document):
             if (
                 self.updated_kyc == 1
                 and self.kyc_status == "Rejected"
-                and self.creation > date_7after_expiry
+                and creation_date > date_7after_expiry
             ):
                 renewal_list = frappe.get_all(
                     "Spark Loan Renewal Application",

@@ -712,7 +712,6 @@ def renewal_timer(loan_renewal_name=None):
                 frappe.utils.now_datetime().date() > exp
                 and frappe.utils.now_datetime().date() < (exp + timedelta(days=7))
                 and renewal_doc.status not in ["Approved", "Rejected"]
-                and user_kyc
             ):
                 seconds = abs(
                     date_7after_expiry - frappe.utils.now_datetime()
