@@ -204,9 +204,7 @@ class UserKYC(Document):
                     self.creation, "%Y-%m-%d %H:%M:%S.%f"
                 ).date()
             else:
-                creation_date = datetime.strptime(
-                    str(self.creation), "%Y-%m-%d %H:%M:%S.%f"
-                ).date()
+                creation_date = self.creation.date()
             if (
                 self.updated_kyc == 1
                 and self.kyc_status == "Rejected"
