@@ -193,13 +193,20 @@ class UserKYC(Document):
             item.idx = i
 
     def before_save(self):
-        creation_date = datetime.strptime(self.creation, "%Y-%m-%d %H:%M:%S.%f").date()
         cust_name = frappe.db.get_value("Loan Customer", {"user": self.user}, "name")
         customer = frappe.get_doc("Loan Customer", cust_name)
         loan_name = frappe.db.get_value("Loan", {"customer": cust_name}, "name")
         if loan_name:
             loan = frappe.get_doc("Loan", loan_name)
             date_7after_expiry = loan.expiry_date + timedelta(days=7)
+            if type(self.creation) == str:
+                creation_date = datetime.strptime(
+                    self.creation, "%Y-%m-%d %H:%M:%S.%f"
+                ).date()
+            else:
+                creation_date = datetime.strptime(
+                    str(self.creation), "%Y-%m-%d %H:%M:%S.%f"
+                ).date()
             if (
                 self.updated_kyc == 1
                 and self.kyc_status == "Rejected"
