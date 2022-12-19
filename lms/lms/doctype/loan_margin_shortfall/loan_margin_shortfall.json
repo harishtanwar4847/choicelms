@@ -12,19 +12,18 @@
   "instrument_type",
   "scheme_type",
   "section_break_4",
+  "allowable_ltv",
   "column_break_6",
   "drawing_power",
   "actual_drawing_power",
   "section_break_8",
   "loan_balance",
-  "minimum_collateral_value",
   "column_break_10",
   "ltv",
   "surplus_margin",
   "section_break_14",
   "shortfall",
   "shortfall_c",
-  "minimum_pledge_amount",
   "minimum_cash_amount",
   "column_break_17",
   "shortfall_percentage",
@@ -79,12 +78,6 @@
    "fieldname": "ltv",
    "fieldtype": "Float",
    "label": "LTV",
-   "read_only": 1
-  },
-  {
-   "fieldname": "minimum_collateral_value",
-   "fieldtype": "Currency",
-   "label": "Minimum Collateral Value",
    "read_only": 1
   },
   {
@@ -163,12 +156,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "minimum_pledge_amount",
-   "fieldtype": "Currency",
-   "label": "Minimum Pledge Amount",
-   "read_only": 1
-  },
-  {
    "fieldname": "minimum_cash_amount",
    "fieldtype": "Currency",
    "label": "Minimum Cash Amount",
@@ -225,10 +212,16 @@
    "fieldtype": "Currency",
    "label": "Actual Drawing Power",
    "read_only": 1
+  },
+  {
+   "fieldname": "allowable_ltv",
+   "fieldtype": "Float",
+   "label": "Allowable LTV",
+   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2022-12-14 15:56:05.271372",
+ "modified": "2022-12-16 11:46:06.057553",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Margin Shortfall",
