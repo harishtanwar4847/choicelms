@@ -549,8 +549,8 @@ def renewal_penal_interest():
 
             current_date = frappe.utils.now_datetime().date()
             exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
-            greater_than_7 = exp + timedelta(days=7)
-            more_than_7 = greater_than_7 + timedelta(days=7)
+            greater_than_7 = exp + timedelta(days=8)
+            more_than_7 = greater_than_7 + timedelta(days=8)
             if (
                 greater_than_7 > current_date or more_than_7 > current_date
             ) and exp < current_date:
@@ -707,10 +707,10 @@ def renewal_timer(loan_renewal_name=None):
                 action_status,
                 update_modified=False,
             )
-            date_7after_expiry = loan_expiry + timedelta(days=7)
+            date_7after_expiry = loan_expiry + timedelta(days=8)
             if (
                 frappe.utils.now_datetime().date() > exp
-                and frappe.utils.now_datetime().date() < (exp + timedelta(days=7))
+                and frappe.utils.now_datetime().date() < (exp + timedelta(days=8))
                 and renewal_doc.status not in ["Approved", "Rejected"]
             ):
                 seconds = abs(
@@ -738,12 +738,12 @@ def renewal_timer(loan_renewal_name=None):
                 fields=["*"],
             )
             if (
-                frappe.utils.now_datetime().date() > (exp + timedelta(days=7))
+                frappe.utils.now_datetime().date() > (exp + timedelta(days=8))
                 and frappe.utils.now_datetime().date() < (exp + timedelta(days=14))
                 and user_kyc_pending
             ):
                 seconds = abs(
-                    (date_7after_expiry + timedelta(days=7))
+                    (date_7after_expiry + timedelta(days=8))
                     - frappe.utils.now_datetime()
                 ).total_seconds()
                 renewal_timer = lms.convert_sec_to_hh_mm_ss(seconds, is_for_days=True)
@@ -821,7 +821,7 @@ def renewal_timer(loan_renewal_name=None):
                 else:
                     exp = loan.expiry_date
                 loan_expiry = datetime.combine(exp, time.min)
-                date_7after_expiry = loan_expiry + timedelta(days=7)
+                date_7after_expiry = loan_expiry + timedelta(days=8)
                 if (
                     frappe.utils.now_datetime().date() > loan.expiry_date
                     and renewal_doc_list
@@ -864,12 +864,12 @@ def renewal_timer(loan_renewal_name=None):
 
                 if (
                     frappe.utils.now_datetime().date()
-                    > (loan.expiry_date + timedelta(days=7))
+                    > (loan.expiry_date + timedelta(days=8))
                     and user_kyc_pending
                     and renewal_doc_pending_list
                 ):
                     seconds = abs(
-                        (date_7after_expiry + timedelta(days=7))
+                        (date_7after_expiry + timedelta(days=8))
                         - frappe.utils.now_datetime()
                     ).total_seconds()
                     renewal_timer = lms.convert_sec_to_hh_mm_ss(
