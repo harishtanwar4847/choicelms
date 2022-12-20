@@ -1245,6 +1245,7 @@ def my_pledge_securities(**kwargs):
                     "price": i.get("price"),
                     "amount": i.get("amount"),
                     "folio": i.get("folio"),
+                    "eligible_percentage": i.get("eligible_percentage"),
                 }
             )
         all_pledged_securities.sort(key=lambda item: item["security_name"])

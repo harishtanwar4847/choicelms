@@ -48,8 +48,8 @@ class AllowedSecurity(Document):
                 for i in Loan_app_doc.items:
                     if i.isin in self.isin:
                         i.eligible_percentage = self.eligible_percentage
-                Loan_app_doc.save(ignore_permissions=True)
-                frappe.db.commit()
+                        Loan_app_doc.save(ignore_permissions=True)
+                        frappe.db.commit()
 
             except frappe.DoesNotExistError:
                 frappe.log_error(
