@@ -890,23 +890,6 @@ def renewal_timer(loan_renewal_name=None):
                         update_modified=False,
                     )
 
-                else:
-                    seconds = 0
-                    renewal_timer = lms.convert_sec_to_hh_mm_ss(
-                        seconds, is_for_days=True
-                    )
-                    renewal_doc = frappe.get_doc(
-                        "Spark Loan Renewal Application",
-                        renewal_doc_pending_list[0].name,
-                    )
-                    frappe.db.set_value(
-                        "Spark Loan Renewal Application",
-                        renewal_doc.name,
-                        "time_remaining",
-                        renewal_timer,
-                        update_modified=False,
-                    )
-
     except Exception as e:
         frappe.log_error(
             message=frappe.get_traceback(),
