@@ -41,10 +41,6 @@ class AllowedSecurity(Document):
         for doc_name in loan_app_list:
             try:
                 Loan_app_doc = frappe.get_doc("Loan Application", doc_name.name)
-                frappe.log_error(
-                    message="Loan_app_doc" + Loan_app_doc.name,
-                    title=("Allowed Security"),
-                )
                 for i in Loan_app_doc.items:
                     if i.isin in self.isin:
                         i.eligible_percentage = self.eligible_percentage

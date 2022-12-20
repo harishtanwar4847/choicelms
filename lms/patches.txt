@@ -52,3 +52,4 @@ lms.patches.update_spark_app_version
 lms.patches.update_workflow #CKYC
 lms.patches.update_dlt_links 
 lms.patches.au_bank_penny
+lms.patches.update_category_in_allowed_security 

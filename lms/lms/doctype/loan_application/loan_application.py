@@ -563,6 +563,11 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 i.amount = i.price * i.pledged_quantity
                 dp = (i.eligible_percentage / 100) * i.amount
                 i.eligibile_amount = dp
+                frappe.log_error(
+                    message="Loan_app_doc" + dp,
+                    title=("Allowed Security"),
+                )
+
                 # self.total_collateral_value += i.amount
                 drawing_power += dp
 
