@@ -843,7 +843,8 @@ def renewal_timer(loan_renewal_name=None):
 
                 if (
                     frappe.utils.now_datetime().date() > loan.expiry_date
-                    and frappe.utils.now_datetime().date() < date_7after_expiry
+                    and frappe.utils.now_datetime().date()
+                    < (loan.expiry_date + timedelta(days=7))
                     and renewal_doc_list
                 ):
                     seconds = abs(
