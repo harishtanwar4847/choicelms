@@ -3489,7 +3489,6 @@ def loan_summary_dashboard(**kwargs):
                     and frappe.utils.now_datetime().date()
                     < (loan.expiry_date + timedelta(days=7))
                     and loan_renewal_doc.status != "Approved"
-                    and user_kyc
                 ):
                     seconds = abs(
                         date_7after_expiry - frappe.utils.now_datetime()
@@ -3501,16 +3500,15 @@ def loan_summary_dashboard(**kwargs):
                     loan_renewal_doc.action_status = action_status
 
                 elif (
-                    frappe.utils.now_datetime().date()
-                    > (loan.expiry_date + timedelta(days=7))
+                    frappe.utils.now_datetime().date() > (date_7after_expiry)
                     and frappe.utils.now_datetime().date()
                     < (loan.expiry_date + timedelta(days=14))
                     and loan_renewal_doc.status != "Approved"
                     and user_kyc_pending
                 ):
                     seconds = abs(
-                        (loan.expiry_date + timedelta(days=14))
-                        - frappe.utils.now_datetime().date()
+                        (date_7after_expiry + timedelta(days=7))
+                        - frappe.utils.now_datetime()
                     ).total_seconds()
                     renewal_timer = lms.convert_sec_to_hh_mm_ss(
                         seconds, is_for_days=True
