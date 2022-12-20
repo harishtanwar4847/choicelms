@@ -383,7 +383,7 @@ def get_security_categories(securities, lender, instrument_type="Shares"):
 
 def get_allowed_securities(securities, lender, instrument_type="Shares", level=None):
     group_by = ""
-    select = "isin, security_name, eligible_percentage, category_name, lender"
+    select = "isin, security_name, eligible_percentage, GROUP_CONCAT(category_name, '' order by lender) as security_category, lender"
     allowed = ""
     if instrument_type == "Mutual Fund":
         select += ", scheme_type, allowed"

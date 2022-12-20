@@ -461,6 +461,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     for i in self.items:
                         i.amount = i.price * i.pledged_quantity
                         dp = (i.eligible_percentage / 100) * i.amount
+                        i.eligibile_amount = dp
                         # self.total_collateral_value += i.amount
                         drawing_power += dp
 
@@ -605,6 +606,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             for i in self.items:
                 i.amount = i.price * i.pledged_quantity
                 dp = (i.eligible_percentage / 100) * i.amount
+                i.eligibile_amount = dp
                 # self.total_collateral_value += i.amount
                 drawing_power += dp
 
