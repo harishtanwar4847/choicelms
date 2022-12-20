@@ -633,8 +633,23 @@ def schemes(**kwargs):
                 lender_clause, levels
             )
 
+        # for multiple lender query
+        # schemes_list = frappe.db.sql(
+        #     """select als.isin, als.security_name as scheme_name, als.allowed, GROUP_CONCAT(CONVERT(als.eligible_percentage, CHAR), '' ORDER BY lender) as ltv, als.instrument_type, als.scheme_type, round(s.price,4) as price, group_concat(lender,'' ORDER BY lender) as lenders, group_concat(category_name,'' ORDER BY lender) as category, als.amc_code, am.amc_image
+        #     from `tabAllowed Security` als
+        #     LEFT JOIN `tabSecurity` s on s.isin = als.isin
+        #     LEFT JOIN `tabAMC Master` am on am.amc_code = als.amc_code
+        #     where als.instrument_type='Mutual Fund' and
+        #     als.allowed = 1 and  s.price > 0{}{}{}
+        #     group by als.isin
+        #     order by als.creation desc;""".format(
+        #         scheme, lender, sub_query
+        #     ),
+        #     as_dict=True,
+        # )
+
         schemes_list = frappe.db.sql(
-            """select als.isin, als.security_name as scheme_name, als.allowed, GROUP_CONCAT(CONVERT(als.eligible_percentage, CHAR), '' ORDER BY lender) as ltv, als.instrument_type, als.scheme_type, round(s.price,4) as price, group_concat(lender,'' ORDER BY lender) as lenders, group_concat(category_name,'' ORDER BY lender) as category, als.amc_code, am.amc_image
+            """select als.isin, als.security_name as scheme_name, als.allowed, als.eligible_percentage as ltv, als.instrument_type, als.scheme_type, round(s.price,4) as price, group_concat(lender,'') as lenders, als.amc_code, am.amc_image
             from `tabAllowed Security` als
             LEFT JOIN `tabSecurity` s on s.isin = als.isin
             LEFT JOIN `tabAMC Master` am on am.amc_code = als.amc_code
@@ -645,7 +660,9 @@ def schemes(**kwargs):
                 scheme, lender, sub_query
             ),
             as_dict=True,
+            debug=True,
         )
+
         # if not schemes_list:
         #     return utils.respondWithSuccess(message=frappe._("No record found."))
         for scheme in schemes_list:
@@ -4935,7 +4952,6 @@ def shares_eligibility(**kwargs):
                     "UserID": las_settings.choice_user_id,
                     "ClientID": user_kyc.pan_no,
                 }
-
                 try:
                     headers = {"Accept": "application/json"}
                     res = requests.post(
@@ -4954,6 +4970,7 @@ def shares_eligibility(**kwargs):
                         "response": res_json,
                     }
                     lms.create_log(log, "shares_eligibility_log")
+                    print("res", res_json)
                     if res_json["Status"] != "Success":
                         raise utils.exceptions.APIException(res.text)
 
@@ -5263,7 +5280,7 @@ def shares_eligibility(**kwargs):
                         if i["Category"] != None and i["Stock_At"] == data.get("demat"):
                             final_securities_list.append(i)
                             allowed_sec = frappe.db.sql(
-                                "select amc_image, GROUP_CONCAT(CONVERT(eligible_percentage, CHAR), '' ORDER BY lender) as eligible_percentage, group_concat(lender,'' ORDER BY lender) as lenders from `tabAllowed Security` where isin = '{}' order by creation DESC".format(
+                                "select amc_image, eligible_percentage, lenders from `tabAllowed Security` where isin = '{}' order by creation DESC".format(
                                     i["ISIN"]
                                 ),
                                 as_dict=True,
@@ -5307,7 +5324,7 @@ def get_distinct_securities(lender_list, levels):
     sub_query = " and als.security_category in (select security_category from `tabConcentration Rule` where parent in {} and idx in {})".format(
         lender, levels
     )
-    query = """select als.isin as ISIN, GROUP_CONCAT(als.category_name,'' ORDER BY als.lender) as Category, GROUP_CONCAT(CONVERT(als.eligible_percentage, CHAR), '' ORDER BY als.lender) as eligible_percentage, als.security_name as Scrip_Name, round(s.price,4) as Price, group_concat(als.lender,'' ORDER BY als.lender) as lenders, 
+    query = """select als.isin as ISIN, GROUP_CONCAT(als.category_name,'' ORDER BY als.lender) as Category, GROUP_CONCAT(CONVERT(als.eligible_percentage, CHAR), '' ORDER BY als.lender) as eligible_percentage, als.security_name as Scrip_Name, round(s.price,4) as Price,lender, 
             als.amc_image
             from `tabAllowed Security` als 
             LEFT JOIN `tabSecurity` s on s.isin = als.isin
