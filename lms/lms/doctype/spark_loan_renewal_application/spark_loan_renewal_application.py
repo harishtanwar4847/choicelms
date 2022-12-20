@@ -737,24 +737,17 @@ def renewal_timer(loan_renewal_name=None):
                     - frappe.utils.now_datetime()
                 ).total_seconds()
                 renewal_timer = lms.convert_sec_to_hh_mm_ss(seconds, is_for_days=True)
-                frappe.db.set_value(
-                    "Spark Loan Renewal Application",
-                    renewal_doc.name,
-                    "time_remaining",
-                    renewal_timer,
-                    update_modified=False,
-                )
 
             else:
                 seconds = 0
                 renewal_timer = lms.convert_sec_to_hh_mm_ss(seconds, is_for_days=True)
-                frappe.db.set_value(
-                    "Spark Loan Renewal Application",
-                    renewal_doc.name,
-                    "time_remaining",
-                    renewal_timer,
-                    update_modified=False,
-                )
+            frappe.db.set_value(
+                "Spark Loan Renewal Application",
+                renewal_doc.name,
+                "time_remaining",
+                renewal_timer,
+                update_modified=False,
+            )
 
         else:
             loans = frappe.get_all("Loan", fields=["*"])
