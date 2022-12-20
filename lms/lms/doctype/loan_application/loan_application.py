@@ -564,7 +564,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 dp = (i.eligible_percentage / 100) * i.amount
                 i.eligibile_amount = dp
                 frappe.log_error(
-                    message="Loan_app_doc" + dp,
+                    message="Loan_app_doc" + str(dp),
                     title=("Allowed Security"),
                 )
 
