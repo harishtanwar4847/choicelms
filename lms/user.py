@@ -3500,7 +3500,8 @@ def loan_summary_dashboard(**kwargs):
                     loan_renewal_doc.action_status = action_status
 
                 elif (
-                    frappe.utils.now_datetime().date() > (date_7after_expiry)
+                    frappe.utils.now_datetime().date()
+                    > (loan.expiry_date + timedelta(days=7))
                     and frappe.utils.now_datetime().date()
                     < (loan.expiry_date + timedelta(days=14))
                     and loan_renewal_doc.status != "Approved"
