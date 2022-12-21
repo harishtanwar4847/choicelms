@@ -381,99 +381,54 @@ def get_security_categories(securities, lender, instrument_type="Shares"):
     return security_map
 
 
-def get_allowed_securities(
-    securities, lender, instrument_type="Shares", level=None, upsert=False
-):
-    if upsert == False:
-        group_by = ""
-        select = "isin, security_name, eligible_percentage, GROUP_CONCAT(category_name, '' order by lender) as security_category, lender"
-        allowed = ""
-        if instrument_type == "Mutual Fund":
-            select += ", scheme_type, allowed"
-            allowed = "and allowed = 1"
+def get_allowed_securities(securities, lender, instrument_type="Shares", level=None):
+    group_by = ""
+    select = "isin, security_name, eligible_percentage, {} as security_category, lender".format(
+        "GROUP_CONCAT(category_name, '' order by lender)" if level else "category_name"
+    )
+    allowed = ""
+    if instrument_type == "Mutual Fund":
+        select += ", scheme_type, allowed"
+        allowed = "and allowed = 1"
 
-        if type(lender) == list:
-            lender = convert_list_to_tuple_string(lender)
-            filter = "in {}".format(lender)
-        else:
-            filter = "= '{}'".format(lender)
-
-        if level:
-            group_by = " group by isin"
-            sub_query = "lender {lender_clause} and security_category in (select security_category from `tabConcentration Rule` where parent {lender} and idx in {level})".format(
-                lender_clause=filter, lender=filter, level=level
-            )
-        else:
-            sub_query = "lender {}".format(filter)
-
-        query = """select
-                    {select}
-                    from `tabAllowed Security`
-                    where
-                    {sub_query} 
-                    {allowed} and
-                    instrument_type = '{instrument_type}' and
-                    isin in {isin}{group_by}""".format(
-            select=select,
-            sub_query=sub_query,
-            allowed=allowed,
-            instrument_type=instrument_type,
-            isin=convert_list_to_tuple_string(securities),
-            group_by=group_by,
-        )
-
-        results = frappe.db.sql(query, as_dict=1)
-
-        security_map = {}
-
-        for r in results:
-            security_map[r.isin] = r
-
-        return security_map
+    if type(lender) == list:
+        lender = convert_list_to_tuple_string(lender)
+        filter = "in {}".format(lender)
     else:
-        select = "als.isin, als.security_name, als.eligible_percentage, sc.category_name as security_category, als.lender"
-        allowed = ""
-        if instrument_type == "Mutual Fund":
-            select += ", als.scheme_type, als.allowed"
-            allowed = "and als.allowed = 1"
+        filter = "= '{}'".format(lender)
 
-        if type(lender) == list:
-            lender = convert_list_to_tuple_string(lender)
-            filter = "in {}".format(lender)
-        else:
-            filter = "= '{}'".format(lender)
-
-        if level:
-            sub_query = "als.lender {lender_clause} and als.security_category in (select security_category from `tabConcentration Rule` where parent {lender} and idx in {level})".format(
-                lender_clause=filter, lender=filter, level=level
-            )
-        else:
-            sub_query = "als.lender {}".format(filter)
-
-        query = """select
-                    {select}
-                    from `tabAllowed Security` als
-                    LEFT JOIN `tabSecurity Category` sc
-                    ON als.security_category = sc.name where
-                    {sub_query} 
-                    {allowed} and
-                    als.instrument_type = '{instrument_type}' and
-                    als.isin in {isin}""".format(
-            select=select,
-            sub_query=sub_query,
-            allowed=allowed,
-            instrument_type=instrument_type,
-            isin=convert_list_to_tuple_string(securities),
+    if level:
+        group_by = " group by isin"
+        sub_query = "lender {lender_clause} and security_category in (select security_category from `tabConcentration Rule` where parent {lender} and idx in {level})".format(
+            lender_clause=filter, lender=filter, level=level
         )
+    else:
+        sub_query = "lender {}".format(filter)
 
-        results = frappe.db.sql(query, as_dict=1)
+    query = """select
+                {select}
+                from `tabAllowed Security`
+                where
+                {sub_query} 
+                {allowed} and
+                instrument_type = '{instrument_type}' and
+                isin in {isin}{group_by}""".format(
+        select=select,
+        sub_query=sub_query,
+        allowed=allowed,
+        instrument_type=instrument_type,
+        isin=convert_list_to_tuple_string(securities),
+        group_by=group_by,
+    )
 
-        security_map = {}
+    results = frappe.db.sql(query, as_dict=1, debug=True)
 
-        for r in results:
-            security_map[r.isin] = r
+    security_map = {}
 
-        return security_map
+    for r in results:
+        security_map[r.isin] = r
+
+    return security_map
 
 
 def chunk_doctype(doctype, limit=50):

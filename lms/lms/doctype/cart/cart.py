@@ -409,7 +409,9 @@ class Cart(Document):
             isin = [i.isin for i in self.items]
             price_map = lms.get_security_prices(isin)
             allowed_securities = lms.get_allowed_securities(
-                isin, self.lender, self.instrument_type, upsert=True
+                isin,
+                self.lender,
+                self.instrument_type,
             )
             for i in self.items:
                 security = allowed_securities.get(i.isin)
