@@ -39,7 +39,11 @@ class UserKYC(Document):
             loan_renewal_doc = frappe.get_doc(
                 "Spark Loan Renewal Application", renewal_list
             )
-            loan_renewal_doc.updated_kyc_status = self.kyc_status
+            if self.consent_given == 1:
+                kyc_status = self.kyc_status
+            else:
+                kyc_status = ""
+            loan_renewal_doc.updated_kyc_status = kyc_status
             loan_renewal_doc.save(ignore_permissions=True)
             frappe.db.commit()
         if self.notification_sent == 0 and self.kyc_status in ["Approved", "Rejected"]:
@@ -61,11 +65,15 @@ class UserKYC(Document):
                             "Spark Push Notification", "Ckyc Approved", fields=["*"]
                         )
                     else:
-                        loan_renewal_doc.updated_kyc_status = self.kyc_status
+                        if self.consent_given == 1:
+                            kyc_status = self.kyc_status
+                        else:
+                            kyc_status = ""
+                        loan_renewal_doc.updated_kyc_status = kyc_status
                         loan_renewal_doc.save(ignore_permissions=True)
                         frappe.db.commit()
                         frappe.enqueue_doc(
-                            "Notification", "CKYC Rejected", method="send", doc=doc
+                            "Notification", "Ckyc Rejected", method="send", doc=doc
                         )
                         msg = "Your KYC Request has been rejected due to mismatch in details. Please visit spark.loans in order to reapply."
                         fcm_notification = frappe.get_doc(

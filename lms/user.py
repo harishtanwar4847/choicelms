@@ -3483,7 +3483,7 @@ def loan_summary_dashboard(**kwargs):
                     fields=["*"],
                 )
                 loan_expiry = datetime.combine(loan.expiry_date, time.min)
-                date_7after_expiry = loan_expiry + timedelta(days=7)
+                date_7after_expiry = loan_expiry + timedelta(days=8)
                 if (
                     frappe.utils.now_datetime().date() > loan.expiry_date
                     and frappe.utils.now_datetime().date()
@@ -3508,7 +3508,7 @@ def loan_summary_dashboard(**kwargs):
                     and user_kyc_pending
                 ):
                     seconds = abs(
-                        (date_7after_expiry + timedelta(days=7))
+                        (date_7after_expiry + timedelta(days=8))
                         - frappe.utils.now_datetime()
                     ).total_seconds()
                     renewal_timer = lms.convert_sec_to_hh_mm_ss(
