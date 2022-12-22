@@ -423,7 +423,8 @@ def get_allowed_securities(securities, lender, instrument_type="Shares", level=N
 
     results = frappe.db.sql(query, as_dict=1, debug=True)
     frappe.log_error(
-        title="alloweed_sec", message=frappe.get_traceback() + "\n\nresults\n" + results
+        title="alloweed_sec",
+        message=frappe.get_traceback() + "\n\nresults\n" + str(results),
     )
 
     security_map = {}
