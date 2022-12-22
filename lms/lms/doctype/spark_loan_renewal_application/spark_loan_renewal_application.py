@@ -266,7 +266,10 @@ def loan_renewal_update_doc():
                 )
 
             expiry_date = frappe.utils.now_datetime().date() + timedelta(days=29)
-            exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
+            if type(loan.expiry_date) == str:
+                exp = datetime.strptime(loan.expiry_date, "%Y-%m-%d").date()
+            else:
+                exp = loan.expiry_date
             if (
                 exp == expiry_date
                 and loan.total_collateral_value > 0
@@ -325,11 +328,11 @@ def loan_renewal_update_doc():
                         msg=msg.format(loan.expiry_date),
                     )
 
-                renewal_doc.reminder = 1
+                renewal_doc.reminders = 1
                 renewal_doc.save(ignore_permissions=True)
                 frappe.db.commit()
 
-            elif exp == frappe.utils.now_datetime().date() + timedelta(days=19):
+            elif exp == frappe.utils.now_datetime().date() + timedelta(days=18):
                 for doc in existing_renewal_doc_list:
                     if doc.reminders == 1:
                         email_expiry = frappe.db.sql(
@@ -376,11 +379,11 @@ def loan_renewal_update_doc():
                                 msg=msg.format(loan.expiry_date),
                             )
 
-                        renewal_doc.reminder = 2
+                        renewal_doc.reminders = 2
                         renewal_doc.save(ignore_permissions=True)
                         frappe.db.commit()
 
-            elif exp == frappe.utils.now_datetime().date() + timedelta(days=9):
+            elif exp == frappe.utils.now_datetime().date() + timedelta(days=8):
                 for doc in existing_renewal_doc_list:
                     if doc.reminders == 2:
                         email_expiry = frappe.db.sql(
@@ -427,11 +430,11 @@ def loan_renewal_update_doc():
                                 msg=msg.format(loan.expiry_date),
                             )
 
-                        renewal_doc.reminder = 3
+                        renewal_doc.reminders = 3
                         renewal_doc.save(ignore_permissions=True)
                         frappe.db.commit()
 
-            elif exp == frappe.utils.now_datetime().date() + timedelta(days=2):
+            elif exp == frappe.utils.now_datetime().date() + timedelta(days=1):
                 for doc in existing_renewal_doc_list:
                     if doc.reminders == 3:
                         email_expiry = frappe.db.sql(
@@ -478,7 +481,7 @@ def loan_renewal_update_doc():
                                 msg=msg.format(loan.expiry_date),
                             )
 
-                        renewal_doc.reminder = 4
+                        renewal_doc.reminders = 4
                         renewal_doc.save(ignore_permissions=True)
                         frappe.db.commit()
 

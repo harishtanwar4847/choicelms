@@ -3466,7 +3466,7 @@ def loan_summary_dashboard(**kwargs):
                 },
                 fields=["*"],
             )
-            if top_up_application or loan_application or user_kyc_pending:
+            if top_up_application or loan_application:
                 action_status = "Pending"
             else:
                 action_status = ""
