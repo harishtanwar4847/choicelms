@@ -334,6 +334,9 @@ def loan_renewal_update_doc():
 
             elif exp == frappe.utils.now_datetime().date() + timedelta(days=18):
                 for doc in existing_renewal_doc_list:
+                    renewal_doc = frappe.get_doc(
+                        "Spark Loan Renewal Application", doc.name
+                    )
                     if doc.reminders == 1:
                         email_expiry = frappe.db.sql(
                             "select message from `tabNotification` where name='Loan Renewal Reminder';"
@@ -385,6 +388,9 @@ def loan_renewal_update_doc():
 
             elif exp == frappe.utils.now_datetime().date() + timedelta(days=8):
                 for doc in existing_renewal_doc_list:
+                    renewal_doc = frappe.get_doc(
+                        "Spark Loan Renewal Application", doc.name
+                    )
                     if doc.reminders == 2:
                         email_expiry = frappe.db.sql(
                             "select message from `tabNotification` where name='Loan Renewal Reminder';"
@@ -436,6 +442,9 @@ def loan_renewal_update_doc():
 
             elif exp == frappe.utils.now_datetime().date() + timedelta(days=1):
                 for doc in existing_renewal_doc_list:
+                    renewal_doc = frappe.get_doc(
+                        "Spark Loan Renewal Application", doc.name
+                    )
                     if doc.reminders == 3:
                         email_expiry = frappe.db.sql(
                             "select message from `tabNotification` where name='Loan Renewal Reminder';"
@@ -635,8 +644,21 @@ def renewal_penal_interest():
             if pending_renewal_doc_list:
                 for renewal_doc in pending_renewal_doc_list:
                     if (
-                        not user_kyc
-                        and is_expired_date < frappe.utils.now_datetime().date()
+                        (
+                            not user_kyc
+                            and is_expired_date < frappe.utils.now_datetime().date()
+                        )
+                        or (
+                            user_kyc_approved
+                            and is_expired_date < frappe.utils.now_datetime().date()
+                            and renewal_doc.status == "Pending"
+                        )
+                        or (
+                            user_kyc_approved
+                            and (is_expired_date + timedelta(days=7))
+                            < frappe.utils.now_datetime().date()
+                            and renewal_doc.status == "Pending"
+                        )
                     ):
                         doc = frappe.get_doc(
                             "Spark Loan Renewal Application", renewal_doc.name
@@ -736,7 +758,7 @@ def renewal_timer(loan_renewal_name=None):
                 and user_kyc_pending
             ):
                 seconds = abs(
-                    (date_7after_expiry + timedelta(days=8))
+                    (date_7after_expiry + timedelta(days=7))
                     - frappe.utils.now_datetime()
                 ).total_seconds()
                 renewal_timer = lms.convert_sec_to_hh_mm_ss(seconds, is_for_days=True)
@@ -867,7 +889,7 @@ def renewal_timer(loan_renewal_name=None):
                     and renewal_doc_pending_list
                 ):
                     seconds = abs(
-                        (date_7after_expiry + timedelta(days=8))
+                        (date_7after_expiry + timedelta(days=7))
                         - frappe.utils.now_datetime()
                     ).total_seconds()
                     renewal_timer = lms.convert_sec_to_hh_mm_ss(

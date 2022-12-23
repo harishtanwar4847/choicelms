@@ -228,7 +228,7 @@ class UserKYC(Document):
                 )
 
                 renewal_doc.status = "Rejected"
-                renewal_doc.workflowstate = "Rejected"
+                renewal_doc.workflow_state = "Rejected"
                 renewal_doc.remarks = "KYC Rejected"
                 renewal_doc.save(ignore_permissions=True)
                 frappe.db.commit()
