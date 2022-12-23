@@ -332,7 +332,7 @@ def loan_renewal_update_doc():
                 renewal_doc.save(ignore_permissions=True)
                 frappe.db.commit()
 
-            elif exp == frappe.utils.now_datetime().date() + timedelta(days=18):
+            elif exp == frappe.utils.now_datetime().date() + timedelta(days=19):
                 for doc in existing_renewal_doc_list:
                     renewal_doc = frappe.get_doc(
                         "Spark Loan Renewal Application", doc.name
@@ -386,7 +386,7 @@ def loan_renewal_update_doc():
                         renewal_doc.save(ignore_permissions=True)
                         frappe.db.commit()
 
-            elif exp == frappe.utils.now_datetime().date() + timedelta(days=8):
+            elif exp == frappe.utils.now_datetime().date() + timedelta(days=9):
                 for doc in existing_renewal_doc_list:
                     renewal_doc = frappe.get_doc(
                         "Spark Loan Renewal Application", doc.name
@@ -440,7 +440,7 @@ def loan_renewal_update_doc():
                         renewal_doc.save(ignore_permissions=True)
                         frappe.db.commit()
 
-            elif exp == frappe.utils.now_datetime().date() + timedelta(days=1):
+            elif exp == frappe.utils.now_datetime().date() + timedelta(days=2):
                 for doc in existing_renewal_doc_list:
                     renewal_doc = frappe.get_doc(
                         "Spark Loan Renewal Application", doc.name

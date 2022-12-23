@@ -263,6 +263,27 @@ class TopupApplication(Document):
             return
         self.notify_customer()
 
+        loan = self.get_loan()
+        lender = self.get_lender()
+        if self.status == "Approved":
+            renewal_list = frappe.get_all(
+                "Spark Loan Renewal Application",
+                filters={
+                    "loan": loan.name,
+                    "status": ["Not IN", ["Approved", "Rejected"]],
+                },
+                fields=["name"],
+            )
+            for doc in renewal_list:
+                renewal_doc = frappe.get_doc("Spark Loan Renewal Application", doc.name)
+                renewal_doc.status = "Rejected"
+                renewal_doc.workflow_state = "Rejected"
+                renewal_doc.remarks = (
+                    "Rejected due to Approval of Top-up/Increase Loan Application"
+                )
+                renewal_doc.save(ignore_permissions=True)
+                frappe.db.commit()
+
     def before_submit(self):
         if not self.lender_esigned_document:
             frappe.throw("Please upload Lender Esigned Document")
@@ -628,30 +649,13 @@ class TopupApplication(Document):
 
     def before_save(self):
         loan = self.get_loan()
+        lender = self.get_lender()
         self.actual_drawing_power = loan.actual_drawing_power
         self.instrument_type = loan.instrument_type
         self.scheme_type = loan.scheme_type
         self.sanctioned_limit = loan.sanctioned_limit
-        lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
-        if self.status == "Approved":
-            renewal_list = frappe.get_all(
-                "Spark Loan Renewal Application",
-                filters={"loan": loan.name, "status": ["Not IN", "Rejected"]},
-                fields=["name"],
-            )
-            if renewal_list:
-                renewal_doc = frappe.get_doc(
-                    "Spark Loan Renewal Application", renewal_list[0].name
-                )
-                renewal_doc.status = "Rejected"
-                renewal_doc.workflow_state = "Rejected"
-                renewal_doc.remarks = (
-                    "Rejected due to Approval of Top-up/Increase Loan Application"
-                )
-                renewal_doc.save(ignore_permissions=True)
-                frappe.db.commit()
 
 
 def only_pdf_upload(doc, method):
