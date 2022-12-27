@@ -5589,25 +5589,22 @@ def au_penny_drop(**kwargs):
             ):
                 result_ = res_json.get("Body").get("pennyResponse").get("Result")
                 if result_.get("bankTxnStatus") == True:
-                    ######################################################
-                    fullname = (
-                        user_kyc.fname + " "
-                        if user_kyc.fname
-                        else "" + user_kyc.mname + " "
-                        if user_kyc.mname
-                        else "" + user_kyc.lname + " "
-                        if user_kyc.lname
-                        else ""
-                    ).split()
                     if not result_.get("accountName").lower():
-                        # if not user_kyc.fname.lower().split(" ")[0] in result_.get("accountName").lower():
                         raise lms.exceptions.RespondFailureException(
                             _(
                                 "We have found a mismatch in the account holder name as per the fetched data"
                             )
                         )
-                    ######################################################
                     else:
+                        matching = lms.name_matching(
+                            user_kyc, result_.get("accountName")
+                        )
+                        if matching == False:
+                            raise lms.exceptions.RespondFailureException(
+                                _(
+                                    "We have found a mismatch in the account holder name as per the fetched data"
+                                )
+                            )
                         photos_ = lms.upload_image_to_doctype(
                             customer=customer,
                             seq_no=result_.get("accountNumber")[-4:],
@@ -5746,12 +5743,17 @@ def au_penny_drop(**kwargs):
                             message="Your account details have been successfully verified"
                         )
                 else:
-                    raise lms.exceptions.RespondFailureException(
-                        _("Your account details have not been successfully verified")
+                    print("erroor")
+                    lms.log_api_error(mess=str(res_json))
+                    return utils.respondWithFailure(
+                        status=res_json.get("StatusCode"),
+                        message=result_.get("bankResponse"),
                     )
             else:
-                raise lms.exceptions.RespondFailureException(
-                    _("Your account details have not been successfully verified")
+                lms.log_api_error(mess=str(res_json))
+                return utils.respondWithFailure(
+                    status=res_json.get("StatusCode"),
+                    message=res_json.get("Message"),
                 )
 
     except utils.exceptions.APIException as e:
