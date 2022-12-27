@@ -257,10 +257,12 @@ class LoanApplication(Document):
                     method="send",
                     doc=doc,
                 )
-                msg = frappe.get_doc("Spark SMS Notification","Lien unsuccessful").message.format(
+                msg = frappe.get_doc(
+                    "Spark SMS Notification", "Lien unsuccessful"
+                ).message.format(
                     self.minimum_sanctioned_limit, self.maximum_sanctioned_limit
                 )
-                lms.send_sms_notification(customer,msg)
+                # lms.send_sms_notification(customer,msg)
                 # msg = "Dear Customer,\nSorry! Your loan application was turned down since the requested loan amount is not in the range of lender's minimum sanction limit (Rs.{}) and maximum sanction limit (Rs.{}) criteria. We regret the inconvenience caused. Please try again with the expected criteria or reach out to us through 'Contact Us' on the app  -Spark Loans".format(
                 #     self.minimum_sanctioned_limit, self.maximum_sanctioned_limit
                 # )
@@ -271,14 +273,14 @@ class LoanApplication(Document):
                     minimum_sanctioned_limit=self.minimum_sanctioned_limit,
                     maximum_sanctioned_limit=self.maximum_sanctioned_limit,
                 )
-                # receiver_list = [str(self.get_customer().phone)]
-                # if doc.mob_num:
-                #     receiver_list.append(str(doc.mob_num))
-                # if doc.choice_mob_no:
-                #     receiver_list.append(str(doc.choice_mob_no))
+                receiver_list = [str(self.get_customer().phone)]
+                if doc.mob_num:
+                    receiver_list.append(str(doc.mob_num))
+                if doc.choice_mob_no:
+                    receiver_list.append(str(doc.choice_mob_no))
 
-                # receiver_list = list(set(receiver_list))
-                # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                receiver_list = list(set(receiver_list))
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
                 lms.send_spark_push_notification(
                     fcm_notification=fcm_notification,
@@ -1791,10 +1793,12 @@ class LoanApplication(Document):
         fcm_notification = {}
         fcm_message = ""
         if doc.get("loan_application").get("status") == "Pledge Failure":
-            
+
             msg, fcm_title = (
                 (
-                    frappe.get_doc("Spark SMS Notification","Loan Increase application reject").message.format(msg_type),
+                    frappe.get_doc(
+                        "Spark SMS Notification", "Loan Increase application reject"
+                    ).message.format(msg_type),
                     # "Dear Customer,\nSorry! Your Increase loan application was turned down since the {} was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app -Spark Loans".format(
                     #     msg_type
                     # ),
@@ -1802,7 +1806,9 @@ class LoanApplication(Document):
                 )
                 if self.loan and not self.loan_margin_shortfall
                 else (
-                    frappe.get_doc("Spark SMS Notification","Pledge rejected").message.format(msg_type),
+                    frappe.get_doc(
+                        "Spark SMS Notification", "Pledge rejected"
+                    ).message.format(msg_type),
                     # "Dear Customer,\nSorry! Your loan application was turned down since the {} was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans".format(
                     #     msg_type
                     # ),
@@ -1812,7 +1818,9 @@ class LoanApplication(Document):
 
             if self.instrument_type == "Mutual Fund":
                 msg, fcm_title = (
-                    frappe.get_doc("Spark SMS Notification","MF doctype").message.format(msg_type,link=las_settings.contact_us),
+                    frappe.get_doc(
+                        "Spark SMS Notification", "MF doctype"
+                    ).message.format(msg_type, link=las_settings.contact_us),
                     # "Dear Customer,\nSorry! Your loan application was turned down since the {} was not successful due to technical reasons. We regret the inconvenience caused. Please try again after a while, or reach out via the 'Contact Us' section of the app- {link} -Spark Loans".format(
                     #     msg_type, link=las_settings.contact_us
                     # ),
@@ -1836,15 +1844,15 @@ class LoanApplication(Document):
         ):
             msg, fcm_title = (
                 (
-                    frappe.get_doc("Spark SMS Notification","Pledge accepted").message,
-                #     'Dear Customer,\nCongratulations! Your Increase loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans',
+                    frappe.get_doc("Spark SMS Notification", "Pledge accepted").message,
+                    #     'Dear Customer,\nCongratulations! Your Increase loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans',
                     "Increase loan application accepted",
                 )
                 if self.loan and not self.loan_margin_shortfall
                 else (
-                    frappe.get_doc("Spark SMS Notification","Pledge accepted").message,
+                    frappe.get_doc("Spark SMS Notification", "Pledge accepted").message,
                     # 'Dear Customer,\nCongratulations! Your loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans',
-                     "Pledge accepted",
+                    "Pledge accepted",
                 )
             )
             fcm_notification = frappe.get_doc(
@@ -1862,15 +1870,17 @@ class LoanApplication(Document):
         ):
             msg, fcm_title = (
                 (
-                    frappe.get_doc("Spark SMS Notification","Increase loan application approved").message,
+                    frappe.get_doc(
+                        "Spark SMS Notification", "Increase loan application approved"
+                    ).message,
                     # "Dear Customer,\nCongratulations! Your loan limit has been successfully increased. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
-                     "Increase loan application approved",
+                    "Increase loan application approved",
                 )
                 if self.loan and not self.loan_margin_shortfall
                 else (
-                    frappe.get_doc("Spark SMS Notification","Loan approved").message,
+                    frappe.get_doc("Spark SMS Notification", "Loan approved").message,
                     # "Dear Customer,\nCongratulations! Your loan account is open. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
-                     "Loan approved",
+                    "Loan approved",
                 )
             )
             fcm_notification = frappe.get_doc(
@@ -1884,13 +1894,16 @@ class LoanApplication(Document):
         ):
             msg, fcm_title = (
                 (
-                    frappe.get_doc("Spark SMS Notification","Increase loan application turned down").message,
+                    frappe.get_doc(
+                        "Spark SMS Notification",
+                        "Increase loan application turned down",
+                    ).message,
                     # "Dear Customer,\nSorry! Your Increase loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans",
                     "Increase loan application turned down",
                 )
                 if self.loan and not self.loan_margin_shortfall
                 else (
-                    frappe.get_doc("Spark SMS Notification","Loan rejected").message,
+                    frappe.get_doc("Spark SMS Notification", "Loan rejected").message,
                     # "Dear Customer,\nSorry! Your loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans",
                     "Loan rejected",
                 )
@@ -1904,7 +1917,9 @@ class LoanApplication(Document):
             and self.lender_esigned_document == None
             and not self.loan_margin_shortfall
         ):
-            msg = frappe.get_doc("Spark SMS Notification","E-sign was successful").message
+            msg = frappe.get_doc(
+                "Spark SMS Notification", "E-sign was successful"
+            ).message
             # msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan approval. Thank you for your patience. - Spark Loans"
 
             fcm_notification = frappe.get_doc(
@@ -1956,16 +1971,16 @@ class LoanApplication(Document):
             # )
 
         if msg:
-            lms.send_sms_notification(customer=self.get_customer(),msg=msg)
-            # receiver_list = [str(self.get_customer().phone)]
-            # if doc.mob_num:
-            #     receiver_list.append(str(doc.mob_num))
-            # if doc.choice_mob_no:
-            #     receiver_list.append(str(doc.choice_mob_no))
+            # lms.send_sms_notification(customer=self.get_customer(),msg=msg)
+            receiver_list = [str(self.get_customer().phone)]
+            if doc.mob_num:
+                receiver_list.append(str(doc.mob_num))
+            if doc.choice_mob_no:
+                receiver_list.append(str(doc.choice_mob_no))
 
-            # receiver_list = list(set(receiver_list))
+            receiver_list = list(set(receiver_list))
 
-            # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         if fcm_notification:
             lms.send_spark_push_notification(

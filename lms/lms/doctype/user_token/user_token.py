@@ -105,12 +105,12 @@ class UserToken(Document):
             #     app_hash_string=app_hash_string,
             #     expiry_in_minutes=expiry_in_minutes,
             # )
-            customer = [self.entity]
-            mess = frappe.get_doc("Spark SMS Notification","OTP").message.format(
+            # customer = [self.entity]
+            mess = frappe.get_doc("Spark SMS Notification", "OTP").message.format(
                 token_type=self.token_type.replace(" ", ""),
                 token=self.token,
             )
-            lms.send_sms_notification(customer=customer,msg=mess)
+            # lms.send_sms_notification(customer=customer,msg=mess)
             # mess = frappe._(
             #     "Dear Customer, Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
             # ).format(
@@ -119,8 +119,7 @@ class UserToken(Document):
             #     # expiry_in_minutes=expiry_in_minutes,
             # )
 
-            # frappe.enqueue(method=send_sms, receiver_list=[self.entity], msg=mess)
-            print("token_type",token_type)
+            frappe.enqueue(method=send_sms, receiver_list=[self.entity], msg=mess)
         elif self.token_type == "Email Verification Token":
             doc = frappe.get_doc("User", self.entity).as_dict()
             doc["url"] = frappe.utils.get_url(
@@ -210,7 +209,7 @@ class UserToken(Document):
             #     message=mess,
             # )
 
-            msg = frappe.get_doc("Spark SMS Notification","OTP").message.format(
+            msg = frappe.get_doc("Spark SMS Notification", "OTP").message.format(
                 token_type=self.token_type.replace(" ", ""),
                 token=self.token,
             )
@@ -223,14 +222,14 @@ class UserToken(Document):
             #     # expiry_in_minutes=expiry_in_minutes,
             # )
             if msg:
-                lms.send_sms_notification(customer=customer,msg=msg)
-                # receiver_list = [str(customer.phone)]
-                # if mob_num:
-                #     receiver_list.append(str(mob_num))
+                # lms.send_sms_notification(customer=customer,msg=msg)
+                receiver_list = [str(customer.phone)]
+                if mob_num:
+                    receiver_list.append(str(mob_num))
 
-                # receiver_list = list(set(receiver_list))
+                receiver_list = list(set(receiver_list))
 
-                # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
 
 # putting these here for the logs

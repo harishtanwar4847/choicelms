@@ -19,7 +19,6 @@ from lms.lms.doctype.collateral_ledger.collateral_ledger import CollateralLedger
 from lms.lms.doctype.user_token.user_token import send_sms
 
 
-
 class SellCollateralApplication(Document):
     def get_loan(self):
         return frappe.get_doc("Loan", self.loan)
@@ -218,25 +217,36 @@ class SellCollateralApplication(Document):
 
         if self.status == "Rejected":
             if self.instrument_type == "Mutual Fund":
-                msg = frappe.get_doc("Spark SMS Notification","Invoke request").message.format(
-                    link=las_settings.my_securities
-                )
+                msg = frappe.get_doc(
+                    "Spark SMS Notification", "Invoke request"
+                ).message.format(link=las_settings.my_securities)
                 # msg = "Dear Customer,\nSorry! Your invoke request was turned down due to technical reasons. You can reach out via the 'Contact Us' section of the app or please try again later using this link- {link} -Spark Loans".format(
                 #     link=las_settings.my_securities
                 # )
 
             else:
-                msg = frappe.get_doc("Spark SMS Notification","Sell Request Turn Down").message
+                msg = frappe.get_doc(
+                    "Spark SMS Notification", "Sell Request Turn Down"
+                ).message
 
                 # msg = "Dear Customer,\nSorry! Your sell collateral request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
 
-            msg = frappe.get_doc("Spark SMS Notification","Top Up rejected").message
+            receiver_list = [str(self.get_customer().phone)]
+            if self.get_customer().get_kyc().mob_num:
+                receiver_list.append(str(self.get_customer().get_kyc().mob_num))
+            if self.get_customer().get_kyc().choice_mob_no:
+                receiver_list.append(str(self.get_customer().get_kyc().choice_mob_no))
 
-            lms.send_sms_notification(customer=self.get_customer(),msg=msg)
+            receiver_list = list(set(receiver_list))
+
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+            # msg = frappe.get_doc("Spark SMS Notification","TopUp rejected").message
+
+            # lms.send_sms_notification(customer=self.get_customer(),msg=msg)
             # msg = "Dear Customer,\nSorry! Your {} request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans".format(
             #     msg_type
             # )
-
 
         if self.loan_margin_shortfall:
             loan_margin_shortfall = frappe.get_doc(
@@ -419,9 +429,9 @@ class SellCollateralApplication(Document):
             doc["sell_triggered_completion"] = {"loan": self.loan}
 
             frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
-            msg = frappe.get_doc("Spark SMS Notification","Sale triggerred completed").message.format(
-                msg_type[0], self.loan, msg_type[1]
-            )
+            msg = frappe.get_doc(
+                "Spark SMS Notification", "Sale triggerred completed"
+            ).message.format(msg_type[0], self.loan, msg_type[1])
             # msg = "Dear Customer,\n{} initiated by the lending partner for your loan account  {} is now completed .The {} proceeds have been credited to your loan account and collateral value updated. Please check the app for details. Spark Loans".format(
             #     msg_type[0], self.loan, msg_type[1]
             # )
@@ -440,9 +450,9 @@ class SellCollateralApplication(Document):
             if loan.instrument_type == "Mutual Fund":
                 msg_type = "invoke"
 
-            msg = frappe.get_doc("Spark SMS Notification","Sell request executed").message.format(
-                application_type
-            )
+            msg = frappe.get_doc(
+                "Spark SMS Notification", "Sell request executed"
+            ).message.format(application_type)
             # msg = "Dear Customer,\nCongratulations! Your {} request has been successfully executed and sale proceeds credited to your loan account. Kindly check the app for details -Spark Loans".format(
             #     application_type
             # )
@@ -456,16 +466,16 @@ class SellCollateralApplication(Document):
                 fcm_notification = fcm_notification.as_dict()
                 fcm_notification["title"] = "Invoke request executed"
         if msg:
-            lms.send_sms_notification(customer=self.get_customer,msg=msg)
-            # receiver_list = [str(self.get_customer().phone)]
-            # if self.get_customer().get_kyc().mob_num:
-            #     receiver_list.append(str(self.get_customer().get_kyc().mob_num))
-            # if self.get_customer().get_kyc().choice_mob_no:
-            #     receiver_list.append(str(self.get_customer().get_kyc().choice_mob_no))
+            # lms.send_sms_notification(customer=self.get_customer,msg=msg)
+            receiver_list = [str(self.get_customer().phone)]
+            if self.get_customer().get_kyc().mob_num:
+                receiver_list.append(str(self.get_customer().get_kyc().mob_num))
+            if self.get_customer().get_kyc().choice_mob_no:
+                receiver_list.append(str(self.get_customer().get_kyc().choice_mob_no))
 
-            # receiver_list = list(set(receiver_list))
+            receiver_list = list(set(receiver_list))
 
-            # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         self.notify_customer(fcm_notification=fcm_notification, message=message)
 

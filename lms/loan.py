@@ -408,21 +408,23 @@ def esign_done(**kwargs):
                     topup_application.customer_esigned_document = esigned_file.file_url
                     topup_application.save(ignore_permissions=True)
                     frappe.db.commit()
-                    msg = frappe.get_doc("Spark SMS Notification","E-sign was successful").message
-                    lms.send_sms_notification(customer=customer,msg=msg)
+                    msg = frappe.get_doc(
+                        "Spark SMS Notification", "E-sign was successful"
+                    ).message
+                    # lms.send_sms_notification(customer=[str(customer.phone)],msg=msg)
 
                     # msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of your new OD limit. Thank you for your patience. - Spark Loans"
-                    # receiver_list = [str(customer.phone)]
-                    # if customer.get_kyc().mob_num:
-                    #     receiver_list.append(str(customer.get_kyc().mob_num))
-                    # if customer.get_kyc().choice_mob_no:
-                    #     receiver_list.append(str(customer.get_kyc().choice_mob_no))
+                    receiver_list = [str(customer.phone)]
+                    if customer.get_kyc().mob_num:
+                        receiver_list.append(str(customer.get_kyc().mob_num))
+                    if customer.get_kyc().choice_mob_no:
+                        receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-                    # receiver_list = list(set(receiver_list))
+                    receiver_list = list(set(receiver_list))
 
-                    # frappe.enqueue(
-                    #     method=send_sms, receiver_list=receiver_list, msg=msg
-                    # )
+                    frappe.enqueue(
+                        method=send_sms, receiver_list=receiver_list, msg=msg
+                    )
 
                     fcm_notification = frappe.get_doc(
                         "Spark Push Notification",
@@ -810,24 +812,24 @@ def create_topup(**kwargs):
                 "Notification", "Top up Request", method="send", doc=user_kyc
             )
 
-            msg = frappe.get_doc("Spark SMS Notification","Top Up Request").message
+            msg = frappe.get_doc("Spark SMS Notification", "Top Up Request").message
 
-            lms.send_sms_notification(customer=customer,msg=msg)
+            # lms.send_sms_notification(customer=[str(customer.phone)],msg=msg)
 
             # msg = "Dear Customer,\nYour top up request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans"
-            # receiver_list = [str(customer.phone)]
-            # if customer.get_kyc().mob_num:
-            #     receiver_list.append(str(customer.get_kyc().mob_num))
-            # if customer.get_kyc().choice_mob_no:
-            #     receiver_list.append(str(customer.get_kyc().choice_mob_no))
+            receiver_list = [str(customer.phone)]
+            if customer.get_kyc().mob_num:
+                receiver_list.append(str(customer.get_kyc().mob_num))
+            if customer.get_kyc().choice_mob_no:
+                receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-            # receiver_list = list(set(receiver_list))
+            receiver_list = list(set(receiver_list))
 
-            # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
-            # data = {
-            #     "topup_application_name": topup_application.name,
-            # }
+            data = {
+                "topup_application_name": topup_application.name,
+            }
 
         return utils.respondWithSuccess(data=data)
     except utils.exceptions.APIException as e:
@@ -1503,22 +1505,21 @@ def loan_withdraw_request(**kwargs):
         )
         doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
         frappe.enqueue_doc("Notification", "Withdrawal Request", method="send", doc=doc)
-        
-        msg = frappe.get_doc("Spark SMS Notification","Withdrawal Request").message
-        
+
+        msg = frappe.get_doc("Spark SMS Notification", "Withdrawal Request").message
 
         # msg = "Dear Customer,\nYour withdrawal request has been received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans"
         if msg:
-            lms.send_sms_notification(customer=customer,msg=msg)
-        #     receiver_list = [str(customer.phone)]
-        #     if customer.get_kyc().mob_num:
-        #         receiver_list.append(str(customer.get_kyc().mob_num))
-        #     if customer.get_kyc().choice_mob_no:
-        #         receiver_list.append(str(customer.get_kyc().choice_mob_no))
+            # lms.send_sms_notification(customer=[str(customer.phone)],msg=msg)
+            receiver_list = [str(customer.phone)]
+            if customer.get_kyc().mob_num:
+                receiver_list.append(str(customer.get_kyc().mob_num))
+            if customer.get_kyc().choice_mob_no:
+                receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-        #     receiver_list = list(set(receiver_list))
+            receiver_list = list(set(receiver_list))
 
-        #     frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         return utils.respondWithSuccess(message=message, data=data)
     except utils.exceptions.APIException as e:
@@ -1599,10 +1600,10 @@ def loan_payment(**kwargs):
                 loan_transaction.db_set("workflow_state", "Rejected")
                 loan_transaction.db_set("status", "Rejected")
                 loan_transaction.run_post_save_methods()
-                msg = frappe.get_doc("Spark SMS Notification","Payment Failed").message.format(
-                    data.get("amount"), loan.name
-                )
-                
+                msg = frappe.get_doc(
+                    "Spark SMS Notification", "Payment Failed"
+                ).message.format(data.get("amount"), loan.name)
+
                 # msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(
                 #     data.get("amount"), loan.name
                 # )
@@ -1612,19 +1613,19 @@ def loan_payment(**kwargs):
                     "loan": loan.name,
                     "is_failed": 1,
                 }
-                # frappe.enqueue_doc(
-                #     "Notification", "Payment Request", method="send", doc=doc
-                # )
-                # receiver_list = [str(customer.phone)]
-                # if customer.get_kyc().mob_num:
-                #     receiver_list.append(str(customer.get_kyc().mob_num))
-                # if customer.get_kyc().choice_mob_no:
-                #     receiver_list.append(str(customer.get_kyc().choice_mob_no))
+                frappe.enqueue_doc(
+                    "Notification", "Payment Request", method="send", doc=doc
+                )
+                receiver_list = [str(customer.phone)]
+                if customer.get_kyc().mob_num:
+                    receiver_list.append(str(customer.get_kyc().mob_num))
+                if customer.get_kyc().choice_mob_no:
+                    receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-                # receiver_list = list(set(receiver_list))
+                receiver_list = list(set(receiver_list))
 
-                # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-                lms.send_sms_notification(customer=customer,msg=msg)
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                # lms.send_sms_notification(customer=[str(customer.phone)],msg=msg)
 
                 fcm_notification = frappe.get_doc(
                     "Spark Push Notification", "Payment failed", fields=["*"]
@@ -2757,21 +2758,23 @@ def loan_unpledge_request(**kwargs):
         )
         unpledge_application.insert(ignore_permissions=True)
         frappe.enqueue_doc("Notification", email_subject, method="send", doc=user_kyc)
-        msg = frappe.get_doc("Spark SMS Notification","Unpledged application").message.format(msg_type[0])
-        lms.send_sms_notification(customer=customer,msg=msg)
+        msg = frappe.get_doc(
+            "Spark SMS Notification", "Unpledged application"
+        ).message.format(msg_type[0])
+        # lms.send_sms_notification(customer=[str(customer.phone)],msg=msg)
         # msg = "Dear Customer,\nYour {} request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. - Spark Loans".format(
         #     msg_type[0]
         # )
 
-        # receiver_list = [str(customer.phone)]
-        # if customer.get_kyc().mob_num:
-        #     receiver_list.append(str(customer.get_kyc().mob_num))
-        # if customer.get_kyc().choice_mob_no:
-        #     receiver_list.append(str(customer.get_kyc().choice_mob_no))
+        receiver_list = [str(customer.phone)]
+        if customer.get_kyc().mob_num:
+            receiver_list.append(str(customer.get_kyc().mob_num))
+        if customer.get_kyc().choice_mob_no:
+            receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-        # receiver_list = list(set(receiver_list))
+        receiver_list = list(set(receiver_list))
 
-        # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+        frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         return utils.respondWithSuccess(data=unpledge_application)
     except utils.exceptions.APIException as e:
@@ -2845,7 +2848,6 @@ def sell_collateral_request(**kwargs):
 
         user = lms.__user()
         customer = lms.__customer()
-
         try:
             loan = frappe.get_doc("Loan", data.get("loan_name"))
         except frappe.DoesNotExistError:
@@ -2983,7 +2985,9 @@ def sell_collateral_request(**kwargs):
             frappe.enqueue_doc(
                 "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
             )
-            msg = frappe.get_doc("Spark SMS Notification","Margin shortfall - action taken").message
+            msg = frappe.get_doc(
+                "Spark SMS Notification", "Margin shortfall - action taken"
+            ).message
             # msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification",
@@ -3001,9 +3005,9 @@ def sell_collateral_request(**kwargs):
 
         frappe.db.commit()
         if not data.get("loan_margin_shortfall_name"):
-            msg = frappe.get_doc("Spark SMS Notification","Confirmation").message.format(
-                msg_type
-            )
+            msg = frappe.get_doc(
+                "Spark SMS Notification", "Confirmation"
+            ).message.format(msg_type)
             # msg = "Dear Customer,\nYour {} request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. - Spark Loans".format(
             #     msg_type
             # )
@@ -3012,16 +3016,16 @@ def sell_collateral_request(**kwargs):
         frappe.enqueue_doc("Notification", email_subject, method="send", doc=doc)
 
         if msg:
-            lms.send_sms_notification(customer=customer,msg=msg)
-            # receiver_list = [str(customer.phone)]
-            # if customer.get_kyc().mob_num:
-            #     receiver_list.append(str(customer.get_kyc().mob_num))
-            # if customer.get_kyc().choice_mob_no:
-            #     receiver_list.append(str(customer.get_kyc().choice_mob_no))
+            # lms.send_sms_notification(customer=[str(customer.phone)],msg=msg)
+            receiver_list = [str(customer.phone)]
+            if customer.get_kyc().mob_num:
+                receiver_list.append(str(customer.get_kyc().mob_num))
+            if customer.get_kyc().choice_mob_no:
+                receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-            # receiver_list = list(set(receiver_list))
+            receiver_list = list(set(receiver_list))
 
-            # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         return utils.respondWithSuccess(data=sell_collateral_application)
     except utils.exceptions.APIException as e:

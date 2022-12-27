@@ -3,7 +3,9 @@ import frappe
 
 def execute():
     frappe.reload_doc("Lms", "DocType", "Spark SMS Notification")
-    path = frappe.get_app_path("lms", "patches", "imports", "spark_sms_notification_content.csv")
+    path = frappe.get_app_path(
+        "lms", "patches", "imports", "spark_sms_notification_content.csv"
+    )
     frappe.core.doctype.data_import.data_import.import_file(
-            "Spark SMS Notification", path, "Insert"
-        )
+        "Spark SMS Notification", path, "Insert"
+    )

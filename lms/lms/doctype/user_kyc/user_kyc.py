@@ -38,6 +38,7 @@ class UserKYC(Document):
                 frappe.enqueue_doc(
                     "Notification", "Ckyc Approved", method="send", doc=doc
                 )
+                # mutual fund sms changes
                 msg = "Your KYC Request has been approved, please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
                     las_settings.app_login_dashboard
                 )
@@ -45,6 +46,7 @@ class UserKYC(Document):
                     "Spark Push Notification", "Ckyc Approved", fields=["*"]
                 )
             else:
+                # mutual fund sms changes
                 frappe.enqueue_doc(
                     "Notification", "Ckyc Rejected", method="send", doc=doc
                 )

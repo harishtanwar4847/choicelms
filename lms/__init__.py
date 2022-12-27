@@ -1395,8 +1395,10 @@ def update_rzp_payment_transaction(data):
                         method="send",
                         doc=doc,
                     )
-                    msg = frappe.get_doc("Spark SMS Notification","Margin shortfall - action taken").message
-                    lms.send_sms_notification(customer=customer,msg=msg)
+                    msg = frappe.get_doc(
+                        "Spark SMS Notification", "Margin shortfall - action taken"
+                    ).message
+                    send_sms_notification(customer=customer, msg=msg)
 
                     # msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
                     fcm_notification = frappe.get_doc(
@@ -1420,20 +1422,20 @@ def update_rzp_payment_transaction(data):
                     frappe.enqueue_doc(
                         "Notification", "Payment Request", method="send", doc=doc
                     )
-                msg = frappe.get_doc("Spark SMS Notification","Payment Successful").message.format(
-                    loan_transaction.amount, loan.name
-                )
-                send_sms_notification(customer=customer,msg=msg)
+                msg = frappe.get_doc(
+                    "Spark SMS Notification", "Payment Successful"
+                ).message.format(loan_transaction.amount, loan.name)
+                send_sms_notification(customer=customer, msg=msg)
 
                 # msg = """Dear Customer,\nCongratulations! You payment of Rs. {}  has been successfully received against loan account  {}. It shall be reflected in your account within  24 hours . Spark Loans""".format(
                 #     loan_transaction.amount, loan.name
                 # )
             # send notification if rzp event is failed
             if data["event"] == "payment.failed":
-                msg = frappe.get_doc("Spark SMS Notification","Payment Failed").message.format(
-                    loan_transaction.amount, loan.name
-                )
-                send_sms_notification(customer=customer,msg=msg)
+                msg = frappe.get_doc(
+                    "Spark SMS Notification", "Payment Failed"
+                ).message.format(loan_transaction.amount, loan.name)
+                send_sms_notification(customer=customer, msg=msg)
                 # msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(
                 #     loan_transaction.amount, loan.name
                 # )
@@ -2025,26 +2027,26 @@ def penny_validate_fund_account():
         log_api_error()
 
 
-def send_sms_notification(customer,msg,token_type=None):
-    try:
-        if type(customer) != dict:
-            receiver_list = customer
+# def send_sms_notification(customer,msg,token_type=None):
+#     try:
+#         if type(customer) != dict:
+#             receiver_list = customer
 
-        else:
-            receiver_list = [str(customer.phone)]
-            if customer.get_kyc().mob_num:
-                receiver_list.append(str(customer.get_kyc().mob_num))
-            if customer.get_kyc().choice_mob_no:
-                receiver_list.append(str(customer.get_kyc().choice_mob_no))
+#         else:
+#             receiver_list = [str(customer.phone)]
+#             if customer.get_kyc().mob_num:
+#                 receiver_list.append(str(customer.get_kyc().mob_num))
+#             if customer.get_kyc().choice_mob_no:
+#                 receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-        receiver_list = list(set(receiver_list))
-        print("sdfghjk")
-        # send_sms(receiver_list=receiver_list, msg=msg)
-        frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-        print("receiver_list",receiver_list)
-    except Exception:
-        frappe.log_error(
-            message=frappe.get_traceback()
-            + "\n\nCustomer name -\n{}\n\nMessage details -\n{}".format(customer, str(msg)),
-            title="Send SMS Notification Error",
-        )
+#         receiver_list = list(set(receiver_list))
+#         print("sdfghjk")
+#         # send_sms(receiver_list=receiver_list, msg=msg)
+#         frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+#         print("receiver_list",receiver_list)
+#     except Exception:
+#         frappe.log_error(
+#             message=frappe.get_traceback()
+#             + "\n\nCustomer name -\n{}\n\nMessage details -\n{}".format(customer, str(msg)),
+#             title="Send SMS Notification Error",
+#         )
