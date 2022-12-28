@@ -5,6 +5,7 @@ import base64
 import hashlib
 import hmac
 import json
+import math
 import os
 import re
 from base64 import b64decode, b64encode
@@ -2070,9 +2071,6 @@ def au_pennydrop_api(data):
             title="AU Penny Drop API Error",
             message=frappe.get_traceback() + "\n\n" + data,
         )
-
-
-import math
 
 
 def truncate_approved_unit(number, digits):
