@@ -36,7 +36,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.9.0+1-uat"
+__version__ = "5.10.0-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -2083,14 +2083,14 @@ def truncate_approved_unit(number, digits):
     return math.trunc(stepper * number) / stepper
 
 
-def name_matching(user_kyc, api_full_name):
-    api_full_name = (api_full_name.lower()).split()
-    if (user_kyc.fname.lower() in api_full_name) and (
-        user_kyc.mname.lower() in api_full_name
+def name_matching(user_kyc, bank_acc_full_name):
+    bank_acc_full_name = (bank_acc_full_name.lower()).split()
+    if (user_kyc.fname.lower() in bank_acc_full_name) and (
+        user_kyc.mname.lower() in bank_acc_full_name
     ):
         return True
-    elif (user_kyc.fname.lower() in api_full_name) and (
-        user_kyc.lname.lower() in api_full_name
+    elif (user_kyc.fname.lower() in bank_acc_full_name) and (
+        user_kyc.lname.lower() in bank_acc_full_name
     ):
         return True
     else:
