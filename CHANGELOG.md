@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v3.2.1] - 2022-12-29
+
+### Added
+
+- [Feat: Interest type changed from floating to fixed](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/558)
+
 ## [v3.2.0] - 2022-09-16
 
 ### Added
