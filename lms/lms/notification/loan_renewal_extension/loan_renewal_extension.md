@@ -31,7 +31,7 @@
           <td height="25">&nbsp;</td>
         </tr>
         <tr>
-          <td><strong><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#2c2a2b">Dear {{ doc.fullname or "" }},</span></strong></td>
+          <td><strong><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#2c2a2b">Dear Customer,</span></strong></td>
         </tr>
         <tr>
           <td>&nbsp;</td>
@@ -39,44 +39,11 @@
         <tr>
             <td>
                 <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
-                    {% if doc.get("loan_renewal_application").get("status") == "Loan Renewal accepted by Lender" %}
-                        <strong>Congratulations!!</strong><br />
-                        <br />
-                        Your loan renewal application has been accepted.<br />
-                        Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement.<br />
-                        <br />
-                        Please view our tutorial videos or reach out to us under "Contact Us" on the app- dlt_link
-                        <br />
-                        We look forward to serve you soon.<br />
-                        <br />
-                    {% endif %}
-                    {% if doc.get("loan_renewal_application").get("status") == "Esign Done" %}
-                        Your E-sign process is completed. You shall soon receive a confirmation of loan renew approval.<br />
-                        <br />
-                        Thank you for your patience.<br />
-                        <br />
-                        You can reach to us through 'Contact Us' on the app - dlt_link<br />
-                        We look forward to serve you soon.<br />
-                        <br />
-                    {% endif %}
-                    {% if doc.get("loan_renewal_application").get("status") == "Approved" %}
-                        Your loan renewal process is completed.<br />
-                        <br />
-                        You can reach to us through 'Contact Us' on the app - dlt_link<br />
-                        <br />
-                        We look forward to serve you soon.<br />
-                        <br />
-                    {% endif %}
-                    {% if doc.get("loan_renewal_application").get("status") == "Rejected" %}
-                        Sorry! Your loan renewal application was turned down.<br />
-                        <br />
-                        We regret the inconvenience caused.<br />
-                        <br />
-                        Please try again after sometime or you can reach to us through 'Contact Us' on the app - dlt_link<br />
-                        <br />
-                        We look forward to serve you soon.<br />
-                        <br />
-                    {% endif %}
+                  You have received a loan renewal extension of 7 days from the current expiry date: expiry_date.
+                  Click on the button to submit your request.<br />
+                  <center>
+                    <a href= dlt_link rel="nofollow" style="color:#fff;background-color:#2490ef;border:1px solid transparent;border-radius:6px;display:inline-block;font-size:13px;line-height:20px;padding:4px 20px;text-decoration:none" bgcolor="#2490ef" target="_blank" data-saferedirecturl=dlt_link>Renew Loan Now</a>
+                  </center>
                 </span>
             </td>
         </tr>

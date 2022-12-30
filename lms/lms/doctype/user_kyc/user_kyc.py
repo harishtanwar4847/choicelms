@@ -223,12 +223,13 @@ class UserKYC(Document):
                     filters={"loan": loan_name, "status": "Pending"},
                     fields=["*"],
                 )
-                renewal_doc = frappe.get_doc(
-                    "Spark Loan Renewal Application", renewal_list[0].name
-                )
+                for doc in renewal_list:
+                    renewal_doc = frappe.get_doc(
+                        "Spark Loan Renewal Application", doc.name
+                    )
 
-                renewal_doc.status = "Rejected"
-                renewal_doc.workflow_state = "Rejected"
-                renewal_doc.remarks = "KYC Rejected"
-                renewal_doc.save(ignore_permissions=True)
-                frappe.db.commit()
+                    renewal_doc.status = "Rejected"
+                    renewal_doc.workflow_state = "Rejected"
+                    renewal_doc.remarks = "KYC Rejected"
+                    renewal_doc.save(ignore_permissions=True)
+                    frappe.db.commit()
