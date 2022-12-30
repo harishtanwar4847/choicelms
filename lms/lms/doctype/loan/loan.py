@@ -694,7 +694,8 @@ class Loan(Document):
 
             securities_price_map = lms.get_security_prices([i.isin for i in self.items])
             check = self.update_items()
-            self.update_ltv()
+            if on_approval == False:
+                self.update_ltv()
 
             msg_type = ["A sale", "sell"]
             if self.instrument_type == "Mutual Fund":
