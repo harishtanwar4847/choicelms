@@ -5,6 +5,7 @@ import base64
 import hashlib
 import hmac
 import json
+import math
 import os
 import re
 from base64 import b64decode, b64encode
@@ -39,7 +40,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.9.0-uat"
+__version__ = "5.10.1-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -1693,6 +1694,18 @@ def decrypt_lien_marking_response():
                 schemes = [schemes]
 
             for i in schemes:
+                lienapprovedunit_len = len(str(i["lienapprovedunit"]).split(".")[1])
+                lienunit_len = len(str(i["lienunit"]).split(".")[1])
+                if lienapprovedunit_len > 3 and lienunit_len > 3:
+                    digits = 3
+                    lienapprovedunit = truncate_approved_unit(
+                        float(i["lienapprovedunit"]), digits
+                    )
+                    lienunit = truncate_approved_unit(float(i["lienunit"]), digits)
+                else:
+                    lienapprovedunit = i["lienapprovedunit"]
+                    lienunit = i["lienunit"]
+
                 cart.append(
                     "items",
                     {
@@ -1701,8 +1714,8 @@ def decrypt_lien_marking_response():
                         "scheme_code": i["schemecode"],
                         "security_name": i["schemename"],
                         "amc_code": i["amccode"],
-                        "pledged_quantity": float(i["lienapprovedunit"]),
-                        "requested_quantity": float(i["lienunit"]),
+                        "pledged_quantity": float(lienapprovedunit),
+                        "requested_quantity": float(lienunit),
                         "type": res.get("bankschemetype"),
                     },
                 )
@@ -3345,3 +3358,71 @@ def penny_validate_fund_account():
 
     except Exception:
         log_api_error()
+
+
+def au_pennydrop_api(data):
+    try:
+        ReqId = datetime.strftime(datetime.now(), "%d%m") + str(
+            abs(randint(0, 9999) - randint(1, 99))
+        )
+        las_settings = frappe.get_single("LAS Settings")
+        SECRET_KEY = las_settings.penny_secret_key
+
+        # ReqId + IFSCCode + AccNum
+
+        hash_text = "{}{}{}".format(ReqId, data.get("ifsc"), data.get("account_number"))
+
+        final_hash = hmac.new(
+            key=bytes(SECRET_KEY, "utf-8"),
+            msg=bytes(hash_text, "utf-8"),
+            digestmod="sha512",
+        ).digest()
+
+        payload = {
+            "ReqId": ReqId,
+            "IFSCCode": data.get("ifsc"),
+            "AccNum": data.get("account_number"),
+            "HashValue": base64.b64encode(final_hash).decode("ascii"),
+        }
+
+        url = las_settings.penny_drop_api
+
+        headers = {
+            "Content-Type": "application/json",
+        }
+        res = requests.post(url=url, json=payload, headers=headers)
+
+        res_json = res.json()
+
+        create_log(
+            {"url": url, "headers": headers, "request": payload, "response": res_json},
+            "au_penny_drop",
+        )
+        return res_json
+    except Exception:
+        frappe.log_error(
+            title="AU Penny Drop API Error",
+            message=frappe.get_traceback() + "\n\n" + data,
+        )
+
+
+def truncate_approved_unit(number, digits):
+    num = len(str(number).split(".")[1])
+    if num <= digits:
+        return number
+    stepper = 10.0 ** digits
+    return math.trunc(stepper * number) / stepper
+
+
+def name_matching(user_kyc, bank_acc_full_name):
+    bank_acc_full_name = (bank_acc_full_name.lower()).split()
+    if (user_kyc.fname.lower() in bank_acc_full_name) and (
+        user_kyc.mname.lower() in bank_acc_full_name
+    ):
+        return True
+    elif (user_kyc.fname.lower() in bank_acc_full_name) and (
+        user_kyc.lname.lower() in bank_acc_full_name
+    ):
+        return True
+    else:
+        return False

@@ -19,9 +19,6 @@ from utils.responder import respondWithFailure, respondWithSuccess
 
 import lms
 from lms import convert_sec_to_hh_mm_ss, holiday_list
-
-# from lms.exceptions.UserKYCNotFoundException import UserKYCNotFoundException
-# from lms.exceptions.UserNotFoundException import UserNotFoundException
 from lms.exceptions import *
 from lms.firebase import FirebaseAdmin
 from lms.lms.doctype.user_token.user_token import send_sms
@@ -66,184 +63,6 @@ def set_pin(**kwargs):
         frappe.db.rollback()
         lms.log_api_error()
         return e.respond()
-
-
-@frappe.whitelist()
-def kyc_old(**kwargs):
-    try:
-        utils.validator.validate_http_method("GET")
-
-        data = utils.validator.validate(
-            kwargs,
-            {
-                "pan_no": "required",
-                "birth_date": "required",
-                "accept_terms": ["required", "between:0,1", "decimal"],
-            },
-        )
-
-        try:
-            datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
-        except ValueError:
-            # return utils.respondWithFailure(
-            #     status=417,
-            #     message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
-            # )
-            raise lms.exceptions.RespondFailureException(
-                _("Incorrect date format, should be DD-MM-YYYY")
-            )
-
-        reg = lms.regex_special_characters(search=data.get("pan_no"))
-        if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
-            raise lms.exceptions.FailureException(_("Special Character not allowed"))
-
-        try:
-            user_kyc = lms.__user_kyc(frappe.session.user, data.get("pan_no"))
-        except UserKYCNotFoundException:
-            user_kyc = None
-
-        if not user_kyc:
-
-            if not data.get("accept_terms"):
-                # return utils.respondUnauthorized(
-                #     message=frappe._("Please accept Terms and Conditions.")
-                # )
-                raise lms.exceptions.UnauthorizedException(
-                    _("Please accept Terms and Conditions.")
-                )
-
-            user = lms.__user()
-
-            # frappe.db.begin()
-            # save user kyc consent
-            kyc_consent_doc = frappe.get_doc(
-                {
-                    "doctype": "User Consent",
-                    "mobile": user.phone,
-                    "consent": "Kyc",
-                }
-            )
-            kyc_consent_doc.insert(ignore_permissions=True)
-
-            res = get_choice_kyc(data.get("pan_no"), data.get("birth_date"))
-            user_kyc = res["user_kyc"]
-            customer = lms.__customer()
-            customer.kyc_update = 1
-            customer.choice_kyc = user_kyc.name
-            customer.save(ignore_permissions=True)
-            frappe.db.commit()
-
-            # changes as per latest email notification list-sent by vinayak - email verification final 2.0
-            # frappe.enqueue_doc("Notification", "User KYC", method="send", doc=user)
-
-            # mess = frappe._(
-            #     "Dear "
-            #     + user.full_name
-            #     + ",\nCongratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
-            # )
-            # mess = frappe._(
-            #     "Congratulations! \nYour KYC verification is completed. \nYour credit check has to be cleared by our lending partner before you can avail the loan."
-            # )
-            mess = frappe._(
-                # "Dear Customer,\nCongratulations! Your KYC verification is completed. -Spark Loans"
-                "Dear Customer, \nCongratulations! \nYour KYC verification is completed.  -Spark Loans"
-            )
-            frappe.enqueue(method=send_sms, receiver_list=[user.phone], msg=mess)
-
-        data = {"user_kyc": user_kyc}
-
-        return utils.respondWithSuccess(data=data)
-    except utils.exceptions.APIException as e:
-        frappe.db.rollback()
-        lms.log_api_error()
-        return e.respond()
-
-
-@frappe.whitelist()
-def get_choice_kyc_old(pan_no, birth_date):
-    try:
-        las_settings = frappe.get_single("LAS Settings")
-
-        params = {
-            "PANNum": pan_no,
-            "dob": (datetime.strptime(birth_date, "%d-%m-%Y")).strftime("%Y-%m-%d"),
-        }
-
-        headers = {
-            "businessUnit": las_settings.choice_business_unit,
-            "userId": las_settings.choice_user_id,
-            "investorId": las_settings.choice_investor_id,
-            "ticket": las_settings.choice_ticket,
-        }
-
-        res = requests.get(las_settings.choice_pan_api, params=params, headers=headers)
-
-        data = res.json()
-
-        if not res.ok or "errorCode" in data:
-            raise UserKYCNotFoundException
-            raise utils.exceptions.APIException(res.text)
-
-        user_kyc = lms.__user_kyc(pan_no=pan_no, throw=False)
-        user_kyc.kyc_type = "CHOICE"
-        user_kyc.fullname = data["investorName"]
-        user_kyc.father_name = data["fatherName"]
-        user_kyc.mother_name = data["motherName"]
-        user_kyc.address_details = data["address"].replace("~", " ")
-        user_kyc.city = data["addressCity"]
-        user_kyc.state = data["addressState"]
-        user_kyc.pincode = data["addressPinCode"]
-        user_kyc.choice_mob_no = data["mobileNum"]
-        user_kyc.choice_client_id = data["clientId"]
-        user_kyc.pan_no = data["panNum"]
-        user_kyc.date_of_birth = datetime.strptime(
-            data["dateOfBirth"], "%Y-%m-%dT%H:%M:%S.%f%z"
-        ).strftime("%Y-%m-%d")
-
-        if data["banks"]:
-            user_kyc.bank_account = []
-
-            for bank in data["banks"]:
-                user_kyc.append(
-                    "bank_account",
-                    {
-                        "bank": bank["bank"],
-                        "bank_address": bank["bankAddress"],
-                        "branch": bank["branch"],
-                        "contact": bank["contact"],
-                        "account_type": bank["accountType"],
-                        "account_number": bank["accountNumber"],
-                        "ifsc": bank["ifsc"],
-                        "micr": bank["micr"],
-                        "bank_mode": bank["bankMode"],
-                        "bank_code": bank["bankcode"],
-                        "bank_zip_code": bank["bankZipCode"],
-                        "city": bank["city"],
-                        "district": bank["district"],
-                        "state": bank["state"],
-                        "is_default": bank["defaultBank"] == "Y",
-                    },
-                )
-        user_kyc.save(ignore_permissions=True)
-
-        return {
-            "user_kyc": user_kyc,
-        }
-
-    except requests.RequestException as e:
-        raise utils.exceptions.APIException(str(e))
-    except UserKYCNotFoundException:
-        raise
-    except Exception as e:
-        lms.log_api_error()
-        raise utils.exceptions.APIException(str(e))
-
-
-""" Changes as per new kyc flow - confirmed with vinayak - 14/07/2021"""
 
 
 @frappe.whitelist()
@@ -573,77 +392,6 @@ def kyc(**kwargs):
         frappe.db.rollback()
         lms.log_api_error()
         return e.respond()
-
-
-@frappe.whitelist()
-def securities_old_1(**kwargs):
-    try:
-        utils.validator.validate_http_method("GET")
-
-        data = utils.validator.validate(
-            kwargs,
-            {
-                "lender": "",
-            },
-        )
-        reg = lms.regex_special_characters(search=data.get("lender"))
-        if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
-            raise lms.exceptions.FailureException(_("Special Character not allowed."))
-
-        if not data.get("lender", None):
-            data["lender"] = frappe.get_last_doc("Lender").name
-
-        user_kyc = lms.__user_kyc()
-
-        las_settings = frappe.get_single("LAS Settings")
-
-        # get securities list from choice
-        payload = {"UserID": las_settings.choice_user_id, "ClientID": user_kyc.pan_no}
-
-        try:
-            res = requests.post(
-                las_settings.choice_securities_list_api,
-                json=payload,
-                headers={"Accept": "application/json"},
-            )
-            if not res.ok:
-                raise utils.exceptions.APIException(res.text)
-
-            res_json = res.json()
-            if res_json["Status"] != "Success":
-                raise utils.exceptions.APIException(res.text)
-
-            # setting eligibility
-            # securities_list = res_json["Response"]
-            securities_list = [i for i in res_json["Response"] if i.get("Price") > 0]
-            securities_list_ = [i["ISIN"] for i in securities_list]
-            securities_category_map = lms.get_allowed_securities(
-                securities_list_, data.get("lender")
-            )
-
-            for i in securities_list:
-                try:
-                    i["Category"] = securities_category_map[i["ISIN"]].get(
-                        "security_category"
-                    )
-                    i["Is_Eligible"] = True
-                except KeyError:
-                    i["Is_Eligible"] = False
-                    i["Category"] = None
-
-            return utils.respondWithSuccess(data=securities_list)
-        except requests.RequestException as e:
-            raise utils.exceptions.APIException(str(e))
-    except utils.exceptions.APIException as e:
-        lms.log_api_error()
-        return e.respond()
-
-
-""" CR - Client Holding management - 27-07-2021 """
 
 
 @frappe.whitelist()
@@ -1540,204 +1288,6 @@ def tds(tds_amount, year):
     )
 
 
-@frappe.whitelist()
-def dashboard_old():
-    customer = lms.__customer()
-    pending_loan_applications = frappe.get_all(
-        "Loan Application",
-        filters={"customer": customer.name, "status": "Pledge accepted by Lender"},
-        fields=["*"],
-    )
-
-    pending_esigns = []
-    if pending_loan_applications:
-        for loan_application in pending_loan_applications:
-            loan_application_doc = frappe.get_doc(
-                "Loan Application", loan_application.name
-            )
-            pending_esigns.append(loan_application_doc)
-
-    token = dict(
-        pending_esigns=pending_esigns,
-    )
-    return utils.respondWithSuccess(message=frappe._("Success"), data=token)
-
-
-@frappe.whitelist()
-def approved_securities_old(**kwargs):
-    try:
-        utils.validator.validate_http_method("GET")
-
-        data = utils.validator.validate(
-            kwargs,
-            {
-                "lender": "",
-                "start": "decimal|min:0",
-                "per_page": "decimal|min:0",
-                "search": "",
-                "category": "",
-                "is_download": "decimal|between:0,1",
-            },
-        )
-
-        reg = lms.regex_special_characters(
-            search=data.get("lender") + data.get("category")
-        )
-        search_reg = lms.regex_special_characters(
-            search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
-        )
-        if reg or search_reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
-            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
-
-        if isinstance(data.get("is_download"), str):
-            data["is_download"] = int(data.get("is_download"))
-
-        if not data.get("lender"):
-            data["lender"] = frappe.get_last_doc("Lender").name
-
-        filters = {"lender": data.get("lender")}
-
-        security_category_list_ = frappe.db.get_all(
-            "Allowed Security",
-            filters=filters,
-            fields=["distinct(security_category)"],
-            order_by="security_category asc",
-        )
-        security_category_list = [i.security_category for i in security_category_list_]
-
-        or_filters = ""
-        if data.get("search", None):
-            search_key = ["like", str("%" + data["search"] + "%")]
-            or_filters = {"security_name": search_key}
-
-        if data.get("category", None):
-            filters["security_category"] = data.get("category")
-
-        approved_security_list = []
-        approved_security_pdf_file_url = ""
-
-        if data.get("is_download"):
-            approved_security_list = frappe.db.get_all(
-                "Allowed Security",
-                filters=filters,
-                or_filters=or_filters,
-                order_by="security_name asc",
-                fields=[
-                    "isin",
-                    "security_name",
-                    "security_category",
-                    "eligible_percentage",
-                ],
-            )
-            approved_security_list.sort(
-                key=lambda item: (item["security_name"]).title()
-            )
-
-            if not approved_security_list:
-                # return utils.respondNotFound(message=_("No Record Found"))
-                raise lms.exceptions.NotFoundException(_("No Record found"))
-
-            lt_list = []
-
-            for list in approved_security_list:
-                lt_list.append(list.values())
-            df = pd.DataFrame(lt_list)
-            df.columns = approved_security_list[0].keys()
-            df.drop("eligible_percentage", inplace=True, axis=1)
-            df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
-            df.index += 1
-            approved_security_pdf_file = "{}-approved-securities.pdf".format(
-                data.get("lender")
-            ).replace(" ", "-")
-
-            date_ = frappe.utils.now_datetime()
-            # formatting of date as 1 => 1st, 11 => 11th, 21 => 21st
-            formatted_date = lms.date_str_format(date=date_.day)
-
-            curr_date = formatted_date + date_.strftime(" %B, %Y")
-
-            approved_security_pdf_file_path = frappe.utils.get_files_path(
-                approved_security_pdf_file
-            )
-
-            lender = frappe.get_doc("Lender", data["lender"])
-            las_settings = frappe.get_single("LAS Settings")
-            logo_file_path_1 = lender.get_lender_logo_file()
-            logo_file_path_2 = las_settings.get_spark_logo_file()
-            approved_securities_template = lender.get_approved_securities_template()
-            doc = {
-                "column_name": df.columns,
-                "rows": df.iterrows(),
-                "date": curr_date,
-                "logo_file_path_1": logo_file_path_1.file_url
-                if logo_file_path_1
-                else "",
-                "logo_file_path_2": logo_file_path_2.file_url
-                if logo_file_path_2
-                else "",
-            }
-            agreement = frappe.render_template(
-                approved_securities_template.get_content(), {"doc": doc}
-            )
-
-            pdf_file = open(approved_security_pdf_file_path, "wb")
-
-            from frappe.utils.pdf import get_pdf
-
-            # pdf = get_pdf(html_with_style)
-            pdf = get_pdf(
-                agreement,
-                options={
-                    "margin-right": "1mm",
-                    "margin-left": "1mm",
-                    "page-size": "A4",
-                },
-            )
-            pdf_file.write(pdf)
-            pdf_file.close()
-
-            approved_security_pdf_file_url = frappe.utils.get_url(
-                "files/{}-approved-securities.pdf".format(data.get("lender")).replace(
-                    " ", "-"
-                )
-            )
-        else:
-            if not data.get("per_page", None):
-                data["per_page"] = 20
-            if not data.get("start", None):
-                data["start"] = 0
-
-            approved_security_list = frappe.db.get_all(
-                "Allowed Security",
-                filters=filters,
-                or_filters=or_filters,
-                order_by="security_name asc",
-                fields=[
-                    "isin",
-                    "security_name",
-                    "security_category",
-                    "eligible_percentage",
-                ],
-                start=data.get("start"),
-                page_length=data.get("per_page"),
-            )
-
-        res = {
-            "security_category_list": security_category_list,
-            "approved_securities_list": approved_security_list,
-            "pdf_file_url": approved_security_pdf_file_url,
-        }
-
-        return utils.respondWithSuccess(data=res)
-
-    except utils.exceptions.APIException as e:
-        return e.respond()
-
-
 """Changes as per Concentration rule BRE"""
 
 
@@ -1766,10 +1316,6 @@ def approved_securities(**kwargs):
             search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
         )
         if reg or search_reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         if isinstance(data.get("is_download"), str):
@@ -1780,12 +1326,6 @@ def approved_securities(**kwargs):
             "Mutual Fund - Equity",
             "Mutual Fund - Debt",
         ]:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._(
-            #         "Loan type should be in Equity, Mutual Fund - Equity, Mutual Fund - Debt."
-            #     ),
-            # )
             raise lms.exceptions.FailureException(
                 _(
                     "Loan type should be in Equity, Mutual Fund - Equity, Mutual Fund - Debt."
@@ -1849,7 +1389,6 @@ def approved_securities(**kwargs):
             )
 
             if not approved_security_list:
-                # return utils.respondNotFound(message=_("No Record Found"))
                 raise lms.exceptions.NotFoundException(_("No Record found"))
 
             lt_list = []
@@ -1957,7 +1496,6 @@ def all_loans_list(**kwargs):
 
         customer = lms.__customer()
         if not customer:
-            # return utils.respondNotFound(message=frappe._("Customer not found."))
             raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         all_loans = frappe.get_all(
@@ -1982,10 +1520,6 @@ def my_pledge_securities(**kwargs):
         customer = lms.__customer()
         reg = lms.regex_special_characters(search=data.get("loan_name"))
         if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
             raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         try:
@@ -2110,20 +1644,14 @@ def dashboard(**kwargs):
         user = lms.__user()
         try:
             user_kyc = lms.__user_kyc()
-            # user_kyc.pan_no = lms.user_details_hashing(user_kyc.pan_no)
-            # for i in user_kyc.bank_account:
-            #     i.account_number = lms.user_details_hashing(i.account_number)
             user_kyc = lms.user_kyc_hashing(user_kyc)
         except UserKYCNotFoundException:
             user_kyc = None
 
         customer = lms.__customer()
         if not customer:
-            # return utils.respondNotFound(message=frappe._("Customer not found."))
             raise lms.exceptions.NotFoundException(_("Customer not found"))
 
-        # actionable_loans = []
-        # action_loans = []
         mgloan = []
         deadline_for_all_mg_shortfall = {}
         total_int_amt_all_loans = 0
@@ -2136,19 +1664,11 @@ def dashboard(**kwargs):
         for dictionary in margin_shortfall_and_interest_loans[0]:
             loan = frappe.get_doc("Loan", dictionary["name"])
             mg_shortfall_doc = loan.get_margin_shortfall()
-            # mg_shortfall_doc = frappe.get_all("Loan Margin Shortfall", filters={"loan": dictionary["name"], "status":["in", ["Pending", "Sell Triggered"]]}, fields=["*"])[0]
-            mg_shortfall_action = frappe.get_doc(
-                "Margin Shortfall Action", mg_shortfall_doc.margin_shortfall_action
-            )
+
             if mg_shortfall_doc:
                 is_today_holiday = 0
                 hrs_difference = mg_shortfall_doc.deadline - frappe.utils.now_datetime()
-                # if mg_shortfall_action.sell_off_after_hours:
-                # if mg_shortfall_action.sell_off_after_hours or (
-                #     mg_shortfall_action.sell_off_deadline_eod
-                #     and mg_shortfall_doc.creation.date()
-                #     in holiday_list(is_bank_holiday=1)
-                # ):
+
                 if mg_shortfall_doc.creation.date() != mg_shortfall_doc.deadline.date():
                     date_array = set(
                         mg_shortfall_doc.creation.date() + timedelta(days=x)
@@ -2371,17 +1891,12 @@ def dashboard(**kwargs):
                     topup_application_doc.top_up_amount
                 )
 
-                # topup_tnc = frappe.get_all(
-                #     "Approved Terms and Conditions",
-                #     filters={"application_name": topup_application.name},
-                # )
                 topup_pending_esigns.append(
                     {
                         "topup_application_doc": topup_application_doc,
                         "mess": "Congratulations! Your application is being considered favourably by our lending partner. Accordingly, the increase in the sanctioned limit is Rs. {}. Please e-sign the loan agreement to avail the increased sanctioned limit now.".format(
                             frappe.utils.fmt_money(topup_application_doc.top_up_amount)
-                        )
-                        # "is_topup_tnc_done": 1 if topup_tnc else 0,
+                        ),
                     }
                 )
 
@@ -2450,14 +1965,7 @@ def dashboard(**kwargs):
             "user_kyc": user_kyc,
             "margin_shortfall_card": deadline_for_all_mg_shortfall,
             "total_interest_all_loans_card": total_interest_all_loans,
-            # "under_process_la": under_process_la,
-            # "actionable_loans": actionable_loans,
-            # "active_loans": active_loans,
             "pending_esigns_list": pending_esigns_list,
-            # "top_up": topup_list,
-            # "sell_collateral_list": sell_collateral_list,
-            # "increase_loan_list": increase_loan_list,
-            # "unpledge_application_list": unpledge_application_list,
             "show_feedback_popup": show_feedback_popup,
             "youtube_video_ids": youtube_ids,
             "profile_picture_file_url": profile_picture_file_url,
@@ -2478,7 +1986,6 @@ def weekly_pledged_security_dashboard(**kwargs):
 
         customer = lms.__customer()
         if not customer:
-            # return utils.respondNotFound(message=frappe._("Customer not found."))
             raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         ## sum_of_all_pledged_securities for 52 weeks
@@ -2509,7 +2016,7 @@ def weekly_pledged_security_dashboard(**kwargs):
             group_by="isin",
         )
         all_isin_list = [i.isin for i in all_loan_items]
-        # all_isin_dict = {i.isin: i.total_pledged_qty for i in all_loan_items}
+
         while counter <= 52:
             sec.append({"yesterday": yesterday, "last_friday": last_friday})
             security_price_list = frappe.db.sql(
@@ -2611,12 +2118,6 @@ def get_profile_set_alerts(**kwargs):
             and not data.get("percentage")
             and not data.get("amount")
         ):
-            # return utils.respondWithFailure(
-            #     status=417,
-            #     message=frappe._(
-            #         "Please select Amount or Percentage for setting Alerts"
-            #     ),
-            # )
             raise lms.exceptions.RespondFailureException(
                 _("Please select Amount or Percentage for setting Alerts.")
             )
@@ -2624,12 +2125,6 @@ def get_profile_set_alerts(**kwargs):
         elif (
             data.get("is_for_alerts") and data.get("percentage") and data.get("amount")
         ):
-            # return utils.respondWithFailure(
-            #     status=417,
-            #     message=frappe._(
-            #         "Please choose one between Amount or Percentage for setting Alerts"
-            #     ),
-            # )
             raise lms.exceptions.RespondFailureException(
                 _("Please choose one between Amount or Percentage for setting Alerts.")
             )
@@ -2721,18 +2216,11 @@ def update_profile_pic_and_pin(**kwargs):
                     customer.name
                 ).replace(" ", "-")
             )
-            # user.user_image = 0
-            # user.user_image = profile_picture_file_url
-            # user.save(ignore_permissions=True)
-            # frappe.db.commit()
             return utils.respondWithSuccess(
                 data={"profile_picture_file_url": profile_picture_file_url}
             )
 
         elif data.get("is_for_profile_pic") and not data.get("image"):
-            # return utils.respondWithFailure(
-            #     status=417, message=frappe._("Please upload image.")
-            # )
             raise lms.exceptions.RespondFailureException(_("Please upload image."))
 
         if (
@@ -2747,9 +2235,6 @@ def update_profile_pic_and_pin(**kwargs):
                     frappe.session.user, data.get("old_pin")
                 )
             except frappe.AuthenticationError:
-                # raise utils.respondWithFailure(
-                #     status=417, message=frappe._("Invalid current pin")
-                # )
                 raise lms.exceptions.RespondFailureException(_("Invalid current pin."))
 
             if old_pass_check:
@@ -2760,18 +2245,10 @@ def update_profile_pic_and_pin(**kwargs):
                     update_password(frappe.session.user, data.get("retype_pin"))
                     frappe.db.commit()
                 elif data.get("old_pin") == data.get("new_pin"):
-                    # return utils.respondWithFailure(
-                    #     status=417,
-                    #     message=frappe._("New pin cannot be same as old pin"),
-                    # )
                     raise lms.exceptions.RespondFailureException(
                         _("New pin cannot be same as old pin.")
                     )
                 else:
-                    # return utils.respondWithFailure(
-                    #     status=417,
-                    #     message=frappe._("Retyped pin does not match with new pin"),
-                    # )
                     raise lms.exceptions.RespondFailureException(
                         _("Retyped pin does not match with new pin")
                     )
@@ -2783,68 +2260,12 @@ def update_profile_pic_and_pin(**kwargs):
         elif data.get("is_for_update_pin") and (
             not data.get("old_pin") or not data.get("new_pin")
         ):
-            # return utils.respondWithFailure(
-            #     status=417, message=frappe._("Please Enter old pin and new pin.")
-            # )
             raise lms.exceptions.RespondFailureException(
                 _("Please Enter old pin and new pin.")
             )
 
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
-        lms.log_api_error()
-        return e.respond()
-
-
-@frappe.whitelist(allow_guest=True)
-def contact_us_old(**kwargs):
-    try:
-        utils.validator.validate_http_method("GET")
-
-        data = utils.validator.validate(
-            kwargs, {"search": "", "view_more": "decimal|between:0,1"}
-        )
-
-        reg = lms.regex_special_characters(
-            search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
-        )
-        if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
-            raise lms.exceptions.FailureException(_("Special Charaters not allowed."))
-
-        if isinstance(data.get("view_more"), str):
-            data["view_more"] = int(data.get("view_more"))
-
-        filters_arr = {}
-        if data.get("view_more") or data.get("search"):
-            # all FAQ will be shown
-            page_length = ""
-        else:
-            # only recent 6 FAQ will be shown
-            page_length = 6
-
-        if data.get("search", None):
-            search_key = str("%" + data["search"] + "%")
-            filters_arr = {
-                "topic": ["like", search_key],
-                "description": ["like", search_key],
-                "resolution": ["like", search_key],
-            }
-
-        faq = frappe.get_all(
-            "FAQ", or_filters=filters_arr, fields=["*"], page_length=page_length
-        )
-
-        if not faq:
-            return utils.respondWithSuccess(
-                message="Your issue does not match with Common Issues. Please Contact Us."
-            )
-
-        return utils.respondWithSuccess(data=faq)
-    except utils.exceptions.APIException as e:
         lms.log_api_error()
         return e.respond()
 
@@ -2865,10 +2286,6 @@ def check_eligible_limit(**kwargs):
             search=data.get("search"), regex=re.compile("[@!#$%_^&*<>?/\|}{~`]")
         )
         if reg or search_reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
             raise lms.exceptions.FailureException(_("Special Charaters not allowed."))
 
         if not data.get("lender"):
@@ -2896,11 +2313,8 @@ def check_eligible_limit(**kwargs):
         )
 
         if not eligible_limit_list:
-            # return utils.respondNotFound(message=_("No Record Found"))
             raise lms.exceptions.NotFoundException(_("No Record Found"))
 
-        # for i in eligible_limit_list:
-        #     i["Is_Eligible"] = True
         list = map(lambda item: dict(item, Is_Eligible=True), eligible_limit_list)
 
         return utils.respondWithSuccess(data=list)
@@ -2957,10 +2371,6 @@ def feedback(**kwargs):
         customer = lms.__customer()
         reg = lms.regex_special_characters(search=data.get("comment"))
         if reg:
-            # return utils.respondWithFailure(
-            #     status=422,
-            #     message=frappe._("Special Characters not allowed."),
-            # )
             raise lms.exceptions.FailureException(_("Special Charaters not allowed."))
 
         if isinstance(data.get("do_not_show_again"), str):
@@ -2990,10 +2400,6 @@ def feedback(**kwargs):
             if (data.get("bulls_eye") and data.get("can_do_better")) or (
                 not data.get("bulls_eye") and not data.get("can_do_better")
             ):
-                # return utils.respondWithFailure(
-                #     status=417,
-                #     message=frappe._("Please select atleast one option."),
-                # )
                 raise lms.exceptions.RespondFailureException(
                     _("Please select atleast one option.")
                 )
@@ -3004,19 +2410,12 @@ def feedback(**kwargs):
                 and not data.get("related_to_functionality")
                 and not data.get("others")
             ):
-                # return utils.respondWithFailure(
-                #     status=417,
-                #     message=frappe._("Please select atleast one from below options."),
-                # )
                 raise lms.exceptions.RespondFailureException(
                     _("Please select atleast one from below options.")
                 )
 
             # if not data.get("do_not_show_again") or not customer.feedback_submitted:
             if not data.get("comment") or data.get("comment").isspace():
-                # return utils.respondWithFailure(
-                #     message=frappe._("Please write your suggestion to us.")
-                # )
                 raise lms.exceptions.RespondWithFailureException(
                     _("Please write your suggestions to us.")
                 )
@@ -3031,12 +2430,6 @@ def feedback(**kwargs):
             },
         )
 
-        # if number_of_user_login[0].status_count > 10:
-        # show feedback popup
-        # number_of_user_login = frappe.db.count(
-        #     "User Token",
-        #     filters={"token_type": "Firebase Token", "entity": customer.user},
-        # )
         loan_customer_feedback_config = frappe.db.get_value(
             "Loan Customer",
             {"name": customer.name},
@@ -3066,10 +2459,6 @@ def feedback(**kwargs):
                 }
             )
             feedback_doc.insert(ignore_permissions=True)
-            # feedback_already_given = frappe.get_doc(
-            #     "Feedback", {"customer": customer.name}
-            # )
-            # if feedback_already_given:
             if (
                 loan_customer_feedback_config
                 and not loan_customer_feedback_config["feedback_submitted"]
@@ -3084,9 +2473,6 @@ def feedback(**kwargs):
             )
 
         else:
-            # return utils.respondWithFailure(
-            #     status=417, message=frappe._("Oops something went wrong.")
-            # )
             raise lms.exceptions.RespondFailureException(
                 _("Oops something went wrong.")
             )
@@ -3108,7 +2494,6 @@ def loan_summary_dashboard(**kwargs):
 
         customer = lms.__customer()
         if not customer:
-            # return utils.respondNotFound(message=frappe._("Customer not found."))
             raise lms.exceptions.NotFoundException(_("Customer not found"))
 
         mindate = datetime(MINYEAR, 1, 1)
@@ -3310,9 +2695,6 @@ def loan_summary_dashboard(**kwargs):
                         "unpledge": None
                         if unpledge_application_exist or loan_margin_shortfall
                         else loan.max_unpledge_amount(),
-                        # "sell_collateral_available": None,
-                        # "top_up_amount": 0.0,
-                        # "existing_topup_application": None
                     }
                 )
 
@@ -3455,10 +2837,6 @@ def otp_for_testing(**kwargs):
             "Sell Collateral OTP",
             "Forgot Pin OTP",
         ]:
-            # return utils.respondWithFailure(
-            #     status=417,
-            #     message=frappe._("Incorrect OTP type."),
-            # )
             raise lms.exceptions.RespondFailureException(_("Incorrect OTP type."))
 
         customer = lms.__customer()
@@ -5628,194 +5006,218 @@ def au_penny_drop(**kwargs):
         except UserKYCNotFoundException:
             raise lms.exceptions.RespondWithFailureException(_("User KYC not found"))
 
-        ReqId = datetime.strftime(datetime.now(), "%d%m") + str(
-            abs(randint(0, 9999) - randint(1, 99))
-        )
         las_settings = frappe.get_single("LAS Settings")
-        SECRET_KEY = las_settings.penny_secret_key
+        res_json = {}
+        bank_acc = frappe.get_all(
+            "User Bank Account", {"account_number": data.get("account_number")}, "*"
+        )
 
-        # ReqId + IFSCCode + AccNum
-
-        hash_text = "{}{}{}".format(ReqId, data.get("ifsc"), data.get("account_number"))
-
-        final_hash = hmac.new(
-            key=bytes(SECRET_KEY, "utf-8"),
-            msg=bytes(hash_text, "utf-8"),
-            digestmod="sha512",
-        ).digest()
-
-        payload = {
-            "ReqId": ReqId,
-            "IFSCCode": data.get("ifsc"),
-            "AccNum": data.get("account_number"),
-            "HashValue": base64.b64encode(final_hash).decode("ascii"),
-        }
-
-        url = las_settings.penny_drop_api
-
-        headers = {
-            "Content-Type": "application/json",
-        }
-        res = requests.post(url=url, json=payload, headers=headers)
-
-        res_json = res.json()
-
-        lms.create_log(res_json, "au_penny_drop")
-
-        if res_json.get("StatusCode") == 200 and res_json.get("Message") == "Success":
-            result_ = res_json.get("Body").get("pennyResponse").get("Result")
-            if result_.get("bankTxnStatus") == True:
-                fullname = (
-                    user_kyc.fname
-                    if user_kyc.fname
-                    else "" + user_kyc.mname
-                    if user_kyc.mname
-                    else "" + user_kyc.lname
-                    if user_kyc.lname
-                    else ""
-                ).split()
-                if not result_.get("accountName").lower():
-                    # if not user_kyc.fname.lower().split(" ")[0] in result_.get("accountName").lower():
-                    raise lms.exceptions.RespondFailureException(
-                        _(
-                            "We have found a mismatch in the account holder name as per the fetched data"
-                        )
-                    )
+        if bank_acc:
+            if bank_acc[0].ifsc == data.get("ifsc"):
+                if frappe.utils.now_datetime().date() >= (
+                    bank_acc[0].creation.date()
+                    + timedelta(days=las_settings.pennydrop_days_passed)
+                ):
+                    res_json = lms.au_pennydrop_api(data)
                 else:
-                    photos_ = lms.upload_image_to_doctype(
-                        customer=customer,
-                        seq_no=result_.get("accountNumber")[-4:],
-                        image_=data.get("personalized_cheque"),
-                        img_format="jpeg",
-                        img_folder="personalized_cheque",
-                    )
-                    if user_kyc.kyc_type == "CHOICE":
-                        bank_entry_name = frappe.db.get_value(
-                            "User Bank Account",
-                            {
-                                "parentfield": "bank_account",
-                                "parent": user_kyc.name,
-                                "account_number": result_.get("accountNumber"),
-                            },
-                            "name",
-                        )
-                        if not bank_entry_name:
-                            bank_account_list = frappe.get_all(
-                                "User Bank Account",
-                                filters={"parent": user_kyc.name},
-                                fields="*",
-                            )
-                            for b in bank_account_list:
-                                if bank_entry_name != b.name:
-                                    other_bank = frappe.get_doc(
-                                        "User Bank Account", b.name
-                                    )
-                                    if other_bank.is_default == 1:
-                                        other_bank.is_default = 0
-                                        other_bank.save(ignore_permissions=True)
-                            frappe.get_doc(
-                                {
-                                    "doctype": "User Bank Account",
-                                    "parentfield": "bank_account",
-                                    "parenttype": "User KYC",
-                                    "bank": data.get("bank"),
-                                    "branch": data.get("branch"),
-                                    "account_type": data.get("bank_account_type"),
-                                    "account_number": result_.get("accountNumber"),
-                                    "ifsc": data.get("ifsc"),
-                                    "account_holder_name": result_.get("accountName"),
-                                    "personalized_cheque": photos_,
-                                    "city": data.get("city"),
-                                    "parent": user_kyc.name,
-                                    "is_default": True,
-                                    "bank_status": "Pending",
-                                    "penny_request_id": res_json.get("Body")
-                                    .get("pennyResponse")
-                                    .get("request_id"),
-                                    "bank_transaction_status": result_.get(
-                                        "bankTxnStatus"
-                                    ),
-                                }
-                            ).insert(ignore_permissions=True)
-                            frappe.db.commit()
-                        else:
-                            # For existing choice bank entries
-                            bank_account_list = frappe.get_all(
-                                "User Bank Account",
-                                filters={"parent": user_kyc.name},
-                                fields="*",
-                            )
-                            for b in bank_account_list:
-                                other_bank = frappe.get_doc("User Bank Account", b.name)
-                                if other_bank.is_default == 1:
-                                    other_bank.is_default = 0
-                                    other_bank.save(ignore_permissions=True)
-
-                            frappe.delete_doc("User Bank Account", bank_entry_name)
-
-                            frappe.get_doc(
-                                {
-                                    "doctype": "User Bank Account",
-                                    "parentfield": "bank_account",
-                                    "parenttype": "User KYC",
-                                    "bank": data.get("bank"),
-                                    "branch": data.get("branch"),
-                                    "account_type": data.get("bank_account_type"),
-                                    "account_number": result_.get("accountNumber"),
-                                    "ifsc": data.get("ifsc"),
-                                    "account_holder_name": result_.get("accountName"),
-                                    "personalized_cheque": photos_,
-                                    "city": data.get("city"),
-                                    "parent": user_kyc.name,
-                                    "is_default": True,
-                                    "bank_status": "Pending",
-                                    "penny_request_id": res_json.get("Body")
-                                    .get("pennyResponse")
-                                    .get("request_id"),
-                                    "bank_transaction_status": result_.get(
-                                        "bankTxnStatus"
-                                    ),
-                                }
-                            ).insert(ignore_permissions=True)
-                            frappe.db.commit()
-
-                    else:
-                        # For non choice user
-                        frappe.get_doc(
-                            {
-                                "doctype": "User Bank Account",
-                                "parentfield": "bank_account",
-                                "parenttype": "User KYC",
-                                "bank": data.get("bank"),
-                                "branch": data.get("branch"),
-                                "account_type": data.get("bank_account_type"),
-                                "account_number": result_.get("accountNumber"),
-                                "ifsc": data.get("ifsc"),
-                                "account_holder_name": result_.get("accountName"),
-                                "personalized_cheque": photos_,
-                                "city": data.get("city"),
-                                "parent": user_kyc.name,
-                                "is_default": True,
-                                "bank_status": "Pending",
-                                "penny_request_id": res_json.get("Body")
-                                .get("pennyResponse")
-                                .get("request_id"),
-                                "bank_transaction_status": result_.get("bankTxnStatus"),
-                            }
-                        ).insert(ignore_permissions=True)
-                        frappe.db.commit()
-
                     return utils.respondWithSuccess(
                         message="Your account details have been successfully verified"
                     )
             else:
-                raise lms.exceptions.RespondFailureException(
-                    _("Your account details have not been successfully verified")
-                )
+                res_json = lms.au_pennydrop_api(data)
         else:
-            raise lms.exceptions.RespondFailureException(
-                _("Your account details have not been successfully verified")
-            )
+            res_json = lms.au_pennydrop_api(data)
+
+        if res_json:
+            if (
+                res_json.get("StatusCode") == 200
+                and res_json.get("Message") == "Success"
+            ):
+                result_ = res_json.get("Body").get("pennyResponse").get("Result")
+                if (
+                    res_json.get("Body").get("pennyResponse").get("status-code")
+                    == "101"
+                ):
+                    if result_.get("bankTxnStatus") == True:
+                        if not result_.get("accountName").lower():
+                            raise lms.exceptions.RespondFailureException(
+                                _(
+                                    "We have found a mismatch in the account holder name as per the fetched data"
+                                )
+                            )
+                        else:
+                            matching = lms.name_matching(
+                                user_kyc, result_.get("accountName")
+                            )
+                            if matching == False:
+                                raise lms.exceptions.RespondFailureException(
+                                    _(
+                                        "We have found a mismatch in the account holder name as per the fetched data"
+                                    )
+                                )
+                            photos_ = lms.upload_image_to_doctype(
+                                customer=customer,
+                                seq_no=result_.get("accountNumber")[-4:],
+                                image_=data.get("personalized_cheque"),
+                                img_format="jpeg",
+                                img_folder="personalized_cheque",
+                            )
+                            if user_kyc.kyc_type == "CHOICE":
+                                bank_entry_name = frappe.db.get_value(
+                                    "User Bank Account",
+                                    {
+                                        "parentfield": "bank_account",
+                                        "parent": user_kyc.name,
+                                        "account_number": result_.get("accountNumber"),
+                                    },
+                                    "name",
+                                )
+                                if not bank_entry_name:
+                                    bank_account_list = frappe.get_all(
+                                        "User Bank Account",
+                                        filters={"parent": user_kyc.name},
+                                        fields="*",
+                                    )
+                                    for b in bank_account_list:
+                                        if bank_entry_name != b.name:
+                                            other_bank = frappe.get_doc(
+                                                "User Bank Account", b.name
+                                            )
+                                            if other_bank.is_default == 1:
+                                                other_bank.is_default = 0
+                                                other_bank.save(ignore_permissions=True)
+                                    frappe.get_doc(
+                                        {
+                                            "doctype": "User Bank Account",
+                                            "parentfield": "bank_account",
+                                            "parenttype": "User KYC",
+                                            "bank": data.get("bank"),
+                                            "branch": data.get("branch"),
+                                            "account_type": data.get(
+                                                "bank_account_type"
+                                            ),
+                                            "account_number": result_.get(
+                                                "accountNumber"
+                                            ),
+                                            "ifsc": data.get("ifsc"),
+                                            "account_holder_name": result_.get(
+                                                "accountName"
+                                            ),
+                                            "personalized_cheque": photos_,
+                                            "city": data.get("city"),
+                                            "parent": user_kyc.name,
+                                            "is_default": True,
+                                            "bank_status": "Pending",
+                                            "penny_request_id": res_json.get("Body")
+                                            .get("pennyResponse")
+                                            .get("request_id"),
+                                            "bank_transaction_status": result_.get(
+                                                "bankTxnStatus"
+                                            ),
+                                        }
+                                    ).insert(ignore_permissions=True)
+                                    frappe.db.commit()
+                                else:
+                                    # For existing choice bank entries
+                                    bank_account_list = frappe.get_all(
+                                        "User Bank Account",
+                                        filters={"parent": user_kyc.name},
+                                        fields="*",
+                                    )
+                                    for b in bank_account_list:
+                                        other_bank = frappe.get_doc(
+                                            "User Bank Account", b.name
+                                        )
+                                        if other_bank.is_default == 1:
+                                            other_bank.is_default = 0
+                                            other_bank.save(ignore_permissions=True)
+
+                                    frappe.delete_doc(
+                                        "User Bank Account", bank_entry_name
+                                    )
+
+                                    frappe.get_doc(
+                                        {
+                                            "doctype": "User Bank Account",
+                                            "parentfield": "bank_account",
+                                            "parenttype": "User KYC",
+                                            "bank": data.get("bank"),
+                                            "branch": data.get("branch"),
+                                            "account_type": data.get(
+                                                "bank_account_type"
+                                            ),
+                                            "account_number": result_.get(
+                                                "accountNumber"
+                                            ),
+                                            "ifsc": data.get("ifsc"),
+                                            "account_holder_name": result_.get(
+                                                "accountName"
+                                            ),
+                                            "personalized_cheque": photos_,
+                                            "city": data.get("city"),
+                                            "parent": user_kyc.name,
+                                            "is_default": True,
+                                            "bank_status": "Pending",
+                                            "penny_request_id": res_json.get("Body")
+                                            .get("pennyResponse")
+                                            .get("request_id"),
+                                            "bank_transaction_status": result_.get(
+                                                "bankTxnStatus"
+                                            ),
+                                        }
+                                    ).insert(ignore_permissions=True)
+                                    frappe.db.commit()
+
+                            else:
+                                # For non choice user
+                                frappe.get_doc(
+                                    {
+                                        "doctype": "User Bank Account",
+                                        "parentfield": "bank_account",
+                                        "parenttype": "User KYC",
+                                        "bank": data.get("bank"),
+                                        "branch": data.get("branch"),
+                                        "account_type": data.get("bank_account_type"),
+                                        "account_number": result_.get("accountNumber"),
+                                        "ifsc": data.get("ifsc"),
+                                        "account_holder_name": result_.get(
+                                            "accountName"
+                                        ),
+                                        "personalized_cheque": photos_,
+                                        "city": data.get("city"),
+                                        "parent": user_kyc.name,
+                                        "is_default": True,
+                                        "bank_status": "Pending",
+                                        "penny_request_id": res_json.get("Body")
+                                        .get("pennyResponse")
+                                        .get("request_id"),
+                                        "bank_transaction_status": result_.get(
+                                            "bankTxnStatus"
+                                        ),
+                                    }
+                                ).insert(ignore_permissions=True)
+                                frappe.db.commit()
+                            return utils.respondWithSuccess(
+                                message="Your account details have been successfully verified"
+                            )
+                    else:
+                        lms.log_api_error(mess=str(res_json))
+                        return utils.respondWithFailure(
+                            status=417,
+                            message=result_.get("bankResponse"),
+                        )
+                else:
+                    lms.log_api_error(mess=str(res_json))
+                    return utils.respondWithFailure(
+                        status=417,
+                        message="Your bank account details are not verified, please try again after sometime.",
+                    )
+            else:
+                lms.log_api_error(mess=str(res_json))
+                return utils.respondWithFailure(
+                    status=res_json.get("StatusCode"),
+                    message=res_json.get("Message"),
+                )
 
     except utils.exceptions.APIException as e:
         lms.log_api_error()
