@@ -7,5 +7,5 @@ def execute():
         "lms", "patches", "imports", "spark_sms_notification_content.csv"
     )
     frappe.core.doctype.data_import.data_import.import_file(
-        "Spark SMS Notification", path, "Insert"
+        "Spark SMS Notification", path, "Insert", console=True
     )

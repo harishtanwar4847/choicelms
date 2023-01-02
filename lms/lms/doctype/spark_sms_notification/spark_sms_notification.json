@@ -18,13 +18,13 @@
   },
   {
    "fieldname": "message",
-   "fieldtype": "Small Text",
+   "fieldtype": "Long Text",
    "label": "Message"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-11-09 15:01:50.409840",
+ "modified": "2023-01-02 15:57:45.840993",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark SMS Notification",

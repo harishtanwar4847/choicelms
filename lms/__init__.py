@@ -1398,7 +1398,7 @@ def update_rzp_payment_transaction(data):
                     msg = frappe.get_doc(
                         "Spark SMS Notification", "Margin shortfall - action taken"
                     ).message
-                    send_sms_notification(customer=customer, msg=msg)
+                    # send_sms_notification(customer=customer, msg=msg)
 
                     # msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
                     fcm_notification = frappe.get_doc(
@@ -1425,7 +1425,7 @@ def update_rzp_payment_transaction(data):
                 msg = frappe.get_doc(
                     "Spark SMS Notification", "Payment Successful"
                 ).message.format(loan_transaction.amount, loan.name)
-                send_sms_notification(customer=customer, msg=msg)
+                # send_sms_notification(customer=customer, msg=msg)
 
                 # msg = """Dear Customer,\nCongratulations! You payment of Rs. {}  has been successfully received against loan account  {}. It shall be reflected in your account within  24 hours . Spark Loans""".format(
                 #     loan_transaction.amount, loan.name
@@ -1435,7 +1435,7 @@ def update_rzp_payment_transaction(data):
                 msg = frappe.get_doc(
                     "Spark SMS Notification", "Payment Failed"
                 ).message.format(loan_transaction.amount, loan.name)
-                send_sms_notification(customer=customer, msg=msg)
+                # send_sms_notification(customer=customer, msg=msg)
                 # msg = "Dear Customer,\nSorry! Your payment of Rs. {}  was unsuccessful against loan account  {}. Please check with your bank for details. Spark Loans".format(
                 #     loan_transaction.amount, loan.name
                 # )
