@@ -583,7 +583,8 @@ def send_notification_for_sell_triggered(single_shortfall):
         las_settings = frappe.get_single("LAS Settings")
         # mutual Fund sms change
         if loan.instrument_type == "Mutual Fund":
-            mess = "Dear Customer,\nURGENT NOTICE. An invoke has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall.The lender will invoke required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details - {link} - Spark Loans".format(
+            mess = """Dear Customer,
+URGENT NOTICE. An invoke has been triggered in your loan account {} due to inaction on your part to mitigate margin shortfall. The lender will invoke required collateral and deposit the proceeds in your loan account to fulfill the shortfall. Kindly check the app for details - {link} - Spark Loans""".format(
                 loan.name,
                 link=las_settings.app_login_dashboard,
             )

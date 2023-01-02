@@ -262,6 +262,12 @@ class LoanApplication(Document):
                 ).message.format(
                     self.minimum_sanctioned_limit, self.maximum_sanctioned_limit
                 )
+                #                 msg = """Dear Customer,
+                # Sorry! Your loan application was turned down since the requested loan amount is not in the range of lender's minimum sanction limit (Rs.{}) and maximum sanction limit (Rs.{}) criteria. We regret the inconvenience caused. Please try again with the expected criteria or reach out via the 'Contact Us' section of the app- {link} -Spark Loans""".format(
+                #                     self.minimum_sanctioned_limit,
+                #                     self.maximum_sanctioned_limit,
+                #                     link=las_settings.app_login_dashboard,
+                #                 )
                 # lms.send_sms_notification(customer,msg)
                 # msg = "Dear Customer,\nSorry! Your loan application was turned down since the requested loan amount is not in the range of lender's minimum sanction limit (Rs.{}) and maximum sanction limit (Rs.{}) criteria. We regret the inconvenience caused. Please try again with the expected criteria or reach out to us through 'Contact Us' on the app  -Spark Loans".format(
                 #     self.minimum_sanctioned_limit, self.maximum_sanctioned_limit
@@ -296,8 +302,6 @@ class LoanApplication(Document):
                 self.status = "Executing pledge"
                 self.workflow_state = "Executing pledge"
                 self.total_collateral_value = 0
-                # for i in self.items:
-                #     i.lender_approval_status = "Approved"
                 self.save(ignore_permissions=True)
                 frappe.db.commit()
                 lien_ref_no = self.items[0].get("prf_number")
@@ -500,8 +504,6 @@ class LoanApplication(Document):
         lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
-        values1 = {"value": ["{}".format(lender), lms.get_linenumber()]}
-        lms.create_log(values1, "status_pledge_accepted_by_lender")
 
         if (
             self.status == "Approved"
@@ -509,56 +511,23 @@ class LoanApplication(Document):
             and not self.loan_margin_shortfall
             and not self.application_type == "Pledge More"
         ):
-            values2 = {
-                "value": [
-                    self.status,
-                    self.lender_esigned_document,
-                    self.loan_margin_shortfall,
-                    self.application_type,
-                    lms.get_linenumber(),
-                ]
-            }
-            lms.create_log(values2, "status_pledge_accepted_by_lender ")
             frappe.throw("Please upload Lender Esigned Document")
         elif self.status == "Approved":
-            values3 = {"value": [self.status, lms.get_linenumber()]}
-            lms.create_log(values3, "status_pledge_accepted_by_lender ")
             current = frappe.utils.now_datetime()
             expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
             self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
         elif self.status == "Pledge accepted by Lender":
-            values4 = {"value": [self.status, lms.get_linenumber()]}
-            lms.create_log(values4, "status_pledge_accepted_by_lender")
-
             if self.pledge_status == "Failure":
-                values5 = {"value": [self.pledge_status, lms.get_linenumber()]}
-                lms.create_log(values5, "status_pledge_accepted_by_lender")
-
                 frappe.throw("Sorry! Pledge for this Loan Application is failed.")
 
             total_approved = 0
             total_collateral_value = 0
 
-            values6 = {"value": [lms.get_linenumber()]}
-            lms.create_log(values6, "status_pledge_accepted_by_lender")
-
             for i in self.items:
-                values7 = {"value": [i, lms.get_linenumber()]}
-                lms.create_log(values7, "status_pledge_accepted_by_lender")
-
                 if i.get("pledge_status") == "Failure" and i.lender_approval_status in [
                     "Approved",
                     "Rejected",
                 ]:
-                    values8 = {
-                        "value": [
-                            i.get("pledge_status"),
-                            (i.lender_approval_status),
-                            lms.get_linenumber(),
-                        ]
-                    }
-                    lms.create_log(values8, "status_pledge_accepted_by_lender")
-
                     frappe.throw(
                         "Pledge failed for ISIN - {}, can't Approve or Reject".format(
                             i.isin
@@ -566,23 +535,7 @@ class LoanApplication(Document):
                     )
 
                 elif i.get("pledge_status") == "Success":
-                    values9 = {
-                        "value": [
-                            i.get("pledge_status"),
-                            lms.get_linenumber(),
-                        ]
-                    }
-                    lms.create_log(values9, "status_pledge_accepted_by_lender")
-
                     if i.lender_approval_status == "Pledge Failure":
-                        values10 = {
-                            "value": [
-                                (i.lender_approval_status),
-                                lms.get_linenumber(),
-                            ]
-                        }
-                        lms.create_log(values10, "status_pledge_accepted_by_lender")
-
                         frappe.throw(
                             "Already pledge success for {}, not allowed to set Pledge Failure.".format(
                                 i.isin
@@ -590,31 +543,13 @@ class LoanApplication(Document):
                         )
 
                     elif i.lender_approval_status == "":
-                        values11 = {
-                            "value": [
-                                (i.lender_approval_status),
-                                lms.get_linenumber(),
-                            ]
-                        }
-                        lms.create_log(values11, "status_pledge_accepted_by_lender")
-
                         frappe.throw("Please Approve/Reject {}".format(i.isin))
 
                     if i.lender_approval_status == "Approved":
-                        values31 = {
-                            "value": [
-                                (i.lender_approval_status),
-                                lms.get_linenumber(),
-                            ]
-                        }
-                        lms.create_log(values31, "status_pledge_accepted_by_lender")
                         total_approved += 1
                         total_collateral_value += i.amount
 
             if total_approved == 0:
-                values12 = {"value": [(total_approved), lms.get_linenumber()]}
-                lms.create_log(values12, "status_pledge_accepted_by_lender")
-
                 frappe.throw(
                     "Please Approve atleast one item or Reject the Loan Application"
                 )
@@ -679,52 +614,19 @@ class LoanApplication(Document):
                 )
 
             if self.application_type in ["New Loan", "Increase Loan"]:
-                values13 = {"value": [(self.application_type), lms.get_linenumber()]}
-                lms.create_log(values13, "status_pledge_accepted_by_lender")
-
                 if drawing_power < self.minimum_sanctioned_limit:
-                    values14 = {
-                        "value": [
-                            drawing_power,
-                            self.minimum_sanctioned_limit,
-                            lms.get_linenumber(),
-                        ]
-                    }
-                    lms.create_log(values14, "status_pledge_accepted_by_lender")
-
                     frappe.throw(
                         "Sorry! This Loan Application can not be Approved as its Drawing power is less than Minimum Sanctioned Limit."
                     )
 
         if self.status == "Pledge executed":
             total_collateral_value = 0
-            values15 = {"value": [self.status, lms.get_linenumber()]}
-            lms.create_log(values15, "status_pledge_accepted_by_lender")
             for i in self.items:
-                values16 = {"value": [i, lms.get_linenumber()]}
-                lms.create_log(values16, "status_pledge_accepted_by_lender")
-
                 if i.pledge_status == "Success" or i.pledge_status == "":
-                    values17 = {
-                        "value": [
-                            i.pledge_status,
-                            lms.get_linenumber(),
-                        ]
-                    }
-                    lms.create_log(values17, "status_pledge_accepted_by_lender")
-
                     if (
                         i.lender_approval_status == "Approved"
                         or i.lender_approval_status == ""
                     ):
-                        values18 = {
-                            "value": [
-                                i.lender_approval_status,
-                                lms.get_linenumber(),
-                            ]
-                        }
-                        lms.create_log(values18, "status_pledge_accepted_by_lender")
-
                         total_collateral_value += i.amount
                         self.total_collateral_value = round(total_collateral_value, 2)
                         if self.instrument_type == "Shares":
@@ -754,41 +656,10 @@ class LoanApplication(Document):
                             if drawing_power < self.maximum_sanctioned_limit
                             else self.maximum_sanctioned_limit
                         )
-                        values19 = {
-                            "value": [
-                                total_collateral_value,
-                                self.total_collateral_value,
-                                self.drawing_power,
-                                lms.get_linenumber(),
-                            ]
-                        }
-                        lms.create_log(values19, "status_pledge_accepted_by_lender")
-
-                    # elif (
-                    #     i.lender_approval_status == "Rejected"
-                    #     or i.lender_approval_status == "Pledge Failure"
-                    # ):
-                    #     if (
-                    #         total_collateral_value > 0
-                    #         and total_collateral_value >= i.amount
-                    #     ):
-                    #         total_collateral_value -= i.amount
-                    #     self.total_collateral_value = round(total_collateral_value, 2)
-                    #     self.drawing_power = round(
-                    #         lms.round_down_amount_to_nearest_thousand(
-                    #             (self.allowable_ltv / 100) * self.total_collateral_value
-                    #         ),
-                    #         2,
-                    #     )
 
         # On loan application rejection mark lender approvel status as rejected in loan application items
         if self.status == "Rejected":
-            values20 = {"value": [self.status, lms.get_linenumber()]}
-            lms.create_log(values20, "status_pledge_accepted_by_lender")
             for i in self.items:
-                values21 = {"value": [i, lms.get_linenumber()]}
-                lms.create_log(values21, "status_pledge_accepted_by_lender line354")
-
                 i.lender_approval_status = "Rejected"
 
         self.total_collateral_value_str = lms.amount_formatter(
@@ -798,19 +669,33 @@ class LoanApplication(Document):
         self.pledged_total_collateral_value_str = lms.amount_formatter(
             self.pledged_total_collateral_value
         )
+        if (
+            self.application_type
+            in ["Increase Loan", "Pledge More", "Margin Shortfall"]
+            and self.status == "Approved"
+        ):
+            renewal_list = frappe.get_all(
+                "Spark Loan Renewal Application",
+                filters={"loan": self.loan, "status": ["Not IN", "Rejected"]},
+                fields=["name"],
+            )
+            if renewal_list:
+                renewal_doc = frappe.get_doc(
+                    "Spark Loan Renewal Application", renewal_list[0].name
+                )
+                renewal_doc.status = "Rejected"
+                renewal_doc.workflow_state = "Rejected"
+                renewal_doc.remarks = (
+                    "Rejected due to Approval of Top-up/Increase Loan Application"
+                )
+                renewal_doc.save(ignore_permissions=True)
+                frappe.db.commit()
 
     def on_update(self):
-        print("Prod")
         if self.status == "Approved":
             if not self.loan:
-                values21 = {"value": [self.status, lms.get_linenumber()]}
-                lms.create_log(values21, "status_pledge_accepted_by_lender")
-
                 loan = self.create_loan()
             else:
-                values21 = {"value": [(self.status, lms.get_linenumber())]}
-                lms.create_log(values21, "status_pledge_accepted_by_lender")
-
                 loan = self.update_existing_loan()
             frappe.db.commit()
             if self.application_type in ["New Loan", "Increase Loan"]:
@@ -819,38 +704,17 @@ class LoanApplication(Document):
 
             if not self.loan:
                 # new loan agreement mapping
-                values22 = {"value": [self.loan, lms.get_linenumber()]}
-                lms.create_log(values22, "status_pledge_accepted_by_lender")
-
                 self.map_loan_agreement_file(loan)
             elif (
                 self.loan
                 and self.lender_esigned_document
                 and not self.loan_margin_shortfall
             ):
-                values23 = {
-                    "value": [
-                        self.loan,
-                        self.lender_esigned_document,
-                        self.loan_margin_shortfall,
-                        lms.get_linenumber(),
-                    ]
-                }
-                lms.create_log(values23, "status_pledge_accepted_by_lender")
-
                 # increase loan agreement mapping
                 self.map_loan_agreement_file(loan, increase_loan=True)
 
             if self.loan_margin_shortfall:
                 # if shortfall is not recoverd then margin shortfall status will change from request pending to pending
-                values24 = {
-                    "value": [
-                        self.loan_margin_shortfall,
-                        lms.get_linenumber(),
-                    ]
-                }
-                lms.create_log(values24, "status_pledge_accepted_by_lender")
-
                 loan_margin_shortfall = frappe.get_doc(
                     "Loan Margin Shortfall", self.loan_margin_shortfall
                 )
@@ -887,17 +751,6 @@ class LoanApplication(Document):
                     },
                 )
 
-                values25 = {
-                    "value": [
-                        loan_margin_shortfall,
-                        under_process_la,
-                        pending_loan_transaction,
-                        pending_sell_collateral_application,
-                        lms.get_linenumber(),
-                    ]
-                }
-                lms.create_log(values25, "status_pledge_accepted_by_lender")
-
                 if (
                     (
                         not pending_loan_transaction
@@ -907,17 +760,6 @@ class LoanApplication(Document):
                     and loan_margin_shortfall.status == "Request Pending"
                     and loan_margin_shortfall.shortfall_percentage > 0
                 ):
-                    values26 = {
-                        "value": [
-                            loan_margin_shortfall,
-                            under_process_la,
-                            pending_loan_transaction,
-                            pending_sell_collateral_application,
-                            lms.get_linenumber(),
-                        ]
-                    }
-                    lms.create_log(values26, "status_pledge_accepted_by_lender")
-
                     loan_margin_shortfall.status = "Pending"
                     loan_margin_shortfall.save(ignore_permissions=True)
                     frappe.db.commit()
@@ -925,61 +767,21 @@ class LoanApplication(Document):
         elif self.status == "Pledge accepted by Lender":
             approved_isin_list = []
             rejected_isin_list = []
-            values27 = {"value": [self.status, lms.get_linenumber()]}
-            lms.create_log(values27, "status_pledge_accepted_by_lender")
             for i in self.items:
-                values27 = {"value": [i, lms.get_linenumber()]}
-                lms.create_log(values27, "status_pledge_accepted_by_lender")
-
                 if i.lender_approval_status == "Approved":
-                    values28 = {
-                        "value": [
-                            i.lender_approval_status,
-                            lms.get_linenumber(),
-                        ]
-                    }
-                    lms.create_log(values28, "status_pledge_accepted_by_lender")
-
                     approved_isin_list.append(i.isin)
                 elif i.lender_approval_status == "Rejected":
-                    values28 = {
-                        "value": [
-                            i.lender_approval_status,
-                            lms.get_linenumber(),
-                        ]
-                    }
-                    lms.create_log(values28, "status_pledge_accepted_by_lender")
-
                     rejected_isin_list.append(i.isin)
 
             if len(approved_isin_list) > 0:
-                values29 = {"value": [approved_isin_list, lms.get_linenumber()]}
-                lms.create_log(values29, "status_pledge_accepted_by_lender")
-
                 self.update_collateral_ledger(
                     {"lender_approval_status": "Approved"},
                     "application_doctype = 'Loan Application' and application_name = '{}' and isin IN {}".format(
                         self.name, lms.convert_list_to_tuple_string(approved_isin_list)
                     ),
                 )
-                val590 = {
-                    "value": [
-                        approved_isin_list,
-                        lms.get_linenumber(),
-                        "return from update collateral list",
-                    ]
-                }
-                lms.create_log(val590, "status_pledge_accepted_by_lender")
 
             if len(rejected_isin_list) > 0:
-                values29 = {
-                    "value": [
-                        rejected_isin_list,
-                        lms.get_linenumber(),
-                    ]
-                }
-                lms.create_log(values29, "status_pledge_accepted_by_lender")
-
                 self.update_collateral_ledger(
                     {"lender_approval_status": "Rejected"},
                     "application_doctype = 'Loan Application' and application_name = '{}' and isin IN {}".format(
@@ -994,8 +796,6 @@ class LoanApplication(Document):
                     },
                     tokens=lms.get_firebase_tokens(self.get_customer().user),
                 )
-                values30 = {"value": [fa, lms.get_linenumber()]}
-                lms.create_log(values30, "status_pledge_accepted_by_lender")
             except Exception:
                 pass
             finally:
@@ -1039,15 +839,6 @@ class LoanApplication(Document):
                         "loan_margin_shortfall": loan_margin_shortfall.name,
                     },
                 )
-                values30 = {
-                    "value": [
-                        loan_margin_shortfall,
-                        pending_sell_collateral_application,
-                        pending_loan_transaction,
-                        lms.get_linenumber(),
-                    ]
-                }
-                lms.create_log(values30, "status_pledge_accepted_by_lender")
 
                 if (
                     (
@@ -1063,31 +854,14 @@ class LoanApplication(Document):
                     frappe.db.commit()
 
             if not self.loan and not self.loan_margin_shortfall:
-                values30 = {"value": ["True", lms.get_linenumber()]}
-                lms.create_log(values30, "status_pledge_accepted_by_lender")
-
                 customer = self.get_customer()
                 if customer.pledge_securities:
                     customer.pledge_securities = 0
                     customer.save(ignore_permissions=True)
                     frappe.db.commit()
-                    values30 = {
-                        "value": [
-                            customer.pledge_securities,
-                            lms.get_linenumber(),
-                        ]
-                    }
-                    lms.create_log(values30, "status_pledge_accepted_by_lender")
 
             # On loan application rejection mark lender approvel status as rejected in collateral ledger as well 23-09-2021 Poonam
             loan_application_isin_list = [i.isin for i in self.items]
-            values30 = {
-                "value": [
-                    loan_application_isin_list,
-                    lms.get_linenumber(),
-                ]
-            }
-            lms.create_log(values30, "status_pledge_accepted_by_lender")
 
             self.update_collateral_ledger(
                 {"lender_approval_status": "Rejected"},
@@ -1164,26 +938,6 @@ class LoanApplication(Document):
         loan.update_items()
         loan.fill_items()
         loan.save(ignore_permissions=True)
-
-        # customer = frappe.db.get_value("Loan Customer", {"name": self.customer}, "user")
-        """changes as per latest email notification list-sent by vinayak - email verification final 2.0"""
-        # doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc)
-        # frappe.enqueue_doc("Notification", "Loan Sanction", method="send", doc=doc)
-
-        # mobile = frappe.db.get_value("Loan Customer", {"name": self.customer}, "phone")
-        # mess = _(
-        #     "Dear "
-        #     + doc.investor_name
-        #     + ", Congratulations! Your loan account is active now! Current available limit - "
-        #     + str(loan.drawing_power)
-        #     + "."
-        # )
-        # mess = _(
-        #     "Congratulations! Your loan account is active now! Current available limit - "
-        #     + str(loan.drawing_power)
-        #     + "."
-        # )
-        # frappe.enqueue(method=send_sms, receiver_list=[doc.mobile_number], msg=mess)
 
         return loan
 
@@ -1347,37 +1101,6 @@ class LoanApplication(Document):
                 "Account Renewal Charges", renewal_charges, approve=True
             )
 
-            # if lender.cgst_on_account_renewal_charges > 0:
-            #     cgst = renewal_charges * (lender.cgst_on_account_renewal_charges / 100)
-            #     gst_percent = lender.cgst_on_account_renewal_charges
-            #     loan.create_loan_transaction(
-            #         "CGST on Account renewal charges",
-            #         cgst,
-            #         gst_percent,
-            #         charge_reference=renewal_charges_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.sgst_on_account_renewal_charges > 0:
-            #     sgst = renewal_charges * (lender.sgst_on_account_renewal_charges / 100)
-            #     gst_percent = lender.sgst_on_account_renewal_charges
-            #     loan.create_loan_transaction(
-            #         "SGST on Account renewal charges",
-            #         sgst,
-            #         gst_percent,
-            #         charge_reference=renewal_charges_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.igst_on_account_renewal_charges > 0:
-            #     igst = renewal_charges * (lender.igst_on_account_renewal_charges / 100)
-            #     gst_percent = lender.igst_on_account_renewal_charges
-            #     loan.create_loan_transaction(
-            #         "IGST on Account renewal charges",
-            #         igst,
-            #         gst_percent,
-            #         charge_reference=renewal_charges_reference.name,
-            #         approve=True,
-            #     )
-
         # Processing fees
         processing_fees = lender.lender_processing_fees
         if lender.lender_processing_fees_type == "Percentage":
@@ -1402,37 +1125,6 @@ class LoanApplication(Document):
                 processing_fees,
                 approve=True,
             )
-            # GST Charges
-            # if lender.cgst_on_processing_fees > 0:
-            #     cgst = processing_fees * (lender.cgst_on_processing_fees / 100)
-            #     gst_percent = lender.cgst_on_processing_fees
-            #     loan.create_loan_transaction(
-            #         "CGST on Processing Fees",
-            #         cgst,
-            #         gst_percent,
-            #         charge_reference=processing_fees_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.sgst_on_processing_fees > 0:
-            #     sgst = processing_fees * (lender.sgst_on_processing_fees / 100)
-            #     gst_percent = lender.sgst_on_processing_fees
-            #     loan.create_loan_transaction(
-            #         "SGST on Processing Fees",
-            #         sgst,
-            #         gst_percent,
-            #         charge_reference=processing_fees_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.igst_on_processing_fees > 0:
-            #     igst = processing_fees * (lender.igst_on_processing_fees / 100)
-            #     gst_percent = lender.igst_on_processing_fees
-            #     loan.create_loan_transaction(
-            #         "IGST on Processing Fees",
-            #         igst,
-            #         gst_percent,
-            #         charge_reference=processing_fees_reference.name,
-            #         approve=True,
-            #     )
 
         # Stamp Duty
         stamp_duty = lender.stamp_duty
@@ -1451,37 +1143,6 @@ class LoanApplication(Document):
                 stamp_duty,
                 approve=True,
             )
-            # GST Charges
-            # if lender.cgst_on_stamp_duty > 0:
-            #     cgst = stamp_duty * (lender.cgst_on_stamp_duty / 100)
-            #     gst_percent = lender.cgst_on_stamp_duty
-            #     loan.create_loan_transaction(
-            #         "CGST on Stamp Duty",
-            #         cgst,
-            #         gst_percent,
-            #         charge_reference=stamp_duty_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.sgst_on_stamp_duty > 0:
-            #     sgst = stamp_duty * (lender.sgst_on_stamp_duty / 100)
-            #     gst_percent = lender.sgst_on_stamp_duty
-            #     loan.create_loan_transaction(
-            #         "SGST on Stamp Duty",
-            #         sgst,
-            #         gst_percent,
-            #         charge_reference=stamp_duty_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.igst_on_stamp_duty > 0:
-            #     igst = stamp_duty * (lender.igst_on_stamp_duty / 100)
-            #     gst_percent = lender.igst_on_stamp_duty
-            #     loan.create_loan_transaction(
-            #         "IGST on Stamp Duty",
-            #         igst,
-            #         gst_percent,
-            #         charge_reference=stamp_duty_reference.name,
-            #         approve=True,
-            #     )
 
         # Documentation Charges
         documentation_charges = lender.documentation_charges
@@ -1500,43 +1161,6 @@ class LoanApplication(Document):
                 documentation_charges,
                 approve=True,
             )
-            # GST Charges
-            # if lender.cgst_on_documentation_charges > 0:
-            #     cgst = documentation_charges * (
-            #         lender.cgst_on_documentation_charges / 100
-            #     )
-            #     gst_percent = lender.cgst_on_documentation_charges
-            #     loan.create_loan_transaction(
-            #         "CGST on Documentation Charges",
-            #         cgst,
-            #         gst_percent,
-            #         charge_reference=documentation_charges_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.sgst_on_documentation_charges > 0:
-            #     sgst = documentation_charges * (
-            #         lender.sgst_on_documentation_charges / 100
-            #     )
-            #     gst_percent = lender.sgst_on_documentation_charges
-            #     loan.create_loan_transaction(
-            #         "SGST on Documentation Charges",
-            #         sgst,
-            #         gst_percent,
-            #         charge_reference=documentation_charges_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.igst_on_documentation_charges > 0:
-            #     igst = documentation_charges * (
-            #         lender.igst_on_documentation_charges / 100
-            #     )
-            #     gst_percent = lender.igst_on_documentation_charges
-            #     loan.create_loan_transaction(
-            #         "IGST on Documentation Charges",
-            #         igst,
-            #         gst_percent,
-            #         charge_reference=documentation_charges_reference.name,
-            #         approve=True,
-            #     )
 
         # Mortgage Charges
         mortgage_charges = lender.mortgage_charges
@@ -1555,37 +1179,6 @@ class LoanApplication(Document):
                 mortgage_charges,
                 approve=True,
             )
-            # GST Charges
-            # if lender.cgst_on_mortgage_charges > 0:
-            #     cgst = mortgage_charges * (lender.cgst_on_mortgage_charges / 100)
-            #     gst_percent = lender.cgst_on_mortgage_charges
-            #     loan.create_loan_transaction(
-            #         "CGST on Mortgage Charges",
-            #         cgst,
-            #         gst_percent,
-            #         charge_reference=mortgage_charges_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.sgst_on_mortgage_charges > 0:
-            #     sgst = mortgage_charges * (lender.sgst_on_mortgage_charges / 100)
-            #     gst_percent = lender.sgst_on_mortgage_charges
-            #     loan.create_loan_transaction(
-            #         "SGST on Mortgage Charges",
-            #         sgst,
-            #         gst_percent,
-            #         charge_reference=mortgage_charges_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.igst_on_mortgage_charges > 0:
-            #     igst = mortgage_charges * (lender.igst_on_mortgage_charges / 100)
-            #     gst_percent = lender.igst_on_mortgage_charges
-            #     loan.create_loan_transaction(
-            #         "IGST on Mortgage Charges",
-            #         igst,
-            #         gst_percent,
-            #         charge_reference=mortgage_charges_reference.name,
-            #         approve=True,
-            #     )
 
     def update_collateral_ledger(self, set_values={}, where=""):
         set_values_str = ""
@@ -1653,11 +1246,6 @@ class LoanApplication(Document):
                     security_list=security_list
                 ),
                 title="Pledge Request Error",
-                # title=frappe.local.form_dict.get("cmd")
-                # .split(".")[-1]
-                # .replace("_", " ")
-                # .title()
-                # + " Error",
             )
 
     # dummy pledge response for pledge
@@ -1962,14 +1550,6 @@ class LoanApplication(Document):
                     fcm_notification = fcm_notification.as_dict()
                     fcm_notification["title"] = "Lien partially accepted"
 
-            # fcm_message = (
-            #     fcm_notification.message.format(
-            #         total_collateral_value_str=self.total_collateral_value_str
-            #     )
-            #     if self.loan
-            #     else ""
-            # )
-
         if msg:
             # lms.send_sms_notification(customer=self.get_customer(),msg=msg)
             receiver_list = [str(self.get_customer().phone)]
@@ -2182,13 +1762,11 @@ def only_pdf_upload(doc, method):
 
 @frappe.whitelist()
 def actions_on_isin(loan_application):
-    print("Inside Actions on isin")
     loan_application = json.loads(loan_application)
     loan_application_doc = frappe.get_doc("Loan Application", loan_application["name"])
     if loan_application_doc.status == "Pledge executed":
         total_collateral_value = 0
         drawing_power = 0
-        print("inside internal if")
         for i in loan_application["items"]:
             if i["pledge_status"] == "Success" or i["pledge_status"] == "":
                 if (
@@ -2218,24 +1796,6 @@ def actions_on_isin(loan_application):
                             2,
                         )
 
-                # elif (
-                #     i["lender_approval_status"] == "Rejected"
-                #     or i["lender_approval_status"] == "Pledge Failure"
-                # ):
-                #     if (
-                #         total_collateral_value > 0
-                #         and total_collateral_value >= i["amount"]
-                #     ):
-                #         total_collateral_value -= i["amount"]
-                #     total_collateral_value = round(total_collateral_value, 2)
-                #     drawing_power = round(
-                #         lms.round_down_amount_to_nearest_thousand(
-                #             (loan_application["allowable_ltv"] / 100)
-                #             * total_collateral_value
-                #         ),
-                #         2,
-                #     )
-
         response = {
             "total_collateral_value": total_collateral_value,
             "drawing_power": drawing_power,
@@ -2245,5 +1805,4 @@ def actions_on_isin(loan_application):
                 loan_application["pledged_total_collateral_value"]
             ),
         }
-        lms.create_log(response, "status_pledge_accepted_by_lender")
         return response

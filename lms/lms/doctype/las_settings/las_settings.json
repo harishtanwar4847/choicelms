@@ -90,14 +90,14 @@
   "og_code_enabled",
   "razorpay_section_section",
   "razorpay_key_secret",
-  "razorpay_bank_account",
-  "pennydrop_create_contact",
-  "pennydrop_create_fund_account",
+  "settlement_recon_api",
   "column_break_49",
   "razorpay_webhook_secret",
-  "settlement_recon_api",
-  "pennydrop_create_fund_account_validation",
-  "pennydrop_create_fund_account_validation_id"
+  "penny_drop_section",
+  "penny_drop_api",
+  "pennydrop_days_passed",
+  "column_break_91",
+  "penny_secret_key"
  ],
  "fields": [
   {
@@ -376,11 +376,6 @@
    "label": "Razorpay Key Secret"
   },
   {
-   "fieldname": "razorpay_bank_account",
-   "fieldtype": "Data",
-   "label": "Razorpay Bank Account"
-  },
-  {
    "fieldname": "column_break_49",
    "fieldtype": "Column Break"
   },
@@ -509,26 +504,6 @@
    "label": "Lien Allowed Scheme Update API"
   },
   {
-   "fieldname": "pennydrop_create_contact",
-   "fieldtype": "Data",
-   "label": "PennyDrop Create Contact"
-  },
-  {
-   "fieldname": "pennydrop_create_fund_account",
-   "fieldtype": "Data",
-   "label": "PennyDrop Create Fund Account"
-  },
-  {
-   "fieldname": "pennydrop_create_fund_account_validation",
-   "fieldtype": "Data",
-   "label": "PennyDrop Create Fund Account Validation"
-  },
-  {
-   "fieldname": "pennydrop_create_fund_account_validation_id",
-   "fieldtype": "Data",
-   "label": "PennyDrop Create Fund Account Validation Id"
-  },
-  {
    "fieldname": "settlement_recon_api",
    "fieldtype": "Data",
    "label": "Settlement recon API"
@@ -578,11 +553,35 @@
    "fieldname": "contact_us",
    "fieldtype": "Data",
    "label": "Contact Us"
+  },
+  {
+   "fieldname": "penny_drop_section",
+   "fieldtype": "Section Break",
+   "label": "Penny Drop"
+  },
+  {
+   "fieldname": "penny_drop_api",
+   "fieldtype": "Data",
+   "label": "Penny Drop API"
+  },
+  {
+   "fieldname": "column_break_91",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "penny_secret_key",
+   "fieldtype": "Data",
+   "label": "Penny Secret Key"
+  },
+  {
+   "fieldname": "pennydrop_days_passed",
+   "fieldtype": "Int",
+   "label": "Pennydrop Days Passed"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2022-11-04 12:21:12.662120",
+ "modified": "2022-11-28 16:25:33.122499",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

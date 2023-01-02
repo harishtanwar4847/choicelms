@@ -39,14 +39,14 @@
   "column_break_28",
   "rebate_interest_amount",
   "interest_overdue",
-  "day_past_due"
+  "day_past_due",
+  "amended_from"
  ],
  "fields": [
   {
    "fieldname": "expiry_date",
    "fieldtype": "Date",
    "label": "Expiry Date",
-   "read_only": 1,
    "reqd": 1
   },
   {
@@ -256,11 +256,20 @@
    "fieldtype": "Currency",
    "label": "Actual Drawing Power",
    "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Loan",
+   "print_hide": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-05-11 17:11:57.043855",
+ "modified": "2022-12-19 13:31:25.898674",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
