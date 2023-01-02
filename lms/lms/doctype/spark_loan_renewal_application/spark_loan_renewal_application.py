@@ -938,6 +938,9 @@ def renewal_penal_interest():
             is_expired_date = exp + timedelta(days=7)
             if pending_renewal_doc_list:
                 for renewal_doc in pending_renewal_doc_list:
+                    doc = frappe.get_doc(
+                        "Spark Loan Renewal Application", renewal_doc.name
+                    )
                     if (
                         not user_kyc
                         and not user_kyc_approved
@@ -948,16 +951,23 @@ def renewal_penal_interest():
                         and is_expired_date < frappe.utils.now_datetime().date()
                         and (is_expired_date + timedelta(days=7))
                         > frappe.utils.now_datetime().date()
-                        and renewal_doc.status == "Pending"
+                        and doc.status == "Pending"
                     ):
-                        doc = frappe.get_doc(
-                            "Spark Loan Renewal Application", renewal_doc.name
-                        )
                         doc.status = "Rejected"
                         doc.workflow_state = "Rejected"
                         doc.remarks = "Is Expired"
-                        doc.save(ignore_permissions=True)
-                        frappe.db.commit()
+                    if (
+                        doc.new_kyc_name
+                        and doc.kyc_approval_date
+                        and frappe.utils.now_datetime() > doc.kyc_approval_date
+                        and doc.tnc_show == 0
+                        and (is_expired_date + timedelta(days=7))
+                        < frappe.utils.now_datetime().date()
+                    ):
+                        doc.tnc_show = 1
+                    doc.save(ignore_permissions=True)
+                    frappe.db.commit()
+
     except Exception as e:
         frappe.log_error(
             message=frappe.get_traceback(),

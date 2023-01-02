@@ -3399,6 +3399,7 @@ def verify_loan_renewal_otp(**kwargs):
             loan_renewal_app.status = "Loan Renewal executed"
             loan_renewal_app.workflow_state = "Loan Renewal executed"
             loan_renewal_app.tnc_complete = 1
+            loan_renewal_app.tnc_show = 1
             loan_renewal_app.save(ignore_permissions=True)
             frappe.db.commit()
 
