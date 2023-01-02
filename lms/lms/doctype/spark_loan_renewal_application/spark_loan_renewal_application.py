@@ -44,21 +44,8 @@ class SparkLoanRenewalApplication(Document):
                 "Approved",
                 "Rejected",
             ]:
-                email_expiry = frappe.db.sql(
-                    "select message from `tabNotification` where name='Loan Renewal Application';"
-                )[0][0]
-                email_expiry = email_expiry.replace(
-                    "dlt_link", str(las_settings.app_login_dashboard)
-                )
-                frappe.enqueue(
-                    method=frappe.sendmail,
-                    recipients=[customer.user],
-                    sender=None,
-                    subject="Loan Renewal Application",
-                    message=email_expiry,
-                    queue="short",
-                    delayed=False,
-                    job_name="Loan Renewal Application",
+                frappe.enqueue_doc(
+                    "Notification", "Loan Renewal Application", method="send", doc=doc
                 )
 
             if self.status == "Loan Renewal accepted by Lender":
@@ -393,7 +380,7 @@ def customer_reminder(doc_name):
             email_expiry = email_expiry.replace("loan_name", str(loan.name))
             email_expiry = email_expiry.replace("expiry_date", str(expiry))
             email_expiry = email_expiry.replace(
-                "dlt_link", str(las_settings.app_login_dashboard)
+                "dlt_link", las_settings.app_login_dashboard
             )
             frappe.enqueue(
                 method=frappe.sendmail,
@@ -405,7 +392,7 @@ def customer_reminder(doc_name):
                 delayed=False,
                 job_name="Loan Renewal Reminder",
             )
-            msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.\nClick on the link {link} to submit your request.\n-Spark Loans".format(
+            msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.Click on the link {link} to submit your request.\n-Spark Loans".format(
                 loan_name=renewal_doc.loan,
                 expiry_date=loan.expiry_date,
                 link=las_settings.app_login_dashboard,
@@ -502,7 +489,7 @@ def loan_renewal_update_doc():
                 )[0][0]
                 email_expiry = email_expiry.replace("expiry_date", str(expiry_date))
                 email_expiry = email_expiry.replace(
-                    "link", str(las_settings.app_login_dashboard)
+                    "dlt_link", las_settings.app_login_dashboard
                 )
                 frappe.enqueue(
                     method=frappe.sendmail,
@@ -512,7 +499,7 @@ def loan_renewal_update_doc():
                     queue="short",
                     job_name="Loan Renewal Extension",
                 )
-                msg = "Dear Customer,\nYou have received a loan renewal extension of 7 days from the current expiry date: {expiry_date}.\nClick here to continue {link} \n-Spark Loans".format(
+                msg = "Dear Customer,\nYou have received a loan renewal extension of 7 days from the current expiry date: {expiry_date}.Click here to continue {link} \n-Spark Loans".format(
                     expiry_date=expiry_date,
                     link=las_settings.app_login_dashboard,
                 )
@@ -579,7 +566,7 @@ def loan_renewal_update_doc():
                     queue="short",
                     job_name="Loan Renewal Reminder",
                 )
-                msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.\nClick on the link {link} to submit your request.\n-Spark Loans".format(
+                msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.Click on the link {link} to submit your request.\n-Spark Loans".format(
                     loan_name=loan.name,
                     expiry_date=loan.expiry_date,
                     link=las_settings.app_login_dashboard,
