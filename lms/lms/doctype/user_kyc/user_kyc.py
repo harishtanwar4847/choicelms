@@ -8,10 +8,10 @@ from datetime import datetime, time, timedelta
 
 import frappe
 from frappe import _
-from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.model.document import Document
 
 import lms
+from lms.lms.doctype.user_token.user_token import send_sms
 
 
 class UserKYC(Document):
@@ -169,7 +169,7 @@ class UserKYC(Document):
                     frappe.db.commit()
 
                 elif i.bank_status == "Rejected":
-                    msg = "Your Bank request has been rejected due to mismatch in the details;  please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
+                    msg = "Your Bank request has been rejected due to mismatch in the details; please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
                         las_settings.app_login_dashboard
                     )
                     frappe.enqueue_doc(

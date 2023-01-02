@@ -2,6 +2,36 @@
 
 ## [Unreleased]
 
+## [v5.10.1-uat]
+
+## Added
+
+- [Feat: floating-to-fixed](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/559)
+
+## [v5.10.0-uat]
+
+## Added
+
+- [Feat: live penny integration with fullname matching](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/557)
+
+## [v5.9.0+1-uat]
+
+## Added
+
+- [Feat: penny drop hit with same account number](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/554)
+
+## [v5.9.0-uat]
+
+## Added
+
+- [Feat: AU Bank Penny Drop Api integration](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/552)
+
+## [v5.8.2-uat]
+
+## Added
+
+- [Feat: \n added in unpledge application msg](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/547)
+
 ## [v5.8.1-uat]
 
 ## Added

@@ -960,7 +960,7 @@ def get_tnc(**kwargs):
                 )
                 + "</li>"
             )
-        tnc_ul.append("<li><strong> Interest type </strong>: Floating</li>")
+        tnc_ul.append("<li><strong> Interest type </strong>: Fixed</li>")
         tnc_ul.append(
             "<li><strong> Rate of interest </strong>: <strong>{}%  per month</strong> after rebate, if paid within <strong>{} days</strong> of due date. Otherwise rebate of <strong>0.20%</strong> will not be applicable and higher interest rate will be applicable [Interest rate is subject to change based on the Management discretion from time to time];".format(
                 lender.rate_of_interest, lender.rebait_threshold

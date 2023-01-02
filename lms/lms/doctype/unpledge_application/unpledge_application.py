@@ -332,9 +332,15 @@ class UnpledgeApplication(Document):
                         msg_type=msg_type
                     )
                 else:
-                    msg = "Dear Customer,Sorry! Your {} application was turned down due to technical reasons. You can reach out via the 'Contact Us' section of the app or please try again later using this link- {link} -Spark Loans".format(
-                        msg_type, link=las_settings.my_securities
-                    )
+                    if self.instrument_type == "Mutual Fund":
+                        msg = "Dear Customer,\nSorry! Your {} application was turned down due to technical reasons. You can reach out via the 'Contact Us' section of the app or please try again later using this link- {link} -Spark Loans".format(
+                            msg_type, link=las_settings.my_securities
+                        )
+                    else:
+                        msg = "Dear Customer,\nSorry! Your {} application was turned down due to technical reasons. Please try again after sometime or reach us through 'Contact Us' on the app  -Spark Loans".format(
+                            msg_type
+                        )
+
                     fcm_notification = frappe.get_doc(
                         "Spark Push Notification",
                         "Unpledge application rejected",
@@ -472,7 +478,6 @@ def validate_revoc(unpledge_application_name):
                 lms.create_log(
                     {
                         "json_payload": data,
-                        "timestamp": str(frappe.utils.now_datetime()),
                     },
                     "revoke_validate_request",
                 )
@@ -613,7 +618,6 @@ def initiate_revoc(unpledge_application_name):
                 lms.create_log(
                     {
                         "json_payload": data,
-                        "timestamp": str(frappe.utils.now_datetime()),
                     },
                     "revoke_initiate_request",
                 )

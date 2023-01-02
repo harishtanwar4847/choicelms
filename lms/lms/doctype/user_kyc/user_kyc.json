@@ -10,7 +10,6 @@
   "basic_details_section_break",
   "user",
   "pan_no",
-  "razorpay_contact_id",
   "kyc_status",
   "consent_given",
   "basic_details_column_break",
@@ -162,12 +161,6 @@
    "fieldtype": "Table",
    "label": "Bank Account",
    "options": "User Bank Account"
-  },
-  {
-   "fieldname": "razorpay_contact_id",
-   "fieldtype": "Data",
-   "label": "Razorpay Contact ID",
-   "read_only": 1
   },
   {
    "fieldname": "email",
@@ -709,7 +702,7 @@
   }
  ],
  "links": [],
- "modified": "2022-11-04 15:53:58.460489",
+ "modified": "2022-11-21 15:08:21.140775",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
