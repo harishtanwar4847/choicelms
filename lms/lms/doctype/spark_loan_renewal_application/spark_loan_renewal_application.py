@@ -484,10 +484,15 @@ def loan_renewal_update_doc():
                 else:
                     expiry_date = exp + timedelta(days=7)
 
+                str_exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").strftime(
+                    "%d-%m-%Y"
+                )
+                str_exp = str_exp.replace("-", "/")
                 email_expiry = frappe.db.sql(
                     "select message from `tabNotification` where name='Loan Renewal Extension';"
                 )[0][0]
-                email_expiry = email_expiry.replace("expiry_date", str(expiry_date))
+                email_expiry = email_expiry.replace("loan_name", loan.name)
+                email_expiry = email_expiry.replace("expiry_date", str_exp)
                 email_expiry = email_expiry.replace(
                     "dlt_link", las_settings.app_login_dashboard
                 )
@@ -528,6 +533,10 @@ def loan_renewal_update_doc():
                         msg=msg,
                     )
 
+            str_exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").strftime(
+                "%d-%m-%Y"
+            )
+            str_exp = str_exp.replace("-", "/")
             if (
                 exp == expiry_date
                 and loan.total_collateral_value > 0
@@ -552,11 +561,9 @@ def loan_renewal_update_doc():
                     "select message from `tabNotification` where name='Loan Renewal Reminder';"
                 )[0][0]
                 email_expiry = email_expiry.replace("loan_name", str(loan.name))
+                email_expiry = email_expiry.replace("expiry_date", str_exp)
                 email_expiry = email_expiry.replace(
-                    "expiry_date", str(loan.expiry_date)
-                )
-                email_expiry = email_expiry.replace(
-                    "link", str(las_settings.app_login_dashboard)
+                    "dlt_link", str(las_settings.app_login_dashboard)
                 )
                 frappe.enqueue(
                     method=frappe.sendmail,
@@ -608,8 +615,10 @@ def loan_renewal_update_doc():
                         email_expiry = frappe.db.sql(
                             "select message from `tabNotification` where name='Loan Renewal Reminder';"
                         )[0][0]
+                        email_expiry = email_expiry.replace("loan_name", str(loan.name))
+                        email_expiry = email_expiry.replace("expiry_date", str_exp)
                         email_expiry = email_expiry.replace(
-                            "expiry_date", str(loan.expiry_date)
+                            "dlt_link", str(las_settings.app_login_dashboard)
                         )
                         frappe.enqueue(
                             method=frappe.sendmail,
@@ -666,8 +675,10 @@ def loan_renewal_update_doc():
                         email_expiry = frappe.db.sql(
                             "select message from `tabNotification` where name='Loan Renewal Reminder';"
                         )[0][0]
+                        email_expiry = email_expiry.replace("loan_name", str(loan.name))
+                        email_expiry = email_expiry.replace("expiry_date", str_exp)
                         email_expiry = email_expiry.replace(
-                            "expiry_date", str(loan.expiry_date)
+                            "dlt_link", str(las_settings.app_login_dashboard)
                         )
                         frappe.enqueue(
                             method=frappe.sendmail,
@@ -724,8 +735,10 @@ def loan_renewal_update_doc():
                         email_expiry = frappe.db.sql(
                             "select message from `tabNotification` where name='Loan Renewal Reminder';"
                         )[0][0]
+                        email_expiry = email_expiry.replace("loan_name", str(loan.name))
+                        email_expiry = email_expiry.replace("expiry_date", str_exp)
                         email_expiry = email_expiry.replace(
-                            "expiry_date", str(loan.expiry_date)
+                            "dlt_link", str(las_settings.app_login_dashboard)
                         )
                         frappe.enqueue(
                             method=frappe.sendmail,

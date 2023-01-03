@@ -2897,6 +2897,12 @@ def loan_summary_dashboard(**kwargs):
                     loan_renewal_doc.time_remaining = renewal_timer
                     loan_renewal_doc.action_status = action_status
 
+                str_exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").strftime(
+                    "%d-%m-%Y"
+                )
+                str_exp = str_exp.replace("-", "/")
+                loan_renewal_doc.expiry_date = str_exp
+
                 loan_renewal_doc_list.append(loan_renewal_doc)
 
         res = {
