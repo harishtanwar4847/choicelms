@@ -7,10 +7,9 @@
  "field_order": [
   "customer",
   "depository",
-  "is_choice",
-  "column_break_4",
   "dpid",
-  "client_id"
+  "client_id",
+  "is_choice"
  ],
  "fields": [
   {
@@ -18,8 +17,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Depository",
-   "options": "CDSL\nNSDL",
-   "reqd": 1
+   "options": "CDSL\nNSDL"
   },
   {
    "fieldname": "dpid",
@@ -38,7 +36,6 @@
   {
    "fieldname": "customer",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "label": "Customer ID",
    "options": "Loan Customer",
    "reqd": 1
@@ -47,17 +44,12 @@
    "default": "0",
    "fieldname": "is_choice",
    "fieldtype": "Check",
-   "in_list_view": 1,
    "label": "Is Choice"
-  },
-  {
-   "fieldname": "column_break_4",
-   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-12-13 16:51:34.082532",
+ "modified": "2023-01-03 12:48:41.261032",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Demat Account",
