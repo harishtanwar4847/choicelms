@@ -1704,8 +1704,10 @@ def decrypt_lien_marking_response():
                 schemes = [schemes]
 
             for i in schemes:
-                lienapprovedunit_len = len(str(i["lienapprovedunit"]).split(".")[1])
-                lienunit_len = len(str(i["lienunit"]).split(".")[1])
+                f_lienapprovedunit = float(i["lienapprovedunit"])
+                f_lienunit = float(i["lienunit"])
+                lienapprovedunit_len = len(str(f_lienapprovedunit).split(".")[1])
+                lienunit_len = len(str(f_lienunit).split(".")[1])
                 if lienapprovedunit_len > 3 and lienunit_len > 3:
                     digits = 3
                     lienapprovedunit = truncate_approved_unit(

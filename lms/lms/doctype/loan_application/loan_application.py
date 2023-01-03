@@ -465,74 +465,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         "datetimestamp": datetime_signature[0],
                         "signature": datetime_signature[1],
                     }
-                    isin_folio_combo = str(i.get("isin")) + str(i.get("folio"))
-                    if isin_folio_combo in isin_details:
-                        cur = isin_details.get(isin_folio_combo)
-                        i.pledge_executed = 1
-                        i.pledge_status = (
-                            "Success"
-                            if cur.get("remarks").title() == "Success"
-                            else "Failure"
-                        )
-                        if i.pledge_status == "Success":
-                            total_successfull_lien += 1
-                            i.lender_approval_status = "Approved"
-                        else:
-                            i.lender_approval_status = "Rejected"
-                        collateral_ledger_data = {
-                            "prf": i.get("prf_number"),
-                            "expiry": self.expiry_date,
-                        }
-                        collateral_ledger_input = {
-                            "doctype": "Loan Application",
-                            "docname": self.name,
-                            "request_type": "Pledge",
-                            "isin": i.get("isin"),
-                            "quantity": i.get("pledged_quantity"),
-                            "price": i.get("price"),
-                            "security_name": i.get("security_name"),
-                            "security_category": i.get("security_category"),
-                            "data": collateral_ledger_data,
-                            "psn": cur.get("lienmarkno"),
-                            "requested_quantity": i.get("requested_quantity"),
-                            "scheme_code": i.get("scheme_code"),
-                            "folio": i.get("folio"),
-                            "amc_code": i.get("amc_code"),
-                        }
-                        CollateralLedger.create_entry(**collateral_ledger_input)
-                    pledge_securities = 0
-                    self.status = "Pledge executed"
-                    if total_successfull_lien == len(self.items):
-                        self.pledge_status = "Success"
-                        pledge_securities = 1
-                    elif total_successfull_lien == 0:
-                        self.status = "Pledge Failure"
-                        self.pledge_status = "Failure"
-                    else:
-                        self.pledge_status = "Partial Success"
-                        pledge_securities = 1
-                    self.workflow_state = "Pledge executed"
-                    self.total_collateral_value = round(total_collateral_value, 2)
-                    # if self.instrument_type == "Shares":
-                    #     self.drawing_power = round(
-                    #         lms.round_down_amount_to_nearest_thousand(
-                    #             (self.allowable_ltv / 100) * self.total_collateral_value
-                    #         ),
-                    #         2,
-                    #     )
-                    # else:
-                    drawing_power = 0
-                    for i in self.items:
-                        i.amount = i.price * i.pledged_quantity
-                        dp = (i.eligible_percentage / 100) * i.amount
-                        i.eligibile_amount = dp
-                        # self.total_collateral_value += i.amount
-                        drawing_power += dp
-
-                    drawing_power = round(
-                        lms.round_down_amount_to_nearest_thousand(drawing_power),
-                        2,
-                    )
 
                     response = requests.post(
                         url=url, headers=headers, data=encrypted_data
@@ -622,28 +554,26 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                             pledge_securities = 1
                         self.workflow_state = "Pledge executed"
                         self.total_collateral_value = round(total_collateral_value, 2)
-                        if self.instrument_type == "Shares":
-                            self.drawing_power = round(
-                                lms.round_down_amount_to_nearest_thousand(
-                                    (self.allowable_ltv / 100)
-                                    * self.total_collateral_value
-                                ),
-                                2,
-                            )
-                        else:
-                            drawing_power = 0
-                            for i in self.items:
-                                i.amount = i.price * i.pledged_quantity
-                                dp = (i.eligible_percentage / 100) * i.amount
-                                drawing_power += dp
+                        # if self.instrument_type == "Shares":
+                        #     self.drawing_power = round(
+                        #         lms.round_down_amount_to_nearest_thousand(
+                        #             (self.allowable_ltv / 100) * self.total_collateral_value
+                        #         ),
+                        #         2,
+                        #     )
+                        # else:
+                        drawing_power = 0
+                        for i in self.items:
+                            i.amount = i.price * i.pledged_quantity
+                            dp = (i.eligible_percentage / 100) * i.amount
+                            i.eligibile_amount = dp
+                            # self.total_collateral_value += i.amount
+                            drawing_power += dp
 
-                            drawing_power = round(
-                                lms.round_down_amount_to_nearest_thousand(
-                                    drawing_power
-                                ),
-                                2,
-                            )
-
+                        drawing_power = round(
+                            lms.round_down_amount_to_nearest_thousand(drawing_power),
+                            2,
+                        )
                         if not customer.pledge_securities:
                             customer.pledge_securities = pledge_securities
                             customer.save(ignore_permissions=True)
@@ -852,11 +782,13 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         )
 
     def on_update(self):
+        print("every")
         if self.status == "Approved":
             if not self.loan:
                 loan = self.create_loan()
             else:
                 loan = self.update_existing_loan()
+                print("loan,", loan)
             frappe.db.commit()
             if self.application_type in ["New Loan", "Increase Loan"]:
                 date = frappe.utils.now_datetime().date()
@@ -1162,6 +1094,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         loan.save_loan_sanction_history(loan_agreement_file.name, event)
 
     def update_existing_loan(self):
+        print("inside")
         self.update_collateral_ledger(
             {"loan": self.loan},
             "application_doctype = 'Loan Application' and application_name = '{}'".format(
@@ -1177,7 +1110,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         drawing_power = 0
         for i in loan.items:
             i.amount = i.price * i.pledged_quantity
-            i.eligible_amount = (i.eligible_percentage / 100) * i.amount
+            i.eligible_amount = (50 / 100) * i.amount
             self.total_collateral_value += i.amount
             drawing_power += i.eligible_amount
 
@@ -1364,6 +1297,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 
     def update_collateral_ledger(self, set_values={}, where=""):
         set_values_str = ""
+        print("update_collateral_ledger")
         last_col = sorted(set_values.keys())[-1]
         if len(set_values.keys()) == len(set_values.values()):
             for col, val in set_values.items():
@@ -1376,7 +1310,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         if len(where) > 0:
             sql += " where {}".format(where)
 
-        frappe.db.sql(sql)
+        frappe.db.sql((sql), debug=True)
 
     # hit pledge request as per batch items
     def pledge_request(self, security_list):

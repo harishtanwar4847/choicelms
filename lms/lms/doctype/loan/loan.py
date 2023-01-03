@@ -514,8 +514,10 @@ class Loan(Document):
         #     )
         # else:  # for Drawing power Calculation
         for i in self.items:
+            print("self.isin", i.isin)
+            print("self.eligibile", i.eligible_percentage)
             i.amount = i.price * i.pledged_quantity
-            i.eligible_amount = (i.eligible_percentage / 100) * i.amount
+            i.eligible_amount = (50 / 100) * i.amount
             self.total_collateral_value += i.amount
             drawing_power += i.eligible_amount
 
@@ -541,7 +543,7 @@ class Loan(Document):
         sql = """
 			SELECT
 				cl.loan, cl.isin, cl.psn, cl.pledgor_boid, cl.pledgee_boid , cl.prf, cl.scheme_code, cl.folio, cl.amc_code,
-				s.price, s.security_name,
+				s.price, s.security_name,als.eligible_percentage,
                 als.category_name as security_category
 				, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
 				- SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
@@ -615,6 +617,7 @@ class Loan(Document):
             # curr = collateral_list_map.get(i.isin)
             # print(check, i.price, curr.price, not check or i.price != curr.price)
             if (not check or i.price != curr.price) and i.pledged_quantity > 0:
+                print("na")
                 check = True
                 self.update_collateral_ledger(curr.price, curr.isin)
 
@@ -625,6 +628,7 @@ class Loan(Document):
 
         # adding new items if any
         for i in collateral_list_map.values():
+            print("collateral_list_map", collateral_list_map)
             loan_item = frappe.get_doc(
                 {
                     "doctype": "Loan Item",
@@ -633,6 +637,7 @@ class Loan(Document):
                     "security_category": i.security_category,
                     "pledged_quantity": i.quantity,
                     "price": i.price,
+                    "eligibile_percent": i.eligible_percentage,
                 }
             )
 
