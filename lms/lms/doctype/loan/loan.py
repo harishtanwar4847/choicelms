@@ -541,7 +541,7 @@ class Loan(Document):
         sql = """
 			SELECT
 				cl.loan, cl.isin, cl.psn, cl.pledgor_boid, cl.pledgee_boid, cl.prf, cl.scheme_code, cl.folio, cl.amc_code,
-				s.price, s.security_name,
+				s.price, s.security_name,als.eligible_percentage,
                 als.category_name as security_category
 				, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
 				- SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
@@ -633,9 +633,9 @@ class Loan(Document):
                     "security_category": i.security_category,
                     "pledged_quantity": i.quantity,
                     "price": i.price,
+                    "eligible_percentage": i.eligible_percentage,
                 }
             )
-
             self.append("items", loan_item)
 
         return check
