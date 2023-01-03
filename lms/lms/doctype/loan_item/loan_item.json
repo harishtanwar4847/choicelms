@@ -16,7 +16,9 @@
   "amount",
   "type",
   "folio",
-  "psn"
+  "psn",
+  "amc_code",
+  "amc_image"
  ],
  "fields": [
   {
@@ -87,14 +89,12 @@
    "read_only": 1
   },
   {
-   "depends_on": "eval:doc.type!=\"Shares\";",
    "fieldname": "eligible_percentage",
    "fieldtype": "Float",
    "label": "Eligible Percentage",
    "read_only": 1
   },
   {
-   "depends_on": "eval:doc.type!=\"Shares\";",
    "fieldname": "eligible_amount",
    "fieldtype": "Currency",
    "label": "Eligible Amount",
@@ -104,11 +104,21 @@
    "fieldname": "psn",
    "fieldtype": "Data",
    "label": "PSN/Lien Mark Number"
+  },
+  {
+   "fieldname": "amc_code",
+   "fieldtype": "Data",
+   "label": "AMC Code"
+  },
+  {
+   "fieldname": "amc_image",
+   "fieldtype": "Data",
+   "label": "AMC Image"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-10-10 14:42:53.132615",
+ "modified": "2022-12-16 11:42:13.745288",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Item",

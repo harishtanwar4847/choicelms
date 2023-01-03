@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 
 import frappe
 from frappe.model.document import Document
+from isort import code
 from num2words import num2words
 
 import lms
@@ -503,26 +504,25 @@ class Loan(Document):
     def fill_items(self):
         self.total_collateral_value = 0
         drawing_power = 0
-        if self.instrument_type == "Shares":
-            for i in self.items:
-                i.amount = i.price * i.pledged_quantity
-                self.total_collateral_value += i.amount
+        # if self.instrument_type == "Shares":
+        #     for i in self.items:
+        #         i.amount = i.price * i.pledged_quantity
+        #         self.total_collateral_value += i.amount
 
-            drawing_power = round(
-                (self.total_collateral_value * (self.allowable_ltv / 100)), 2
-            )
-        else:  # for Drawing power Calculation
-            for i in self.items:
-                i.amount = i.price * i.pledged_quantity
-                i.eligible_amount = (i.eligible_percentage / 100) * i.amount
-                self.total_collateral_value += i.amount
-                drawing_power += i.eligible_amount
+        #     drawing_power = round(
+        #         (self.total_collateral_value * (self.allowable_ltv / 100)), 2
+        #     )
+        # else:  # for Drawing power Calculation
+        for i in self.items:
+            i.amount = i.price * i.pledged_quantity
+            i.eligible_amount = (i.eligible_percentage / 100) * i.amount
+            self.total_collateral_value += i.amount
+            drawing_power += i.eligible_amount
 
-            drawing_power = round(
-                drawing_power,
-                2,
-            )
-
+        drawing_power = round(
+            drawing_power,
+            2,
+        )
         self.drawing_power = (
             drawing_power
             if drawing_power <= self.sanctioned_limit
@@ -542,7 +542,7 @@ class Loan(Document):
 			SELECT
 				cl.loan, cl.isin, cl.psn, cl.pledgor_boid, cl.pledgee_boid , cl.prf, cl.scheme_code, cl.folio, cl.amc_code,
 				s.price, s.security_name,
-                (select sc.category_name from `tabSecurity Category` sc  where sc.name = als.security_category) as security_category
+                als.category_name as security_category
 				, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
 				- SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
 				- SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) quantity
@@ -694,6 +694,8 @@ class Loan(Document):
 
             securities_price_map = lms.get_security_prices([i.isin for i in self.items])
             check = self.update_items()
+            if on_approval == False:
+                self.update_ltv()
 
             msg_type = ["A sale", "sell"]
             if self.instrument_type == "Mutual Fund":
@@ -1836,6 +1838,37 @@ class Loan(Document):
         self.drawing_power_str = lms.amount_formatter(self.drawing_power)
         self.sanctioned_limit_str = lms.amount_formatter(self.sanctioned_limit)
         self.balance_str = lms.amount_formatter(self.balance)
+        for items in self.items:
+            if self.instrument_type == "Shares":
+                image = frappe.get_all(
+                    "Allowed Security",
+                    filters={
+                        "isin": items.isin,
+                    },
+                    fields=["amc_image"],
+                )
+                code = ""
+            else:
+                code = frappe.get_all(
+                    "Allowed Security",
+                    filters={
+                        "isin": items.isin,
+                    },
+                    fields=["amc_code"],
+                )
+                image = frappe.get_all(
+                    "AMC Master",
+                    filters={
+                        "name": code[0].amc_code,
+                    },
+                    fields=["amc_image"],
+                )
+
+            if image[0].amc_image:
+                amc_image = frappe.utils.get_url(image[0].amc_image)
+                items.amc_image = amc_image
+            if code:
+                items.amc_code = code[0].amc_code
 
     def save_loan_sanction_history(self, agreement_file, event="New loan"):
         loan_sanction_history = frappe.get_doc(
@@ -1870,23 +1903,29 @@ class Loan(Document):
                     actual_drawing_power += i.eligible_amount
             max_topup_amount = actual_drawing_power - self.sanctioned_limit
         else:
-            max_topup_amount = (
-                self.total_collateral_value * (self.allowable_ltv / 100)
-            ) - self.sanctioned_limit
+            # max_topup_amount = (
+            #     self.total_collateral_value * (self.allowable_ltv / 100)
+            # ) - self.sanctioned_limit
+            for i in self.items:
+                i.amount = i.price * i.pledged_quantity
+                i.eligible_amount = (i.eligible_percentage / 100) * i.amount
+                total_collateral_value += i.amount
+                actual_drawing_power += i.eligible_amount
+
+            max_topup_amount = actual_drawing_power - self.sanctioned_limit
 
         # show available top up amount only if topup amount is greater than 10% of sanctioned limit
         # if self.instrument_type == "Mutual Fund":  # for Mutual Fund Topup
         if self.sanctioned_limit > lender.maximum_sanctioned_limit:
             max_topup_amount = 0
         elif (
-            (actual_drawing_power / self.sanctioned_limit * 100) - 100 >= 10
-            and max_topup_amount >= 1000
-            and self.instrument_type == "Mutual Fund"
-        ) or (
-            max_topup_amount > (self.sanctioned_limit * 0.1)
-            and max_topup_amount >= 1000
-            and self.instrument_type == "Shares"
-        ):
+            actual_drawing_power / self.sanctioned_limit * 100
+        ) - 100 >= 10 and max_topup_amount >= 1000:
+            # ) or (
+            #     actual_drawing_power > (self.sanctioned_limit * 0.1)
+            #     and max_topup_amount >= 1000
+            #     and self.instrument_type == "Shares"
+            # ):
             if (
                 max_topup_amount + self.sanctioned_limit
             ) > lender.maximum_sanctioned_limit:
@@ -1944,23 +1983,23 @@ class Loan(Document):
                 topup_doc.db_set("top_up_amount", 0)
             frappe.db.commit()
 
-    def max_unpledge_amount(self):
-        if self.instrument_type == "Shares":
-            minimum_collateral_value = (100 / self.allowable_ltv) * self.balance
-            maximum_unpledge_amount = (
-                self.total_collateral_value - minimum_collateral_value
-            )
+    # def max_unpledge_amount(self):
+    #     if self.instrument_type == "Shares":
+    #         minimum_collateral_value = (100 / self.allowable_ltv) * self.balance
+    #         maximum_unpledge_amount = (
+    #             self.total_collateral_value - minimum_collateral_value
+    #         )
 
-            return {
-                "minimum_collateral_value": round(minimum_collateral_value, 2)
-                if minimum_collateral_value > 0
-                else 0.0,
-                "maximum_unpledge_amount": round(maximum_unpledge_amount, 2)
-                if maximum_unpledge_amount > 0
-                else 0.0,
-            }
-        else:
-            return {}
+    #         return {
+    #             "minimum_collateral_value": round(minimum_collateral_value, 2)
+    #             if minimum_collateral_value > 0
+    #             else 0.0,
+    #             "maximum_unpledge_amount": round(maximum_unpledge_amount, 2)
+    #             if maximum_unpledge_amount > 0
+    #             else 0.0,
+    #         }
+    #     else:
+    #         return {}
 
     def update_pending_sell_collateral_amount(self):
         all_pending_sell_collateral_applications = frappe.get_all(
@@ -2193,6 +2232,15 @@ class Loan(Document):
             ),
             as_dict=1,
         )[0]["amount"]
+
+    def update_ltv(self):
+        for i in self.items:
+            i.eligible_percentage = frappe.db.get_value(
+                "Allowed Security",
+                {"isin": i.isin, "lender": self.lender},
+                "eligible_percentage",
+            )
+        return
 
 
 def check_loans_for_shortfall(loans):

@@ -27,7 +27,7 @@ class LoanMarginShortfall(Document):
         self.total_collateral_value = loan.total_collateral_value
         self.instrument_type = loan.instrument_type
         self.scheme_type = loan.scheme_type
-        self.allowable_ltv = loan.allowable_ltv
+        # self.allowable_ltv = loan.allowable_ltv
         self.drawing_power = loan.drawing_power
         self.customer_name = loan.customer_name
         self.loan_balance = loan.balance
@@ -40,26 +40,44 @@ class LoanMarginShortfall(Document):
             self.ltv = (
                 (self.loan_balance / self.total_collateral_value) * 100
                 if self.total_collateral_value > 0
-                else loan.allowable_ltv
+                else None
             )
 
             self.surplus_margin = 100 - self.ltv
-            self.minimum_collateral_value = (
-                100 / self.allowable_ltv
-            ) * self.loan_balance
+            # self.minimum_collateral_value = (
+            #     100 / self.allowable_ltv
+            # ) * self.loan_balance
 
+            # Previous formula
+            # self.shortfall = math.ceil(
+            #     (self.minimum_collateral_value - self.total_collateral_value)
+            #     if self.loan_balance > self.drawing_power
+            #     else 0
+            # )
+
+            # New Formula as per ltv changes
             self.shortfall = math.ceil(
-                (self.minimum_collateral_value - self.total_collateral_value)
+                (self.loan_balance - self.drawing_power)
                 if self.loan_balance > self.drawing_power
                 else 0
             )
+            # Previous formula
+            # self.shortfall_c = math.ceil(
+            #     ((self.loan_balance - self.drawing_power) * 100 / self.allowable_ltv)
+            #     if self.loan_balance > self.drawing_power
+            #     else 0
+            # )
+
+            # New Formula as per ltv changes
             self.shortfall_c = math.ceil(
-                ((self.loan_balance - self.drawing_power) * 100 / self.allowable_ltv)
+                (self.loan_balance - self.drawing_power)
                 if self.loan_balance > self.drawing_power
                 else 0
             )
-            self.minimum_pledge_amount = self.shortfall_c
-            self.advisable_pledge_amount = self.minimum_pledge_amount * 1.1
+
+            # self.minimum_pledge_amount = self.shortfall_c
+            # self.advisable_pledge_amount = self.minimum_pledge_amount * 1.1
+
         self.shortfall_percentage = (
             ((self.loan_balance - self.drawing_power) / self.loan_balance) * 100
             if self.loan_balance > self.drawing_power
@@ -71,7 +89,7 @@ class LoanMarginShortfall(Document):
                 min_cash_amt if self.loan_balance > self.drawing_power else 0
             )
         else:
-            min_cash_amt = (self.allowable_ltv / 100) * self.shortfall_c
+            min_cash_amt = self.loan_balance - self.drawing_power
             self.minimum_cash_amount = (
                 min_cash_amt if self.loan_balance > self.drawing_power else 0
             )

@@ -38,10 +38,13 @@ class LoanApplication(Document):
         lender = self.get_lender()
         if self.loan:
             loan = self.get_loan()
+            # increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+            #     (self.total_collateral_value + loan.total_collateral_value)
+            #     * self.allowable_ltv
+            #     / 100
+            # )
             increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
-                (self.total_collateral_value + loan.total_collateral_value)
-                * self.allowable_ltv
-                / 100
+                loan.drawing_power + self.drawing_power
             )
             new_increased_sanctioned_limit = (
                 increased_sanctioned_limit
@@ -462,6 +465,74 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         "datetimestamp": datetime_signature[0],
                         "signature": datetime_signature[1],
                     }
+                    isin_folio_combo = str(i.get("isin")) + str(i.get("folio"))
+                    if isin_folio_combo in isin_details:
+                        cur = isin_details.get(isin_folio_combo)
+                        i.pledge_executed = 1
+                        i.pledge_status = (
+                            "Success"
+                            if cur.get("remarks").title() == "Success"
+                            else "Failure"
+                        )
+                        if i.pledge_status == "Success":
+                            total_successfull_lien += 1
+                            i.lender_approval_status = "Approved"
+                        else:
+                            i.lender_approval_status = "Rejected"
+                        collateral_ledger_data = {
+                            "prf": i.get("prf_number"),
+                            "expiry": self.expiry_date,
+                        }
+                        collateral_ledger_input = {
+                            "doctype": "Loan Application",
+                            "docname": self.name,
+                            "request_type": "Pledge",
+                            "isin": i.get("isin"),
+                            "quantity": i.get("pledged_quantity"),
+                            "price": i.get("price"),
+                            "security_name": i.get("security_name"),
+                            "security_category": i.get("security_category"),
+                            "data": collateral_ledger_data,
+                            "psn": cur.get("lienmarkno"),
+                            "requested_quantity": i.get("requested_quantity"),
+                            "scheme_code": i.get("scheme_code"),
+                            "folio": i.get("folio"),
+                            "amc_code": i.get("amc_code"),
+                        }
+                        CollateralLedger.create_entry(**collateral_ledger_input)
+                    pledge_securities = 0
+                    self.status = "Pledge executed"
+                    if total_successfull_lien == len(self.items):
+                        self.pledge_status = "Success"
+                        pledge_securities = 1
+                    elif total_successfull_lien == 0:
+                        self.status = "Pledge Failure"
+                        self.pledge_status = "Failure"
+                    else:
+                        self.pledge_status = "Partial Success"
+                        pledge_securities = 1
+                    self.workflow_state = "Pledge executed"
+                    self.total_collateral_value = round(total_collateral_value, 2)
+                    # if self.instrument_type == "Shares":
+                    #     self.drawing_power = round(
+                    #         lms.round_down_amount_to_nearest_thousand(
+                    #             (self.allowable_ltv / 100) * self.total_collateral_value
+                    #         ),
+                    #         2,
+                    #     )
+                    # else:
+                    drawing_power = 0
+                    for i in self.items:
+                        i.amount = i.price * i.pledged_quantity
+                        dp = (i.eligible_percentage / 100) * i.amount
+                        i.eligibile_amount = dp
+                        # self.total_collateral_value += i.amount
+                        drawing_power += dp
+
+                    drawing_power = round(
+                        lms.round_down_amount_to_nearest_thousand(drawing_power),
+                        2,
+                    )
 
                     response = requests.post(
                         url=url, headers=headers, data=encrypted_data
@@ -663,24 +734,26 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 
             # TODO : manage loan application and its item's as per lender approval
             self.total_collateral_value = round(total_collateral_value, 2)
-            if self.instrument_type == "Shares":
-                drawing_power = round(
-                    lms.round_down_amount_to_nearest_thousand(
-                        (self.allowable_ltv / 100) * self.total_collateral_value
-                    ),
-                    2,
-                )
-            else:
-                drawing_power = 0
-                for i in self.items:
-                    i.amount = i.price * i.pledged_quantity
-                    dp = (i.eligible_percentage / 100) * i.amount
-                    drawing_power += dp
+            # if self.instrument_type == "Shares":
+            #     drawing_power = round(
+            #         lms.round_down_amount_to_nearest_thousand(
+            #             (self.allowable_ltv / 100) * self.total_collateral_value
+            #         ),
+            #         2,
+            #     )
+            # else:
+            drawing_power = 0
+            for i in self.items:
+                i.amount = i.price * i.pledged_quantity
+                dp = (i.eligible_percentage / 100) * i.amount
+                i.eligible_amount = dp
+                # self.total_collateral_value += i.amount
+                drawing_power += dp
 
-                drawing_power = round(
-                    lms.round_down_amount_to_nearest_thousand(drawing_power),
-                    2,
-                )
+            drawing_power = round(
+                lms.round_down_amount_to_nearest_thousand(drawing_power),
+                2,
+            )
 
             self.drawing_power = (
                 drawing_power
@@ -698,25 +771,27 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 ).total_collateral_value
 
             # Use increased sanctioned limit field for this validation
-            if self.instrument_type == "Shares":
-                drawing_power = round(
-                    lms.round_down_amount_to_nearest_thousand(
-                        (self.total_collateral_value + loan_total_collateral_value)
-                        * (self.allowable_ltv / 100)
-                    ),
-                    2,
-                )
-            else:
-                drawing_power = 0
-                for i in self.items:
-                    i.amount = i.price * i.pledged_quantity
-                    dp = (i.eligible_percentage / 100) * i.amount
-                    drawing_power += dp
+            # if self.instrument_type == "Shares":
+            #     drawing_power = round(
+            #         lms.round_down_amount_to_nearest_thousand(
+            #             (self.total_collateral_value + loan_total_collateral_value)
+            #             * (self.allowable_ltv / 100)
+            #         ),
+            #         2,
+            #     )
+            # else:
+            drawing_power = 0
+            for i in self.items:
+                i.amount = i.price * i.pledged_quantity
+                dp = (i.eligible_percentage / 100) * i.amount
+                i.eligible_amount = dp
+                # self.total_collateral_value += i.amount
+                drawing_power += dp
 
-                drawing_power = round(
-                    lms.round_down_amount_to_nearest_thousand(drawing_power),
-                    2,
-                )
+            drawing_power = round(
+                lms.round_down_amount_to_nearest_thousand(drawing_power),
+                2,
+            )
 
             if self.application_type in ["New Loan", "Increase Loan"]:
                 if drawing_power < self.minimum_sanctioned_limit:
@@ -736,32 +811,32 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     ):
                         total_collateral_value += i.amount
                         self.total_collateral_value = round(total_collateral_value, 2)
-                        if self.instrument_type == "Shares":
-                            drawing_power = round(
-                                lms.round_down_amount_to_nearest_thousand(
-                                    (self.allowable_ltv / 100)
-                                    * self.total_collateral_value
-                                ),
-                                2,
-                            )
-                        else:
-                            drawing_power = 0
-                            for i in self.items:
-                                i.amount = i.price * i.pledged_quantity
-                                dp = (i.eligible_percentage / 100) * i.amount
-                                drawing_power += dp
+                        # if self.instrument_type == "Shares":
+                        #     drawing_power = round(
+                        #         lms.round_down_amount_to_nearest_thousand(
+                        #             (self.allowable_ltv / 100)
+                        #             * self.total_collateral_value
+                        #         ),
+                        #         2,
+                        #     )
+                        # else:
+                        drawing_power = 0
+                        for i in self.items:
+                            i.amount = i.price * i.pledged_quantity
+                            dp = (i.eligible_percentage / 100) * i.amount
+                            i.eligible_amount = dp
+                            # self.total_collateral_value += i.amount
+                            drawing_power += dp
 
-                            drawing_power = round(
-                                lms.round_down_amount_to_nearest_thousand(
-                                    drawing_power
-                                ),
-                                2,
-                            )
-                        self.drawing_power = (
-                            drawing_power
-                            if drawing_power < self.maximum_sanctioned_limit
-                            else self.maximum_sanctioned_limit
+                        drawing_power = round(
+                            lms.round_down_amount_to_nearest_thousand(drawing_power),
+                            2,
                         )
+                    self.drawing_power = (
+                        drawing_power
+                        if drawing_power < self.maximum_sanctioned_limit
+                        else self.maximum_sanctioned_limit
+                    )
 
         # On loan application rejection mark lender approvel status as rejected in loan application items
         if self.status == "Rejected":
@@ -1003,7 +1078,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 "drawing_power": self.drawing_power,
                 "sanctioned_limit": self.drawing_power,
                 "expiry_date": self.expiry_date,
-                "allowable_ltv": self.allowable_ltv,
+                # "allowable_ltv": self.allowable_ltv,
                 "customer": self.customer,
                 "customer_name": self.customer_name,
                 "lender": self.lender,
@@ -1098,9 +1173,19 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         loan.update_items()
         loan.fill_items()
 
-        loan.drawing_power = (
-            loan.allowable_ltv / 100
-        ) * loan.total_collateral_value  # can be altered later for MF
+        # loan.drawing_power = (loan.allowable_ltv / 100) * loan.total_collateral_value  # can be altered later for MF
+        drawing_power = 0
+        for i in loan.items:
+            i.amount = i.price * i.pledged_quantity
+            i.eligible_amount = (i.eligible_percentage / 100) * i.amount
+            self.total_collateral_value += i.amount
+            drawing_power += i.eligible_amount
+
+        drawing_power = round(
+            drawing_power,
+            2,
+        )
+        loan.drawing_power = drawing_power
         loan.save(ignore_permissions=True)
 
         if self.application_type == "Increase Loan":
@@ -1686,7 +1771,6 @@ def check_for_pledge(loan_application_doc):
             page_length=page_length,
         )
         la_items_list = [item.isin for item in la_items]
-
         # TODO : generate prf number and assign to items in batch
         pledge_request = loan_application_doc.pledge_request(la_items_list)
         # TODO : pledge request hit for all batches
@@ -1746,26 +1830,25 @@ def check_for_pledge(loan_application_doc):
     loan_application_doc.total_collateral_value = round(
         loan_application_doc.total_collateral_value, 2
     )
-    if loan_application_doc.instrument_type == "Shares":
-        loan_application_doc.drawing_power = round(
-            lms.round_down_amount_to_nearest_thousand(
-                (loan_application_doc.allowable_ltv / 100)
-                * loan_application_doc.total_collateral_value
-            ),
-            2,
-        )
-    else:
-        drawing_power = 0
-        for i in loan_application_doc.items:
-            i.amount = i.price * i.pledged_quantity
-            dp = (i.eligible_percentage / 100) * i.amount
-            # loan_application_doc.total_collateral_value += i.amount
-            drawing_power += dp
-
-        loan_application_doc.drawing_power = round(
-            lms.round_down_amount_to_nearest_thousand(drawing_power),
-            2,
-        )
+    # if loan_application_doc.instrument_type == "Shares":
+    #     loan_application_doc.drawing_power = round(
+    #         lms.round_down_amount_to_nearest_thousand(
+    #             (loan_application_doc.allowable_ltv / 100)
+    #             * loan_application_doc.total_collateral_value
+    #         ),
+    #         2,
+    #     )
+    # else:
+    drawing_power = 0
+    for i in loan_application_doc.items:
+        i.amount = i.price * i.pledged_quantity
+        dp = (i.eligible_percentage / 100) * i.amount
+        # loan_application_doc.total_collateral_value += i.amount
+        drawing_power += dp
+    loan_application_doc.drawing_power = round(
+        lms.round_down_amount_to_nearest_thousand(drawing_power),
+        2,
+    )
 
     loan_application_doc.save(ignore_permissions=True)
     # loan_application_doc.save_collateral_ledger()
@@ -1847,26 +1930,26 @@ def actions_on_isin(loan_application):
                 ):
                     total_collateral_value += i["amount"]
                     total_collateral_value = round(total_collateral_value, 2)
-                    if loan_application_doc.instrument_type == "Shares":
-                        drawing_power = round(
-                            lms.round_down_amount_to_nearest_thousand(
-                                (loan_application["allowable_ltv"] / 100)
-                                * total_collateral_value
-                            ),
-                            2,
-                        )
-                    else:
-                        drawing_power = 0
-                        for i in loan_application.items:
-                            i.amount = i.price * i.pledged_quantity
-                            dp = (i.eligible_percentage / 100) * i.amount
-                            # total_collateral_value += i.amount
-                            drawing_power += dp
+                    # if loan_application_doc.instrument_type == "Shares":
+                    #     drawing_power = round(
+                    #         lms.round_down_amount_to_nearest_thousand(
+                    #             (loan_application["allowable_ltv"] / 100)
+                    #             * total_collateral_value
+                    #         ),
+                    #         2,
+                    #     )
+                    # else:
+                    drawing_power = 0
+                    for i in loan_application["items"]:
+                        i["amount"] = i["price"] * i["pledged_quantity"]
+                        dp = (i["eligible_percentage"] / 100) * i["amount"]
+                        # total_collateral_value += i.amount
+                        drawing_power += dp
 
-                        drawing_power = round(
-                            lms.round_down_amount_to_nearest_thousand(drawing_power),
-                            2,
-                        )
+                    drawing_power = round(
+                        lms.round_down_amount_to_nearest_thousand(drawing_power),
+                        2,
+                    )
 
         response = {
             "total_collateral_value": total_collateral_value,

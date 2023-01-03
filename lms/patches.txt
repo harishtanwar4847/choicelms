@@ -53,3 +53,4 @@ lms.patches.update_workflow ###CKYC
 lms.patches.update_psn ####
 lms.patches.update_dlt_links 
 lms.patches.au_bank_penny
+lms.patches.update_category_in_allowed_security 
