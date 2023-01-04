@@ -67,7 +67,7 @@ class SparkLoanRenewalApplication(Document):
                 )
 
             elif self.status == "Esign Done":
-                msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan renew approval.Thank you for your patience.\n-Spark Loans"
+                msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan renew approval.Thank you for your patience.-Spark Loans"
 
                 fcm_notification = frappe.get_doc(
                     "Spark Push Notification",
