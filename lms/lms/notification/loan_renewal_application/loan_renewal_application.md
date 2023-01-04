@@ -45,7 +45,7 @@
                         Your loan renewal application has been accepted.<br />
                         Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement.<br />
                         <br />
-                        For any help on e-sign, please view our tutorial videos or you can reach to us through 'Contact Us' on the app.
+                        For any help on e-sign, please view our tutorial videos or you can reach to us through 'Contact Us' on the app<br />
                         <br />
                         We look forward to serve you soon.<br />
                         <br />
@@ -73,6 +73,14 @@
                         We regret the inconvenience caused.<br />
                         <br />
                         Please try again after sometime or you can reach to us through 'Contact Us' on the app.<br />
+                        <br />
+                        We look forward to serve you soon.<br />
+                        <br />
+                    {% endif %}
+                    {% if doc.get("loan_renewal_application").get("status") == "Rejected" and doc.get("loan_renewal_application").get("lr_accepted_by_lender") == 1 %}
+                        As per your request, your loan renewal application was turned down.<br />
+                        <br />
+                        Please try again after sometime or you can reach to us through 'Contact Us' on the app.
                         <br />
                         We look forward to serve you soon.<br />
                         <br />

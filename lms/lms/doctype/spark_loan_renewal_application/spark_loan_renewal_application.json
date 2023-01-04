@@ -19,6 +19,7 @@
   "column_break_8",
   "tnc_complete",
   "tnc_show",
+  "lr_accepted_by_lender",
   "reminders",
   "status",
   "customer",
@@ -223,11 +224,19 @@
    "fieldtype": "Check",
    "label": "TNC show",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "lr_accepted_by_lender",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "LR accepted",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-02 15:08:57.061261",
+ "modified": "2023-01-05 00:18:56.490467",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Loan Renewal Application",
