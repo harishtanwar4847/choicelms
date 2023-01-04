@@ -45,6 +45,9 @@
                   <center>
                     <a href= dlt_link rel="nofollow" style="color:#fff;background-color:#2490ef;border:1px solid transparent;border-radius:6px;display:inline-block;font-size:13px;line-height:20px;padding:4px 20px;text-decoration:none" bgcolor="#2490ef" target="_blank" data-saferedirecturl=dlt_link>Renew Now</a>
                   </center>
+                  You can reach us through 'Contact Us' on the app.<br />
+                  <br />
+                  We look forward to serving you soon.<br />
                 </span>
             </td>
         </tr>

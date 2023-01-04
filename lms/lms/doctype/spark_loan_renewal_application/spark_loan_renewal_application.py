@@ -477,14 +477,14 @@ def loan_renewal_update_doc():
             ) or (
                 existing_renewal_doc_list
                 and (exp + timedelta(days=7)) < frappe.utils.now_datetime().date()
-                and frappe.utils.now_datetime().date() <= exp + timedelta(days=15)
+                and frappe.utils.now_datetime().date() < exp + timedelta(days=9)
             ):
                 if frappe.utils.now_datetime().date() < exp + timedelta(days=2):
-                    expiry_date = exp
+                    expiry = exp
                 else:
-                    expiry_date = exp + timedelta(days=7)
+                    expiry = exp + timedelta(days=7)
 
-                str_exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").strftime(
+                str_exp = datetime.strptime(str(expiry), "%Y-%m-%d").strftime(
                     "%d-%m-%Y"
                 )
                 str_exp = str_exp.replace("-", "/")
@@ -504,7 +504,7 @@ def loan_renewal_update_doc():
                     queue="short",
                     job_name="Loan Renewal Extension",
                 )
-                msg = "Dear Customer,\nYou have received a loan renewal extension of 7 days from the current expiry date: {expiry_date}.Click here to continue {link} \n-Spark Loans".format(
+                msg = "Dear Customer,\nYou have received a loan renewal extension of 7 days from the current expiry date: {expiry_date}.Click here to continue {link}\n-Spark Loans".format(
                     expiry_date=expiry_date,
                     link=las_settings.app_login_dashboard,
                 )
@@ -575,7 +575,7 @@ def loan_renewal_update_doc():
                 )
                 msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.Click on the link {link} to submit your request.\n-Spark Loans".format(
                     loan_name=loan.name,
-                    expiry_date=loan.expiry_date,
+                    expiry_date=str_exp,
                     link=las_settings.app_login_dashboard,
                 )
                 fcm_notification = frappe.get_doc(
@@ -632,7 +632,7 @@ def loan_renewal_update_doc():
                         )
                         msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.\nClick on the link {link} to submit your request.\n-Spark Loans".format(
                             loan_name=loan.name,
-                            expiry_date=loan.expiry_date,
+                            expiry_date=str_exp,
                             link=las_settings.app_login_dashboard,
                         )
                         fcm_notification = frappe.get_doc(
@@ -692,7 +692,7 @@ def loan_renewal_update_doc():
                         )
                         msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.\nClick on the link {link} to submit your request.\n-Spark Loans".format(
                             loan_name=loan.name,
-                            expiry_date=loan.expiry_date,
+                            expiry_date=str_exp,
                             link=las_settings.app_login_dashboard,
                         )
                         fcm_notification = frappe.get_doc(
@@ -752,7 +752,7 @@ def loan_renewal_update_doc():
                         )
                         msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.\nClick on the link {link} to submit your request.\n-Spark Loans".format(
                             loan_name=loan.name,
-                            expiry_date=loan.expiry_date,
+                            expiry_date=str_exp,
                             link=las_settings.app_login_dashboard,
                         )
 
