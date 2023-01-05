@@ -5,6 +5,7 @@ import base64
 import hashlib
 import hmac
 import json
+import math
 import os
 import re
 from base64 import b64decode, b64encode
@@ -36,7 +37,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.9.0+1-uat"
+__version__ = "5.10.1-uat"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -1710,8 +1711,12 @@ def decrypt_lien_marking_response():
                         "scheme_code": i["schemecode"],
                         "security_name": i["schemename"],
                         "amc_code": i["amccode"],
-                        "pledged_quantity": float(i["lienapprovedunit"]),
-                        "requested_quantity": float(i["lienunit"]),
+                        "pledged_quantity": truncate_float_to_decimals(
+                            float(i["lienapprovedunit"]), 3
+                        ),
+                        "requested_quantity": truncate_float_to_decimals(
+                            float(i["lienunit"]), 3
+                        ),
                         "type": res.get("bankschemetype"),
                     },
                 )
@@ -2067,4 +2072,38 @@ def au_pennydrop_api(data):
         frappe.log_error(
             title="AU Penny Drop API Error",
             message=frappe.get_traceback() + "\n\n" + data,
+        )
+
+
+def truncate_float_to_decimals(number, digits):
+    return math.floor(number * 10 ** digits) / 10 ** digits
+
+
+def name_matching(user_kyc, bank_acc_full_name):
+    try:
+        bank_acc_full_name = bank_acc_full_name.lower().replace(" ", "")
+
+        if (
+            user_kyc.fname
+            and user_kyc.fname.replace(" ", "").lower() in bank_acc_full_name
+        ) and (
+            user_kyc.mname
+            and user_kyc.mname.replace(" ", "").lower() in bank_acc_full_name
+        ):
+            return True
+        elif (
+            user_kyc.fname
+            and user_kyc.fname.replace(" ", "").lower() in bank_acc_full_name
+        ) and (
+            user_kyc.lname
+            and user_kyc.lname.replace(" ", "").lower() in bank_acc_full_name
+        ):
+            return True
+        else:
+            return False
+    except Exception:
+        frappe.log_error(
+            title="Name matching Error",
+            message=frappe.get_traceback()
+            + "User Kyc Name:\n{}\n\n".format(user_kyc.name),
         )

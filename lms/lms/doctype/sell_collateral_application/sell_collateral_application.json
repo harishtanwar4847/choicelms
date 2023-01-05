@@ -13,6 +13,7 @@
   "current_shortfall_amount",
   "pending_unpledge_request_id",
   "instrument_type",
+  "processed",
   "invoctoken",
   "validate_message",
   "is_validated",
@@ -207,11 +208,17 @@
    "fieldtype": "Datetime",
    "label": "Invoke Initiate Request Timestamp",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "processed",
+   "fieldtype": "Check",
+   "label": "Processed"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-11-22 14:11:25.414351",
+ "modified": "2023-01-05 13:47:11.296817",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",

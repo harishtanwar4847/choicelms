@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [v5.10.1-uat]
+
+## Added
+
+- [Feat: floating-to-fixed](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/559)
+
+## [v5.10.0-uat]
+
+## Added
+
+- [Feat: live penny integration with fullname matching](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/557)
+
 ## [v5.9.0+1-uat]
 
 ## Added

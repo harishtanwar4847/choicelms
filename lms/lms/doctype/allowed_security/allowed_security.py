@@ -49,9 +49,26 @@ class AllowedSecurity(Document):
 
             except frappe.DoesNotExistError:
                 frappe.log_error(
-                    message="Not found",
-                    title=("Allowed Security"),
+                    message=frappe.get_traceback(),
+                    title=("Allowed Security get_loan_application"),
                 )
+
+        unpledge_application = self.check_unpledge_application()
+        if unpledge_application:
+            frappe.throw(
+                "Please accept/reject {} this Unpledge Application".format(
+                    unpledge_application
+                )
+            )
+
+        sell_collateral_application = self.check_sell_collateral_application()
+        if sell_collateral_application:
+            frappe.throw(
+                "Please accept/reject {} this Sell Collateral Application".format(
+                    sell_collateral_application
+                )
+            )
+
         # if self.amc_image:
         #     img=self.amc_image
         #     print(img)
@@ -168,6 +185,54 @@ class AllowedSecurity(Document):
                 + "\n\nAllowed Security Update Error for isin:\n"
                 + str(self.isin),
             )
+
+    def check_unpledge_application(self):
+        unpledege_application_list = frappe.get_all(
+            "Unpledge Application",
+            filters={
+                "status": ["IN", ["Pending"]],
+            },
+            fields=["name"],
+        )
+        pending_doc = []
+        for doc_name in unpledege_application_list:
+            try:
+                unpledege_application = frappe.get_doc(
+                    "Unpledge Application", doc_name.name
+                )
+                for i in unpledege_application.items:
+                    if i.isin in self.isin:
+                        pending_doc.append(doc_name.name)
+
+            except frappe.DoesNotExistError:
+                frappe.log_error(
+                    message=frappe.get_traceback(),
+                    title=("Allowed Security check_unpledge_application"),
+                )
+        return pending_doc
+
+    def check_sell_collateral_application(self):
+        sell_collateral_application_list = frappe.get_all(
+            "Sell Collateral Application",
+            filters={"status": ["IN", ["Pending"]], "processed": 0},
+            fields=["name"],
+        )
+        pending_doc = []
+        for doc_name in sell_collateral_application_list:
+            try:
+                sell_collateral_application = frappe.get_doc(
+                    "Sell Collateral Application", doc_name.name
+                )
+                for i in sell_collateral_application.items:
+                    if i.isin in self.isin:
+                        pending_doc.append(doc_name.name)
+
+            except frappe.DoesNotExistError:
+                frappe.log_error(
+                    message=frappe.get_traceback(),
+                    title=("Allowed Security check_sell_collateral_application"),
+                )
+        return pending_doc
 
 
 @frappe.whitelist()
