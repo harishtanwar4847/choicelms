@@ -66,7 +66,7 @@ class SparkLoanRenewalApplication(Document):
             ):
                 self.lr_accepted_by_lender = 1
                 msg = """Dear Customer,
-Congratulations! Your loan renewal application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement. For any help on e-sign, please view our tutorial videos or reach out to us under "Contact Us" on the app - {link} - Spark Loans""".format(
+Congratulations! Your loan renewal application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement. For any help on e-sign, please view our tutorial videos or reach out to us under "Contact Us" on the app – {link} - Spark Loans""".format(
                     link=las_settings.contact_us
                 )
 
@@ -119,7 +119,7 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                 )
 
             elif self.status == "Rejected":
-                if self.lr_accepted_by_lender == 1:
+                if self.lr_accepted_by_lender == 0:
                     msg = """Dear Customer,
 Sorry! Your loan renewal application was turned down. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  - {link}- Spark Loans""".format(
                         link=las_settings.contact_us
@@ -138,7 +138,7 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
 
                 else:
                     msg = """Dear Customer,
-Your loan renew application was turned down, as per your request. Please try again or you can reach to us through 'Contact Us' on the app- ({link})-Spark Loans""".format(
+Your loan renew application was turned down, as per your request. Please try again or you can reach to us through 'Contact Us' on the app- ({link})-Spark Loans""".format(
                         link=las_settings.contact_us
                     )
 
@@ -199,7 +199,7 @@ Your loan renew application was turned down, as per your request. Please try aga
                         self.is_expired = 1
 
             if msg:
-                receiver_list = [str(customer.phone)]
+                receiver_list = [str(9137032242)]
                 if customer.get_kyc().mob_num:
                     receiver_list.append(str(customer.get_kyc().mob_num))
                 if customer.get_kyc().choice_mob_no:
@@ -616,8 +616,7 @@ You have received a loan renewal extension of 7 days from the current expiry dat
                     job_name="Loan Renewal Reminder",
                 )
                 msg = """Dear Customer,
-Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request.
-""".format(
+Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request.""".format(
                     loan_name=loan.name,
                     expiry_date=str_exp,
                     link=las_settings.app_login_dashboard,
@@ -675,9 +674,8 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
                             job_name="Loan Renewal Reminder",
                         )
                         msg = """Dear Customer,
-Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request.
+You have received a loan renewal extension of 7 days from the current expiry date: {expiry_date}. Click here to continue {link} - Spark Loan
 """.format(
-                            loan_name=loan.name,
                             expiry_date=str_exp,
                             link=las_settings.app_login_dashboard,
                         )
@@ -737,8 +735,7 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
                             job_name="Loan Renewal Reminder",
                         )
                         msg = """Dear Customer,
-Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request.
-""".format(
+Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request.""".format(
                             loan_name=loan.name,
                             expiry_date=str_exp,
                             link=las_settings.app_login_dashboard,
@@ -799,8 +796,7 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
                             job_name="Loan Renewal Reminder",
                         )
                         msg = """Dear Customer,
-Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request.
-""".format(
+Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request.""".format(
                             loan_name=loan.name,
                             expiry_date=str_exp,
                             link=las_settings.app_login_dashboard,
