@@ -18,13 +18,23 @@ class SparkLoanRenewalApplication(Document):
         las_settings = frappe.get_single("LAS Settings")
         loan = frappe.get_doc("Loan", self.loan)
         msg = ""
+        current_year = int(frappe.utils.now_datetime().strftime("%Y"))
+        if (
+            (current_year % 400 == 0)
+            or (current_year % 100 != 0)
+            and (current_year % 4 == 0)
+        ):
+            no_of_days = 365
+        # Else it is not a leap year
+        else:
+            no_of_days = 364
+
         if self.status == "Approved" and not self.expiry_date:
             if not self.lender_esigned_document:
                 frappe.throw(_("Please upload Lender esigned document."))
             else:
-                expiry = frappe.utils.now_datetime().date() + timedelta(days=365)
-                self.expiry_date = expiry - timedelta(days=1)
-                loan.expiry_date = expiry - timedelta(days=1)
+                self.expiry_date = loan.expiry_date + timedelta(days=no_of_days)
+                loan.expiry_date = loan.expiry_date + timedelta(days=no_of_days)
                 loan.save(ignore_permissions=True)
                 frappe.db.commit()
         if self.status == "Rejected" and not self.remarks:
@@ -38,6 +48,7 @@ class SparkLoanRenewalApplication(Document):
                 "status": self.status,
                 "lr_accepted_by_lender": self.lr_accepted_by_lender,
             }
+            print("Status :", self.status)
 
             if self.status in [
                 "Loan Renewal accepted by Lender",
@@ -49,7 +60,10 @@ class SparkLoanRenewalApplication(Document):
                     "Notification", "Loan Renewal Application", method="send", doc=doc
                 )
 
-            if self.status == "Loan Renewal accepted by Lender":
+            if (
+                self.status == "Loan Renewal accepted by Lender"
+                and not self.lr_accepted_by_lender
+            ):
                 self.lr_accepted_by_lender = 1
                 msg = 'Dear Customer,\nCongratulations! Your loan renewal application has been accepted.Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement.For any help on e-sign, please view our tutorial videos or reach out to us under "Contact Us" on the app- {link} -Spark Loans'.format(
                     link=las_settings.contact_us
@@ -66,7 +80,7 @@ class SparkLoanRenewalApplication(Document):
                     customer=customer,
                 )
 
-            elif self.status == "Esign Done":
+            elif self.status == "Esign Done" and self.lender_esigned_document == None:
                 msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan renew approval.Thank you for your patience.-Spark Loans"
 
                 fcm_notification = frappe.get_doc(
@@ -81,9 +95,8 @@ class SparkLoanRenewalApplication(Document):
                 )
 
             elif self.status == "Approved":
-                expiry = frappe.utils.now_datetime().date() + timedelta(days=365)
-                self.expiry_date = expiry
-                loan.expiry_date = expiry
+                self.expiry_date = loan.expiry_date + timedelta(days=no_of_days)
+                loan.expiry_date = loan.expiry_date + timedelta(days=no_of_days)
                 loan.save(ignore_permissions=True)
                 frappe.db.commit()
                 msg = "Dear Customer,\nCongratulations! Your loan renewal process is completed. Please visit the spark.loans app for details - {link} -Spark Loans".format(
@@ -650,7 +663,7 @@ def loan_renewal_update_doc():
                             delayed=False,
                             job_name="Loan Renewal Reminder",
                         )
-                        msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.\nClick on the {link} to submit your request.\n-Spark Loans".format(
+                        msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.Click on the {link} to submit your request.\n-Spark Loans".format(
                             loan_name=loan.name,
                             expiry_date=str_exp,
                             link=las_settings.app_login_dashboard,
@@ -710,7 +723,7 @@ def loan_renewal_update_doc():
                             delayed=False,
                             job_name="Loan Renewal Reminder",
                         )
-                        msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.\nClick on the {link} to submit your request.\n-Spark Loans".format(
+                        msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.Click on the {link} to submit your request.\n-Spark Loans".format(
                             loan_name=loan.name,
                             expiry_date=str_exp,
                             link=las_settings.app_login_dashboard,
@@ -770,7 +783,7 @@ def loan_renewal_update_doc():
                             delayed=False,
                             job_name="Loan Renewal Reminder",
                         )
-                        msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.\nClick on the {link} to submit your request.\n-Spark Loans".format(
+                        msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.Click on the {link} to submit your request.\n-Spark Loans".format(
                             loan_name=loan.name,
                             expiry_date=str_exp,
                             link=las_settings.app_login_dashboard,

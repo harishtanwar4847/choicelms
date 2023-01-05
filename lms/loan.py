@@ -500,7 +500,7 @@ def esign_done(**kwargs):
                         fcm_notification=fcm_notification, customer=customer
                     )
 
-                else:
+                elif data.get("loan_renewal_application_name"):
                     esigned_file = frappe.get_doc(
                         {
                             "doctype": "File",
@@ -526,24 +526,8 @@ def esign_done(**kwargs):
                     loan_renewal_application.save(ignore_permissions=True)
                     frappe.db.commit()
                     doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-                    frappe.enqueue_doc(
-                        "Notification",
-                        "Loan Renewal Application Esign Done",
-                        method="send",
-                        doc=doc,
-                    )
-                    msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan renew approval.\nThank you for your patience. - Spark Loans"
-                    receiver_list = [str(customer.phone)]
-                    if customer.get_kyc().mob_num:
-                        receiver_list.append(str(customer.get_kyc().mob_num))
-                    if customer.get_kyc().choice_mob_no:
-                        receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-                    receiver_list = list(set(receiver_list))
-
-                    frappe.enqueue(
-                        method=send_sms, receiver_list=receiver_list, msg=msg
-                    )
+                    msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan renew approval.Thank you for your patience.-Spark Loans"
 
                     fcm_notification = frappe.get_doc(
                         "Spark Push Notification",
@@ -551,8 +535,23 @@ def esign_done(**kwargs):
                         fields=["*"],
                     )
                     lms.send_spark_push_notification(
-                        fcm_notification=fcm_notification, customer=customer
+                        fcm_notification=fcm_notification,
+                        loan=loan_renewal_application.loan,
+                        customer=customer,
                     )
+
+                    if msg:
+                        receiver_list = [str(customer.phone)]
+                        if customer.get_kyc().mob_num:
+                            receiver_list.append(str(customer.get_kyc().mob_num))
+                        if customer.get_kyc().choice_mob_no:
+                            receiver_list.append(str(customer.get_kyc().choice_mob_no))
+
+                        receiver_list = list(set(receiver_list))
+
+                        frappe.enqueue(
+                            method=send_sms, receiver_list=receiver_list, msg=msg
+                        )
 
                 return utils.respondWithSuccess()
             else:
