@@ -1,5 +1,7 @@
 "ID","Title","Screen to Open","Notification Type","Message"
-"Loan Renewal Reminder","Loan Renewal Reminder","Dashboard","Warning","Your loan expiry date is due shortly. Please renew your loan."
+"Loan Renewal rejected(in accepted by lender state)","Loan Renewal rejected(in accepted by lender state)","Dashboard","Warning","As per your request, your loan renewal application was turned down."
+"Loan Renewal Reminder","Loan Renewal Reminder","Dashboard","Warning","Loan Renewal Pending!
+Renew your loan to continue the seamless journey"
 "Loan Renewal approved","Loan Renewal approved","Dashboard","Success","Congratulations! Your loan renewal process is completed."
 "Loan Renewal rejected","Loan Renewal rejected","Dashboard","Warning","Sorry! Your loan renewal application was turned down."
 "Loan Renewal E-signing was successful","Loan Renewal E-signing was successful","Dashboard","Success","Your E-sign process is completed. You shall soon receive a confirmation of your loan renew approval."
@@ -50,3 +52,5 @@ Please pay the interest due before the 7th of this month in order to continue to
 the requirements again in order to continue further journey."
 "Bank Approved","Bank Approved","Dashboard","Success","Your request for linking Bank account has been approved."
 "Bank Rejected","Bank Rejected","Dashboard","Success","The request for linking your Bank account has been rejected."
+"Loan Renewal Extension","Loan Renewal Extension","Dashboard","Warning","You got an extension!
+A grace period of 7 days has been given to your loan account."
