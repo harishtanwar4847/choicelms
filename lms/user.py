@@ -4904,8 +4904,6 @@ def au_penny_drop(**kwargs):
             search=data.get("account_holder_name")
             + data.get("ifsc")
             + data.get("account_number")
-            + data.get("branch")
-            + data.get("city")
             + data.get("bank_account_type")
             if data.get("bank_account_type")
             else "" + data.get("bank")
