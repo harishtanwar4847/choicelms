@@ -65,7 +65,8 @@ class SparkLoanRenewalApplication(Document):
                 and not self.lr_accepted_by_lender
             ):
                 self.lr_accepted_by_lender = 1
-                msg = 'Dear Customer,\nCongratulations! Your loan renewal application has been accepted.Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement.For any help on e-sign, please view our tutorial videos or reach out to us under "Contact Us" on the app- {link} -Spark Loans'.format(
+                msg = """Dear Customer,
+Congratulations! Your loan renewal application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement. For any help on e-sign, please view our tutorial videos or reach out to us under "Contact Us" on the app - {link} - Spark Loans""".format(
                     link=las_settings.contact_us
                 )
 
@@ -81,7 +82,8 @@ class SparkLoanRenewalApplication(Document):
                 )
 
             elif self.status == "Esign Done" and self.lender_esigned_document == None:
-                msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan renew approval.Thank you for your patience.-Spark Loans"
+                msg = """Dear Customer,
+Your E-sign process is completed. You shall soon receive a confirmation of loan renew approval. Thank you for your patience. - Spark Loans"""
 
                 fcm_notification = frappe.get_doc(
                     "Spark Push Notification",
@@ -99,7 +101,9 @@ class SparkLoanRenewalApplication(Document):
                 loan.expiry_date = loan.expiry_date + timedelta(days=no_of_days)
                 loan.save(ignore_permissions=True)
                 frappe.db.commit()
-                msg = "Dear Customer,\nCongratulations! Your loan renewal process is completed. Please visit the spark.loans app for details - {link} -Spark Loans".format(
+                msg = """Dear Customer,
+Congratulations! Your loan renewal process is completed. Please visit the spark.loans app for details  - {link} -Spark Loans
+""".format(
                     link=las_settings.app_login_dashboard
                 )
 
@@ -116,7 +120,8 @@ class SparkLoanRenewalApplication(Document):
 
             elif self.status == "Rejected":
                 if self.lr_accepted_by_lender == 1:
-                    msg = "Dear Customer,\nYour loan renew application was turned down, as per your request. Please try again after sometime or reach out to us through 'Contact Us' on the app - {link} -SparkLoans".format(
+                    msg = """Dear Customer,
+Sorry! Your loan renewal application was turned down. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  - {link}- Spark Loans""".format(
                         link=las_settings.contact_us
                     )
 
@@ -132,7 +137,8 @@ class SparkLoanRenewalApplication(Document):
                     )
 
                 else:
-                    msg = "Dear Customer,\nSorry! Your loan renewal application was turned down. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app - {link} -SparkLoans".format(
+                    msg = """Dear Customer,
+Your loan renew application was turned down, as per your request. Please try again or you can reach to us through 'Contact Us' on the app- ({link})-Spark Loans""".format(
                         link=las_settings.contact_us
                     )
 
@@ -425,7 +431,9 @@ def customer_reminder(doc_name):
                 delayed=False,
                 job_name="Loan Renewal Reminder",
             )
-            msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.Click on the {link} to submit your request.\n-Spark Loans".format(
+            msg = """Dear Customer,
+Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request.
+""".format(
                 loan_name=renewal_doc.loan,
                 expiry_date=loan.expiry_date,
                 link=las_settings.app_login_dashboard,
@@ -537,7 +545,8 @@ def loan_renewal_update_doc():
                     queue="short",
                     job_name="Loan Renewal Extension",
                 )
-                msg = "Dear Customer,\nYou have received a loan renewal extension of 7 days from the current expiry date: {expiry_date}.Click here to continue {link}\n-Spark Loans".format(
+                msg = """Dear Customer,
+You have received a loan renewal extension of 7 days from the current expiry date: {expiry_date}. Click here to continue {link} - Spark Loan""".format(
                     expiry_date=expiry_date,
                     link=las_settings.app_login_dashboard,
                 )
@@ -606,7 +615,9 @@ def loan_renewal_update_doc():
                     queue="short",
                     job_name="Loan Renewal Reminder",
                 )
-                msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.Click on the {link} to submit your request.\n-Spark Loans".format(
+                msg = """Dear Customer,
+Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request.
+""".format(
                     loan_name=loan.name,
                     expiry_date=str_exp,
                     link=las_settings.app_login_dashboard,
@@ -663,7 +674,9 @@ def loan_renewal_update_doc():
                             delayed=False,
                             job_name="Loan Renewal Reminder",
                         )
-                        msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.Click on the {link} to submit your request.\n-Spark Loans".format(
+                        msg = """Dear Customer,
+Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request.
+""".format(
                             loan_name=loan.name,
                             expiry_date=str_exp,
                             link=las_settings.app_login_dashboard,
@@ -723,7 +736,9 @@ def loan_renewal_update_doc():
                             delayed=False,
                             job_name="Loan Renewal Reminder",
                         )
-                        msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.Click on the {link} to submit your request.\n-Spark Loans".format(
+                        msg = """Dear Customer,
+Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request.
+""".format(
                             loan_name=loan.name,
                             expiry_date=str_exp,
                             link=las_settings.app_login_dashboard,
@@ -783,7 +798,9 @@ def loan_renewal_update_doc():
                             delayed=False,
                             job_name="Loan Renewal Reminder",
                         )
-                        msg = "Dear Customer,\nYour loan account number {loan_name} is due for renewal on or before {expiry_date}.Click on the {link} to submit your request.\n-Spark Loans".format(
+                        msg = """Dear Customer,
+Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request.
+""".format(
                             loan_name=loan.name,
                             expiry_date=str_exp,
                             link=las_settings.app_login_dashboard,
