@@ -119,9 +119,12 @@ Congratulations! Your loan renewal process is completed. Please visit the spark.
                 )
 
             elif self.status == "Rejected":
-                if self.lr_accepted_by_lender == 0:
+                if (
+                    self.lr_accepted_by_lender == 1
+                    and not self.customer_esigned_document
+                ):
                     msg = """Dear Customer,
-Sorry! Your loan renewal application was turned down. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  - {link}- Spark Loans""".format(
+Your loan renew application was turned down, as per your request. Please try again or you can reach to us through 'Contact Us' on the app- ({link})-Spark Loans""".format(
                         link=las_settings.contact_us
                     )
 
@@ -138,7 +141,7 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
 
                 else:
                     msg = """Dear Customer,
-Your loan renew application was turned down, as per your request. Please try again or you can reach to us through 'Contact Us' on the app- ({link})-Spark Loans""".format(
+Sorry! Your loan renewal application was turned down. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  - {link}- Spark Loans""".format(
                         link=las_settings.contact_us
                     )
 
@@ -199,7 +202,7 @@ Your loan renew application was turned down, as per your request. Please try aga
                         self.is_expired = 1
 
             if msg:
-                receiver_list = [str(9137032242)]
+                receiver_list = [str(customer.phone)]
                 if customer.get_kyc().mob_num:
                     receiver_list.append(str(customer.get_kyc().mob_num))
                 if customer.get_kyc().choice_mob_no:
@@ -893,13 +896,13 @@ def renewal_penal_interest():
             )
             applications = []
 
-            current_date = frappe.utils.now_datetime().date()
-            exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
-            greater_than_7 = exp + timedelta(days=7)
+            current_date = frappe.utils.now_datetime()
+            exp = datetime.combine(
+                datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date(), time.max
+            )
+            greater_than_7 = datetime.combine(exp + timedelta(days=7), time.max)
             more_than_7 = greater_than_7 + timedelta(days=7)
-            if (
-                greater_than_7 > current_date or more_than_7 > current_date
-            ) and exp < current_date:
+            if exp == current_date or greater_than_7 == current_date:
                 if (
                     not existing_renewal_doc_list
                     and not user_kyc
