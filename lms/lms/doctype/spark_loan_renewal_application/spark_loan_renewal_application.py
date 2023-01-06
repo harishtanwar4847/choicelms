@@ -477,6 +477,9 @@ def loan_renewal_update_doc():
         loans = frappe.get_all("Loan", fields=["name"])
         for l in loans:
             loan = frappe.get_doc("Loan", l.name)
+            str_exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").strftime(
+                "%d/%m/%Y"
+            )
             renewal_doc_list = frappe.get_all(
                 "Spark Loan Renewal Application",
                 filters={"loan": loan.name, "status": ["!=", "Rejected"]},
@@ -525,10 +528,6 @@ def loan_renewal_update_doc():
                 else:
                     expiry = exp + timedelta(days=7)
 
-                str_exp = datetime.strptime(str(expiry), "%Y-%m-%d").strftime(
-                    "%d-%m-%Y"
-                )
-                str_exp = str_exp.replace("-", "/")
                 email_expiry = frappe.db.sql(
                     "select message from `tabNotification` where name='Loan Renewal Extension';"
                 )[0][0]
@@ -547,7 +546,7 @@ def loan_renewal_update_doc():
                 )
                 msg = """Dear Customer,
 You have received a loan renewal extension of 7 days from the current expiry date: {expiry_date}. Click here to continue {link} - Spark Loan""".format(
-                    expiry_date=expiry_date,
+                    expiry_date=str_exp,
                     link=las_settings.app_login_dashboard,
                 )
 
@@ -575,10 +574,6 @@ You have received a loan renewal extension of 7 days from the current expiry dat
                         msg=msg,
                     )
 
-            str_exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").strftime(
-                "%d-%m-%Y"
-            )
-            str_exp = str_exp.replace("-", "/")
             if (
                 exp == expiry_date
                 and loan.total_collateral_value > 0
