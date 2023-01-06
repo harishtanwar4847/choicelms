@@ -66,7 +66,7 @@ class SparkLoanRenewalApplication(Document):
             ):
                 self.lr_accepted_by_lender = 1
                 msg = """Dear Customer,
-Congratulations! Your loan renewal application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement. For any help on e-sign, please view our tutorial videos or reach out to us under "Contact Us" on the app – {link} - Spark Loans""".format(
+Congratulations! Your loan renewal application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement. For any help on e-sign, please view our tutorial videos or reach out to us under "Contact Us" on the app - {link} - Spark Loans""".format(
                     link=las_settings.contact_us
                 )
 
