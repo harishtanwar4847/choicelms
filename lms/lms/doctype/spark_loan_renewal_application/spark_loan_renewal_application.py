@@ -510,6 +510,15 @@ def loan_renewal_update_doc():
                     message=frappe.get_traceback(),
                     title=(_("Loan Customer {} not found".format(loan.customer))),
                 )
+            user_kyc = frappe.get_all(
+                "User KYC",
+                filters={
+                    "user": customer.user,
+                    "updated_kyc": 1,
+                    "kyc_status": ["in", ["Pending", "Approved"]],
+                },
+                fields=["name"],
+            )
 
             expiry_date = frappe.utils.now_datetime().date() + timedelta(days=29)
             if type(loan.expiry_date) == str:
@@ -523,6 +532,7 @@ def loan_renewal_update_doc():
                 and frappe.utils.now_datetime().date() < exp + timedelta(days=2)
             ) or (
                 existing_renewal_doc_list
+                and user_kyc
                 and (exp + timedelta(days=7)) < frappe.utils.now_datetime().date()
                 and frappe.utils.now_datetime().date() < exp + timedelta(days=9)
             ):
@@ -896,13 +906,13 @@ def renewal_penal_interest():
             )
             applications = []
 
-            current_date = frappe.utils.now_datetime()
-            exp = datetime.combine(
-                datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date(), time.max
-            )
-            greater_than_7 = datetime.combine(exp + timedelta(days=7), time.max)
+            current_date = frappe.utils.now_datetime().date()
+            exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
+            greater_than_7 = exp + timedelta(days=7)
             more_than_7 = greater_than_7 + timedelta(days=7)
-            if exp == current_date or greater_than_7 == current_date:
+            if (
+                greater_than_7 > current_date or more_than_7 > current_date
+            ) and exp < current_date:
                 if (
                     not existing_renewal_doc_list
                     and not user_kyc
