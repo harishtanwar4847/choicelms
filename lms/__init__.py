@@ -2044,9 +2044,11 @@ def send_sms_notification(customer, msg, token_type=None):
     try:
         print("Customer :", customer)
         if type(customer) != dict:
-            receiver_list = customer
+            print("Inside sms if")
+            receiver_list = [str(customer)]
 
         else:
+            print("Inside sms else", customer.phone)
             receiver_list = [str(customer.phone)]
             if customer.get_kyc().mob_num:
                 receiver_list.append(str(customer.get_kyc().mob_num))

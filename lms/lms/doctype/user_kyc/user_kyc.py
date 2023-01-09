@@ -61,9 +61,14 @@ class UserKYC(Document):
                         frappe.enqueue_doc(
                             "Notification", "CKYC Approved", method="send", doc=doc
                         )
-                        msg = "Your KYC Request has been approved, please visit the spark.loans app to continue the further journey to avail loan.- {link}\n-Spark Loans".format(
-                            link=las_settings.app_login_dashboard
+                        msg = frappe.get_doc(
+                            "Spark SMS Notification", "Ckyc Approved"
+                        ).message
+                        lms.send_sms_notification(
+                            customer=loan_customer.phone,
+                            msg=msg.format(link=las_settings.app_login_dashboard),
                         )
+                        # msg = "Your KYC Request has been approved, please visit spark.loans to continue the further journey."
                         fcm_notification = frappe.get_doc(
                             "Spark Push Notification", "Ckyc Approved", fields=["*"]
                         )
@@ -79,23 +84,28 @@ class UserKYC(Document):
                         frappe.enqueue_doc(
                             "Notification", "Ckyc Rejection", method="send", doc=doc
                         )
-                        msg = "Your KYC Request has been rejected due to mismatch in details.  Please visit the spark.loans app to continue the further journey to avail loan. - {link}\n-Spark Loans".format(
-                            link=las_settings.app_login_dashboard
+                        msg = frappe.get_doc(
+                            "Spark SMS Notification", "Ckyc Rejected"
+                        ).message
+                        lms.send_sms_notification(
+                            customer=loan_customer.phone,
+                            msg=msg.format(link=las_settings.app_login_dashboard),
                         )
+                        # msg = "Your KYC Request has been rejected due to mismatch in details. Please visit spark.loans in order to reapply."
                         fcm_notification = frappe.get_doc(
                             "Spark Push Notification", "Ckyc Rejected", fields=["*"]
                         )
 
-                    receiver_list = [str(loan_customer.phone)]
-                    if self.mob_num:
-                        receiver_list.append(str(self.mob_num))
-                    if self.choice_mob_no:
-                        receiver_list.append(str(self.choice_mob_no))
+                    # receiver_list = [str(loan_customer.phone)]
+                    # if self.mob_num:
+                    #     receiver_list.append(str(self.mob_num))
+                    # if self.choice_mob_no:
+                    #     receiver_list.append(str(self.choice_mob_no))
 
-                    receiver_list = list(set(receiver_list))
-                    frappe.enqueue(
-                        method=send_sms, receiver_list=receiver_list, msg=msg
-                    )
+                    # receiver_list = list(set(receiver_list))
+                    # frappe.enqueue(
+                    #     method=send_sms, receiver_list=receiver_list, msg=msg
+                    # )
                     lms.send_spark_push_notification(
                         fcm_notification=fcm_notification, customer=loan_customer
                     )
@@ -117,9 +127,16 @@ class UserKYC(Document):
                     frappe.enqueue_doc(
                         "Notification", "Ckyc Approved", method="send", doc=doc
                     )
-                    msg = "Your KYC Request has been approved, please visit the spark.loans app to continue the further journey to avail loan. - {link} -Spark Loans".format(
-                        link=las_settings.app_login_dashboard
+                    msg = frappe.get_doc(
+                        "Spark SMS Notification", "Ckyc Approved"
+                    ).message
+                    lms.send_sms_notification(
+                        customer=loan_customer.phone,
+                        msg=msg.format(link=las_settings.app_login_dashboard),
                     )
+                    # msg = "Your KYC Request has been approved, please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
+                    #     las_settings.app_login_dashboard
+                    # )
                     fcm_notification = frappe.get_doc(
                         "Spark Push Notification", "Ckyc Approved", fields=["*"]
                     )
@@ -127,21 +144,28 @@ class UserKYC(Document):
                     frappe.enqueue_doc(
                         "Notification", "Ckyc Rejection", method="send", doc=doc
                     )
-                    msg = "Your KYC Request has been rejected due to mismatch in details. Please visit the spark.loans app to continue the further journey to avail loan. - {link} -Spark Loans".format(
-                        link=las_settings.app_login_dashboard
+                    msg = frappe.get_doc(
+                        "Spark SMS Notification", "Ckyc Rejected"
+                    ).message
+                    lms.send_sms_notification(
+                        customer=loan_customer.phone,
+                        msg=msg.format(link=las_settings.app_login_dashboard),
                     )
+                    # msg = "Your KYC Request has been rejected due to mismatch in details.  Please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
+                    #     las_settings.app_login_dashboard
+                    # )
                     fcm_notification = frappe.get_doc(
                         "Spark Push Notification", "Ckyc Rejected", fields=["*"]
                     )
 
-                receiver_list = [str(loan_customer.phone)]
-                if self.mob_num:
-                    receiver_list.append(str(self.mob_num))
-                if self.choice_mob_no:
-                    receiver_list.append(str(self.choice_mob_no))
+                # receiver_list = [str(loan_customer.phone)]
+                # if self.mob_num:
+                #     receiver_list.append(str(self.mob_num))
+                # if self.choice_mob_no:
+                #     receiver_list.append(str(self.choice_mob_no))
 
-                receiver_list = list(set(receiver_list))
-                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                # receiver_list = list(set(receiver_list))
+                # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
                 lms.send_spark_push_notification(
                     fcm_notification=fcm_notification, customer=loan_customer
                 )
@@ -160,8 +184,15 @@ class UserKYC(Document):
                 "Rejected",
             ]:
                 if i.bank_status == "Approved":
-                    msg = "Your Bank details request has been approved, please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
-                        las_settings.app_login_dashboard
+                    # msg = "Your Bank details request has been approved; please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
+                    #     las_settings.app_login_dashboard
+                    # )
+                    msg = frappe.get_doc(
+                        "Spark SMS Notification", "Bank Approved"
+                    ).message
+                    lms.send_sms_notification(
+                        customer=loan_customer.phone,
+                        msg=msg.format(link=las_settings.app_login_dashboard),
                     )
                     frappe.enqueue_doc(
                         "Notification", "Bank Approved", method="send", doc=doc
@@ -174,8 +205,15 @@ class UserKYC(Document):
                     frappe.db.commit()
 
                 elif i.bank_status == "Rejected":
-                    msg = "Your Bank request has been rejected due to mismatch in the details. Please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
-                        las_settings.app_login_dashboard
+                    # msg = "Your Bank request has been rejected due to mismatch in the details; please visit the spark.loans app to continue the further journey to avail loan. - {} -Spark Loans".format(
+                    #     las_settings.app_login_dashboard
+                    # )
+                    msg = frappe.get_doc(
+                        "Spark SMS Notification", "Bank Rejected"
+                    ).message
+                    lms.send_sms_notification(
+                        customer=loan_customer.phone,
+                        msg=msg.format(link=las_settings.app_login_dashboard),
                     )
                     frappe.enqueue_doc(
                         "Notification", "Bank Rejected", method="send", doc=doc
