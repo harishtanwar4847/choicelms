@@ -1618,6 +1618,20 @@ class LoanApplication(Document):
             item.idx = i
 
 
+@frappe.whitelist()
+def check_for_pledge_failure(la_name):
+    la = frappe.get_doc("Loan Application", la_name)
+    count_items = len(la.items)
+    count = 0
+    status = ""
+    for i in la.items:
+        if i.pledge_status == "Failure":
+            count += 1
+    if count_items == count:
+        status = "Pledge Failure"
+    return status
+
+
 def check_for_pledge(loan_application_doc):
     # TODO : Workers assigned for this cron can be set in las and we can apply (fetch records)limit as per no. of workers assigned
     # frappe.db.begin()

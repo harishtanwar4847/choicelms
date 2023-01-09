@@ -123,7 +123,7 @@ def esign(**kwargs):
             #     message=_("Can not use both application at once, please use one.")
             # )
             raise lms.exceptions.ForbiddenException(
-                _("Can not use multiple application at once, please use one.")
+                _("Can not use both application at once, please use one.")
             )
 
         elif (

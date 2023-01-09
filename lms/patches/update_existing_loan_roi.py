@@ -21,6 +21,5 @@ def execute():
             loan.base_interest = loan.custom_base_interest
             loan.custom_rebate_interest = interest_configuration["rebait_interest"]
             loan.rebate_interest = loan.custom_rebate_interest
-            loan.interest_status = "Accepted"
             loan.save(ignore_permissions=True)
             frappe.db.commit()
