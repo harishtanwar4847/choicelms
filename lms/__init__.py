@@ -2040,29 +2040,34 @@ def penny_validate_fund_account():
         log_api_error()
 
 
-# def send_sms_notification(customer,msg,token_type=None):
-#     try:
-#         if type(customer) != dict:
-#             receiver_list = customer
+def send_sms_notification(customer, msg, token_type=None):
+    try:
+        print("Customer :", customer)
+        if type(customer) != dict:
+            receiver_list = customer
 
-#         else:
-#             receiver_list = [str(customer.phone)]
-#             if customer.get_kyc().mob_num:
-#                 receiver_list.append(str(customer.get_kyc().mob_num))
-#             if customer.get_kyc().choice_mob_no:
-#                 receiver_list.append(str(customer.get_kyc().choice_mob_no))
+        else:
+            receiver_list = [str(customer.phone)]
+            if customer.get_kyc().mob_num:
+                receiver_list.append(str(customer.get_kyc().mob_num))
+            if customer.get_kyc().choice_mob_no:
+                receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
-#         receiver_list = list(set(receiver_list))
-#         print("sdfghjk")
-#         # send_sms(receiver_list=receiver_list, msg=msg)
-#         frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-#         print("receiver_list",receiver_list)
-#     except Exception:
-#         frappe.log_error(
-#             message=frappe.get_traceback()
-#             + "\n\nCustomer name -\n{}\n\nMessage details -\n{}".format(customer, str(msg)),
-#             title="Send SMS Notification Error",
-#         )
+        receiver_list = list(set(receiver_list))
+        print("sdfghjk")
+        # send_sms(receiver_list=receiver_list, msg=msg)
+        frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+        print("receiver_list", receiver_list)
+    except Exception:
+        frappe.log_error(
+            message=frappe.get_traceback()
+            + "\n\nCustomer name -\n{}\n\nMessage details -\n{}".format(
+                customer, str(msg)
+            ),
+            title="Send SMS Notification Error",
+        )
+
+
 def au_pennydrop_api(data):
     try:
         ReqId = datetime.strftime(datetime.now(), "%d%m") + str(
