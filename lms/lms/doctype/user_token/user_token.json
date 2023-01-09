@@ -29,7 +29,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Token Type",
-   "options": "OTP\nEmail Verification Token\nFirebase Token\nPledge OTP\nWithdraw OTP\nUnpledge OTP\nSell Collateral OTP\nForgot Pin OTP\nLien OTP\nInvoke OTP\nRevoke OTP",
+   "options": "OTP\nEmail Verification Token\nFirebase Token\nPledge OTP\nWithdraw OTP\nUnpledge OTP\nSell Collateral OTP\nForgot Pin OTP\nLien OTP\nInvoke OTP\nRevoke OTP\nLoan Renewal OTP",
    "read_only": 1,
    "reqd": 1
   },
@@ -80,7 +80,7 @@
   }
  ],
  "links": [],
- "modified": "2022-07-19 12:18:41.811957",
+ "modified": "2022-11-06 21:27:39.672471",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User Token",

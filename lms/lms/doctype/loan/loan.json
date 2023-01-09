@@ -57,7 +57,6 @@
    "fieldname": "expiry_date",
    "fieldtype": "Date",
    "label": "Expiry Date",
-   "read_only": 1,
    "reqd": 1
   },
   {
@@ -340,7 +339,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-12-16 16:48:37.192189",
+ "modified": "2022-12-19 13:31:25.898674",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

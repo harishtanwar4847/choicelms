@@ -263,6 +263,27 @@ class TopupApplication(Document):
             return
         self.notify_customer()
 
+        loan = self.get_loan()
+        lender = self.get_lender()
+        if self.status == "Approved":
+            renewal_list = frappe.get_all(
+                "Spark Loan Renewal Application",
+                filters={
+                    "loan": loan.name,
+                    "status": ["Not IN", ["Approved", "Rejected"]],
+                },
+                fields=["name"],
+            )
+            for doc in renewal_list:
+                renewal_doc = frappe.get_doc("Spark Loan Renewal Application", doc.name)
+                renewal_doc.status = "Rejected"
+                renewal_doc.workflow_state = "Rejected"
+                renewal_doc.remarks = (
+                    "Rejected due to Approval of Top-up/Increase Loan Application"
+                )
+                renewal_doc.save(ignore_permissions=True)
+                frappe.db.commit()
+
     def before_submit(self):
         if not self.lender_esigned_document:
             frappe.throw("Please upload Lender Esigned Document")
@@ -548,7 +569,10 @@ class TopupApplication(Document):
             )
 
         if doc.get("top_up_application").get("status") == "Approved":
-            mess = "Dear Customer,\nCongratulations! Your loan account has been topped up. Please check the app for details. -Spark Loans"
+            mess = frappe.get_doc(
+                "Spark SMS Notification", "Loan account topped up"
+            ).message
+            # mess = "Dear Customer,\nCongratulations! Your loan account has been topped up. Please check the app for details. -Spark Loans"
 
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Loan account topped up", fields=["*"]
@@ -558,7 +582,8 @@ class TopupApplication(Document):
         if doc.get("top_up_application").get("status") == "Rejected":
             # mess = "Sorry! Your Top up application was turned down. We regret the inconvenience caused."
 
-            mess = "Dear Customer,\nSorry! Your top up request could not be executed due to technical reasons. We regret the inconvenience caused.Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
+            mess = frappe.get_doc("Spark SMS Notification", "Top Up rejected").message
+            # mess = "Dear Customer,\nSorry! Your top up request could not be executed due to technical reasons. We regret the inconvenience caused.Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
 
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification", "Top up rejected", fields=["*"]
@@ -566,6 +591,7 @@ class TopupApplication(Document):
             loan = self.loan
 
         if mess:
+            # lms.send_sms_notification(customer=self.get_customer,msg=mess)
             receiver_list = [str(self.get_customer().phone)]
             if doc.mob_num:
                 receiver_list.append(str(doc.mob_num))
@@ -628,11 +654,11 @@ class TopupApplication(Document):
 
     def before_save(self):
         loan = self.get_loan()
+        lender = self.get_lender()
         self.actual_drawing_power = loan.actual_drawing_power
         self.instrument_type = loan.instrument_type
         self.scheme_type = loan.scheme_type
         self.sanctioned_limit = loan.sanctioned_limit
-        lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
 

@@ -6,6 +6,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "updated_kyc",
   "basic_details_section_break",
   "user",
   "pan_no",
@@ -691,6 +692,13 @@
    "fieldtype": "Link",
    "label": "Address",
    "options": "Customer Address Details"
+  },
+  {
+   "default": "0",
+   "fieldname": "updated_kyc",
+   "fieldtype": "Check",
+   "label": "Updated KYC",
+   "read_only": 1
   }
  ],
  "links": [],

@@ -122,6 +122,8 @@
   "igst_on_lien_charges",
   "igst_on_invocation_charges",
   "igst_on_revocation_charges",
+  "loan_renewal_penal_interest_section",
+  "renewal_penal_interest",
   "charges_sharing_details_section",
   "lender_processing_fees_sharing_type",
   "stamp_duty_sharing_type",
@@ -899,10 +901,20 @@
    "fieldtype": "Float",
    "label": "IGST on Account renewal charges (Percent)",
    "precision": "2"
+  },
+  {
+   "fieldname": "loan_renewal_penal_interest_section",
+   "fieldtype": "Section Break",
+   "label": "Loan Renewal Penal Interest"
+  },
+  {
+   "fieldname": "renewal_penal_interest",
+   "fieldtype": "Data",
+   "label": "Renewal Penal Interest"
   }
  ],
  "links": [],
- "modified": "2022-07-20 14:41:34.963293",
+ "modified": "2022-11-10 15:22:37.498704",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",

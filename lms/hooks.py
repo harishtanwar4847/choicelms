@@ -190,5 +190,8 @@ scheduler_events = {
             "lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered"
         ],  # At every minute
         "30 23 * * *": ["lms.system_report_enqueue"],  # At 11:30 PM daily
+        "15 0 * * *": [
+            "lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.loan_renewal_update_doc"
+        ],  # At 12:15 AM daily
     },
 }
