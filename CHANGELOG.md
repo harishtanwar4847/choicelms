@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.10.2-uat]
+
+## Added
+
+- [Feat: floating-to-fixed](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/560)
+
 ## [v5.10.1-uat]
 
 ## Added
