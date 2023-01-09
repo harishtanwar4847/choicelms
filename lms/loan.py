@@ -1936,7 +1936,7 @@ def loan_statement(**kwargs):
         lender = frappe.get_doc("Lender", loan.lender)
         las_settings = frappe.get_single("LAS Settings")
         logo_file_path_1 = lender.get_lender_logo_file()
-        logo_file_path_2 = las_settings.get_spark_logo_file()
+        logo_file_path_2 = lender.get_lender_address_file()
         curr_date = (frappe.utils.now_datetime()).strftime("%d-%B-%Y")
         if user_kyc.address_details:
             address_details = frappe.get_doc(
@@ -1989,6 +1989,9 @@ def loan_statement(**kwargs):
             "instrument_type": loan.instrument_type,
             "logo_file_path_1": logo_file_path_1.file_url if logo_file_path_1 else "",
             "logo_file_path_2": logo_file_path_2.file_url if logo_file_path_2 else "",
+            "is_html": lender.is_html,
+            "lender_header": lender.lender_header,
+            "lender_footer": lender.lender_footer,
         }
         if data.get("type") == "Account Statement":
             page_length = (
@@ -3133,7 +3136,7 @@ def multiple_dfs(df_list, sheets, file_name, spaces, lender, las_settings):
     worksheet = workbook.get_worksheet_by_name(sheets)
 
     logo_file_path_1 = lender.get_lender_logo_file()
-    logo_file_path_2 = las_settings.get_spark_logo_file()
+    logo_file_path_2 = lender.get_lender_address_file()
 
     if logo_file_path_1:
         worksheet.insert_image(
