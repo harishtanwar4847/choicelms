@@ -244,6 +244,10 @@ def esign(**kwargs):
                 "esign_log",
             )
 
+            before_esign_file_url = """<a href="{0}">{1}</a>""".format(
+                before_esign_file_url, before_esign_file_name
+            )
+
             application.add_comment(
                 text=before_esign_file_url,
                 comment_email=customer.user,
