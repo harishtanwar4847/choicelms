@@ -2043,8 +2043,12 @@ def au_pennydrop_api(data):
             "AccNum": data.get("account_number"),
             "HashValue": base64.b64encode(final_hash).decode("ascii"),
         }
+        data["payload"] = payload
 
         url = las_settings.penny_drop_api
+        if not url:
+            res_json = {"StatusCode": 404, "Message": "Penny Drop host missing"}
+            return res_json
 
         headers = {
             "Content-Type": "application/json",
@@ -2061,7 +2065,7 @@ def au_pennydrop_api(data):
     except Exception:
         frappe.log_error(
             title="AU Penny Drop API Error",
-            message=frappe.get_traceback() + "\n\n" + data,
+            message=frappe.get_traceback() + "\n\n" + str(data),
         )
 
 
