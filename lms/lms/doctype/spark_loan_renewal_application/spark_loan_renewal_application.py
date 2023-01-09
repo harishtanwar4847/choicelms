@@ -435,7 +435,7 @@ def customer_reminder(doc_name):
                 job_name="Loan Renewal Reminder",
             )
             msg = """Dear Customer,
-Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request.
+Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request - Spark Loans
 """.format(
                 loan_name=renewal_doc.loan,
                 expiry_date=loan.expiry_date,
@@ -624,7 +624,7 @@ You have received a loan renewal extension of 7 days from the current expiry dat
                     job_name="Loan Renewal Reminder",
                 )
                 msg = """Dear Customer,
-Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request.""".format(
+Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request - Spark Loans""".format(
                     loan_name=loan.name,
                     expiry_date=str_exp,
                     link=las_settings.app_login_dashboard,
@@ -743,7 +743,7 @@ You have received a loan renewal extension of 7 days from the current expiry dat
                             job_name="Loan Renewal Reminder",
                         )
                         msg = """Dear Customer,
-Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request.""".format(
+Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request - Spark Loans""".format(
                             loan_name=loan.name,
                             expiry_date=str_exp,
                             link=las_settings.app_login_dashboard,
@@ -804,7 +804,7 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
                             job_name="Loan Renewal Reminder",
                         )
                         msg = """Dear Customer,
-Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request.""".format(
+Your loan account number {loan_name} is due for renewal on or before {expiry_date}. Click on the link {link} to submit your request - Spark Loans""".format(
                             loan_name=loan.name,
                             expiry_date=str_exp,
                             link=las_settings.app_login_dashboard,
