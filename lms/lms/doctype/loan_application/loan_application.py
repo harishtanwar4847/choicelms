@@ -788,7 +788,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 loan = self.create_loan()
             else:
                 loan = self.update_existing_loan()
-                print("loan,", loan)
             frappe.db.commit()
             if self.application_type in ["New Loan", "Increase Loan"]:
                 date = frappe.utils.now_datetime().date()
@@ -1110,7 +1109,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         drawing_power = 0
         for i in loan.items:
             i.amount = i.price * i.pledged_quantity
-            i.eligible_amount = (50 / 100) * i.amount
+            i.eligible_amount = (i.eligible_percentage / 100) * i.amount
             self.total_collateral_value += i.amount
             drawing_power += i.eligible_amount
 
