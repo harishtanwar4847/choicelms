@@ -39,6 +39,31 @@ class SparkLoanRenewalApplication(Document):
                 frappe.db.commit()
         if self.status == "Rejected" and not self.remarks:
             frappe.throw(_("Remarks field cannot be empty."))
+
+        if self.custom_base_interest <= 0 or self.custom_rebate_interest <= 0:
+            frappe.throw("Base interest and Rebate Interest should be greater than 0")
+
+        if (
+            self.status == "Loan Renewal accepted by Lender"
+            and self.base_interest == 0
+            and self.rebate_interest == 0
+        ):
+            frappe.throw(_("Please enter the base interest and rebate interest"))
+
+        if self.loan_balance > 0:
+            interest_configuration = frappe.db.get_value(
+                "Interest Configuration",
+                {
+                    "lender": self.lender,
+                    "from_amount": ["<=", self.loan_balance],
+                    "to_amount": [">=", self.loan_balance],
+                },
+                ["name", "base_interest", "rebait_interest"],
+                as_dict=1,
+            )
+            if self.is_default == 1:
+                self.base_interest = interest_configuration["base_interest"]
+                self.rebate_interest = interest_configuration["rebait_interest"]
         try:
             loan = frappe.get_doc("Loan", self.loan)
             customer = frappe.get_doc("Loan Customer", self.customer)
@@ -99,6 +124,8 @@ Your E-sign process is completed. You shall soon receive a confirmation of loan 
             elif self.status == "Approved":
                 self.expiry_date = loan.expiry_date + timedelta(days=no_of_days)
                 loan.expiry_date = loan.expiry_date + timedelta(days=no_of_days)
+                loan.base_interest = self.base_interest
+                loan.rebate_interest = self.rebate_interest
                 loan.save(ignore_permissions=True)
                 frappe.db.commit()
                 msg = """Dear Customer,

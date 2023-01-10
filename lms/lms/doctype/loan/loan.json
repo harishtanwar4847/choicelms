@@ -49,6 +49,7 @@
   "is_default",
   "column_break_40",
   "custom_rebate_interest",
+  "old_interest",
   "amended_from"
  ],
  "fields": [
@@ -56,6 +57,7 @@
    "fieldname": "expiry_date",
    "fieldtype": "Date",
    "label": "Expiry Date",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -297,13 +299,15 @@
    "fieldname": "custom_base_interest",
    "fieldtype": "Float",
    "label": "Custom Base Interest",
-   "mandatory_depends_on": "eval:doc.is_default == 0;"
+   "mandatory_depends_on": "eval:doc.is_default == 0;",
+   "read_only_depends_on": "eval:doc.is_default == 1;"
   },
   {
    "fieldname": "custom_rebate_interest",
    "fieldtype": "Float",
    "label": "Custom Rebate Interest",
-   "mandatory_depends_on": "eval:doc.is_default == 0;"
+   "mandatory_depends_on": "eval:doc.is_default == 0;",
+   "read_only_depends_on": "eval:doc.is_default == 1;"
   },
   {
    "fieldname": "amended_from",
@@ -313,11 +317,29 @@
    "options": "Loan",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "base_interest",
+   "fieldtype": "Float",
+   "label": "Base Interest (Per Month)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rebate_interest",
+   "fieldtype": "Float",
+   "label": "Rebate Interest",
+   "read_only": 1
+  },
+  {
+   "fieldname": "old_interest",
+   "fieldtype": "Float",
+   "label": "Old Interest",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-05 15:59:20.755762",
+ "modified": "2023-01-10 11:34:07.148926",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",

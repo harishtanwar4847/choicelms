@@ -935,6 +935,7 @@ class LoanApplication(Document):
                 "is_default": self.is_default,
                 "base_interest": self.base_interest,
                 "rebate_interest": self.rebate_interest,
+                "old_interest": self.base_interest,
             }
         )
         loan.insert(ignore_permissions=True)

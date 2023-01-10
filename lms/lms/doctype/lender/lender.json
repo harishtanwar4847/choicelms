@@ -122,8 +122,6 @@
   "igst_on_lien_charges",
   "igst_on_invocation_charges",
   "igst_on_revocation_charges",
-  "loan_renewal_penal_interest_section",
-  "renewal_penal_interest",
   "charges_sharing_details_section",
   "lender_processing_fees_sharing_type",
   "stamp_duty_sharing_type",
@@ -139,6 +137,7 @@
   "loan_account_statement_template",
   "column_break_78",
   "pledged_security_statement_template",
+  "interest_letter",
   "image_section_section",
   "logo_file_1",
   "website_section_section",
@@ -903,18 +902,13 @@
    "precision": "2"
   },
   {
-   "fieldname": "loan_renewal_penal_interest_section",
-   "fieldtype": "Section Break",
-   "label": "Loan Renewal Penal Interest"
-  },
-  {
-   "fieldname": "renewal_penal_interest",
-   "fieldtype": "Data",
-   "label": "Renewal Penal Interest"
+   "fieldname": "interest_letter",
+   "fieldtype": "Attach",
+   "label": "Interest Letter"
   }
  ],
  "links": [],
- "modified": "2022-11-10 15:22:37.498704",
+ "modified": "2023-01-09 18:52:36.537015",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",

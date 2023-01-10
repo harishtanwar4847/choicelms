@@ -1866,7 +1866,12 @@ class Loan(Document):
         if self.custom_base_interest <= 0 or self.custom_rebate_interest <= 0:
             frappe.throw("Base interest and Rebate Interest should be greater than 0")
 
-        if self.wef_date < frappe.utils.now_datetime().date():
+        if type(self.wef_date) == str:
+            exp = datetime.strptime(self.wef_date, "%Y-%m-%d").date()
+        else:
+            exp = self.wef_date
+
+        if exp < frappe.utils.now_datetime().date():
             frappe.throw("W.e.f date should be Current date or Future date")
 
         if self.balance > 0:
@@ -1881,6 +1886,7 @@ class Loan(Document):
                 as_dict=1,
             )
             if self.is_default == 1:
+                print("is default mdhe aalo")
                 self.custom_base_interest = interest_configuration["base_interest"]
                 self.custom_rebate_interest = interest_configuration["rebait_interest"]
 
@@ -1888,9 +1894,10 @@ class Loan(Document):
                 self.custom_base_interest != self.base_interest
                 or self.custom_rebate_interest != self.custom_rebate_interest
             ):
-                self.custom_base_interest = self.base_interest
-                self.custom_rebate_interest = self.custom_rebate_interest
-                # add notification
+                self.old_interest = self.base_interest
+                self.base_interest = self.custom_base_interest
+                self.rebate_interest = self.custom_rebate_interest
+                self.notify_customer_roi()
 
     def save_loan_sanction_history(self, agreement_file, event="New loan"):
         loan_sanction_history = frappe.get_doc(
@@ -2248,6 +2255,69 @@ class Loan(Document):
             ),
             as_dict=1,
         )[0]["amount"]
+
+    def notify_customer_roi(self):
+        customer = self.get_customer()
+        user_kyc = customer.get_kyc()
+        lender = self.get_lender()
+        interest_letter_template = lender.get_interest_letter_template()
+        doc = frappe.get_doc("Loan", self.name).as_dict()
+        doc["current_date"] = frappe.utils.now_datetime().date()
+        print("Document :", doc)
+        agreement = frappe.render_template(
+            interest_letter_template.get_content(), {"doc": doc}
+        )
+        interest_letter_pdf_file = "{}-{}-interest_letter.pdf".format(
+            self.name, frappe.utils.now_datetime().date()
+        )
+        interest_letter_pdf_file_path = frappe.utils.get_files_path(
+            interest_letter_pdf_file
+        )
+
+        pdf_file = open(interest_letter_pdf_file_path, "wb")
+
+        from frappe.utils.pdf import get_pdf
+
+        pdf = get_pdf(
+            agreement,
+            options={
+                "margin-right": "1mm",
+                "margin-left": "1mm",
+                "page-size": "A4",
+            },
+        )
+        attachments = [{"fname": interest_letter_pdf_file, "fcontent": pdf}]
+        interest_change_notification = frappe.db.sql(
+            "select message from `tabNotification` where name='Change Of Interest';"
+        )[0][0]
+        interest_change_notification = interest_change_notification.replace(
+            "full_name", user_kyc.fullname
+        )
+        interest_change_notification = interest_change_notification.replace(
+            "loan_name",
+            self.name,
+        )
+        interest_change_notification = interest_change_notification.replace(
+            "old_interest",
+            str(self.old_interest),
+        )
+        interest_change_notification = interest_change_notification.replace(
+            "new_interest",
+            str(self.custom_base_interest),
+        )
+        interest_change_notification = interest_change_notification.replace(
+            "wef_date",
+            str(self.wef_date),
+        )
+
+        frappe.enqueue(
+            method=frappe.sendmail,
+            recipients=[customer.user],
+            sender=None,
+            subject="Interest Letter for Loan Account No. {}".format(self.name),
+            message=interest_change_notification,
+            attachments=attachments,
+        )
 
 
 @frappe.whitelist()

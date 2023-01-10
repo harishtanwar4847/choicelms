@@ -236,3 +236,7 @@ class Lender(Document):
     def get_lender_logo_file(self):
         file_name = frappe.db.get_value("File", {"file_url": self.logo_file_1})
         return frappe.get_doc("File", file_name) if file_name else None
+
+    def get_interest_letter_template(self):
+        file_name = frappe.db.get_value("File", {"file_url": self.interest_letter})
+        return frappe.get_doc("File", file_name)

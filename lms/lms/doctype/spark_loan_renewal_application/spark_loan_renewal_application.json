@@ -33,6 +33,11 @@
   "section_break_19",
   "time_remaining",
   "action_status",
+  "interest_configuration_section",
+  "is_default",
+  "base_interest",
+  "column_break_32",
+  "rebate_interest",
   "section_break_26",
   "remarks",
   "amended_from"
@@ -232,11 +237,40 @@
    "hidden": 1,
    "label": "LR accepted",
    "read_only": 1
+  },
+  {
+   "fieldname": "interest_configuration_section",
+   "fieldtype": "Section Break",
+   "label": "Interest Configuration"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "label": "Is Default",
+   "read_only_depends_on": "eval:doc.status!=\"Loan Renewal executed\""
+  },
+  {
+   "fieldname": "base_interest",
+   "fieldtype": "Float",
+   "label": "Base Interest",
+   "read_only_depends_on": "eval:doc.status!=\"Loan Renewal executed\""
+  },
+  {
+   "fieldname": "column_break_32",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "rebate_interest",
+   "fieldtype": "Float",
+   "label": "Rebate Interest",
+   "read_only_depends_on": "eval:doc.status!=\"Loan Renewal executed\""
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-05 00:18:56.490467",
+ "modified": "2023-01-09 16:29:11.268254",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Loan Renewal Application",
