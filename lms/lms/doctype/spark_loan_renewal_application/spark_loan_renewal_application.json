@@ -170,6 +170,7 @@
    "fieldname": "reminders",
    "fieldtype": "Int",
    "label": "Reminders",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -236,7 +237,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-05 00:18:56.490467",
+ "modified": "2023-01-10 14:58:22.892122",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Loan Renewal Application",

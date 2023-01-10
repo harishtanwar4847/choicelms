@@ -8,6 +8,7 @@ from lms.lms.doctype.user_token.user_token import send_sms
 
 def execute():
     try:
+        frappe.reload_doc("Lms", "DocType", "User KYC")
         loans = frappe.get_all("Loan", fields=["*"])
         for loan in loans:
             customer = frappe.get_doc("Loan Customer", loan.customer)

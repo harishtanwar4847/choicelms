@@ -191,7 +191,7 @@ scheduler_events = {
         ],  # At every minute
         "30 23 * * *": ["lms.system_report_enqueue"],  # At 11:30 PM daily
         "15 0 * * *": [
-            "lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.loan_renewal_update_doc"
+            "lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.all_loans_renewal_update_doc"
         ],  # At 12:15 AM daily
     },
 }
