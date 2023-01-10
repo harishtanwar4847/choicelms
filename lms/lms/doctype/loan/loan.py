@@ -2261,9 +2261,55 @@ class Loan(Document):
         user_kyc = customer.get_kyc()
         lender = self.get_lender()
         interest_letter_template = lender.get_interest_letter_template()
+        logo_file_path_1 = lender.get_lender_logo_file()
+        logo_file_path_2 = lender.get_lender_address_file()
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+
+            line1 = str(address_details.perm_line1)
+            if line1:
+                addline1 = "{},<br/>".format(line1)
+            else:
+                addline1 = ""
+
+            line2 = str(address_details.perm_line2)
+            if line2:
+                addline2 = "{},<br/>".format(line2)
+            else:
+                addline2 = ""
+
+            line3 = str(address_details.perm_line3)
+            if line3:
+                addline3 = "{},<br/>".format(line3)
+            else:
+                addline3 = ""
+
+            perm_city = str(address_details.perm_city)
+            perm_dist = str(address_details.perm_dist)
+            perm_state = str(address_details.perm_state)
+            perm_pin = str(address_details.perm_pin)
+
         doc = frappe.get_doc("Loan", self.name).as_dict()
-        doc["current_date"] = frappe.utils.now_datetime().date()
-        print("Document :", doc)
+        doc["current_date"] = datetime.strptime(
+            str(frappe.utils.now_datetime().date()), "%Y-%m-%d"
+        ).strftime("%d/%m/%Y")
+        doc["fullname"] = user_kyc.fullname
+        doc["addline1"] = addline1
+        doc["addline2"] = addline2
+        doc["addline3"] = addline3
+        doc["city"] = perm_city
+        doc["district"] = perm_dist
+        doc["state"] = perm_state
+        doc["pincode"] = perm_pin
+        doc["wef_date"] = datetime.strptime(str(self.wef_date), "%Y-%m-%d").strftime(
+            "%d/%m/%Y"
+        )
+        doc["logo_file_path_1"] = logo_file_path_1.file_url if logo_file_path_1 else ""
+        doc["logo_file_path_2"] = logo_file_path_2.file_url if logo_file_path_2 else ""
+        print("Document :", logo_file_path_1.file_url)
+        print("Document :", logo_file_path_2.file_url)
         agreement = frappe.render_template(
             interest_letter_template.get_content(), {"doc": doc}
         )
@@ -2307,7 +2353,7 @@ class Loan(Document):
         )
         interest_change_notification = interest_change_notification.replace(
             "wef_date",
-            str(self.wef_date),
+            datetime.strptime(str(self.wef_date), "%Y-%m-%d").strftime("%d/%m/%Y"),
         )
 
         frappe.enqueue(

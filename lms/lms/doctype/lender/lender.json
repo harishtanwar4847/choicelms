@@ -912,10 +912,8 @@
    "fieldname": "interest_letter",
    "fieldtype": "Attach",
    "label": "Interest Letter"
-  }
- ],
- "links": [],
- "modified": "2023-01-09 18:52:36.537015",
+  },
+  {
    "fieldname": "letterhead_section_section",
    "fieldtype": "Section Break",
    "label": "Letterhead Section"
