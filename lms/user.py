@@ -1404,7 +1404,7 @@ def approved_securities(**kwargs):
             lender = frappe.get_doc("Lender", data["lender"])
             las_settings = frappe.get_single("LAS Settings")
             logo_file_path_1 = lender.get_lender_logo_file()
-            logo_file_path_2 = las_settings.get_spark_logo_file()
+            logo_file_path_2 = lender.get_lender_address_file()
             approved_securities_template = lender.get_approved_securities_template()
             doc = {
                 "column_name": df.columns,
@@ -1418,6 +1418,9 @@ def approved_securities(**kwargs):
                 else "",
                 "instrument_type": data.get("instrument_type"),
                 "scheme_type": data.get("loan_type"),
+                "is_html": lender.is_html,
+                "lender_header": lender.lender_header,
+                "lender_footer": lender.lender_footer,
             }
             agreement = frappe.render_template(
                 approved_securities_template.get_content(), {"doc": doc}

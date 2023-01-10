@@ -138,6 +138,13 @@
   "column_break_78",
   "pledged_security_statement_template",
   "interest_letter",
+  "letterhead_section_section",
+  "lender_logo",
+  "lender_address",
+  "or_column",
+  "is_html",
+  "lender_header",
+  "lender_footer",
   "image_section_section",
   "logo_file_1",
   "website_section_section",
@@ -909,6 +916,46 @@
  ],
  "links": [],
  "modified": "2023-01-09 18:52:36.537015",
+   "fieldname": "letterhead_section_section",
+   "fieldtype": "Section Break",
+   "label": "Letterhead Section"
+  },
+  {
+   "fieldname": "lender_logo",
+   "fieldtype": "Attach Image",
+   "label": "Lender Logo"
+  },
+  {
+   "fieldname": "lender_address",
+   "fieldtype": "Attach Image",
+   "label": "Lender Address"
+  },
+  {
+   "fieldname": "or_column",
+   "fieldtype": "Column Break",
+   "label": "Or"
+  },
+  {
+   "depends_on": "eval:doc.is_html == 1;",
+   "fieldname": "lender_header",
+   "fieldtype": "HTML Editor",
+   "label": "Lender header"
+  },
+  {
+   "depends_on": "eval:doc.is_html == 1;",
+   "fieldname": "lender_footer",
+   "fieldtype": "HTML Editor",
+   "label": "Lender footer"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_html",
+   "fieldtype": "Check",
+   "label": "Is html"
+  }
+ ],
+ "links": [],
+ "modified": "2023-01-09 13:21:23.306197",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
