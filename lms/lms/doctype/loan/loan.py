@@ -610,8 +610,6 @@ class Loan(Document):
             ): i
             for i in collateral_list
         }
-        print("collateral_list", collateral_list)
-        print("collateral_list_map", collateral_list_map)
         # updating existing and
         # setting check flag
         for i in self.items:
@@ -619,9 +617,7 @@ class Loan(Document):
                 i.isin,
                 i.folio if i.folio else "",
             )
-            print("isincombo", isin_folio_combo)
             curr = collateral_list_map.get(isin_folio_combo)
-            print("curr", curr)
             # curr = collateral_list_map.get(i.isin)
             # print(check, i.price, curr.price, not check or i.price != curr.price)
             if (not check or i.price != curr.price) and i.pledged_quantity > 0:
