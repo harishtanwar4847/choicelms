@@ -2295,6 +2295,7 @@ class Loan(Document):
         doc["current_date"] = datetime.strptime(
             str(frappe.utils.now_datetime().date()), "%Y-%m-%d"
         ).strftime("%d/%m/%Y")
+        doc["sanctioned_amount"] = frappe.utils.fmt_money(float(self.sanctioned_limit))
         doc["fullname"] = user_kyc.fullname
         doc["addline1"] = addline1
         doc["addline2"] = addline2
