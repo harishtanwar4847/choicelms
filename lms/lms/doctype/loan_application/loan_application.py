@@ -1296,7 +1296,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 
     def update_collateral_ledger(self, set_values={}, where=""):
         set_values_str = ""
-        print("update_collateral_ledger")
         last_col = sorted(set_values.keys())[-1]
         if len(set_values.keys()) == len(set_values.values()):
             for col, val in set_values.items():
@@ -1309,7 +1308,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         if len(where) > 0:
             sql += " where {}".format(where)
 
-        frappe.db.sql((sql), debug=True)
+        frappe.db.sql(sql)
 
     # hit pledge request as per batch items
     def pledge_request(self, security_list):
