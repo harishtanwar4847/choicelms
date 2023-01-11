@@ -603,39 +603,25 @@ class Loan(Document):
         check = False
 
         collateral_list = self.get_collateral_list()
-        frappe.log_error(
-            frappe.get_traceback()
-            + "\n\nloan name :-"
-            + self.name
-            + "\n collateral_list : -"
-            + str(collateral_list),
-            title=frappe._("collateral_list"),
-        )
         collateral_list_map = {
-            "{}{}{}".format(
-                i.isin, i.folio if i.folio else "", i.psn if i.psn else ""
+            "{}{}".format(
+                i.isin,
+                i.folio if i.folio else "",
             ): i
             for i in collateral_list
         }
+        print("collateral_list", collateral_list)
+        print("collateral_list_map", collateral_list_map)
         # updating existing and
         # setting check flag
         for i in self.items:
-            isin_folio_combo = "{}{}{}".format(
-                i.isin, i.folio if i.folio else "", i.psn if i.psn else ""
+            isin_folio_combo = "{}{}".format(
+                i.isin,
+                i.folio if i.folio else "",
             )
+            print("isincombo", isin_folio_combo)
             curr = collateral_list_map.get(isin_folio_combo)
-            frappe.log_error(
-                frappe.get_traceback()
-                + "\n\nloan name :-"
-                + self.name
-                + "\n curr.price: -"
-                + str(curr.price)
-                + "\n i.price: -"
-                + str(i.price)
-                + "\n i.isin: -"
-                + str(i.isin),
-                title=frappe._("Price update Items"),
-            )
+            print("curr", curr)
             # curr = collateral_list_map.get(i.isin)
             # print(check, i.price, curr.price, not check or i.price != curr.price)
             if (not check or i.price != curr.price) and i.pledged_quantity > 0:
@@ -658,7 +644,6 @@ class Loan(Document):
                     "pledged_quantity": i.quantity,
                     "price": i.price,
                     "eligible_percentage": i.eligible_percentage,
-                    "psn": i.psn,
                     "folio": i.folio,
                 }
             )

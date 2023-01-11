@@ -782,7 +782,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         )
 
     def on_update(self):
-        print("every")
         if self.status == "Approved":
             if not self.loan:
                 loan = self.create_loan()
@@ -1093,7 +1092,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         loan.save_loan_sanction_history(loan_agreement_file.name, event)
 
     def update_existing_loan(self):
-        print("inside")
         self.update_collateral_ledger(
             {"loan": self.loan},
             "application_doctype = 'Loan Application' and application_name = '{}'".format(
