@@ -2550,10 +2550,10 @@ def validate_securities_for_unpledge(securities, loan):
 
     securities_list = [i["isin"] for i in securities]
 
-    if securities_valid:
-        if len(set(duplicate_securities_list)) != len(duplicate_securities_list):
-            securities_valid = False
-            message = frappe._("duplicate isin")
+    # if securities_valid:
+    #     if len(set(duplicate_securities_list)) != len(duplicate_securities_list):
+    #         securities_valid = False
+    #         message = frappe._("duplicate isin")
 
     if securities_valid:
         securities_list_from_db_ = frappe.db.sql(
