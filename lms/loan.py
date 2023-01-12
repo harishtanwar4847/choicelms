@@ -851,8 +851,6 @@ def loan_details(**kwargs):
 
         customer = lms.__customer()
         try:
-            loan_items_list = []
-            item_dict = {}
             loan = frappe.get_doc("Loan", data.get("loan_name"))
             for i in loan.items:
                 psn_no = frappe.db.sql(
@@ -865,20 +863,7 @@ def loan_details(**kwargs):
                     ),
                     as_dict=True,
                 )
-                item_dict = {
-                    "isin": i.isin,
-                    "folio": i.folio,
-                    "quantity": i.pledged_quantity,
-                }
-                loan_items_list.append(item_dict)
                 # i["psn"] = psn_no
-
-            combined_loan_items = (
-                pd.DataFrame(loan_items_list)
-                .groupby(["isin", "folio"], as_index=False)
-                .quantity.sum()
-                .to_dict("r")
-            )
         except frappe.DoesNotExistError:
             # return utils.respondNotFound(message=frappe._("Loan not found."))
             raise lms.exceptions.NotFoundException(_("Loan not found"))
@@ -1227,17 +1212,12 @@ def loan_details(**kwargs):
         increase_loan = None
         if existing_loan_application[0]["in_process"] == 0:
             increase_loan = 1
-        print("lndffnaflnk")
+
         collateral_ledger = frappe.get_all(
             "Collateral Ledger",
             filters={"request_type": "Pledge", "loan": loan.name},
             fields=["*"],
         )
-        print("collateral_ledger", collateral_ledger)
-        # for i in collateral_ledger:
-        #     print("nacho")
-        #     coll_doc = frappe.get_doc("Collateral Ledger",i.name).as_dict()
-        #     loan
 
         res = {
             "loan": loan,
@@ -1251,7 +1231,6 @@ def loan_details(**kwargs):
             "invoke_charge_details": invoke_initiate_charges
             if loan.instrument_type == "Mutual Fund"
             else {},
-            "combined_loan_items": combined_loan_items,
             "collateral_ledger": collateral_ledger,
         }
 
