@@ -333,7 +333,8 @@ class UnpledgeApplication(Document):
             elif self.status == "Rejected":
                 if check == True:
                     msg = frappe.get_doc(
-                        "Spark SMS Notification", "Rejected"
+                        "Spark SMS Notification",
+                        "Unpledge Application Rejected(Marginshortfall)",
                     ).message.format(msg_type=msg_type)
                     # msg = """Your {msg_type} request was rejected. There is a margin shortfall. You can send another {msg_type} request when there is no margin shortfall.""".format(
                     #     msg_type=msg_type
@@ -341,7 +342,7 @@ class UnpledgeApplication(Document):
                 else:
                     # mutual fund sms changes
                     if self.instrument_type == "Mutual Fund":
-                        msg = (
+                        msg = frappe.get_doc(
                             "Spark SMS Notification",
                             "Unpledge application rejected",
                         ).message.format(msg_type, link=las_settings.my_securities)
@@ -364,15 +365,19 @@ class UnpledgeApplication(Document):
                         fcm_notification = fcm_notification.as_dict()
                         fcm_notification["title"] = "Revoke application rejected"
 
-            receiver_list = [str(customer.phone)]
-            if user_kyc.mob_num:
-                receiver_list.append(str(user_kyc.mob_num))
-            if user_kyc.choice_mob_no:
-                receiver_list.append(str(user_kyc.choice_mob_no))
+            if msg:
+                lms.send_sms_notification(
+                    customer=self.get_loan().get_customer().name, msg=msg
+                )
+                # receiver_list = [str(customer.phone)]
+                # if user_kyc.mob_num:
+                #     receiver_list.append(str(user_kyc.mob_num))
+                # if user_kyc.choice_mob_no:
+                #     receiver_list.append(str(user_kyc.choice_mob_no))
 
-            receiver_list = list(set(receiver_list))
+                # receiver_list = list(set(receiver_list))
 
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         if fcm_notification:
             lms.send_spark_push_notification(
@@ -471,6 +476,15 @@ def validate_revoc(unpledge_application_name):
                     }
                 }
                 for i in unpledge_application_doc.unpledge_items:
+                    psn = frappe.db.sql(
+                        """select psn from `tabCollateral Ledger` where isin = '{isin}' and folio = '{folio}' and loan = '{loan}' and request_type = '{type}' """.format(
+                            isin=i.isin,
+                            folio=i.folio,
+                            loan=unpledge_application_doc.loan,
+                            type="Pledge",
+                        ),
+                        as_dict=1,
+                    )
                     schemedetails = (
                         {
                             "amccode": i.amc_code,
@@ -482,7 +496,7 @@ def validate_revoc(unpledge_application_name):
                             "schemecategory": i.security_category,
                             "lienunit": i.quantity,
                             "revocationunit": i.unpledge_quantity,
-                            "lienmarkno": i.psn,
+                            "lienmarkno": psn[0].psn,
                         },
                     )
                     data["revocvalidate"]["schemedetails"].append(schemedetails[0])
@@ -553,6 +567,33 @@ def validate_revoc(unpledge_application_name):
                     )
                 unpledge_application_doc.save(ignore_permissions=True)
                 frappe.db.commit()
+
+                if unpledge_application_doc.is_validated == True:
+                    for i in unpledge_application_doc.unpledge_items:
+                        psn = frappe.db.sql(
+                            """select psn from `tabCollateral Ledger` where isin = '{isin}' and folio = '{folio}' and loan = '{loan}' and request_type = '{type}' """.format(
+                                isin=i.isin,
+                                folio=i.folio,
+                                loan=unpledge_application_doc.loan,
+                                type="Pledge",
+                            ),
+                            as_dict=1,
+                        )
+                        unpledge_item_doc_list = frappe.get_all(
+                            "Unpledge Application Unpledged Item",
+                            filters={
+                                "parent": unpledge_application_doc.name,
+                                "isin": i.isin,
+                                "folio": i.folio,
+                            },
+                            fields=["name"],
+                        )
+                        unpledge_item_doc = frappe.get_doc(
+                            "Unpledge Application Unpledged Item",
+                            unpledge_item_doc_list[0].name,
+                        )
+                        unpledge_item_doc.psn = psn[0].psn
+                        unpledge_item_doc.save(ignore_permissions=True)
 
             except requests.RequestException as e:
                 raise utils.exceptions.APIException(str(e))

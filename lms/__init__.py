@@ -2043,12 +2043,10 @@ def penny_validate_fund_account():
 def send_sms_notification(customer, msg, token_type=None):
     try:
         print("Customer :", customer)
-        if type(customer) != dict:
-            print("Inside sms if")
+        if token_type:
             receiver_list = [str(customer)]
-
         else:
-            print("Inside sms else", customer.phone)
+            customer = frappe.get_doc("Loan Customer", customer)
             receiver_list = [str(customer.phone)]
             if customer.get_kyc().mob_num:
                 receiver_list.append(str(customer.get_kyc().mob_num))
@@ -2056,8 +2054,6 @@ def send_sms_notification(customer, msg, token_type=None):
                 receiver_list.append(str(customer.get_kyc().choice_mob_no))
 
         receiver_list = list(set(receiver_list))
-        print("sdfghjk")
-        # send_sms(receiver_list=receiver_list, msg=msg)
         frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
         print("receiver_list", receiver_list)
     except Exception:

@@ -50,7 +50,7 @@ lms.patches.update_ckyc_doc ######ckyc#######################
 lms.patches.update_email_in_kyc #ckyc
 lms.patches.update_spark_app_version
 lms.patches.update_workflow #CKYC
-lms.patches.import_spark_sms_notification_content #####
+lms.patches.import_spark_sms_notification_content #########
 lms.patches.update_dlt_links 
 lms.patches.update_workflow_loan_renewal
 lms.patches.update_consent

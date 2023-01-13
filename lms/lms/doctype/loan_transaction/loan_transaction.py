@@ -291,18 +291,18 @@ class LoanTransaction(Document):
             )
 
             if msg:
-                # lms.send_sms_notification(customer=self.get_customer(),msg=msg)
-                receiver_list = [str(self.get_customer().phone)]
-                if self.get_customer().get_kyc().mob_num:
-                    receiver_list.append(str(self.get_customer().get_kyc().mob_num))
-                if self.get_customer().get_kyc().choice_mob_no:
-                    receiver_list.append(
-                        str(self.get_customer().get_kyc().choice_mob_no)
-                    )
+                lms.send_sms_notification(customer=self.get_customer().name, msg=msg)
+                # receiver_list = [str(self.get_customer().phone)]
+                # if self.get_customer().get_kyc().mob_num:
+                #     receiver_list.append(str(self.get_customer().get_kyc().mob_num))
+                # if self.get_customer().get_kyc().choice_mob_no:
+                #     receiver_list.append(
+                #         str(self.get_customer().get_kyc().choice_mob_no)
+                #     )
 
-                receiver_list = list(set(receiver_list))
+                # receiver_list = list(set(receiver_list))
 
-                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         if self.transaction_type == "Withdrawal":
             mess = ""
@@ -334,7 +334,7 @@ class LoanTransaction(Document):
                     if type(self.time) == str
                     else (self.time).strftime("%d-%m-%Y %H:%M"),
                 )
-                lms.send_sms_notification(customer=self.get_customer(), msg=mess)
+                lms.send_sms_notification(customer=self.get_customer().name, msg=mess)
                 # mess = "Dear Customer,\nYour withdrawal request has been executed and Rs. {amount}  transferred to your designated bank account. Your loan account has been debited for Rs. {disbursed} . Your loan balance is Rs. {balance}. {date_time}. If this is not you report immediately on 'Contact Us' in the app -Spark Loans".format(
                 #     amount=self.amount,
                 #     disbursed=self.disbursed,
@@ -369,10 +369,10 @@ class LoanTransaction(Document):
                 )
 
             if mess:
-                # lms.send_sms_notification(customer=self.get_customer(),msg=mess)
-                frappe.enqueue(
-                    method=send_sms, receiver_list=[self.get_customer().phone], msg=mess
-                )
+                lms.send_sms_notification(customer=self.get_customer().name, msg=mess)
+                # frappe.enqueue(
+                #     method=send_sms, receiver_list=[self.get_customer().phone], msg=mess
+                # )
 
             if fcm_notification:
                 lms.send_spark_push_notification(

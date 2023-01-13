@@ -218,7 +218,7 @@ class SellCollateralApplication(Document):
         if self.status == "Rejected":
             if self.instrument_type == "Mutual Fund":
                 msg = frappe.get_doc(
-                    "Spark SMS Notification", "Invoke request"
+                    "Spark SMS Notification", "Invoke request turned down"
                 ).message.format(link=las_settings.my_securities)
                 # msg = "Dear Customer,\nSorry! Your invoke request was turned down due to technical reasons. You can reach out via the 'Contact Us' section of the app or please try again later using this link- {link} -Spark Loans".format(
                 #     link=las_settings.my_securities
@@ -231,19 +231,18 @@ class SellCollateralApplication(Document):
 
                 # msg = "Dear Customer,\nSorry! Your sell collateral request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans"
 
-            receiver_list = [str(self.get_customer().phone)]
-            if self.get_customer().get_kyc().mob_num:
-                receiver_list.append(str(self.get_customer().get_kyc().mob_num))
-            if self.get_customer().get_kyc().choice_mob_no:
-                receiver_list.append(str(self.get_customer().get_kyc().choice_mob_no))
+            if msg:
+                # receiver_list = [str(self.get_customer().phone)]
+                # if self.get_customer().get_kyc().mob_num:
+                #     receiver_list.append(str(self.get_customer().get_kyc().mob_num))
+                # if self.get_customer().get_kyc().choice_mob_no:
+                #     receiver_list.append(str(self.get_customer().get_kyc().choice_mob_no))
 
-            receiver_list = list(set(receiver_list))
+                # receiver_list = list(set(receiver_list))
 
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                lms.send_sms_notification(customer=self.get_customer().name, msg=msg)
 
-            # msg = frappe.get_doc("Spark SMS Notification","TopUp rejected").message
-
-            # lms.send_sms_notification(customer=self.get_customer(),msg=msg)
             # msg = "Dear Customer,\nSorry! Your {} request was turned down due to technical reasons. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans".format(
             #     msg_type
             # )
@@ -466,16 +465,16 @@ class SellCollateralApplication(Document):
                 fcm_notification = fcm_notification.as_dict()
                 fcm_notification["title"] = "Invoke request executed"
         if msg:
-            # lms.send_sms_notification(customer=self.get_customer,msg=msg)
-            receiver_list = [str(self.get_customer().phone)]
-            if self.get_customer().get_kyc().mob_num:
-                receiver_list.append(str(self.get_customer().get_kyc().mob_num))
-            if self.get_customer().get_kyc().choice_mob_no:
-                receiver_list.append(str(self.get_customer().get_kyc().choice_mob_no))
+            lms.send_sms_notification(customer=self.get_customer().name, msg=msg)
+            # receiver_list = [str(self.get_customer().phone)]
+            # if self.get_customer().get_kyc().mob_num:
+            #     receiver_list.append(str(self.get_customer().get_kyc().mob_num))
+            # if self.get_customer().get_kyc().choice_mob_no:
+            #     receiver_list.append(str(self.get_customer().get_kyc().choice_mob_no))
 
-            receiver_list = list(set(receiver_list))
+            # receiver_list = list(set(receiver_list))
 
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+            # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
         self.notify_customer(fcm_notification=fcm_notification, message=message)
 
@@ -576,6 +575,15 @@ def validate_invoc(sell_collateral_application_name):
                     }
                 }
                 for i in sell_collateral_application_doc.sell_items:
+                    psn = frappe.db.sql(
+                        """select psn from `tabCollateral Ledger` where isin = '{isin}' and folio = '{folio}' and loan = '{loan}' and request_type = '{type}' """.format(
+                            isin=i.isin,
+                            folio=i.folio,
+                            loan=sell_collateral_application_doc.loan,
+                            type="Pledge",
+                        ),
+                        as_dict=1,
+                    )
                     schemedetails = (
                         {
                             "amccode": i.amc_code,
@@ -587,7 +595,7 @@ def validate_invoc(sell_collateral_application_name):
                             "schemecategory": i.security_category,
                             "lienunit": i.quantity,
                             "invocationunit": i.sell_quantity,
-                            "lienmarkno": i.psn,
+                            "lienmarkno": psn[0].psn,
                         },
                     )
                     data["invocvalidate"]["schemedetails"].append(schemedetails[0])
@@ -660,6 +668,32 @@ def validate_invoc(sell_collateral_application_name):
 
                 sell_collateral_application_doc.save(ignore_permissions=True)
                 frappe.db.commit()
+
+                if sell_collateral_application_doc.is_validated == True:
+                    for i in sell_collateral_application_doc.sell_items:
+                        psn = frappe.db.sql(
+                            """select psn from `tabCollateral Ledger` where isin = '{isin}' and folio = '{folio}' and loan = '{loan}' and request_type = '{type}' """.format(
+                                isin=i.isin,
+                                folio=i.folio,
+                                loan=sell_collateral_application_doc.loan,
+                                type="Pledge",
+                            ),
+                            as_dict=1,
+                        )
+                        sell_item_doc_list = frappe.get_all(
+                            "Sell Application Sell Item",
+                            filters={
+                                "parent": sell_collateral_application_doc.name,
+                                "isin": i.isin,
+                                "folio": i.folio,
+                            },
+                            fields=["name"],
+                        )
+                        sell_item_doc = frappe.get_doc(
+                            "Sell Application Sell Item", sell_item_doc_list[0].name
+                        )
+                        sell_item_doc.psn = psn[0].psn
+                        sell_item_doc.save(ignore_permissions=True)
 
             except requests.RequestException as e:
                 raise utils.exceptions.APIException(str(e))

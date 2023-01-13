@@ -884,9 +884,13 @@ class Loan(Document):
             message = fcm_notification.message.format(
                 loan=self.name, stop_time=stop_time, start_time=start_time
             )
-            msg = "Dear Customer,\nDue to bank holiday the margin shortfall timer on your loan account {loan} has been paused on {stop_time} and will resume on {start_time}. Please check the app and take an appropriate action. -Spark Loans".format(
-                loan=self.name, stop_time=stop_time, start_time=start_time
-            )
+            # msg = "Dear Customer,\nDue to bank holiday the margin shortfall timer on your loan account {loan} has been paused on {stop_time} and will resume on {start_time}. Please check the app and take an appropriate action. -Spark Loans".format(
+            #     loan=self.name, stop_time=stop_time, start_time=start_time
+            # )
+
+            msg = frappe.get_doc(
+                "Spark SMS Notification", "Margin shortfall timer paused"
+            ).message.format(loan=self.name, stop_time=stop_time, start_time=start_time)
 
             doc["loan_margin_shortfall"] = {
                 "loan": self.name,
@@ -924,10 +928,10 @@ class Loan(Document):
             )
 
         if message and msg:
-            # lms.send_sms_notification(customer=self.get_customer,msg=msg)
-            frappe.enqueue(
-                method=send_sms, receiver_list=[self.get_customer().phone], msg=msg
-            )
+            # frappe.enqueue(
+            #     method=send_sms, receiver_list=[self.get_customer().phone], msg=msg
+            # )
+            lms.send_sms_notification(customer=self.get_customer().name, msg=msg)
             lms.send_spark_push_notification(
                 fcm_notification=fcm_notification,
                 message=message,
@@ -1359,18 +1363,20 @@ class Loan(Document):
                         )
 
                         if msg:
-                            # lms.send_sms_notification(customer=self.get_customer,msg=msg)
-                            receiver_list = [str(self.get_customer().phone)]
-                            if doc.mob_num:
-                                receiver_list.append(str(doc.mob_num))
-                            if doc.choice_mob_no:
-                                receiver_list.append(str(doc.choice_mob_no))
-
-                            receiver_list = list(set(receiver_list))
-
-                            frappe.enqueue(
-                                method=send_sms, receiver_list=receiver_list, msg=msg
+                            lms.send_sms_notification(
+                                customer=self.get_customer().name, msg=msg
                             )
+                            # receiver_list = [str(self.get_customer().phone)]
+                            # if doc.mob_num:
+                            #     receiver_list.append(str(doc.mob_num))
+                            # if doc.choice_mob_no:
+                            #     receiver_list.append(str(doc.choice_mob_no))
+
+                            # receiver_list = list(set(receiver_list))
+
+                            # frappe.enqueue(
+                            #     method=send_sms, receiver_list=receiver_list, msg=msg
+                            # )
 
                         lms.send_spark_push_notification(
                             fcm_notification=fcm_notification,
@@ -1514,18 +1520,20 @@ class Loan(Document):
                             loan=self.name,
                         )
                         if msg:
-                            # lms.send_sms_notification(customer=self.get_customer,msg=msg)
-                            receiver_list = [str(self.get_customer().phone)]
-                            if doc.mob_num:
-                                receiver_list.append(str(doc.mob_num))
-                            if doc.choice_mob_no:
-                                receiver_list.append(str(doc.choice_mob_no))
-
-                            receiver_list = list(set(receiver_list))
-
-                            frappe.enqueue(
-                                method=send_sms, receiver_list=receiver_list, msg=msg
+                            lms.send_sms_notification(
+                                customer=self.get_customer().name, msg=msg
                             )
+                            # receiver_list = [str(self.get_customer().phone)]
+                            # if doc.mob_num:
+                            #     receiver_list.append(str(doc.mob_num))
+                            # if doc.choice_mob_no:
+                            #     receiver_list.append(str(doc.choice_mob_no))
+
+                            # receiver_list = list(set(receiver_list))
+
+                            # frappe.enqueue(
+                            #     method=send_sms, receiver_list=receiver_list, msg=msg
+                            # )
 
                         lms.send_spark_push_notification(
                             fcm_notification=fcm_notification,
@@ -1669,20 +1677,22 @@ class Loan(Document):
                             )
 
                             if msg:
-                                # lms.send_sms_notification(customer=self.get_customer,msg=msg)
-                                receiver_list = [str(self.get_customer().phone)]
-                                if doc.mob_num:
-                                    receiver_list.append(str(doc.mob_num))
-                                if doc.choice_mob_no:
-                                    receiver_list.append(str(doc.choice_mob_no))
-
-                                receiver_list = list(set(receiver_list))
-
-                                frappe.enqueue(
-                                    method=send_sms,
-                                    receiver_list=receiver_list,
-                                    msg=msg,
+                                lms.send_sms_notification(
+                                    customer=self.get_customer().name, msg=msg
                                 )
+                                # receiver_list = [str(self.get_customer().phone)]
+                                # if doc.mob_num:
+                                #     receiver_list.append(str(doc.mob_num))
+                                # if doc.choice_mob_no:
+                                #     receiver_list.append(str(doc.choice_mob_no))
+
+                                # receiver_list = list(set(receiver_list))
+
+                                # frappe.enqueue(
+                                #     method=send_sms,
+                                #     receiver_list=receiver_list,
+                                #     msg=msg,
+                                # )
 
                             lms.send_spark_push_notification(
                                 fcm_notification=fcm_notification,
@@ -1823,20 +1833,22 @@ class Loan(Document):
                             )
 
                             if msg:
-                                # lms.send_sms_notification(customer=self.get_customer,msg=msg)
-                                receiver_list = [str(self.get_customer().phone)]
-                                if doc.mob_num:
-                                    receiver_list.append(str(doc.mob_num))
-                                if doc.choice_mob_no:
-                                    receiver_list.append(str(doc.choice_mob_no))
-
-                                receiver_list = list(set(receiver_list))
-
-                                frappe.enqueue(
-                                    method=send_sms,
-                                    receiver_list=receiver_list,
-                                    msg=msg,
+                                lms.send_sms_notification(
+                                    customer=self.get_customer().name, msg=msg
                                 )
+                                # receiver_list = [str(self.get_customer().phone)]
+                                # if doc.mob_num:
+                                #     receiver_list.append(str(doc.mob_num))
+                                # if doc.choice_mob_no:
+                                #     receiver_list.append(str(doc.choice_mob_no))
+
+                                # receiver_list = list(set(receiver_list))
+
+                                # frappe.enqueue(
+                                #     method=send_sms,
+                                #     receiver_list=receiver_list,
+                                #     msg=msg,
+                                # )
 
                             lms.send_spark_push_notification(
                                 fcm_notification=fcm_notification,

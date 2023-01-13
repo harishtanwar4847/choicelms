@@ -2913,7 +2913,7 @@ def loan_unpledge_request(**kwargs):
         unpledge_application.insert(ignore_permissions=True)
         frappe.enqueue_doc("Notification", email_subject, method="send", doc=user_kyc)
         msg = frappe.get_doc(
-            "Spark SMS Notification", "Unpledged application"
+            "Spark SMS Notification", "Unpledge application"
         ).message.format(msg_type[0])
         # lms.send_sms_notification(customer=[str(customer.phone)],msg=msg)
         # msg = "Dear Customer,\nYour {} request has been successfully received. You shall soon receive a confirmation message. Thank you for your patience. - Spark Loans".format(

@@ -560,7 +560,11 @@ class TopupApplication(Document):
         fcm_notification = {}
         if doc.get("top_up_application").get("status") == "Pending":
             # mess = "Your request has been successfully received. You will be notified when your new OD limit is approved by our banking partner."
-            mess = 'Dear Customer,\nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans'
+            # mess = 'Dear Customer,\nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans'
+
+            mess = frappe.get_doc(
+                "Spark SMS Notification", "Top-up application accepted"
+            ).message
 
             fcm_notification = frappe.get_doc(
                 "Spark Push Notification",
@@ -591,16 +595,16 @@ class TopupApplication(Document):
             loan = self.loan
 
         if mess:
-            # lms.send_sms_notification(customer=self.get_customer,msg=mess)
-            receiver_list = [str(self.get_customer().phone)]
-            if doc.mob_num:
-                receiver_list.append(str(doc.mob_num))
-            if doc.choice_mob_no:
-                receiver_list.append(str(doc.choice_mob_no))
+            lms.send_sms_notification(customer=self.get_customer().name, msg=mess)
+            # receiver_list = [str(self.get_customer().phone)]
+            # if doc.mob_num:
+            #     receiver_list.append(str(doc.mob_num))
+            # if doc.choice_mob_no:
+            #     receiver_list.append(str(doc.choice_mob_no))
 
-            receiver_list = list(set(receiver_list))
+            # receiver_list = list(set(receiver_list))
 
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
+            # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
 
         if fcm_notification:
             lms.send_spark_push_notification(
