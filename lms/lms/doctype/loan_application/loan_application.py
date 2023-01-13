@@ -1495,6 +1495,11 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     )
                     fcm_notification = fcm_notification.as_dict()
                     fcm_notification["title"] = "Lien partially accepted"
+            else:
+                fcm_message = fcm_notification.message.format(
+                    pledge="pledge",
+                    total_collateral_value_str=self.total_collateral_value_str,
+                )
 
         if msg:
             receiver_list = [str(self.get_customer().phone)]

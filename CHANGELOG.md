@@ -6,7 +6,7 @@
 
 ## Fixed
 
-- [Fix: floating-to-fixed](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/561)
+- [Fix: unpldege and sell collateral psn handling](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/561)
 
 ## [v5.10.2-uat]
 
