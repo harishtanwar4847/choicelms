@@ -4931,7 +4931,7 @@ def au_penny_drop(**kwargs):
         res_json = {}
         photos_ = lms.upload_image_to_doctype(
             customer=customer,
-            seq_no=result_.get("accountNumber")[-4:],
+            seq_no=data.get("account_number"),
             image_=data.get("personalized_cheque"),
             img_format="jpeg",
             img_folder="personalized_cheque",
