@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.11.0-uat]
+
+## Fixed
+
+- [Fix: Choice office Address change on website](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/563)
+
 ## [v5.10.3-uat]
 
 ## Fixed
