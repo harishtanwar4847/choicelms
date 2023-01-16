@@ -4929,6 +4929,13 @@ def au_penny_drop(**kwargs):
 
         las_settings = frappe.get_single("LAS Settings")
         res_json = {}
+        photos_ = lms.upload_image_to_doctype(
+            customer=customer,
+            seq_no=result_.get("accountNumber")[-4:],
+            image_=data.get("personalized_cheque"),
+            img_format="jpeg",
+            img_folder="personalized_cheque",
+        )
         bank_acc = frappe.get_all(
             "User Bank Account", {"account_number": data.get("account_number")}, "*"
         )
@@ -4963,7 +4970,7 @@ def au_penny_drop(**kwargs):
                             "account_number": data.get("account_number"),
                             "ifsc": data.get("ifsc"),
                             "account_holder_name": bank_acc[0].account_holder_name,
-                            "personalized_cheque": bank_acc[0].personalized_cheque,
+                            "personalized_cheque": photos_,
                             "city": data.get("city"),
                             "parent": user_kyc.name,
                             "is_default": True,
@@ -5011,13 +5018,6 @@ def au_penny_drop(**kwargs):
                                         "We have found a mismatch in the account holder name as per the fetched data"
                                     )
                                 )
-                            photos_ = lms.upload_image_to_doctype(
-                                customer=customer,
-                                seq_no=result_.get("accountNumber")[-4:],
-                                image_=data.get("personalized_cheque"),
-                                img_format="jpeg",
-                                img_folder="personalized_cheque",
-                            )
                             if user_kyc.kyc_type == "CHOICE":
                                 bank_entry_name = frappe.db.get_value(
                                     "User Bank Account",
