@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.10.3-uat]
+
+## Fixed
+
+- [Fix: unpldege and sell collateral psn handling](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/561)
+
 ## [v5.10.2-uat]
 
 ## Added
