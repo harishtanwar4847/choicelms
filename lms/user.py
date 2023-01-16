@@ -4937,7 +4937,10 @@ def au_penny_drop(**kwargs):
             img_folder="personalized_cheque",
         )
         bank_acc = frappe.get_all(
-            "User Bank Account", {"account_number": data.get("account_number")}, "*"
+            "User Bank Account",
+            {"account_number": data.get("account_number"), "is_repeated": 0},
+            "*",
+            order_by="creation desc",
         )
 
         if bank_acc:
