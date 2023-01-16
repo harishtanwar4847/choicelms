@@ -2931,6 +2931,16 @@ def loan_summary_dashboard(**kwargs):
                 loan_renewal_doc.expiry_date = str_exp
 
                 loan_renewal_doc_list.append(loan_renewal_doc)
+        loan_sanctioned_letter_list = frappe.get_all(
+            "Sanction Letter and CIAL Log",
+            filters={"name": loan.sl_cial_entries},
+            fields=["*"],
+        )
+        sanction_letter_list = frappe.get_doc(
+            "Sanction Letter and CIAL Log", loan_sanctioned_letter_list[0].name
+        )
+        for i in sanction_letter_list.sl_table:
+            sl_letter = frappe.utils.get_url(i.sanction_letter)
 
         res = {
             "sell_collateral_topup_and_unpledge_list": sell_collateral_topup_and_unpledge_list,
@@ -2944,6 +2954,7 @@ def loan_summary_dashboard(**kwargs):
             "increase_loan_list": increase_loan_list,
             "instrument_type": instrument_type,
             "loan_renewal_application": loan_renewal_doc_list,
+            "sanctioned_letter": sl_letter,
         }
 
         return utils.respondWithSuccess(data=res)
