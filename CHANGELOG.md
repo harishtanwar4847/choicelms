@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+## [v5.11.0-uat]
+
+## Added
+
+- [Feat: Choice office Address change on website and au pennydrop add bank before 90 days changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/563)
+
+## [v5.10.3-uat]
+
+## Fixed
+
+- [Fix: unpldege and sell collateral psn handling](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/561)
+
+## [v5.10.2-uat]
+
+## Added
+
+- [Feat: floating-to-fixed](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/560)
+
 ## [v5.10.1-uat]
 
 ## Added

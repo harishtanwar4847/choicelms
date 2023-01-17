@@ -27,7 +27,8 @@
   "bank_mode",
   "bank_zip_code",
   "district",
-  "notification_sent"
+  "notification_sent",
+  "is_repeated"
  ],
  "fields": [
   {
@@ -157,11 +158,18 @@
    "fieldname": "bank_transaction_status",
    "fieldtype": "Data",
    "label": "Bank Transaction Status"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_repeated",
+   "fieldtype": "Check",
+   "label": "Is Repeated",
+   "read_only": 1
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-11-23 11:32:34.078273",
+ "modified": "2023-01-16 20:13:51.780877",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User Bank Account",
