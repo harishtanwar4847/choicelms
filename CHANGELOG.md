@@ -4,9 +4,9 @@
 
 ## [v5.11.0-uat]
 
-## Fixed
+## Added
 
-- [Fix: Choice office Address change on website](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/563)
+- [Feat: Choice office Address change on website and au pennydrop add bank before 90 days changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/563)
 
 ## [v5.10.3-uat]
 
