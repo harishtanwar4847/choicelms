@@ -3386,6 +3386,9 @@ def au_pennydrop_api(data):
         }
 
         url = las_settings.penny_drop_api
+        if not url:
+            res_json = {"StatusCode": 404, "Message": "Penny Drop host missing"}
+            return res_json
 
         headers = {
             "Content-Type": "application/json",
@@ -3415,14 +3418,30 @@ def truncate_approved_unit(number, digits):
 
 
 def name_matching(user_kyc, bank_acc_full_name):
-    bank_acc_full_name = (bank_acc_full_name.lower()).split()
-    if (user_kyc.fname.lower() in bank_acc_full_name) and (
-        user_kyc.mname.lower() in bank_acc_full_name
-    ):
-        return True
-    elif (user_kyc.fname.lower() in bank_acc_full_name) and (
-        user_kyc.lname.lower() in bank_acc_full_name
-    ):
-        return True
-    else:
-        return False
+    try:
+        bank_acc_full_name = bank_acc_full_name.lower().replace(" ", "")
+
+        if (
+            user_kyc.fname
+            and user_kyc.fname.replace(" ", "").lower() in bank_acc_full_name
+        ) and (
+            user_kyc.mname
+            and user_kyc.mname.replace(" ", "").lower() in bank_acc_full_name
+        ):
+            return True
+        elif (
+            user_kyc.fname
+            and user_kyc.fname.replace(" ", "").lower() in bank_acc_full_name
+        ) and (
+            user_kyc.lname
+            and user_kyc.lname.replace(" ", "").lower() in bank_acc_full_name
+        ):
+            return True
+        else:
+            return False
+    except Exception:
+        frappe.log_error(
+            title="Name matching Error",
+            message=frappe.get_traceback()
+            + "User Kyc Name:\n{}\n\n".format(user_kyc.name),
+        )

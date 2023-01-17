@@ -196,11 +196,18 @@ class UserKYC(Document):
                                         frappe.throw(
                                             "We have found a mismatch in the account holder name as per the fetched data"
                                         )
-                                    i.penny_request_id = res_json.get("Body")
-                                    i.account_holder_name = result_.get("accountName")
-                                    i.bank_transaction_status = (
-                                        result_.get("bankTxnStatus"),
+                                    i.penny_request_id = (
+                                        res_json.get("Body")
+                                        .get("pennyResponse")
+                                        .get("request_id")
                                     )
+                                    i.account_holder_name = result_.get("accountName")
+                                    i.bank_transaction_status = result_.get(
+                                        "bankTxnStatus"
+                                    )
+                                    i.save()
+                                    frappe.db.commit()
+                                    self.reload()
 
                                     frappe.msgprint(
                                         "Your account details have been successfully verified"
@@ -234,5 +241,7 @@ class UserKYC(Document):
                     else:
                         lms.log_api_error(mess=str(res_json))
                         frappe.throw(
-                            res_json.get("StatusCode") + "/n" + res_json.get("Message")
+                            str(res_json.get("StatusCode"))
+                            + "\n"
+                            + str(res_json.get("Message"))
                         )
