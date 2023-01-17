@@ -2436,3 +2436,17 @@ def ckyc_commit(res_json, customer, dob):
     user_kyc.insert(ignore_permissions=True)
     frappe.db.commit()
     return user_kyc
+
+
+@frappe.whitelist(allow_guest=True)
+def redirect_to_url(url=""):
+    try:
+        if not url:
+            url = "http://143.110.250.220:9123"
+        frappe.local.response["type"] = "redirect"
+        frappe.local.response["location"] = url
+    except Exception:
+        frappe.log_error(
+            title="Redirect to URL API",
+            message=frappe.get_traceback() + "\n\n" + frappe.local.form_dict,
+        )
