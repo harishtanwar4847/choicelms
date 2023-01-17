@@ -936,6 +936,9 @@ class LoanApplication(Document):
                 "base_interest": self.base_interest,
                 "rebate_interest": self.rebate_interest,
                 "old_interest": self.base_interest,
+                "custom_base_interest": self.base_interest,
+                "custom_rebate_interest": self.rebate_interest,
+                "wef_date": frappe.utils.now_datetime().date(),
             }
         )
         loan.insert(ignore_permissions=True)

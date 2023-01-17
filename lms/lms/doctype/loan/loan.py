@@ -1863,6 +1863,7 @@ class Loan(Document):
         self.drawing_power_str = lms.amount_formatter(self.drawing_power)
         self.sanctioned_limit_str = lms.amount_formatter(self.sanctioned_limit)
         self.balance_str = lms.amount_formatter(self.balance)
+
         if self.custom_base_interest <= 0 or self.custom_rebate_interest <= 0:
             frappe.throw("Base interest and Rebate Interest should be greater than 0")
 
@@ -1871,33 +1872,37 @@ class Loan(Document):
         else:
             exp = self.wef_date
 
-        if exp < frappe.utils.now_datetime().date():
-            frappe.throw("W.e.f date should be Current date or Future date")
+        if exp:
+            if exp < frappe.utils.now_datetime().date():
+                frappe.throw("W.e.f date should be Current date or Future date")
 
-        if self.balance > 0:
-            interest_configuration = frappe.db.get_value(
-                "Interest Configuration",
-                {
-                    "lender": self.lender,
-                    "from_amount": ["<=", self.balance],
-                    "to_amount": [">=", self.balance],
-                },
-                ["name", "base_interest", "rebait_interest"],
-                as_dict=1,
-            )
-            if self.is_default == 1:
-                print("is default mdhe aalo")
-                self.custom_base_interest = interest_configuration["base_interest"]
-                self.custom_rebate_interest = interest_configuration["rebait_interest"]
+        if self.balance:
+            if self.balance > 0:
+                interest_configuration = frappe.db.get_value(
+                    "Interest Configuration",
+                    {
+                        "lender": self.lender,
+                        "from_amount": ["<=", self.balance],
+                        "to_amount": [">=", self.balance],
+                    },
+                    ["name", "base_interest", "rebait_interest"],
+                    as_dict=1,
+                )
+                if self.is_default == 1:
+                    print("is default mdhe aalo")
+                    self.custom_base_interest = interest_configuration["base_interest"]
+                    self.custom_rebate_interest = interest_configuration[
+                        "rebait_interest"
+                    ]
 
-            if (
-                self.custom_base_interest != self.base_interest
-                or self.custom_rebate_interest != self.custom_rebate_interest
-            ):
-                self.old_interest = self.base_interest
-                self.base_interest = self.custom_base_interest
-                self.rebate_interest = self.custom_rebate_interest
-                self.notify_customer_roi()
+                if (
+                    self.custom_base_interest != self.base_interest
+                    or self.custom_rebate_interest != self.custom_rebate_interest
+                ):
+                    self.old_interest = self.base_interest
+                    self.base_interest = self.custom_base_interest
+                    self.rebate_interest = self.custom_rebate_interest
+                    self.notify_customer_roi()
 
     def save_loan_sanction_history(self, agreement_file, event="New loan"):
         loan_sanction_history = frappe.get_doc(
