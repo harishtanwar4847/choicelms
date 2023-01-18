@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.12.0-uat]
+
+## Added
+
+- [Feat: Feat : Annexure update in privacy policy update](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/564)
+
 ## [v5.11.0-uat]
 
 ## Added
