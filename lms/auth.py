@@ -767,3 +767,17 @@ def login_activity(customer):
     )
     activity_log.insert(ignore_permissions=True)
     frappe.db.commit()
+
+
+@frappe.whitelist(allow_guest=True)
+def tutorial_screen():
+    try:
+        print("dfaadsf")
+        utils.validator.validate_http_method("GET")
+        print("fkadklshfhak")
+        screens = frappe.get_all(
+            "Tutorial Screen", fields={"name", "title", "description"}
+        )
+        return utils.respondWithSuccess(message=screens)
+    except utils.exceptions.APIException as e:
+        return e.respond()
