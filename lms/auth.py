@@ -772,9 +772,7 @@ def login_activity(customer):
 @frappe.whitelist(allow_guest=True)
 def tutorial_screen():
     try:
-        print("dfaadsf")
         utils.validator.validate_http_method("GET")
-        print("fkadklshfhak")
         screens = frappe.get_all(
             "Tutorial Screen", fields={"name", "title", "description"}
         )
