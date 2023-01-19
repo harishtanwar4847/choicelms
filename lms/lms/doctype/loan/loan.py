@@ -1863,6 +1863,8 @@ class Loan(Document):
                     },
                     fields=["amc_image"],
                 )
+            print("code", code)
+            print("image", image)
 
             if image[0].amc_image:
                 amc_image = frappe.utils.get_url(image[0].amc_image)
