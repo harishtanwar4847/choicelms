@@ -58,7 +58,7 @@ class AllowedSecurity(Document):
         unpledge_application = self.check_unpledge_application()
         if unpledge_application:
             frappe.throw(
-                "Please accept/reject {} this Unpledge Application".format(
+                "Please approve/reject {} this Unpledge Application".format(
                     unpledge_application
                 )
             )
@@ -66,7 +66,7 @@ class AllowedSecurity(Document):
         sell_collateral_application = self.check_sell_collateral_application()
         if sell_collateral_application:
             frappe.throw(
-                "Please accept/reject {} this Sell Collateral Application".format(
+                "Please approve/reject {} this Sell Collateral Application".format(
                     sell_collateral_application
                 )
             )
