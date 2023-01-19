@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.13.0-uat]
+
+## Added
+
+- [Feat: Update security and allowed security patches](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/565)
+
 ## [v5.12.0-uat]
 
 ## Added

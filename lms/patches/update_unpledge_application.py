@@ -2,7 +2,7 @@ import frappe
 
 
 def execute():
-    frappe.reload_doc("Lms", "DocType", "Unpledge Application")
+    frappe.reload_doc("Lms", "DocType", "Unpledge Application", force=True)
     unpledge_applications = frappe.get_all("Unpledge Application", fields=["*"])
     for unpledge_application in unpledge_applications:
         try:
