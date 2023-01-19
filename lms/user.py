@@ -1601,25 +1601,25 @@ def all_lenders_list(**kwargs):
         utils.validator.validate_http_method("GET")
 
         all_levels = []
-        lenders = frappe.get_all("Lender", pluck="name", order_by="name asc")
+        all_lenders = []
+        # lenders = frappe.get_all("Lender", pluck="name", order_by="name asc")
+        lenders = frappe.get_all("Lender", order_by="creation asc")
         for lender in lenders:
             query = [
                 "Level {}".format(i.level)
                 for i in frappe.db.sql(
                     "select idx as level from `tabConcentration Rule` where parent = '{}' order by idx asc".format(
-                        lender
+                        lender.name
                     ),
                     as_dict=True,
                 )
             ]
-            all_levels.append(query)
-            # all_lenders.append({"name": lender.name, "levels": query})
-        all_levels.sort()
+            # all_levels.append(query)
+            all_lenders.append({"name": lender.name, "levels": query})
+        # all_levels.sort()
         # lenders.append(all_levels[-1])
-
-        return utils.respondWithSuccess(
-            data={"lenders": lenders, "levels": all_levels[-1]}
-        )
+        # data={"lenders": lenders, "levels": all_levels[-1]}
+        return utils.respondWithSuccess(data=all_lenders)
 
     except utils.exceptions.APIException as e:
         lms.log_api_error()
