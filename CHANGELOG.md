@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.13.0] - 2023-01-19
+
+## Added
+
+- [Merge branch Uat into Master](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/566)
+
 ## [v5.13.0-uat]
 
 ## Added
