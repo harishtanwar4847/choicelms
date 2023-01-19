@@ -8,7 +8,7 @@ import lms
 
 def execute():
     try:
-        frappe.reload_doc("Lms", "DocType", "User KYC")
+        frappe.reload_doc("Lms", "DocType", "User KYC", force=True)
         user_kyc = frappe.get_all(
             "User KYC", filters={"kyc_type": "CHOICE"}, fields=["*"]
         )

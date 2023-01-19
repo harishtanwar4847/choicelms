@@ -2,7 +2,7 @@ import frappe
 
 
 def execute():
-    frappe.reload_doc("Lms", "DocType", "Margin Shortfall Action")
+    frappe.reload_doc("Lms", "DocType", "Margin Shortfall Action", force=True)
     all_actions = frappe.get_all("Margin Shortfall Action", ["*"])
     if len(all_actions) == 3:
         for a in all_actions:
