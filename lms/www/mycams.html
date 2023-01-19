@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Sparkloans</title>
+    <link rel="icon" href="/assets/lms/favicon.ico" type="image/x-icon" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/assets/lms/css/bootstrap.css"
+    />
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.js"
+      integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      #maindiv {
+        height: 100px;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="fw dx_ctr bg">
+      <div class="container">
+        <div class="row">
+          <div class="col dx_jcsbalctr">
+            <!-- <a class="logo"
+              ><img src="/assets/lms/images/logo.svg" width="150" height=""
+            /></a> -->
+          </div>
+        </div>
+      </div>
+    </header>
+    <section class="fw">
+      {% set lien_marking_api = frappe.db.get_single_value("LAS Settings",
+      "lien_marking_api") %}
+      <form
+        method="post"
+        style="display: none"
+        action="{{lien_marking_api}}"
+        id="form1"
+      >
+        <div class="aspNetHidden">
+          <input
+            type="hidden"
+            name="__VIEWSTATE"
+            id="__VIEWSTATE"
+            value="bV2LMBuX5Lv9u8K/8QH1L4Pz+Si49i+yd+2FDxGamCctVNWlYzXYil7phnLY+FGUlaQzpOuH2lWWe84Owb7vkZnTbpvqQHJohhlF+ilxLzDMmvYqqj5PK+GnPwCEKJSEQCH3D92liSzFeeXtqHACV2rkKKmYzxJJnecSgLQTUCNLyAbEiLuLk9uqOowVO7SOkdVFAgBPz9iFqfD76/2Z1GdkrfPzaxidbTs9SEQFmNgTWHOpVQ5FKnYZyhV2aOIzJZQngCCnyXLw06hGMxaTeg=="
+          />
+        </div>
+
+        <div class="aspNetHidden">
+          <input
+            type="hidden"
+            namee="__VIEWSTATEGENERATOR"
+            id="__VIEWSTATEGENERATOR"
+            value="90059987"
+          />
+          <input
+            type="hidden"
+            namee="__EVENTVALIDATION"
+            id="__EVENTVALIDATION"
+            value="/QLuMS5oGL3yD3/kvJyb67I67VeILRWpQgiTWX8V90LpnewpA4XPMBslnqUIK4fNFe3HagCPVnNo3fliTplXvmH7t4gPWU3EYnvQCr6oTt8DpZ5kfmkUjTXlvdeMD8F8IhR7B3qGzKVmEW3vW3ELIohinxjUqs6nSgBrsV/klQpmDtFqVbBshiIPMs6T0xGEsl1YBbjbFfgfZwLSnN4Jp6Ja6GF6J5iPMkgyrmO0iOM="
+          />
+        </div>
+        <div>
+          <span id="lblsignhead"
+            >LAMF-TCFINPLTD::HakUx7K9JlfUBE/eL+YES1MAW1EscwI+NOgoIaXVwGU=::20220308180330</span
+          >
+          <b></b>
+          <b>Encrypted</b>
+          <textarea
+            name="lieninput"
+            rows="2"
+            cols="20"
+            id="txt_req_enc"
+            style="height: 355px; width: 453px"
+          >
+  {{encrypted}}</textarea
+          >
+          <input type="submit" name="btn_sub" value="submit" id="btn_sub" />
+        </div>
+      </form>
+    </section>
+
+    <section class="fw landing" style="text-align: center">
+      <div id="maindiv">
+        <span>You are being redirected to MyCAMS web portal</span><br />
+        <div class="spinner-grow text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-secondary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-success" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-danger" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-warning" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-info" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-secondary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="spinner-grow text-dark" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <br />
+        <span>Please do not close or leave this page.</span>
+      </div>
+    </section>
+    <link rel="stylesheet" href="/assets/lms/css/bootstrap_4.2.1.min.css" />
+    <script src="/assets/lms/js/bootstrap_4.2.1.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#btn_sub").click();
+      });
+    </script>
+  </body>
+</html>

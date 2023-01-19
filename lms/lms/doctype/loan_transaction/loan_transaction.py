@@ -38,10 +38,13 @@ class LoanTransaction(Document):
         "Penal Interest": "DR",
         "Other Charges": "DR",
         "Legal Charges": "DR",
-        "DP Reimbursement(Unpledge)": "DR",
-        "DP Reimbursement(Sell)": "DR",
+        "DP Reimbursement(Unpledge) Charges": "DR",
+        "DP Reimbursement(Sell) Charges": "DR",
         "Sell Collateral Charges": "DR",
-        "Renewal Charges": "DR",
+        "Account Renewal Charges": "DR",
+        "Lien Charges": "DR",  # MF
+        "Invoke Charges": "DR",  # MF
+        "Revoke Charges": "DR",  # MF
     }
 
     def autoname(self):
@@ -84,13 +87,35 @@ class LoanTransaction(Document):
         if not self.time:
             self.time = frappe.utils.now_datetime()
         self.set_record_type()
-        self.validate_withdrawal_amount()
+        user_roles = frappe.db.get_values(
+            "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
+        )
+        if "Loan Customer" in user_roles:
+            self.validate_withdrawal_amount()
         # set customer
         loan = self.get_loan()
         # update opening balance
+        customer = frappe.get_doc("Loan Customer", loan.customer)
+        user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+        for i in user_kyc.bank_account:
+            if i.is_default == 1:
+                bank = i.bank
+                account_number = i.account_number
+                ifsc = i.ifsc
         self.opening_balance = loan.balance
         self.customer = loan.customer
         self.customer_name = loan.customer_name
+        if (
+            self.transaction_type == "Withdrawal"
+            and not self.allowable
+            and not self.requested
+            and "Loan Customer" not in user_roles
+        ):
+            self.requested = self.amount
+            self.allowable = loan.maximum_withdrawable_amount()
+            self.bank = bank
+            self.account_number = account_number
+            self.ifsc = ifsc
 
         # if there is interest for loan, mark is_for_interest=True for loan transaction with record type CR
         if self.record_type == "CR":
@@ -107,9 +132,6 @@ class LoanTransaction(Document):
                 self.is_for_interest = True
 
         # check for user roles and permissions before adding transactions
-        user_roles = frappe.db.get_values(
-            "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
-        )
         if not user_roles:
             frappe.throw(_("Invalid User"))
         user_roles = [role[0] for role in user_roles]
@@ -129,10 +151,10 @@ class LoanTransaction(Document):
             "Other Charges",
             "Sell Collateral",
             "Legal Charges",
-            "DP Reimbursement(Unpledge)",
-            "DP Reimbursement(Sell)",
+            "DP Reimbursement(Unpledge) Charges",
+            "DP Reimbursement(Sell) Charges",
             "Sell Collateral Charges",
-            "Renewal Charges",
+            "Account Renewal Charges",
         ]
 
         if "System Manager" not in user_roles:
@@ -147,6 +169,8 @@ class LoanTransaction(Document):
 
     def on_submit(self):
         check_for_shortfall = True
+        loan = self.get_loan()
+        lender = self.get_lender()
         if self.transaction_type in [
             "Processing Fees",
             "Stamp Duty",
@@ -154,7 +178,6 @@ class LoanTransaction(Document):
             "Mortgage Charges",
         ]:
             check_for_shortfall = False
-            lender = self.get_lender()
             if self.transaction_type == "Processing Fees":
                 sharing_amount = lender.lender_processing_fees_sharing
                 sharing_type = lender.lender_processing_fees_sharing_type
@@ -178,12 +201,26 @@ class LoanTransaction(Document):
                 lender_sharing_amount = (lender_sharing_amount / 100) * self.amount
             spark_sharing_amount = self.amount - lender_sharing_amount
 
-            loan = self.get_loan()
             # customer_name = loan.customer_name
             self.create_lender_ledger(
                 lender_sharing_amount,
                 spark_sharing_amount,
             )
+
+        if self.transaction_type in [
+            "Processing Fees",
+            "Stamp Duty",
+            "Documentation Charges",
+            "Mortgage Charges",
+            "Sell Collateral Charges",
+            "Account Renewal Charges",
+            "DP Reimbursement(Unpledge) Charges",
+            "DP Reimbursement(Sell) Charges",
+            "Lien Charges",
+            "Invocation Charges",
+            "Revocation Charges",
+        ]:
+            self.gst_on_charges(loan, lender)
 
         loan = self.get_loan()
 
@@ -241,14 +278,15 @@ class LoanTransaction(Document):
             )
 
             if msg:
-                receiver_list = list(
-                    set(
-                        [
-                            str(self.get_customer().phone),
-                            str(self.get_customer().get_kyc().mobile_number),
-                        ]
+                receiver_list = [str(self.get_customer().phone)]
+                if self.get_customer().get_kyc().mob_num:
+                    receiver_list.append(str(self.get_customer().get_kyc().mob_num))
+                if self.get_customer().get_kyc().choice_mob_no:
+                    receiver_list.append(
+                        str(self.get_customer().get_kyc().choice_mob_no)
                     )
-                )
+
+                receiver_list = list(set(receiver_list))
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
@@ -651,12 +689,67 @@ class LoanTransaction(Document):
     def before_save(self):
         loan = self.get_loan()
         self.lender = loan.lender
+        self.instrument_type = loan.instrument_type
+        self.scheme_type = loan.scheme_type
         if (
             self.transaction_type == "Withdrawal"
             and self.allowable > self.requested
             and self.status == "Ready for Approval"
         ):
             frappe.throw("Allowable amount could not be greater than requested amount")
+
+    def gst_on_charges(self, loan, lender):
+        lender = lender.as_dict()
+        customer = frappe.get_doc("Loan Customer", loan.customer)
+        user_kyc = customer.get_kyc()
+        address = frappe.get_doc("Customer Address Details", user_kyc.address_details)
+        if address.perm_state.lower() == "maharashtra":
+            # CGST
+            transac_cgst = "CGST on " + self.transaction_type
+            trans_cgst = (
+                transac_cgst.lower().replace(" ", "_").replace("(", "").replace(")", "")
+            )
+            if lender.get(trans_cgst) > 0:
+                cgst = self.amount * (lender.get(trans_cgst) / 100)
+                if cgst > 0:
+                    loan.create_loan_transaction(
+                        transaction_type=transac_cgst,
+                        amount=cgst,
+                        gst_percent=lender.get(trans_cgst),
+                        charge_reference=self.name,
+                        approve=True,
+                    )
+            # SGST
+            transac_sgst = "SGST on " + self.transaction_type
+            trans_sgst = (
+                transac_sgst.lower().replace(" ", "_").replace("(", "").replace(")", "")
+            )
+            if lender.get(trans_sgst) > 0:
+                sgst = self.amount * (lender.get(trans_sgst) / 100)
+                if sgst > 0:
+                    loan.create_loan_transaction(
+                        transaction_type=transac_sgst,
+                        amount=sgst,
+                        gst_percent=lender.get(trans_sgst),
+                        charge_reference=self.name,
+                        approve=True,
+                    )
+        else:
+            # IGST
+            transac_igst = "IGST on " + self.transaction_type
+            trans_igst = (
+                transac_igst.lower().replace(" ", "_").replace("(", "").replace(")", "")
+            )
+            if lender.get(trans_igst) > 0:
+                igst = self.amount * (lender.get(trans_igst) / 100)
+                if igst > 0:
+                    loan.create_loan_transaction(
+                        transaction_type=transac_igst,
+                        amount=igst,
+                        gst_percent=lender.get(trans_igst),
+                        charge_reference=self.name,
+                        approve=True,
+                    )
 
 
 @frappe.whitelist()
@@ -725,8 +818,9 @@ def settlement_recon_api(input_date=None):
                 "day": input_date.day,
             }
 
+            las_settings = frappe.get_single("LAS Settings")
             raw_res = requests.get(
-                "https://api.razorpay.com/v1/settlements/recon/combined",
+                las_settings.settlement_recon_api,
                 headers={"Authorization": razorpay_key_secret_auth},
                 params=params,
             )
@@ -734,7 +828,11 @@ def settlement_recon_api(input_date=None):
             res = raw_res.json()
 
             # create log for settlement recon api
-            lms.create_log(res, "settlement_recon_api_log")
+            log = {
+                "request": params,
+                "response": res,
+            }
+            lms.create_log(log, "settlement_recon_api_log")
 
             if res["count"] and res["items"]:
                 # iterate through all settled items
@@ -755,6 +853,14 @@ def settlement_recon_api(input_date=None):
                             settle_res = client.settlement.fetch(
                                 settled_items["settlement_id"]
                             )
+                            lms.create_log(
+                                {
+                                    "settle_res": settle_res,
+                                    "loan_transaction_name": loan_transaction_name,
+                                },
+                                "settlement_api_id_log",
+                            )
+
                             loan_transaction = frappe.get_doc(
                                 "Loan Transaction", loan_transaction_name
                             )

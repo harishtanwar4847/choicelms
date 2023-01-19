@@ -1,4 +1,4 @@
-<h3>Dear {{ doc.investor_name or "" }},</h3>
+<h3>Dear {{ doc.fullname or "" }},</h3>
 
 <h2>Congratulations</h2>
 

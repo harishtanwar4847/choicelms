@@ -11,6 +11,7 @@ app_icon = "octicon octicon-file-directory"
 app_color = "grey"
 app_email = "developers@atritechnocrat.com"
 app_license = "MIT"
+app_logo_url = "/assets/lms/images/logo_mo.svg"
 
 # Includes in <head>
 # ------------------
@@ -68,9 +69,27 @@ after_install = "lms.after_install"
 # -----------
 # Permissions evaluated in scripted ways
 
-# permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
+permission_query_conditions = {
+    # "Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
+    # "Lender": "lms.hooks.lender_permission_query",
+    "Cart": "lms.cart_permission_query",
+    "Loan Application": "lms.loan_application_permission_query",
+    "Collateral Ledger": "lms.collateral_ledger_permission_query",
+    "Loan": "lms.loan_permission_query",
+    "Loan Transaction": "lms.loan_transaction_permission_query",
+    "Loan Margin Shortfall": "lms.loan_margin_shortfall_permission_query",
+    "Unpledge Application": "lms.unpledge_application_permission_query",
+    "Sell Collateral Application": "lms.sell_collateral_application_permission_query",
+    "Top up Application": "lms.top_up_application_permission_query",
+    "Virtual Interest": "lms.virtual_interest_permission_query",
+    "Lender Ledger": "lms.lender_ledger_permission_query",
+    "Allowed Security": "lms.allowed_security_permission_query",
+    "Interest Configuration": "lms.interest_configuration_permission_query",
+    "Lender": "lms.lender_permission_query",
+    "Loan Payment Log": "lms.loan_payment_log_permission_query",
+    "Security Category": "lms.security_category_permission_query",
+}
+
 #
 # has_permission = {
 # 	"Event": "frappe.desk.doctype.event.event.has_permission",
@@ -145,6 +164,7 @@ scheduler_events = {
     #     "lms.lms.doctype.loan.loan.add_all_loans_penal_interest",
     # ],
     # "monthly": ["lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"],
+    # "all": ["lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered"],
     "cron": {
         "*/5 * * * *": [
             "lms.lms.doctype.loan_application.loan_application.process_pledge"
@@ -164,5 +184,12 @@ scheduler_events = {
         "15 4 * * *": [
             "lms.lms.doctype.loan.loan.add_all_loans_penal_interest"
         ],  # At 04:15 AM daily
+        "30 8 * * *": [
+            "lms.lms.doctype.security_price.security_price.update_all_schemeNav"
+        ],  # At 08:30 AM daily
+        "* * * * *": [
+            "lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered"
+        ],  # At every minute
+        "30 23 * * *": ["lms.system_report_enqueue"],  # At 11:30 PM daily
     },
 }

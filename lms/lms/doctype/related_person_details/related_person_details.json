@@ -1,0 +1,507 @@
+{
+ "actions": [],
+ "creation": "2022-06-29 13:20:19.953193",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "sequence_no",
+  "rel_type",
+  "add_del_flag",
+  "ckyc_no",
+  "prefix",
+  "fname",
+  "mname",
+  "lname",
+  "maiden_prefix",
+  "maiden_fname",
+  "maiden_mname",
+  "maiden_lname",
+  "fatherspouse_flag",
+  "father_prefix",
+  "father_fname",
+  "father_mname",
+  "father_lname",
+  "mother_prefix",
+  "mother_fname",
+  "mother_mname",
+  "mother_lname",
+  "column_break_22",
+  "dob",
+  "gender",
+  "nationality",
+  "pan",
+  "form_60",
+  "add_line1",
+  "add_line2",
+  "add_line3",
+  "add_city",
+  "add_district",
+  "add_state",
+  "add_country",
+  "add_pin",
+  "perm_poi_type",
+  "column_break_26",
+  "same_as_perm_flag",
+  "corres_add_line1",
+  "corres_add_line2",
+  "corres_add_line3",
+  "corres_add_city",
+  "corres_add_dist",
+  "corres_add_state",
+  "corres_add_country",
+  "corres_add_pin",
+  "corres_poi_type",
+  "resi_std_code",
+  "resi_tel_num",
+  "off_std_code",
+  "off_tel_num",
+  "mob_code",
+  "mob_num",
+  "email",
+  "remarks",
+  "column_break_51",
+  "photo_type",
+  "photo",
+  "perm_poi_image_type",
+  "perm_poi",
+  "corres_poi_image_type",
+  "corres_poi",
+  "proof_of_possession_of_aadhaar",
+  "voter_id",
+  "nrega",
+  "passport",
+  "driving_licence",
+  "national_poplation_reg_letter",
+  "offline_verification_aadhaar",
+  "e_kyc_authentication",
+  "dec_date",
+  "dec_place",
+  "kyc_date",
+  "doc_sub",
+  "kyc_name",
+  "kyc_designation",
+  "kyc_branch",
+  "kyc_empcode",
+  "org_name",
+  "org_code"
+ ],
+ "fields": [
+  {
+   "fieldname": "sequence_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Related Person sequence number"
+  },
+  {
+   "fieldname": "rel_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Relation Type"
+  },
+  {
+   "fieldname": "add_del_flag",
+   "fieldtype": "Data",
+   "label": "Addition/Deletion of related person"
+  },
+  {
+   "fieldname": "ckyc_no",
+   "fieldtype": "Data",
+   "label": "KYC Number of Related Person"
+  },
+  {
+   "fieldname": "prefix",
+   "fieldtype": "Data",
+   "label": "Related Person Prefix"
+  },
+  {
+   "fieldname": "fname",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Related Person First Name"
+  },
+  {
+   "fieldname": "mname",
+   "fieldtype": "Data",
+   "label": "Related Person Middle Name"
+  },
+  {
+   "fieldname": "lname",
+   "fieldtype": "Data",
+   "label": "Related Person Last Name"
+  },
+  {
+   "fieldname": "maiden_prefix",
+   "fieldtype": "Data",
+   "label": "Related Person Maiden Prefix"
+  },
+  {
+   "fieldname": "maiden_fname",
+   "fieldtype": "Data",
+   "label": "Related Person Maiden First Name"
+  },
+  {
+   "fieldname": "maiden_mname",
+   "fieldtype": "Data",
+   "label": "Related Person Maiden Middle Name"
+  },
+  {
+   "fieldname": "maiden_lname",
+   "fieldtype": "Data",
+   "label": "Related Person Maiden Last Name"
+  },
+  {
+   "fieldname": "fatherspouse_flag",
+   "fieldtype": "Data",
+   "label": "Related Person Flag Indicating Father/Spouse"
+  },
+  {
+   "fieldname": "father_prefix",
+   "fieldtype": "Data",
+   "label": "Related Person Father/Spouse Name Prefix"
+  },
+  {
+   "fieldname": "father_fname",
+   "fieldtype": "Data",
+   "label": "Related Person Father/Spouse First Name"
+  },
+  {
+   "fieldname": "father_mname",
+   "fieldtype": "Data",
+   "label": "Related Father/Spouse Middle Name"
+  },
+  {
+   "fieldname": "father_lname",
+   "fieldtype": "Data",
+   "label": "Related Person Father/Spouse Last Name"
+  },
+  {
+   "fieldname": "mother_prefix",
+   "fieldtype": "Data",
+   "label": "Related Person Mother's Prefix"
+  },
+  {
+   "fieldname": "mother_fname",
+   "fieldtype": "Data",
+   "label": "Related Person Mother's First Name"
+  },
+  {
+   "fieldname": "mother_mname",
+   "fieldtype": "Data",
+   "label": "Related Person Mother's Middle Name"
+  },
+  {
+   "fieldname": "mother_lname",
+   "fieldtype": "Data",
+   "label": "Related Person Mother's Last Name"
+  },
+  {
+   "fieldname": "dob",
+   "fieldtype": "Data",
+   "label": "Related Person Date of Birth"
+  },
+  {
+   "fieldname": "gender",
+   "fieldtype": "Data",
+   "label": "Related Person Gender"
+  },
+  {
+   "fieldname": "pan",
+   "fieldtype": "Data",
+   "label": "Related Person PAN"
+  },
+  {
+   "fieldname": "add_line1",
+   "fieldtype": "Small Text",
+   "label": "Related Person Permanent Address Line 1"
+  },
+  {
+   "fieldname": "add_line2",
+   "fieldtype": "Small Text",
+   "label": "Related Person Permanent Address Line 2"
+  },
+  {
+   "fieldname": "add_line3",
+   "fieldtype": "Data",
+   "label": "Related Person Permanent Address Line 2"
+  },
+  {
+   "fieldname": "add_city",
+   "fieldtype": "Data",
+   "label": "Related Person Permanent Address City"
+  },
+  {
+   "fieldname": "add_district",
+   "fieldtype": "Data",
+   "label": "Related Person Permanent Address District"
+  },
+  {
+   "fieldname": "add_state",
+   "fieldtype": "Data",
+   "label": "Related Person Permanent Address State"
+  },
+  {
+   "fieldname": "add_country",
+   "fieldtype": "Data",
+   "label": "Related Person Permanent Address Country"
+  },
+  {
+   "fieldname": "add_pin",
+   "fieldtype": "Data",
+   "label": "Related Person Permanent Address Pincode"
+  },
+  {
+   "fieldname": "perm_poi_type",
+   "fieldtype": "Data",
+   "label": "Proof of Address submitted for Permanent  Address"
+  },
+  {
+   "fieldname": "same_as_perm_flag",
+   "fieldtype": "Data",
+   "label": "Flag indicating if Permanent  Address is same as correspondence Address"
+  },
+  {
+   "fieldname": "corres_add_line1",
+   "fieldtype": "Small Text",
+   "label": "Related Person Correspondence Address Line 1"
+  },
+  {
+   "fieldname": "corres_add_line2",
+   "fieldtype": "Small Text",
+   "label": "Related Person Correspondence Address Line 2"
+  },
+  {
+   "fieldname": "corres_add_line3",
+   "fieldtype": "Small Text",
+   "label": "Related Person Correspondence Address Line 3"
+  },
+  {
+   "fieldname": "corres_add_city",
+   "fieldtype": "Data",
+   "label": "Related Person Correspondence Address City"
+  },
+  {
+   "fieldname": "corres_add_dist",
+   "fieldtype": "Data",
+   "label": "Related Person Correspondence Address District"
+  },
+  {
+   "fieldname": "corres_add_state",
+   "fieldtype": "Data",
+   "label": "Related Person Correspondence Address State"
+  },
+  {
+   "fieldname": "corres_add_country",
+   "fieldtype": "Data",
+   "label": "Related PersonCorrespondence Address Country"
+  },
+  {
+   "fieldname": "corres_add_pin",
+   "fieldtype": "Data",
+   "label": "Related Person Correspondence Address Pincode"
+  },
+  {
+   "fieldname": "corres_poi_type",
+   "fieldtype": "Data",
+   "label": "Proof of Address submitted for Correspondence  Address"
+  },
+  {
+   "fieldname": "resi_std_code",
+   "fieldtype": "Data",
+   "label": "Related Person Residence Telephone No.(STD Code)"
+  },
+  {
+   "fieldname": "resi_tel_num",
+   "fieldtype": "Data",
+   "label": "Related Person Residence Telephone No."
+  },
+  {
+   "fieldname": "off_std_code",
+   "fieldtype": "Data",
+   "label": "Related Person Office Telephone No.(STD Code)"
+  },
+  {
+   "fieldname": "off_tel_num",
+   "fieldtype": "Data",
+   "label": "Related Person Office Telephone No.(STD Code)"
+  },
+  {
+   "fieldname": "mob_code",
+   "fieldtype": "Data",
+   "label": "Related Person Mobile No.(STD Code)"
+  },
+  {
+   "fieldname": "mob_num",
+   "fieldtype": "Data",
+   "label": "Related Person Mobile No."
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Related Person Email"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Related Person Remarks, if any"
+  },
+  {
+   "fieldname": "photo_type",
+   "fieldtype": "Data",
+   "label": "Related Person Photo Type"
+  },
+  {
+   "fieldname": "photo",
+   "fieldtype": "Attach Image",
+   "label": "Related Person Photo"
+  },
+  {
+   "fieldname": "perm_poi_image_type",
+   "fieldtype": "Data",
+   "label": "Related Person Permanent POI Type"
+  },
+  {
+   "fieldname": "perm_poi",
+   "fieldtype": "Attach Image",
+   "label": "Related Person Permanent POI"
+  },
+  {
+   "fieldname": "offline_verification_aadhaar",
+   "fieldtype": "Data",
+   "label": "Related Person Offline verification of Aadhaar"
+  },
+  {
+   "fieldname": "dec_date",
+   "fieldtype": "Data",
+   "label": "Date of Declaration"
+  },
+  {
+   "fieldname": "dec_place",
+   "fieldtype": "Data",
+   "label": "Place of Declaration"
+  },
+  {
+   "fieldname": "kyc_date",
+   "fieldtype": "Data",
+   "label": "KYC Verification on Date"
+  },
+  {
+   "fieldname": "doc_sub",
+   "fieldtype": "Data",
+   "label": "Type of Document Submitted"
+  },
+  {
+   "fieldname": "kyc_name",
+   "fieldtype": "Data",
+   "label": "KYC Verification on Name",
+   "length": 150
+  },
+  {
+   "fieldname": "kyc_designation",
+   "fieldtype": "Data",
+   "label": "KYC Verification on Designation",
+   "length": 150
+  },
+  {
+   "fieldname": "kyc_branch",
+   "fieldtype": "Data",
+   "label": "KYC Verification on Branch",
+   "length": 150
+  },
+  {
+   "fieldname": "kyc_empcode",
+   "fieldtype": "Data",
+   "label": "KYC Verification on EMP Code"
+  },
+  {
+   "fieldname": "org_name",
+   "fieldtype": "Data",
+   "label": "Organization Name",
+   "length": 150
+  },
+  {
+   "fieldname": "org_code",
+   "fieldtype": "Data",
+   "label": "Organization Code"
+  },
+  {
+   "fieldname": "corres_poi_image_type",
+   "fieldtype": "Data",
+   "label": "Related Person Correspondence POI Type"
+  },
+  {
+   "fieldname": "corres_poi",
+   "fieldtype": "Attach Image",
+   "label": "Related Person Correspondence POI"
+  },
+  {
+   "fieldname": "proof_of_possession_of_aadhaar",
+   "fieldtype": "Data",
+   "label": "UID (Proof of possession of Aadhaar)"
+  },
+  {
+   "fieldname": "voter_id",
+   "fieldtype": "Data",
+   "label": "Voter Id Card"
+  },
+  {
+   "fieldname": "nrega",
+   "fieldtype": "Data",
+   "label": "NREGA Job Card"
+  },
+  {
+   "fieldname": "passport",
+   "fieldtype": "Data",
+   "label": "Passport No."
+  },
+  {
+   "fieldname": "driving_licence",
+   "fieldtype": "Data",
+   "label": "Driving License No."
+  },
+  {
+   "fieldname": "national_poplation_reg_letter",
+   "fieldtype": "Data",
+   "label": "Related Person National Population register"
+  },
+  {
+   "fieldname": "form_60",
+   "fieldtype": "Data",
+   "label": "Related Person FORM 60"
+  },
+  {
+   "fieldname": "e_kyc_authentication",
+   "fieldtype": "Data",
+   "label": "Related Person EKYC Authentication"
+  },
+  {
+   "fieldname": "column_break_26",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_51",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_22",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "nationality",
+   "fieldtype": "Data",
+   "label": "Related Person Nationality"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2022-08-09 16:40:46.765935",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Related Person Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

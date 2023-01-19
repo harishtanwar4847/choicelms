@@ -39,9 +39,42 @@
   "market_start_time",
   "column_break_33",
   "market_end_time",
-  "section_break_33",
+  "mutual_fund_section",
+  "lien_marking_api",
+  "invoke_api",
+  "investica_api",
+  "column_break_39",
+  "lien_initiate_api",
+  "revoke_api",
+  "lien_allowed_scheme_update_api",
+  "cams_config_section",
+  "client_id",
+  "client_name",
+  "secret_key",
+  "encryption_key",
+  "iv",
+  "column_break_45",
+  "bank_reference_no",
+  "bank_name",
+  "hmac_key",
+  "decryption_key",
+  "ckyc_config_section",
+  "ckyc_search_api",
+  "column_break_56",
+  "ckyc_download_api",
+  "ltv_section",
+  "shares_ltv",
+  "column_break_48",
+  "mf_equity_ltv",
+  "column_break_50",
+  "mf_debt_ltv",
+  "dlt_section_break_33",
+  "app_login_dashboard",
+  "my_securities",
   "app_identification_hash_string",
   "column_break_35",
+  "my_loans",
+  "contact_us",
   "terms_of_use_privacy_policy_section_break",
   "terms_of_use_document",
   "tnc_column_break",
@@ -57,8 +90,14 @@
   "og_code_enabled",
   "razorpay_section_section",
   "razorpay_key_secret",
+  "settlement_recon_api",
   "column_break_49",
-  "razorpay_webhook_secret"
+  "razorpay_webhook_secret",
+  "penny_drop_section",
+  "penny_drop_api",
+  "pennydrop_days_passed",
+  "column_break_91",
+  "penny_secret_key"
  ],
  "fields": [
   {
@@ -185,11 +224,6 @@
    "label": "App Identification Hash String"
   },
   {
-   "fieldname": "section_break_33",
-   "fieldtype": "Section Break",
-   "permlevel": 1
-  },
-  {
    "fieldname": "terms_of_use_privacy_policy_section_break",
    "fieldtype": "Section Break",
    "label": "Terms Of Use and Privacy Policy Documents",
@@ -299,10 +333,10 @@
    "label": "OG Code Enabled"
   },
   {
-  "fieldname": "news_and_blog_template",
-  "fieldtype": "Attach",
-  "label": "News and Blog Template"
-   },
+   "fieldname": "news_and_blog_template",
+   "fieldtype": "Attach",
+   "label": "News and Blog Template"
+  },
   {
    "collapsible": 1,
    "fieldname": "market_hours_section",
@@ -325,7 +359,7 @@
    "fieldname": "market_end_time",
    "fieldtype": "Int",
    "label": "Market End Time (in hour)"
-    },
+  },
   {
    "fieldname": "razorpay_webhook_secret",
    "fieldtype": "Data",
@@ -334,7 +368,6 @@
   {
    "fieldname": "razorpay_section_section",
    "fieldtype": "Section Break",
-   "hidden": 1,
    "label": "Razorpay Section"
   },
   {
@@ -345,11 +378,210 @@
   {
    "fieldname": "column_break_49",
    "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "mutual_fund_section",
+   "fieldtype": "Section Break",
+   "label": "Mutual Fund"
+  },
+  {
+   "fieldname": "lien_marking_api",
+   "fieldtype": "Data",
+   "label": "Lien Marking API"
+  },
+  {
+   "fieldname": "column_break_39",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lien_initiate_api",
+   "fieldtype": "Data",
+   "label": "Lien Initiate API"
+  },
+  {
+   "fieldname": "investica_api",
+   "fieldtype": "Data",
+   "label": "Investica API"
+  },
+  {
+   "fieldname": "client_id",
+   "fieldtype": "Data",
+   "label": "Client Id"
+  },
+  {
+   "fieldname": "client_name",
+   "fieldtype": "Data",
+   "label": "Client Name"
+  },
+  {
+   "fieldname": "ltv_section",
+   "fieldtype": "Section Break",
+   "hidden": 1,
+   "label": "LTV"
+  },
+  {
+   "fieldname": "shares_ltv",
+   "fieldtype": "Float",
+   "label": "Shares LTV"
+  },
+  {
+   "fieldname": "column_break_48",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mf_equity_ltv",
+   "fieldtype": "Float",
+   "label": "MF Equity LTV"
+  },
+  {
+   "fieldname": "mf_debt_ltv",
+   "fieldtype": "Float",
+   "label": "MF Debt LTV"
+  },
+  {
+   "fieldname": "column_break_50",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "invoke_api",
+   "fieldtype": "Data",
+   "label": "Invoke API"
+  },
+  {
+   "fieldname": "revoke_api",
+   "fieldtype": "Data",
+   "label": "Revoke API"
+  },
+  {
+   "fieldname": "bank_reference_no",
+   "fieldtype": "Data",
+   "label": "Bank Reference No"
+  },
+  {
+   "fieldname": "bank_name",
+   "fieldtype": "Data",
+   "label": "Bank Name"
+  },
+  {
+   "fieldname": "column_break_45",
+   "fieldtype": "Column Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "cams_config_section",
+   "fieldtype": "Section Break",
+   "label": "CAMS Config"
+  },
+  {
+   "fieldname": "secret_key",
+   "fieldtype": "Data",
+   "label": "Secret Key"
+  },
+  {
+   "fieldname": "encryption_key",
+   "fieldtype": "Data",
+   "label": "Encryption Key"
+  },
+  {
+   "fieldname": "hmac_key",
+   "fieldtype": "Data",
+   "label": "HMAC Key"
+  },
+  {
+   "fieldname": "decryption_key",
+   "fieldtype": "Data",
+   "label": "Decryption Key"
+  },
+  {
+   "fieldname": "iv",
+   "fieldtype": "Data",
+   "label": "IV"
+  },
+  {
+   "fieldname": "lien_allowed_scheme_update_api",
+   "fieldtype": "Data",
+   "label": "Lien Allowed Scheme Update API"
+  },
+  {
+   "fieldname": "settlement_recon_api",
+   "fieldtype": "Data",
+   "label": "Settlement recon API"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "ckyc_config_section",
+   "fieldtype": "Section Break",
+   "label": "CKYC Config"
+  },
+  {
+   "fieldname": "ckyc_search_api",
+   "fieldtype": "Data",
+   "label": "CKYC Search API"
+  },
+  {
+   "fieldname": "column_break_56",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ckyc_download_api",
+   "fieldtype": "Data",
+   "label": "CKYC Download API"
+  },
+  {
+   "fieldname": "dlt_section_break_33",
+   "fieldtype": "Section Break",
+   "label": "SMS Dynamic Links",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "app_login_dashboard",
+   "fieldtype": "Data",
+   "label": "App Login / Dashboard"
+  },
+  {
+   "fieldname": "my_securities",
+   "fieldtype": "Data",
+   "label": "My Securities"
+  },
+  {
+   "fieldname": "my_loans",
+   "fieldtype": "Data",
+   "label": "My Loans"
+  },
+  {
+   "fieldname": "contact_us",
+   "fieldtype": "Data",
+   "label": "Contact Us"
+  },
+  {
+   "fieldname": "penny_drop_section",
+   "fieldtype": "Section Break",
+   "label": "Penny Drop"
+  },
+  {
+   "fieldname": "penny_drop_api",
+   "fieldtype": "Data",
+   "label": "Penny Drop API"
+  },
+  {
+   "fieldname": "column_break_91",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "penny_secret_key",
+   "fieldtype": "Data",
+   "label": "Penny Secret Key"
+  },
+  {
+   "fieldname": "pennydrop_days_passed",
+   "fieldtype": "Int",
+   "label": "Pennydrop Days Passed"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2021-12-17 16:53:43.586081",
+ "modified": "2022-11-28 16:25:33.122499",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",

@@ -37,9 +37,11 @@ class TopupApplication(Document):
         self.map_loan_agreement_file(loan)
         # self.notify_customer()
 
+        date = frappe.utils.now_datetime().date()
+        lms.client_sanction_details(loan, date)
+
     def apply_loan_charges(self, loan):
         lender = loan.get_lender()
-
         # renewal charges
         import calendar
 
@@ -63,11 +65,40 @@ class TopupApplication(Document):
             renewal_charges = loan.validate_loan_charges_amount(
                 lender, amount, "renewal_minimum_amount", "renewal_maximum_amount"
             )
-
         if renewal_charges > 0:
-            loan.create_loan_transaction(
-                "Renewal Charges", renewal_charges, approve=True
+            renewal_charges_reference = loan.create_loan_transaction(
+                "Account Renewal Charges", renewal_charges, approve=True
             )
+            # if lender.cgst_on_account_renewal_charges > 0:
+            #     cgst = renewal_charges * (lender.cgst_on_account_renewal_charges / 100)
+            #     gst_percent = (lender.cgst_on_account_renewal_charges,)
+            #     loan.create_loan_transaction(
+            #         "CGST on Account renewal charges",
+            #         cgst,
+            #         gst_percent,
+            #         charge_reference=renewal_charges_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.sgst_on_account_renewal_charges > 0:
+            #     sgst = renewal_charges * (lender.sgst_on_account_renewal_charges / 100)
+            #     gst_percent = (lender.sgst_on_account_renewal_charges,)
+            #     loan.create_loan_transaction(
+            #         "SGST on Account renewal charges",
+            #         sgst,
+            #         gst_percent,
+            #         charge_reference=renewal_charges_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.igst_on_account_renewal_charges > 0:
+            #     igst = renewal_charges * (lender.igst_on_account_renewal_charges / 100)
+            #     gst_percent = lender.igst_on_account_renewal_charges
+            #     loan.create_loan_transaction(
+            #         "IGST on Account renewal charges",
+            #         igst,
+            #         gst_percent,
+            #         charge_reference=renewal_charges_reference.name,
+            #         approve=True,
+            #     )
 
         # Processing fees
         processing_fees = lender.lender_processing_fees
@@ -87,11 +118,41 @@ class TopupApplication(Document):
             )
 
         if processing_fees > 0:
-            loan.create_loan_transaction(
+            processing_fees_reference = loan.create_loan_transaction(
                 "Processing Fees",
                 processing_fees,
                 approve=True,
             )
+            # if lender.cgst_on_processing_fees > 0:
+            #     cgst = processing_fees * (lender.cgst_on_processing_fees / 100)
+            #     gst_percent = lender.cgst_on_processing_fees
+            #     loan.create_loan_transaction(
+            #         "CGST on Processing Fees",
+            #         cgst,
+            #         gst_percent,
+            #         charge_reference=processing_fees_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.sgst_on_processing_fees > 0:
+            #     sgst = processing_fees * (lender.sgst_on_processing_fees / 100)
+            #     gst_percent = lender.sgst_on_processing_fees
+            #     loan.create_loan_transaction(
+            #         "SGST on Processing Fees",
+            #         sgst,
+            #         gst_percent,
+            #         charge_reference=processing_fees_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.igst_on_processing_fees > 0:
+            #     igst = processing_fees * (lender.igst_on_processing_fees / 100)
+            #     gst_percent = lender.igst_on_processing_fees
+            #     loan.create_loan_transaction(
+            #         "IGST on Processing Fees",
+            #         igst,
+            #         gst_percent,
+            #         charge_reference=processing_fees_reference.name,
+            #         approve=True,
+            #     )
 
         # Stamp Duty
         stamp_duty = lender.stamp_duty
@@ -105,11 +166,42 @@ class TopupApplication(Document):
             )
 
         if stamp_duty > 0:
-            loan.create_loan_transaction(
+            stamp_duty_reference = loan.create_loan_transaction(
                 "Stamp Duty",
                 stamp_duty,
                 approve=True,
             )
+            # StampDuty changes for GST
+            # if lender.cgst_on_stamp_duty > 0:
+            #     cgst = stamp_duty * (lender.cgst_on_stamp_duty / 100)
+            #     gst_percent = lender.cgst_on_stamp_duty
+            #     loan.create_loan_transaction(
+            #         "CGST on Stamp Duty",
+            #         cgst,
+            #         gst_percent,
+            #         charge_reference=stamp_duty_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.sgst_on_stamp_duty > 0:
+            #     sgst = stamp_duty * (lender.sgst_on_stamp_duty / 100)
+            #     gst_percent = lender.sgst_on_stamp_duty
+            #     loan.create_loan_transaction(
+            #         "SGST on Stamp Duty",
+            #         sgst,
+            #         gst_percent,
+            #         charge_reference=stamp_duty_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.igst_on_stamp_duty > 0:
+            #     igst = stamp_duty * (lender.igst_on_stamp_duty / 100)
+            #     gst_percent = lender.igst_on_stamp_duty
+            #     loan.create_loan_transaction(
+            #         "IGST on Stamp Duty",
+            #         igst,
+            #         gst_percent,
+            #         charge_reference=stamp_duty_reference.name,
+            #         approve=True,
+            #     )
 
         # Documentation Charges
         documentation_charges = lender.documentation_charges
@@ -123,11 +215,48 @@ class TopupApplication(Document):
             )
 
         if documentation_charges > 0:
-            loan.create_loan_transaction(
+            documentation_charges_reference = loan.create_loan_transaction(
                 "Documentation Charges",
                 documentation_charges,
                 approve=True,
             )
+            # Charges on GST
+            # if lender.cgst_on_documentation_charges > 0:
+            #     cgst = documentation_charges * (
+            #         lender.cgst_on_documentation_charges / 100
+            #     )
+            #     gst_percent = lender.cgst_on_documentation_charges
+            #     loan.create_loan_transaction(
+            #         "CGST on Documentation Charges",
+            #         cgst,
+            #         gst_percent,
+            #         charge_reference=documentation_charges_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.sgst_on_documentation_charges > 0:
+            #     sgst = documentation_charges * (
+            #         lender.sgst_on_documentation_charges / 100
+            #     )
+            #     gst_percent = lender.sgst_on_documentation_charges
+            #     loan.create_loan_transaction(
+            #         "SGST on Documentation Charges",
+            #         sgst,
+            #         gst_percent,
+            #         charge_reference=documentation_charges_reference.name,
+            #         approve=True,
+            #     )
+            # if lender.igst_on_documentation_charges > 0:
+            #     igst = documentation_charges * (
+            #         lender.igst_on_documentation_charges / 100
+            #     )
+            #     gst_percent = lender.igst_on_documentation_charges
+            #     loan.create_loan_transaction(
+            #         "IGST on Documentation Charges",
+            #         igst,
+            #         gst_percent,
+            #         charge_reference=documentation_charges_reference.name,
+            #         approve=True,
+            #     )
 
     def on_update(self):
         if self.status == "Esign Done" and self.lender_esigned_document != None:
@@ -144,7 +273,7 @@ class TopupApplication(Document):
             frappe.throw(
                 "Can not Approve this Top up Application as Sanctioned limit will cross Maximum Sanctioned limit Cap"
             )
-        if updated_top_up_amt < (loan.sanctioned_limit * 0.1):
+        if not updated_top_up_amt or updated_top_up_amt < self.top_up_amount:
             frappe.throw("Top up not available")
         if self.top_up_amount <= 0:
             frappe.throw("Top up can not be approved with Amount Rs. 0")
@@ -221,11 +350,44 @@ class TopupApplication(Document):
         lender = self.get_lender()
         loan = self.get_loan()
 
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+            address = (
+                (
+                    (str(address_details.perm_line1) + ", ")
+                    if address_details.perm_line1
+                    else ""
+                )
+                + (
+                    (str(address_details.perm_line2) + ", ")
+                    if address_details.perm_line2
+                    else ""
+                )
+                + (
+                    (str(address_details.perm_line3) + ", ")
+                    if address_details.perm_line3
+                    else ""
+                )
+                + str(address_details.perm_city)
+                + ", "
+                + str(address_details.perm_dist)
+                + ", "
+                + str(address_details.perm_state)
+                + ", "
+                + str(address_details.perm_country)
+                + ", "
+                + str(address_details.perm_pin)
+            )
+        else:
+            address = ""
+
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_application_number": self.name,
-            "borrower_name": user_kyc.investor_name,
-            "borrower_address": user_kyc.address,
+            "borrower_name": user_kyc.fullname,
+            "borrower_address": address,
             # "sanctioned_amount": self.top_up_amount,
             # "sanctioned_amount_in_words": num2words(
             #     self.top_up_amount, lang="en_IN"
@@ -295,6 +457,40 @@ class TopupApplication(Document):
             "security_selling_share": lender.security_selling_share,
             "cic_charges": lms.validate_rupees(lender.cic_charges),
             "total_pages": lender.total_pages,
+            "lien_initiate_charge_type": lender.lien_initiate_charge_type,
+            "invoke_initiate_charge_type": lender.invoke_initiate_charge_type,
+            "revoke_initiate_charge_type": lender.revoke_initiate_charge_type,
+            "lien_initiate_charge_minimum_amount": lms.validate_rupees(
+                lender.lien_initiate_charge_minimum_amount
+            ),
+            "lien_initiate_charge_maximum_amount": lms.validate_rupees(
+                lender.lien_initiate_charge_maximum_amount
+            ),
+            "lien_initiate_charges": lms.validate_rupees(lender.lien_initiate_charges)
+            if lender.lien_initiate_charge_type == "Fix"
+            else lms.validate_percent(lender.lien_initiate_charges),
+            "invoke_initiate_charges_minimum_amount": lms.validate_rupees(
+                lender.invoke_initiate_charges_minimum_amount
+            ),
+            "invoke_initiate_charges_maximum_amount": lms.validate_rupees(
+                lender.invoke_initiate_charges_maximum_amount
+            ),
+            "invoke_initiate_charges": lms.validate_rupees(
+                lender.invoke_initiate_charges
+            )
+            if lender.invoke_initiate_charge_type == "Fix"
+            else lms.validate_percent(lender.invoke_initiate_charges),
+            "revoke_initiate_charges_minimum_amount": lms.validate_rupees(
+                lender.revoke_initiate_charges_minimum_amount
+            ),
+            "revoke_initiate_charges_maximum_amount": lms.validate_rupees(
+                lender.revoke_initiate_charges_maximum_amount
+            ),
+            "revoke_initiate_charges": lms.validate_rupees(
+                lender.revoke_initiate_charges
+            )
+            if lender.revoke_initiate_charge_type == "Fix"
+            else lms.validate_percent(lender.revoke_initiate_charges),
         }
 
         agreement_template = lender.get_loan_enhancement_agreement_template()
@@ -330,7 +526,6 @@ class TopupApplication(Document):
         }
 
     def notify_customer(self):
-
         doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
         doc["top_up_application"] = {
             "status": self.status,
@@ -371,9 +566,13 @@ class TopupApplication(Document):
             loan = self.loan
 
         if mess:
-            receiver_list = list(
-                set([str(self.get_customer().phone), str(doc.mobile_number)])
-            )
+            receiver_list = [str(self.get_customer().phone)]
+            if doc.mob_num:
+                receiver_list.append(str(doc.mob_num))
+            if doc.choice_mob_no:
+                receiver_list.append(str(doc.choice_mob_no))
+
+            receiver_list = list(set(receiver_list))
 
             frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
 
@@ -428,7 +627,11 @@ class TopupApplication(Document):
         loan.save_loan_sanction_history(loan_agreement_file.name, event)
 
     def before_save(self):
-        self.sanctioned_limit = self.get_loan().sanctioned_limit
+        loan = self.get_loan()
+        self.actual_drawing_power = loan.actual_drawing_power
+        self.instrument_type = loan.instrument_type
+        self.scheme_type = loan.scheme_type
+        self.sanctioned_limit = loan.sanctioned_limit
         lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit

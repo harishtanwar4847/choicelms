@@ -6,68 +6,120 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "user",
-  "column_break_3",
-  "kyc_type",
   "basic_details_section_break",
-  "investor_name",
-  "father_name",
+  "user",
   "pan_no",
+  "kyc_status",
+  "consent_given",
   "basic_details_column_break",
-  "mobile_number",
-  "mother_name",
+  "kyc_type",
   "date_of_birth",
   "email",
+  "choice_mob_no",
+  "notification_sent",
+  "personal_details_section",
+  "consti_type",
+  "acc_type",
+  "ckyc_no",
+  "prefix",
+  "fname",
+  "mname",
+  "lname",
+  "fullname",
+  "maiden_prefix",
+  "maiden_fname",
+  "maiden_mname",
+  "maiden_lname",
+  "maiden_fullname",
+  "fatherspouse_flag",
+  "father_prefix",
+  "father_fname",
+  "father_mname",
+  "father_lname",
+  "father_fullname",
+  "column_break_32",
+  "mother_prefix",
+  "mother_fname",
+  "mother_mname",
+  "mother_lname",
+  "mother_fullname",
+  "gender",
+  "gender_full",
+  "dob",
+  "pan",
+  "form_60",
+  "perm_line1",
+  "perm_line2",
+  "perm_line3",
+  "perm_city",
+  "perm_dist",
+  "perm_state",
+  "perm_country",
+  "perm_state_name",
+  "perm_country_name",
+  "perm_pin",
+  "perm_poa",
+  "column_break_50",
+  "perm_corres_sameflag",
+  "corres_line1",
+  "corres_line2",
+  "corres_line3",
+  "corres_city",
+  "corres_dist",
+  "corres_state",
+  "corres_country",
+  "corres_state_name",
+  "corres_country_name",
+  "corres_pin",
+  "corres_poa",
+  "resi_std_code",
+  "resi_tel_num",
+  "off_std_code",
+  "off_tel_num",
+  "mob_code",
+  "mob_num",
+  "email_id",
+  "remarks",
+  "column_break_70",
+  "dec_date",
+  "dec_place",
+  "kyc_date",
+  "doc_sub",
+  "kyc_name",
+  "kyc_designation",
+  "kyc_branch",
+  "kyc_empcode",
+  "org_name",
+  "org_code",
+  "num_identity",
+  "num_related",
+  "num_images",
+  "section_breaks",
+  "identity_details",
+  "related_person_details",
+  "image_details",
   "address_section_break",
-  "address",
-  "city",
+  "address_details",
+  "is_edited",
   "bank_account_section_break",
   "bank_account"
  ],
  "fields": [
   {
-   "fieldname": "investor_name",
-   "fieldtype": "Data",
-   "label": "Investor Name"
-  },
-  {
-   "fieldname": "father_name",
-   "fieldtype": "Data",
-   "label": "Father Name"
-  },
-  {
-   "fieldname": "mother_name",
-   "fieldtype": "Data",
-   "label": "Mother Name"
-  },
-  {
-   "fieldname": "address",
-   "fieldtype": "Long Text",
-   "label": "Address"
-  },
-  {
-   "fieldname": "city",
-   "fieldtype": "Data",
-   "label": "City"
-  },
-  {
-   "fieldname": "mobile_number",
-   "fieldtype": "Data",
-   "label": "Mobile Number"
-  },
-  {
    "fieldname": "pan_no",
    "fieldtype": "Data",
-   "label": "PAN No"
+   "label": "PAN No",
+   "length": 10
   },
   {
    "fieldname": "kyc_type",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "KYC Type",
-   "options": "CHOICE\nKRA",
-   "reqd": 1,
-   "set_only_once": 1
+   "length": 10,
+   "options": "CHOICE\nCKYC",
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "basic_details_section_break",
@@ -80,13 +132,9 @@
   },
   {
    "collapsible": 1,
+   "depends_on": "eval:doc.consent_given == 1;",
    "fieldname": "address_section_break",
-   "fieldtype": "Section Break",
-   "label": "Address"
-  },
-  {
-   "fieldname": "column_break_3",
-   "fieldtype": "Column Break"
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "user",
@@ -107,21 +155,546 @@
    "fieldtype": "Section Break"
   },
   {
+   "depends_on": "eval:doc.consent_given == 1;",
    "fieldname": "bank_account",
    "fieldtype": "Table",
    "label": "Bank Account",
-   "options": "User Bank Account",
-   "reqd": 1
+   "options": "User Bank Account"
   },
   {
    "fieldname": "email",
    "fieldtype": "Data",
    "label": "Email",
    "options": "Email"
+  },
+  {
+   "fieldname": "consti_type",
+   "fieldtype": "Data",
+   "label": "Constitution Type",
+   "length": 2
+  },
+  {
+   "fieldname": "acc_type",
+   "fieldtype": "Data",
+   "label": "Account Holder Type",
+   "length": 2
+  },
+  {
+   "fieldname": "ckyc_no",
+   "fieldtype": "Data",
+   "label": "CKYC No",
+   "length": 14
+  },
+  {
+   "fieldname": "prefix",
+   "fieldtype": "Data",
+   "label": "Applicant Name Prefix",
+   "length": 5
+  },
+  {
+   "fieldname": "fname",
+   "fieldtype": "Data",
+   "label": "Applicant Name First Name",
+   "length": 50
+  },
+  {
+   "fieldname": "mname",
+   "fieldtype": "Data",
+   "label": "Applicant Name Middle Name",
+   "length": 50
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.consent_given == 1;",
+   "fieldname": "personal_details_section",
+   "fieldtype": "Section Break",
+   "label": "Personal Details"
+  },
+  {
+   "fieldname": "lname",
+   "fieldtype": "Data",
+   "label": "Applicant Name Last Name",
+   "length": 50
+  },
+  {
+   "fieldname": "fullname",
+   "fieldtype": "Data",
+   "label": "Applicant Name Full Name",
+   "length": 158
+  },
+  {
+   "fieldname": "maiden_prefix",
+   "fieldtype": "Data",
+   "label": "Applicant Maiden Name Prefix",
+   "length": 5
+  },
+  {
+   "fieldname": "maiden_fname",
+   "fieldtype": "Data",
+   "label": "Applicant Maiden First Name",
+   "length": 50
+  },
+  {
+   "fieldname": "maiden_mname",
+   "fieldtype": "Data",
+   "label": "Applicant Maiden Middle Name",
+   "length": 50
+  },
+  {
+   "fieldname": "maiden_lname",
+   "fieldtype": "Data",
+   "label": "Applicant Maiden Last Name",
+   "length": 50
+  },
+  {
+   "fieldname": "maiden_fullname",
+   "fieldtype": "Data",
+   "label": "Applicant Maiden Full Name",
+   "length": 158
+  },
+  {
+   "fieldname": "fatherspouse_flag",
+   "fieldtype": "Data",
+   "label": "Flag indicating Father or Spouse Name",
+   "length": 2
+  },
+  {
+   "fieldname": "father_prefix",
+   "fieldtype": "Data",
+   "label": "Applicant Father/Spouse Name Prefix",
+   "length": 5
+  },
+  {
+   "fieldname": "father_fname",
+   "fieldtype": "Data",
+   "label": "Applicant Father/Spouse First Name",
+   "length": 50
+  },
+  {
+   "fieldname": "father_mname",
+   "fieldtype": "Data",
+   "label": "Applicant Father/Spouse Middle Name",
+   "length": 50
+  },
+  {
+   "fieldname": "father_lname",
+   "fieldtype": "Data",
+   "label": "Applicant Father/Spouse Last Name",
+   "length": 50
+  },
+  {
+   "fieldname": "father_fullname",
+   "fieldtype": "Data",
+   "label": "Applicant Father/Spouse Full Name",
+   "length": 158
+  },
+  {
+   "fieldname": "mother_prefix",
+   "fieldtype": "Data",
+   "label": "Mother's Prefix",
+   "length": 5
+  },
+  {
+   "fieldname": "mother_fname",
+   "fieldtype": "Data",
+   "label": "Mother's First Name",
+   "length": 50
+  },
+  {
+   "fieldname": "mother_mname",
+   "fieldtype": "Data",
+   "label": "Mother's Middle Name",
+   "length": 50
+  },
+  {
+   "fieldname": "mother_lname",
+   "fieldtype": "Data",
+   "label": "Mother's Last Name",
+   "length": 50
+  },
+  {
+   "fieldname": "mother_fullname",
+   "fieldtype": "Data",
+   "label": "Mother's Full Name",
+   "length": 158
+  },
+  {
+   "fieldname": "gender",
+   "fieldtype": "Data",
+   "label": "Gender",
+   "length": 1
+  },
+  {
+   "fieldname": "dob",
+   "fieldtype": "Data",
+   "label": "Date of Birth/Date of Incorporation",
+   "length": 10
+  },
+  {
+   "fieldname": "pan",
+   "fieldtype": "Data",
+   "label": "PAN",
+   "length": 10
+  },
+  {
+   "fieldname": "perm_line1",
+   "fieldtype": "Data",
+   "label": "Current/Permanent/  Overseas Address Line 1 ",
+   "length": 55
+  },
+  {
+   "fieldname": "perm_line2",
+   "fieldtype": "Data",
+   "label": "Current/Permanent/  Overseas Address Line 2",
+   "length": 55
+  },
+  {
+   "fieldname": "perm_line3",
+   "fieldtype": "Data",
+   "label": "Current/Permanent/  Overseas Address Line 3",
+   "length": 55
+  },
+  {
+   "fieldname": "perm_city",
+   "fieldtype": "Data",
+   "label": "Current/Permanent/  Overseas Address City/Town/Village",
+   "length": 50
+  },
+  {
+   "fieldname": "perm_state",
+   "fieldtype": "Data",
+   "label": "Current/Permanent/  Overseas Address State",
+   "length": 2
+  },
+  {
+   "fieldname": "perm_country",
+   "fieldtype": "Data",
+   "label": "Current/Permanent/  Overseas Address Country",
+   "length": 2
+  },
+  {
+   "fieldname": "perm_pin",
+   "fieldtype": "Data",
+   "label": "Current/Permanent/  Overseas Address Pincode",
+   "length": 10
+  },
+  {
+   "fieldname": "perm_poa",
+   "fieldtype": "Data",
+   "label": "Proof of Address submitted for Current/Permanent/Overseas Address",
+   "length": 3
+  },
+  {
+   "fieldname": "perm_corres_sameflag",
+   "fieldtype": "Data",
+   "label": "Flag indicating if Current/Permanent/Overseas Address is same as correspondence/local Address",
+   "length": 1
+  },
+  {
+   "fieldname": "corres_line1",
+   "fieldtype": "Data",
+   "label": "Correspondence/Local Address Line 1",
+   "length": 55
+  },
+  {
+   "fieldname": "corres_line2",
+   "fieldtype": "Data",
+   "label": "Correspondence/Local Address Line 2",
+   "length": 55
+  },
+  {
+   "fieldname": "corres_line3",
+   "fieldtype": "Data",
+   "label": "Correspondence/Local Address Line 3",
+   "length": 55
+  },
+  {
+   "fieldname": "corres_city",
+   "fieldtype": "Data",
+   "label": "Correspondence/Local Address City",
+   "length": 50
+  },
+  {
+   "fieldname": "corres_state",
+   "fieldtype": "Data",
+   "label": "Correspondence/Local Address State",
+   "length": 2
+  },
+  {
+   "fieldname": "corres_country",
+   "fieldtype": "Data",
+   "label": "Correspondence/Local Address Country",
+   "length": 2
+  },
+  {
+   "fieldname": "corres_pin",
+   "fieldtype": "Data",
+   "label": "Correspondence/Local Address Pincode",
+   "length": 10
+  },
+  {
+   "fieldname": "corres_poa",
+   "fieldtype": "Data",
+   "label": "Proof of Address submitted for Current Address",
+   "length": 3
+  },
+  {
+   "fieldname": "perm_dist",
+   "fieldtype": "Data",
+   "label": "Current/Permanent/  Overseas Address District",
+   "length": 50
+  },
+  {
+   "fieldname": "corres_dist",
+   "fieldtype": "Data",
+   "label": "Correspondence/Local Address District",
+   "length": 50
+  },
+  {
+   "fieldname": "resi_std_code",
+   "fieldtype": "Data",
+   "label": "Residence Telephone No. (STD Code)",
+   "length": 4
+  },
+  {
+   "fieldname": "resi_tel_num",
+   "fieldtype": "Data",
+   "label": "Residence Telephone No.",
+   "length": 10
+  },
+  {
+   "fieldname": "off_std_code",
+   "fieldtype": "Data",
+   "label": "Office Telephone No. (STD Code)",
+   "length": 4
+  },
+  {
+   "fieldname": "off_tel_num",
+   "fieldtype": "Data",
+   "label": "Office Telephone No.",
+   "length": 10
+  },
+  {
+   "fieldname": "mob_code",
+   "fieldtype": "Data",
+   "label": "Mobile No.(ISD Code)",
+   "length": 3
+  },
+  {
+   "fieldname": "mob_num",
+   "fieldtype": "Data",
+   "label": "Mobile No.",
+   "length": 20
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks, if any"
+  },
+  {
+   "fieldname": "dec_date",
+   "fieldtype": "Data",
+   "label": "Date of Declaration",
+   "length": 10
+  },
+  {
+   "fieldname": "dec_place",
+   "fieldtype": "Data",
+   "label": "Place of Declaration",
+   "length": 50
+  },
+  {
+   "fieldname": "kyc_date",
+   "fieldtype": "Data",
+   "label": "KYC Verification Date",
+   "length": 10
+  },
+  {
+   "fieldname": "doc_sub",
+   "fieldtype": "Data",
+   "label": "Type of Document Submitted",
+   "length": 2
+  },
+  {
+   "fieldname": "kyc_name",
+   "fieldtype": "Data",
+   "label": "KYC Verification Name",
+   "length": 150
+  },
+  {
+   "fieldname": "kyc_designation",
+   "fieldtype": "Data",
+   "label": "KYC Verification Designation",
+   "length": 50
+  },
+  {
+   "fieldname": "kyc_branch",
+   "fieldtype": "Data",
+   "label": "KYC Verification Branch",
+   "length": 50
+  },
+  {
+   "fieldname": "kyc_empcode",
+   "fieldtype": "Data",
+   "label": "KYC Verification EMP Code",
+   "length": 50
+  },
+  {
+   "fieldname": "org_name",
+   "fieldtype": "Data",
+   "label": "Organisation Name",
+   "length": 150
+  },
+  {
+   "fieldname": "org_code",
+   "fieldtype": "Data",
+   "label": "Organisation Code",
+   "length": 20
+  },
+  {
+   "fieldname": "num_identity",
+   "fieldtype": "Data",
+   "label": "Number of  Identity Details",
+   "length": 2
+  },
+  {
+   "fieldname": "num_related",
+   "fieldtype": "Data",
+   "label": "Number of Related Persons",
+   "length": 2
+  },
+  {
+   "fieldname": "num_images",
+   "fieldtype": "Data",
+   "label": "Number of Images",
+   "length": 2
+  },
+  {
+   "fieldname": "related_person_details",
+   "fieldtype": "Table",
+   "label": "Related Person Details",
+   "options": "Related Person Details"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.consent_given == true;",
+   "fieldname": "consent_given",
+   "fieldtype": "Check",
+   "label": "Consent Given",
+   "read_only": 1
+  },
+  {
+   "fieldname": "identity_details",
+   "fieldtype": "Table",
+   "label": "Identity Details",
+   "options": "CKYC Identity Details"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_edited",
+   "fieldtype": "Check",
+   "label": "Is_edited",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_32",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_50",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_70",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "image_details",
+   "fieldtype": "Table",
+   "label": "Image Details",
+   "options": "CKYC Image Details"
+  },
+  {
+   "fieldname": "form_60",
+   "fieldtype": "Data",
+   "label": "Form 60  Submitted"
+  },
+  {
+   "fieldname": "email_id",
+   "fieldtype": "Data",
+   "label": "Email Id",
+   "length": 100
+  },
+  {
+   "depends_on": "eval:doc.consent_given == 1;",
+   "fieldname": "section_breaks",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "Pending",
+   "depends_on": "eval:doc.consent_given == 1;",
+   "fieldname": "kyc_status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "length": 10,
+   "options": "Pending\nApproved\nRejected",
+   "read_only": 1,
+   "read_only_depends_on": "eval:doc.kyc_status != \"Pending\";"
+  },
+  {
+   "fieldname": "perm_state_name",
+   "fieldtype": "Data",
+   "label": "Permanent State Name",
+   "length": 100
+  },
+  {
+   "fieldname": "perm_country_name",
+   "fieldtype": "Data",
+   "label": "Permanent Country Name",
+   "length": 100
+  },
+  {
+   "fieldname": "corres_state_name",
+   "fieldtype": "Data",
+   "label": "Correspondence State Name",
+   "length": 100
+  },
+  {
+   "fieldname": "corres_country_name",
+   "fieldtype": "Data",
+   "label": "Correspondence Country Name",
+   "length": 100
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.consent_given == 1;",
+   "fieldname": "notification_sent",
+   "fieldtype": "Check",
+   "label": "Notification Sent",
+   "read_only": 1
+  },
+  {
+   "fieldname": "gender_full",
+   "fieldtype": "Data",
+   "label": "Gender Full",
+   "length": 20
+  },
+  {
+   "depends_on": "eval:doc.consent_given == 1;",
+   "fieldname": "choice_mob_no",
+   "fieldtype": "Data",
+   "label": "Choice Mobile No.",
+   "length": 10
+  },
+  {
+   "fieldname": "address_details",
+   "fieldtype": "Link",
+   "label": "Address",
+   "options": "Customer Address Details"
   }
  ],
  "links": [],
- "modified": "2022-08-19 16:54:58.836062",
+ "modified": "2022-11-21 15:08:21.140775",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",

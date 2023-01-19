@@ -7,13 +7,21 @@
  "field_order": [
   "loan",
   "total_collateral_value",
+  "actual_drawing_power",
   "lender",
   "pending_sell_request_id",
+  "instrument_type",
+  "revoctoken",
+  "validate_message",
+  "is_validated",
   "column_break_1",
   "customer",
   "customer_name",
   "unpledge_collateral_value",
   "max_unpledge_amount",
+  "scheme_type",
+  "initiate_message",
+  "is_initiated",
   "section_braek_1",
   "items",
   "unpledge_items",
@@ -61,8 +69,8 @@
   {
    "fieldname": "status",
    "fieldtype": "Select",
-   "in_list_view": 1,
    "hidden": 1,
+   "in_list_view": 1,
    "label": "Status",
    "options": "Pending\nApproved\nRejected"
   },
@@ -98,6 +106,7 @@
    "label": "Customer Name"
   },
   {
+   "depends_on": "eval:doc.instrument_type == \"Shares\";",
    "fieldname": "max_unpledge_amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -109,11 +118,70 @@
    "in_list_view": 1,
    "label": "Pending Sell Request Id",
    "options": "Sell Collateral Application"
+  },
+  {
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
+   "fieldname": "is_validated",
+   "fieldtype": "Check",
+   "label": "Is Validated",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "\nEquity\nDebt",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
+   "fieldname": "is_initiated",
+   "fieldtype": "Check",
+   "label": "Is Initiated",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
+   "fieldname": "validate_message",
+   "fieldtype": "Small Text",
+   "label": "Validate Message",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
+   "fieldname": "initiate_message",
+   "fieldtype": "Small Text",
+   "label": "Initiate Message",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
+   "fieldname": "revoctoken",
+   "fieldtype": "Data",
+   "label": "Revoctoken",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type != \"Shares\";",
+   "fieldname": "actual_drawing_power",
+   "fieldtype": "Currency",
+   "label": "Actual Drawing Power",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-11-29 15:04:05.417282",
+ "modified": "2022-05-23 17:15:30.509560",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Unpledge Application",

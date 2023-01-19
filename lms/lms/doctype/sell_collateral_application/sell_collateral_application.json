@@ -7,16 +7,25 @@
  "field_order": [
   "loan",
   "total_collateral_value",
+  "actual_drawing_power",
   "lender",
   "initial_shortfall_amount",
   "current_shortfall_amount",
   "pending_unpledge_request_id",
+  "instrument_type",
+  "invoctoken",
+  "validate_message",
+  "is_validated",
   "column_break_2",
   "customer",
   "customer_name",
   "selling_collateral_value",
   "loan_margin_shortfall",
   "lender_selling_amount",
+  "scheme_type",
+  "initiate_message",
+  "invoke_initiate_request_timestamp",
+  "is_initiated",
   "section_break_4",
   "items",
   "sell_items",
@@ -131,11 +140,78 @@
    "in_list_view": 1,
    "label": "Pending Unpledge Request Id",
    "options": "Unpledge Application"
+  },
+  {
+   "default": "Shares",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "\nEquity\nDebt",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
+   "fieldname": "is_initiated",
+   "fieldtype": "Check",
+   "label": "Is Initiated",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
+   "fieldname": "is_validated",
+   "fieldtype": "Check",
+   "label": "Is Validated",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
+   "fieldname": "initiate_message",
+   "fieldtype": "Small Text",
+   "label": "Initiate Message",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
+   "fieldname": "validate_message",
+   "fieldtype": "Small Text",
+   "label": "Validate Message",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
+   "fieldname": "invoctoken",
+   "fieldtype": "Data",
+   "label": "Invoctoken",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type != \"Shares\";",
+   "fieldname": "actual_drawing_power",
+   "fieldtype": "Currency",
+   "label": "Actual Drawing Power",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type == \"Mutual Fund\";",
+   "fieldname": "invoke_initiate_request_timestamp",
+   "fieldtype": "Datetime",
+   "label": "Invoke Initiate Request Timestamp",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-11-29 14:55:24.602169",
+ "modified": "2022-11-22 14:11:25.414351",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application",

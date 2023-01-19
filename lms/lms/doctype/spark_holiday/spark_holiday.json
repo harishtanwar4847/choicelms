@@ -14,12 +14,14 @@
  ],
  "fields": [
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "day",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "DAY"
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "date",
    "fieldtype": "Date",
    "in_filter": 1,
@@ -28,12 +30,14 @@
    "reqd": 1
   },
   {
+   "allow_in_quick_entry": 1,
    "fieldname": "holiday",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "HOLIDAY"
   },
   {
+   "allow_in_quick_entry": 1,
    "default": "0",
    "fieldname": "is_market_holiday",
    "fieldtype": "Check",
@@ -42,6 +46,7 @@
    "label": "Is Market Holiday"
   },
   {
+   "allow_in_quick_entry": 1,
    "default": "0",
    "fieldname": "is_bank_holiday",
    "fieldtype": "Check",
@@ -51,7 +56,7 @@
   }
  ],
  "links": [],
- "modified": "2021-10-13 17:39:12.648017",
+ "modified": "2022-06-02 11:52:44.610346",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Holiday",

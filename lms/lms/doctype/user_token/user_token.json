@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "creation": "2020-07-24 23:46:40.807366",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -6,10 +7,13 @@
  "field_order": [
   "entity",
   "token_type",
+  "app_version_platform",
   "used",
   "column_break_4",
   "token",
-  "expiry"
+  "expiry",
+  "customer_id",
+  "customer_name"
  ],
  "fields": [
   {
@@ -25,7 +29,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Token Type",
-   "options": "OTP\nEmail Verification Token\nFirebase Token\nPledge OTP\nWithdraw OTP\nUnpledge OTP\nSell Collateral OTP\nForgot Pin OTP",
+   "options": "OTP\nEmail Verification Token\nFirebase Token\nPledge OTP\nWithdraw OTP\nUnpledge OTP\nSell Collateral OTP\nForgot Pin OTP\nLien OTP\nInvoke OTP\nRevoke OTP",
    "read_only": 1,
    "reqd": 1
   },
@@ -53,9 +57,30 @@
    "fieldtype": "Check",
    "label": "Used",
    "read_only": 1
+  },
+  {
+   "fieldname": "app_version_platform",
+   "fieldtype": "Data",
+   "label": "App Version & Platform",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_id",
+   "fieldtype": "Link",
+   "label": "Customer Id",
+   "options": "Loan Customer",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "customer_id.full_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "read_only": 1
   }
  ],
- "modified": "2021-06-03 12:12:34.885414",
+ "links": [],
+ "modified": "2022-07-19 12:18:41.811957",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User Token",

@@ -18,19 +18,33 @@ from lms.lms.doctype.approved_terms_and_conditions.approved_terms_and_conditions
 from lms.lms.doctype.user_token.user_token import send_sms
 
 
-def validate_securities_for_cart(securities, lender):
+def validate_securities_for_cart(securities, lender, instrument_type="Shares"):
+    msg = "securities"
+    allowed = ""
+    if instrument_type == "Mutual Fund":
+        msg = "schemes"
+        allowed = "and allowed = 1"
+
     if not securities or (
-        type(securities) is not dict and "list" not in securities.keys()
+        type(securities) is not dict or "list" not in securities.keys()
     ):
         raise utils.exceptions.ValidationException(
-            {"securities": {"required": frappe._("Securities required.")}}
+            {
+                "securities": {
+                    "required": frappe._("{msg} required.".format(msg=msg.title()))
+                }
+            }
         )
 
     securities = securities["list"]
 
     if len(securities) == 0:
         raise utils.exceptions.ValidationException(
-            {"securities": {"required": frappe._("Securities required.")}}
+            {
+                "securities": {
+                    "required": frappe._("{msg} required.".format(msg=msg.title()))
+                }
+            }
         )
 
     # check if securities is a list of dict
@@ -38,7 +52,7 @@ def validate_securities_for_cart(securities, lender):
 
     if type(securities) is not list:
         securities_valid = False
-        message = frappe._("securities should be list of dictionaries")
+        message = frappe._("{msg} should be list of dictionaries".format(msg=msg))
 
     securities_list = [i["isin"] for i in securities]
 
@@ -49,8 +63,11 @@ def validate_securities_for_cart(securities, lender):
 
     if securities_valid:
         securities_list_from_db_ = frappe.db.sql(
-            "select isin from `tabAllowed Security` where lender = '{}' and isin in {}".format(
-                lender, lms.convert_list_to_tuple_string(securities_list)
+            "select isin from `tabAllowed Security` where lender = '{}' {allowed} and instrument_type = '{}' and isin in {}".format(
+                lender,
+                instrument_type,
+                lms.convert_list_to_tuple_string(securities_list),
+                allowed=allowed,
             )
         )
         securities_list_from_db = [i[0] for i in securities_list_from_db_]
@@ -64,7 +81,9 @@ def validate_securities_for_cart(securities, lender):
         for i in securities:
             if type(i) is not dict:
                 securities_valid = False
-                message = frappe._("items in securities need to be dictionaries")
+                message = frappe._(
+                    "items in {msg} need to be dictionaries".format(msg=msg)
+                )
                 break
 
             keys = i.keys()
@@ -99,7 +118,9 @@ def upsert(**kwargs):
                 "loan_name": "",
                 "loan_margin_shortfall_name": "",
                 "lender": "",
-                "pledgor_boid": "required",
+                "pledgor_boid": "",
+                "instrument_type": "",
+                "scheme_type": "",
             },
         )
 
@@ -109,19 +130,61 @@ def upsert(**kwargs):
             + data.get("loan_margin_shortfall_name")
             + data.get("lender")
             + data.get("pledgor_boid")
+            + data.get("instrument_type")
+            if data.get("instrument_type", None)
+            else "" + data.get("scheme_type")
+            if data.get("scheme_type", None)
+            else ""
         )
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
+
+        if not data.get("instrument_type"):
+            data["instrument_type"] = "Shares"
+
+        if not data.get("pledgor_boid") and data.get("instrument_type") == "Shares":
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Pledgor boid required."),
+            # )
+            raise lms.exceptions.FailureException(_("Pledgor boid required."))
+
+        if data.get("pledgor_boid") and data.get("instrument_type") == "Mutual Fund":
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Pledgor boid not required."),
+            # )
+            raise lms.exceptions.FailureException(_("Pledgor boid not required."))
+
+        if data.get("instrument_type") == "Mutual Fund" and not (
+            data.get("scheme_type") == "Debt" or data.get("scheme_type") == "Equity"
+        ):
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Please select Equity or Debt as Scheme type."),
+            # )
+            raise lms.exceptions.FailureException(
+                _("Please select Equity or Debt as Scheme type.")
             )
 
         if not data.get("lender", None):
-            data["lender"] = frappe.get_last_doc("Lender").name
+            data["lender"] = "Choice Finserv"
+
+        if data.get("instrument_type") == "Shares":
+            data["scheme_type"] = ""
 
         securities = validate_securities_for_cart(
-            data.get("securities", {}), data.get("lender")
+            securities=data.get("securities", {}),
+            lender=data.get("lender"),
+            instrument_type=data.get("instrument_type"),
         )
+
+        for security in securities:
+            security["quantity"] = round(security["quantity"], 3)
 
         # Min max sanctioned_limit
         lender = frappe.get_doc("Lender", data.get("lender"))
@@ -134,11 +197,13 @@ def upsert(**kwargs):
             try:
                 loan = frappe.get_doc("Loan", data.get("loan_name"))
             except frappe.DoesNotExistError:
-                return utils.respondNotFound(message=frappe._("Loan not found."))
+                # raise utils.respondNotFound(message=frappe._("Loan not found."))
+                raise lms.exceptions.NotFoundException(_("Loan not found."))
             if loan.customer != customer.name:
-                return utils.respondForbidden(
-                    message=frappe._("Please use your own loan.")
-                )
+                # raise utils.respondForbidden(
+                #     message=frappe._("Please use your own loan.")
+                # )
+                raise lms.exceptions.ForbiddenException(_("Please use your own loan."))
 
             # If pledge more/margin shortfall/increase Loan
             sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
@@ -151,19 +216,28 @@ def upsert(**kwargs):
                         "Loan Margin Shortfall", data.get("loan_margin_shortfall_name")
                     )
                 except frappe.DoesNotExistError:
-                    return utils.respondNotFound(
-                        message=frappe._("Loan Margin Shortfall not found.")
+                    # raise utils.respondNotFound(
+                    #     message=frappe._("Loan Margin Shortfall not found.")
+                    # )
+                    raise lms.exceptions.NotFoundException(
+                        _("Loan Margin Shortfall not found")
                     )
                 if loan_margin_shortfall.status == "Sell Triggered":
-                    return utils.respondWithFailure(
-                        status=417,
-                        message=frappe._("Sale is Triggered"),
+                    # return utils.respondWithFailure(
+                    #     status=417,
+                    #     message=frappe._("Sale is Triggered"),
+                    # )
+                    raise lms.exceptions.RespondFailureException(
+                        _("Sale is Triggered.")
                     )
                 if loan.name != loan_margin_shortfall.loan:
-                    return utils.respondForbidden(
-                        message=frappe._(
-                            "Loan Margin Shortfall should be for the provided loan."
-                        )
+                    # return utils.respondForbidden(
+                    #     message=frappe._(
+                    #         "Loan Margin Shortfall should be for the provided loan."
+                    #     )
+                    # )
+                    raise lms.exceptions.ForbiddenException(
+                        _("Loan Margin Shortfall should be for the provided loan.")
                     )
                 under_process_la = frappe.get_all(
                     "Loan Application",
@@ -178,11 +252,18 @@ def upsert(**kwargs):
                     },
                 )
                 if under_process_la:
-                    return utils.respondWithFailure(
-                        status=417,
-                        message="Payment for Margin Shortfall of Loan {} is already in process.".format(
-                            loan.name
-                        ),
+                    # return utils.respondWithFailure(
+                    #     status=417,
+                    #     message="Payment for Margin Shortfall of Loan {} is already in process.".format(
+                    #         loan.name
+                    #     ),
+                    # )
+                    raise lms.exceptions.RespondFailureException(
+                        _(
+                            "Payment for Margin Shortfall of Loan {} is already in process.".format(
+                                loan.name
+                            )
+                        )
                     )
 
         if not data.get("cart_name", None):
@@ -193,26 +274,39 @@ def upsert(**kwargs):
                     "customer_name": customer.full_name,
                     "lender": data.get("lender"),
                     "pledgor_boid": data.get("pledgor_boid"),
+                    "instrument_type": data.get("instrument_type"),
+                    "scheme_type": data.get("scheme_type"),
                 }
             )
         else:
             cart = frappe.get_doc("Cart", data.get("cart_name"))
+            cart.instrument_type = data.get("instrument_type")
+            cart.scheme_type = data.get("scheme_type")
+            cart.save(ignore_permissions=True)
+            frappe.db.commit()
+            cart.reload()
+
             if not cart:
-                return utils.respondNotFound(message=frappe._("Cart not found."))
+                # return utils.respondNotFound(message=frappe._("Cart not found."))
+                raise lms.exceptions.NotFoundException("Cart not found")
             if cart.customer != customer.name:
-                return utils.respondForbidden(
-                    message=frappe._("Please use your own cart.")
-                )
+                # return utils.respondForbidden(
+                #     message=frappe._("Please use your own cart.")
+                # )
+                raise lms.exceptions.ForbiddenException(_("Please use your own cart."))
 
             cart.items = []
 
-        frappe.db.begin()
+        # frappe.db.begin()
         for i in securities:
             cart.append(
                 "items",
                 {
                     "isin": i["isin"],
                     "pledged_quantity": i["quantity"],
+                    "type": data.get("scheme_type")
+                    if data.get("scheme_type")
+                    else "Shares",
                 },
             )
         cart.save(ignore_permissions=True)
@@ -242,11 +336,13 @@ def upsert(**kwargs):
         res["max_sanctioned_limit"] = (
             max_sanctioned_limit if not data.get("loan_margin_shortfall_name") else 0.0
         )
+        res["roi"] = lender.rate_of_interest
 
         frappe.db.commit()
         return utils.respondWithSuccess(data=res)
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
 
 
@@ -265,27 +361,36 @@ def process_old(**kwargs):
         )
 
         user_kyc = lms.__user_kyc()
+        if user_kyc.kyc_type == "CHOICE":
+            entity = user_kyc.choice_mob_no
+        elif user_kyc.mob_num != "":
+            entity = user_kyc.mob_num
+        else:
+            entity = customer.phone
 
         token = lms.verify_user_token(
-            entity=user_kyc.mobile_number,
+            entity=entity,
             token=data.get("otp"),
             token_type="Pledge OTP",
         )
 
         if token.expiry <= frappe.utils.now_datetime():
-            return utils.respondUnauthorized(message=frappe._("Pledge OTP Expired."))
+            # return utils.respondUnauthorized(message=frappe._("Pledge OTP Expired."))
+            raise lms.exceptions.UnauthorizedException(_("Pledge OTP Expired."))
 
         lms.token_mark_as_used(token)
         customer = lms.__customer()
 
         cart = frappe.get_doc("Cart", data.get("cart_name"))
         if not cart:
-            return utils.respondNotFound(message=frappe._("Cart not found."))
+            # return utils.respondNotFound(message=frappe._("Cart not found."))
+            raise lms.exceptions.NotFoundException(_("Cart not found."))
         if cart.customer != customer.name:
-            return utils.respondForbidden(message=frappe._("Please use your own cart."))
+            # return utils.respondForbidden(message=frappe._("Please use your own cart."))
+            raise lms.exceptions.ForbiddenException(_("Please use your own cart."))
 
         pledge_request = cart.pledge_request()
-        frappe.db.begin()
+        # frappe.db.begin()
         # frappe.db.set_value(
         #     "Cart",
         #     cart.name,
@@ -364,52 +469,78 @@ def process(**kwargs):
 
         reg = lms.regex_special_characters(search=data.get("cart_name"))
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
-
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
         user = lms.__user()
         user_kyc = lms.__user_kyc()
+        customer = lms.__customer()
+
+        cart = frappe.get_doc("Cart", data.get("cart_name"))
+        if not cart:
+            # return utils.respondNotFound(message=frappe._("Cart not found."))
+            raise lms.exceptions.NotFoundException(_("Cart not found."))
+        if cart.customer != customer.name:
+            # return utils.respondForbidden(message=frappe._("Please use your own cart."))
+            raise lms.exceptions.ForbiddenException(_("Please use your own cart."))
 
         is_dummy_account = lms.validate_spark_dummy_account(
             user.username, user.name, check_valid=True
         )
+        token_type = "Pledge OTP"
+        if user_kyc.kyc_type == "CHOICE":
+            entity = user_kyc.choice_mob_no
+        elif user_kyc.mob_num != "":
+            entity = user_kyc.mob_num
+        else:
+            entity = customer.phone
+        if cart.instrument_type == "Mutual Fund":
+            token_type = "Lien OTP"
+            entity = customer.phone
+
         if not is_dummy_account:
             token = lms.verify_user_token(
-                entity=user_kyc.mobile_number,
+                entity=entity,
                 token=data.get("otp"),
-                token_type="Pledge OTP",
+                token_type=token_type,
             )
 
             if token.expiry <= frappe.utils.now_datetime():
-                return utils.respondUnauthorized(
-                    message=frappe._("Pledge OTP Expired.")
+                # return utils.respondUnauthorized(
+                #     message=frappe._("{} Expired.".format(token_type))
+                # )
+                raise lms.exceptions.UnauthorizedException(
+                    _("{} Expired.".format(token_type))
                 )
 
             lms.token_mark_as_used(token)
         else:
             token = lms.validate_spark_dummy_account_token(
-                user.username, data.get("otp"), token_type="Pledge OTP"
+                user.username, data.get("otp"), token_type=token_type
             )
 
-        customer = lms.__customer()
-
-        cart = frappe.get_doc("Cart", data.get("cart_name"))
-        if not cart:
-            return utils.respondNotFound(message=frappe._("Cart not found."))
-        if cart.customer != customer.name:
-            return utils.respondForbidden(message=frappe._("Please use your own cart."))
-
-        frappe.db.begin()
+        # frappe.db.begin()
+        loan_application = {}
         cart.reload()
-        cart.save(ignore_permissions=True)
-        loan_application = cart.create_loan_application()
-        frappe.db.commit()
+        if cart.instrument_type != "Mutual Fund":
+            loan_application = cart.create_loan_application()
+            frappe.db.commit()
 
-        return utils.respondWithSuccess(data=loan_application)
+        return utils.respondWithSuccess(
+            data={
+                "loan_application": loan_application,
+                "mycam_url": ""
+                if loan_application
+                else frappe.utils.get_url(
+                    "/mycams?cart_name={}".format(str(cart.name))
+                ),
+            }
+        )
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
 
 
@@ -502,28 +633,56 @@ def process(**kwargs):
 
 
 @frappe.whitelist()
-def request_pledge_otp():
+def request_pledge_otp(**kwargs):
     try:
         utils.validator.validate_http_method("POST")
+        data = utils.validator.validate(
+            kwargs,
+            {
+                "instrument_type": "",
+            },
+        )
+        reg = lms.regex_special_characters(
+            data.get("instrument_type") if data.get("instrument_type") else ""
+        )
+        if reg:
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
 
         user = lms.__user()
         user_kyc = lms.__user_kyc()
+        customer = lms.__customer()
 
         is_dummy_account = lms.validate_spark_dummy_account(
             user.username, user.name, check_valid=True
         )
+
+        token_type = "Pledge OTP"
+        if user_kyc.kyc_type == "CHOICE":
+            entity = user_kyc.choice_mob_no
+        elif user_kyc.mob_num != "":
+            entity = user_kyc.mob_num
+        else:
+            entity = customer.phone
+        if data.get("instrument_type") == "Mutual Fund":
+            token_type = "Lien OTP"
+            entity = customer.phone
         if not is_dummy_account:
-            frappe.db.begin()
+            # frappe.db.begin()
 
             lms.create_user_token(
-                entity=user_kyc.mobile_number,
-                token_type="Pledge OTP",
+                entity=entity,
+                token_type=token_type,
                 token=lms.random_token(length=4, is_numeric=True),
             )
             frappe.db.commit()
-        return utils.respondWithSuccess(message="Pledge OTP sent")
+        return utils.respondWithSuccess(message="{} sent".format(token_type))
     except utils.exceptions.APIException as e:
         frappe.db.rollback()
+        lms.log_api_error()
         return e.respond()
 
 
@@ -548,61 +707,77 @@ def get_tnc(**kwargs):
             # search=data.get("cart_name")
         )
         if reg:
-            return utils.respondWithFailure(
-                status=422,
-                message=frappe._("Special Characters not allowed."),
-            )
-
+            # return utils.respondWithFailure(
+            #     status=422,
+            #     message=frappe._("Special Characters not allowed."),
+            # )
+            raise lms.exceptions.FailureException(_("Special Characters not allowed."))
         customer = lms.__customer()
         user_kyc = lms.__user_kyc()
         user = lms.__user()
 
         if data.get("cart_name") and data.get("loan_name"):
-            return utils.respondForbidden(
-                message=frappe._(
-                    "Can not use both application at once, please use one."
-                )
+            # return utils.respondForbidden(
+            #     message=frappe._(
+            #         "Can not use both application at once, please use one."
+            #     )
+            # )
+            raise lms.exceptions.ForbiddenException(
+                _("Can not use both application at once, please use one.")
             )
 
         elif not data.get("cart_name") and not data.get("loan_name"):
             # if not data.get("cart_name"):
-            return utils.respondForbidden(
-                message=frappe._(
-                    "Cart and Loan not found. Please use atleast one."
-                    # "Cart name field empty"
-                )
+            # return utils.respondForbidden(
+            #     message=frappe._(
+            #         "Cart and Loan not found. Please use atleast one."
+            #         # "Cart name field empty"
+            #     )
+            # )
+            raise lms.exceptions.ForbiddenException(
+                _("Cart and Loan not found. Please use atleast one.")
             )
 
         if data.get("cart_name"):
             if data.get("topup_amount"):
-                return utils.respondWithFailure(
-                    status=417,
-                    message=frappe._("Do not enter topup amount for Cart."),
+                # return utils.respondWithFailure(
+                #     status=417,
+                #     message=frappe._("Do not enter topup amount for Cart."),
+                # )
+                raise lms.exceptions.RespondFailureException(
+                    _("Do not enter topup amount for Cart.")
                 )
             cart = frappe.get_doc("Cart", data.get("cart_name"))
             if not cart:
-                return utils.respondNotFound(message=frappe._("Cart not found."))
+                # return utils.respondNotFound(message=frappe._("Cart not found."))
+                raise lms.exceptions.NotFoundException(_("Cart not found"))
             if cart.customer != customer.name:
-                return utils.respondForbidden(
-                    message=frappe._("Please use your own cart.")
-                )
+                # return utils.respondForbidden(
+                #     message=frappe._("Please use your own cart.")
+                # )
+                raise lms.exceptions.ForbiddenException(_("Please use your own cart"))
             lender = frappe.get_doc("Lender", cart.lender)
             if cart.loan:
                 loan = frappe.get_doc("Loan", cart.loan)
 
         else:
             if not data.get("topup_amount"):
-                return utils.respondWithFailure(
-                    status=417,
-                    message=frappe._("Please enter topup amount."),
+                # return utils.respondWithFailure(
+                #     status=417,
+                #     message=frappe._("Please enter topup amount."),
+                # )
+                raise lms.exceptions.RespondFailureException(
+                    _("Please enter topup amount.")
                 )
             loan = frappe.get_doc("Loan", data.get("loan_name"))
             if not loan:
-                return utils.respondNotFound(message=frappe._("Loan not found."))
+                # return utils.respondNotFound(message=frappe._("Loan not found."))
+                raise lms.exceptions.NotFoundException(_("Loan not found"))
             if loan.customer != customer.name:
-                return utils.respondForbidden(
-                    message=frappe._("Please use your own Loan.")
-                )
+                # return utils.respondForbidden(
+                #     message=frappe._("Please use your own Loan.")
+                # )
+                raise lms.exceptions.ForbiddenException(_("Please use your own loan"))
             loan = frappe.get_doc("Loan", data.get("loan_name"))
             lender = frappe.get_doc("Lender", loan.lender)
 
@@ -620,23 +795,35 @@ def get_tnc(**kwargs):
             )
 
             if existing_topup_application[0]["in_process"] > 0:
-                return utils.respondForbidden(
-                    message=_("Top up for {} is already in process.".format(loan.name))
+                # return utils.respondForbidden(
+                #     message=_("Top up for {} is already in process.".format(loan.name))
+                # )
+                raise lms.exceptions.ForbiddenException(
+                    _("Top up for {} is already in process.".format(loan.name))
                 )
             elif not topup_amt:
-                return utils.respondWithFailure(
-                    status=417, message="Top up not available"
-                )
+                # return utils.respondWithFailure(
+                #     status=417, message="Top up not available"
+                # )
+                raise lms.exceptions.RespondFailureException(_("Top up not available."))
             elif data.get("topup_amount") <= 0:
-                return utils.respondWithFailure(
-                    status=417, message="Top up amount can not be 0 or less than 0"
+                # return utils.respondWithFailure(
+                #     status=417, message="Top up amount can not be 0 or less than 0"
+                # )
+                raise lms.exceptions.RespondFailureException(
+                    _("Top up amount can not be 0 or less than 0.")
                 )
             elif data.get("topup_amount") > topup_amt:
-                return utils.respondWithFailure(
-                    status=417,
-                    message="Top up amount can not be more than Rs. {}".format(
-                        topup_amt
-                    ),
+                # return utils.respondWithFailure(
+                #     status=417,
+                #     message="Top up amount can not be more than Rs. {}".format(
+                #         topup_amt
+                #     ),
+                # )
+                raise lms.exceptions.RespondFailureException(
+                    _(
+                        "Top up amount can not be more than Rs. {}".format(topup_amt),
+                    )
                 )
 
             # msg = "Dear Customer,\nCongratulations! Your Top Up application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under 'Contact Us' on the app \n-Spark Loans"
@@ -646,22 +833,49 @@ def get_tnc(**kwargs):
             # from lms.lms.doctype.user_token.user_token import send_sms
 
             # frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+            address = (
+                (
+                    (str(address_details.perm_line1) + ", ")
+                    if address_details.perm_line1
+                    else ""
+                )
+                + (
+                    (str(address_details.perm_line2) + ", ")
+                    if address_details.perm_line2
+                    else ""
+                )
+                + (
+                    (str(address_details.perm_line3) + ", ")
+                    if address_details.perm_line3
+                    else ""
+                )
+                + str(address_details.perm_city)
+                + ", "
+                + str(address_details.perm_dist)
+                + ", "
+                + str(address_details.perm_state)
+                + ", "
+                + str(address_details.perm_country)
+                + ", "
+                + str(address_details.perm_pin)
+            )
+        else:
+            address = ""
         tnc_ul = ["<ul>"]
         tnc_ul.append(
-            "<li><strong> Name of borrower : {} </strong>".format(
-                user_kyc.investor_name
-            )
+            "<li><strong> Name of borrower : {} </strong>".format(user_kyc.fullname)
             + "</li>"
         )
         tnc_ul.append(
-            "<li><strong> Address of borrower </strong> : {}".format(
-                user_kyc.address or ""
-            )
+            "<li><strong> Address of borrower </strong> : {}".format(address or "")
             + "</li>"
         )
         tnc_ul.append(
-            "<li><strong> Nature of facility sanctioned :</strong> Loan Against Securities - Overdraft facility;</li>"
+            "<li><strong> Nature of facility sanctioned :</strong> Loan Against Securities - Overdraft Facility;</li>"
         )
         tnc_ul.append(
             "<li><strong> Purpose </strong>: General purpose.<br />Note:-The facility shall not be used for anti-social or illegal purposes;</li>"
@@ -691,18 +905,7 @@ def get_tnc(**kwargs):
                     )
                     + "</li>"
                 )
-            # tnc_ul.append(
-            #     "<li><strong> New Enhanced Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong> (Rounded to nearest 1000, lower side) (Final limit will be based on the Quantity and Value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
-            #         lms.round_down_amount_to_nearest_thousand(
-            #             (cart.total_collateral_value + loan.total_collateral_value)
-            #             * cart.allowable_ltv
-            #             / 100
-            #         )
-            #     )
-            #     + "</li>"
-            # )
-            # tnc_ul.append(
-            #     "<li><strong> Previous Credit Limit / Drawing Power </strong>: <strong>Rs. {}</strong>;".format(loan.drawing_power)+ "</li>")
+
         else:
             tnc_ul.append(
                 "<li><strong> New sanctioned limit </strong>: <strong>Rs. {}/-</strong> (Rounded to nearest 1000, lower side) (final limit will be based on the value of pledged securities at the time of acceptance of pledge. The limit is subject to change based on the pledged shares from time to time as also the value thereof determined by our management as per our internal parameters from time to time);".format(
@@ -712,7 +915,7 @@ def get_tnc(**kwargs):
                 )
                 + "</li>"
             )
-        tnc_ul.append("<li><strong> Interest type </strong>: Floating</li>")
+        tnc_ul.append("<li><strong> Interest type </strong>: Fixed</li>")
         tnc_ul.append(
             "<li><strong> Rate of interest </strong>: <strong>{}%  per month</strong> after rebate, if paid within <strong>{} days</strong> of due date. Otherwise rebate of <strong>0.20%</strong> will not be applicable and higher interest rate will be applicable [Interest rate is subject to change based on the Management discretion from time to time];".format(
                 lender.rate_of_interest, lender.rebait_threshold
@@ -803,11 +1006,7 @@ def get_tnc(**kwargs):
                 )
                 + "</li>"
             )
-        # tnc_ul.append(
-        #     "<li><strong> Stamp duty & other statutory charges : Rs. {}/-;</li></strong>".format(
-        #         int(lender.lender_stamp_duty_minimum_amount)
-        #     )
-        # )
+
         tnc_ul.append(
             "<li><strong> Stamp duty & other statutory charges : At actuals;</li></strong>"
         )
@@ -826,6 +1025,66 @@ def get_tnc(**kwargs):
             )
             + "</li>"
         )
+        if lender.lien_initiate_charge_type == "Percentage":
+            tnc_ul.append(
+                "<li><strong> Lien Charges </strong>: <strong> {percent_charge}%</strong> of the sanctioned amount; subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
+                    percent_charge=lms.validate_percent(lender.lien_initiate_charges),
+                    min_amt=lms.validate_rupees(
+                        lender.lien_initiate_charge_minimum_amount
+                    ),
+                    max_amt=lms.validate_rupees(
+                        lender.lien_initiate_charge_maximum_amount
+                    ),
+                )
+                + "</li>"
+            )
+        elif lender.lien_initiate_charge_type == "Fix":
+            tnc_ul.append(
+                "<li><strong> Lien Charges </strong>: <strong>Rs. {fix_charge}/-</strong> per transaction".format(
+                    fix_charge=lms.validate_rupees(lender.lien_initiate_charges)
+                )
+                + "</li>"
+            )
+        if lender.invoke_initiate_charge_type == "Percentage":
+            tnc_ul.append(
+                "<li><strong> Invocation Charges </strong>: <strong> {percent_charge}%</strong> of the sanctioned amount; subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
+                    percent_charge=lms.validate_percent(lender.invoke_initiate_charges),
+                    min_amt=lms.validate_rupees(
+                        lender.invoke_initiate_charges_minimum_amount
+                    ),
+                    max_amt=lms.validate_rupees(
+                        lender.invoke_initiate_charges_maximum_amount
+                    ),
+                )
+                + "</li>"
+            )
+        elif lender.invoke_initiate_charge_type == "Fix":
+            tnc_ul.append(
+                "<li><strong> Invocation Charges </strong>: <strong>Rs. {fix_charge}/-</strong> per transaction".format(
+                    fix_charge=lms.validate_rupees(lender.invoke_initiate_charges)
+                )
+                + "</li>"
+            )
+        if lender.revoke_initiate_charge_type == "Percentage":
+            tnc_ul.append(
+                "<li><strong> Revocation Charges </strong>: <strong> {percent_charge}%</strong> of the sanctioned amount; subject to minimum amount of <strong>Rs. {min_amt}/-</strong> and maximum of <strong>Rs. {max_amt}/-</strong>".format(
+                    percent_charge=lms.validate_percent(lender.revoke_initiate_charges),
+                    min_amt=lms.validate_rupees(
+                        lender.revoke_initiate_charges_minimum_amount
+                    ),
+                    max_amt=lms.validate_rupees(
+                        lender.revoke_initiate_charges_maximum_amount
+                    ),
+                )
+                + "</li>"
+            )
+        elif lender.revoke_initiate_charge_type == "Fix":
+            tnc_ul.append(
+                "<li><strong> Revocation Charges </strong>: <strong>Rs. {fix_charge}/-</strong> per transaction".format(
+                    fix_charge=lms.validate_rupees(lender.revoke_initiate_charges)
+                )
+                + "</li>"
+            )
         tnc_ul.append(
             "<li><strong> Credit Information Companies'(CICs) Charges </strong>: <strong>Upto Rs {}/-</strong> per instance (for individuals);".format(
                 lms.validate_rupees(lender.cic_charges)
@@ -842,7 +1101,7 @@ def get_tnc(**kwargs):
             "<li><strong> Legal & incidental charges </strong>: As per actuals;</li>"
         )
         tnc_ul.append(
-            "<li><strong>Average Percentage Rate</strong> is maximum of <strong>20%</strong> inclusive of the annual interest rate, processing fee, documentation charges, stamp duty charges, renewal charges (if any).</li></ul>"
+            "<li><strong>Average Percentage Rate</strong> is maximum of <strong>20%</strong> inclusive of the annual interest rate, processing fee, documentation charges, stamp duty charges, lien charges (if any), renewal charges (if any).</li></ul>"
         )
 
         if data.get("cart_name"):
@@ -856,7 +1115,9 @@ def get_tnc(**kwargs):
         tnc_header = "Please refer to the <a href='{}'>Terms & Conditions</a> for LAS facility, for detailed terms.".format(
             tnc_file_url
         )
-        tnc_footer = "You shall be required to authenticate (in token of you having fully read and irrevocably and unconditionally accepted and authenticated) the above application for loan including the pledge request and the Terms and Conditions (which can be opened by clicking on the links) and entire contents thereof, by entering the OTP that will be sent to you next on your registered mobile number with CDSL."
+        # tnc_footer = "You shall be required to authenticate (in token of you having fully read and irrevocably and unconditionally accepted and authenticated) the above application for loan including the pledge request and the Terms and Conditions (which can be opened by clicking on the links) and entire contents thereof, by entering the OTP that will be sent to you next on your registered mobile number with CDSL."
+        """Changes for Mutual Funds"""
+        tnc_footer = "You shall be required to authenticate (in token of you having fully read and irrevocably and unconditionally accepted and authenticated) the above application for loan including the pledge request and the Terms and Conditions (which can be opened by clicking on the links) and entire contents thereof, by entering the  OTP that will be sent on the CDSL registered mobile number for Loan Against Shares/ spark.loans registered mobile number for Loan Against Mutual Funds"
         tnc_checkboxes = [
             i.tnc
             for i in frappe.get_all(
@@ -876,16 +1137,6 @@ def get_tnc(**kwargs):
         }
 
         for tnc in frappe.get_list("Terms and Conditions", filters={"is_active": 1}):
-            # if data.get("loan_name"):
-            #     top_up_approved_tnc = {
-            #         "doctype": "Top up Application",
-            #         "docname": data.get("loan_name"),
-            #         "mobile": user.username,
-            #         "tnc": tnc.name,
-            #         "time": frappe.utils.now_datetime(),
-            #     }
-            #     ApprovedTermsandConditions.create_entry(**top_up_approved_tnc)
-            #     frappe.db.commit()
             if data.get("cart_name"):
                 cart_approved_tnc = {
                     "doctype": "Cart",
@@ -900,4 +1151,5 @@ def get_tnc(**kwargs):
         return utils.respondWithSuccess(data=res)
 
     except utils.exceptions.APIException as e:
+        lms.log_api_error()
         return e.respond()

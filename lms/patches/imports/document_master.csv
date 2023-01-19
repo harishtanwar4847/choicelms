@@ -1,0 +1,20 @@
+ID,Document Name,Constitution Type,Remarks
+02,Photograph,Individual,
+03,PAN,Individual,Not allowed for upload & update. Will only be provided in download
+04,Proof of Possession of Aadhaar         ,Individual,First 8 digits of the Aadhaar Number should be redacted in the document uploaded
+05,Passport,Individual,
+06,Driving License,Individual,
+07,Voters Identity Card,Individual,
+08,NREGA Job Card,Individual,
+09,Signature,Individual/Legal entity,Upload of signature has been made optional for all account types
+10,"Simplified Measures Account  - Identity card with applicant?s photograph issued by Central/ State Government Departments, Statutory/ Regulatory Authorities, Public Sector Undertakings, Scheduled Commercial Banks, and Public Financial Institutions.",Individual,Not allowed for upload & update. Will only be provided in download
+11,"Simplified Measures Account  - Letter issued by a gazetted officer, with a duly attested photograph of the person.",Individual,Not allowed for upload & update. Will only be provided in download
+12,"Utility bill which is not more than two months old of any service provider (electricity, telephone, post-paid mobile phone, piped gas, water bill).",Individual,Not allowed for upload & update. Will only be provided in download
+13,Property or Municipal Tax receipt.,Individual,Not allowed for upload & update. Will only be provided in download
+14,Bank account or Post Office savings bank account statement.,Individual,Not allowed for upload & update. Will only be provided in download
+15,"Pension or family pension payment orders (PPOs) issued to retired employees by Government Departments or Public Sector Undertakings, if they contain the address.",Individual,Not allowed for upload & update. Will only be provided in download
+16,"Letter of allotment of accommodation from employer issued by State or Central Government departments, statutory or regulatory bodies, public sector undertakings, scheduled commercial banks, financial institutions and listed companies. Similarly, leave and license agreements with such employers allotting official accommodation.",Individual,Not allowed for upload & update. Will only be provided in download
+17,Documents issued by Government departments of foreign jurisdictions and letter issued by Foreign Embassy or Mission in India.,Individual,Not allowed for upload & update. Will only be provided in download
+35,National Population Registry Letter,Individual,
+36,E-KYC Authentication,Individual,First 8 digits of the Aadhaar Number should be redacted in the document uploaded
+37,Offline verification of Aadhaar,Individual,First 8 digits of the Aadhaar Number should be redacted in the document uploaded

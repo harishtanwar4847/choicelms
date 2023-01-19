@@ -19,9 +19,12 @@
   "customer",
   "customer_name",
   "allowable_ltv",
+  "actual_drawing_power",
   "expiry_date",
   "loan_agreement",
   "margin_shortfall_amount",
+  "instrument_type",
+  "scheme_type",
   "items_section",
   "items",
   "loan_status_section",
@@ -70,9 +73,11 @@
    "reqd": 1
   },
   {
+   "depends_on": "eval:doc.instrument_type == \"Shares\";",
    "fieldname": "allowable_ltv",
    "fieldtype": "Float",
    "label": "Allowable LTV",
+   "mandatory_depends_on": "doc.instrument_type == \"Shares\"",
    "read_only": 1,
    "reqd": 1
   },
@@ -229,11 +234,33 @@
    "fieldtype": "Int",
    "label": "DPD (days past due)",
    "read_only": 1
+  },
+  {
+   "default": "Shares",
+   "fieldname": "instrument_type",
+   "fieldtype": "Select",
+   "label": "Instrument Type",
+   "options": "Shares\nMutual Fund",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scheme_type",
+   "fieldtype": "Select",
+   "label": "Scheme Type",
+   "options": "\nEquity\nDebt",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.instrument_type != \"Shares\";",
+   "fieldname": "actual_drawing_power",
+   "fieldtype": "Currency",
+   "label": "Actual Drawing Power",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-01-12 12:41:10.002845",
+ "modified": "2022-05-11 17:11:57.043855",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
