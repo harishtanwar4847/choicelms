@@ -3970,7 +3970,8 @@ def ckyc_search(**kwargs):
                 .get("SearchResponsePID")
             )
             ckyc_no = {
-                "ckyc_no": pid_data.get("CKYC_NO").replace("O", "").replace("o", "")
+                # "ckyc_no": pid_data.get("CKYC_NO").replace("O", "").replace("o", "").replace("L", ""),
+                "ckyc_no": "".join(filter(str.isdigit, pid_data.get("CKYC_NO")))
             }
             kyc_consent_doc = frappe.get_doc(
                 {
