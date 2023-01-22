@@ -311,16 +311,19 @@ def update_mycams_scheme_bulk(upload_file):
             else:
                 for i in lienscheme["schemedetails"]:
                     scheme = approved_security_map.get(i["isinno"])
-                    scheme["remark"] = (
-                        "Y - " + i["status"]
-                        if scheme["allowed"]
-                        else "N - " + i["status"]
-                    )
-                    if i["status"] == "SUCCESS":
-                        scheme["res_status"] = True
-                    else:
-                        scheme["res_status"] = False
-                        scheme["allowed"] = False
+                    # scheme["remark"] = (
+                    #     "Y - " + i["status"]
+                    #     if scheme["allowed"]
+                    #     else "N - " + i["status"]
+                    # )
+                    # if i["status"] == "SUCCESS":
+                    #     scheme["res_status"] = True
+                    # else:
+                    #     scheme["res_status"] = False
+                    #     scheme["allowed"] = False
+                    scheme["remark"] = "Y - SUCCESS"
+                    scheme["res_status"] = True
+                    scheme["allowed"] = True
                     scheme = list(scheme.values())
                     values.append(scheme)
         else:
