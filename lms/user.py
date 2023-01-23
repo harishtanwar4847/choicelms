@@ -2172,7 +2172,14 @@ def dashboard(**kwargs):
             "Spark Push Notification Log",
             filters={"loan_customer": customer.name, "is_read": 0, "is_cleared": 0},
         )
-
+        print("customer")
+        loan_doc = frappe.get_all(
+            "Loan", filters={"customer": customer.name}, fields=["scheme_type"]
+        )
+        if loan_doc:
+            scheme_type = loan_doc[0].scheme_type
+        else:
+            scheme_type = ""
         res = {
             "customer": customer,
             "user_kyc": user_kyc,
@@ -2183,6 +2190,7 @@ def dashboard(**kwargs):
             "youtube_video_ids": youtube_ids,
             "profile_picture_file_url": profile_picture_file_url,
             "fcm_unread_count": fcm_unread_count,
+            "loan_scheme_type": scheme_type,
         }
 
         return utils.respondWithSuccess(data=res)
