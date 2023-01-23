@@ -33,7 +33,6 @@ def approved_securities(instrument_type):
         as_dict=True,
     )
     approved_security_list.sort(key=lambda item: (item["security_name"]).title())
-    # print("approved_security_list", len(approved_security_list))
     lt_list = []
     for list in approved_security_list:
         lt_list.append(list.values())
@@ -56,7 +55,6 @@ def approved_securities(instrument_type):
     las_settings = frappe.get_single("LAS Settings")
     logo_file_path_2 = las_settings.get_spark_logo_file()
     approved_securities_template = las_settings.get_approved_securities_template()
-    print("approved_securities_template", approved_securities_template)
     doc = {
         "column_name": df.columns,
         "rows": df.iterrows(),
@@ -166,7 +164,6 @@ def get_context(context):
     )[0]
 
     context.lenderCharges = frappe.get_last_doc("Lender")
-    # print(context.lenderCharges.lender_stamp_duty_minimum_amount)
     context.approved_pdf_shares = approved_securities(instrument_type="Shares")
     context.approved_pdf_mf = approved_securities(instrument_type="Mutual Fund")
 
