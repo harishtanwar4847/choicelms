@@ -42,7 +42,10 @@ def approved_securities(instrument_type):
     df.drop("eligible_percentage", inplace=True, axis=1)
     df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
     df.index += 1
-    approved_security_pdf_file = "approved-securities.pdf"
+    if instrument_type == "Shares":
+        approved_security_pdf_file = "approved-securities.pdf"
+    else:
+        approved_security_pdf_file = "approved-securities-mf.pdf"
 
     date_ = frappe.utils.now_datetime()
     formatted_date = lms.date_str_format(date=date_.day)
@@ -53,6 +56,7 @@ def approved_securities(instrument_type):
     las_settings = frappe.get_single("LAS Settings")
     logo_file_path_2 = las_settings.get_spark_logo_file()
     approved_securities_template = las_settings.get_approved_securities_template()
+    print("approved_securities_template", approved_securities_template)
     doc = {
         "column_name": df.columns,
         "rows": df.iterrows(),
@@ -73,9 +77,14 @@ def approved_securities(instrument_type):
     )
     pdf_file.write(pdf)
     pdf_file.close()
-    approved_security_pdf_file_url = frappe.utils.get_url(
-        "files/approved-securities.pdf"
-    )
+    if instrument_type == "Shares":
+        approved_security_pdf_file_url = frappe.utils.get_url(
+            "files/approved-securities.pdf"
+        )
+    else:
+        approved_security_pdf_file_url = frappe.utils.get_url(
+            "files/approved-securities-mf.pdf"
+        )
     return approved_security_pdf_file_url
 
 
