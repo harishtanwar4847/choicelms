@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.13.1] - 2023-01-23
+
+## Fixed
+
+- [Fix : Website bug fix prod](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/567)
+
 ## [v5.13.0] - 2023-01-19
 
 ## Added
