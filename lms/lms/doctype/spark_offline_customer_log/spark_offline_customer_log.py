@@ -90,9 +90,11 @@ def retry_process(doc_name):
                     tester=0,
                 )
                 customer = lms.create_customer(user)
+                customer.mycams_email_id = doc.mycams_email_id
                 doc.user_status = "Success"
                 doc.customer_status = "Success"
                 doc.user_remarks = message
+                customer.save(ignore_permissions=True)
                 doc.save(ignore_permissions=True)
                 frappe.db.commit()
 

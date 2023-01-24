@@ -2489,6 +2489,7 @@ def customer_file_upload(upload_file):
                 account_holder_name=i[12],
                 bank_address=i[13],
                 account_type=i[14],
+                mycams_email_id=i[15],
             )
         ).insert(ignore_permissions=True)
         frappe.db.commit()

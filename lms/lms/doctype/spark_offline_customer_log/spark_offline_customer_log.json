@@ -22,6 +22,7 @@
   "column_break_14",
   "customer_mobile",
   "customer_email",
+  "mycams_email_id",
   "customer_remarks",
   "ckyc_details_section",
   "pan_no",
@@ -263,11 +264,16 @@
    "fieldtype": "Small Text",
    "label": "Bank Remarks",
    "read_only": 1
+  },
+  {
+   "fieldname": "mycams_email_id",
+   "fieldtype": "Data",
+   "label": "MyCams Email ID"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-10-17 13:04:10.594380",
+ "modified": "2023-01-24 16:36:22.704959",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Offline Customer Log",
