@@ -2463,7 +2463,7 @@ def customer_file_upload(upload_file):
         if (i[6].isnumeric() == False) or (i[9].isnumeric() == False):
             message += "Please enter valid CKYC Number or Account Number.\n"
 
-        if i[11].isaplha() == False:
+        if i[11].isalpha() == False:
             message += "Please enter valid city name.\n"
 
         # entry in Spark offline customer log doctype
