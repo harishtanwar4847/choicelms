@@ -624,7 +624,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
 
             customer = self.get_customer()
-            if self.instrument_type != "Mutual Fund" and not customer.mycams_email_id:
+            if self.instrument_type == "Mutual Fund" and not customer.mycams_email_id:
                 frappe.throw("Please add MyCAMS Email ID in Customer details.")
 
         elif self.status == "Pledge accepted by Lender":
