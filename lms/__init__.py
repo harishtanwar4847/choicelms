@@ -1839,6 +1839,26 @@ def ckyc_dot_net(
         log["response"] = res_json
 
         create_log(log, log_name)
+        if (
+            frappe.utils.get_url() == "https://spark.loans"
+            and res_json.get("status") != 200
+            and res_json.get("error")
+        ):
+            email_msg = (
+                "{customer} CKYC has failed in {api_type} due to Error: {error}".format(
+                    customer=cust.name, api_type=api_type, error=res_json.get("error")
+                )
+            )
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=[
+                    "manish.prasad@choiceindia.com",
+                    "prakash.aare@choiceindia.com",
+                ],
+                sender=None,
+                subject="Spark Loans {} failure response".format(api_type),
+                message=email_msg,
+            )
 
         return res_json
     except Exception:

@@ -216,6 +216,26 @@ class Cart(Document):
                     )
             return loan_application
         except Exception:
+            if frappe.utils.get_url() == "https://spark.loans":
+                email_msg = "Loan Customer {customer} is attempting for {application_type} of Loan application in {instrument_type}, but the same is not getting executed\n{cart}".format(
+                    customer=self.customer,
+                    application_type=application_type,
+                    instrument_type=self.instrument_type,
+                    cart=self.name,
+                )
+                frappe.enqueue(
+                    method=frappe.sendmail,
+                    recipients=[
+                        "sangram.patil@choicetechlab.com",
+                        "harsha.sankla@choiceindia.com",
+                        "manish.prasad@choiceindia.com",
+                        "prakash.aare@choiceindia.com",
+                        "support-spark@atriina.com",
+                    ],
+                    sender=None,
+                    subject="Spark Loans Pledge Setup Did Not Execute",
+                    message=email_msg,
+                )
             frappe.log_error(
                 message=frappe.get_traceback()
                 + "\nRequest Info:\n"
