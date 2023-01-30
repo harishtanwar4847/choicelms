@@ -1165,7 +1165,7 @@ def schemes(**kwargs):
         lender = ""
         sub_query = ""
         lender_clause = lms.convert_list_to_tuple_string(lender_list)
-        lender = " and als.lender IN {}".format(lender_clause)
+        lender = " and als.lender in {}".format(lender_clause)
 
         if data.get("scheme_type"):
             scheme = " and als.scheme_type = '{}'".format(data.get("scheme_type"))
@@ -1176,7 +1176,7 @@ def schemes(**kwargs):
             )
 
         schemes_list = frappe.db.sql(
-            """select als.isin, als.security_name as scheme_name, als.allowed, GROUP_CONCAT(CONVERT(als.eligible_percentage, CHAR), '' ORDER BY lender) as ltv, als.instrument_type, als.scheme_type, round(s.price,4) as price, group_concat(lender,'' ORDER BY lender) as lenders, group_concat(category_name,'' ORDER BY lender) as category, als.amc_code, am.amc_image
+            """select als.isin, als.security_name as scheme_name, als.allowed, als.eligible_percentage as ltv, als.instrument_type, als.scheme_type, round(s.price,4) as price, group_concat(lender,'') as lenders, als.amc_code, am.amc_image
             from `tabAllowed Security` als
             LEFT JOIN `tabSecurity` s on s.isin = als.isin
             LEFT JOIN `tabAMC Master` am on am.amc_code = als.amc_code
@@ -1187,6 +1187,7 @@ def schemes(**kwargs):
                 scheme, lender, sub_query
             ),
             as_dict=True,
+            debug=True,
         )
         # if not schemes_list:
         #     return utils.respondWithSuccess(message=frappe._("No record found."))
@@ -2172,14 +2173,6 @@ def dashboard(**kwargs):
             "Spark Push Notification Log",
             filters={"loan_customer": customer.name, "is_read": 0, "is_cleared": 0},
         )
-        print("customer")
-        loan_doc = frappe.get_all(
-            "Loan", filters={"customer": customer.name}, fields=["scheme_type"]
-        )
-        if loan_doc:
-            scheme_type = loan_doc[0].scheme_type
-        else:
-            scheme_type = ""
         res = {
             "customer": customer,
             "user_kyc": user_kyc,
@@ -2549,8 +2542,27 @@ def all_lenders_list(**kwargs):
     try:
         utils.validator.validate_http_method("GET")
 
+        user = lms.__user()
+        try:
+            user_kyc = lms.__user_kyc()
+            user_kyc = lms.user_kyc_hashing(user_kyc)
+        except UserKYCNotFoundException:
+            user_kyc = None
+
+        customer = lms.__customer()
+        if not customer:
+            raise lms.exceptions.NotFoundException(_("Customer not found"))
+
         all_levels = []
         all_lenders = []
+        loan_doc = frappe.get_all(
+            "Loan", filters={"customer": customer.name}, fields=["scheme_type"]
+        )
+        if loan_doc:
+            scheme_type = loan_doc[0].scheme_type
+        else:
+            scheme_type = ""
+
         # lenders = frappe.get_all("Lender", pluck="name", order_by="name asc")
         lenders = frappe.get_all("Lender", order_by="creation asc")
         for lender in lenders:
@@ -2564,7 +2576,9 @@ def all_lenders_list(**kwargs):
                 )
             ]
             # all_levels.append(query)
-            all_lenders.append({"name": lender.name, "levels": query})
+            all_lenders.append(
+                {"name": lender.name, "levels": query, "scheme_type": scheme_type}
+            )
         # all_levels.sort()
         # lenders.append(all_levels[-1])
         # data={"lenders": lenders, "levels": all_levels[-1]}
