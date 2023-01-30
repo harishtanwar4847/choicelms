@@ -2183,7 +2183,6 @@ def dashboard(**kwargs):
             "youtube_video_ids": youtube_ids,
             "profile_picture_file_url": profile_picture_file_url,
             "fcm_unread_count": fcm_unread_count,
-            "loan_scheme_type": scheme_type,
         }
 
         return utils.respondWithSuccess(data=res)
