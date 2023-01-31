@@ -2449,9 +2449,17 @@ def loan_unpledge_details(**kwargs):
             "revoke_initiate_charges_maximum_amount": lender.revoke_initiate_charges_maximum_amount,
         }
 
+        collateral_ledger = frappe.get_all(
+            "Collateral Ledger",
+            filters={"request_type": "Pledge", "loan": loan.name},
+            fields=["*"],
+        )
         res = {
             "loan": loan,
             "revoke_charge_details": revoke_initiate_charges
+            if loan.instrument_type == "Mutual Fund"
+            else {},
+            "collateral_ledger": collateral_ledger
             if loan.instrument_type == "Mutual Fund"
             else {},
         }
@@ -2535,13 +2543,15 @@ def validate_securities_for_unpledge(securities, loan):
                 securities_valid = False
                 message = frappe._("folio not present")
                 break
-            duplicate_securities_list.append("{}{}".format(i["isin"], i["folio"]))
+            duplicate_securities_list.append(
+                "{}{}{}".format(i["isin"], i["folio"], i["psn"])
+            )
             folio_list.append(i["folio"])
-        # else:
-        #     if "psn" not in i.keys() or not i.get("psn"):
-        #         securities_valid = False
-        #         message = frappe._("psn not present")
-        #         break
+        else:
+            if "psn" not in i.keys() or not i.get("psn"):
+                securities_valid = False
+                message = frappe._("psn not present")
+                break
 
     if folio_list:
         folio_clause = " and folio in {}".format(
@@ -2550,10 +2560,10 @@ def validate_securities_for_unpledge(securities, loan):
 
     securities_list = [i["isin"] for i in securities]
 
-    # if securities_valid:
-    #     if len(set(duplicate_securities_list)) != len(duplicate_securities_list):
-    #         securities_valid = False
-    #         message = frappe._("duplicate isin")
+    if securities_valid:
+        if len(set(duplicate_securities_list)) != len(duplicate_securities_list):
+            securities_valid = False
+            message = frappe._("duplicate isin")
 
     if securities_valid:
         securities_list_from_db_ = frappe.db.sql(
@@ -2765,7 +2775,6 @@ def loan_unpledge_request(**kwargs):
             a = 0
             for date in pledged_quantity:
                 a += date.quantity
-            print("quantity", a)
 
         unpledge_application = frappe.get_doc(
             {
