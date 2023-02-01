@@ -28,6 +28,7 @@
   "pledgee_boid",
   "instrument_type",
   "scheme_type",
+  "notification_sent",
   "items_section",
   "items",
   "section_break_23",
@@ -231,10 +232,17 @@
    "fieldtype": "Data",
    "label": "Remarks",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "notification_sent",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "notification sent"
   }
  ],
  "links": [],
- "modified": "2022-12-14 15:53:15.303323",
+ "modified": "2023-02-01 18:09:23.616197",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

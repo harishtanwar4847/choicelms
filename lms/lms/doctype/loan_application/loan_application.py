@@ -738,6 +738,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     loan_margin_shortfall.status = "Pending"
                     loan_margin_shortfall.save(ignore_permissions=True)
                     frappe.db.commit()
+            self.notify_customer()
 
         elif self.status == "Pledge accepted by Lender":
             approved_isin_list = []
@@ -775,6 +776,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 pass
             finally:
                 fa.delete_app()
+            if self.notification_sent == 0:
+                self.notify_customer()
 
         elif self.status == "Rejected":
             if self.loan_margin_shortfall:
@@ -845,7 +848,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     lms.convert_list_to_tuple_string(loan_application_isin_list),
                 ),
             )
-        self.notify_customer()
+            self.notify_customer()
 
     def create_loan(self):
         items = []
@@ -1424,6 +1427,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 if fcm_title == "Pledge accepted":
                     fcm_notification = fcm_notification.as_dict()
                     fcm_notification["title"] = "Lien accepted"
+            self.notification_sent = 1
 
         elif (
             doc.get("loan_application").get("status") == "Approved"
