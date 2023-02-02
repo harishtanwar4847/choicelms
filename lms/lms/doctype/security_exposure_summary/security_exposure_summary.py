@@ -22,12 +22,18 @@ def security_exposure_summary():
         securities = frappe.get_all("Security", fields=["*"])
         for security in securities:
             total_sum = frappe.db.sql(
-                """select sum(value) from `tabCollateral Ledger` where loan IS NOT NULL"""
+                """select sum(value) from `tabCollateral Ledger` where loan IS NOT NULL AND cast(creation as date) = '{}'""".format(
+                    frappe.utils.now_datetime().strftime("%Y-%m-%d")
+                )
             )
             total_sum = total_sum[0][0]
             qty = frappe.db.sql(
-                """select sum(quantity) from `tabCollateral Ledger` where isin = "{}" AND loan IS NOT NULL """.format(
-                    security.name
+                """select SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
+				- SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
+				- SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) quantity
+			    FROM `tabCollateral Ledger` where isin = "{security}" AND cast(creation as date) = '{created}' AND loan IS NOT NULL """.format(
+                    security=security.name,
+                    created=frappe.utils.now_datetime().strftime("%Y-%m-%d"),
                 )
             )
             qty = qty[0][0]
@@ -55,7 +61,9 @@ def security_exposure_summary():
 @frappe.whitelist()
 def excel_generator(doc_filters):
     if len(doc_filters) == 2:
-        doc_filters = {"creation_date": str(frappe.utils.now_datetime().date())}
+        doc_filters = {
+            "creation_date": str(frappe.utils.now_datetime().date() - timedelta(days=1))
+        }
     security_exposure_doc = frappe.get_all(
         "Security Exposure Summary",
         filters=doc_filters,
