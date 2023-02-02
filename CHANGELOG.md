@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.13.2] - 2023-01-23
+
+## Fixed
+
+- [Fix : Increase loan fix and security exposure fix](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/569)
+
 ## [v5.13.1] - 2023-01-23
 
 ## Fixed

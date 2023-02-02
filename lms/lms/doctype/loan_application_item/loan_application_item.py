@@ -5,8 +5,12 @@
 from __future__ import unicode_literals
 
 # import frappe
+import uuid
+
 from frappe.model.document import Document
 
 
 class LoanApplicationItem(Document):
-    pass
+    def autoname(self):
+        self.name = uuid.uuid4()
+        print(self.name, "loan application item name")
