@@ -21,8 +21,10 @@ import lms
 
 class AllowedSecurity(Document):
     def before_save(self):
-        if self.eligible_percentage <= 0:
-            frappe.throw("Eligible Percentage cannot be less than zero")
+        if self.eligible_percentage <= 0 or self.eligible_percentage > 100:
+            frappe.throw(
+                "Eligible Percentage cannot be less than zero or greater than 100"
+            )
         self.security_name = frappe.db.get_value("Security", self.isin, "security_name")
         if self.instrument_type == "Mutual Fund":
             self.update_mycams_scheme()
