@@ -2426,171 +2426,187 @@ def ckyc_offline(customer, offline_customer):
 
 @frappe.whitelist()
 def customer_file_upload(upload_file):
-    files = frappe.get_all("File", filters={"file_url": upload_file}, page_length=1)
-    file = frappe.get_doc("File", files[0].name)
-    file_path = file.get_full_path()
-    with open(file_path, "r") as upfile:
-        fcontent = upfile.read()
+    try:
+        files = frappe.get_all("File", filters={"file_url": upload_file}, page_length=1)
+        file = frappe.get_doc("File", files[0].name)
+        file_path = file.get_full_path()
+        with open(file_path, "r") as upfile:
+            fcontent = upfile.read()
 
-    csv_data = read_csv_content(fcontent)
-    message = ""
+        csv_data = read_csv_content(fcontent)
+        message = ""
 
-    for i in csv_data[1:]:
-        # validation for name
-        reg = regex_special_characters(search=i[0] + i[1])
-        if reg:
-            message += "Special Characters not allowed in First Name and Last Name.\n"
-
-        # Validation for Email
-        email_regex = (
-            r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
-        )
-        if re.search(email_regex, i[3]) is None or (len(i[3].split("@")) > 2):
-            message += "Please enter valid email ID.\n"
-
-        # Validation for Alphanumeric
-        alphanum_regex = "^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]+$"
-        pan_regex = "[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"
-        if (re.search(pan_regex, i[4]) is None) or (
-            re.search(alphanum_regex, i[10]) is None
-        ):
-            message += "Please enter valid Pan No or IFSC code.\n"
-
-        # validation for mobile number
-        if (len(i[2]) > 10) or (i[2].isnumeric == False):
-            message += "Please enter valid Mobile Number.\n"
-
-        if (i[6].isnumeric() == False) or (i[9].isnumeric() == False):
-            message += "Please enter valid CKYC Number or Account Number.\n"
-
-        if i[11].isalpha() == False:
-            message += "Please enter valid city name.\n"
-
-        # entry in Spark offline customer log doctype
-        offline_customer = frappe.get_doc(
-            dict(
-                doctype="Spark Offline Customer Log",
-                first_name=i[0],
-                last_name=i[1],
-                mobile_no=i[2],
-                email_id=i[3],
-                customer_first_name=i[0],
-                customer_last_name=i[1],
-                customer_mobile=i[2],
-                customer_email=i[3],
-                pan_no=i[4],
-                ckyc_no=i[6],
-                dob=i[5],
-                bank=i[7],
-                branch=i[8],
-                account_no=i[9],
-                ifsc=i[10],
-                city=i[11],
-                account_holder_name=i[12],
-                bank_address=i[13],
-                account_type=i[14],
-                mycams_email_id=i[15],
-            )
-        ).insert(ignore_permissions=True)
-        frappe.db.commit()
-
-        if (
-            (reg)
-            or (
-                re.search(email_regex, offline_customer.customer_email) is None
-                or (len(offline_customer.customer_email.split("@")) > 2)
-            )
-            or (
-                (len(offline_customer.mobile_no) > 10)
-                or offline_customer.mobile_no.isnumeric == False
-            )
-            or (offline_customer.ckyc_no.isnumeric() == False)
-            or (
-                (offline_customer.account_no.isnumeric() == False)
-                or (re.search(alphanum_regex, offline_customer.ifsc) is None)
-            )
-            or (re.search(pan_regex, offline_customer.pan_no) is None)
-        ):
-            offline_customer.user_status = "Failure"
-            offline_customer.user_remarks = message
-            offline_customer.customer_status = "Failure"
-            offline_customer.ckyc_status = "Failure"
-            offline_customer.bank_status = "Failure"
-            offline_customer.save(ignore_permissions=True)
-            frappe.db.commit()
-            # frappe.throw(_("Please Enter valid data"))
-
-        else:
-            # user creation
-            res = frappe.get_all(
-                "User",
-                filters={
-                    "phone": offline_customer.mobile_no,
-                    "mobile_no": offline_customer.mobile_no,
-                },
-            )
-            cust = frappe.get_all(
-                "Loan Customer", filters={"phone": offline_customer.mobile_no}
-            )
-            if res and cust:
-                offline_customer.user_status = "Success"
-                offline_customer.save(ignore_permissions=True)
-                frappe.db.commit()
-            else:
-                user = create_user(
-                    offline_customer.first_name,
-                    offline_customer.last_name,
-                    offline_customer.mobile_no,
-                    offline_customer.customer_email,
-                    tester=0,
+        for i in csv_data[1:]:
+            # validation for name
+            reg = regex_special_characters(search=i[0] + i[1])
+            if reg:
+                message += (
+                    "Special Characters not allowed in First Name and Last Name.\n"
                 )
-                offline_customer.user_status = "Success"
+
+            # Validation for Email
+            email_regex = (
+                r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
+            )
+            if re.search(email_regex, i[3]) is None or (len(i[3].split("@")) > 2):
+                message += "Please enter valid email ID.\n"
+
+            # Validation for Alphanumeric
+            alphanum_regex = "^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]+$"
+            pan_regex = "[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}"
+            if (re.search(pan_regex, i[4]) is None) or (
+                re.search(alphanum_regex, i[10]) is None
+            ):
+                message += "Please enter valid Pan No or IFSC code.\n"
+
+            # validation for mobile number
+            if (len(i[2]) > 10) or (i[2].isnumeric == False):
+                message += "Please enter valid Mobile Number.\n"
+
+            if (i[6].isnumeric() == False) or (i[9].isnumeric() == False):
+                message += "Please enter valid CKYC Number or Account Number.\n"
+
+            if i[11].isalpha() == False:
+                message += "Please enter valid city name.\n"
+
+            # entry in Spark offline customer log doctype
+            offline_customer = frappe.get_doc(
+                dict(
+                    doctype="Spark Offline Customer Log",
+                    first_name=i[0],
+                    last_name=i[1],
+                    mobile_no=i[2],
+                    email_id=i[3],
+                    customer_first_name=i[0],
+                    customer_last_name=i[1],
+                    customer_mobile=i[2],
+                    customer_email=i[3],
+                    pan_no=i[4],
+                    ckyc_no=i[6],
+                    dob=i[5],
+                    bank=i[7],
+                    branch=i[8],
+                    account_no=i[9],
+                    ifsc=i[10],
+                    city=i[11],
+                    account_holder_name=i[12],
+                    bank_address=i[13],
+                    account_type=i[14],
+                    mycams_email_id=i[15],
+                )
+            ).insert(ignore_permissions=True)
+            frappe.db.commit()
+
+            if (
+                (reg)
+                or (
+                    re.search(email_regex, offline_customer.customer_email) is None
+                    or (len(offline_customer.customer_email.split("@")) > 2)
+                )
+                or (
+                    (len(offline_customer.mobile_no) > 10)
+                    or offline_customer.mobile_no.isnumeric == False
+                )
+                or (offline_customer.ckyc_no.isnumeric() == False)
+                or (
+                    (offline_customer.account_no.isnumeric() == False)
+                    or (re.search(alphanum_regex, offline_customer.ifsc) is None)
+                )
+                or (re.search(pan_regex, offline_customer.pan_no) is None)
+            ):
+                offline_customer.user_status = "Failure"
+                offline_customer.user_remarks = message
+                offline_customer.customer_status = "Failure"
+                offline_customer.ckyc_status = "Failure"
+                offline_customer.bank_status = "Failure"
                 offline_customer.save(ignore_permissions=True)
                 frappe.db.commit()
+                # frappe.throw(_("Please Enter valid data"))
 
-                # loan customer creation
+            else:
+                # user creation
                 res = frappe.get_all(
+                    "User",
+                    filters={
+                        "phone": offline_customer.mobile_no,
+                        "mobile_no": offline_customer.mobile_no,
+                    },
+                )
+                cust = frappe.get_all(
                     "Loan Customer", filters={"phone": offline_customer.mobile_no}
                 )
-                res_user = frappe.get_all("Loan Customer", filters={"user": user.name})
-                if res or res_user:
-                    frappe.throw(
-                        _(
-                            "Loan Customer already exists".format(
-                                offline_customer.mobile_no
+                if res and cust:
+                    offline_customer.user_status = "Success"
+                    offline_customer.save(ignore_permissions=True)
+                    frappe.db.commit()
+                else:
+                    user = create_user(
+                        offline_customer.first_name,
+                        offline_customer.last_name,
+                        offline_customer.mobile_no,
+                        offline_customer.customer_email,
+                        tester=0,
+                    )
+                    offline_customer.user_status = "Success"
+                    offline_customer.save(ignore_permissions=True)
+                    frappe.db.commit()
+
+                    # loan customer creation
+                    res = frappe.get_all(
+                        "Loan Customer", filters={"phone": offline_customer.mobile_no}
+                    )
+                    res_user = frappe.get_all(
+                        "Loan Customer", filters={"user": user.name}
+                    )
+                    if res or res_user:
+                        frappe.throw(
+                            _(
+                                "Loan Customer already exists".format(
+                                    offline_customer.mobile_no
+                                )
                             )
                         )
-                    )
-                    offline_customer.customer_status = "Success"
-                    offline_customer.save(ignore_permissions=True)
-                    frappe.db.commit()
-                else:
-                    customer = create_customer(user)
-                    customer.offline_customer = 1
-                    customer.save(ignore_permissions=True)
-                    offline_customer.customer_status = "Success"
-                    offline_customer.save(ignore_permissions=True)
-                    frappe.db.commit()
+                        offline_customer.customer_status = "Success"
+                        offline_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
+                    else:
+                        customer = create_customer(user)
+                        customer.offline_customer = 1
+                        customer.save(ignore_permissions=True)
+                        offline_customer.customer_status = "Success"
+                        offline_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
 
-                # User Kyc creation
-                res_kyc = frappe.get_all("User KYC", filters={"user": user.name})
-                if res_kyc:
-                    frappe.throw(_("User KYC already exists"))
-                    offline_customer.ckyc_status = "Success"
-                    offline_customer.save(ignore_permissions=True)
-                    frappe.db.commit()
+                    # User Kyc creation
+                    res_kyc = frappe.get_all("User KYC", filters={"user": user.name})
+                    if res_kyc:
+                        frappe.throw(_("User KYC already exists"))
+                        offline_customer.ckyc_status = "Success"
+                        offline_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
 
-                else:
-                    ckyc_offline(customer=customer, offline_customer=offline_customer)
+                    else:
+                        ckyc_offline(
+                            customer=customer, offline_customer=offline_customer
+                        )
+    except Exception:
+        frappe.log_error(
+            title="Create User Customer Cron Error",
+            message=frappe.get_traceback()
+            + "\n\n{}".format(str(i) if i else str(upload_file)),
+        )
 
 
 @frappe.whitelist()
 def create_user_customer(upload_file):
-    frappe.enqueue(
-        method=customer_file_upload(upload_file=upload_file),
-        queue="long",
-        job_name="Offline Customer File Processing",
-    )
+    try:
+        frappe.enqueue(
+            method=customer_file_upload(upload_file=upload_file),
+            queue="long",
+            job_name="Offline Customer File Processing",
+        )
+    except Exception:
+        frappe.log_error(title="Create User Customer Main Function Error")
 
 
 def penny_call_create_contact(user=None, customer=None, user_kyc=None):
