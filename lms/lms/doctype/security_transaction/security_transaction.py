@@ -60,9 +60,7 @@ def security_transaction():
             except:
                 frappe.log_error(
                     message=frappe.get_traceback()
-                    + "\n\nloan name:{} -\n\nCutomer :{} -\n\nloan :{}".format(
-                        loan_application[0].name, loan.customer, loan.name
-                    ),
+                    + "\n\nCutomer :{} -\n\nloan :{}".format(loan.customer, loan.name),
                     title=frappe._("Security Transaction"),
                 )
     except Exception:

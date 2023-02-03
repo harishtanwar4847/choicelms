@@ -19,38 +19,67 @@ class SecurityExposureSummary(Document):
 @frappe.whitelist()
 def security_exposure_summary():
     try:
+        total_sum = 0
         securities = frappe.get_all("Security", fields=["*"])
-        for security in securities:
-            total_sum = frappe.db.sql(
-                """select sum(value) from `tabCollateral Ledger` where loan IS NOT NULL AND cast(creation as date) = '{}'""".format(
-                    frappe.utils.now_datetime().strftime("%Y-%m-%d")
-                )
+        creation_date = frappe.db.sql(
+            """select distinct(isin),cast(creation as date)as c_date from `tabCollateral Ledger` where cast(creation as date) = '{created}' """.format(
+                created=frappe.utils.now_datetime().strftime("%Y-%m-%d"),
+            ),
+            as_dict=True,
+            debug=True,
+        )
+        for i in creation_date:
+            price = frappe.db.sql(
+                """select name,price,security_name from `tabSecurity` where isin = '{}'""".format(
+                    i.isin
+                ),
+                as_dict=True,
             )
-            total_sum = total_sum[0][0]
-            qty = frappe.db.sql(
-                """select SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
-				- SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
-				- SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) quantity
-			    FROM `tabCollateral Ledger` where isin = "{security}" AND cast(creation as date) = '{created}' AND loan IS NOT NULL """.format(
-                    security=security.name,
-                    created=frappe.utils.now_datetime().strftime("%Y-%m-%d"),
+            qty = (("",),)
+            if str(creation_date[0].c_date) == frappe.utils.now_datetime().strftime(
+                "%Y-%m-%d"
+            ):
+                qty = frappe.db.sql(
+                    """select sum(pledged_quantity) from `tabLoan Item` where isin = '{security}' and parenttype ='Loan' """.format(
+                        security=i.isin,
+                    )
                 )
+
+                quantity = qty[0][0]
+                total = float(price[0].price) * float(quantity)
+                total_sum += total
+        for i in creation_date:
+            price = frappe.db.sql(
+                """select name,price,security_name from `tabSecurity` where isin = '{}'""".format(
+                    i.isin
+                ),
+                as_dict=True,
             )
-            qty = qty[0][0]
-            if qty:
-                security_exposure_summary = frappe.get_doc(
-                    dict(
-                        doctype="Security Exposure Summary",
-                        isin=security.name,
-                        security_name=security.security_name,
-                        quantity=qty,
-                        rate=security.price,
-                        value=(qty * security.price),
-                        exposure_=((qty * security.price) / total_sum) * 100,
-                        creation_date=frappe.utils.now_datetime().date(),
-                    ),
-                ).insert(ignore_permissions=True)
-                frappe.db.commit()
+            qty = (("",),)
+            if str(creation_date[0].c_date) == frappe.utils.now_datetime().strftime(
+                "%Y-%m-%d"
+            ):
+                qty = frappe.db.sql(
+                    """select sum(pledged_quantity) from `tabLoan Item` where isin = '{security}' and parenttype ='Loan' """.format(
+                        security=i.isin,
+                    )
+                )
+                quantity = qty[0][0]
+
+            security_exposure_summary = frappe.get_doc(
+                dict(
+                    doctype="Security Exposure Summary",
+                    isin=price[0].name,
+                    security_name=price[0].security_name,
+                    quantity=quantity,
+                    rate=price[0].price,
+                    value=(float(quantity) * float(price[0].price)),
+                    exposure_=((float(quantity) * float(price[0].price)) / total_sum)
+                    * 100,
+                    creation_date=frappe.utils.now_datetime().date(),
+                ),
+            ).insert(ignore_permissions=True)
+            frappe.db.commit()
     except Exception:
         frappe.log_error(
             message=frappe.get_traceback(),
