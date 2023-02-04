@@ -73,9 +73,7 @@ def client_summary():
             except:
                 frappe.log_error(
                     message=frappe.get_traceback()
-                    + "\n\nloan application name :{}\n\nCutomer :{} -\n\nloan :{}".format(
-                        loan_application[0].name, loan.customer, loan.name
-                    ),
+                    + "\n\nCutomer :{} -\n\nloan :{}".format(loan.customer, loan.name),
                     title=frappe._("Client Summary"),
                 )
     except Exception:
