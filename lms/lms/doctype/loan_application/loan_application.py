@@ -504,7 +504,7 @@ class LoanApplication(Document):
         lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
-
+        self.sanction_letter()
         if (
             self.status == "Approved"
             and not self.lender_esigned_document
@@ -1631,6 +1631,15 @@ class LoanApplication(Document):
         # agreement = frappe.render_template(
         #     agreement_template.get_content(), {"doc": doc}
         # )
+        if self.application_type == "New Loan":
+            sl = frappe.get_doc(
+                dict(
+                    doctype="Sanction Letter and CIAL Log",
+                    loan_application=self.name,
+                ),
+            ).insert(ignore_permissions=True)
+            frappe.db.commit()
+            self.sanctioned_letter = sl.name
 
 
 @frappe.whitelist()
