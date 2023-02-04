@@ -13,12 +13,28 @@ import lms
 
 
 class SecurityExposureSummary(Document):
-    pass
+    def get_price(self, isin):
+        price = frappe.db.sql(
+            """select name,price,security_name from `tabSecurity` where isin = '{}'""".format(
+                isin
+            ),
+            as_dict=True,
+        )
+        return price
+
+    def get_qty(self, isin):
+        qty = frappe.db.sql(
+            """select sum(pledged_quantity) from `tabLoan Item` where isin = '{security}' and parenttype ='Loan' """.format(
+                security=isin,
+            )
+        )
+        return qty
 
 
 @frappe.whitelist()
 def security_exposure_summary():
     try:
+        exposure_doc = frappe.get_last_doc("Security Exposure Summary")
         total_sum = 0
         securities = frappe.get_all("Security", fields=["*"])
         creation_date = frappe.db.sql(
@@ -29,57 +45,40 @@ def security_exposure_summary():
             debug=True,
         )
         for i in creation_date:
-            price = frappe.db.sql(
-                """select name,price,security_name from `tabSecurity` where isin = '{}'""".format(
-                    i.isin
-                ),
-                as_dict=True,
-            )
-            qty = (("",),)
+            isin = i.isin
+            price = exposure_doc.get_price(i.isin)
             if str(creation_date[0].c_date) == frappe.utils.now_datetime().strftime(
                 "%Y-%m-%d"
             ):
-                qty = frappe.db.sql(
-                    """select sum(pledged_quantity) from `tabLoan Item` where isin = '{security}' and parenttype ='Loan' """.format(
-                        security=i.isin,
-                    )
-                )
-
+                qty = exposure_doc.get_qty(i.isin)
                 quantity = qty[0][0]
                 total = float(price[0].price) * float(quantity)
                 total_sum += total
         for i in creation_date:
-            price = frappe.db.sql(
-                """select name,price,security_name from `tabSecurity` where isin = '{}'""".format(
-                    i.isin
-                ),
-                as_dict=True,
-            )
-            qty = (("",),)
+            isin = i.isin
+            price = exposure_doc.get_price(i.isin)
             if str(creation_date[0].c_date) == frappe.utils.now_datetime().strftime(
                 "%Y-%m-%d"
             ):
-                qty = frappe.db.sql(
-                    """select sum(pledged_quantity) from `tabLoan Item` where isin = '{security}' and parenttype ='Loan' """.format(
-                        security=i.isin,
-                    )
-                )
+                qty = exposure_doc.get_qty(i.isin)
                 quantity = qty[0][0]
-
-            security_exposure_summary = frappe.get_doc(
-                dict(
-                    doctype="Security Exposure Summary",
-                    isin=price[0].name,
-                    security_name=price[0].security_name,
-                    quantity=quantity,
-                    rate=price[0].price,
-                    value=(float(quantity) * float(price[0].price)),
-                    exposure_=((float(quantity) * float(price[0].price)) / total_sum)
-                    * 100,
-                    creation_date=frappe.utils.now_datetime().date(),
-                ),
-            ).insert(ignore_permissions=True)
-            frappe.db.commit()
+            if quantity:
+                security_exposure_summary = frappe.get_doc(
+                    dict(
+                        doctype="Security Exposure Summary",
+                        isin=price[0].name,
+                        security_name=price[0].security_name,
+                        quantity=quantity,
+                        rate=price[0].price,
+                        value=(float(quantity) * float(price[0].price)),
+                        exposure_=(
+                            (float(quantity) * float(price[0].price)) / total_sum
+                        )
+                        * 100,
+                        creation_date=frappe.utils.now_datetime().date(),
+                    ),
+                ).insert(ignore_permissions=True)
+                frappe.db.commit()
     except Exception:
         frappe.log_error(
             message=frappe.get_traceback(),
