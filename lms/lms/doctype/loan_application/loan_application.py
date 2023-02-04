@@ -1621,6 +1621,17 @@ class LoanApplication(Document):
         ):
             item.idx = i
 
+    def sanction_letter(self):
+        customer = self.get_customer()
+        user = frappe.get_doc("User", customer.user)
+        user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+        lender = self.get_lender()
+        agreement_template = lender.get_sanction_letter_template()
+        loan_agreement_file = "Sanction-leter.pdf"
+        # agreement = frappe.render_template(
+        #     agreement_template.get_content(), {"doc": doc}
+        # )
+
 
 @frappe.whitelist()
 def check_for_pledge_failure(la_name):

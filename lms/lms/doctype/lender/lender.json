@@ -145,6 +145,7 @@
   "is_html",
   "lender_header",
   "lender_footer",
+  "sanction_letter",
   "image_section_section",
   "logo_file_1",
   "website_section_section",
@@ -954,6 +955,13 @@
  ],
  "links": [],
  "modified": "2023-01-09 13:21:23.306197",
+   "fieldname": "sanction_letter",
+   "fieldtype": "Attach",
+   "label": "Sanction Letter"
+  }
+ ],
+ "links": [],
+ "modified": "2023-02-04 18:29:29.209907",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",
