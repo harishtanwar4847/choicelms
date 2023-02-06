@@ -16,6 +16,7 @@ from random import choice, randint, randrange
 from traceback import format_exc
 
 import frappe
+import numpy as np
 import razorpay
 import requests
 import utils
@@ -2449,4 +2450,24 @@ def redirect_to_url(url=""):
         frappe.log_error(
             title="Redirect to URL API",
             message=frappe.get_traceback() + "\n\n" + frappe.local.form_dict,
+        )
+
+
+def calculate_apr(name_, interest_in_percentage, tenure, sanction_limit, charges=0):
+    try:
+        pmt_ = (interest_in_percentage / 12, tenure, sanction_limit)
+        present_value = sanction_limit - charges
+        future_value = 0
+        apr = (
+            np.rate(nper=tenure, pmt=np.pmt(pmt_), pv=present_value, fv=future_value)
+            * 12
+            * 100
+        )
+        if apr < 0:
+            apr = 0
+        return round(apr, 2)
+    except Exception:
+        frappe.log_error(
+            title="Calculate APR Error",
+            message=frappe.get_traceback() + "\n\n" + str(name_),
         )
