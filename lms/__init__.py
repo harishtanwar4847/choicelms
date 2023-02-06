@@ -1854,6 +1854,7 @@ def ckyc_dot_net(
                 recipients=[
                     "manish.prasad@choiceindia.com",
                     "prakash.aare@choiceindia.com",
+                    "harsha.sankla@choiceindia.com",
                 ],
                 sender=None,
                 subject="Spark Loans {} failure response".format(api_type),
