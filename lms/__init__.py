@@ -2446,9 +2446,9 @@ def customer_file_upload(upload_file):
             fcontent = upfile.read()
 
         csv_data = read_csv_content(fcontent)
-        message = ""
 
         for i in csv_data[1:]:
+            message = ""
             # validation for name
             reg = regex_special_characters(search=i[0] + i[1])
             if reg:
