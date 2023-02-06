@@ -1,6 +1,5 @@
 {
  "actions": [],
- "autoname": "format:{loan}-SL-CIAL",
  "creation": "2022-12-08 13:53:46.017324",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -40,7 +39,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-04 19:08:19.284864",
+ "modified": "2023-02-05 18:46:14.921487",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sanction Letter and CIAL Log",
