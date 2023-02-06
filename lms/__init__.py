@@ -40,7 +40,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.10.1-uat"
+__version__ = "5.13.2"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -1694,18 +1694,6 @@ def decrypt_lien_marking_response():
                 schemes = [schemes]
 
             for i in schemes:
-                lienapprovedunit_len = len(str(i["lienapprovedunit"]).split(".")[1])
-                lienunit_len = len(str(i["lienunit"]).split(".")[1])
-                if lienapprovedunit_len > 3 and lienunit_len > 3:
-                    digits = 3
-                    lienapprovedunit = truncate_approved_unit(
-                        float(i["lienapprovedunit"]), digits
-                    )
-                    lienunit = truncate_approved_unit(float(i["lienunit"]), digits)
-                else:
-                    lienapprovedunit = i["lienapprovedunit"]
-                    lienunit = i["lienunit"]
-
                 cart.append(
                     "items",
                     {
@@ -1714,8 +1702,12 @@ def decrypt_lien_marking_response():
                         "scheme_code": i["schemecode"],
                         "security_name": i["schemename"],
                         "amc_code": i["amccode"],
-                        "pledged_quantity": float(lienapprovedunit),
-                        "requested_quantity": float(lienunit),
+                        "pledged_quantity": truncate_float_to_decimals(
+                            float(i["lienapprovedunit"]), 3
+                        ),
+                        "requested_quantity": truncate_float_to_decimals(
+                            float(i["lienunit"]), 3
+                        ),
                         "type": res.get("bankschemetype"),
                     },
                 )
@@ -1848,6 +1840,26 @@ def ckyc_dot_net(
         log["response"] = res_json
 
         create_log(log, log_name)
+        if (
+            frappe.utils.get_url() == "https://spark.loans"
+            and res_json.get("status") != 200
+            and res_json.get("error")
+        ):
+            email_msg = (
+                "{customer} CKYC has failed in {api_type} due to Error: {error}".format(
+                    customer=cust.name, api_type=api_type, error=res_json.get("error")
+                )
+            )
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=[
+                    "manish.prasad@choiceindia.com",
+                    "prakash.aare@choiceindia.com",
+                ],
+                sender=None,
+                subject="Spark Loans {} failure response".format(api_type),
+                message=email_msg,
+            )
 
         return res_json
     except Exception:
@@ -3401,6 +3413,7 @@ def au_pennydrop_api(data):
             "AccNum": data.get("account_number"),
             "HashValue": base64.b64encode(final_hash).decode("ascii"),
         }
+        data["payload"] = payload
 
         url = las_settings.penny_drop_api
         if not url:
@@ -3422,16 +3435,12 @@ def au_pennydrop_api(data):
     except Exception:
         frappe.log_error(
             title="AU Penny Drop API Error",
-            message=frappe.get_traceback() + "\n\n" + data,
+            message=frappe.get_traceback() + "\n\n" + str(data),
         )
 
 
-def truncate_approved_unit(number, digits):
-    num = len(str(number).split(".")[1])
-    if num <= digits:
-        return number
-    stepper = 10.0 ** digits
-    return math.trunc(stepper * number) / stepper
+def truncate_float_to_decimals(number, digits):
+    return math.floor(number * 10 ** digits) / 10 ** digits
 
 
 def name_matching(user_kyc, bank_acc_full_name):

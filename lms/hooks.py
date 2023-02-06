@@ -11,6 +11,7 @@ app_icon = "octicon octicon-file-directory"
 app_color = "grey"
 app_email = "developers@atritechnocrat.com"
 app_license = "MIT"
+app_logo_url = "/assets/lms/images/logo_mo.svg"
 
 # Includes in <head>
 # ------------------
@@ -183,7 +184,7 @@ scheduler_events = {
         "15 4 * * *": [
             "lms.lms.doctype.loan.loan.add_all_loans_penal_interest"
         ],  # At 04:15 AM daily
-        "30 8 * * *": [
+        "0 10 * * *": [
             "lms.lms.doctype.security_price.security_price.update_all_schemeNav"
         ],  # At 08:30 AM daily
         "* * * * *": [

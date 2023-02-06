@@ -4,7 +4,7 @@ import lms
 
 
 def execute():
-    frappe.reload_doc("Lms", "DocType", "Spark App Version")
+    frappe.reload_doc("Lms", "DocType", "Spark App Version", force=True)
     frappe.get_doc(
         {
             "doctype": "Spark App Version",

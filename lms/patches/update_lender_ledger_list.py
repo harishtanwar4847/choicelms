@@ -2,7 +2,7 @@ import frappe
 
 
 def execute():
-    frappe.reload_doc("Lms", "DocType", "Lender Ledger")
+    frappe.reload_doc("Lms", "DocType", "Lender Ledger", force=True)
     lender_ledgers = frappe.get_all("Lender Ledger", fields=["*"])
     for lender_ledger in lender_ledgers:
         frappe.db.sql(

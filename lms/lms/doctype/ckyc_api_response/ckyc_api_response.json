@@ -19,12 +19,14 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "CKYC API Type",
-   "options": "CKYC Search\nCKYC Download"
+   "options": "CKYC Search\nCKYC Download",
+   "read_only": 1
   },
   {
    "fieldname": "parameters",
    "fieldtype": "Small Text",
-   "label": "Parameters"
+   "label": "Parameters",
+   "read_only": 1
   },
   {
    "fieldname": "response_status",
@@ -32,7 +34,8 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Response Status",
-   "options": "Success\nFailure"
+   "options": "Success\nFailure",
+   "read_only": 1
   },
   {
    "depends_on": "eval:doc.response_status == \"Failure\";",
@@ -45,16 +48,18 @@
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
-   "options": "Loan Customer"
+   "options": "Loan Customer",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_4",
-   "fieldtype": "Column Break"
+   "fieldtype": "Column Break",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-07-05 18:14:06.247062",
+ "modified": "2023-01-30 17:11:48.414094",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "CKYC API Response",
