@@ -1853,6 +1853,14 @@ class LoanApplication(Document):
             )
             s_letter_file.insert(ignore_permissions=True)
             frappe.db.commit()
+
+            frappe.db.set_value(
+                "Sanction Letter Entries",
+                sll.name,
+                "sanction_letter",
+                s_letter_file.file_url,
+                update_modified=False,
+            )
         # else :
         #     sl = frappe.get_doc(
         #         {

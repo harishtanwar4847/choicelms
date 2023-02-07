@@ -2455,13 +2455,11 @@ def redirect_to_url(url=""):
 
 def calculate_apr(name_, interest_in_percentage, tenure, sanction_limit, charges=0):
     try:
-        pmt_ = (interest_in_percentage / 12, tenure, sanction_limit)
+        pmt_ = np.pmt(interest_in_percentage / 12, tenure, sanction_limit)
         present_value = sanction_limit - charges
         future_value = 0
         apr = (
-            np.rate(nper=tenure, pmt=np.pmt(pmt_), pv=present_value, fv=future_value)
-            * 12
-            * 100
+            np.rate(nper=tenure, pmt=pmt_, pv=present_value, fv=future_value) * 12 * 100
         )
         if apr < 0:
             apr = 0
