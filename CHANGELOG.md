@@ -2,6 +2,54 @@
 
 ## [Unreleased]
 
+## [v5.13.2] - 2023-01-23
+
+## Fixed
+
+- [Fix : Increase loan fix and security exposure fix](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/569)
+
+## [v5.13.1] - 2023-01-23
+
+## Fixed
+
+- [Fix : Website bug fix prod](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/567)
+
+## [v5.13.0] - 2023-01-19
+
+## Added
+
+- [Merge branch Uat into Master](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/566)
+
+## [v5.13.0-uat]
+
+## Added
+
+- [Feat: Update security and allowed security patches](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/565)
+
+## [v5.12.0-uat]
+
+## Added
+
+- [Feat: Annexure update in privacy policy update](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/564)
+
+## [v5.11.0-uat]
+
+## Added
+
+- [Feat: Choice office Address change on website and au pennydrop add bank before 90 days changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/563)
+
+## [v5.10.3-uat]
+
+## Fixed
+
+- [Fix: unpldege and sell collateral psn handling](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/561)
+
+## [v5.10.2-uat]
+
+## Added
+
+- [Feat: floating-to-fixed](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/560)
+
 ## [v5.10.1-uat]
 
 ## Added

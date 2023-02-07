@@ -24,38 +24,45 @@ def security_transaction():
     try:
         loans = frappe.get_all("Loan", fields=["*"])
         for loan in loans:
-            collateral_ledger = frappe.get_all(
-                "Collateral Ledger", filters={"loan": loan.name}, fields=["*"]
-            )
-            loan_application = frappe.get_all(
-                "Loan Application",
-                filters={"customer": loan.customer},
-                fields=["pledgor_boid"],
-            )
-            pledgor_boid = loan_application[0].pledgor_boid
-            for i in collateral_ledger:
-                if i.request_type != "Pledge":
-                    qty = -(i.quantity)
-                else:
-                    qty = i.quantity
-                security_transaction = frappe.get_doc(
-                    dict(
-                        doctype="Security Transaction",
-                        loan_no=loan.name,
-                        client_name=loan.customer_name,
-                        dpid=pledgor_boid,
-                        date=i.creation.date(),
-                        request_type=i.request_type,
-                        isin=i.isin,
-                        security_name=i.security_name,
-                        psn=i.psn,
-                        qty=qty,
-                        rate=i.price,
-                        value=-(i.value) if qty < 0 else i.value,
-                        creation_date=frappe.utils.now_datetime().date(),
-                    ),
-                ).insert(ignore_permissions=True)
-                frappe.db.commit()
+            try:
+                collateral_ledger = frappe.get_all(
+                    "Collateral Ledger", filters={"loan": loan.name}, fields=["*"]
+                )
+                loan_application = frappe.get_all(
+                    "Loan Application",
+                    filters={"customer": loan.customer},
+                    fields=["pledgor_boid"],
+                )
+                pledgor_boid = loan_application[0].pledgor_boid
+                for i in collateral_ledger:
+                    if i.request_type != "Pledge":
+                        qty = -(i.quantity)
+                    else:
+                        qty = i.quantity
+                    security_transaction = frappe.get_doc(
+                        dict(
+                            doctype="Security Transaction",
+                            loan_no=loan.name,
+                            client_name=loan.customer_name,
+                            dpid=pledgor_boid,
+                            date=i.creation.date(),
+                            request_type=i.request_type,
+                            isin=i.isin,
+                            security_name=i.security_name,
+                            psn=i.psn,
+                            qty=qty,
+                            rate=i.price,
+                            value=-(i.value) if qty < 0 else i.value,
+                            creation_date=frappe.utils.now_datetime().date(),
+                        ),
+                    ).insert(ignore_permissions=True)
+                    frappe.db.commit()
+            except:
+                frappe.log_error(
+                    message=frappe.get_traceback()
+                    + "\n\nCutomer :{} -\n\nloan :{}".format(loan.customer, loan.name),
+                    title=frappe._("Security Transaction"),
+                )
     except Exception:
         frappe.log_error(
             message=frappe.get_traceback(),

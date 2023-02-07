@@ -701,7 +701,7 @@
   }
  ],
  "links": [],
- "modified": "2023-01-17 14:22:50.461449",
+ "modified": "2023-01-23 15:40:16.928195",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
@@ -717,6 +717,13 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
+   "write": 1
+  },
+  {
+   "export": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lender",
    "write": 1
   }
  ],
