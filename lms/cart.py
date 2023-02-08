@@ -1100,8 +1100,40 @@ def get_tnc(**kwargs):
         tnc_ul.append(
             "<li><strong> Legal & incidental charges </strong>: As per actuals;</li>"
         )
+        if data.get("cart_name"):
+            if not cart.loan:
+                eligibile_loan = cart.eligible_loan
+            elif data.get("cart_name") and cart.loan and not cart.loan_margin_shortfall:
+                eligibile_loan = lms.round_down_amount_to_nearest_thousand(
+                    (cart.total_collateral_value + loan.total_collateral_value)
+                    * cart.allowable_ltv
+                    / 100
+                )
+        else:
+            eligibile_loan = data.get("topup_amount") + loan.sanctioned_limit
+
+        interest_config = frappe.get_value(
+            "Interest Configuration",
+            {
+                "to_amount": [">=", lms.validate_rupees(eligibile_loan)],
+            },
+            order_by="to_amount asc",
+        )
+        int_config = frappe.get_doc("Interest Configuration", interest_config)
+        roi_ = int_config.base_interest * 12
+        # diff = lms.diff_in_months(frappe.)
+        charges = lms.charges_for_apr(lender.name, lms.validate_rupees(eligibile_loan))
+        apr = lms.calculate_apr(
+            data.get("cart_name"),
+            roi_,
+            12,
+            int(lms.validate_rupees(eligibile_loan)),
+            charges,
+        )
         tnc_ul.append(
-            "<li><strong>Average Percentage Rate</strong> is maximum of <strong>20%</strong> inclusive of the annual interest rate, processing fee, documentation charges, stamp duty charges, lien charges (if any), renewal charges (if any).</li></ul>"
+            "<li><strong>Annual Percentage Rate</strong> is maximum of <strong>{apr}</strong> inclusive of the annual interest rate, processing fee, documentation charges, stamp duty charges, lien charges (if any), renewal charges (if any).</li></ul>".format(
+                apr=apr
+            )
         )
 
         if data.get("cart_name"):

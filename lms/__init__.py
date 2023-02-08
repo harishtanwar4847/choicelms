@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import base64
+import calendar
 import hashlib
 import hmac
 import json
@@ -2149,3 +2150,60 @@ def diff_in_months(date_1, date_2):
     end = datetime.strptime(date_2, "%d/%m/%Y")
     diff = (end.year - start.year) * 12 + (end.month - start.month)
     return diff
+
+
+def validate_loan_charges_amount(lender_doc, amount, min_field, max_field):
+    lender_dict = lender_doc.as_dict()
+    if (lender_dict[min_field] > 0) and (amount < lender_dict[min_field]):
+        amount = lender_dict[min_field]
+    elif (lender_dict[max_field] > 0) and (amount > lender_dict[max_field]):
+        amount = lender_dict[max_field]
+    return amount
+
+
+def charges_for_apr(lender, sanction_limit):
+    lender = frappe.get_doc("Lender", lender)
+    date = frappe.utils.now_datetime()
+    processing_fees = lender.lender_processing_fees
+    days_in_year = 366 if calendar.isleap(date.year) else 365
+    if lender.lender_processing_fees_type == "Percentage":
+        days_left_to_expiry = days_in_year
+        amount = (
+            (processing_fees / 100)
+            * sanction_limit
+            / days_in_year
+            * days_left_to_expiry
+        )
+        processing_fees = validate_loan_charges_amount(
+            lender,
+            amount,
+            "lender_processing_minimum_amount",
+            "lender_processing_maximum_amount",
+        )
+
+    # Stamp Duty
+    stamp_duty = lender.stamp_duty
+    if lender.stamp_duty_type == "Percentage":
+        amount = (stamp_duty / 100) * sanction_limit
+        stamp_duty = validate_loan_charges_amount(
+            lender,
+            amount,
+            "lender_stamp_duty_minimum_amount",
+            "lender_stamp_duty_maximum_amount",
+        )
+
+    documentation_charges = lender.documentation_charges
+    if lender.documentation_charge_type == "Percentage":
+        amount = (documentation_charges / 100) * sanction_limit
+        documentation_charges = validate_loan_charges_amount(
+            lender,
+            amount,
+            "lender_documentation_minimum_amount",
+            "lender_documentation_maximum_amount",
+        )
+
+    print("processing_fees", processing_fees)
+    print("stamp_duty", stamp_duty)
+    print("documentation_charges", documentation_charges)
+
+    return processing_fees + stamp_duty + documentation_charges
