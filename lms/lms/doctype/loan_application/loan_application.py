@@ -1790,14 +1790,14 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 fields=["*"],
             )
             if not sl:
-                sl = frappe.get_doc(
+                sll = frappe.get_doc(
                     dict(
                         doctype="Sanction Letter and CIAL Log",
                         loan_application=self.name,
                     ),
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
-                self.sl_entries = sl.name
+                self.sl_entries = sll.name
             if sl:
                 self.sl_entries = sl[0].name
 
