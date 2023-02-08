@@ -1567,6 +1567,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         else:
             address = ""
 
+        print("self.drawing_power", self.drawing_power)
+
         if self.loan:
             loan = self.get_loan()
             increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
@@ -1579,6 +1581,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 if increased_sanctioned_limit < lender.maximum_sanctioned_limit
                 else lender.maximum_sanctioned_limit
             )
+
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_account_number": loan.name if self.loan else "",
@@ -1590,17 +1593,21 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             "district": perm_dist,
             "state": perm_state,
             "pincode": perm_pin,
-            "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
-            # "sanctioned_amount": lms.validate_rupees(
-            #     new_increased_sanctioned_limit
-            #     if self.loan and not self.loan_margin_shortfall
-            #     else self.drawing_power
-            # ),
-            "sanctioned_amount_in_words": lms.number_to_word(
-                lms.validate_rupees(
+            # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
+            "sanctioned_amount": lms.validate_rupees(
+                float(
                     new_increased_sanctioned_limit
                     if self.loan and not self.loan_margin_shortfall
-                    else self.drawing_power,
+                    else self.drawing_power
+                )
+            ),
+            "sanctioned_amount_in_words": lms.number_to_word(
+                lms.validate_rupees(
+                    float(
+                        new_increased_sanctioned_limit
+                        if self.loan and not self.loan_margin_shortfall
+                        else self.drawing_power,
+                    )
                 )
             ).title(),
             "loan_application_no": self.name,
@@ -1744,7 +1751,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         "sanction_letter": sL_letter,
                         "loan_application_no": self.name,
                         "date_of_acceptance": frappe.utils.now_datetime().date(),
-                        "rebate_interest": self.rebate_interest,
+                        "rebate_interest": lender.rebait_threshold,
                     }
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
