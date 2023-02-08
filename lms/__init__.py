@@ -2122,3 +2122,21 @@ def name_matching(user_kyc, bank_acc_full_name):
             message=frappe.get_traceback()
             + "User Kyc Name:\n{}\n\n".format(user_kyc.name),
         )
+
+
+def calculate_apr(name_, interest_in_percentage, tenure, sanction_limit, charges=0):
+    try:
+        pmt_ = np.pmt(interest_in_percentage / 12, tenure, sanction_limit)
+        present_value = sanction_limit - charges
+        future_value = 0
+        apr = (
+            np.rate(nper=tenure, pmt=pmt_, pv=present_value, fv=future_value) * 12 * 100
+        )
+        if apr < 0:
+            apr = 0
+        return round(apr, 2)
+    except Exception:
+        frappe.log_error(
+            title="Calculate APR Error",
+            message=frappe.get_traceback() + "\n\n" + str(name_),
+        )
