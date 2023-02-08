@@ -848,7 +848,7 @@ class TopupApplication(Document):
                         "sanction_letter": sL_letter,
                         "topup_application_no": self.name,
                         "date_of_acceptance": frappe.utils.now_datetime().date(),
-                        "rebate_interest": self.rebate_interest,
+                        "rebate_interest": lender.rebait_threshold,
                     }
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
