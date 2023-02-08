@@ -611,6 +611,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     )
 
         if self.status == "Pledge executed":
+            print("status", self.workflow_state)
+            self.sanction_letter()
             total_collateral_value = 0
             for i in self.items:
                 if i.pledge_status == "Success" or i.pledge_status == "":
@@ -1529,11 +1531,284 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         ):
             item.idx = i
 
+    def sanction_letter(self):
+        print("abcd")
+        customer = self.get_customer()
+        user = frappe.get_doc("User", customer.user)
+        user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+        lender = self.get_lender()
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+
+            line1 = str(address_details.perm_line1)
+            if line1:
+                addline1 = "{},<br/>".format(line1)
+            else:
+                addline1 = ""
+
+            line2 = str(address_details.perm_line2)
+            if line2:
+                addline2 = "{},<br/>".format(line2)
+            else:
+                addline2 = ""
+
+            line3 = str(address_details.perm_line3)
+            if line3:
+                addline3 = "{},<br/>".format(line3)
+            else:
+                addline3 = ""
+
+            perm_city = str(address_details.perm_city)
+            perm_dist = str(address_details.perm_dist)
+            perm_state = str(address_details.perm_state)
+            perm_pin = str(address_details.perm_pin)
+
+        else:
+            address = ""
+
+        if self.loan:
+            loan = self.get_loan()
+            increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
+                (self.total_collateral_value + loan.total_collateral_value)
+                * self.allowable_ltv
+                / 100
+            )
+            new_increased_sanctioned_limit = (
+                increased_sanctioned_limit
+                if increased_sanctioned_limit < lender.maximum_sanctioned_limit
+                else lender.maximum_sanctioned_limit
+            )
+        doc = {
+            "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
+            "loan_account_number": loan.name if self.loan else "",
+            "borrower_name": user_kyc.fullname,
+            "addline1": addline1,
+            "addline2": addline2,
+            "addline3": addline3,
+            "city": perm_city,
+            "district": perm_dist,
+            "state": perm_state,
+            "pincode": perm_pin,
+            "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
+            # "sanctioned_amount": lms.validate_rupees(
+            #     new_increased_sanctioned_limit
+            #     if self.loan and not self.loan_margin_shortfall
+            #     else self.drawing_power
+            # ),
+            "sanctioned_amount_in_words": lms.number_to_word(
+                lms.validate_rupees(
+                    new_increased_sanctioned_limit
+                    if self.loan and not self.loan_margin_shortfall
+                    else self.drawing_power,
+                )
+            ).title(),
+            "loan_application_no": self.name,
+            "rate_of_interest": lender.rate_of_interest,
+            "default_interest": lender.default_interest,
+            "rebait_threshold": lender.rebait_threshold,
+            "renewal_charges": lms.validate_rupees(lender.renewal_charges)
+            if lender.renewal_charge_type == "Fix"
+            else lms.validate_percent(lender.renewal_charges),
+            "renewal_charge_type": lender.renewal_charge_type,
+            "renewal_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.renewal_charges)
+            ).title()
+            if lender.renewal_charge_type == "Fix"
+            else "",
+            "renewal_min_amt": lms.validate_rupees(lender.renewal_minimum_amount),
+            "renewal_max_amt": lms.validate_rupees(lender.renewal_maximum_amount),
+            "documentation_charge": lms.validate_rupees(lender.documentation_charges)
+            if lender.documentation_charge_type == "Fix"
+            else lms.validate_percent(lender.documentation_charges),
+            "documentation_charge_type": lender.documentation_charge_type,
+            "documentation_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.documentation_charges)
+            ).title()
+            if lender.documentation_charge_type == "Fix"
+            else "",
+            "documentation_min_amt": lms.validate_rupees(
+                lender.lender_documentation_minimum_amount
+            ),
+            "documentation_max_amt": lms.validate_rupees(
+                lender.lender_documentation_maximum_amount
+            ),
+            "lender_processing_fees_type": lender.lender_processing_fees_type,
+            "processing_charge": lms.validate_rupees(lender.lender_processing_fees)
+            if lender.lender_processing_fees_type == "Fix"
+            else lms.validate_percent(lender.lender_processing_fees),
+            "processing_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.lender_processing_fees)
+            ).title()
+            if lender.lender_processing_fees_type == "Fix"
+            else "",
+            "processing_min_amt": lms.validate_rupees(
+                lender.lender_processing_minimum_amount
+            ),
+            "processing_max_amt": lms.validate_rupees(
+                lender.lender_processing_maximum_amount
+            ),
+            # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
+            "transaction_charges_per_request": lms.validate_rupees(
+                lender.transaction_charges_per_request
+            ),
+            "security_selling_share": lender.security_selling_share,
+            "cic_charges": lms.validate_rupees(lender.cic_charges),
+            "total_pages": lender.total_pages,
+            "lien_initiate_charge_type": lender.lien_initiate_charge_type,
+            "invoke_initiate_charge_type": lender.invoke_initiate_charge_type,
+            "revoke_initiate_charge_type": lender.revoke_initiate_charge_type,
+            "lien_initiate_charge_minimum_amount": lms.validate_rupees(
+                lender.lien_initiate_charge_minimum_amount
+            ),
+            "lien_initiate_charge_maximum_amount": lms.validate_rupees(
+                lender.lien_initiate_charge_maximum_amount
+            ),
+            "lien_initiate_charges": lms.validate_rupees(lender.lien_initiate_charges)
+            if lender.lien_initiate_charge_type == "Fix"
+            else lms.validate_percent(lender.lien_initiate_charges),
+            "invoke_initiate_charges_minimum_amount": lms.validate_rupees(
+                lender.invoke_initiate_charges_minimum_amount
+            ),
+            "invoke_initiate_charges_maximum_amount": lms.validate_rupees(
+                lender.invoke_initiate_charges_maximum_amount
+            ),
+            "invoke_initiate_charges": lms.validate_rupees(
+                lender.invoke_initiate_charges
+            )
+            if lender.invoke_initiate_charge_type == "Fix"
+            else lms.validate_percent(lender.invoke_initiate_charges),
+            "revoke_initiate_charges_minimum_amount": lms.validate_rupees(
+                lender.revoke_initiate_charges_minimum_amount
+            ),
+            "revoke_initiate_charges_maximum_amount": lms.validate_rupees(
+                lender.revoke_initiate_charges_maximum_amount
+            ),
+            "revoke_initiate_charges": lms.validate_rupees(
+                lender.revoke_initiate_charges
+            )
+            if lender.revoke_initiate_charge_type == "Fix"
+            else lms.validate_percent(lender.revoke_initiate_charges),
+        }
+
+        sanctioned_letter_pdf_file = "{}-{}-sanctioned_letter.pdf".format(
+            self.name, frappe.utils.now_datetime().date()
+        )
+        sll_name = sanctioned_letter_pdf_file
+
+        sanctioned_leter_pdf_file_path = frappe.utils.get_files_path(
+            sanctioned_letter_pdf_file
+        )
+
+        sanction_letter_template = lender.get_sanction_letter_template()
+
+        # sanction_letter = frappe.render_template(
+        #     sanction_letter_template.get_content(), {"doc": doc}
+        # )
+
+        s_letter = frappe.render_template(
+            sanction_letter_template.get_content(), {"doc": doc}
+        )
+
+        pdf_file = open(sanctioned_leter_pdf_file_path, "wb")
+
+        from frappe.utils.pdf import get_pdf
+
+        pdf = get_pdf(s_letter)
+
+        pdf_file.write(pdf)
+        pdf_file.close()
+        sL_letter = frappe.utils.get_url("files/{}".format(sanctioned_letter_pdf_file))
+        print("sL_letter", sL_letter)
+
+        if self.application_type == "New Loan" and not self.sl_entries:
+            sl = frappe.get_doc(
+                dict(
+                    doctype="Sanction Letter and CIAL Log",
+                    loan_application=self.name,
+                ),
+            ).insert(ignore_permissions=True)
+            frappe.db.commit()
+            self.sl_entries = sl.name
+            sanction_letter_table = frappe.get_all(
+                "Sanction Letter Entries",
+                filters={"loan_application_no": self.name},
+                fields=["*"],
+            )
+            print("sanction_letter_table", sanction_letter_table)
+            if not sanction_letter_table:
+                sll = frappe.get_doc(
+                    {
+                        "doctype": "Sanction Letter Entries",
+                        "parent": sl.name,
+                        "parentfield": "sl_table",
+                        "parenttype": "Sanction Letter and CIAL Log",
+                        "sanction_letter": sL_letter,
+                        "loan_application_no": self.name,
+                        "date_of_acceptance": frappe.utils.now_datetime().date(),
+                        "rebate_interest": self.rebate_interest,
+                    }
+                ).insert(ignore_permissions=True)
+                frappe.db.commit()
+            # s_letter_file = frappe.get_doc(
+            #     {
+            #         "doctype": "File",
+            #         "file_name": sanctioned_letter_pdf_file,
+            #         "content": sanctioned_letter_pdf_file,
+            #         "attached_to_doctype": "Sanction Letter Entries",
+            #         "attached_to_name": sll.name,
+            #         "attached_to_field": "sanction_letter",
+            #         "folder": "Home",
+            #         # "file_url": loan_agreement_file_url,
+            #         "is_private": 0,
+            #     }
+            # )
+            # s_letter_file.insert(ignore_permissions=True)
+            # frappe.db.commit()
+
+            # frappe.db.set_value(
+            #     "Sanction Letter Entries",
+            #     sll.name,
+            #     "sanction_letter",
+            #     s_letter_file.file_url,
+            #     update_modified=False,
+            # )
+        else:
+            print("status", self.status)
+            sl = frappe.get_all(
+                "Sanction Letter and CIAL Log",
+                filters={"loan": self.loan},
+                fields=["*"],
+            )
+            self.sl_entries = sl[0].name
+            sanction_letter_table = frappe.get_all(
+                "Sanction Letter Entries",
+                filters={"loan_application_no": self.name},
+                fields=["*"],
+            )
+            if not sanction_letter_table:
+                sll = frappe.get_doc(
+                    {
+                        "doctype": "Sanction Letter Entries",
+                        "parent": sl[0].name,
+                        "parentfield": "sl_table",
+                        "parenttype": "Sanction Letter and CIAL Log",
+                        "sanction_letter": sL_letter,
+                        "loan_application_no": self.name,
+                        "date_of_acceptance": frappe.utils.now_datetime().date(),
+                        "rebate_interest": lender.rebait_threshold,
+                    }
+                ).insert(ignore_permissions=True)
+                frappe.db.commit()
+
+        return
+
 
 def check_for_pledge(loan_application_doc):
     # TODO : Workers assigned for this cron can be set in las and we can apply (fetch records)limit as per no. of workers assigned
     # frappe.db.begin()
-    loan_application_doc.status = "Executing pledge"
+    self.workflow_state = "Executing pledge"
     loan_application_doc.workflow_state = "Executing pledge"
     loan_application_doc.total_collateral_value = 0
     loan_application_doc.save(ignore_permissions=True)
@@ -1607,7 +1882,7 @@ def check_for_pledge(loan_application_doc):
 
     # frappe.db.begin()
     # manage loan application doc pledge status
-    loan_application_doc.status = "Pledge executed"
+    self.workflow_state = "Pledge executed"
     pledge_securities = 0
     if total_successful_pledge == len(loan_application_doc.items):
         loan_application_doc.pledge_status = "Success"

@@ -1794,6 +1794,13 @@ def dashboard(**kwargs):
                 loan_application_doc = frappe.get_doc(
                     "Loan Application", loan_application.name
                 )
+                if loan_application_doc.sl_entries:
+                    sanction_letter = frappe.db.sql(
+                        """select sanction_letter from `tabSanction Letter Entries` where parent = '{parent}' and loan_application_no = '{name}'""".format(
+                            parent=loan_application_doc.sl_entries,
+                            name=loan_application_doc.name,
+                        )
+                    )
 
                 mess = (
                     "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly, the increase in the sanctioned limit is Rs. {drawing_power}. Please e-sign the loan agreement to avail the increased sanctioned limit now.".format(
@@ -1856,6 +1863,7 @@ def dashboard(**kwargs):
                             if loan_application_doc.loan
                             and not loan_application_doc.loan_margin_shortfall
                             else None,
+                            "sanction_letter": sanction_letter[0][0],
                         }
                     )
 
@@ -1872,6 +1880,14 @@ def dashboard(**kwargs):
                     "Top up Application", topup_application.name
                 ).as_dict()
 
+                if topup_application_doc.sl_entries:
+                    sanction_letter = frappe.db.sql(
+                        """select sanction_letter from `tabSanction Letter Entries` where parent = '{parent}' and topup_application_no = '{name}'""".format(
+                            parent=topup_application_doc.sl_entries,
+                            name=topup_application_doc.name,
+                        )
+                    )
+
                 topup_application_doc.top_up_amount = lms.amount_formatter(
                     topup_application_doc.top_up_amount
                 )
@@ -1882,6 +1898,7 @@ def dashboard(**kwargs):
                         "mess": "Congratulations! Your application is being considered favourably by our lending partner. Accordingly, the increase in the sanctioned limit is Rs. {}. Please e-sign the loan agreement to avail the increased sanctioned limit now.".format(
                             frappe.utils.fmt_money(topup_application_doc.top_up_amount)
                         ),
+                        "sanction_letter": sanction_letter[0][0],
                     }
                 )
 
