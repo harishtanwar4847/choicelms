@@ -430,7 +430,7 @@ def chunk_doctype(doctype, limit=50):
 
 def __customer(entity=None):
     res = frappe.get_all("Loan Customer", filters={"user": __user(entity).name})
-
+    print("res", res)
     if len(res) == 0:
         raise CustomerNotFoundException
 
