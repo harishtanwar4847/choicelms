@@ -611,7 +611,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     )
 
         if self.status == "Pledge executed":
-            print("status", self.workflow_state)
             self.sanction_letter()
             total_collateral_value = 0
             for i in self.items:
@@ -1532,6 +1531,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             item.idx = i
 
     def sanction_letter(self):
+        print("abcd")
         customer = self.get_customer()
         user = frappe.get_doc("User", customer.user)
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
@@ -1690,7 +1690,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             if lender.revoke_initiate_charge_type == "Fix"
             else lms.validate_percent(lender.revoke_initiate_charges),
         }
-
+        print("doc", doc)
         sanctioned_letter_pdf_file = "{}-{}-sanctioned_letter.pdf".format(
             self.name, frappe.utils.now_datetime().date()
         )
@@ -1877,7 +1877,6 @@ def check_for_pledge(loan_application_doc):
 
     # frappe.db.begin()
     # manage loan application doc pledge status
-    self.workflow_state = "Pledge executed"
     pledge_securities = 0
     if total_successful_pledge == len(loan_application_doc.items):
         loan_application_doc.pledge_status = "Success"
