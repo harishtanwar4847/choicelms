@@ -2128,18 +2128,12 @@ def name_matching(user_kyc, bank_acc_full_name):
 
 def calculate_apr(name_, interest_in_percentage, tenure, sanction_limit, charges=0):
     try:
-        print("interest_in_percentage", interest_in_percentage)
-        print("tenure", tenure)
-        print("sanction_limit", sanction_limit)
-        pmt_ = np.pmt(interest_in_percentage / 12, tenure, sanction_limit)
-        print("print", pmt_)
+        pmt_ = np.pmt((interest_in_percentage / 100) / 12, tenure, sanction_limit)
         present_value = sanction_limit - charges
-        print("present_value", present_value)
         future_value = 0
         apr = (
             np.rate(nper=tenure, pmt=pmt_, pv=present_value, fv=future_value) * 12 * 100
         )
-        print("apr", apr)
         if apr < 0:
             apr = 0
         return round(apr, 2)

@@ -276,7 +276,7 @@ class Cart(Document):
         int_config = frappe.get_doc("Interest Configuration", interest_config)
         roi_ = int_config.base_interest * 12
         # diff = lms.diff_in_months(frappe.)
-        apr = lms.calculate_apr(self.name, roi_, 12, sanction_lmt)
+        apr = lms.calculate_apr(self.name, roi_, 12, int(sanction_lmt), charges=0)
         print("apr", apr)
         from num2words import num2words
 

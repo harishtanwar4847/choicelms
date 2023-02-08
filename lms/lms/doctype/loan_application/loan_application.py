@@ -1827,6 +1827,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 def check_for_pledge(loan_application_doc):
     # TODO : Workers assigned for this cron can be set in las and we can apply (fetch records)limit as per no. of workers assigned
     # frappe.db.begin()
+    loan_application_doc.status = "Executing pledge"
     loan_application_doc.workflow_state = "Executing pledge"
     loan_application_doc.total_collateral_value = 0
     loan_application_doc.save(ignore_permissions=True)
@@ -1900,6 +1901,7 @@ def check_for_pledge(loan_application_doc):
 
     # frappe.db.begin()
     # manage loan application doc pledge status
+    loan_application_doc.status = "Pledge executed"
     pledge_securities = 0
     if total_successful_pledge == len(loan_application_doc.items):
         loan_application_doc.pledge_status = "Success"

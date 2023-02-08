@@ -817,13 +817,10 @@ class TopupApplication(Document):
         pdf_file.write(pdf)
         pdf_file.close()
         sL_letter = frappe.utils.get_url("files/{}".format(sanctioned_letter_pdf_file))
-        print("sL_letter", sL_letter)
         sl = frappe.get_all(
             "Sanction Letter and CIAL Log", filters={"loan": self.loan}, fields=["*"]
         )
-        print("sl", sl)
         if not sl:
-            print("defg")
             sl = frappe.get_doc(
                 dict(
                     doctype="Sanction Letter and CIAL Log",
@@ -837,7 +834,6 @@ class TopupApplication(Document):
                 filters={"topup_application_no": self.name},
                 fields=["*"],
             )
-            print("sanction_letter_table", sanction_letter_table)
             if not sanction_letter_table:
                 sll = frappe.get_doc(
                     {

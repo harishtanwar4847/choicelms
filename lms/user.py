@@ -1865,7 +1865,9 @@ def dashboard(**kwargs):
                             if loan_application_doc.loan
                             and not loan_application_doc.loan_margin_shortfall
                             else None,
-                            "sanction_letter": sanction_letter[0],
+                            "sanction_letter": sanction_letter[0]
+                            if sanction_letter
+                            else None,
                         }
                     )
 
@@ -1902,7 +1904,9 @@ def dashboard(**kwargs):
                         "mess": "Congratulations! Your application is being considered favourably by our lending partner. Accordingly, the increase in the sanctioned limit is Rs. {}. Please e-sign the loan agreement to avail the increased sanctioned limit now.".format(
                             frappe.utils.fmt_money(topup_application_doc.top_up_amount)
                         ),
-                        "sanction_letter": sanction_letter[0],
+                        "sanction_letter": sanction_letter[0]
+                        if sanction_letter
+                        else None,
                     }
                 )
 
