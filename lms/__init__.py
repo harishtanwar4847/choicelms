@@ -16,6 +16,7 @@ from random import choice, randint, randrange
 from traceback import format_exc
 
 import frappe
+import numpy as np
 import razorpay
 import requests
 import utils
@@ -2141,3 +2142,10 @@ def calculate_apr(name_, interest_in_percentage, tenure, sanction_limit, charges
             title="Calculate APR Error",
             message=frappe.get_traceback() + "\n\n" + str(name_),
         )
+
+
+def diff_in_months(date_1, date_2):
+    start = datetime.strptime(date_1, "%d/%m/%Y")
+    end = datetime.strptime(date_2, "%d/%m/%Y")
+    diff = (end.year - start.year) * 12 + (end.month - start.month)
+    return diff

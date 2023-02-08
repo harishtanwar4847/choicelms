@@ -1536,6 +1536,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         user = frappe.get_doc("User", customer.user)
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
         lender = self.get_lender()
+        apr = lms.calculate_apr
         if user_kyc.address_details:
             address_details = frappe.get_doc(
                 "Customer Address Details", user_kyc.address_details
@@ -1728,6 +1729,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         sL_letter = frappe.utils.get_url("files/{}".format(sanctioned_letter_pdf_file))
 
         if self.application_type == "New Loan" and not self.sl_entries:
+            print("akash")
             sl = frappe.get_doc(
                 dict(
                     doctype="Sanction Letter and CIAL Log",
@@ -1741,7 +1743,9 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 filters={"loan_application_no": self.name},
                 fields=["*"],
             )
+            print("sl", sanction_letter_table)
             if not sanction_letter_table:
+                print("xyzzzzzz")
                 sll = frappe.get_doc(
                     {
                         "doctype": "Sanction Letter Entries",
@@ -1779,12 +1783,24 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             #     update_modified=False,
             # )
         elif self.application_type != "New Loan":
+            print("bajfb")
             sl = frappe.get_all(
                 "Sanction Letter and CIAL Log",
                 filters={"loan": self.loan},
                 fields=["*"],
             )
-            self.sl_entries = sl[0].name
+            if not sl:
+                sl = frappe.get_doc(
+                    dict(
+                        doctype="Sanction Letter and CIAL Log",
+                        loan_application=self.name,
+                    ),
+                ).insert(ignore_permissions=True)
+                frappe.db.commit()
+                self.sl_entries = sl.name
+            if sl:
+                self.sl_entries = sl[0].name
+
             sanction_letter_table = frappe.get_all(
                 "Sanction Letter Entries",
                 filters={"loan_application_no": self.name},
