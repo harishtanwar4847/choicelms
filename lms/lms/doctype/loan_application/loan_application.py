@@ -1778,7 +1778,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             #     s_letter_file.file_url,
             #     update_modified=False,
             # )
-        else:
+        elif self.application_type != "New Loan":
             sl = frappe.get_all(
                 "Sanction Letter and CIAL Log",
                 filters={"loan": self.loan},
