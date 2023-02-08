@@ -1532,7 +1532,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             item.idx = i
 
     def sanction_letter(self):
-        print("abcd")
         customer = self.get_customer()
         user = frappe.get_doc("User", customer.user)
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
@@ -1720,7 +1719,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         pdf_file.write(pdf)
         pdf_file.close()
         sL_letter = frappe.utils.get_url("files/{}".format(sanctioned_letter_pdf_file))
-        print("sL_letter", sL_letter)
 
         if self.application_type == "New Loan" and not self.sl_entries:
             sl = frappe.get_doc(
@@ -1736,7 +1734,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 filters={"loan_application_no": self.name},
                 fields=["*"],
             )
-            print("sanction_letter_table", sanction_letter_table)
             if not sanction_letter_table:
                 sll = frappe.get_doc(
                     {
@@ -1775,7 +1772,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             #     update_modified=False,
             # )
         else:
-            print("status", self.status)
             sl = frappe.get_all(
                 "Sanction Letter and CIAL Log",
                 filters={"loan": self.loan},
@@ -1808,7 +1804,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 def check_for_pledge(loan_application_doc):
     # TODO : Workers assigned for this cron can be set in las and we can apply (fetch records)limit as per no. of workers assigned
     # frappe.db.begin()
-    self.workflow_state = "Executing pledge"
     loan_application_doc.workflow_state = "Executing pledge"
     loan_application_doc.total_collateral_value = 0
     loan_application_doc.save(ignore_permissions=True)
