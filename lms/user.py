@@ -4683,6 +4683,7 @@ def ckyc_consent_details(**kwargs):
                 .get("address_proof_image"),
                 img_format="jpeg",
                 img_folder="user_ckyc_address",
+                compress=1,
             )
             corres_add_photos = lms.upload_image_to_doctype(
                 customer=lms.__customer(user_kyc_doc.user),
@@ -4692,6 +4693,7 @@ def ckyc_consent_details(**kwargs):
                 .get("address_proof_image"),
                 img_format="jpeg",
                 img_folder="user_ckyc_address",
+                compress=1,
             )
 
             ckyc_address_doc = frappe.get_doc(
@@ -4963,6 +4965,7 @@ def au_penny_drop(**kwargs):
             image_=data.get("personalized_cheque"),
             img_format="jpeg",
             img_folder="personalized_cheque",
+            compress=1,
         )
         bank_acc = frappe.get_all(
             "User Bank Account",

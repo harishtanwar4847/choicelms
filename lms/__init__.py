@@ -25,6 +25,7 @@ import xmltodict
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from frappe import _
+from PIL import Image
 from razorpay.errors import SignatureVerificationError
 
 from lms.config import lms
@@ -1871,11 +1872,7 @@ def ckyc_dot_net(
 
 
 def upload_image_to_doctype(
-    customer,
-    seq_no,
-    image_,
-    img_format,
-    img_folder="CKYC_IMG",
+    customer, seq_no, image_, img_format, img_folder="CKYC_IMG", compress=0
 ):
     try:
         extra_char = str(randrange(9999, 9999999999))
@@ -1895,6 +1892,8 @@ def upload_image_to_doctype(
         ckyc_image_file_path = frappe.utils.get_files_path(picture_file)
         image_decode = base64.decodestring(bytes(str(image_), encoding="utf8"))
         image_file = open(ckyc_image_file_path, "wb").write(image_decode)
+        if compress:
+            compress_image(ckyc_image_file_path, customer)
 
         ckyc_image_file_url = frappe.utils.get_url(
             "files/{}/{}-{}-{}.{}".format(
@@ -2207,3 +2206,21 @@ def charges_for_apr(lender, sanction_limit):
     print("documentation_charges", documentation_charges)
 
     return processing_fees + stamp_duty + documentation_charges
+
+
+def compress_image(input_image_path, user, quality=100):
+    try:
+        original_image = Image.open(input_image_path)
+        print(os.path.getsize(input_image_path) / 1048576 < 1)
+        if (
+            10 > os.path.getsize(input_image_path) / 1048576 > 1
+        ):  # size of image in mb(bytes/(1024*1024))
+            quality = 50
+        original_image.save(input_image_path, quality=quality)
+        return input_image_path
+    except Exception:
+        frappe.log_error(
+            title="Compress Image Error",
+            message=frappe.get_traceback()
+            + "User Name:\n{}\nFile Path:\n{}".format(user, input_image_path),
+        )
