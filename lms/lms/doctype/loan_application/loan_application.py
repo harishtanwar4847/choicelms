@@ -770,8 +770,12 @@ Sorry! Your loan application was turned down since the requested loan amount is 
     def on_update(self):
         if self.status == "Approved":
             if not self.loan:
-                loan = self.create_loan()
-                self.sanction_letter(check=loan.name)
+                try:
+                    loan = self.create_loan()
+                    self.sanction_letter(check=loan.name)
+                except:
+                    frappe.db.rollback()
+                    frappe.log_error()
 
             else:
                 loan = self.update_existing_loan()
@@ -2075,16 +2079,16 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         lender_esign_file = self.lender_esigned_document
         lfile_name = lender_esign_file.split("files/", 1)
         l_file = lfile_name[1]
-        print("lender_esign_file", l_file)
-        file = frappe.get_doc("File", l_file)
-        print("file", file)
+        # print("lender_esign_file", l_file)
+        # file = frappe.get_doc("File", l_file)
+        # print("file", file)
         path = frappe.utils.get_files_path(
-            file.file_name,
+            l_file,
         )
         print("file_path", path)
         with open(path, "rb") as fileobj:
             filedata = fileobj.read()
-        lender_doc = [{"fname": file.filename, "fcontent": filedata}]
+        lender_doc = [{"fname": l_file, "fcontent": filedata}]
         attachments.append(lender_doc)
 
         if self.customer_esigned_document:
@@ -2094,14 +2098,14 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             c_file = cfile_name[1]
             # file = frappe.get_doc("File",customer_esigned_document)
             path = frappe.utils.get_files_path(c_file)
-            print("c - path", path)
+            # print("c - path", path)
             # filedata = self.read_data(path)
             with open(path, "rb") as fileobj:
                 filedata = fileobj.read()
-            customer_doc = [{"fname": customer_esigned_document, "fcontent": filedata}]
+            customer_doc = [{"fname": c_file, "fcontent": filedata}]
             attachments.append(customer_doc)
 
-        print("attachments 2", attachments)
+        # print("attachments 2", attachments)
         return attachments
 
     # def split_file_name(file_name):
