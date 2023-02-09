@@ -771,6 +771,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         if self.status == "Approved":
             if not self.loan:
                 loan = self.create_loan()
+                self.sanction_letter(check=loan.name)
+
             else:
                 loan = self.update_existing_loan()
             frappe.db.commit()
@@ -839,6 +841,23 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     loan_margin_shortfall.status = "Pending"
                     loan_margin_shortfall.save(ignore_permissions=True)
                     frappe.db.commit()
+            # print("nacho")
+            # if not self.loan:
+            #     print("nacho2")
+            #     lender = self.get_lender()
+            #     doc = {
+            #         "loan_account_number":loan.name
+            #     }
+            #     sanction_letter = frappe.get_all("Sanction Letter Entries",filters={"loan_application_no": self.name},fields=["*"],)
+            #     if sanction_letter:
+            #         import os
+            #         fname = log_file.split('files/',1)
+            #         file = fname[1].split(".",1)
+            #         file_name = file[0]
+            #         log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
+            #         if os.path.exists(log_file):
+            #             os.remove(log_file)
+            #         self.sanction_letter()
 
         elif self.status == "Pledge accepted by Lender":
             approved_isin_list = []
@@ -1423,7 +1442,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         msg_type = "pledge"
         if self.instrument_type == "Mutual Fund":
             msg_type = "lien"
-
+        customer = self.get_customer()
         doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
         doc["loan_application"] = {
             "status": self.status,
@@ -1446,13 +1465,39 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             ]
             and not self.remarks
         ):
-            if self.loan and not self.loan_margin_shortfall:
-                frappe.enqueue_doc(
-                    "Notification", "Increase Loan Application", method="send", doc=doc
+            loan_email_message = frappe.db.sql(
+                "select message from `tabNotification` where subject ='{}';".format(
+                    email_subject
                 )
+            )[0][0]
+            print("loan_email_message", loan_email_message)
+            attachments = ""
+            if self.status in ["Approved"]:
+                attachments = self.create_attachment()
+                print("attachments", attachments)
+            if self.loan and not self.loan_margin_shortfall:
+                frappe.enqueue(
+                    method=frappe.sendmail,
+                    recipients=[customer.user],
+                    sender=None,
+                    subject=email_subject,
+                    message=loan_email_message,
+                    attachments=attachments,
+                )
+                # frappe.enqueue_doc(
+                #     "Notification", "Increase Loan Application", method="send", doc=doc,attachments= attachments,
+                # )
             else:
-                frappe.enqueue_doc(
-                    "Notification", email_subject, method="send", doc=doc
+                # frappe.enqueue_doc(
+                #     "Notification", email_subject, method="send", doc=doc,attachments= attachments,
+                # )
+                frappe.enqueue(
+                    method=frappe.sendmail,
+                    recipients=[customer.user],
+                    sender=None,
+                    subject=email_subject,
+                    message=loan_email_message,
+                    attachments=attachments,
                 )
 
         msg = ""
@@ -1635,7 +1680,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         ):
             item.idx = i
 
-    def sanction_letter(self):
+    def sanction_letter(self, check=None):
         customer = self.get_customer()
         user = frappe.get_doc("User", customer.user)
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
@@ -1726,11 +1771,15 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             ),
             charges,
         )
+        loan_name = ""
+        if not check and self.loan:
+            loan_name = loan.name
+        elif check:
+            loan_name = check
         annual_default_interest = lender.default_interest * 12
-        print("annual_default_interest", annual_default_interest)
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
-            "loan_account_number": loan.name if self.loan else "",
+            "loan_account_number": loan_name,
             "borrower_name": user_kyc.fullname,
             "addline1": addline1,
             "addline2": addline2,
@@ -1858,10 +1907,10 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             if lender.revoke_initiate_charge_type == "Fix"
             else lms.validate_percent(lender.revoke_initiate_charges),
         }
-        print("doc", doc)
-        sanctioned_letter_pdf_file = "{}-{}-sanctioned_letter.pdf".format(
-            self.name, frappe.utils.now_datetime().date()
-        )
+        # doc_d = str(frappe.utils.now_datetime())
+        # doc_da = doc_d.replace(" ","_")
+        # doc_date = doc_da.replace(".",":")
+        sanctioned_letter_pdf_file = "{}-sanctioned_letter.pdf".format(self.name)
         sll_name = sanctioned_letter_pdf_file
 
         sanctioned_leter_pdf_file_path = frappe.utils.get_files_path(
@@ -1887,71 +1936,9 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         pdf_file.write(pdf)
         pdf_file.close()
         sL_letter = frappe.utils.get_url("files/{}".format(sanctioned_letter_pdf_file))
-
-        if self.application_type == "New Loan" and not self.sl_entries:
-            print("akash")
-            sl = frappe.get_doc(
-                dict(
-                    doctype="Sanction Letter and CIAL Log",
-                    loan_application=self.name,
-                ),
-            ).insert(ignore_permissions=True)
-            frappe.db.commit()
-            self.sl_entries = sl.name
-            sanction_letter_table = frappe.get_all(
-                "Sanction Letter Entries",
-                filters={"loan_application_no": self.name},
-                fields=["*"],
-            )
-            print("sl", sanction_letter_table)
-            if not sanction_letter_table:
-                print("xyzzzzzz")
-                sll = frappe.get_doc(
-                    {
-                        "doctype": "Sanction Letter Entries",
-                        "parent": sl.name,
-                        "parentfield": "sl_table",
-                        "parenttype": "Sanction Letter and CIAL Log",
-                        "sanction_letter": sL_letter,
-                        "loan_application_no": self.name,
-                        "date_of_acceptance": frappe.utils.now_datetime().date(),
-                        "rebate_interest": lender.rebait_threshold,
-                    }
-                ).insert(ignore_permissions=True)
-                frappe.db.commit()
-            # s_letter_file = frappe.get_doc(
-            #     {
-            #         "doctype": "File",
-            #         "file_name": sanctioned_letter_pdf_file,
-            #         "content": sanctioned_letter_pdf_file,
-            #         "attached_to_doctype": "Sanction Letter Entries",
-            #         "attached_to_name": sll.name,
-            #         "attached_to_field": "sanction_letter",
-            #         "folder": "Home",
-            #         # "file_url": loan_agreement_file_url,
-            #         "is_private": 0,
-            #     }
-            # )
-            # s_letter_file.insert(ignore_permissions=True)
-            # frappe.db.commit()
-
-            # frappe.db.set_value(
-            #     "Sanction Letter Entries",
-            #     sll.name,
-            #     "sanction_letter",
-            #     s_letter_file.file_url,
-            #     update_modified=False,
-            # )
-        elif self.application_type != "New Loan":
-            print("bajfb")
-            sl = frappe.get_all(
-                "Sanction Letter and CIAL Log",
-                filters={"loan": self.loan},
-                fields=["*"],
-            )
-            if sl:
-                self.sl_entries = sl[0].name
-            else:
+        print("sL_letter", sL_letter)
+        if not check:
+            if self.application_type == "New Loan" and not self.sl_entries:
                 sl = frappe.get_doc(
                     dict(
                         doctype="Sanction Letter and CIAL Log",
@@ -1960,28 +1947,172 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
                 self.sl_entries = sl.name
+                sanction_letter_table = frappe.get_all(
+                    "Sanction Letter Entries",
+                    filters={"loan_application_no": self.name},
+                    fields=["*"],
+                )
+                if not sanction_letter_table:
+                    sll = frappe.get_doc(
+                        {
+                            "doctype": "Sanction Letter Entries",
+                            "parent": sl.name,
+                            "parentfield": "sl_table",
+                            "parenttype": "Sanction Letter and CIAL Log",
+                            "sanction_letter": sL_letter,
+                            "loan_application_no": self.name,
+                            "date_of_acceptance": frappe.utils.now_datetime().date(),
+                            "rebate_interest": int_config.base_interest,
+                        }
+                    ).insert(ignore_permissions=True)
+                    frappe.db.commit()
+                # s_letter_file = frappe.get_doc(
+                #     {
+                #         "doctype": "File",
+                #         "file_name": sanctioned_letter_pdf_file,
+                #         "content": sanctioned_letter_pdf_file,
+                #         "attached_to_doctype": "Sanction Letter Entries",
+                #         "attached_to_name": sll.name,
+                #         "attached_to_field": "sanction_letter",
+                #         "folder": "Home",
+                #         # "file_url": loan_agreement_file_url,
+                #         "is_private": 0,
+                #     }
+                # )
+                # s_letter_file.insert(ignore_permissions=True)
+                # frappe.db.commit()
 
-            sanction_letter_table = frappe.get_all(
-                "Sanction Letter Entries",
-                filters={"loan_application_no": self.name},
-                fields=["*"],
-            )
-            if not sanction_letter_table:
-                sll = frappe.get_doc(
-                    {
-                        "doctype": "Sanction Letter Entries",
-                        "parent": sl[0].name,
-                        "parentfield": "sl_table",
-                        "parenttype": "Sanction Letter and CIAL Log",
-                        "sanction_letter": sL_letter,
-                        "loan_application_no": self.name,
-                        "date_of_acceptance": frappe.utils.now_datetime().date(),
-                        "rebate_interest": lender.rebait_threshold,
-                    }
-                ).insert(ignore_permissions=True)
-                frappe.db.commit()
+                # frappe.db.set_value(
+                #     "Sanction Letter Entries",
+                #     sll.name,
+                #     "sanction_letter",
+                #     s_letter_file.file_url,
+                #     update_modified=False,
+                # )
+            elif self.application_type != "New Loan":
+                sl = frappe.get_all(
+                    "Sanction Letter and CIAL Log",
+                    filters={"loan": self.loan},
+                    fields=["*"],
+                )
+                if sl:
+                    self.sl_entries = sl[0].name
+                else:
+                    sl = frappe.get_doc(
+                        dict(
+                            doctype="Sanction Letter and CIAL Log",
+                            loan_application=self.name,
+                        ),
+                    ).insert(ignore_permissions=True)
+                    frappe.db.commit()
+                    self.sl_entries = sl.name
+
+                sanction_letter_table = frappe.get_all(
+                    "Sanction Letter Entries",
+                    filters={"loan_application_no": self.name},
+                    fields=["*"],
+                )
+                if not sanction_letter_table:
+                    sll = frappe.get_doc(
+                        {
+                            "doctype": "Sanction Letter Entries",
+                            "parent": sl[0].name,
+                            "parentfield": "sl_table",
+                            "parenttype": "Sanction Letter and CIAL Log",
+                            "sanction_letter": sL_letter,
+                            "loan_application_no": self.name,
+                            "date_of_acceptance": frappe.utils.now_datetime().date(),
+                            "rebate_interest": int_config.base_interest,
+                        }
+                    ).insert(ignore_permissions=True)
+                    frappe.db.commit()
+        # else:
+        #     sanction_letter = frappe.get_all("Sanction Letter Entries",filters={"loan_application_no": self.name},fields=["*"],)
+        #     print("sanction_letter",sanction_letter[0].sanction_letter)
+        #     if sanction_letter:
+        #         import os
+        #         doc_name = sanction_letter[0].sanction_letter
+        #         fname = doc_name.split('files/',1)
+        #         file = fname[1].split(".",1)
+        #         file_name = file[0]
+        #         log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
+        #         if os.path.exists(log_file):
+        #             os.remove(log_file)
+
+        #         sll = frappe.get_doc(
+        #             {
+        #                 "doctype": "Sanction Letter Entries",
+        #                 "parent": sanction_letter[0].name,
+        #                 "parentfield": "sl_table",
+        #                 "parenttype": "Sanction Letter and CIAL Log",
+        #                 "sanction_letter": sL_letter,
+        #                 "loan_application_no": self.name,
+        #                 "date_of_acceptance": frappe.utils.now_datetime().date(),
+        #                 "rebate_interest": int_config.base_interest,
+        #             }
+        #         ).insert(ignore_permissions=True)
+        #         frappe.db.commit()
 
         return
+
+    def create_attachment(self):
+        attachments = []
+        sanction_letter = frappe.get_all(
+            "Sanction Letter Entries",
+            filters={"loan_application_no": self.name, "parent": self.sl_entries},
+            fields=["*"],
+        )
+        doc_name = sanction_letter[0].sanction_letter
+        fname = doc_name.split("files/", 1)
+        file = fname[1].split(".", 1)
+        file_name = file[0]
+        log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
+        with open(log_file, "rb") as fileobj:
+            filedata = fileobj.read()
+
+        sanction_letter = {"fname": fname[1], "fcontent": filedata}
+        attachments.append(sanction_letter)
+        lender_esign_file = self.lender_esigned_document
+        lfile_name = lender_esign_file.split("files/", 1)
+        l_file = lfile_name[1]
+        print("lender_esign_file", l_file)
+        file = frappe.get_doc("File", l_file)
+        print("file", file)
+        path = frappe.utils.get_files_path(
+            file.file_name,
+        )
+        print("file_path", path)
+        with open(path, "rb") as fileobj:
+            filedata = fileobj.read()
+        lender_doc = [{"fname": file.filename, "fcontent": filedata}]
+        attachments.append(lender_doc)
+
+        if self.customer_esigned_document:
+            customer_esigned_document = self.customer_esigned_document
+            print("lender_esign_file", customer_esigned_document)
+            cfile_name = customer_esigned_document.split("files/", 1)
+            c_file = cfile_name[1]
+            # file = frappe.get_doc("File",customer_esigned_document)
+            path = frappe.utils.get_files_path(c_file)
+            print("c - path", path)
+            # filedata = self.read_data(path)
+            with open(path, "rb") as fileobj:
+                filedata = fileobj.read()
+            customer_doc = [{"fname": customer_esigned_document, "fcontent": filedata}]
+            attachments.append(customer_doc)
+
+        print("attachments 2", attachments)
+        return attachments
+
+    # def split_file_name(file_name):
+    #     doc_name = file_name[0].sanction_letter
+    #     fname = doc_name.split('files/',1)
+    #     return fname
+
+    # def read_data(self,log_file):
+    #     with open(log_file, "rb") as fileobj:
+    #         filedata = fileobj.read()
+    #     return filedata
 
 
 def check_for_pledge(loan_application_doc):

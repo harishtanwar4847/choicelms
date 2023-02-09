@@ -858,7 +858,6 @@ def send_spark_push_notification(
 def validate_rupees(type_of_fees):
     process_charge = type_of_fees
     process_charge = str(process_charge)
-    print("process_charge", process_charge)
     arr = process_charge.split(".")
 
     if arr[1] == "0":
