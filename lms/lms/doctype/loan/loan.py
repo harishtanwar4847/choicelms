@@ -2196,8 +2196,13 @@ class Loan(Document):
 
 
 def check_loans_for_shortfall(loans):
+    counter = 0
     for loan_name in loans:
-        frappe.enqueue_doc("Loan", loan_name, method="check_for_shortfall")
+        queue = "default"
+        if (counter % 2) == 0:
+            queue = "short"
+        frappe.enqueue_doc("Loan", loan_name, method="check_for_shortfall", queue=queue)
+        counter += 1
 
 
 @frappe.whitelist()

@@ -2,7 +2,7 @@ import frappe
 
 
 def execute():
-    frappe.reload_doc("Lms", "DocType", "Loan Margin Shortfall")
+    frappe.reload_doc("Lms", "DocType", "Loan Margin Shortfall", force=True)
     loans_margin_shortfalls = frappe.get_all("Loan Margin Shortfall", fields=["*"])
     for loans_margin_shortfall in loans_margin_shortfalls:
         frappe.db.sql(

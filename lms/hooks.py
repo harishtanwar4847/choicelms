@@ -11,6 +11,7 @@ app_icon = "octicon octicon-file-directory"
 app_color = "grey"
 app_email = "developers@atritechnocrat.com"
 app_license = "MIT"
+app_logo_url = "/assets/lms/images/logo_mo.svg"
 
 # Includes in <head>
 # ------------------
@@ -166,7 +167,8 @@ scheduler_events = {
     # "all": ["lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered"],
     "cron": {
         "*/5 * * * *": [
-            "lms.lms.doctype.loan_application.loan_application.process_pledge"
+            "lms.lms.doctype.loan_application.loan_application.process_pledge",
+            "lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered",
         ],  # At every 5 minutes
         "30 17,5 * * *": [
             "lms.lms.doctype.loan_transaction.loan_transaction.reject_blank_transaction_and_settlement_recon_api"
@@ -183,12 +185,12 @@ scheduler_events = {
         "15 4 * * *": [
             "lms.lms.doctype.loan.loan.add_all_loans_penal_interest"
         ],  # At 04:15 AM daily
-        "30 8 * * *": [
+        "0 10 * * *": [
             "lms.lms.doctype.security_price.security_price.update_all_schemeNav"
         ],  # At 08:30 AM daily
-        "* * * * *": [
-            "lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered"
-        ],  # At every minute
+        # "* * * * *": [
+        #     "lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered"
+        # ],  # At every minute
         "30 23 * * *": ["lms.system_report_enqueue"],  # At 11:30 PM daily
         "15 0 * * *": [
             "lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.all_loans_renewal_update_doc"

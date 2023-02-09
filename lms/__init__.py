@@ -37,7 +37,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.8.1-uat"
+__version__ = "5.13.2"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -1841,6 +1841,27 @@ def ckyc_dot_net(
         log["response"] = res_json
 
         create_log(log, log_name)
+        if (
+            frappe.utils.get_url() == "https://spark.loans"
+            and res_json.get("status") != 200
+            and res_json.get("error")
+        ):
+            email_msg = (
+                "{customer} CKYC has failed in {api_type} due to Error: {error}".format(
+                    customer=cust.name, api_type=api_type, error=res_json.get("error")
+                )
+            )
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=[
+                    "manish.prasad@choiceindia.com",
+                    "prakash.aare@choiceindia.com",
+                    "harsha.sankla@choiceindia.com",
+                ],
+                sender=None,
+                subject="Spark Loans {} failure response".format(api_type),
+                message=email_msg,
+            )
 
         return res_json
     except Exception:
@@ -2050,8 +2071,12 @@ def au_pennydrop_api(data):
             "AccNum": data.get("account_number"),
             "HashValue": base64.b64encode(final_hash).decode("ascii"),
         }
+        data["payload"] = payload
 
         url = las_settings.penny_drop_api
+        if not url:
+            res_json = {"StatusCode": 404, "Message": "Penny Drop host missing"}
+            return res_json
 
         headers = {
             "Content-Type": "application/json",
@@ -2068,7 +2093,7 @@ def au_pennydrop_api(data):
     except Exception:
         frappe.log_error(
             title="AU Penny Drop API Error",
-            message=frappe.get_traceback() + "\n\n" + data,
+            message=frappe.get_traceback() + "\n\n" + str(data),
         )
 
 
