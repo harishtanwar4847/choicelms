@@ -1474,11 +1474,11 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     email_subject
                 )
             )[0][0]
-            print("loan_email_message", loan_email_message)
+            # print("loan_email_message", loan_email_message)
             attachments = ""
             if self.status in ["Approved"]:
                 attachments = self.create_attachment()
-                print("attachments", attachments)
+                # print("attachments", attachments)
             if self.loan and not self.loan_margin_shortfall:
                 frappe.enqueue(
                     method=frappe.sendmail,
@@ -1940,7 +1940,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         pdf_file.write(pdf)
         pdf_file.close()
         sL_letter = frappe.utils.get_url("files/{}".format(sanctioned_letter_pdf_file))
-        print("sL_letter", sL_letter)
+        # print("sL_letter", sL_letter)
         if not check:
             if self.application_type == "New Loan" and not self.sl_entries:
                 sl = frappe.get_doc(
@@ -2085,15 +2085,15 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         path = frappe.utils.get_files_path(
             l_file,
         )
-        print("file_path", path)
+        # print("file_path", path)
         with open(path, "rb") as fileobj:
             filedata = fileobj.read()
-        lender_doc = [{"fname": l_file, "fcontent": filedata}]
+        lender_doc = {"fname": l_file, "fcontent": filedata}
         attachments.append(lender_doc)
 
         if self.customer_esigned_document:
             customer_esigned_document = self.customer_esigned_document
-            print("lender_esign_file", customer_esigned_document)
+            # print("lender_esign_file", customer_esigned_document)
             cfile_name = customer_esigned_document.split("files/", 1)
             c_file = cfile_name[1]
             # file = frappe.get_doc("File",customer_esigned_document)
@@ -2102,7 +2102,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             # filedata = self.read_data(path)
             with open(path, "rb") as fileobj:
                 filedata = fileobj.read()
-            customer_doc = [{"fname": c_file, "fcontent": filedata}]
+            customer_doc = {"fname": c_file, "fcontent": filedata}
             attachments.append(customer_doc)
 
         # print("attachments 2", attachments)
