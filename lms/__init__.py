@@ -2165,8 +2165,8 @@ def validate_loan_charges_amount(lender_doc, amount, min_field, max_field):
 def charges_for_apr(lender, sanction_limit):
     lender = frappe.get_doc("Lender", lender)
     date = frappe.utils.now_datetime()
-    processing_fees = lender.lender_processing_fees
     days_in_year = 366 if calendar.isleap(date.year) else 365
+    processing_fees = lender.lender_processing_fees
     if lender.lender_processing_fees_type == "Percentage":
         days_left_to_expiry = days_in_year
         amount = (
@@ -2174,6 +2174,12 @@ def charges_for_apr(lender, sanction_limit):
             * sanction_limit
             / days_in_year
             * days_left_to_expiry
+        )
+        processing_fees = validate_loan_charges_amount(
+            lender,
+            amount,
+            "lender_stamp_duty_minimum_amount",
+            "lender_stamp_duty_maximum_amount",
         )
 
     # Stamp Duty
