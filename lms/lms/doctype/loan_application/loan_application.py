@@ -770,15 +770,17 @@ Sorry! Your loan application was turned down since the requested loan amount is 
     def on_update(self):
         if self.status == "Approved":
             if not self.loan:
-                print("akash")
                 loan = self.create_loan()
+                frappe.db.set_value(
+                    "Sanction Letter and CIAL Log", self.sl_entries, "loan", loan.name
+                )
                 self.sanction_letter(check=loan.name)
             else:
-                print("abcd")
                 loan = self.update_existing_loan()
+                self.sanction_letter(check=loan.name)
             frappe.db.commit()
             if self.application_type in ["New Loan", "Increase Loan"]:
-                print("loan", loan)
+
                 date = frappe.utils.now_datetime().date()
                 lms.client_sanction_details(loan, date)
 
@@ -1973,7 +1975,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         }
                     ).insert(ignore_permissions=True)
                     frappe.db.commit()
-            elif self.application_type != "New Loan":
+            elif self.application_type != "New Loan" and not self.sl_entries:
                 sl = frappe.get_all(
                     "Sanction Letter and CIAL Log",
                     filters={"loan": self.loan},
@@ -1996,11 +1998,12 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     filters={"loan_application_no": self.name},
                     fields=["*"],
                 )
+                print("sanction_letter_table", sanction_letter_table)
                 if not sanction_letter_table:
                     sll = frappe.get_doc(
                         {
                             "doctype": "Sanction Letter Entries",
-                            "parent": sl[0].name,
+                            "parent": sl.name,
                             "parentfield": "sl_table",
                             "parenttype": "Sanction Letter and CIAL Log",
                             "sanction_letter": sL_letter,
@@ -2010,33 +2013,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         }
                     ).insert(ignore_permissions=True)
                     frappe.db.commit()
-        # else:
-        #     sanction_letter = frappe.get_all("Sanction Letter Entries",filters={"loan_application_no": self.name},fields=["*"],)
-        #     print("sanction_letter",sanction_letter[0].sanction_letter)
-        #     if sanction_letter:
-        #         import os
-        #         doc_name = sanction_letter[0].sanction_letter
-        #         fname = doc_name.split('files/',1)
-        #         file = fname[1].split(".",1)
-        #         file_name = file[0]
-        #         log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
-        #         if os.path.exists(log_file):
-        #             os.remove(log_file)
-
-        #         sll = frappe.get_doc(
-        #             {
-        #                 "doctype": "Sanction Letter Entries",
-        #                 "parent": sanction_letter[0].name,
-        #                 "parentfield": "sl_table",
-        #                 "parenttype": "Sanction Letter and CIAL Log",
-        #                 "sanction_letter": sL_letter,
-        #                 "loan_application_no": self.name,
-        #                 "date_of_acceptance": frappe.utils.now_datetime().date(),
-        #                 "rebate_interest": int_config.base_interest,
-        #             }
-        #         ).insert(ignore_permissions=True)
-        #         frappe.db.commit()
-
         return
 
     def create_attachment(self):
