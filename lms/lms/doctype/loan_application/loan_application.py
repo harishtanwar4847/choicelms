@@ -770,17 +770,15 @@ Sorry! Your loan application was turned down since the requested loan amount is 
     def on_update(self):
         if self.status == "Approved":
             if not self.loan:
-                try:
-                    loan = self.create_loan()
-                    self.sanction_letter(check=loan.name)
-                except:
-                    frappe.db.rollback()
-                    frappe.log_error()
-
+                print("akash")
+                loan = self.create_loan()
+                self.sanction_letter(check=loan.name)
             else:
+                print("abcd")
                 loan = self.update_existing_loan()
             frappe.db.commit()
             if self.application_type in ["New Loan", "Increase Loan"]:
+                print("loan", loan)
                 date = frappe.utils.now_datetime().date()
                 lms.client_sanction_details(loan, date)
 
@@ -1464,45 +1462,50 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             in [
                 "Pledge Failure",
                 "Pledge accepted by Lender",
-                "Approved",
                 "Rejected",
             ]
             and not self.remarks
         ):
-            loan_email_message = frappe.db.sql(
-                "select message from `tabNotification` where subject ='{}';".format(
-                    email_subject
+            if self.loan and not self.loan_margin_shortfall:
+                frappe.enqueue_doc(
+                    "Notification",
+                    "Increase Loan Application",
+                    method="send",
+                    doc=doc,
                 )
+            else:
+                frappe.enqueue_doc(
+                    "Notification",
+                    email_subject,
+                    method="send",
+                    doc=doc,
+                )
+        elif self.status in ["Approved"]:
+            loan_email_message = frappe.db.sql(
+                "select message from `tabNotification` where name ='Loan Application Approved';"
             )[0][0]
-            # print("loan_email_message", loan_email_message)
+            loan_email_message = loan_email_message.replace("fullname", doc.fullname)
             attachments = ""
             if self.status in ["Approved"]:
                 attachments = self.create_attachment()
-                # print("attachments", attachments)
-            if self.loan and not self.loan_margin_shortfall:
-                frappe.enqueue(
-                    method=frappe.sendmail,
-                    recipients=[customer.user],
-                    sender=None,
-                    subject=email_subject,
-                    message=loan_email_message,
-                    attachments=attachments,
-                )
-                # frappe.enqueue_doc(
-                #     "Notification", "Increase Loan Application", method="send", doc=doc,attachments= attachments,
-                # )
-            else:
-                # frappe.enqueue_doc(
-                #     "Notification", email_subject, method="send", doc=doc,attachments= attachments,
-                # )
-                frappe.enqueue(
-                    method=frappe.sendmail,
-                    recipients=[customer.user],
-                    sender=None,
-                    subject=email_subject,
-                    message=loan_email_message,
-                    attachments=attachments,
-                )
+                if self.loan and not self.loan_margin_shortfall:
+                    frappe.enqueue(
+                        method=frappe.sendmail,
+                        recipients=[customer.user],
+                        sender=None,
+                        subject="Increase Loan Application",
+                        message=loan_email_message,
+                        attachments=attachments,
+                    )
+                else:
+                    frappe.enqueue(
+                        method=frappe.sendmail,
+                        recipients=[customer.user],
+                        sender=None,
+                        subject=email_subject,
+                        message=loan_email_message,
+                        attachments=attachments,
+                    )
 
         msg = ""
         loan = ""
@@ -1970,29 +1973,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         }
                     ).insert(ignore_permissions=True)
                     frappe.db.commit()
-                # s_letter_file = frappe.get_doc(
-                #     {
-                #         "doctype": "File",
-                #         "file_name": sanctioned_letter_pdf_file,
-                #         "content": sanctioned_letter_pdf_file,
-                #         "attached_to_doctype": "Sanction Letter Entries",
-                #         "attached_to_name": sll.name,
-                #         "attached_to_field": "sanction_letter",
-                #         "folder": "Home",
-                #         # "file_url": loan_agreement_file_url,
-                #         "is_private": 0,
-                #     }
-                # )
-                # s_letter_file.insert(ignore_permissions=True)
-                # frappe.db.commit()
-
-                # frappe.db.set_value(
-                #     "Sanction Letter Entries",
-                #     sll.name,
-                #     "sanction_letter",
-                #     s_letter_file.file_url,
-                #     update_modified=False,
-                # )
             elif self.application_type != "New Loan":
                 sl = frappe.get_all(
                     "Sanction Letter and CIAL Log",
@@ -2076,16 +2056,13 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 
         sanction_letter = {"fname": fname[1], "fcontent": filedata}
         attachments.append(sanction_letter)
+
         lender_esign_file = self.lender_esigned_document
         lfile_name = lender_esign_file.split("files/", 1)
         l_file = lfile_name[1]
-        # print("lender_esign_file", l_file)
-        # file = frappe.get_doc("File", l_file)
-        # print("file", file)
         path = frappe.utils.get_files_path(
             l_file,
         )
-        # print("file_path", path)
         with open(path, "rb") as fileobj:
             filedata = fileobj.read()
         lender_doc = {"fname": l_file, "fcontent": filedata}
@@ -2093,19 +2070,15 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 
         if self.customer_esigned_document:
             customer_esigned_document = self.customer_esigned_document
-            # print("lender_esign_file", customer_esigned_document)
             cfile_name = customer_esigned_document.split("files/", 1)
             c_file = cfile_name[1]
-            # file = frappe.get_doc("File",customer_esigned_document)
             path = frappe.utils.get_files_path(c_file)
-            # print("c - path", path)
-            # filedata = self.read_data(path)
+
             with open(path, "rb") as fileobj:
                 filedata = fileobj.read()
             customer_doc = {"fname": c_file, "fcontent": filedata}
             attachments.append(customer_doc)
 
-        # print("attachments 2", attachments)
         return attachments
 
     # def split_file_name(file_name):

@@ -296,11 +296,93 @@ class Cart(Document):
         else:
             address = ""
 
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+
+            line1 = str(address_details.perm_line1)
+            if line1:
+                addline1 = "{},<br/>".format(line1)
+            else:
+                addline1 = ""
+
+            line2 = str(address_details.perm_line2)
+            if line2:
+                addline2 = "{},<br/>".format(line2)
+            else:
+                addline2 = ""
+
+            line3 = str(address_details.perm_line3)
+            if line3:
+                addline3 = "{},<br/>".format(line3)
+            else:
+                addline3 = ""
+
+            perm_city = str(address_details.perm_city)
+            perm_dist = str(address_details.perm_dist)
+            perm_state = str(address_details.perm_state)
+            perm_pin = str(address_details.perm_pin)
+
+        else:
+            address_details = ""
+
+        interest_config = frappe.get_value(
+            "Interest Configuration",
+            {
+                "to_amount": [
+                    ">=",
+                    (
+                        lms.validate_rupees(
+                            self.increased_sanctioned_limit
+                            if self.loan and not self.loan_margin_shortfall
+                            else self.eligible_loan
+                        ),
+                    ),
+                ],
+            },
+            order_by="to_amount asc",
+        )
+        int_config = frappe.get_doc("Interest Configuration", interest_config)
+        roi_ = int_config.base_interest * 12
+        charges = lms.charges_for_apr(
+            lender.name,
+            lms.validate_rupees(
+                self.increased_sanctioned_limit
+                if self.loan and not self.loan_margin_shortfall
+                else self.eligible_loan
+            ),
+        )
+        apr = lms.calculate_apr(
+            self.name,
+            roi_,
+            12,
+            (
+                int(
+                    lms.validate_rupees(
+                        self.increased_sanctioned_limit
+                        if self.loan and not self.loan_margin_shortfall
+                        else self.eligible_loan
+                    )
+                )
+            ),
+            charges,
+        )
+        annual_default_interest = lender.default_interest * 12
+
         doc = {
             "esign_date": "__________",
-            "loan_application_number": " ",
+            "loan_application_no": " ",
+            "loan_account_number": " ",
             "borrower_name": user_kyc.fullname,
             "borrower_address": address,
+            "addline1": addline1,
+            "addline2": addline2,
+            "addline3": addline3,
+            "city": perm_city,
+            "district": perm_dist,
+            "state": perm_state,
+            "pincode": perm_pin,
             "sanctioned_amount": lms.validate_rupees(
                 self.increased_sanctioned_limit
                 if self.loan and not self.loan_margin_shortfall
@@ -313,12 +395,26 @@ class Cart(Document):
                     else self.eligible_loan,
                 )
             ).title(),
-            "rate_of_interest": lender.rate_of_interest,
-            "default_interest": lender.default_interest,
+            "roi": roi_,
+            "default_interest": annual_default_interest,
+            "rebate_interest": int_config.rebait_interest,
             "rebait_threshold": lender.rebait_threshold,
             "renewal_charges": lms.validate_rupees(lender.renewal_charges)
             if lender.renewal_charge_type == "Fix"
             else lms.validate_percent(lender.renewal_charges),
+            "apr": apr,
+            "interest_charges_in_amount": int(
+                (
+                    lms.validate_rupees(
+                        float(
+                            self.increased_sanctioned_limit
+                            if self.loan and not self.loan_margin_shortfall
+                            else self.eligible_loan
+                        )
+                    )
+                )
+                * (roi_ / 100)
+            ),
             "renewal_charge_type": lender.renewal_charge_type,
             "renewal_charge_in_words": lms.number_to_word(
                 lms.validate_rupees(lender.renewal_charges)
