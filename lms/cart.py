@@ -1123,12 +1123,26 @@ def get_tnc(**kwargs):
         roi_ = int_config.base_interest * 12
         # diff = lms.diff_in_months(frappe.)
         charges = lms.charges_for_apr(lender.name, lms.validate_rupees(eligibile_loan))
+        print("charges", charges)
         apr = lms.calculate_apr(
             data.get("cart_name"),
             roi_,
             12,
             int(lms.validate_rupees(eligibile_loan)),
             charges,
+        )
+        eligibile = int(lms.validate_rupees(eligibile_loan))
+        frappe.log_error(
+            message="\nroi_:\n{roi_}".format(roi_=roi_)
+            + " "
+            + "charges:{charges}".format(charges=charges)
+            + " "
+            + "int(lms.validate_rupees(eligibile_loan)):{eligibile}".format(
+                eligibile=eligibile
+            )
+            + " "
+            + "apr:{apr}".format(apr=apr),
+            title="cart lms",
         )
         tnc_ul.append(
             "<li><strong>Annual Percentage Rate</strong> is maximum of <strong>{apr}</strong> inclusive of the annual interest rate, processing fee, documentation charges, stamp duty charges, lien charges (if any), renewal charges (if any).</li></ul>".format(

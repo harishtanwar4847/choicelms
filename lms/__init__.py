@@ -2135,6 +2135,18 @@ def calculate_apr(name_, interest_in_percentage, tenure, sanction_limit, charges
         )
         if apr < 0:
             apr = 0
+
+        frappe.log_error(
+            message="\nroi_: {roi_}".format(roi_=interest_in_percentage)
+            + "\ncharges : {charges}".format(charges=charges)
+            + "\nint(lms.validate_rupees(eligibile_loan)) : {eligibile}".format(
+                eligibile=sanction_limit
+            )
+            + "\napr : {apr}".format(apr=apr)
+            + "\nTenure : {tenure}".format(tenure=tenure),
+            title="calculate_apr",
+        )
+
         return round(apr, 2)
     except Exception:
         frappe.log_error(
@@ -2200,9 +2212,14 @@ def charges_for_apr(lender, sanction_limit):
             "lender_documentation_maximum_amount",
         )
 
-    print("processing_fees", processing_fees)
-    print("stamp_duty", stamp_duty)
-    print("documentation_charges", documentation_charges)
+    frappe.log_error(
+        message="\nprocessing_fees: {roi_}".format(roi_=processing_fees)
+        + "\nstamp_duty : {charges}".format(charges=stamp_duty)
+        + "\ndocumentation_charges : {eligibile}".format(
+            eligibile=documentation_charges
+        ),
+        title="charges_for_apr",
+    )
 
     return processing_fees + stamp_duty + documentation_charges
 
