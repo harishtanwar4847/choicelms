@@ -17,7 +17,7 @@ from random import choice, randint, randrange
 from traceback import format_exc
 
 import frappe
-import numpy as np
+import numpy_financial as npf
 import razorpay
 import requests
 import utils
@@ -2127,25 +2127,16 @@ def name_matching(user_kyc, bank_acc_full_name):
 
 def calculate_apr(name_, interest_in_percentage, tenure, sanction_limit, charges=0):
     try:
-        pmt_ = np.pmt((interest_in_percentage / 100) / 12, tenure, sanction_limit)
+        pmt_ = npf.pmt((interest_in_percentage / 100) / 12, tenure, sanction_limit)
         present_value = sanction_limit - charges
         future_value = 0
         apr = (
-            np.rate(nper=tenure, pmt=pmt_, pv=present_value, fv=future_value) * 12 * 100
+            npf.rate(nper=tenure, pmt=pmt_, pv=present_value, fv=future_value)
+            * 12
+            * 100
         )
         if apr < 0:
             apr = 0
-
-        frappe.log_error(
-            message="\nroi_: {roi_}".format(roi_=interest_in_percentage)
-            + "\ncharges : {charges}".format(charges=charges)
-            + "\nint(lms.validate_rupees(eligibile_loan)) : {eligibile}".format(
-                eligibile=sanction_limit
-            )
-            + "\napr : {apr}".format(apr=apr)
-            + "\nTenure : {tenure}".format(tenure=tenure),
-            title="calculate_apr",
-        )
 
         return round(apr, 2)
     except Exception:
@@ -2183,12 +2174,6 @@ def charges_for_apr(lender, sanction_limit):
             * sanction_limit
             / days_in_year
             * days_left_to_expiry
-        )
-        processing_fees = validate_loan_charges_amount(
-            lender,
-            amount,
-            "lender_processing_minimum_amount",
-            "lender_processing_maximum_amount",
         )
 
     # Stamp Duty
