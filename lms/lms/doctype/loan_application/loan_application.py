@@ -1998,7 +1998,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     filters={"loan_application_no": self.name},
                     fields=["*"],
                 )
-                print("sanction_letter_table", sanction_letter_table)
                 if not sanction_letter_table:
                     sll = frappe.get_doc(
                         {
