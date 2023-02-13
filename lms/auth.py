@@ -767,3 +767,24 @@ def login_activity(customer):
     )
     activity_log.insert(ignore_permissions=True)
     frappe.db.commit()
+
+
+@frappe.whitelist(allow_guest=True)
+def onboarding_screen():
+    try:
+        las_settings = frappe.get_single("LAS Settings")
+        print("las_setting", las_settings)
+        onboard_list = []
+        for i in las_settings.onboarding_screen:
+            onboard_screen = frappe.get_doc("Tutorial Screen", i.name)
+            res = {
+                "screen_no": onboard_screen.screen_no,
+                "title": onboard_screen.title,
+                "description": onboard_screen.description,
+            }
+            onboard_list.append(res)
+
+        return utils.respondWithSuccess(message=onboard_list)
+    except utils.exceptions.APIException as e:
+        lms.log_api_error()
+        return e.respond()
