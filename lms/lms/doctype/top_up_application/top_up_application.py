@@ -461,13 +461,27 @@ class TopupApplication(Document):
             ).title(),
             "roi": roi_,
             "apr": apr,
+            "documentation_charges_kfs": frappe.utils.fmt_money(
+                charges.get("documentation_charges")
+            ),
+            "processing_charges_kfs": frappe.utils.fmt_money(
+                charges.get("processing_fees")
+            ),
+            "net_disbursed_amount": frappe.utils.fmt_money(
+                float(increased_sanction_limit) - charges.get("total")
+            ),
+            "total_amount_to_be_paid": frappe.utils.fmt_money(
+                float(increased_sanction_limit)
+                + charges.get("total")
+                + increased_sanction_limit
+            ),
             "loan_application_no": self.name,
             "rate_of_interest": lender.rate_of_interest,
             "rebate_interest": int_config.rebait_interest,
             "default_interest": annual_default_interest,
             "rebait_threshold": lender.rebait_threshold,
             "interest_charges_in_amount": int(
-                (lms.validate_rupees(float(increased_sanction_limit))) * (roi_ / 100)
+                (frappe.utils.fmt_money(float(increased_sanction_limit))) * (roi_ / 100)
             ),
             "renewal_charges": lms.validate_rupees(lender.renewal_charges)
             if lender.renewal_charge_type == "Fix"
@@ -771,7 +785,7 @@ class TopupApplication(Document):
 
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
-            "loan_account_number": loan.name if self.loan else "",
+            "loan_account_no": loan.name if self.loan else "",
             "borrower_name": user_kyc.fullname,
             "addline1": addline1,
             "addline2": addline2,
@@ -857,7 +871,7 @@ class TopupApplication(Document):
                 lender.transaction_charges_per_request
             ),
             "interest_charges_in_amount": int(
-                lms.validate_rupees(float(increased_sanction_limit))
+                frappe.utils.fmt_money(float(increased_sanction_limit))
             )
             * (roi_ / 100),
             "security_selling_share": lender.security_selling_share,
