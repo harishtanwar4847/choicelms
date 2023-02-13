@@ -235,7 +235,7 @@ class LoanApplication(Document):
             ),
             "interest_charges_in_amount": int(
                 (
-                    frappe.utils.fmt_money(
+                    lms.validate_rupees(
                         float(
                             new_increased_sanctioned_limit
                             if self.loan and not self.loan_margin_shortfall
