@@ -2209,6 +2209,10 @@ def charges_for_apr(lender, sanction_limit):
     total = processing_fees + stamp_duty + documentation_charges
     charges["total"] = total
     print("total", charges)
+    frappe.log_error(
+        title="Charge calculate",
+        message=str(charges),
+    )
     return charges
 
 

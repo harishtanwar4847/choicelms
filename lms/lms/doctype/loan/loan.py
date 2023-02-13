@@ -2089,7 +2089,7 @@ class Loan(Document):
                 roi_,
                 12,
                 int(lms.validate_rupees(float(increased_sanction_limit))),
-                charges,
+                charges.get("total"),
             ),
             2,
         )
