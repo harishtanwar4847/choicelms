@@ -1984,12 +1984,14 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 if sl:
                     self.sl_entries = sl[0].name
                 else:
-                    sl = frappe.get_doc(
-                        dict(
-                            doctype="Sanction Letter and CIAL Log",
-                            loan_application=self.name,
-                        ),
-                    ).insert(ignore_permissions=True)
+                    sl = [
+                        frappe.get_doc(
+                            dict(
+                                doctype="Sanction Letter and CIAL Log",
+                                loan_application=self.name,
+                            ),
+                        ).insert(ignore_permissions=True)
+                    ]
                     frappe.db.commit()
                     self.sl_entries = sl.name
 
@@ -2002,7 +2004,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     sll = frappe.get_doc(
                         {
                             "doctype": "Sanction Letter Entries",
-                            "parent": sl.name,
+                            "parent": sl[0].name,
                             "parentfield": "sl_table",
                             "parenttype": "Sanction Letter and CIAL Log",
                             "sanction_letter": sL_letter,
