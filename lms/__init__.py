@@ -2163,6 +2163,7 @@ def validate_loan_charges_amount(lender_doc, amount, min_field, max_field):
 
 
 def charges_for_apr(lender, sanction_limit):
+    charges = {}
     lender = frappe.get_doc("Lender", lender)
     date = frappe.utils.now_datetime()
     days_in_year = 366 if calendar.isleap(date.year) else 365
@@ -2178,9 +2179,10 @@ def charges_for_apr(lender, sanction_limit):
         processing_fees = validate_loan_charges_amount(
             lender,
             amount,
-            "lender_stamp_duty_minimum_amount",
-            "lender_stamp_duty_maximum_amount",
+            "lender_processing_minimum_amount",
+            "lender_processing_maximum_amount",
         )
+    charges["processing_fees"] = processing_fees
 
     # Stamp Duty
     stamp_duty = lender.stamp_duty
@@ -2192,6 +2194,7 @@ def charges_for_apr(lender, sanction_limit):
             "lender_stamp_duty_minimum_amount",
             "lender_stamp_duty_maximum_amount",
         )
+    charges["stamp_duty"] = stamp_duty
 
     documentation_charges = lender.documentation_charges
     if lender.documentation_charge_type == "Percentage":
@@ -2202,8 +2205,11 @@ def charges_for_apr(lender, sanction_limit):
             "lender_documentation_minimum_amount",
             "lender_documentation_maximum_amount",
         )
-
-    return processing_fees + stamp_duty + documentation_charges
+    charges["documentation_charges"] = documentation_charges
+    total = processing_fees + stamp_duty + documentation_charges
+    charges["total"] = total
+    print("total", charges)
+    return charges
 
 
 def compress_image(input_image_path, user, quality=100):

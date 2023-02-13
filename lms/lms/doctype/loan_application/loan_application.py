@@ -161,10 +161,23 @@ class LoanApplication(Document):
                     )
                 )
             ),
-            charges,
+            charges.get("total"),
         )
         annual_default_interest = lender.default_interest * 12
-
+        sanctionlimit = (
+            new_increased_sanctioned_limit
+            if self.loan and not self.loan_margin_shortfall
+            else self.drawing_power
+        )
+        interest_charges_in_amount = int(
+            lms.validate_rupees(
+                float(
+                    new_increased_sanctioned_limit
+                    if self.loan and not self.loan_margin_shortfall
+                    else self.drawing_power
+                )
+            )
+        ) * (roi_ / 100)
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_account_number": loan.name if self.loan else "",
@@ -179,7 +192,7 @@ class LoanApplication(Document):
             "state": perm_state,
             "pincode": perm_pin,
             # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
-            "sanctioned_amount": lms.validate_rupees(
+            "sanctioned_amount": frappe.utils.fmt_money(
                 float(
                     new_increased_sanctioned_limit
                     if self.loan and not self.loan_margin_shortfall
@@ -197,14 +210,32 @@ class LoanApplication(Document):
             ).title(),
             "roi": roi_,
             "apr": apr,
+            "documentation_charges_kfs": frappe.utils.fmt_money(
+                charges.get("documentation_charges")
+            ),
+            "processing_charges_kfs": frappe.utils.fmt_money(
+                charges.get("processing_fees")
+            ),
+            "net_disbursed_amount": frappe.utils.fmt_money(
+                float(sanctionlimit) - charges.get("total")
+            ),
+            "total_amount_to_be_paid": frappe.utils.fmt_money(
+                float(sanctionlimit) + charges.get("total") + interest_charges_in_amount
+            ),
             "loan_application_no": self.name,
             "rate_of_interest": lender.rate_of_interest,
             "rebate_interest": int_config.rebait_interest,
             "default_interest": annual_default_interest,
             "rebait_threshold": lender.rebait_threshold,
+            "documentation_charges_kfs": frappe.utils.fmt_money(
+                charges.get("documentation_charges")
+            ),
+            "processing_charges_kfs": frappe.utils.fmt_money(
+                charges.get("processing_fees")
+            ),
             "interest_charges_in_amount": int(
                 (
-                    lms.validate_rupees(
+                    frappe.utils.fmt_money(
                         float(
                             new_increased_sanctioned_limit
                             if self.loan and not self.loan_margin_shortfall
@@ -1754,6 +1785,20 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             order_by="to_amount asc",
         )
         int_config = frappe.get_doc("Interest Configuration", interest_config)
+        sanctionlimit = (
+            new_increased_sanctioned_limit
+            if self.loan and not self.loan_margin_shortfall
+            else self.drawing_power
+        )
+        interest_charges_in_amount = int(
+            lms.validate_rupees(
+                float(
+                    new_increased_sanctioned_limit
+                    if self.loan and not self.loan_margin_shortfall
+                    else self.drawing_power
+                )
+            )
+        ) * (roi_ / 100)
         roi_ = round((int_config.base_interest * 12), 2)
         charges = lms.charges_for_apr(
             lender.name,
@@ -1778,7 +1823,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     )
                 )
             ),
-            charges,
+            charges.get("total"),
         )
         loan_name = ""
         if not check and self.loan:
@@ -1798,7 +1843,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             "state": perm_state,
             "pincode": perm_pin,
             # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
-            "sanctioned_amount": lms.validate_rupees(
+            "sanctioned_amount": frappe.utils.fmt_money(
                 float(
                     new_increased_sanctioned_limit
                     if self.loan and not self.loan_margin_shortfall
@@ -1816,6 +1861,18 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             ).title(),
             "roi": roi_,
             "apr": apr,
+            "documentation_charges_kfs": frappe.utils.fmt_money(
+                charges.get("documentation_charges")
+            ),
+            "processing_charges_kfs": frappe.utils.fmt_money(
+                charges.get("processing_fees")
+            ),
+            "net_disbursed_amount": frappe.utils.fmt_money(
+                float(sanctionlimit) - charges.get("total")
+            ),
+            "total_amount_to_be_paid": frappe.utils.fmt_money(
+                float(sanctionlimit) + charges.get("total") + interest_charges_in_amount
+            ),
             "loan_application_no": self.name,
             "rate_of_interest": lender.rate_of_interest,
             "rebate_interest": int_config.rebait_interest,

@@ -344,7 +344,16 @@ class Cart(Document):
             order_by="to_amount asc",
         )
         int_config = frappe.get_doc("Interest Configuration", interest_config)
-        roi_ = int_config.base_interest * 12
+        roi_ = round((int_config.base_interest * 12), 2)
+        interest_charges_in_amount = int(
+            lms.validate_rupees(
+                float(
+                    self.increased_sanctioned_limit
+                    if self.loan and not self.loan_margin_shortfall
+                    else self.eligible_loan
+                )
+            )
+        ) * (roi_ / 100)
         charges = lms.charges_for_apr(
             lender.name,
             lms.validate_rupees(
@@ -366,9 +375,14 @@ class Cart(Document):
                     )
                 )
             ),
-            charges,
+            charges.get("total"),
         )
         annual_default_interest = lender.default_interest * 12
+        sanction_l = (
+            self.increased_sanctioned_limit
+            if self.loan and not self.loan_margin_shortfall
+            else self.eligible_loan
+        )
 
         doc = {
             "esign_date": "__________",
@@ -383,7 +397,7 @@ class Cart(Document):
             "district": perm_dist,
             "state": perm_state,
             "pincode": perm_pin,
-            "sanctioned_amount": lms.validate_rupees(
+            "sanctioned_amount": frappe.utils.fmt_money(
                 self.increased_sanctioned_limit
                 if self.loan and not self.loan_margin_shortfall
                 else self.eligible_loan
@@ -424,6 +438,19 @@ class Cart(Document):
             # else num2words(lender.renewal_charges).title(),
             "renewal_min_amt": lms.validate_rupees(lender.renewal_minimum_amount),
             "renewal_max_amt": lms.validate_rupees(lender.renewal_maximum_amount),
+            "documentation_charges_kfs": frappe.utils.fmt_money(
+                charges.get("documentation_charges")
+            ),
+            "processing_charges_kfs": frappe.utils.fmt_money(
+                charges.get("processing_fees")
+            ),
+            "net_disbursed_amount": frappe.utils.fmt_money(
+                float(sanction_l) - charges.get("total")
+            ),
+            "total_amount_to_be_paid": frappe.utils.fmt_money(
+                float(sanction_l) + charges.get("total") + interest_charges_in_amount
+            ),
+            # "stamp_duty_kfs":frappe.utils.fmt_money(charges.get("stamp_duty")),
             "documentation_charge": lms.validate_rupees(lender.documentation_charges)
             if lender.documentation_charge_type == "Fix"
             else lms.validate_percent(lender.documentation_charges),
@@ -454,6 +481,7 @@ class Cart(Document):
             "processing_max_amt": lms.validate_rupees(
                 lender.lender_processing_maximum_amount
             ),
+            ""
             # "stamp_duty_charges": lms.validate_rupees(lender.lender_stamp_duty_minimum_amount),
             "transaction_charges_per_request": lms.validate_rupees(
                 lender.transaction_charges_per_request

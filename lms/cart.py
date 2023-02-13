@@ -1128,7 +1128,7 @@ def get_tnc(**kwargs):
             roi_,
             12,
             int(lms.validate_rupees(eligibile_loan)),
-            charges,
+            charges.get("total"),
         )
         tnc_ul.append(
             "<li><strong>Annual Percentage Rate</strong> is maximum of <strong>{apr}</strong>% inclusive of annual interest rate, processing fee, stamp duty charge, documentation charge.</li></ul>".format(

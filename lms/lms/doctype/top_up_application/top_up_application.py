@@ -383,28 +383,92 @@ class TopupApplication(Document):
         else:
             address = ""
 
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+
+            line1 = str(address_details.perm_line1)
+            if line1:
+                addline1 = "{},<br/>".format(line1)
+            else:
+                addline1 = ""
+
+            line2 = str(address_details.perm_line2)
+            if line2:
+                addline2 = "{},<br/>".format(line2)
+            else:
+                addline2 = ""
+
+            line3 = str(address_details.perm_line3)
+            if line3:
+                addline3 = "{},<br/>".format(line3)
+            else:
+                addline3 = ""
+
+            perm_city = str(address_details.perm_city)
+            perm_dist = str(address_details.perm_dist)
+            perm_state = str(address_details.perm_state)
+            perm_pin = str(address_details.perm_pin)
+
+        else:
+            address_details = ""
+
+        increased_sanction_limit = self.top_up_amount + loan.sanctioned_limit
+        interest_config = frappe.get_value(
+            "Interest Configuration",
+            {
+                "to_amount": [
+                    ">=",
+                    lms.validate_rupees(float(increased_sanction_limit)),
+                ],
+            },
+            order_by="to_amount asc",
+        )
+        int_config = frappe.get_doc("Interest Configuration", interest_config)
+        roi_ = round((int_config.base_interest * 12), 2)
+        charges = lms.charges_for_apr(
+            lender.name, lms.validate_rupees(float(increased_sanction_limit))
+        )
+        apr = round(
+            lms.calculate_apr(
+                self.name,
+                roi_,
+                12,
+                int(lms.validate_rupees(float(increased_sanction_limit))),
+                charges,
+            ),
+            2,
+        )
+        annual_default_interest = lender.default_interest * 12
+
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_application_number": self.name,
             "borrower_name": user_kyc.fullname,
             "borrower_address": address,
-            # "sanctioned_amount": self.top_up_amount,
-            # "sanctioned_amount_in_words": num2words(
-            #     self.top_up_amount, lang="en_IN"
-            # ).title(),
-            "sanctioned_amount": lms.validate_rupees(
-                self.top_up_amount + loan.sanctioned_limit
-            ),
+            "addline1": addline1,
+            "addline2": addline2,
+            "addline3": addline3,
+            "city": perm_city,
+            "district": perm_dist,
+            "state": perm_state,
+            "pincode": perm_pin,
+            # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
+            "sanctioned_amount": lms.validate_rupees(float(increased_sanction_limit)),
             "sanctioned_amount_in_words": lms.number_to_word(
-                lms.validate_rupees((self.top_up_amount + loan.sanctioned_limit))
+                lms.validate_rupees(float(increased_sanction_limit))
             ).title(),
-            "old_sanctioned_amount": lms.validate_rupees(loan.sanctioned_limit),
-            "old_sanctioned_amount_in_words": lms.number_to_word(
-                lms.validate_rupees(loan.sanctioned_limit)
-            ).title(),
+            "roi": roi_,
+            "apr": apr,
+            "loan_application_no": self.name,
             "rate_of_interest": lender.rate_of_interest,
-            "default_interest": lender.default_interest,
+            "rebate_interest": int_config.rebait_interest,
+            "default_interest": annual_default_interest,
             "rebait_threshold": lender.rebait_threshold,
+            "interest_charges_in_amount": int(
+                (lms.validate_rupees(float(increased_sanction_limit))) * (roi_ / 100)
+            ),
             "renewal_charges": lms.validate_rupees(lender.renewal_charges)
             if lender.renewal_charge_type == "Fix"
             else lms.validate_percent(lender.renewal_charges),
@@ -414,7 +478,6 @@ class TopupApplication(Document):
             ).title()
             if lender.renewal_charge_type == "Fix"
             else "",
-            # else num2words(lender.renewal_charges).title(),
             "renewal_min_amt": lms.validate_rupees(lender.renewal_minimum_amount),
             "renewal_max_amt": lms.validate_rupees(lender.renewal_maximum_amount),
             "documentation_charge": lms.validate_rupees(lender.documentation_charges)
@@ -448,9 +511,6 @@ class TopupApplication(Document):
                 lender.lender_processing_maximum_amount
             ),
             # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
-            # "documentation_charges": lender.documentation_charges,
-            # "stamp_duty_charges": (lender.stamp_duty / 100)
-            # * self.sanctioned_limit,  # CR loan agreement changes
             "transaction_charges_per_request": lms.validate_rupees(
                 lender.transaction_charges_per_request
             ),
@@ -690,25 +750,24 @@ class TopupApplication(Document):
             order_by="to_amount asc",
         )
         int_config = frappe.get_doc("Interest Configuration", interest_config)
-        roi_ = int_config.base_interest * 12
-        print("roi_", roi_)
+        roi_ = round((int_config.base_interest * 12), 2)
         charges = lms.charges_for_apr(
             lender.name, lms.validate_rupees(float(increased_sanction_limit))
         )
-        print("charges", charges)
-        print("increased_sanction_limit", increased_sanction_limit)
         apr = round(
             lms.calculate_apr(
                 self.name,
                 roi_,
                 12,
                 int(lms.validate_rupees(float(increased_sanction_limit))),
-                charges,
+                charges.get("total"),
             ),
             2,
         )
-        print("apr", apr)
         annual_default_interest = lender.default_interest * 12
+        interest_charges_in_amount = int(
+            lms.validate_rupees(float(increased_sanction_limit))
+        ) * (roi_ / 100)
 
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
@@ -722,12 +781,28 @@ class TopupApplication(Document):
             "state": perm_state,
             "pincode": perm_pin,
             # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
-            "sanctioned_amount": lms.validate_rupees(float(increased_sanction_limit)),
+            "sanctioned_amount": frappe.utils.fmt_money(
+                float(increased_sanction_limit)
+            ),
             "sanctioned_amount_in_words": lms.number_to_word(
                 lms.validate_rupees(float(increased_sanction_limit))
             ).title(),
             "roi": roi_,
             "apr": apr,
+            "documentation_charges_kfs": frappe.utils.fmt_money(
+                charges.get("documentation_charges")
+            ),
+            "processing_charges_kfs": frappe.utils.fmt_money(
+                charges.get("processing_fees")
+            ),
+            "net_disbursed_amount": frappe.utils.fmt_money(
+                float(increased_sanction_limit) - charges.get("total")
+            ),
+            "total_amount_to_be_paid": frappe.utils.fmt_money(
+                float(increased_sanction_limit)
+                + charges.get("total")
+                + interest_charges_in_amount
+            ),
             "loan_application_no": self.name,
             "rate_of_interest": lender.rate_of_interest,
             "rebate_interest": int_config.rebait_interest,
@@ -781,6 +856,10 @@ class TopupApplication(Document):
             "transaction_charges_per_request": lms.validate_rupees(
                 lender.transaction_charges_per_request
             ),
+            "interest_charges_in_amount": int(
+                lms.validate_rupees(float(increased_sanction_limit))
+            )
+            * (roi_ / 100),
             "security_selling_share": lender.security_selling_share,
             "cic_charges": lms.validate_rupees(lender.cic_charges),
             "total_pages": lender.total_pages,
