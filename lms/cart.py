@@ -1131,7 +1131,7 @@ def get_tnc(**kwargs):
             charges,
         )
         tnc_ul.append(
-            "<li><strong>Annual Percentage Rate</strong> is maximum of <strong>{apr}</strong> inclusive of the annual interest rate, processing fee, documentation charges, stamp duty charges, lien charges (if any), renewal charges (if any).</li></ul>".format(
+            "<li><strong>Annual Percentage Rate</strong> is maximum of <strong>{apr}</strong>% inclusive of annual interest rate, processing fee, stamp duty charge, documentation charge.</li></ul>".format(
                 apr=apr
             )
         )

@@ -2203,15 +2203,6 @@ def charges_for_apr(lender, sanction_limit):
             "lender_documentation_maximum_amount",
         )
 
-    frappe.log_error(
-        message="\nprocessing_fees: {roi_}".format(roi_=processing_fees)
-        + "\nstamp_duty : {charges}".format(charges=stamp_duty)
-        + "\ndocumentation_charges : {eligibile}".format(
-            eligibile=documentation_charges
-        ),
-        title="charges_for_apr",
-    )
-
     return processing_fees + stamp_duty + documentation_charges
 
 
