@@ -1764,7 +1764,13 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             {
                 "to_amount": [
                     ">=",
-                    lms.validate_rupees(float(self.increased_sanctioned_limit)),
+                    lms.validate_rupees(
+                        float(
+                            self.increased_sanctioned_limit
+                            if self.increased_sanctioned_limit
+                            else self.drawing_power
+                        )
+                    ),
                 ],
             },
             order_by="to_amount asc",
@@ -1778,16 +1784,36 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         roi_ = round((int_config.base_interest * 12), 2)
         charges = lms.charges_for_apr(
             lender.name,
-            lms.validate_rupees(float(self.increased_sanctioned_limit)),
+            lms.validate_rupees(
+                float(
+                    self.increased_sanctioned_limit
+                    if self.increased_sanctioned_limit
+                    else self.drawing_power
+                )
+            ),
         )
         interest_charges_in_amount = int(
-            lms.validate_rupees(float(self.increased_sanctioned_limit))
+            lms.validate_rupees(
+                float(
+                    self.increased_sanctioned_limit
+                    if self.increased_sanctioned_limit
+                    else self.drawing_power
+                )
+            )
         ) * (roi_ / 100)
         apr = lms.calculate_apr(
             self.name,
             roi_,
             12,
-            int(lms.validate_rupees(float(self.increased_sanctioned_limit))),
+            int(
+                lms.validate_rupees(
+                    float(
+                        self.increased_sanctioned_limit
+                        if self.increased_sanctioned_limit
+                        else self.drawing_power
+                    )
+                )
+            ),
             charges.get("total"),
         )
         loan_name = ""
@@ -1810,9 +1836,17 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
             "sanctioned_amount": frappe.utils.fmt_money(
                 self.increased_sanctioned_limit
+                if self.increased_sanctioned_limit
+                else self.drawing_power
             ),
             "sanctioned_amount_in_words": lms.number_to_word(
-                lms.validate_rupees(float(self.increased_sanctioned_limit))
+                lms.validate_rupees(
+                    float(
+                        self.increased_sanctioned_limit
+                        if self.increased_sanctioned_limit
+                        else self.drawing_power
+                    )
+                )
             ).title(),
             "roi": roi_,
             "apr": apr,
@@ -1823,10 +1857,19 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 charges.get("processing_fees")
             ),
             "net_disbursed_amount": frappe.utils.fmt_money(
-                float(self.increased_sanctioned_limit) - charges.get("total")
+                float(
+                    self.increased_sanctioned_limit
+                    if self.increased_sanctioned_limit
+                    else self.drawing_power
+                )
+                - charges.get("total")
             ),
             "total_amount_to_be_paid": frappe.utils.fmt_money(
-                float(self.increased_sanctioned_limit)
+                float(
+                    self.increased_sanctioned_limit
+                    if self.increased_sanctioned_limit
+                    else self.drawing_power
+                )
                 + charges.get("total")
                 + interest_charges_in_amount
             ),
