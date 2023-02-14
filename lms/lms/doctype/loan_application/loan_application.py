@@ -1764,13 +1764,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             {
                 "to_amount": [
                     ">=",
-                    lms.validate_rupees(
-                        float(
-                            new_increased_sanctioned_limit
-                            if self.loan and not self.loan_margin_shortfall
-                            else self.drawing_power
-                        )
-                    ),
+                    lms.validate_rupees(float(self.increased_sanctioned_limit)),
                 ],
             },
             order_by="to_amount asc",
@@ -1784,36 +1778,16 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         roi_ = round((int_config.base_interest * 12), 2)
         charges = lms.charges_for_apr(
             lender.name,
-            lms.validate_rupees(
-                float(
-                    new_increased_sanctioned_limit
-                    if self.loan and not self.loan_margin_shortfall
-                    else self.drawing_power
-                )
-            ),
+            lms.validate_rupees(float(self.increased_sanctioned_limit)),
         )
         interest_charges_in_amount = int(
-            lms.validate_rupees(
-                float(
-                    new_increased_sanctioned_limit
-                    if self.loan and not self.loan_margin_shortfall
-                    else self.drawing_power
-                )
-            )
+            lms.validate_rupees(float(self.increased_sanctioned_limit))
         ) * (roi_ / 100)
         apr = lms.calculate_apr(
             self.name,
             roi_,
             12,
-            int(
-                lms.validate_rupees(
-                    float(
-                        new_increased_sanctioned_limit
-                        if self.loan and not self.loan_margin_shortfall
-                        else self.drawing_power
-                    )
-                )
-            ),
+            int(lms.validate_rupees(float(self.increased_sanctioned_limit))),
             charges.get("total"),
         )
         loan_name = ""
