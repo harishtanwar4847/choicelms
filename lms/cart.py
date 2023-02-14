@@ -1138,10 +1138,12 @@ def get_tnc(**kwargs):
 
         if data.get("cart_name"):
             cart.create_tnc_file()
+            print("defc")
             tnc_file_url = frappe.utils.get_url("files/tnc/{}.pdf".format(cart.name))
 
         else:
             loan.create_tnc_file(topup_amount=data.get("topup_amount"))
+            print("abcd")
             tnc_file_url = frappe.utils.get_url("files/tnc/{}.pdf".format(loan.name))
 
         tnc_header = "Please refer to the <a href='{}'>Terms & Conditions</a> for LAS facility, for detailed terms.".format(

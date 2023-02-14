@@ -417,17 +417,8 @@ class Cart(Document):
             if lender.renewal_charge_type == "Fix"
             else lms.validate_percent(lender.renewal_charges),
             "apr": apr,
-            "interest_charges_in_amount": int(
-                (
-                    lms.validate_rupees(
-                        float(
-                            self.increased_sanctioned_limit
-                            if self.loan and not self.loan_margin_shortfall
-                            else self.eligible_loan
-                        )
-                    )
-                )
-                * (roi_ / 100)
+            "interest_charges_in_amount": frappe.utils.fmt_money(
+                interest_charges_in_amount
             ),
             "renewal_charge_type": lender.renewal_charge_type,
             "renewal_charge_in_words": lms.number_to_word(
