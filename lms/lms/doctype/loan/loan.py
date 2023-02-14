@@ -1910,7 +1910,6 @@ class Loan(Document):
         # #             )
         #     else:
         #         max_topup_amount = 0
-
         return round(lms.round_down_amount_to_nearest_thousand(max_topup_amount), 2)
 
     def update_pending_topup_amount(self):
@@ -2229,7 +2228,6 @@ class Loan(Document):
             if lender.revoke_initiate_charge_type == "Fix"
             else lms.validate_percent(lender.revoke_initiate_charges),
         }
-        print("doc", doc)
         agreement_template = lender.get_loan_enhancement_agreement_template()
 
         agreement = frappe.render_template(

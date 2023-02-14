@@ -433,7 +433,6 @@ def chunk_doctype(doctype, limit=50):
 
 def __customer(entity=None):
     res = frappe.get_all("Loan Customer", filters={"user": __user(entity).name})
-    print("res", res)
     if len(res) == 0:
         raise CustomerNotFoundException
 
@@ -2208,7 +2207,6 @@ def charges_for_apr(lender, sanction_limit):
     charges["documentation_charges"] = documentation_charges
     total = processing_fees + stamp_duty + documentation_charges
     charges["total"] = total
-    print("total", charges)
     frappe.log_error(
         title="Charge calculate",
         message=str(charges),
@@ -2219,7 +2217,6 @@ def charges_for_apr(lender, sanction_limit):
 def compress_image(input_image_path, user, quality=100):
     try:
         original_image = Image.open(input_image_path)
-        print(os.path.getsize(input_image_path) / 1048576 < 1)
         if (
             10 > os.path.getsize(input_image_path) / 1048576 > 1
         ):  # size of image in mb(bytes/(1024*1024))

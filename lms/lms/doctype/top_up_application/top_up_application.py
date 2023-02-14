@@ -609,6 +609,7 @@ class TopupApplication(Document):
         }
 
     def notify_customer(self):
+        customer = self.get_customer()
         doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
         doc["top_up_application"] = {
             "status": self.status,
@@ -616,7 +617,25 @@ class TopupApplication(Document):
             "top_up_amount": self.top_up_amount,
         }
         # if self.status in ["Pending", "Approved", "Rejected"]:
-        frappe.enqueue_doc("Notification", "Top up Application", method="send", doc=doc)
+        attachments = ""
+        if doc.get("top_up_application").get("status") == "Approved":
+            attachments = self.create_attachment()
+            loan_email_message = frappe.db.sql(
+                "select message from `tabNotification` where name ='Top up Application Approved';"
+            )[0][0]
+            loan_email_message = loan_email_message.replace("fullname", doc.fullname)
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=[customer.user],
+                sender=None,
+                subject="Top up Application",
+                message=loan_email_message,
+                attachments=attachments,
+            )
+        else:
+            frappe.enqueue_doc(
+                "Notification", "Top up Application", method="send", doc=doc
+            )
         mess = ""
         loan = ""
         fcm_notification = {}
@@ -950,65 +969,106 @@ class TopupApplication(Document):
         sl = frappe.get_all(
             "Sanction Letter and CIAL Log", filters={"loan": self.loan}, fields=["*"]
         )
-        if not sl:
-            sl = frappe.get_doc(
-                dict(
-                    doctype="Sanction Letter and CIAL Log",
-                    loan_application=self.name,
-                ),
-            ).insert(ignore_permissions=True)
-            frappe.db.commit()
-            self.sl_entries = sl.name
-            sanction_letter_table = frappe.get_all(
-                "Sanction Letter Entries",
-                filters={"topup_application_no": self.name},
-                fields=["*"],
-            )
-            if not sanction_letter_table:
-                sll = frappe.get_doc(
-                    {
-                        "doctype": "Sanction Letter Entries",
-                        "parent": sl.name,
-                        "parentfield": "sl_table",
-                        "parenttype": "Sanction Letter and CIAL Log",
-                        "sanction_letter": sL_letter,
-                        "topup_application_no": self.name,
-                        "date_of_acceptance": frappe.utils.now_datetime().date(),
-                        "rebate_interest": lender.rebait_threshold,
-                    }
+        if not self.sl_entries:
+            if not sl:
+                sl = frappe.get_doc(
+                    dict(
+                        doctype="Sanction Letter and CIAL Log",
+                        loan_application=self.name,
+                    ),
                 ).insert(ignore_permissions=True)
                 frappe.db.commit()
+                self.sl_entries = sl.name
+                sanction_letter_table = frappe.get_all(
+                    "Sanction Letter Entries",
+                    filters={"topup_application_no": self.name},
+                    fields=["*"],
+                )
+                if not sanction_letter_table:
+                    sll = frappe.get_doc(
+                        {
+                            "doctype": "Sanction Letter Entries",
+                            "parent": sl.name,
+                            "parentfield": "sl_table",
+                            "parenttype": "Sanction Letter and CIAL Log",
+                            "sanction_letter": sL_letter,
+                            "topup_application_no": self.name,
+                            "date_of_acceptance": frappe.utils.now_datetime().date(),
+                            "rebate_interest": lender.rebait_threshold,
+                        }
+                    ).insert(ignore_permissions=True)
+                    frappe.db.commit()
 
-        else:
-            print("status", self.status)
-            sl = frappe.get_all(
-                "Sanction Letter and CIAL Log",
-                filters={"loan": self.loan},
-                fields=["*"],
-            )
-            self.sl_entries = sl[0].name
-            sanction_letter_table = frappe.get_all(
-                "Sanction Letter Entries",
-                filters={"topup_application_no": self.name},
-                fields=["*"],
-            )
-            print("sanction_letter_table", sanction_letter_table)
-            if not sanction_letter_table:
-                sll = frappe.get_doc(
-                    {
-                        "doctype": "Sanction Letter Entries",
-                        "parent": sl[0].name,
-                        "parentfield": "sl_table",
-                        "parenttype": "Sanction Letter and CIAL Log",
-                        "sanction_letter": sL_letter,
-                        "topup_application_no": self.name,
-                        "date_of_acceptance": frappe.utils.now_datetime().date(),
-                        "rebate_interest": lender.rebait_threshold,
-                    }
-                ).insert(ignore_permissions=True)
-                frappe.db.commit()
+            else:
+                sl = frappe.get_all(
+                    "Sanction Letter and CIAL Log",
+                    filters={"loan": self.loan},
+                    fields=["*"],
+                )
+                self.sl_entries = sl[0].name
+                sanction_letter_table = frappe.get_all(
+                    "Sanction Letter Entries",
+                    filters={"topup_application_no": self.name},
+                    fields=["*"],
+                )
+                if not sanction_letter_table:
+                    sll = frappe.get_doc(
+                        {
+                            "doctype": "Sanction Letter Entries",
+                            "parent": sl[0].name,
+                            "parentfield": "sl_table",
+                            "parenttype": "Sanction Letter and CIAL Log",
+                            "sanction_letter": sL_letter,
+                            "topup_application_no": self.name,
+                            "date_of_acceptance": frappe.utils.now_datetime().date(),
+                            "rebate_interest": lender.rebait_threshold,
+                        }
+                    ).insert(ignore_permissions=True)
+                    frappe.db.commit()
 
         return
+
+    def create_attachment(self):
+        attachments = []
+        sanction_letter = frappe.get_all(
+            "Sanction Letter Entries",
+            filters={"topup_application_no": self.name, "parent": self.sl_entries},
+            fields=["*"],
+        )
+        doc_name = sanction_letter[0].sanction_letter
+        fname = doc_name.split("files/", 1)
+        file = fname[1].split(".", 1)
+        file_name = file[0]
+        log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
+        with open(log_file, "rb") as fileobj:
+            filedata = fileobj.read()
+
+        sanction_letter = {"fname": fname[1], "fcontent": filedata}
+        attachments.append(sanction_letter)
+
+        lender_esign_file = self.lender_esigned_document
+        lfile_name = lender_esign_file.split("files/", 1)
+        l_file = lfile_name[1]
+        path = frappe.utils.get_files_path(
+            l_file,
+        )
+        with open(path, "rb") as fileobj:
+            filedata = fileobj.read()
+        lender_doc = {"fname": l_file, "fcontent": filedata}
+        attachments.append(lender_doc)
+
+        if self.customer_esigned_document:
+            customer_esigned_document = self.customer_esigned_document
+            cfile_name = customer_esigned_document.split("files/", 1)
+            c_file = cfile_name[1]
+            path = frappe.utils.get_files_path(c_file)
+
+            with open(path, "rb") as fileobj:
+                filedata = fileobj.read()
+            customer_doc = {"fname": c_file, "fcontent": filedata}
+            attachments.append(customer_doc)
+
+        return attachments
 
 
 def only_pdf_upload(doc, method):

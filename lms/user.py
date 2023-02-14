@@ -1803,7 +1803,6 @@ def dashboard(**kwargs):
                         ),
                         as_dict=True,
                     )
-                    print(sanction_letter)
                 mess = (
                     "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly, the increase in the sanctioned limit is Rs. {drawing_power}. Please e-sign the loan agreement to avail the increased sanctioned limit now.".format(
                         current_total_collateral_value=frappe.utils.fmt_money(
