@@ -36,6 +36,7 @@ class LoanApplication(Document):
         user = frappe.get_doc("User", customer.user)
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
         lender = self.get_lender()
+        diff = self.drawing_power
         if self.loan:
             loan = self.get_loan()
             increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
@@ -55,6 +56,7 @@ class LoanApplication(Document):
                 new_increased_sanctioned_limit,
                 update_modified=False,
             )
+            diff = new_increased_sanctioned_limit - loan.sanctioned_limit
 
         if user_kyc.address_details:
             address_details = frappe.get_doc(
@@ -140,13 +142,7 @@ class LoanApplication(Document):
         roi_ = round((int_config.base_interest * 12), 2)
         charges = lms.charges_for_apr(
             lender.name,
-            lms.validate_rupees(
-                float(
-                    new_increased_sanctioned_limit
-                    if self.loan and not self.loan_margin_shortfall
-                    else self.drawing_power
-                )
-            ),
+            lms.validate_rupees(float(diff)),
         )
         apr = lms.calculate_apr(
             self.name,
@@ -182,7 +178,7 @@ class LoanApplication(Document):
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_account_number": loan.name if self.loan else "",
             "loan_application_number": self.name,
-            "borrower_name": user_kyc.fullname,
+            "borrower_name": customer.full_name,
             "borrower_address": address,
             "addline1": addline1,
             "addline2": addline2,
@@ -1765,6 +1761,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         else:
             address_details = ""
 
+        diff = self.drawing_power
         if self.loan:
             loan = self.get_loan()
             increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
@@ -1777,6 +1774,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 if increased_sanctioned_limit < lender.maximum_sanctioned_limit
                 else lender.maximum_sanctioned_limit
             )
+            diff = self.increased_sanctioned_limit - loan.sanctioned_limit
         interest_config = frappe.get_value(
             "Interest Configuration",
             {
@@ -1802,13 +1800,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         roi_ = round((int_config.base_interest * 12), 2)
         charges = lms.charges_for_apr(
             lender.name,
-            lms.validate_rupees(
-                float(
-                    self.increased_sanctioned_limit
-                    if self.increased_sanctioned_limit
-                    else self.drawing_power
-                )
-            ),
+            lms.validate_rupees(float(diff)),
         )
         interest_charges_in_amount = int(
             lms.validate_rupees(
@@ -1843,7 +1835,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_account_number": loan_name,
-            "borrower_name": user_kyc.fullname,
+            "borrower_name": customer.full_name,
             "addline1": addline1,
             "addline2": addline2,
             "addline3": addline3,
@@ -2084,21 +2076,21 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 
     def create_attachment(self):
         attachments = []
-        sanction_letter = frappe.get_all(
-            "Sanction Letter Entries",
-            filters={"loan_application_no": self.name, "parent": self.sl_entries},
-            fields=["*"],
-        )
-        doc_name = sanction_letter[0].sanction_letter
-        fname = doc_name.split("files/", 1)
-        file = fname[1].split(".", 1)
-        file_name = file[0]
-        log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
-        with open(log_file, "rb") as fileobj:
-            filedata = fileobj.read()
+        # sanction_letter = frappe.get_all(
+        #     "Sanction Letter Entries",
+        #     filters={"loan_application_no": self.name, "parent": self.sl_entries},
+        #     fields=["*"],
+        # )
+        # doc_name = sanction_letter[0].sanction_letter
+        # fname = doc_name.split("files/", 1)
+        # file = fname[1].split(".", 1)
+        # file_name = file[0]
+        # log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
+        # with open(log_file, "rb") as fileobj:
+        #     filedata = fileobj.read()
 
-        sanction_letter = {"fname": fname[1], "fcontent": filedata}
-        attachments.append(sanction_letter)
+        # sanction_letter = {"fname": fname[1], "fcontent": filedata}
+        # attachments.append(sanction_letter)
 
         lender_esign_file = self.lender_esigned_document
         lfile_name = lender_esign_file.split("files/", 1)
@@ -2111,16 +2103,16 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         lender_doc = {"fname": l_file, "fcontent": filedata}
         attachments.append(lender_doc)
 
-        if self.customer_esigned_document:
-            customer_esigned_document = self.customer_esigned_document
-            cfile_name = customer_esigned_document.split("files/", 1)
-            c_file = cfile_name[1]
-            path = frappe.utils.get_files_path(c_file)
+        # if self.customer_esigned_document:
+        #     customer_esigned_document = self.customer_esigned_document
+        #     cfile_name = customer_esigned_document.split("files/", 1)
+        #     c_file = cfile_name[1]
+        #     path = frappe.utils.get_files_path(c_file)
 
-            with open(path, "rb") as fileobj:
-                filedata = fileobj.read()
-            customer_doc = {"fname": c_file, "fcontent": filedata}
-            attachments.append(customer_doc)
+        #     with open(path, "rb") as fileobj:
+        #         filedata = fileobj.read()
+        #     customer_doc = {"fname": c_file, "fcontent": filedata}
+        #     attachments.append(customer_doc)
 
         return attachments
 

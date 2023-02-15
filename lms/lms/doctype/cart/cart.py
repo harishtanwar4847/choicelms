@@ -247,7 +247,7 @@ class Cart(Document):
         lender = self.get_lender()
         customer = self.get_customer()
         user_kyc = customer.get_kyc()
-
+        diff = self.eligible_loan
         if self.loan:
             loan = frappe.get_doc("Loan", self.loan)
             increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
@@ -261,6 +261,7 @@ class Cart(Document):
                 else lender.maximum_sanctioned_limit
             )
             self.save(ignore_permissions=True)
+            diff = self.increased_sanctioned_limit - loan.sanctioned_limit
         from num2words import num2words
 
         if user_kyc.address_details:
@@ -356,11 +357,7 @@ class Cart(Document):
         ) * (roi_ / 100)
         charges = lms.charges_for_apr(
             lender.name,
-            lms.validate_rupees(
-                self.increased_sanctioned_limit
-                if self.loan and not self.loan_margin_shortfall
-                else self.eligible_loan
-            ),
+            lms.validate_rupees(diff),
         )
         apr = lms.calculate_apr(
             self.name,
@@ -385,9 +382,9 @@ class Cart(Document):
         )
 
         doc = {
+            "loan_account_number": self.loan if self.loan else "",
             "esign_date": "__________",
             "loan_application_no": " ",
-            "loan_account_number": " ",
             "borrower_name": user_kyc.fullname,
             "borrower_address": address,
             "addline1": addline1,

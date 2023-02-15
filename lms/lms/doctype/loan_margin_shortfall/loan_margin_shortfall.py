@@ -547,7 +547,7 @@ def mark_sell_triggered():
                 )
         frappe.logger().info(str(frappe.utils.now_datetime()))
         frappe.logger().info(
-            "Total time took - "
+            "Total time took - mark_sell_triggered "
             + str((frappe.utils.now_datetime() - a).total_seconds())
         )
     except Exception:

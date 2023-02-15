@@ -428,7 +428,7 @@ class TopupApplication(Document):
         int_config = frappe.get_doc("Interest Configuration", interest_config)
         roi_ = round((int_config.base_interest * 12), 2)
         charges = lms.charges_for_apr(
-            lender.name, lms.validate_rupees(float(increased_sanction_limit))
+            lender.name, lms.validate_rupees(float(self.top_up_amount))
         )
         apr = round(
             lms.calculate_apr(
@@ -448,7 +448,7 @@ class TopupApplication(Document):
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_account_number": self.name,
-            "borrower_name": user_kyc.fullname,
+            "borrower_name": customer.full_name,
             "borrower_address": address,
             "addline1": addline1,
             "addline2": addline2,
@@ -811,7 +811,7 @@ class TopupApplication(Document):
         int_config = frappe.get_doc("Interest Configuration", interest_config)
         roi_ = round((int_config.base_interest * 12), 2)
         charges = lms.charges_for_apr(
-            lender.name, lms.validate_rupees(float(increased_sanction_limit))
+            lender.name, lms.validate_rupees(float(self.top_up_amount))
         )
         apr = round(
             lms.calculate_apr(
@@ -831,8 +831,8 @@ class TopupApplication(Document):
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_account_no": loan.name if self.loan else "",
-            "loan_account_number": self.name,
-            "borrower_name": user_kyc.fullname,
+            "loan_account_number": loan.name if self.loan else "",
+            "borrower_name": customer.full_name,
             "addline1": addline1,
             "addline2": addline2,
             "addline3": addline3,
@@ -1047,21 +1047,21 @@ class TopupApplication(Document):
 
     def create_attachment(self):
         attachments = []
-        sanction_letter = frappe.get_all(
-            "Sanction Letter Entries",
-            filters={"topup_application_no": self.name, "parent": self.sl_entries},
-            fields=["*"],
-        )
-        doc_name = sanction_letter[0].sanction_letter
-        fname = doc_name.split("files/", 1)
-        file = fname[1].split(".", 1)
-        file_name = file[0]
-        log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
-        with open(log_file, "rb") as fileobj:
-            filedata = fileobj.read()
+        # sanction_letter = frappe.get_all(
+        #     "Sanction Letter Entries",
+        #     filters={"topup_application_no": self.name, "parent": self.sl_entries},
+        #     fields=["*"],
+        # )
+        # doc_name = sanction_letter[0].sanction_letter
+        # fname = doc_name.split("files/", 1)
+        # file = fname[1].split(".", 1)
+        # file_name = file[0]
+        # log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
+        # with open(log_file, "rb") as fileobj:
+        #     filedata = fileobj.read()
 
-        sanction_letter = {"fname": fname[1], "fcontent": filedata}
-        attachments.append(sanction_letter)
+        # sanction_letter = {"fname": fname[1], "fcontent": filedata}
+        # attachments.append(sanction_letter)
 
         lender_esign_file = self.lender_esigned_document
         lfile_name = lender_esign_file.split("files/", 1)
@@ -1074,16 +1074,16 @@ class TopupApplication(Document):
         lender_doc = {"fname": l_file, "fcontent": filedata}
         attachments.append(lender_doc)
 
-        if self.customer_esigned_document:
-            customer_esigned_document = self.customer_esigned_document
-            cfile_name = customer_esigned_document.split("files/", 1)
-            c_file = cfile_name[1]
-            path = frappe.utils.get_files_path(c_file)
+        # if self.customer_esigned_document:
+        #     customer_esigned_document = self.customer_esigned_document
+        #     cfile_name = customer_esigned_document.split("files/", 1)
+        #     c_file = cfile_name[1]
+        #     path = frappe.utils.get_files_path(c_file)
 
-            with open(path, "rb") as fileobj:
-                filedata = fileobj.read()
-            customer_doc = {"fname": c_file, "fcontent": filedata}
-            attachments.append(customer_doc)
+        #     with open(path, "rb") as fileobj:
+        #         filedata = fileobj.read()
+        #     customer_doc = {"fname": c_file, "fcontent": filedata}
+        #     attachments.append(customer_doc)
 
         return attachments
 

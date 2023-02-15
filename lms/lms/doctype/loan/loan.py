@@ -1124,6 +1124,7 @@ class Loan(Document):
 
     def add_virtual_interest(self, input_date=None):
         try:
+            a = frappe.utils.now_datetime()
             if input_date:
                 input_date = datetime.strptime(input_date, "%Y-%m-%d")
             else:
@@ -1216,6 +1217,11 @@ class Loan(Document):
             self.map_loan_summary_values()
             self.save(ignore_permissions=True)
             frappe.db.commit()
+            frappe.logger().info(str(frappe.utils.now_datetime()))
+            frappe.logger().info(
+                "Total time took - add_virtual_interest"
+                + str((frappe.utils.now_datetime() - a).total_seconds())
+            )
 
         except Exception:
             frappe.log_error(
@@ -2094,7 +2100,7 @@ class Loan(Document):
         int_config = frappe.get_doc("Interest Configuration", interest_config)
         roi_ = round((int_config.base_interest * 12), 2)
         charges = lms.charges_for_apr(
-            lender.name, lms.validate_rupees(float(increased_sanction_limit))
+            lender.name, lms.validate_rupees(float(topup_amount))
         )
         apr = round(
             lms.calculate_apr(

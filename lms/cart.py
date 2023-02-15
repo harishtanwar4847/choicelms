@@ -1103,14 +1103,17 @@ def get_tnc(**kwargs):
         if data.get("cart_name"):
             if not cart.loan:
                 eligibile_loan = cart.eligible_loan
+                diff = eligibile_loan
             elif data.get("cart_name") and cart.loan and not cart.loan_margin_shortfall:
                 eligibile_loan = lms.round_down_amount_to_nearest_thousand(
                     (cart.total_collateral_value + loan.total_collateral_value)
                     * cart.allowable_ltv
                     / 100
                 )
+                diff = eligibile_loan - loan.sanctioned_limit
         else:
             eligibile_loan = data.get("topup_amount") + loan.sanctioned_limit
+            diff = data.get("topup_amount")
 
         interest_config = frappe.get_value(
             "Interest Configuration",
@@ -1122,7 +1125,7 @@ def get_tnc(**kwargs):
         int_config = frappe.get_doc("Interest Configuration", interest_config)
         roi_ = int_config.base_interest * 12
         # diff = lms.diff_in_months(frappe.)
-        charges = lms.charges_for_apr(lender.name, lms.validate_rupees(eligibile_loan))
+        charges = lms.charges_for_apr(lender.name, lms.validate_rupees(diff))
         apr = lms.calculate_apr(
             data.get("cart_name"),
             roi_,
