@@ -1893,9 +1893,9 @@ def dashboard(**kwargs):
                         as_dict=True,
                     )
 
-                topup_application_doc.top_up_amount = lms.amount_formatter(
-                    topup_application_doc.top_up_amount
-                )
+                # topup_application_doc.top_up_amount = lms.amount_formatter(
+                #     topup_application_doc.top_up_amount
+                # )
                 frappe.log_error(
                     title="topup amount",
                     message="\n\ntopup amount:{}".format(
