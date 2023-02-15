@@ -329,10 +329,12 @@ def upsert(**kwargs):
                 min_sanctioned_limit = 1000.0
 
         res["min_sanctioned_limit"] = (
-            min_sanctioned_limit if not data.get("loan_margin_shortfall_name") else 0.0
+            min_sanctioned_limit
+            # if not data.get("loan_margin_shortfall_name") else 0.0
         )
         res["max_sanctioned_limit"] = (
-            max_sanctioned_limit if not data.get("loan_margin_shortfall_name") else 0.0
+            max_sanctioned_limit
+            # if not data.get("loan_margin_shortfall_name") else 0.0
         )
         res["roi"] = lender.rate_of_interest
 
