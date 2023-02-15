@@ -624,6 +624,23 @@ class TopupApplication(Document):
                 "select message from `tabNotification` where name ='Top up Application Approved';"
             )[0][0]
             loan_email_message = loan_email_message.replace("fullname", doc.fullname)
+            loan_email_message = loan_email_message.replace(
+                "logo_file",
+                frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
+            )
+            loan_email_message = loan_email_message.replace(
+                "fb_icon",
+                frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
+            )
+            # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
+            loan_email_message = loan_email_message.replace(
+                "inst_icon",
+                frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
+            )
+            loan_email_message = loan_email_message.replace(
+                "lin_icon",
+                frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
+            )
             frappe.enqueue(
                 method=frappe.sendmail,
                 recipients=[customer.user],
