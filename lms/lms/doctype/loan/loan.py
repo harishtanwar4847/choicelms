@@ -501,38 +501,45 @@ class Loan(Document):
         )
 
     def fill_items(self):
-        self.total_collateral_value = 0
-        drawing_power = 0
-        if self.instrument_type == "Shares":
-            for i in self.items:
-                i.amount = i.price * i.pledged_quantity
-                self.total_collateral_value += i.amount
+        try:
+            self.total_collateral_value = 0
+            drawing_power = 0
+            if self.instrument_type == "Shares":
+                for i in self.items:
+                    i.amount = i.price * i.pledged_quantity
+                    self.total_collateral_value += i.amount
 
-            drawing_power = round(
-                (self.total_collateral_value * (self.allowable_ltv / 100)), 2
+                drawing_power = round(
+                    (self.total_collateral_value * (self.allowable_ltv / 100)), 2
+                )
+            else:  # for Drawing power Calculation
+                for i in self.items:
+                    i.amount = i.price * i.pledged_quantity
+                    i.eligible_amount = (i.eligible_percentage / 100) * i.amount
+                    self.total_collateral_value += i.amount
+                    drawing_power += i.eligible_amount
+
+                drawing_power = round(
+                    drawing_power,
+                    2,
+                )
+
+            self.drawing_power = (
+                drawing_power
+                if drawing_power <= self.sanctioned_limit
+                else self.sanctioned_limit
             )
-        else:  # for Drawing power Calculation
-            for i in self.items:
-                i.amount = i.price * i.pledged_quantity
-                i.eligible_amount = (i.eligible_percentage / 100) * i.amount
-                self.total_collateral_value += i.amount
-                drawing_power += i.eligible_amount
-
-            drawing_power = round(
-                drawing_power,
+            # Updating actual drawing power
+            self.actual_drawing_power = round(
+                (drawing_power),
                 2,
             )
-
-        self.drawing_power = (
-            drawing_power
-            if drawing_power <= self.sanctioned_limit
-            else self.sanctioned_limit
-        )
-        # Updating actual drawing power
-        self.actual_drawing_power = round(
-            (drawing_power),
-            2,
-        )
+        except:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\n\nScheme details-\n{}".format(str(self.name)),
+                title="Fill Items",
+            )
 
     def get_collateral_list(
         self, group_by_psn=False, where_clause="", having_clause=""
@@ -600,45 +607,52 @@ class Loan(Document):
         return frappe.db.sql(sql, as_dict=1)
 
     def update_items(self):
-        check = False
+        try:
+            check = False
 
-        collateral_list = self.get_collateral_list()
-        collateral_list_map = {
-            "{}{}".format(i.isin, i.folio if i.folio else ""): i
-            for i in collateral_list
-        }
-        # updating existing and
-        # setting check flag
-        for i in self.items:
-            isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
-            curr = collateral_list_map.get(isin_folio_combo)
-            # curr = collateral_list_map.get(i.isin)
-            # print(check, i.price, curr.price, not check or i.price != curr.price)
-            if (not check or i.price != curr.price) and i.pledged_quantity > 0:
-                check = True
-                self.update_collateral_ledger(curr.price, curr.isin)
+            collateral_list = self.get_collateral_list()
+            collateral_list_map = {
+                "{}{}".format(i.isin, i.folio if i.folio else ""): i
+                for i in collateral_list
+            }
+            # updating existing and
+            # setting check flag
+            for i in self.items:
+                isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
+                curr = collateral_list_map.get(isin_folio_combo)
+                # curr = collateral_list_map.get(i.isin)
+                # print(check, i.price, curr.price, not check or i.price != curr.price)
+                if (not check or i.price != curr.price) and i.pledged_quantity > 0:
+                    check = True
+                    self.update_collateral_ledger(curr.price, curr.isin)
 
-            i.price = curr.price
-            i.pledged_quantity = curr.quantity
+                i.price = curr.price
+                i.pledged_quantity = curr.quantity
 
-            del collateral_list_map[isin_folio_combo]
+                del collateral_list_map[isin_folio_combo]
 
-        # adding new items if any
-        for i in collateral_list_map.values():
-            loan_item = frappe.get_doc(
-                {
-                    "doctype": "Loan Item",
-                    "isin": i.isin,
-                    "security_name": i.security_name,
-                    "security_category": i.security_category,
-                    "pledged_quantity": i.quantity,
-                    "price": i.price,
-                }
+            # adding new items if any
+            for i in collateral_list_map.values():
+                loan_item = frappe.get_doc(
+                    {
+                        "doctype": "Loan Item",
+                        "isin": i.isin,
+                        "security_name": i.security_name,
+                        "security_category": i.security_category,
+                        "pledged_quantity": i.quantity,
+                        "price": i.price,
+                    }
+                )
+
+                self.append("items", loan_item)
+
+            return check
+        except:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\n\nScheme details-\n{}".format(str(self.name)),
+                title="Update Items",
             )
-
-            self.append("items", loan_item)
-
-        return check
 
     def update_items_old(self):
         check = False
