@@ -1896,6 +1896,15 @@ def dashboard(**kwargs):
                 topup_application_doc.top_up_amount = lms.amount_formatter(
                     topup_application_doc.top_up_amount
                 )
+                frappe.log_error(
+                    title="topup amount",
+                    message="\n\ntopup amount:{}".format(
+                        str(frappe.utils.fmt_money(topup_application_doc.top_up_amount))
+                    )
+                    + "\n\ntopup aplication name :{}".format(
+                        str(topup_application_doc)
+                    ),
+                )
                 topup_pending_esigns.append(
                     {
                         "topup_application_doc": topup_application_doc,
