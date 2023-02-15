@@ -1896,12 +1896,13 @@ def dashboard(**kwargs):
                 topup_application_doc.top_up_amount = lms.amount_formatter(
                     topup_application_doc.top_up_amount
                 )
-
                 topup_pending_esigns.append(
                     {
                         "topup_application_doc": topup_application_doc,
-                        "mess": "Congratulations! Your application is being considered favourably by our lending partner. Accordingly, the increase in the sanctioned limit is Rs. {}. Please e-sign the loan agreement to avail the increased sanctioned limit now.".format(
-                            frappe.utils.fmt_money(topup_application_doc.top_up_amount)
+                        "mess": "Congratulations! Your application is being considered favourably by our lending partner. Accordingly, the increase in the sanctioned limit is Rs. {amount}. Please e-sign the loan agreement to avail the increased sanctioned limit now.".format(
+                            amount=frappe.utils.fmt_money(
+                                topup_application_doc.top_up_amount
+                            )
                         ),
                         "sanction_letter": sanction_letter[0]
                         if sanction_letter
