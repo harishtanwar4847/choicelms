@@ -382,10 +382,11 @@ class Cart(Document):
         )
 
         doc = {
+            "loan_application_number": "",
             "loan_account_number": self.loan if self.loan else "",
             "esign_date": "__________",
             "loan_application_no": " ",
-            "borrower_name": user_kyc.fullname,
+            "borrower_name": customer.full_name,
             "borrower_address": address,
             "addline1": addline1,
             "addline2": addline2,

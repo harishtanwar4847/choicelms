@@ -156,3 +156,20 @@ def excel_generator(doc_filters):
         file_extention="xlsx",
         sheet_name=sheet_name,
     )
+
+
+@frappe.whitelist()
+def interest_calculation_enqueue():
+    try:
+        loans = frappe.get_all("Loan", fields=["*"])
+        for loan in loans:
+            frappe.enqueue(
+                method="lms.lms.doctype.interest_calculation.interest_calculation.interest_calculation",
+                queue="long",
+                loan=loan,
+            )
+    except Exception:
+        frappe.log_error(
+            message=frappe.get_traceback(),
+            title=frappe._("Interest Calculation"),
+        )

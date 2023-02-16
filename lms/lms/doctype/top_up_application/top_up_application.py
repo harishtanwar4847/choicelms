@@ -1042,6 +1042,48 @@ class TopupApplication(Document):
                         }
                     ).insert(ignore_permissions=True)
                     frappe.db.commit()
+        if self.status == "Approved":
+            print("akash")
+            import os
+
+            from PyPDF2 import PdfFileReader, PdfFileWriter
+
+            lender_esign_file = self.lender_esigned_document
+            lfile_name = lender_esign_file.split("files/", 1)
+            l_file = lfile_name[1]
+            pdf_file_path = frappe.utils.get_files_path(
+                l_file,
+            )
+            file_base_name = pdf_file_path.replace(".pdf", "")
+            pdf = PdfFileReader(pdf_file_path)
+            pages = [22, 23, 24, 25, 26, 27]  # page 1, 3, 5
+            pdfWriter = PdfFileWriter()
+            for page_num in pages:
+                pdfWriter.addPage(pdf.getPage(page_num))
+            sanction_letter_esign = "Sanction_letter_{0}.pdf".format(self.name)
+            sanction_letter_esign_path = frappe.utils.get_files_path(
+                sanction_letter_esign
+            )
+            if os.path.exists(sanction_letter_esign_path):
+                os.remove(sanction_letter_esign_path)
+            sanction_letter_esign_document = frappe.utils.get_url(
+                "files/{}".format(sanction_letter_esign)
+            )
+            sanction_letter_esign = frappe.utils.get_files_path(sanction_letter_esign)
+
+            with open(sanction_letter_esign, "wb") as f:
+                pdfWriter.write(f)
+                f.close()
+            sl = frappe.get_all(
+                "Sanction Letter Entries",
+                filters={"topup_application_no": self.name},
+                fields=["*"],
+            )
+            sll = frappe.get_doc("Sanction Letter Entries", sl[0].name)
+            print("sll", sll)
+            sll.sanction_letter = sanction_letter_esign_document
+            sll.save()
+            frappe.db.commit()
 
         return
 
