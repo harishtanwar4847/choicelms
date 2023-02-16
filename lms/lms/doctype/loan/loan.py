@@ -2277,6 +2277,11 @@ def add_loans_virtual_interest(loans):
 
 @frappe.whitelist()
 def add_all_loans_virtual_interest():
+    las_settings = frappe.get_single("LAS Settings")
+    las_settings.ckyc_request_id = 1
+    las_settings.save(ignore_permissions=True)
+    frappe.db.commit()
+
     chunks = lms.chunk_doctype(doctype="Loan", limit=10)
 
     for start in chunks.get("chunks"):
