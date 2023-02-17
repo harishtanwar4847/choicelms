@@ -5273,6 +5273,7 @@ def au_penny_drop(**kwargs):
                             other_bank_.is_default = 0
                             other_bank_.save(ignore_permissions=True)
                             frappe.db.commit()
+                    lms.log_api_error(bank_acc[0])
                     frappe.get_doc(
                         {
                             "doctype": "User Bank Account",
