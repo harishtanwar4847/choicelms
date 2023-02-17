@@ -97,11 +97,9 @@ Your E-sign process is completed. You shall soon receive a confirmation of loan 
             elif self.status == "Approved":
                 lender = frappe.get_doc("Lender", self.lender)
                 loan_renewal_charges = lender.loan_renewal_charges
-                loan_renewal_charges = lender.loan_renewal_charges
-                documentation_charges = lender.loan_renewal_charges
                 if lender.loan_renewal_charge_type == "Percentage":
-                    amount = (documentation_charges / 100) * self.drawing_power
-                    documentation_charges = loan.validate_loan_charges_amount(
+                    amount = (loan_renewal_charges / 100) * self.drawing_power
+                    loan_renewal_charges = loan.validate_loan_charges_amount(
                         lender,
                         amount,
                         "loan_renewal_charge_minimum_amount",
@@ -109,7 +107,7 @@ Your E-sign process is completed. You shall soon receive a confirmation of loan 
                     )
                 loan.create_loan_transaction(
                     transaction_type="Loan Renewal Charges",
-                    amount=documentation_charges,
+                    amount=loan_renewal_charges,
                     approve=True,
                 )
 
