@@ -8,7 +8,9 @@
   "sanction_letter",
   "date_of_acceptance",
   "base_interest",
-  "rebate_interest"
+  "rebate_interest",
+  "loan_application_no",
+  "topup_application_no"
  ],
  "fields": [
   {
@@ -34,12 +36,23 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Rebate  Interest"
+  },
+  {
+   "fieldname": "loan_application_no",
+   "fieldtype": "Link",
+   "label": "Loan Application No",
+   "options": "Loan Application"
+  },
+  {
+   "fieldname": "topup_application_no",
+   "fieldtype": "Data",
+   "label": "Topup Application No"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-12-14 14:18:18.001782",
+ "modified": "2023-02-07 21:52:00.711899",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sanction Letter Entries",

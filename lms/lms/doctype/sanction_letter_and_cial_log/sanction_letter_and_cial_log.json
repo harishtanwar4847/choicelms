@@ -6,9 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "loan",
-  "loan_application",
-  "sl_table",
-  "cial_table"
+  "sl_table"
  ],
  "fields": [
   {
@@ -23,23 +21,11 @@
    "fieldtype": "Table",
    "label": "SL Table",
    "options": "Sanction Letter Entries"
-  },
-  {
-   "fieldname": "cial_table",
-   "fieldtype": "Table",
-   "label": "CIAL Table",
-   "options": "CIAL Entries"
-  },
-  {
-   "fieldname": "loan_application",
-   "fieldtype": "Link",
-   "label": "Loan Application ",
-   "options": "Loan Application"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-05 18:46:14.921487",
+ "modified": "2023-02-07 19:34:01.163488",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sanction Letter and CIAL Log",

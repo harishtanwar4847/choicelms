@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import base64
+import calendar
 import hashlib
 import hmac
 import json
@@ -16,7 +17,7 @@ from random import choice, randint, randrange
 from traceback import format_exc
 
 import frappe
-import numpy as np
+import numpy_financial as npf
 import razorpay
 import requests
 import utils
@@ -24,6 +25,7 @@ import xmltodict
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from frappe import _
+from PIL import Image
 from razorpay.errors import SignatureVerificationError
 
 from lms.config import lms
@@ -431,7 +433,6 @@ def chunk_doctype(doctype, limit=50):
 
 def __customer(entity=None):
     res = frappe.get_all("Loan Customer", filters={"user": __user(entity).name})
-
     if len(res) == 0:
         raise CustomerNotFoundException
 
@@ -1885,11 +1886,7 @@ def ckyc_dot_net(
 
 
 def upload_image_to_doctype(
-    customer,
-    seq_no,
-    image_,
-    img_format,
-    img_folder="CKYC_IMG",
+    customer, seq_no, image_, img_format, img_folder="CKYC_IMG", compress=0
 ):
     try:
         extra_char = str(randrange(9999, 9999999999))
@@ -1909,6 +1906,8 @@ def upload_image_to_doctype(
         ckyc_image_file_path = frappe.utils.get_files_path(picture_file)
         image_decode = base64.decodestring(bytes(str(image_), encoding="utf8"))
         image_file = open(ckyc_image_file_path, "wb").write(image_decode)
+        if compress:
+            compress_image(ckyc_image_file_path, customer)
 
         ckyc_image_file_url = frappe.utils.get_url(
             "files/{}/{}-{}-{}.{}".format(
@@ -2478,19 +2477,118 @@ def redirect_to_url(url=""):
         )
 
 
+# def calculate_apr(name_, interest_in_percentage, tenure, sanction_limit, charges=0):
+#     try:
+#         pmt_ = np.pmt(interest_in_percentage / 12, tenure, sanction_limit)
+#         present_value = sanction_limit - charges
+#         future_value = 0
+#         apr = (
+#             np.rate(nper=tenure, pmt=pmt_, pv=present_value, fv=future_value) * 12 * 100
+#         )
+#         if apr < 0:
+#             apr = 0
 def calculate_apr(name_, interest_in_percentage, tenure, sanction_limit, charges=0):
     try:
-        pmt_ = np.pmt(interest_in_percentage / 12, tenure, sanction_limit)
+        pmt_ = npf.pmt((interest_in_percentage / 100) / 12, tenure, sanction_limit)
         present_value = sanction_limit - charges
         future_value = 0
         apr = (
-            np.rate(nper=tenure, pmt=pmt_, pv=present_value, fv=future_value) * 12 * 100
+            npf.rate(nper=tenure, pmt=pmt_, pv=present_value, fv=future_value)
+            * 12
+            * 100
         )
         if apr < 0:
             apr = 0
+
         return round(apr, 2)
     except Exception:
         frappe.log_error(
             title="Calculate APR Error",
             message=frappe.get_traceback() + "\n\n" + str(name_),
+        )
+
+
+def diff_in_months(date_1, date_2):
+    start = datetime.strptime(date_1, "%d/%m/%Y")
+    end = datetime.strptime(date_2, "%d/%m/%Y")
+    diff = (end.year - start.year) * 12 + (end.month - start.month)
+    return diff
+
+
+def validate_loan_charges_amount(lender_doc, amount, min_field, max_field):
+    lender_dict = lender_doc.as_dict()
+    if (lender_dict[min_field] > 0) and (amount < lender_dict[min_field]):
+        amount = lender_dict[min_field]
+    elif (lender_dict[max_field] > 0) and (amount > lender_dict[max_field]):
+        amount = lender_dict[max_field]
+    return amount
+
+
+def charges_for_apr(lender, sanction_limit):
+    charges = {}
+    lender = frappe.get_doc("Lender", lender)
+    date = frappe.utils.now_datetime()
+    days_in_year = 366 if calendar.isleap(date.year) else 365
+    processing_fees = lender.lender_processing_fees
+    if lender.lender_processing_fees_type == "Percentage":
+        days_left_to_expiry = days_in_year
+        amount = (
+            (processing_fees / 100)
+            * sanction_limit
+            / days_in_year
+            * days_left_to_expiry
+        )
+        processing_fees = validate_loan_charges_amount(
+            lender,
+            amount,
+            "lender_processing_minimum_amount",
+            "lender_processing_maximum_amount",
+        )
+    charges["processing_fees"] = processing_fees
+
+    # Stamp Duty
+    stamp_duty = lender.stamp_duty
+    if lender.stamp_duty_type == "Percentage":
+        amount = (stamp_duty / 100) * sanction_limit
+        stamp_duty = validate_loan_charges_amount(
+            lender,
+            amount,
+            "lender_stamp_duty_minimum_amount",
+            "lender_stamp_duty_maximum_amount",
+        )
+    charges["stamp_duty"] = stamp_duty
+
+    documentation_charges = lender.documentation_charges
+    if lender.documentation_charge_type == "Percentage":
+        amount = (documentation_charges / 100) * sanction_limit
+        documentation_charges = validate_loan_charges_amount(
+            lender,
+            amount,
+            "lender_documentation_minimum_amount",
+            "lender_documentation_maximum_amount",
+        )
+    charges["documentation_charges"] = documentation_charges
+    total = processing_fees + stamp_duty + documentation_charges
+    charges["total"] = total
+    frappe.log_error(
+        title="Charge calculate",
+        message=str(charges),
+    )
+    return charges
+
+
+def compress_image(input_image_path, user, quality=100):
+    try:
+        original_image = Image.open(input_image_path)
+        if (
+            10 > os.path.getsize(input_image_path) / 1048576 > 1
+        ):  # size of image in mb(bytes/(1024*1024))
+            quality = 50
+        original_image.save(input_image_path, quality=quality)
+        return input_image_path
+    except Exception:
+        frappe.log_error(
+            title="Compress Image Error",
+            message=frappe.get_traceback()
+            + "User Name:\n{}\nFile Path:\n{}".format(user, input_image_path),
         )

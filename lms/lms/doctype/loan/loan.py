@@ -501,38 +501,45 @@ class Loan(Document):
         )
 
     def fill_items(self):
-        self.total_collateral_value = 0
-        drawing_power = 0
-        if self.instrument_type == "Shares":
-            for i in self.items:
-                i.amount = i.price * i.pledged_quantity
-                self.total_collateral_value += i.amount
+        try:
+            self.total_collateral_value = 0
+            drawing_power = 0
+            if self.instrument_type == "Shares":
+                for i in self.items:
+                    i.amount = i.price * i.pledged_quantity
+                    self.total_collateral_value += i.amount
 
-            drawing_power = round(
-                (self.total_collateral_value * (self.allowable_ltv / 100)), 2
+                drawing_power = round(
+                    (self.total_collateral_value * (self.allowable_ltv / 100)), 2
+                )
+            else:  # for Drawing power Calculation
+                for i in self.items:
+                    i.amount = i.price * i.pledged_quantity
+                    i.eligible_amount = (i.eligible_percentage / 100) * i.amount
+                    self.total_collateral_value += i.amount
+                    drawing_power += i.eligible_amount
+
+                drawing_power = round(
+                    drawing_power,
+                    2,
+                )
+
+            self.drawing_power = (
+                drawing_power
+                if drawing_power <= self.sanctioned_limit
+                else self.sanctioned_limit
             )
-        else:  # for Drawing power Calculation
-            for i in self.items:
-                i.amount = i.price * i.pledged_quantity
-                i.eligible_amount = (i.eligible_percentage / 100) * i.amount
-                self.total_collateral_value += i.amount
-                drawing_power += i.eligible_amount
-
-            drawing_power = round(
-                drawing_power,
+            # Updating actual drawing power
+            self.actual_drawing_power = round(
+                (drawing_power),
                 2,
             )
-
-        self.drawing_power = (
-            drawing_power
-            if drawing_power <= self.sanctioned_limit
-            else self.sanctioned_limit
-        )
-        # Updating actual drawing power
-        self.actual_drawing_power = round(
-            (drawing_power),
-            2,
-        )
+        except:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\n\nScheme details-\n{}".format(str(self.name)),
+                title="Fill Items",
+            )
 
     def get_collateral_list(
         self, group_by_psn=False, where_clause="", having_clause=""
@@ -600,45 +607,52 @@ class Loan(Document):
         return frappe.db.sql(sql, as_dict=1)
 
     def update_items(self):
-        check = False
+        try:
+            check = False
 
-        collateral_list = self.get_collateral_list()
-        collateral_list_map = {
-            "{}{}".format(i.isin, i.folio if i.folio else ""): i
-            for i in collateral_list
-        }
-        # updating existing and
-        # setting check flag
-        for i in self.items:
-            isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
-            curr = collateral_list_map.get(isin_folio_combo)
-            # curr = collateral_list_map.get(i.isin)
-            # print(check, i.price, curr.price, not check or i.price != curr.price)
-            if (not check or i.price != curr.price) and i.pledged_quantity > 0:
-                check = True
-                self.update_collateral_ledger(curr.price, curr.isin)
+            collateral_list = self.get_collateral_list()
+            collateral_list_map = {
+                "{}{}".format(i.isin, i.folio if i.folio else ""): i
+                for i in collateral_list
+            }
+            # updating existing and
+            # setting check flag
+            for i in self.items:
+                isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
+                curr = collateral_list_map.get(isin_folio_combo)
+                # curr = collateral_list_map.get(i.isin)
+                # print(check, i.price, curr.price, not check or i.price != curr.price)
+                if (not check or i.price != curr.price) and i.pledged_quantity > 0:
+                    check = True
+                    self.update_collateral_ledger(curr.price, curr.isin)
 
-            i.price = curr.price
-            i.pledged_quantity = curr.quantity
+                i.price = curr.price
+                i.pledged_quantity = curr.quantity
 
-            del collateral_list_map[isin_folio_combo]
+                del collateral_list_map[isin_folio_combo]
 
-        # adding new items if any
-        for i in collateral_list_map.values():
-            loan_item = frappe.get_doc(
-                {
-                    "doctype": "Loan Item",
-                    "isin": i.isin,
-                    "security_name": i.security_name,
-                    "security_category": i.security_category,
-                    "pledged_quantity": i.quantity,
-                    "price": i.price,
-                }
+            # adding new items if any
+            for i in collateral_list_map.values():
+                loan_item = frappe.get_doc(
+                    {
+                        "doctype": "Loan Item",
+                        "isin": i.isin,
+                        "security_name": i.security_name,
+                        "security_category": i.security_category,
+                        "pledged_quantity": i.quantity,
+                        "price": i.price,
+                    }
+                )
+
+                self.append("items", loan_item)
+
+            return check
+        except:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\n\nScheme details-\n{}".format(str(self.name)),
+                title="Update Items",
             )
-
-            self.append("items", loan_item)
-
-        return check
 
     def update_items_old(self):
         check = False
@@ -1114,6 +1128,7 @@ class Loan(Document):
 
     def add_virtual_interest(self, input_date=None):
         try:
+            a = frappe.utils.now_datetime()
             if input_date:
                 input_date = datetime.strptime(input_date, "%Y-%m-%d")
             else:
@@ -1202,6 +1217,11 @@ class Loan(Document):
             self.map_loan_summary_values()
             self.save(ignore_permissions=True)
             frappe.db.commit()
+            frappe.logger().info(str(frappe.utils.now_datetime()))
+            frappe.logger().info(
+                "Total time took - add_virtual_interest"
+                + str((frappe.utils.now_datetime() - a).total_seconds())
+            )
 
         except Exception:
             frappe.log_error(
@@ -1977,7 +1997,6 @@ class Loan(Document):
         # #             )
         #     else:
         #         max_topup_amount = 0
-
         return round(lms.round_down_amount_to_nearest_thousand(max_topup_amount), 2)
 
     def update_pending_topup_amount(self):
@@ -2103,29 +2122,113 @@ class Loan(Document):
             )
         else:
             address = ""
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+
+            line1 = str(address_details.perm_line1)
+            if line1:
+                addline1 = "{},<br/>".format(line1)
+            else:
+                addline1 = ""
+
+            line2 = str(address_details.perm_line2)
+            if line2:
+                addline2 = "{},<br/>".format(line2)
+            else:
+                addline2 = ""
+
+            line3 = str(address_details.perm_line3)
+            if line3:
+                addline3 = "{},<br/>".format(line3)
+            else:
+                addline3 = ""
+
+            perm_city = str(address_details.perm_city)
+            perm_dist = str(address_details.perm_dist)
+            perm_state = str(address_details.perm_state)
+            perm_pin = str(address_details.perm_pin)
+
+        else:
+            address_details = ""
+
+        increased_sanction_limit = topup_amount + self.sanctioned_limit
+        interest_config = frappe.get_value(
+            "Interest Configuration",
+            {
+                "to_amount": [
+                    ">=",
+                    lms.validate_rupees(float(increased_sanction_limit)),
+                ],
+            },
+            order_by="to_amount asc",
+        )
+        int_config = frappe.get_doc("Interest Configuration", interest_config)
+        roi_ = round((int_config.base_interest * 12), 2)
+        charges = lms.charges_for_apr(
+            lender.name, lms.validate_rupees(float(topup_amount))
+        )
+        apr = round(
+            lms.calculate_apr(
+                self.name,
+                roi_,
+                12,
+                int(lms.validate_rupees(float(increased_sanction_limit))),
+                charges.get("total"),
+            ),
+            2,
+        )
+        annual_default_interest = lender.default_interest * 12
+        interest_amount = int(
+            (lms.validate_rupees(float(increased_sanction_limit))) * (roi_ / 100)
+        )
 
         doc = {
-            "esign_date": "__________",
-            "loan_application_number": self.name,
+            "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
+            "loan_account_number": self.name,
             "borrower_name": user_kyc.fullname,
             "borrower_address": address,
-            # "sanctioned_amount": topup_amount,
-            # "sanctioned_amount_in_words": num2words(
-            #     topup_amount, lang="en_IN"
-            # ).title(),
-            "sanctioned_amount": lms.validate_rupees(
-                (topup_amount + self.sanctioned_limit)
+            "addline1": addline1,
+            "addline2": addline2,
+            "addline3": addline3,
+            "city": perm_city,
+            "district": perm_dist,
+            "state": perm_state,
+            "pincode": perm_pin,
+            "roi": roi_,
+            "apr": apr,
+            "documentation_charges_kfs": frappe.utils.fmt_money(
+                charges.get("documentation_charges")
+            ),
+            "processing_charges_kfs": frappe.utils.fmt_money(
+                charges.get("processing_fees")
+            ),
+            "net_disbursed_amount": frappe.utils.fmt_money(
+                float(increased_sanction_limit) - charges.get("total")
+            ),
+            "total_amount_to_be_paid": frappe.utils.fmt_money(
+                float(increased_sanction_limit) + charges.get("total") + interest_amount
+            ),
+            "loan_application_no": self.name,
+            "rate_of_interest": lender.rate_of_interest,
+            "rebate_interest": int_config.rebait_interest,
+            "sanctioned_amount": frappe.utils.fmt_money(
+                float(increased_sanction_limit)
             ),
             "sanctioned_amount_in_words": lms.number_to_word(
                 lms.validate_rupees((topup_amount + self.sanctioned_limit))
             ).title(),
-            "old_sanctioned_amount": lms.validate_rupees(self.sanctioned_limit),
+            "old_sanctioned_amount": frappe.utils.fmt_money(
+                float(self.sanctioned_limit)
+            ),
             "old_sanctioned_amount_in_words": lms.number_to_word(
                 lms.validate_rupees(self.sanctioned_limit)
             ).title(),
             "rate_of_interest": lender.rate_of_interest,
-            "default_interest": lender.default_interest,
+            "default_interest": annual_default_interest,
             "rebait_threshold": lender.rebait_threshold,
+            "interest_charges_in_amount": frappe.utils.fmt_money(interest_amount),
             "renewal_charges": lms.validate_rupees(lender.renewal_charges)
             if lender.renewal_charge_type == "Fix"
             else lms.validate_percent(lender.renewal_charges),
@@ -2212,7 +2315,6 @@ class Loan(Document):
             if lender.revoke_initiate_charge_type == "Fix"
             else lms.validate_percent(lender.revoke_initiate_charges),
         }
-
         agreement_template = lender.get_loan_enhancement_agreement_template()
 
         agreement = frappe.render_template(
