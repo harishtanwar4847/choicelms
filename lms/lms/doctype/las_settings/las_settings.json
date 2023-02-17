@@ -97,7 +97,9 @@
   "penny_drop_api",
   "pennydrop_days_passed",
   "column_break_91",
-  "penny_secret_key"
+  "penny_secret_key",
+  "onboarding_screen_section",
+  "onboarding_screen"
  ],
  "fields": [
   {
@@ -577,11 +579,22 @@
    "fieldname": "pennydrop_days_passed",
    "fieldtype": "Int",
    "label": "Pennydrop Days Passed"
+  },
+  {
+   "fieldname": "onboarding_screen_section",
+   "fieldtype": "Section Break",
+   "label": "Onboarding Screen"
+  },
+  {
+   "fieldname": "onboarding_screen",
+   "fieldtype": "Table",
+   "label": "Onboarding Screen",
+   "options": "Tutorial Screen"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2022-11-28 16:25:33.122499",
+ "modified": "2023-02-13 12:53:25.682420",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "LAS Settings",
