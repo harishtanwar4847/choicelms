@@ -5441,6 +5441,7 @@ def au_penny_drop(**kwargs):
 
                             else:
                                 # For non choice user
+                                lms.log_api_error("For non choice user" + result_)
                                 frappe.get_doc(
                                     {
                                         "doctype": "User Bank Account",
