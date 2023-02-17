@@ -1808,7 +1808,8 @@ def ckyc_dot_net(
             ),
             # "requestId": datetime.strftime(frappe.utils.now_datetime(), "%d%m")
             # + str(abs(randint(0, 9999) - randint(1, 99))),
-            "requestId": str(las_settings.ckyc_request_id),
+            "requestId": datetime.strftime(frappe.utils.now_datetime(), "%d%m")
+            + str(las_settings.ckyc_request_id)[-4:],
         }
 
         if is_for_search:
