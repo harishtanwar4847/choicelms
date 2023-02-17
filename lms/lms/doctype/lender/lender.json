@@ -50,6 +50,7 @@
   "lien_initiate_charge_type",
   "invoke_initiate_charge_type",
   "revoke_initiate_charge_type",
+  "loan_renewal_charge_type",
   "column_break_2",
   "lender_processing_fees",
   "stamp_duty",
@@ -62,6 +63,7 @@
   "lien_initiate_charges",
   "invoke_initiate_charges",
   "revoke_initiate_charges",
+  "loan_renewal_charges",
   "column_break_39",
   "lender_processing_minimum_amount",
   "lender_stamp_duty_minimum_amount",
@@ -74,6 +76,7 @@
   "lien_initiate_charge_minimum_amount",
   "invoke_initiate_charges_minimum_amount",
   "revoke_initiate_charges_minimum_amount",
+  "loan_renewal_charge_minimum_amount",
   "column_break_54",
   "lender_processing_maximum_amount",
   "lender_stamp_duty_maximum_amount",
@@ -86,6 +89,7 @@
   "lien_initiate_charge_maximum_amount",
   "invoke_initiate_charges_maximum_amount",
   "revoke_initiate_charges_maximum_amount",
+  "loan_renewal_charge_maximum_amount",
   "taxes_details_section",
   "cgst_on_processing_fees",
   "cgst_on_stamp_duty",
@@ -911,10 +915,31 @@
    "fieldname": "renewal_penal_interest",
    "fieldtype": "Data",
    "label": "Renewal Penal Interest"
+  },
+  {
+   "fieldname": "loan_renewal_charges",
+   "fieldtype": "Float",
+   "label": "Loan Renewal Charges"
+  },
+  {
+   "fieldname": "loan_renewal_charge_type",
+   "fieldtype": "Select",
+   "label": "Loan Renewal Charge Type",
+   "options": "Fix\nPercentage"
+  },
+  {
+   "fieldname": "loan_renewal_charge_minimum_amount",
+   "fieldtype": "Float",
+   "label": "Minimum Amount"
+  },
+  {
+   "fieldname": "loan_renewal_charge_maximum_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Amount"
   }
  ],
  "links": [],
- "modified": "2022-11-10 15:22:37.498704",
+ "modified": "2023-01-23 20:12:52.039028",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",

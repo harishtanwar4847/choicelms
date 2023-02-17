@@ -95,13 +95,31 @@ Your E-sign process is completed. You shall soon receive a confirmation of loan 
                 )
 
             elif self.status == "Approved":
+                lender = frappe.get_doc("Lender", self.lender)
+                loan_renewal_charges = lender.loan_renewal_charges
+                loan_renewal_charges = lender.loan_renewal_charges
+                documentation_charges = lender.loan_renewal_charges
+                if lender.loan_renewal_charge_type == "Percentage":
+                    amount = (documentation_charges / 100) * self.drawing_power
+                    documentation_charges = loan.validate_loan_charges_amount(
+                        lender,
+                        amount,
+                        "loan_renewal_charge_minimum_amount",
+                        "loan_renewal_charge_maximum_amount",
+                    )
+                loan.create_loan_transaction(
+                    transaction_type="Loan Renewal Charges",
+                    amount=documentation_charges,
+                    approve=True,
+                )
+
                 self.expiry_date = loan.expiry_date + timedelta(days=no_of_days)
                 loan.expiry_date = loan.expiry_date + timedelta(days=no_of_days)
                 loan.save(ignore_permissions=True)
                 frappe.db.commit()
                 msg = """Dear Customer,
-Congratulations! Your loan renewal process is completed. Please visit the spark.loans app for details  - {link} -Spark Loans
-""".format(
+                Congratulations! Your loan renewal process is completed. Please visit the spark.loans app for details  - {link} -Spark Loans
+                """.format(
                     link=las_settings.app_login_dashboard
                 )
 

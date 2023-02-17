@@ -165,7 +165,7 @@
    "fieldname": "transaction_type",
    "fieldtype": "Select",
    "label": "Transaction Type",
-   "options": "Withdrawal\nPayment\nDebit Note\nCredit Note\nProcessing Fees\nStamp Duty\nDocumentation Charges\nMortgage Charges\nSell Collateral\nInvoke Pledge\nInterest\nAdditional Interest\nPenal Interest\nOther Charges\nLegal Charges\nAccount Renewal Charges\nDP Reimbursement(Sell) Charges\nDP Reimbursement(Unpledge) Charges\nSell Collateral Charges\nLien Charges\nInvocation Charges\nRevocation Charges\nCGST on Processing Fees\nSGST on Processing Fees\nIGST on Processing Fees\nCGST on Stamp Duty\nSGST on Stamp Duty\nIGST on Stamp Duty\nCGST on Documentation Charges\nSGST on Documentation Charges\nIGST on Documentation Charges\nCGST on Mortgage Charges\nSGST on Mortgage Charges\nIGST on Mortgage Charges\nCGST on Sell Collateral Charges\nSGST on Sell Collateral Charges\nIGST on Sell Collateral Charges\nCGST on Account Renewal Charges\nSGST on Account Renewal Charges\nIGST on Account Renewal Charges\nCGST on DP Reimbursement(Unpledge) Charges\nSGST on DP Reimbursement(Unpledge) Charges\nIGST on DP Reimbursement(Unpledge) Charges\nCGST on DP Reimbursement(Sell) Charges\nSGST on DP Reimbursement(Sell) Charges\nIGST on DP Reimbursement(Sell) Charges\nCGST on Lien Charges\nSGST on Lien Charges\nIGST on Lien Charges\nCGST on Invocation Charges\nSGST on Invocation Charges\nIGST on Invocation Charges\nCGST on Revocation Charges\nSGST on Revocation Charges\nIGST on Revocation Charges",
+   "options": "Withdrawal\nPayment\nDebit Note\nCredit Note\nProcessing Fees\nStamp Duty\nDocumentation Charges\nMortgage Charges\nSell Collateral\nInvoke Pledge\nInterest\nAdditional Interest\nPenal Interest\nOther Charges\nLegal Charges\nAccount Renewal Charges\nDP Reimbursement(Sell) Charges\nDP Reimbursement(Unpledge) Charges\nSell Collateral Charges\nLien Charges\nInvocation Charges\nRevocation Charges\nLoan Renewal Charges\nCGST on Processing Fees\nSGST on Processing Fees\nIGST on Processing Fees\nCGST on Stamp Duty\nSGST on Stamp Duty\nIGST on Stamp Duty\nCGST on Documentation Charges\nSGST on Documentation Charges\nIGST on Documentation Charges\nCGST on Mortgage Charges\nSGST on Mortgage Charges\nIGST on Mortgage Charges\nCGST on Sell Collateral Charges\nSGST on Sell Collateral Charges\nIGST on Sell Collateral Charges\nCGST on Account Renewal Charges\nSGST on Account Renewal Charges\nIGST on Account Renewal Charges\nCGST on DP Reimbursement(Unpledge) Charges\nSGST on DP Reimbursement(Unpledge) Charges\nIGST on DP Reimbursement(Unpledge) Charges\nCGST on DP Reimbursement(Sell) Charges\nSGST on DP Reimbursement(Sell) Charges\nIGST on DP Reimbursement(Sell) Charges\nCGST on Lien Charges\nSGST on Lien Charges\nIGST on Lien Charges\nCGST on Invocation Charges\nSGST on Invocation Charges\nIGST on Invocation Charges\nCGST on Revocation Charges\nSGST on Revocation Charges\nIGST on Revocation Charges",
    "reqd": 1,
    "set_only_once": 1
   },
@@ -380,7 +380,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-08-04 16:07:32.006791",
+ "modified": "2023-01-23 20:00:21.895235",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
