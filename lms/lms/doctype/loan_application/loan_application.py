@@ -2094,6 +2094,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             file_base_name = pdf_file_path.replace(".pdf", "")
             pdf = PdfFileReader(pdf_file_path)
             pages = [
+                21,
                 22,
                 23,
                 24,
