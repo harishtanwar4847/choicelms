@@ -2093,7 +2093,13 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             )
             file_base_name = pdf_file_path.replace(".pdf", "")
             pdf = PdfFileReader(pdf_file_path)
-            pages = [22, 23, 24, 25, 26, 27]  # page 1, 3, 5
+            pages = [
+                22,
+                23,
+                24,
+                25,
+                26,
+            ]  # page 1, 3, 5
             pdfWriter = PdfFileWriter()
             for page_num in pages:
                 pdfWriter.addPage(pdf.getPage(page_num))
