@@ -630,6 +630,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             current = frappe.utils.now_datetime()
             expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
             self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
+            # signed_doc = lms.pdf_editor()
         elif self.status == "Pledge accepted by Lender":
             if self.pledge_status == "Failure":
                 frappe.throw("Sorry! Pledge for this Loan Application is failed.")
@@ -791,6 +792,11 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 loan = self.create_loan()
                 frappe.db.set_value(
                     "Sanction Letter and CIAL Log", self.sl_entries, "loan", loan.name
+                )
+                signed_doc = lms.pdf_editor(
+                    self.lender_esigned_document,
+                    self.name,
+                    loan.name,
                 )
                 self.sanction_letter(check=loan.name)
             else:
@@ -2083,7 +2089,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         if self.status == "Approved":
             import os
 
-            from PyPDF2 import PdfFileReader, PdfFileWriter
+            from PyPDF2 import PdfReader, PdfWriter
 
             lender_esign_file = self.lender_esigned_document
             lfile_name = lender_esign_file.split("files/", 1)
@@ -2092,7 +2098,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 l_file,
             )
             file_base_name = pdf_file_path.replace(".pdf", "")
-            pdf = PdfFileReader(pdf_file_path)
+            reader = PdfReader(pdf_file_path)
             pages = [
                 21,
                 22,
@@ -2101,9 +2107,9 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 25,
                 26,
             ]  # page 1, 3, 5
-            pdfWriter = PdfFileWriter()
+            pdfWriter = PdfWriter()
             for page_num in pages:
-                pdfWriter.addPage(pdf.getPage(page_num))
+                pdfWriter.add_page(reader.pages[page_num])
             sanction_letter_esign = "Sanction_letter_{0}.pdf".format(self.name)
             sanction_letter_esign_path = frappe.utils.get_files_path(
                 sanction_letter_esign
@@ -2123,6 +2129,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 filters={"loan_application_no": self.name},
                 fields=["*"],
             )
+            print("sl", sl)
             sll = frappe.get_doc("Sanction Letter Entries", sl[0].name)
             sll.sanction_letter = sanction_letter_esign_document
             sll.save()

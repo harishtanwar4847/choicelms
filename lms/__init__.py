@@ -3,8 +3,10 @@ from __future__ import unicode_literals
 
 import base64
 import calendar
+import datetime
 import hashlib
 import hmac
+import io
 import json
 import math
 import os
@@ -26,7 +28,13 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from frappe import _
 from PIL import Image
+from PyPDF2 import PdfReader, PdfWriter
 from razorpay.errors import SignatureVerificationError
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.pdfmetrics import registerFont
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 
 from lms.config import lms
 from lms.firebase import FirebaseAdmin
@@ -2229,3 +2237,74 @@ def compress_image(input_image_path, user, quality=100):
             message=frappe.get_traceback()
             + "User Name:\n{}\nFile Path:\n{}".format(user, input_image_path),
         )
+
+
+def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
+    print("Akash")
+    # pdfmetrics.registerFont(TTFont('Calibri', 'Calibri.ttf'))
+    registerFont(TTFont("Calibri-Bold", "calibrib.ttf"))
+    # registerFontFamily('Calibri',normal='Calibri',bold='CalibriBD',italic='CalibriIT',boldItalic='CalibriBI')
+
+    packet = io.BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    current_time = frappe.utils.now_datetime().strftime("%Y-%m-%d")
+    can.setFont("Calibri-Bold", 10)
+    can.drawString(240, 240, current_time)
+    can.save()
+    packet.seek(0)
+
+    new_pdf = PdfReader(packet)
+    lfile_name = esigned_doc.split("files/", 1)
+    l_file = lfile_name[1]
+    pdf_file_path = frappe.utils.get_files_path(
+        l_file,
+    )
+    # read your existing PDF
+    print("lfile_name", pdf_file_path)
+    pdf_path = pdf_file_path  # for u its ur original pdf
+    existing_pdf = PdfReader(open(pdf_file_path, "rb"))
+    reader = PdfReader(pdf_path)
+    num_of_page = len(existing_pdf.pages)
+    output = PdfWriter()
+    # add the "watermark" (which is the new pdf) on the existing page
+    page = existing_pdf.pages[21]
+    page.merge_page(new_pdf.pages[0])
+    output.add_page(page)
+    page = existing_pdf.pages[25]
+    page.merge_page(new_pdf.pages[0])
+    output.add_page(page)
+    # finally, write "output" to a real file
+    sanction_letter_esign = "date_modified.pdf"
+    sanction_letter_esign_path = frappe.utils.get_files_path(sanction_letter_esign)
+    if os.path.exists(sanction_letter_esign_path):
+        os.remove(sanction_letter_esign_path)
+
+    sanction_letter_esign = frappe.utils.get_files_path(sanction_letter_esign)
+    output_stream = open(sanction_letter_esign, "wb")
+    output.write(output_stream)
+    output_stream.close()
+
+    #####nes#######
+    merger = PdfWriter()
+    input1 = open(pdf_file_path, "rb")
+    input2 = open(sanction_letter_esign, "rb")
+    merger.append(input1, pages=(0, 21))
+    merger.append(input2, pages=[0])
+    merger.append(input1, pages=(22, 25))
+    merger.append(input2, pages=[1])
+    merger.append(input1, pages=(26, num_of_page))
+    # merger.append(input1, pages=[3])
+    lender_esigned_doc_final = "Loan_Agreement_{}.pdf".format(loan_application_name)
+    lender_esigned_doc_final_path = frappe.utils.get_files_path(
+        lender_esigned_doc_final
+    )
+    if os.path.exists(lender_esigned_doc_final_path):
+        os.remove(lender_esigned_doc_final_path)
+    lender_esigned_doc_final_document = frappe.utils.get_url(
+        "files/{}".format(lender_esigned_doc_final)
+    )
+    lender_esigned_doc_final = frappe.utils.get_files_path(lender_esigned_doc_final)
+    with open(lender_esigned_doc_final, "wb") as mp:
+        merger.write(mp)
+    print("lender_esigned_doc_final_document", lender_esigned_doc_final_document)
+    print("lender_esigned_doc_final", lender_esigned_doc_final)
