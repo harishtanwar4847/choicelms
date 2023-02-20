@@ -584,9 +584,9 @@ class TopupApplication(Document):
             agreement_template.get_content(), {"doc": doc}
         )
 
-        from frappe.utils.pdf import get_pdf
+        # from frappe.utils.pdf import get_pdf
 
-        agreement_pdf = get_pdf(agreement)
+        agreement_pdf = lms.get_pdf(agreement)
 
         las_settings = frappe.get_single("LAS Settings")
         headers = {"userId": las_settings.choice_user_id}
@@ -984,9 +984,9 @@ class TopupApplication(Document):
 
         pdf_file = open(sanctioned_leter_pdf_file_path, "wb")
 
-        from frappe.utils.pdf import get_pdf
+        # from frappe.utils.pdf import get_pdf
 
-        pdf = get_pdf(s_letter)
+        pdf = lms.get_pdf(s_letter)
 
         pdf_file.write(pdf)
         pdf_file.close()
@@ -1054,7 +1054,7 @@ class TopupApplication(Document):
             print("akash")
             import os
 
-            from PyPDF2 import PdfFileReader, PdfFileWriter
+            from PyPDF2 import PdfReader, PdfWriter
 
             lender_esign_file = self.lender_esigned_document
             lfile_name = lender_esign_file.split("files/", 1)
@@ -1063,9 +1063,9 @@ class TopupApplication(Document):
                 l_file,
             )
             file_base_name = pdf_file_path.replace(".pdf", "")
-            pdf = PdfFileReader(pdf_file_path)
+            pdf = PdfReader(pdf_file_path)
             pages = [22, 23, 24, 25, 26, 27]  # page 1, 3, 5
-            pdfWriter = PdfFileWriter()
+            pdfWriter = PdfWriter()
             for page_num in pages:
                 pdfWriter.addPage(pdf.getPage(page_num))
             sanction_letter_esign = "Sanction_letter_{0}.pdf".format(self.name)

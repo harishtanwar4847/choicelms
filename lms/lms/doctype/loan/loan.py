@@ -2254,9 +2254,9 @@ class Loan(Document):
             agreement_template.get_content(), {"doc": doc}
         )
 
-        from frappe.utils.pdf import get_pdf
+        # from frappe.utils.pdf import get_pdf
 
-        agreement_pdf = get_pdf(agreement)
+        agreement_pdf = lms.get_pdf(agreement)
 
         tnc_dir_path = frappe.utils.get_files_path("tnc")
         import os

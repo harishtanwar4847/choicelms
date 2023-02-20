@@ -36,9 +36,9 @@ class Cart(Document):
         agreement_form = frappe.render_template(
             "templates/loan_agreement_form.html", {"doc": doc}
         )
-        from frappe.utils.pdf import get_pdf
+        # from frappe.utils.pdf import get_pdf
 
-        agreement_form_pdf = get_pdf(agreement_form)
+        agreement_form_pdf = lms.get_pdf(agreement_form)
 
         from PyPDF2 import PdfFileMerger
 
@@ -527,9 +527,9 @@ class Cart(Document):
             agreement_template.get_content(), {"doc": doc}
         )
 
-        from frappe.utils.pdf import get_pdf
+        # from frappe.utils.pdf import get_pdf
 
-        agreement_pdf = get_pdf(agreement)
+        agreement_pdf = lms.get_pdf(agreement)
 
         tnc_dir_path = frappe.utils.get_files_path("tnc")
         import os

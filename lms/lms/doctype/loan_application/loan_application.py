@@ -335,9 +335,9 @@ class LoanApplication(Document):
             agreement_template.get_content(), {"doc": doc}
         )
 
-        from frappe.utils.pdf import get_pdf
+        # from frappe.utils.pdf import get_pdf
 
-        agreement_pdf = get_pdf(agreement)
+        agreement_pdf = lms.get_pdf(agreement)
 
         las_settings = frappe.get_single("LAS Settings")
         headers = {"userId": las_settings.choice_user_id}
@@ -2013,9 +2013,9 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 
             pdf_file = open(sanctioned_leter_pdf_file_path, "wb")
 
-            from frappe.utils.pdf import get_pdf
+            # /from frappe.utils.pdf import get_pdf
 
-            pdf = get_pdf(s_letter)
+            pdf = lms.get_pdf(s_letter)
 
             pdf_file.write(pdf)
             pdf_file.close()

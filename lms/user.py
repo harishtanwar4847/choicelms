@@ -1423,10 +1423,10 @@ def approved_securities(**kwargs):
 
             pdf_file = open(approved_security_pdf_file_path, "wb")
 
-            from frappe.utils.pdf import get_pdf
+            # from frappe.utils.pdf import get_pdf
 
             # pdf = get_pdf(html_with_style)
-            pdf = get_pdf(
+            pdf = lms.get_pdf(
                 agreement,
                 options={
                     "margin-right": "1mm",
