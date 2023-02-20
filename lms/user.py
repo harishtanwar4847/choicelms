@@ -1961,7 +1961,7 @@ def dashboard(**kwargs):
 
         loans = frappe.get_all(
             "Loan",
-            filters={"customer": customer.name, "interest_status": "Pending"},
+            filters={"customer": customer.name},
             fields=["*"],
         )
 
