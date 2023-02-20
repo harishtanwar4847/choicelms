@@ -763,6 +763,9 @@ class TopupApplication(Document):
                 pdf_doc_name,
                 loan.name,
             )
+            frappe.db.set_value(
+                self.doctype, self.name, "lender_esigned_document", edited
+            )
             self.lender_esigned_document = edited
 
     def get_customer(self):
