@@ -175,7 +175,7 @@ class LoanApplication(Document):
             )
         ) * (roi_ / 100)
         doc = {
-            "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
+            "esign_date": "",
             "loan_account_number": loan.name if self.loan else "",
             "loan_application_number": self.name,
             "borrower_name": customer.full_name,
@@ -793,11 +793,16 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 frappe.db.set_value(
                     "Sanction Letter and CIAL Log", self.sl_entries, "loan", loan.name
                 )
+                if self.application_type == "New Loan":
+                    pdf_doc_name = "Loan_Agreement_{}".format(self.name)
+                else:
+                    pdf_doc_name = "Loan_Enhancement_Agreement_{}".format(self.name)
                 signed_doc = lms.pdf_editor(
                     self.lender_esigned_document,
-                    self.name,
+                    pdf_doc_name,
                     loan.name,
                 )
+                self.lender_esigned_document = signed_doc
                 self.sanction_letter(check=loan.name)
             else:
                 loan = self.update_existing_loan()
@@ -1065,52 +1070,52 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         return loan
 
     def map_loan_agreement_file(self, loan, increase_loan=False):
-        file_name = frappe.db.get_value(
-            "File", {"file_url": self.lender_esigned_document}
-        )
+        # file_name = frappe.db.get_value(
+        #     "File", {"file_url": self.lender_esigned_document}
+        # )
 
-        loan_agreement = frappe.get_doc("File", file_name)
+        # loan_agreement = frappe.get_doc("File", file_name)
 
-        event = "New loan"
-        if increase_loan:
-            loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(
-                loan.name
-            )
-            event = "Increase loan"
-        else:
-            loan_agreement_file_name = "{}-loan-aggrement.pdf".format(loan.name)
+        # event = "New loan"
+        # if increase_loan:
+        #     loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(
+        #         loan.name
+        #     )
+        #     event = "Increase loan"
+        # else:
+        #     loan_agreement_file_name = "{}-loan-aggrement.pdf".format(loan.name)
 
-        is_private = 0
-        loan_agreement_file_url = frappe.utils.get_files_path(
-            loan_agreement_file_name, is_private=is_private
-        )
+        # is_private = 0
+        # loan_agreement_file_url = frappe.utils.get_files_path(
+        #     loan_agreement_file_name, is_private=is_private
+        # )
 
-        # frappe.db.begin()
-        loan_agreement_file = frappe.get_doc(
-            {
-                "doctype": "File",
-                "file_name": loan_agreement_file_name,
-                "content": loan_agreement.get_content(),
-                "attached_to_doctype": "Loan",
-                "attached_to_name": loan.name,
-                "attached_to_field": "loan_agreement",
-                "folder": "Home",
-                # "file_url": loan_agreement_file_url,
-                "is_private": is_private,
-            }
-        )
-        loan_agreement_file.insert(ignore_permissions=True)
-        frappe.db.commit()
+        # # frappe.db.begin()
+        # loan_agreement_file = frappe.get_doc(
+        #     {
+        #         "doctype": "File",
+        #         "file_name": loan_agreement_file_name,
+        #         "content": loan_agreement.get_content(),
+        #         "attached_to_doctype": "Loan",
+        #         "attached_to_name": loan.name,
+        #         "attached_to_field": "loan_agreement",
+        #         "folder": "Home",
+        #         # "file_url": loan_agreement_file_url,
+        #         "is_private": is_private,
+        #     }
+        # )
+        # loan_agreement_file.insert(ignore_permissions=True)
+        # frappe.db.commit()
 
         frappe.db.set_value(
             "Loan",
             loan.name,
             "loan_agreement",
-            loan_agreement_file.file_url,
+            self.lender_esigned_document,
             update_modified=False,
         )
         # save loan sanction history
-        loan.save_loan_sanction_history(loan_agreement_file.name, event)
+        # loan.save_loan_sanction_history(loan_agreement_file.name, event)
 
     def update_existing_loan(self):
         self.update_collateral_ledger(
@@ -1531,7 +1536,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             )
             attachments = ""
             if self.status in ["Approved"]:
-                attachments = self.create_attachment()
+                # attachments = self.create_attachment()
                 if self.loan and not self.loan_margin_shortfall:
                     frappe.enqueue(
                         method=frappe.sendmail,
@@ -1539,7 +1544,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         sender=None,
                         subject="Increase Loan Application",
                         message=loan_email_message,
-                        attachments=attachments,
+                        attachments=self.lender_esigned_document,
                     )
                 else:
                     frappe.enqueue(

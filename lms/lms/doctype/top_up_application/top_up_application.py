@@ -446,7 +446,7 @@ class TopupApplication(Document):
         )
 
         doc = {
-            "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
+            "esign_date": "",
             "loan_account_number": self.name,
             "borrower_name": customer.full_name,
             "borrower_address": address,
@@ -619,7 +619,7 @@ class TopupApplication(Document):
         # if self.status in ["Pending", "Approved", "Rejected"]:
         attachments = ""
         if doc.get("top_up_application").get("status") == "Approved":
-            attachments = self.create_attachment()
+            # attachments = self.create_attachment()
             loan_email_message = frappe.db.sql(
                 "select message from `tabNotification` where name ='Top up Application Approved';"
             )[0][0]
@@ -647,7 +647,7 @@ class TopupApplication(Document):
                 sender=None,
                 subject="Top up Application",
                 message=loan_email_message,
-                attachments=attachments,
+                attachments=self.lender_esigned_document,
             )
         else:
             frappe.enqueue_doc(
@@ -756,6 +756,14 @@ class TopupApplication(Document):
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
         if self.status == "Pending":
             self.sanction_letter()
+        elif self.status == "Approved":
+            pdf_doc_name = "Loan_Enhancement_Agreement_{}".format(self.name)
+            edited = lms.pdf_editor(
+                self.lender_esigned_document,
+                pdf_doc_name,
+                loan.name,
+            )
+            self.lender_esigned_document = edited
 
     def get_customer(self):
         return frappe.get_doc("Loan Customer", self.customer)
