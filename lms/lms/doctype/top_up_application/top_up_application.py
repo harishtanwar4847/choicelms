@@ -654,7 +654,7 @@ class TopupApplication(Document):
                 sender=None,
                 subject="Top up Application",
                 message=loan_email_message,
-                attachments=self.lender_esigned_document,
+                attachments=attachments,
             )
         else:
             frappe.enqueue_doc(

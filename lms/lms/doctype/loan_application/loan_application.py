@@ -2012,7 +2012,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             sanctioned_leter_pdf_file_path = frappe.utils.get_files_path(
                 sanctioned_letter_pdf_file
             )
-            print("sanctioned_leter_pdf_file_path", sanctioned_leter_pdf_file_path)
             sanction_letter_template = lender.get_sanction_letter_template()
 
             # sanction_letter = frappe.render_template(
@@ -2152,11 +2151,11 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 filters={"loan_application_no": self.name},
                 fields=["*"],
             )
-            print("sl", sl)
-            sll = frappe.get_doc("Sanction Letter Entries", sl[0].name)
-            sll.sanction_letter = sanction_letter_esign_document
-            sll.save()
-            frappe.db.commit()
+            if sl:
+                sll = frappe.get_doc("Sanction Letter Entries", sl[0].name)
+                sll.sanction_letter = sanction_letter_esign_document
+                sll.save()
+                frappe.db.commit()
         return
 
     def create_attachment(self):

@@ -2143,7 +2143,7 @@ class Loan(Document):
             "total_amount_to_be_paid": frappe.utils.fmt_money(
                 float(increased_sanction_limit) + charges.get("total") + interest_amount
             ),
-            "loan_application_no": self.name,
+            "loan_application_no": "",
             "rate_of_interest": lender.rate_of_interest,
             "rebate_interest": int_config.rebait_interest,
             "sanctioned_amount": frappe.utils.fmt_money(

@@ -384,7 +384,7 @@ class Cart(Document):
         doc = {
             "loan_application_number": "",
             "loan_account_number": self.loan if self.loan else "",
-            "esign_date": "__________",
+            "esign_date": "",
             "loan_application_no": " ",
             "borrower_name": customer.full_name,
             "borrower_address": address,

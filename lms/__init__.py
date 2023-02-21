@@ -2280,9 +2280,9 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
         packet = io.BytesIO()
         can = canvas.Canvas(packet, pagesize=letter)
         can.setFont("Calibri-Bold", 10)
-        can.drawString(90, 765, current_time)
+        can.drawString(80, 765, current_time)
         if loan_name:
-            can.drawString(90, 750, loan_name)
+            can.drawString(89, 753, loan_name)
         can.save()
         packet.seek(0)
         watermark = PdfReader(packet).pages[0]
@@ -2290,7 +2290,7 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
         page21.merge_page(watermark)
         output.add_page(page21)
 
-        for i in range(31, 35):
+        for i in range(31, 36):
             page = reader.pages[i]
             output.add_page(page)
 
@@ -2298,13 +2298,13 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
         can = canvas.Canvas(packet, pagesize=letter)
         can.setFont("Calibri-Bold", 10)
         if loan_name:
-            can.drawString(118, 166, current_time)
+            can.drawString(118, 767, current_time)
         else:
-            can.drawString(118, 103, current_time)
+            can.drawString(118, 767, current_time)
         can.save()
         packet.seek(0)
         watermark = PdfReader(packet).pages[0]
-        page25 = reader.pages[35]
+        page25 = reader.pages[36]
         page25.merge_page(watermark)
         output.add_page(page25)
 
@@ -2315,7 +2315,7 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
         # page = existing_pdf.pages[25]
         # page.merge_page(new_pdf.pages[0])
         # output.add_page(page)
-        for i in range(36, num_of_page):
+        for i in range(37, num_of_page):
             page = reader.pages[i]
             output.add_page(page)
         # finally, write "output" to a real file
@@ -2336,7 +2336,7 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
         return sanction_letter_esign_doc
     except:
         frappe.log_error(
-            message=frappe.get_traceback() + "\n" + sanction_letter_esign_doc,
+            message=frappe.get_traceback() + "\n",
             title="PDF Editor",
         )
 
