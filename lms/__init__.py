@@ -2333,14 +2333,6 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
         output_stream = open(sanction_letter_esign, "wb")
         output.write(output_stream)
         output_stream.close()
-        frappe.log_error(
-            message=sanction_letter_esign_doc
-            + "\n"
-            + loan_application_name
-            + "\n"
-            + loan_name,
-            title="Loan Agreement editor",
-        )
         return sanction_letter_esign_doc
     except:
         frappe.log_error(

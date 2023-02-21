@@ -2109,6 +2109,10 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             from PyPDF2 import PdfReader, PdfWriter
 
             lender_esign_file = self.lender_esigned_document
+            frappe.log_error(
+                message=str(self.lender_esigned_document),
+                title="lender_esigned_document",
+            )
             lfile_name = lender_esign_file.split("files/", 1)
             l_file = lfile_name[1]
             pdf_file_path = frappe.utils.get_files_path(
