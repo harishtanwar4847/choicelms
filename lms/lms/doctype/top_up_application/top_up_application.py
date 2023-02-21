@@ -607,6 +607,7 @@ class TopupApplication(Document):
         }
 
     def notify_customer(self):
+        loan = self.get_loan()
         customer = self.get_customer()
         doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
         doc["top_up_application"] = {
