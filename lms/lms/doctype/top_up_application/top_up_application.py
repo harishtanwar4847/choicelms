@@ -33,8 +33,15 @@ class TopupApplication(Document):
         loan.expiry_date = self.expiry_date
         loan.save(ignore_permissions=True)
         frappe.db.commit()
+        pdf_doc_name = "Loan_Enhancement_Agreement_{}".format(self.name)
+        edited = lms.pdf_editor(
+            self.lender_esigned_document,
+            pdf_doc_name,
+        )
+        frappe.db.set_value(self.doctype, self.name, "lender_esigned_document", edited)
+        self.lender_esigned_document = edited
 
-        self.map_loan_agreement_file(loan)
+        self.map_loan_agreement_file(loan, edited)
         # self.notify_customer()
 
         date = frappe.utils.now_datetime().date()
@@ -619,7 +626,7 @@ class TopupApplication(Document):
         # if self.status in ["Pending", "Approved", "Rejected"]:
         attachments = ""
         if doc.get("top_up_application").get("status") == "Approved":
-            # attachments = self.create_attachment()
+            attachments = self.create_attachment()
             loan_email_message = frappe.db.sql(
                 "select message from `tabNotification` where name ='Top up Application Approved';"
             )[0][0]
@@ -703,15 +710,15 @@ class TopupApplication(Document):
                 customer=self.get_customer(),
             )
 
-    def map_loan_agreement_file(self, loan):
-        file_name = frappe.db.get_value(
-            "File", {"file_url": self.lender_esigned_document}
-        )
+    def map_loan_agreement_file(self, loan, edited):
+        # file_name = frappe.db.get_value(
+        #     "File", {"file_url": self.lender_esigned_document}
+        # )
 
-        loan_agreement = frappe.get_doc("File", file_name)
+        # loan_agreement = frappe.get_doc("File", file_name)
 
-        loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(loan.name)
-        event = "Top up"
+        # loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(loan.name)
+        # event = "Top up"
 
         is_private = 0
 
@@ -719,31 +726,31 @@ class TopupApplication(Document):
         #     loan_agreement_file_name, is_private=is_private
         # )
 
-        loan_agreement_file = frappe.get_doc(
-            {
-                "doctype": "File",
-                "file_name": loan_agreement_file_name,
-                "content": loan_agreement.get_content(),
-                "attached_to_doctype": "Loan",
-                "attached_to_name": loan.name,
-                "attached_to_field": "loan_agreement",
-                "folder": "Home",
-                # "file_url": loan_agreement_file_url,
-                "is_private": is_private,
-            }
-        )
-        loan_agreement_file.insert(ignore_permissions=True)
-        frappe.db.commit()
+        # loan_agreement_file = frappe.get_doc(
+        #     {
+        #         "doctype": "File",
+        #         "file_name": loan_agreement_file_name,
+        #         "content": loan_agreement.get_content(),
+        #         "attached_to_doctype": "Loan",
+        #         "attached_to_name": loan.name,
+        #         "attached_to_field": "loan_agreement",
+        #         "folder": "Home",
+        #         # "file_url": loan_agreement_file_url,
+        #         "is_private": is_private,
+        #     }
+        # )
+        # loan_agreement_file.insert(ignore_permissions=True)
+        # frappe.db.commit()
 
         frappe.db.set_value(
             "Loan",
             loan.name,
             "loan_agreement",
-            loan_agreement_file.file_url,
+            edited,
             update_modified=False,
         )
         # save loan sanction history
-        loan.save_loan_sanction_history(loan_agreement_file.name, event)
+        # loan.save_loan_sanction_history(loan_agreement_file.name, event)
 
     def before_save(self):
         loan = self.get_loan()
@@ -756,17 +763,6 @@ class TopupApplication(Document):
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
         if self.status == "Pending":
             self.sanction_letter()
-        elif self.status == "Approved":
-            pdf_doc_name = "Loan_Enhancement_Agreement_{}".format(self.name)
-            edited = lms.pdf_editor(
-                self.lender_esigned_document,
-                pdf_doc_name,
-                loan.name,
-            )
-            frappe.db.set_value(
-                self.doctype, self.name, "lender_esigned_document", edited
-            )
-            self.lender_esigned_document = edited
 
     def get_customer(self):
         return frappe.get_doc("Loan Customer", self.customer)
@@ -1054,7 +1050,6 @@ class TopupApplication(Document):
                     ).insert(ignore_permissions=True)
                     frappe.db.commit()
         if self.status == "Approved":
-            print("akash")
             import os
 
             from PyPDF2 import PdfReader, PdfWriter
@@ -1067,7 +1062,16 @@ class TopupApplication(Document):
             )
             file_base_name = pdf_file_path.replace(".pdf", "")
             pdf = PdfReader(pdf_file_path)
-            pages = [22, 23, 24, 25, 26, 27]  # page 1, 3, 5
+            pages = [
+                30,
+                31,
+                32,
+                33,
+                34,
+                35,
+                36,
+                37,
+            ]  # page 1, 3, 5
             pdfWriter = PdfWriter()
             for page_num in pages:
                 pdfWriter.addPage(pdf.getPage(page_num))
@@ -1105,27 +1109,27 @@ class TopupApplication(Document):
         #     filters={"topup_application_no": self.name, "parent": self.sl_entries},
         #     fields=["*"],
         # )
-        # doc_name = sanction_letter[0].sanction_letter
-        # fname = doc_name.split("files/", 1)
-        # file = fname[1].split(".", 1)
-        # file_name = file[0]
-        # log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
-        # with open(log_file, "rb") as fileobj:
-        #     filedata = fileobj.read()
-
-        # sanction_letter = {"fname": fname[1], "fcontent": filedata}
-        # attachments.append(sanction_letter)
-
-        lender_esign_file = self.lender_esigned_document
-        lfile_name = lender_esign_file.split("files/", 1)
-        l_file = lfile_name[1]
-        path = frappe.utils.get_files_path(
-            l_file,
-        )
-        with open(path, "rb") as fileobj:
+        doc_name = self.lender_esigned_document
+        fname = doc_name.split("files/", 1)
+        file = fname[1].split(".", 1)
+        file_name = file[0]
+        log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
+        with open(log_file, "rb") as fileobj:
             filedata = fileobj.read()
-        lender_doc = {"fname": l_file, "fcontent": filedata}
-        attachments.append(lender_doc)
+
+        sanction_letter = {"fname": fname[1], "fcontent": filedata}
+        attachments.append(sanction_letter)
+
+        # lender_esign_file = self.lender_esigned_document
+        # lfile_name = lender_esign_file.split("files/", 1)
+        # l_file = lfile_name[1]
+        # path = frappe.utils.get_files_path(
+        #     l_file,
+        # )
+        # with open(path, "rb") as fileobj:
+        #     filedata = fileobj.read()
+        # lender_doc = {"fname": l_file, "fcontent": filedata}
+        # attachments.append(lender_doc)
 
         # if self.customer_esigned_document:
         #     customer_esigned_document = self.customer_esigned_document

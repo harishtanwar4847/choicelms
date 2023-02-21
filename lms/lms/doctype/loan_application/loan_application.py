@@ -338,7 +338,7 @@ class LoanApplication(Document):
         # from frappe.utils.pdf import get_pdf
 
         agreement_pdf = lms.get_pdf(agreement)
-
+        print("agreement_pdf", agreement_pdf)
         las_settings = frappe.get_single("LAS Settings")
         headers = {"userId": las_settings.choice_user_id}
         files = {"file": (loan_agreement_file, agreement_pdf)}
@@ -813,7 +813,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 signed_doc = lms.pdf_editor(
                     self.lender_esigned_document,
                     pdf_doc_name,
-                    loan.name,
                 )
                 self.lender_esigned_document = signed_doc
                 frappe.db.set_value(
@@ -1549,7 +1548,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             )
             attachments = ""
             if self.status in ["Approved"]:
-                # attachments = self.create_attachment()
+                attachments = self.create_attachment()
                 if self.loan and not self.loan_margin_shortfall:
                     frappe.enqueue(
                         method=frappe.sendmail,
@@ -1557,7 +1556,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         sender=None,
                         subject="Increase Loan Application",
                         message=loan_email_message,
-                        attachments=self.lender_esigned_document,
+                        attachments=attachments,
                     )
                 else:
                     frappe.enqueue(
@@ -2118,12 +2117,14 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             file_base_name = pdf_file_path.replace(".pdf", "")
             reader = PdfReader(pdf_file_path)
             pages = [
-                21,
-                22,
-                23,
-                24,
-                25,
-                26,
+                30,
+                31,
+                32,
+                33,
+                34,
+                35,
+                36,
+                37,
             ]  # page 1, 3, 5
             pdfWriter = PdfWriter()
             for page_num in pages:
@@ -2161,27 +2162,27 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         #     filters={"loan_application_no": self.name, "parent": self.sl_entries},
         #     fields=["*"],
         # )
-        # doc_name = sanction_letter[0].sanction_letter
-        # fname = doc_name.split("files/", 1)
-        # file = fname[1].split(".", 1)
-        # file_name = file[0]
-        # log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
-        # with open(log_file, "rb") as fileobj:
-        #     filedata = fileobj.read()
-
-        # sanction_letter = {"fname": fname[1], "fcontent": filedata}
-        # attachments.append(sanction_letter)
-
-        lender_esign_file = self.lender_esigned_document
-        lfile_name = lender_esign_file.split("files/", 1)
-        l_file = lfile_name[1]
-        path = frappe.utils.get_files_path(
-            l_file,
-        )
-        with open(path, "rb") as fileobj:
+        doc_name = self.lender_esigned_document
+        fname = doc_name.split("files/", 1)
+        file = fname[1].split(".", 1)
+        file_name = file[0]
+        log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
+        with open(log_file, "rb") as fileobj:
             filedata = fileobj.read()
-        lender_doc = {"fname": l_file, "fcontent": filedata}
-        attachments.append(lender_doc)
+
+        sanction_letter = {"fname": fname[1], "fcontent": filedata}
+        attachments.append(sanction_letter)
+
+        # lender_esign_file = self.lender_esigned_document
+        # lfile_name = lender_esign_file.split("files/", 1)
+        # l_file = lfile_name[1]
+        # path = frappe.utils.get_files_path(
+        #     l_file,
+        # )
+        # with open(path, "rb") as fileobj:
+        #     filedata = fileobj.read()
+        # lender_doc = {"fname": l_file, "fcontent": filedata}
+        # attachments.append(lender_doc)
 
         # if self.customer_esigned_document:
         #     customer_esigned_document = self.customer_esigned_document

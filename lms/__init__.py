@@ -2246,7 +2246,7 @@ def compress_image(input_image_path, user, quality=100):
 
 
 def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
-
+    # print("akash")
     # pdfmetrics.registerFont(TTFont('Calibri', 'Calibri.ttf'))
     registerFont(TTFont("Calibri-Bold", "calibrib.ttf"))
     # registerFontFamily('Calibri',normal='Calibri',bold='CalibriBD',italic='CalibriIT',boldItalic='CalibriBI')
@@ -2271,7 +2271,7 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
     reader = PdfReader(pdf_path)
     num_of_page = len(existing_pdf.pages)
     output = PdfWriter()
-    for i in range(21):
+    for i in range(30):
         page = reader.pages[i]
         output.add_page(page)
 
@@ -2279,27 +2279,31 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
     packet = io.BytesIO()
     can = canvas.Canvas(packet, pagesize=letter)
     can.setFont("Calibri-Bold", 10)
-    can.drawString(80, 790, current_time)
-    can.drawString(95, 780, loan_name)
+    can.drawString(90, 765, current_time)
+    if loan_name:
+        can.drawString(90, 750, loan_name)
     can.save()
     packet.seek(0)
     watermark = PdfReader(packet).pages[0]
-    page21 = reader.pages[21]
+    page21 = reader.pages[30]
     page21.merge_page(watermark)
     output.add_page(page21)
 
-    for i in range(22, 25):
+    for i in range(31, 35):
         page = reader.pages[i]
         output.add_page(page)
 
     packet = io.BytesIO()
     can = canvas.Canvas(packet, pagesize=letter)
     can.setFont("Calibri-Bold", 10)
-    can.drawString(95, 510, current_time)
+    if loan_name:
+        can.drawString(118, 162, current_time)
+    else:
+        can.drawString(118, 103, current_time)
     can.save()
     packet.seek(0)
     watermark = PdfReader(packet).pages[0]
-    page25 = reader.pages[25]
+    page25 = reader.pages[35]
     page25.merge_page(watermark)
     output.add_page(page25)
 
@@ -2310,7 +2314,7 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
     # page = existing_pdf.pages[25]
     # page.merge_page(new_pdf.pages[0])
     # output.add_page(page)
-    for i in range(26, num_of_page):
+    for i in range(36, num_of_page):
         page = reader.pages[i]
         output.add_page(page)
     # finally, write "output" to a real file
