@@ -492,6 +492,61 @@ def validate_revoc(unpledge_application_name):
                     filters={"parent": unpledge_application_doc.name, "prf": i.prf},
                     fields=["*"],
                 )
+            # create payload
+            try:
+                datetime_signature = lms.create_signature_mycams()
+                las_settings = frappe.get_single("LAS Settings")
+                headers = {
+                    "Content-Type": "application/json",
+                    "clientid": las_settings.client_id,
+                    "datetimestamp": datetime_signature[0],
+                    "signature": datetime_signature[1],
+                    "subclientid": "",
+                }
+                url = las_settings.revoke_api
+                data = {
+                    "revocvalidate": {
+                        "reqrefno": unpledge_application_doc.name,
+                        "lienrefno": collateral_ledger.prf,
+                        "pan": user_kyc.pan_no,
+                        "regemailid": customer.mycams_email_id,
+                        "clientid": las_settings.client_id,
+                        "requestip": "",
+                        "schemedetails": [],
+                    }
+                }
+                for i in unpledge_application_doc.unpledge_items:
+                    psn = frappe.db.sql(
+                        """select psn from `tabCollateral Ledger` where isin = '{isin}' and folio = '{folio}' and loan = '{loan}' and request_type = '{type}' """.format(
+                            isin=i.isin,
+                            folio=i.folio,
+                            loan=unpledge_application_doc.loan,
+                            type="Pledge",
+                        ),
+                        as_dict=1,
+                    )
+                    schemedetails = (
+                        {
+                            "amccode": i.amc_code,
+                            "folio": i.folio,
+                            "schemecode": i.scheme_code,
+                            "schemename": i.security_name,
+                            "isinno": i.isin,
+                            "schemetype": unpledge_application_doc.scheme_type,
+                            "schemecategory": i.security_category,
+                            "lienunit": i.quantity,
+                            "revocationunit": i.unpledge_quantity,
+                            "lienmarkno": psn[0].psn,
+                        },
+                    )
+                    data["revocvalidate"]["schemedetails"].append(schemedetails[0])
+
+                lms.create_log(
+                    {
+                        "json_payload": data,
+                    },
+                    "revoke_validate_request",
+                )
                 if i.prf not in prf_list:
                     try:
                         datetime_signature = lms.create_signature_mycams()
@@ -642,6 +697,36 @@ def validate_revoc(unpledge_application_name):
 
                     except requests.RequestException as e:
                         raise utils.exceptions.APIException(str(e))
+                if unpledge_application_doc.is_validated == True:
+                    for i in unpledge_application_doc.unpledge_items:
+                        psn = frappe.db.sql(
+                            """select psn from `tabCollateral Ledger` where isin = '{isin}' and folio = '{folio}' and loan = '{loan}' and request_type = '{type}' """.format(
+                                isin=i.isin,
+                                folio=i.folio,
+                                loan=unpledge_application_doc.loan,
+                                type="Pledge",
+                            ),
+                            as_dict=1,
+                        )
+                        unpledge_item_doc_list = frappe.get_all(
+                            "Unpledge Application Unpledged Item",
+                            filters={
+                                "parent": unpledge_application_doc.name,
+                                "isin": i.isin,
+                                "folio": i.folio,
+                            },
+                            fields=["name"],
+                        )
+                        unpledge_item_doc = frappe.get_doc(
+                            "Unpledge Application Unpledged Item",
+                            unpledge_item_doc_list[0].name,
+                        )
+                        unpledge_item_doc.psn = psn[0].psn
+                        unpledge_item_doc.save(ignore_permissions=True)
+                        frappe.db.commit()
+
+            except requests.RequestException as e:
+                raise utils.exceptions.APIException(str(e))
         else:
             frappe.throw(frappe._("Mycams Email ID is missing"))
     except utils.exceptions.APIException as e:

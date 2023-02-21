@@ -1131,19 +1131,21 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 if self.increased_sanctioned_limit > self.maximum_sanctioned_limit
                 else self.increased_sanctioned_limit
             )
-            if loan.drawing_power > loan.sanctioned_limit:
-                loan.drawing_power = loan.sanctioned_limit
+            # if loan.drawing_power > loan.sanctioned_limit:
+            #     loan.drawing_power = loan.sanctioned_limit
             # loan.sanctioned_limit = loan.drawing_power
             loan.save(ignore_permissions=True)
-            loan_margin_shortfall = loan.get_margin_shortfall()
-            if not loan_margin_shortfall.is_new() and loan_margin_shortfall.status in [
-                "Pending",
-                "Request Pending",
-            ]:
-                loan_margin_shortfall.fill_items()
-                if loan_margin_shortfall.shortfall_percentage == 0:
-                    loan_margin_shortfall.status = "Resolved"
-                loan_margin_shortfall.save(ignore_permissions=True)
+            frappe.db.commit()
+            loan.check_for_shortfall(on_approval=True)
+            # loan_margin_shortfall = loan.get_margin_shortfall()
+            # if not loan_margin_shortfall.is_new() and loan_margin_shortfall.status in [
+            #     "Pending",
+            #     "Request Pending",
+            # ]:
+            #     loan_margin_shortfall.fill_items()
+            #     if loan_margin_shortfall.shortfall_percentage == 0:
+            #         loan_margin_shortfall.status = "Resolved"
+            #     loan_margin_shortfall.save(ignore_permissions=True)
 
         if self.application_type in ["Margin Shortfall", "Pledge More"]:
             if loan.drawing_power > loan.sanctioned_limit:
@@ -1160,7 +1162,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     loan_margin_shortfall.status = "Pledged Securities"
                     loan_margin_shortfall.action_time = frappe.utils.now_datetime()
                 loan_margin_shortfall.save(ignore_permissions=True)
-
+        frappe.db.commit()
         return loan
 
     def apply_renewal_charges(self, loan):
@@ -1291,6 +1293,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 mortgage_charges,
                 approve=True,
             )
+        frappe.db.commit()
 
     def update_collateral_ledger(self, set_values={}, where=""):
         set_values_str = ""
@@ -1637,6 +1640,11 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     )
                     fcm_notification = fcm_notification.as_dict()
                     fcm_notification["title"] = "Lien partially accepted"
+            else:
+                fcm_message = fcm_notification.message.format(
+                    pledge="pledge",
+                    total_collateral_value_str=self.total_collateral_value_str,
+                )
 
         if msg:
             receiver_list = [str(self.get_customer().phone)]

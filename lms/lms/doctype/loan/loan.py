@@ -2251,8 +2251,13 @@ class Loan(Document):
 
 
 def check_loans_for_shortfall(loans):
+    counter = 0
     for loan_name in loans:
-        frappe.enqueue_doc("Loan", loan_name, method="check_for_shortfall")
+        queue = "default"
+        if (counter % 2) == 0:
+            queue = "short"
+        frappe.enqueue_doc("Loan", loan_name, method="check_for_shortfall", queue=queue)
+        counter += 1
 
 
 @frappe.whitelist()
@@ -2327,6 +2332,11 @@ def add_loans_virtual_interest(loans):
 
 @frappe.whitelist()
 def add_all_loans_virtual_interest():
+    las_settings = frappe.get_single("LAS Settings")
+    las_settings.ckyc_request_id = 1
+    las_settings.save(ignore_permissions=True)
+    frappe.db.commit()
+
     chunks = lms.chunk_doctype(doctype="Loan", limit=10)
 
     for start in chunks.get("chunks"):

@@ -4328,7 +4328,10 @@ def ckyc_search(**kwargs):
                 .get("PID_DATA")
                 .get("SearchResponsePID")
             )
-            ckyc_no = {"ckyc_no": pid_data.get("CKYC_NO")}
+            ckyc_no = {
+                # "ckyc_no": pid_data.get("CKYC_NO").replace("O", "").replace("o", "").replace("L", ""),
+                "ckyc_no": "".join(filter(str.isdigit, pid_data.get("CKYC_NO")))
+            }
             kyc_consent_doc = frappe.get_doc(
                 {
                     "doctype": "User Consent",
@@ -4342,7 +4345,7 @@ def ckyc_search(**kwargs):
             lms.log_api_error(mess=str(res_json))
             return utils.respondWithFailure(
                 status=res_json.get("status"),
-                message="Sorry! Our system has not been able to validate your KYC. Kindly check your input for any mismatch.",
+                message="Sorry! Our system has not been able to validate your KYC. Please try again after sometime.",
                 data=res_json.get("error"),
             )
 
@@ -4680,7 +4683,7 @@ def ckyc_download(**kwargs):
             lms.log_api_error(mess=str(res_json))
             return utils.respondWithFailure(
                 status=res_json.get("status"),
-                message="Sorry! Our system has not been able to validate your KYC. Kindly check your input for any mismatch.",
+                message="Sorry! Our system has not been able to validate your KYC. Please try again after sometime.",
                 data=res_json.get("error"),
             )
 
@@ -5846,8 +5849,6 @@ def au_penny_drop(**kwargs):
             search=data.get("account_holder_name")
             + data.get("ifsc")
             + data.get("account_number")
-            + data.get("branch")
-            + data.get("city")
             + data.get("bank_account_type")
             if data.get("bank_account_type")
             else "" + data.get("bank")
@@ -5873,8 +5874,18 @@ def au_penny_drop(**kwargs):
 
         las_settings = frappe.get_single("LAS Settings")
         res_json = {}
+        photos_ = lms.upload_image_to_doctype(
+            customer=customer,
+            seq_no=data.get("account_number"),
+            image_=data.get("personalized_cheque"),
+            img_format="jpeg",
+            img_folder="personalized_cheque",
+        )
         bank_acc = frappe.get_all(
-            "User Bank Account", {"account_number": data.get("account_number")}, "*"
+            "User Bank Account",
+            {"account_number": data.get("account_number"), "is_repeated": 0},
+            "*",
+            order_by="creation desc",
         )
 
         if bank_acc:
@@ -5885,6 +5896,41 @@ def au_penny_drop(**kwargs):
                 ):
                     res_json = lms.au_pennydrop_api(data)
                 else:
+                    bank_account_list_ = frappe.get_all(
+                        "User Bank Account",
+                        filters={"parent": user_kyc.name},
+                        fields="*",
+                    )
+                    for b in bank_account_list_:
+                        other_bank_ = frappe.get_doc("User Bank Account", b.name)
+                        if other_bank_.is_default == 1:
+                            other_bank_.is_default = 0
+                            other_bank_.save(ignore_permissions=True)
+                            frappe.db.commit()
+                    frappe.get_doc(
+                        {
+                            "doctype": "User Bank Account",
+                            "parentfield": "bank_account",
+                            "parenttype": "User KYC",
+                            "bank": data.get("bank"),
+                            "branch": data.get("branch"),
+                            "account_type": data.get("bank_account_type"),
+                            "account_number": data.get("account_number"),
+                            "ifsc": data.get("ifsc"),
+                            "account_holder_name": bank_acc[0].account_holder_name,
+                            "personalized_cheque": photos_,
+                            "city": data.get("city"),
+                            "parent": user_kyc.name,
+                            "is_default": True,
+                            "bank_status": "Pending",
+                            "penny_request_id": bank_acc[0].penny_request_id,
+                            "bank_transaction_status": bank_acc[
+                                0
+                            ].bank_transaction_status,
+                            "is_repeated": 1,
+                        }
+                    ).insert(ignore_permissions=True)
+                    frappe.db.commit()
                     return utils.respondWithSuccess(
                         message="Your account details have been successfully verified"
                     )
@@ -5920,13 +5966,6 @@ def au_penny_drop(**kwargs):
                                         "We have found a mismatch in the account holder name as per the fetched data"
                                     )
                                 )
-                            photos_ = lms.upload_image_to_doctype(
-                                customer=customer,
-                                seq_no=result_.get("accountNumber")[-4:],
-                                image_=data.get("personalized_cheque"),
-                                img_format="jpeg",
-                                img_folder="personalized_cheque",
-                            )
                             if user_kyc.kyc_type == "CHOICE":
                                 bank_entry_name = frappe.db.get_value(
                                     "User Bank Account",
@@ -6062,6 +6101,7 @@ def au_penny_drop(**kwargs):
                                     }
                                 ).insert(ignore_permissions=True)
                                 frappe.db.commit()
+
                             return utils.respondWithSuccess(
                                 message="Your account details have been successfully verified"
                             )

@@ -5,7 +5,7 @@ import lms
 
 def execute():
     try:
-        frappe.reload_doc("Lms", "DocType", "LAS Settings")
+        frappe.reload_doc("Lms", "DocType", "LAS Settings", force=True)
         las_settings = frappe.get_single("LAS Settings")
         if frappe.utils.get_url() == "https://spark.loans":
             las_settings.penny_drop_api = (

@@ -2,7 +2,7 @@ import frappe
 
 
 def execute():
-    frappe.reload_doc("Lms", "DocType", "Security Category")
+    frappe.reload_doc("Lms", "DocType", "Security Category", force=True)
 
     doc_exists = frappe.db.sql(
         "SELECT EXISTS(SELECT 1 FROM `tabSecurity Category`) as OUTPUT;",

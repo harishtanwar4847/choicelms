@@ -33,7 +33,6 @@ def approved_securities(instrument_type):
         as_dict=True,
     )
     approved_security_list.sort(key=lambda item: (item["security_name"]).title())
-    # print("approved_security_list", len(approved_security_list))
     lt_list = []
     for list in approved_security_list:
         lt_list.append(list.values())
@@ -42,7 +41,10 @@ def approved_securities(instrument_type):
     df.drop("eligible_percentage", inplace=True, axis=1)
     df.columns = pd.Series(df.columns.str.replace("_", " ")).str.title()
     df.index += 1
-    approved_security_pdf_file = "approved-securities.pdf"
+    if instrument_type == "Shares":
+        approved_security_pdf_file = "approved-securities.pdf"
+    else:
+        approved_security_pdf_file = "approved-securities-mf.pdf"
 
     date_ = frappe.utils.now_datetime()
     formatted_date = lms.date_str_format(date=date_.day)
@@ -73,9 +75,14 @@ def approved_securities(instrument_type):
     )
     pdf_file.write(pdf)
     pdf_file.close()
-    approved_security_pdf_file_url = frappe.utils.get_url(
-        "files/approved-securities.pdf"
-    )
+    if instrument_type == "Shares":
+        approved_security_pdf_file_url = frappe.utils.get_url(
+            "files/approved-securities.pdf"
+        )
+    else:
+        approved_security_pdf_file_url = frappe.utils.get_url(
+            "files/approved-securities-mf.pdf"
+        )
     return approved_security_pdf_file_url
 
 
@@ -157,7 +164,6 @@ def get_context(context):
     )[0]
 
     context.lenderCharges = frappe.get_last_doc("Lender")
-    # print(context.lenderCharges.lender_stamp_duty_minimum_amount)
     context.approved_pdf_shares = approved_securities(instrument_type="Shares")
     context.approved_pdf_mf = approved_securities(instrument_type="Mutual Fund")
 

@@ -58,151 +58,282 @@ class Cart(Document):
             return f.read()
 
     def create_loan_application(self):
-        if self.is_processed:
-            return
+        try:
+            if self.is_processed:
+                return
 
-        current = frappe.utils.now_datetime()
-        # expiry = current.replace(year=current.year + 1)
-        expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
+            current = frappe.utils.now_datetime()
+            # expiry = current.replace(year=current.year + 1)
+            expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
 
-        # Set application type
-        approved_tnc = frappe.db.count(
-            "Approved Terms and Conditions",
-            filters={"application_doctype": "Cart", "application_name": self.name},
-        )
+            # Set application type
+            approved_tnc = frappe.db.count(
+                "Approved Terms and Conditions",
+                filters={"application_doctype": "Cart", "application_name": self.name},
+            )
 
-        application_type = "New Loan"
-        if self.loan and not self.loan_margin_shortfall:
-            application_type = "Increase Loan"
-        elif self.loan and self.loan_margin_shortfall:
-            application_type = "Margin Shortfall"
-        if not approved_tnc and self.loan and not self.loan_margin_shortfall:
-            application_type = "Pledge More"
+            application_type = "New Loan"
+            if self.loan and not self.loan_margin_shortfall:
+                application_type = "Increase Loan"
+            elif self.loan and self.loan_margin_shortfall:
+                application_type = "Margin Shortfall"
+            if not approved_tnc and self.loan and not self.loan_margin_shortfall:
+                application_type = "Pledge More"
 
-        items = []
-        for item in self.items:
-            amount = round(item.pledged_quantity, 3) * item.price
-            item = frappe.get_doc(
+            items = []
+            for item in self.items:
+                amount = round(item.pledged_quantity, 3) * item.price
+                item = frappe.get_doc(
+                    {
+                        "doctype": "Loan Application Item",
+                        "isin": item.isin,
+                        "security_name": item.security_name,
+                        "security_category": item.security_category,
+                        "pledged_quantity": round(item.pledged_quantity, 3),
+                        "requested_quantity": round(item.requested_quantity, 3),
+                        "price": item.price,
+                        "amount": amount,
+                        "eligible_percentage": item.eligible_percentage,
+                        "eligible_amount": (amount * item.eligible_percentage) / 100,
+                        "type": item.type,
+                        "folio": item.folio,
+                        "amc_code": item.amc_code,
+                        "amc_name": item.amc_name,
+                        "scheme_code": item.scheme_code,
+                        "prf_number": self.lien_reference_number,
+                    }
+                )
+                items.append(item)
+
+            loan_application = frappe.get_doc(
                 {
-                    "doctype": "Loan Application Item",
-                    "isin": item.isin,
-                    "security_name": item.security_name,
-                    "security_category": item.security_category,
-                    "pledged_quantity": round(item.pledged_quantity, 3),
-                    "requested_quantity": round(item.requested_quantity, 3),
-                    "price": item.price,
-                    "amount": amount,
-                    "eligible_percentage": item.eligible_percentage,
-                    "eligible_amount": (amount * item.eligible_percentage) / 100,
-                    "type": item.type,
-                    "folio": item.folio,
-                    "amc_code": item.amc_code,
-                    "amc_name": item.amc_name,
-                    "scheme_code": item.scheme_code,
-                    "prf_number": self.lien_reference_number,
+                    "doctype": "Loan Application",
+                    "total_collateral_value": self.total_collateral_value,
+                    "pledged_total_collateral_value": self.total_collateral_value,
+                    "loan_margin_shortfall": self.loan_margin_shortfall,
+                    "drawing_power": self.eligible_loan,
+                    "lender": self.lender,
+                    "expiry_date": expiry,
+                    "allowable_ltv": self.allowable_ltv,
+                    "customer": self.customer,
+                    "customer_name": self.customer_name,
+                    "pledgor_boid": self.pledgor_boid,
+                    "pledgee_boid": self.pledgee_boid,
+                    "loan": self.loan,
+                    "workflow_state": "Waiting to be pledged",
+                    "items": items,
+                    "application_type": application_type,
+                    "increased_sanctioned_limit": self.increased_sanctioned_limit,
+                    "instrument_type": self.instrument_type,
+                    "scheme_type": self.scheme_type,
                 }
-            )
-            items.append(item)
+            ).insert(ignore_permissions=True)
 
-        loan_application = frappe.get_doc(
-            {
-                "doctype": "Loan Application",
-                "total_collateral_value": self.total_collateral_value,
-                "pledged_total_collateral_value": self.total_collateral_value,
-                "loan_margin_shortfall": self.loan_margin_shortfall,
-                "drawing_power": self.eligible_loan,
-                "lender": self.lender,
-                "expiry_date": expiry,
-                # "allowable_ltv": self.allowable_ltv,
-                "customer": self.customer,
-                "customer_name": self.customer_name,
-                "pledgor_boid": self.pledgor_boid,
-                "pledgee_boid": self.pledgee_boid,
-                "loan": self.loan,
-                "workflow_state": "Waiting to be pledged",
-                "items": items,
-                "application_type": application_type,
-                "increased_sanctioned_limit": self.increased_sanctioned_limit,
-                "instrument_type": self.instrument_type,
-                "scheme_type": self.scheme_type,
-            }
-        ).insert(ignore_permissions=True)
+            loan_application = frappe.get_doc(
+                {
+                    "doctype": "Loan Application",
+                    "total_collateral_value": self.total_collateral_value,
+                    "pledged_total_collateral_value": self.total_collateral_value,
+                    "loan_margin_shortfall": self.loan_margin_shortfall,
+                    "drawing_power": self.eligible_loan,
+                    "lender": self.lender,
+                    "expiry_date": expiry,
+                    # "allowable_ltv": self.allowable_ltv,
+                    "customer": self.customer,
+                    "customer_name": self.customer_name,
+                    "pledgor_boid": self.pledgor_boid,
+                    "pledgee_boid": self.pledgee_boid,
+                    "loan": self.loan,
+                    "workflow_state": "Waiting to be pledged",
+                    "items": items,
+                    "application_type": application_type,
+                    "increased_sanctioned_limit": self.increased_sanctioned_limit,
+                    "instrument_type": self.instrument_type,
+                    "scheme_type": self.scheme_type,
+                }
+            ).insert(ignore_permissions=True)
 
-        # mark cart as processed
-        self.is_processed = 1
-        self.save()
+            # mark cart as processed
+            self.is_processed = 1
+            self.save()
 
-        if self.loan_margin_shortfall:
-            loan_margin_shortfall = frappe.get_doc(
-                "Loan Margin Shortfall", self.loan_margin_shortfall
-            )
-            if loan_margin_shortfall.status == "Pending":
-                loan_margin_shortfall.status = "Request Pending"
-                loan_margin_shortfall.save(ignore_permissions=True)
-                frappe.db.commit()
-            doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
-            frappe.enqueue_doc(
-                "Notification", "Margin Shortfall Action Taken", method="send", doc=doc
-            )
-            msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
-            fcm_notification = frappe.get_doc(
-                "Spark Push Notification",
-                "Margin shortfall – Action taken",
-                fields=["*"],
-            )
-            lms.send_spark_push_notification(
-                fcm_notification=fcm_notification,
-                loan=self.loan,
-                customer=self.get_customer(),
-            )
-            receiver_list = [str(self.get_customer().phone)]
-            if self.get_customer().get_kyc().mob_num:
-                receiver_list.append(str(self.get_customer().get_kyc().mob_num))
-            if self.get_customer().get_kyc().choice_mob_no:
-                receiver_list.append(str(self.get_customer().get_kyc().choice_mob_no))
-
-            receiver_list = list(set(receiver_list))
-
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
-
-        # if self.loan_margin_shortfall:
-        #     loan_application.status = "Ready for Approval"
-        #     loan_application.workflow_state = "Ready for Approval"
-        #     loan_application.save(ignore_permissions=True)
-
-        if not self.loan_margin_shortfall:
-            customer = frappe.get_doc("Loan Customer", self.customer)
-            doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
-            doc["loan_application_name"] = loan_application.name
-            doc["minimum_sanctioned_limit"] = loan_application.minimum_sanctioned_limit
-            # frappe.enqueue_doc(
-            #     "Notification", "Loan Application Creation", method="send", doc=doc
-            # )
-            if not loan_application.remarks:
-                msg_type = "pledge"
-                email_subject = "Pledge Application Success"
-                if self.instrument_type == "Mutual Fund":
-                    application_type = "Lien"
-                    msg_type = "lien"
-                    email_subject = "Lien Application Successful"
-
+            if self.loan_margin_shortfall:
+                loan_margin_shortfall = frappe.get_doc(
+                    "Loan Margin Shortfall", self.loan_margin_shortfall
+                )
+                if loan_margin_shortfall.status == "Pending":
+                    loan_margin_shortfall.status = "Request Pending"
+                    loan_margin_shortfall.save(ignore_permissions=True)
+                    frappe.db.commit()
+                doc = frappe.get_doc(
+                    "User KYC", self.get_customer().choice_kyc
+                ).as_dict()
                 frappe.enqueue_doc(
-                    "Notification", email_subject, method="send", doc=doc
+                    "Notification",
+                    "Margin Shortfall Action Taken",
+                    method="send",
+                    doc=doc,
                 )
-                mess = "Dear Customer,\nYour {} request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans".format(
-                    msg_type
+                msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification",
+                    "Margin shortfall – Action taken",
+                    fields=["*"],
                 )
-                # if mess:
+                lms.send_spark_push_notification(
+                    fcm_notification=fcm_notification,
+                    loan=self.loan,
+                    customer=self.get_customer(),
+                )
                 receiver_list = [str(self.get_customer().phone)]
-                if doc.mob_num:
-                    receiver_list.append(str(doc.mob_num))
-                if doc.choice_mob_no:
-                    receiver_list.append(str(doc.choice_mob_no))
+                if self.get_customer().get_kyc().mob_num:
+                    receiver_list.append(str(self.get_customer().get_kyc().mob_num))
+                if self.get_customer().get_kyc().choice_mob_no:
+                    receiver_list.append(
+                        str(self.get_customer().get_kyc().choice_mob_no)
+                    )
 
                 receiver_list = list(set(receiver_list))
 
-                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=mess)
-        return loan_application
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+            # if self.loan_margin_shortfall:
+            #     loan_application.status = "Ready for Approval"
+            #     loan_application.workflow_state = "Ready for Approval"
+            #     loan_application.save(ignore_permissions=True)
+
+            if not self.loan_margin_shortfall:
+                customer = frappe.get_doc("Loan Customer", self.customer)
+                doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+                doc["loan_application_name"] = loan_application.name
+                doc[
+                    "minimum_sanctioned_limit"
+                ] = loan_application.minimum_sanctioned_limit
+                # frappe.enqueue_doc(
+                #     "Notification", "Loan Application Creation", method="send", doc=doc
+                # )
+                if not loan_application.remarks:
+                    msg_type = "pledge"
+                    email_subject = "Pledge Application Success"
+                    if self.instrument_type == "Mutual Fund":
+                        application_type = "Lien"
+                        msg_type = "lien"
+                        email_subject = "Lien Application Successful"
+                # mark cart as processed
+                self.is_processed = 1
+                self.save()
+
+                if self.loan_margin_shortfall:
+                    loan_margin_shortfall = frappe.get_doc(
+                        "Loan Margin Shortfall", self.loan_margin_shortfall
+                    )
+                    if loan_margin_shortfall.status == "Pending":
+                        loan_margin_shortfall.status = "Request Pending"
+                        loan_margin_shortfall.save(ignore_permissions=True)
+                        frappe.db.commit()
+                    doc = frappe.get_doc(
+                        "User KYC", self.get_customer().choice_kyc
+                    ).as_dict()
+                    frappe.enqueue_doc(
+                        "Notification",
+                        "Margin Shortfall Action Taken",
+                        method="send",
+                        doc=doc,
+                    )
+                    msg = "Dear Customer,\nThank you for taking action against the margin shortfall.\nYou can view the 'Action Taken' summary on the dashboard of the app under margin shortfall banner. Spark Loans"
+                    fcm_notification = frappe.get_doc(
+                        "Spark Push Notification",
+                        "Margin shortfall – Action taken",
+                        fields=["*"],
+                    )
+                    lms.send_spark_push_notification(
+                        fcm_notification=fcm_notification,
+                        loan=self.loan,
+                        customer=self.get_customer(),
+                    )
+                    receiver_list = [str(self.get_customer().phone)]
+                    if self.get_customer().get_kyc().mob_num:
+                        receiver_list.append(str(self.get_customer().get_kyc().mob_num))
+                    if self.get_customer().get_kyc().choice_mob_no:
+                        receiver_list.append(
+                            str(self.get_customer().get_kyc().choice_mob_no)
+                        )
+
+                    receiver_list = list(set(receiver_list))
+
+                    frappe.enqueue(
+                        method=send_sms, receiver_list=receiver_list, msg=msg
+                    )
+
+                # if self.loan_margin_shortfall:
+                #     loan_application.status = "Ready for Approval"
+                #     loan_application.workflow_state = "Ready for Approval"
+                #     loan_application.save(ignore_permissions=True)
+
+                if not self.loan_margin_shortfall:
+                    customer = frappe.get_doc("Loan Customer", self.customer)
+                    doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
+                    doc["loan_application_name"] = loan_application.name
+                    doc[
+                        "minimum_sanctioned_limit"
+                    ] = loan_application.minimum_sanctioned_limit
+                    # frappe.enqueue_doc(
+                    #     "Notification", "Loan Application Creation", method="send", doc=doc
+                    # )
+                    if not loan_application.remarks:
+                        msg_type = "pledge"
+                        email_subject = "Pledge Application Success"
+                        if self.instrument_type == "Mutual Fund":
+                            application_type = "Lien"
+                            msg_type = "lien"
+                            email_subject = "Lien Application Successful"
+
+                        frappe.enqueue_doc(
+                            "Notification", email_subject, method="send", doc=doc
+                        )
+                        mess = "Dear Customer,\nYour {} request has been successfully received and is under process. We shall reach out to you very soon. Thank you for your patience -Spark Loans".format(
+                            msg_type
+                        )
+                        # if mess:
+                        receiver_list = [str(self.get_customer().phone)]
+                        if doc.mob_num:
+                            receiver_list.append(str(doc.mob_num))
+                        if doc.choice_mob_no:
+                            receiver_list.append(str(doc.choice_mob_no))
+
+                        receiver_list = list(set(receiver_list))
+
+                        frappe.enqueue(
+                            method=send_sms, receiver_list=receiver_list, msg=mess
+                        )
+                return loan_application
+        except Exception:
+            if frappe.utils.get_url() == "https://spark.loans":
+                email_msg = "Loan Customer {customer} is attempting for {application_type} of Loan application in {instrument_type}, but the same is not getting executed\n{cart}".format(
+                    customer=self.customer,
+                    application_type=application_type,
+                    instrument_type=self.instrument_type,
+                    cart=self.name,
+                )
+                frappe.enqueue(
+                    method=frappe.sendmail,
+                    recipients=[
+                        "sangram.patil@choicetechlab.com",
+                        "harsha.sankla@choiceindia.com",
+                        "manish.prasad@choiceindia.com",
+                        "prakash.aare@choiceindia.com",
+                        "support-spark@atriina.com",
+                    ],
+                    sender=None,
+                    subject="Spark Loans Pledge Setup Did Not Execute",
+                    message=email_msg,
+                )
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\nRequest Info:\n"
+                + str(frappe.local.form_dict),
+                title="Create Loan Application Error",
+            )
 
     def create_tnc_file(self):
         lender = self.get_lender()

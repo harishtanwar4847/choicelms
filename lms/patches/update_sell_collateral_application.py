@@ -2,7 +2,7 @@ import frappe
 
 
 def execute():
-    frappe.reload_doc("Lms", "DocType", "Sell Collateral Application")
+    frappe.reload_doc("Lms", "DocType", "Sell Collateral Application", force=True)
     sell_collateral_applications = frappe.get_all(
         "Sell Collateral Application", fields=["*"]
     )

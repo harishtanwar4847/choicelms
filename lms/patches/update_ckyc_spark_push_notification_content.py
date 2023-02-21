@@ -2,7 +2,7 @@ import frappe
 
 
 def execute():
-    frappe.reload_doc("Lms", "DocType", "Spark Push Notification")
+    frappe.reload_doc("Lms", "DocType", "Spark Push Notification", force=True)
 
     frappe.db.sql("truncate table `tabSpark Push Notification`")
 
