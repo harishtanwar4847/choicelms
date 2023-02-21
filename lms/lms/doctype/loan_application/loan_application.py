@@ -1524,49 +1524,81 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     doc=doc,
                 )
         elif self.status in ["Approved"]:
-            loan_email_message = frappe.db.sql(
-                "select message from `tabNotification` where name ='Loan Application Approved';"
-            )[0][0]
-            loan_email_message = loan_email_message.replace("fullname", doc.fullname)
-            loan_email_message = loan_email_message.replace("fullname", doc.fullname)
-            loan_email_message = loan_email_message.replace(
-                "logo_file",
-                frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
-            )
-            loan_email_message = loan_email_message.replace(
-                "fb_icon",
-                frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
-            )
-            # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
-            loan_email_message = loan_email_message.replace(
-                "inst_icon",
-                frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
-            )
-            loan_email_message = loan_email_message.replace(
-                "lin_icon",
-                frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
-            )
-            attachments = ""
-            if self.status in ["Approved"]:
+            if self.loan and not self.loan_margin_shortfall:
+                loan_email_message = frappe.db.sql(
+                    "select message from `tabNotification` where name ='Increase Loan Application Approved';"
+                )[0][0]
+                loan_email_message = loan_email_message.replace(
+                    "fullname", doc.fullname
+                )
+                loan_email_message = loan_email_message.replace(
+                    "fullname", doc.fullname
+                )
+                loan_email_message = loan_email_message.replace(
+                    "logo_file",
+                    frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
+                )
+                loan_email_message = loan_email_message.replace(
+                    "fb_icon",
+                    frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
+                )
+                # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
+                loan_email_message = loan_email_message.replace(
+                    "inst_icon",
+                    frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
+                )
+                loan_email_message = loan_email_message.replace(
+                    "lin_icon",
+                    frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
+                )
+                attachments = ""
                 attachments = self.create_attachment()
-                if self.loan and not self.loan_margin_shortfall:
-                    frappe.enqueue(
-                        method=frappe.sendmail,
-                        recipients=[customer.user],
-                        sender=None,
-                        subject="Increase Loan Application",
-                        message=loan_email_message,
-                        attachments=attachments,
-                    )
-                else:
-                    frappe.enqueue(
-                        method=frappe.sendmail,
-                        recipients=[customer.user],
-                        sender=None,
-                        subject=email_subject,
-                        message=loan_email_message,
-                        attachments=attachments,
-                    )
+                frappe.enqueue(
+                    method=frappe.sendmail,
+                    recipients=[customer.user],
+                    sender=None,
+                    subject="Increase Loan Application",
+                    message=loan_email_message,
+                    attachments=attachments,
+                )
+
+            else:
+                loan_email_message = frappe.db.sql(
+                    "select message from `tabNotification` where name ='Loan Application Approved';"
+                )[0][0]
+                loan_email_message = loan_email_message.replace(
+                    "fullname", doc.fullname
+                )
+                loan_email_message = loan_email_message.replace(
+                    "fullname", doc.fullname
+                )
+                loan_email_message = loan_email_message.replace(
+                    "logo_file",
+                    frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
+                )
+                loan_email_message = loan_email_message.replace(
+                    "fb_icon",
+                    frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
+                )
+                # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
+                loan_email_message = loan_email_message.replace(
+                    "inst_icon",
+                    frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
+                )
+                loan_email_message = loan_email_message.replace(
+                    "lin_icon",
+                    frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
+                )
+                attachments = ""
+                attachments = self.create_attachment()
+                frappe.enqueue(
+                    method=frappe.sendmail,
+                    recipients=[customer.user],
+                    sender=None,
+                    subject=email_subject,
+                    message=loan_email_message,
+                    attachments=attachments,
+                )
 
         msg = ""
         loan = ""
