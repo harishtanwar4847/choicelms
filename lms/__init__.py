@@ -2336,8 +2336,8 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
         return sanction_letter_esign_doc
     except:
         frappe.log_error(
-            message=sanction_letter_esign_doc,
-            title="Loan Agreement editor",
+            message=frappe.get_traceback() + "\n" + sanction_letter_esign_doc,
+            title="PDF Editor",
         )
 
     #####nes#######
