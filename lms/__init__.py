@@ -2297,7 +2297,7 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
     can = canvas.Canvas(packet, pagesize=letter)
     can.setFont("Calibri-Bold", 10)
     if loan_name:
-        can.drawString(118, 162, current_time)
+        can.drawString(118, 163, current_time)
     else:
         can.drawString(118, 103, current_time)
     can.save()
@@ -2332,6 +2332,10 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
     output_stream = open(sanction_letter_esign, "wb")
     output.write(output_stream)
     output_stream.close()
+    frappe.log_error(
+        message=sanction_letter_esign_doc,
+        title="Loan Agreement editor",
+    )
 
     return sanction_letter_esign_doc
     #####nes#######
