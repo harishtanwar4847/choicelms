@@ -46,13 +46,6 @@
                     You can reach to us through 'Contact Us' on the app.<br />
                     We look forward to serve you soon.<br />
                     <br />
-                    Sorry! Your top up request could not be executed due to technical reasons.<br />
-                    <br />
-                    We regret the inconvenience caused.<br />
-                    <br />
-                    Please try again after sometime or you can reach to us through 'Contact Us' on the app.<br />
-                    We look forward to serve you soon.<br />
-                    <br />
             </span></td>
         </tr>
         <tr>

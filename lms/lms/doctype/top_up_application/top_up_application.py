@@ -33,15 +33,6 @@ class TopupApplication(Document):
         loan.expiry_date = self.expiry_date
         loan.save(ignore_permissions=True)
         frappe.db.commit()
-        pdf_doc_name = "Loan_Enhancement_Agreement_{}".format(self.name)
-        edited = lms.pdf_editor(
-            self.lender_esigned_document,
-            pdf_doc_name,
-        )
-        frappe.db.set_value(self.doctype, self.name, "lender_esigned_document", edited)
-        self.lender_esigned_document = edited
-
-        self.map_loan_agreement_file(loan, edited)
         # self.notify_customer()
 
         date = frappe.utils.now_datetime().date()
@@ -626,6 +617,16 @@ class TopupApplication(Document):
         # if self.status in ["Pending", "Approved", "Rejected"]:
         attachments = ""
         if doc.get("top_up_application").get("status") == "Approved":
+            pdf_doc_name = "Loan_Enhancement_Agreement_{}".format(self.name)
+            edited = lms.pdf_editor(
+                self.lender_esigned_document,
+                pdf_doc_name,
+            )
+            frappe.db.set_value(
+                self.doctype, self.name, "lender_esigned_document", edited
+            )
+            self.lender_esigned_document = edited
+            self.map_loan_agreement_file(loan, edited)
             attachments = self.create_attachment()
             loan_email_message = frappe.db.sql(
                 "select message from `tabNotification` where name ='Top up Application Approved';"
