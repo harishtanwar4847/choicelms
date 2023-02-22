@@ -797,27 +797,28 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 frappe.db.set_value(
                     "Sanction Letter and CIAL Log", self.sl_entries, "loan", loan.name
                 )
-
-                signed_doc = lms.pdf_editor(
-                    self.lender_esigned_document,
-                    pdf_doc_name,
-                    loan.name,
-                )
-                self.lender_esigned_document = signed_doc
-                frappe.db.set_value(
-                    self.doctype, self.name, "lender_esigned_document", signed_doc
-                )
+                if self.lender_esigned_document:
+                    signed_doc = lms.pdf_editor(
+                        self.lender_esigned_document,
+                        pdf_doc_name,
+                        loan.name,
+                    )
+                    self.lender_esigned_document = signed_doc
+                    frappe.db.set_value(
+                        self.doctype, self.name, "lender_esigned_document", signed_doc
+                    )
                 self.sanction_letter(check=loan.name)
             else:
                 loan = self.update_existing_loan()
-                signed_doc = lms.pdf_editor(
-                    self.lender_esigned_document,
-                    pdf_doc_name,
-                )
-                self.lender_esigned_document = signed_doc
-                frappe.db.set_value(
-                    self.doctype, self.name, "lender_esigned_document", signed_doc
-                )
+                if self.lender_esigned_document:
+                    signed_doc = lms.pdf_editor(
+                        self.lender_esigned_document,
+                        pdf_doc_name,
+                    )
+                    self.lender_esigned_document = signed_doc
+                    frappe.db.set_value(
+                        self.doctype, self.name, "lender_esigned_document", signed_doc
+                    )
                 self.sanction_letter(check=loan.name)
             frappe.db.commit()
             if self.application_type in ["New Loan", "Increase Loan"]:
