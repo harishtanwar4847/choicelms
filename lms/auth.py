@@ -773,7 +773,6 @@ def login_activity(customer):
 def onboarding_screen():
     try:
         las_settings = frappe.get_single("LAS Settings")
-        print("las_setting", las_settings)
         onboard_list = []
         for i in las_settings.onboarding_screen:
             onboard_screen = frappe.get_doc("Tutorial Screen", i.name)

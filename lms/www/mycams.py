@@ -1,6 +1,7 @@
 import json
 
 import frappe
+import requests
 import utils
 
 import lms
@@ -52,7 +53,11 @@ def get_context(context):
                 "addinfo5": "5",
                 "mobile": customer.phone,
                 "requesterid": customer.name,
-                "ipaddress": "103.19.132.194",
+                "ipaddress": str(
+                    json.loads(requests.get("https://ip.seeip.org/jsonip?").text).get(
+                        "ip"
+                    )
+                ),
                 "requestresponse": "1",
                 "sessionid": datetime_signature[0],  # mandatory
                 "executiondate": datetime_signature[0],  # mandatory

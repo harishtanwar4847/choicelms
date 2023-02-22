@@ -141,6 +141,7 @@
   "loan_account_statement_template",
   "column_break_78",
   "pledged_security_statement_template",
+  "sanction_letter",
   "image_section_section",
   "logo_file_1",
   "website_section_section",
@@ -923,10 +924,17 @@
    "fieldname": "pledgee_client_id",
    "fieldtype": "Data",
    "label": "Pledgee client id"
+  },
+  {
+ "links": [],
+ "modified": "2022-12-15 17:53:12.668751",
+   "fieldname": "sanction_letter",
+   "fieldtype": "Attach",
+   "label": "Sanction Letter"
   }
  ],
  "links": [],
- "modified": "2022-12-15 17:53:12.668751",
+ "modified": "2023-02-07 18:46:42.999372",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Lender",

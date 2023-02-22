@@ -1439,10 +1439,10 @@ def approved_securities(**kwargs):
 
             pdf_file = open(approved_security_pdf_file_path, "wb")
 
-            from frappe.utils.pdf import get_pdf
+            # from frappe.utils.pdf import get_pdf
 
             # pdf = get_pdf(html_with_style)
-            pdf = get_pdf(
+            pdf = lms.get_pdf(
                 agreement,
                 options={
                     "margin-right": "1mm",
@@ -2015,12 +2015,20 @@ def dashboard(**kwargs):
         )
 
         la_pending_esigns = []
+        sanction_letter = []
         if pending_loan_applications:
             for loan_application in pending_loan_applications:
                 loan_application_doc = frappe.get_doc(
                     "Loan Application", loan_application.name
                 )
-
+                if loan_application_doc.sl_entries:
+                    sanction_letter = frappe.db.sql(
+                        """select sanction_letter from `tabSanction Letter Entries` where parent = '{parent}' and loan_application_no = '{name}'""".format(
+                            parent=loan_application_doc.sl_entries,
+                            name=loan_application_doc.name,
+                        ),
+                        as_dict=True,
+                    )
                 mess = (
                     "Congratulations! Your application is being considered favourably by our lending partner and finally accepted at Rs. {current_total_collateral_value} against the request value of Rs. {requested_total_collateral_value}. Accordingly, the increase in the sanctioned limit is Rs. {drawing_power}. Please e-sign the loan agreement to avail the increased sanctioned limit now.".format(
                         current_total_collateral_value=frappe.utils.fmt_money(
@@ -2085,6 +2093,9 @@ def dashboard(**kwargs):
                             if loan_application_doc.loan
                             and not loan_application_doc.loan_margin_shortfall
                             else None,
+                            "sanction_letter": sanction_letter[0]
+                            if sanction_letter
+                            else None,
                         }
                     )
 
@@ -2095,22 +2106,34 @@ def dashboard(**kwargs):
         )
 
         topup_pending_esigns = []
+        sanction_letter = []
         if pending_topup_applications:
             for topup_application in pending_topup_applications:
                 topup_application_doc = frappe.get_doc(
                     "Top up Application", topup_application.name
                 ).as_dict()
 
+                if topup_application_doc.sl_entries:
+                    sanction_letter = frappe.db.sql(
+                        """select sanction_letter from `tabSanction Letter Entries` where parent = '{parent}' and topup_application_no = '{name}'""".format(
+                            parent=topup_application_doc.sl_entries,
+                            name=topup_application_doc.name,
+                        ),
+                        as_dict=True,
+                    )
+                topup_amount = topup_application_doc.top_up_amount
                 topup_application_doc.top_up_amount = lms.amount_formatter(
                     topup_application_doc.top_up_amount
                 )
-
                 topup_pending_esigns.append(
                     {
                         "topup_application_doc": topup_application_doc,
-                        "mess": "Congratulations! Your application is being considered favourably by our lending partner. Accordingly, the increase in the sanctioned limit is Rs. {}. Please e-sign the loan agreement to avail the increased sanctioned limit now.".format(
-                            frappe.utils.fmt_money(topup_application_doc.top_up_amount)
+                        "mess": "Congratulations! Your application is being considered favourably by our lending partner. Accordingly, the increase in the sanctioned limit is Rs. {amount}. Please e-sign the loan agreement to avail the increased sanctioned limit now.".format(
+                            amount=frappe.utils.fmt_money(topup_amount)
                         ),
+                        "sanction_letter": sanction_letter[0]
+                        if sanction_letter
+                        else None,
                     }
                 )
 
@@ -5017,6 +5040,7 @@ def ckyc_consent_details(**kwargs):
                 .get("address_proof_image"),
                 img_format="jpeg",
                 img_folder="user_ckyc_address",
+                compress=1,
             )
             corres_add_photos = lms.upload_image_to_doctype(
                 customer=lms.__customer(user_kyc_doc.user),
@@ -5026,6 +5050,7 @@ def ckyc_consent_details(**kwargs):
                 .get("address_proof_image"),
                 img_format="jpeg",
                 img_folder="user_ckyc_address",
+                compress=1,
             )
 
             ckyc_address_doc = frappe.get_doc(
@@ -5880,6 +5905,7 @@ def au_penny_drop(**kwargs):
             image_=data.get("personalized_cheque"),
             img_format="jpeg",
             img_folder="personalized_cheque",
+            compress=1,
         )
         bank_acc = frappe.get_all(
             "User Bank Account",

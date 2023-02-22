@@ -36,9 +36,9 @@ class Cart(Document):
         agreement_form = frappe.render_template(
             "templates/loan_agreement_form.html", {"doc": doc}
         )
-        from frappe.utils.pdf import get_pdf
+        # from frappe.utils.pdf import get_pdf
 
-        agreement_form_pdf = get_pdf(agreement_form)
+        agreement_form_pdf = lms.get_pdf(agreement_form)
 
         from PyPDF2 import PdfFileMerger
 
@@ -339,6 +339,7 @@ class Cart(Document):
         lender = self.get_lender()
         customer = self.get_customer()
         user_kyc = customer.get_kyc()
+        diff = self.eligible_loan
         if self.loan:
             loan = frappe.get_doc("Loan", self.loan)
             # increased_sanctioned_limit = lms.round_down_amount_to_nearest_thousand(
@@ -355,7 +356,7 @@ class Cart(Document):
                 else lender.maximum_sanctioned_limit
             )
             self.save(ignore_permissions=True)
-
+            diff = self.increased_sanctioned_limit - loan.sanctioned_limit
         from num2words import num2words
 
         if user_kyc.address_details:
@@ -391,12 +392,105 @@ class Cart(Document):
         else:
             address = ""
 
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+
+            line1 = str(address_details.perm_line1)
+            if line1:
+                addline1 = "{},<br/>".format(line1)
+            else:
+                addline1 = ""
+
+            line2 = str(address_details.perm_line2)
+            if line2:
+                addline2 = "{},<br/>".format(line2)
+            else:
+                addline2 = ""
+
+            line3 = str(address_details.perm_line3)
+            if line3:
+                addline3 = "{},<br/>".format(line3)
+            else:
+                addline3 = ""
+
+            perm_city = str(address_details.perm_city)
+            perm_dist = str(address_details.perm_dist)
+            perm_state = str(address_details.perm_state)
+            perm_pin = str(address_details.perm_pin)
+
+        else:
+            address_details = ""
+
+        interest_config = frappe.get_value(
+            "Interest Configuration",
+            {
+                "to_amount": [
+                    ">=",
+                    (
+                        lms.validate_rupees(
+                            self.increased_sanctioned_limit
+                            if self.loan and not self.loan_margin_shortfall
+                            else self.eligible_loan
+                        ),
+                    ),
+                ],
+            },
+            order_by="to_amount asc",
+        )
+        int_config = frappe.get_doc("Interest Configuration", interest_config)
+        roi_ = round((int_config.base_interest * 12), 2)
+        interest_charges_in_amount = int(
+            lms.validate_rupees(
+                float(
+                    self.increased_sanctioned_limit
+                    if self.loan and not self.loan_margin_shortfall
+                    else self.eligible_loan
+                )
+            )
+        ) * (roi_ / 100)
+        charges = lms.charges_for_apr(
+            lender.name,
+            lms.validate_rupees(diff),
+        )
+        apr = lms.calculate_apr(
+            self.name,
+            roi_,
+            12,
+            (
+                int(
+                    lms.validate_rupees(
+                        self.increased_sanctioned_limit
+                        if self.loan and not self.loan_margin_shortfall
+                        else self.eligible_loan
+                    )
+                )
+            ),
+            charges.get("total"),
+        )
+        annual_default_interest = lender.default_interest * 12
+        sanction_l = (
+            self.increased_sanctioned_limit
+            if self.loan and not self.loan_margin_shortfall
+            else self.eligible_loan
+        )
+
         doc = {
-            "esign_date": "__________",
-            "loan_application_number": " ",
-            "borrower_name": user_kyc.fullname,
+            "loan_application_number": "",
+            "loan_account_number": self.loan if self.loan else "",
+            "esign_date": "",
+            "loan_application_no": " ",
+            "borrower_name": customer.full_name,
             "borrower_address": address,
-            "sanctioned_amount": lms.validate_rupees(
+            "addline1": addline1,
+            "addline2": addline2,
+            "addline3": addline3,
+            "city": perm_city,
+            "district": perm_dist,
+            "state": perm_state,
+            "pincode": perm_pin,
+            "sanctioned_amount": frappe.utils.fmt_money(
                 self.increased_sanctioned_limit
                 if self.loan and not self.loan_margin_shortfall
                 else self.eligible_loan
@@ -408,12 +502,17 @@ class Cart(Document):
                     else self.eligible_loan,
                 )
             ).title(),
-            "rate_of_interest": lender.rate_of_interest,
-            "default_interest": lender.default_interest,
+            "roi": roi_,
+            "default_interest": annual_default_interest,
+            "rebate_interest": int_config.rebait_interest,
             "rebait_threshold": lender.rebait_threshold,
             "renewal_charges": lms.validate_rupees(lender.renewal_charges)
             if lender.renewal_charge_type == "Fix"
             else lms.validate_percent(lender.renewal_charges),
+            "apr": apr,
+            "interest_charges_in_amount": frappe.utils.fmt_money(
+                interest_charges_in_amount
+            ),
             "renewal_charge_type": lender.renewal_charge_type,
             "renewal_charge_in_words": lms.number_to_word(
                 lms.validate_rupees(lender.renewal_charges)
@@ -423,6 +522,19 @@ class Cart(Document):
             # else num2words(lender.renewal_charges).title(),
             "renewal_min_amt": lms.validate_rupees(lender.renewal_minimum_amount),
             "renewal_max_amt": lms.validate_rupees(lender.renewal_maximum_amount),
+            "documentation_charges_kfs": frappe.utils.fmt_money(
+                charges.get("documentation_charges")
+            ),
+            "processing_charges_kfs": frappe.utils.fmt_money(
+                charges.get("processing_fees")
+            ),
+            "net_disbursed_amount": frappe.utils.fmt_money(
+                float(sanction_l) - charges.get("total")
+            ),
+            "total_amount_to_be_paid": frappe.utils.fmt_money(
+                float(sanction_l) + charges.get("total") + interest_charges_in_amount
+            ),
+            # "stamp_duty_kfs":frappe.utils.fmt_money(charges.get("stamp_duty")),
             "documentation_charge": lms.validate_rupees(lender.documentation_charges)
             if lender.documentation_charge_type == "Fix"
             else lms.validate_percent(lender.documentation_charges),
@@ -453,6 +565,7 @@ class Cart(Document):
             "processing_max_amt": lms.validate_rupees(
                 lender.lender_processing_maximum_amount
             ),
+            ""
             # "stamp_duty_charges": lms.validate_rupees(lender.lender_stamp_duty_minimum_amount),
             "transaction_charges_per_request": lms.validate_rupees(
                 lender.transaction_charges_per_request
@@ -509,9 +622,9 @@ class Cart(Document):
             agreement_template.get_content(), {"doc": doc}
         )
 
-        from frappe.utils.pdf import get_pdf
+        # from frappe.utils.pdf import get_pdf
 
-        agreement_pdf = get_pdf(agreement)
+        agreement_pdf = lms.get_pdf(agreement)
 
         tnc_dir_path = frappe.utils.get_files_path("tnc")
         import os
