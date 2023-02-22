@@ -1693,7 +1693,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
                 )
                 attachments = ""
-                attachments = self.create_attachment()
+                if self.lender_esigned_document:
+                    attachments = self.create_attachment()
                 frappe.enqueue(
                     method=frappe.sendmail,
                     recipients=[customer.user],
@@ -1731,7 +1732,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
                 )
                 attachments = ""
-                attachments = self.create_attachment()
+                if self.lender_esigned_document:
+                    attachments = self.create_attachment()
                 frappe.enqueue(
                     method=frappe.sendmail,
                     recipients=[customer.user],
@@ -1922,7 +1924,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             item.idx = i
 
     def sanction_letter(self, check=None):
-        print("defg")
         customer = self.get_customer()
         user = frappe.get_doc("User", customer.user)
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
@@ -2324,6 +2325,14 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 "Sanction Letter Entries",
                 filters={"loan_application_no": self.name},
                 fields=["*"],
+            )
+            loan_name = ""
+            if not check and self.loan:
+                loan_name = loan.name
+            elif check:
+                loan_name = check
+            frappe.db.set_value(
+                "Sanction Letter and CIAL Log", self.sl_entries, "loan", loan_name
             )
             if sl:
                 sll = frappe.get_doc("Sanction Letter Entries", sl[0].name)
