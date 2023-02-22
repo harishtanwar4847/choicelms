@@ -2147,58 +2147,61 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 message=str(self.lender_esigned_document),
                 title="lender_esigned_document",
             )
-            lfile_name = lender_esign_file.split("files/", 1)
-            l_file = lfile_name[1]
-            pdf_file_path = frappe.utils.get_files_path(
-                l_file,
-            )
-            file_base_name = pdf_file_path.replace(".pdf", "")
-            reader = PdfReader(pdf_file_path)
-            pages = [
-                30,
-                31,
-                32,
-                33,
-                34,
-                35,
-                36,
-                37,
-            ]  # page 1, 3, 5
-            pdfWriter = PdfWriter()
-            for page_num in pages:
-                pdfWriter.add_page(reader.pages[page_num])
-            sanction_letter_esign = "Sanction_letter_{0}.pdf".format(self.name)
-            sanction_letter_esign_path = frappe.utils.get_files_path(
-                sanction_letter_esign
-            )
-            if os.path.exists(sanction_letter_esign_path):
-                os.remove(sanction_letter_esign_path)
-            sanction_letter_esign_document = frappe.utils.get_url(
-                "files/{}".format(sanction_letter_esign)
-            )
-            sanction_letter_esign = frappe.utils.get_files_path(sanction_letter_esign)
+            if self.lender_esigned_document:
+                lfile_name = lender_esign_file.split("files/", 1)
+                l_file = lfile_name[1]
+                pdf_file_path = frappe.utils.get_files_path(
+                    l_file,
+                )
+                file_base_name = pdf_file_path.replace(".pdf", "")
+                reader = PdfReader(pdf_file_path)
+                pages = [
+                    30,
+                    31,
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37,
+                ]  # page 1, 3, 5
+                pdfWriter = PdfWriter()
+                for page_num in pages:
+                    pdfWriter.add_page(reader.pages[page_num])
+                sanction_letter_esign = "Sanction_letter_{0}.pdf".format(self.name)
+                sanction_letter_esign_path = frappe.utils.get_files_path(
+                    sanction_letter_esign
+                )
+                if os.path.exists(sanction_letter_esign_path):
+                    os.remove(sanction_letter_esign_path)
+                sanction_letter_esign_document = frappe.utils.get_url(
+                    "files/{}".format(sanction_letter_esign)
+                )
+                sanction_letter_esign = frappe.utils.get_files_path(
+                    sanction_letter_esign
+                )
 
-            with open(sanction_letter_esign, "wb") as f:
-                pdfWriter.write(f)
-                f.close()
-            sl = frappe.get_all(
-                "Sanction Letter Entries",
-                filters={"loan_application_no": self.name},
-                fields=["*"],
-            )
-            loan_name = ""
-            if not check and self.loan:
-                loan_name = loan.name
-            elif check:
-                loan_name = check
-            frappe.db.set_value(
-                "Sanction Letter and CIAL Log", self.sl_entries, "loan", loan_name
-            )
-            if sl:
-                sll = frappe.get_doc("Sanction Letter Entries", sl[0].name)
-                sll.sanction_letter = sanction_letter_esign_document
-                sll.save()
-                frappe.db.commit()
+                with open(sanction_letter_esign, "wb") as f:
+                    pdfWriter.write(f)
+                    f.close()
+                sl = frappe.get_all(
+                    "Sanction Letter Entries",
+                    filters={"loan_application_no": self.name},
+                    fields=["*"],
+                )
+                loan_name = ""
+                if not check and self.loan:
+                    loan_name = loan.name
+                elif check:
+                    loan_name = check
+                frappe.db.set_value(
+                    "Sanction Letter and CIAL Log", self.sl_entries, "loan", loan_name
+                )
+                if sl:
+                    sll = frappe.get_doc("Sanction Letter Entries", sl[0].name)
+                    sll.sanction_letter = sanction_letter_esign_document
+                    sll.save()
+                    frappe.db.commit()
         return
 
     def create_attachment(self):
