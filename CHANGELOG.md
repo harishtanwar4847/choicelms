@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.13.4] - 2023-02-22
+
+## Fixed
+
+- [Feat : Onboarding screen changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/572)
+
 ## [v5.13.3] - 2023-02-13
 
 ## Fixed
