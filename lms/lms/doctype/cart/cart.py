@@ -81,6 +81,8 @@ class Cart(Document):
                 application_type = "Pledge More"
 
             items = []
+            # start_time = "doc insertion start time" + self.customer
+            frappe.logger().info("doc insertion start time" + self.customer)
             for item in self.items:
                 amount = round(item.pledged_quantity, 3) * item.price
                 item = frappe.get_doc(
@@ -128,10 +130,13 @@ class Cart(Document):
                     "scheme_type": self.scheme_type,
                 }
             ).insert(ignore_permissions=True)
+            # end_time = "doc insertion end time" + self.customer
+            frappe.logger().info("doc_insertion end time" + self.customer)
 
             # mark cart as processed
             self.is_processed = 1
             self.save()
+            frappe.logger().info("notification_start" + self.customer)
 
             if self.loan_margin_shortfall:
                 loan_margin_shortfall = frappe.get_doc(
@@ -214,6 +219,8 @@ class Cart(Document):
                     frappe.enqueue(
                         method=send_sms, receiver_list=receiver_list, msg=mess
                     )
+            frappe.logger().info("notification_end" + self.customer)
+
             return loan_application
         except Exception:
             if frappe.utils.get_url() == "https://spark.loans":

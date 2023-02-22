@@ -466,6 +466,7 @@ def process(**kwargs):
                 "otp": ["required", "decimal", utils.validator.rules.LengthRule(4)],
             },
         )
+        frappe.logger().info("process_cart_start" + data.get("cart_name"))
 
         reg = lms.regex_special_characters(search=data.get("cart_name"))
         if reg:
@@ -528,6 +529,7 @@ def process(**kwargs):
             loan_application = cart.create_loan_application()
             frappe.db.commit()
 
+        frappe.logger().info("process_cart_end" + data.get("cart_name"))
         return utils.respondWithSuccess(
             data={
                 "loan_application": loan_application,
