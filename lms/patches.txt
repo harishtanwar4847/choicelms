@@ -9,7 +9,7 @@ lms.patches.update_sms_settings
 lms.patches.update_contact_us_settings
 lms.patches.import_faq
 lms.patches.create_consents
-lms.patches.update_las_settings ##
+lms.patches.update_las_settings
 lms.patches.import_interest_configuration
 lms.patches.import_workflows #20.04.2022
 lms.patches.set_hostname_config
