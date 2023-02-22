@@ -1590,7 +1590,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
                 )
                 attachments = ""
-                attachments = self.create_attachment()
+                if self.loan and not self.loan_margin_shortfall:
+                    attachments = self.create_attachment()
                 frappe.enqueue(
                     method=frappe.sendmail,
                     recipients=[customer.user],
@@ -2183,6 +2184,14 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 "Sanction Letter Entries",
                 filters={"loan_application_no": self.name},
                 fields=["*"],
+            )
+            loan_name = ""
+            if not check and self.loan:
+                loan_name = loan.name
+            elif check:
+                loan_name = check
+            frappe.db.set_value(
+                "Sanction Letter and CIAL Log", self.sl_entries, "loan", loan_name
             )
             if sl:
                 sll = frappe.get_doc("Sanction Letter Entries", sl[0].name)
