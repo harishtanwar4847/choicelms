@@ -393,7 +393,7 @@ class Cart(Document):
 
             # items = []
             items = [
-                frappe.get_doc(
+                frappe.get_cached_doc(
                     {
                         "doctype": "Loan Application Item",
                         "isin": item.isin,
@@ -443,10 +443,9 @@ class Cart(Document):
             #     )
             #     items.append(item)
 
-            loan_application = frappe.new_doc("Loan Application")
-            loan_application.update(
+            loan_application = frappe.get_cached_doc(
                 {
-                    # "doctype": "Loan Application",
+                    "doctype": "Loan Application",
                     "total_collateral_value": self.total_collateral_value,
                     "pledged_total_collateral_value": self.total_collateral_value,
                     "loan_margin_shortfall": self.loan_margin_shortfall,
@@ -466,12 +465,30 @@ class Cart(Document):
                     "instrument_type": self.instrument_type,
                     "scheme_type": self.scheme_type,
                 }
-            )
-            loan_application.save(ignore_permissions=True)
+            ).insert(ignore_permissions=True)
 
             # mark cart as processed
             self.is_processed = 1
             self.save()
+
+            frappe.enqueue_doc(
+                "Cart",
+                self.name,
+                method="cart_mg_shortfall",
+                loan_application=loan_application,
+            )
+
+            return loan_application
+        except Exception:
+            frappe.log_error(
+                message=frappe.get_traceback()
+                + "\nRequest Info:\n"
+                + str(frappe.local.form_dict),
+                title="Create Loan Application Fix Error",
+            )
+
+    def cart_mg_shortfall(self, loan_application):
+        try:
 
             if self.loan_margin_shortfall:
                 loan_margin_shortfall = frappe.get_doc(
@@ -513,11 +530,6 @@ class Cart(Document):
 
                 frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
 
-            # if self.loan_margin_shortfall:
-            #     loan_application.status = "Ready for Approval"
-            #     loan_application.workflow_state = "Ready for Approval"
-            #     loan_application.save(ignore_permissions=True)
-
             if not self.loan_margin_shortfall:
                 customer = frappe.get_doc("Loan Customer", self.customer)
                 doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
@@ -554,13 +566,12 @@ class Cart(Document):
                     frappe.enqueue(
                         method=send_sms, receiver_list=receiver_list, msg=mess
                     )
-            return loan_application
         except Exception:
             frappe.log_error(
                 message=frappe.get_traceback()
                 + "\nRequest Info:\n"
-                + str(frappe.local.form_dict),
-                title="Create Loan Application Fix Error",
+                + str(loan_application),
+                title="Cart Mg Shortfall Error",
             )
 
     def create_tnc_file(self):
