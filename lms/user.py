@@ -4811,6 +4811,7 @@ def get_bank_details():
                 las_settings.choice_pan_api, params=params, headers=headers
             )
             if res.status_code != 200:
+                lms.log_api_error()
                 raise FailureException()
             data = res.json()
             log = {

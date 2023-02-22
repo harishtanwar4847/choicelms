@@ -2221,10 +2221,6 @@ def charges_for_apr(lender, sanction_limit):
     charges["documentation_charges"] = documentation_charges
     total = processing_fees + stamp_duty + documentation_charges
     charges["total"] = total
-    frappe.log_error(
-        title="Charge calculate",
-        message=str(charges),
-    )
     return charges
 
 
@@ -2246,99 +2242,93 @@ def compress_image(input_image_path, user, quality=100):
 
 
 def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
-    try:
-        # print("akash")
-        # pdfmetrics.registerFont(TTFont('Calibri', 'Calibri.ttf'))
-        registerFont(TTFont("Calibri-Bold", "calibrib.ttf"))
-        # registerFontFamily('Calibri',normal='Calibri',bold='CalibriBD',italic='CalibriIT',boldItalic='CalibriBI')
+    # print("akash")
+    # pdfmetrics.registerFont(TTFont('Calibri', 'Calibri.ttf'))
+    registerFont(TTFont("Calibri-Bold", "calibrib.ttf"))
+    # registerFontFamily('Calibri',normal='Calibri',bold='CalibriBD',italic='CalibriIT',boldItalic='CalibriBI')
 
-        # packet = io.BytesIO()
-        # can = canvas.Canvas(packet, pagesize=letter)
-        # current_time = frappe.utils.now_datetime().strftime("%d-%m-%Y")
-        # can.setFont("Calibri-Bold", 10)
-        # can.drawString(80, 790, current_time)
-        # can.save()
-        # packet.seek(0)
+    # packet = io.BytesIO()
+    # can = canvas.Canvas(packet, pagesize=letter)
+    # current_time = frappe.utils.now_datetime().strftime("%d-%m-%Y")
+    # can.setFont("Calibri-Bold", 10)
+    # can.drawString(80, 790, current_time)
+    # can.save()
+    # packet.seek(0)
 
-        # new_pdf = PdfReader(packet)
-        lfile_name = esigned_doc.split("files/", 1)
-        l_file = lfile_name[1]
-        pdf_file_path = frappe.utils.get_files_path(
-            l_file,
-        )
-        # read your existing PDF
-        pdf_path = pdf_file_path  # for u its ur original pdf
-        existing_pdf = PdfReader(open(pdf_file_path, "rb"))
-        reader = PdfReader(pdf_path)
-        num_of_page = len(existing_pdf.pages)
-        output = PdfWriter()
-        for i in range(30):
-            page = reader.pages[i]
-            output.add_page(page)
+    # new_pdf = PdfReader(packet)
+    lfile_name = esigned_doc.split("files/", 1)
+    l_file = lfile_name[1]
+    pdf_file_path = frappe.utils.get_files_path(
+        l_file,
+    )
+    # read your existing PDF
+    pdf_path = pdf_file_path  # for u its ur original pdf
+    existing_pdf = PdfReader(open(pdf_file_path, "rb"))
+    reader = PdfReader(pdf_path)
+    num_of_page = len(existing_pdf.pages)
+    output = PdfWriter()
+    for i in range(30):
+        page = reader.pages[i]
+        output.add_page(page)
 
-        current_time = frappe.utils.now_datetime().strftime("%d-%m-%Y")
-        packet = io.BytesIO()
-        can = canvas.Canvas(packet, pagesize=letter)
-        can.setFont("Calibri-Bold", 10)
-        can.drawString(80, 765, current_time)
-        if loan_name:
-            can.drawString(89, 753, loan_name)
-        can.save()
-        packet.seek(0)
-        watermark = PdfReader(packet).pages[0]
-        page21 = reader.pages[30]
-        page21.merge_page(watermark)
-        output.add_page(page21)
+    current_time = frappe.utils.now_datetime().strftime("%d-%m-%Y")
+    packet = io.BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    can.setFont("Calibri-Bold", 10)
+    can.drawString(80, 765, current_time)
+    if loan_name:
+        can.drawString(89, 753, loan_name)
+    can.save()
+    packet.seek(0)
+    watermark = PdfReader(packet).pages[0]
+    page21 = reader.pages[30]
+    page21.merge_page(watermark)
+    output.add_page(page21)
 
-        for i in range(31, 36):
-            page = reader.pages[i]
-            output.add_page(page)
+    for i in range(31, 36):
+        page = reader.pages[i]
+        output.add_page(page)
 
-        packet = io.BytesIO()
-        can = canvas.Canvas(packet, pagesize=letter)
-        can.setFont("Calibri-Bold", 10)
-        if loan_name:
-            can.drawString(118, 767, current_time)
-        else:
-            can.drawString(118, 767, current_time)
-        can.save()
-        packet.seek(0)
-        watermark = PdfReader(packet).pages[0]
-        page25 = reader.pages[36]
-        page25.merge_page(watermark)
-        output.add_page(page25)
+    packet = io.BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    can.setFont("Calibri-Bold", 10)
+    if loan_name:
+        can.drawString(118, 767, current_time)
+    else:
+        can.drawString(118, 767, current_time)
+    can.save()
+    packet.seek(0)
+    watermark = PdfReader(packet).pages[0]
+    page25 = reader.pages[36]
+    page25.merge_page(watermark)
+    output.add_page(page25)
 
-        # add the "watermark" (which is the new pdf) on the existing page
-        # page = existing_pdf.pages[21]
-        # page.merge_page(new_pdf.pages[0])
-        # output.add_page(page)
-        # page = existing_pdf.pages[25]
-        # page.merge_page(new_pdf.pages[0])
-        # output.add_page(page)
-        for i in range(37, num_of_page):
-            page = reader.pages[i]
-            output.add_page(page)
-        # finally, write "output" to a real file
-        sanction_letter_esign = "{}_{}.pdf".format(
-            loan_application_name, frappe.utils.now_datetime().strftime("%Y-%m-%d")
-        )
-        sanction_letter_esign_path = frappe.utils.get_files_path(sanction_letter_esign)
-        sanction_letter_esign_doc = frappe.utils.get_url(
-            "files/{}".format(sanction_letter_esign)
-        )
-        if os.path.exists(sanction_letter_esign_path):
-            os.remove(sanction_letter_esign_path)
+    # add the "watermark" (which is the new pdf) on the existing page
+    # page = existing_pdf.pages[21]
+    # page.merge_page(new_pdf.pages[0])
+    # output.add_page(page)
+    # page = existing_pdf.pages[25]
+    # page.merge_page(new_pdf.pages[0])
+    # output.add_page(page)
+    for i in range(37, num_of_page):
+        page = reader.pages[i]
+        output.add_page(page)
+    # finally, write "output" to a real file
+    sanction_letter_esign = "{}_{}.pdf".format(
+        loan_application_name, frappe.utils.now_datetime().strftime("%Y-%m-%d")
+    )
+    sanction_letter_esign_path = frappe.utils.get_files_path(sanction_letter_esign)
+    sanction_letter_esign_doc = frappe.utils.get_url(
+        "files/{}".format(sanction_letter_esign)
+    )
+    if os.path.exists(sanction_letter_esign_path):
+        os.remove(sanction_letter_esign_path)
 
-        sanction_letter_esign = frappe.utils.get_files_path(sanction_letter_esign)
-        output_stream = open(sanction_letter_esign, "wb")
-        output.write(output_stream)
-        output_stream.close()
-        return sanction_letter_esign_doc
-    except:
-        frappe.log_error(
-            message=frappe.get_traceback() + "\n",
-            title="PDF Editor",
-        )
+    sanction_letter_esign = frappe.utils.get_files_path(sanction_letter_esign)
+    output_stream = open(sanction_letter_esign, "wb")
+    output.write(output_stream)
+    output_stream.close()
+    return sanction_letter_esign_doc
 
     #####nes#######
     # merger = PdfWriter()
