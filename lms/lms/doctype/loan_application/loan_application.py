@@ -237,6 +237,7 @@ class LoanApplication(Document):
         }
 
     def after_insert(self):
+        frappe.logger().info("after_insert_start")
         las_settings = frappe.get_single("LAS Settings")
         if self.instrument_type == "Mutual Fund":
             if self.drawing_power < self.minimum_sanctioned_limit:
@@ -490,8 +491,11 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 
                 self.save(ignore_permissions=True)
                 frappe.db.commit()
+        frappe.logger().info("after_insert_end")
 
     def before_save(self):
+        frappe.logger().info("before_save_start")
+
         lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
@@ -660,8 +664,10 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         self.pledged_total_collateral_value_str = lms.amount_formatter(
             self.pledged_total_collateral_value
         )
+        frappe.logger().info("before_save_end")
 
     def on_update(self):
+        frappe.logger().info("on_update_end")
         if self.status == "Approved":
             if not self.loan:
                 loan = self.create_loan()
@@ -841,6 +847,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 ),
             )
         self.notify_customer()
+        frappe.logger().info("on_update_end")
 
     def create_loan(self):
         items = []
