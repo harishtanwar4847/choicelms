@@ -175,7 +175,7 @@ class LoanApplication(Document):
             )
         ) * (roi_ / 100)
         doc = {
-            "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
+            "esign_date": "",
             "loan_account_number": loan.name if self.loan else "",
             "loan_application_number": self.name,
             "borrower_name": customer.full_name,
@@ -335,10 +335,10 @@ class LoanApplication(Document):
             agreement_template.get_content(), {"doc": doc}
         )
 
-        from frappe.utils.pdf import get_pdf
+        # from frappe.utils.pdf import get_pdf
 
-        agreement_pdf = get_pdf(agreement)
-
+        agreement_pdf = lms.get_pdf(agreement)
+        print("agreement_pdf", agreement_pdf)
         las_settings = frappe.get_single("LAS Settings")
         headers = {"userId": las_settings.choice_user_id}
         files = {"file": (loan_agreement_file, agreement_pdf)}
@@ -639,6 +639,7 @@ class LoanApplication(Document):
             current = frappe.utils.now_datetime()
             expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
             self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
+            # signed_doc = lms.pdf_editor()
         elif self.status == "Pledge accepted by Lender":
             if self.pledge_status == "Failure":
                 frappe.throw("Sorry! Pledge for this Loan Application is failed.")
@@ -838,14 +839,37 @@ class LoanApplication(Document):
 
     def on_update(self):
         if self.status == "Approved":
+            if self.application_type == "New Loan":
+                pdf_doc_name = "Loan_Agreement_{}".format(self.name)
+            else:
+                pdf_doc_name = "Loan_Enhancement_Agreement_{}".format(self.name)
             if not self.loan:
                 loan = self.create_loan()
                 frappe.db.set_value(
                     "Sanction Letter and CIAL Log", self.sl_entries, "loan", loan.name
                 )
+                if self.lender_esigned_document:
+                    signed_doc = lms.pdf_editor(
+                        self.lender_esigned_document,
+                        pdf_doc_name,
+                        loan.name,
+                    )
+                    self.lender_esigned_document = signed_doc
+                    frappe.db.set_value(
+                        self.doctype, self.name, "lender_esigned_document", signed_doc
+                    )
                 self.sanction_letter(check=loan.name)
             else:
                 loan = self.update_existing_loan()
+                if self.lender_esigned_document:
+                    signed_doc = lms.pdf_editor(
+                        self.lender_esigned_document,
+                        pdf_doc_name,
+                    )
+                    self.lender_esigned_document = signed_doc
+                    frappe.db.set_value(
+                        self.doctype, self.name, "lender_esigned_document", signed_doc
+                    )
                 self.sanction_letter(check=loan.name)
             frappe.db.commit()
             if self.application_type in ["New Loan", "Increase Loan"]:
@@ -1137,52 +1161,52 @@ class LoanApplication(Document):
         return loan
 
     def map_loan_agreement_file(self, loan, increase_loan=False):
-        file_name = frappe.db.get_value(
-            "File", {"file_url": self.lender_esigned_document}
-        )
+        # file_name = frappe.db.get_value(
+        #     "File", {"file_url": self.lender_esigned_document}
+        # )
 
-        loan_agreement = frappe.get_doc("File", file_name)
+        # loan_agreement = frappe.get_doc("File", file_name)
 
-        event = "New loan"
-        if increase_loan:
-            loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(
-                loan.name
-            )
-            event = "Increase loan"
-        else:
-            loan_agreement_file_name = "{}-loan-aggrement.pdf".format(loan.name)
+        # event = "New loan"
+        # if increase_loan:
+        #     loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(
+        #         loan.name
+        #     )
+        #     event = "Increase loan"
+        # else:
+        #     loan_agreement_file_name = "{}-loan-aggrement.pdf".format(loan.name)
 
-        is_private = 0
-        loan_agreement_file_url = frappe.utils.get_files_path(
-            loan_agreement_file_name, is_private=is_private
-        )
+        # is_private = 0
+        # loan_agreement_file_url = frappe.utils.get_files_path(
+        #     loan_agreement_file_name, is_private=is_private
+        # )
 
-        # frappe.db.begin()
-        loan_agreement_file = frappe.get_doc(
-            {
-                "doctype": "File",
-                "file_name": loan_agreement_file_name,
-                "content": loan_agreement.get_content(),
-                "attached_to_doctype": "Loan",
-                "attached_to_name": loan.name,
-                "attached_to_field": "loan_agreement",
-                "folder": "Home",
-                # "file_url": loan_agreement_file_url,
-                "is_private": is_private,
-            }
-        )
-        loan_agreement_file.insert(ignore_permissions=True)
-        frappe.db.commit()
+        # # frappe.db.begin()
+        # loan_agreement_file = frappe.get_doc(
+        #     {
+        #         "doctype": "File",
+        #         "file_name": loan_agreement_file_name,
+        #         "content": loan_agreement.get_content(),
+        #         "attached_to_doctype": "Loan",
+        #         "attached_to_name": loan.name,
+        #         "attached_to_field": "loan_agreement",
+        #         "folder": "Home",
+        #         # "file_url": loan_agreement_file_url,
+        #         "is_private": is_private,
+        #     }
+        # )
+        # loan_agreement_file.insert(ignore_permissions=True)
+        # frappe.db.commit()
 
         frappe.db.set_value(
             "Loan",
             loan.name,
             "loan_agreement",
-            loan_agreement_file.file_url,
+            self.lender_esigned_document,
             update_modified=False,
         )
         # save loan sanction history
-        loan.save_loan_sanction_history(loan_agreement_file.name, event)
+        # loan.save_loan_sanction_history(loan_agreement_file.name, event)
 
     def update_existing_loan(self):
         self.update_collateral_ledger(
@@ -1579,49 +1603,82 @@ class LoanApplication(Document):
                     doc=doc,
                 )
         elif self.status in ["Approved"]:
-            loan_email_message = frappe.db.sql(
-                "select message from `tabNotification` where name ='Loan Application Approved';"
-            )[0][0]
-            loan_email_message = loan_email_message.replace("fullname", doc.fullname)
-            loan_email_message = loan_email_message.replace("fullname", doc.fullname)
-            loan_email_message = loan_email_message.replace(
-                "logo_file",
-                frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
-            )
-            loan_email_message = loan_email_message.replace(
-                "fb_icon",
-                frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
-            )
-            # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
-            loan_email_message = loan_email_message.replace(
-                "inst_icon",
-                frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
-            )
-            loan_email_message = loan_email_message.replace(
-                "lin_icon",
-                frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
-            )
-            attachments = ""
-            if self.status in ["Approved"]:
+            if self.loan and not self.loan_margin_shortfall:
+                loan_email_message = frappe.db.sql(
+                    "select message from `tabNotification` where name ='Increase Loan Application Approved';"
+                )[0][0]
+                loan_email_message = loan_email_message.replace(
+                    "fullname", doc.fullname
+                )
+                loan_email_message = loan_email_message.replace(
+                    "fullname", doc.fullname
+                )
+                loan_email_message = loan_email_message.replace(
+                    "logo_file",
+                    frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
+                )
+                loan_email_message = loan_email_message.replace(
+                    "fb_icon",
+                    frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
+                )
+                # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
+                loan_email_message = loan_email_message.replace(
+                    "inst_icon",
+                    frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
+                )
+                loan_email_message = loan_email_message.replace(
+                    "lin_icon",
+                    frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
+                )
+                attachments = ""
                 attachments = self.create_attachment()
+                frappe.enqueue(
+                    method=frappe.sendmail,
+                    recipients=[customer.user],
+                    sender=None,
+                    subject="Increase Loan Application",
+                    message=loan_email_message,
+                    attachments=attachments,
+                )
+
+            else:
+                loan_email_message = frappe.db.sql(
+                    "select message from `tabNotification` where name ='Loan Application Approved';"
+                )[0][0]
+                loan_email_message = loan_email_message.replace(
+                    "fullname", doc.fullname
+                )
+                loan_email_message = loan_email_message.replace(
+                    "fullname", doc.fullname
+                )
+                loan_email_message = loan_email_message.replace(
+                    "logo_file",
+                    frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
+                )
+                loan_email_message = loan_email_message.replace(
+                    "fb_icon",
+                    frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
+                )
+                # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
+                loan_email_message = loan_email_message.replace(
+                    "inst_icon",
+                    frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
+                )
+                loan_email_message = loan_email_message.replace(
+                    "lin_icon",
+                    frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
+                )
+                attachments = ""
                 if self.loan and not self.loan_margin_shortfall:
-                    frappe.enqueue(
-                        method=frappe.sendmail,
-                        recipients=[customer.user],
-                        sender=None,
-                        subject="Increase Loan Application",
-                        message=loan_email_message,
-                        attachments=attachments,
-                    )
-                else:
-                    frappe.enqueue(
-                        method=frappe.sendmail,
-                        recipients=[customer.user],
-                        sender=None,
-                        subject=email_subject,
-                        message=loan_email_message,
-                        attachments=attachments,
-                    )
+                    attachments = self.create_attachment()
+                frappe.enqueue(
+                    method=frappe.sendmail,
+                    recipients=[customer.user],
+                    sender=None,
+                    subject=email_subject,
+                    message=loan_email_message,
+                    attachments=attachments,
+                )
 
         msg = ""
         loan = ""
@@ -1940,6 +1997,7 @@ class LoanApplication(Document):
             doc = {
                 "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
                 "loan_account_number": loan_name,
+                "loan_application_no": self.name,
                 "borrower_name": customer.full_name,
                 "addline1": addline1,
                 "addline2": addline2,
@@ -2092,7 +2150,6 @@ class LoanApplication(Document):
             sanctioned_leter_pdf_file_path = frappe.utils.get_files_path(
                 sanctioned_letter_pdf_file
             )
-            print("sanctioned_leter_pdf_file_path", sanctioned_leter_pdf_file_path)
             sanction_letter_template = lender.get_sanction_letter_template()
 
             # sanction_letter = frappe.render_template(
@@ -2105,9 +2162,9 @@ class LoanApplication(Document):
 
             pdf_file = open(sanctioned_leter_pdf_file_path, "wb")
 
-            from frappe.utils.pdf import get_pdf
+            # /from frappe.utils.pdf import get_pdf
 
-            pdf = get_pdf(s_letter)
+            pdf = lms.get_pdf(s_letter)
 
             pdf_file.write(pdf)
             pdf_file.close()
@@ -2186,43 +2243,64 @@ class LoanApplication(Document):
         if self.status == "Approved":
             import os
 
-            from PyPDF2 import PdfFileReader, PdfFileWriter
+            from PyPDF2 import PdfReader, PdfWriter
 
             lender_esign_file = self.lender_esigned_document
-            lfile_name = lender_esign_file.split("files/", 1)
-            l_file = lfile_name[1]
-            pdf_file_path = frappe.utils.get_files_path(
-                l_file,
-            )
-            file_base_name = pdf_file_path.replace(".pdf", "")
-            pdf = PdfFileReader(pdf_file_path)
-            pages = [22, 23, 24, 25, 26, 27]  # page 1, 3, 5
-            pdfWriter = PdfFileWriter()
-            for page_num in pages:
-                pdfWriter.addPage(pdf.getPage(page_num))
-            sanction_letter_esign = "Sanction_letter_{0}.pdf".format(self.name)
-            sanction_letter_esign_path = frappe.utils.get_files_path(
-                sanction_letter_esign
-            )
-            if os.path.exists(sanction_letter_esign_path):
-                os.remove(sanction_letter_esign_path)
-            sanction_letter_esign_document = frappe.utils.get_url(
-                "files/{}".format(sanction_letter_esign)
-            )
-            sanction_letter_esign = frappe.utils.get_files_path(sanction_letter_esign)
+            if self.lender_esigned_document:
+                lfile_name = lender_esign_file.split("files/", 1)
+                l_file = lfile_name[1]
+                pdf_file_path = frappe.utils.get_files_path(
+                    l_file,
+                )
+                file_base_name = pdf_file_path.replace(".pdf", "")
+                reader = PdfReader(pdf_file_path)
+                pages = [
+                    30,
+                    31,
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37,
+                ]  # page 1, 3, 5
+                pdfWriter = PdfWriter()
+                for page_num in pages:
+                    pdfWriter.add_page(reader.pages[page_num])
+                sanction_letter_esign = "Sanction_letter_{0}.pdf".format(self.name)
+                sanction_letter_esign_path = frappe.utils.get_files_path(
+                    sanction_letter_esign
+                )
+                if os.path.exists(sanction_letter_esign_path):
+                    os.remove(sanction_letter_esign_path)
+                sanction_letter_esign_document = frappe.utils.get_url(
+                    "files/{}".format(sanction_letter_esign)
+                )
+                sanction_letter_esign = frappe.utils.get_files_path(
+                    sanction_letter_esign
+                )
 
-            with open(sanction_letter_esign, "wb") as f:
-                pdfWriter.write(f)
-                f.close()
-            sl = frappe.get_all(
-                "Sanction Letter Entries",
-                filters={"loan_application_no": self.name},
-                fields=["*"],
-            )
-            sll = frappe.get_doc("Sanction Letter Entries", sl[0].name)
-            sll.sanction_letter = sanction_letter_esign_document
-            sll.save()
-            frappe.db.commit()
+                with open(sanction_letter_esign, "wb") as f:
+                    pdfWriter.write(f)
+                    f.close()
+                sl = frappe.get_all(
+                    "Sanction Letter Entries",
+                    filters={"loan_application_no": self.name},
+                    fields=["*"],
+                )
+                loan_name = ""
+                if not check and self.loan:
+                    loan_name = loan.name
+                elif check:
+                    loan_name = check
+                frappe.db.set_value(
+                    "Sanction Letter and CIAL Log", self.sl_entries, "loan", loan_name
+                )
+                if sl:
+                    sll = frappe.get_doc("Sanction Letter Entries", sl[0].name)
+                    sll.sanction_letter = sanction_letter_esign_document
+                    sll.save()
+                    frappe.db.commit()
         return
 
     def create_attachment(self):
@@ -2232,27 +2310,27 @@ class LoanApplication(Document):
         #     filters={"loan_application_no": self.name, "parent": self.sl_entries},
         #     fields=["*"],
         # )
-        # doc_name = sanction_letter[0].sanction_letter
-        # fname = doc_name.split("files/", 1)
-        # file = fname[1].split(".", 1)
-        # file_name = file[0]
-        # log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
-        # with open(log_file, "rb") as fileobj:
-        #     filedata = fileobj.read()
-
-        # sanction_letter = {"fname": fname[1], "fcontent": filedata}
-        # attachments.append(sanction_letter)
-
-        lender_esign_file = self.lender_esigned_document
-        lfile_name = lender_esign_file.split("files/", 1)
-        l_file = lfile_name[1]
-        path = frappe.utils.get_files_path(
-            l_file,
-        )
-        with open(path, "rb") as fileobj:
+        doc_name = self.lender_esigned_document
+        fname = doc_name.split("files/", 1)
+        file = fname[1].split(".", 1)
+        file_name = file[0]
+        log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
+        with open(log_file, "rb") as fileobj:
             filedata = fileobj.read()
-        lender_doc = {"fname": l_file, "fcontent": filedata}
-        attachments.append(lender_doc)
+
+        sanction_letter = {"fname": fname[1], "fcontent": filedata}
+        attachments.append(sanction_letter)
+
+        # lender_esign_file = self.lender_esigned_document
+        # lfile_name = lender_esign_file.split("files/", 1)
+        # l_file = lfile_name[1]
+        # path = frappe.utils.get_files_path(
+        #     l_file,
+        # )
+        # with open(path, "rb") as fileobj:
+        #     filedata = fileobj.read()
+        # lender_doc = {"fname": l_file, "fcontent": filedata}
+        # attachments.append(lender_doc)
 
         # if self.customer_esigned_document:
         #     customer_esigned_document = self.customer_esigned_document

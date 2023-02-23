@@ -31,22 +31,27 @@
           <td height="25">&nbsp;</td>
         </tr>
         <tr>
-          <td><strong><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#2c2a2b">Dear fullname ,</span></strong></td>
+          <td><strong><span style="font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#2c2a2b">Dear fullname,</span></strong></td>
         </tr>
         <tr>
           <td>&nbsp;</td>
         </tr>
         <tr>
-          <td>
-            <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
-                    Congratulations! Your loan account has been topped up.<br />
-                    <br />
-                    Please check the app for details.<br />
-                    <br />
-                    You can reach to us through 'Contact Us' on the app.<br />
-                    We look forward to serve you soon.<br />
-                    <br />
-            </span></td>
+            <td>
+                <span style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:150%; color:#2c2a2b">
+                        Congratulations! Your loan limit has been successfully increased.<br />
+                        <br />
+                        Kindly check the app.<br />
+                        <br />
+                        You may now withdraw funds as per your convenience.<br />
+                        <br />
+                        Thank you for your patience.<br />
+                        <br />
+                        You can reach to us through 'Contact Us' on the app.<br />
+                        We look forward to serve you soon.<br />
+                        <br />
+                </span>
+            </td>
         </tr>
         <tr>
           <td>&nbsp;</td>

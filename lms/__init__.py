@@ -3,14 +3,18 @@ from __future__ import unicode_literals
 
 import base64
 import calendar
+import datetime
 import hashlib
 import hmac
+import io
 import json
 import math
 import os
 import re
+import subprocess
 from base64 import b64decode, b64encode
 from datetime import datetime, timedelta
+from distutils.version import LooseVersion
 from inspect import currentframe
 from itertools import groupby
 from random import choice, randint, randrange
@@ -18,15 +22,25 @@ from traceback import format_exc
 
 import frappe
 import numpy_financial as npf
+import pdfkit
 import razorpay
 import requests
+import six
 import utils
 import xmltodict
+from bs4 import BeautifulSoup
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from frappe import _
+from frappe.utils import scrub_urls
 from PIL import Image
+from PyPDF2 import PdfReader, PdfWriter
 from razorpay.errors import SignatureVerificationError
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.pdfmetrics import registerFont
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 
 from lms.config import lms
 from lms.firebase import FirebaseAdmin
@@ -2576,10 +2590,6 @@ def charges_for_apr(lender, sanction_limit):
     charges["documentation_charges"] = documentation_charges
     total = processing_fees + stamp_duty + documentation_charges
     charges["total"] = total
-    frappe.log_error(
-        title="Charge calculate",
-        message=str(charges),
-    )
     return charges
 
 
@@ -2598,3 +2608,352 @@ def compress_image(input_image_path, user, quality=100):
             message=frappe.get_traceback()
             + "User Name:\n{}\nFile Path:\n{}".format(user, input_image_path),
         )
+
+
+def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
+    # print("akash")
+    # pdfmetrics.registerFont(TTFont('Calibri', 'Calibri.ttf'))
+    registerFont(TTFont("Calibri-Bold", "calibrib.ttf"))
+    # registerFontFamily('Calibri',normal='Calibri',bold='CalibriBD',italic='CalibriIT',boldItalic='CalibriBI')
+
+    # packet = io.BytesIO()
+    # can = canvas.Canvas(packet, pagesize=letter)
+    # current_time = frappe.utils.now_datetime().strftime("%d-%m-%Y")
+    # can.setFont("Calibri-Bold", 10)
+    # can.drawString(80, 790, current_time)
+    # can.save()
+    # packet.seek(0)
+
+    # new_pdf = PdfReader(packet)
+    lfile_name = esigned_doc.split("files/", 1)
+    l_file = lfile_name[1]
+    pdf_file_path = frappe.utils.get_files_path(
+        l_file,
+    )
+    # read your existing PDF
+    pdf_path = pdf_file_path  # for u its ur original pdf
+    existing_pdf = PdfReader(open(pdf_file_path, "rb"))
+    reader = PdfReader(pdf_path)
+    num_of_page = len(existing_pdf.pages)
+    output = PdfWriter()
+    for i in range(30):
+        page = reader.pages[i]
+        output.add_page(page)
+
+    current_time = frappe.utils.now_datetime().strftime("%d-%m-%Y")
+    packet = io.BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    can.setFont("Calibri-Bold", 10)
+    can.drawString(80, 765, current_time)
+    if loan_name:
+        can.drawString(89, 753, loan_name)
+    can.save()
+    packet.seek(0)
+    watermark = PdfReader(packet).pages[0]
+    page21 = reader.pages[30]
+    page21.merge_page(watermark)
+    output.add_page(page21)
+
+    for i in range(31, 36):
+        page = reader.pages[i]
+        output.add_page(page)
+
+    packet = io.BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    can.setFont("Calibri-Bold", 10)
+    if loan_name:
+        can.drawString(118, 767, current_time)
+    else:
+        can.drawString(118, 767, current_time)
+    can.save()
+    packet.seek(0)
+    watermark = PdfReader(packet).pages[0]
+    page25 = reader.pages[36]
+    page25.merge_page(watermark)
+    output.add_page(page25)
+
+    # add the "watermark" (which is the new pdf) on the existing page
+    # page = existing_pdf.pages[21]
+    # page.merge_page(new_pdf.pages[0])
+    # output.add_page(page)
+    # page = existing_pdf.pages[25]
+    # page.merge_page(new_pdf.pages[0])
+    # output.add_page(page)
+    for i in range(37, num_of_page):
+        page = reader.pages[i]
+        output.add_page(page)
+    # finally, write "output" to a real file
+    sanction_letter_esign = "{}_{}.pdf".format(
+        loan_application_name, frappe.utils.now_datetime().strftime("%Y-%m-%d")
+    )
+    sanction_letter_esign_path = frappe.utils.get_files_path(sanction_letter_esign)
+    sanction_letter_esign_doc = frappe.utils.get_url(
+        "files/{}".format(sanction_letter_esign)
+    )
+    if os.path.exists(sanction_letter_esign_path):
+        os.remove(sanction_letter_esign_path)
+
+    sanction_letter_esign = frappe.utils.get_files_path(sanction_letter_esign)
+    output_stream = open(sanction_letter_esign, "wb")
+    output.write(output_stream)
+    output_stream.close()
+    return sanction_letter_esign_doc
+
+    #####nes#######
+    # merger = PdfWriter()
+    # input1 = open(pdf_file_path, "rb")
+    # input2 = open(sanction_letter_esign, "rb")
+    # merger.append(input1, pages=(0, 21))
+    # merger.append(input2, pages=[0])
+    # merger.append(input1, pages=(22, 25))
+    # merger.append(input2, pages=[1])
+    # merger.append(input1, pages=(26, num_of_page))
+    # # merger.append(input1, pages=[3])
+    # lender_esigned_doc_final = "Loan_Agreement_{}_{}.pdf".format(loan_application_name,frappe.utils.now_datetime().strftime("%Y-%m-%d"))
+    # lender_esigned_doc_final_path = frappe.utils.get_files_path(
+    #     lender_esigned_doc_final
+    # )
+    # if os.path.exists(lender_esigned_doc_final_path):
+    #     os.remove(lender_esigned_doc_final_path)
+    # lender_esigned_doc_final_document = frappe.utils.get_url(
+    #     "files/{}".format(lender_esigned_doc_final)
+    # )
+    # lender_esigned_doc_final = frappe.utils.get_files_path(lender_esigned_doc_final)
+    # with open(lender_esigned_doc_final, "wb") as mp:
+    #     merger.write(mp)
+    # print("lender_esigned_doc_final_document", lender_esigned_doc_final_document)
+    # print("lender_esigned_doc_final", lender_esigned_doc_final)
+
+
+PDF_CONTENT_ERRORS = [
+    "ContentNotFoundError",
+    "ContentOperationNotPermittedError",
+    "UnknownContentError",
+    "RemoteHostClosedError",
+]
+
+
+def get_pdf(html, options=None, output=None):
+    html = scrub_urls(html)
+    html, options = prepare_options(html, options)
+
+    options.update({"disable-javascript": "", "disable-local-file-access": ""})
+
+    filedata = ""
+    if LooseVersion(get_wkhtmltopdf_version()) > LooseVersion("0.12.3"):
+        options.update({"disable-smart-shrinking": ""})
+
+    try:
+        # Set filename property to false, so no file is actually created
+        filedata = pdfkit.from_string(html, False, options=options or {})
+
+        # https://pythonhosted.org/PyPDF2/PdfFileReader.html
+        # create in-memory binary streams from filedata and create a PdfFileReader object
+        reader = PdfReader(io.BytesIO(filedata))
+    except OSError as e:
+        if any([error in str(e) for error in PDF_CONTENT_ERRORS]):
+            if not filedata:
+                frappe.throw(_("PDF generation failed because of broken image links"))
+
+            # allow pdfs with missing images if file got created
+            if output:  # output is a PdfFileWriter object
+                output.append_pages_from_reader(reader)
+        else:
+            raise
+    finally:
+        cleanup(options)
+
+    if "password" in options:
+        password = options["password"]
+        if six.PY2:
+            password = frappe.safe_encode(password)
+
+    if output:
+        output.append_pages_from_reader(reader)
+        return output
+
+    writer = PdfWriter()
+    writer.append_pages_from_reader(reader)
+
+    if "password" in options:
+        writer.encrypt(password)
+
+    filedata = get_file_data_from_writer(writer)
+
+    return filedata
+
+
+def get_file_data_from_writer(writer_obj):
+
+    # https://docs.python.org/3/library/io.html
+    stream = io.BytesIO()
+    writer_obj.write(stream)
+
+    # Change the stream position to start of the stream
+    stream.seek(0)
+
+    # Read up to size bytes from the object and return them
+    return stream.read()
+
+
+def prepare_options(html, options):
+    if not options:
+        options = {}
+
+    options.update(
+        {
+            "print-media-type": None,
+            "background": None,
+            "images": None,
+            "quiet": None,
+            # 'no-outline': None,
+            "encoding": "UTF-8",
+            #'load-error-handling': 'ignore'
+        }
+    )
+
+    if not options.get("margin-right"):
+        options["margin-right"] = "15mm"
+
+    if not options.get("margin-left"):
+        options["margin-left"] = "15mm"
+
+    html, html_options = read_options_from_html(html)
+    options.update(html_options or {})
+
+    # cookies
+    options.update(get_cookie_options())
+
+    # page size
+    if not options.get("page-size"):
+        options["page-size"] = (
+            frappe.db.get_single_value("Print Settings", "pdf_page_size") or "A4"
+        )
+
+    return html, options
+
+
+def get_wkhtmltopdf_version():
+    wkhtmltopdf_version = frappe.cache().hget("wkhtmltopdf_version", None)
+
+    if not wkhtmltopdf_version:
+        try:
+            res = subprocess.check_output(["wkhtmltopdf", "--version"])
+            wkhtmltopdf_version = res.decode("utf-8").split(" ")[1]
+            frappe.cache().hset("wkhtmltopdf_version", None, wkhtmltopdf_version)
+        except Exception:
+            pass
+
+    return wkhtmltopdf_version or "0"
+
+
+def cleanup(options):
+    for key in ("header-html", "footer-html", "cookie-jar"):
+        if options.get(key) and os.path.exists(options[key]):
+            os.remove(options[key])
+
+
+def read_options_from_html(html):
+    options = {}
+    soup = BeautifulSoup(html, "html5lib")
+
+    options.update(prepare_header_footer(soup))
+
+    toggle_visible_pdf(soup)
+
+    # use regex instead of soup-parser
+    for attr in (
+        "margin-top",
+        "margin-bottom",
+        "margin-left",
+        "margin-right",
+        "page-size",
+        "header-spacing",
+        "orientation",
+    ):
+        try:
+            pattern = re.compile(
+                r"(\.print-format)([\S|\s][^}]*?)(" + str(attr) + r":)(.+)(mm;)"
+            )
+            match = pattern.findall(html)
+            if match:
+                options[attr] = str(match[-1][3]).strip()
+        except:
+            pass
+
+    return str(soup), options
+
+
+def get_cookie_options():
+    options = {}
+    if frappe.session and frappe.session.sid and hasattr(frappe.local, "request"):
+        # Use wkhtmltopdf's cookie-jar feature to set cookies and restrict them to host domain
+        cookiejar = "/tmp/{}.jar".format(frappe.generate_hash())
+
+        # Remove port from request.host
+        # https://werkzeug.palletsprojects.com/en/0.16.x/wrappers/#werkzeug.wrappers.BaseRequest.host
+        domain = frappe.utils.get_host_name().split(":", 1)[0]
+        with open(cookiejar, "w") as f:
+            f.write("sid={}; Domain={};\n".format(frappe.session.sid, domain))
+
+        options["cookie-jar"] = cookiejar
+
+    return options
+
+
+def prepare_header_footer(soup):
+    options = {}
+
+    head = soup.find("head").contents
+    styles = soup.find_all("style")
+
+    css = frappe.read_file(
+        os.path.join(frappe.local.sites_path, "assets/css/printview.css")
+    )
+
+    # extract header and footer
+    for html_id in ("header-html", "footer-html"):
+        content = soup.find(id=html_id)
+        if content:
+            # there could be multiple instances of header-html/footer-html
+            for tag in soup.find_all(id=html_id):
+                tag.extract()
+
+            toggle_visible_pdf(content)
+            html = frappe.render_template(
+                "templates/print_formats/pdf_header_footer.html",
+                {
+                    "head": head,
+                    "content": content,
+                    "styles": styles,
+                    "html_id": html_id,
+                    "css": css,
+                },
+            )
+
+            # create temp file
+            fname = os.path.join(
+                "/tmp", "frappe-pdf-{0}.html".format(frappe.generate_hash())
+            )
+            with open(fname, "wb") as f:
+                f.write(html.encode("utf-8"))
+
+            # {"header-html": "/tmp/frappe-pdf-random.html"}
+            options[html_id] = fname
+        else:
+            if html_id == "header-html":
+                options["margin-top"] = "15mm"
+            elif html_id == "footer-html":
+                options["margin-bottom"] = "15mm"
+
+    return options
+
+
+def toggle_visible_pdf(soup):
+    for tag in soup.find_all(attrs={"class": "visible-pdf"}):
+        # remove visible-pdf class to unhide
+        tag.attrs["class"].remove("visible-pdf")
+
+    for tag in soup.find_all(attrs={"class": "hidden-pdf"}):
+        # remove tag from html
+        tag.extract()

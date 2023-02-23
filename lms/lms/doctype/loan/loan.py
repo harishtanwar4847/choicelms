@@ -2187,7 +2187,7 @@ class Loan(Document):
         doc = {
             "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
             "loan_account_number": self.name,
-            "borrower_name": user_kyc.fullname,
+            "borrower_name": customer.full_name,
             "borrower_address": address,
             "addline1": addline1,
             "addline2": addline2,
@@ -2210,7 +2210,7 @@ class Loan(Document):
             "total_amount_to_be_paid": frappe.utils.fmt_money(
                 float(increased_sanction_limit) + charges.get("total") + interest_amount
             ),
-            "loan_application_no": self.name,
+            "loan_application_no": "",
             "rate_of_interest": lender.rate_of_interest,
             "rebate_interest": int_config.rebait_interest,
             "sanctioned_amount": frappe.utils.fmt_money(
@@ -2321,9 +2321,9 @@ class Loan(Document):
             agreement_template.get_content(), {"doc": doc}
         )
 
-        from frappe.utils.pdf import get_pdf
+        # from frappe.utils.pdf import get_pdf
 
-        agreement_pdf = get_pdf(agreement)
+        agreement_pdf = lms.get_pdf(agreement)
 
         tnc_dir_path = frappe.utils.get_files_path("tnc")
         import os
