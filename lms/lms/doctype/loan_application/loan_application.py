@@ -1591,7 +1591,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
                 )
                 attachments = ""
-                if self.loan and not self.loan_margin_shortfall:
+                if not self.loan_margin_shortfall:
                     attachments = self.create_attachment()
                 frappe.enqueue(
                     method=frappe.sendmail,
