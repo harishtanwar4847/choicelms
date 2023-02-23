@@ -486,66 +486,10 @@ def validate_revoc(unpledge_application_name):
             token_dict = dict()
 
             for i in unpledge_application_doc.unpledge_items:
-                print("prf_list", prf_list)
                 prf = frappe.get_all(
                     "Unpledge Application Unpledged Item",
                     filters={"parent": unpledge_application_doc.name, "prf": i.prf},
                     fields=["*"],
-                )
-            # create payload
-            try:
-                datetime_signature = lms.create_signature_mycams()
-                las_settings = frappe.get_single("LAS Settings")
-                headers = {
-                    "Content-Type": "application/json",
-                    "clientid": las_settings.client_id,
-                    "datetimestamp": datetime_signature[0],
-                    "signature": datetime_signature[1],
-                    "subclientid": "",
-                }
-                url = las_settings.revoke_api
-                data = {
-                    "revocvalidate": {
-                        "reqrefno": unpledge_application_doc.name,
-                        "lienrefno": collateral_ledger.prf,
-                        "pan": user_kyc.pan_no,
-                        "regemailid": customer.mycams_email_id,
-                        "clientid": las_settings.client_id,
-                        "requestip": "",
-                        "schemedetails": [],
-                    }
-                }
-                for i in unpledge_application_doc.unpledge_items:
-                    psn = frappe.db.sql(
-                        """select psn from `tabCollateral Ledger` where isin = '{isin}' and folio = '{folio}' and loan = '{loan}' and request_type = '{type}' """.format(
-                            isin=i.isin,
-                            folio=i.folio,
-                            loan=unpledge_application_doc.loan,
-                            type="Pledge",
-                        ),
-                        as_dict=1,
-                    )
-                    schemedetails = (
-                        {
-                            "amccode": i.amc_code,
-                            "folio": i.folio,
-                            "schemecode": i.scheme_code,
-                            "schemename": i.security_name,
-                            "isinno": i.isin,
-                            "schemetype": unpledge_application_doc.scheme_type,
-                            "schemecategory": i.security_category,
-                            "lienunit": i.quantity,
-                            "revocationunit": i.unpledge_quantity,
-                            "lienmarkno": psn[0].psn,
-                        },
-                    )
-                    data["revocvalidate"]["schemedetails"].append(schemedetails[0])
-
-                lms.create_log(
-                    {
-                        "json_payload": data,
-                    },
-                    "revoke_validate_request",
                 )
                 if i.prf not in prf_list:
                     try:
@@ -561,7 +505,12 @@ def validate_revoc(unpledge_application_name):
                         url = las_settings.revoke_api
                         data = {
                             "revocvalidate": {
-                                "reqrefno": prf[0].name,
+                                "reqrefno": "{}_{}".format(
+                                    unpledge_application_doc.name,
+                                    frappe.utils.now_datetime().strftime(
+                                        "%Y-%m-%d %H:%M:%S.%f"
+                                    ),
+                                ),
                                 "lienrefno": i.prf,
                                 "pan": user_kyc.pan_no,
                                 "regemailid": customer.mycams_email_id,
@@ -571,7 +520,6 @@ def validate_revoc(unpledge_application_name):
                             }
                         }
                         for i in prf:
-                            print("isin", i.isin)
                             schemedetails = (
                                 {
                                     "amccode": i.amc_code,
@@ -594,13 +542,13 @@ def validate_revoc(unpledge_application_name):
                         encrypted_data = lms.AESCBC(
                             las_settings.encryption_key, las_settings.iv
                         ).encrypt(json.dumps(data))
-
+                        print("encrypted_data", encrypted_data)
                         req_data = {"req": str(encrypted_data)}
-
+                        print("req", str(encrypted_data))
                         resp = requests.post(
                             url=url, headers=headers, data=json.dumps(req_data)
                         ).text
-
+                        print("resp", resp)
                         encrypted_response = (
                             json.loads(resp)
                             .get("res")
@@ -621,7 +569,7 @@ def validate_revoc(unpledge_application_name):
                             },
                             "revoke_validate",
                         )
-
+                        print("dict_decrypted_response", dict_decrypted_response)
                         if dict_decrypted_response.get("revocvalidate"):
                             unpledge_application_doc.validate_message = (
                                 dict_decrypted_response.get("revocvalidate").get(
@@ -644,6 +592,8 @@ def validate_revoc(unpledge_application_name):
                                 isin_folio_combo = "{}{}{}".format(
                                     i.get("isin"), i.get("folio"), i.get("psn")
                                 )
+                                print("isin_folio_combo", isin_folio_combo)
+                                print("isin_details", isin_details)
                                 if isin_folio_combo in isin_details:
                                     i.revoke_validate_remarks = isin_details.get(
                                         isin_folio_combo
@@ -682,9 +632,8 @@ def validate_revoc(unpledge_application_name):
                                 unpledge_application_doc.is_validated = True
                             unpledge_application_doc.save(ignore_permissions=True)
                             frappe.db.commit()
-                            # i.revoc_token = dict_decrypted_response.get(
-                            #     "revocvalidate"
-                            # ).get("revoctoken")
+                            # for i in prf:
+                            #     i.revoc_token = dict_decrypted_response.get("revocvalidate").get("revoctoken")
                         else:
                             print("nacho")
                             unpledge_application_doc.validate_message = (
@@ -694,7 +643,6 @@ def validate_revoc(unpledge_application_name):
                             frappe.db.commit()
 
                         prf_list.append(prf[0].prf)
-
                     except requests.RequestException as e:
                         raise utils.exceptions.APIException(str(e))
                 if unpledge_application_doc.is_validated == True:
@@ -725,8 +673,6 @@ def validate_revoc(unpledge_application_name):
                         unpledge_item_doc.save(ignore_permissions=True)
                         frappe.db.commit()
 
-            except requests.RequestException as e:
-                raise utils.exceptions.APIException(str(e))
         else:
             frappe.throw(frappe._("Mycams Email ID is missing"))
     except utils.exceptions.APIException as e:
