@@ -4201,7 +4201,7 @@ def ckyc_search(**kwargs):
             lms.log_api_error(mess=str(res_json))
             return utils.respondWithFailure(
                 status=res_json.get("status"),
-                message="Sorry! Our system has not been able to validate your KYC. Kindly check your input for any mismatch.",
+                message="Sorry! Our system has not been able to validate your KYC. Please try again after sometime.",
                 data=res_json.get("error"),
             )
 
@@ -4539,7 +4539,7 @@ def ckyc_download(**kwargs):
             lms.log_api_error(mess=str(res_json))
             return utils.respondWithFailure(
                 status=res_json.get("status"),
-                message="Sorry! Our system has not been able to validate your KYC. Kindly check your input for any mismatch.",
+                message="Sorry! Our system has not been able to validate your KYC. Please try again after sometime.",
                 data=res_json.get("error"),
             )
 

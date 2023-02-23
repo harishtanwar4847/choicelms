@@ -1812,17 +1812,23 @@ def ckyc_dot_net(
     cust, pan_no, is_for_search=False, is_for_download=False, dob="", ckyc_no=""
 ):
     try:
+        las_settings = frappe.get_single("LAS Settings")
+        if type(las_settings.ckyc_request_id) != int:
+            las_settings.ckyc_request_id = 0
+        las_settings.ckyc_request_id = las_settings.ckyc_request_id + 1
+        las_settings.save(ignore_permissions=True)
+        frappe.db.commit()
         req_data = {
             "idType": "C",
             "idNumber": pan_no,
             "dateTime": datetime.strftime(
                 frappe.utils.now_datetime(), "%d-%m-%Y %H:%M:%S"
             ),
+            # "requestId": datetime.strftime(frappe.utils.now_datetime(), "%d%m")
+            # + str(abs(randint(0, 9999) - randint(1, 99))),
             "requestId": datetime.strftime(frappe.utils.now_datetime(), "%d%m")
-            + str(abs(randint(0, 9999) - randint(1, 99))),
+            + str(las_settings.ckyc_request_id)[-4:],
         }
-
-        las_settings = frappe.get_single("LAS Settings")
 
         if is_for_search:
             url = las_settings.ckyc_search_api
