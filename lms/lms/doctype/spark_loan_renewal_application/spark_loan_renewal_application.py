@@ -624,6 +624,8 @@ You have received a loan renewal extension of 7 days from the current expiry dat
                         doctype="Spark Loan Renewal Application",
                         loan=loan.name,
                         lender=loan.lender,
+                        custom_base_interest=loan.base_interest,
+                        custom_rebate_interest=loan.rebate_interest,
                         old_kyc_name=customer.choice_kyc,
                         total_collateral_value=loan.total_collateral_value,
                         sanctioned_limit=loan.sanctioned_limit,
