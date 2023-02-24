@@ -1909,7 +1909,6 @@ class Loan(Document):
                     as_dict=1,
                 )
                 if self.is_default == 1:
-                    print("is default mdhe aalo")
                     self.custom_base_interest = interest_configuration["base_interest"]
                     self.custom_rebate_interest = interest_configuration[
                         "rebait_interest"
@@ -2416,8 +2415,6 @@ class Loan(Document):
         )
         doc["logo_file_path_1"] = logo_file_path_1.file_url if logo_file_path_1 else ""
         doc["logo_file_path_2"] = logo_file_path_2.file_url if logo_file_path_2 else ""
-        print("Document :", logo_file_path_1.file_url)
-        print("Document :", logo_file_path_2.file_url)
         agreement = frappe.render_template(
             interest_letter_template.get_content(), {"doc": doc}
         )
@@ -2430,9 +2427,9 @@ class Loan(Document):
 
         pdf_file = open(interest_letter_pdf_file_path, "wb")
 
-        from frappe.utils.pdf import get_pdf
+        # from frappe.utils.pdf import get_pdf
 
-        pdf = get_pdf(
+        pdf = lms.get_pdf(
             agreement,
             options={
                 "margin-right": "1mm",
