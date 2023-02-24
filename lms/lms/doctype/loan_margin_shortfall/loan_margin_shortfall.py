@@ -117,7 +117,7 @@ class LoanMarginShortfall(Document):
 
         if (
             margin_shortfall_action
-            and old_shortfall_action != margin_shortfall_action.name
+            # and old_shortfall_action != margin_shortfall_action.name
         ):
             if old_shortfall_action:
                 old_shortfall_action = frappe.get_doc(
