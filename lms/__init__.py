@@ -2,31 +2,48 @@
 from __future__ import unicode_literals
 
 import base64
+import calendar
+import datetime
 import hashlib
 import hmac
+import io
 import json
 import math
 import os
 import re
+import subprocess
 from base64 import b64decode, b64encode
 from datetime import datetime, timedelta
+from distutils.version import LooseVersion
 from inspect import currentframe
 from itertools import groupby
 from random import choice, randint, randrange
 from traceback import format_exc
 
 import frappe
+import numpy_financial as npf
+import pdfkit
 import razorpay
 import requests
+import six
 import utils
 import xmltodict
+from bs4 import BeautifulSoup
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from frappe import _
+from frappe.utils import scrub_urls
 
 # from frappe.core.doctype.sms_settings.sms_settings import send_sms
 from frappe.utils.csvutils import read_csv_content
+from PIL import Image
+from PyPDF2 import PdfReader, PdfWriter
 from razorpay.errors import SignatureVerificationError
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.pdfmetrics import registerFont
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 
 from lms.config import lms
 from lms.firebase import FirebaseAdmin
@@ -40,7 +57,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.10.1-uat"
+__version__ = "5.13.4"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -442,7 +459,6 @@ def chunk_doctype(doctype, limit=50):
 
 def __customer(entity=None):
     res = frappe.get_all("Loan Customer", filters={"user": __user(entity).name})
-
     if len(res) == 0:
         raise CustomerNotFoundException
 
@@ -1815,17 +1831,23 @@ def ckyc_dot_net(
     cust, pan_no, is_for_search=False, is_for_download=False, dob="", ckyc_no=""
 ):
     try:
+        las_settings = frappe.get_single("LAS Settings")
+        if type(las_settings.ckyc_request_id) != int:
+            las_settings.ckyc_request_id = 0
+        las_settings.ckyc_request_id = las_settings.ckyc_request_id + 1
+        las_settings.save(ignore_permissions=True)
+        frappe.db.commit()
         req_data = {
             "idType": "C",
             "idNumber": pan_no,
             "dateTime": datetime.strftime(
                 frappe.utils.now_datetime(), "%d-%m-%Y %H:%M:%S"
             ),
+            # "requestId": datetime.strftime(frappe.utils.now_datetime(), "%d%m")
+            # + str(abs(randint(0, 9999) - randint(1, 99))),
             "requestId": datetime.strftime(frappe.utils.now_datetime(), "%d%m")
-            + str(abs(randint(0, 9999) - randint(1, 99))),
+            + str(las_settings.ckyc_request_id)[-4:],
         }
-
-        las_settings = frappe.get_single("LAS Settings")
 
         if is_for_search:
             url = las_settings.ckyc_search_api
@@ -1860,6 +1882,27 @@ def ckyc_dot_net(
         log["response"] = res_json
 
         create_log(log, log_name)
+        if (
+            frappe.utils.get_url() == "https://spark.loans"
+            and res_json.get("status") != 200
+            and res_json.get("error")
+        ):
+            email_msg = (
+                "{customer} CKYC has failed in {api_type} due to Error: {error}".format(
+                    customer=cust.name, api_type=api_type, error=res_json.get("error")
+                )
+            )
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=[
+                    "manish.prasad@choiceindia.com",
+                    "prakash.aare@choiceindia.com",
+                    "harsha.sankla@choiceindia.com",
+                ],
+                sender=None,
+                subject="Spark Loans {} failure response".format(api_type),
+                message=email_msg,
+            )
 
         return res_json
     except Exception:
@@ -1868,11 +1911,7 @@ def ckyc_dot_net(
 
 
 def upload_image_to_doctype(
-    customer,
-    seq_no,
-    image_,
-    img_format,
-    img_folder="CKYC_IMG",
+    customer, seq_no, image_, img_format, img_folder="CKYC_IMG", compress=0
 ):
     try:
         extra_char = str(randrange(9999, 9999999999))
@@ -1892,6 +1931,8 @@ def upload_image_to_doctype(
         ckyc_image_file_path = frappe.utils.get_files_path(picture_file)
         image_decode = base64.decodestring(bytes(str(image_), encoding="utf8"))
         image_file = open(ckyc_image_file_path, "wb").write(image_decode)
+        if compress:
+            compress_image(ckyc_image_file_path, customer)
 
         ckyc_image_file_url = frappe.utils.get_url(
             "files/{}/{}-{}-{}.{}".format(
@@ -3396,8 +3437,12 @@ def au_pennydrop_api(data):
             "AccNum": data.get("account_number"),
             "HashValue": base64.b64encode(final_hash).decode("ascii"),
         }
+        data["payload"] = payload
 
         url = las_settings.penny_drop_api
+        if not url:
+            res_json = {"StatusCode": 404, "Message": "Penny Drop host missing"}
+            return res_json
 
         headers = {
             "Content-Type": "application/json",
@@ -3414,7 +3459,7 @@ def au_pennydrop_api(data):
     except Exception:
         frappe.log_error(
             title="AU Penny Drop API Error",
-            message=frappe.get_traceback() + "\n\n" + data,
+            message=frappe.get_traceback() + "\n\n" + str(data),
         )
 
 
@@ -3427,14 +3472,482 @@ def truncate_approved_unit(number, digits):
 
 
 def name_matching(user_kyc, bank_acc_full_name):
-    bank_acc_full_name = (bank_acc_full_name.lower()).split()
-    if (user_kyc.fname.lower() in bank_acc_full_name) and (
-        user_kyc.mname.lower() in bank_acc_full_name
-    ):
-        return True
-    elif (user_kyc.fname.lower() in bank_acc_full_name) and (
-        user_kyc.lname.lower() in bank_acc_full_name
-    ):
-        return True
+    try:
+        bank_acc_full_name = bank_acc_full_name.lower().replace(" ", "")
+
+        if (
+            user_kyc.fname
+            and user_kyc.fname.replace(" ", "").lower() in bank_acc_full_name
+        ) and (
+            user_kyc.mname
+            and user_kyc.mname.replace(" ", "").lower() in bank_acc_full_name
+        ):
+            return True
+        elif (
+            user_kyc.fname
+            and user_kyc.fname.replace(" ", "").lower() in bank_acc_full_name
+        ) and (
+            user_kyc.lname
+            and user_kyc.lname.replace(" ", "").lower() in bank_acc_full_name
+        ):
+            return True
+        else:
+            return False
+    except Exception:
+        frappe.log_error(
+            title="Name matching Error",
+            message=frappe.get_traceback()
+            + "User Kyc Name:\n{}\n\n".format(user_kyc.name),
+        )
+
+
+def calculate_apr(name_, interest_in_percentage, tenure, sanction_limit, charges=0):
+    try:
+        pmt_ = npf.pmt((interest_in_percentage / 100) / 12, tenure, sanction_limit)
+        present_value = sanction_limit - charges
+        future_value = 0
+        apr = (
+            npf.rate(nper=tenure, pmt=pmt_, pv=present_value, fv=future_value)
+            * 12
+            * 100
+        )
+        if apr < 0:
+            apr = 0
+
+        return round(apr, 2)
+    except Exception:
+        frappe.log_error(
+            title="Calculate APR Error",
+            message=frappe.get_traceback() + "\n\n" + str(name_),
+        )
+
+
+def diff_in_months(date_1, date_2):
+    start = datetime.strptime(date_1, "%d/%m/%Y")
+    end = datetime.strptime(date_2, "%d/%m/%Y")
+    diff = (end.year - start.year) * 12 + (end.month - start.month)
+    return diff
+
+
+def validate_loan_charges_amount(lender_doc, amount, min_field, max_field):
+    lender_dict = lender_doc.as_dict()
+    if (lender_dict[min_field] > 0) and (amount < lender_dict[min_field]):
+        amount = lender_dict[min_field]
+    elif (lender_dict[max_field] > 0) and (amount > lender_dict[max_field]):
+        amount = lender_dict[max_field]
+    return amount
+
+
+def charges_for_apr(lender, sanction_limit):
+    charges = {}
+    lender = frappe.get_doc("Lender", lender)
+    date = frappe.utils.now_datetime()
+    days_in_year = 366 if calendar.isleap(date.year) else 365
+    processing_fees = lender.lender_processing_fees
+    if lender.lender_processing_fees_type == "Percentage":
+        days_left_to_expiry = days_in_year
+        amount = (
+            (processing_fees / 100)
+            * sanction_limit
+            / days_in_year
+            * days_left_to_expiry
+        )
+        processing_fees = validate_loan_charges_amount(
+            lender,
+            amount,
+            "lender_processing_minimum_amount",
+            "lender_processing_maximum_amount",
+        )
+    charges["processing_fees"] = processing_fees
+
+    # Stamp Duty
+    stamp_duty = lender.stamp_duty
+    if lender.stamp_duty_type == "Percentage":
+        amount = (stamp_duty / 100) * sanction_limit
+        stamp_duty = validate_loan_charges_amount(
+            lender,
+            amount,
+            "lender_stamp_duty_minimum_amount",
+            "lender_stamp_duty_maximum_amount",
+        )
+    charges["stamp_duty"] = stamp_duty
+
+    documentation_charges = lender.documentation_charges
+    if lender.documentation_charge_type == "Percentage":
+        amount = (documentation_charges / 100) * sanction_limit
+        documentation_charges = validate_loan_charges_amount(
+            lender,
+            amount,
+            "lender_documentation_minimum_amount",
+            "lender_documentation_maximum_amount",
+        )
+    charges["documentation_charges"] = documentation_charges
+    total = processing_fees + stamp_duty + documentation_charges
+    charges["total"] = total
+    return charges
+
+
+def compress_image(input_image_path, user, quality=100):
+    try:
+        original_image = Image.open(input_image_path)
+        if (
+            10 > os.path.getsize(input_image_path) / 1048576 > 1
+        ):  # size of image in mb(bytes/(1024*1024))
+            quality = 50
+        original_image.save(input_image_path, quality=quality)
+        return input_image_path
+    except Exception:
+        frappe.log_error(
+            title="Compress Image Error",
+            message=frappe.get_traceback()
+            + "User Name:\n{}\nFile Path:\n{}".format(user, input_image_path),
+        )
+
+
+def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
+    # print("akash")
+    # pdfmetrics.registerFont(TTFont('Calibri', 'Calibri.ttf'))
+    registerFont(TTFont("Calibri-Bold", "calibrib.ttf"))
+    # registerFontFamily('Calibri',normal='Calibri',bold='CalibriBD',italic='CalibriIT',boldItalic='CalibriBI')
+
+    # packet = io.BytesIO()
+    # can = canvas.Canvas(packet, pagesize=letter)
+    # current_time = frappe.utils.now_datetime().strftime("%d-%m-%Y")
+    # can.setFont("Calibri-Bold", 10)
+    # can.drawString(80, 790, current_time)
+    # can.save()
+    # packet.seek(0)
+
+    # new_pdf = PdfReader(packet)
+    lfile_name = esigned_doc.split("files/", 1)
+    l_file = lfile_name[1]
+    pdf_file_path = frappe.utils.get_files_path(
+        l_file,
+    )
+    # read your existing PDF
+    pdf_path = pdf_file_path  # for u its ur original pdf
+    existing_pdf = PdfReader(open(pdf_file_path, "rb"))
+    reader = PdfReader(pdf_path)
+    num_of_page = len(existing_pdf.pages)
+    output = PdfWriter()
+    for i in range(30):
+        page = reader.pages[i]
+        output.add_page(page)
+
+    current_time = frappe.utils.now_datetime().strftime("%d-%m-%Y")
+    packet = io.BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    can.setFont("Calibri-Bold", 10)
+    can.drawString(80, 765, current_time)
+    if loan_name:
+        can.drawString(89, 753, loan_name)
+    can.save()
+    packet.seek(0)
+    watermark = PdfReader(packet).pages[0]
+    page21 = reader.pages[30]
+    page21.merge_page(watermark)
+    output.add_page(page21)
+
+    for i in range(31, 36):
+        page = reader.pages[i]
+        output.add_page(page)
+
+    packet = io.BytesIO()
+    can = canvas.Canvas(packet, pagesize=letter)
+    can.setFont("Calibri-Bold", 10)
+    if loan_name:
+        can.drawString(118, 767, current_time)
     else:
-        return False
+        can.drawString(118, 767, current_time)
+    can.save()
+    packet.seek(0)
+    watermark = PdfReader(packet).pages[0]
+    page25 = reader.pages[36]
+    page25.merge_page(watermark)
+    output.add_page(page25)
+
+    # add the "watermark" (which is the new pdf) on the existing page
+    # page = existing_pdf.pages[21]
+    # page.merge_page(new_pdf.pages[0])
+    # output.add_page(page)
+    # page = existing_pdf.pages[25]
+    # page.merge_page(new_pdf.pages[0])
+    # output.add_page(page)
+    for i in range(37, num_of_page):
+        page = reader.pages[i]
+        output.add_page(page)
+    # finally, write "output" to a real file
+    sanction_letter_esign = "{}_{}.pdf".format(
+        loan_application_name, frappe.utils.now_datetime().strftime("%Y-%m-%d")
+    )
+    sanction_letter_esign_path = frappe.utils.get_files_path(sanction_letter_esign)
+    sanction_letter_esign_doc = frappe.utils.get_url(
+        "files/{}".format(sanction_letter_esign)
+    )
+    if os.path.exists(sanction_letter_esign_path):
+        os.remove(sanction_letter_esign_path)
+
+    sanction_letter_esign = frappe.utils.get_files_path(sanction_letter_esign)
+    output_stream = open(sanction_letter_esign, "wb")
+    output.write(output_stream)
+    output_stream.close()
+    return sanction_letter_esign_doc
+
+    #####nes#######
+    # merger = PdfWriter()
+    # input1 = open(pdf_file_path, "rb")
+    # input2 = open(sanction_letter_esign, "rb")
+    # merger.append(input1, pages=(0, 21))
+    # merger.append(input2, pages=[0])
+    # merger.append(input1, pages=(22, 25))
+    # merger.append(input2, pages=[1])
+    # merger.append(input1, pages=(26, num_of_page))
+    # # merger.append(input1, pages=[3])
+    # lender_esigned_doc_final = "Loan_Agreement_{}_{}.pdf".format(loan_application_name,frappe.utils.now_datetime().strftime("%Y-%m-%d"))
+    # lender_esigned_doc_final_path = frappe.utils.get_files_path(
+    #     lender_esigned_doc_final
+    # )
+    # if os.path.exists(lender_esigned_doc_final_path):
+    #     os.remove(lender_esigned_doc_final_path)
+    # lender_esigned_doc_final_document = frappe.utils.get_url(
+    #     "files/{}".format(lender_esigned_doc_final)
+    # )
+    # lender_esigned_doc_final = frappe.utils.get_files_path(lender_esigned_doc_final)
+    # with open(lender_esigned_doc_final, "wb") as mp:
+    #     merger.write(mp)
+    # print("lender_esigned_doc_final_document", lender_esigned_doc_final_document)
+    # print("lender_esigned_doc_final", lender_esigned_doc_final)
+
+
+PDF_CONTENT_ERRORS = [
+    "ContentNotFoundError",
+    "ContentOperationNotPermittedError",
+    "UnknownContentError",
+    "RemoteHostClosedError",
+]
+
+
+def get_pdf(html, options=None, output=None):
+    html = scrub_urls(html)
+    html, options = prepare_options(html, options)
+
+    options.update({"disable-javascript": "", "disable-local-file-access": ""})
+
+    filedata = ""
+    if LooseVersion(get_wkhtmltopdf_version()) > LooseVersion("0.12.3"):
+        options.update({"disable-smart-shrinking": ""})
+
+    try:
+        # Set filename property to false, so no file is actually created
+        filedata = pdfkit.from_string(html, False, options=options or {})
+
+        # https://pythonhosted.org/PyPDF2/PdfFileReader.html
+        # create in-memory binary streams from filedata and create a PdfFileReader object
+        reader = PdfReader(io.BytesIO(filedata))
+    except OSError as e:
+        if any([error in str(e) for error in PDF_CONTENT_ERRORS]):
+            if not filedata:
+                frappe.throw(_("PDF generation failed because of broken image links"))
+
+            # allow pdfs with missing images if file got created
+            if output:  # output is a PdfFileWriter object
+                output.append_pages_from_reader(reader)
+        else:
+            raise
+    finally:
+        cleanup(options)
+
+    if "password" in options:
+        password = options["password"]
+        if six.PY2:
+            password = frappe.safe_encode(password)
+
+    if output:
+        output.append_pages_from_reader(reader)
+        return output
+
+    writer = PdfWriter()
+    writer.append_pages_from_reader(reader)
+
+    if "password" in options:
+        writer.encrypt(password)
+
+    filedata = get_file_data_from_writer(writer)
+
+    return filedata
+
+
+def get_file_data_from_writer(writer_obj):
+
+    # https://docs.python.org/3/library/io.html
+    stream = io.BytesIO()
+    writer_obj.write(stream)
+
+    # Change the stream position to start of the stream
+    stream.seek(0)
+
+    # Read up to size bytes from the object and return them
+    return stream.read()
+
+
+def prepare_options(html, options):
+    if not options:
+        options = {}
+
+    options.update(
+        {
+            "print-media-type": None,
+            "background": None,
+            "images": None,
+            "quiet": None,
+            # 'no-outline': None,
+            "encoding": "UTF-8",
+            #'load-error-handling': 'ignore'
+        }
+    )
+
+    if not options.get("margin-right"):
+        options["margin-right"] = "15mm"
+
+    if not options.get("margin-left"):
+        options["margin-left"] = "15mm"
+
+    html, html_options = read_options_from_html(html)
+    options.update(html_options or {})
+
+    # cookies
+    options.update(get_cookie_options())
+
+    # page size
+    if not options.get("page-size"):
+        options["page-size"] = (
+            frappe.db.get_single_value("Print Settings", "pdf_page_size") or "A4"
+        )
+
+    return html, options
+
+
+def get_wkhtmltopdf_version():
+    wkhtmltopdf_version = frappe.cache().hget("wkhtmltopdf_version", None)
+
+    if not wkhtmltopdf_version:
+        try:
+            res = subprocess.check_output(["wkhtmltopdf", "--version"])
+            wkhtmltopdf_version = res.decode("utf-8").split(" ")[1]
+            frappe.cache().hset("wkhtmltopdf_version", None, wkhtmltopdf_version)
+        except Exception:
+            pass
+
+    return wkhtmltopdf_version or "0"
+
+
+def cleanup(options):
+    for key in ("header-html", "footer-html", "cookie-jar"):
+        if options.get(key) and os.path.exists(options[key]):
+            os.remove(options[key])
+
+
+def read_options_from_html(html):
+    options = {}
+    soup = BeautifulSoup(html, "html5lib")
+
+    options.update(prepare_header_footer(soup))
+
+    toggle_visible_pdf(soup)
+
+    # use regex instead of soup-parser
+    for attr in (
+        "margin-top",
+        "margin-bottom",
+        "margin-left",
+        "margin-right",
+        "page-size",
+        "header-spacing",
+        "orientation",
+    ):
+        try:
+            pattern = re.compile(
+                r"(\.print-format)([\S|\s][^}]*?)(" + str(attr) + r":)(.+)(mm;)"
+            )
+            match = pattern.findall(html)
+            if match:
+                options[attr] = str(match[-1][3]).strip()
+        except:
+            pass
+
+    return str(soup), options
+
+
+def get_cookie_options():
+    options = {}
+    if frappe.session and frappe.session.sid and hasattr(frappe.local, "request"):
+        # Use wkhtmltopdf's cookie-jar feature to set cookies and restrict them to host domain
+        cookiejar = "/tmp/{}.jar".format(frappe.generate_hash())
+
+        # Remove port from request.host
+        # https://werkzeug.palletsprojects.com/en/0.16.x/wrappers/#werkzeug.wrappers.BaseRequest.host
+        domain = frappe.utils.get_host_name().split(":", 1)[0]
+        with open(cookiejar, "w") as f:
+            f.write("sid={}; Domain={};\n".format(frappe.session.sid, domain))
+
+        options["cookie-jar"] = cookiejar
+
+    return options
+
+
+def prepare_header_footer(soup):
+    options = {}
+
+    head = soup.find("head").contents
+    styles = soup.find_all("style")
+
+    css = frappe.read_file(
+        os.path.join(frappe.local.sites_path, "assets/css/printview.css")
+    )
+
+    # extract header and footer
+    for html_id in ("header-html", "footer-html"):
+        content = soup.find(id=html_id)
+        if content:
+            # there could be multiple instances of header-html/footer-html
+            for tag in soup.find_all(id=html_id):
+                tag.extract()
+
+            toggle_visible_pdf(content)
+            html = frappe.render_template(
+                "templates/print_formats/pdf_header_footer.html",
+                {
+                    "head": head,
+                    "content": content,
+                    "styles": styles,
+                    "html_id": html_id,
+                    "css": css,
+                },
+            )
+
+            # create temp file
+            fname = os.path.join(
+                "/tmp", "frappe-pdf-{0}.html".format(frappe.generate_hash())
+            )
+            with open(fname, "wb") as f:
+                f.write(html.encode("utf-8"))
+
+            # {"header-html": "/tmp/frappe-pdf-random.html"}
+            options[html_id] = fname
+        else:
+            if html_id == "header-html":
+                options["margin-top"] = "15mm"
+            elif html_id == "footer-html":
+                options["margin-bottom"] = "15mm"
+
+    return options
+
+
+def toggle_visible_pdf(soup):
+    for tag in soup.find_all(attrs={"class": "visible-pdf"}):
+        # remove visible-pdf class to unhide
+        tag.attrs["class"].remove("visible-pdf")
+
+    for tag in soup.find_all(attrs={"class": "hidden-pdf"}):
+        # remove tag from html
+        tag.extract()

@@ -58,15 +58,6 @@
                         We look forward to serve you soon.<br />
                         <br />
                     {% endif %}
-                    {% if doc.get("loan_application").get("status") == "Approved" and not doc.get("loan_margin_shortfall") %}
-                        Your loan account is now open!<br />
-                        <br />
-                        You may now withdraw funds as per your convenience.<br />
-                        <br />
-                        You can reach to us through 'Contact Us' on the app.
-                        We look forward to serve you soon.<br />
-                        <br />
-                    {% endif %}
                     {% if doc.get("loan_application").get("status") == "Rejected" and not doc.get("loan_margin_shortfall") %}
                         Sorry! Your loan application was turned down due to technical reasons.<br />
                         <br />

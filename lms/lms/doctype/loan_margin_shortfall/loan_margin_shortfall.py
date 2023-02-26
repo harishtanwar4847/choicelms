@@ -135,7 +135,7 @@ class LoanMarginShortfall(Document):
 
         if (
             margin_shortfall_action
-            and old_shortfall_action != margin_shortfall_action.name
+            # and old_shortfall_action != margin_shortfall_action.name
         ):
             if old_shortfall_action:
                 old_shortfall_action = frappe.get_doc(
@@ -541,6 +541,7 @@ def set_timer(loan_margin_shortfall_name):
 @frappe.whitelist()
 def mark_sell_triggered():
     try:
+        a = frappe.utils.now_datetime()
         all_shortfall = frappe.db.get_list(
             "Loan Margin Shortfall",
             filters={
@@ -562,7 +563,11 @@ def mark_sell_triggered():
                     method="lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.send_notification_for_sell_triggered",
                     single_shortfall=single_shortfall,
                 )
-
+        frappe.logger().info(str(frappe.utils.now_datetime()))
+        frappe.logger().info(
+            "Total time took - mark_sell_triggered "
+            + str((frappe.utils.now_datetime() - a).total_seconds())
+        )
     except Exception:
         frappe.log_error(
             message=frappe.get_traceback()

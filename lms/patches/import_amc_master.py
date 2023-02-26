@@ -2,7 +2,7 @@ import frappe
 
 
 def execute():
-    frappe.reload_doc("Lms", "Doctype", "AMC Master")
+    frappe.reload_doc("Lms", "Doctype", "AMC Master", force=True)
 
     doc_exists = frappe.db.sql(
         "SELECT EXISTS(SELECT 1 FROM `tabAMC Master`) as OUTPUT;",

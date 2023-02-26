@@ -208,6 +208,10 @@ def esign(**kwargs):
                 "esign_log",
             )
 
+            before_esign_file_url = """<a href="{0}">{1}</a>""".format(
+                before_esign_file_url, before_esign_file_name
+            )
+
             application.add_comment(
                 text=before_esign_file_url,
                 comment_email=customer.user,
@@ -2145,12 +2149,12 @@ def loan_statement(**kwargs):
                 pdf_file = open(loan_statement_pdf_file_path, "wb")
                 df.index += 1
 
-                from frappe.utils.pdf import get_pdf
+                # from frappe.utils.pdf import get_pdf
 
                 if data.get("is_email"):
                     # password content for password protected pdf
                     pwd = user_kyc.pan_no[:4] + str(user_kyc.date_of_birth.year)
-                    pdf = get_pdf(
+                    pdf = lms.get_pdf(
                         agreement,
                         options={
                             "password": pwd,
@@ -2160,7 +2164,7 @@ def loan_statement(**kwargs):
                         },
                     )
                 else:
-                    pdf = get_pdf(
+                    pdf = lms.get_pdf(
                         agreement,
                         options={
                             "margin-right": "1mm",

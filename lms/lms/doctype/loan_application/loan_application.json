@@ -17,6 +17,7 @@
   "pledged_total_collateral_value_str",
   "loan_margin_shortfall",
   "remarks",
+  "sl_entries",
   "loan_application_column_break",
   "customer",
   "customer_name",
@@ -228,10 +229,16 @@
    "fieldtype": "Data",
    "label": "Remarks",
    "read_only": 1
+  },
+  {
+   "fieldname": "sl_entries",
+   "fieldtype": "Link",
+   "label": "SL Entries",
+   "options": "Sanction Letter and CIAL Log"
   }
  ],
  "links": [],
- "modified": "2022-12-14 15:53:15.303323",
+ "modified": "2023-02-07 18:32:20.740022",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

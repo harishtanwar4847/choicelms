@@ -22,6 +22,7 @@
   "scheme_type",
   "section_break_10",
   "customer_esigned_document",
+  "sl_entries",
   "column_break_12",
   "lender_esigned_document",
   "amended_from",
@@ -179,11 +180,17 @@
    "fieldtype": "Currency",
    "label": "Actual Drawing Power",
    "read_only": 1
+  },
+  {
+   "fieldname": "sl_entries",
+   "fieldtype": "Link",
+   "label": "SL Entries",
+   "options": "Sanction Letter and CIAL Log"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-10-12 16:54:50.933606",
+ "modified": "2023-02-07 21:38:24.812268",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Top up Application",

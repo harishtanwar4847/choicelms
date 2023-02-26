@@ -3,7 +3,7 @@ import frappe
 
 def execute():
     spark_push_notification = frappe.reload_doc(
-        "Lms", "DocType", "Spark Push Notification"
+        "Lms", "DocType", "Spark Push Notification", force=True
     )
 
     doc_exists = frappe.db.sql(

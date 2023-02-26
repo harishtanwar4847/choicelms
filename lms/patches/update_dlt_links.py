@@ -2,7 +2,7 @@ import frappe
 
 
 def execute():
-    frappe.reload_doc("Lms", "DocType", "LAS Settings")
+    frappe.reload_doc("Lms", "DocType", "LAS Settings", force=True)
     # for prod
     if frappe.utils.get_url() == "https://spark.loans":
         app_Login_Dashboard = "https://bit.ly/3TtaKXr"
