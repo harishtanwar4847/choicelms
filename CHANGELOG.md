@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.13.5] - 2023-02-27
+
+## Added
+
+- [SPRK-144 - if last name or middle name field is empty then 1st name to be considered as full for name matching with penny retrieved name](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/commit/ecb49130440c7872ccdece26041c513b2f14558a)
+
 ## [v5.13.4] - 2023-02-22
 
 ## Fixed
