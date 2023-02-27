@@ -54,7 +54,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.13.4"
+__version__ = "5.13.5"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -2132,6 +2132,10 @@ def name_matching(user_kyc, bank_acc_full_name):
         ) and (
             user_kyc.lname
             and user_kyc.lname.replace(" ", "").lower() in bank_acc_full_name
+        ):
+            return True
+        elif (user_kyc.fname and not user_kyc.mname and not user_kyc.lname) and (
+            user_kyc.fname.replace(" ", "").lower() in bank_acc_full_name
         ):
             return True
         else:
