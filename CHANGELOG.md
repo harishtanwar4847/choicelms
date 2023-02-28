@@ -6,7 +6,7 @@
 
 ## Added
 
-- [SPRK-60/SPRK-107 Pledge Application Creation/Workflow state change issue]()
+- [SPRK-60/SPRK-107 Pledge Application Creation/Workflow state change issue](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/commit/8a00079de52bfd903d5641398a58f32c34728369)
 
 ## [v5.13.5] - 2023-02-27
 
