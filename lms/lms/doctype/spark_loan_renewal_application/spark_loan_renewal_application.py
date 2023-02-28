@@ -46,6 +46,12 @@ class SparkLoanRenewalApplication(Document):
             ),
             title="custom_base_interest",
         )
+        if self.custom_base_interest:
+            self.base_interest = self.custom_base_interest
+
+        if self.custom_rebate_interest:
+            self.rebate_interest = self.custom_rebate_interest
+
         if self.custom_base_interest <= float(
             0
         ) or self.custom_rebate_interest <= float(0):

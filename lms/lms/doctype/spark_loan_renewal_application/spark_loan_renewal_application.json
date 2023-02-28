@@ -26,8 +26,8 @@
   "customer_name",
   "drawing_power",
   "is_expired",
-  "custom_base_interest",
-  "custom_rebate_interest",
+  "base_interest",
+  "rebate_interest",
   "section_break_15",
   "customer_esigned_document",
   "column_break_17",
@@ -37,9 +37,9 @@
   "action_status",
   "interest_configuration_section",
   "is_default",
-  "base_interest",
+  "custom_base_interest",
   "column_break_32",
-  "rebate_interest",
+  "custom_rebate_interest",
   "section_break_26",
   "remarks",
   "amended_from"
@@ -255,8 +255,7 @@
   {
    "fieldname": "base_interest",
    "fieldtype": "Float",
-   "label": "Base Interest",
-   "read_only_depends_on": "eval:doc.status!=\"Loan Renewal executed\""
+   "label": "Base Interest"
   },
   {
    "fieldname": "column_break_32",
@@ -266,8 +265,7 @@
    "default": "0",
    "fieldname": "rebate_interest",
    "fieldtype": "Float",
-   "label": "Rebate Interest",
-   "read_only_depends_on": "eval:doc.status!=\"Loan Renewal executed\""
+   "label": "Rebate Interest"
   },
   {
    "fieldname": "custom_base_interest",
@@ -282,7 +280,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-27 14:49:17.804076",
+ "modified": "2023-02-28 15:25:06.055278",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Loan Renewal Application",

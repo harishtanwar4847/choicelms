@@ -256,7 +256,8 @@
    "default": "0",
    "fieldname": "is_default",
    "fieldtype": "Check",
-   "label": "Is Default"
+   "label": "Is Default",
+   "read_only_depends_on": "eval:doc.is_default == 1 || doc.status!=\"Pledge executed\" || doc.application_type == \"Increase Loan\";"
   },
   {
    "fieldname": "column_break_35",
@@ -288,13 +289,13 @@
    "fieldname": "custom_base_interest",
    "fieldtype": "Float",
    "label": "Custom Base Interest (Per Month)",
-   "read_only_depends_on": "eval:doc.is_default == 1;"
+   "read_only_depends_on": "eval:doc.is_default == 1 || doc.status!=\"Pledge executed\" || doc.application_type == \"Increase Loan\";"
   },
   {
    "fieldname": "custom_rebate_interest",
    "fieldtype": "Float",
    "label": "Custom Rebate Interest",
-   "read_only_depends_on": "eval:doc.is_default == 1;"
+   "read_only_depends_on": "eval:doc.is_default == 1 || doc.status!=\"Pledge executed\" || doc.application_type == \"Increase Loan\";"
   },
   {
    "fieldname": "column_break_34",
@@ -308,7 +309,7 @@
   }
  ],
  "links": [],
- "modified": "2023-02-07 18:32:20.740022",
+ "modified": "2023-02-28 16:41:13.234680",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",

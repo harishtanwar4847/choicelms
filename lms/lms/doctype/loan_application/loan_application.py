@@ -641,6 +641,10 @@ class LoanApplication(Document):
             self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
             # signed_doc = lms.pdf_editor()
         elif self.status == "Pledge accepted by Lender":
+            if self.base_interest <= 0 or self.rebate_interest <= 0:
+                frappe.throw(
+                    "Base interest and Rebate Interest should be greater than 0"
+                )
             if self.pledge_status == "Failure":
                 frappe.throw("Sorry! Pledge for this Loan Application is failed.")
 
