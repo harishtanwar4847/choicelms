@@ -40,8 +40,11 @@ class SparkLoanRenewalApplication(Document):
         if self.status == "Rejected" and not self.remarks:
             frappe.throw(_("Remarks field cannot be empty."))
 
-        if self.custom_base_interest <= 0 or self.custom_rebate_interest <= 0:
-            frappe.throw("Base interest and Rebate Interest should be greater than 0")
+        if self.custom_base_interest or self.custom_rebate_interest:
+            if self.custom_base_interest <= 0 or self.custom_rebate_interest <= 0:
+                frappe.throw(
+                    "Base interest and Rebate Interest should be greater than 0"
+                )
 
         if (
             self.status == "Loan Renewal accepted by Lender"
