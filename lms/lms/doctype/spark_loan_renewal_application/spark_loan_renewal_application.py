@@ -217,6 +217,8 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                             doctype="Spark Loan Renewal Application",
                             loan=loan.name,
                             lender=loan.lender,
+                            custom_base_interest=loan.base_interest,
+                            custom_rebate_interest=loan.rebate_interest,
                             old_kyc_name=customer.choice_kyc,
                             total_collateral_value=loan.total_collateral_value,
                             sanctioned_limit=loan.sanctioned_limit,
