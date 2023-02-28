@@ -51,6 +51,29 @@ frappe.ui.form.on("Unpledge Application Unpledged Item", {
   },
 });
 
+frappe.ui.form.on("Unpledge Application", {
+  loan: function (frm) {
+    var is_true = frappe.user_roles.find((role) => role === "Loan Customer");
+    if ((!is_true || frappe.session.user == "Administrator") && frm.doc.loan) {
+      // if (frappe.session.user == frm.doc.owner) {
+      frm.clear_table("items");
+      frm.refresh_field("items");
+      frappe.model.with_doc("Loan", frm.doc.loan, function () {
+        var tabletransfer = frappe.model.get_doc("Loan", frm.doc.loan);
+        $.each(tabletransfer.items, function (index, row) {
+          if (row.pledged_quantity > 0) {
+            var d = frm.add_child("items");
+            d.isin = row.isin;
+            d.quantity = row.pledged_quantity;
+            d.folio = row.folio;
+            frm.refresh_field("items");
+          }
+        });
+      });
+    }
+  },
+});
+
 function show_fetch_items_button(frm) {
   if (frm.doc.unpledge_items.length == 0) {
     frm.add_custom_button(__("Fetch Unpledge Items"), function () {

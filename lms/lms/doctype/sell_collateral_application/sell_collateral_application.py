@@ -24,6 +24,7 @@ class SellCollateralApplication(Document):
         return frappe.get_doc("Loan", self.loan)
 
     def before_insert(self):
+        print("lms")
         self.process_items()
 
     def before_save(self):
@@ -41,6 +42,7 @@ class SellCollateralApplication(Document):
             self.notify_customer(fcm_notification=fcm_notification, message=message)
 
     def process_items(self):
+        print("nahco")
         self.total_collateral_value = 0
         loan = self.get_loan()
         self.actual_drawing_power = loan.actual_drawing_power

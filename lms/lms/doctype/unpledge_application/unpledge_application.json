@@ -34,8 +34,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Loan Account No.",
-   "options": "Loan",
-   "reqd": 1
+   "options": "Loan"
   },
   {
    "fieldname": "items",
@@ -55,8 +54,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Lender",
-   "options": "Lender",
-   "reqd": 1
+   "options": "Lender"
   },
   {
    "fieldname": "column_break_1",
@@ -80,8 +78,7 @@
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
-   "options": "Loan Customer",
-   "reqd": 1
+   "options": "Loan Customer"
   },
   {
    "fieldname": "amended_from",
@@ -128,8 +125,7 @@
    "fieldtype": "Select",
    "label": "Instrument Type",
    "options": "Shares\nMutual Fund",
-   "read_only": 1,
-   "reqd": 1
+   "read_only": 1
   },
   {
    "default": "0",
@@ -187,7 +183,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-10-11 15:07:35.653231",
+ "modified": "2023-02-28 13:46:41.764306",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Unpledge Application",
