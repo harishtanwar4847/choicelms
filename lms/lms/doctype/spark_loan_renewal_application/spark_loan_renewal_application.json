@@ -271,18 +271,18 @@
   },
   {
    "fieldname": "custom_base_interest",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Custom Base Interest"
   },
   {
    "fieldname": "custom_rebate_interest",
-   "fieldtype": "Data",
+   "fieldtype": "Float",
    "label": "Custom Rebate Interest"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-17 17:15:30.269004",
+ "modified": "2023-02-27 14:49:17.804076",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Loan Renewal Application",

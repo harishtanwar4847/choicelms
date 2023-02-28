@@ -46,6 +46,7 @@
   "custom_roi_section",
   "custom_base_interest",
   "wef_date",
+  "wef_change",
   "is_default",
   "column_break_40",
   "custom_rebate_interest",
@@ -335,11 +336,17 @@
    "fieldtype": "Float",
    "label": "Old Interest",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "wef_change",
+   "fieldtype": "Check",
+   "label": "w.e.f Change"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-10 11:34:07.148926",
+ "modified": "2023-02-27 12:41:49.337089",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan",
