@@ -122,6 +122,8 @@
   "igst_on_lien_charges",
   "igst_on_invocation_charges",
   "igst_on_revocation_charges",
+  "loan_renewal_penal_interest_section",
+  "renewal_penal_interest",
   "charges_sharing_details_section",
   "lender_processing_fees_sharing_type",
   "stamp_duty_sharing_type",
@@ -145,7 +147,6 @@
   "is_html",
   "lender_header",
   "lender_footer",
-  "sanction_letter",
   "image_section_section",
   "logo_file_1",
   "website_section_section",
@@ -951,18 +952,25 @@
    "fieldname": "is_html",
    "fieldtype": "Check",
    "label": "Is html"
+  },
+  {
+   "fieldname": "loan_renewal_penal_interest_section",
+   "fieldtype": "Section Break",
+   "label": "Loan Renewal Penal Interest Section"
+  },
+  {
+   "fieldname": "renewal_penal_interest",
+   "fieldtype": "Float",
+   "label": "Renewal Penal Interest"
   }
  ],
  "links": [],
- "modified": "2023-02-04 18:29:29.209907",
-  "fieldname": "sanction_letter",
-  "fieldtype": "Attach",
-  "label": "Sanction Letter",
-  "modified_by": "Administrator",
-  "module": "Lms",
-  "name": "Lender",
-  "owner": "Administrator",
-  "permissions": [
+ "modified": "2023-02-28 13:12:46.952104",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Lender",
+ "owner": "Administrator",
+ "permissions": [
   {
    "create": 1,
    "delete": 1,
