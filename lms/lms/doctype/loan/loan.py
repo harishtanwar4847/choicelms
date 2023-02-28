@@ -1921,10 +1921,56 @@ class Loan(Document):
                     self.custom_base_interest != self.base_interest
                     or self.custom_rebate_interest != self.custom_rebate_interest
                 ):
-                    self.old_interest = self.base_interest
-                    self.base_interest = self.custom_base_interest
-                    self.rebate_interest = self.custom_rebate_interest
-                    self.notify_customer_roi()
+                    loan_app = frappe.get_all(
+                        "Loan Application",
+                        filters={
+                            "status": [
+                                "IN",
+                                [
+                                    "Waiting to be pledged",
+                                    "Executing pledge",
+                                    "Pledge executed",
+                                    "Pledge accepted by Lender",
+                                    "Esign Done",
+                                    "Pledge Failure",
+                                    "Ready for Approval",
+                                ],
+                            ],
+                            "loan": self.name,
+                        },
+                        fields=["name"],
+                    )
+
+                    top_up = frappe.get_all(
+                        "Top up Application",
+                        filters={
+                            "status": ["IN", ["Pending", "Esign Done"]],
+                            "loan": self.name,
+                        },
+                        fields=["name"],
+                    )
+
+                    if loan_app:
+                        frappe.throw(
+                            (
+                                "Please Approve or Reject Loan Application {}".format(
+                                    loan_app[0].name
+                                )
+                            )
+                        )
+                    elif top_up:
+                        frappe.throw(
+                            (
+                                "Please Approve or Reject Loan Application {}".format(
+                                    top_up[0].name
+                                )
+                            )
+                        )
+                    else:
+                        self.old_interest = self.base_interest
+                        self.base_interest = self.custom_base_interest
+                        self.rebate_interest = self.custom_rebate_interest
+                        self.notify_customer_roi()
 
     def save_loan_sanction_history(self, agreement_file, event="New loan"):
         loan_sanction_history = frappe.get_doc(
