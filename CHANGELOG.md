@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.13.6] - 2023-02-28
+
+## Added
+
+- [SPRK-60/SPRK-107 Pledge Application Creation/Workflow state change issue]()
+
 ## [v5.13.5] - 2023-02-27
 
 ## Added

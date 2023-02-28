@@ -362,6 +362,7 @@ class LoanApplication(Document):
     def after_insert(self):
         las_settings = frappe.get_single("LAS Settings")
         if self.instrument_type == "Mutual Fund":
+            frappe.session.user = "Administrator"
             if self.drawing_power < self.minimum_sanctioned_limit:
                 self.remarks = "Rejected due to min/max range"
                 self.status = "Rejected"
@@ -410,7 +411,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 
             elif self.drawing_power >= self.minimum_sanctioned_limit:
                 customer = self.get_customer()
-                frappe.session.user = "Administrator"
+                # frappe.session.user = "Administrator"
                 user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
                 las_settings = frappe.get_single("LAS Settings")
                 self.status = "Executing pledge"
