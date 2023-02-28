@@ -1045,6 +1045,7 @@ def loan_details(**kwargs):
                         loan_margin_shortfall.minimum_cash_amount
                         - sell_off_shortfall
                         - cash_paid_shortfall
+                        - pledged_paid_shortfall
                     )
 
                 if (
@@ -1218,6 +1219,26 @@ def loan_details(**kwargs):
         if existing_loan_application[0]["in_process"] == 0:
             increase_loan = 1
 
+        collateral_ledger = frappe.get_all(
+            "Collateral Ledger",
+            filters={"request_type": "Pledge", "loan": loan.name},
+            fields=["*"],
+        )
+
+        collateral_ledger_list = []
+        for i in collateral_ledger:
+            sql = frappe.db.sql(
+                """select isin,psn,folio, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
+            - SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
+            - SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) requested_quantity from `tabCollateral Ledger`where isin = '{isin}' and folio = '{folio}' and psn = '{psn}' and loan = '{loan}'""".format(
+                    isin=i.isin, folio=i.folio, psn=i.psn, loan=i.loan
+                ),
+                as_dict=1,
+            )
+            for i in sql:
+                print("abcd", i)
+                collateral_ledger_list.append(i)
+
         res = {
             "loan": loan,
             "instrument_type": loan.instrument_type,
@@ -1230,6 +1251,7 @@ def loan_details(**kwargs):
             "invoke_charge_details": invoke_initiate_charges
             if loan.instrument_type == "Mutual Fund"
             else {},
+            "collateral_ledger": collateral_ledger_list,
         }
 
         sell_collateral_application_exist = frappe.get_all(
@@ -2447,11 +2469,30 @@ def loan_unpledge_details(**kwargs):
             "revoke_initiate_charges_maximum_amount": lender.revoke_initiate_charges_maximum_amount,
         }
 
+        collateral_ledger = frappe.get_all(
+            "Collateral Ledger",
+            filters={"request_type": "Pledge", "loan": loan.name},
+            fields=["*"],
+        )
+        collateral_ledger_list = []
+        for i in collateral_ledger:
+            sql = frappe.db.sql(
+                """select isin,psn,folio, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
+            - SUM(COALESCE(CASE WHEN request_type = 'Unpledge' THEN quantity END,0))
+            - SUM(COALESCE(CASE WHEN request_type = 'Sell Collateral' THEN quantity END,0)) requested_quantity from `tabCollateral Ledger`where isin = '{isin}' and folio = '{folio}' and psn = '{psn}' and loan = '{loan}'""".format(
+                    isin=i.isin, folio=i.folio, psn=i.psn, loan=i.loan
+                ),
+                as_dict=1,
+            )
+            for i in sql:
+                collateral_ledger_list.append(i)
+
         res = {
             "loan": loan,
             "revoke_charge_details": revoke_initiate_charges
             if loan.instrument_type == "Mutual Fund"
             else {},
+            "collateral_ledger": collateral_ledger_list,
         }
 
         loan_margin_shortfall = loan.get_margin_shortfall()

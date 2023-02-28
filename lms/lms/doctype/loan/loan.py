@@ -610,17 +610,17 @@ class Loan(Document):
             ): i
             for i in collateral_list
         }
-        print("collateral_list", collateral_list)
-        print("collateral_list_map", collateral_list_map)
         # updating existing and
         # setting check flag
+        print("collateral_list", collateral_list)
+        print("collateral_list_map", collateral_list_map)
         for i in self.items:
             isin_folio_combo = "{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
             )
-            print("isincombo", isin_folio_combo)
             curr = collateral_list_map.get(isin_folio_combo)
+            print("isin_folio_combo", isin_folio_combo)
             print("curr", curr)
             # curr = collateral_list_map.get(i.isin)
             # print(check, i.price, curr.price, not check or i.price != curr.price)
@@ -628,41 +628,10 @@ class Loan(Document):
                 check = True
                 self.update_collateral_ledger(curr.price, curr.isin)
 
-            collateral_list = self.get_collateral_list()
-            collateral_list_map = {
-                "{}{}".format(i.isin, i.folio if i.folio else ""): i
-                for i in collateral_list
-            }
-            # updating existing and
-            # setting check flag
-            for i in self.items:
-                isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
-                curr = collateral_list_map.get(isin_folio_combo)
-                # curr = collateral_list_map.get(i.isin)
-                # print(check, i.price, curr.price, not check or i.price != curr.price)
-                if (not check or i.price != curr.price) and i.pledged_quantity > 0:
-                    check = True
-                    self.update_collateral_ledger(curr.price, curr.isin)
+            i.price = curr.price
+            i.pledged_quantity = curr.quantity
 
-                i.price = curr.price
-                i.pledged_quantity = curr.quantity
-
-                del collateral_list_map[isin_folio_combo]
-
-            # adding new items if any
-            for i in collateral_list_map.values():
-                loan_item = frappe.get_doc(
-                    {
-                        "doctype": "Loan Item",
-                        "isin": i.isin,
-                        "security_name": i.security_name,
-                        "security_category": i.security_category,
-                        "pledged_quantity": i.quantity,
-                        "price": i.price,
-                    }
-                )
-
-                self.append("items", loan_item)
+            del collateral_list_map[isin_folio_combo]
 
         # adding new items if any
         for i in collateral_list_map.values():
@@ -676,6 +645,7 @@ class Loan(Document):
                     "price": i.price,
                     "eligible_percentage": i.eligible_percentage,
                     "folio": i.folio,
+                    "psn": i.psn,
                 }
             )
             self.append("items", loan_item)

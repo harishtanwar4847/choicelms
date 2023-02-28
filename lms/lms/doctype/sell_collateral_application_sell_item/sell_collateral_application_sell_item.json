@@ -21,7 +21,9 @@
   "folio",
   "scheme_code",
   "invoke_validate_remarks",
-  "invoke_initiate_remarks"
+  "invoke_initiate_remarks",
+  "invoke_token",
+  "invoke_ref_no"
  ],
  "fields": [
   {
@@ -134,11 +136,21 @@
    "fieldname": "date_of_pledge",
    "fieldtype": "Data",
    "label": "Date of Pledge"
+  },
+  {
+   "fieldname": "invoke_token",
+   "fieldtype": "Data",
+   "label": "Invoke Token"
+  },
+  {
+   "fieldname": "invoke_ref_no",
+   "fieldtype": "Data",
+   "label": "Invoke Ref No"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-09-29 11:43:41.140066",
+ "modified": "2023-02-27 20:33:04.093610",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application Sell Item",
