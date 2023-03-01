@@ -467,6 +467,7 @@ class Loan(Document):
             self.check_for_shortfall(on_approval=True)
 
     # def on_update(self):
+    #     self.notify_customer_roi()
     #     frappe.enqueue_doc("Loan", self.name, method="check_for_shortfall")
 
     def get_transaction_summary(self):
@@ -1884,8 +1885,8 @@ class Loan(Document):
         self.sanctioned_limit_str = lms.amount_formatter(self.sanctioned_limit)
         self.balance_str = lms.amount_formatter(self.balance)
 
-        if self.custom_base_interest <= 0 or self.custom_rebate_interest <= 0:
-            frappe.throw("Base interest and Rebate Interest should be greater than 0")
+        # if self.custom_base_interest <= 0 or self.custom_rebate_interest <= 0:
+        #     frappe.throw("Base interest and Rebate Interest should be greater than 0")
 
         if type(self.wef_date) == str:
             exp = datetime.strptime(self.wef_date, "%Y-%m-%d").date()
@@ -1967,6 +1968,8 @@ class Loan(Document):
                             )
                         )
                     else:
+                        old_interest_rate = self.old_interest
+                        print("custom", self.old_interest)
                         self.old_interest = self.base_interest
                         self.base_interest = self.custom_base_interest
                         self.rebate_interest = self.custom_rebate_interest
@@ -2412,6 +2415,8 @@ class Loan(Document):
         )[0]["amount"]
 
     def notify_customer_roi(self):
+        # print("old_interest_rate",old_interest_rate)
+        print("self.custom_base_interest", self.custom_base_interest)
         customer = self.get_customer()
         user_kyc = customer.get_kyc()
         lender = self.get_lender()

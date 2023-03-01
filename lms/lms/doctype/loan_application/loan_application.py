@@ -641,7 +641,13 @@ class LoanApplication(Document):
             self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
             # signed_doc = lms.pdf_editor()
         elif self.status == "Pledge accepted by Lender":
-            if self.base_interest <= 0 or self.rebate_interest <= 0:
+            self.sanction_letter()
+            if (
+                self.base_interest <= 0
+                and self.application_type == "New Loan"
+                or self.rebate_interest <= 0
+                and self.application_type == "New Loan"
+            ):
                 frappe.throw(
                     "Base interest and Rebate Interest should be greater than 0"
                 )
@@ -748,7 +754,6 @@ class LoanApplication(Document):
                     )
 
         if self.status == "Pledge executed":
-            self.sanction_letter()
             total_collateral_value = 0
             for i in self.items:
                 if i.pledge_status == "Success" or i.pledge_status == "":
