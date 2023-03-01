@@ -1890,7 +1890,6 @@ class LoanApplication(Document):
             item.idx = i
 
     def sanction_letter(self, check=None):
-        print("defg")
         customer = self.get_customer()
         user = frappe.get_doc("User", customer.user)
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)

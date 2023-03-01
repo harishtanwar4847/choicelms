@@ -2464,14 +2464,17 @@ class Loan(Document):
         )
         doc["logo_file_path_1"] = logo_file_path_1.file_url if logo_file_path_1 else ""
         doc["logo_file_path_2"] = logo_file_path_2.file_url if logo_file_path_2 else ""
-        agreement = frappe.render_template(
-            interest_letter_template.get_content(), {"doc": doc}
-        )
+
         interest_letter_pdf_file = "{}-{}-interest_letter.pdf".format(
-            self.name, frappe.utils.now_datetime().date()
-        )
+            self.name, frappe.utils.now_datetime().strftime("%Y-%m-%d %H:%M:%S")
+        ).replace(" ", "-")
+
         interest_letter_pdf_file_path = frappe.utils.get_files_path(
             interest_letter_pdf_file
+        )
+
+        agreement = frappe.render_template(
+            interest_letter_template.get_content(), {"doc": doc}
         )
 
         pdf_file = open(interest_letter_pdf_file_path, "wb")
@@ -2486,7 +2489,15 @@ class Loan(Document):
                 "page-size": "A4",
             },
         )
+        pdf_file.write(pdf)
+        pdf_file.close()
+
+        interest_letter_pdf = frappe.utils.get_url(
+            "files/{}".format(interest_letter_pdf_file)
+        )
+
         attachments = [{"fname": interest_letter_pdf_file, "fcontent": pdf}]
+
         interest_change_notification = frappe.db.sql(
             "select message from `tabNotification` where name='Change Of Interest';"
         )[0][0]
@@ -2509,6 +2520,63 @@ class Loan(Document):
             "wef_date",
             datetime.strptime(str(self.wef_date), "%Y-%m-%d").strftime("%d/%m/%Y"),
         )
+
+        fcm_notification = frappe.get_doc(
+            "Spark Push Notification", "Change of Interest", fields=["*"]
+        )
+        fcm_message = fcm_notification.message
+
+        sanction_letter_doc = frappe.get_all(
+            "Sanction Letter and CIAL Log",
+            filters={"loan": self.name},
+            fields=["*"],
+        )
+        if sanction_letter_doc:
+            interest_letter = frappe.get_doc(
+                {
+                    "doctype": "Interest Letter",
+                    "parent": sanction_letter_doc[0].name,
+                    "parentfield": "interest_letter_table",
+                    "parenttype": "Sanction Letter and CIAL Log",
+                    "interest_letter": interest_letter_pdf,
+                    "date_of_acceptance": datetime.strptime(
+                        str(self.wef_date), "%Y-%m-%d"
+                    ).strftime("%d/%m/%Y"),
+                    "base_interest": self.custom_base_interest,
+                    "rebate_interest": self.custom_rebate_interest,
+                }
+            ).insert(ignore_permissions=True)
+            frappe.db.commit()
+
+        else:
+            sanction_letter_doc = frappe.get_doc(
+                {"doctype": "Sanction Letter and CIAL Log", "loan": self.name}
+            ).insert(ignore_permissions=True)
+            frappe.db.commit()
+
+            interest_letter = frappe.get_doc(
+                {
+                    "doctype": "Interest Letter",
+                    "parent": sanction_letter_doc.name,
+                    "parentfield": "interest_letter_table",
+                    "parenttype": "Sanction Letter and CIAL Log",
+                    "interest_letter": attachments,
+                    "date_of_acceptance": datetime.strptime(
+                        str(self.wef_date), "%Y-%m-%d"
+                    ).strftime("%d/%m/%Y"),
+                    "base_interest": self.custom_base_interest,
+                    "rebate_interest": self.custom_rebate_interest,
+                }
+            ).insert(ignore_permissions=True)
+            frappe.db.commit()
+
+        if fcm_notification:
+            lms.send_spark_push_notification(
+                fcm_notification=fcm_notification,
+                message=fcm_message,
+                loan=self.name,
+                customer=self.get_customer(),
+            )
 
         frappe.enqueue(
             method=frappe.sendmail,
