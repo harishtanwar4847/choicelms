@@ -167,7 +167,8 @@ scheduler_events = {
     # "all": ["lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered"],
     "cron": {
         "*/5 * * * *": [
-            "lms.lms.doctype.loan_application.loan_application.process_pledge"
+            "lms.lms.doctype.loan_application.loan_application.process_pledge",
+            "lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered",
         ],  # At every 5 minutes
         "30 17,5 * * *": [
             "lms.lms.doctype.loan_transaction.loan_transaction.reject_blank_transaction_and_settlement_recon_api"
@@ -187,9 +188,9 @@ scheduler_events = {
         "0 10 * * *": [
             "lms.lms.doctype.security_price.security_price.update_all_schemeNav"
         ],  # At 08:30 AM daily
-        "* * * * *": [
-            "lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered"
-        ],  # At every minute
+        # "* * * * *": [
+        #     "lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered"
+        # ],  # At every minute
         "30 23 * * *": ["lms.system_report_enqueue"],  # At 11:30 PM daily
     },
 }
