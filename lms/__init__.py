@@ -1233,6 +1233,8 @@ def rzp_payment_webhook_callback(**kwargs):
                         data=data,
                         job_name="Payment Webhook",
                     )
+                else:
+                    create_log({"authorized_log": data}, "rzp_authorized_log")
             if not rzp_user:
                 frappe.log_error(
                     message=frappe.get_traceback()
@@ -1285,8 +1287,8 @@ def update_rzp_payment_transaction(data):
             )
             older_razorpay_event = loan_transaction.razorpay_event
             # Assign RZP event to loan transaction
-            if data["event"] == "payment.authorized":
-                razorpay_event = "Authorized"
+            # if data["event"] == "payment.authorized":
+            #     razorpay_event = "Authorized"
             if data["event"] == "payment.captured":
                 razorpay_event = "Captured"
             if data["event"] == "payment.failed":
@@ -1399,7 +1401,7 @@ def update_rzp_payment_transaction(data):
                 loan_transaction.on_submit()
 
             # Send notification depended on events
-            if data["event"] == "payment.authorized":
+            if data["event"] == "payment.captured":
                 # if data["event"] == "payment.authorized" or (loan_transaction.razorpay_event == "Captured" and data["event"] != "payment.authorized"):
                 # send notification and change loan margin shortfall status to request pending
                 if loan_transaction.loan_margin_shortfall:
