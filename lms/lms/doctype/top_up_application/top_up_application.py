@@ -160,10 +160,12 @@ class TopupApplication(Document):
             frappe.throw("Top up not available")
         if self.top_up_amount <= 0:
             frappe.throw("Top up can not be approved with Amount Rs. 0")
-        if self.status == "Approved" and "Loan Customer" in user_role:
-            current = frappe.utils.now_datetime()
-            expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
-            self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
+        # if self.status == "Approved" and "Loan Customer" in user_role:
+        #     print("akash")
+        #     current = frappe.utils.now_datetime()
+        #     expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
+        #     self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
+        #     print("self.expiry_date",self.expiry_date)
 
     def get_lender(self):
         return frappe.get_doc("Lender", self.lender)
@@ -532,6 +534,10 @@ class TopupApplication(Document):
                 frappe.throw("Top up not available")
             if self.top_up_amount <= 0:
                 frappe.throw("Top up can not be approved with Amount Rs. 0")
+        if self.status == "Approved":
+            current = frappe.utils.now_datetime()
+            expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
+            self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
 
 
 def only_pdf_upload(doc, method):

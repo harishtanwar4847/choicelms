@@ -296,9 +296,10 @@ class LoanApplication(Document):
             frappe.db.commit()
 
             for i in self.items:
-                i.date_of_pledge = frappe.utils.now_datetime().strftime("%d-%m-%Y")
+                # i.date_of_pledge = frappe.utils.now_datetime().strftime("%d-%m-%Y")
                 collateral_ledger_data = {
                     "prf": i.prf_number,
+                    "date_of_pledge": i.date_of_pledge,
                     # "expiry": self.expiry_date,
                     "pledgor_boid": self.pledgor_boid,
                     "pledgee_boid": self.pledgee_boid,
@@ -622,6 +623,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 current = frappe.utils.now_datetime()
                 expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
                 self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
+                for i in self.items:
+                    i.date_of_pledge = frappe.utils.now_datetime().strftime("%d-%m-%Y")
 
             customer = self.get_customer()
             if self.instrument_type == "Mutual Fund" and not customer.mycams_email_id:
@@ -732,7 +735,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             total_collateral_value = 0
 
             for i in self.items:
-                i.date_of_pledge = frappe.utils.now_datetime().strftime("%d-%m-%Y")
+                # i.date_of_pledge = frappe.utils.now_datetime().strftime("%d-%m-%Y")
                 if i.pledge_status == "Success" or i.pledge_status == "":
                     if (
                         i.lender_approval_status == "Approved"
@@ -857,7 +860,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             approved_isin_list = []
             rejected_isin_list = []
             for i in self.items:
-                i.date_of_pledge = frappe.utils.now_datetime().strftime("%d-%m-%Y")
+                # i.date_of_pledge = frappe.utils.now_datetime().strftime("%d-%m-%Y")
                 if i.lender_approval_status == "Approved":
                     approved_isin_list.append(i.isin)
                 elif i.lender_approval_status == "Rejected":

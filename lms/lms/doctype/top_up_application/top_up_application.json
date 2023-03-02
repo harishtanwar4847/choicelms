@@ -128,7 +128,7 @@
    "fieldname": "expiry_date",
    "fieldtype": "Date",
    "label": "Expiry Date",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "section_break_17",
@@ -183,7 +183,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-10-12 16:54:50.933606",
+ "modified": "2023-03-02 12:43:46.255776",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Top up Application",
