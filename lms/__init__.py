@@ -1148,6 +1148,10 @@ def log_api_error(mess=""):
         headers = {k: v for k, v in frappe.local.request.headers.items()}
         customer = frappe.get_all("Loan Customer", filters={"user": __user().name})
 
+        if request_parameters.get("cmd").split(".")[
+            -1
+        ] == "au_penny_drop" and request_parameters.get("personalized_cheque"):
+            request_parameters["personalized_cheque"] = ""
         if len(customer) == 0:
             message = "Request Parameters : {}\n\nHeaders : {}".format(
                 str(request_parameters), str(headers)
