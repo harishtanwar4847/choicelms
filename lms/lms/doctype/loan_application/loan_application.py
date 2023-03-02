@@ -855,7 +855,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     )
 
         if self.status == "Pledge executed":
-            self.sanction_letter()
             total_collateral_value = 0
 
             for i in self.items:
@@ -893,6 +892,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                             if drawing_power < self.maximum_sanctioned_limit
                             else self.maximum_sanctioned_limit
                         )
+            self.sanction_letter()
 
         # On loan application rejection mark lender approvel status as rejected in loan application items
         if self.status == "Rejected":
