@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.13.7] - 2023-03-03
+
+## Added
+
+- [SPRK-156 - Update Razorpay webhook function and increase background workers for cron jobs execution](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/573)
+
 ## [v5.13.6] - 2023-02-28
 
 ## Added
