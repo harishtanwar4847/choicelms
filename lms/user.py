@@ -4817,7 +4817,7 @@ def get_bank_details():
             log = {
                 "url": las_settings.choice_pan_api,
                 "headers": headers,
-                "request": params,
+                "request": str(params),
                 "response": data,
             }
             lms.create_log(log, "get_bank_details_log")
