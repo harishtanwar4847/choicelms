@@ -1225,8 +1225,7 @@ def rzp_payment_webhook_callback(**kwargs):
                     data
                     and len(data) > 0
                     and data["entity"] == "event"
-                    and data["event"]
-                    in ["payment.authorized", "payment.captured", "payment.failed"]
+                    and data["event"] in ["payment.captured", "payment.failed"]
                 ):
                     frappe.enqueue(
                         method="lms.update_rzp_payment_transaction",
