@@ -1227,11 +1227,12 @@ def rzp_payment_webhook_callback(**kwargs):
                     and data["entity"] == "event"
                     and data["event"] in ["payment.captured", "payment.failed"]
                 ):
-                    frappe.enqueue(
-                        method="lms.update_rzp_payment_transaction",
-                        data=data,
-                        job_name="Payment Webhook",
-                    )
+                    # frappe.enqueue(
+                    #     method="lms.update_rzp_payment_transaction",
+                    #     data=data,
+                    #     job_name="Payment Webhook",
+                    # )
+                    update_rzp_payment_transaction(data)
                 else:
                     create_log({"authorized_log": data}, "rzp_authorized_log")
             if not rzp_user:
