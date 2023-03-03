@@ -1151,6 +1151,11 @@ def log_api_error(mess=""):
         if request_parameters.get("cmd").split(".")[
             -1
         ] == "au_penny_drop" and request_parameters.get("personalized_cheque"):
+            personalized_cheque_log(
+                request_parameters.get("account_number"),
+                request_parameters.get("personalized_cheque"),
+                "jpeg",
+            )
             request_parameters["personalized_cheque"] = ""
         if len(customer) == 0:
             message = "Request Parameters : {}\n\nHeaders : {}".format(
@@ -2604,3 +2609,29 @@ def toggle_visible_pdf(soup):
     for tag in soup.find_all(attrs={"class": "hidden-pdf"}):
         # remove tag from html
         tag.extract()
+
+
+def personalized_cheque_log(name, image_, img_format):
+    try:
+
+        picture_file = "{}.{}".format(name, img_format).replace(" ", "-")
+
+        image_path = frappe.utils.get_files_path(picture_file)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+        ckyc_image_file_path = frappe.utils.get_files_path(picture_file)
+        image_decode = base64.decodestring(bytes(str(image_), encoding="utf8"))
+        image_file = open(ckyc_image_file_path, "wb").write(image_decode)
+
+        ckyc_image_file_url = frappe.utils.get_url(
+            "files/{}.{}".format(name, img_format).replace(" ", "-")
+        )
+        create_log({"url": ckyc_image_file_url}, "personalized_cheque_log")
+
+        return ckyc_image_file_url
+    except Exception:
+        frappe.log_error(
+            title="Personalized cheque Error",
+            message=frappe.get_traceback() + "\n\nUser:{}".format(frappe.session.user),
+        )
