@@ -45,7 +45,7 @@ def set_pin(**kwargs):
         customer = lms.__customer()
         if customer.set_pin == 0:
             customer.set_pin = 1
-            customer.insert(ignore_permissions=True)
+            customer.save(ignore_permissions=True)
             frappe.db.commit
 
         # mess = frappe._(

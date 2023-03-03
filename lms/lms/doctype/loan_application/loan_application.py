@@ -1622,292 +1622,299 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         if self.instrument_type == "Mutual Fund":
             msg_type = "lien"
         customer = self.get_customer()
-        doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
-        doc["loan_application"] = {
-            "status": self.status,
-            "pledge_status": self.pledge_status,
-            "current_total_collateral_value": self.total_collateral_value_str,
-            "requested_total_collateral_value": self.pledged_total_collateral_value_str,
-            "drawing_power": self.drawing_power_str,
-        }
-        doc["margin_shortfall"] = self.loan_margin_shortfall
-        email_subject = "Loan Application"
-        if self.instrument_type == "Mutual Fund":
-            email_subject = "MF Loan Application"
-        if (
-            self.status
-            in [
-                "Pledge Failure",
-                "Pledge accepted by Lender",
-                "Rejected",
-            ]
-            and not self.remarks
+        if (customer.offline_customer and customer.loan_open) or (
+            not customer.offline_customer
         ):
-            if self.loan and not self.loan_margin_shortfall:
-                frappe.enqueue_doc(
-                    "Notification",
-                    "Increase Loan Application",
-                    method="send",
-                    doc=doc,
-                )
-            else:
-                frappe.enqueue_doc(
-                    "Notification",
-                    email_subject,
-                    method="send",
-                    doc=doc,
-                )
-        elif self.status in ["Approved"]:
-            if self.loan and not self.loan_margin_shortfall:
-                loan_email_message = frappe.db.sql(
-                    "select message from `tabNotification` where name ='Increase Loan Application Approved';"
-                )[0][0]
-                loan_email_message = loan_email_message.replace(
-                    "fullname", doc.fullname
-                )
-                loan_email_message = loan_email_message.replace(
-                    "fullname", doc.fullname
-                )
-                loan_email_message = loan_email_message.replace(
-                    "logo_file",
-                    frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
-                )
-                loan_email_message = loan_email_message.replace(
-                    "fb_icon",
-                    frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
-                )
-                # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
-                loan_email_message = loan_email_message.replace(
-                    "inst_icon",
-                    frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
-                )
-                loan_email_message = loan_email_message.replace(
-                    "lin_icon",
-                    frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
-                )
-                attachments = ""
-                attachments = self.create_attachment()
-                frappe.enqueue(
-                    method=frappe.sendmail,
-                    recipients=[customer.user],
-                    sender=None,
-                    subject="Increase Loan Application",
-                    message=loan_email_message,
-                    attachments=attachments,
-                )
-
-            else:
-                loan_email_message = frappe.db.sql(
-                    "select message from `tabNotification` where name ='Loan Application Approved';"
-                )[0][0]
-                loan_email_message = loan_email_message.replace(
-                    "fullname", doc.fullname
-                )
-                loan_email_message = loan_email_message.replace(
-                    "fullname", doc.fullname
-                )
-                loan_email_message = loan_email_message.replace(
-                    "logo_file",
-                    frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
-                )
-                loan_email_message = loan_email_message.replace(
-                    "fb_icon",
-                    frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
-                )
-                # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
-                loan_email_message = loan_email_message.replace(
-                    "inst_icon",
-                    frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
-                )
-                loan_email_message = loan_email_message.replace(
-                    "lin_icon",
-                    frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
-                )
-                attachments = ""
-                if not self.loan_margin_shortfall:
+            doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
+            doc["loan_application"] = {
+                "status": self.status,
+                "pledge_status": self.pledge_status,
+                "current_total_collateral_value": self.total_collateral_value_str,
+                "requested_total_collateral_value": self.pledged_total_collateral_value_str,
+                "drawing_power": self.drawing_power_str,
+            }
+            doc["margin_shortfall"] = self.loan_margin_shortfall
+            email_subject = "Loan Application"
+            if self.instrument_type == "Mutual Fund":
+                email_subject = "MF Loan Application"
+            if (
+                self.status
+                in [
+                    "Pledge Failure",
+                    "Pledge accepted by Lender",
+                    "Rejected",
+                ]
+                and not self.remarks
+            ):
+                if self.loan and not self.loan_margin_shortfall:
+                    frappe.enqueue_doc(
+                        "Notification",
+                        "Increase Loan Application",
+                        method="send",
+                        doc=doc,
+                    )
+                else:
+                    frappe.enqueue_doc(
+                        "Notification",
+                        email_subject,
+                        method="send",
+                        doc=doc,
+                    )
+            elif self.status in ["Approved"]:
+                if self.loan and not self.loan_margin_shortfall:
+                    loan_email_message = frappe.db.sql(
+                        "select message from `tabNotification` where name ='Increase Loan Application Approved';"
+                    )[0][0]
+                    loan_email_message = loan_email_message.replace(
+                        "fullname", doc.fullname
+                    )
+                    loan_email_message = loan_email_message.replace(
+                        "fullname", doc.fullname
+                    )
+                    loan_email_message = loan_email_message.replace(
+                        "logo_file",
+                        frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
+                    )
+                    loan_email_message = loan_email_message.replace(
+                        "fb_icon",
+                        frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
+                    )
+                    # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
+                    loan_email_message = loan_email_message.replace(
+                        "inst_icon",
+                        frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
+                    )
+                    loan_email_message = loan_email_message.replace(
+                        "lin_icon",
+                        frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
+                    )
+                    attachments = ""
                     attachments = self.create_attachment()
-                frappe.enqueue(
-                    method=frappe.sendmail,
-                    recipients=[customer.user],
-                    sender=None,
-                    subject=email_subject,
-                    message=loan_email_message,
-                    attachments=attachments,
-                )
+                    frappe.enqueue(
+                        method=frappe.sendmail,
+                        recipients=[customer.user],
+                        sender=None,
+                        subject="Increase Loan Application",
+                        message=loan_email_message,
+                        attachments=attachments,
+                    )
 
-        msg = ""
-        loan = ""
-        fcm_notification = {}
-        fcm_message = ""
-        if doc.get("loan_application").get("status") == "Pledge Failure":
-            msg, fcm_title = (
-                (
-                    "Dear Customer,\nSorry! Your Increase loan application was turned down since the {} was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app -Spark Loans".format(
-                        msg_type
-                    ),
-                    "Increase loan application rejected",
-                )
-                if self.loan and not self.loan_margin_shortfall
-                else (
-                    "Dear Customer,\nSorry! Your loan application was turned down since the {} was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans".format(
-                        msg_type
-                    ),
-                    "Pledge rejected",
-                )
-            )
+                else:
+                    loan_email_message = frappe.db.sql(
+                        "select message from `tabNotification` where name ='Loan Application Approved';"
+                    )[0][0]
+                    loan_email_message = loan_email_message.replace(
+                        "fullname", doc.fullname
+                    )
+                    loan_email_message = loan_email_message.replace(
+                        "fullname", doc.fullname
+                    )
+                    loan_email_message = loan_email_message.replace(
+                        "logo_file",
+                        frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
+                    )
+                    loan_email_message = loan_email_message.replace(
+                        "fb_icon",
+                        frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
+                    )
+                    # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
+                    loan_email_message = loan_email_message.replace(
+                        "inst_icon",
+                        frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
+                    )
+                    loan_email_message = loan_email_message.replace(
+                        "lin_icon",
+                        frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
+                    )
+                    attachments = ""
+                    if not self.loan_margin_shortfall:
+                        attachments = self.create_attachment()
+                    frappe.enqueue(
+                        method=frappe.sendmail,
+                        recipients=[customer.user],
+                        sender=None,
+                        subject=email_subject,
+                        message=loan_email_message,
+                        attachments=attachments,
+                    )
 
-            if self.instrument_type == "Mutual Fund":
+            msg = ""
+            loan = ""
+            fcm_notification = {}
+            fcm_message = ""
+            if doc.get("loan_application").get("status") == "Pledge Failure":
                 msg, fcm_title = (
-                    "Dear Customer,\nSorry! Your loan application was turned down since the {} was not successful due to technical reasons. We regret the inconvenience caused. Please try again after a while, or reach out via the 'Contact Us' section of the app- {link} -Spark Loans".format(
-                        msg_type, link=las_settings.contact_us
-                    ),
-                    "Pledge rejected",
+                    (
+                        "Dear Customer,\nSorry! Your Increase loan application was turned down since the {} was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app -Spark Loans".format(
+                            msg_type
+                        ),
+                        "Increase loan application rejected",
+                    )
+                    if self.loan and not self.loan_margin_shortfall
+                    else (
+                        "Dear Customer,\nSorry! Your loan application was turned down since the {} was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans".format(
+                            msg_type
+                        ),
+                        "Pledge rejected",
+                    )
                 )
 
-            fcm_notification = frappe.get_doc(
-                "Spark Push Notification", fcm_title, fields=["*"]
-            )
-            fcm_message = fcm_notification.message.format(pledge="pledge")
-            if self.instrument_type == "Mututal Fund":
-                fcm_message = fcm_notification.message.format(pledge="lien")
-                fcm_notification = fcm_notification
-                if fcm_title == "Pledge rejected":  # can be refactored
-                    fcm_notification = fcm_notification.as_dict()
-                    fcm_notification["title"] = "Lien rejected"
+                if self.instrument_type == "Mutual Fund":
+                    msg, fcm_title = (
+                        "Dear Customer,\nSorry! Your loan application was turned down since the {} was not successful due to technical reasons. We regret the inconvenience caused. Please try again after a while, or reach out via the 'Contact Us' section of the app- {link} -Spark Loans".format(
+                            msg_type, link=las_settings.contact_us
+                        ),
+                        "Pledge rejected",
+                    )
 
-        elif (
-            doc.get("loan_application").get("status") == "Pledge accepted by Lender"
-            and not self.loan_margin_shortfall
-        ):
-            msg, fcm_title = (
-                (
-                    'Dear Customer,\nCongratulations! Your Increase loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans',
-                    "Increase loan application accepted",
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification", fcm_title, fields=["*"]
                 )
-                if self.loan and not self.loan_margin_shortfall
-                else (
-                    'Dear Customer,\nCongratulations! Your loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans',
-                    "Pledge accepted",
-                )
-            )
-            fcm_notification = frappe.get_doc(
-                "Spark Push Notification", fcm_title, fields=["*"]
-            )
-            if self.instrument_type == "Mutual Fund":
-                fcm_notification = fcm_notification
-                if fcm_title == "Pledge accepted":
-                    fcm_notification = fcm_notification.as_dict()
-                    fcm_notification["title"] = "Lien accepted"
+                fcm_message = fcm_notification.message.format(pledge="pledge")
+                if self.instrument_type == "Mututal Fund":
+                    fcm_message = fcm_notification.message.format(pledge="lien")
+                    fcm_notification = fcm_notification
+                    if fcm_title == "Pledge rejected":  # can be refactored
+                        fcm_notification = fcm_notification.as_dict()
+                        fcm_notification["title"] = "Lien rejected"
 
-        elif (
-            doc.get("loan_application").get("status") == "Approved"
-            and not self.loan_margin_shortfall
-        ):
-            msg, fcm_title = (
-                (
-                    "Dear Customer,\nCongratulations! Your loan limit has been successfully increased. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
-                    "Increase loan application approved",
+            elif (
+                doc.get("loan_application").get("status") == "Pledge accepted by Lender"
+                and not self.loan_margin_shortfall
+            ):
+                msg, fcm_title = (
+                    (
+                        'Dear Customer,\nCongratulations! Your Increase loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans',
+                        "Increase loan application accepted",
+                    )
+                    if self.loan and not self.loan_margin_shortfall
+                    else (
+                        'Dear Customer,\nCongratulations! Your loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans',
+                        "Pledge accepted",
+                    )
                 )
-                if self.loan and not self.loan_margin_shortfall
-                else (
-                    "Dear Customer,\nCongratulations! Your loan account is open. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
-                    "Loan approved",
-                )
-            )
-            fcm_notification = frappe.get_doc(
-                "Spark Push Notification", fcm_title, fields=["*"]
-            )
-
-        elif (
-            doc.get("loan_application").get("status") == "Rejected"
-            and not self.loan_margin_shortfall
-            and not self.remarks
-        ):
-            msg, fcm_title = (
-                (
-                    "Dear Customer,\nSorry! Your Increase loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans",
-                    "Increase loan application turned down",
-                )
-                if self.loan and not self.loan_margin_shortfall
-                else (
-                    "Dear Customer,\nSorry! Your loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans",
-                    "Loan rejected",
-                )
-            )
-            fcm_notification = frappe.get_doc(
-                "Spark Push Notification", fcm_title, fields=["*"]
-            )
-
-        elif (
-            doc.get("loan_application").get("status") == "Esign Done"
-            and self.lender_esigned_document == None
-            and not self.loan_margin_shortfall
-        ):
-            msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan approval. Thank you for your patience. - Spark Loans"
-
-            fcm_notification = frappe.get_doc(
-                "Spark Push Notification", "E-signing was successful", fields=["*"]
-            )
-
-        msg_type = "pledge"
-        if self.instrument_type == "Mutual Fund":
-            msg_type = "lien"
-        if (
-            (
-                (self.pledge_status == "Partial Success")
-                or (self.total_collateral_value < self.pledged_total_collateral_value)
-            )
-            and doc.get("loan_application").get("status") == "Pledge accepted by Lender"
-            and not self.loan_margin_shortfall
-        ):
-            msg = "Dear Customer,\nCongratulations! Your {} request was successfully considered and was partially accepted for Rs. {} due to technical reasons. You can find the details on the app dashboard. Please e-sign the loan agreement to avail loan instantly. Proceed now:{link} -Spark Loans".format(
-                msg_type,
-                self.total_collateral_value_str,
-                link=las_settings.app_login_dashboard,
-            )
-            fcm_notification = frappe.get_doc(
-                "Spark Push Notification",
-                "Increase loan application partially accepted"
-                if self.loan
-                else "Pledge partially accepted",
-                fields=["*"],
-            )
-            if fcm_notification.title == "Pledge partially accepted":
-                fcm_message = fcm_notification.message.format(
-                    pledge="pledge",
-                    total_collateral_value_str=self.total_collateral_value_str,
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification", fcm_title, fields=["*"]
                 )
                 if self.instrument_type == "Mutual Fund":
-                    fcm_message = fcm_notification.message.format(
-                        pledge="lien",
-                        total_collateral_value_str=self.total_collateral_value_str,
+                    fcm_notification = fcm_notification
+                    if fcm_title == "Pledge accepted":
+                        fcm_notification = fcm_notification.as_dict()
+                        fcm_notification["title"] = "Lien accepted"
+
+            elif (
+                doc.get("loan_application").get("status") == "Approved"
+                and not self.loan_margin_shortfall
+            ):
+                msg, fcm_title = (
+                    (
+                        "Dear Customer,\nCongratulations! Your loan limit has been successfully increased. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
+                        "Increase loan application approved",
                     )
-                    fcm_notification = fcm_notification.as_dict()
-                    fcm_notification["title"] = "Lien partially accepted"
-            else:
-                fcm_message = fcm_notification.message.format(
-                    pledge="pledge",
-                    total_collateral_value_str=self.total_collateral_value_str,
+                    if self.loan and not self.loan_margin_shortfall
+                    else (
+                        "Dear Customer,\nCongratulations! Your loan account is open. Kindly check the app. You may now withdraw funds as per your convenience. -Spark Loans",
+                        "Loan approved",
+                    )
+                )
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification", fcm_title, fields=["*"]
                 )
 
-        if msg:
-            receiver_list = [str(self.get_customer().phone)]
-            if doc.mob_num:
-                receiver_list.append(str(doc.mob_num))
-            if doc.choice_mob_no:
-                receiver_list.append(str(doc.choice_mob_no))
+            elif (
+                doc.get("loan_application").get("status") == "Rejected"
+                and not self.loan_margin_shortfall
+                and not self.remarks
+            ):
+                msg, fcm_title = (
+                    (
+                        "Dear Customer,\nSorry! Your Increase loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans",
+                        "Increase loan application turned down",
+                    )
+                    if self.loan and not self.loan_margin_shortfall
+                    else (
+                        "Dear Customer,\nSorry! Your loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans",
+                        "Loan rejected",
+                    )
+                )
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification", fcm_title, fields=["*"]
+                )
 
-            receiver_list = list(set(receiver_list))
+            elif (
+                doc.get("loan_application").get("status") == "Esign Done"
+                and self.lender_esigned_document == None
+                and not self.loan_margin_shortfall
+            ):
+                msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan approval. Thank you for your patience. - Spark Loans"
 
-            frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification", "E-signing was successful", fields=["*"]
+                )
 
-        if fcm_notification:
-            lms.send_spark_push_notification(
-                fcm_notification=fcm_notification,
-                message=fcm_message,
-                loan=self.loan,
-                customer=self.get_customer(),
-            )
+            msg_type = "pledge"
+            if self.instrument_type == "Mutual Fund":
+                msg_type = "lien"
+            if (
+                (
+                    (self.pledge_status == "Partial Success")
+                    or (
+                        self.total_collateral_value
+                        < self.pledged_total_collateral_value
+                    )
+                )
+                and doc.get("loan_application").get("status")
+                == "Pledge accepted by Lender"
+                and not self.loan_margin_shortfall
+            ):
+                msg = "Dear Customer,\nCongratulations! Your {} request was successfully considered and was partially accepted for Rs. {} due to technical reasons. You can find the details on the app dashboard. Please e-sign the loan agreement to avail loan instantly. Proceed now:{link} -Spark Loans".format(
+                    msg_type,
+                    self.total_collateral_value_str,
+                    link=las_settings.app_login_dashboard,
+                )
+                fcm_notification = frappe.get_doc(
+                    "Spark Push Notification",
+                    "Increase loan application partially accepted"
+                    if self.loan
+                    else "Pledge partially accepted",
+                    fields=["*"],
+                )
+                if fcm_notification.title == "Pledge partially accepted":
+                    fcm_message = fcm_notification.message.format(
+                        pledge="pledge",
+                        total_collateral_value_str=self.total_collateral_value_str,
+                    )
+                    if self.instrument_type == "Mutual Fund":
+                        fcm_message = fcm_notification.message.format(
+                            pledge="lien",
+                            total_collateral_value_str=self.total_collateral_value_str,
+                        )
+                        fcm_notification = fcm_notification.as_dict()
+                        fcm_notification["title"] = "Lien partially accepted"
+                else:
+                    fcm_message = fcm_notification.message.format(
+                        pledge="pledge",
+                        total_collateral_value_str=self.total_collateral_value_str,
+                    )
+
+            if msg:
+                receiver_list = [str(self.get_customer().phone)]
+                if doc.mob_num:
+                    receiver_list.append(str(doc.mob_num))
+                if doc.choice_mob_no:
+                    receiver_list.append(str(doc.choice_mob_no))
+
+                receiver_list = list(set(receiver_list))
+
+                frappe.enqueue(method=send_sms, receiver_list=receiver_list, msg=msg)
+
+            if fcm_notification:
+                lms.send_spark_push_notification(
+                    fcm_notification=fcm_notification,
+                    message=fcm_message,
+                    loan=self.loan,
+                    customer=self.get_customer(),
+                )
 
     def validate(self):
         for i, item in enumerate(
@@ -1916,7 +1923,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             item.idx = i
 
     def sanction_letter(self, check=None):
-        print("defg")
         customer = self.get_customer()
         user = frappe.get_doc("User", customer.user)
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)

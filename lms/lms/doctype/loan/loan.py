@@ -707,9 +707,9 @@ class Loan(Document):
             old_total_collateral_value = self.total_collateral_value
 
             check = self.update_items()
-
             if check:
                 self.fill_items()
+                self.available_topup_amt = self.max_topup_amount()
                 self.save(ignore_permissions=True)
 
                 loan_margin_shortfall = self.get_margin_shortfall()
