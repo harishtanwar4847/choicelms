@@ -65,9 +65,6 @@ def get_choice_kyc(**kwargs):
         )
 
         if not data.get("accept_terms"):
-            # return utils.respondUnauthorized(
-            #     message=frappe._("Please accept Terms and Conditions.")
-            # )
             raise lms.exceptions.UnauthorizedException(
                 _("Please accept Terms and Conditions.")
             )
@@ -75,10 +72,6 @@ def get_choice_kyc(**kwargs):
         try:
             datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
         except ValueError:
-            # return utils.respondWithFailure(
-            #     status=417,
-            #     message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
-            # )
             raise lms.exceptions.RespondFailureException(
                 _("Incorrect date format, should be DD-MM-YYYY")
             )
