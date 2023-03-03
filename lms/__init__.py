@@ -2569,6 +2569,7 @@ def toggle_visible_pdf(soup):
 
 def personalized_cheque_log(name, image_, img_format):
     try:
+        name = name + "_" + str(frappe.utils.now_datetime())
 
         picture_file = "{}.{}".format(name, img_format).replace(" ", "-")
 
