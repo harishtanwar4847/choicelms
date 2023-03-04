@@ -1154,7 +1154,7 @@ def log_api_error(mess=""):
             personalized_cheque_log(
                 request_parameters.get("account_number"),
                 request_parameters.get("personalized_cheque"),
-                "jpeg",
+                "png",
             )
             request_parameters["personalized_cheque"] = ""
         if len(customer) == 0:

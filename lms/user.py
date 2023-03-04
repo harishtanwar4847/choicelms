@@ -3721,7 +3721,7 @@ def penny_api_response_handle(data, user_kyc, customer, data_res, personalized_c
                 .get("bank_account")
                 .get("account_number")[-4:],
                 image_=personalized_cheque,
-                img_format="jpeg",
+                img_format="png",
                 img_folder="personalized_cheque",
             )
 
@@ -4672,7 +4672,7 @@ def ckyc_consent_details(**kwargs):
                 image_=data.get("address_details")
                 .get("permanent_address")
                 .get("address_proof_image"),
-                img_format="jpeg",
+                img_format="png",
                 img_folder="user_ckyc_address",
                 compress=1,
             )
@@ -4682,7 +4682,7 @@ def ckyc_consent_details(**kwargs):
                 image_=data.get("address_details")
                 .get("corresponding_address")
                 .get("address_proof_image"),
-                img_format="jpeg",
+                img_format="png",
                 img_folder="user_ckyc_address",
                 compress=1,
             )
@@ -4955,7 +4955,7 @@ def au_penny_drop(**kwargs):
             customer=customer,
             seq_no=data.get("account_number"),
             image_=data.get("personalized_cheque"),
-            img_format="jpeg",
+            img_format="png",
             img_folder="personalized_cheque",
             compress=1,
         )
