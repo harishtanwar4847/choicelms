@@ -443,7 +443,10 @@ def get_collateral_details(unpledge_application_name):
     )
     psn = "and cl.psn IN {}".format(
         lms.convert_list_to_tuple_string([i.psn for i in doc.items])
+        if doc.instrument_type == "Mutual Fund"
+        else ""
     )
+
     return loan.get_collateral_list(
         group_by_psn=True,
         where_clause="and cl.isin IN {}{}{psn}".format(
