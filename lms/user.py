@@ -2755,6 +2755,16 @@ def loan_summary_dashboard(**kwargs):
         topup_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
         increase_loan_list.sort(key=lambda item: (item["loan_name"]), reverse=True)
 
+        version_details = frappe.get_all(
+            "Spark App Version",
+            filters={"is_live": 1},
+            fields=["*"],
+            order_by="release_date desc",
+            page_length=1,
+        )
+        if not version_details:
+            version_details = "No Record found"
+
         instrument_type = ""
         if under_process_la:
             instrument_type = frappe.get_doc(
@@ -2781,6 +2791,7 @@ def loan_summary_dashboard(**kwargs):
             "topup_list": topup_list,
             "increase_loan_list": increase_loan_list,
             "instrument_type": instrument_type,
+            "version_details": version_details,
         }
 
         return utils.respondWithSuccess(data=res)
