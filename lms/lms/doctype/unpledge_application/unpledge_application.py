@@ -22,7 +22,6 @@ class UnpledgeApplication(Document):
         return frappe.get_doc("Loan", self.loan)
 
     def before_insert(self):
-        print("asasasass")
         self.process_items()
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
@@ -51,7 +50,6 @@ class UnpledgeApplication(Document):
             self.process_sell_items()
 
     def process_items(self):
-        print("akash")
         self.total_collateral_value = 0
         loan = self.get_loan()
         self.instrument_type = loan.instrument_type
@@ -441,12 +439,13 @@ def get_collateral_details(unpledge_application_name):
         if doc.instrument_type == "Mutual Fund"
         else ""
     )
-    psn = "and cl.psn IN {}".format(
-        lms.convert_list_to_tuple_string([i.psn for i in doc.items])
+    psn = (
+        " and cl.psn IN {}".format(
+            lms.convert_list_to_tuple_string([i.psn for i in doc.items])
+        )
         if doc.instrument_type == "Mutual Fund"
         else ""
     )
-
     return loan.get_collateral_list(
         group_by_psn=True,
         where_clause="and cl.isin IN {}{}{psn}".format(
