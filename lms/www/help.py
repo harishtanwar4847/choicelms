@@ -3,9 +3,10 @@ from warnings import filters
 
 import frappe
 import pandas as pd
-from frappe.utils.pdf import get_pdf
 
 import lms
+
+# from frappe.utils.pdf import get_pdf
 
 
 @frappe.whitelist(allow_guest=True)
@@ -65,7 +66,7 @@ def approved_securities(instrument_type):
         approved_securities_template.get_content(), {"doc": doc}
     )
     pdf_file = open(approved_security_pdf_file_path, "wb")
-    pdf = get_pdf(
+    pdf = lms.get_pdf(
         agreement,
         options={
             "margin-right": "0mm",
@@ -124,7 +125,7 @@ def lenders():
     agreement = frappe.render_template(lender_template.get_content(), {"doc": doc1})
 
     pdf_file = open(lender_pdf_file_path, "wb")
-    pdf = get_pdf(
+    pdf = lms.get_pdf(
         agreement,
         options={
             "margin-right": "0mm",

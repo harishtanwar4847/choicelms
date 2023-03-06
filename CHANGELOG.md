@@ -2,6 +2,36 @@
 
 ## [Unreleased]
 
+## [v5.13.7] - 2023-03-03
+
+## Added
+
+- [SPRK-156 - Update Razorpay webhook function and increase background workers for cron jobs execution](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/573)
+
+## [v5.13.6] - 2023-02-28
+
+## Added
+
+- [SPRK-60/SPRK-107 Pledge Application Creation/Workflow state change issue](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/commit/8a00079de52bfd903d5641398a58f32c34728369)
+
+## [v5.13.5] - 2023-02-27
+
+## Added
+
+- [SPRK-144 - if last name or middle name field is empty then 1st name to be considered as full for name matching with penny retrieved name](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/commit/ecb49130440c7872ccdece26041c513b2f14558a)
+
+## [v5.13.4] - 2023-02-22
+
+## Fixed
+
+- [Feat : Onboarding screen changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/572)
+
+## [v5.13.3] - 2023-02-13
+
+## Fixed
+
+- [Feat : Onboarding screen changes](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/571)
+
 ## [v5.13.2] - 2023-01-23
 
 ## Fixed

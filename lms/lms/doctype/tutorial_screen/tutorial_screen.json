@@ -1,0 +1,49 @@
+{
+ "actions": [],
+ "autoname": "field:screen_no",
+ "creation": "2023-01-18 15:03:28.264334",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "screen_no",
+  "title",
+  "description"
+ ],
+ "fields": [
+  {
+   "fieldname": "screen_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Screen No",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Description",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-02-13 12:53:59.039374",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Tutorial Screen",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
