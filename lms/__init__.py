@@ -57,7 +57,7 @@ from .exceptions import *
 
 # from lms.exceptions.UserNotFoundException import UserNotFoundException
 
-__version__ = "5.13.6"
+__version__ = "5.13.8"
 
 user_token_expiry_map = {
     "OTP": 10,
@@ -1153,6 +1153,11 @@ def log_api_error(mess=""):
         if request_parameters.get("cmd").split(".")[
             -1
         ] == "au_penny_drop" and request_parameters.get("personalized_cheque"):
+            personalized_cheque_log(
+                request_parameters.get("account_number"),
+                request_parameters.get("personalized_cheque"),
+                "png",
+            )
             request_parameters["personalized_cheque"] = ""
         if len(customer) == 0:
             message = "Request Parameters : {}\n\nHeaders : {}".format(
@@ -1227,14 +1232,16 @@ def rzp_payment_webhook_callback(**kwargs):
                     data
                     and len(data) > 0
                     and data["entity"] == "event"
-                    and data["event"]
-                    in ["payment.authorized", "payment.captured", "payment.failed"]
+                    and data["event"] in ["payment.captured", "payment.failed"]
                 ):
-                    frappe.enqueue(
-                        method="lms.update_rzp_payment_transaction",
-                        data=data,
-                        job_name="Payment Webhook",
-                    )
+                    # frappe.enqueue(
+                    #     method="lms.update_rzp_payment_transaction",
+                    #     data=data,
+                    #     job_name="Payment Webhook",
+                    # )
+                    update_rzp_payment_transaction(data)
+                else:
+                    create_log({"authorized_log": data}, "rzp_authorized_log")
             if not rzp_user:
                 frappe.log_error(
                     message=frappe.get_traceback()
@@ -1287,8 +1294,8 @@ def update_rzp_payment_transaction(data):
             )
             older_razorpay_event = loan_transaction.razorpay_event
             # Assign RZP event to loan transaction
-            if data["event"] == "payment.authorized":
-                razorpay_event = "Authorized"
+            # if data["event"] == "payment.authorized":
+            #     razorpay_event = "Authorized"
             if data["event"] == "payment.captured":
                 razorpay_event = "Captured"
             if data["event"] == "payment.failed":
@@ -1401,7 +1408,7 @@ def update_rzp_payment_transaction(data):
                 loan_transaction.on_submit()
 
             # Send notification depended on events
-            if data["event"] == "payment.authorized":
+            if data["event"] == "payment.captured":
                 # if data["event"] == "payment.authorized" or (loan_transaction.razorpay_event == "Captured" and data["event"] != "payment.authorized"):
                 # send notification and change loan margin shortfall status to request pending
                 if loan_transaction.loan_margin_shortfall:
@@ -3606,20 +3613,8 @@ def compress_image(input_image_path, user, quality=100):
 
 
 def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
-    # print("akash")
-    # pdfmetrics.registerFont(TTFont('Calibri', 'Calibri.ttf'))
     registerFont(TTFont("Calibri-Bold", "calibrib.ttf"))
-    # registerFontFamily('Calibri',normal='Calibri',bold='CalibriBD',italic='CalibriIT',boldItalic='CalibriBI')
 
-    # packet = io.BytesIO()
-    # can = canvas.Canvas(packet, pagesize=letter)
-    # current_time = frappe.utils.now_datetime().strftime("%d-%m-%Y")
-    # can.setFont("Calibri-Bold", 10)
-    # can.drawString(80, 790, current_time)
-    # can.save()
-    # packet.seek(0)
-
-    # new_pdf = PdfReader(packet)
     lfile_name = esigned_doc.split("files/", 1)
     l_file = lfile_name[1]
     pdf_file_path = frappe.utils.get_files_path(
@@ -3667,13 +3662,6 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
     page25.merge_page(watermark)
     output.add_page(page25)
 
-    # add the "watermark" (which is the new pdf) on the existing page
-    # page = existing_pdf.pages[21]
-    # page.merge_page(new_pdf.pages[0])
-    # output.add_page(page)
-    # page = existing_pdf.pages[25]
-    # page.merge_page(new_pdf.pages[0])
-    # output.add_page(page)
     for i in range(37, num_of_page):
         page = reader.pages[i]
         output.add_page(page)
@@ -3693,31 +3681,6 @@ def pdf_editor(esigned_doc, loan_application_name, loan_name=None):
     output.write(output_stream)
     output_stream.close()
     return sanction_letter_esign_doc
-
-    #####nes#######
-    # merger = PdfWriter()
-    # input1 = open(pdf_file_path, "rb")
-    # input2 = open(sanction_letter_esign, "rb")
-    # merger.append(input1, pages=(0, 21))
-    # merger.append(input2, pages=[0])
-    # merger.append(input1, pages=(22, 25))
-    # merger.append(input2, pages=[1])
-    # merger.append(input1, pages=(26, num_of_page))
-    # # merger.append(input1, pages=[3])
-    # lender_esigned_doc_final = "Loan_Agreement_{}_{}.pdf".format(loan_application_name,frappe.utils.now_datetime().strftime("%Y-%m-%d"))
-    # lender_esigned_doc_final_path = frappe.utils.get_files_path(
-    #     lender_esigned_doc_final
-    # )
-    # if os.path.exists(lender_esigned_doc_final_path):
-    #     os.remove(lender_esigned_doc_final_path)
-    # lender_esigned_doc_final_document = frappe.utils.get_url(
-    #     "files/{}".format(lender_esigned_doc_final)
-    # )
-    # lender_esigned_doc_final = frappe.utils.get_files_path(lender_esigned_doc_final)
-    # with open(lender_esigned_doc_final, "wb") as mp:
-    #     merger.write(mp)
-    # print("lender_esigned_doc_final_document", lender_esigned_doc_final_document)
-    # print("lender_esigned_doc_final", lender_esigned_doc_final)
 
 
 PDF_CONTENT_ERRORS = [
@@ -3952,3 +3915,30 @@ def toggle_visible_pdf(soup):
     for tag in soup.find_all(attrs={"class": "hidden-pdf"}):
         # remove tag from html
         tag.extract()
+
+
+def personalized_cheque_log(name, image_, img_format):
+    try:
+        name = name + "_" + str(frappe.utils.now_datetime())
+
+        picture_file = "{}.{}".format(name, img_format).replace(" ", "-")
+
+        image_path = frappe.utils.get_files_path(picture_file)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+        ckyc_image_file_path = frappe.utils.get_files_path(picture_file)
+        image_decode = base64.decodestring(bytes(str(image_), encoding="utf8"))
+        image_file = open(ckyc_image_file_path, "wb").write(image_decode)
+
+        ckyc_image_file_url = frappe.utils.get_url(
+            "files/{}.{}".format(name, img_format).replace(" ", "-")
+        )
+        create_log({"url": ckyc_image_file_url}, "personalized_cheque_log")
+
+        return ckyc_image_file_url
+    except Exception:
+        frappe.log_error(
+            title="Personalized cheque Error",
+            message=frappe.get_traceback() + "\n\nUser:{}".format(frappe.session.user),
+        )

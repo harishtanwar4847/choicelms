@@ -80,9 +80,6 @@ def get_choice_kyc(**kwargs):
         )
 
         if not data.get("accept_terms"):
-            # return utils.respondUnauthorized(
-            #     message=frappe._("Please accept Terms and Conditions.")
-            # )
             raise lms.exceptions.UnauthorizedException(
                 _("Please accept Terms and Conditions.")
             )
@@ -90,10 +87,6 @@ def get_choice_kyc(**kwargs):
         try:
             datetime.strptime(data.get("birth_date"), "%d-%m-%Y")
         except ValueError:
-            # return utils.respondWithFailure(
-            #     status=417,
-            #     message=frappe._("Incorrect date format, should be DD-MM-YYYY"),
-            # )
             raise lms.exceptions.RespondFailureException(
                 _("Incorrect date format, should be DD-MM-YYYY")
             )
@@ -4756,7 +4749,7 @@ def ckyc_consent_details(**kwargs):
                 image_=data.get("address_details")
                 .get("permanent_address")
                 .get("address_proof_image"),
-                img_format="jpeg",
+                img_format="png",
                 img_folder="user_ckyc_address",
                 compress=1,
             )
@@ -4766,7 +4759,7 @@ def ckyc_consent_details(**kwargs):
                 image_=data.get("address_details")
                 .get("corresponding_address")
                 .get("address_proof_image"),
-                img_format="jpeg",
+                img_format="png",
                 img_folder="user_ckyc_address",
                 compress=1,
             )
@@ -4894,7 +4887,7 @@ def get_bank_details():
             log = {
                 "url": las_settings.choice_pan_api,
                 "headers": headers,
-                "request": params,
+                "request": str(params),
                 "response": data,
             }
             lms.create_log(log, "get_bank_details_log")
@@ -5039,7 +5032,7 @@ def au_penny_drop(**kwargs):
             customer=customer,
             seq_no=data.get("account_number"),
             image_=data.get("personalized_cheque"),
-            img_format="jpeg",
+            img_format="png",
             img_folder="personalized_cheque",
             compress=1,
         )

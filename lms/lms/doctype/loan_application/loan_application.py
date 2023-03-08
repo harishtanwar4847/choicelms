@@ -2479,8 +2479,14 @@ def check_for_pledge(loan_application_doc):
 
                 lms.create_log(log, "pledge_log")
 
-            except requests.RequestException as e:
-                pass
+            except requests.RequestException:
+                frappe.log_error(
+                    title="Pledge Setup API Error",
+                    message=frappe.get_traceback()
+                    + "\n\n Loan application name - {}".format(
+                        loan_application_doc.name
+                    ),
+                )
 
         # TODO : process loan application items in batches
         total_successful_pledge_count = loan_application_doc.process(
@@ -2541,13 +2547,13 @@ def check_for_pledge(loan_application_doc):
         customer.save(ignore_permissions=True)
 
     frappe.db.commit()
-    frappe.enqueue(
-        method="lms.lms.doctype.loan_application.loan_application.process_pledge"
-    )
+    # frappe.enqueue(
+    #     method="lms.lms.doctype.loan_application.loan_application.process_pledge"
+    # )
 
 
 @frappe.whitelist()
-def process_pledge(loan_application_name=""):
+def process_pledge_old(loan_application_name=""):
     from frappe import utils
 
     current_hour = int(utils.nowtime().split(":")[0])
@@ -2643,3 +2649,37 @@ def actions_on_isin(loan_application):
             ),
         }
         return response
+
+
+@frappe.whitelist()
+def process_pledge():
+    from frappe import utils
+
+    current_hour = int(utils.nowtime().split(":")[0])
+    las_settings = frappe.get_single("LAS Settings")
+    if (
+        las_settings.scheduler_from_time
+        <= current_hour
+        < las_settings.scheduler_to_time
+    ):
+        loan_applications = frappe.get_all(
+            "Loan Application",
+            filters={"status": "Waiting to be pledged", "instrument_type": "Shares"},
+            order_by="creation asc",
+        )
+
+        if loan_applications:
+            for loan_application in loan_applications:
+                loan_application_doc = frappe.get_doc(
+                    "Loan Application", loan_application.name
+                )
+                la_name = int(loan_application.name[2:])
+                queue = "default" if (la_name % 2) == 0 else "short"
+                frappe.enqueue(
+                    method="lms.lms.doctype.loan_application.loan_application.check_for_pledge",
+                    job_name="{} - Loan Application Pledge".format(
+                        loan_application.name
+                    ),
+                    loan_application_doc=loan_application_doc,
+                    queue=queue,
+                )
