@@ -5049,18 +5049,65 @@ def au_penny_drop(**kwargs):
         )
         bank_acc = frappe.get_all(
             "User Bank Account",
-            {"account_number": data.get("account_number"), "is_repeated": 0},
+            {
+                "account_number": data.get("account_number"),
+                "is_repeated": 0,
+                "is_mismatched": 0,
+            },
             "*",
             order_by="creation desc",
         )
+        penny_name_mismatch = frappe.get_all(
+            "Penny Name Mismatch", {"account_number": data.get("account_number")}, "*"
+        )
+        if not bank_acc and penny_name_mismatch:
+            bank_account_list_ = frappe.get_all(
+                "User Bank Account",
+                filters={"parent": user_kyc.name},
+                fields="*",
+            )
+            for b in bank_account_list_:
+                other_bank_ = frappe.get_doc("User Bank Account", b.name)
+                if other_bank_.is_default == 1:
+                    other_bank_.is_default = 0
+                    other_bank_.save(ignore_permissions=True)
+                    frappe.db.commit()
+            frappe.get_doc(
+                {
+                    "doctype": "User Bank Account",
+                    "parentfield": "bank_account",
+                    "parenttype": "User KYC",
+                    "bank": data.get("bank"),
+                    "branch": data.get("branch"),
+                    "account_type": data.get("bank_account_type"),
+                    "account_number": data.get("account_number"),
+                    "ifsc": data.get("ifsc"),
+                    "account_holder_name": data.get("account_holder_name"),
+                    "personalized_cheque": photos_,
+                    "city": data.get("city"),
+                    "parent": user_kyc.name,
+                    "is_default": True,
+                    "bank_status": "Pending",
+                    "penny_request_id": penny_name_mismatch[0].penny_request_id,
+                    "bank_transaction_status": penny_name_mismatch[
+                        0
+                    ].bank_transaction_status,
+                    "is_mismatched": 1,
+                }
+            ).insert(ignore_permissions=True)
+            frappe.db.commit()
+            return utils.respondWithSuccess(
+                status=201,
+                message="Your bank details are under the verification process",
+            )
 
-        if bank_acc:
+        if bank_acc and not penny_name_mismatch:
             if bank_acc[0].ifsc == data.get("ifsc"):
                 if frappe.utils.now_datetime().date() >= (
                     bank_acc[0].creation.date()
                     + timedelta(days=las_settings.pennydrop_days_passed)
                 ):
-                    res_json = lms.au_pennydrop_api(data)
+                    res_json = lms.au_pennydrop_api(data, user_kyc.fullname)
                 else:
                     bank_account_list_ = frappe.get_all(
                         "User Bank Account",
@@ -5101,32 +5148,60 @@ def au_penny_drop(**kwargs):
                         message="Your account details have been successfully verified"
                     )
             else:
-                res_json = lms.au_pennydrop_api(data)
+                res_json = lms.au_pennydrop_api(data, user_kyc.fullname)
         else:
-            res_json = lms.au_pennydrop_api(data)
+            res_json = lms.au_pennydrop_api(data, user_kyc.fullname)
 
         if res_json:
             if (
-                res_json.get("StatusCode") == 200
-                and res_json.get("Message") == "Success"
+                res_json.get("status_code") == 200
+                and res_json.get("message") == "Success"
             ):
-                result_ = res_json.get("Body").get("pennyResponse").get("Result")
-                if (
-                    res_json.get("Body").get("pennyResponse").get("status-code")
-                    == "101"
-                ):
+                result_ = res_json.get("body").get("Result")
+                if res_json.get("body").get("status-code") == "101":
                     if result_.get("bankTxnStatus") == True:
-                        if not result_.get("accountName").lower():
+                        if not result_.get("accountName"):
                             raise lms.exceptions.RespondFailureException(
                                 _(
                                     "We have found a mismatch in the account holder name as per the fetched data"
                                 )
                             )
                         else:
-                            matching = lms.name_matching(
-                                user_kyc, result_.get("accountName")
-                            )
-                            if matching == False:
+                            matching = res_json.get("body").get("fuzzy_match_score")
+                            if (
+                                not matching
+                                or matching
+                                < las_settings.penny_name_mismatch_percentage
+                            ):
+                                frappe.get_doc(
+                                    {
+                                        "doctype": "Penny Name Mismatch",
+                                        "customer": customer.name,
+                                        "user_kyc": user_kyc.name,
+                                        "kyc_first_name": user_kyc.fname,
+                                        "kyc_middle_name": user_kyc.mname,
+                                        "kyc_last_name": user_kyc.lname,
+                                        "kyc_full_name": user_kyc.fullname,
+                                        "penny_response_account_name": result_.get(
+                                            "accountName"
+                                        ),
+                                        "bank": data.get("bank"),
+                                        "branch": data.get("branch"),
+                                        "city": data.get("city"),
+                                        "penny_request_id": res_json.get("body").get(
+                                            "request_id"
+                                        ),
+                                        "is_default": True,
+                                        "ifsc": data.get("ifsc"),
+                                        "account_number": result_.get("accountNumber"),
+                                        "bank_transaction_status": result_.get(
+                                            "bankTxnStatus"
+                                        ),
+                                        "personalized_cheque": photos_,
+                                        "account_type": data.get("bank_account_type"),
+                                    }
+                                ).insert()
+                                frappe.db.commit()
                                 raise lms.exceptions.RespondFailureException(
                                     _(
                                         "We have found a mismatch in the account holder name as per the fetched data"
@@ -5178,9 +5253,9 @@ def au_penny_drop(**kwargs):
                                             "parent": user_kyc.name,
                                             "is_default": True,
                                             "bank_status": "Pending",
-                                            "penny_request_id": res_json.get("Body")
-                                            .get("pennyResponse")
-                                            .get("request_id"),
+                                            "penny_request_id": res_json.get(
+                                                "body"
+                                            ).get("request_id"),
                                             "bank_transaction_status": result_.get(
                                                 "bankTxnStatus"
                                             ),
@@ -5228,9 +5303,9 @@ def au_penny_drop(**kwargs):
                                             "parent": user_kyc.name,
                                             "is_default": True,
                                             "bank_status": "Pending",
-                                            "penny_request_id": res_json.get("Body")
-                                            .get("pennyResponse")
-                                            .get("request_id"),
+                                            "penny_request_id": res_json.get(
+                                                "body"
+                                            ).get("request_id"),
                                             "bank_transaction_status": result_.get(
                                                 "bankTxnStatus"
                                             ),
@@ -5258,16 +5333,15 @@ def au_penny_drop(**kwargs):
                                         "parent": user_kyc.name,
                                         "is_default": True,
                                         "bank_status": "Pending",
-                                        "penny_request_id": res_json.get("Body")
-                                        .get("pennyResponse")
-                                        .get("request_id"),
+                                        "penny_request_id": res_json.get("body").get(
+                                            "request_id"
+                                        ),
                                         "bank_transaction_status": result_.get(
                                             "bankTxnStatus"
                                         ),
                                     }
                                 ).insert(ignore_permissions=True)
                                 frappe.db.commit()
-
                             return utils.respondWithSuccess(
                                 message="Your account details have been successfully verified"
                             )
@@ -5286,8 +5360,8 @@ def au_penny_drop(**kwargs):
             else:
                 lms.log_api_error(mess=str(res_json))
                 return utils.respondWithFailure(
-                    status=res_json.get("StatusCode"),
-                    message=res_json.get("Message"),
+                    status=res_json.get("status_code"),
+                    message=res_json.get("message"),
                 )
 
     except utils.exceptions.APIException as e:
