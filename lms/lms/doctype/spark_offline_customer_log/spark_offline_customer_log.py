@@ -64,8 +64,8 @@ def retry_process(doc_name):
             if (len(doc.mobile_no) != 10) or (doc.mobile_no.isnumeric() == False):
                 message += "Please enter valid Mobile Number.\n"
 
-            if doc.city.isalpha() == False:
-                message += "Please enter valid city name.\n"
+            # if doc.city.isalpha() == False:
+            #     message += "Please enter valid city name.\n"
 
             if (
                 (reg)

@@ -209,6 +209,7 @@
    "reqd": 1
   },
   {
+   "fetch_from": "ifsc.city",
    "fieldname": "city",
    "fieldtype": "Data",
    "label": "City"
@@ -274,7 +275,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-03-08 14:56:36.247726",
+ "modified": "2023-03-08 16:28:43.838731",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Offline Customer Log",

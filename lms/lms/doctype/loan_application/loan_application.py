@@ -746,8 +746,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 current = frappe.utils.now_datetime()
                 expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
                 self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
-                for i in self.items:
-                    i.date_of_pledge = frappe.utils.now_datetime().strftime("%d-%m-%Y")
+                # for i in self.items:
+                #     i.date_of_pledge = frappe.utils.now_datetime().strftime("%d-%m-%Y")
 
             customer = self.get_customer()
             if self.instrument_type == "Mutual Fund" and not customer.mycams_email_id:
