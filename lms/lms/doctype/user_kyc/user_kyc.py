@@ -158,11 +158,13 @@ class UserKYC(Document):
             item.idx = i
 
     def offline_customer_bank_verification(self):
-        if self.kyc_status == "Approved":
-            user = frappe.get_all("User", filters={"email": self.user})
-            for i in self.bank_account:
-                if i.personalized_cheque and not i.penny_request_id:
-
+        cust_name = frappe.db.get_value("Loan Customer", {"user": self.user}, "name")
+        loan_customer = frappe.get_doc("Loan Customer", cust_name)
+        user = frappe.get_all("User", filters={"email": self.user})
+        las_settings = frappe.get_single("LAS Settings")
+        for i in self.bank_account:
+            if i.personalized_cheque and not i.penny_request_id:
+                if self.kyc_status == "Approved":
                     data = {
                         "ifsc": i.ifsc,
                         "account_number": i.account_number,
@@ -181,22 +183,14 @@ class UserKYC(Document):
                     if reg:
                         frappe.throw(_("Special Characters not allowed."))
 
-                    res_json = lms.au_pennydrop_api(data)
-
+                    res_json = lms.au_pennydrop_api(data, self.fullname)
                     if res_json:
                         if (
-                            res_json.get("StatusCode") == 200
-                            and res_json.get("Message") == "Success"
+                            res_json.get("status_code") == 200
+                            and res_json.get("message") == "Success"
                         ):
-                            result_ = (
-                                res_json.get("Body").get("pennyResponse").get("Result")
-                            )
-                            if (
-                                res_json.get("Body")
-                                .get("pennyResponse")
-                                .get("status-code")
-                                == "101"
-                            ):
+                            result_ = res_json.get("body").get("Result")
+                            if res_json.get("body").get("status-code") == "101":
                                 if result_.get("bankTxnStatus") == True:
                                     if not result_.get("accountName").lower():
                                         frappe.throw(
@@ -204,18 +198,53 @@ class UserKYC(Document):
                                         )
 
                                     else:
-                                        user_kyc = frappe.get_doc("User KYC", self.name)
-                                        matching = lms.name_matching(
-                                            user_kyc, result_.get("accountName")
+                                        matching = res_json.get("body").get(
+                                            "fuzzy_match_score"
                                         )
-                                        if matching == False:
+                                        if (
+                                            not matching
+                                            or matching
+                                            < las_settings.penny_name_mismatch_percentage
+                                        ):
+                                            # user_kyc = frappe.get_doc("User KYC", self.name)
+                                            frappe.get_doc(
+                                                {
+                                                    "doctype": "Penny Name Mismatch",
+                                                    "customer": loan_customer.name,
+                                                    "user_kyc": self.name,
+                                                    "kyc_first_name": self.fname,
+                                                    "kyc_middle_name": self.mname,
+                                                    "kyc_last_name": self.lname,
+                                                    "kyc_full_name": self.fullname,
+                                                    "penny_response_account_name": result_.get(
+                                                        "accountName"
+                                                    ),
+                                                    "bank": data.get("bank"),
+                                                    "branch": data.get("branch"),
+                                                    "city": data.get("city"),
+                                                    "penny_request_id": res_json.get(
+                                                        "body"
+                                                    ).get("request_id"),
+                                                    "is_default": True,
+                                                    "ifsc": data.get("ifsc"),
+                                                    "account_number": result_.get(
+                                                        "accountNumber"
+                                                    ),
+                                                    "bank_transaction_status": result_.get(
+                                                        "bankTxnStatus"
+                                                    ),
+                                                    "personalized_cheque": "",
+                                                    "account_type": data.get(
+                                                        "bank_account_type"
+                                                    ),
+                                                }
+                                            ).insert()
+                                            frappe.db.commit()
                                             frappe.throw(
                                                 "We have found a mismatch in the account holder name as per the fetched data"
                                             )
-                                        i.penny_request_id = (
-                                            res_json.get("Body")
-                                            .get("pennyResponse")
-                                            .get("request_id")
+                                        i.penny_request_id = res_json.get("body").get(
+                                            "request_id"
                                         )
                                         i.account_holder_name = result_.get(
                                             "accountName"
@@ -264,3 +293,5 @@ class UserKYC(Document):
                                 + "\n"
                                 + str(res_json.get("Message"))
                             )
+                else:
+                    frappe.throw("Please approve User KYC")

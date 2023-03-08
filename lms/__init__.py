@@ -2444,6 +2444,7 @@ def ckyc_offline(customer, offline_customer):
             customer.save(ignore_permissions=True)
             offline_customer.ckyc_status = "Success"
             offline_customer.user_kyc_name = user_kyc.name
+            offline_customer.kyc_name = user_kyc.name
             offline_customer.save(ignore_permissions=True)
             frappe.db.commit()
 
