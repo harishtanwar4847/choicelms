@@ -4972,7 +4972,7 @@ def au_penny_drop(**kwargs):
                     bank_acc[0].creation.date()
                     + timedelta(days=las_settings.pennydrop_days_passed)
                 ):
-                    res_json = lms.au_pennydrop_api(data)
+                    res_json = lms.au_pennydrop_api(data, user_kyc.fullname)
                 else:
                     bank_account_list_ = frappe.get_all(
                         "User Bank Account",
@@ -5013,20 +5013,17 @@ def au_penny_drop(**kwargs):
                         message="Your account details have been successfully verified"
                     )
             else:
-                res_json = lms.au_pennydrop_api(data)
+                res_json = lms.au_pennydrop_api(data, user_kyc.fullname)
         else:
-            res_json = lms.au_pennydrop_api(data)
+            res_json = lms.au_pennydrop_api(data, user_kyc.fullname)
 
         if res_json:
             if (
-                res_json.get("StatusCode") == 200
-                and res_json.get("Message") == "Success"
+                res_json.get("status_code") == 200
+                and res_json.get("message") == "Success"
             ):
-                result_ = res_json.get("Body").get("pennyResponse").get("Result")
-                if (
-                    res_json.get("Body").get("pennyResponse").get("status-code")
-                    == "101"
-                ):
+                result_ = res_json.get("body").get("Result")
+                if res_json.get("body").get("status-code") == "101":
                     if result_.get("bankTxnStatus") == True:
                         if not result_.get("accountName").lower():
                             raise lms.exceptions.RespondFailureException(
@@ -5035,10 +5032,8 @@ def au_penny_drop(**kwargs):
                                 )
                             )
                         else:
-                            matching = lms.name_matching(
-                                user_kyc, result_.get("accountName")
-                            )
-                            if matching == False:
+                            matching = res_json.get("body").get("fuzzy_match_score")
+                            if matching < las_settings.penny_name_mismatch_percentage:
                                 raise lms.exceptions.RespondFailureException(
                                     _(
                                         "We have found a mismatch in the account holder name as per the fetched data"
@@ -5090,9 +5085,9 @@ def au_penny_drop(**kwargs):
                                             "parent": user_kyc.name,
                                             "is_default": True,
                                             "bank_status": "Pending",
-                                            "penny_request_id": res_json.get("Body")
-                                            .get("pennyResponse")
-                                            .get("request_id"),
+                                            "penny_request_id": res_json.get(
+                                                "body"
+                                            ).get("request_id"),
                                             "bank_transaction_status": result_.get(
                                                 "bankTxnStatus"
                                             ),
@@ -5140,9 +5135,9 @@ def au_penny_drop(**kwargs):
                                             "parent": user_kyc.name,
                                             "is_default": True,
                                             "bank_status": "Pending",
-                                            "penny_request_id": res_json.get("Body")
-                                            .get("pennyResponse")
-                                            .get("request_id"),
+                                            "penny_request_id": res_json.get(
+                                                "body"
+                                            ).get("request_id"),
                                             "bank_transaction_status": result_.get(
                                                 "bankTxnStatus"
                                             ),
@@ -5170,9 +5165,9 @@ def au_penny_drop(**kwargs):
                                         "parent": user_kyc.name,
                                         "is_default": True,
                                         "bank_status": "Pending",
-                                        "penny_request_id": res_json.get("Body")
-                                        .get("pennyResponse")
-                                        .get("request_id"),
+                                        "penny_request_id": res_json.get("body").get(
+                                            "request_id"
+                                        ),
                                         "bank_transaction_status": result_.get(
                                             "bankTxnStatus"
                                         ),
@@ -5198,8 +5193,8 @@ def au_penny_drop(**kwargs):
             else:
                 lms.log_api_error(mess=str(res_json))
                 return utils.respondWithFailure(
-                    status=res_json.get("StatusCode"),
-                    message=res_json.get("Message"),
+                    status=res_json.get("status_code"),
+                    message=res_json.get("message"),
                 )
 
     except utils.exceptions.APIException as e:

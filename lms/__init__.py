@@ -2071,7 +2071,7 @@ def penny_validate_fund_account():
         log_api_error()
 
 
-def au_pennydrop_api(data):
+def au_pennydrop_api(data, kyc_full_name):
     try:
         ReqId = datetime.strftime(datetime.now(), "%d%m") + str(
             abs(randint(0, 9999) - randint(1, 99))
@@ -2093,6 +2093,7 @@ def au_pennydrop_api(data):
             "ReqId": ReqId,
             "IFSCCode": data.get("ifsc"),
             "AccNum": data.get("account_number"),
+            "BeneficiaryName": kyc_full_name,
             "HashValue": base64.b64encode(final_hash).decode("ascii"),
         }
         data["payload"] = payload
