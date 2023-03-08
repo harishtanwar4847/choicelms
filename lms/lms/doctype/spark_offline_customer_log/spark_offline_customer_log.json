@@ -15,10 +15,12 @@
   "mobile_no",
   "email_id",
   "user_remarks",
+  "user_name",
   "customer_details_section",
   "customer_first_name",
   "customer_last_name",
   "customer_status",
+  "customer_name",
   "column_break_14",
   "customer_mobile",
   "customer_email",
@@ -31,6 +33,7 @@
   "column_break_20",
   "ckyc_no",
   "ckyc_status",
+  "user_kyc_name",
   "bank_details_section",
   "bank",
   "branch",
@@ -42,7 +45,8 @@
   "account_holder_name",
   "bank_address",
   "account_type",
-  "bank_status"
+  "bank_status",
+  "kyc_name"
  ],
  "fields": [
   {
@@ -271,11 +275,35 @@
    "fieldname": "mycams_email_id",
    "fieldtype": "Data",
    "label": "MyCams Email ID"
+  },
+  {
+   "fieldname": "user_name",
+   "fieldtype": "Link",
+   "label": "User name",
+   "options": "User"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Link",
+   "label": "Customer Name",
+   "options": "Loan Customer"
+  },
+  {
+   "fieldname": "user_kyc_name",
+   "fieldtype": "Link",
+   "label": "User KYC Name",
+   "options": "User KYC"
+  },
+  {
+   "fieldname": "kyc_name",
+   "fieldtype": "Link",
+   "label": "User KYC Name",
+   "options": "User KYC"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-03-08 16:28:43.838731",
+ "modified": "2023-03-08 18:53:23.960702",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Offline Customer Log",

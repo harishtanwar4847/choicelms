@@ -94,6 +94,8 @@ def retry_process(doc_name):
                 doc.user_status = "Success"
                 doc.customer_status = "Success"
                 doc.user_remarks = message
+                doc.user_name = user.name
+                doc.customer_name = customer.name
                 customer.save(ignore_permissions=True)
                 doc.save(ignore_permissions=True)
                 frappe.db.commit()
