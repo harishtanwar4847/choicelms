@@ -2510,8 +2510,8 @@ def customer_file_upload(upload_file):
             if (i[6].isnumeric() == False) or (i[9].isnumeric() == False):
                 message += "Please enter valid CKYC Number or Account Number.\n"
 
-            if i[11].isalpha() == False:
-                message += "Please enter valid city name.\n"
+            # if i[11].isalpha() == False:
+            #     message += "Please enter valid city name.\n"
 
             # entry in Spark offline customer log doctype
             offline_customer = frappe.get_doc(
@@ -2529,14 +2529,14 @@ def customer_file_upload(upload_file):
                     ckyc_no=i[6],
                     dob=i[5],
                     bank=i[7],
-                    branch=i[8],
-                    account_no=i[9],
-                    ifsc=i[10],
-                    city=i[11],
-                    account_holder_name=i[12],
-                    bank_address=i[13],
-                    account_type=i[14],
-                    mycams_email_id=i[15],
+                    # branch=i[8],
+                    account_no=i[8],
+                    ifsc=i[9],
+                    # city=i[11],
+                    account_holder_name=i[10],
+                    # bank_address=i[13],
+                    # account_type=i[11],
+                    mycams_email_id=i[11],
                 )
             ).insert(ignore_permissions=True)
             frappe.db.commit()

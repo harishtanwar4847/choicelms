@@ -1167,7 +1167,9 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                         "scheme_code": item.scheme_code,
                         "type": item.type,
                         "folio": item.folio,
-                        "psn": psn_no[0].psn,
+                        "psn": psn_no[0].psn
+                        if self.instrself.instrument_type == "Mutual Fund"
+                        else "",
                     }
                 )
 

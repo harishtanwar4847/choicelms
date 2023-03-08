@@ -158,12 +158,10 @@ class UserKYC(Document):
                     "branch": i.branch,
                     "city": i.city,
                 }
-
+                print("data", data)
                 reg = lms.regex_special_characters(
                     search=data.get("ifsc")
                     + data.get("account_number")
-                    + data.get("branch")
-                    + data.get("city")
                     + data.get("bank_account_type")
                     if data.get("bank_account_type")
                     else "" + data.get("bank")

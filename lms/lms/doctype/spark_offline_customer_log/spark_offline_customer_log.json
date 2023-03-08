@@ -190,10 +190,10 @@
    "reqd": 1
   },
   {
+   "fetch_from": "ifsc.branch",
    "fieldname": "branch",
    "fieldtype": "Data",
-   "label": "Branch",
-   "reqd": 1
+   "label": "Branch"
   },
   {
    "fieldname": "account_no",
@@ -203,8 +203,9 @@
   },
   {
    "fieldname": "ifsc",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "IFSC",
+   "options": "Spark Bank Branch",
    "reqd": 1
   },
   {
@@ -223,6 +224,7 @@
    "reqd": 1
   },
   {
+   "fetch_from": "ifsc.address",
    "fieldname": "bank_address",
    "fieldtype": "Small Text",
    "label": "Bank Address"
@@ -230,8 +232,7 @@
   {
    "fieldname": "account_type",
    "fieldtype": "Data",
-   "label": "Account Type",
-   "reqd": 1
+   "label": "Account Type"
   },
   {
    "fieldname": "bank_status",
@@ -273,7 +274,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-24 16:36:23.704959",
+ "modified": "2023-03-08 14:56:36.247726",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Offline Customer Log",
