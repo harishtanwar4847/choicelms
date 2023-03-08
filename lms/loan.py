@@ -220,7 +220,8 @@ def esign(**kwargs):
 
             return utils.respondWithSuccess(
                 message=_("Esign URL."),
-                data={"esign_url": url, "file_id": data.get("id")},
+                data={"esign_url": url, "file_id": None},
+                # data.get("id")
             )
         except requests.RequestException as e:
             raise utils.exceptions.APIException(str(e))
