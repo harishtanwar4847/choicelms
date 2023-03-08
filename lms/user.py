@@ -2763,7 +2763,7 @@ def loan_summary_dashboard(**kwargs):
             page_length=1,
         )
         if not version_details:
-            version_details = "No Record found"
+            version_details = ["No Record found"]
 
         instrument_type = ""
         if under_process_la:
@@ -2791,7 +2791,7 @@ def loan_summary_dashboard(**kwargs):
             "topup_list": topup_list,
             "increase_loan_list": increase_loan_list,
             "instrument_type": instrument_type,
-            "version_details": version_details,
+            "version_details": version_details[0],
         }
 
         return utils.respondWithSuccess(data=res)
