@@ -2619,6 +2619,7 @@ def customer_file_upload(upload_file):
                     res_user = frappe.get_all(
                         "Loan Customer", filters={"user": user.name}
                     )
+                    cust_status = ""
                     if res or res_user:
                         doc_name = res[0].name if res else res_user[0].name
                         frappe.throw(
@@ -2639,6 +2640,7 @@ def customer_file_upload(upload_file):
                         customer.is_email_verified = 1
                         customer.save(ignore_permissions=True)
                         offline_customer.customer_status = "Success"
+                        cust_status = "Success"
                         offline_customer.customer_name = customer.name
                         offline_customer.save(ignore_permissions=True)
                         frappe.db.commit()
@@ -2654,7 +2656,7 @@ def customer_file_upload(upload_file):
                         frappe.db.commit()
 
                     else:
-                        if offline_customer.ckyc_status == "Success":
+                        if cust_status == "Success":
                             ckyc_offline(
                                 customer=customer, offline_customer=offline_customer
                             )
