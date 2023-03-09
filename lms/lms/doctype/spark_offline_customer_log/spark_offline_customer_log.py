@@ -96,6 +96,7 @@ def retry_process(doc_name):
                 doc.user_remarks = message
                 doc.user_name = user.name
                 doc.customer_name = customer.name
+                customer.is_email_verified = 1
                 customer.save(ignore_permissions=True)
                 doc.save(ignore_permissions=True)
                 frappe.db.commit()
@@ -130,7 +131,8 @@ def retry_process(doc_name):
                 "Loan Customer", {"phone": doc.mobile_no, "user": doc.email_id}, "name"
             )
             customer = frappe.get_doc("Loan Customer", cust_name)
-            lms.ckyc_offline(customer=customer, offline_customer=doc)
+            if doc.customer_status == "Success":
+                lms.ckyc_offline(customer=customer, offline_customer=doc)
 
         return utils.respondWithSuccess(
             message="Process Successfully completed", data=doc.name

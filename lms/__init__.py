@@ -2642,9 +2642,10 @@ def customer_file_upload(upload_file):
                         frappe.db.commit()
 
                     else:
-                        ckyc_offline(
-                            customer=customer, offline_customer=offline_customer
-                        )
+                        if offline_customer.ckyc_status == "Success":
+                            ckyc_offline(
+                                customer=customer, offline_customer=offline_customer
+                            )
     except Exception:
         frappe.log_error(
             title="Create User Customer Cron Error",

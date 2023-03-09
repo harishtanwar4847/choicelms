@@ -338,7 +338,6 @@ class LoanApplication(Document):
         # from frappe.utils.pdf import get_pdf
 
         agreement_pdf = lms.get_pdf(agreement)
-        print("agreement_pdf", agreement_pdf)
         las_settings = frappe.get_single("LAS Settings")
         headers = {"userId": las_settings.choice_user_id}
         files = {"file": (loan_agreement_file, agreement_pdf)}
@@ -1008,23 +1007,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     loan_margin_shortfall.status = "Pending"
                     loan_margin_shortfall.save(ignore_permissions=True)
                     frappe.db.commit()
-            # print("nacho")
-            # if not self.loan:
-            #     print("nacho2")
-            #     lender = self.get_lender()
-            #     doc = {
-            #         "loan_account_number":loan.name
-            #     }
-            #     sanction_letter = frappe.get_all("Sanction Letter Entries",filters={"loan_application_no": self.name},fields=["*"],)
-            #     if sanction_letter:
-            #         import os
-            #         fname = log_file.split('files/',1)
-            #         file = fname[1].split(".",1)
-            #         file_name = file[0]
-            #         log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
-            #         if os.path.exists(log_file):
-            #             os.remove(log_file)
-            #         self.sanction_letter()
 
         elif self.status == "Pledge accepted by Lender":
             approved_isin_list = []
@@ -1946,7 +1928,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             item.idx = i
 
     def sanction_letter(self, check=None):
-        print("defg")
         customer = self.get_customer()
         user = frappe.get_doc("User", customer.user)
         user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
