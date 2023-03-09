@@ -2600,17 +2600,36 @@ def customer_file_upload(upload_file):
                     offline_customer.save(ignore_permissions=True)
                     frappe.db.commit()
                 else:
-                    user = create_user(
-                        offline_customer.first_name,
-                        offline_customer.last_name,
-                        offline_customer.mobile_no,
-                        offline_customer.customer_email,
-                        tester=0,
+                    res_email = frappe.get_all(
+                        "User", filters={"email": offline_customer.customer_email}
                     )
-                    offline_customer.user_status = "Success"
-                    offline_customer.user_name == user.name
-                    offline_customer.save(ignore_permissions=True)
-                    frappe.db.commit()
+                    res_mobile = frappe.get_all(
+                        "User",
+                        filters={
+                            "phone": offline_customer.mobile_no,
+                            "mobile_no": offline_customer.mobile_no,
+                        },
+                    )
+                    if res_email or res_mobile:
+                        offline_customer.user_status = "Failure"
+                        offline_customer.user_remarks = "Duplicate Value"
+                        offline_customer.customer_status = "Failure"
+                        offline_customer.customer_remarks = "Duplicate Values"
+                        offline_customer.user_name == user.name
+                        offline_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
+                    else:
+                        user = create_user(
+                            offline_customer.first_name,
+                            offline_customer.last_name,
+                            offline_customer.mobile_no,
+                            offline_customer.customer_email,
+                            tester=0,
+                        )
+                        offline_customer.user_status = "Success"
+                        offline_customer.user_name == user.name
+                        offline_customer.save(ignore_permissions=True)
+                        frappe.db.commit()
 
                     # loan customer creation
                     res = frappe.get_all(
@@ -2619,17 +2638,20 @@ def customer_file_upload(upload_file):
                     res_user = frappe.get_all(
                         "Loan Customer", filters={"user": user.name}
                     )
+                    cust_status = ""
                     if res or res_user:
                         doc_name = res[0].name if res else res_user[0].name
-                        frappe.throw(
-                            _(
-                                "Loan Customer already exists".format(
-                                    offline_customer.mobile_no
-                                )
-                            )
-                        )
+                        # frappe.throw(
+                        #     _(
+                        #         "Loan Customer already exists".format(
+                        #             offline_customer.mobile_no
+                        #         )
+                        #     )
+                        # )
                         offline_customer.customer_status = "Failure"
-                        offline_customer.customer_remarks = "Duplicate Values"
+                        offline_customer.customer_remarks = (
+                            "Loan Customer already exists"
+                        )
                         offline_customer.user_name == doc_name
                         offline_customer.save(ignore_permissions=True)
                         frappe.db.commit()
@@ -2639,6 +2661,7 @@ def customer_file_upload(upload_file):
                         customer.is_email_verified = 1
                         customer.save(ignore_permissions=True)
                         offline_customer.customer_status = "Success"
+                        cust_status = "Success"
                         offline_customer.customer_name = customer.name
                         offline_customer.save(ignore_permissions=True)
                         frappe.db.commit()
@@ -2654,7 +2677,7 @@ def customer_file_upload(upload_file):
                         frappe.db.commit()
 
                     else:
-                        if offline_customer.ckyc_status == "Success":
+                        if cust_status == "Success":
                             ckyc_offline(
                                 customer=customer, offline_customer=offline_customer
                             )

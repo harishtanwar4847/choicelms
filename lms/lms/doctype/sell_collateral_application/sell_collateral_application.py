@@ -136,7 +136,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" and i.psn else "",
             )
             if i.sell_quantity > i.quantity:
                 frappe.throw(
@@ -203,7 +203,7 @@ class SellCollateralApplication(Document):
             isin_folio_combo = "{}{}{}".format(
                 i.isin,
                 i.folio if i.folio else "",
-                i.psn if i.psn else "",
+                i.psn if self.instrument_type == "Mutual Fund" and i.psn else "",
             )
             sell_quantity_map[isin_folio_combo] = (
                 sell_quantity_map[isin_folio_combo] + i.sell_quantity
