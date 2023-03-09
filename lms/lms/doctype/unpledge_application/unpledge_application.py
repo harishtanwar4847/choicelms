@@ -206,7 +206,7 @@ class UnpledgeApplication(Document):
                 isin_folio_combo = "{}{}{}".format(
                     i.isin,
                     "{}".format("-" + str(i.folio) if i.folio else ""),
-                    i.psn if i.psn else "",
+                    i.psn if self.instrument_type == "Mutual Fund" and i.psn else "",
                 )
                 unpledge_quantity_map[isin_folio_combo] = (
                     unpledge_quantity_map[isin_folio_combo] + i.unpledge_quantity
