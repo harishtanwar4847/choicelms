@@ -5195,7 +5195,7 @@ def au_penny_drop(**kwargs):
                                         "penny_request_id": res_json.get("body").get(
                                             "request_id"
                                         ),
-                                        "is_default": True,
+                                        # "is_default": True,
                                         "ifsc": data.get("ifsc"),
                                         "account_number": result_.get("accountNumber"),
                                         "bank_transaction_status": result_.get(

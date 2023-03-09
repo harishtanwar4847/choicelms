@@ -225,7 +225,7 @@ class UserKYC(Document):
                                                     "penny_request_id": res_json.get(
                                                         "body"
                                                     ).get("request_id"),
-                                                    "is_default": True,
+                                                    "is_offline": True,
                                                     "ifsc": data.get("ifsc"),
                                                     "account_number": result_.get(
                                                         "accountNumber"
@@ -233,7 +233,6 @@ class UserKYC(Document):
                                                     "bank_transaction_status": result_.get(
                                                         "bankTxnStatus"
                                                     ),
-                                                    "personalized_cheque": "",
                                                     "account_type": data.get(
                                                         "bank_account_type"
                                                     ),
