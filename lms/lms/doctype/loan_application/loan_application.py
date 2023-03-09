@@ -908,6 +908,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 
     def on_update(self):
         if self.status == "Approved":
+            customer = self.get_customer()
             if self.application_type == "New Loan":
                 pdf_doc_name = "Loan_Agreement_{}".format(self.name)
             else:
@@ -927,7 +928,10 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     frappe.db.set_value(
                         self.doctype, self.name, "lender_esigned_document", signed_doc
                     )
-                self.sanction_letter(check=loan.name)
+                if (customer.offline_customer and customer.loan_open) or (
+                    not customer.offline_customer
+                ):
+                    self.sanction_letter(check=loan.name)
             else:
                 loan = self.update_existing_loan()
                 if self.lender_esigned_document:
@@ -939,7 +943,10 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     frappe.db.set_value(
                         self.doctype, self.name, "lender_esigned_document", signed_doc
                     )
-                self.sanction_letter(check=loan.name)
+                if (customer.offline_customer and customer.loan_open) or (
+                    not customer.offline_customer
+                ):
+                    self.sanction_letter(check=loan.name)
             frappe.db.commit()
             if self.application_type in ["New Loan", "Increase Loan"]:
 
