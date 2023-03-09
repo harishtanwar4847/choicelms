@@ -2641,15 +2641,17 @@ def customer_file_upload(upload_file):
                     cust_status = ""
                     if res or res_user:
                         doc_name = res[0].name if res else res_user[0].name
-                        frappe.throw(
-                            _(
-                                "Loan Customer already exists".format(
-                                    offline_customer.mobile_no
-                                )
-                            )
-                        )
+                        # frappe.throw(
+                        #     _(
+                        #         "Loan Customer already exists".format(
+                        #             offline_customer.mobile_no
+                        #         )
+                        #     )
+                        # )
                         offline_customer.customer_status = "Failure"
-                        offline_customer.customer_remarks = "Duplicate Values"
+                        offline_customer.customer_remarks = (
+                            "Loan Customer already exists"
+                        )
                         offline_customer.user_name == doc_name
                         offline_customer.save(ignore_permissions=True)
                         frappe.db.commit()
