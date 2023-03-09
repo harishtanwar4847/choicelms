@@ -66,9 +66,10 @@ def get_context(context):
                 "deviceid": "chrome",
                 "osid": "Windows",
                 "url": "",
-                "redirecturl": frappe.utils.get_url(
-                    "/api/method/lms.decrypt_lien_marking_response"
-                ),  # mandatory
+                # "redirecturl": frappe.utils.get_url(
+                #     "/api/method/lms.decrypt_lien_marking_response"
+                # ),  # mandatory
+                "redirecturl": "https://www.google.com",
                 "markid": "mark12",
                 "verifyid": "verify12",
                 "approveid": "appro12",
