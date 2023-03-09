@@ -77,6 +77,15 @@ def get_context(context):
             encrypted_data = lms.AESCBC(
                 las_settings.encryption_key, las_settings.iv
             ).encrypt(json.dumps(data))
+            frappe.logger().info(
+                str(
+                    {
+                        "Customer name": customer.full_name,
+                        "json_payload": data,
+                        "encrypted_request": encrypted_data,
+                    }
+                )
+            )
             lms.create_log(
                 {
                     "Customer name": customer.full_name,
