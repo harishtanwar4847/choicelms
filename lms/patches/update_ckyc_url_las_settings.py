@@ -2,7 +2,7 @@ import frappe
 
 
 def execute():
-    frappe.reload_doc("Lms", "DocType", "LAS Settings")
+    frappe.reload_doc("Lms", "DocType", "LAS Settings", force=True)
     las_settings = frappe.get_single("LAS Settings")
     user_consent = frappe.get_all(
         "User Consent", filters={"consent": "Ckyc"}, pluck="name"

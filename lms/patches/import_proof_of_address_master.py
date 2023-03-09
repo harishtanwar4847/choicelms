@@ -2,7 +2,7 @@ import frappe
 
 
 def execute():
-    frappe.reload_doc("Lms", "DocType", "Proof of Address Master")
+    frappe.reload_doc("Lms", "DocType", "Proof of Address Master", force=True)
     path = frappe.get_app_path(
         "lms", "patches", "imports", "proof_of_address_master.csv"
     )

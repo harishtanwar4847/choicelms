@@ -2,14 +2,14 @@ import frappe
 
 
 def execute():
-    frappe.reload_doc("Lms", "DocType", "Cart")
-    frappe.reload_doc("Lms", "DocType", "Loan Application")
-    frappe.reload_doc("Lms", "DocType", "Loan")
-    frappe.reload_doc("Lms", "DocType", "Loan Transaction")
-    frappe.reload_doc("Lms", "DocType", "Loan Margin Shortfall")
-    frappe.reload_doc("Lms", "DocType", "Margin Shortfall Action")
-    frappe.reload_doc("Lms", "DocType", "Collateral Ledger")
-    frappe.reload_doc("Lms", "DocType", "Top up Application")
+    frappe.reload_doc("Lms", "DocType", "Cart", force=True)
+    frappe.reload_doc("Lms", "DocType", "Loan Application", force=True)
+    frappe.reload_doc("Lms", "DocType", "Loan", force=True)
+    frappe.reload_doc("Lms", "DocType", "Loan Transaction", force=True)
+    frappe.reload_doc("Lms", "DocType", "Loan Margin Shortfall", force=True)
+    frappe.reload_doc("Lms", "DocType", "Margin Shortfall Action", force=True)
+    frappe.reload_doc("Lms", "DocType", "Collateral Ledger", force=True)
+    frappe.reload_doc("Lms", "DocType", "Top up Application", force=True)
 
     frappe.db.sql("""update `tabCart` set instrument_type = "Shares";""")
     frappe.db.sql("""update `tabLoan Application` set instrument_type = "Shares";""")

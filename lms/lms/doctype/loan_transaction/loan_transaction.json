@@ -288,7 +288,7 @@
    "fieldname": "razorpay_event",
    "fieldtype": "Select",
    "label": "Razorpay Event",
-   "options": "\nAuthorized\nCaptured\nFailed\nPayment Cancelled"
+   "options": "\nCaptured\nFailed\nPayment Cancelled"
   },
   {
    "fieldname": "razorpay_payment_log",
@@ -380,7 +380,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-08-04 16:07:32.006791",
+ "modified": "2023-03-03 12:55:57.302642",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Transaction",
