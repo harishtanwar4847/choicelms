@@ -53,11 +53,7 @@ def get_context(context):
                 "addinfo5": "5",
                 "mobile": customer.phone,
                 "requesterid": customer.name,
-                "ipaddress": str(
-                    json.loads(requests.get("https://ip.seeip.org/jsonip?").text).get(
-                        "ip"
-                    )
-                ),
+                "ipaddress": "",
                 "requestresponse": "1",
                 "sessionid": datetime_signature[0],  # mandatory
                 "executiondate": datetime_signature[0],  # mandatory
@@ -66,10 +62,9 @@ def get_context(context):
                 "deviceid": "chrome",
                 "osid": "Windows",
                 "url": "",
-                # "redirecturl": frappe.utils.get_url(
-                #     "/api/method/lms.decrypt_lien_marking_response"
-                # ),  # mandatory
-                "redirecturl": "https://www.google.com",
+                "redirecturl": frappe.utils.get_url(
+                    "/api/method/lms.decrypt_lien_marking_response"
+                ),  # mandatory
                 "markid": "mark12",
                 "verifyid": "verify12",
                 "approveid": "appro12",
