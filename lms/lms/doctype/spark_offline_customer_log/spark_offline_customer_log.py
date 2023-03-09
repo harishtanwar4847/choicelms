@@ -21,7 +21,7 @@ class SparkOfflineCustomerLog(Document):
         if self.last_name != self.customer_last_name:
             frappe.throw("Users last name and Loan customers last name should be same")
 
-        if self.mobile_no != self.customer_mobile_number:
+        if self.mobile_no != self.customer_mobile:
             frappe.throw(
                 "Users mobile number and Loan customers mobile number should be same"
             )
