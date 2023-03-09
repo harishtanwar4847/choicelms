@@ -45,7 +45,12 @@ def retry_process(doc_name):
             doc.user_status == "Pending" and doc.customer_status == "Pending"
         ):
             # validation for name
-            reg = lms.regex_special_characters(search=doc.first_name + doc.last_name)
+            reg = lms.regex_special_characters(
+                search=doc.first_name
+                + doc.last_name
+                + doc.customer_first_name
+                + doc.customer_last_name
+            )
             email_regex = (
                 r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
             )
@@ -60,9 +65,19 @@ def retry_process(doc_name):
             ):
                 message += "Please enter valid email ID.\n"
 
+            if (re.search(email_regex, doc.customer_email)) is None or (
+                len(doc.email_id.split("@")) > 2
+            ):
+                message += "Please enter customer valid email ID.\n"
+
             # validation for mobile number
             if (len(doc.mobile_no) != 10) or (doc.mobile_no.isnumeric() == False):
                 message += "Please enter valid Mobile Number.\n"
+
+            if (len(doc.customer_mobile) != 10) or (
+                doc.customer_mobile.isnumeric() == False
+            ):
+                message += "Please enter valid customer Mobile Number.\n"
 
             # if doc.city.isalpha() == False:
             #     message += "Please enter valid city name.\n"
@@ -73,7 +88,14 @@ def retry_process(doc_name):
                     (re.search(email_regex, doc.email_id)) is None
                     or (len(doc.email_id.split("@")) > 2)
                 )
-                or ((len(doc.mobile_no) != 10) or (doc.mobile_no.isnumeric() == False))
+                or (
+                    (re.search(email_regex, doc.customer_email)) is None
+                    or (len(doc.customer_email.split("@")) > 2)
+                )
+                or (
+                    (len(doc.customer_mobile) != 10)
+                    or (doc.customer_mobile.isnumeric() == False)
+                )
             ):
                 doc.user_status = "Failure"
                 doc.customer_status = "Failure"
@@ -96,6 +118,7 @@ def retry_process(doc_name):
                 doc.user_remarks = message
                 doc.user_name = user.name
                 doc.customer_name = customer.name
+                customer.offline_customer = 1
                 customer.is_email_verified = 1
                 customer.save(ignore_permissions=True)
                 doc.save(ignore_permissions=True)

@@ -2484,6 +2484,12 @@ def customer_file_upload(upload_file):
         for i in csv_data[1:]:
             message = ""
             # validation for name
+            first_name = False
+            last_name = False
+            if " " in i[0]:
+                first_name = True
+            if " " in i[1]:
+                last_name = True
             reg = regex_special_characters(search=i[0] + i[1])
             if reg:
                 message += (
@@ -2559,6 +2565,8 @@ def customer_file_upload(upload_file):
                     or (re.search(alphanum_regex, offline_customer.ifsc) is None)
                 )
                 or (re.search(pan_regex, offline_customer.pan_no) is None)
+                or (first_name)
+                or (last_name)
             ):
                 offline_customer.user_status = "Failure"
                 offline_customer.user_remarks = message
