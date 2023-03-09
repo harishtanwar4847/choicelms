@@ -5206,6 +5206,12 @@ def au_penny_drop(**kwargs):
                                     }
                                 ).insert()
                                 frappe.db.commit()
+                                frappe.local.form_dict[
+                                    "kyc_full_name"
+                                ] = user_kyc.fullname
+                                frappe.local.form_dict[
+                                    "penny_response_account_name"
+                                ] = result_.get("accountName")
                                 raise lms.exceptions.RespondFailureException(
                                     _(
                                         "We have found a mismatch in the account holder name as per the fetched data"

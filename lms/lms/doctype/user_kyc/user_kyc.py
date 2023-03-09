@@ -242,6 +242,8 @@ class UserKYC(Document):
                                             frappe.throw(
                                                 "We have found a mismatch in the account holder name as per the fetched data"
                                             )
+                                        self.kyc_type = "CHOICE"
+                                        i.bank_status = "Pending"
                                         i.penny_request_id = res_json.get("body").get(
                                             "request_id"
                                         )
