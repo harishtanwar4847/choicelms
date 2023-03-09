@@ -53,11 +53,7 @@ def get_context(context):
                 "addinfo5": "5",
                 "mobile": customer.phone,
                 "requesterid": customer.name,
-                "ipaddress": str(
-                    json.loads(requests.get("https://ip.seeip.org/jsonip?").text).get(
-                        "ip"
-                    )
-                ),
+                "ipaddress": "",
                 "requestresponse": "1",
                 "sessionid": datetime_signature[0],  # mandatory
                 "executiondate": datetime_signature[0],  # mandatory
@@ -77,6 +73,15 @@ def get_context(context):
             encrypted_data = lms.AESCBC(
                 las_settings.encryption_key, las_settings.iv
             ).encrypt(json.dumps(data))
+            frappe.logger().info(
+                str(
+                    {
+                        "Customer name": customer.full_name,
+                        "json_payload": data,
+                        "encrypted_request": encrypted_data,
+                    }
+                )
+            )
             lms.create_log(
                 {
                     "Customer name": customer.full_name,
