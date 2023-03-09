@@ -31,6 +31,16 @@ class SparkOfflineCustomerLog(Document):
 
         if self.ckyc_status == "Success":
             self.ckyc_remarks = ""
+
+        if self.user_status == "Success":
+            self.user_remarks = ""
+        if self.customer_status == "Success":
+            self.customer_remarks = ""
+        if self.ckyc_status == "Success":
+            self.ckyc_remarks = ""
+        if self.bank_status == "Success":
+            self.bank_remarks = ""
+
         if (
             self.user_status == "Success"
             and self.customer_status == "Success"
