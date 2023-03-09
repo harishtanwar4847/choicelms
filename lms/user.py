@@ -5057,10 +5057,14 @@ def au_penny_drop(**kwargs):
             "*",
             order_by="creation desc",
         )
+        mismatch_bank_acc = frappe.db.count(
+            "User Bank Account",
+            {"account_number": data.get("account_number"), "is_mismatched": 1},
+        )
         penny_name_mismatch = frappe.get_all(
             "Penny Name Mismatch", {"account_number": data.get("account_number")}, "*"
         )
-        if not bank_acc and penny_name_mismatch:
+        if not mismatch_bank_acc and penny_name_mismatch:
             bank_account_list_ = frappe.get_all(
                 "User Bank Account",
                 filters={"parent": user_kyc.name},
