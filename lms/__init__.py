@@ -2438,8 +2438,8 @@ def ckyc_offline(customer, offline_customer):
                     "account_type": offline_customer.account_type,
                 },
             ).insert(ignore_permissions=True)
-            # customer.kyc_update = 1
-            # customer.choice_kyc = user_kyc.name
+            customer.kyc_update = 1
+            customer.choice_kyc = user_kyc.name
             customer.offline_customer = 1
             customer.save(ignore_permissions=True)
             offline_customer.ckyc_status = "Success"
