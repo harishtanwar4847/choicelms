@@ -2596,7 +2596,7 @@ def customer_file_upload(upload_file):
                     offline_customer.user_remarks = "Duplicate Value"
                     offline_customer.customer_status = "Failure"
                     offline_customer.customer_remarks = "Duplicate Values"
-                    offline_customer.user_name == res[0].name
+                    # offline_customer.user_name == res[0].name
                     offline_customer.save(ignore_permissions=True)
                     frappe.db.commit()
                 else:
@@ -2615,7 +2615,6 @@ def customer_file_upload(upload_file):
                         offline_customer.user_remarks = "Duplicate Value"
                         offline_customer.customer_status = "Failure"
                         offline_customer.customer_remarks = "Duplicate Values"
-                        offline_customer.user_name == user.name
                         offline_customer.save(ignore_permissions=True)
                         frappe.db.commit()
                     else:
@@ -2627,7 +2626,6 @@ def customer_file_upload(upload_file):
                             tester=0,
                         )
                         offline_customer.user_status = "Success"
-                        offline_customer.user_name == user.name
                         offline_customer.save(ignore_permissions=True)
                         frappe.db.commit()
 
@@ -2652,7 +2650,7 @@ def customer_file_upload(upload_file):
                         offline_customer.customer_remarks = (
                             "Loan Customer already exists"
                         )
-                        offline_customer.user_name == doc_name
+                        # offline_customer.user_name == doc_name
                         offline_customer.save(ignore_permissions=True)
                         frappe.db.commit()
                     else:

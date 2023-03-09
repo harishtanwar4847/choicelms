@@ -15,7 +15,6 @@
   "mobile_no",
   "email_id",
   "user_remarks",
-  "user_name",
   "customer_details_section",
   "customer_first_name",
   "customer_last_name",
@@ -276,12 +275,6 @@
    "label": "MyCams Email ID"
   },
   {
-   "fieldname": "user_name",
-   "fieldtype": "Link",
-   "label": "User Name",
-   "options": "User"
-  },
-  {
    "fieldname": "customer_name",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -303,7 +296,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-03-09 12:44:14.497498",
+ "modified": "2023-03-09 19:01:10.969767",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Offline Customer Log",
