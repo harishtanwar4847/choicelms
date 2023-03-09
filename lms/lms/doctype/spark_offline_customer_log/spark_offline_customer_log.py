@@ -130,8 +130,8 @@ def retry_process(doc_name):
             cust_name = frappe.get_value(
                 "Loan Customer", {"phone": doc.mobile_no, "user": doc.email_id}, "name"
             )
-            customer = frappe.get_doc("Loan Customer", cust_name)
             if doc.customer_status == "Success":
+                customer = frappe.get_doc("Loan Customer", cust_name)
                 lms.ckyc_offline(customer=customer, offline_customer=doc)
 
         return utils.respondWithSuccess(
@@ -140,6 +140,6 @@ def retry_process(doc_name):
 
     except Exception:
         frappe.log_error(
-            message=frappe.get_traceback(),
+            message=frappe.get_traceback() + "\n\n Doc name = {}".format(str(doc_name)),
             title=frappe._("Spark Offline Customer Log"),
         )
