@@ -71,6 +71,20 @@ def retry_process(doc_name):
             email_regex = (
                 r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
             )
+            first_name = False
+            last_name = False
+            if " " in doc.first_name:
+                first_name = True
+                message += "Space not allowed user First Name.\n"
+            if " " in doc.last_name:
+                last_name = True
+                message += "Space not allowed user Last Name.\n"
+            if " " in doc.customer_first_name:
+                first_name = True
+                message += "Space not allowed customer First Name.\n"
+            if " " in doc.customer_last_name:
+                last_name = True
+                message += "Space not allowed customer Last Name.\n"
             if reg:
                 message += (
                     "Special Characters not allowed in First Name and Last Name.\n"
@@ -113,6 +127,8 @@ def retry_process(doc_name):
                     (len(doc.customer_mobile) != 10)
                     or (doc.customer_mobile.isnumeric() == False)
                 )
+                or (first_name)
+                or (last_name)
             ):
                 doc.user_status = "Failure"
                 doc.customer_status = "Failure"
