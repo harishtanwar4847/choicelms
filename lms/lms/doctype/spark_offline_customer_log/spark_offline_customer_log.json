@@ -279,31 +279,35 @@
    "fieldname": "user_name",
    "fieldtype": "Link",
    "label": "User Name",
-   "options": "User"
+   "options": "User",
+   "set_only_once": 1
   },
   {
    "fieldname": "customer_name",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Customer Name",
-   "options": "Loan Customer"
+   "options": "Loan Customer",
+   "set_only_once": 1
   },
   {
    "fieldname": "user_kyc_name",
    "fieldtype": "Link",
    "label": "User KYC name",
-   "options": "User KYC"
+   "options": "User KYC",
+   "set_only_once": 1
   },
   {
    "fieldname": "kyc_name",
    "fieldtype": "Link",
    "label": "User KYC name",
-   "options": "User KYC"
+   "options": "User KYC",
+   "set_only_once": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-03-08 21:11:29.411167",
+ "modified": "2023-03-09 12:02:46.811410",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Offline Customer Log",
