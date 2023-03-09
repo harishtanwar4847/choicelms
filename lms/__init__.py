@@ -2594,6 +2594,8 @@ def customer_file_upload(upload_file):
                 if res and cust:
                     offline_customer.user_status = "Failure"
                     offline_customer.user_remarks = "Duplicate Value"
+                    offline_customer.customer_status = "Failure"
+                    offline_customer.customer_remarks = "Duplicate Values"
                     offline_customer.user_name == res[0].name
                     offline_customer.save(ignore_permissions=True)
                     frappe.db.commit()
