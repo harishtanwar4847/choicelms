@@ -12,6 +12,23 @@ import lms
 
 class SparkOfflineCustomerLog(Document):
     def before_save(self):
+        # validations
+        if self.first_name != self.customer_first_name:
+            frappe.throw(
+                "Users first name and Loan customers first name should be same"
+            )
+
+        if self.last_name != self.customer_last_name:
+            frappe.throw("Users last name and Loan customers last name should be same")
+
+        if self.mobile_no != self.customer_mobile_number:
+            frappe.throw(
+                "Users mobile number and Loan customers mobile number should be same"
+            )
+
+        if self.email_id != self.customer_email:
+            frappe.throw("Users email and Loan customers email should be same")
+
         if self.ckyc_status == "Success":
             self.ckyc_remarks = ""
         if (

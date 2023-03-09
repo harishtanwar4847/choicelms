@@ -2488,8 +2488,10 @@ def customer_file_upload(upload_file):
             last_name = False
             if " " in i[0]:
                 first_name = True
+                message += "Space not allowed in First Name.\n"
             if " " in i[1]:
                 last_name = True
+                message += "Space not allowed in Last Name.\n"
             reg = regex_special_characters(search=i[0] + i[1])
             if reg:
                 message += (
