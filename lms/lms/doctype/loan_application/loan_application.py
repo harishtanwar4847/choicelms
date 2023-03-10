@@ -726,6 +726,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         lender = self.get_lender()
         if self.instrument_type != "Mutual Fund" and not self.pledgee_boid:
             self.pledgee_boid = lender.demat_account_number
+        if self.instrument_type == "Shares" and not self.pledgor_boid:
+            frappe.throw("Pledgor BOID can not be empty for LAS")
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
         )
