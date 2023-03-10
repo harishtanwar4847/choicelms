@@ -62,7 +62,11 @@ class CollateralLedger(Document):
 
         if request_type == "Pledge":
             collateral_ledger.expiry = data.expiry
-
+            collateral_ledger.date_of_pledge = (
+                data.date_of_pledge
+                if data.date_of_pledge
+                else frappe.utils.now_datetime().strftime("%d-%m-%Y")
+            )
         if requested_quantity:
             collateral_ledger.requested_quantity = requested_quantity
 

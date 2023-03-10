@@ -8,6 +8,7 @@
   "isin",
   "security_name",
   "quantity",
+  "psn",
   "column_break_4",
   "price",
   "amount",
@@ -72,6 +73,11 @@
    "fieldname": "security_category",
    "fieldtype": "Data",
    "label": "Security/Scheme Category"
+  },
+  {
+   "fieldname": "psn",
+   "fieldtype": "Data",
+   "label": "PSN/Lien Mark Number"
   }
  ],
  "istable": 1,

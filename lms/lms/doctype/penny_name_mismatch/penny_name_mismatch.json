@@ -1,0 +1,228 @@
+{
+ "actions": [],
+ "creation": "2023-03-02 14:30:03.428754",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "seen",
+  "customer_details_section",
+  "customer",
+  "customer_name",
+  "column_break_5",
+  "user_kyc",
+  "is_offline",
+  "kyc_details_section",
+  "kyc_first_name",
+  "kyc_middle_name",
+  "column_break_4",
+  "kyc_last_name",
+  "kyc_full_name",
+  "bank_details_section",
+  "penny_response_account_name",
+  "bank",
+  "branch",
+  "city",
+  "penny_request_id",
+  "is_default",
+  "column_break_1",
+  "ifsc",
+  "account_number",
+  "bank_transaction_status",
+  "personalized_cheque",
+  "account_type"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "seen",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Seen"
+  },
+  {
+   "fieldname": "kyc_details_section",
+   "fieldtype": "Section Break",
+   "label": "KYC Details",
+   "read_only": 1
+  },
+  {
+   "fieldname": "kyc_first_name",
+   "fieldtype": "Data",
+   "label": "Kyc First Name"
+  },
+  {
+   "fieldname": "kyc_middle_name",
+   "fieldtype": "Data",
+   "label": "Kyc Middle Name"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "kyc_last_name",
+   "fieldtype": "Data",
+   "label": "Kyc Last Name"
+  },
+  {
+   "fieldname": "kyc_full_name",
+   "fieldtype": "Data",
+   "label": "Kyc Full Name"
+  },
+  {
+   "fieldname": "bank_details_section",
+   "fieldtype": "Section Break",
+   "label": "Bank Details"
+  },
+  {
+   "fieldname": "penny_response_account_name",
+   "fieldtype": "Data",
+   "label": "Penny Response Account Name "
+  },
+  {
+   "fieldname": "bank",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Bank",
+   "reqd": 1
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Data",
+   "label": "Branch"
+  },
+  {
+   "fieldname": "account_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Account Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "ifsc",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "IFSC",
+   "reqd": 1
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Default"
+  },
+  {
+   "fieldname": "penny_request_id",
+   "fieldtype": "Data",
+   "label": "Penny Request Id"
+  },
+  {
+   "fieldname": "bank_transaction_status",
+   "fieldtype": "Data",
+   "label": "Bank Transaction Status"
+  },
+  {
+   "depends_on": "eval:!doc.is_offline",
+   "fieldname": "personalized_cheque",
+   "fieldtype": "Attach Image",
+   "label": "Personalized Cheque"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "account_type",
+   "fieldtype": "Data",
+   "label": "Account Type"
+  },
+  {
+   "fieldname": "customer_details_section",
+   "fieldtype": "Section Break",
+   "label": "Customer Details"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer",
+   "options": "Loan Customer",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "customer.full_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Read Only",
+   "in_list_view": 1,
+   "label": "Customer Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "user_kyc",
+   "fieldtype": "Link",
+   "label": "User KYC",
+   "options": "User KYC",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_offline",
+   "fieldtype": "Check",
+   "label": "Is Offline",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2023-03-09 16:20:45.887286",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Penny Name Mismatch",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Lender",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Loan Customer",
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

@@ -38,7 +38,7 @@ lms.patches.import_amc_master
 lms.patches.import_state_master
 lms.patches.import_district_master
 lms.patches.import_pincode_master
-lms.patches.import_document_master ##############
+lms.patches.import_document_master 
 lms.patches.import_identity_code ###
 lms.patches.import_related_person_type ####
 lms.patches.import_country_master ####
@@ -50,6 +50,7 @@ lms.patches.update_eligible_percentage
 lms.patches.update_ckyc_doc ######ckyc#######################
 lms.patches.update_email_in_kyc #ckyc
 lms.patches.update_spark_app_version
-lms.patches.update_workflow #CKYC
+lms.patches.update_workflow ###CKYC
+lms.patches.update_psn ####
 lms.patches.update_dlt_links 
 lms.patches.au_bank_penny

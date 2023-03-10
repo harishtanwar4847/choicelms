@@ -548,7 +548,7 @@ class Loan(Document):
         # sauce: https://stackoverflow.com/a/23827026/9403680
         sql = """
 			SELECT
-				cl.loan, cl.isin, cl.psn, cl.pledgor_boid, cl.pledgee_boid, cl.prf, cl.scheme_code, cl.folio, cl.amc_code,
+				cl.loan, cl.isin, cl.psn, cl.pledgor_boid, cl.pledgee_boid , cl.prf, cl.scheme_code, cl.folio, cl.amc_code,
 				s.price, s.security_name,
                 (select sc.category_name from `tabSecurity Category` sc  where sc.name = als.security_category) as security_category
 				, SUM(COALESCE(CASE WHEN request_type = 'Pledge' THEN quantity END,0))
@@ -708,9 +708,9 @@ class Loan(Document):
             old_total_collateral_value = self.total_collateral_value
 
             check = self.update_items()
-
             if check:
                 self.fill_items()
+                self.available_topup_amt = self.max_topup_amount()
                 self.save(ignore_permissions=True)
 
                 loan_margin_shortfall = self.get_margin_shortfall()
@@ -2474,3 +2474,22 @@ def interest_booked_till_date(loan_name):
         as_dict=1,
     )[0]["total_amount"]
     return 0.0 if interest_booked == None else interest_booked
+
+
+@frappe.whitelist()
+def available_top_up_update():
+    try:
+        loans = frappe.get_all("Loan", fields=["*"])
+        for loan in loans:
+            loan_doc = frappe.get_doc("Loan", loan.name)
+            if loan_doc.sanctioned_limit > 0 and loan_doc.total_collateral_value > 0:
+                max_top_amt = loan_doc.max_topup_amount()
+                if max_top_amt:
+                    loan_doc.available_topup_amt = max_top_amt
+                    loan_doc.save(ignore_permissions=True)
+                    frappe.db.commit()
+    except Exception:
+        frappe.log_error(
+            frappe.get_traceback() + "\n\nloan name :-\n" + loan.name,
+            title=frappe._("Available Top-up Update"),
+        )

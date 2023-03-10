@@ -10,10 +10,12 @@
   "is_email_verified",
   "kyc_update",
   "bank_update",
+  "offline_customer",
   "column_break_65",
   "credit_check",
   "pledge_securities",
   "loan_open",
+  "set_pin",
   "customer_feedback_section",
   "feedback_submitted",
   "feedback_column_break",
@@ -213,10 +215,24 @@
    "fieldname": "bank_update",
    "fieldtype": "Check",
    "label": "Bank Update"
+  },
+  {
+   "default": "0",
+   "fieldname": "offline_customer",
+   "fieldtype": "Check",
+   "label": "Offline Customer",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "set_pin",
+   "fieldtype": "Check",
+   "label": "Set Pin",
+   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2022-08-17 14:05:29.638560",
+ "modified": "2022-09-29 00:32:29.541021",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Customer",
@@ -270,7 +286,6 @@
    "write": 1
   }
  ],
- "search_fields": "full_name",
  "sort_field": "modified",
  "sort_order": "DESC",
  "track_changes": 1

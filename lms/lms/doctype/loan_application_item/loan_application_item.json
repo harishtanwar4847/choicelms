@@ -14,7 +14,9 @@
   "amount",
   "eligible_percentage",
   "eligible_amount",
+  "psn",
   "column_break_8",
+  "date_of_pledge",
   "prf_number",
   "pledge_status",
   "pledge_executed",
@@ -33,7 +35,6 @@
    "in_list_view": 1,
    "label": "ISIN",
    "options": "Security",
-   "read_only": 1,
    "reqd": 1
   },
   {
@@ -42,8 +43,7 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Security/Scheme Category",
-   "read_only": 1,
-   "reqd": 1
+   "read_only": 1
   },
   {
    "columns": 1,
@@ -52,11 +52,11 @@
    "in_list_view": 1,
    "label": "Pledged Quantity/Unit",
    "precision": "3",
-   "read_only": 1,
    "reqd": 1
   },
   {
    "columns": 1,
+   "fetch_from": "isin.price",
    "fieldname": "price",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -67,15 +67,16 @@
   },
   {
    "columns": 1,
+   "fetch_from": "price *  pledged_quantity",
    "fieldname": "amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Amount",
-   "read_only": 1,
-   "reqd": 1
+   "read_only": 1
   },
   {
    "columns": 2,
+   "fetch_from": "isin.security_name",
    "fieldname": "security_name",
    "fieldtype": "Small Text",
    "in_list_view": 1,
@@ -84,7 +85,7 @@
   },
   {
    "fieldname": "prf_number",
-   "fieldtype": "Read Only",
+   "fieldtype": "Data",
    "label": "PRF/Lien Reference Number"
   },
   {
@@ -109,8 +110,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Pledge Status",
-   "options": "\nSuccess\nFailure",
-   "read_only": 1
+   "options": "\nSuccess\nFailure"
   },
   {
    "fieldname": "column_break_8",
@@ -121,32 +121,33 @@
    "fieldname": "type",
    "fieldtype": "Select",
    "label": "Type",
-   "options": "Shares\nEquity\nDebt",
-   "read_only": 1
+   "options": "Shares\nEquity\nDebt"
   },
   {
+   "depends_on": "eval:doc.type !=\"Shares\";",
    "fieldname": "folio",
    "fieldtype": "Data",
-   "label": "Folio",
-   "read_only": 1
+   "label": "Folio"
   },
   {
    "fieldname": "amc_code",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "AMC Code",
+   "options": "AMC Master",
    "read_only": 1
   },
   {
+   "fetch_from": "amc_code.amc_name",
    "fieldname": "amc_name",
    "fieldtype": "Data",
    "label": "AMC Name",
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.type !=\"Shares\";",
    "fieldname": "scheme_code",
    "fieldtype": "Data",
-   "label": "Scheme Code",
-   "read_only": 1
+   "label": "Scheme Code"
   },
   {
    "fieldname": "requested_quantity",
@@ -167,11 +168,21 @@
    "fieldtype": "Currency",
    "label": "Eligible Amount",
    "read_only": 1
+  },
+  {
+   "fieldname": "psn",
+   "fieldtype": "Data",
+   "label": "PSN/Lien Mark Number"
+  },
+  {
+   "fieldname": "date_of_pledge",
+   "fieldtype": "Data",
+   "label": "Date of Pledge/Lien"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-05-11 12:36:52.331564",
+ "modified": "2023-03-02 12:13:06.091789",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application Item",

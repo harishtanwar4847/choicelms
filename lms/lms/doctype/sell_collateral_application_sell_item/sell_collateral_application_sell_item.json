@@ -15,6 +15,7 @@
   "pledgor_boid",
   "pledgee_boid",
   "column_break_10",
+  "date_of_pledge",
   "prf",
   "amc_code",
   "folio",
@@ -128,11 +129,16 @@
    "fieldtype": "Data",
    "label": "Scheme Code",
    "read_only": 1
+  },
+  {
+   "fieldname": "date_of_pledge",
+   "fieldtype": "Data",
+   "label": "Date of Pledge"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-04-28 13:01:37.029167",
+ "modified": "2022-09-29 11:43:41.140066",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sell Collateral Application Sell Item",
