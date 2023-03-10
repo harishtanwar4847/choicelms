@@ -723,13 +723,15 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     frappe.db.commit()
 
     def before_save(self):
+        lender = self.get_lender()
+        if self.instrument_type != "Mutual Fund" and not self.pledgee_boid:
+            self.pledgee_boid = lender.demat_account_number
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
         )
         user_role = []
         for i in list(user_roles):
             user_role.append(i[0])
-        lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
 
