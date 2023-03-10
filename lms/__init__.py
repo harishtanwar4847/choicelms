@@ -735,7 +735,9 @@ def create_log(log, file_name):
         os.remove(log_file)
         frappe.log_error(
             message=frappe.get_traceback()
-            + "\n\nFile name -\n{}\n\nLog details -\n{}".format(file_name, str(log)),
+            + "\n\nFile name -\n{}\n\nBackup File name -\n{}\n\nLog details -\n{}".format(
+                file_name, log_text_file, str(log)
+            ),
             title="Create Log JSONDecodeError",
         )
     except Exception as e:
