@@ -2331,7 +2331,7 @@ def add_all_loans_virtual_interest():
     las_settings.save(ignore_permissions=True)
     frappe.db.commit()
 
-    chunks = lms.chunk_doctype(doctype="Loan", limit=10)
+    chunks = lms.chunk_doctype(doctype="Loan", limit=50)
 
     for start in chunks.get("chunks"):
         all_loans = frappe.db.get_all(
@@ -2353,7 +2353,7 @@ def check_for_loans_additional_interest(loans):
 
 @frappe.whitelist()
 def check_for_all_loans_additional_interest():
-    chunks = lms.chunk_doctype(doctype="Loan", limit=10)
+    chunks = lms.chunk_doctype(doctype="Loan", limit=50)
 
     for start in chunks.get("chunks"):
         all_loans = frappe.db.get_all(
@@ -2375,7 +2375,7 @@ def add_loans_penal_interest(loans):
 
 @frappe.whitelist()
 def add_all_loans_penal_interest():
-    chunks = lms.chunk_doctype(doctype="Loan", limit=10)
+    chunks = lms.chunk_doctype(doctype="Loan", limit=50)
 
     for start in chunks.get("chunks"):
         all_loans = frappe.db.get_all(
@@ -2407,7 +2407,7 @@ def book_loans_virtual_interest_for_month(loans):
 
 @frappe.whitelist()
 def book_all_loans_virtual_interest_for_month():
-    chunks = lms.chunk_doctype(doctype="Loan", limit=10)
+    chunks = lms.chunk_doctype(doctype="Loan", limit=50)
 
     for start in chunks.get("chunks"):
         all_loans = frappe.db.get_all(

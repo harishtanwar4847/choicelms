@@ -117,7 +117,7 @@ def update_all_security_prices():
         las_settings.market_start_time <= current_hour < las_settings.market_end_time
     ):
         try:
-            chunks = lms.chunk_doctype(doctype="Security", limit=50)
+            chunks = lms.chunk_doctype(doctype="Security", limit=100)
             las_settings = frappe.get_single("LAS Settings")
             session_id_generator_url = "{}{}".format(
                 las_settings.jiffy_host, las_settings.jiffy_session_generator_uri
@@ -182,7 +182,7 @@ def update_all_schemeNav():
     ) and (
         las_settings.market_start_time <= current_hour < las_settings.market_end_time
     ):
-        chunks = lms.chunk_doctype(doctype="Security", limit=50)
+        chunks = lms.chunk_doctype(doctype="Security", limit=100)
         for start in chunks.get("chunks"):
             schemes_list = frappe.db.get_all(
                 "Security",
