@@ -247,9 +247,55 @@ class UserKYC(Document):
                                             frappe.throw(
                                                 "We have found a mismatch in the account holder name as per the fetched data"
                                             )
-                                        frappe.db.set_value(
-                                            "User KYC", self.name, "kyc_type", "CHOICE"
-                                        )
+                                        try:
+                                            las_settings = frappe.get_single(
+                                                "LAS Settings"
+                                            )
+                                            params = {
+                                                "PANNum": self.pan_no,
+                                                "dob": self.date_of_birth,
+                                            }
+                                            headers = {
+                                                "businessUnit": las_settings.choice_business_unit,
+                                                "userId": las_settings.choice_user_id,
+                                                "investorId": las_settings.choice_investor_id,
+                                                "ticket": las_settings.choice_ticket,
+                                            }
+                                            res_bank = requests.get(
+                                                las_settings.choice_pan_api,
+                                                params=params,
+                                                headers=headers,
+                                            )
+                                            data_bank = res_bank.json()
+                                            log = {
+                                                "url": las_settings.choice_pan_api,
+                                                "headers": headers,
+                                                "request": params,
+                                                "response": data,
+                                            }
+                                            lms.create_log(
+                                                log,
+                                                "offline_customer_get_bank_details_log",
+                                            )
+                                            if (
+                                                res_bank.ok
+                                                and "errorCode" not in data_bank
+                                                and data_bank.get("banks")
+                                            ):
+                                                frappe.db.set_value(
+                                                    "User KYC",
+                                                    self.name,
+                                                    {
+                                                        "kyc_type": "CHOICE",
+                                                        "email": data_bank["emailId"],
+                                                        "choice_mob_no": data_bank[
+                                                            "mobileNum"
+                                                        ],
+                                                    },
+                                                )
+                                        except:
+                                            frappe.throw("Get bank details not working")
+
                                         i.bank_status = "Pending"
                                         i.penny_request_id = res_json.get("body").get(
                                             "request_id"
