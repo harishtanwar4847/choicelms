@@ -98,6 +98,11 @@ class UserKYC(Document):
             self.notification_sent = 1
             self.save(ignore_permissions=True)
             frappe.db.commit()
+        elif loan_customer.offline_customer and self.kyc_status == "Approved":
+            loan_customer.kyc_update = 1
+            loan_customer.choice_kyc = self.name
+            loan_customer.save(ignore_permissions=True)
+            frappe.db.commit()
 
         if check and not loan_customer.bank_update:
             loan_customer.bank_update = 1
@@ -242,7 +247,9 @@ class UserKYC(Document):
                                             frappe.throw(
                                                 "We have found a mismatch in the account holder name as per the fetched data"
                                             )
-                                        self.kyc_type = "CHOICE"
+                                        frappe.db.set_value(
+                                            "User KYC", self.name, "kyc_type", "CHOICE"
+                                        )
                                         i.bank_status = "Pending"
                                         i.penny_request_id = res_json.get("body").get(
                                             "request_id"
