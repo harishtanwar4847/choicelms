@@ -366,6 +366,7 @@ class LoanApplication(Document):
         for i in list(user_roles):
             user_role.append(i[0])
         if "Loan Customer" not in user_role:
+            self.is_offline_loan = 1
             self.status = "Executing pledge"
             self.workflow_state = "Executing pledge"
             self.pledge_status = "Success"
@@ -926,10 +927,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 frappe.db.set_value(
                     "Sanction Letter and CIAL Log", self.sl_entries, "loan", loan.name
                 )
-                if (
-                    (customer.offline_customer and customer.loan_open)
-                    or (not customer.offline_customer)
-                ) and self.lender_esigned_document:
+                if not self.is_offline_loan and self.lender_esigned_document:
                     signed_doc = lms.pdf_editor(
                         self.lender_esigned_document,
                         pdf_doc_name,
@@ -941,10 +939,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     )
                     self.sanction_letter(check=loan.name)
             else:
-                if (
-                    (customer.offline_customer and customer.loan_open)
-                    or (not customer.offline_customer)
-                ) and self.lender_esigned_document:
+                if not self.is_offline_loan and self.lender_esigned_document:
                     loan = self.update_existing_loan()
                     signed_doc = lms.pdf_editor(
                         self.lender_esigned_document,
@@ -1643,9 +1638,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             ]
             and not self.remarks
         ):
-            if (customer.offline_customer and customer.loan_open) or (
-                not customer.offline_customer
-            ):
+            if not self.is_offline_loan:
                 if self.loan and not self.loan_margin_shortfall:
                     frappe.enqueue_doc(
                         "Notification",
@@ -1689,9 +1682,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
                 )
                 attachments = ""
-                if (customer.offline_customer and customer.loan_open) or (
-                    not customer.offline_customer
-                ):
+                if not self.is_offline_loan:
                     attachments = self.create_attachment()
                 frappe.enqueue(
                     method=frappe.sendmail,
@@ -1730,10 +1721,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
                 )
                 attachments = ""
-                if not self.loan_margin_shortfall and (
-                    (customer.offline_customer and customer.loan_open)
-                    or (not customer.offline_customer)
-                ):
+                if not self.loan_margin_shortfall and not self.is_offline_loan:
                     attachments = self.create_attachment()
                 frappe.enqueue(
                     method=frappe.sendmail,
@@ -1749,9 +1737,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         fcm_notification = {}
         fcm_message = ""
         if doc.get("loan_application").get("status") == "Pledge Failure":
-            if (customer.offline_customer and customer.loan_open) or (
-                not customer.offline_customer
-            ):
+            if not self.is_offline_loan:
                 msg, fcm_title = (
                     (
                         "Dear Customer,\nSorry! Your Increase loan application was turned down since the {} was not successful due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app -Spark Loans".format(
@@ -1791,9 +1777,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             doc.get("loan_application").get("status") == "Pledge accepted by Lender"
             and not self.loan_margin_shortfall
         ):
-            if (customer.offline_customer and customer.loan_open) or (
-                not customer.offline_customer
-            ):
+            if not self.is_offline_loan:
                 msg, fcm_title = (
                     (
                         'Dear Customer,\nCongratulations! Your Increase loan application has been accepted. Kindly check the app for details under e-sign banner on the dashboard. Please e-sign the loan agreement to avail the loan now. For any help on e-sign please view our tutorial videos or reach out to us under "Contact Us" on the app -Spark Loans',
@@ -1838,9 +1822,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             and not self.loan_margin_shortfall
             and not self.remarks
         ):
-            if (customer.offline_customer and customer.loan_open) or (
-                not customer.offline_customer
-            ):
+            if not self.is_offline_loan:
                 msg, fcm_title = (
                     (
                         "Dear Customer,\nSorry! Your Increase loan application was turned down due to technical reasons. We regret the inconvenience caused. Please try again after sometime or reach out to us through 'Contact Us' on the app  -Spark Loans",
@@ -1861,9 +1843,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             and self.lender_esigned_document == None
             and not self.loan_margin_shortfall
         ):
-            if (customer.offline_customer and customer.loan_open) or (
-                not customer.offline_customer
-            ):
+            if not self.is_offline_loan:
                 msg = "Dear Customer,\nYour E-sign process is completed. You shall soon receive a confirmation of loan approval. Thank you for your patience. - Spark Loans"
 
                 fcm_notification = frappe.get_doc(
@@ -1873,9 +1853,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         msg_type = "pledge"
         if self.instrument_type == "Mutual Fund":
             msg_type = "lien"
-        if (customer.offline_customer and customer.loan_open) or (
-            not customer.offline_customer
-        ):
+        if not self.is_offline_loan:
             if (
                 (
                     (self.pledge_status == "Partial Success")
@@ -2362,11 +2340,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 
     def create_attachment(self):
         attachments = []
-        # sanction_letter = frappe.get_all(
-        #     "Sanction Letter Entries",
-        #     filters={"loan_application_no": self.name, "parent": self.sl_entries},
-        #     fields=["*"],
-        # )
         doc_name = self.lender_esigned_document
         fname = doc_name.split("files/", 1)
         file = fname[1].split(".", 1)
@@ -2378,39 +2351,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
         sanction_letter = {"fname": fname[1], "fcontent": filedata}
         attachments.append(sanction_letter)
 
-        # lender_esign_file = self.lender_esigned_document
-        # lfile_name = lender_esign_file.split("files/", 1)
-        # l_file = lfile_name[1]
-        # path = frappe.utils.get_files_path(
-        #     l_file,
-        # )
-        # with open(path, "rb") as fileobj:
-        #     filedata = fileobj.read()
-        # lender_doc = {"fname": l_file, "fcontent": filedata}
-        # attachments.append(lender_doc)
-
-        # if self.customer_esigned_document:
-        #     customer_esigned_document = self.customer_esigned_document
-        #     cfile_name = customer_esigned_document.split("files/", 1)
-        #     c_file = cfile_name[1]
-        #     path = frappe.utils.get_files_path(c_file)
-
-        #     with open(path, "rb") as fileobj:
-        #         filedata = fileobj.read()
-        #     customer_doc = {"fname": c_file, "fcontent": filedata}
-        #     attachments.append(customer_doc)
-
         return attachments
-
-    # def split_file_name(file_name):
-    #     doc_name = file_name[0].sanction_letter
-    #     fname = doc_name.split('files/',1)
-    #     return fname
-
-    # def read_data(self,log_file):
-    #     with open(log_file, "rb") as fileobj:
-    #         filedata = fileobj.read()
-    #     return filedata
 
 
 def check_for_pledge(loan_application_doc):
