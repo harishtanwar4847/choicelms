@@ -743,7 +743,9 @@ def create_log(log, file_name):
         os.remove(log_file)
         frappe.log_error(
             message=frappe.get_traceback()
-            + "\n\nFile name -\n{}\n\nLog details -\n{}".format(file_name, str(log)),
+            + "\n\nFile name -\n{}\n\nBackup File name -\n{}\n\nLog details -\n{}".format(
+                file_name, log_text_file, str(log)
+            ),
             title="Create Log JSONDecodeError",
         )
     except Exception as e:
@@ -2619,9 +2621,9 @@ def customer_file_upload(upload_file):
                             "mobile_no": offline_customer.mobile_no,
                         },
                     )
-                    d_name = res_email[0].name if res_email else res_mobile[0].name
-                    user = frappe.get_doc("User", d_name)
                     if res_email or res_mobile:
+                        d_name = res_email[0].name if res_email else res_mobile[0].name
+                        user = frappe.get_doc("User", d_name)
                         offline_customer.user_status = "Failure"
                         offline_customer.user_remarks = "Duplicate Value"
                         offline_customer.customer_status = "Failure"

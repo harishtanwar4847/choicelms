@@ -723,13 +723,21 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     frappe.db.commit()
 
     def before_save(self):
+        lender = self.get_lender()
+        if self.instrument_type != "Mutual Fund" and not self.pledgee_boid:
+            self.pledgee_boid = lender.demat_account_number
+        if self.instrument_type == "Shares" and not self.pledgor_boid:
+            frappe.throw("Pledgor BOID can not be empty for LAS")
+        for i in self.items:
+            if i.date_of_pledge and i.date_of_pledge >= self.expiry_date:
+                frappe.throw("Date of pledge should be less than expiry date")
+
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
         )
         user_role = []
         for i in list(user_roles):
             user_role.append(i[0])
-        lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
 
@@ -918,7 +926,10 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 frappe.db.set_value(
                     "Sanction Letter and CIAL Log", self.sl_entries, "loan", loan.name
                 )
-                if self.lender_esigned_document:
+                if (
+                    (customer.offline_customer and customer.loan_open)
+                    or (not customer.offline_customer)
+                ) and self.lender_esigned_document:
                     signed_doc = lms.pdf_editor(
                         self.lender_esigned_document,
                         pdf_doc_name,
@@ -928,13 +939,13 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     frappe.db.set_value(
                         self.doctype, self.name, "lender_esigned_document", signed_doc
                     )
-                if (customer.offline_customer and customer.loan_open) or (
-                    not customer.offline_customer
-                ):
                     self.sanction_letter(check=loan.name)
             else:
-                loan = self.update_existing_loan()
-                if self.lender_esigned_document:
+                if (
+                    (customer.offline_customer and customer.loan_open)
+                    or (not customer.offline_customer)
+                ) and self.lender_esigned_document:
+                    loan = self.update_existing_loan()
                     signed_doc = lms.pdf_editor(
                         self.lender_esigned_document,
                         pdf_doc_name,
@@ -943,9 +954,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     frappe.db.set_value(
                         self.doctype, self.name, "lender_esigned_document", signed_doc
                     )
-                if (customer.offline_customer and customer.loan_open) or (
-                    not customer.offline_customer
-                ):
+
                     self.sanction_letter(check=loan.name)
             frappe.db.commit()
             if self.application_type in ["New Loan", "Increase Loan"]:
