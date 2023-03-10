@@ -2612,9 +2612,9 @@ def customer_file_upload(upload_file):
                             "mobile_no": offline_customer.mobile_no,
                         },
                     )
-                    d_name = res_email[0].name if res_email else res_mobile[0].name
-                    user = frappe.get_doc("User", d_name)
                     if res_email or res_mobile:
+                        user = frappe.get_doc("User", d_name)
+                        d_name = res_email[0].name if res_email else res_mobile[0].name
                         offline_customer.user_status = "Failure"
                         offline_customer.user_remarks = "Duplicate Value"
                         offline_customer.customer_status = "Failure"
