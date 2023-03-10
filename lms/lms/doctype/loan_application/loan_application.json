@@ -37,7 +37,8 @@
   "application_type",
   "column_break_25",
   "maximum_sanctioned_limit",
-  "increased_sanctioned_limit"
+  "increased_sanctioned_limit",
+  "is_offline_loan"
  ],
  "fields": [
   {
@@ -247,10 +248,17 @@
    "fieldtype": "Link",
    "label": "SL Entries",
    "options": "Sanction Letter and CIAL Log"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_offline_loan",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Is Offline Loan"
   }
  ],
  "links": [],
- "modified": "2023-03-10 16:59:26.539456",
+ "modified": "2023-03-10 18:51:17.743680",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",
