@@ -47,7 +47,8 @@
   {
    "fieldname": "expiry_date",
    "fieldtype": "Date",
-   "label": "Expiry Date"
+   "label": "Expiry Date",
+   "reqd": 1
   },
   {
    "fieldname": "items_section",
@@ -249,7 +250,7 @@
   }
  ],
  "links": [],
- "modified": "2023-03-10 14:13:24.743687",
+ "modified": "2023-03-10 16:59:26.539456",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",
