@@ -1407,27 +1407,28 @@ def renewal_doc_for_selected_customer():
             )
 
         # grace_7days = datetime.strftime(frappe.utils.now_datetime().date(), "%Y-%m-%d")
-        grace_7days = (frappe.utils.now_datetime() + timedelta(days=8)).date()
-        grace_7days = datetime.strftime(grace_7days, "%Y-%m-%d")
+
         if type(renewal_doc.creation) == str:
             print("abcd")
             grace_7th = datetime.strptime(renewal_doc.creation, "%Y-%m-%d %H:%M:%S.%f")
         else:
             grace_7th = renewal_doc.creation
-        grace_7th_expiry = datetime.strftime(
-            (grace_7th + timedelta(days=7)).date(), "%Y-%m-%d"
-        )
-        grace_14th_expiry = datetime.strftime(
-            (grace_7th + timedelta(days=14)).date(), "%Y-%m-%d"
-        )
-        # grace_7th_expiry = datetime.strftime(grace_7th_expiry, "%Y-%m-%d") + timedelta(days=7)
-        print("grace_7th_expiry", (grace_7th_expiry))
-        print("grace_7days", (grace_7days))
-        print("grace_14th_expiry", grace_14th_expiry)
-        if grace_7days <= grace_7th_expiry:
-            print("akash")
 
-        elif grace_7days > grace_7th_expiry and grace_7days <= grace_14th_expiry:
+        current_date = frappe.utils.now_datetime().date()
+        exp = grace_7th.date()
+        greater_than_7 = exp + timedelta(days=7)
+        more_than_7 = greater_than_7 + timedelta(days=7)
+
+        # grace_7th_expiry = datetime.strftime(grace_7th_expiry, "%Y-%m-%d") + timedelta(days=7)
+        frappe.log_error(
+            message="current_date:{}".format(str(current_date))
+            + "\nexp:{}".format(str(exp))
+            + "\ngreater_than_7:{}".format(
+                str(greater_than_7) + "\nmore_than_7:{}".format(str(more_than_7))
+            ),
+            title=_("date checking"),
+        )
+        if current_date > greater_than_7 and current_date < more_than_7:
             applications = []
             current_date = frappe.utils.now_datetime().date()
             if (
