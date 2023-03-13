@@ -115,6 +115,11 @@ Your E-sign process is completed. You shall soon receive a confirmation of loan 
                 loan.expiry_date = loan.expiry_date + timedelta(days=no_of_days)
                 loan.save(ignore_permissions=True)
                 frappe.db.commit()
+                frappe.log_error(
+                    message="Loan name :{}".format(str(loan))
+                    + "\nLoan Document:{}".format(str(loan.expiry_date)),
+                    title=_("before_save_renewal_doc_for_selected_customer"),
+                )
                 msg = """Dear Customer,
                 Congratulations! Your loan renewal process is completed. Please visit the spark.loans app for details  - {link} -Spark Loans
                 """.format(
@@ -212,8 +217,23 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                         fields=["*"],
                     )
                     status_list = [i["status"] for i in renewal_list_expiring]
-                    if status_list.count("Rejected") >= 2:
+                    if status_list.count("Rejected") >= 2 and loan.name not in [
+                        "SL000130",
+                        "SL000133",
+                        "SL000134",
+                    ]:
                         self.is_expired = 1
+
+                    if status_list.count("Rejected") >= 2 and loan.name in [
+                        "SL000130",
+                        "SL000133",
+                        "SL000134",
+                    ]:
+                        if (
+                            self.creation.date()
+                            < frappe.utils.now_datetime().date() + timedelta(days=7)
+                        ):
+                            self.is_expired = 1
 
             if msg:
                 receiver_list = [str(customer.phone)]
@@ -939,7 +959,21 @@ def loan_renewal_update_doc(loan_name):
         for i in renewal_doc_list:
             doc = frappe.get_doc("Spark Loan Renewal Application", i.name)
             exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").date()
-            if exp < frappe.utils.now_datetime().date() and doc.is_expired == 0:
+            if (
+                exp < frappe.utils.now_datetime().date()
+                and doc.is_expired == 0
+                and loan.name not in ["SL000130", "SL000133", "SL000134"]
+            ):
+                doc.is_expired = 1
+                doc.save(ignore_permissions=True)
+                frappe.db.commit()
+
+            if (
+                doc.creation.date()
+                < frappe.utils.now_datetime().date() + timedelta(days=7)
+                and doc.is_expired == 0
+                and loan.name in ["SL000130", "SL000133", "SL000134"]
+            ):
                 doc.is_expired = 1
                 doc.save(ignore_permissions=True)
                 frappe.db.commit()
