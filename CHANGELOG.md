@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [v5.14.0] - 2023-03-13
+
+## Added
+
+- [SPRK-122 - Offline Loan, Au penny name matching, Optional Update for mobile app](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/576)
+
 ## [v5.13.8] - 2023-03-06
 
 ## Added
