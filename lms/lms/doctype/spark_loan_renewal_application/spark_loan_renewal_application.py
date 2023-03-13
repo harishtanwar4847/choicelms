@@ -785,7 +785,7 @@ def renewal_timer(loan_renewal_name=None):
             elif (
                 frappe.utils.now_datetime().date() > renewal_doc.creation.date()
                 and frappe.utils.now_datetime().date()
-                <= (renewal_doc.creation + timedelta(days=7))
+                <= (renewal_doc.creation.date() + timedelta(days=7))
                 and renewal_doc.status not in ["Approved", "Rejected"]
                 and loan.name in ["SL000130", "SL000133", "SL000134"]
             ):
