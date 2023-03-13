@@ -789,7 +789,8 @@ def renewal_timer(loan_renewal_name=None):
                 and renewal_doc.status not in ["Approved", "Rejected"]
                 and loan.name in ["SL000130", "SL000133", "SL000134"]
             ):
-                date_7after_expiry = renewal_doc.creation.date() + timedelta(days=14)
+                date_time = datetime.combine(renewal_doc.creation, time.min)
+                date_7after_expiry = date_time + timedelta(days=14)
                 seconds = abs(
                     date_7after_expiry - frappe.utils.now_datetime()
                 ).total_seconds()
