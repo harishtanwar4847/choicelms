@@ -534,7 +534,7 @@ class Loan(Document):
                 (drawing_power),
                 2,
             )
-        except:
+        except Exception:
             frappe.log_error(
                 message=frappe.get_traceback()
                 + "\n\nScheme details-\n{}".format(str(self.name)),
@@ -647,7 +647,7 @@ class Loan(Document):
                 self.append("items", loan_item)
 
             return check
-        except:
+        except Exception:
             frappe.log_error(
                 message=frappe.get_traceback()
                 + "\n\nScheme details-\n{}".format(str(self.name)),

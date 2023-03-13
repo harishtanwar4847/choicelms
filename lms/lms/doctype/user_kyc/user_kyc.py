@@ -293,7 +293,7 @@ class UserKYC(Document):
                                                         ],
                                                     },
                                                 )
-                                        except:
+                                        except Exception:
                                             frappe.throw("Get bank details not working")
 
                                         i.bank_status = "Pending"

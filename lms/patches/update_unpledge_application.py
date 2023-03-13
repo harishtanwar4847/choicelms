@@ -20,5 +20,5 @@ def execute():
                 )
             )
             frappe.db.commit()
-        except:
+        except Exception:
             pass
