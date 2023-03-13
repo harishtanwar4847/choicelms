@@ -11,6 +11,7 @@ app_icon = "octicon octicon-file-directory"
 app_color = "grey"
 app_email = "developers@atritechnocrat.com"
 app_license = "MIT"
+app_logo_url = "/assets/lms/images/logo_mo.svg"
 
 # Includes in <head>
 # ------------------
@@ -166,29 +167,30 @@ scheduler_events = {
     # "all": ["lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered"],
     "cron": {
         "*/5 * * * *": [
-            "lms.lms.doctype.loan_application.loan_application.process_pledge"
+            "lms.lms.doctype.loan_application.loan_application.process_pledge",
+            "lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered",
         ],  # At every 5 minutes
         "30 17,5 * * *": [
             "lms.lms.doctype.loan_transaction.loan_transaction.reject_blank_transaction_and_settlement_recon_api"
         ],
-        "15 1 * * *": [
+        "0 0 * * *": [
             "lms.lms.doctype.loan.loan.add_all_loans_virtual_interest"
-        ],  # At 01:15 AM daily
-        "15 2 1 * *": [
+        ],  # At 12:00 AM daily
+        "0 1 * * *": [
             "lms.lms.doctype.loan.loan.book_all_loans_virtual_interest_for_month"
-        ],  # At 02:15 AM on 1st day-of-every-month(monthly)
-        "15 3 * * *": [
+        ],  # At 01:00 AM on 1st day-of-every-month(monthly)
+        "0 2 * * *": [
             "lms.lms.doctype.loan.loan.check_for_all_loans_additional_interest"
-        ],  # At 03:15 AM daily
-        "15 4 * * *": [
+        ],  # At 02:00 AM daily
+        "0 3 * * *": [
             "lms.lms.doctype.loan.loan.add_all_loans_penal_interest"
-        ],  # At 04:15 AM daily
-        "30 8 * * *": [
+        ],  # At 03:00 AM daily
+        "30 9 * * *": [
             "lms.lms.doctype.security_price.security_price.update_all_schemeNav"
-        ],  # At 08:30 AM daily
-        "* * * * *": [
-            "lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered"
-        ],  # At every minute
+        ],  # At 09:30 AM daily
+        # "* * * * *": [
+        #     "lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.mark_sell_triggered"
+        # ],  # At every minute
         "30 23 * * *": ["lms.system_report_enqueue"],  # At 11:30 PM daily
     },
 }

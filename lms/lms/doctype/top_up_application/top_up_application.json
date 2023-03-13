@@ -22,6 +22,7 @@
   "scheme_type",
   "section_break_10",
   "customer_esigned_document",
+  "sl_entries",
   "column_break_12",
   "lender_esigned_document",
   "amended_from",
@@ -38,14 +39,14 @@
    "in_list_view": 1,
    "label": "Loan Account No.",
    "options": "Loan",
-   "read_only": 1
+   "reqd": 1
   },
   {
    "fieldname": "top_up_amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Top up Amount",
-   "read_only": 1
+   "reqd": 1
   },
   {
    "fieldname": "time",
@@ -71,10 +72,12 @@
    "read_only": 1
   },
   {
+   "fetch_from": "customer.full_name",
    "fieldname": "customer_name",
    "fieldtype": "Read Only",
    "in_list_view": 1,
-   "label": "Customer Name"
+   "label": "Customer Name",
+   "read_only": 1
   },
   {
    "fieldname": "customer_esigned_document",
@@ -137,7 +140,7 @@
    "fieldtype": "Link",
    "label": "Lender",
    "options": "Lender",
-   "read_only": 1
+   "reqd": 1
   },
   {
    "fieldname": "minimum_sanctioned_limit",
@@ -164,11 +167,12 @@
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.instrument_type==\"Mutual Fund\";",
    "fieldname": "scheme_type",
    "fieldtype": "Select",
    "label": "Scheme Type",
-   "options": "\nEquity\nDebt",
-   "read_only": 1
+   "mandatory_depends_on": "eval:doc.instrument_type==\"Mutual Fund\";",
+   "options": "\nEquity\nDebt"
   },
   {
    "depends_on": "eval:doc.instrument_type != \"Shares\";",
@@ -176,11 +180,17 @@
    "fieldtype": "Currency",
    "label": "Actual Drawing Power",
    "read_only": 1
+  },
+  {
+   "fieldname": "sl_entries",
+   "fieldtype": "Link",
+   "label": "SL Entries",
+   "options": "Sanction Letter and CIAL Log"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2022-05-23 15:44:42.033964",
+ "modified": "2023-02-07 21:38:24.812268",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Top up Application",

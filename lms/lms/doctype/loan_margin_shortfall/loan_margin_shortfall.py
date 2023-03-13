@@ -135,7 +135,7 @@ class LoanMarginShortfall(Document):
 
         if (
             margin_shortfall_action
-            and old_shortfall_action != margin_shortfall_action.name
+            # and old_shortfall_action != margin_shortfall_action.name
         ):
             if old_shortfall_action:
                 old_shortfall_action = frappe.get_doc(
@@ -562,7 +562,6 @@ def mark_sell_triggered():
                     method="lms.lms.doctype.loan_margin_shortfall.loan_margin_shortfall.send_notification_for_sell_triggered",
                     single_shortfall=single_shortfall,
                 )
-
     except Exception:
         frappe.log_error(
             message=frappe.get_traceback()

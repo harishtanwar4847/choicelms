@@ -2,7 +2,7 @@ import frappe
 
 
 def execute():
-    frappe.reload_doc("Lms", "DocType", "Allowed Security")
+    frappe.reload_doc("Lms", "DocType", "Allowed Security", force=True)
     # allowed_security_list = frappe.db.get_all("Allowed Security", fields=["*"])
     # for security in allowed_security_list:
     #     security_category = frappe.db.get_value('Security Category', {"category_name": security["security_category"], "lender":security["lender"]},['name'])

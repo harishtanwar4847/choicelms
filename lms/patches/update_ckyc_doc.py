@@ -13,13 +13,13 @@ import lms
 def execute():
     try:
         all_kyc = []
-        frappe.reload_doc("Lms", "DocType", "CKYC API Response")
-        frappe.reload_doc("Lms", "DocType", "User KYC")
-        frappe.reload_doc("Lms", "DocType", "Customer Address Details")
-        frappe.reload_doc("Lms", "DocType", "User Bank Account")
-        frappe.reload_doc("Lms", "DocType", "CKYC Image Details")
-        frappe.reload_doc("Lms", "DocType", "Related Person Details")
-        frappe.reload_doc("Lms", "DocType", "CKYC Identity Details")
+        frappe.reload_doc("Lms", "DocType", "CKYC API Response", force=True)
+        frappe.reload_doc("Lms", "DocType", "User KYC", force=True)
+        frappe.reload_doc("Lms", "DocType", "Customer Address Details", force=True)
+        frappe.reload_doc("Lms", "DocType", "User Bank Account", force=True)
+        frappe.reload_doc("Lms", "DocType", "CKYC Image Details", force=True)
+        frappe.reload_doc("Lms", "DocType", "Related Person Details", force=True)
+        frappe.reload_doc("Lms", "DocType", "CKYC Identity Details", force=True)
 
         if frappe.utils.get_url() == "https://spark.loans":
             user_kyc = frappe.get_all(

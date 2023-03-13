@@ -61,15 +61,6 @@
                     We look forward to serve you soon.<br />
                     <br />
                 {% endif %}
-                {% if doc.get("top_up_application").get("status") == "Approved" %}
-                    Congratulations! Your loan account has been topped up.<br />
-                    <br />
-                    Please check the app for details.<br />
-                    <br />
-                    You can reach to us through 'Contact Us' on the app.<br />
-                    We look forward to serve you soon.<br />
-                    <br />
-                {% endif %}
                 {% if doc.get("top_up_application").get("status") == "Rejected" %}
                     Sorry! Your top up request could not be executed due to technical reasons.<br />
                     <br />

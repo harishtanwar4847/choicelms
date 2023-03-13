@@ -31,10 +31,9 @@ class TopupApplication(Document):
         loan.drawing_power += self.top_up_amount
         loan.sanctioned_limit += self.top_up_amount
         loan.expiry_date = self.expiry_date
+        loan.available_topup_amt = loan.max_topup_amount()
         loan.save(ignore_permissions=True)
         frappe.db.commit()
-
-        self.map_loan_agreement_file(loan)
         # self.notify_customer()
 
         date = frappe.utils.now_datetime().date()
@@ -69,36 +68,6 @@ class TopupApplication(Document):
             renewal_charges_reference = loan.create_loan_transaction(
                 "Account Renewal Charges", renewal_charges, approve=True
             )
-            # if lender.cgst_on_account_renewal_charges > 0:
-            #     cgst = renewal_charges * (lender.cgst_on_account_renewal_charges / 100)
-            #     gst_percent = (lender.cgst_on_account_renewal_charges,)
-            #     loan.create_loan_transaction(
-            #         "CGST on Account renewal charges",
-            #         cgst,
-            #         gst_percent,
-            #         charge_reference=renewal_charges_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.sgst_on_account_renewal_charges > 0:
-            #     sgst = renewal_charges * (lender.sgst_on_account_renewal_charges / 100)
-            #     gst_percent = (lender.sgst_on_account_renewal_charges,)
-            #     loan.create_loan_transaction(
-            #         "SGST on Account renewal charges",
-            #         sgst,
-            #         gst_percent,
-            #         charge_reference=renewal_charges_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.igst_on_account_renewal_charges > 0:
-            #     igst = renewal_charges * (lender.igst_on_account_renewal_charges / 100)
-            #     gst_percent = lender.igst_on_account_renewal_charges
-            #     loan.create_loan_transaction(
-            #         "IGST on Account renewal charges",
-            #         igst,
-            #         gst_percent,
-            #         charge_reference=renewal_charges_reference.name,
-            #         approve=True,
-            #     )
 
         # Processing fees
         processing_fees = lender.lender_processing_fees
@@ -123,36 +92,6 @@ class TopupApplication(Document):
                 processing_fees,
                 approve=True,
             )
-            # if lender.cgst_on_processing_fees > 0:
-            #     cgst = processing_fees * (lender.cgst_on_processing_fees / 100)
-            #     gst_percent = lender.cgst_on_processing_fees
-            #     loan.create_loan_transaction(
-            #         "CGST on Processing Fees",
-            #         cgst,
-            #         gst_percent,
-            #         charge_reference=processing_fees_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.sgst_on_processing_fees > 0:
-            #     sgst = processing_fees * (lender.sgst_on_processing_fees / 100)
-            #     gst_percent = lender.sgst_on_processing_fees
-            #     loan.create_loan_transaction(
-            #         "SGST on Processing Fees",
-            #         sgst,
-            #         gst_percent,
-            #         charge_reference=processing_fees_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.igst_on_processing_fees > 0:
-            #     igst = processing_fees * (lender.igst_on_processing_fees / 100)
-            #     gst_percent = lender.igst_on_processing_fees
-            #     loan.create_loan_transaction(
-            #         "IGST on Processing Fees",
-            #         igst,
-            #         gst_percent,
-            #         charge_reference=processing_fees_reference.name,
-            #         approve=True,
-            #     )
 
         # Stamp Duty
         stamp_duty = lender.stamp_duty
@@ -171,37 +110,6 @@ class TopupApplication(Document):
                 stamp_duty,
                 approve=True,
             )
-            # StampDuty changes for GST
-            # if lender.cgst_on_stamp_duty > 0:
-            #     cgst = stamp_duty * (lender.cgst_on_stamp_duty / 100)
-            #     gst_percent = lender.cgst_on_stamp_duty
-            #     loan.create_loan_transaction(
-            #         "CGST on Stamp Duty",
-            #         cgst,
-            #         gst_percent,
-            #         charge_reference=stamp_duty_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.sgst_on_stamp_duty > 0:
-            #     sgst = stamp_duty * (lender.sgst_on_stamp_duty / 100)
-            #     gst_percent = lender.sgst_on_stamp_duty
-            #     loan.create_loan_transaction(
-            #         "SGST on Stamp Duty",
-            #         sgst,
-            #         gst_percent,
-            #         charge_reference=stamp_duty_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.igst_on_stamp_duty > 0:
-            #     igst = stamp_duty * (lender.igst_on_stamp_duty / 100)
-            #     gst_percent = lender.igst_on_stamp_duty
-            #     loan.create_loan_transaction(
-            #         "IGST on Stamp Duty",
-            #         igst,
-            #         gst_percent,
-            #         charge_reference=stamp_duty_reference.name,
-            #         approve=True,
-            #     )
 
         # Documentation Charges
         documentation_charges = lender.documentation_charges
@@ -220,43 +128,6 @@ class TopupApplication(Document):
                 documentation_charges,
                 approve=True,
             )
-            # Charges on GST
-            # if lender.cgst_on_documentation_charges > 0:
-            #     cgst = documentation_charges * (
-            #         lender.cgst_on_documentation_charges / 100
-            #     )
-            #     gst_percent = lender.cgst_on_documentation_charges
-            #     loan.create_loan_transaction(
-            #         "CGST on Documentation Charges",
-            #         cgst,
-            #         gst_percent,
-            #         charge_reference=documentation_charges_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.sgst_on_documentation_charges > 0:
-            #     sgst = documentation_charges * (
-            #         lender.sgst_on_documentation_charges / 100
-            #     )
-            #     gst_percent = lender.sgst_on_documentation_charges
-            #     loan.create_loan_transaction(
-            #         "SGST on Documentation Charges",
-            #         sgst,
-            #         gst_percent,
-            #         charge_reference=documentation_charges_reference.name,
-            #         approve=True,
-            #     )
-            # if lender.igst_on_documentation_charges > 0:
-            #     igst = documentation_charges * (
-            #         lender.igst_on_documentation_charges / 100
-            #     )
-            #     gst_percent = lender.igst_on_documentation_charges
-            #     loan.create_loan_transaction(
-            #         "IGST on Documentation Charges",
-            #         igst,
-            #         gst_percent,
-            #         charge_reference=documentation_charges_reference.name,
-            #         approve=True,
-            #     )
 
     def on_update(self):
         if self.status == "Esign Done" and self.lender_esigned_document != None:
@@ -264,10 +135,20 @@ class TopupApplication(Document):
         self.notify_customer()
 
     def before_submit(self):
+        user_roles = frappe.db.get_values(
+            "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
+        )
+        user_role = []
+        loan = self.get_loan()
+        for i in list(user_roles):
+            user_role.append(i[0])
+        if "Loan Customer" not in user_role:
+            self.instrument_type = loan.instrument_type
+            if self.instrument_type == "Mutual Fund":
+                self.scheme_type = loan.scheme_type
         if not self.lender_esigned_document:
             frappe.throw("Please upload Lender Esigned Document")
 
-        loan = self.get_loan()
         updated_top_up_amt = loan.max_topup_amount()
         if (self.top_up_amount + loan.sanctioned_limit) > self.maximum_sanctioned_limit:
             frappe.throw(
@@ -277,10 +158,12 @@ class TopupApplication(Document):
             frappe.throw("Top up not available")
         if self.top_up_amount <= 0:
             frappe.throw("Top up can not be approved with Amount Rs. 0")
-        if self.status == "Approved":
-            current = frappe.utils.now_datetime()
-            expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
-            self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
+        # if self.status == "Approved" and "Loan Customer" in user_role:
+        #     print("akash")
+        #     current = frappe.utils.now_datetime()
+        #     expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
+        #     self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
+        #     print("self.expiry_date",self.expiry_date)
 
     def get_lender(self):
         return frappe.get_doc("Lender", self.lender)
@@ -383,28 +266,115 @@ class TopupApplication(Document):
         else:
             address = ""
 
-        doc = {
-            "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
-            "loan_application_number": self.name,
-            "borrower_name": user_kyc.fullname,
-            "borrower_address": address,
-            # "sanctioned_amount": self.top_up_amount,
-            # "sanctioned_amount_in_words": num2words(
-            #     self.top_up_amount, lang="en_IN"
-            # ).title(),
-            "sanctioned_amount": lms.validate_rupees(
-                self.top_up_amount + loan.sanctioned_limit
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+
+            line1 = str(address_details.perm_line1)
+            if line1:
+                addline1 = "{},<br/>".format(line1)
+            else:
+                addline1 = ""
+
+            line2 = str(address_details.perm_line2)
+            if line2:
+                addline2 = "{},<br/>".format(line2)
+            else:
+                addline2 = ""
+
+            line3 = str(address_details.perm_line3)
+            if line3:
+                addline3 = "{},<br/>".format(line3)
+            else:
+                addline3 = ""
+
+            perm_city = str(address_details.perm_city)
+            perm_dist = str(address_details.perm_dist)
+            perm_state = str(address_details.perm_state)
+            perm_pin = str(address_details.perm_pin)
+
+        else:
+            address_details = ""
+
+        increased_sanction_limit = self.top_up_amount + loan.sanctioned_limit
+        interest_config = frappe.get_value(
+            "Interest Configuration",
+            {
+                "to_amount": [
+                    ">=",
+                    lms.validate_rupees(float(increased_sanction_limit)),
+                ],
+            },
+            order_by="to_amount asc",
+        )
+        int_config = frappe.get_doc("Interest Configuration", interest_config)
+        roi_ = round((int_config.base_interest * 12), 2)
+        charges = lms.charges_for_apr(
+            lender.name, lms.validate_rupees(float(self.top_up_amount))
+        )
+        apr = round(
+            lms.calculate_apr(
+                self.name,
+                roi_,
+                12,
+                int(lms.validate_rupees(float(increased_sanction_limit))),
+                charges.get("total"),
             ),
+            2,
+        )
+        annual_default_interest = lender.default_interest * 12
+        interest_charges_in_amount = int((float(increased_sanction_limit))) * (
+            roi_ / 100
+        )
+
+        doc = {
+            "esign_date": "",
+            "loan_account_number": self.name,
+            "borrower_name": customer.full_name,
+            "borrower_address": address,
+            "addline1": addline1,
+            "addline2": addline2,
+            "addline3": addline3,
+            "city": perm_city,
+            "district": perm_dist,
+            "state": perm_state,
+            "pincode": perm_pin,
+            "sanctioned_amount": frappe.utils.fmt_money(
+                float(increased_sanction_limit)
+            ),
+            # "sanctioned_amount": (float(increased_sanction_limit)),
             "sanctioned_amount_in_words": lms.number_to_word(
-                lms.validate_rupees((self.top_up_amount + loan.sanctioned_limit))
+                lms.validate_rupees(float(increased_sanction_limit))
             ).title(),
-            "old_sanctioned_amount": lms.validate_rupees(loan.sanctioned_limit),
-            "old_sanctioned_amount_in_words": lms.number_to_word(
-                lms.validate_rupees(loan.sanctioned_limit)
+            "old_sanctioned_amount": frappe.utils.fmt_money(loan.sanctioned_limit),
+            "old_sanctioned_amount_in_words": num2words(
+                loan.sanctioned_limit, lang="en_IN"
             ).title(),
+            "roi": roi_,
+            "apr": apr,
+            "documentation_charges_kfs": frappe.utils.fmt_money(
+                charges.get("documentation_charges")
+            ),
+            "processing_charges_kfs": frappe.utils.fmt_money(
+                charges.get("processing_fees")
+            ),
+            "net_disbursed_amount": frappe.utils.fmt_money(
+                float(increased_sanction_limit) - charges.get("total")
+            ),
+            "total_amount_to_be_paid": frappe.utils.fmt_money(
+                float(increased_sanction_limit)
+                + charges.get("total")
+                + interest_charges_in_amount
+            ),
+            "loan_application_no": self.name,
             "rate_of_interest": lender.rate_of_interest,
-            "default_interest": lender.default_interest,
+            "rebate_interest": int_config.rebait_interest,
+            "default_interest": annual_default_interest,
             "rebait_threshold": lender.rebait_threshold,
+            "interest_charges_in_amount": frappe.utils.fmt_money(
+                interest_charges_in_amount
+            ),
             "renewal_charges": lms.validate_rupees(lender.renewal_charges)
             if lender.renewal_charge_type == "Fix"
             else lms.validate_percent(lender.renewal_charges),
@@ -414,7 +384,6 @@ class TopupApplication(Document):
             ).title()
             if lender.renewal_charge_type == "Fix"
             else "",
-            # else num2words(lender.renewal_charges).title(),
             "renewal_min_amt": lms.validate_rupees(lender.renewal_minimum_amount),
             "renewal_max_amt": lms.validate_rupees(lender.renewal_maximum_amount),
             "documentation_charge": lms.validate_rupees(lender.documentation_charges)
@@ -448,9 +417,6 @@ class TopupApplication(Document):
                 lender.lender_processing_maximum_amount
             ),
             # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
-            # "documentation_charges": lender.documentation_charges,
-            # "stamp_duty_charges": (lender.stamp_duty / 100)
-            # * self.sanctioned_limit,  # CR loan agreement changes
             "transaction_charges_per_request": lms.validate_rupees(
                 lender.transaction_charges_per_request
             ),
@@ -501,9 +467,9 @@ class TopupApplication(Document):
             agreement_template.get_content(), {"doc": doc}
         )
 
-        from frappe.utils.pdf import get_pdf
+        # from frappe.utils.pdf import get_pdf
 
-        agreement_pdf = get_pdf(agreement)
+        agreement_pdf = lms.get_pdf(agreement)
 
         las_settings = frappe.get_single("LAS Settings")
         headers = {"userId": las_settings.choice_user_id}
@@ -526,6 +492,8 @@ class TopupApplication(Document):
         }
 
     def notify_customer(self):
+        loan = self.get_loan()
+        customer = self.get_customer()
         doc = frappe.get_doc("User KYC", self.get_customer().choice_kyc).as_dict()
         doc["top_up_application"] = {
             "status": self.status,
@@ -533,7 +501,52 @@ class TopupApplication(Document):
             "top_up_amount": self.top_up_amount,
         }
         # if self.status in ["Pending", "Approved", "Rejected"]:
-        frappe.enqueue_doc("Notification", "Top up Application", method="send", doc=doc)
+        attachments = ""
+        if doc.get("top_up_application").get("status") == "Approved":
+            pdf_doc_name = "Loan_Enhancement_Agreement_{}".format(self.name)
+            edited = lms.pdf_editor(
+                self.lender_esigned_document,
+                pdf_doc_name,
+            )
+            frappe.db.set_value(
+                self.doctype, self.name, "lender_esigned_document", edited
+            )
+            self.lender_esigned_document = edited
+            self.map_loan_agreement_file(loan, edited)
+            attachments = self.create_attachment()
+            loan_email_message = frappe.db.sql(
+                "select message from `tabNotification` where name ='Top up Application Approved';"
+            )[0][0]
+            loan_email_message = loan_email_message.replace("fullname", doc.fullname)
+            loan_email_message = loan_email_message.replace(
+                "logo_file",
+                frappe.utils.get_url("/assets/lms/mail_images/logo.png"),
+            )
+            loan_email_message = loan_email_message.replace(
+                "fb_icon",
+                frappe.utils.get_url("/assets/lms/mail_images/fb-icon.png"),
+            )
+            # loan_email_message = loan_email_message.replace("tw_icon",frappe.utils.get_url("/assets/lms/mail_images/tw-icon.png"),)
+            loan_email_message = loan_email_message.replace(
+                "inst_icon",
+                frappe.utils.get_url("/assets/lms/mail_images/inst-icon.png"),
+            )
+            loan_email_message = loan_email_message.replace(
+                "lin_icon",
+                frappe.utils.get_url("/assets/lms/mail_images/lin-icon.png"),
+            )
+            frappe.enqueue(
+                method=frappe.sendmail,
+                recipients=[customer.user],
+                sender=None,
+                subject="Top up Application",
+                message=loan_email_message,
+                attachments=attachments,
+            )
+        else:
+            frappe.enqueue_doc(
+                "Notification", "Top up Application", method="send", doc=doc
+            )
         mess = ""
         loan = ""
         fcm_notification = {}
@@ -584,15 +597,15 @@ class TopupApplication(Document):
                 customer=self.get_customer(),
             )
 
-    def map_loan_agreement_file(self, loan):
-        file_name = frappe.db.get_value(
-            "File", {"file_url": self.lender_esigned_document}
-        )
+    def map_loan_agreement_file(self, loan, edited):
+        # file_name = frappe.db.get_value(
+        #     "File", {"file_url": self.lender_esigned_document}
+        # )
 
-        loan_agreement = frappe.get_doc("File", file_name)
+        # loan_agreement = frappe.get_doc("File", file_name)
 
-        loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(loan.name)
-        event = "Top up"
+        # loan_agreement_file_name = "{}-loan-enhancement-aggrement.pdf".format(loan.name)
+        # event = "Top up"
 
         is_private = 0
 
@@ -600,31 +613,31 @@ class TopupApplication(Document):
         #     loan_agreement_file_name, is_private=is_private
         # )
 
-        loan_agreement_file = frappe.get_doc(
-            {
-                "doctype": "File",
-                "file_name": loan_agreement_file_name,
-                "content": loan_agreement.get_content(),
-                "attached_to_doctype": "Loan",
-                "attached_to_name": loan.name,
-                "attached_to_field": "loan_agreement",
-                "folder": "Home",
-                # "file_url": loan_agreement_file_url,
-                "is_private": is_private,
-            }
-        )
-        loan_agreement_file.insert(ignore_permissions=True)
-        frappe.db.commit()
+        # loan_agreement_file = frappe.get_doc(
+        #     {
+        #         "doctype": "File",
+        #         "file_name": loan_agreement_file_name,
+        #         "content": loan_agreement.get_content(),
+        #         "attached_to_doctype": "Loan",
+        #         "attached_to_name": loan.name,
+        #         "attached_to_field": "loan_agreement",
+        #         "folder": "Home",
+        #         # "file_url": loan_agreement_file_url,
+        #         "is_private": is_private,
+        #     }
+        # )
+        # loan_agreement_file.insert(ignore_permissions=True)
+        # frappe.db.commit()
 
         frappe.db.set_value(
             "Loan",
             loan.name,
             "loan_agreement",
-            loan_agreement_file.file_url,
+            edited,
             update_modified=False,
         )
         # save loan sanction history
-        loan.save_loan_sanction_history(loan_agreement_file.name, event)
+        # loan.save_loan_sanction_history(loan_agreement_file.name, event)
 
     def before_save(self):
         loan = self.get_loan()
@@ -635,6 +648,406 @@ class TopupApplication(Document):
         lender = self.get_lender()
         self.minimum_sanctioned_limit = lender.minimum_sanctioned_limit
         self.maximum_sanctioned_limit = lender.maximum_sanctioned_limit
+        user_roles = frappe.db.get_values(
+            "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
+        )
+        user_role = []
+        for i in list(user_roles):
+            user_role.append(i[0])
+        if "Loan Customer" not in user_role:
+            updated_top_up_amt = loan.max_topup_amount()
+            self.customer = loan.customer
+            self.customer_name = loan.customer_name
+            if not updated_top_up_amt or updated_top_up_amt < self.top_up_amount:
+                frappe.throw("Top up not available")
+            if self.top_up_amount <= 0:
+                frappe.throw("Top up can not be approved with Amount Rs. 0")
+        if self.status == "Approved":
+            current = frappe.utils.now_datetime()
+            expiry = frappe.utils.add_years(current, 1) - timedelta(days=1)
+            self.expiry_date = datetime.strftime(expiry, "%Y-%m-%d")
+        if self.status == "Pending":
+            self.sanction_letter()
+
+    def get_customer(self):
+        return frappe.get_doc("Loan Customer", self.customer)
+
+    def sanction_letter(self):
+        customer = self.get_customer()
+        user = frappe.get_doc("User", customer.user)
+        user_kyc = frappe.get_doc("User KYC", customer.choice_kyc)
+        lender = self.get_lender()
+        loan = self.get_loan()
+        if user_kyc.address_details:
+            address_details = frappe.get_doc(
+                "Customer Address Details", user_kyc.address_details
+            )
+
+            line1 = str(address_details.perm_line1)
+            if line1:
+                addline1 = "{},<br/>".format(line1)
+            else:
+                addline1 = ""
+
+            line2 = str(address_details.perm_line2)
+            if line2:
+                addline2 = "{},<br/>".format(line2)
+            else:
+                addline2 = ""
+
+            line3 = str(address_details.perm_line3)
+            if line3:
+                addline3 = "{},<br/>".format(line3)
+            else:
+                addline3 = ""
+
+            perm_city = str(address_details.perm_city)
+            perm_dist = str(address_details.perm_dist)
+            perm_state = str(address_details.perm_state)
+            perm_pin = str(address_details.perm_pin)
+
+        else:
+            address = ""
+
+        increased_sanction_limit = self.top_up_amount + loan.sanctioned_limit
+        interest_config = frappe.get_value(
+            "Interest Configuration",
+            {
+                "to_amount": [
+                    ">=",
+                    lms.validate_rupees(float(increased_sanction_limit)),
+                ],
+            },
+            order_by="to_amount asc",
+        )
+        int_config = frappe.get_doc("Interest Configuration", interest_config)
+        roi_ = round((int_config.base_interest * 12), 2)
+        charges = lms.charges_for_apr(
+            lender.name, lms.validate_rupees(float(self.top_up_amount))
+        )
+        apr = round(
+            lms.calculate_apr(
+                self.name,
+                roi_,
+                12,
+                int(lms.validate_rupees(float(increased_sanction_limit))),
+                charges.get("total"),
+            ),
+            2,
+        )
+        annual_default_interest = lender.default_interest * 12
+        interest_charges_in_amount = int(
+            lms.validate_rupees(float(increased_sanction_limit))
+        ) * (roi_ / 100)
+
+        doc = {
+            "esign_date": "",
+            "loan_account_no": loan.name if self.loan else "",
+            "loan_account_number": loan.name if self.loan else "",
+            "borrower_name": customer.full_name,
+            "addline1": addline1,
+            "addline2": addline2,
+            "addline3": addline3,
+            "city": perm_city,
+            "district": perm_dist,
+            "state": perm_state,
+            "pincode": perm_pin,
+            # "sanctioned_amount": frappe.utils.fmt_money(float(self.drawing_power)),
+            "sanctioned_amount": frappe.utils.fmt_money(
+                float(increased_sanction_limit)
+            ),
+            "sanctioned_amount_in_words": lms.number_to_word(
+                lms.validate_rupees(float(increased_sanction_limit))
+            ).title(),
+            "roi": roi_,
+            "apr": apr,
+            "documentation_charges_kfs": frappe.utils.fmt_money(
+                charges.get("documentation_charges")
+            ),
+            "processing_charges_kfs": frappe.utils.fmt_money(
+                charges.get("processing_fees")
+            ),
+            "net_disbursed_amount": frappe.utils.fmt_money(
+                float(increased_sanction_limit) - charges.get("total")
+            ),
+            "total_amount_to_be_paid": frappe.utils.fmt_money(
+                float(increased_sanction_limit)
+                + charges.get("total")
+                + interest_charges_in_amount
+            ),
+            "loan_application_no": self.name,
+            "rate_of_interest": lender.rate_of_interest,
+            "rebate_interest": int_config.rebait_interest,
+            "default_interest": annual_default_interest,
+            "rebait_threshold": lender.rebait_threshold,
+            "interest_charges_in_amount": frappe.utils.fmt_money(
+                interest_charges_in_amount
+            ),
+            "renewal_charges": lms.validate_rupees(lender.renewal_charges)
+            if lender.renewal_charge_type == "Fix"
+            else lms.validate_percent(lender.renewal_charges),
+            "renewal_charge_type": lender.renewal_charge_type,
+            "renewal_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.renewal_charges)
+            ).title()
+            if lender.renewal_charge_type == "Fix"
+            else "",
+            "renewal_min_amt": lms.validate_rupees(lender.renewal_minimum_amount),
+            "renewal_max_amt": lms.validate_rupees(lender.renewal_maximum_amount),
+            "documentation_charge": lms.validate_rupees(lender.documentation_charges)
+            if lender.documentation_charge_type == "Fix"
+            else lms.validate_percent(lender.documentation_charges),
+            "documentation_charge_type": lender.documentation_charge_type,
+            "documentation_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.documentation_charges)
+            ).title()
+            if lender.documentation_charge_type == "Fix"
+            else "",
+            "documentation_min_amt": lms.validate_rupees(
+                lender.lender_documentation_minimum_amount
+            ),
+            "documentation_max_amt": lms.validate_rupees(
+                lender.lender_documentation_maximum_amount
+            ),
+            "lender_processing_fees_type": lender.lender_processing_fees_type,
+            "processing_charge": lms.validate_rupees(lender.lender_processing_fees)
+            if lender.lender_processing_fees_type == "Fix"
+            else lms.validate_percent(lender.lender_processing_fees),
+            "processing_charge_in_words": lms.number_to_word(
+                lms.validate_rupees(lender.lender_processing_fees)
+            ).title()
+            if lender.lender_processing_fees_type == "Fix"
+            else "",
+            "processing_min_amt": lms.validate_rupees(
+                lender.lender_processing_minimum_amount
+            ),
+            "processing_max_amt": lms.validate_rupees(
+                lender.lender_processing_maximum_amount
+            ),
+            # "stamp_duty_charges": int(lender.lender_stamp_duty_minimum_amount),
+            "transaction_charges_per_request": lms.validate_rupees(
+                lender.transaction_charges_per_request
+            ),
+            "security_selling_share": lender.security_selling_share,
+            "cic_charges": lms.validate_rupees(lender.cic_charges),
+            "total_pages": lender.total_pages,
+            "lien_initiate_charge_type": lender.lien_initiate_charge_type,
+            "invoke_initiate_charge_type": lender.invoke_initiate_charge_type,
+            "revoke_initiate_charge_type": lender.revoke_initiate_charge_type,
+            "lien_initiate_charge_minimum_amount": lms.validate_rupees(
+                lender.lien_initiate_charge_minimum_amount
+            ),
+            "lien_initiate_charge_maximum_amount": lms.validate_rupees(
+                lender.lien_initiate_charge_maximum_amount
+            ),
+            "lien_initiate_charges": lms.validate_rupees(lender.lien_initiate_charges)
+            if lender.lien_initiate_charge_type == "Fix"
+            else lms.validate_percent(lender.lien_initiate_charges),
+            "invoke_initiate_charges_minimum_amount": lms.validate_rupees(
+                lender.invoke_initiate_charges_minimum_amount
+            ),
+            "invoke_initiate_charges_maximum_amount": lms.validate_rupees(
+                lender.invoke_initiate_charges_maximum_amount
+            ),
+            "invoke_initiate_charges": lms.validate_rupees(
+                lender.invoke_initiate_charges
+            )
+            if lender.invoke_initiate_charge_type == "Fix"
+            else lms.validate_percent(lender.invoke_initiate_charges),
+            "revoke_initiate_charges_minimum_amount": lms.validate_rupees(
+                lender.revoke_initiate_charges_minimum_amount
+            ),
+            "revoke_initiate_charges_maximum_amount": lms.validate_rupees(
+                lender.revoke_initiate_charges_maximum_amount
+            ),
+            "revoke_initiate_charges": lms.validate_rupees(
+                lender.revoke_initiate_charges
+            )
+            if lender.revoke_initiate_charge_type == "Fix"
+            else lms.validate_percent(lender.revoke_initiate_charges),
+        }
+
+        sanctioned_letter_pdf_file = "{}-{}-sanctioned_letter.pdf".format(
+            self.name, frappe.utils.now_datetime().date()
+        )
+        sll_name = sanctioned_letter_pdf_file
+
+        sanctioned_leter_pdf_file_path = frappe.utils.get_files_path(
+            sanctioned_letter_pdf_file
+        )
+
+        sanction_letter_template = lender.get_sanction_letter_template()
+
+        # sanction_letter = frappe.render_template(
+        #     sanction_letter_template.get_content(), {"doc": doc}
+        # )
+
+        s_letter = frappe.render_template(
+            sanction_letter_template.get_content(), {"doc": doc}
+        )
+
+        pdf_file = open(sanctioned_leter_pdf_file_path, "wb")
+
+        # from frappe.utils.pdf import get_pdf
+
+        pdf = lms.get_pdf(s_letter)
+
+        pdf_file.write(pdf)
+        pdf_file.close()
+        sL_letter = frappe.utils.get_url("files/{}".format(sanctioned_letter_pdf_file))
+        sl = frappe.get_all(
+            "Sanction Letter and CIAL Log", filters={"loan": self.loan}, fields=["*"]
+        )
+        if not self.sl_entries:
+            if not sl:
+                sl = frappe.get_doc(
+                    dict(
+                        doctype="Sanction Letter and CIAL Log",
+                        loan_application=self.name,
+                    ),
+                ).insert(ignore_permissions=True)
+                frappe.db.commit()
+                self.sl_entries = sl.name
+                sanction_letter_table = frappe.get_all(
+                    "Sanction Letter Entries",
+                    filters={"topup_application_no": self.name},
+                    fields=["*"],
+                )
+                if not sanction_letter_table:
+                    sll = frappe.get_doc(
+                        {
+                            "doctype": "Sanction Letter Entries",
+                            "parent": sl.name,
+                            "parentfield": "sl_table",
+                            "parenttype": "Sanction Letter and CIAL Log",
+                            "sanction_letter": sL_letter,
+                            "topup_application_no": self.name,
+                            "date_of_acceptance": frappe.utils.now_datetime().date(),
+                            "rebate_interest": lender.rebait_threshold,
+                        }
+                    ).insert(ignore_permissions=True)
+                    frappe.db.commit()
+
+            else:
+                sl = frappe.get_all(
+                    "Sanction Letter and CIAL Log",
+                    filters={"loan": self.loan},
+                    fields=["*"],
+                )
+                self.sl_entries = sl[0].name
+                sanction_letter_table = frappe.get_all(
+                    "Sanction Letter Entries",
+                    filters={"topup_application_no": self.name},
+                    fields=["*"],
+                )
+                if not sanction_letter_table:
+                    sll = frappe.get_doc(
+                        {
+                            "doctype": "Sanction Letter Entries",
+                            "parent": sl[0].name,
+                            "parentfield": "sl_table",
+                            "parenttype": "Sanction Letter and CIAL Log",
+                            "sanction_letter": sL_letter,
+                            "topup_application_no": self.name,
+                            "date_of_acceptance": frappe.utils.now_datetime().date(),
+                            "rebate_interest": lender.rebait_threshold,
+                        }
+                    ).insert(ignore_permissions=True)
+                    frappe.db.commit()
+        if self.status == "Approved":
+            import os
+
+            from PyPDF2 import PdfReader, PdfWriter
+
+            lender_esign_file = self.lender_esigned_document
+            lfile_name = lender_esign_file.split("files/", 1)
+            l_file = lfile_name[1]
+            pdf_file_path = frappe.utils.get_files_path(
+                l_file,
+            )
+            file_base_name = pdf_file_path.replace(".pdf", "")
+            pdf = PdfReader(pdf_file_path)
+            pages = [
+                30,
+                31,
+                32,
+                33,
+                34,
+                35,
+                36,
+                37,
+            ]  # page 1, 3, 5
+            pdfWriter = PdfWriter()
+            for page_num in pages:
+                pdfWriter.addPage(pdf.getPage(page_num))
+            sanction_letter_esign = "Sanction_letter_{0}.pdf".format(self.name)
+            sanction_letter_esign_path = frappe.utils.get_files_path(
+                sanction_letter_esign
+            )
+            if os.path.exists(sanction_letter_esign_path):
+                os.remove(sanction_letter_esign_path)
+            sanction_letter_esign_document = frappe.utils.get_url(
+                "files/{}".format(sanction_letter_esign)
+            )
+            sanction_letter_esign = frappe.utils.get_files_path(sanction_letter_esign)
+
+            with open(sanction_letter_esign, "wb") as f:
+                pdfWriter.write(f)
+                f.close()
+            sl = frappe.get_all(
+                "Sanction Letter Entries",
+                filters={"topup_application_no": self.name},
+                fields=["*"],
+            )
+            sll = frappe.get_doc("Sanction Letter Entries", sl[0].name)
+            print("sll", sll)
+            sll.sanction_letter = sanction_letter_esign_document
+            sll.save()
+            frappe.db.commit()
+
+        return
+
+    def create_attachment(self):
+        attachments = []
+        # sanction_letter = frappe.get_all(
+        #     "Sanction Letter Entries",
+        #     filters={"topup_application_no": self.name, "parent": self.sl_entries},
+        #     fields=["*"],
+        # )
+        doc_name = self.lender_esigned_document
+        fname = doc_name.split("files/", 1)
+        file = fname[1].split(".", 1)
+        file_name = file[0]
+        log_file = frappe.utils.get_files_path("{}.pdf".format(file_name))
+        with open(log_file, "rb") as fileobj:
+            filedata = fileobj.read()
+
+        sanction_letter = {"fname": fname[1], "fcontent": filedata}
+        attachments.append(sanction_letter)
+
+        # lender_esign_file = self.lender_esigned_document
+        # lfile_name = lender_esign_file.split("files/", 1)
+        # l_file = lfile_name[1]
+        # path = frappe.utils.get_files_path(
+        #     l_file,
+        # )
+        # with open(path, "rb") as fileobj:
+        #     filedata = fileobj.read()
+        # lender_doc = {"fname": l_file, "fcontent": filedata}
+        # attachments.append(lender_doc)
+
+        # if self.customer_esigned_document:
+        #     customer_esigned_document = self.customer_esigned_document
+        #     cfile_name = customer_esigned_document.split("files/", 1)
+        #     c_file = cfile_name[1]
+        #     path = frappe.utils.get_files_path(c_file)
+
+        #     with open(path, "rb") as fileobj:
+        #         filedata = fileobj.read()
+        #     customer_doc = {"fname": c_file, "fcontent": filedata}
+        #     attachments.append(customer_doc)
+
+        return attachments
 
 
 def only_pdf_upload(doc, method):

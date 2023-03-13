@@ -2,7 +2,7 @@ import frappe
 
 
 def execute():
-    frappe.reload_doc("Lms", "DocType", "LAS Settings")
+    frappe.reload_doc("Lms", "DocType", "LAS Settings", force=True)
     las_settings = frappe.get_single("LAS Settings")
 
     if frappe.utils.get_url() == "https://spark.loans":

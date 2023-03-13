@@ -781,7 +781,7 @@ def reject_blank_transaction_and_settlement_recon_api():
                         single_transaction.status = "Rejected"
                         single_transaction.save(ignore_permissions=True)
                         frappe.db.commit()
-    except Exception as e:
+    except Exception:
         frappe.log_error(
             message=frappe.get_traceback() + "\nPayment details:\n" + data,
             title=_("Blank Payment Reject Error"),

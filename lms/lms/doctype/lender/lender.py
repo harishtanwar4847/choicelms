@@ -23,6 +23,10 @@ class Lender(Document):
         )
         return frappe.get_doc("File", file_name)
 
+    def get_sanction_letter_template(self):
+        file_name = frappe.db.get_value("File", {"file_url": self.sanction_letter})
+        return frappe.get_doc("File", file_name)
+
     def validate_concentration_rule(self):
         security_category = [i.security_category for i in self.concentration_rule]
         if len(security_category) > len(set(security_category)):

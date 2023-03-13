@@ -18,6 +18,7 @@
   "loan_column_break",
   "customer",
   "customer_name",
+  "available_topup_amt",
   "actual_drawing_power",
   "expiry_date",
   "loan_agreement",
@@ -244,6 +245,12 @@
    "fieldname": "actual_drawing_power",
    "fieldtype": "Currency",
    "label": "Actual Drawing Power",
+   "read_only": 1
+  },
+  {
+   "fieldname": "available_topup_amt",
+   "fieldtype": "Currency",
+   "label": "Available TopUp Amount",
    "read_only": 1
   }
  ],
