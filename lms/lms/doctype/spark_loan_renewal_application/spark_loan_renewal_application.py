@@ -509,6 +509,11 @@ def all_loans_renewal_update_doc():
             queue="long",
             job_name="Renewal Timer",
         )
+        frappe.enqueue(
+            method="lms.lms.doctype.spark_loan_renewal_application.spark_loan_renewal_application.renewal_doc_for_selected_customer",
+            queue="long",
+            job_name="Renewal doc for Selected Customer",
+        )
 
     except Exception as e:
         frappe.log_error(
@@ -1281,9 +1286,13 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
 
 
 def renewal_doc_for_selected_customer():
-    loan_name_list = ["SL000266"]
+    loan_name_list = ["SL000133", "SL000130", "SL000134"]
     for i in loan_name_list:
-        loan = frappe.get_doc("Loan", i)
+        loan = frappe.get_doc("Loan", str(i))
+        frappe.log_error(
+            message="Loan name :{}".format(i) + "\nLoan Document:{}".format(str(loan)),
+            title=_("renewal_doc_for_selected_customer"),
+        )
         las_settings = frappe.get_single("LAS Settings")
         str_exp = datetime.strptime(str(loan.expiry_date), "%Y-%m-%d").strftime(
             "%d/%m/%Y"
