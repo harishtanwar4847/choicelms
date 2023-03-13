@@ -783,9 +783,10 @@ def renewal_timer(loan_renewal_name=None):
                 renewal_timer = lms.convert_sec_to_hh_mm_ss(seconds, is_for_days=True)
 
             elif (
-                frappe.utils.now_datetime().date() > renewal_doc.creation.date()
+                frappe.utils.now_datetime().date()
+                > (renewal_doc.creation.date() + timedelta(days=7))
                 and frappe.utils.now_datetime().date()
-                <= (renewal_doc.creation.date() + timedelta(days=7))
+                < (renewal_doc.creation.date() + timedelta(days=14))
                 and renewal_doc.status not in ["Approved", "Rejected"]
                 and loan.name in ["SL000130", "SL000133", "SL000134"]
             ):
