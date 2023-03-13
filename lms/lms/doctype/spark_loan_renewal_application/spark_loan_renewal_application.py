@@ -984,11 +984,19 @@ def loan_renewal_update_doc(loan_name):
                 doc.save(ignore_permissions=True)
                 frappe.db.commit()
 
-            if (
-                (
-                    doc.creation.date() + timedelta(days=7)
-                    == frappe.utils.now_datetime().date()
+            frappe.log_error(
+                message="current_date:{}".format(
+                    str(frappe.utils.now_datetime().date())
                 )
+                + "\ngreater_than_7:{}".format(
+                    str(doc.creation.date() + timedelta(days=7))
+                    + "\n Loan name : {}".format(str(loan.name))
+                ),
+                title=_("IS EXPIRED"),
+            )
+            if (
+                doc.creation.date() + timedelta(days=7)
+                == frappe.utils.now_datetime().date()
                 and doc.is_expired == 0
                 and loan.name in ["SL000130", "SL000133", "SL000134"]
             ):
