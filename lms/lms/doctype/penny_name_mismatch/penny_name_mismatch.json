@@ -11,6 +11,7 @@
   "customer_name",
   "column_break_5",
   "user_kyc",
+  "penny_name_mismatch_percentage",
   "is_offline",
   "kyc_details_section",
   "kyc_first_name",
@@ -181,10 +182,16 @@
    "fieldtype": "Check",
    "label": "Is Offline",
    "read_only": 1
+  },
+  {
+   "fieldname": "penny_name_mismatch_percentage",
+   "fieldtype": "Percent",
+   "label": "Penny Name Mismatch Percentage",
+   "read_only": 1
   }
  ],
  "links": [],
- "modified": "2023-03-09 16:20:45.887286",
+ "modified": "2023-03-13 16:16:26.791505",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Penny Name Mismatch",
