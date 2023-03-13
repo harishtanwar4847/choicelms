@@ -106,7 +106,7 @@ Your E-sign process is completed. You shall soon receive a confirmation of loan 
                         "renewal_maximum_amount",
                     )
                 loan.create_loan_transaction(
-                    transaction_type="Loan Renewal Charges",
+                    transaction_type="Account Renewal Charges",
                     amount=loan_renewal_charges,
                     approve=True,
                 )
