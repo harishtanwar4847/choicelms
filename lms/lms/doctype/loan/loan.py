@@ -2314,9 +2314,11 @@ def add_loans_virtual_interest(loans):
     for loan in loans:
         loan_name = int(loan.name[2:])
         queue = "default" if (loan_name % 2) == 0 else "short"
-        loan = frappe.get_doc("Loan", loan)
+        # loan = frappe.get_doc("Loan", loan)
         # loan.add_virtual_interest()
-        frappe.enqueue_doc("Loan", loan, method="add_virtual_interest", queue=queue)
+        frappe.enqueue_doc(
+            "Loan", loan.name, method="add_virtual_interest", queue=queue
+        )
 
 
 @frappe.whitelist()
