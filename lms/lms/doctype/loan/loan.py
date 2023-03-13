@@ -1072,7 +1072,6 @@ class Loan(Document):
 
     def add_virtual_interest(self, input_date=None):
         try:
-            a = frappe.utils.now_datetime()
             if input_date:
                 input_date = datetime.strptime(input_date, "%Y-%m-%d")
             else:
@@ -1099,13 +1098,11 @@ class Loan(Document):
                 virtual_interest_doc_list = frappe.get_all(
                     "Virtual Interest",
                     filters={"loan": self.name, "lender": self.lender},
-                    fields=["time"],
+                    pluck="time",
                 )
 
                 # Check if entry exists for particular date
-                if not input_date in [
-                    fields["time"] for fields in virtual_interest_doc_list
-                ]:
+                if input_date not in virtual_interest_doc_list:
                     # get no of days in month
                     num_of_days_in_month = (
                         (input_date.replace(day=1) + timedelta(days=32)).replace(day=1)
@@ -1142,10 +1139,9 @@ class Loan(Document):
                         }
                     )
                     virtual_interest_doc.save(ignore_permissions=True)
-                    # return virtual_interest_doc.as_dict()
 
                     if frappe.utils.now_datetime().day == 1:
-                        interest_calculation = frappe.get_doc(
+                        frappe.get_doc(
                             dict(
                                 doctype="Interest Calculation",
                                 loan_no=self.name,
@@ -1165,11 +1161,6 @@ class Loan(Document):
             self.map_loan_summary_values()
             self.save(ignore_permissions=True)
             frappe.db.commit()
-            frappe.logger().info(str(frappe.utils.now_datetime()))
-            frappe.logger().info(
-                "Total time took - add_virtual_interest"
-                + str((frappe.utils.now_datetime() - a).total_seconds())
-            )
 
         except Exception:
             frappe.log_error(
@@ -1200,12 +1191,9 @@ class Loan(Document):
                     "lender": self.lender,
                     "transaction_type": "Additional Interest",
                 },
-                fields=["time"],
+                pluck="time",
             )
 
-            # job_date = (current_date - timedelta(days=1)).replace(
-            #     hour=23, minute=59, second=59, microsecond=999999
-            # )
             last_day_of_prev_month = current_date.replace(day=1) - timedelta(days=1)
             prev_month = last_day_of_prev_month.month
             prev_month_year = last_day_of_prev_month.year
@@ -1226,12 +1214,13 @@ class Loan(Document):
                         days=rebate_threshold
                     )
 
-                    if current_date > transaction_time and not transaction_time.replace(
-                        hour=23, minute=59, second=59, microsecond=999999
-                    ) in [
-                        fields["time"]
-                        for fields in additional_interest_transaction_list
-                    ]:
+                    if (
+                        current_date > transaction_time
+                        and transaction_time.replace(
+                            hour=23, minute=59, second=59, microsecond=999999
+                        )
+                        not in additional_interest_transaction_list
+                    ):
                         # Sum of rebate amounts
                         rebate_interest_sum = frappe.db.sql(
                             "select sum(rebate_amount) as amount from `tabVirtual Interest` where loan = '{}' and lender = '{}' and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
@@ -1365,19 +1354,19 @@ class Loan(Document):
                     "lender": self.lender,
                     "transaction_type": "Interest",
                 },
-                fields=["time"],
+                pluck="time",
             )
 
             job_date = (current_date - timedelta(days=1)).replace(
                 hour=23, minute=59, second=59, microsecond=999999
             )
 
-            if current_date.day == 1 and not job_date in [
-                fields["time"] for fields in booked_interest_transaction_list
-            ]:
+            if (
+                current_date.day == 1
+                and job_date not in booked_interest_transaction_list
+            ):
                 prev_month = job_date.month
                 prev_month_year = job_date.year
-                # return [job_date, prev_month, prev_month_year]
 
                 check_if_exist = frappe.db.sql(
                     "select count(name) as total_count from `tabLoan Transaction` where loan = '{}' and lender = '{}' and transaction_type = 'Interest' and DATE_FORMAT(time, '%Y') = {} and DATE_FORMAT(time, '%m') = {}".format(
@@ -1427,7 +1416,7 @@ class Loan(Document):
                         self.day_past_due = self.calculate_day_past_due(current_date)
                         self.save(ignore_permissions=True)
                         frappe.db.commit()
-                        interest_calculation = frappe.get_doc(
+                        frappe.get_doc(
                             dict(
                                 doctype="Interest Calculation",
                                 loan_no=self.name,
@@ -1693,7 +1682,7 @@ class Loan(Document):
                         days=default_threshold
                     )
                     # check if interest booked time is more than default threshold
-                    if current_date > transaction_time and not current_date.date() in [
+                    if current_date > transaction_time and current_date.date() not in [
                         fields["time"].date()
                         for fields in penal_interest_transaction_list
                     ]:
@@ -2277,13 +2266,10 @@ class Loan(Document):
 
 
 def check_loans_for_shortfall(loans):
-    counter = 0
     for loan_name in loans:
-        queue = "default"
-        if (counter % 2) == 0:
-            queue = "short"
+        loan_name = int(loan_name[2:])
+        queue = "default" if (loan_name % 2) == 0 else "short"
         frappe.enqueue_doc("Loan", loan_name, method="check_for_shortfall", queue=queue)
-        counter += 1
 
 
 @frappe.whitelist()
@@ -2332,28 +2318,37 @@ def daily_virtual_job(loan_name, input_date=None):
 
 @frappe.whitelist()
 def daily_penal_job(loan_name, input_date=None):
+    loan_name = int(loan_name[2:])
+    queue = "default" if (loan_name % 2) == 0 else "short"
     frappe.enqueue_doc(
         "Loan",
         loan_name,
         method="add_penal_interest",
         input_date=input_date,
+        queue=queue,
     )
 
 
 @frappe.whitelist()
 def additional_interest_job(loan_name, input_date=None):
+    loan_name = int(loan_name[2:])
+    queue = "default" if (loan_name % 2) == 0 else "short"
     frappe.enqueue_doc(
         "Loan",
         loan_name,
         method="check_for_additional_interest",
         input_date=input_date,
+        queue=queue,
     )
 
 
 def add_loans_virtual_interest(loans):
     for loan in loans:
+        loan_name = int(loan.name[2:])
+        queue = "default" if (loan_name % 2) == 0 else "short"
         loan = frappe.get_doc("Loan", loan)
-        loan.add_virtual_interest()
+        # loan.add_virtual_interest()
+        frappe.enqueue_doc("Loan", loan, method="add_virtual_interest", queue=queue)
 
 
 @frappe.whitelist()
@@ -2372,7 +2367,7 @@ def add_all_loans_virtual_interest():
 
         frappe.enqueue(
             method="lms.lms.doctype.loan.loan.add_loans_virtual_interest",
-            loans=[loan for loan in all_loans],
+            loans=all_loans,
             queue="long",
         )
 
@@ -2394,7 +2389,7 @@ def check_for_all_loans_additional_interest():
 
         frappe.enqueue(
             method="lms.lms.doctype.loan.loan.check_for_loans_additional_interest",
-            loans=[loan for loan in all_loans],
+            loans=all_loans,
             queue="long",
         )
 
@@ -2416,18 +2411,21 @@ def add_all_loans_penal_interest():
 
         frappe.enqueue(
             method="lms.lms.doctype.loan.loan.add_loans_penal_interest",
-            loans=[loan for loan in all_loans],
+            loans=all_loans,
             queue="long",
         )
 
 
 @frappe.whitelist()
 def book_virtual_interest_for_month(loan_name, input_date=None):
+    loan_name = int(loan_name[2:])
+    queue = "default" if (loan_name % 2) == 0 else "short"
     frappe.enqueue_doc(
         "Loan",
         loan_name,
         method="book_virtual_interest_for_month",
         input_date=input_date,
+        queue=queue,
     )
 
 
@@ -2448,7 +2446,7 @@ def book_all_loans_virtual_interest_for_month():
 
         frappe.enqueue(
             method="lms.lms.doctype.loan.loan.book_loans_virtual_interest_for_month",
-            loans=[loan for loan in all_loans],
+            loans=all_loans,
             queue="long",
         )
 
