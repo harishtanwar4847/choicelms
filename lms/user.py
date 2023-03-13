@@ -5255,8 +5255,8 @@ def au_penny_drop(**kwargs):
                                                 "accountNumber"
                                             ),
                                             "ifsc": data.get("ifsc"),
-                                            "account_holder_name": result_.get(
-                                                "accountName"
+                                            "account_holder_name": data.get(
+                                                "account_holder_name"
                                             ),
                                             "personalized_cheque": photos_,
                                             "city": data.get("city"),
@@ -5305,8 +5305,8 @@ def au_penny_drop(**kwargs):
                                                 "accountNumber"
                                             ),
                                             "ifsc": data.get("ifsc"),
-                                            "account_holder_name": result_.get(
-                                                "accountName"
+                                            "account_holder_name": data.get(
+                                                "account_holder_name"
                                             ),
                                             "personalized_cheque": photos_,
                                             "city": data.get("city"),
@@ -5335,8 +5335,8 @@ def au_penny_drop(**kwargs):
                                         "account_type": data.get("bank_account_type"),
                                         "account_number": result_.get("accountNumber"),
                                         "ifsc": data.get("ifsc"),
-                                        "account_holder_name": result_.get(
-                                            "accountName"
+                                        "account_holder_name": data.get(
+                                            "account_holder_name"
                                         ),
                                         "personalized_cheque": photos_,
                                         "city": data.get("city"),
