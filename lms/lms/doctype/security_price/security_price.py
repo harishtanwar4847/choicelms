@@ -174,14 +174,7 @@ def update_all_security_prices():
 
 @frappe.whitelist()
 def update_all_schemeNav():
-    current_hour = frappe.utils.now_datetime().hour
-    las_settings = frappe.get_single("LAS Settings")
-
-    if frappe.utils.now_datetime().date() not in lms.holiday_list(
-        is_market_holiday=1
-    ) and (
-        las_settings.market_start_time <= current_hour < las_settings.market_end_time
-    ):
+    if frappe.utils.now_datetime().date() not in lms.holiday_list(is_market_holiday=1):
         chunks = lms.chunk_doctype(doctype="Security", limit=100)
         for start in chunks.get("chunks"):
             schemes_list = frappe.db.get_all(

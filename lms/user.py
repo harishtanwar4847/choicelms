@@ -5134,7 +5134,7 @@ def au_penny_drop(**kwargs):
                             "account_type": data.get("bank_account_type"),
                             "account_number": data.get("account_number"),
                             "ifsc": data.get("ifsc"),
-                            "account_holder_name": bank_acc[0].account_holder_name,
+                            "account_holder_name": data.get("account_holder_name"),
                             "personalized_cheque": photos_,
                             "city": data.get("city"),
                             "parent": user_kyc.name,
