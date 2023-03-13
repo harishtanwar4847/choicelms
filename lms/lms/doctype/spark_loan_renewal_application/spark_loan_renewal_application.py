@@ -723,6 +723,7 @@ def renewal_timer(loan_renewal_name=None):
             else:
                 exp = loan.expiry_date
             loan_expiry = datetime.combine(exp, time.min)
+
             user_kyc = frappe.get_all(
                 "User KYC",
                 filters={
@@ -774,6 +775,19 @@ def renewal_timer(loan_renewal_name=None):
                 frappe.utils.now_datetime().date() > exp
                 and frappe.utils.now_datetime().date() <= (exp + timedelta(days=7))
                 and renewal_doc.status not in ["Approved", "Rejected"]
+                and loan.name not in ["SL000130", "SL000133", "SL000134"]
+            ):
+                seconds = abs(
+                    date_7after_expiry - frappe.utils.now_datetime()
+                ).total_seconds()
+                renewal_timer = lms.convert_sec_to_hh_mm_ss(seconds, is_for_days=True)
+
+            elif (
+                frappe.utils.now_datetime().date() > renewal_doc.creation.date()
+                and frappe.utils.now_datetime().date()
+                <= (renewal_doc.creation + timedelta(days=7))
+                and renewal_doc.status not in ["Approved", "Rejected"]
+                and loan.name in ["SL000130", "SL000133", "SL000134"]
             ):
                 seconds = abs(
                     date_7after_expiry - frappe.utils.now_datetime()
