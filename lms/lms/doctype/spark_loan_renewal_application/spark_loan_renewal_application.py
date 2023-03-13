@@ -230,9 +230,8 @@ Sorry! Your loan renewal application was turned down. We regret the inconvenienc
                         "SL000134",
                     ]:
                         if (
-                            self.creation.date()
-                            < frappe.utils.now_datetime().date() + timedelta(days=7)
-                        ):
+                            self.creation.date() + timedelta(days=7)
+                        ) == frappe.utils.now_datetime().date():
                             self.is_expired = 1
 
             if msg:
@@ -986,8 +985,10 @@ def loan_renewal_update_doc(loan_name):
                 frappe.db.commit()
 
             if (
-                doc.creation.date()
-                < frappe.utils.now_datetime().date() + timedelta(days=7)
+                (
+                    doc.creation.date() + timedelta(days=7)
+                    == frappe.utils.now_datetime().date()
+                )
                 and doc.is_expired == 0
                 and loan.name in ["SL000130", "SL000133", "SL000134"]
             ):
