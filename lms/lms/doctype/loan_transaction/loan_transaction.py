@@ -756,7 +756,6 @@ class LoanTransaction(Document):
 def reject_blank_transaction_and_settlement_recon_api():
     data = ""
     try:
-        a = frappe.utils.now_datetime()
         blank_rzp_event_transaction = frappe.get_all(
             "Loan Transaction",
             {
@@ -782,13 +781,7 @@ def reject_blank_transaction_and_settlement_recon_api():
                         single_transaction.status = "Rejected"
                         single_transaction.save(ignore_permissions=True)
                         frappe.db.commit()
-
-        frappe.logger().info(str(frappe.utils.now_datetime()))
-        frappe.logger().info(
-            "Total time took - reject_blank_transaction_and_settlement_recon_api"
-            + str((frappe.utils.now_datetime() - a).total_seconds())
-        )
-    except Exception as e:
+    except Exception:
         frappe.log_error(
             message=frappe.get_traceback() + "\nPayment details:\n" + data,
             title=_("Blank Payment Reject Error"),
@@ -800,7 +793,6 @@ def reject_blank_transaction_and_settlement_recon_api():
 @frappe.whitelist()
 def settlement_recon_api(input_date=None):
     try:
-        a = frappe.utils.now_datetime()
         if input_date:
             input_date = datetime.strptime(input_date, "%Y-%m-%d")
         else:
@@ -905,11 +897,6 @@ def settlement_recon_api(input_date=None):
                             + loan_transaction_name,
                             title=_("Payment Settlement Error"),
                         )
-        frappe.logger().info(str(frappe.utils.now_datetime()))
-        frappe.logger().info(
-            "Total time took - settlement_recon_api"
-            + str((frappe.utils.now_datetime() - a).total_seconds())
-        )
     except Exception as e:
         frappe.log_error(
             message=frappe.get_traceback() + "\nSettlement details:\n" + str(e.args),

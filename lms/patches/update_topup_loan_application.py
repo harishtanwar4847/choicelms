@@ -17,7 +17,7 @@ def execute():
                 la.application_type = "Margin Shortfall"
             la.save(ignore_permissions=True)
             frappe.db.commit()
-        except:
+        except Exception:
             pass
 
     frappe.db.sql("Update `tabTop up Application` SET lender='Choice Finserv'")

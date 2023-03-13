@@ -8,6 +8,8 @@ import json
 import re
 
 import frappe
+import pandas as pd
+from frappe import _
 from frappe.model.document import Document
 
 import lms
@@ -57,7 +59,6 @@ class LoanCustomer(Document):
             fa.delete_app()
 
     def validate(self):
-        # email_regex = r"^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,}$"
         email_regex = (
             r"^([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})"
         )
@@ -66,3 +67,45 @@ class LoanCustomer(Document):
                 len(self.mycams_email_id.split("@")) > 2
             ):
                 frappe.throw("Please enter a valid email id")
+
+    def before_save(self):
+        phone = frappe.get_all("Loan Customer", filters={"phone": self.phone})
+        if self.registeration == 0:
+            if phone:
+                frappe.throw(_("Mobile Number {} already exists".format(self.phone)))
+            user = frappe.get_all("Loan Customer", filters={"user": self.user})
+            if user:
+                frappe.throw(_("User {} already exists".format(self.user)))
+
+
+@frappe.whitelist()
+def loan_customer_template():
+    try:
+        data = []
+        df = pd.DataFrame(
+            data,
+            columns=[
+                "First Name",
+                "Last Name",
+                "Mobile Number",
+                "Email id",
+                "Pan No",
+                "DOB (dd-mm-yyyy)",
+                "CKYC No",
+                "Bank",
+                "Account No",
+                "IFSC",
+                "Account Holder Name",
+                "MyCams Email ID",
+            ],
+        )
+        file_name = "Customer_Details_{}".format(frappe.utils.now_datetime())
+        sheet_name = "Customer Details"
+        return lms.download_file(
+            dataframe=df,
+            file_name=file_name,
+            file_extention="xlsx",
+            sheet_name=sheet_name,
+        )
+    except Exception as e:
+        lms.log_api_error(e)
