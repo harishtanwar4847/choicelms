@@ -438,7 +438,8 @@ def get_allowed_securities(securities, lender, instrument_type="Shares", level=N
         isin=convert_list_to_tuple_string(securities),
     )
 
-    results = frappe.db.sql(query, as_dict=1)
+    results = frappe.db.sql(query, as_dict=1, debug=True)
+    create_log({"query": str(results)}, "allowed_security_log")
 
     security_map = {}
 

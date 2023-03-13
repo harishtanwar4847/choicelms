@@ -741,7 +741,7 @@ class TopupApplication(Document):
         ) * (roi_ / 100)
 
         doc = {
-            "esign_date": frappe.utils.now_datetime().strftime("%d-%m-%Y"),
+            "esign_date": "",
             "loan_account_no": loan.name if self.loan else "",
             "loan_account_number": loan.name if self.loan else "",
             "borrower_name": customer.full_name,
