@@ -1419,7 +1419,6 @@ def renewal_doc_for_selected_customer():
         # grace_7days = datetime.strftime(frappe.utils.now_datetime().date(), "%Y-%m-%d")
 
         if type(renewal_doc.creation) == str:
-            print("abcd")
             grace_7th = datetime.strptime(renewal_doc.creation, "%Y-%m-%d %H:%M:%S.%f")
         else:
             grace_7th = renewal_doc.creation
