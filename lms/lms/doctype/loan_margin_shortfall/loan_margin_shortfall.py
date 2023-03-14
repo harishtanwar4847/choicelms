@@ -170,7 +170,8 @@ class LoanMarginShortfall(Document):
                 self.status = "Sell Triggered"
 
             self.save(ignore_permissions=True)
-            self.notify_customer(margin_shortfall_action)
+            if old_shortfall_action != margin_shortfall_action.name:
+                self.notify_customer(margin_shortfall_action)
             frappe.db.commit()
 
     def on_update(self):
