@@ -732,9 +732,10 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             self.pledgee_boid = lender.demat_account_number
         if self.instrument_type == "Shares" and not self.pledgor_boid:
             frappe.throw("Pledgor BOID can not be empty for LAS")
-        for i in self.items:
-            if i.date_of_pledge and i.date_of_pledge >= self.expiry_date:
-                frappe.throw("Date of pledge should be less than expiry date")
+        if self.is_offline_loan:
+            for i in self.items:
+                if i.date_of_pledge and i.date_of_pledge >= self.expiry_date:
+                    frappe.throw("Date of pledge should be less than expiry date")
 
         user_roles = frappe.db.get_values(
             "Has Role", {"parent": frappe.session.user, "parenttype": "User"}, ["role"]
