@@ -2286,8 +2286,8 @@ class Loan(Document):
 
 def check_loans_for_shortfall(loans):
     for loan_name in loans:
-        loan_name = int(loan_name[2:])
-        queue = "default" if (loan_name % 2) == 0 else "short"
+        l_name = int(loan_name[2:])
+        queue = "default" if (l_name % 2) == 0 else "short"
         frappe.enqueue_doc("Loan", loan_name, method="check_for_shortfall", queue=queue)
 
 
@@ -2337,8 +2337,8 @@ def daily_virtual_job(loan_name, input_date=None):
 
 @frappe.whitelist()
 def daily_penal_job(loan_name, input_date=None):
-    loan_name = int(loan_name[2:])
-    queue = "default" if (loan_name % 2) == 0 else "short"
+    l_name = int(loan_name[2:])
+    queue = "default" if (l_name % 2) == 0 else "short"
     frappe.enqueue_doc(
         "Loan",
         loan_name,
@@ -2350,8 +2350,8 @@ def daily_penal_job(loan_name, input_date=None):
 
 @frappe.whitelist()
 def additional_interest_job(loan_name, input_date=None):
-    loan_name = int(loan_name[2:])
-    queue = "default" if (loan_name % 2) == 0 else "short"
+    l_name = int(loan_name[2:])
+    queue = "default" if (l_name % 2) == 0 else "short"
     frappe.enqueue_doc(
         "Loan",
         loan_name,
@@ -2363,8 +2363,8 @@ def additional_interest_job(loan_name, input_date=None):
 
 def add_loans_virtual_interest(loans):
     for loan in loans:
-        loan_name = int(loan.name[2:])
-        queue = "default" if (loan_name % 2) == 0 else "short"
+        l_name = int(loan.name[2:])
+        queue = "default" if (l_name % 2) == 0 else "short"
         # loan = frappe.get_doc("Loan", loan)
         # loan.add_virtual_interest()
         frappe.enqueue_doc(
@@ -2439,8 +2439,8 @@ def add_all_loans_penal_interest():
 
 @frappe.whitelist()
 def book_virtual_interest_for_month(loan_name, input_date=None):
-    loan_name = int(loan_name[2:])
-    queue = "default" if (loan_name % 2) == 0 else "short"
+    l_name = int(loan_name[2:])
+    queue = "default" if (l_name % 2) == 0 else "short"
     frappe.enqueue_doc(
         "Loan",
         loan_name,
