@@ -119,16 +119,14 @@ class LoanMarginShortfall(Document):
             margin_shortfall_action
             # and old_shortfall_action != margin_shortfall_action.name
         ):
-            print("start1")
-            if old_shortfall_action:
-                old_shortfall_action = frappe.get_doc(
-                    "Margin Shortfall Action", old_shortfall_action
-                ).sell_off_deadline_eod
+            # if old_shortfall_action:
+            #     old_shortfall_action = frappe.get_doc(
+            #         "Margin Shortfall Action", old_shortfall_action
+            #     ).sell_off_deadline_eod
 
             """suppose mg shortfall deadline was after 72 hours and suddenly more shortfall happens the deadline will be
             EOD and before EOD security values increased and margin shortfall percentage gone below 20% then deadline should be 72 hrs which was started at initial stage"""
             if old_shortfall_action and margin_shortfall_action.sell_off_after_hours:
-                print("start2")
                 self.update_deadline_based_on_holidays()
 
             elif (
@@ -136,7 +134,6 @@ class LoanMarginShortfall(Document):
                 and not margin_shortfall_action.sell_off_deadline_eod
             ):
                 # sell off after 72 hours
-                print("start3")
                 self.update_deadline_based_on_holidays(frappe.utils.now_datetime())
 
             elif (
@@ -144,14 +141,11 @@ class LoanMarginShortfall(Document):
                 and margin_shortfall_action.sell_off_deadline_eod
             ):
                 # sell off at EOD
-                print("start4")
                 if frappe.utils.now_datetime().date() in holiday_list(
                     is_bank_holiday=1
                 ):
-                    print("start5")
                     self.update_deadline_based_on_holidays()
                 else:
-                    print("start6")
                     if margin_shortfall_action.sell_off_deadline_eod == 24:
                         self.deadline = frappe.utils.now_datetime().replace(
                             hour=23,
@@ -172,12 +166,11 @@ class LoanMarginShortfall(Document):
                 and not margin_shortfall_action.sell_off_deadline_eod
             ):
                 # sell off immediately
-                print("start7")
                 self.deadline = frappe.utils.now_datetime()
                 self.status = "Sell Triggered"
 
             self.save(ignore_permissions=True)
-            # self.notify_customer(margin_shortfall_action)
+            self.notify_customer(margin_shortfall_action)
             frappe.db.commit()
 
     def on_update(self):
