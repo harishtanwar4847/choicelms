@@ -15,6 +15,7 @@
   "total_collateral_value",
   "sanctioned_limit",
   "loan_balance",
+  "sanction_letter_logs",
   "expiry_date",
   "column_break_8",
   "tnc_complete",
@@ -233,11 +234,17 @@
    "hidden": 1,
    "label": "LR accepted",
    "read_only": 1
+  },
+  {
+   "fieldname": "sanction_letter_logs",
+   "fieldtype": "Link",
+   "label": "Sanction Letter Logs",
+   "options": "Sanction Letter and CIAL Log"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-01-10 14:58:22.892122",
+ "modified": "2023-03-14 12:36:23.964891",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Spark Loan Renewal Application",

@@ -2224,11 +2224,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 
     def create_attachment(self):
         attachments = []
-        # sanction_letter = frappe.get_all(
-        #     "Sanction Letter Entries",
-        #     filters={"loan_application_no": self.name, "parent": self.sl_entries},
-        #     fields=["*"],
-        # )
         doc_name = self.lender_esigned_document
         fname = doc_name.split("files/", 1)
         file = fname[1].split(".", 1)
@@ -2239,40 +2234,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
 
         sanction_letter = {"fname": fname[1], "fcontent": filedata}
         attachments.append(sanction_letter)
-
-        # lender_esign_file = self.lender_esigned_document
-        # lfile_name = lender_esign_file.split("files/", 1)
-        # l_file = lfile_name[1]
-        # path = frappe.utils.get_files_path(
-        #     l_file,
-        # )
-        # with open(path, "rb") as fileobj:
-        #     filedata = fileobj.read()
-        # lender_doc = {"fname": l_file, "fcontent": filedata}
-        # attachments.append(lender_doc)
-
-        # if self.customer_esigned_document:
-        #     customer_esigned_document = self.customer_esigned_document
-        #     cfile_name = customer_esigned_document.split("files/", 1)
-        #     c_file = cfile_name[1]
-        #     path = frappe.utils.get_files_path(c_file)
-
-        #     with open(path, "rb") as fileobj:
-        #         filedata = fileobj.read()
-        #     customer_doc = {"fname": c_file, "fcontent": filedata}
-        #     attachments.append(customer_doc)
-
         return attachments
-
-    # def split_file_name(file_name):
-    #     doc_name = file_name[0].sanction_letter
-    #     fname = doc_name.split('files/',1)
-    #     return fname
-
-    # def read_data(self,log_file):
-    #     with open(log_file, "rb") as fileobj:
-    #         filedata = fileobj.read()
-    #     return filedata
 
 
 def check_for_pledge(loan_application_doc):
