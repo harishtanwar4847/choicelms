@@ -920,7 +920,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
             customer = self.get_customer()
             if self.application_type == "New Loan":
                 pdf_doc_name = "Loan_Agreement_{}".format(self.name)
-            elif self.application_type == "Increase Loan":
+            else:
                 pdf_doc_name = "Loan_Enhancement_Agreement_{}".format(self.name)
 
             if not self.loan:
