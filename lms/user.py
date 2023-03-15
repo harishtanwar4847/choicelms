@@ -4118,6 +4118,9 @@ def ckyc_download(**kwargs):
         pid_data = {}
         customer = lms.__customer()
         user_kyc_name = ""
+        data["dob"] = datetime.strptime(data.get("dob"), "%d-%m-%Y").strftime(
+            "%d-%m-%Y"
+        )
 
         res_json = lms.ckyc_dot_net(
             cust=customer,
