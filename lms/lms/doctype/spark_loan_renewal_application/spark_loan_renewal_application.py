@@ -1906,7 +1906,19 @@ Your loan account number {loan_name} is due for renewal on or before {expiry_dat
 
 def renewal_doc_for_selected_customer():
     try:
-        loan_name_list = ["SL000133", "SL000130", "SL000134"]
+        loan_name_list = [
+            "SL000136",
+            "SL000139",
+            "SL000124",
+            "SL000212",
+            "SL000144",
+            "SL000092",
+            "SL000211",
+            "SL000158",
+            "SL000091",
+            "SL000201",
+            "SL000194",
+        ]
         for i in loan_name_list:
             loan = frappe.get_doc("Loan", str(i))
             las_settings = frappe.get_single("LAS Settings")
