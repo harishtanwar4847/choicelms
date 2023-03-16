@@ -18,6 +18,7 @@
   "loan_column_break",
   "customer",
   "customer_name",
+  "available_topup_amt",
   "allowable_ltv",
   "actual_drawing_power",
   "expiry_date",
@@ -258,12 +259,9 @@
    "read_only": 1
   },
   {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Loan",
-   "print_hide": 1,
+   "fieldname": "available_topup_amt",
+   "fieldtype": "Currency",
+   "label": "Available TopUp Amount",
    "read_only": 1
   }
  ],

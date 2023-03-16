@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [v5.14.0] - 2023-03-13
+
+## Added
+
+- [SPRK-122 - Offline Loan, Au penny name matching, Optional Update for mobile app](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/576)
+
+## [v5.13.8] - 2023-03-06
+
+## Added
+
+- [SPRK 176 - Code and Cron optimization - Process Pledge cron(CDSL pledge setup)](https://gitlab.com/atri-tech/atri-maintainers/choicelms/-/merge_requests/574)
+
 ## [v5.13.7] - 2023-03-03
 
 ## Added

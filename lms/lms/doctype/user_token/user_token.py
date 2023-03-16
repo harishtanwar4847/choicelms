@@ -107,12 +107,20 @@ class UserToken(Document):
             #     expiry_in_minutes=expiry_in_minutes,
             # )
 
-            mess = frappe._(
-                "Dear Customer, Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
-            ).format(
+            # mess = frappe._(
+            #     "Dear Customer, Your {token_type} for Spark Loans is {token}. Do not share your {token_type} with anyone. Your OTP is valid for 10 minutes -Spark Loans"
+            # ).format(
+            #     token_type=self.token_type.replace(" ", ""),
+            #     token=self.token,
+            #     # expiry_in_minutes=expiry_in_minutes,
+            # )
+            las_settings = frappe.get_single("LAS Settings")
+            mess = """<#> Dear Customer, Your {token_type} for Spark Loans is {token}. Do not share your OTP with anyone. Valid for 10 minutes only 
+- Spark Loans 
+{otp_hash}""".format(
                 token_type=self.token_type.replace(" ", ""),
                 token=self.token,
-                # expiry_in_minutes=expiry_in_minutes,
+                otp_hash=las_settings.app_identification_hash_string,
             )
 
             frappe.enqueue(method=send_sms, receiver_list=[self.entity], msg=mess)

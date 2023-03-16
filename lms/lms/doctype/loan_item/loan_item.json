@@ -15,7 +15,8 @@
   "price",
   "amount",
   "type",
-  "folio"
+  "folio",
+  "psn"
  ],
  "fields": [
   {
@@ -98,11 +99,16 @@
    "fieldtype": "Currency",
    "label": "Eligible Amount",
    "read_only": 1
+  },
+  {
+   "fieldname": "psn",
+   "fieldtype": "Data",
+   "label": "PSN/Lien Mark Number"
   }
  ],
  "istable": 1,
  "links": [],
- "modified": "2022-05-11 12:38:21.336267",
+ "modified": "2022-10-10 14:42:53.132615",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Item",

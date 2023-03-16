@@ -101,14 +101,28 @@ class SellCollateralApplication(Document):
         self.selling_collateral_value = 0
 
         price_map = {
-            "{}{}".format(i.isin, i.folio if i.folio else ""): i.price
+            "{}{}{}".format(
+                i.isin,
+                i.folio if i.folio else "",
+                i.psn if i.psn else "",
+            ): i.price
             for i in self.items
         }
         sell_quantity_map = {
-            "{}{}".format(i.isin, i.folio if i.folio else ""): 0 for i in self.items
+            "{}{}{}".format(
+                i.isin,
+                i.folio if i.folio else "",
+                i.psn if i.psn else "",
+            ): 0
+            for i in self.items
         }
+
         sell_requested_quantity_map = {
-            "{}{}".format(i.isin, i.folio if i.folio else ""): i.quantity
+            "{}{}{}".format(
+                i.isin,
+                i.folio if i.folio else "",
+                i.psn if i.psn else "",
+            ): i.quantity
             for i in self.items
         }
 
@@ -119,7 +133,11 @@ class SellCollateralApplication(Document):
         )
 
         for i in self.sell_items:
-            isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
+            isin_folio_combo = "{}{}{}".format(
+                i.isin,
+                i.folio if i.folio else "",
+                i.psn if self.instrument_type == "Mutual Fund" and i.psn else "",
+            )
             if i.sell_quantity > i.quantity:
                 frappe.throw(
                     msg.format(
@@ -153,7 +171,11 @@ class SellCollateralApplication(Document):
             self.selling_collateral_value += i.sell_quantity * i.price
 
         for i in self.items:
-            isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
+            isin_folio_combo = "{}{}{}".format(
+                i.isin,
+                i.folio if i.folio else "",
+                i.psn if i.psn else "",
+            )
             if sell_quantity_map.get(isin_folio_combo) > i.quantity:
                 frappe.throw(
                     "Can not {} {}{} more than {}".format(
@@ -167,19 +189,32 @@ class SellCollateralApplication(Document):
     def before_submit(self):
         # check if all securities are sold
         sell_quantity_map = {
-            "{}{}".format(i.isin, i.folio if i.folio else ""): 0 for i in self.items
+            "{}{}{}".format(
+                i.isin,
+                i.folio if i.folio else "",
+                i.psn if i.psn else "",
+            ): 0
+            for i in self.items
         }
 
         applicaton_type = "sell" if self.instrument_type == "Shares" else "invoke"
 
         for i in self.sell_items:
-            isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
+            isin_folio_combo = "{}{}{}".format(
+                i.isin,
+                i.folio if i.folio else "",
+                i.psn if self.instrument_type == "Mutual Fund" and i.psn else "",
+            )
             sell_quantity_map[isin_folio_combo] = (
                 sell_quantity_map[isin_folio_combo] + i.sell_quantity
             )
 
         for i in self.items:
-            isin_folio_combo = "{}{}".format(i.isin, i.folio if i.folio else "")
+            isin_folio_combo = "{}{}{}".format(
+                i.isin,
+                i.folio if i.folio else "",
+                i.psn if i.psn else "",
+            )
             if sell_quantity_map.get(isin_folio_combo) < i.quantity:
                 frappe.throw(
                     "You need to {} all {} of isin {}{}".format(
@@ -501,6 +536,13 @@ def get_collateral_details(sell_collateral_application_name):
     )
     loan = doc.get_loan()
     isin_list = [i.isin for i in doc.items]
+    psn = (
+        "and cl.psn IN {}".format(
+            lms.convert_list_to_tuple_string([i.psn for i in doc.items])
+        )
+        if doc.instrument_type == "Mutual Fund"
+        else ""
+    )
     folio_clause = (
         " and cl.folio IN {}".format(
             lms.convert_list_to_tuple_string([i.folio for i in doc.items])
@@ -510,8 +552,10 @@ def get_collateral_details(sell_collateral_application_name):
     )
     return loan.get_collateral_list(
         group_by_psn=True,
-        where_clause="and cl.isin IN {}{}".format(
-            lms.convert_list_to_tuple_string(isin_list), folio_clause
+        where_clause="and cl.isin IN {}{}{psn}".format(
+            lms.convert_list_to_tuple_string(isin_list),
+            folio_clause,
+            psn=psn,
         ),
         having_clause=" HAVING quantity > 0",
     )
@@ -637,7 +681,9 @@ def validate_invoc(sell_collateral_application_name):
                         isin_details["{}{}".format(i.get("isinno"), i.get("folio"))] = i
 
                     for i in sell_collateral_application_doc.sell_items:
-                        isin_folio_combo = "{}{}".format(i.get("isin"), i.get("folio"))
+                        isin_folio_combo = "{}{}{}".format(
+                            i.get("isin"), i.get("folio"), i.get("psn")
+                        )
                         if isin_folio_combo in isin_details:
                             i.invoke_validate_remarks = isin_details.get(
                                 isin_folio_combo
@@ -810,7 +856,9 @@ def initiate_invoc(sell_collateral_application_name):
                         isin_details["{}{}".format(i.get("isinno"), i.get("folio"))] = i
 
                     for i in sell_collateral_application_doc.sell_items:
-                        isin_folio_combo = "{}{}".format(i.get("isin"), i.get("folio"))
+                        isin_folio_combo = "{}{}".format(
+                            i.get("isin"), i.get("folio"), i.get("psn")
+                        )
                         if isin_folio_combo in isin_details:
                             i.invoke_initiate_remarks = isin_details.get(
                                 isin_folio_combo

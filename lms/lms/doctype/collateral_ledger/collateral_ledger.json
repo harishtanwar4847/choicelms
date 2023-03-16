@@ -21,6 +21,7 @@
   "psn",
   "security_category",
   "amc_code",
+  "date_of_pledge",
   "expiry",
   "column_break_1",
   "request_type",
@@ -62,8 +63,7 @@
   {
    "fieldname": "psn",
    "fieldtype": "Data",
-   "label": "PSN/Lien Mark Number",
-   "read_only": 1
+   "label": "PSN/Lien Mark Number"
   },
   {
    "fieldname": "column_break_1",
@@ -207,11 +207,16 @@
    "fieldtype": "Data",
    "label": "Folio",
    "read_only": 1
+  },
+  {
+   "fieldname": "date_of_pledge",
+   "fieldtype": "Data",
+   "label": "Date of Pledge"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-04-28 19:00:42.709432",
+ "modified": "2022-09-29 11:42:29.984812",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Collateral Ledger",
