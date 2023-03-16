@@ -58,27 +58,34 @@ class AllowedSecurity(Document):
                 )
 
         unpledge_application = self.check_unpledge_application()
+        sell_collateral_application = self.check_sell_collateral_application()
+        unpledge_link = ""
+        sell_link = ""
+        if unpledge_application:
+            unpledge_link = """ <a target="_blank" rel="noreferrer noopener" href="/app/unpledge-application/{unpledge}">{unpledge}</a>""".format(
+                unpledge=unpledge_application[0]
+            )
+
+        if sell_collateral_application:
+            sell_link = """ <a target="_blank" rel="noreferrer noopener" href="/app/sell-collateral-application/{sell}">{sell}</a>""".format(
+                sell=sell_collateral_application[0]
+            )
+        if unpledge_application and sell_collateral_application:
+            frappe.throw(
+                """Please approve/reject<br />\u2022 Unpledge Application{}<br />\u2022 Sell Collateral Application{}""".format(
+                    unpledge_link, sell_link
+                )
+            )
+
         if unpledge_application:
             frappe.throw(
-                "Please approve/reject {} this Unpledge Application".format(
-                    unpledge_application
-                )
+                "Please approve/reject Unpledge Application {}".format(unpledge_link)
             )
 
-        sell_collateral_application = self.check_sell_collateral_application()
         if sell_collateral_application:
             frappe.throw(
-                "Please approve/reject {} this Sell Collateral Application".format(
-                    sell_collateral_application
-                )
+                "Please approve/reject Sell Collateral Application {}".format(sell_link)
             )
-
-        # if self.amc_image:
-        #     img=self.amc_image
-        #     print(img)
-        #     if  bool(re.search(r"\s",img)) == True:
-        #         print("It contains space")
-        #         frappe.throw("Image name cannot contain space")
 
     def before_insert(self):
         exists_security = frappe.db.exists(
