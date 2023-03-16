@@ -930,6 +930,7 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 pdf_doc_name = "Loan_Agreement_{}".format(self.name)
             else:
                 pdf_doc_name = "Loan_Enhancement_Agreement_{}".format(self.name)
+
             if not self.loan:
                 loan = self.create_loan()
                 frappe.db.set_value(
@@ -947,8 +948,8 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                     )
                     self.sanction_letter(check=loan.name)
             else:
+                loan = self.update_existing_loan()
                 if not self.is_offline_loan and self.lender_esigned_document:
-                    loan = self.update_existing_loan()
                     signed_doc = lms.pdf_editor(
                         self.lender_esigned_document,
                         pdf_doc_name,
