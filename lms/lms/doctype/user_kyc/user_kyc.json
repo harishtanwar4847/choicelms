@@ -10,6 +10,7 @@
   "user",
   "pan_no",
   "kyc_status",
+  "duplicate_kyc",
   "consent_given",
   "basic_details_column_break",
   "kyc_type",
@@ -691,10 +692,18 @@
    "fieldtype": "Link",
    "label": "Address",
    "options": "Customer Address Details"
+  },
+  {
+   "depends_on": "eval:doc.consent_given == 1;",
+   "fieldname": "duplicate_kyc",
+   "fieldtype": "Table MultiSelect",
+   "label": "Duplicate KYC",
+   "length": 10,
+   "options": "Duplicate KYC"
   }
  ],
  "links": [],
- "modified": "2023-01-23 15:40:16.928195",
+ "modified": "2023-02-15 15:48:51.796713",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "User KYC",
@@ -720,6 +729,7 @@
    "write": 1
   }
  ],
+ "search_fields": "user",
  "sort_field": "modified",
  "sort_order": "DESC",
  "track_changes": 1

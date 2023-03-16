@@ -1,0 +1,40 @@
+{
+ "actions": [],
+ "creation": "2023-02-15 15:38:12.296924",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "user_kyc",
+  "user"
+ ],
+ "fields": [
+  {
+   "fieldname": "user_kyc",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User KYC",
+   "options": "User KYC"
+  },
+  {
+   "fetch_from": "user_kyc.user",
+   "fieldname": "user",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "User",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-03-16 14:56:46.917870",
+ "modified_by": "Administrator",
+ "module": "Lms",
+ "name": "Duplicate KYC",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

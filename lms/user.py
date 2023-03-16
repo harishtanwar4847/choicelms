@@ -4073,10 +4073,17 @@ def ckyc_search(**kwargs):
                 .get("PID_DATA")
                 .get("SearchResponsePID")
             )
-            ckyc_no = {
-                # "ckyc_no": pid_data.get("CKYC_NO").replace("O", "").replace("o", "").replace("L", ""),
-                "ckyc_no": "".join(filter(str.isdigit, pid_data.get("CKYC_NO")))
-            }
+            if type(pid_data) != list:
+                pid_data = [pid_data]
+            ckyc_no_ = ",".join(
+                [
+                    "".join(filter(str.isdigit, pid.get("CKYC_NO")))
+                    for pid in pid_data
+                    if not pid.get("CONSTITUTION_TYPE")
+                ]
+            )
+
+            ckyc_no = {"ckyc_no": ckyc_no_}
             kyc_consent_doc = frappe.get_doc(
                 {
                     "doctype": "User Consent",
