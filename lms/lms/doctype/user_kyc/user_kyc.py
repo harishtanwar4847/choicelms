@@ -20,18 +20,6 @@ from lms.lms.doctype.user_token.user_token import send_sms
 
 
 class UserKYC(Document):
-    def before_save(self):
-        if self.consent_given == 1:
-            if self.kyc_status == "Approved":
-                if self.address_details:
-                    cust_add = frappe.get_doc(
-                        "Customer Address Details", self.address_details
-                    )
-                    if not cust_add.perm_image:
-                        frappe.throw("POA missing in address details doctype")
-                    elif not cust_add.corres_poa_image:
-                        frappe.throw("POA missing in address details doctype")
-
     def on_update(self):
         status = []
         check = 0
@@ -273,6 +261,7 @@ class UserKYC(Document):
                     renewal_doc = frappe.get_doc(
                         "Spark Loan Renewal Application", doc.name
                     )
+                    # if renewal_doc.loan not in []
 
                     renewal_doc.status = "Rejected"
                     renewal_doc.workflow_state = "Rejected"
@@ -286,7 +275,11 @@ class UserKYC(Document):
         user = frappe.get_all("User", filters={"email": self.user})
         las_settings = frappe.get_single("LAS Settings")
         for i in self.bank_account:
-            if i.personalized_cheque and not i.penny_request_id:
+            if (
+                i.personalized_cheque
+                and not i.penny_request_id
+                and not loan_customer.offline_customer
+            ):
                 if self.kyc_status == "Approved":
                     data = {
                         "ifsc": i.ifsc,

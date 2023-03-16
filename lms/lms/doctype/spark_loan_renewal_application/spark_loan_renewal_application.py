@@ -38,6 +38,10 @@ class SparkLoanRenewalApplication(Document):
         ):
             frappe.throw(_("Please upload Lender esigned document."))
 
+        remarks = self.remarks
+        remarks_trim = remarks.replace(" ", "")
+        if self.status == "Rejected" and not remarks_trim:
+            frappe.throw(_("Remarks field cannot be empty."))
         if self.status == "Rejected" and not self.remarks:
             frappe.throw(_("Remarks field cannot be empty."))
         try:

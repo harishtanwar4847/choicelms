@@ -4758,14 +4758,12 @@ def ckyc_consent_details(**kwargs):
                                 "ifsc": i.get("ifsc"),
                                 "city": i.get("city"),
                                 "is_default": i.get("is_default"),
-                                "razorpay_fund_account_id": i.get(
-                                    "razorpay_fund_account_id"
-                                ),
+                                "penny_request_id": i.get("penny_request_id"),
                                 "account_holder_name": i.get("account_holder_name"),
                                 "personalized_cheque": i.get("personalized_cheque"),
                                 "account_type": i.get("account_type"),
-                                "razorpay_fund_account_validation_id": i.get(
-                                    "razorpay_fund_account_validation_id"
+                                "bank_transaction_status": i.get(
+                                    "bank_transaction_status"
                                 ),
                                 "notification_sent": i.get("notification_sent"),
                                 "doctype": "User Bank Account",
