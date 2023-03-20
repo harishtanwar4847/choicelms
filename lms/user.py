@@ -4513,9 +4513,7 @@ def shares_eligibility(**kwargs):
                     lms.create_log(log, "securities_log")
                     frappe.logger().info(res_json)
                     if res_json["Status"] != "Success":
-                        raise utils.exceptions.APIException(
-                            res_json.get("Reason", "Data not found.")
-                        )
+                        raise lms.exceptions.NotFoundException()
 
                     # setting eligibility
                     securities_list = [
