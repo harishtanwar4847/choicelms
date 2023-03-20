@@ -4849,6 +4849,9 @@ def shares_eligibility(**kwargs):
                 # return utils.respondWithSuccess(data=data)
         else:
             data = get_distinct_securities(lender_list, levels)
+        print(data, "data")
+        print(data.get("Securities"), "data.get('Securities')")
+        lms.log_api_error(data)
         if not data.get("Securities"):
             raise lms.exceptions.NotFoundException()
         return utils.respondWithSuccess(data=data)
