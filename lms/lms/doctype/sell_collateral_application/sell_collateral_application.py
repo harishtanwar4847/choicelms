@@ -195,6 +195,8 @@ class SellCollateralApplication(Document):
                 )
 
     def before_submit(self):
+        if not self.processed:
+            frappe.throw("Please check the Processed Checkbox")
         # check if all securities are sold
         sell_quantity_map = {
             "{}{}{}".format(
@@ -259,6 +261,8 @@ class SellCollateralApplication(Document):
         las_settings = frappe.get_single("LAS Settings")
 
         if self.status == "Rejected":
+            if self.processed:
+                frappe.throw("Please uncheck the Processed Checkbox")
             if self.instrument_type == "Mutual Fund":
                 msg = "Dear Customer,\nSorry! Your invoke request was turned down due to technical reasons. You can reach out via the 'Contact Us' section of the app or please try again later using this link- {link} -Spark Loans".format(
                     link=las_settings.my_securities
