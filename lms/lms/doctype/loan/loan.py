@@ -731,20 +731,14 @@ class Loan(Document):
                             message=msg,
                         )
                 else:
-                    print("margin_shortfall_action")
                     old_shortfall_action = loan_margin_shortfall.margin_shortfall_action
-                    print("margin_shortfall_action", old_shortfall_action)
                     loan_margin_shortfall.fill_items()
-                    print("after fill item")
                     if old_shortfall_action:
-                        print(" if old_shortfall_action:")
                         loan_margin_shortfall.set_deadline(old_shortfall_action)
 
                     if loan_margin_shortfall.is_new():
-                        print("if loan_margin_shortfall.is_new():")
                         if loan_margin_shortfall.shortfall_percentage > 0:
                             loan_margin_shortfall.insert(ignore_permissions=True)
-                            print("loan_margin_shortfall.shortfall_percentage > 0")
                     else:
                         if loan_margin_shortfall.shortfall_percentage == 0:
                             loan_margin_shortfall.status = "Resolved"
