@@ -1474,10 +1474,10 @@ def update_rzp_payment_transaction(data):
                     loan_margin_shortfall = frappe.get_doc(
                         "Loan Margin Shortfall", loan_transaction.loan_margin_shortfall
                     )
-                    if loan_margin_shortfall.status == "Pending":
-                        loan_margin_shortfall.status = "Request Pending"
-                        loan_margin_shortfall.save(ignore_permissions=True)
-                        frappe.db.commit()
+                    # if loan_margin_shortfall.status == "Pending":
+                    #     loan_margin_shortfall.status = "Request Pending"
+                    #     loan_margin_shortfall.save(ignore_permissions=True)
+                    #     frappe.db.commit()
                     doc = frappe.get_doc("User KYC", customer.choice_kyc).as_dict()
                     frappe.enqueue_doc(
                         "Notification",

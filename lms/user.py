@@ -4513,7 +4513,9 @@ def shares_eligibility(**kwargs):
                     lms.create_log(log, "securities_log")
                     frappe.logger().info(res_json)
                     if res_json["Status"] != "Success":
-                        raise utils.exceptions.APIException(res.text)
+                        raise utils.exceptions.APIException(
+                            res_json.get("Reason", "Data not found.")
+                        )
 
                     # setting eligibility
                     securities_list = [
@@ -4728,7 +4730,7 @@ def shares_eligibility(**kwargs):
                                 ][i["pledgor_boid"]] = i["unpledged_quantity"]
                             except KeyError:
                                 continue
-                    final_securities_list = []
+                    securities_list = []
                     for i in securities_list:
                         # process actual qty
                         if i.get("Holding_As_On", None) and not isinstance(
@@ -4818,7 +4820,7 @@ def shares_eligibility(**kwargs):
 
                         i.update(is_choice=is_choice)
                         if i["Category"] != None and i["Stock_At"] == data.get("demat"):
-                            final_securities_list.append(i)
+                            securities_list.append(i)
                             image = frappe.get_all(
                                 "Allowed Security",
                                 filters={"isin": i["ISIN"]},
@@ -4833,7 +4835,7 @@ def shares_eligibility(**kwargs):
                                 eligible_percentage=image[0].eligible_percentage,
                             )
                 else:
-                    final_securities_list = ()
+                    securities_list = []
                 lender = lms.convert_list_to_tuple_string(lender_list)
                 lender_info = frappe.db.sql(
                     """select name, minimum_sanctioned_limit, maximum_sanctioned_limit, rate_of_interest from `tabLender` where name in {} """.format(
@@ -4841,7 +4843,7 @@ def shares_eligibility(**kwargs):
                     ),
                     as_dict=True,
                 )
-                data = {"Securities": final_securities_list, "lender_info": lender_info}
+                data = {"Securities": securities_list, "lender_info": lender_info}
                 return utils.respondWithSuccess(data=data)
 
             else:
@@ -4849,7 +4851,9 @@ def shares_eligibility(**kwargs):
                 return utils.respondWithSuccess(data=data)
         else:
             data = get_distinct_securities(lender_list, levels)
-            return utils.respondWithSuccess(data=data)
+        if not data.get("Securities"):
+            raise lms.exceptions.NotFoundException()
+        return utils.respondWithSuccess(data=data)
 
     except utils.exceptions.APIException as e:
         lms.log_api_error()

@@ -50,6 +50,16 @@ class AllowedSecurity(Document):
                         i.eligible_percentage = self.eligible_percentage
                         Loan_app_doc.save(ignore_permissions=True)
                         frappe.db.commit()
+                if Loan_app_doc.loan:
+                    l_name = int(Loan_app_doc.loan[2:])
+                    queue = "default" if (l_name % 2) == 0 else "short"
+                    frappe.enqueue_doc(
+                        "Loan",
+                        Loan_app_doc.loan,
+                        method="check_for_shortfall",
+                        queue=queue,
+                        on_approval=True,
+                    )
 
             except frappe.DoesNotExistError:
                 frappe.log_error(
