@@ -2450,7 +2450,6 @@ def spark_demat_account(**kwargs):
             raise utils.exceptions.ValidationException(
                 {"demat": {"required": frappe._("list should be in list format.")}}
             )
-        print("customer.name", customer.name)
         frappe.delete_doc(
             "Spark Demat Account",
             frappe.get_all(
@@ -4728,7 +4727,7 @@ def shares_eligibility(**kwargs):
                                 ][i["pledgor_boid"]] = i["unpledged_quantity"]
                             except KeyError:
                                 continue
-                    securities_list = []
+                    final_securities_list = []
                     for i in securities_list:
                         # process actual qty
                         if i.get("Holding_As_On", None) and not isinstance(
@@ -4818,7 +4817,7 @@ def shares_eligibility(**kwargs):
 
                         i.update(is_choice=is_choice)
                         if i["Category"] != None and i["Stock_At"] == data.get("demat"):
-                            securities_list.append(i)
+                            final_securities_list.append(i)
                             image = frappe.get_all(
                                 "Allowed Security",
                                 filters={"isin": i["ISIN"]},
@@ -4832,8 +4831,7 @@ def shares_eligibility(**kwargs):
                                 amc_image=image[0].amc_image,
                                 eligible_percentage=image[0].eligible_percentage,
                             )
-                else:
-                    securities_list = []
+
                 lender = lms.convert_list_to_tuple_string(lender_list)
                 lender_info = frappe.db.sql(
                     """select name, minimum_sanctioned_limit, maximum_sanctioned_limit, rate_of_interest from `tabLender` where name in {} """.format(
@@ -4841,20 +4839,14 @@ def shares_eligibility(**kwargs):
                     ),
                     as_dict=True,
                 )
-                data = {"Securities": securities_list, "lender_info": lender_info}
-                # return utils.respondWithSuccess(data=data)
-
+                data = {"Securities": final_securities_list, "lender_info": lender_info}
+                if not data.get("Securities"):
+                    raise lms.exceptions.NotFoundException()
+                return utils.respondWithSuccess(data=data)
             else:
-                data = get_distinct_securities(lender_list, levels)
-                # return utils.respondWithSuccess(data=data)
+                get_distinct_securities(lender_list, levels)
         else:
-            data = get_distinct_securities(lender_list, levels)
-        print(data, "data")
-        print(data.get("Securities"), "data.get('Securities')")
-        lms.log_api_error(data)
-        if not data.get("Securities"):
-            raise lms.exceptions.NotFoundException()
-        return utils.respondWithSuccess(data=data)
+            get_distinct_securities(lender_list, levels)
 
     except utils.exceptions.APIException as e:
         lms.log_api_error()
@@ -4862,56 +4854,62 @@ def shares_eligibility(**kwargs):
 
 
 def get_distinct_securities(lender_list, levels):
-    lender = lms.convert_list_to_tuple_string(lender_list)
-    lender_query = " and als.lender in {}".format(lender)
-    sub_query = " and als.security_category in (select security_category from `tabConcentration Rule` where parent in {} and idx in {})".format(
-        lender, levels
-    )
-    securities_list = frappe.db.sql(
-        """select als.isin as ISIN, sc.category_name as Category, als.eligible_percentage, als.security_name as Scrip_Name, round(s.price,4) as Price, group_concat(als.lender,'') as lenders, 
-            als.amc_image
-            from `tabAllowed Security` als 
-            LEFT JOIN `tabSecurity` s on s.isin = als.isin
-            LEFT JOIN `tabSecurity Category` sc ON als.security_category = sc.name 
-            where als.instrument_type='Shares' and
-            s.price > 0{}{}
-            group by als.isin
-            order by als.creation desc;""".format(
-            lender_query, sub_query
-        ),
-        as_dict=True,
-    )
-    lender_info = frappe.db.sql(
-        """select name, minimum_sanctioned_limit, maximum_sanctioned_limit, rate_of_interest from `tabLender` where name in {} """.format(
-            lender
-        ),
-        as_dict=True,
-    )
-    dummy_keys = {
-        "Branch": None,
-        "Client_Code": None,
-        "Client_Name": None,
-        "Depository": None,
-        "Stock_At": None,
-        "Quantity": None,
-        "Scrip_Value": None,
-        "Holding_As_On": None,
-        "Is_Eligible": None,
-        "Total_Qty": None,
-        "waiting_to_be_pledged_qty": None,
-        "waiting_for_approval_pledged_qty": None,
-        "unpledged_quantity": None,
-        "is_choice": 0,
-    }
-    for i in securities_list:
-        i.update(dummy_keys)
+    try:
+        lender = lms.convert_list_to_tuple_string(lender_list)
+        lender_query = " and als.lender in {}".format(lender)
+        sub_query = " and als.security_category in (select security_category from `tabConcentration Rule` where parent in {} and idx in {})".format(
+            lender, levels
+        )
+        securities_list = frappe.db.sql(
+            """select als.isin as ISIN, sc.category_name as Category, als.eligible_percentage, als.security_name as Scrip_Name, round(s.price,4) as Price, group_concat(als.lender,'') as lenders, 
+                als.amc_image
+                from `tabAllowed Security` als 
+                LEFT JOIN `tabSecurity` s on s.isin = als.isin
+                LEFT JOIN `tabSecurity Category` sc ON als.security_category = sc.name 
+                where als.instrument_type='Shares' and
+                s.price > 0{}{}
+                group by als.isin
+                order by als.creation desc;""".format(
+                lender_query, sub_query
+            ),
+            as_dict=True,
+        )
+        lender_info = frappe.db.sql(
+            """select name, minimum_sanctioned_limit, maximum_sanctioned_limit, rate_of_interest from `tabLender` where name in {} """.format(
+                lender
+            ),
+            as_dict=True,
+        )
+        dummy_keys = {
+            "Branch": None,
+            "Client_Code": None,
+            "Client_Name": None,
+            "Depository": None,
+            "Stock_At": None,
+            "Quantity": None,
+            "Scrip_Value": None,
+            "Holding_As_On": None,
+            "Is_Eligible": None,
+            "Total_Qty": None,
+            "waiting_to_be_pledged_qty": None,
+            "waiting_for_approval_pledged_qty": None,
+            "unpledged_quantity": None,
+            "is_choice": 0,
+        }
+        for i in securities_list:
+            i.update(dummy_keys)
 
-    for scheme in securities_list:
-        if scheme.amc_image:
-            scheme.amc_image = frappe.utils.get_url(scheme.amc_image)
+        for scheme in securities_list:
+            if scheme.amc_image:
+                scheme.amc_image = frappe.utils.get_url(scheme.amc_image)
 
-    data = {"Securities": securities_list, "lender_info": lender_info}
-    return data
+        data = {"Securities": securities_list, "lender_info": lender_info}
+        if not data.get("Securities"):
+            raise lms.exceptions.NotFoundException()
+        return utils.respondWithSuccess(data=data)
+    except Exception as e:
+        lms.log_api_error()
+        return e.respond()
 
 
 @frappe.whitelist()
