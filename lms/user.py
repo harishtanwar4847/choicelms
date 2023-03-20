@@ -4842,11 +4842,11 @@ def shares_eligibility(**kwargs):
                     as_dict=True,
                 )
                 data = {"Securities": securities_list, "lender_info": lender_info}
-                return utils.respondWithSuccess(data=data)
+                # return utils.respondWithSuccess(data=data)
 
             else:
                 data = get_distinct_securities(lender_list, levels)
-                return utils.respondWithSuccess(data=data)
+                # return utils.respondWithSuccess(data=data)
         else:
             data = get_distinct_securities(lender_list, levels)
         if not data.get("Securities"):
