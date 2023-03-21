@@ -72,14 +72,16 @@ class AllowedSecurity(Document):
         unpledge_link = ""
         sell_link = ""
         if unpledge_application:
-            unpledge_link = """ <a target="_blank" rel="noreferrer noopener" href="/app/unpledge-application/{unpledge}">{unpledge}</a>""".format(
-                unpledge=unpledge_application[0]
-            )
+            for unpledge in unpledge_application:
+                unpledge_link += """ <a target="_blank" rel="noreferrer noopener" href="/app/unpledge-application/{unpledge}">{unpledge}</a>""".format(
+                    unpledge=unpledge
+                )
 
         if sell_collateral_application:
-            sell_link = """ <a target="_blank" rel="noreferrer noopener" href="/app/sell-collateral-application/{sell}">{sell}</a>""".format(
-                sell=sell_collateral_application[0]
-            )
+            for sell in sell_collateral_application:
+                sell_link += """ <a target="_blank" rel="noreferrer noopener" href="/app/sell-collateral-application/{sell}">{sell}</a>""".format(
+                    sell=sell
+                )
         if unpledge_application and sell_collateral_application:
             frappe.throw(
                 """Please approve/reject<br />\u2022 Unpledge Application{}<br />\u2022 Sell Collateral Application{}""".format(
