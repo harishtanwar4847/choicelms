@@ -16,9 +16,10 @@ frappe.ui.form.on("Loan Application", {
     //     frm.set_df_property("application_type", "read_only", 1);
     //   }
     // } else {
-    if (frm.doc.status != "Pledge executed") {
+    if (frm.doc.status != "Executing pledge") {
       frm.set_df_property("items", "read_only", 1);
-    } else {
+    }
+    if (frm.doc.status != "Executing pledge") {
       frm.get_field("items").grid.only_sortable();
       $(".grid-add-row").hide();
       $(".grid-remove-rows").hide();
