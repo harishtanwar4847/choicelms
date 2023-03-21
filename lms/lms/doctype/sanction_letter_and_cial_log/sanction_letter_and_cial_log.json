@@ -25,7 +25,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-07 19:34:01.163488",
+ "modified": "2023-03-15 12:38:17.167018",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Sanction Letter and CIAL Log",
@@ -45,6 +45,6 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC",
+ "sort_order": "ASC",
  "track_changes": 1
 }
