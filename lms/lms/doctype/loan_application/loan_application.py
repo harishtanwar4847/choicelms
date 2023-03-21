@@ -1790,7 +1790,6 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 fcm_message = fcm_notification.message.format(pledge="pledge")
                 if self.instrument_type == "Mututal Fund":
                     fcm_message = fcm_notification.message.format(pledge="lien")
-                    fcm_notification = fcm_notification
                     if fcm_title == "Pledge rejected":  # can be refactored
                         fcm_notification = fcm_notification.as_dict()
                         fcm_notification["title"] = "Lien rejected"
@@ -1816,11 +1815,10 @@ Sorry! Your loan application was turned down since the requested loan amount is 
                 )
 
                 if self.instrument_type == "Mutual Fund":
-                    fcm_notification = fcm_notification
                     if fcm_title == "Pledge accepted":
                         fcm_notification = fcm_notification.as_dict()
                         fcm_notification["title"] = "Lien accepted"
-                self.notification_sent = 1
+                self.db_set("notification_sent", 1)
 
         elif (
             doc.get("loan_application").get("status") == "Approved"
