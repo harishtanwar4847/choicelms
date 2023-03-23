@@ -671,7 +671,7 @@ class TopupApplication(Document):
             self.customer_name = loan.customer_name
             if not updated_top_up_amt or updated_top_up_amt < self.top_up_amount:
                 frappe.throw("Top up not available")
-            if self.top_up_amount <= 0:
+            if self.top_up_amount <= 0 and not self.status == "Rejected":
                 frappe.throw("Top up can not be approved with Amount Rs. 0")
         if self.status == "Approved":
             current = frappe.utils.now_datetime()
