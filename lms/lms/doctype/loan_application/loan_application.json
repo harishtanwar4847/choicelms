@@ -49,6 +49,7 @@
    "fieldname": "expiry_date",
    "fieldtype": "Date",
    "label": "Expiry Date",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
    "reqd": 1
   },
   {
@@ -60,6 +61,7 @@
    "fieldtype": "Table",
    "label": "Item",
    "options": "Loan Application Item",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
    "reqd": 1
   },
   {
@@ -132,6 +134,7 @@
    "fieldtype": "Select",
    "label": "Pledge Status",
    "options": "Pending\nSuccess\nPartial Success\nFailure",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
    "reqd": 1
   },
   {
@@ -171,14 +174,16 @@
    "fieldname": "pledgor_boid",
    "fieldtype": "Data",
    "label": "Pledgor BOID",
-   "mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";"
+   "mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";"
   },
   {
    "depends_on": "eval:doc.instrument_type==\"Shares\";",
    "fieldname": "pledgee_boid",
    "fieldtype": "Data",
    "label": "Pledgee BOID",
-   "mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";"
+   "mandatory_depends_on": "eval:doc.instrument_type==\"Shares\";",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";"
   },
   {
    "default": "Shares",
@@ -186,6 +191,7 @@
    "fieldtype": "Select",
    "label": "Instrument Type",
    "options": "Shares\nMutual Fund",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
    "reqd": 1
   },
   {
@@ -200,6 +206,7 @@
    "fieldtype": "Select",
    "label": "Application Type",
    "options": "New Loan\nIncrease Loan\nPledge More\nMargin Shortfall",
+   "read_only_depends_on": "eval:doc.status != \"Waiting to be pledged\" && doc.status != \"Executing pledge\";",
    "reqd": 1
   },
   {
@@ -254,10 +261,17 @@
    "fieldtype": "Check",
    "hidden": 1,
    "label": "Is Offline Loan"
+  },
+  {
+   "default": "0",
+   "fieldname": "notification_sent",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "notification sent"
   }
  ],
  "links": [],
- "modified": "2023-03-10 18:51:17.743680",
+ "modified": "2023-03-21 13:09:15.664121",
  "modified_by": "Administrator",
  "module": "Lms",
  "name": "Loan Application",
