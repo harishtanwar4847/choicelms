@@ -76,12 +76,14 @@ class AllowedSecurity(Document):
 
         frappe.log_error(
             message="unpledge_application  {unpledge_application}".format(
-                str(unpledge_application)
+                str(unpledge_application=unpledge_application)
             )
             + "sell_collateral_application  {sell_collateral_application}".format(
-                str(sell_collateral_application)
+                str(sell_collateral_application=sell_collateral_application)
             )
-            + "\n top_up_application  {top_up_application}".format(top_up_application),
+            + "\n top_up_application  {top_up_application}".format(
+                top_up_application=top_up_application
+            ),
             title=("Allowed Security"),
         )
         if unpledge_application:
