@@ -1422,6 +1422,12 @@ def get_profile_set_alerts(**kwargs):
             and not data.get("percentage")
             and not data.get("amount")
         ):
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._(
+            #         "Please select Amount or Percentage for setting Alerts"
+            #     ),
+            # )
             raise lms.exceptions.RespondFailureException(
                 _("Please select Amount or Percentage for setting Alerts.")
             )
@@ -1429,6 +1435,12 @@ def get_profile_set_alerts(**kwargs):
         elif (
             data.get("is_for_alerts") and data.get("percentage") and data.get("amount")
         ):
+            # return utils.respondWithFailure(
+            #     status=417,
+            #     message=frappe._(
+            #         "Please choose one between Amount or Percentage for setting Alerts"
+            #     ),
+            # )
             raise lms.exceptions.RespondFailureException(
                 _("Please choose one between Amount or Percentage for setting Alerts.")
             )
@@ -1447,8 +1459,34 @@ def get_profile_set_alerts(**kwargs):
             customer.save(ignore_permissions=True)
             frappe.db.commit()
 
+        loan_application = frappe.get_all(
+            "Loan Application",
+            filters={"customer": customer.name, "application_type": "New Loan"},
+            fields=["*"],
+        )
+        loan = frappe.get_all(
+            "Loan",
+            filters={"customer": customer.name},
+            fields=["*"],
+        )
+        loan_name = ""
+        if loan_application:
+            status = loan_application[0].status
+            instrument_type = loan_application[0].instrument_type
+            pledgor_boid = loan_application[0].pledgor_boid
+            if status == "Approved":
+                if loan:
+                    loan_name = loan[0].name
+        else:
+            status = ""
+            instrument_type = ""
+            pledgor_boid = ""
         res = {
             "customer_details": customer,
+            "loan_application_status": status,
+            "loan_name": loan_name,
+            "instrument_type": instrument_type,
+            "pledgor_boid": pledgor_boid,
             "user_kyc": user_kyc,
             "last_login": last_login_time,
             "profile_picture_file_url": profile_picture_file_url,
